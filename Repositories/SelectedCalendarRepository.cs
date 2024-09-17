@@ -1,0 +1,28 @@
+using Klacks_api.Datas;
+using Klacks_api.Interfaces;
+using Klacks_api.Models.CalendarSelections;
+
+namespace Klacks_api.Repositories
+{
+  public class SelectedCalendarRepository : BaseRepository<SelectedCalendar>, ISelectedCalendarRepository
+  {
+    private readonly DataBaseContext context;
+
+    public SelectedCalendarRepository(DataBaseContext context)
+      : base(context)
+    {
+      this.context = context;
+    }
+
+    public void AddPulk(SelectedCalendar[] models)
+    {
+      this.context.Set<SelectedCalendar>().AddRange(models);
+    }
+
+    public void DeleteFromParend(Guid id)
+    {
+      var entriesToDelete = this.context.Set<SelectedCalendar>().Where(sc => sc.CalendarSelection != null && sc.CalendarSelection.Id == id).ToList();
+      this.context.Set<SelectedCalendar>().RemoveRange(entriesToDelete);
+    }
+  }
+}
