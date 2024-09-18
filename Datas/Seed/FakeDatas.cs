@@ -9,34 +9,35 @@ using System.Text;
 
 namespace Klacks_api.Data.Seed
 {
-  public static class FakeDatas
-  {
-    public static void SeedData(MigrationBuilder migrationBuilder)
+    public static class FakeDatas
     {
-      if (FakeSettings.WithFake != null && bool.Parse(FakeSettings.WithFake))
-      {
-        // var number = int.Parse(FakeSettings.ClientsNumber);
-        var results = GenerateClientsData(1500, DateTime.Now.Year, true);
+        public static void SeedData(MigrationBuilder migrationBuilder)
+        {
+            if (!string.IsNullOrEmpty(FakeSettings.WithFake))
+            {
+                var number = int.Parse(FakeSettings.ClientsNumber);
+                var results = GenerateClientsData(number, DateTime.Now.Year, true);
 
-        var scriptForClients = GenerateInsertScriptForClients(results.Clients);
-        var scriptForAddresses = GenerateInsertScriptForAddresses(results.Addresses);
-        var scriptForMemberships = GenerateInsertScriptForMemberships(results.Memberships);
-        var scriptForCommunications = GenerateInsertScriptForCommunications(results.Communications);
-        var scriptForAnnotations = GenerateInsertScriptForAnnotations(results.Annotations);
-        var scriptForBreaks = GenerateInsertScriptForBreaks(results.Breaks);
+                var scriptForClients = GenerateInsertScriptForClients(results.Clients);
+                var scriptForAddresses = GenerateInsertScriptForAddresses(results.Addresses);
+                var scriptForMemberships = GenerateInsertScriptForMemberships(results.Memberships);
+                var scriptForCommunications = GenerateInsertScriptForCommunications(results.Communications);
+                var scriptForAnnotations = GenerateInsertScriptForAnnotations(results.Annotations);
+                var scriptForBreaks = GenerateInsertScriptForBreaks(results.Breaks);
 
-        migrationBuilder.Sql(scriptForClients);
-        migrationBuilder.Sql(scriptForAddresses);
-        migrationBuilder.Sql(scriptForMemberships);
-        migrationBuilder.Sql(scriptForCommunications);
-        migrationBuilder.Sql(scriptForAnnotations);
-        migrationBuilder.Sql(scriptForBreaks);
-      }
-    }
+                migrationBuilder.Sql(scriptForClients);
+                migrationBuilder.Sql(scriptForAddresses);
+                migrationBuilder.Sql(scriptForMemberships);
+                migrationBuilder.Sql(scriptForCommunications);
+                migrationBuilder.Sql(scriptForAnnotations);
 
-    private static List<string> CreateFemaleFirstNames()
-    {
-      return new List<string>
+               //  migrationBuilder.Sql(scriptForBreaks);
+            }
+        }
+
+        private static List<string> CreateFemaleFirstNames()
+        {
+            return new List<string>
       {
         "Sophia", "Emma", "Hannah", "Mia", "Emilia", "Lena", "Amelie", "Sophie",
         "Marie", "Lina", "Mila", "Lea", "Ella", "Luisa", "Anna", "Leonie",
@@ -65,11 +66,11 @@ namespace Klacks_api.Data.Seed
         "Olivia", "Laurine", "Océane", "Joy", "Diane", "Éléna", "Elisa", "Agathe",
         "Faustine", "Thaïs", "Amélie", "Aliénor", "Marion", "Maya", "Louisa", "Inaya",
       };
-    }
+        }
 
-    private static List<string> CreateMaleFirstNames()
-    {
-      return new List<string>
+        private static List<string> CreateMaleFirstNames()
+        {
+            return new List<string>
       {
         "Max", "Paul", "Lukas", "Ben", "Jonas", "Leon", "Finn", "Noah", "Elias",
         "Tim", "Luca", "Felix", "Moritz", "Niklas", "David", "Jan", "Oscar",
@@ -100,11 +101,11 @@ namespace Klacks_api.Data.Seed
         "Steven", "Grégory", "Oscar", "Christophe", "Amine", "Youssef", "Erwan",
         "Sofiane", "Kylian", "Evan", "Gilles", "Lucien", "Loris", "Eliott", "Karim",
       };
-    }
+        }
 
-    private static List<string> CreateNames()
-    {
-      return new List<string>
+        private static List<string> CreateNames()
+        {
+            return new List<string>
         {
             "Müller", "Schmidt", "Schneider", "Fischer", "Weber", "Meyer",
             "Wagner", "Schulz", "Becker", "Hoffmann", "Schäfer", "Koch",
@@ -164,14 +165,14 @@ namespace Klacks_api.Data.Seed
             "Carriere", "Bourgeois", "Bouvet", "Maurice", "Lebrun", "Adam",
             "Godard", "Thibault", "Germain", "Prat", "Ollivier", "Joly",
         };
-    }
+        }
 
-    private static ICollection<AddressDb> GenerateAddresses(Guid clientId, List<PostcodeCH> postcodes)
-    {
-      Random rand = new Random();
-      DateTime start = DateTime.Now.AddYears(-1).AddDays(rand.Next(365));
-      PostcodeCH randomPostcode = postcodes[rand.Next(postcodes.Count)];
-      return new List<AddressDb>
+        private static ICollection<AddressDb> GenerateAddresses(Guid clientId, List<PostcodeCH> postcodes)
+        {
+            Random rand = new Random();
+            DateTime start = DateTime.Now.AddYears(-1).AddDays(rand.Next(365));
+            PostcodeCH randomPostcode = postcodes[rand.Next(postcodes.Count)];
+            return new List<AddressDb>
         {
           new AddressDb
           {
@@ -186,35 +187,35 @@ namespace Klacks_api.Data.Seed
             Country = "CH",
           },
         };
-    }
+        }
 
-    private static ICollection<Annotation> GenerateAnnotations(Guid clientId)
-    {
-      var annotations = new List<Annotation>();
-      Random rand = new Random();
-      var sum = rand.Next(10);
-
-      for (int i = 0; i < sum; i++)
-      {
-        var item = new Annotation
+        private static ICollection<Annotation> GenerateAnnotations(Guid clientId)
         {
-          Id = Guid.NewGuid(),
-          ClientId = clientId,
-          Note = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
-        };
-        annotations.Add(item);
-      }
+            var annotations = new List<Annotation>();
+            Random rand = new Random();
+            var sum = rand.Next(10);
 
-      return annotations;
-    }
+            for (int i = 0; i < sum; i++)
+            {
+                var item = new Annotation
+                {
+                    Id = Guid.NewGuid(),
+                    ClientId = clientId,
+                    Note = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
+                };
+                annotations.Add(item);
+            }
 
-    private static ICollection<BreakDb> GenerateBreaks(Guid clientId, int year)
-    {
-      var breaks = new List<BreakDb>();
-      Random rand = new Random();
-      var sum = rand.Next(30);
-      var absencesId = new Guid[]
-      {
+            return annotations;
+        }
+
+        private static ICollection<BreakDb> GenerateBreaks(Guid clientId, int year)
+        {
+            var breaks = new List<BreakDb>();
+            Random rand = new Random();
+            var sum = rand.Next(30);
+            var absencesId = new Guid[]
+            {
         Guid.Parse("1070d7e6-f314-4d20-bc18-98c5357a4f89"),
         Guid.Parse("1d5a1964-7fad-4da9-945c-3ad00c0edaa8"),
         Guid.Parse("dca0367a-530e-4eae-be34-b19d2262587e"),
@@ -222,10 +223,10 @@ namespace Klacks_api.Data.Seed
         Guid.Parse("53851d0a-ff7f-460a-82a0-481aa3547d7e"),
         Guid.Parse("a04f8e87-8966-47c0-b293-931ea4f949ae"),
         Guid.Parse("72c43150-bd93-4a41-be99-9d7a603ff596"),
-      };
+            };
 
-      var absenceMinLength = new int[]
-      {
+            var absenceMinLength = new int[]
+            {
         1,
         1,
         1,
@@ -233,90 +234,90 @@ namespace Klacks_api.Data.Seed
         5,
         1,
         1,
-      };
+            };
 
-      DateTime startOfYear = new DateTime(year, 1, 1);
+            DateTime startOfYear = new DateTime(year, 1, 1);
 
-      for (int i = 0; i < sum; i++)
-      {
-        var index = rand.Next(absencesId.Length - 1);
-        var absenceId = absencesId[index];
-        var absenceMin = absenceMinLength[index];
-        if (rand.Next(2) != 0)
-        {
-          absenceMin *= 2;
+            for (int i = 0; i < sum; i++)
+            {
+                var index = rand.Next(absencesId.Length - 1);
+                var absenceId = absencesId[index];
+                var absenceMin = absenceMinLength[index];
+                if (rand.Next(2) != 0)
+                {
+                    absenceMin *= 2;
+                }
+
+                DateTime start = startOfYear.AddDays(rand.Next(365 - absenceMin));
+                DateTime end = start.AddDays(absenceMin);
+
+                var item = new BreakDb()
+                {
+                    Id = Guid.NewGuid(),
+                    ClientId = clientId,
+                    AbsenceId = absenceId,
+                    From = start,
+                    Until = end,
+                };
+
+                breaks.Add(item);
+            }
+
+            return breaks;
         }
 
-        DateTime start = startOfYear.AddDays(rand.Next(365 - absenceMin));
-        DateTime end = start.AddDays(absenceMin);
-
-        var item = new BreakDb()
+        private static (List<ClientDb> Clients, List<AddressDb> Addresses, List<MembershipDb> Memberships, List<Communication> Communications, List<Annotation> Annotations, List<BreakDb> Breaks) GenerateClientsData(int count, int year, bool withIncludes)
         {
-          Id = Guid.NewGuid(),
-          ClientId = clientId,
-          AbsenceId = absenceId,
-          From = start,
-          Until = end,
-        };
+            var clients = new List<ClientDb>();
+            var addresses = new List<AddressDb>();
+            var memberships = new List<MembershipDb>();
+            var communications = new List<Communication>();
+            var annotations = new List<Annotation>();
+            var breaks = new List<BreakDb>();
+            var names = CreateNames();
+            var maleFirstNames = CreateMaleFirstNames();
+            var femaleFirstNames = CreateFemaleFirstNames();
+            var postcodeCH = GeneratePostCodeCH();
 
-        breaks.Add(item);
-      }
+            for (int i = 0; i < count; i++)
+            {
+                var id = Guid.NewGuid();
+                var gender = GenerateRandomGender();
+                var client = new ClientDb
+                {
+                    Id = id,
+                    IdNumber = i + 1,
+                    Birthdate = GenerateRandomBirthday(),
+                    Gender = gender,
+                    Name = GetRandomName(names),
+                    FirstName = GetRandomFirstName(gender, maleFirstNames, femaleFirstNames, i),
+                };
 
-      return breaks;
-    }
+                if (withIncludes == true)
+                {
+                    var address = GenerateAddresses(id, postcodeCH);
+                    addresses.AddRange(address);
+                    var communication = GenerateCommunications(id);
+                    communications.AddRange(communication);
+                    var annotation = GenerateAnnotations(id);
+                    annotations.AddRange(annotation);
+                    var _break = GenerateBreaks(id, year);
+                    breaks.AddRange(_break);
+                }
 
-    private static (List<ClientDb> Clients, List<AddressDb> Addresses, List<MembershipDb> Memberships, List<Communication> Communications, List<Annotation> Annotations, List<BreakDb> Breaks) GenerateClientsData(int count, int year, bool withIncludes)
-    {
-      var clients = new List<ClientDb>();
-      var addresses = new List<AddressDb>();
-      var memberships = new List<MembershipDb>();
-      var communications = new List<Communication>();
-      var annotations = new List<Annotation>();
-      var breaks = new List<BreakDb>();
-      var names = CreateNames();
-      var maleFirstNames = CreateMaleFirstNames();
-      var femaleFirstNames = CreateFemaleFirstNames();
-      var postcodeCH = GeneratePostCodeCH();
+                var membership = GenerateMembershipForClient(client, year);
+                memberships.Add(membership);
+                client.MembershipId = membership.Id;
 
-      for (int i = 0; i < count; i++)
-      {
-        var id = Guid.NewGuid();
-        var gender = GenerateRandomGender();
-        var client = new ClientDb
-        {
-          Id = id,
-          IdNumber = i + 1,
-          Birthdate = GenerateRandomBirthday(),
-          Gender = gender,
-          Name = GetRandomName(names),
-          FirstName = GetRandomFirstName(gender, maleFirstNames, femaleFirstNames, i),
-        };
+                clients.Add(client);
+            }
 
-        if (withIncludes == true)
-        {
-          var address = GenerateAddresses(id, postcodeCH);
-          addresses.AddRange(address);
-          var communication = GenerateCommunications(id);
-          communications.AddRange(communication);
-          var annotation = GenerateAnnotations(id);
-          annotations.AddRange(annotation);
-          var _break = GenerateBreaks(id, year);
-          breaks.AddRange(_break);
+            return (clients, addresses, memberships, communications, annotations, breaks);
         }
 
-        var membership = GenerateMembershipForClient(client, year);
-        memberships.Add(membership);
-        client.MembershipId = membership.Id;
-
-        clients.Add(client);
-      }
-
-      return (clients, addresses, memberships, communications, annotations, breaks);
-    }
-
-    private static ICollection<Communication> GenerateCommunications(Guid clientId)
-    {
-      return new List<Communication>
+        private static ICollection<Communication> GenerateCommunications(Guid clientId)
+        {
+            return new List<Communication>
         {
             new Communication
             {
@@ -337,150 +338,152 @@ namespace Klacks_api.Data.Seed
                 Description = "SomeDescription",
             },
         };
-    }
+        }
 
-    private static string GenerateInsertScriptForAddresses(List<AddressDb> addresses)
-    {
-      if (addresses == null || !addresses.Any())
-      {
-        return string.Empty;
-      }
+        private static string GenerateInsertScriptForAddresses(List<AddressDb> addresses)
+        {
+            if (addresses == null || !addresses.Any())
+            {
+                return string.Empty;
+            }
 
-      StringBuilder script = new StringBuilder();
+            StringBuilder script = new StringBuilder();
 
-      foreach (var address in addresses)
-      {
-        script.Append($"INSERT INTO public.address (id, client_id, valid_from, type, address_line1, address_line2, street, street2, street3, zip, city, state, country, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time) VALUES ('{address.Id}', '{address.ClientId}', '{address.ValidFromString}', {(int)address.Type}, '{address.AddressLine1}', '{address.AddressLine2}', '{address.Street}', '{address.Street2}', '{address.Street3}', '{address.Zip}', '{address.City}', '{address.State}', '{address.Country}', '{address.CreateTimeString}', 'Annonymus', NULL, NULL, NULL, FALSE, NULL);\n");
-      }
+            foreach (var address in addresses)
+            {
+                script.Append($"INSERT INTO public.address (id, client_id, valid_from, type, address_line1, address_line2, street, street2, street3, zip, city, state, country, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time) VALUES ('{address.Id}', '{address.ClientId}', '{address.ValidFromString}', {(int)address.Type}, '{address.AddressLine1}', '{address.AddressLine2}', '{address.Street}', '{address.Street2}', '{address.Street3}', '{address.Zip}', '{address.City}', '{address.State}', '{address.Country}', '{address.CreateTimeString}', 'Annonymus', NULL, NULL, NULL, FALSE, NULL);\n");
+            }
 
-      return script.ToString();
-    }
+            return script.ToString();
+        }
 
-    private static string GenerateInsertScriptForAnnotations(List<Annotation> annotations)
-    {
-      if (annotations == null || !annotations.Any())
-      {
-        return string.Empty;
-      }
+        private static string GenerateInsertScriptForAnnotations(List<Annotation> annotations)
+        {
+            if (annotations == null || !annotations.Any())
+            {
+                return string.Empty;
+            }
 
-      StringBuilder script = new StringBuilder();
+            StringBuilder script = new StringBuilder();
 
-      foreach (var annotation in annotations)
-      {
-        script.AppendLine($"INSERT INTO public.annotation (id, create_time, current_user_created, current_user_deleted,current_user_updated, deleted_time, is_deleted, update_time, client_id, note) VALUES ('{annotation.Id}', NULL, 'Annonymus', NULL, NULL, NULL, FALSE, NULL, '{annotation.ClientId}', '{annotation.Note}');\n");
-      }
+            foreach (var annotation in annotations)
+            {
+                script.AppendLine($"INSERT INTO public.annotation (id, create_time, current_user_created, current_user_deleted,current_user_updated, deleted_time, is_deleted, update_time, client_id, note) VALUES ('{annotation.Id}', NULL, 'Annonymus', NULL, NULL, NULL, FALSE, NULL, '{annotation.ClientId}', '{annotation.Note}');\n");
+            }
 
-      return script.ToString();
-    }
+            return script.ToString();
+        }
 
-    private static string GenerateInsertScriptForBreaks(List<BreakDb> breaks)
-    {
-      if (breaks == null || !breaks.Any())
-      {
-        return string.Empty;
-      }
+        private static string GenerateInsertScriptForBreaks(List<BreakDb> breaks)
+        {
+            
 
-      StringBuilder script = new StringBuilder();
+            if (breaks == null || !breaks.Any())
+            {
+                return string.Empty;
+            }
 
-      foreach (var breakItem in breaks)
-      {
-        script.AppendLine($"INSERT INTO public.break (id, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, absence_id, client_id, \"from\", \"until\", information) VALUES ('{breakItem.Id}', '{breakItem.CreateTimeString}', 'Annonymus', NULL, NULL, NULL, FALSE, NULL, '{breakItem.AbsenceId}', '{breakItem.ClientId}', '{breakItem.FromString}', '{breakItem.UntilString}', '{breakItem.Information}');\n");
-      }
+            StringBuilder script = new StringBuilder();
 
-      return script.ToString();
-    }
+            foreach (var breakItem in breaks)
+            {
+                script.AppendLine($"INSERT INTO public.break (id, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, absence_id, client_id, \"from\", \"until\", information) VALUES ('{breakItem.Id}', '{breakItem.CreateTimeString}', 'Annonymus', NULL, NULL, NULL, FALSE, NULL, '{breakItem.AbsenceId}', '{breakItem.ClientId}', '{breakItem.FromString}', '{breakItem.UntilString}', '{breakItem.Information}');\n");
+            }
 
-    private static string GenerateInsertScriptForClients(List<ClientDb> clients)
-    {
-      if (clients == null || !clients.Any())
-      {
-        return string.Empty;
-      }
+            return script.ToString();
+        }
 
-      StringBuilder script = new StringBuilder();
+        private static string GenerateInsertScriptForClients(List<ClientDb> clients)
+        {
+            if (clients == null || !clients.Any())
+            {
+                return string.Empty;
+            }
 
-      foreach (var client in clients)
-      {
-        script.Append($"INSERT INTO public.Clients (id, birthdate, company, first_name, gender, id_number, legal_entity, maiden_name, membership_id, name, passwort_reset_token, second_name, title,type,create_time,current_user_created,current_user_deleted, current_user_updated,deleted_time,is_deleted,update_time) VALUES ('{client.Id}','{client.BirthdateString}', '{client.Company}', '{client.FirstName}', {(int)client.Gender}, {client.IdNumber}, '{client.LegalEntity}', '{client.MaidenName}', '{client.MembershipId}', '{client.Name}', '{client.PasswortResetToken}', '{client.SecondName}', '{client.Title}', {client.IdNumber}, '{client.CreateTimeString}', '{client.CurrentUserCreated}', NULL, NULL, NULL, FALSE, NULL);\n");
-      }
+            StringBuilder script = new StringBuilder();
 
-      return script.ToString();
-    }
+            foreach (var client in clients)
+            {
+                script.Append($"INSERT INTO public.client (id, birthdate, company, first_name, gender, id_number, legal_entity, maiden_name, membership_id, name, passwort_reset_token, second_name, title,type,create_time,current_user_created,current_user_deleted, current_user_updated,deleted_time,is_deleted,update_time) VALUES ('{client.Id}','{client.BirthdateString}', '{client.Company}', '{client.FirstName}', {(int)client.Gender}, {client.IdNumber}, '{client.LegalEntity}', '{client.MaidenName}', '{client.MembershipId}', '{client.Name}', '{client.PasswortResetToken}', '{client.SecondName}', '{client.Title}', {client.IdNumber}, '{client.CreateTimeString}', '{client.CurrentUserCreated}', NULL, NULL, NULL, FALSE, NULL);\n");
+            }
 
-    private static string GenerateInsertScriptForCommunications(List<Communication> communications)
-    {
-      if (communications == null || !communications.Any())
-      {
-        return string.Empty;
-      }
+            return script.ToString();
+        }
 
-      StringBuilder script = new StringBuilder();
+        private static string GenerateInsertScriptForCommunications(List<Communication> communications)
+        {
+            if (communications == null || !communications.Any())
+            {
+                return string.Empty;
+            }
 
-      foreach (var communication in communications)
-      {
-        script.Append($"INSERT INTO public.communication (id, client_id, type, value, prefix, description, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time) VALUES ('{communication.Id}', '{communication.ClientId}', {(int)communication.Type}, '{communication.Value}', '{communication.Prefix}', '{communication.Description}', NULL, 'Annonymus', NULL, NULL, NULL, FALSE, NULL);\n");
-      }
+            StringBuilder script = new StringBuilder();
 
-      return script.ToString();
-    }
+            foreach (var communication in communications)
+            {
+                script.Append($"INSERT INTO public.communication (id, client_id, type, value, prefix, description, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time) VALUES ('{communication.Id}', '{communication.ClientId}', {(int)communication.Type}, '{communication.Value}', '{communication.Prefix}', '{communication.Description}', NULL, 'Annonymus', NULL, NULL, NULL, FALSE, NULL);\n");
+            }
 
-    private static string GenerateInsertScriptForMemberships(List<MembershipDb> memberships)
-    {
-      if (memberships == null || !memberships.Any())
-      {
-        return string.Empty;
-      }
+            return script.ToString();
+        }
 
-      StringBuilder script = new StringBuilder();
+        private static string GenerateInsertScriptForMemberships(List<MembershipDb> memberships)
+        {
+            if (memberships == null || !memberships.Any())
+            {
+                return string.Empty;
+            }
 
-      foreach (var membership in memberships)
-      {
-        script.AppendLine($"INSERT INTO public.Memberships " +
-                       $"(id, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, client_id, valid_from, valid_until, type) " +
-                       $"VALUES " +
-                       $"('{membership.Id}', '{membership.CreateTimeString}', 'Annonymus', NULL, NULL, NULL, FALSE, NULL, '{membership.ClientId}', '{membership.ValidFromString}', {membership.ValidUntilString}, {membership.Type});");
-      }
+            StringBuilder script = new StringBuilder();
 
-      return script.ToString();
-    }
+            foreach (var membership in memberships)
+            {
+                script.AppendLine($"INSERT INTO public.membership " +
+                               $"(id, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, client_id, valid_from, valid_until, type) " +
+                               $"VALUES " +
+                               $"('{membership.Id}', '{membership.CreateTimeString}', 'Annonymus', NULL, NULL, NULL, FALSE, NULL, '{membership.ClientId}', '{membership.ValidFromString}', {membership.ValidUntilString}, {membership.Type});");
+            }
 
-    private static MembershipDb GenerateMembershipForClient(ClientDb client, int year)
-    {
-      Random rand = new Random();
+            return script.ToString();
+        }
 
-      DateTime startOfYear = new DateTime(year, 1, 1);
-      DateTime start = startOfYear.AddYears(-2).AddDays(rand.Next(365));
-      DateTime? end = (rand.Next(2) == 0) ? null : start.AddYears(3);
+        private static MembershipDb GenerateMembershipForClient(ClientDb client, int year)
+        {
+            Random rand = new Random();
 
-      var membership = new MembershipDb
-      {
-        Id = Guid.NewGuid(),
-        Client = client,
-        ClientId = client.Id,
-        ValidFrom = start,
-        ValidUntil = end,
-        Type = rand.Next(5),
-      };
+            DateTime startOfYear = new DateTime(year, 1, 1);
+            DateTime start = startOfYear.AddYears(-2).AddDays(rand.Next(365));
+            DateTime? end = (rand.Next(2) == 0) ? null : start.AddYears(3);
 
-      return membership;
-    }
+            var membership = new MembershipDb
+            {
+                Id = Guid.NewGuid(),
+                Client = client,
+                ClientId = client.Id,
+                ValidFrom = start,
+                ValidUntil = end,
+                Type = rand.Next(5),
+            };
 
-    private static string GenerateMockName(int index)
-    {
-      char[] name = new char[6];
+            return membership;
+        }
 
-      for (int i = 0; i < name.Length; i++)
-      {
-        int asciiValue = 65 + (index + i) % 26; // 65 ist der ASCII-Wert für "A"
-        name[i] = (char)asciiValue;
-      }
+        private static string GenerateMockName(int index)
+        {
+            char[] name = new char[6];
 
-      return new string(name);
-    }
+            for (int i = 0; i < name.Length; i++)
+            {
+                int asciiValue = 65 + (index + i) % 26; // 65 ist der ASCII-Wert für "A"
+                name[i] = (char)asciiValue;
+            }
 
-    private static List<PostcodeCH> GeneratePostCodeCH()
-    {
-      var jsonString = @"
+            return new string(name);
+        }
+
+        private static List<PostcodeCH> GeneratePostCodeCH()
+        {
+            var jsonString = @"
 
  [
 	{
@@ -1685,193 +1688,193 @@ namespace Klacks_api.Data.Seed
 	}
 ]
 ";
-      return JsonConvert.DeserializeObject<List<PostcodeCH>>(jsonString)!;
-    }
-
-    private static DateTime GenerateRandomBirthday()
-    {
-      int minAge = 20;
-      int maxAge = 65;
-      var random = new Random();
-      var currentDate = DateTime.Now;
-
-      int randomAge = random.Next(minAge, maxAge + 1);
-      int randomDay = random.Next(1, 365);
-
-      DateTime birthDate = currentDate.AddYears(-randomAge);
-
-      // Ermittelt das genaue Geburtsdatum, indem zufällig Tage vom Anfang des Jahres abgezogen werden
-      return birthDate.AddDays(-randomDay);
-    }
-
-    private static string GenerateRandomEmail()
-    {
-      var localPart = GenerateRandomString(8);
-      var domain = GenerateRandomString(5);
-      return $"{localPart}@{domain}.com";
-    }
-
-    private static GenderEnum GenerateRandomGender()
-    {
-      var random = new Random();
-      Array values = Enum.GetValues(typeof(GenderEnum));
-      return (GenderEnum)values.GetValue(random.Next(values.Length));
-    }
-
-    private static string GenerateRandomNumber()
-    {
-      var random = new Random();
-      var prefixes = new[] { "076", "077", "078", "079" };
-      var prefix = prefixes[random.Next(prefixes.Length)];
-
-      var number = (random.Next(0, 10000000) + 10000000).ToString("D7");
-
-      return $"{prefix}{number}";
-    }
-
-    private static string GenerateRandomString(int length)
-    {
-      var random = new Random();
-      const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-      return new string(Enumerable.Repeat(chars, length)
-          .Select(s => s[random.Next(s.Length)]).ToArray());
-    }
-
-    private static string GetRandomFirstName(GenderEnum gender, List<string> maleList, List<string> femaleList, int i)
-    {
-      Random rand = new Random();
-      switch (gender)
-      {
-        case GenderEnum.Female:
-          return femaleList[rand.Next(femaleList.Count)];
-
-        case GenderEnum.Male:
-          return maleList[rand.Next(maleList.Count)];
-
-        default:
-          return GenerateMockName(i + 10);
-      }
-    }
-
-    private static string GetRandomName(List<string> names)
-    {
-      var random = new Random();
-      int index = random.Next(names.Count);
-      return names[index];
-    }
-
-    private class AddressDb : Address
-    {
-      public string CreateTimeString
-      {
-        get
-        {
-          return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            return JsonConvert.DeserializeObject<List<PostcodeCH>>(jsonString)!;
         }
-      }
 
-      public string ValidFromString
-      {
-        get
+        private static DateTime GenerateRandomBirthday()
         {
-          return ValidFrom!.Value.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            int minAge = 20;
+            int maxAge = 65;
+            var random = new Random();
+            var currentDate = DateTime.Now;
+
+            int randomAge = random.Next(minAge, maxAge + 1);
+            int randomDay = random.Next(1, 365);
+
+            DateTime birthDate = currentDate.AddYears(-randomAge);
+
+            // Ermittelt das genaue Geburtsdatum, indem zufällig Tage vom Anfang des Jahres abgezogen werden
+            return birthDate.AddDays(-randomDay);
         }
-      }
+
+        private static string GenerateRandomEmail()
+        {
+            var localPart = GenerateRandomString(8);
+            var domain = GenerateRandomString(5);
+            return $"{localPart}@{domain}.com";
+        }
+
+        private static GenderEnum GenerateRandomGender()
+        {
+            var random = new Random();
+            Array values = Enum.GetValues(typeof(GenderEnum));
+            return (GenderEnum)values.GetValue(random.Next(values.Length));
+        }
+
+        private static string GenerateRandomNumber()
+        {
+            var random = new Random();
+            var prefixes = new[] { "076", "077", "078", "079" };
+            var prefix = prefixes[random.Next(prefixes.Length)];
+
+            var number = (random.Next(0, 10000000) + 10000000).ToString("D7");
+
+            return $"{prefix}{number}";
+        }
+
+        private static string GenerateRandomString(int length)
+        {
+            var random = new Random();
+            const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        private static string GetRandomFirstName(GenderEnum gender, List<string> maleList, List<string> femaleList, int i)
+        {
+            Random rand = new Random();
+            switch (gender)
+            {
+                case GenderEnum.Female:
+                    return femaleList[rand.Next(femaleList.Count)];
+
+                case GenderEnum.Male:
+                    return maleList[rand.Next(maleList.Count)];
+
+                default:
+                    return GenerateMockName(i + 10);
+            }
+        }
+
+        private static string GetRandomName(List<string> names)
+        {
+            var random = new Random();
+            int index = random.Next(names.Count);
+            return names[index];
+        }
+
+        private class AddressDb : Address
+        {
+            public string CreateTimeString
+            {
+                get
+                {
+                    return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                }
+            }
+
+            public string ValidFromString
+            {
+                get
+                {
+                    return ValidFrom!.Value.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                }
+            }
+        }
+
+        private class BreakDb : Break
+        {
+            public string? CreateTimeString
+            {
+                get
+                {
+                    return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                }
+            }
+
+            public string FromString
+            {
+                get
+                {
+                    return From.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                }
+            }
+
+            public string UntilString
+            {
+                get
+                {
+                    return Until.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                }
+            }
+        }
+
+        private class ClientDb : Client
+        {
+            public string BirthdateString
+            {
+                get
+                {
+                    if (Birthdate != null)
+                    {
+                        return ((DateTime)Birthdate).ToString("yyyy-MM-dd HH:mm:ss.fff");
+                    }
+                    else
+                    {
+                        return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                    }
+                }
+            }
+
+            public string? CreateTimeString
+            {
+                get
+                {
+                    return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                }
+            }
+
+            public new string CurrentUserCreated
+            {
+                get
+                {
+                    return "Annonymus";
+                }
+            }
+        }
+
+        private class MembershipDb : Membership
+        {
+            public string? CreateTimeString
+            {
+                get
+                {
+                    return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                }
+            }
+
+            public string ValidFromString
+            {
+                get
+                {
+                    return ((DateTime)ValidFrom).ToString("yyyy-MM-dd HH:mm:ss.fff");
+                }
+            }
+
+            public string? ValidUntilString
+            {
+                get
+                {
+                    if (ValidUntil != null)
+                    {
+                        return "'" + ((DateTime)ValidUntil).ToString("yyyy-MM-dd HH:mm:ss.fff") + "'";
+                    }
+                    else
+                    {
+                        return "NULL";
+                    }
+                }
+            }
+        }
     }
-
-    private class BreakDb : Break
-    {
-      public string? CreateTimeString
-      {
-        get
-        {
-          return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-        }
-      }
-
-      public string FromString
-      {
-        get
-        {
-          return From.ToString("yyyy-MM-dd HH:mm:ss.fff");
-        }
-      }
-
-      public string UntilString
-      {
-        get
-        {
-          return Until.ToString("yyyy-MM-dd HH:mm:ss.fff");
-        }
-      }
-    }
-
-    private class ClientDb : Client
-    {
-      public string BirthdateString
-      {
-        get
-        {
-          if (Birthdate != null)
-          {
-            return ((DateTime)Birthdate).ToString("yyyy-MM-dd HH:mm:ss.fff");
-          }
-          else
-          {
-            return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-          }
-        }
-      }
-
-      public string? CreateTimeString
-      {
-        get
-        {
-          return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-        }
-      }
-
-      public new string CurrentUserCreated
-      {
-        get
-        {
-          return "Annonymus";
-        }
-      }
-    }
-
-    private class MembershipDb : Membership
-    {
-      public string? CreateTimeString
-      {
-        get
-        {
-          return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-        }
-      }
-
-      public string ValidFromString
-      {
-        get
-        {
-          return ((DateTime)ValidFrom).ToString("yyyy-MM-dd HH:mm:ss.fff");
-        }
-      }
-
-      public string? ValidUntilString
-      {
-        get
-        {
-          if (ValidUntil != null)
-          {
-            return "'" + ((DateTime)ValidUntil).ToString("yyyy-MM-dd HH:mm:ss.fff") + "'";
-          }
-          else
-          {
-            return "NULL";
-          }
-        }
-      }
-    }
-  }
 }

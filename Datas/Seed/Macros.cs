@@ -7,7 +7,7 @@ namespace Klacks_api.Data.Seed
     public static void SeedData(MigrationBuilder migrationBuilder)
     {
       migrationBuilder.Sql(
-                        @"INSERT INTO public.macro (id,""name"",""content"",""type"",description,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted ) VALUES
+                        @"INSERT INTO public.macro (id,""name"",""content"",""type"",description_de,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted ) VALUES
 	 ('3bac9e54-4368-4174-8bc9-435ce08aecbd','Vacation','IF WeekdayNumber  = 1 OR WeekdayNumber  = 7 OR IsHolyday THEN
 	Hour= 0
 ELSE 

@@ -1,14 +1,11 @@
-using DocumentFormat.OpenXml.Bibliography;
-using DocumentFormat.OpenXml.EMMA;
-using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Klacks_api.Data.Seed
 {
-  /// <summary>
-  /// User Default, Communications Type, Settings, Countries, States.
-  /// </summary>
-  public static class Default
+    /// <summary>
+    /// User Default, Communications Type, Settings, Countries, States.
+    /// </summary>
+    public static class Default
   {
     public static void SeedData(MigrationBuilder migrationBuilder)
     {
