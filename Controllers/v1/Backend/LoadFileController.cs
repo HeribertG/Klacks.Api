@@ -25,20 +25,20 @@ public class LoadFileController : BaseController
         return Ok();
     }
 
-    [HttpPost("Upload")]
-    [Consumes("multipart/form-data")]
-    public ActionResult SingleFile([FromForm] IFormFile file)
-    {
-        if (file != null)
-        {
-            var sf = new UploadFile(configuration);
+    //[HttpPost("Upload")]
+    //[Consumes("multipart/form-data")]
+    //public ActionResult SingleFile([FromForm] IFormFile file)
+    //{
+    //    if (file != null)
+    //    {
+    //        var sf = new UploadFile(configuration);
 
-            sf.StoreFile(file);
+    //        sf.StoreFile(file);
 
-            return Ok();
-        }
-        return Ok("No File");
-    }
+    //        return Ok();
+    //    }
+    //    return Ok("No File");
+    //}
 
     [HttpGet("DownLoad")]
     public async Task<FileContentResult> SingleFile(string type)

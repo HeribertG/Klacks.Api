@@ -32,11 +32,17 @@ builder.Logging.AddConsole();
 var corsHost = builder.Configuration["Cors:Host"];
 var corsHome = builder.Configuration["Cors:Home"];
 FakeSettings.WithFake = builder.Configuration["Fake:WithFake"] ?? string.Empty;
-FakeSettings.ClientsNumber = builder.Configuration["Fake:ClientNumber"] ?? string.Empty;
+FakeSettings.ClientsNumber = builder.Configuration["Clients:Number"] ?? string.Empty;
 
 var jwtSettings = new JwtSettings();
 builder.Configuration.Bind(nameof(jwtSettings), jwtSettings);
 builder.Services.AddSingleton(jwtSettings);
+
+//builder.Services.AddControllers()
+//    .AddJsonOptions(options =>
+//    {
+//        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+//    });
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -46,8 +52,6 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Description = "API für Klacks-Net Anwendung"
     });
-
-    options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -74,19 +78,6 @@ builder.Services.AddSwaggerGen(options =>
         },
     });
 
-    // XML Dokumentation einbeziehen
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    if (File.Exists(xmlPath))
-    {
-        options.IncludeXmlComments(xmlPath);
-    }
-
-    // Konfliktlösung für Aktionen
-    options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
-
-    // Behandlung von Datei-Uploads
-    options.OperationFilter<FileUploadOperationFilter>();
 });
 
 

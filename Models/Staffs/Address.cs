@@ -1,28 +1,21 @@
 using Klacks_api.Datas;
 using Klacks_api.Enums;
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
+
 
 namespace Klacks_api.Models.Staffs;
 
 public class Address : BaseEntity
 {
 
-  
-    [Required]
-    [ForeignKey("Client")]
     public Guid ClientId { get; set; }
 
-    [JsonIgnore]
-    public Client? Client { get; set; }
-
+    public virtual Client Client { get; set; } = null!; 
 
     [Required]
     [DataType(DataType.Date)]
     public DateTime? ValidFrom { get; set; }
-
-
 
     [Required]
     public AddressTypeEnum Type { get; set; }

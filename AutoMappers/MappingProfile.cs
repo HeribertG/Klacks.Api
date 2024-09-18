@@ -12,7 +12,7 @@ using Klacks_api.Resources.Schedules;
 using Klacks_api.Resources.Settings;
 using Klacks_api.Resources.Staffs;
 
-namespace Klacks_api.AutoMapper;
+namespace Klacks_api.AutoMappers;
 
 public class MappingProfile : Profile
 {
@@ -22,7 +22,6 @@ public class MappingProfile : Profile
       ;
 
     CreateMap<AddressResource, Address>()
-      .ForMember(x => x.Client, o => o.Ignore())
       .ForMember(x => x.CreateTime, o => o.Ignore())
       .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
       .ForMember(x => x.UpdateTime, o => o.Ignore())
@@ -35,7 +34,6 @@ public class MappingProfile : Profile
     CreateMap<Communication, CommunicationResource>()
       ;
     CreateMap<CommunicationResource, Communication>()
-      .ForMember(x => x.Client, o => o.Ignore())
       .ForMember(x => x.CreateTime, o => o.Ignore())
       .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
       .ForMember(x => x.UpdateTime, o => o.Ignore())
@@ -48,7 +46,6 @@ public class MappingProfile : Profile
     CreateMap<Annotation, AnnotationResource>()
       ;
     CreateMap<AnnotationResource, Annotation>()
-      .ForMember(x => x.Client, o => o.Ignore())
       .ForMember(x => x.CreateTime, o => o.Ignore())
       .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
       .ForMember(x => x.UpdateTime, o => o.Ignore())
@@ -76,7 +73,6 @@ public class MappingProfile : Profile
       ;
 
     CreateMap<MembershipResource, Membership>()
-      .ForMember(x => x.Client, o => o.Ignore())
       .ForMember(x => x.CreateTime, o => o.Ignore())
       .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
       .ForMember(x => x.UpdateTime, o => o.Ignore())
@@ -111,8 +107,6 @@ public class MappingProfile : Profile
 
     CreateMap<Break, BreakResource>();
     CreateMap<BreakResource, Break>()
-      .ForMember(x => x.Absence, o => o.Ignore())
-      .ForMember(x => x.Client, o => o.Ignore())
       .ForMember(x => x.CreateTime, o => o.Ignore())
       .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
       .ForMember(x => x.UpdateTime, o => o.Ignore())
@@ -225,8 +219,6 @@ public class MappingProfile : Profile
       ;
 
     CreateMap<GroupItemResource, GroupItem>()
-      .ForMember(x => x.Client, o => o.Ignore())
-      .ForMember(x => x.Group, o => o.Ignore())
       .ForMember(x => x.CreateTime, o => o.Ignore())
       .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
       .ForMember(x => x.UpdateTime, o => o.Ignore())
@@ -241,7 +233,6 @@ public class MappingProfile : Profile
 
     CreateMap<Work, WorkResource>();
     CreateMap<WorkResource, Work>()
-      .ForMember(x => x.Client, o => o.Ignore())
       .ForMember(x => x.CreateTime, o => o.Ignore())
       .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
       .ForMember(x => x.UpdateTime, o => o.Ignore())

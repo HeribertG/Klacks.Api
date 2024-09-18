@@ -8,15 +8,9 @@ namespace Klacks_api.Models.Staffs;
 public class Communication : BaseEntity
 {
 
-  [Key]
-  public Guid Id { get; set; }
+   public Guid ClientId { get; set; }
 
-  [Required]
-  [ForeignKey("Client")]
-  public Guid ClientId { get; set; }
-
-  public Client? Client { get; set; }
-
+  public virtual Client Client { get; set; } = null!;   
 
   [Required]
   public CommunicationTypeEnum Type { get; set; }

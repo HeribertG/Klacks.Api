@@ -1,18 +1,13 @@
 using Klacks_api.Datas;
 using Klacks_api.Models.Staffs;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace Klacks_api.Models.Associations;
 
 public class Membership : BaseEntity
 {
-  [JsonIgnore]
-  public Client? Client { get; set; }
+  public virtual Client Client { get; set; } = null!;
 
-  [Required]
-  [ForeignKey("Clients")]
   public Guid ClientId { get; set; }
 
   public int Type { get; set; }

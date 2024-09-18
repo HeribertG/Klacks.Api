@@ -18,8 +18,9 @@ public class ClientsController : InputBaseController<ClientResource>
         _logger = logger;
     }
 
+    [AllowAnonymous]
     [HttpGet("Count")]
-    public async Task<ActionResult<int>> CountAsync()
+    public async Task<IActionResult> CountAsync()
     {
         try
         {
@@ -31,7 +32,7 @@ public class ClientsController : InputBaseController<ClientResource>
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while fetching client count.");
-            throw;
+            return Problem("An error occurred while fetching the client count.", statusCode: 500);
         }
     }
 
@@ -54,7 +55,6 @@ public class ClientsController : InputBaseController<ClientResource>
 
     [AllowAnonymous]
     [HttpPost("GetSimpleList")]
-    [Produces("application/json")]
     public async Task<TruncatedClient> GetSimpleList1([FromBody] FilterResource filter)
     {
         try

@@ -1,5 +1,4 @@
 using Klacks_api.Datas;
-using System.ComponentModel.DataAnnotations;
 
 namespace Klacks_api.Models.Schedules;
 

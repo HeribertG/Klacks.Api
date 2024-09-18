@@ -1,6 +1,7 @@
+using Klacks.Api.Resources.Filter;
 using Klacks_api.Resources.Filter;
 using MediatR;
 
 namespace Klacks_api.Queries.Clients;
 
-public record GetTruncatedListQuery(FilterResource Filter) : IRequest<TruncatedClient>;
+public record GetTruncatedListQuery(FilterResource Filter) : IRequest<TruncatedClientResource>;

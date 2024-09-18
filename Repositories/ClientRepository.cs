@@ -329,7 +329,7 @@ namespace Klacks_api.Repositories
     public async Task<LastChangeMetaDataResource> LastChangeMetaData()
     {
       var result = new LastChangeMetaDataResource();
-      var res = await this.LastChangeMetaDataAsync();
+      var res = await LastChangeMetaDataAsync();
 
       result.LastChangesDate = res.Item1;
       result.Autor = string.Join(", ", res.Item3.ToArray());
