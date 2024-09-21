@@ -1,10 +1,10 @@
 using AutoMapper;
-using Klacks_api.Interfaces;
-using Klacks_api.Queries.Absences;
-using Klacks_api.Resources.Filter;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Queries.Absences;
+using Klacks.Api.Resources.Filter;
 using MediatR;
 
-namespace Klacks_api.Handlers.Absences
+namespace Klacks.Api.Handlers.Absences
 {
   public class GetTruncatedListQueryHandler : IRequestHandler<TruncatedListQuery, TruncatedAbsence>
   {

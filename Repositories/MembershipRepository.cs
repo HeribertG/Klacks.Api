@@ -1,8 +1,8 @@
-using Klacks_api.Datas;
-using Klacks_api.Interfaces;
-using Klacks_api.Models.Associations;
+using Klacks.Api.Datas;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Models.Associations;
 
-namespace Klacks_api.Repositories
+namespace Klacks.Api.Repositories
 {
   public class MembershipRepository : BaseRepository<Membership>, IMembershipRepository
   {

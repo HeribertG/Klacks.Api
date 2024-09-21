@@ -1,7 +1,7 @@
-using Klacks_api.Datas;
+using Klacks.Api.Datas;
 using System.Reflection;
 
-namespace Klacks_api.Helper
+namespace Klacks.Api.Helper
 {
   public static class Extension
   {

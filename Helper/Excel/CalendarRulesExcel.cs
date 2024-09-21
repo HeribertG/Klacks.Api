@@ -1,9 +1,9 @@
 using ClosedXML.Excel;
-using Klacks_api.Datas;
-using Klacks_api.Models.Settings;
+using Klacks.Api.Datas;
+using Klacks.Api.Models.Settings;
 using System.Reflection;
 
-namespace Klacks_api.Helper.Excel
+namespace Klacks.Api.Helper.Excel
 {
   public class CalendarRulesExcel
   {

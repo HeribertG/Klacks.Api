@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks_api.Models.Authentification;
+namespace Klacks.Api.Models.Authentification;
 
 public class RefreshToken
 {

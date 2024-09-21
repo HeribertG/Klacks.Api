@@ -1,9 +1,9 @@
 using AutoMapper;
-using Klacks_api.Commands.Settings.Settings;
-using Klacks_api.Interfaces;
+using Klacks.Api.Commands.Settings.Settings;
+using Klacks.Api.Interfaces;
 using MediatR;
 
-namespace Klacks_api.Handlers.Settings.Setting
+namespace Klacks.Api.Handlers.Settings.Setting
 {
   public class PutCommandHandler : IRequestHandler<PutCommand, Models.Settings.Settings?>
   {

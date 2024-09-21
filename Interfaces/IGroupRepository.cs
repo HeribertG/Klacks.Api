@@ -1,7 +1,7 @@
-using Klacks_api.Models.Associations;
-using Klacks_api.Resources.Filter;
+using Klacks.Api.Models.Associations;
+using Klacks.Api.Resources.Filter;
 
-namespace Klacks_api.Interfaces;
+namespace Klacks.Api.Interfaces;
 
 public interface IGroupRepository : IBaseRepository<Group>
 {

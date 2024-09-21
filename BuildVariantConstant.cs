@@ -1,7 +1,6 @@
-namespace Klacks_api
+namespace Klacks.Api;
+
+public class BuildVariantConstant
 {
-  public class BuildVariantConstant
-  {
-    public static string CVar = "DEV";
-  }
+public static string CVar = "DEV";
 }

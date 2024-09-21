@@ -1,8 +1,8 @@
-using Klacks_api.Models.Authentification;
-using Klacks_api.Resources;
-using Klacks_api.Resources.Registrations;
+using Klacks.Api.Models.Authentification;
+using Klacks.Api.Resources;
+using Klacks.Api.Resources.Registrations;
 
-namespace Klacks_api.Interfaces;
+namespace Klacks.Api.Interfaces;
 
 public interface IAccountRepository
 {

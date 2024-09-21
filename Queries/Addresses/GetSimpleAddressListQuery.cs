@@ -1,7 +1,7 @@
-using Klacks_api.Resources.Staffs;
+using Klacks.Api.Resources.Staffs;
 using MediatR;
 
-namespace Klacks_api.Queries.Addresses
+namespace Klacks.Api.Queries.Addresses
 {
   public record GetSimpleAddressListQuery(Guid Id) : IRequest<IEnumerable<AddressResource>>;
 }

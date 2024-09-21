@@ -1,11 +1,11 @@
-using Klacks_api.Queries.Groups;
-using Klacks_api.Resources.Associations;
-using Klacks_api.Resources.Filter;
+using Klacks.Api.Queries.Groups;
+using Klacks.Api.Resources.Associations;
+using Klacks.Api.Resources.Filter;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
-namespace Klacks_api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.Backend;
 
 public class GroupsController : InputBaseController<GroupResource>
 {

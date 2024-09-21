@@ -1,6 +1,6 @@
-using Klacks_api.Resources.Staffs;
+using Klacks.Api.Resources.Staffs;
 
-namespace Klacks_api.Resources.Associations
+namespace Klacks.Api.Resources.Associations
 {
   public class GroupItemResource
   {

@@ -1,4 +1,4 @@
-﻿namespace Klacks_api.Helper.Calendar
+﻿namespace Klacks.Api.Helper.Calendar
 {
   public class CalendarRuleInterpreter
   {

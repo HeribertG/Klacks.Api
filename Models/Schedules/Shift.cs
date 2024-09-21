@@ -1,7 +1,7 @@
-using Klacks_api.Datas;
-using Klacks_api.Enums;
+using Klacks.Api.Datas;
+using Klacks.Api.Enums;
 
-namespace Klacks_api.Models.Schedules;
+namespace Klacks.Api.Models.Schedules;
 
 public class Shift : BaseEntity
 {

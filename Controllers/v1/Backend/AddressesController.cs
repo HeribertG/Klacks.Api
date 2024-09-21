@@ -1,9 +1,9 @@
-using Klacks_api.Queries.Addresses;
-using Klacks_api.Resources.Staffs;
+using Klacks.Api.Queries.Addresses;
+using Klacks.Api.Resources.Staffs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Klacks_api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.Backend;
 
 public class AddressesController : InputBaseController<AddressResource>
 {

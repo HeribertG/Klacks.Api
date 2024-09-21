@@ -1,4 +1,4 @@
-namespace Klacks_api.Constants
+namespace Klacks.Api.Constants
 {
   public class Settings
   {

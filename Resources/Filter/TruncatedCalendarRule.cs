@@ -1,6 +1,6 @@
-using Klacks_api.Models.Settings;
+using Klacks.Api.Models.Settings;
 
-namespace Klacks_api.Resources.Filter
+namespace Klacks.Api.Resources.Filter
 {
   public class TruncatedCalendarRule : BaseTruncatedResult
   {

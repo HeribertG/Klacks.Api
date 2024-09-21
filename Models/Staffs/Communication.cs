@@ -1,9 +1,9 @@
-using Klacks_api.Datas;
-using Klacks_api.Enums;
+using Klacks.Api.Datas;
+using Klacks.Api.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Klacks_api.Models.Staffs;
+namespace Klacks.Api.Models.Staffs;
 
 public class Communication : BaseEntity
 {

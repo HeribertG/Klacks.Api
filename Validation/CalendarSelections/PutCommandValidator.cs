@@ -1,8 +1,8 @@
 using FluentValidation;
-using Klacks_api.Commands;
-using Klacks_api.Resources.Schedules;
+using Klacks.Api.Commands;
+using Klacks.Api.Resources.Schedules;
 
-namespace Klacks_api.Validation.CalendarSelections
+namespace Klacks.Api.Validation.CalendarSelections
 {
   public class PutCommandValidator : AbstractValidator<PutCommand<CalendarSelectionResource>>
   {

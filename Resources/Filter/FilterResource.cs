@@ -1,6 +1,6 @@
-using Klacks_api.Resources.Settings;
+using Klacks.Api.Resources.Settings;
 
-namespace Klacks_api.Resources.Filter
+namespace Klacks.Api.Resources.Filter
 {
   public class FilterResource : BaseFilter
   {

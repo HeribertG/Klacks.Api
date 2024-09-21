@@ -1,12 +1,12 @@
-using Klacks_api.Interfaces;
-using Klacks_api.Models.Authentification;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Models.Authentification;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Klacks_api.Services;
+namespace Klacks.Api.Services;
 
 public class TokenService : ITokenService
 {

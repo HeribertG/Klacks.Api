@@ -1,10 +1,10 @@
-using Klacks_api.Commands;
-using Klacks_api.Queries;
+using Klacks.Api.Commands;
+using Klacks.Api.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
-namespace Klacks_api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.Backend;
 
 [ApiController]
 public abstract class InputBaseController<TModel> : BaseController

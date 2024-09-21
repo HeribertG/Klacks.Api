@@ -1,10 +1,10 @@
 using AutoMapper;
-using Klacks_api.Interfaces;
-using Klacks_api.Queries;
-using Klacks_api.Resources.Associations;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Queries;
+using Klacks.Api.Resources.Associations;
 using MediatR;
 
-namespace Klacks_api.Handlers.Memberships
+namespace Klacks.Api.Handlers.Memberships
 {
   public class GetListQueryHandler : IRequestHandler<ListQuery<MembershipResource>, IEnumerable<MembershipResource>>
   {

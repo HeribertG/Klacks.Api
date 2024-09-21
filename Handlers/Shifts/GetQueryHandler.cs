@@ -1,10 +1,10 @@
 using AutoMapper;
-using Klacks_api.Interfaces;
-using Klacks_api.Queries;
-using Klacks_api.Resources.Schedules;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Queries;
+using Klacks.Api.Resources.Schedules;
 using MediatR;
 
-namespace Klacks_api.Handlers.Shifts;
+namespace Klacks.Api.Handlers.Shifts;
 
 public class GetQueryHandler : IRequestHandler<GetQuery<ShiftResource>, ShiftResource>
 {

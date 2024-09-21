@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks_api.Models.Settings
+namespace Klacks.Api.Models.Settings
 {
   public class PostcodeCH
   {

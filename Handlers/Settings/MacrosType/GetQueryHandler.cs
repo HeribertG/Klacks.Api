@@ -1,9 +1,9 @@
 using AutoMapper;
-using Klacks_api.Interfaces;
-using Klacks_api.Queries.Settings.MacrosTypes;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Queries.Settings.MacrosTypes;
 using MediatR;
 
-namespace Klacks_api.Handlers.Settings.MacrosTypes;
+namespace Klacks.Api.Handlers.Settings.MacrosTypes;
 
 public class GetQueryHandler : IRequestHandler<GetQuery, Models.Settings.MacroType?>
 {

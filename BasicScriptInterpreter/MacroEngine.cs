@@ -1,8 +1,8 @@
 
-using Klacks_api.Interfaces;
+using Klacks.Api.Interfaces;
 
 
-namespace Klacks_api.BasicScriptInterpreter
+namespace Klacks.Api.BasicScriptInterpreter
 {
   public class MacroEngine : IDisposable, IMacroEngine
   {

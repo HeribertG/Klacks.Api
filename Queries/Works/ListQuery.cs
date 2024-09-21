@@ -1,7 +1,7 @@
-using Klacks_api.Resources.Filter;
-using Klacks_api.Resources.Schedules;
+using Klacks.Api.Resources.Filter;
+using Klacks.Api.Resources.Schedules;
 using MediatR;
 
-namespace Klacks_api.Queries.Works;
+namespace Klacks.Api.Queries.Works;
 
 public record ListQuery(WorkFilter Filter) : IRequest<IEnumerable<ClientWorkResource>>;

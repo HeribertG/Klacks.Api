@@ -1,4 +1,4 @@
-namespace Klacks_api.Resources
+namespace Klacks.Api.Resources
 {
   public class HttpResultResource
   {

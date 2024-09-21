@@ -1,8 +1,8 @@
-using Klacks_api.Datas;
+using Klacks.Api.Datas;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace Klacks_api.Repositories
+namespace Klacks.Api.Repositories
 {
   public static class QueryableExtensions
   {

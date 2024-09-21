@@ -1,8 +1,8 @@
 using FluentValidation;
-using Klacks_api.Interfaces;
-using Klacks_api.Resources.Filter;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Resources.Filter;
 
-namespace Klacks_api.Validation.Clients;
+namespace Klacks.Api.Validation.Clients;
 
 public class FilterResourceValidator : AbstractValidator<FilterResource>
 {

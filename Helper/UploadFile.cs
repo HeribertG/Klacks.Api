@@ -1,4 +1,4 @@
-namespace Klacks_api.Helper
+namespace Klacks.Api.Helper
 {
   public class UploadFile
   {

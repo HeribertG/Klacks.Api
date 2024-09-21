@@ -1,4 +1,4 @@
-namespace Klacks_api.Resources.Settings
+namespace Klacks.Api.Resources.Settings
 {
   public class CalendarRuleResource
   {

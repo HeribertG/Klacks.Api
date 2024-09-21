@@ -1,11 +1,11 @@
-using Klacks_api.Queries.Breaks;
-using Klacks_api.Resources.Filter;
-using Klacks_api.Resources.Schedules;
+using Klacks.Api.Queries.Breaks;
+using Klacks.Api.Resources.Filter;
+using Klacks.Api.Resources.Schedules;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
-namespace Klacks_api.Controllers.V1.Backend
+namespace Klacks.Api.Controllers.V1.Backend
 {
   public class BreaksController : InputBaseController<BreakResource>
   {

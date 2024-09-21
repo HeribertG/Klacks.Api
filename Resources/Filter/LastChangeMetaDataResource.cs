@@ -1,4 +1,4 @@
-namespace Klacks_api.Resources.Filter
+namespace Klacks.Api.Resources.Filter
 {
   public class LastChangeMetaDataResource
   {

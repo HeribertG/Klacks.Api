@@ -1,5 +1,5 @@
 using MediatR;
 
-namespace Klacks_api.Queries.Settings.Settings;
+namespace Klacks.Api.Queries.Settings.Settings;
 
 public record ListQuery : IRequest<IEnumerable<Models.Settings.Settings>>;

@@ -1,15 +1,15 @@
-using Klacks_api.Commands.Settings.Settings;
-using Klacks_api.Models.Settings;
-using Klacks_api.Queries;
-using Klacks_api.Resources.Filter;
-using Klacks_api.Resources.Schedules;
-using Klacks_api.Resources.Settings;
+using Klacks.Api.Commands.Settings.Settings;
+using Klacks.Api.Models.Settings;
+using Klacks.Api.Queries;
+using Klacks.Api.Resources.Filter;
+using Klacks.Api.Resources.Schedules;
+using Klacks.Api.Resources.Settings;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Text;
 
-namespace Klacks_api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.Backend;
 
 public class SettingsController : BaseController
 {

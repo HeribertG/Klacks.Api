@@ -1,6 +1,6 @@
-using Klacks_api.Models.Associations;
+using Klacks.Api.Models.Associations;
 
-namespace Klacks_api.Resources.Filter
+namespace Klacks.Api.Resources.Filter
 {
   public class TruncatedGroup : BaseTruncatedResult
   {

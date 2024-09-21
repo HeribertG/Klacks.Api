@@ -1,4 +1,4 @@
-namespace Klacks_api.Resources.Staffs
+namespace Klacks.Api.Resources.Staffs
 {
   public class AnnotationResource
   {

@@ -1,14 +1,14 @@
 using AutoMapper;
 using Klacks.Api.Resources.Filter;
-using Klacks_api.Interfaces;
-using Klacks_api.Queries.Clients;
-using Klacks_api.Resources.Filter;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Queries.Clients;
+using Klacks.Api.Resources.Filter;
 using MediatR;
 
-namespace Klacks_api.Handlers.Clients
+namespace Klacks.Api.Handlers.Clients
 {
-  public class GetTruncatedListQueryHandler : IRequestHandler<GetTruncatedListQuery, TruncatedClientResource>
-  {
+    public class GetTruncatedListQueryHandler : IRequestHandler<GetTruncatedListQuery, TruncatedClientResource>
+    {
         private readonly IClientRepository repository;
         private readonly IMapper mapper;
 
@@ -19,8 +19,9 @@ namespace Klacks_api.Handlers.Clients
         }
 
         public async Task<TruncatedClientResource> Handle(GetTruncatedListQuery request, CancellationToken cancellationToken)
-    {
-      return await repository.Truncated(request.Filter);
+        {
+            var result = await repository.Truncated(request.Filter);
+            return mapper.Map<TruncatedClientResource>(result);
+        }
     }
-  }
 }

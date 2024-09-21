@@ -1,6 +1,6 @@
-using Klacks_api.Models.Schedules;
+using Klacks.Api.Models.Schedules;
 
-namespace Klacks_api.Interfaces;
+namespace Klacks.Api.Interfaces;
 
 public interface IWorkRepository : IBaseRepository<Work>
 {

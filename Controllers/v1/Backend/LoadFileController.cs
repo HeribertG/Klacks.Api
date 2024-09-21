@@ -1,8 +1,8 @@
-using Klacks_api.Helper;
+using Klacks.Api.Helper;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 
-namespace Klacks_api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.Backend;
 
 
 public class LoadFileController : BaseController

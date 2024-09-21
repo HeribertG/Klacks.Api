@@ -1,4 +1,4 @@
-namespace Klacks_api.Enums;
+namespace Klacks.Api.Enums;
 
 public enum ShiftType
 {

@@ -1,6 +1,6 @@
-using Klacks_api.Models.Staffs;
+using Klacks.Api.Models.Staffs;
 
-namespace Klacks_api.Interfaces;
+namespace Klacks.Api.Interfaces;
 
 public interface IAnnotationRepository : IBaseRepository<Annotation>
 {

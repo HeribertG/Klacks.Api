@@ -1,15 +1,15 @@
-using Klacks_api.BasicScriptInterpreter;
-using Klacks_api.Datas;
-using Klacks_api.Enums;
-using Klacks_api.Interfaces;
-using Klacks_api.Models.Histories;
-using Klacks_api.Models.Staffs;
-using Klacks_api.Resources.Filter;
-using Klacks_api.Resources.Settings;
+using Klacks.Api.BasicScriptInterpreter;
+using Klacks.Api.Datas;
+using Klacks.Api.Enums;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Models.Histories;
+using Klacks.Api.Models.Staffs;
+using Klacks.Api.Resources.Filter;
+using Klacks.Api.Resources.Settings;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace Klacks_api.Repositories
+namespace Klacks.Api.Repositories
 {
   public class ClientRepository : IClientRepository
   {

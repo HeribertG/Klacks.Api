@@ -1,7 +1,7 @@
-using Klacks_api.Models.Schedules;
-using Klacks_api.Resources.Staffs;
+using Klacks.Api.Models.Schedules;
+using Klacks.Api.Resources.Staffs;
 
-namespace Klacks_api.Resources.Schedules
+namespace Klacks.Api.Resources.Schedules
 {
   public class WorkResource
   {

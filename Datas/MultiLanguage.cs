@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks_api.Datas;
+namespace Klacks.Api.Datas;
 
 [Owned]
 public class MultiLanguage

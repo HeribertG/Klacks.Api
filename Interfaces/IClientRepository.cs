@@ -1,7 +1,7 @@
-using Klacks_api.Models.Staffs;
-using Klacks_api.Resources.Filter;
+using Klacks.Api.Models.Staffs;
+using Klacks.Api.Resources.Filter;
 
-namespace Klacks_api.Interfaces;
+namespace Klacks.Api.Interfaces;
 
 public interface IClientRepository : IBaseRepository<Client>
 {

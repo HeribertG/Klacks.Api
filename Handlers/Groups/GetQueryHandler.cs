@@ -1,10 +1,10 @@
 using AutoMapper;
-using Klacks_api.Interfaces;
-using Klacks_api.Queries;
-using Klacks_api.Resources.Associations;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Queries;
+using Klacks.Api.Resources.Associations;
 using MediatR;
 
-namespace Klacks_api.Handlers.Groups
+namespace Klacks.Api.Handlers.Groups
 {
   public class GetQueryHandler : IRequestHandler<GetQuery<GroupResource>, GroupResource?>
   {

@@ -1,15 +1,15 @@
-using Klacks_api.Models.Associations;
-using Klacks_api.Models.Authentification;
-using Klacks_api.Models.CalendarSelections;
-using Klacks_api.Models.Histories;
-using Klacks_api.Models.Schedules;
-using Klacks_api.Models.Settings;
-using Klacks_api.Models.Staffs;
+using Klacks.Api.Models.Associations;
+using Klacks.Api.Models.Authentification;
+using Klacks.Api.Models.CalendarSelections;
+using Klacks.Api.Models.Histories;
+using Klacks.Api.Models.Schedules;
+using Klacks.Api.Models.Settings;
+using Klacks.Api.Models.Staffs;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
-namespace Klacks_api.Datas;
+namespace Klacks.Api.Datas;
 
 public class DataBaseContext : IdentityDbContext
 {

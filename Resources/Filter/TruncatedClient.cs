@@ -1,6 +1,6 @@
-using Klacks_api.Models.Staffs;
+using Klacks.Api.Models.Staffs;
 
-namespace Klacks_api.Resources.Filter
+namespace Klacks.Api.Resources.Filter
 {
   public class TruncatedClient : BaseTruncatedResult
   {

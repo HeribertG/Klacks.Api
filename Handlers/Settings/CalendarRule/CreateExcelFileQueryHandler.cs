@@ -1,9 +1,9 @@
-using Klacks_api.Interfaces;
-using Klacks_api.Queries.Settings.CalendarRules;
-using Klacks_api.Resources;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Queries.Settings.CalendarRules;
+using Klacks.Api.Resources;
 using MediatR;
 
-namespace Klacks_api.Handlers.Settings.CalendarRule
+namespace Klacks.Api.Handlers.Settings.CalendarRule
 {
   public class CreateExcelFileQueryHandler : IRequestHandler<CreateExcelFileQuery, HttpResultResource>
   {

@@ -1,9 +1,9 @@
-using Klacks_api.Datas;
-using Klacks_api.Models.Settings;
+using Klacks.Api.Datas;
+using Klacks.Api.Models.Settings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks_api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.Backend;
 
 public class PostcodeChController : BaseController
 {

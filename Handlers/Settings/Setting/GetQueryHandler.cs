@@ -1,8 +1,8 @@
-using Klacks_api.Interfaces;
-using Klacks_api.Queries.Settings.Settings;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Queries.Settings.Settings;
 using MediatR;
 
-namespace Klacks_api.Handlers.Settings.Setting
+namespace Klacks.Api.Handlers.Settings.Setting
 {
   public class GetQueryHandler : IRequestHandler<GetQuery, Models.Settings.Settings?>
   {

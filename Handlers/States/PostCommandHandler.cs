@@ -1,10 +1,10 @@
 using AutoMapper;
-using Klacks_api.Commands;
-using Klacks_api.Interfaces;
-using Klacks_api.Resources.Settings;
+using Klacks.Api.Commands;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Resources.Settings;
 using MediatR;
 
-namespace Klacks_api.Handlers.States;
+namespace Klacks.Api.Handlers.States;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<StateResource>, StateResource?>
 {

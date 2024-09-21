@@ -1,5 +1,5 @@
-﻿using Klacks_api.Resources.Filter;
-using Klacks_api.Resources.Staffs;
+﻿using Klacks.Api.Resources.Filter;
+using Klacks.Api.Resources.Staffs;
 
 namespace Klacks.Api.Resources.Filter
 {

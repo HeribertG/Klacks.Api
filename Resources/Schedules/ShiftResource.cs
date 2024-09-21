@@ -1,6 +1,6 @@
-using Klacks_api.Enums;
+using Klacks.Api.Enums;
 
-namespace Klacks_api.Resources.Schedules
+namespace Klacks.Api.Resources.Schedules
 {
   public class ShiftResource
   {

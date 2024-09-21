@@ -1,4 +1,4 @@
-namespace Klacks_api.Data.Seed
+namespace Klacks.Api.Data.Seed
 {
   public static class FakeSettings
   {

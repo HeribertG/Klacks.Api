@@ -1,6 +1,6 @@
-using Klacks_api.Datas;
+using Klacks.Api.Datas;
 
-namespace Klacks_api.Models.Settings
+namespace Klacks.Api.Models.Settings
 {
   public class Macro : BaseEntity
   {

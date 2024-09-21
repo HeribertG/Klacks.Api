@@ -1,9 +1,9 @@
 using AutoMapper;
-using Klacks_api.Commands.Settings.Vats;
-using Klacks_api.Interfaces;
+using Klacks.Api.Commands.Settings.Vats;
+using Klacks.Api.Interfaces;
 using MediatR;
 
-namespace Klacks_api.Handlers.Settings.Vat
+namespace Klacks.Api.Handlers.Settings.Vat
 {
   public class DeleteCommandHandler : IRequestHandler<DeleteCommand, Models.Settings.Vat>
   {

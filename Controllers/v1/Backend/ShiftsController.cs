@@ -1,10 +1,10 @@
-using Klacks_api.Models.Schedules;
-using Klacks_api.Queries;
-using Klacks_api.Resources.Schedules;
+using Klacks.Api.Models.Schedules;
+using Klacks.Api.Queries;
+using Klacks.Api.Resources.Schedules;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Klacks_api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.Backend;
 
 public class ShiftsController : InputBaseController<Shift>
 {

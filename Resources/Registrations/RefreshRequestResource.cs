@@ -1,4 +1,4 @@
-namespace Klacks_api.Resources.Registrations
+namespace Klacks.Api.Resources.Registrations
 {
   public class RefreshRequestResource
   {

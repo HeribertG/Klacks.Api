@@ -1,8 +1,8 @@
-using Klacks_api.Datas;
+using Klacks.Api.Datas;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks_api.Models.Associations;
+namespace Klacks.Api.Models.Associations;
 
 public class Group : BaseEntity
 {

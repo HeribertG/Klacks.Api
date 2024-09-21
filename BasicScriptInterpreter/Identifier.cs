@@ -1,4 +1,4 @@
-namespace Klacks_api.BasicScriptInterpreter
+namespace Klacks.Api.BasicScriptInterpreter
 {
   /// <summary>
   /// Identifier: Dient während Compile- und Laufzeit zur

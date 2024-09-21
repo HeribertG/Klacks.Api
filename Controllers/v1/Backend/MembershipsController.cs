@@ -1,9 +1,9 @@
-using Klacks_api.Queries;
-using Klacks_api.Resources.Associations;
+using Klacks.Api.Queries;
+using Klacks.Api.Resources.Associations;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Klacks_api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.Backend;
 
 public class MembershipsController : InputBaseController<MembershipResource>
 {

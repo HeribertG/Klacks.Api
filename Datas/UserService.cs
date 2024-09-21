@@ -1,8 +1,8 @@
 
 using System.Security.Claims;
-using Klacks_api.Interfaces;
+using Klacks.Api.Interfaces;
 
-namespace Klacks_api.Datas;
+namespace Klacks.Api.Datas;
 
 public class UserService : IUserService
 {

@@ -1,7 +1,7 @@
-using Klacks_api.Resources.Filter;
+using Klacks.Api.Resources.Filter;
 using MediatR;
 
-namespace Klacks_api.Queries.Groups;
+namespace Klacks.Api.Queries.Groups;
 
 
 public record GetTruncatedListQuery(GroupFilter Filter) : IRequest<TruncatedGroupResource>;

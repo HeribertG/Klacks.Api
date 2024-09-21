@@ -1,9 +1,9 @@
-using Klacks_api.Interfaces;
-using Klacks_api.Queries.Settings.CalendarRules;
-using Klacks_api.Resources.Filter;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Queries.Settings.CalendarRules;
+using Klacks.Api.Resources.Filter;
 using MediatR;
 
-namespace Klacks_api.Handlers.Settings.CalendarRules;
+namespace Klacks.Api.Handlers.Settings.CalendarRules;
 
 public class TruncatedListQueryHandler : IRequestHandler<TruncatedListQuery, TruncatedCalendarRule>
 {

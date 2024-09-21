@@ -1,4 +1,4 @@
-﻿using Klacks_api.Data.Seed;
+﻿using Klacks.Api.Data.Seed;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable

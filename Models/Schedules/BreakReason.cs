@@ -1,6 +1,6 @@
-using Klacks_api.Datas;
+using Klacks.Api.Datas;
 
-namespace Klacks_api.Models.Schedules;
+namespace Klacks.Api.Models.Schedules;
 
 public class BreakReason : BaseEntity
 {

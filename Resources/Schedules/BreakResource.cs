@@ -1,4 +1,4 @@
-namespace Klacks_api.Resources.Schedules
+namespace Klacks.Api.Resources.Schedules
 {
   public class BreakResource
   {

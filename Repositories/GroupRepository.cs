@@ -1,11 +1,11 @@
 using DocumentFormat.OpenXml.Office2010.Excel;
-using Klacks_api.Datas;
-using Klacks_api.Interfaces;
-using Klacks_api.Models.Associations;
-using Klacks_api.Resources.Filter;
+using Klacks.Api.Datas;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Models.Associations;
+using Klacks.Api.Resources.Filter;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks_api.Repositories
+namespace Klacks.Api.Repositories
 {
   public class GroupRepository : BaseRepository<Group>, IGroupRepository
   {

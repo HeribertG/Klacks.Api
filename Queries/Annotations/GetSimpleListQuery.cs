@@ -1,7 +1,7 @@
-using Klacks_api.Resources.Staffs;
+using Klacks.Api.Resources.Staffs;
 using MediatR;
 
-namespace Klacks_api.Queries.Annotation
+namespace Klacks.Api.Queries.Annotation
 {
   public record GetSimpleListQuery(Guid Id) : IRequest<IEnumerable<AnnotationResource>>;
 }

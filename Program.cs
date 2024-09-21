@@ -1,16 +1,16 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Klacks_api;
-using Klacks_api.BasicScriptInterpreter;
-using Klacks_api.Converters;
-using Klacks_api.Data.Seed;
-using Klacks_api.Datas;
-using Klacks_api.Helper;
-using Klacks_api.Interfaces;
-using Klacks_api.Models.Authentification;
-using Klacks_api.Repositories;
-using Klacks_api.Services;
-using Klacks_api.Validation;
+using Klacks.Api;
+using Klacks.Api.BasicScriptInterpreter;
+using Klacks.Api.Converters;
+using Klacks.Api.Data.Seed;
+using Klacks.Api.Datas;
+using Klacks.Api.Helper;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Models.Authentification;
+using Klacks.Api.Repositories;
+using Klacks.Api.Services;
+using Klacks.Api.Validation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -38,11 +38,6 @@ var jwtSettings = new JwtSettings();
 builder.Configuration.Bind(nameof(jwtSettings), jwtSettings);
 builder.Services.AddSingleton(jwtSettings);
 
-//builder.Services.AddControllers()
-//    .AddJsonOptions(options =>
-//    {
-//        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-//    });
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -144,12 +139,12 @@ builder.Services
     {
         config.AutomaticValidationEnabled = true;  // Aktiviert automatische Validierung
     })
-    .AddValidatorsFromAssemblyContaining<Klacks_api.Validation.CalendarSelections.PostCommandValidator>()
-    .AddValidatorsFromAssemblyContaining<Klacks_api.Validation.CalendarSelections.PutCommandValidator>()
-    .AddValidatorsFromAssemblyContaining<Klacks_api.Validation.Groups.PostCommandValidator>()
-    .AddValidatorsFromAssemblyContaining<Klacks_api.Validation.Groups.PutCommandValidator>()
-    .AddValidatorsFromAssemblyContaining<Klacks_api.Validation.Clients.GetTruncatedListQueryValidator>()
-    .AddValidatorsFromAssemblyContaining<Klacks_api.Validation.Clients.FilterResourceValidator>();
+    .AddValidatorsFromAssemblyContaining<Klacks.Api.Validation.CalendarSelections.PostCommandValidator>()
+    .AddValidatorsFromAssemblyContaining<Klacks.Api.Validation.CalendarSelections.PutCommandValidator>()
+    .AddValidatorsFromAssemblyContaining<Klacks.Api.Validation.Groups.PostCommandValidator>()
+    .AddValidatorsFromAssemblyContaining<Klacks.Api.Validation.Groups.PutCommandValidator>()
+    .AddValidatorsFromAssemblyContaining<Klacks.Api.Validation.Clients.GetTruncatedListQueryValidator>()
+    .AddValidatorsFromAssemblyContaining<Klacks.Api.Validation.Clients.FilterResourceValidator>();
 
 
 builder.Services.AddControllers();

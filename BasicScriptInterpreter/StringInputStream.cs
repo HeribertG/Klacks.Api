@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Klacks_api.BasicScriptInterpreter
+namespace Klacks.Api.BasicScriptInterpreter
 {
 
 

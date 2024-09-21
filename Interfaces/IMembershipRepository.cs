@@ -1,6 +1,6 @@
-using Klacks_api.Models.Associations;
+using Klacks.Api.Models.Associations;
 
-namespace Klacks_api.Interfaces;
+namespace Klacks.Api.Interfaces;
 
 public interface IMembershipRepository : IBaseRepository<Membership>
 {

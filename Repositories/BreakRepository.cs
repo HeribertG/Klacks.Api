@@ -1,9 +1,9 @@
-using Klacks_api.Datas;
-using Klacks_api.Interfaces;
-using Klacks_api.Models.Schedules;
+using Klacks.Api.Datas;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Models.Schedules;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks_api.Repositories
+namespace Klacks.Api.Repositories
 {
   public class BreakRepository : BaseRepository<Break>, IBreakRepository
   {

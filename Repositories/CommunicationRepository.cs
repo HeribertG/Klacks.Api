@@ -1,10 +1,10 @@
-using Klacks_api.Datas;
-using Klacks_api.Interfaces;
-using Klacks_api.Models.Settings;
-using Klacks_api.Models.Staffs;
+using Klacks.Api.Datas;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Models.Settings;
+using Klacks.Api.Models.Staffs;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks_api.Repositories
+namespace Klacks.Api.Repositories
 {
   public class CommunicationRepository : BaseRepository<Communication>, ICommunicationRepository
 

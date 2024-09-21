@@ -1,6 +1,6 @@
-using Klacks_api.Datas;
+using Klacks.Api.Datas;
 
-namespace Klacks_api.Helper.Email;
+namespace Klacks.Api.Helper.Email;
 
 public class MsgEMail
 {

@@ -1,11 +1,11 @@
-using Klacks_api.Models.Schedules;
-using Klacks_api.Queries.Works;
-using Klacks_api.Resources.Filter;
-using Klacks_api.Resources.Schedules;
+using Klacks.Api.Models.Schedules;
+using Klacks.Api.Queries.Works;
+using Klacks.Api.Resources.Filter;
+using Klacks.Api.Resources.Schedules;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Klacks_api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.Backend;
 
 public class WorksController : InputBaseController<Work>
 {

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks_api.Datas;
+namespace Klacks.Api.Datas;
 
 
 public class BaseEntity

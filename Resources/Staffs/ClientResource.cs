@@ -1,12 +1,12 @@
-using Klacks_api.Enums;
-using Klacks_api.Resources.Associations;
-using Klacks_api.Resources.Schedules;
-using Klacks_api.Resources.Settings;
+using Klacks.Api.Enums;
+using Klacks.Api.Resources.Associations;
+using Klacks.Api.Resources.Schedules;
+using Klacks.Api.Resources.Settings;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks_api.Resources.Staffs;
+namespace Klacks.Api.Resources.Staffs;
 
 public class ClientResource
 {

@@ -1,7 +1,7 @@
-using Klacks_api.Enums;
+using Klacks.Api.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks_api.Resources.Settings
+namespace Klacks.Api.Resources.Settings
 {
   public class CommunicationResource
   {

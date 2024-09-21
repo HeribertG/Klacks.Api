@@ -1,8 +1,8 @@
-using Klacks_api.Models.Schedules;
-using Klacks_api.Resources;
-using Klacks_api.Resources.Filter;
+using Klacks.Api.Models.Schedules;
+using Klacks.Api.Resources;
+using Klacks.Api.Resources.Filter;
 
-namespace Klacks_api.Interfaces;
+namespace Klacks.Api.Interfaces;
 
 public interface IAbsenceRepository : IBaseRepository<Absence>
 {

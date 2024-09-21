@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Klacks_api.Converters
+namespace Klacks.Api.Converters
 {
   public class TimeOnlyJsonConverter : JsonConverter<TimeOnly>
   {

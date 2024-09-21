@@ -1,9 +1,9 @@
-using Klacks_api.Interfaces;
-using Klacks_api.Queries.Absences;
-using Klacks_api.Resources;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Queries.Absences;
+using Klacks.Api.Resources;
 using MediatR;
 
-namespace Klacks_api.Handlers.Absences;
+namespace Klacks.Api.Handlers.Absences;
 
 public class CreateExcelFileQueryHandler : IRequestHandler<CreateExcelFileQuery, HttpResultResource>
 {

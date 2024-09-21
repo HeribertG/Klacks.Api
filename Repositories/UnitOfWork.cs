@@ -1,7 +1,7 @@
-using Klacks_api.Datas;
-using Klacks_api.Interfaces;
+using Klacks.Api.Datas;
+using Klacks.Api.Interfaces;
 
-namespace Klacks_api.Repositories
+namespace Klacks.Api.Repositories
 {
   public class UnitOfWork : IUnitOfWork
   {

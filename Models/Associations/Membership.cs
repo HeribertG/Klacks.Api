@@ -1,8 +1,8 @@
-using Klacks_api.Datas;
-using Klacks_api.Models.Staffs;
+using Klacks.Api.Datas;
+using Klacks.Api.Models.Staffs;
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks_api.Models.Associations;
+namespace Klacks.Api.Models.Associations;
 
 public class Membership : BaseEntity
 {

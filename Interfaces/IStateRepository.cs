@@ -1,6 +1,6 @@
-using Klacks_api.Models.Settings;
+using Klacks.Api.Models.Settings;
 
-namespace Klacks_api.Interfaces;
+namespace Klacks.Api.Interfaces;
 
 public interface IStateRepository : IBaseRepository<State>
 {

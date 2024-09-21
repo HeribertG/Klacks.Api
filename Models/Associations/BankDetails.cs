@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using Klacks_api.Datas;
+using Klacks.Api.Datas;
 
-namespace Klacks_api.Models.Associations;
+namespace Klacks.Api.Models.Associations;
 
 public class BankDetails : BaseEntity
 {

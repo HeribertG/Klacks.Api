@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace Klacks_api.Models.Authentification;
+namespace Klacks.Api.Models.Authentification;
 
 public class AuthenticatedResult
 {

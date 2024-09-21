@@ -1,6 +1,6 @@
-using Klacks_api.Resources;
+using Klacks.Api.Resources;
 
-namespace Klacks_api.Interfaces;
+namespace Klacks.Api.Interfaces;
 
 public interface IPrintPdfService
 {

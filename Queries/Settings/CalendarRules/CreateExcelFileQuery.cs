@@ -1,7 +1,7 @@
-using Klacks_api.Resources;
-using Klacks_api.Resources.Filter;
+using Klacks.Api.Resources;
+using Klacks.Api.Resources.Filter;
 using MediatR;
 
-namespace Klacks_api.Queries.Settings.CalendarRules;
+namespace Klacks.Api.Queries.Settings.CalendarRules;
 
 public record CreateExcelFileQuery(CalendarRulesFilter Filter) : IRequest<HttpResultResource>;

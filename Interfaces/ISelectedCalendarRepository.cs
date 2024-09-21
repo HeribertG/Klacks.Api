@@ -1,6 +1,6 @@
-using Klacks_api.Models.CalendarSelections;
+using Klacks.Api.Models.CalendarSelections;
 
-namespace Klacks_api.Interfaces;
+namespace Klacks.Api.Interfaces;
 
 public interface ISelectedCalendarRepository : IBaseRepository<SelectedCalendar>
 {

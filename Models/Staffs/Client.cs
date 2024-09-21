@@ -1,12 +1,12 @@
-using Klacks_api.Datas;
-using Klacks_api.Enums;
-using Klacks_api.Models.Associations;
-using Klacks_api.Models.Schedules;
+using Klacks.Api.Datas;
+using Klacks.Api.Enums;
+using Klacks.Api.Models.Associations;
+using Klacks.Api.Models.Schedules;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks_api.Models.Staffs;
+namespace Klacks.Api.Models.Staffs;
 
 public class Client : BaseEntity
 {

@@ -1,8 +1,8 @@
-using Klacks_api.BasicScriptInterpreter.Macro.Process;
+using Klacks.Api.BasicScriptInterpreter.Macro.Process;
 using System.Collections.ObjectModel;
 using System.Globalization;
 
-namespace Klacks_api.BasicScriptInterpreter
+namespace Klacks.Api.BasicScriptInterpreter
 {
   public class Code : IDisposable
   {

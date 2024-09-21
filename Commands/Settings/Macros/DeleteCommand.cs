@@ -1,6 +1,6 @@
-using Klacks_api.Resources.Settings;
+using Klacks.Api.Resources.Settings;
 using MediatR;
 
-namespace Klacks_api.Commands.Settings.Macros;
+namespace Klacks.Api.Commands.Settings.Macros;
 
 public record DeleteCommand(Guid Id) : IRequest<MacroResource>;

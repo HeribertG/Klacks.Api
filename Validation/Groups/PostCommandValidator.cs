@@ -1,8 +1,8 @@
 using FluentValidation;
-using Klacks_api.Commands;
-using Klacks_api.Resources.Associations;
+using Klacks.Api.Commands;
+using Klacks.Api.Resources.Associations;
 
-namespace Klacks_api.Validation.Groups;
+namespace Klacks.Api.Validation.Groups;
 
 public class PostCommandValidator : AbstractValidator<PostCommand<GroupResource>>
 {

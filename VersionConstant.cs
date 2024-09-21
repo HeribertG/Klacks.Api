@@ -1,4 +1,4 @@
-namespace Klacks_api
+namespace Klacks.Api
 {
   public class VersionConstant
   {

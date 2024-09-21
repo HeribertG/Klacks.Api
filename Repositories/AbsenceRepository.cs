@@ -1,12 +1,12 @@
-using Klacks_api.Datas;
-using Klacks_api.Helper.Excel;
-using Klacks_api.Interfaces;
-using Klacks_api.Models.Schedules;
-using Klacks_api.Resources;
-using Klacks_api.Resources.Filter;
+using Klacks.Api.Datas;
+using Klacks.Api.Helper.Excel;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Models.Schedules;
+using Klacks.Api.Resources;
+using Klacks.Api.Resources.Filter;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks_api.Repositories
+namespace Klacks.Api.Repositories
 {
   public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
   {

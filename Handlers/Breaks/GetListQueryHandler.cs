@@ -1,10 +1,10 @@
 using AutoMapper;
-using Klacks_api.Interfaces;
-using Klacks_api.Queries.Breaks;
-using Klacks_api.Resources.Schedules;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Queries.Breaks;
+using Klacks.Api.Resources.Schedules;
 using MediatR;
 
-namespace Klacks_api.Handlers.Breaks
+namespace Klacks.Api.Handlers.Breaks
 {
   public class GetListQueryHandler : IRequestHandler<ListQuery, IEnumerable<ClientBreakResource>>
   {

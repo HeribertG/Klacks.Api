@@ -1,10 +1,10 @@
 using AutoMapper;
-using Klacks_api.Interfaces;
-using Klacks_api.Queries.Groups;
-using Klacks_api.Resources.Filter;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Queries.Groups;
+using Klacks.Api.Resources.Filter;
 using MediatR;
 
-namespace Klacks_api.Handlers.Groups
+namespace Klacks.Api.Handlers.Groups
 {
   public class GetTruncatedListQueryHandler : IRequestHandler<GetTruncatedListQuery, TruncatedGroupResource>
   {

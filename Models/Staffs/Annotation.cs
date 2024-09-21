@@ -1,6 +1,6 @@
-using Klacks_api.Datas;
+using Klacks.Api.Datas;
 
-namespace Klacks_api.Models.Staffs;
+namespace Klacks.Api.Models.Staffs;
 
 public class Annotation : BaseEntity
 {

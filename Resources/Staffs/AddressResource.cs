@@ -1,6 +1,6 @@
-using Klacks_api.Enums;
+using Klacks.Api.Enums;
 
-namespace Klacks_api.Resources.Staffs
+namespace Klacks.Api.Resources.Staffs
 {
   public class AddressResource
   {

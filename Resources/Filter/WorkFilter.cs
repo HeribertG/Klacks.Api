@@ -1,6 +1,6 @@
-using Klacks_api.Resources.Schedules;
+using Klacks.Api.Resources.Schedules;
 
-namespace Klacks_api.Resources.Filter;
+namespace Klacks.Api.Resources.Filter;
 
 public class WorkFilter
 {

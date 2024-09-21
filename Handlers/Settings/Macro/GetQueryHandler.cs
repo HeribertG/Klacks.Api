@@ -1,10 +1,10 @@
 using AutoMapper;
-using Klacks_api.Interfaces;
-using Klacks_api.Queries.Settings.Macros;
-using Klacks_api.Resources.Settings;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Queries.Settings.Macros;
+using Klacks.Api.Resources.Settings;
 using MediatR;
 
-namespace Klacks_api.Handlers.Settings.Macro
+namespace Klacks.Api.Handlers.Settings.Macro
 {
   public class GetQueryHandler : IRequestHandler<GetQuery, MacroResource?>
   {

@@ -1,9 +1,9 @@
-using Klacks_api.Models.Associations;
-using Klacks_api.Models.Settings;
-using Klacks_api.Resources;
-using Klacks_api.Resources.Filter;
+using Klacks.Api.Models.Associations;
+using Klacks.Api.Models.Settings;
+using Klacks.Api.Resources;
+using Klacks.Api.Resources.Filter;
 
-namespace Klacks_api.Interfaces;
+namespace Klacks.Api.Interfaces;
 
 public interface ISettingsRepository
 {

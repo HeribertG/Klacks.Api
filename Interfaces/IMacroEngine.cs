@@ -1,6 +1,6 @@
-using Klacks_api.BasicScriptInterpreter;
+using Klacks.Api.BasicScriptInterpreter;
 
-namespace Klacks_api.Interfaces;
+namespace Klacks.Api.Interfaces;
 
 public interface IMacroEngine
 {

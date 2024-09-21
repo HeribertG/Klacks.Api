@@ -1,9 +1,9 @@
 using AutoMapper;
-using Klacks_api.Commands.Settings.CalendarRules;
-using Klacks_api.Interfaces;
+using Klacks.Api.Commands.Settings.CalendarRules;
+using Klacks.Api.Interfaces;
 using MediatR;
 
-namespace Klacks_api.Handlers.Settings.CalendarRule;
+namespace Klacks.Api.Handlers.Settings.CalendarRule;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand, Models.Settings.CalendarRule>
 {

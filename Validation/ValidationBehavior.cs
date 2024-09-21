@@ -1,7 +1,7 @@
 using FluentValidation;
 using MediatR;
 
-namespace Klacks_api.Validation;
+namespace Klacks.Api.Validation;
 
 public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
   where TRequest : IRequest<TResponse>

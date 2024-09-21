@@ -1,10 +1,10 @@
 using AutoMapper;
-using Klacks_api.Commands.Settings.Macros;
-using Klacks_api.Interfaces;
-using Klacks_api.Resources.Settings;
+using Klacks.Api.Commands.Settings.Macros;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Resources.Settings;
 using MediatR;
 
-namespace Klacks_api.Handlers.Settings.Macro
+namespace Klacks.Api.Handlers.Settings.Macro
 {
   public class DeleteCommandHandler : IRequestHandler<DeleteCommand, MacroResource>
   {

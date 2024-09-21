@@ -1,8 +1,8 @@
-using Klacks_api.Interfaces;
-using Klacks_api.Queries.Clients;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Queries.Clients;
 using MediatR;
 
-namespace Klacks_api.Handlers.Clients
+namespace Klacks.Api.Handlers.Clients
 {
   public class CountQueryHandler : IRequestHandler<CountQuery, int>
   {

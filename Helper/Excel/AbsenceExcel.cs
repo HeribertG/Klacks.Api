@@ -1,7 +1,7 @@
 using ClosedXML.Excel;
-using Klacks_api.Models.Schedules;
+using Klacks.Api.Models.Schedules;
 
-namespace Klacks_api.Helper.Excel
+namespace Klacks.Api.Helper.Excel
 {
   public class AbsenceExcel
   {

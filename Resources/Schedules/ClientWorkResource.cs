@@ -1,9 +1,9 @@
-using Klacks_api.Enums;
-using Klacks_api.Models.Schedules;
-using Klacks_api.Resources.Associations;
+using Klacks.Api.Enums;
+using Klacks.Api.Models.Schedules;
+using Klacks.Api.Resources.Associations;
 using System.Collections.ObjectModel;
 
-namespace Klacks_api.Resources.Schedules;
+namespace Klacks.Api.Resources.Schedules;
 
 public class ClientWorkResource
 {

@@ -1,4 +1,4 @@
-namespace Klacks_api.Datas;
+namespace Klacks.Api.Datas;
 
 internal interface IContext
 {

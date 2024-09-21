@@ -1,4 +1,4 @@
-namespace Klacks_api.Models.Schedules;
+namespace Klacks.Api.Models.Schedules;
 
 public class ClientScheduleDetail
 {

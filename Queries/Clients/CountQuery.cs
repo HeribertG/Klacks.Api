@@ -1,5 +1,5 @@
 using MediatR;
 
-namespace Klacks_api.Queries.Clients;
+namespace Klacks.Api.Queries.Clients;
 
 public record CountQuery() : IRequest<int>;

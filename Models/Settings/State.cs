@@ -1,7 +1,7 @@
-using Klacks_api.Datas;
+using Klacks.Api.Datas;
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks_api.Models.Settings
+namespace Klacks.Api.Models.Settings
 {
   /// <summary>
   /// States means "Länder(de) or Cantons(CH) or States(USA) or Départements(F) or Regioni(I) or Bundesländer(Ö).

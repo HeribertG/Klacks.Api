@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Klacks_api.Data.Seed
+namespace Klacks.Api.Data.Seed
 {
   public class AbsencesSeed
   {

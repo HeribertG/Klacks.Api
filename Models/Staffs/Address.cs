@@ -1,10 +1,10 @@
-using Klacks_api.Datas;
-using Klacks_api.Enums;
+using Klacks.Api.Datas;
+using Klacks.Api.Enums;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
 
-namespace Klacks_api.Models.Staffs;
+namespace Klacks.Api.Models.Staffs;
 
 public class Address : BaseEntity
 {

@@ -1,8 +1,8 @@
-using Klacks_api.Datas;
-using Klacks_api.Interfaces;
-using Klacks_api.Models.Settings;
+using Klacks.Api.Datas;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Models.Settings;
 
-namespace Klacks_api.Repositories
+namespace Klacks.Api.Repositories
 {
   public class CountryRepository : BaseRepository<Countries>, ICountryRepository
   {

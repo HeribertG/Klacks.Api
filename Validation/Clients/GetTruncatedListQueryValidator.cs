@@ -1,9 +1,9 @@
 using FluentValidation;
-using Klacks_api.Interfaces;
-using Klacks_api.Queries.Clients;
-using Klacks_api.Resources.Filter;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Queries.Clients;
+using Klacks.Api.Resources.Filter;
 
-namespace Klacks_api.Validation.Clients
+namespace Klacks.Api.Validation.Clients
 {
   public class GetTruncatedListQueryValidator : AbstractValidator<GetTruncatedListQuery>
   {

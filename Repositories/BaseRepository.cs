@@ -1,8 +1,8 @@
-using Klacks_api.Datas;
-using Klacks_api.Interfaces;
+using Klacks.Api.Datas;
+using Klacks.Api.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks_api.Repositories
+namespace Klacks.Api.Repositories
 {
   public class BaseRepository<TEntity> : IBaseRepository<TEntity>
       where TEntity : BaseEntity

@@ -1,13 +1,13 @@
-using Klacks_api.Enums;
-using Klacks_api.Models.Associations;
-using Klacks_api.Models.Schedules;
-using Klacks_api.Models.Settings;
-using Klacks_api.Models.Staffs;
+using Klacks.Api.Enums;
+using Klacks.Api.Models.Associations;
+using Klacks.Api.Models.Schedules;
+using Klacks.Api.Models.Settings;
+using Klacks.Api.Models.Staffs;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Newtonsoft.Json;
 using System.Text;
 
-namespace Klacks_api.Data.Seed
+namespace Klacks.Api.Data.Seed
 {
     public static class FakeDatas
     {

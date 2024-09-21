@@ -1,6 +1,6 @@
-using Klacks_api.Models.Histories;
+using Klacks.Api.Models.Histories;
 
-namespace Klacks_api.Resources.Filter
+namespace Klacks.Api.Resources.Filter
 {
   public class TruncatedHistory
   {

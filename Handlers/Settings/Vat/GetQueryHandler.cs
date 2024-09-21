@@ -1,9 +1,9 @@
 using AutoMapper;
-using Klacks_api.Interfaces;
-using Klacks_api.Queries.Settings.Vats;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Queries.Settings.Vats;
 using MediatR;
 
-namespace Klacks_api.Handlers.Settings.Vat
+namespace Klacks.Api.Handlers.Settings.Vat
 {
   public class GetQueryHandler : IRequestHandler<GetQuery, Models.Settings.Vat?>
   {

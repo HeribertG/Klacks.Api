@@ -1,9 +1,9 @@
-using Klacks_api.Interfaces;
-using Klacks_api.Models.Settings;
-using Klacks_api.Queries.Communications;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Models.Settings;
+using Klacks.Api.Queries.Communications;
 using MediatR;
 
-namespace Klacks_api.Handlers.Communications
+namespace Klacks.Api.Handlers.Communications
 {
   public class GetTypeQueryHandler : IRequestHandler<GetTypeQuery, IEnumerable<CommunicationType>>
   {

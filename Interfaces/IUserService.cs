@@ -1,4 +1,4 @@
-namespace Klacks_api.Interfaces;
+namespace Klacks.Api.Interfaces;
 
 public interface IUserService
 {

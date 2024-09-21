@@ -1,9 +1,9 @@
-using Klacks_api.Datas;
+using Klacks.Api.Datas;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace Klacks_api.Models.CalendarSelections
+namespace Klacks.Api.Models.CalendarSelections
 {
   public class SelectedCalendar : BaseEntity
   {

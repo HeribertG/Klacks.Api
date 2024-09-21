@@ -1,5 +1,5 @@
 using MediatR;
 
-namespace Klacks_api.Commands.Settings.States;
+namespace Klacks.Api.Commands.Settings.States;
 
 public record DeleteCommand(Guid Id) : IRequest<Models.Settings.State>;

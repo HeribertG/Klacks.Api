@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using Klacks_api.Datas;
-using Klacks_api.Enums;
+using Klacks.Api.Datas;
+using Klacks.Api.Enums;
 
-namespace Klacks_api.Models.Settings
+namespace Klacks.Api.Models.Settings
 {
   public class CalendarRule
   {

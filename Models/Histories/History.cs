@@ -1,9 +1,9 @@
-using Klacks_api.Datas;
-using Klacks_api.Models.Staffs;
+using Klacks.Api.Datas;
+using Klacks.Api.Models.Staffs;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Klacks_api.Models.Histories;
+namespace Klacks.Api.Models.Histories;
 
 public class History : BaseEntity
 {

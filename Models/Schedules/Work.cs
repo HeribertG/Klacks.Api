@@ -1,8 +1,8 @@
-using Klacks_api.Datas;
-using Klacks_api.Models.Staffs;
+using Klacks.Api.Datas;
+using Klacks.Api.Models.Staffs;
 using Newtonsoft.Json;
 
-namespace Klacks_api.Models.Schedules;
+namespace Klacks.Api.Models.Schedules;
 
 public class Work : BaseEntity
 {

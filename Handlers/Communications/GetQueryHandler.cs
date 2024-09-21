@@ -1,10 +1,10 @@
 using AutoMapper;
-using Klacks_api.Interfaces;
-using Klacks_api.Queries;
-using Klacks_api.Resources.Settings;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Queries;
+using Klacks.Api.Resources.Settings;
 using MediatR;
 
-namespace Klacks_api.Handlers.Communications
+namespace Klacks.Api.Handlers.Communications
 {
   public class GetQueryHandler : IRequestHandler<GetQuery<CommunicationResource>, CommunicationResource>
   {

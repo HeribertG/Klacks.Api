@@ -1,10 +1,10 @@
 using AutoMapper;
-using Klacks_api.Commands;
-using Klacks_api.Interfaces;
-using Klacks_api.Resources.Associations;
+using Klacks.Api.Commands;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Resources.Associations;
 using MediatR;
 
-namespace Klacks_api.Handlers.Groups;
+namespace Klacks.Api.Handlers.Groups;
 
 public class PutCommandHandler : IRequestHandler<PutCommand<GroupResource>, GroupResource?>
 {

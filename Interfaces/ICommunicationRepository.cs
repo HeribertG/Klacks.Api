@@ -1,7 +1,7 @@
-using Klacks_api.Models.Settings;
-using Klacks_api.Models.Staffs;
+using Klacks.Api.Models.Settings;
+using Klacks.Api.Models.Staffs;
 
-namespace Klacks_api.Interfaces;
+namespace Klacks.Api.Interfaces;
 
 public interface ICommunicationRepository : IBaseRepository<Communication>
 {

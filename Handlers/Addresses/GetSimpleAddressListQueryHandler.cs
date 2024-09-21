@@ -1,11 +1,11 @@
 using AutoMapper;
-using Klacks_api.Interfaces;
-using Klacks_api.Models.Staffs;
-using Klacks_api.Queries.Addresses;
-using Klacks_api.Resources.Staffs;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Models.Staffs;
+using Klacks.Api.Queries.Addresses;
+using Klacks.Api.Resources.Staffs;
 using MediatR;
 
-namespace Klacks_api.Handlers.Addresses
+namespace Klacks.Api.Handlers.Addresses
 {
   public class GetSimpleAddressListQueryHandler : IRequestHandler<GetSimpleAddressListQuery, IEnumerable<AddressResource>>
   {

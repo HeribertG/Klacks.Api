@@ -1,11 +1,11 @@
 
 using iTextSharp.text;
 using iTextSharp.text.pdf;
-using Klacks_api.Enums;
-using Klacks_api.Models.Staffs;
+using Klacks.Api.Enums;
+using Klacks.Api.Models.Staffs;
 using System.Text;
 
-namespace Klacks_api.Helper.PrintHelper;
+namespace Klacks.Api.Helper.PrintHelper;
 
 public static class PrintHelperModule
 {

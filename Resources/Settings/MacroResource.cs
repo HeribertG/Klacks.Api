@@ -1,6 +1,6 @@
-using Klacks_api.Datas;
+using Klacks.Api.Datas;
 
-namespace Klacks_api.Resources.Settings
+namespace Klacks.Api.Resources.Settings
 {
   public class MacroResource
   {

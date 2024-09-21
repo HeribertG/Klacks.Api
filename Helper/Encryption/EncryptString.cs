@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Klacks_api.Helper.Encryption;
+namespace Klacks.Api.Helper.Encryption;
 
 public static class Encryption
 {

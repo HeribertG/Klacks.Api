@@ -1,6 +1,6 @@
-using Klacks_api.Models.Authentification;
+using Klacks.Api.Models.Authentification;
 
-namespace Klacks_api.Interfaces;
+namespace Klacks.Api.Interfaces;
 
 public interface ITokenService
 {

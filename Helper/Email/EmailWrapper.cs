@@ -1,6 +1,6 @@
 using System.Net.Mail;
 
-namespace Klacks_api.Helper.Email;
+namespace Klacks.Api.Helper.Email;
 
 public class EmailWrapper
 {

@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 
 
 
-namespace Klacks_api.BasicScriptInterpreter
+namespace Klacks.Api.BasicScriptInterpreter
 {
 
   ///  Scope: Stackähnliche Datenstruktur, in der benannte Werte

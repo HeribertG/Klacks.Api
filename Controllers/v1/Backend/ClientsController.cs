@@ -1,12 +1,12 @@
-using Klacks_api.Models.Staffs;
-using Klacks_api.Queries.Clients;
-using Klacks_api.Resources.Filter;
-using Klacks_api.Resources.Staffs;
+using Klacks.Api.Models.Staffs;
+using Klacks.Api.Queries.Clients;
+using Klacks.Api.Resources.Filter;
+using Klacks.Api.Resources.Staffs;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Klacks_api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.Backend;
 
 public class ClientsController : InputBaseController<ClientResource>
 {
@@ -55,7 +55,7 @@ public class ClientsController : InputBaseController<ClientResource>
 
     [AllowAnonymous]
     [HttpPost("GetSimpleList")]
-    public async Task<TruncatedClient> GetSimpleList1([FromBody] FilterResource filter)
+    public async Task<TruncatedClientResource> GetSimpleList1([FromBody] FilterResource filter)
     {
         try
         {

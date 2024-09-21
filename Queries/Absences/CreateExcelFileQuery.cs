@@ -1,7 +1,7 @@
-using Klacks_api.Resources;
+using Klacks.Api.Resources;
 using MediatR;
 
-namespace Klacks_api.Queries.Absences
+namespace Klacks.Api.Queries.Absences
 {
   public record CreateExcelFileQuery(string Language) : IRequest<HttpResultResource>;
 }

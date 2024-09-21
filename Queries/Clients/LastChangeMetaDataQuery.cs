@@ -1,6 +1,6 @@
-using Klacks_api.Resources.Filter;
+using Klacks.Api.Resources.Filter;
 using MediatR;
 
-namespace Klacks_api.Queries.Clients;
+namespace Klacks.Api.Queries.Clients;
 
 public record LastChangeMetaDataQuery : IRequest<LastChangeMetaDataResource>;

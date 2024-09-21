@@ -1,9 +1,9 @@
 using AutoMapper;
-using Klacks_api.Commands.Settings.MacrosTypes;
-using Klacks_api.Interfaces;
+using Klacks.Api.Commands.Settings.MacrosTypes;
+using Klacks.Api.Interfaces;
 using MediatR;
 
-namespace Klacks_api.Handlers.Settings.MacrosType
+namespace Klacks.Api.Handlers.Settings.MacrosType
 {
   public class PutCommandHandler : IRequestHandler<PutCommand, Models.Settings.MacroType?>
   {

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks_api.Resources.Associations
+namespace Klacks.Api.Resources.Associations
 {
   public class MembershipResource
   {

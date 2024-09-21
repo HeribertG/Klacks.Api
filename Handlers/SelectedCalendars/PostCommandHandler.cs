@@ -1,10 +1,10 @@
 using AutoMapper;
-using Klacks_api.Commands;
-using Klacks_api.Interfaces;
-using Klacks_api.Resources.Schedules;
+using Klacks.Api.Commands;
+using Klacks.Api.Interfaces;
+using Klacks.Api.Resources.Schedules;
 using MediatR;
 
-namespace Klacks_api.Handlers.SelectedCalendars;
+namespace Klacks.Api.Handlers.SelectedCalendars;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<SelectedCalendarResource>, SelectedCalendarResource?>
 {

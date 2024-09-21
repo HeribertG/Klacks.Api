@@ -1,11 +1,11 @@
-using Klacks_api.Models.Settings;
-using Klacks_api.Queries;
-using Klacks_api.Queries.Communications;
-using Klacks_api.Resources.Settings;
+using Klacks.Api.Models.Settings;
+using Klacks.Api.Queries;
+using Klacks.Api.Queries.Communications;
+using Klacks.Api.Resources.Settings;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Klacks_api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.Backend;
 
 public class CommunicationsController : InputBaseController<CommunicationResource>
 {

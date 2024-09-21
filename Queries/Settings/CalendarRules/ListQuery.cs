@@ -1,5 +1,5 @@
 using MediatR;
 
-namespace Klacks_api.Queries.Settings.CalendarRules;
+namespace Klacks.Api.Queries.Settings.CalendarRules;
 
 public record ListQuery : IRequest<IEnumerable<Models.Settings.CalendarRule>>;

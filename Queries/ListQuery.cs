@@ -1,5 +1,5 @@
 using MediatR;
 
-namespace Klacks_api.Queries;
+namespace Klacks.Api.Queries;
 
 public record ListQuery<TModel>() : IRequest<IEnumerable<TModel>>;

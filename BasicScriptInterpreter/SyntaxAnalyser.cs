@@ -1,4 +1,4 @@
-namespace Klacks_api.BasicScriptInterpreter
+namespace Klacks.Api.BasicScriptInterpreter
 {
   /// <summary>
   /// SyntaxAnalyser: Führt die Syntaxanalyser durch, erzeugt
