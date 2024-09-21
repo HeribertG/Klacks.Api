@@ -1,3 +1,4 @@
+using Klacks.Api.Constants;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Authentification;
 using Microsoft.AspNetCore.Identity;
@@ -22,17 +23,17 @@ public class TokenService : ITokenService
   public async Task<string> CreateToken(AppUser user, DateTime expires)
   {
     var roles = new List<string>();
-    var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
-    var isAuthorised = await _userManager.IsInRoleAsync(user, "Authorised");
+    var isAdmin = await _userManager.IsInRoleAsync(user, Roles.Admin);
+    var isAuthorised = await _userManager.IsInRoleAsync(user, Roles.Authorised);
 
     if (isAdmin)
     {
-      roles.Add("Admin");
+      roles.Add(Roles.Admin);
     }
 
     if (isAuthorised)
     {
-      roles.Add("Authorised");
+      roles.Add(Roles.Authorised);
     }
 
     List<Claim> claims = new List<Claim>()

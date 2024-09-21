@@ -1,3 +1,4 @@
+using Klacks.Api.Constants;
 using Klacks.Api.Datas;
 using Klacks.Api.Helper;
 using Klacks.Api.Helper.Email;
@@ -5,11 +6,11 @@ using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Authentification;
 using Klacks.Api.Resources;
 using Klacks.Api.Resources.Registrations;
+using Klacks.Api.Validation.Accounts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace Klacks.Api.Repositories;
@@ -21,6 +22,8 @@ public class AccountRepository : IAccountRepository
     private readonly JwtSettings jwtSettings;
     private readonly ITokenService tokenService;
     private readonly UserManager<AppUser> userManager;
+    private readonly JwtValidator jwtValidator;
+
 
     public AccountRepository(
                              DataBaseContext appDbContext,
@@ -32,6 +35,7 @@ public class AccountRepository : IAccountRepository
         this.userManager = userManager;
         this.jwtSettings = jwtSettings;
         this.tokenService = tokenService;
+        jwtValidator = new JwtValidator(jwtSettings);
     }
 
     public async Task<AuthenticatedResult> ChangePassword(ChangePasswordResource model)
@@ -65,7 +69,8 @@ public class AccountRepository : IAccountRepository
         }
         catch (Exception e)
         {
-            SetModelError(authenticatedResult, e.Message, string.Empty);
+            SetModelError(authenticatedResult, "An unexpected error has occurred.", string.Empty);
+
         }
 
         return authenticatedResult;
@@ -107,13 +112,7 @@ public class AccountRepository : IAccountRepository
                 return res;
             }
 
-            var errorMessageBuilder = new StringBuilder();
-            foreach (var error in result.Errors)
-            {
-                errorMessageBuilder.AppendLine(error.Description);
-            }
-
-            res.Messages = errorMessageBuilder.ToString();
+            res.Messages = string.Join(Environment.NewLine, result.Errors.Select(e => e.Description));
         }
 
         return res;
@@ -151,8 +150,8 @@ public class AccountRepository : IAccountRepository
         var users = await appDbContext.AppUser.ToListAsync();
 
         var userResources = new List<UserResource>(users.Count);
-        var usersInAuthorisedRole = await userManager.GetUsersInRoleAsync("Authorised");
-        var usersInAdminRole = await userManager.GetUsersInRoleAsync("Admin");
+        var usersInAuthorisedRole = await userManager.GetUsersInRoleAsync(Roles.Authorised);
+        var usersInAdminRole = await userManager.GetUsersInRoleAsync(Roles.Admin);
 
         foreach (var user in users)
         {
@@ -210,7 +209,7 @@ public class AccountRepository : IAccountRepository
             return authenticatedResult;
         }
 
-        var user = GetUserFromAccessToken(model.Token);
+        var user = await GetUserFromAccessToken(model.Token);
         if (user == null)
         {
             SetModelError(authenticatedResult, "RefreshTokenError", "Token invalid or expired.");
@@ -351,49 +350,22 @@ public class AccountRepository : IAccountRepository
         return authenticatedResult;
     }
 
-    private AppUser GetUserFromAccessToken(string token)
+    private async Task<AppUser?> GetUserFromAccessToken(string token)
     {
-        var tokenHandler = new JwtSecurityTokenHandler();
+        var principal = jwtValidator.ValidateToken(token);
 
-        var tokenValidationParameters = new TokenValidationParameters
+        if (principal == null)
         {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            RequireAudience = false,
-            RequireExpirationTime = false,
-            ValidateLifetime = true,
-        };
-
-        SecurityToken? securityToken = null;
-        JwtSecurityToken? jwtSecurityToken = null;
-        AppUser? user = null;
-
-        try
-        {
-            tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
-        }
-        catch (Exception)
-        {
-            // Dummy
-        }
-        finally
-        {
-            if (securityToken != null)
-            {
-                jwtSecurityToken = securityToken as JwtSecurityToken;
-            }
-
-            if (jwtSecurityToken != null && jwtSecurityToken.Header.Alg == "HS256")
-            {
-                var userId = jwtSecurityToken.Claims.Where(x => x.Type == "Id").FirstOrDefault();
-
-                user = appDbContext.AppUser.Where(x => x.Id == userId!.Value).FirstOrDefault();
-            }
+            return null;
         }
 
-        return user!;
+        var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
+        if (userIdClaim == null)
+        {
+            return null;
+        }
+
+        return await userManager.FindByIdAsync(userIdClaim.Value);
     }
 
     private async Task<AuthenticatedResult> SetAuthenticatedResult(AuthenticatedResult authenticatedResult, AppUser user, DateTime expires)
@@ -405,8 +377,8 @@ public class AccountRepository : IAccountRepository
         authenticatedResult.FirstName = user.FirstName;
         authenticatedResult.Name = user.LastName;
         authenticatedResult.Id = user.Id;
-        authenticatedResult.IsAdmin = await userManager.IsInRoleAsync(user, "Admin");
-        authenticatedResult.IsAuthorised = await userManager.IsInRoleAsync(user, "Authorised");
+        authenticatedResult.IsAdmin = await userManager.IsInRoleAsync(user, Roles.Admin);
+        authenticatedResult.IsAuthorised = await userManager.IsInRoleAsync(user, Roles.Authorised);
 
         return authenticatedResult;
     }
