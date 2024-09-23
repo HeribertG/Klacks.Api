@@ -95,7 +95,6 @@ public class MappingProfile : Profile
           .ForMember(x => x.UpdateTime, o => o.Ignore())
           .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
           .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.IsDeleted, o => o.Ignore())
           .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
           .ForMember(x => x.Breaks, o => o.Ignore())
           ;

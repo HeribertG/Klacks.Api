@@ -17,7 +17,7 @@ namespace Klacks.Api.Resources.Schedules
 
     public bool IsSealed { get; set; }
 
-    public Shift? Shift { get; set; }
+    public ShiftResource? Shift { get; set; }
 
     public Guid ShiftId { get; set; }
 
