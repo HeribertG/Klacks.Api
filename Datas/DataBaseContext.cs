@@ -31,6 +31,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<Break> Break { get; set; } = default!;
 
+    public DbSet<BreakReason> BreakReason { get; set; } = default!;
+
     public DbSet<CalendarRule> CalendarRule { get; set; } = default!;
 
     public DbSet<CalendarSelection> CalendarSelection { get; set; } = default!;
@@ -114,6 +116,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Macro>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Absence>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Break>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<BreakReason>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Countries>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<State>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<SelectedCalendar>().HasQueryFilter(p => !p.IsDeleted);
@@ -133,6 +136,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Macro>().HasIndex(p => new { p.IsDeleted, p.Name });
         modelBuilder.Entity<Absence>().HasIndex(p => new { p.IsDeleted });
         modelBuilder.Entity<Break>().HasIndex(p => new { p.IsDeleted, p.AbsenceId, p.ClientId });
+        modelBuilder.Entity<BreakReason>().HasIndex(p => new { p.IsDeleted, p.Name });
         modelBuilder.Entity<CalendarRule>().HasIndex(p => new { p.State, p.Country });
         modelBuilder.Entity<SelectedCalendar>().HasIndex(p => new { p.State, p.Country });
         modelBuilder.Entity<Group>().HasIndex(p => new { p.Name });

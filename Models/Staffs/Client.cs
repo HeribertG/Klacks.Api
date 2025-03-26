@@ -5,6 +5,7 @@ using Klacks.Api.Models.Schedules;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Klacks.Api.Models.Staffs;
 
@@ -26,7 +27,8 @@ public class Client : BaseEntity
   [DataType(DataType.Date)]
   public DateTime? Birthdate { get; set; }
 
-  public ICollection<Break> Breaks { get; set; }
+    [JsonIgnore]
+    public ICollection<Break> Breaks { get; set; }
 
   public ICollection<Communication> Communications { get; set; }
 

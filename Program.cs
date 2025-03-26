@@ -19,6 +19,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var myAllowSpecificOrigins = "CorsPolicy";
 string[] headers = ["X-Operation", "X-Resource", "X-Total-Count"];
@@ -149,6 +150,14 @@ builder.Services
 
 builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddControllers()
+       .AddJsonOptions(options =>
+       {
+           options.JsonSerializerOptions.WriteIndented = true;
+           options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+           options.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
+       });
 
 builder.Services.AddControllers()
        .AddJsonOptions(options =>
