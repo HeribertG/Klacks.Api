@@ -138,7 +138,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Break>().HasIndex(p => new { p.IsDeleted, p.AbsenceId, p.ClientId });
         modelBuilder.Entity<BreakReason>().HasIndex(p => new { p.IsDeleted, p.Name });
         modelBuilder.Entity<CalendarRule>().HasIndex(p => new { p.State, p.Country });
-        modelBuilder.Entity<SelectedCalendar>().HasIndex(p => new { p.State, p.Country });
+        modelBuilder.Entity<SelectedCalendar>().HasIndex(p => new { p.State, p.Country , p.CalendarSelectionId});
         modelBuilder.Entity<Group>().HasIndex(p => new { p.Name });
         modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.ClientId, p.GroupId });
         modelBuilder.Entity<Work>().HasIndex(p => new { p.ClientId, p.ShiftId });

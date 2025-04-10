@@ -1,3 +1,4 @@
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Klacks.Api;
@@ -10,6 +11,7 @@ using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Authentification;
 using Klacks.Api.Repositories;
 using Klacks.Api.Services;
+using Klacks.Api.Services.Exports;
 using Klacks.Api.Validation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -126,6 +128,7 @@ builder.Services.AddScoped<ISelectedCalendarRepository, SelectedCalendarReposito
 builder.Services.AddScoped<IWorkRepository, WorkRepository>();
 builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+builder.Services.AddScoped<IGanttPdfExportService, GanttPdfExportService>();
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 
