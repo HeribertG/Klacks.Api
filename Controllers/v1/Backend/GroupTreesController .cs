@@ -7,14 +7,12 @@ using Newtonsoft.Json;
 
 namespace Klacks.Api.Controllers.V1.Backend
 {
-    [Route("api/v1/[controller]")]
-    [ApiController]
-    public class GroupTreeController : ControllerBase
+    public class GroupTreesController : BaseController
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<GroupTreeController> _logger;
+        private readonly ILogger<GroupTreesController> _logger;
 
-        public GroupTreeController(IMediator mediator, ILogger<GroupTreeController> logger)
+        public GroupTreesController(IMediator mediator, ILogger<GroupTreesController> logger)
         {
             _mediator = mediator;
             _logger = logger;
