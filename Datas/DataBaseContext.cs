@@ -7,6 +7,7 @@ using Klacks.Api.Models.Settings;
 using Klacks.Api.Models.Staffs;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Security.Claims;
 
 namespace Klacks.Api.Datas;
@@ -106,7 +107,18 @@ public class DataBaseContext : IdentityDbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Client>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.HasSequence<int>("client_idnumber_seq", schema: "public")
+            .StartsAt(1) 
+            .IncrementsBy(1);
+
+        modelBuilder.Entity<Client>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.Property(e => e.IdNumber)
+                  .HasDefaultValueSql("nextval('public.client_idnumber_seq')");
+
+            entity.HasIndex(p => new { p.FirstName, p.SecondName, p.Name, p.MaidenName, p.Company, p.Gender, p.Type, p.LegalEntity, p.IsDeleted });
+        });
         modelBuilder.Entity<Address>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Communication>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Membership>().HasQueryFilter(p => !p.IsDeleted);
@@ -125,9 +137,8 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<GroupItem>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Shift>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Work>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<Work>().HasQueryFilter(p => !p.IsDeleted);
+   
 
-        modelBuilder.Entity<Client>().HasIndex(p => new { p.FirstName, p.SecondName, p.Name, p.MaidenName, p.Company, p.Gender, p.Type, p.LegalEntity, p.IsDeleted });
         modelBuilder.Entity<Address>().HasIndex(p => new { p.ClientId, p.Street, p.Street2, p.Street3, p.City, p.IsDeleted });
         modelBuilder.Entity<Communication>().HasIndex(p => new { p.Value, p.IsDeleted });
         modelBuilder.Entity<Annotation>().HasIndex(p => new { p.Note, p.IsDeleted });
@@ -138,7 +149,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Break>().HasIndex(p => new { p.IsDeleted, p.AbsenceId, p.ClientId });
         modelBuilder.Entity<BreakReason>().HasIndex(p => new { p.IsDeleted, p.Name });
         modelBuilder.Entity<CalendarRule>().HasIndex(p => new { p.State, p.Country });
-        modelBuilder.Entity<SelectedCalendar>().HasIndex(p => new { p.State, p.Country , p.CalendarSelectionId});
+        modelBuilder.Entity<SelectedCalendar>().HasIndex(p => new { p.State, p.Country, p.CalendarSelectionId });
         modelBuilder.Entity<Group>().HasIndex(p => new { p.Name });
         modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.ClientId, p.GroupId });
         modelBuilder.Entity<Work>().HasIndex(p => new { p.ClientId, p.ShiftId });
@@ -189,12 +200,6 @@ public class DataBaseContext : IdentityDbContext
        .OnDelete(DeleteBehavior.Cascade);
 
 
-        //modelBuilder.Entity<GroupItem>()
-        //    .HasOne(gi => gi.Client)     // Ein GroupItem gehört zu einem Client
-        //    .WithMany(c => c.GroupItems) // Ein Client hat viele GroupItems
-        //    .HasForeignKey(gi => gi.ClientId) // Der Fremdschlüssel ist ClientId
-        //    .OnDelete(DeleteBehavior.Cascade); // Wenn ein Client gelöscht wird, werden die zugehörigen GroupItems ebenfalls gelöscht
-
 
         modelBuilder.Entity<Work>()
                .HasOne(p => p.Client)
@@ -216,24 +221,21 @@ public class DataBaseContext : IdentityDbContext
             }
 
             var now = DateTime.UtcNow;
-            var currentUserName = "Annonymus";
+            const string defaultUser = "Annonymus";
+            string currentUserName = defaultUser;
+
             try
             {
-                if (httpContextAccessor != null && httpContextAccessor.HttpContext != null)
+                var claimValue = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (!string.IsNullOrEmpty(claimValue))
                 {
-                    if (httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier) != null)
-                    {
-#pragma warning disable CS8602 // Dereferenzierung eines möglichen Nullverweises.
-                        currentUserName = !string.IsNullOrEmpty(httpContextAccessor.HttpContext.User?
-                          .FindFirst(ClaimTypes.NameIdentifier).Value) ? httpContextAccessor.HttpContext.User?
-                          .FindFirst(ClaimTypes.NameIdentifier).Value : "Annonymus";
-#pragma warning restore CS8602 // Dereferenzierung eines möglichen Nullverweises.
-                    }
+                    currentUserName = claimValue;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine($"Fehler beim Abrufen des Benutzers für die Auditierung: {ex.ToString()}");
             }
 
             switch (entry.State)
@@ -259,4 +261,5 @@ public class DataBaseContext : IdentityDbContext
             }
         }
     }
+
 }

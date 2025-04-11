@@ -129,6 +129,7 @@ builder.Services.AddScoped<IWorkRepository, WorkRepository>();
 builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddScoped<IGanttPdfExportService, GanttPdfExportService>();
+builder.Services.AddScoped<IGroupNestedSetRepository, GroupNestedSetRepository>();
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 

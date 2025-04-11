@@ -1,4 +1,3 @@
-using Klacks.Api.BasicScriptInterpreter;
 using Klacks.Api.Datas;
 using Klacks.Api.Enums;
 using Klacks.Api.Helper;
@@ -8,7 +7,6 @@ using Klacks.Api.Models.Staffs;
 using Klacks.Api.Resources.Filter;
 using Klacks.Api.Resources.Settings;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace Klacks.Api.Repositories;
 
@@ -34,6 +32,7 @@ public class ClientRepository : IClientRepository
             }
         }
 
+        client.IdNumber = 0;
         this.context.Client.Add(client);
     }
 
