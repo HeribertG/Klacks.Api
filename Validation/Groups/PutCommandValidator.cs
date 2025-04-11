@@ -16,7 +16,7 @@ public class PutCommandValidator : AbstractValidator<PutCommand<GroupResource>>
     {
       var list = x.Select(x => x.ClientId).Distinct().ToList();
 
-      return x.Count != list.Count;
+      return x.Count == list.Count;
     }).When(x => x.Resource.GroupItems.Any()).WithMessage("The list of participants must not contain any duplicates");
   }
 }
