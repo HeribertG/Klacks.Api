@@ -29,13 +29,13 @@ public class PutCommandHandler(
       }
 
       var updatedClient = mapper.Map(request.Resource, dbClient);
-      updatedClient = repository.Put(updatedClient);
+      updatedClient = await repository.Put(updatedClient);
       await unitOfWork.CompleteAsync();
 
       logger.LogInformation("Client with ID {ClientId} updated successfully.", request.Resource.Id);
 
       return mapper.Map<Models.Staffs.Client, ClientResource>(updatedClient);
-    }
+    }   
     catch (Exception ex)
     {
       logger.LogError(ex, "Error occurred while updating client with ID {ClientId}.", request.Resource.Id);

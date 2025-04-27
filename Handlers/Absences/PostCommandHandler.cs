@@ -30,7 +30,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<AbsenceResource>, 
     try
     {
       var absence = mapper.Map<AbsenceResource, Models.Schedules.Absence>(request.Resource);
-      repository.Add(absence);
+      await repository.Add(absence);
 
       await unitOfWork.CompleteAsync();
 

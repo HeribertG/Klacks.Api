@@ -16,13 +16,13 @@ namespace Klacks.Api.Handlers.Groups;
     /// </summary>
     public class CreateGroupNodeCommandHandler : IRequestHandler<CreateGroupNodeCommand, GroupTreeNodeResource>
     {
-        private readonly IGroupNestedSetRepository _repository;
+        private readonly IGroupRepository _repository;
         private readonly DataBaseContext _context;
         private readonly IMediator _mediator;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public CreateGroupNodeCommandHandler(
-            IGroupNestedSetRepository repository,
+            IGroupRepository repository,
             DataBaseContext context,
             IMediator mediator,
             IHttpContextAccessor httpContextAccessor)

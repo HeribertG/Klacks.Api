@@ -37,7 +37,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<BreakResource>, Brea
       }
 
       var updatedBreak = mapper.Map(request.Resource, dbBreak);
-      updatedBreak = repository.Put(updatedBreak);
+      updatedBreak = await repository.Put(updatedBreak);
       await unitOfWork.CompleteAsync();
 
       logger.LogInformation("Break with ID {BreakId} updated successfully.", request.Resource.Id);

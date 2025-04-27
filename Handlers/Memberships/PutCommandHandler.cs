@@ -37,7 +37,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<MembershipResource>,
       }
 
       var updatedMembership = mapper.Map(request.Resource, dbMembership);
-      updatedMembership = repository.Put(updatedMembership);
+      updatedMembership = await repository.Put(updatedMembership);
       await unitOfWork.CompleteAsync();
 
       logger.LogInformation("Membership with ID {MembershipId} updated successfully.", request.Resource.Id);

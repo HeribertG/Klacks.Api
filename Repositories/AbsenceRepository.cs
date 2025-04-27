@@ -92,7 +92,12 @@ namespace Klacks.Api.Repositories
       return res;
     }
 
-    private IQueryable<Absence> Sort(string orderBy, string sortOrder, string language, IQueryable<Absence> tmp)
+        HttpResultResource IAbsenceRepository.CreateExcelFile(string language)
+        {
+            throw new NotImplementedException();
+        }
+
+        private IQueryable<Absence> Sort(string orderBy, string sortOrder, string language, IQueryable<Absence> tmp)
     {
       var lang = language.ToLower();
       if (sortOrder != string.Empty)
@@ -135,5 +140,10 @@ namespace Klacks.Api.Repositories
 
       return tmp;
     }
-  }
+
+        Task<TruncatedAbsence_dto> IAbsenceRepository.Truncated(AbsenceFilter filter)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

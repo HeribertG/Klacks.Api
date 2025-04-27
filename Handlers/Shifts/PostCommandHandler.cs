@@ -31,7 +31,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<ShiftResource>, Sh
     {
       var shift = mapper.Map<ShiftResource, Models.Schedules.Shift>(request.Resource);
 
-      repository.Add(shift);
+      await repository.Add(shift);
 
       await unitOfWork.CompleteAsync();
 

@@ -37,7 +37,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<CommunicationResourc
       }
 
       var updatedCommunication = mapper.Map(request.Resource, dbCommunication);
-      updatedCommunication = repository.Put(updatedCommunication);
+      updatedCommunication = await repository.Put(updatedCommunication);
       await unitOfWork.CompleteAsync();
 
       logger.LogInformation("Communication with ID {CommunicationId} updated successfully.", request.Resource.Id);

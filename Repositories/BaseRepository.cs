@@ -14,12 +14,12 @@ namespace Klacks.Api.Repositories
       this.context = context;
     }
 
-    public void Add(TEntity model)
+    public virtual  void Add(TEntity model)
     {
       this.context.Set<TEntity>().Add(model);
     }
 
-    public async Task<TEntity?> Delete(Guid id)
+    public async virtual Task<TEntity?> Delete(Guid id)
     {
       var entity = await this.context.Set<TEntity>().FirstOrDefaultAsync(add => add.Id == id);
       this.context.Remove<TEntity>(entity!);
@@ -36,12 +36,17 @@ namespace Klacks.Api.Repositories
       return await this.context.Set<TEntity>().FirstOrDefaultAsync(add => add.Id == id);
     }
 
+         Task IBaseRepository<TEntity>.Add(TEntity model)
+        {
+            throw new NotImplementedException();
+        }
     public async Task<List<TEntity>> List()
     {
       return await this.context.Set<TEntity>().ToListAsync();
     }
 
-    public TEntity Put(TEntity model)
+
+    public virtual TEntity  Put(TEntity model)
     {
       this.context.Set<TEntity>().Update(model);
 
@@ -52,5 +57,12 @@ namespace Klacks.Api.Repositories
     {
       this.context.Set<TEntity>().Remove(model);
     }
-  }
+
+       
+
+        Task<TEntity> IBaseRepository<TEntity>.Put(TEntity model)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

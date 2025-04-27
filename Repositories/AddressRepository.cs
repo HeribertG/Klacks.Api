@@ -24,5 +24,15 @@ namespace Klacks.Api.Repositories
     {
       return await this.context.Address.Where(c => c.ClientId == id).ToListAsync();
     }
-  }
+
+        Task<List<Address>> IAddressRepository.ClienList(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<List<Address>> IAddressRepository.SimpleList(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

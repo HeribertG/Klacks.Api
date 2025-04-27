@@ -31,7 +31,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<CountryResource>, 
     {
       var country = this.mapper.Map<CountryResource, Models.Settings.Countries>(request.Resource);
 
-      this.repository.Add(country);
+      await this.repository.Add(country);
 
       await this.unitOfWork.CompleteAsync();
 

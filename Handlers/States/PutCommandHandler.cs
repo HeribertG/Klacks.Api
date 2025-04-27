@@ -36,7 +36,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<StateResource>, Stat
       }
 
       var updatedState = this.mapper.Map(request.Resource, dbState);
-      updatedState = this.repository.Put(updatedState);
+      updatedState = await this.repository.Put(updatedState);
       await this.unitOfWork.CompleteAsync();
 
       logger.LogInformation("State with ID {StateId} updated successfully.", request.Resource.Id);

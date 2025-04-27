@@ -31,7 +31,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<AddressResource>, 
     {
       var address = mapper.Map<AddressResource, Models.Staffs.Address>(request.Resource);
 
-      repository.Add(address);
+      await repository.Add(address);
 
       await unitOfWork.CompleteAsync();
 

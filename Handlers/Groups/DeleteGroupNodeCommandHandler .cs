@@ -12,12 +12,12 @@ namespace Klacks.Api.Handlers.Groups;
 /// </summary>
 public class DeleteGroupNodeCommandHandler : IRequestHandler<DeleteGroupNodeCommand, bool>
 {
-    private readonly IGroupNestedSetRepository _repository;
+    private readonly IGroupRepository _repository;
     private readonly DataBaseContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public DeleteGroupNodeCommandHandler(
-        IGroupNestedSetRepository repository,
+        IGroupRepository repository,
         DataBaseContext context,
         IHttpContextAccessor httpContextAccessor)
     {

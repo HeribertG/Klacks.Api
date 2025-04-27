@@ -13,10 +13,10 @@ namespace Klacks.Api.Handlers.Groups;
 /// </summary>
 public class GetGroupTreeQueryHandler : IRequestHandler<GetGroupTreeQuery, GroupTreeResource>
 {
-    private readonly IGroupNestedSetRepository _repository;
+    private readonly IGroupRepository _repository;
     private readonly DataBaseContext _context;
 
-    public GetGroupTreeQueryHandler(IGroupNestedSetRepository repository, DataBaseContext context)
+    public GetGroupTreeQueryHandler(IGroupRepository repository, DataBaseContext context)
     {
         _repository = repository;
         _context = context;
@@ -76,10 +76,10 @@ public class GetGroupTreeQueryHandler : IRequestHandler<GetGroupTreeQuery, Group
 /// </summary>
 public class GetGroupNodeDetailsQueryHandler : IRequestHandler<GetGroupNodeDetailsQuery, GroupTreeNodeResource>
 {
-    private readonly IGroupNestedSetRepository _repository;
+    private readonly IGroupRepository _repository;
     private readonly DataBaseContext _context;
 
-    public GetGroupNodeDetailsQueryHandler(IGroupNestedSetRepository repository, DataBaseContext context)
+    public GetGroupNodeDetailsQueryHandler(IGroupRepository repository, DataBaseContext context)
     {
         _repository = repository;
         _context = context;
@@ -132,10 +132,10 @@ public class GetGroupNodeDetailsQueryHandler : IRequestHandler<GetGroupNodeDetai
 /// </summary>
 public class GetPathToNodeQueryHandler : IRequestHandler<GetPathToNodeQuery, List<GroupTreeNodeResource>>
 {
-    private readonly IGroupNestedSetRepository _repository;
+    private readonly IGroupRepository _repository;
     private readonly DataBaseContext _context;
 
-    public GetPathToNodeQueryHandler(IGroupNestedSetRepository repository, DataBaseContext context)
+    public GetPathToNodeQueryHandler(IGroupRepository repository, DataBaseContext context)
     {
         _repository = repository;
         _context = context;

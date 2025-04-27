@@ -37,7 +37,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<SelectedCalendarReso
       }
 
       var updatedSelectedCalendar = mapper.Map(request.Resource, dbSelectedCalendar);
-      updatedSelectedCalendar = repository.Put(updatedSelectedCalendar);
+      updatedSelectedCalendar = await repository.Put(updatedSelectedCalendar);
       await unitOfWork.CompleteAsync();
 
       logger.LogInformation("SelectedCalendar with ID {Id} updated successfully.", request.Resource.Id);

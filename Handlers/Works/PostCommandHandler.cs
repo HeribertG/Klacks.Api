@@ -31,7 +31,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<WorkResource>, Wor
     {
       var work = mapper.Map<WorkResource, Models.Schedules.Work>(request.Resource);
 
-      repository.Add(work);
+      await repository.Add(work);
 
       await unitOfWork.CompleteAsync();
 

@@ -11,10 +11,10 @@ namespace Klacks.Api.Handlers.Groups;
 /// </summary>
 public class MoveGroupNodeCommandHandler : IRequestHandler<MoveGroupNodeCommand, GroupTreeNodeResource>
 {
-    private readonly IGroupNestedSetRepository _repository;
+    private readonly IGroupRepository _repository;
     private readonly IMediator _mediator;
 
-    public MoveGroupNodeCommandHandler(IGroupNestedSetRepository repository, IMediator mediator)
+    public MoveGroupNodeCommandHandler(IGroupRepository repository, IMediator mediator)
     {
         _repository = repository;
         _mediator = mediator;

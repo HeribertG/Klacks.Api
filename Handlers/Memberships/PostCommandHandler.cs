@@ -31,7 +31,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<MembershipResource
     {
       var membership = mapper.Map<MembershipResource, Models.Associations.Membership>(request.Resource);
 
-      repository.Add(membership);
+      await repository.Add(membership);
 
       await unitOfWork.CompleteAsync();
 

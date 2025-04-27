@@ -37,14 +37,14 @@ public class PutCommandHandler : IRequestHandler<PutCommand<AddressResource>, Ad
       }
 
       var updatedAddress = mapper.Map(request.Resource, dbAddress);
-      updatedAddress = repository.Put(updatedAddress);
+      updatedAddress = await repository.Put(updatedAddress);
       await unitOfWork.CompleteAsync();
 
       logger.LogInformation("Address with ID {AddressId} updated successfully.", request.Resource.Id);
 
       return mapper.Map<Models.Staffs.Address, AddressResource>(updatedAddress);
     }
-    catch (Exception ex)
+    catch (Exception ex)    
     {
       logger.LogError(ex, "Error occurred while updating address with ID {AddressId}.", request.Resource.Id);
       throw;

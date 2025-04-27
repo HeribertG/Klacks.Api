@@ -31,7 +31,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<CommunicationResou
     {
       var communication = mapper.Map<CommunicationResource, Models.Staffs.Communication>(request.Resource);
 
-      repository.Add(communication);
+      await repository.Add(communication);
 
       await unitOfWork.CompleteAsync();
 

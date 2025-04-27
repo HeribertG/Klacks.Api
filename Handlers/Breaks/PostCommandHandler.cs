@@ -30,7 +30,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<BreakResource>, Br
     try
     {
       var breakItem = mapper.Map<BreakResource, Models.Schedules.Break>(request.Resource);
-      repository.Add(breakItem);
+      await repository.Add(breakItem);
 
       await unitOfWork.CompleteAsync();
 

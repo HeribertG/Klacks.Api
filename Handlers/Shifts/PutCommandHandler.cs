@@ -37,7 +37,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<ShiftResource>, Shif
       }
 
       var updatedShift = mapper.Map(request.Resource, dbShift);
-      updatedShift = repository.Put(updatedShift);
+      updatedShift = await repository.Put(updatedShift);
       await unitOfWork.CompleteAsync();
 
       logger.LogInformation("Shift with ID {ShiftId} updated successfully.", request.Resource.Id);

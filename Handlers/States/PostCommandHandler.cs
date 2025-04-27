@@ -8,40 +8,40 @@ namespace Klacks.Api.Handlers.States;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<StateResource>, StateResource?>
 {
-  private readonly ILogger<PostCommandHandler> logger;
-  private readonly IMapper mapper;
-  private readonly IStateRepository repository;
-  private readonly IUnitOfWork unitOfWork;
+    private readonly ILogger<PostCommandHandler> logger;
+    private readonly IMapper mapper;
+    private readonly IStateRepository repository;
+    private readonly IUnitOfWork unitOfWork;
 
-  public PostCommandHandler(
-                            IMapper mapper,
-                            IStateRepository repository,
-                            IUnitOfWork unitOfWork,
-                            ILogger<PostCommandHandler> logger)
-  {
-    this.mapper = mapper;
-    this.repository = repository;
-    this.unitOfWork = unitOfWork;
-    this.logger = logger;
-  }
-
-  public async Task<StateResource?> Handle(PostCommand<StateResource> request, CancellationToken cancellationToken)
-  {
-    try
+    public PostCommandHandler(
+                              IMapper mapper,
+                              IStateRepository repository,
+                              IUnitOfWork unitOfWork,
+                              ILogger<PostCommandHandler> logger)
     {
-      var state = this.mapper.Map<StateResource, Models.Settings.State>(request.Resource);
-      this.repository.Add(state);
-
-      await this.unitOfWork.CompleteAsync();
-
-      logger.LogInformation("New state added successfully. ID: {StateId}", state.Id);
-
-      return this.mapper.Map<Models.Settings.State, StateResource>(state);
+        this.mapper = mapper;
+        this.repository = repository;
+        this.unitOfWork = unitOfWork;
+        this.logger = logger;
     }
-    catch (Exception ex)
+
+    public async Task<StateResource?> Handle(PostCommand<StateResource> request, CancellationToken cancellationToken)
     {
-      logger.LogError(ex, "Error occurred while adding a new state.");
-      throw;
+        try
+        {
+            var state = this.mapper.Map<StateResource, Models.Settings.State>(request.Resource);
+            await this.repository.Add(state);
+
+            await this.unitOfWork.CompleteAsync();
+
+            logger.LogInformation("New state added successfully. ID: {StateId}", state.Id);
+
+            return this.mapper.Map<Models.Settings.State, StateResource>(state);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error occurred while adding a new state.");
+            throw;
+        }
     }
-  }
 }

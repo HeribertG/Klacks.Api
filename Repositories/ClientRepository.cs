@@ -21,7 +21,7 @@ public class ClientRepository : IClientRepository
         this.macroEngine = macroEngine;
     }
 
-    public void Add(Client client)
+    public async Task Add(Client client)
     {
         for (int i = client.Annotations.Count - 1; i > -1; i--)
         {
@@ -341,7 +341,7 @@ public class ClientRepository : IClientRepository
     }
 
 
-    public Client Put(Client client)
+     public async Task<Client>Put(Client client)
     {
         this.ChangeClientNestedLists(client);
 

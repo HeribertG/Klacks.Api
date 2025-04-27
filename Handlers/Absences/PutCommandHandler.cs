@@ -37,7 +37,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<AbsenceResource>, Ab
       }
 
       var updatedAbsence = mapper.Map(request.Resource, dbAbsence);
-      updatedAbsence = repository.Put(updatedAbsence);
+      updatedAbsence = await repository.Put(updatedAbsence);
       await unitOfWork.CompleteAsync();
 
       logger.LogInformation("Absence with ID {AbsenceId} updated successfully.", request.Resource.Id);

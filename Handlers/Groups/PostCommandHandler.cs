@@ -29,7 +29,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<GroupResource>, Gr
   {
     var group = mapper.Map<GroupResource, Models.Associations.Group>(request.Resource);
 
-    repository.Add(group);
+    await repository.Add(group);
 
     await unitOfWork.CompleteAsync();
 

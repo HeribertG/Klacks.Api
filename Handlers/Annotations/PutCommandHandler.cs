@@ -37,12 +37,12 @@ public class PutCommandHandler : IRequestHandler<PutCommand<AnnotationResource>,
       }
 
       var updatedAnnotation = mapper.Map(request.Resource, dbAnnotation);
-      updatedAnnotation = repository.Put(updatedAnnotation);
+      updatedAnnotation = await repository.Put(updatedAnnotation);
       await unitOfWork.CompleteAsync();
 
       logger.LogInformation("Annotation with ID {AnnotationId} updated successfully.", request.Resource.Id);
 
-      return mapper.Map<Models.Staffs.Annotation, AnnotationResource>(updatedAnnotation);
+      return mapper.Map<Models. Staffs.Annotation, AnnotationResource>(updatedAnnotation);
     }
     catch (Exception ex)
     {

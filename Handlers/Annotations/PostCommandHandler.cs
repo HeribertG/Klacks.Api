@@ -30,7 +30,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<AnnotationResource
     try
     {
       var annotation = mapper.Map<AnnotationResource, Models.Staffs.Annotation>(request.Resource);
-      repository.Add(annotation);
+      await repository.Add(annotation);
 
       await unitOfWork.CompleteAsync();
 

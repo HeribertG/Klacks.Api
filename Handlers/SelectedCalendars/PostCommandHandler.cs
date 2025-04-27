@@ -30,7 +30,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<SelectedCalendarRe
     try
     {
       var selectedCalendar = mapper.Map<SelectedCalendarResource, Models.CalendarSelections.SelectedCalendar>(request.Resource);
-      repository.Add(selectedCalendar);
+      await repository.Add(selectedCalendar);
 
       await unitOfWork.CompleteAsync();
 

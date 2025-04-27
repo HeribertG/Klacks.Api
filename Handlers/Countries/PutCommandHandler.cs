@@ -37,7 +37,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<CountryResource>, Co
       }
 
       var updatedCountry = this.mapper.Map(request.Resource, dbCountry);
-      updatedCountry = this.repository.Put(updatedCountry);
+      updatedCountry = await this.repository.Put(updatedCountry);
       await this.unitOfWork.CompleteAsync();
 
       logger.LogInformation("Country with ID {CountryId} updated successfully.", request.Resource.Id);

@@ -9,10 +9,10 @@ namespace Klacks.Api.Services
 {
     public class GroupTreeService : IGroupTreeService
     {
-        private readonly IGroupNestedSetRepository _groupNestedSetRepository;
+        private readonly IGroupRepository _groupNestedSetRepository;
         private readonly DataBaseContext _context;
 
-        public GroupTreeService(IGroupNestedSetRepository groupNestedSetRepository, DataBaseContext context)
+        public GroupTreeService(IGroupRepository groupNestedSetRepository, DataBaseContext context)
         {
             _groupNestedSetRepository = groupNestedSetRepository;
             _context = context;

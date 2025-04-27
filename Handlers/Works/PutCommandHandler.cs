@@ -37,7 +37,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<WorkResource>, WorkR
       }
 
       var updatedWork = mapper.Map(request.Resource, dbWork);
-      updatedWork = repository.Put(updatedWork);
+      updatedWork = await repository.Put(updatedWork);
       await unitOfWork.CompleteAsync();
 
       logger.LogInformation("Work with ID {WorkId} updated successfully.", request.Resource.Id);
