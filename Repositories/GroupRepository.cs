@@ -24,65 +24,52 @@ namespace Klacks.Api.Repositories
             }
             else
             {
-               await AddRootNode(model);
+                await AddRootNode(model);
             }
         }
 
         public override async Task<Group?> Delete(Guid id)
         {
             var group = await context.Group.FirstOrDefaultAsync(g => g.Id == id);
-
             await DeleteNode(id);
-
             return group;
         }
 
         public async Task<Group> AddChildNode(Guid parentId, Group newGroup)
         {
-            using var transaction = await context.Database.BeginTransactionAsync();
-            try
+            var parent = await context.Group
+                .Where(g => g.Id == parentId && !g.IsDeleted)
+                .FirstOrDefaultAsync();
+
+            if (parent == null)
             {
-                var parent = await context.Group
-                    .Where(g => g.Id == parentId && !g.IsDeleted)
-                    .FirstOrDefaultAsync();
-
-                if (parent == null)
-                {
-                    throw new KeyNotFoundException($"Eltern-Gruppe mit ID {parentId} nicht gefunden");
-                }
-
-                // Platz schaffen für den neuen Knoten
-                await context.Database.ExecuteSqlRawAsync(
-                    "UPDATE \"group\" SET \"rgt\" = \"rgt\" + 2 WHERE \"rgt\" > @p0 AND \"is_deleted\" = false",
-                    parent.rgt);
-
-                await context.Database.ExecuteSqlRawAsync(
-                    "UPDATE \"group\" SET \"lft\" = \"lft\" + 2 WHERE \"lft\" > @p0 AND \"is_deleted\" = false",
-                    parent.rgt);
-
-                // Neuen Knoten einfügen
-                newGroup.Lft = parent.rgt;
-                newGroup.rgt = parent.rgt + 1;
-                newGroup.Parent = parent.Id;
-                newGroup.Root = parent.Root ?? parent.Id;
-                newGroup.CreateTime = DateTime.UtcNow;
-
-                context.Group.Add(newGroup);
-                await context.SaveChangesAsync();
-
-                await transaction.CommitAsync();
-                return newGroup;
+                throw new KeyNotFoundException($"Eltern-Gruppe mit ID {parentId} nicht gefunden");
             }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"rgt\" = \"rgt\" + 2 WHERE \"rgt\" >= @p0 AND \"root\" = @p1 AND \"is_deleted\" = false",
+                parent.rgt, parent.Root);
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"lft\" = \"lft\" + 2 WHERE \"lft\" > @p0 AND \"root\" = @p1 AND \"is_deleted\" = false",
+                parent.rgt, parent.Root);
+
+
+            newGroup.Lft = parent.rgt;
+            newGroup.rgt = parent.rgt + 1;
+            newGroup.Parent = parent.Id;
+            newGroup.Root = parent.Root ?? parent.Id;
+            newGroup.CreateTime = DateTime.UtcNow;
+
+            context.Group.Add(newGroup);
+
+            return newGroup;
         }
 
         public async Task<Group> AddRootNode(Group newGroup)
         {
-            // Finden des höchsten rechten Wertes, um den neuen Baum anzufügen
+
             var maxRgt = await context.Group
                 .Where(g => !g.IsDeleted && g.Root == null)
                 .OrderByDescending(g => g.rgt)
@@ -96,54 +83,37 @@ namespace Klacks.Api.Repositories
             newGroup.CreateTime = DateTime.UtcNow;
 
             context.Group.Add(newGroup);
-            await context.SaveChangesAsync();
-
-            // Aktualisiere die Root-ID für diesen neuen Wurzelknoten
-            newGroup.Root = newGroup.Id;
-            context.Group.Update(newGroup);
-            await context.SaveChangesAsync();
 
             return newGroup;
         }
 
         public async Task DeleteNode(Guid id)
         {
-            using var transaction = await context.Database.BeginTransactionAsync();
-            try
+            var node = await context.Group
+                .Where(g => g.Id == id && !g.IsDeleted)
+                .FirstOrDefaultAsync();
+
+            if (node == null)
             {
-                var node = await context.Group
-                    .Where(g => g.Id == id && !g.IsDeleted)
-                    .FirstOrDefaultAsync();
-
-                if (node == null)
-                {
-                    throw new KeyNotFoundException($"Gruppe mit ID {id} nicht gefunden");
-                }
-
-                var width = node.rgt - node.Lft + 1;
-
-                // Markiere diesen Knoten und alle Kindknoten als gelöscht
-                await context.Database.ExecuteSqlRawAsync(
-                    "UPDATE \"group\" SET \"is_deleted\" = true, \"deleted_time\" = @p0 " +
-                    "WHERE \"lft\" >= @p1 AND \"rgt\" <= @p2 AND \"root\" = @p3",
-                    DateTime.UtcNow, node.Lft, node.rgt, node.Root);
-
-                // Aktualisiere die Lft- und Rgt-Werte aller Knoten nach diesem
-                await context.Database.ExecuteSqlRawAsync(
-                    "UPDATE \"group\" SET \"lft\" = \"lft\" - @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
-                    width, node.rgt, node.Root);
-
-                await context.Database.ExecuteSqlRawAsync(
-                    "UPDATE \"group\" SET \"rgt\" = \"rgt\" - @p0 WHERE \"rgt\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
-                    width, node.rgt, node.Root);
-
-                await transaction.CommitAsync();
+                throw new KeyNotFoundException($"Gruppe mit ID {id} nicht gefunden");
             }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+
+            var width = node.rgt - node.Lft + 1;
+
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"is_deleted\" = true, \"deleted_time\" = @p0 " +
+                "WHERE \"lft\" >= @p1 AND \"rgt\" <= @p2 AND \"root\" = @p3",
+                DateTime.UtcNow, node.Lft, node.rgt, node.Root);
+
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"lft\" = \"lft\" - @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
+                width, node.rgt, node.Root);
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"rgt\" = \"rgt\" - @p0 WHERE \"rgt\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
+                width, node.rgt, node.Root);
         }
 
         public IQueryable<Group> FilterGroup(GroupFilter filter)
@@ -177,7 +147,7 @@ namespace Klacks.Api.Repositories
                 throw new KeyNotFoundException($"Eltern-Gruppe mit ID {parentId} nicht gefunden");
             }
 
-            // Direkten Kinder sind ein Level tiefer
+
             return await context.Group
                 .Where(g => g.Parent == parentId && !g.IsDeleted)
                 .OrderBy(g => g.Lft)
@@ -195,7 +165,7 @@ namespace Klacks.Api.Repositories
                 throw new KeyNotFoundException($"Gruppe mit ID {nodeId} nicht gefunden");
             }
 
-            // Die Tiefe ist die Anzahl der Vorfahren
+
             var depth = await context.Group
                 .CountAsync(g => g.Lft < node.Lft && g.rgt > node.rgt && g.Root == node.Root && !g.IsDeleted);
 
@@ -219,13 +189,14 @@ namespace Klacks.Api.Repositories
                 .ToListAsync();
         }
 
-
         public async Task<IEnumerable<Group>> GetTree(Guid? rootId = null)
         {
             if (rootId.HasValue)
             {
                 var root = await context.Group
                     .Where(g => g.Id == rootId)
+                    .Include(g => g.GroupItems)
+                    .ThenInclude(gi => gi.Client)
                     .FirstOrDefaultAsync();
 
                 if (root == null)
@@ -234,108 +205,100 @@ namespace Klacks.Api.Repositories
                 }
 
                 return await context.Group
-                    .Where(g => g.Root == rootId )
+                    .Where(g => g.Root == rootId)
+                    .Include(g => g.GroupItems)
+                    .ThenInclude(gi => gi.Client)
                     .OrderBy(g => g.Root)
                     .ThenBy(g => g.Lft)
                     .ToListAsync();
             }
             else
             {
-                // Alle Root-Nodes und ihre Kinder holen
                 return await context.Group
                     .Where(g => !g.IsDeleted)
+                    .Include(g => g.GroupItems)
+                    .ThenInclude(gi => gi.Client)
                     .OrderBy(g => g.Root)
                     .ThenBy(g => g.Lft)
                     .ToListAsync();
             }
         }
 
+
         public async Task MoveNode(Guid nodeId, Guid newParentId)
         {
-            using var transaction = await context.Database.BeginTransactionAsync();
-            try
+            var node = await context.Group
+                .Where(g => g.Id == nodeId)
+                .FirstOrDefaultAsync();
+
+            if (node == null)
             {
-                var node = await context.Group
-                    .Where(g => g.Id == nodeId)
-                    .FirstOrDefaultAsync();
-
-                if (node == null)
-                {
-                    throw new KeyNotFoundException($"Zu verschiebende Gruppe mit ID {nodeId} nicht gefunden");
-                }
-
-                var newParent = await context.Group
-                    .Where(g => g.Id == newParentId && !g.IsDeleted)
-                    .FirstOrDefaultAsync();
-
-                if (newParent == null)
-                {
-                    throw new KeyNotFoundException($"Neue Eltern-Gruppe mit ID {newParentId} nicht gefunden");
-                }
-
-                // Prüfen, ob der neue Elternteil nicht ein Nachkomme des zu verschiebenden Knotens ist
-                if (newParent.Lft > node.Lft && newParent.rgt < node.rgt)
-                {
-                    throw new InvalidOperationException("Der neue Elternteil kann nicht ein Nachkomme des zu verschiebenden Knotens sein");
-                }
-
-                var nodeWidth = node.rgt - node.Lft + 1;
-                var newPos = newParent.rgt;
-
-                // Temporäre Markierung der zu verschiebenden Knoten mit negativen Werten
-                await context.Database.ExecuteSqlRawAsync(
-                    "UPDATE \"group\" SET \"lft\" = -\"lft\", \"rgt\" = -\"rgt\" " +
-                    "WHERE \"lft\" >= @p0 AND \"rgt\" <= @p1 AND \"root\" = @p2",
-                    node.Lft, node.rgt, node.Root);
-
-                // Anpassen der Lücke, die durch das Verschieben des Knotens entsteht
-                await context.Database.ExecuteSqlRawAsync(
-                    "UPDATE \"group\" SET \"lft\" = \"lft\" - @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2",
-                    nodeWidth, node.rgt, node.Root);
-
-                await context.Database.ExecuteSqlRawAsync(
-                    "UPDATE \"group\" SET \"rgt\" = \"rgt\" - @p0 WHERE \"rgt\" > @p1 AND \"root\" = @p2",
-                    nodeWidth, node.rgt, node.Root);
-
-                // Anpassen der Position, an der der Knoten eingefügt wird
-                if (newPos > node.rgt)
-                {
-                    newPos -= nodeWidth;
-                }
-
-                // Platz für den zu verschiebenden Knoten schaffen
-                await context.Database.ExecuteSqlRawAsync(
-                    "UPDATE \"group\" SET \"rgt\" = \"rgt\" + @p0 WHERE \"rgt\" >= @p1 AND \"root\" = @p2",
-                    nodeWidth, newPos, newParent.Root);
-
-                await context.Database.ExecuteSqlRawAsync(
-                    "UPDATE \"group\" SET \"lft\" = \"lft\" + @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2",
-                    nodeWidth, newPos, newParent.Root);
-
-                // Verschieben der Knoten an die neue Position und Aktualisieren des Root-Werts
-                var offset = newPos - node.Lft;
-                await context.Database.ExecuteSqlRawAsync(
-                    "UPDATE \"group\" SET \"lft\" = -\"lft\" + @p0, \"rgt\" = -\"rgt\" + @p0, \"root\" = @p1 " +
-                    "WHERE \"lft\" <= 0 AND \"root\" = @p2",
-                    offset, newParent.Root, node.Root);
-
-                // Aktualisiere den Parent-Wert des verschobenen Knotens
-                node.Parent = newParentId;
-                context.Group.Update(node);
-
-                await context.SaveChangesAsync();
-                await transaction.CommitAsync();
+                throw new KeyNotFoundException($"Zu verschiebende Gruppe mit ID {nodeId} nicht gefunden");
             }
-            catch
+
+            var newParent = await context.Group
+                .Where(g => g.Id == newParentId && !g.IsDeleted)
+                .FirstOrDefaultAsync();
+
+            if (newParent == null)
             {
-                await transaction.RollbackAsync();
-                throw;
+                throw new KeyNotFoundException($"Neue Eltern-Gruppe mit ID {newParentId} nicht gefunden");
             }
+
+
+            if (newParent.Lft > node.Lft && newParent.rgt < node.rgt)
+            {
+                throw new InvalidOperationException("Der neue Elternteil kann nicht ein Nachkomme des zu verschiebenden Knotens sein");
+            }
+
+            var nodeWidth = node.rgt - node.Lft + 1;
+            var newPos = newParent.rgt;
+
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"lft\" = -\"lft\", \"rgt\" = -\"rgt\" " +
+                "WHERE \"lft\" >= @p0 AND \"rgt\" <= @p1 AND \"root\" = @p2",
+                node.Lft, node.rgt, node.Root);
+
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"lft\" = \"lft\" - @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2",
+                nodeWidth, node.rgt, node.Root);
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"rgt\" = \"rgt\" - @p0 WHERE \"rgt\" > @p1 AND \"root\" = @p2",
+                nodeWidth, node.rgt, node.Root);
+
+
+            if (newPos > node.rgt)
+            {
+                newPos -= nodeWidth;
+            }
+
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"rgt\" = \"rgt\" + @p0 WHERE \"rgt\" >= @p1 AND \"root\" = @p2",
+                nodeWidth, newPos, newParent.Root);
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"lft\" = \"lft\" + @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2",
+                nodeWidth, newPos, newParent.Root);
+
+
+            var offset = newPos - node.Lft;
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"lft\" = -\"lft\" + @p0, \"rgt\" = -\"rgt\" + @p0, \"root\" = @p1 " +
+                "WHERE \"lft\" <= 0 AND \"root\" = @p2",
+                offset, newParent.Root, node.Root);
+
+
+            node.Parent = newParentId;
+            context.Group.Update(node);
         }
 
-        public override Group Put(Group model)
+
+        public override async Task<Group?> Put(Group model)
         {
-            // GroupItems aktualisieren
             var existingIds = context.GroupItem.Where(x => x.GroupId == model.Id).Select(x => x.ClientId).ToList();
             var modelListIds = model.GroupItems.Select(x => x.ClientId).ToList();
 
@@ -357,28 +320,21 @@ namespace Klacks.Api.Repositories
                 }
             }
 
-            // Bestehende Gruppe abrufen
-            var existingGroup = context.Group.AsNoTracking().FirstOrDefault(x => x.Id == model.Id);
+            var existingGroup = await context.Group.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.Id);
             if (existingGroup != null)
             {
-                // Prüfen, ob sich der Parent geändert hat
                 if (existingGroup.Parent != model.Parent)
                 {
-                    // Grundlegende Daten aktualisieren
-                    Task.Run(async () => await UpdateNode(model)).Wait();
+                    await UpdateNode(model);
 
-                    // Wenn ein neuer Parent gesetzt ist, verschieben
                     if (model.Parent.HasValue)
                     {
-                        Task.Run(async () => await MoveNode(model.Id, model.Parent.Value)).Wait();
+                        await MoveNode(model.Id, model.Parent.Value);
                     }
-                    // Wenn der Parent auf null gesetzt wurde, müsste hier eine Logik implementiert werden,
-                    // um einen Knoten zu einem Root-Knoten zu machen
                 }
                 else
                 {
-                    // Nur grundlegende Daten aktualisieren
-                    Task.Run(async () => await UpdateNode(model)).Wait();
+                    await UpdateNode(model);
                 }
             }
 
@@ -453,7 +409,7 @@ namespace Klacks.Api.Repositories
                 throw new KeyNotFoundException($"Gruppe mit ID {updatedGroup.Id} nicht gefunden");
             }
 
-            // Nur die grundlegenden Informationen aktualisieren, nicht die Baumstruktur
+
             existingGroup.Name = updatedGroup.Name;
             existingGroup.Description = updatedGroup.Description;
             existingGroup.ValidFrom = updatedGroup.ValidFrom;
@@ -462,9 +418,7 @@ namespace Klacks.Api.Repositories
             existingGroup.CurrentUserUpdated = updatedGroup.CurrentUserUpdated;
 
             context.Group.Update(existingGroup);
-            await context.SaveChangesAsync();
         }
-
 
         private List<GroupItem> CreateList(List<Guid> list, Guid groubId)
         {
@@ -479,6 +433,7 @@ namespace Klacks.Api.Repositories
 
         private IQueryable<Group> FilterByDateRange(bool activeDateRange, bool formerDateRange, bool futureDateRange, IQueryable<Group> tmp)
         {
+
             if (activeDateRange && formerDateRange && futureDateRange)
             {
                 // No need for filters
@@ -550,6 +505,7 @@ namespace Klacks.Api.Repositories
 
         private IQueryable<Group> FilterBySearchString(string searchString, IQueryable<Group> tmp)
         {
+
             var keywordList = searchString.TrimEnd().TrimStart().ToLower().Split(' ');
 
             if (keywordList.Length == 1)
@@ -597,6 +553,7 @@ namespace Klacks.Api.Repositories
 
         private IQueryable<Group> Sort(string orderBy, string sortOrder, IQueryable<Group> tmp)
         {
+
             if (sortOrder != string.Empty)
             {
                 if (orderBy == "name")

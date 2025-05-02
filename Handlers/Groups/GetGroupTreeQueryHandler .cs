@@ -4,13 +4,9 @@ using Klacks.Api.Queries.Groups;
 using Klacks.Api.Resources.Associations;
 using Klacks.Api.Resources.Staffs;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Handlers.Groups;
 
-/// <summary>
-/// Handler für die GetGroupTreeQuery
-/// </summary>
 public class GetGroupTreeQueryHandler : IRequestHandler<GetGroupTreeQuery, GroupTreeResource>
 {
     private readonly IGroupRepository _repository;
@@ -36,20 +32,31 @@ public class GetGroupTreeQueryHandler : IRequestHandler<GetGroupTreeQuery, Group
             };
         }
 
-        var result = new GroupTreeResource
-        {
-            RootId = request.RootId ?? nodesList.FirstOrDefault(n => n.Parent == null)?.Id,
-            Nodes = new List<GroupTreeNodeResource>()
-        };
+        // Erstelle ein Dictionary zum Nachschlagen von Knoten anhand ihrer ID
+        Dictionary<Guid, GroupTreeNodeResource> nodesDict = new Dictionary<Guid, GroupTreeNodeResource>();
 
-        // Eine Hierarchie aus flachen Nodes bauen
+        // Erstelle Knoten-Ressourcen für jeden Knoten
         foreach (var node in nodesList)
         {
-            // Tiefe berechnen
-            var ancestorCount = nodesList.Count(n => n.Lft < node.Lft && n.rgt > node.rgt && n.Root == node.Root);
-            var clientsCount = await _context.GroupItem.CountAsync(gi => gi.GroupId == node.Id, cancellationToken);
+            // Statt count query die GroupItems Collection nutzen, die wir bereits geladen haben
+            int clientsCount = node.GroupItems?.Count ?? 0;
 
-            result.Nodes.Add(new GroupTreeNodeResource
+            // Berechne die Tiefe anhand der Nested Set-Struktur
+            var depth = nodesList.Count(n => n.Lft < node.Lft && n.rgt > node.rgt && n.Root == node.Root);
+
+            // Erstelle ClientResource-Objekte aus den GroupItems
+            var clientsResource = new List<ClientResource>();
+            if (node.GroupItems != null)
+            {
+                clientsResource = node.GroupItems.Select(gi => new ClientResource
+                {
+                    Id = gi.ClientId,
+                    Name = gi.Client?.Name ?? string.Empty,
+                    // Weitere Eigenschaften hier hinzufügen, je nach Bedarf
+                }).ToList();
+            }
+
+            var treeNode = new GroupTreeNodeResource
             {
                 Id = node.Id,
                 Name = node.Name,
@@ -60,116 +67,45 @@ public class GetGroupTreeQueryHandler : IRequestHandler<GetGroupTreeQuery, Group
                 Root = node.Root,
                 Lft = node.Lft,
                 Rgt = node.rgt,
-                Depth = ancestorCount,
+                Depth = depth,
+                // Setze die Clients-Sammlung aus den GroupItems
+                Clients = clientsResource,
                 ClientsCount = clientsCount,
                 CreateTime = node.CreateTime,
-                UpdateTime = node.UpdateTime
-            });
+                UpdateTime = node.UpdateTime,
+                CurrentUserCreated = node.CurrentUserCreated,
+                CurrentUserUpdated = node.CurrentUserUpdated,
+                Children = new List<GroupTreeNodeResource>()
+            };
+
+            nodesDict[node.Id] = treeNode;
         }
 
-        return result;
-    }
-}
-
-/// <summary>
-/// Handler für die GetGroupNodeDetailsQuery
-/// </summary>
-public class GetGroupNodeDetailsQueryHandler : IRequestHandler<GetGroupNodeDetailsQuery, GroupTreeNodeResource>
-{
-    private readonly IGroupRepository _repository;
-    private readonly DataBaseContext _context;
-
-    public GetGroupNodeDetailsQueryHandler(IGroupRepository repository, DataBaseContext context)
-    {
-        _repository = repository;
-        _context = context;
-    }
-
-    public async Task<GroupTreeNodeResource> Handle(GetGroupNodeDetailsQuery request, CancellationToken cancellationToken)
-    {
-        var group = await _context.Group
-            .Include(g => g.GroupItems)
-            .ThenInclude(gi => gi.Client)
-            .FirstOrDefaultAsync(g => g.Id == request.Id && !g.IsDeleted, cancellationToken);
-
-        if (group == null)
+        // Baue die Hierarchie auf, indem Knoten zu ihren Eltern hinzugefügt werden
+        foreach (var node in nodesDict.Values)
         {
-            throw new KeyNotFoundException($"Gruppe mit ID {request.Id} nicht gefunden");
+            if (node.ParentId.HasValue && nodesDict.ContainsKey(node.ParentId.Value))
+            {
+                var parent = nodesDict[node.ParentId.Value];
+                parent.Children.Add(node);
+            }
         }
 
-        var depth = await _repository.GetNodeDepth(request.Id);
-        var clientsResource = group.GroupItems.Select(gi => new ClientResource
-        {
-            Id = gi.ClientId,
-            Name = gi.Client?.Name ?? string.Empty,
-            // Weitere Eigenschaften hier hinzufügen
-        }).ToList();
+        // Die Hauptliste enthält nur die Root-Knoten
+        var rootNodes = nodesDict.Values
+            .Where(n => !n.ParentId.HasValue || !nodesDict.ContainsKey(n.ParentId.Value))
+            .ToList();
 
-        return new GroupTreeNodeResource
+        // Sortiere alle Bäume nach Root und dann nach Lft
+        rootNodes = rootNodes
+            .OrderBy(n => n.Root)
+            .ThenBy(n => n.Lft)
+            .ToList();
+
+        return new GroupTreeResource
         {
-            Id = group.Id,
-            Name = group.Name,
-            Description = group.Description,
-            ValidFrom = group.ValidFrom,
-            ValidUntil = group.ValidUntil,
-            ParentId = group.Parent,
-            Root = group.Root,
-            Lft = group.Lft,
-            Rgt = group.rgt,
-            Depth = depth,
-            Clients = clientsResource,
-            ClientsCount = clientsResource.Count,
-            CreateTime = group.CreateTime,
-            UpdateTime = group.UpdateTime,
-            CurrentUserCreated = group.CurrentUserCreated,
-            CurrentUserUpdated = group.CurrentUserUpdated
+            RootId = request.RootId ?? rootNodes.FirstOrDefault()?.Id,
+            Nodes = rootNodes
         };
-    }
-}
-
-/// <summary>
-/// Handler für die GetPathToNodeQuery
-/// </summary>
-public class GetPathToNodeQueryHandler : IRequestHandler<GetPathToNodeQuery, List<GroupTreeNodeResource>>
-{
-    private readonly IGroupRepository _repository;
-    private readonly DataBaseContext _context;
-
-    public GetPathToNodeQueryHandler(IGroupRepository repository, DataBaseContext context)
-    {
-        _repository = repository;
-        _context = context;
-    }
-
-    public async Task<List<GroupTreeNodeResource>> Handle(GetPathToNodeQuery request, CancellationToken cancellationToken)
-    {
-        var pathNodes = await _repository.GetPath(request.NodeId);
-
-        var result = new List<GroupTreeNodeResource>();
-        var depth = 0;
-
-        foreach (var node in pathNodes.OrderBy(n => n.Lft))
-        {
-            var clientsCount = await _context.GroupItem.CountAsync(gi => gi.GroupId == node.Id, cancellationToken);
-
-            result.Add(new GroupTreeNodeResource
-            {
-                Id = node.Id,
-                Name = node.Name,
-                Description = node.Description,
-                ValidFrom = node.ValidFrom,
-                ValidUntil = node.ValidUntil,
-                ParentId = node.Parent,
-                Root = node.Root,
-                Lft = node.Lft,
-                Rgt = node.rgt,
-                Depth = depth++,
-                ClientsCount = clientsCount,
-                CreateTime = node.CreateTime,
-                UpdateTime = node.UpdateTime
-            });
-        }
-
-        return result;
     }
 }

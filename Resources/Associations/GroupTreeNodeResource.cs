@@ -38,4 +38,6 @@ public class GroupTreeNodeResource
     public string? CurrentUserCreated { get; set; }
 
     public string? CurrentUserUpdated { get; set; }
+
+    public List<GroupTreeNodeResource> Children { get; set; } = new List<GroupTreeNodeResource>();
 }

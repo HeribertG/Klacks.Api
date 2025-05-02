@@ -38,7 +38,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<GroupResource>, Grou
 
       var updatedGroup = mapper.Map(request.Resource, dbGroup);
 
-      repository.Put(updatedGroup);
+      await repository.Put(updatedGroup);
       await unitOfWork.CompleteAsync();
 
       var dbUpdatedGroup = await repository.Get(request.Resource.Id);

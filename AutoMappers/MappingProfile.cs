@@ -215,9 +215,11 @@ public class MappingProfile : Profile
          ;
 
         CreateMap<Group, GroupResource>()
+          .ForMember(dest => dest.GroupItems, opt => opt.MapFrom(src => src.GroupItems))
           ;
 
         CreateMap<GroupResource, Group>()
+          .ForMember(dest => dest.GroupItems, opt => opt.MapFrom(src => src.GroupItems))
           .ForMember(x => x.CreateTime, o => o.Ignore())
           .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
           .ForMember(x => x.UpdateTime, o => o.Ignore())
@@ -267,7 +269,6 @@ public class MappingProfile : Profile
           .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
           ;
 
-        // Mapping für GroupCreateResource -> Group
         CreateMap<GroupCreateResource, Group>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.GroupItems, opt => opt.Ignore())
@@ -283,7 +284,6 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Parent, opt => opt.Ignore())
             .ForMember(dest => dest.Root, opt => opt.Ignore());
 
-        // Mapping für GroupUpdateResource -> Group
         CreateMap<GroupUpdateResource, Group>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.GroupItems, opt => opt.Ignore())
@@ -299,15 +299,12 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Parent, opt => opt.MapFrom(src => src.ParentId))
             .ForMember(dest => dest.Root, opt => opt.Ignore());
 
-        // Mapping für Group -> GroupTreeNodeResource
         CreateMap<Group, GroupTreeNodeResource>()
             .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.Parent))
             .ForMember(dest => dest.Rgt, opt => opt.MapFrom(src => src.rgt))
             .ForMember(dest => dest.Depth, opt => opt.Ignore())
             .ForMember(dest => dest.ClientsCount, opt => opt.Ignore())
-        .ForMember(dest => dest.Clients, opt => opt.Ignore());
-
-        
-
+            .ForMember(dest => dest.Clients, opt => opt.Ignore())
+            .ForMember(dest => dest.Children, opt => opt.Ignore());
     }
 }

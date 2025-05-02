@@ -15,7 +15,7 @@ public interface IBaseRepository<TEntity>
 
     Task<List<TEntity>> List();
 
-    Task<TEntity> Put(TEntity model);
+    Task<TEntity?> Put(TEntity model);
 
     void Remove(TEntity model);
 }
