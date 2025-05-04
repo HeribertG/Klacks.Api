@@ -31,13 +31,5 @@ public class GroupTreeNodeResource
 
     public ICollection<ClientResource>? Clients { get; set; }
 
-    public DateTime? CreateTime { get; set; }
-
-    public DateTime? UpdateTime { get; set; }
-
-    public string? CurrentUserCreated { get; set; }
-
-    public string? CurrentUserUpdated { get; set; }
-
     public List<GroupTreeNodeResource> Children { get; set; } = new List<GroupTreeNodeResource>();
 }

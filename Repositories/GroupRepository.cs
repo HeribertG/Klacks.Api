@@ -30,20 +30,44 @@ namespace Klacks.Api.Repositories
 
         public override async Task<Group?> Delete(Guid id)
         {
-            var group = await context.Group.FirstOrDefaultAsync(g => g.Id == id);
-            await DeleteNode(id);
-            return group;
+            var groupEntity = await context.Group
+                .Where(g => g.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (groupEntity == null)
+            {
+                throw new KeyNotFoundException($"Group with ID {id} not found");
+            }
+
+            var width = groupEntity.rgt - groupEntity.Lft + 1;
+
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"is_deleted\" = true, \"deleted_time\" = @p0 " +
+                "WHERE \"lft\" >= @p1 AND \"rgt\" <= @p2 AND \"root\" = @p3",
+                DateTime.UtcNow, groupEntity.Lft, groupEntity.rgt, groupEntity.Root);
+
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"lft\" = \"lft\" - @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
+                width, groupEntity.rgt, groupEntity.Root);
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"rgt\" = \"rgt\" - @p0 WHERE \"rgt\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
+                width, groupEntity.rgt, groupEntity.Root);
+
+            return groupEntity;
         }
 
-        public async Task<Group> AddChildNode(Guid parentId, Group newGroup)
+        private async Task<Group> AddChildNode(Guid parentId, Group newGroup)
         {
             var parent = await context.Group
-                .Where(g => g.Id == parentId && !g.IsDeleted)
+                .Where(g => g.Id == parentId )
                 .FirstOrDefaultAsync();
 
             if (parent == null)
             {
-                throw new KeyNotFoundException($"Eltern-Gruppe mit ID {parentId} nicht gefunden");
+                throw new KeyNotFoundException($"Parent group with ID {parentId} not found");
             }
 
 
@@ -71,7 +95,7 @@ namespace Klacks.Api.Repositories
         {
 
             var maxRgt = await context.Group
-                .Where(g => !g.IsDeleted && g.Root == null)
+                .Where(g =>  g.Root == null)
                 .OrderByDescending(g => g.rgt)
                 .Select(g => (int?)g.rgt)
                 .FirstOrDefaultAsync() ?? 0;
@@ -87,34 +111,8 @@ namespace Klacks.Api.Repositories
             return newGroup;
         }
 
-        public async Task DeleteNode(Guid id)
-        {
-            var node = await context.Group
-                .Where(g => g.Id == id && !g.IsDeleted)
-                .FirstOrDefaultAsync();
+        
 
-            if (node == null)
-            {
-                throw new KeyNotFoundException($"Gruppe mit ID {id} nicht gefunden");
-            }
-
-            var width = node.rgt - node.Lft + 1;
-
-
-            await context.Database.ExecuteSqlRawAsync(
-                "UPDATE \"group\" SET \"is_deleted\" = true, \"deleted_time\" = @p0 " +
-                "WHERE \"lft\" >= @p1 AND \"rgt\" <= @p2 AND \"root\" = @p3",
-                DateTime.UtcNow, node.Lft, node.rgt, node.Root);
-
-
-            await context.Database.ExecuteSqlRawAsync(
-                "UPDATE \"group\" SET \"lft\" = \"lft\" - @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
-                width, node.rgt, node.Root);
-
-            await context.Database.ExecuteSqlRawAsync(
-                "UPDATE \"group\" SET \"rgt\" = \"rgt\" - @p0 WHERE \"rgt\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
-                width, node.rgt, node.Root);
-        }
 
         public IQueryable<Group> FilterGroup(GroupFilter filter)
         {
@@ -139,17 +137,17 @@ namespace Klacks.Api.Repositories
         public async Task<IEnumerable<Group>> GetChildren(Guid parentId)
         {
             var parent = await context.Group
-                .Where(g => g.Id == parentId && !g.IsDeleted)
+                .Where(g => g.Id == parentId  )
                 .FirstOrDefaultAsync();
 
             if (parent == null)
             {
-                throw new KeyNotFoundException($"Eltern-Gruppe mit ID {parentId} nicht gefunden");
+                throw new KeyNotFoundException($"Parent group with ID {parentId} not found");
             }
 
 
             return await context.Group
-                .Where(g => g.Parent == parentId && !g.IsDeleted)
+                .Where(g => g.Parent == parentId  )
                 .OrderBy(g => g.Lft)
                 .ToListAsync();
         }
@@ -157,17 +155,17 @@ namespace Klacks.Api.Repositories
         public async Task<int> GetNodeDepth(Guid nodeId)
         {
             var node = await context.Group
-                .Where(g => g.Id == nodeId && !g.IsDeleted)
+                .Where(g => g.Id == nodeId  )
                 .FirstOrDefaultAsync();
 
             if (node == null)
             {
-                throw new KeyNotFoundException($"Gruppe mit ID {nodeId} nicht gefunden");
+                throw new KeyNotFoundException($"Group with ID {nodeId} not found");
             }
 
 
             var depth = await context.Group
-                .CountAsync(g => g.Lft < node.Lft && g.rgt > node.rgt && g.Root == node.Root && !g.IsDeleted);
+                .CountAsync(g => g.Lft < node.Lft && g.rgt > node.rgt && g.Root == node.Root  );
 
             return depth;
         }
@@ -175,12 +173,12 @@ namespace Klacks.Api.Repositories
         public async Task<IEnumerable<Group>> GetPath(Guid nodeId)
         {
             var node = await context.Group
-                .Where(g => g.Id == nodeId && !g.IsDeleted)
+                .Where(g => g.Id == nodeId  )
                 .FirstOrDefaultAsync();
 
             if (node == null)
             {
-                throw new KeyNotFoundException($"Gruppe mit ID {nodeId} nicht gefunden");
+                throw new KeyNotFoundException($"Group with ID  {nodeId}  not found");
             }
 
             return await context.Group
@@ -201,7 +199,7 @@ namespace Klacks.Api.Repositories
 
                 if (root == null)
                 {
-                    throw new KeyNotFoundException($"Wurzel-Gruppe mit ID {rootId} nicht gefunden");
+                    throw new KeyNotFoundException($"Root group with ID {rootId} not found");
                 }
 
                 return await context.Group
@@ -215,7 +213,6 @@ namespace Klacks.Api.Repositories
             else
             {
                 return await context.Group
-                    .Where(g => !g.IsDeleted)
                     .Include(g => g.GroupItems)
                     .ThenInclude(gi => gi.Client)
                     .OrderBy(g => g.Root)
@@ -233,22 +230,22 @@ namespace Klacks.Api.Repositories
 
             if (node == null)
             {
-                throw new KeyNotFoundException($"Zu verschiebende Gruppe mit ID {nodeId} nicht gefunden");
+                throw new KeyNotFoundException($"Group to be moved with ID {nodeId} not found");
             }
 
             var newParent = await context.Group
-                .Where(g => g.Id == newParentId && !g.IsDeleted)
+                .Where(g => g.Id == newParentId  )
                 .FirstOrDefaultAsync();
 
             if (newParent == null)
             {
-                throw new KeyNotFoundException($"Neue Eltern-Gruppe mit ID {newParentId} nicht gefunden");
+                throw new KeyNotFoundException($"New parent group with ID {newParentId} not found");
             }
 
 
             if (newParent.Lft > node.Lft && newParent.rgt < node.rgt)
             {
-                throw new InvalidOperationException("Der neue Elternteil kann nicht ein Nachkomme des zu verschiebenden Knotens sein");
+                throw new InvalidOperationException("The new parent cannot be a descendant of the groupEntity to be moved");
             }
 
             var nodeWidth = node.rgt - node.Lft + 1;
@@ -325,7 +322,7 @@ namespace Klacks.Api.Repositories
             {
                 if (existingGroup.Parent != model.Parent)
                 {
-                    await UpdateNode(model);
+                    UpdateNode(model, existingGroup);
 
                     if (model.Parent.HasValue)
                     {
@@ -334,8 +331,12 @@ namespace Klacks.Api.Repositories
                 }
                 else
                 {
-                    await UpdateNode(model);
+                    UpdateNode(model, existingGroup);
                 }
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Group with ID {model.Id} not found");
             }
 
             return model;
@@ -398,25 +399,14 @@ namespace Klacks.Api.Repositories
             return res;
         }
 
-        public async Task UpdateNode(Group updatedGroup)
+        private  void UpdateNode(Group updatedGroup,Group existingGroup)
         {
-            var existingGroup = await context.Group
-                .Where(g => g.Id == updatedGroup.Id && !g.IsDeleted)
-                .FirstOrDefaultAsync();
-
-            if (existingGroup == null)
-            {
-                throw new KeyNotFoundException($"Gruppe mit ID {updatedGroup.Id} nicht gefunden");
-            }
-
-
+           
             existingGroup.Name = updatedGroup.Name;
             existingGroup.Description = updatedGroup.Description;
             existingGroup.ValidFrom = updatedGroup.ValidFrom;
             existingGroup.ValidUntil = updatedGroup.ValidUntil;
-            existingGroup.UpdateTime = DateTime.UtcNow;
-            existingGroup.CurrentUserUpdated = updatedGroup.CurrentUserUpdated;
-
+           
             context.Group.Update(existingGroup);
         }
 
@@ -517,7 +507,7 @@ namespace Klacks.Api.Repositories
             }
             else
             {
-                tmp = this.FilterBySearchStringStandart(keywordList, tmp);
+                tmp = this.FilterBySearchStringStandard(keywordList, tmp);
             }
 
             return tmp;
@@ -531,23 +521,13 @@ namespace Klacks.Api.Repositories
             return tmp;
         }
 
-        private IQueryable<Group> FilterBySearchStringStandart(string[] keywordList, IQueryable<Group> tmp)
+        private IQueryable<Group> FilterBySearchStringStandard(string[] keywordList, IQueryable<Group> tmp)
         {
-            var list = new List<Guid>();
             foreach (var keyword in keywordList)
             {
-                foreach (var item in tmp)
-                {
-                    var tmpWord = keyword.TrimEnd().TrimStart().ToLower();
-
-                    if (item.Name != null && item.Name.ToLower().Contains(tmpWord))
-                    {
-                        list.Add(item.Id);
-                    }
-                }
+                var trimmedKeyword = keyword.Trim().ToLower();
+                tmp = tmp.Where(g => g.Name.ToLower().Contains(trimmedKeyword));
             }
-
-            tmp = tmp.Where(x => list.Contains(x.Id));
             return tmp;
         }
 
