@@ -215,6 +215,8 @@ public class MappingProfile : Profile
          ;
 
         CreateMap<Group, GroupResource>()
+          .ForMember(dest => dest.Children, opt => opt.Ignore())
+          .ForMember(dest => dest.Depth, opt => opt.Ignore())
           .ForMember(dest => dest.GroupItems, opt => opt.MapFrom(src => src.GroupItems))
           ;
 
