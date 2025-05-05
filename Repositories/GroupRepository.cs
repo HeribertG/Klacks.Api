@@ -39,22 +39,22 @@ namespace Klacks.Api.Repositories
                 throw new KeyNotFoundException($"Group with ID {id} not found");
             }
 
-            var width = groupEntity.rgt - groupEntity.Lft + 1;
+            var width = groupEntity.Rgt - groupEntity.Lft + 1;
 
 
             await context.Database.ExecuteSqlRawAsync(
                 "UPDATE \"group\" SET \"is_deleted\" = true, \"deleted_time\" = @p0 " +
                 "WHERE \"lft\" >= @p1 AND \"rgt\" <= @p2 AND \"root\" = @p3",
-                DateTime.UtcNow, groupEntity.Lft, groupEntity.rgt, groupEntity.Root);
+                DateTime.UtcNow, groupEntity.Lft, groupEntity.Rgt, groupEntity.Root);
 
 
             await context.Database.ExecuteSqlRawAsync(
                 "UPDATE \"group\" SET \"lft\" = \"lft\" - @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
-                width, groupEntity.rgt, groupEntity.Root);
+                width, groupEntity.Rgt, groupEntity.Root);
 
             await context.Database.ExecuteSqlRawAsync(
                 "UPDATE \"group\" SET \"rgt\" = \"rgt\" - @p0 WHERE \"rgt\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
-                width, groupEntity.rgt, groupEntity.Root);
+                width, groupEntity.Rgt, groupEntity.Root);
 
             return groupEntity;
         }
@@ -73,15 +73,15 @@ namespace Klacks.Api.Repositories
 
             await context.Database.ExecuteSqlRawAsync(
                 "UPDATE \"group\" SET \"rgt\" = \"rgt\" + 2 WHERE \"rgt\" >= @p0 AND \"root\" = @p1 AND \"is_deleted\" = false",
-                parent.rgt, parent.Root);
+                parent.Rgt, parent.Root);
 
             await context.Database.ExecuteSqlRawAsync(
                 "UPDATE \"group\" SET \"lft\" = \"lft\" + 2 WHERE \"lft\" > @p0 AND \"root\" = @p1 AND \"is_deleted\" = false",
-                parent.rgt, parent.Root);
+                parent.Rgt, parent.Root);
 
 
-            newGroup.Lft = parent.rgt;
-            newGroup.rgt = parent.rgt + 1;
+            newGroup.Lft = parent.Rgt;
+            newGroup.Rgt = parent.Rgt + 1;
             newGroup.Parent = parent.Id;
             newGroup.Root = parent.Root ?? parent.Id;
             newGroup.CreateTime = DateTime.UtcNow;
@@ -96,12 +96,12 @@ namespace Klacks.Api.Repositories
 
             var maxRgt = await context.Group
                 .Where(g =>  g.Root == null)
-                .OrderByDescending(g => g.rgt)
-                .Select(g => (int?)g.rgt)
+                .OrderByDescending(g => g.Rgt)
+                .Select(g => (int?)g.Rgt)
                 .FirstOrDefaultAsync() ?? 0;
 
             newGroup.Lft = maxRgt + 1;
-            newGroup.rgt = maxRgt + 2;
+            newGroup.Rgt = maxRgt + 2;
             newGroup.Parent = null;
             newGroup.Root = null;
             newGroup.CreateTime = DateTime.UtcNow;
@@ -165,7 +165,7 @@ namespace Klacks.Api.Repositories
 
 
             var depth = await context.Group
-                .CountAsync(g => g.Lft < node.Lft && g.rgt > node.rgt && g.Root == node.Root  );
+                .CountAsync(g => g.Lft < node.Lft && g.Rgt > node.Rgt && g.Root == node.Root  );
 
             return depth;
         }
@@ -182,7 +182,7 @@ namespace Klacks.Api.Repositories
             }
 
             return await context.Group
-                .Where(g => g.Lft <= node.Lft && g.rgt >= node.rgt && g.Root == node.Root)
+                .Where(g => g.Lft <= node.Lft && g.Rgt >= node.Rgt && g.Root == node.Root)
                 .OrderBy(g => g.Lft)
                 .ToListAsync();
         }
@@ -243,31 +243,31 @@ namespace Klacks.Api.Repositories
             }
 
 
-            if (newParent.Lft > node.Lft && newParent.rgt < node.rgt)
+            if (newParent.Lft > node.Lft && newParent.Rgt < node.Rgt)
             {
                 throw new InvalidOperationException("The new parent cannot be a descendant of the groupEntity to be moved");
             }
 
-            var nodeWidth = node.rgt - node.Lft + 1;
-            var newPos = newParent.rgt;
+            var nodeWidth = node.Rgt - node.Lft + 1;
+            var newPos = newParent.Rgt;
 
 
             await context.Database.ExecuteSqlRawAsync(
                 "UPDATE \"group\" SET \"lft\" = -\"lft\", \"rgt\" = -\"rgt\" " +
                 "WHERE \"lft\" >= @p0 AND \"rgt\" <= @p1 AND \"root\" = @p2",
-                node.Lft, node.rgt, node.Root);
+                node.Lft, node.Rgt, node.Root);
 
 
             await context.Database.ExecuteSqlRawAsync(
                 "UPDATE \"group\" SET \"lft\" = \"lft\" - @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2",
-                nodeWidth, node.rgt, node.Root);
+                nodeWidth, node.Rgt, node.Root);
 
             await context.Database.ExecuteSqlRawAsync(
                 "UPDATE \"group\" SET \"rgt\" = \"rgt\" - @p0 WHERE \"rgt\" > @p1 AND \"root\" = @p2",
-                nodeWidth, node.rgt, node.Root);
+                nodeWidth, node.Rgt, node.Root);
 
 
-            if (newPos > node.rgt)
+            if (newPos > node.Rgt)
             {
                 newPos -= nodeWidth;
             }

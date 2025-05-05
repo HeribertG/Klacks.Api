@@ -49,7 +49,7 @@ namespace Klacks.Api.Controllers.V1.Backend
         /// </summary>
         [HttpGet("path/{id}")]
         [AllowAnonymous]
-        public async Task<ActionResult<List<GroupTreeNodeResource>>> GetPath(Guid id)
+        public async Task<ActionResult<List<GroupResource>>> GetPath(Guid id)
         {
             try
             {
@@ -77,7 +77,7 @@ namespace Klacks.Api.Controllers.V1.Backend
         /// </summary>
         [HttpPost("move/{id}")]
         [AllowAnonymous]
-        public async Task<ActionResult<GroupTreeNodeResource>> MoveGroup(Guid id, [FromQuery] Guid newParentId)
+        public async Task<ActionResult<GroupResource>> MoveGroup(Guid id, [FromQuery] Guid newParentId)
         {
             try
             {

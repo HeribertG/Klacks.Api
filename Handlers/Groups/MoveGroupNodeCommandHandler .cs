@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Handlers.Groups;
 
-public class MoveGroupNodeCommandHandler : IRequestHandler<MoveGroupNodeCommand, GroupTreeNodeResource>
+public class MoveGroupNodeCommandHandler : IRequestHandler<MoveGroupNodeCommand, GroupResource>
 {
     private readonly IGroupRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
@@ -30,7 +30,7 @@ public class MoveGroupNodeCommandHandler : IRequestHandler<MoveGroupNodeCommand,
         _context = context;
     }
 
-    public async Task<GroupTreeNodeResource> Handle(MoveGroupNodeCommand request, CancellationToken cancellationToken)
+    public async Task<GroupResource> Handle(MoveGroupNodeCommand request, CancellationToken cancellationToken)
     {
         using var transaction = await _unitOfWork.BeginTransactionAsync();
         try
@@ -58,11 +58,10 @@ public class MoveGroupNodeCommandHandler : IRequestHandler<MoveGroupNodeCommand,
             var depth = await _repository.GetNodeDepth(request.NodeId);
 
             // Transformiere die Gruppe in eine GroupTreeNodeResource mit AutoMapper
-            var result = _mapper.Map<GroupTreeNodeResource>(node);
+            var result = _mapper.Map<GroupResource>(node);
 
             // Nur die Tiefe muss manuell gesetzt werden, da sie nicht automatisch gemappt wird
             result.Depth = depth;
-            result.ClientsCount = node.GroupItems?.Count ?? 0;
 
             return result;
         }

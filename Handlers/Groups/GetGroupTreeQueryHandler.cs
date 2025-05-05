@@ -6,9 +6,7 @@ using MediatR;
 
 namespace Klacks.Api.Handlers.Groups
 {
-    /// <summary>
-    /// Handler für die Abfrage des Gruppenbaums
-    /// </summary>
+   
     public class GetGroupTreeQueryHandler : IRequestHandler<GetGroupTreeQuery, GroupTreeResource>
     {
         private readonly IGroupRepository _repository;
@@ -38,7 +36,7 @@ namespace Klacks.Api.Handlers.Groups
                 var result = new GroupTreeResource
                 {
                     RootId = request.RootId,
-                    Nodes = new List<GroupTreeNodeResource>()
+                    Nodes = new List<GroupResource>()
                 };
 
                 // Konvertiere alle Knoten zu GroupTreeNodeResource und baue Hierarchie auf
@@ -104,22 +102,20 @@ namespace Klacks.Api.Handlers.Groups
             }
         }
 
-        private async Task<GroupTreeNodeResource> CreateNodeResourceWithChildren(
+        private async Task<GroupResource> CreateNodeResourceWithChildren(
             Models.Associations.Group node,
             Dictionary<Guid, List<Models.Associations.Group>> childrenByParentId)
         {
             // Erstelle Ressource für den aktuellen Knoten
-            var nodeResource = _mapper.Map<GroupTreeNodeResource>(node);
+            var nodeResource = _mapper.Map<GroupResource>(node);
 
             // Berechne Tiefe
             var depth = await _repository.GetNodeDepth(node.Id);
             nodeResource.Depth = depth;
 
-            // Setze Anzahl der Clients
-            nodeResource.ClientsCount = node.GroupItems?.Count ?? 0;
-
+            
             // Initialisiere Children-Liste
-            nodeResource.Children = new List<GroupTreeNodeResource>();
+            nodeResource.Children = new List<GroupResource>();
 
             // Wenn keine Kinder, gebe den Knoten direkt zurück
             if (!childrenByParentId.TryGetValue(node.Id, out var childNodes))

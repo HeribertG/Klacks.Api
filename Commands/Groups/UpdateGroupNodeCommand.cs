@@ -6,4 +6,4 @@ namespace Klacks.Api.Commands.Groups;
 // <summary>
 /// Command zum Aktualisieren einer bestehenden Gruppe
 /// </summary>
-public record UpdateGroupNodeCommand(Guid Id, GroupUpdateResource Group) : IRequest<GroupTreeNodeResource>;
+public record UpdateGroupNodeCommand(Guid Id, GroupUpdateResource Group) : IRequest<GroupResource>;

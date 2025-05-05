@@ -7,5 +7,5 @@ public class GroupTreeResource
 {
     public Guid? RootId { get; set; }
 
-    public List<GroupTreeNodeResource> Nodes { get; set; } = new List<GroupTreeNodeResource>();
+    public List<GroupResource> Nodes { get; set; } = new List<GroupResource>();
 }

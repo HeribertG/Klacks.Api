@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Klacks.Api.Queries.Groups;
 
-public record GetPathToNodeQuery(Guid NodeId) : IRequest<List<GroupTreeNodeResource>>;
+public record GetPathToNodeQuery(Guid NodeId) : IRequest<List<GroupResource>>;
