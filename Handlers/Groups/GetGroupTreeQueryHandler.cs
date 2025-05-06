@@ -29,24 +29,20 @@ namespace Klacks.Api.Handlers.Groups
             {
                 _logger.LogInformation($"Processing GetGroupTreeQuery with rootId: {request.RootId}");
 
-                // Lade den Baum aus dem Repository
                 var treeNodes = await _repository.GetTree(request.RootId);
 
-                // Erstelle die Ressource
                 var result = new GroupTreeResource
                 {
                     RootId = request.RootId,
                     Nodes = new List<GroupResource>()
                 };
 
-                // Konvertiere alle Knoten zu GroupTreeNodeResource und baue Hierarchie auf
                 var allNodes = treeNodes.ToList();
 
                 if (allNodes.Any())
                 {
                     _logger.LogInformation($"Found {allNodes.Count} nodes in tree");
 
-                    // Baue Hierarchie auf
                     await BuildTreeHierarchy(allNodes, result);
                 }
                 else

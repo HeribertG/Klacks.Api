@@ -206,8 +206,9 @@ namespace Klacks.Api.Repositories
                     .Where(g => g.Root == rootId)
                     .Include(g => g.GroupItems)
                     .ThenInclude(gi => gi.Client)
-                    .OrderBy(g => g.Root)
-                    .ThenBy(g => g.Lft)
+                    .OrderBy(g => g.Name) // Primäre Sortierung nach Namen
+                    .ThenBy(g => g.Root)  // Sekundäre Sortierung
+                    .ThenBy(g => g.Lft)   // Tertiäre Sortierung für die Hierarchie
                     .ToListAsync();
             }
             else
@@ -215,8 +216,9 @@ namespace Klacks.Api.Repositories
                 return await context.Group
                     .Include(g => g.GroupItems)
                     .ThenInclude(gi => gi.Client)
-                    .OrderBy(g => g.Root)
-                    .ThenBy(g => g.Lft)
+                    .OrderBy(g => g.Name) // Primäre Sortierung nach Namen
+                    .ThenBy(g => g.Root)  // Sekundäre Sortierung
+                    .ThenBy(g => g.Lft)   // Tertiäre Sortierung für die Hierarchie
                     .ToListAsync();
             }
         }
