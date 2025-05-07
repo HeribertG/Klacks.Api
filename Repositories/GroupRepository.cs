@@ -111,9 +111,6 @@ namespace Klacks.Api.Repositories
             return newGroup;
         }
 
-        
-
-
         public IQueryable<Group> FilterGroup(GroupFilter filter)
         {
             var tmp = context.Group.Include(gr => gr.GroupItems)
@@ -155,7 +152,7 @@ namespace Klacks.Api.Repositories
         public async Task<int> GetNodeDepth(Guid nodeId)
         {
             var node = await context.Group
-                .Where(g => g.Id == nodeId  )
+                .Where(g => g.Id == nodeId)
                 .FirstOrDefaultAsync();
 
             if (node == null)
@@ -163,9 +160,15 @@ namespace Klacks.Api.Repositories
                 throw new KeyNotFoundException($"Group with ID {nodeId} not found");
             }
 
+            if (node.Parent == null)
+            {
+                return 0;
+            }
 
             var depth = await context.Group
-                .CountAsync(g => g.Lft < node.Lft && g.Rgt > node.Rgt && g.Root == node.Root  );
+                .CountAsync(g => g.Lft < node.Lft &&
+                               g.Rgt > node.Rgt &&
+                               (g.Root == node.Root || (g.Root == null && g.Id == node.Root)));
 
             return depth;
         }
@@ -189,40 +192,64 @@ namespace Klacks.Api.Repositories
 
         public async Task<IEnumerable<Group>> GetTree(Guid? rootId = null)
         {
-            if (rootId.HasValue)
-            {
-                var root = await context.Group
-                    .Where(g => g.Id == rootId)
-                    .Include(g => g.GroupItems)
-                    .ThenInclude(gi => gi.Client)
-                    .FirstOrDefaultAsync();
+            var today = DateTime.UtcNow.Date;
 
-                if (root == null)
+            try
+            {
+                if (rootId.HasValue)
                 {
-                    throw new KeyNotFoundException($"Root group with ID {rootId} not found");
-                }
+                    // Überprüfe, ob der Root-Knoten existiert
+                    var root = await context.Group
+                        .Where(g => g.Id == rootId)
+                        .FirstOrDefaultAsync();
 
-                return await context.Group
-                    .Where(g => g.Root == rootId)
-                    .Include(g => g.GroupItems)
-                    .ThenInclude(gi => gi.Client)
-                    .OrderBy(g => g.Name) // Primäre Sortierung nach Namen
-                    .ThenBy(g => g.Root)  // Sekundäre Sortierung
-                    .ThenBy(g => g.Lft)   // Tertiäre Sortierung für die Hierarchie
-                    .ToListAsync();
+                    if (root == null)
+                    {
+                        throw new KeyNotFoundException($"Root group with ID {rootId} not found");
+                    }
+
+                    // Hole alle Knoten in diesem Teilbaum ohne Filterung
+                    var allNodes = await context.Group
+                        .Where(g => g.Root == rootId || g.Id == rootId)
+                        .Include(g => g.GroupItems)
+                        .ThenInclude(gi => gi.Client)
+                        .ToListAsync();
+
+                    // Filtere nach Datum ohne komplexe Logik
+                    return allNodes
+                        .Where(g => g.ValidFrom.Date <= today &&
+                                   (!g.ValidUntil.HasValue || g.ValidUntil.Value.Date >= today))
+                        .OrderBy(g => g.Name)
+                        .ThenBy(g => g.Root)
+                        .ThenBy(g => g.Lft);
+                }
+                else
+                {
+                    // Hole alle Gruppen ohne Filterung
+                    var allNodes = await context.Group
+                        .Include(g => g.GroupItems)
+                        .ThenInclude(gi => gi.Client)
+                        .ToListAsync();
+
+                    // Filtere nach Datum ohne komplexe Logik
+                    return allNodes
+                        .Where(g => g.ValidFrom.Date <= today &&
+                                   (!g.ValidUntil.HasValue || g.ValidUntil.Value.Date >= today))
+                        .OrderBy(g => g.Name)
+                        .ThenBy(g => g.Root)
+                        .ThenBy(g => g.Lft);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return await context.Group
-                    .Include(g => g.GroupItems)
-                    .ThenInclude(gi => gi.Client)
-                    .OrderBy(g => g.Name) // Primäre Sortierung nach Namen
-                    .ThenBy(g => g.Root)  // Sekundäre Sortierung
-                    .ThenBy(g => g.Lft)   // Tertiäre Sortierung für die Hierarchie
-                    .ToListAsync();
+                // Verbesserte Fehlerprotokollierung
+                Console.WriteLine($"Fehler in GetTree: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+
+                // Rethrow der Exception für die API
+                throw;
             }
         }
-
 
         public async Task MoveNode(Guid nodeId, Guid newParentId)
         {
@@ -294,7 +321,6 @@ namespace Klacks.Api.Repositories
             node.Parent = newParentId;
             context.Group.Update(node);
         }
-
 
         public override async Task<Group?> Put(Group model)
         {
@@ -399,6 +425,114 @@ namespace Klacks.Api.Repositories
             res.FirstItemOnPage = res.MaxItems <= firstItem ? -1 : firstItem;
 
             return res;
+        }
+        
+        public async Task RepairNestedSetValues()
+        {
+            try
+            {
+                // Alle Wurzelknoten abrufen
+                var rootNodes = await context.Group
+                    .Where(g => g.Parent == null)
+                    .OrderBy(g => g.Id)
+                    .ToListAsync();
+
+                // Für jeden Wurzelknoten die Baum-Rekonstruktion durchführen
+                foreach (var rootNode in rootNodes)
+                {
+                    // Mit 1 beginnen (Lft-Wert des Wurzelknotens)
+                    int counter = 1;
+
+                    // Wurzelknoten aktualisieren
+                    rootNode.Lft = counter++;
+
+                    // Rekursiv alle Unterknoten aktualisieren
+                    counter = await RebuildSubtree(rootNode.Id, counter);
+
+                    // Rgt-Wert des Wurzelknotens setzen
+                    rootNode.Rgt = counter++;
+
+                    // Root-Wert aktualisieren
+                    if (rootNode.Root != null)
+                    {
+                        rootNode.Root = rootNode.Id;
+                    }
+
+                    // Änderungen am Wurzelknoten speichern
+                    context.Group.Update(rootNode);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Fehler in RepairNestedSetValues: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+                throw;
+            }
+        }
+
+        public async Task FixRootValues()
+        {
+            // Alle Gruppen abrufen
+            var allGroups = await context.Group.ToListAsync();
+
+            // Gruppiere nach Root-ID für effiziente Verarbeitung
+            var groupsByRoot = allGroups
+                .Where(g => g.Root != null)
+                .GroupBy(g => g.Root)
+                .ToList();
+
+            foreach (var rootGroup in groupsByRoot)
+            {
+                var rootId = rootGroup.Key;
+
+                // Überprüfe, ob der Root-Knoten existiert
+                var rootExists = allGroups.Any(g => g.Id == rootId);
+
+                if (!rootExists)
+                {
+                    // Wenn der Root-Knoten nicht existiert, setze die Root-ID auf den obersten
+                    // vorhandenen Elternknoten in der Hierarchie
+                    foreach (var group in rootGroup)
+                    {
+                        var newRootId = await FindExistingRoot(group.Id, allGroups);
+                        group.Root = newRootId;
+                        context.Group.Update(group);
+                    }
+                }
+            }
+        }
+
+        private void AddValidChildren(Guid parentId, DateTime today,
+            Dictionary<Guid, Group> groupDict,
+            Dictionary<Guid?, List<Group>> childrenDict,
+            List<Group> result)
+        {
+            // Prüfe, ob es Kinder für diesen Elternknoten gibt
+            if (!childrenDict.ContainsKey(parentId))
+            {
+                return;
+            }
+
+            // Hole alle direkten Kinder des Elternknotens
+            var children = childrenDict[parentId];
+
+            // Für jedes Kind...
+            foreach (var child in children.OrderBy(c => c.Lft))
+            {
+                // Prüfe, ob das Kind im gültigen Datumsbereich liegt
+                if (child.ValidFrom.Date <= today &&
+                    (!child.ValidUntil.HasValue || child.ValidUntil.Value.Date >= today))
+                {
+                    // Füge das Kind zur Ergebnisliste hinzu, wenn es nicht bereits enthalten ist
+                    if (!result.Any(g => g.Id == child.Id))
+                    {
+                        result.Add(child);
+                    }
+
+                    // Rekursiv alle Kinder dieses Kindes hinzufügen
+                    AddValidChildren(child.Id, today, groupDict, childrenDict, result);
+                }
+            }
         }
 
         private  void UpdateNode(Group updatedGroup,Group existingGroup)
@@ -557,6 +691,86 @@ namespace Klacks.Api.Repositories
             }
 
             return tmp;
+        }
+
+        private async Task<int> RebuildSubtree(Guid parentId, int counter)
+        {
+            // Alle direkten Kinder des Elternknotens abrufen, sortiert nach Name
+            var children = await context.Group
+                .Where(g => g.Parent == parentId)
+                .OrderBy(g => g.Name)
+                .ToListAsync();
+
+            // Für jedes Kind rekursiv die Werte aktualisieren
+            foreach (var child in children)
+            {
+                // Lft-Wert setzen
+                child.Lft = counter++;
+
+                // Rekursiv alle Unterknoten aktualisieren
+                counter = await RebuildSubtree(child.Id, counter);
+
+                // Rgt-Wert setzen
+                child.Rgt = counter++;
+
+                // Root-Wert sicherstellen (auf den Wurzelknoten verweisen)
+                var rootId = await GetRootId(child.Id);
+                child.Root = rootId;
+
+                // Änderungen am Knoten speichern
+                context.Group.Update(child);
+            }
+
+            return counter;
+        }
+
+        private async Task<Guid?> GetRootId(Guid nodeId)
+        {
+            var node = await context.Group
+                .Where(g => g.Id == nodeId)
+                .FirstOrDefaultAsync();
+
+            if (node == null)
+            {
+                return null;
+            }
+
+            // Wenn es ein Wurzelknoten ist, ist seine ID die Root-ID
+            if (node.Parent == null)
+            {
+                return node.Id;
+            }
+
+            // Sonst rekursiv zum Wurzelknoten navigieren
+            return await GetRootId(node.Parent.Value);
+        }
+
+        private async Task<Guid?> FindExistingRoot(Guid nodeId, List<Group> allGroups)
+        {
+            var currentNode = allGroups.FirstOrDefault(g => g.Id == nodeId);
+
+            if (currentNode == null)
+            {
+                return null;
+            }
+
+            // Wenn es ein Wurzelknoten ist oder keinen Elternknoten hat
+            if (currentNode.Parent == null)
+            {
+                return currentNode.Id;
+            }
+
+            var parentId = currentNode.Parent.Value;
+            var parentExists = allGroups.Any(g => g.Id == parentId);
+
+            if (!parentExists)
+            {
+                // Wenn der Elternknoten nicht existiert, ist der aktuelle Knoten der neue Root
+                return currentNode.Id;
+            }
+
+            // Sonst rekursiv zum nächsten Elternknoten
+            return await FindExistingRoot(parentId, allGroups);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Klacks.Api.Resources.Associations;
-using MediatR;
+﻿using MediatR;
 
 namespace Klacks.Api.Commands.Groups;
 

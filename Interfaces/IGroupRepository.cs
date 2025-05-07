@@ -18,4 +18,8 @@ public interface IGroupRepository : IBaseRepository<Group>
     Task<IEnumerable<Group>> GetPath(Guid nodeId);
 
     Task<int> GetNodeDepth(Guid nodeId);
+
+    Task RepairNestedSetValues();
+
+    Task FixRootValues();
 }
