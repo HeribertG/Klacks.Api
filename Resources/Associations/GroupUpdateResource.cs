@@ -3,9 +3,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Klacks.Api.Resources.Associations;
 
-/// <summary>
-/// Resource für das Aktualisieren einer bestehenden Gruppe
-/// </summary>
 public class GroupUpdateResource
 {
     [Required]

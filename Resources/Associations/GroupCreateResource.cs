@@ -4,9 +4,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Klacks.Api.Resources.Associations;
 
-/// <summary>
-/// Resource für das Erstellen einer neuen Gruppe
-/// </summary>
 public class GroupCreateResource
 {
     [Required]

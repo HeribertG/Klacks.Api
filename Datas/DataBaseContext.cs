@@ -76,6 +76,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<Work> Work { get; set; } = default!;
 
+    public DbSet<AssignedGroup> AssignedGroup { get; set; } = default!;
+
     public override int SaveChanges()
     {
         OnBeforeSaving();
@@ -137,7 +139,8 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<GroupItem>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Shift>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Work>().HasQueryFilter(p => !p.IsDeleted);
-   
+        modelBuilder.Entity<AssignedGroup>().HasQueryFilter(p => !p.IsDeleted);
+
 
         modelBuilder.Entity<Address>().HasIndex(p => new { p.ClientId, p.Street, p.Street2, p.Street3, p.City, p.IsDeleted });
         modelBuilder.Entity<Communication>().HasIndex(p => new { p.Value, p.IsDeleted });
@@ -155,6 +158,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Work>().HasIndex(p => new { p.ClientId, p.ShiftId });
         modelBuilder.Entity<Shift>().HasIndex(p => new { p.MacroId });
         modelBuilder.Entity<ClientScheduleDetail>().HasIndex(p => new { p.ClientId, p.CurrentYear, p.CurrentMonth });
+        modelBuilder.Entity<AssignedGroup>().HasIndex(p => new { p.ClientId, p.GroupId });
 
 
         modelBuilder.Entity<Membership>()

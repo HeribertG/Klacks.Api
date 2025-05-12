@@ -12,6 +12,7 @@ using Klacks.Api.Models.Authentification;
 using Klacks.Api.Repositories;
 using Klacks.Api.Services;
 using Klacks.Api.Services.Exports;
+using Klacks.Api.Services.Groups;
 using Klacks.Api.Validation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -135,6 +136,9 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddSingleton<IMacroEngine, MacroEngine>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<UploadFile>();
+builder.Services.AddScoped<IGetAllClientIdsFromGroupAndSubgroups, GroupClientService>();
+builder.Services.AddScoped<IAssignedGroupRepository, AssignedGroupRepository>();
+
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 

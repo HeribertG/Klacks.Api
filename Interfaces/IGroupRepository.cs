@@ -22,4 +22,6 @@ public interface IGroupRepository : IBaseRepository<Group>
     Task RepairNestedSetValues();
 
     Task FixRootValues();
+
+    Task<IEnumerable<Group>> GetRoots();
 }

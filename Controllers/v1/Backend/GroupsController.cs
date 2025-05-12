@@ -1,4 +1,3 @@
-using DocumentFormat.OpenXml.Office2010.Excel;
 using Klacks.Api.Commands.Groups;
 using Klacks.Api.Queries.Groups;
 using Klacks.Api.Resources.Associations;
@@ -42,7 +41,6 @@ public class GroupsController : InputBaseController<GroupResource>
     /// Retrieves the tree structure for a specific root or all roots if no ID is specified
     /// </summary>
     [HttpGet("tree")]
-    [AllowAnonymous]
     public async Task<ActionResult<GroupTreeResource>> GetTree([FromQuery] Guid? rootId = null)
     {
         try
@@ -68,7 +66,6 @@ public class GroupsController : InputBaseController<GroupResource>
     /// Retrieves the path from the root to the specified node
     /// </summary>
     [HttpGet("path/{id}")]
-    [AllowAnonymous]
     public async Task<ActionResult<List<GroupResource>>> GetPath(Guid id)
     {
         try
@@ -96,7 +93,6 @@ public class GroupsController : InputBaseController<GroupResource>
     /// Moves a group to a new parent
     /// </summary>
     [HttpPost("move/{id}")]
-    [AllowAnonymous]
     public async Task<ActionResult<GroupResource>> MoveGroup(Guid id, [FromQuery] Guid newParentId)
     {
         try
@@ -124,11 +120,17 @@ public class GroupsController : InputBaseController<GroupResource>
     }
 
     [HttpGet("refresh")]
-    [AllowAnonymous]
-    public  async Task<ActionResult> Refresh()
+    public async Task<ActionResult> Refresh()
     {
         await mediator.Send(new RefreshTreeCommand());
         return Ok();
     }
 
+    [HttpGet("roots")]
+    [AllowAnonymous]
+    public async Task<IEnumerable<GroupResource>> roots()
+    {
+        return await mediator.Send(new GetRootsQuery());
+
+    }
 }

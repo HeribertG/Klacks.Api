@@ -301,6 +301,19 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Parent, opt => opt.MapFrom(src => src.ParentId))
             .ForMember(dest => dest.Root, opt => opt.Ignore());
 
-        
+        CreateMap<AssignedGroup, AssignedGroupResource>()
+          ;
+
+        CreateMap<AssignedGroupResource, AssignedGroup>()
+          .ForMember(dest => dest.Client, opt => opt.Ignore())
+          .ForMember(dest => dest.Group, opt => opt.Ignore())
+          .ForMember(x => x.CreateTime, o => o.Ignore())
+          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
+          .ForMember(x => x.UpdateTime, o => o.Ignore())
+          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
+          .ForMember(x => x.DeletedTime, o => o.Ignore())
+          .ForMember(x => x.IsDeleted, o => o.Ignore())
+          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
+        ;
     }
 }

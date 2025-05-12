@@ -1,3 +1,4 @@
+using DocumentFormat.OpenXml.Drawing.Charts;
 using Klacks.Api.Datas;
 using Klacks.Api.Enums;
 using Klacks.Api.Helper;
@@ -14,11 +15,13 @@ public class ClientRepository : IClientRepository
 {
     private readonly DataBaseContext context;
     private readonly IMacroEngine macroEngine;
+    private readonly IGetAllClientIdsFromGroupAndSubgroups groupClient;
 
-    public ClientRepository(DataBaseContext context, IMacroEngine macroEngine)
+    public ClientRepository(DataBaseContext context, IMacroEngine macroEngine, IGetAllClientIdsFromGroupAndSubgroups groupClient)
     {
         this.context = context;
         this.macroEngine = macroEngine;
+        this.groupClient = groupClient;
     }
 
     public async Task Add(Client client)
@@ -41,9 +44,10 @@ public class ClientRepository : IClientRepository
     /// </summary>
     /// <param name="filter">Der Filter.</param>
     /// <returns> Gibt alle gefilterten Mitarbeiter mit ihren Absenzen zurück. </returns>
-    public Task<List<Client>> BreakList(BreakFilter filter)
+    public async Task<List<Client>> BreakList(BreakFilter filter)
     {
-        var tmp = this.FilterClients();
+        var tmp = await FilterClients(filter.SelectedGroup);
+
 
         if (!string.IsNullOrEmpty(filter.Search))
         {
@@ -61,7 +65,7 @@ public class ClientRepository : IClientRepository
         tmp = this.FilterMembershipYear(filter, tmp);
         tmp = this.FilterBreaksYear(filter, tmp);
         tmp = this.Sort(filter.OrderBy, filter.SortOrder, tmp);
-        return tmp.ToListAsync();
+        return await tmp.ToListAsync();
     }
 
     public async Task<TruncatedClient> ChangeList(FilterResource filter)
@@ -128,7 +132,7 @@ public class ClientRepository : IClientRepository
         return await this.context.Client.AnyAsync(e => e.Id == id);
     }
 
-    public IQueryable<Client> FilterClient(FilterResource filter)
+    public async Task<IQueryable<Client>> FilterClients(FilterResource filter)
     {
         IQueryable<Client> tmp;
 
@@ -152,6 +156,8 @@ public class ClientRepository : IClientRepository
                                 .AsNoTracking()
                                 .AsQueryable();
         }
+
+        tmp = await FilterClientsByGroupId(filter.SelectedGroup, tmp);
 
         // Ist der searchString eine Nummer, sucht man nach der idNumber
         if (filter.SearchString.Trim().All(char.IsNumber) && int.TryParse(filter.SearchString.Trim(), out _))
@@ -341,7 +347,7 @@ public class ClientRepository : IClientRepository
     }
 
 
-     public async Task<Client>Put(Client client)
+    public async Task<Client> Put(Client client)
     {
         this.ChangeClientNestedLists(client);
 
@@ -368,7 +374,7 @@ public class ClientRepository : IClientRepository
 
     public async Task<TruncatedClient> Truncated(FilterResource filter)
     {
-        var tmp = this.FilterClient(filter);
+        var tmp = await this.FilterClients(filter);
 
         var count = tmp.Count();
         var maxPage = filter.NumberOfItemsPerPage > 0 ? (count / filter.NumberOfItemsPerPage) : 0;
@@ -422,9 +428,9 @@ public class ClientRepository : IClientRepository
         return res;
     }
 
-    public Task<List<Client>> WorkList(WorkFilter filter)
+    public async Task<List<Client>> WorkList(WorkFilter filter)
     {
-        var tmp = this.FilterClients();
+        var tmp = await this.FilterClients(filter.SelectedGroup);
 
         if (!string.IsNullOrEmpty(filter.Search))
         {
@@ -442,7 +448,7 @@ public class ClientRepository : IClientRepository
         tmp = this.FilterMembershipYearMonth(filter, tmp);
         tmp = this.FilterWorks(filter, tmp);
         tmp = this.Sort(filter.OrderBy, filter.SortOrder, tmp);
-        return tmp.ToListAsync();
+        return await tmp.ToListAsync();
     }
 
     private void ChangeClientNestedLists(Client client)
@@ -468,7 +474,7 @@ public class ClientRepository : IClientRepository
                entity => this.context.Annotation.Remove(entity)
            );
 
-        
+
         if (this.context.ChangeTracker.HasChanges())
         {
             this.context.SaveChanges();
@@ -791,9 +797,13 @@ public class ClientRepository : IClientRepository
         return tmp;
     }
 
-    private IQueryable<Client> FilterClients()
+    private async Task<IQueryable<Client>> FilterClients(Guid? selectedGroup)
     {
-        return this.context.Client.Include(c => c.Membership).OrderBy(x => x.Name).ThenBy(x => x.FirstName).ThenBy(x => x.Company).AsQueryable();
+        var tmp = this.context.Client.Include(c => c.Membership).OrderBy(x => x.Name).ThenBy(x => x.FirstName).ThenBy(x => x.Company).AsQueryable();
+
+        tmp = await FilterClientsByGroupId(selectedGroup, tmp);
+
+        return tmp;
     }
 
     private IQueryable<Client> FilterMembershipYear(BreakFilter filter, IQueryable<Client> tmp)
@@ -860,6 +870,16 @@ public class ClientRepository : IClientRepository
         return tmp;
     }
 
+    private async Task<IQueryable<Client>> FilterClientsByGroupId( Guid? selectedGroupId, IQueryable<Client> tmp)
+    {
+        if (selectedGroupId.HasValue)
+        {
+            var clientIds = await this.groupClient.GetAllClientIdsFromGroupAndSubgroups(selectedGroupId.Value);
+            tmp = tmp.Where(client => clientIds.Contains(client.Id));
+        }
+
+        return tmp;
+    }
     private IQueryable<Client> FilterWorks(WorkFilter filter, IQueryable<Client> tmp)
     {
         var startDate = new DateTime(filter.CurrentYear, 1, 1);

@@ -15,4 +15,7 @@ public class WorkFilter
   public string SortOrder { get; set; } = string.Empty;
 
   public List<WorkResource> Works { get; set; } = new List<WorkResource>();
+
+  public Guid? SelectedGroup { get; set; }
+
 }

@@ -1,7 +1,7 @@
-namespace Klacks.Api.Resources.Filter
+namespace Klacks.Api.Resources.Filter;
+
+public class BreakFilter
 {
-  public class BreakFilter
-  {
     public List<AbsenceTokenFilter> Absences { get; set; } = new List<AbsenceTokenFilter>();
 
     public int CurrentYear { get; set; }
@@ -11,5 +11,6 @@ namespace Klacks.Api.Resources.Filter
     public string Search { get; set; } = string.Empty;
 
     public string SortOrder { get; set; } = string.Empty;
-  }
+
+    public Guid? SelectedGroup { get; set; }
 }

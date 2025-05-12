@@ -1,9 +1,9 @@
-using Klacks.Api.Datas;
-using Klacks.Api.Models.Staffs;
+﻿using Klacks.Api.Datas;
+using Klacks.Api.Models.Associations;
 
-namespace Klacks.Api.Models.Associations;
+namespace Klacks.Api.Models.Staffs;
 
-public class GroupItem : BaseEntity
+public class AssignedGroup : BaseEntity
 {
 
     public Guid ClientId { get; set; }
