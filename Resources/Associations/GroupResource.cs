@@ -39,4 +39,6 @@ public class GroupResource
             return GroupItems?.Count ?? 0;
         }
     }
+
+    public Guid? ParentId { get; set; }
 }

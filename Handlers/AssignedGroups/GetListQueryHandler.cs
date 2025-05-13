@@ -21,7 +21,7 @@ namespace Klacks.Api.Handlers.AssignedGroups
         {
             var list = await repository.Assigned(request.Id);
 
-            return mapper.Map<List<AssignedGroup>, List<AssignedGroup>>((List<AssignedGroup>)list);
+            return mapper.Map<IEnumerable<AssignedGroup>, IEnumerable<AssignedGroup>>((IEnumerable<AssignedGroup>)list);
         }
     }
 }
