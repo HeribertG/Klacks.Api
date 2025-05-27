@@ -1,9 +1,6 @@
-using Klacks.Api.Resources.Associations;
+namespace Klacks.Api.Resources.Filter;
 
-namespace Klacks.Api.Resources.Filter
+public class TruncatedGroupResource : BaseTruncatedResult
 {
-  public class TruncatedGroupResource : BaseTruncatedResult
-  {
-    public ICollection<GroupResource> Groups { get; set; } = null!;
-  }
+public ICollection<GroupResource> Groups { get; set; } = null!;
 }

@@ -78,6 +78,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<AssignedGroup> AssignedGroup { get; set; } = default!;
 
+    public DbSet<GroupVisibility> GroupVisibility { get; set; } = default!;
+
     public override int SaveChanges()
     {
         OnBeforeSaving();
@@ -140,6 +142,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Shift>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Work>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<AssignedGroup>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<GroupVisibility>().HasQueryFilter(p => !p.IsDeleted);
 
 
         modelBuilder.Entity<Address>().HasIndex(p => new { p.ClientId, p.Street, p.Street2, p.Street3, p.City, p.IsDeleted });
@@ -159,6 +162,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Shift>().HasIndex(p => new { p.MacroId });
         modelBuilder.Entity<ClientScheduleDetail>().HasIndex(p => new { p.ClientId, p.CurrentYear, p.CurrentMonth });
         modelBuilder.Entity<AssignedGroup>().HasIndex(p => new { p.ClientId, p.GroupId });
+        modelBuilder.Entity<GroupVisibility>().HasIndex(p => new { p.ClientId, p.GroupId });
 
 
         modelBuilder.Entity<Membership>()
@@ -191,6 +195,12 @@ public class DataBaseContext : IdentityDbContext
        .HasForeignKey(a => a.ClientId)
        .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<Client>()
+      .HasMany(c => c.GroupVisibilities)
+      .WithOne(a => a.Client)
+      .HasForeignKey(a => a.ClientId)
+      .OnDelete(DeleteBehavior.Cascade);
+
 
         modelBuilder.Entity<SelectedCalendar>()
         .HasOne(p => p.CalendarSelection)
@@ -212,6 +222,12 @@ public class DataBaseContext : IdentityDbContext
 
         modelBuilder.Entity<Work>()
             .HasOne(p => p.Shift);
+
+        modelBuilder.Entity<GroupVisibility>()
+              .HasOne(p => p.Client)
+              .WithMany(b => b.GroupVisibilities)
+              .OnDelete(DeleteBehavior.Cascade);
+
     }
 
     private void OnBeforeSaving()

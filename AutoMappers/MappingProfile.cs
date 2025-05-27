@@ -28,53 +28,53 @@ public class MappingProfile : Profile
 
         CreateMap<AddressResource, Address>()
           .ForMember(dest => dest.Client, opt => opt.Ignore())
-          .ForMember(x => x.CreateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
-          .ForMember(x => x.UpdateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
-          .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.IsDeleted, o => o.Ignore())
-          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
         ;
 
         CreateMap<Communication, CommunicationResource>()
           ;
         CreateMap<CommunicationResource, Communication>()
           .ForMember(dest => dest.Client, opt => opt.Ignore())
-          .ForMember(x => x.CreateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
-          .ForMember(x => x.UpdateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
-          .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.IsDeleted, o => o.Ignore())
-          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
         ;
 
         CreateMap<Annotation, AnnotationResource>()
           ;
         CreateMap<AnnotationResource, Annotation>()
           .ForMember(dest => dest.Client, opt => opt.Ignore())
-          .ForMember(x => x.CreateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
-          .ForMember(x => x.UpdateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
-          .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.IsDeleted, o => o.Ignore())
-          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
          ;
 
         CreateMap<Countries, CountryResource>()
-          .ForMember(x => x.Select, o => o.Ignore())
+          .ForMember(dest => dest.Select, opt => opt.Ignore())
                  ;
 
         CreateMap<CountryResource, Countries>()
-          .ForMember(x => x.CreateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
-          .ForMember(x => x.UpdateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
-          .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.IsDeleted, o => o.Ignore())
-          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
           ;
 
         CreateMap<Membership, MembershipResource>()
@@ -82,35 +82,35 @@ public class MappingProfile : Profile
 
         CreateMap<MembershipResource, Membership>()
           .ForMember(dest => dest.Client, opt => opt.Ignore())
-          .ForMember(x => x.CreateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
-          .ForMember(x => x.UpdateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
-          .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.IsDeleted, o => o.Ignore())
-          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
          ;
 
         CreateMap<Client, ClientResource>()
           ;
 
         CreateMap<ClientResource, Client>()
-          .ForMember(x => x.CreateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
-          .ForMember(x => x.UpdateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
-          .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
-          .ForMember(x => x.Breaks, o => o.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.Breaks, opt => opt.Ignore())
           ;
 
         CreateMap<Client, ClientBreakResource>()
-          .ForMember(x => x.Membership, o => o.Ignore())
+          .ForMember(dest => dest.Membership, opt => opt.Ignore())
           ;
 
         CreateMap<Client, ClientWorkResource>()
-         .ForMember(x => x.Membership, o => o.Ignore())
-         .ForMember(x => x.NeededRows, o => o.Ignore())
+         .ForMember(dest => dest.Membership, opt => opt.Ignore())
+         .ForMember(dest => dest.NeededRows, opt => opt.Ignore())
          ;
 
         CreateMap<Break, BreakResource>();
@@ -119,29 +119,29 @@ public class MappingProfile : Profile
           .ForMember(dest => dest.Client, opt => opt.Ignore())
           .ForMember(dest => dest.BreakReasonId, opt => opt.Ignore())
           .ForMember(dest => dest.BreakReason, opt => opt.Ignore())
-          .ForMember(x => x.CreateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
-          .ForMember(x => x.UpdateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
-          .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.IsDeleted, o => o.Ignore())
-          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
           ;
 
         CreateMap<RegistrationResource, AppUser>()
-          .ForMember(x => x.Id, o => o.Ignore())
-          .ForMember(x => x.NormalizedUserName, o => o.Ignore())
-          .ForMember(x => x.NormalizedEmail, o => o.Ignore())
-          .ForMember(x => x.EmailConfirmed, o => o.Ignore())
-          .ForMember(x => x.PasswordHash, o => o.Ignore())
-          .ForMember(x => x.SecurityStamp, o => o.Ignore())
-          .ForMember(x => x.ConcurrencyStamp, o => o.Ignore())
-          .ForMember(x => x.PhoneNumber, o => o.Ignore())
-          .ForMember(x => x.PhoneNumberConfirmed, o => o.Ignore())
-          .ForMember(x => x.TwoFactorEnabled, o => o.Ignore())
-          .ForMember(x => x.LockoutEnabled, o => o.Ignore())
-          .ForMember(x => x.AccessFailedCount, o => o.Ignore())
-          .ForMember(x => x.LockoutEnd, o => o.Ignore())
+          .ForMember(dest => dest.Id, opt => opt.Ignore())
+          .ForMember(dest => dest.NormalizedUserName, opt => opt.Ignore())
+          .ForMember(dest => dest.NormalizedEmail, opt => opt.Ignore())
+          .ForMember(dest => dest.EmailConfirmed, opt => opt.Ignore())
+          .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+          .ForMember(dest => dest.SecurityStamp, opt => opt.Ignore())
+          .ForMember(dest => dest.ConcurrencyStamp, opt => opt.Ignore())
+          .ForMember(dest => dest.PhoneNumber, opt => opt.Ignore())
+          .ForMember(dest => dest.PhoneNumberConfirmed, opt => opt.Ignore())
+          .ForMember(dest => dest.TwoFactorEnabled, opt => opt.Ignore())
+          .ForMember(dest => dest.LockoutEnabled, opt => opt.Ignore())
+          .ForMember(dest => dest.AccessFailedCount, opt => opt.Ignore())
+          .ForMember(dest => dest.LockoutEnd, opt => opt.Ignore())
           ;
 
         CreateMap<CalendarRule, CalendarRuleResource>().ReverseMap();
@@ -152,66 +152,66 @@ public class MappingProfile : Profile
           ;
 
         CreateMap<MacroResource, Macro>()
-          .ForMember(x => x.CreateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
-          .ForMember(x => x.UpdateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
-          .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.IsDeleted, o => o.Ignore())
-          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
           ;
 
         CreateMap<Absence, AbsenceResource>()
           ;
 
         CreateMap<AbsenceResource, Absence>()
-          .ForMember(x => x.CreateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
-          .ForMember(x => x.UpdateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
-          .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.IsDeleted, o => o.Ignore())
-          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
          ;
 
         CreateMap<State, StateResource>()
           ;
 
         CreateMap<StateResource, State>()
-          .ForMember(x => x.CreateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
-          .ForMember(x => x.UpdateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
-          .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.IsDeleted, o => o.Ignore())
-          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
          ;
 
         CreateMap<CalendarSelection, CalendarSelectionResource>()
           ;
 
         CreateMap<CalendarSelectionResource, CalendarSelection>()
-          .ForMember(x => x.CreateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
-          .ForMember(x => x.UpdateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
-          .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.IsDeleted, o => o.Ignore())
-          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
           ;
 
         CreateMap<SelectedCalendar, SelectedCalendarResource>()
           ;
 
         CreateMap<SelectedCalendarResource, SelectedCalendar>()
-          .ForMember(x => x.CreateTime, o => o.Ignore())
-          .ForMember(x => x.CalendarSelection, o => o.Ignore())
-          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
-          .ForMember(x => x.UpdateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
-          .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.IsDeleted, o => o.Ignore())
-          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CalendarSelection, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
          ;
 
         CreateMap<Group, GroupResource>()
@@ -222,13 +222,13 @@ public class MappingProfile : Profile
 
         CreateMap<GroupResource, Group>()
           .ForMember(dest => dest.GroupItems, opt => opt.MapFrom(src => src.GroupItems))
-          .ForMember(x => x.CreateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
-          .ForMember(x => x.UpdateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
-          .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.IsDeleted, o => o.Ignore())
-          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
         ;
 
         CreateMap<GroupItem, GroupItemResource>()
@@ -236,14 +236,14 @@ public class MappingProfile : Profile
 
         CreateMap<GroupItemResource, GroupItem>()
           .ForMember(dest => dest.Group, opt => opt.Ignore())
-          .ForMember(x => x.Client, o => o.Ignore())
-          .ForMember(x => x.CreateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
-          .ForMember(x => x.UpdateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
-          .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.IsDeleted, o => o.Ignore())
-          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
+          .ForMember(dest => dest.Client, opt => opt.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
         ;
 
         CreateMap<TruncatedGroup, TruncatedGroupResource>()
@@ -251,24 +251,24 @@ public class MappingProfile : Profile
 
         CreateMap<Work, WorkResource>();
         CreateMap<WorkResource, Work>()
-          .ForMember(x => x.CreateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
-          .ForMember(x => x.UpdateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
-          .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.IsDeleted, o => o.Ignore())
-          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
           ;
 
         CreateMap<Shift, ShiftResource>();
         CreateMap<ShiftResource, Shift>()
-          .ForMember(x => x.CreateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
-          .ForMember(x => x.UpdateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
-          .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.IsDeleted, o => o.Ignore())
-          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
           ;
 
         CreateMap<GroupCreateResource, Group>()
@@ -314,20 +314,26 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Lft, opt => opt.Ignore())
             .ForMember(dest => dest.Rgt, opt => opt.Ignore())
             .ForMember(dest => dest.Parent, opt => opt.MapFrom(src => src.ParentId))
-            .ForMember(dest => dest.Root, opt => opt.Ignore());
+            .ForMember(dest => dest.Root, opt => opt.Ignore())
+            ;
 
         CreateMap<AssignedGroup, AssignedGroupResource>()
-          ;
+            .ForMember(dest => dest.GroupName, opt => opt.MapFrom(src => src.Group.Name))
+            ;
 
         CreateMap<AssignedGroupResource, AssignedGroup>()
           .ForMember(dest => dest.Client, opt => opt.Ignore())
-          .ForMember(x => x.CreateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserCreated, o => o.Ignore())
-          .ForMember(x => x.UpdateTime, o => o.Ignore())
-          .ForMember(x => x.CurrentUserUpdated, o => o.Ignore())
-          .ForMember(x => x.DeletedTime, o => o.Ignore())
-          .ForMember(x => x.IsDeleted, o => o.Ignore())
-          .ForMember(x => x.CurrentUserDeleted, o => o.Ignore())
-        ;
+          .ForMember(dest => dest.Group, opt => opt.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
+          ;
+
+        CreateMap<TruncatedShift, TruncatedShiftResource>()
+         ;
     }
 }

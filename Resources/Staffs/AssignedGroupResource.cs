@@ -8,5 +8,5 @@ public class AssignedGroupResource
 
     public Guid GroupId { get; set; }
 
-    public virtual GroupResource Group { get; set; } = null!;
+    public string GroupName { get; set; } = null!;
 }

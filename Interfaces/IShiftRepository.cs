@@ -1,7 +1,9 @@
 using Klacks.Api.Models.Schedules;
+using Klacks.Api.Resources.Filter;
 
 namespace Klacks.Api.Interfaces;
 
 public interface IShiftRepository : IBaseRepository<Shift>
 {
+    Task<TruncatedShift> Truncated(ShiftFilter filter);
 }

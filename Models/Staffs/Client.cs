@@ -11,60 +11,64 @@ namespace Klacks.Api.Models.Staffs;
 
 public class Client : BaseEntity
 {
-  public Client()
-  {
-    Addresses = new Collection<Address>();
-    Communications = new Collection<Communication>();
-    Annotations = new Collection<Annotation>();
-    Breaks = new Collection<Break>();
-    Works = new Collection<Work>();
-  }
+    public Client()
+    {
+        Addresses = new Collection<Address>();
+        Communications = new Collection<Communication>();
+        Annotations = new Collection<Annotation>();
+        Breaks = new Collection<Break>();
+        Works = new Collection<Work>();
+        GroupVisibilities = new Collection<GroupVisibility>();
+    }
 
-  public ICollection<Address> Addresses { get; set; }
+    public ICollection<Address> Addresses { get; set; }
 
-  public ICollection<Annotation> Annotations { get; set; }
+    public ICollection<Annotation> Annotations { get; set; }
 
-  [DataType(DataType.Date)]
-  public DateTime? Birthdate { get; set; }
+    [DataType(DataType.Date)]
+    public DateTime? Birthdate { get; set; }
 
     [JsonIgnore]
     public ICollection<Break> Breaks { get; set; }
 
-  public ICollection<Communication> Communications { get; set; }
+    [JsonIgnore]
+    public ICollection<GroupVisibility> GroupVisibilities { get; set; }
 
-  [StringLength(100)]
-  public string? Company { get; set; } = string.Empty;
+    public ICollection<Communication> Communications { get; set; }
 
-  [StringLength(100)]
-  public string? FirstName { get; set; } = string.Empty;
+    [StringLength(100)]
+    public string? Company { get; set; } = string.Empty;
 
-  [Required]
-  public GenderEnum Gender { get; set; }
+    [StringLength(100)]
+    public string? FirstName { get; set; } = string.Empty;
 
-  public int IdNumber { get; set; }
+    [Required]
+    public GenderEnum Gender { get; set; }
 
-  public bool LegalEntity { get; set; }
+    public int IdNumber { get; set; }
 
-  [StringLength(100)]
-  public string? MaidenName { get; set; } = string.Empty;
+    public bool LegalEntity { get; set; }
 
-  public Membership? Membership { get; set; }
+    [StringLength(100)]
+    public string? MaidenName { get; set; } = string.Empty;
 
-  public Guid MembershipId { get; set; }
+    public Membership? Membership { get; set; }
 
-  [StringLength(100)]
-  public string Name { get; set; } = string.Empty;
+    public Guid MembershipId { get; set; }
 
-  public string? PasswortResetToken { get; set; } = string.Empty;
+    [StringLength(100)]
+    public string Name { get; set; } = string.Empty;
 
-  [StringLength(100)]
-  public string? SecondName { get; set; } = string.Empty;
+    public string? PasswortResetToken { get; set; } = string.Empty;
 
-  [StringLength(100)]
-  public string? Title { get; set; } = string.Empty;
+    [StringLength(100)]
+    public string? SecondName { get; set; } = string.Empty;
 
-  [DefaultValue(0)]
-  public int Type { get; set; }
+    [StringLength(100)]
+    public string? Title { get; set; } = string.Empty;
 
-  public ICollection<Work> Works { get; set; }
+    [DefaultValue(0)]
+    public int Type { get; set; }
+
+    public ICollection<Work> Works { get; set; }
 }

@@ -1,4 +1,4 @@
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+﻿using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Klacks.Api;
@@ -22,6 +22,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 var myAllowSpecificOrigins = "CorsPolicy";
@@ -49,7 +50,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Title = "Klacks-Net API",
         Version = "v1",
-        Description = "API f�r Klacks-Net Anwendung"
+        Description = "API für Klacks-Net Anwendung"
     });
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -155,23 +156,21 @@ builder.Services
     .AddValidatorsFromAssemblyContaining<Klacks.Api.Validation.Clients.FilterResourceValidator>();
 
 
-builder.Services.AddControllers();
-builder.Services.AddControllersWithViews();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(opts =>
+    {
+        // 1) camelCase keys (afterShift → AfterShift)
+        opts.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 
-builder.Services.AddControllers()
-       .AddJsonOptions(options =>
-       {
-           options.JsonSerializerOptions.WriteIndented = true;
-           options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-           options.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
-       });
+        // 2) Converter für DateOnly und TimeOnly
+        opts.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+        opts.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
 
-builder.Services.AddControllers()
-       .AddJsonOptions(options =>
-       {
-           options.JsonSerializerOptions.WriteIndented = true;
-           options.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
-       });
+        // 3) Optional: Reference-Cycles ignorieren und schön formatieren
+        opts.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        opts.JsonSerializerOptions.WriteIndented = true;
+    });
 
 builder.Services.AddIdentity<AppUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
         .AddRoles<IdentityRole>()

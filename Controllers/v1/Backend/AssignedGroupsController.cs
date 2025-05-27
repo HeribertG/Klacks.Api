@@ -1,6 +1,5 @@
 ﻿using Klacks.Api.Controllers.V1.Backend;
 using Klacks.Api.Models.Staffs;
-using Klacks.Api.Queries;
 using Klacks.Api.Queries.AssignedGroups;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -14,14 +13,14 @@ public class AssignedGroupsController(IMediator mediator, ILogger<AssignedGroups
     {
         try
         {
-            logger.LogInformation($"Fetching AssignedGroup List");
+            logger.LogInformation($"Fetching AssignedGroup List {id}");
 
             return await mediator.Send(new AssignedGroupListQuery(id));
 
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Error occurred while fetching AssignedGroup List");
+            logger.LogError(ex, $"Error occurred while fetching AssignedGroup List {id}");
             throw;
         }
     }

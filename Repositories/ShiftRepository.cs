@@ -1,16 +1,226 @@
 using Klacks.Api.Datas;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Schedules;
+using Klacks.Api.Resources.Filter;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Repositories;
 
 public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 {
-  private readonly DataBaseContext context;
+    private readonly DataBaseContext context;
 
-  public ShiftRepository(DataBaseContext context)
-      : base(context)
-  {
-    this.context = context;
-  }
+    public ShiftRepository(DataBaseContext context)
+        : base(context)
+    {
+        this.context = context;
+    }
+
+    public async Task<TruncatedShift> Truncated(ShiftFilter filter)
+    {
+        var tmp = FilterShift(filter);
+
+        var count = tmp.Count();
+        var maxPage = filter.NumberOfItemsPerPage > 0 ? (count / filter.NumberOfItemsPerPage) : 0;
+
+        var firstItem = 0;
+
+        if (count > 0 && count > filter.NumberOfItemsPerPage)
+        {
+            if ((filter.IsNextPage.HasValue || filter.IsPreviousPage.HasValue) && filter.FirstItemOnLastPage.HasValue)
+            {
+                if (filter.IsNextPage.HasValue)
+                {
+                    firstItem = filter.FirstItemOnLastPage.Value + filter.NumberOfItemsPerPage;
+                }
+                else
+                {
+                    var numberOfItem = filter.NumberOfItemOnPreviousPage ?? filter.NumberOfItemsPerPage;
+                    firstItem = filter.FirstItemOnLastPage.Value - numberOfItem;
+                    if (firstItem < 0)
+                    {
+                        firstItem = 0;
+                    }
+                }
+            }
+            else
+            {
+                firstItem = filter.RequiredPage * filter.NumberOfItemsPerPage;
+            }
+        }
+        else
+        {
+            firstItem = filter.RequiredPage * filter.NumberOfItemsPerPage;
+        }
+
+        tmp = tmp.Skip(firstItem).Take(filter.NumberOfItemsPerPage);
+
+        var shifts = count == 0 ? new List<Shift>() : await tmp.ToListAsync();
+        var res = new TruncatedShift
+        {
+            Shifts = shifts,
+            MaxItems = count,
+        };
+
+        if (filter.NumberOfItemsPerPage > 0)
+        {
+            res.MaxPages = count % filter.NumberOfItemsPerPage == 0 ? maxPage - 1 : maxPage;
+        }
+
+        res.CurrentPage = filter.RequiredPage;
+        res.FirstItemOnPage = res.MaxItems <= firstItem ? -1 : firstItem;
+
+        return res;
+    }
+
+    public IQueryable<Shift> FilterShift(ShiftFilter filter)
+    {
+        var tmp = context.Shift.AsNoTracking()
+                               .AsQueryable();
+
+        tmp = FilterByDateRange(filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange, tmp);
+        tmp = FilterBySearchString(filter.SearchString, tmp);
+        tmp = Sort(filter.OrderBy, filter.SortOrder, tmp);
+
+        return tmp;
+    }
+
+    private IQueryable<Shift> FilterByDateRange(bool activeDateRange, bool formerDateRange, bool futureDateRange, IQueryable<Shift> tmp)
+    {
+
+        if (activeDateRange && formerDateRange && futureDateRange)
+        {
+            // No need for filters
+        }
+        else if (!activeDateRange && !formerDateRange && !futureDateRange)
+        {
+            tmp = Enumerable.Empty<Shift>().AsQueryable();
+        }
+        else
+        {
+            var nowDate = DateTime.Now;
+            var nowDateOnly = DateOnly.FromDateTime(nowDate);
+
+            // only active
+            if (activeDateRange && !formerDateRange && !futureDateRange)
+            {
+                tmp = tmp.Where(co =>
+                                co.FromDate <= nowDateOnly &&
+                                (co.UntilDate.HasValue == false ||
+                                (co.UntilDate.HasValue && co.UntilDate.Value >= nowDateOnly)
+                                ));
+            }
+
+            // only former
+            if (!activeDateRange && formerDateRange && !futureDateRange)
+            {
+                tmp = tmp.Where(co =>
+                               (co.UntilDate.HasValue && co.UntilDate.Value < nowDateOnly));
+            }
+
+            // only future
+            if (!activeDateRange && !formerDateRange && futureDateRange)
+            {
+                tmp = tmp.Where(co =>
+                               (co.FromDate > nowDateOnly));
+            }
+
+            // former + active
+            if (activeDateRange && formerDateRange && !futureDateRange)
+            {
+                tmp = tmp.Where(co =>
+                                co.FromDate <= nowDateOnly &&
+                                (co.UntilDate.HasValue == false ||
+                                (co.UntilDate.HasValue && co.UntilDate.Value > nowDateOnly) ||
+                                (co.UntilDate.HasValue && co.UntilDate.Value < nowDateOnly)));
+            }
+
+            // active + future
+            if (activeDateRange && !formerDateRange && futureDateRange)
+            {
+                tmp = tmp.Where(co =>
+                                 ((co.FromDate<= nowDateOnly &&
+                                 (co.UntilDate.HasValue == false ||
+                                 (co.UntilDate.HasValue && co.UntilDate.Value > nowDateOnly))) ||
+                                 (co.FromDate> nowDateOnly)
+                                 ));
+            }
+
+            // former + future
+            if (!activeDateRange && formerDateRange && futureDateRange)
+            {
+                tmp = tmp.Where(co =>
+                              (co.UntilDate.HasValue && co.UntilDate.Value < nowDateOnly) ||
+                              (co.FromDate > nowDateOnly));
+            }
+        }
+
+        return tmp;
+    }
+
+    private IQueryable<Shift> FilterBySearchString(string searchString, IQueryable<Shift> tmp)
+    {
+
+        var keywordList = searchString.TrimEnd().TrimStart().ToLower().Split(' ');
+
+        if (keywordList.Length == 1)
+        {
+            if (keywordList[0].Length == 1)
+            {
+                tmp = this.FilterBySearchStringFirstSymbol(keywordList[0], tmp);
+            }
+        }
+        else
+        {
+            tmp = this.FilterBySearchStringStandard(keywordList, tmp);
+        }
+
+        return tmp;
+    }
+
+    private IQueryable<Shift> FilterBySearchStringFirstSymbol(string keyword, IQueryable<Shift> tmp)
+    {
+        tmp = tmp.Where(co =>
+            co.Name.ToLower().Substring(0, 1) == keyword.ToLower());
+
+        return tmp;
+    }
+
+    private IQueryable<Shift> FilterBySearchStringStandard(string[] keywordList, IQueryable<Shift> tmp)
+    {
+        foreach (var keyword in keywordList)
+        {
+            var trimmedKeyword = keyword.Trim().ToLower();
+            tmp = tmp.Where(g => g.Name.ToLower().Contains(trimmedKeyword));
+        }
+        return tmp;
+    }
+
+    private IQueryable<Shift> Sort(string orderBy, string sortOrder, IQueryable<Shift> tmp)
+    {
+
+        if (sortOrder != string.Empty)
+        {
+            if (orderBy == "name")
+            {
+                return sortOrder == "asc" ? tmp.OrderBy(x => x.Name) : tmp.OrderByDescending(x => x.Name);
+            }
+            else if (orderBy == "description")
+            {
+                return sortOrder == "asc" ? tmp.OrderBy(x => x.Description) : tmp.OrderByDescending(x => x.Description);
+            }
+            else if (orderBy == "valid_from")
+            {
+                return sortOrder == "asc" ? tmp.OrderBy(x => x.FromDate) : tmp.OrderByDescending(x => x.FromDate);
+            }
+            else if (orderBy == "valid_until")
+            {
+                return sortOrder == "asc" ? tmp.OrderBy(x => x.UntilDate) : tmp.OrderByDescending(x => x.UntilDate);
+            }
+        }
+
+        return tmp;
+    }
+
+   
 }

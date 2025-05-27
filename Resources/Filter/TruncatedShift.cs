@@ -1,9 +1,8 @@
-using Klacks.Api.Models.Schedules;
+﻿using Klacks.Api.Models.Schedules;
 
-namespace Klacks.Api.Resources.Filter
+namespace Klacks.Api.Resources.Filter;
+
+public class TruncatedShift : BaseTruncatedResult
 {
-  public class TruncatedShift : BaseTruncatedResult
-  {
     public ICollection<Shift> Shifts { get; set; } = null!;
-  }
 }

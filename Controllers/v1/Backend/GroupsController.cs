@@ -3,7 +3,6 @@ using Klacks.Api.Queries.Groups;
 using Klacks.Api.Resources.Associations;
 using Klacks.Api.Resources.Filter;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -127,8 +126,7 @@ public class GroupsController : InputBaseController<GroupResource>
     }
 
     [HttpGet("roots")]
-    [AllowAnonymous]
-    public async Task<IEnumerable<GroupResource>> roots()
+    public async Task<IEnumerable<GroupResource>> Roots()
     {
         return await mediator.Send(new GetRootsQuery());
 

@@ -6,26 +6,18 @@ using MediatR;
 
 namespace Klacks.Api.Handlers.Shifts;
 
-public class PostCommandHandler : IRequestHandler<PostCommand<ShiftResource>, ShiftResource?>
+public class PostCommandHandler(
+                        IMapper mapper,
+                        IShiftRepository repository,
+                        IUnitOfWork unitOfWork,
+                        ILogger<PostCommandHandler> logger) : IRequestHandler<PostCommand<ShiftResource>, ShiftResource?>
 {
-  private readonly ILogger<PostCommandHandler> logger;
-  private readonly IMapper mapper;
-  private readonly IShiftRepository repository;
-  private readonly IUnitOfWork unitOfWork;
+  private readonly ILogger<PostCommandHandler> logger = logger;
+  private readonly IMapper mapper = mapper;
+  private readonly IShiftRepository repository = repository;
+  private readonly IUnitOfWork unitOfWork = unitOfWork;
 
-  public PostCommandHandler(
-                          IMapper mapper,
-                          IShiftRepository repository,
-                          IUnitOfWork unitOfWork,
-                          ILogger<PostCommandHandler> logger)
-  {
-    this.mapper = mapper;
-    this.repository = repository;
-    this.unitOfWork = unitOfWork;
-    this.logger = logger;
-  }
-
-  public async Task<ShiftResource?> Handle(PostCommand<ShiftResource> request, CancellationToken cancellationToken)
+    public async Task<ShiftResource?> Handle(PostCommand<ShiftResource> request, CancellationToken cancellationToken)
   {
     try
     {
