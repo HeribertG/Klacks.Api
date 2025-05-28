@@ -207,6 +207,7 @@ public class AccountsController : BaseController
                     ExpTime = result.Expires,
                     IsAdmin = result.IsAdmin,
                     IsAuthorised = result.IsAuthorised,
+                    RefreshToken = result.RefreshToken,
                     Version = new MyVersion().Get()
                 };
 

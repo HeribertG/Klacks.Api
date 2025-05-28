@@ -220,7 +220,7 @@ public class AccountRepository : IAccountRepository
         {
             if (await ValidateRefreshTokenAsync(user, model.RefreshToken))
             {
-                return await GenerateAuthentication(user, false);
+                return await GenerateAuthentication(user, true);
             }
         }
         catch (Exception)
@@ -270,7 +270,7 @@ public class AccountRepository : IAccountRepository
             return authenticatedResult;
         }
 
-        var expires = SetExpires();
+        var expires = SetExpiresTimeForToken();
         authenticatedResult = await SetAuthenticatedResult(authenticatedResult, user, expires);
 
         await appDbContext.SaveChangesAsync();
@@ -327,15 +327,17 @@ public class AccountRepository : IAccountRepository
     private async Task<AuthenticatedResult> GenerateAuthentication(AppUser user, bool withRefreshToken = true)
     {
         var authenticatedResult = new AuthenticatedResult { Success = false };
-        var expires = SetExpires();
+        var expires = SetExpiresTimeForToken();
 
         if (withRefreshToken)
         {
+            await RemoveAllUserRefreshTokensAsync(user.Id);
+
             var refreshToken = new RefreshToken
             {
                 AspNetUsersId = user.Id,
                 Token = new RefreshTokenGenerator().GenerateRefreshToken(),
-                ExpiryDate = DateTime.UtcNow.AddHours(1),
+                ExpiryDate = SetExpiresTimeForRefresh(),
             };
 
             appDbContext.RefreshToken.Add(refreshToken);
@@ -383,8 +385,20 @@ public class AccountRepository : IAccountRepository
         return authenticatedResult;
     }
 
-    private DateTime SetExpires()
+    private DateTime SetExpiresTimeForToken()
     {
         return DateTime.UtcNow.AddMinutes(15);
+    }
+
+    private DateTime SetExpiresTimeForRefresh()
+    {
+        return DateTime.UtcNow.AddHours(1);
+    }
+
+    private async Task RemoveAllUserRefreshTokensAsync(string userId)
+    {
+        var userTokens = appDbContext.RefreshToken.Where(rt => rt.AspNetUsersId == userId);
+        appDbContext.RefreshToken.RemoveRange(userTokens);
+        await appDbContext.SaveChangesAsync();
     }
 }

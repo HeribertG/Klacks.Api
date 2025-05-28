@@ -59,7 +59,7 @@ public class TokenService : ITokenService
       issuer: _jwtSettings.ValidIssuer,
       audience: _jwtSettings.ValidAudience,
       claims: claims,
-      expires: DateTime.UtcNow.AddMinutes(1),
+      expires: expires,
       notBefore: DateTime.UtcNow,
       signingCredentials: creds);
 
