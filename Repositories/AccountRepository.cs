@@ -1,4 +1,4 @@
-using Klacks.Api.Constants;
+﻿using Klacks.Api.Constants;
 using Klacks.Api.Datas;
 using Klacks.Api.Helper;
 using Klacks.Api.Helper.Email;
@@ -67,7 +67,7 @@ public class AccountRepository : IAccountRepository
                 authenticatedResult.ModelState = AddErrorsToModelState(resetPassResult, authenticatedResult.ModelState ?? new ModelStateDictionary());
             }
         }
-        catch (Exception e)
+        catch (Exception)
         {
             SetModelError(authenticatedResult, "An unexpected error has occurred.", string.Empty);
 
@@ -209,7 +209,15 @@ public class AccountRepository : IAccountRepository
             return authenticatedResult;
         }
 
+        // Versuche zuerst den User aus dem Token zu bekommen
         var user = await GetUserFromAccessToken(model.Token);
+
+        // Falls das fehlschlägt, versuche es über den RefreshToken direkt
+        if (user == null)
+        {
+            user = await GetUserFromRefreshToken(model.RefreshToken);
+        }
+
         if (user == null)
         {
             SetModelError(authenticatedResult, "RefreshTokenError", "Token invalid or expired.");
@@ -223,9 +231,11 @@ public class AccountRepository : IAccountRepository
                 return await GenerateAuthentication(user, true);
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             SetModelError(authenticatedResult, "RefreshTokenError", "An error occurred while refreshing the token.");
+            // Log the exception for debugging
+            Console.WriteLine($"RefreshToken Error: {ex.Message}");
             return authenticatedResult;
         }
 
@@ -354,20 +364,47 @@ public class AccountRepository : IAccountRepository
 
     private async Task<AppUser?> GetUserFromAccessToken(string token)
     {
-        var principal = jwtValidator.ValidateToken(token);
-
-        if (principal == null)
+        try
         {
+
+            var principal = jwtValidator.ValidateToken(token);
+
+            if (principal == null)
+            {
+                Console.WriteLine("❌ jwtValidator.ValidateToken returned NULL");
+                return null;
+            }
+
+
+            var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null)
+            {
+                Console.WriteLine($"❌ NameIdentifier claim not found!");
+                Console.WriteLine($"Expected claim type: '{ClaimTypes.NameIdentifier}'");
+                return null;
+            }
+
+            var user = await userManager.FindByIdAsync(userIdClaim.Value);
+
+            if (user == null)
+            {
+                Console.WriteLine($"❌ User not found with ID: '{userIdClaim.Value}'");
+            }
+            else
+            {
+                Console.WriteLine($"✅ User found: {user.Email}");
+            }
+
+
+            return user;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ EXCEPTION in GetUserFromAccessToken: {ex.Message}");
+            Console.WriteLine($"Stack: {ex.StackTrace}");
             return null;
         }
-
-        var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
-        if (userIdClaim == null)
-        {
-            return null;
-        }
-
-        return await userManager.FindByIdAsync(userIdClaim.Value);
     }
 
     private async Task<AuthenticatedResult> SetAuthenticatedResult(AuthenticatedResult authenticatedResult, AppUser user, DateTime expires)
@@ -400,5 +437,27 @@ public class AccountRepository : IAccountRepository
         var userTokens = appDbContext.RefreshToken.Where(rt => rt.AspNetUsersId == userId);
         appDbContext.RefreshToken.RemoveRange(userTokens);
         await appDbContext.SaveChangesAsync();
+    }
+
+    private async Task<AppUser?> GetUserFromRefreshToken(string refreshToken)
+    {
+        try
+        {
+            var storedRefreshToken = await appDbContext.RefreshToken
+                .Where(x => x.Token == refreshToken && x.ExpiryDate > DateTime.UtcNow)
+                .OrderByDescending(x => x.ExpiryDate)
+                .FirstOrDefaultAsync();
+
+            if (storedRefreshToken != null)
+            {
+                return await userManager.FindByIdAsync(storedRefreshToken.AspNetUsersId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"GetUserFromRefreshToken Error: {ex.Message}");
+        }
+
+        return null;
     }
 }

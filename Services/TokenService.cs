@@ -11,60 +11,53 @@ namespace Klacks.Api.Services;
 
 public class TokenService : ITokenService
 {
-  private readonly JwtSettings _jwtSettings;
-  private readonly UserManager<AppUser> _userManager;
+    private readonly JwtSettings _jwtSettings;
+    private readonly UserManager<AppUser> _userManager;
 
-  public TokenService(UserManager<AppUser> userManager, JwtSettings jwtSettings)
-  {
-    _userManager = userManager;
-    _jwtSettings = jwtSettings;
-  }
-
-  public async Task<string> CreateToken(AppUser user, DateTime expires)
-  {
-    var roles = new List<string>();
-    var isAdmin = await _userManager.IsInRoleAsync(user, Roles.Admin);
-    var isAuthorised = await _userManager.IsInRoleAsync(user, Roles.Authorised);
-
-    if (isAdmin)
+    public TokenService(UserManager<AppUser> userManager, JwtSettings jwtSettings)
     {
-      roles.Add(Roles.Admin);
+        _userManager = userManager;
+        _jwtSettings = jwtSettings;
     }
 
-    if (isAuthorised)
+    public async Task<string> CreateToken(AppUser user, DateTime expires)
     {
-      roles.Add(Roles.Authorised);
-    }
-
-    List<Claim> claims = new List<Claim>()
-      {
-          new Claim(ClaimTypes.NameIdentifier, user.UserName!),
-          new Claim(ClaimTypes.Email, user.Email!),
-          new Claim(ClaimTypes.GivenName, user.FirstName ),
+        List<Claim> claims = new List<Claim>()
+        {
+          new Claim(ClaimTypes.NameIdentifier, user.Id),
+          new Claim(ClaimTypes.Email, user.Email ?? ""),
+          new Claim(ClaimTypes.Name, user.UserName ?? ""),
+          new Claim(ClaimTypes.GivenName, user.FirstName),
           new Claim(ClaimTypes.Surname, user.LastName),
-          new Claim(ClaimTypes.Role, user.LastName),
-          new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-          new Claim("Id", user.Id ),
-      };
+          new Claim("jti", Guid.NewGuid().ToString()),
+          new Claim("iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
 
-    foreach (var item in roles)
-    {
-      claims.Add(new Claim(ClaimTypes.Role, item));
+        };
+
+        var userRoles = await GetUserRoles(user);
+        foreach (var item in userRoles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, item));
+        }
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+
+        var token = new JwtSecurityToken(
+          issuer: _jwtSettings.ValidIssuer,
+          audience: _jwtSettings.ValidAudience,
+          claims: claims,
+          expires: expires,
+          notBefore: DateTime.UtcNow,
+          signingCredentials: creds);
+
+        var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+        return jwt;
     }
 
-    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
-    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
-
-    var token = new JwtSecurityToken(
-      issuer: _jwtSettings.ValidIssuer,
-      audience: _jwtSettings.ValidAudience,
-      claims: claims,
-      expires: expires,
-      notBefore: DateTime.UtcNow,
-      signingCredentials: creds);
-
-    var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-
-    return jwt;
-  }
+    private async Task<List<string>> GetUserRoles(AppUser user)
+    {
+        return (await _userManager.GetRolesAsync(user)).ToList();
+    }
 }
