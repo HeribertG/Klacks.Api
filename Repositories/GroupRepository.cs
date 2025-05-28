@@ -56,12 +56,15 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             "UPDATE \"group\" SET \"rgt\" = \"rgt\" - @p0 WHERE \"rgt\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
             width, groupEntity.Rgt, groupEntity.Root);
 
+        context.Group.Remove(groupEntity);
+
         return groupEntity;
     }
 
     private async Task<Group> AddChildNode(Guid parentId, Group newGroup)
     {
         var parent = await context.Group
+            .Include(x=> x.GroupItems)
             .Where(g => g.Id == parentId )
             .FirstOrDefaultAsync();
 
@@ -128,7 +131,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
     public new async Task<Group?> Get(Guid id)
     {
-        return await context.Group.Where(x => x.Id == id).Include(x => x.GroupItems).ThenInclude(x => x.Client).AsNoTracking().FirstOrDefaultAsync();
+        return await context.Group.Where(x => x.Id == id).Include(gr => gr.GroupItems).ThenInclude(cl => cl.Client).AsNoTracking().FirstOrDefaultAsync();
     }
 
     public async Task<IEnumerable<Group>> GetChildren(Guid parentId)
@@ -324,8 +327,8 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
     public override async Task<Group?> Put(Group model)
     {
-        var existingIds = context.GroupItem.Where(x => x.GroupId == model.Id).Select(x => x.ClientId).ToList();
-        var modelListIds = model.GroupItems.Select(x => x.ClientId).ToList();
+        var existingIds = context.GroupItem.Where(x => x.GroupId == model.Id && x.ClientId.HasValue).Select(x => (Guid)x.ClientId!).ToList();
+        var modelListIds = model.GroupItems.Where(x=> x.ClientId.HasValue).Select(x => (Guid)x.ClientId!).ToList();
 
         var newIds = modelListIds.Where(x => !existingIds.Contains(x)).ToList();
         var deleteItems = existingIds.Where(x => !modelListIds.Contains(x)).ToList();
@@ -345,7 +348,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             }
         }
 
-        var existingGroup = await context.Group.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.Id);
+        var existingGroup = await context.Group.Include(x=> x.GroupItems).AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.Id);
         if (existingGroup != null)
         {
             if (existingGroup.Parent != model.Parent)

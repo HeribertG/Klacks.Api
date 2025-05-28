@@ -271,36 +271,7 @@ public class MappingProfile : Profile
           .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
           ;
 
-        CreateMap<GroupCreateResource, Group>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.GroupItems, opt => opt.Ignore())
-            .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
-            .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
-            .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
-            .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
-            .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
-            .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
-            .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
-            .ForMember(dest => dest.Lft, opt => opt.Ignore())
-            .ForMember(dest => dest.Rgt, opt => opt.Ignore())
-            .ForMember(dest => dest.Parent, opt => opt.Ignore())
-            .ForMember(dest => dest.Root, opt => opt.Ignore());
-
-        CreateMap<GroupUpdateResource, Group>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.GroupItems, opt => opt.Ignore())
-            .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
-            .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
-            .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
-            .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
-            .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
-            .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
-            .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
-            .ForMember(dest => dest.Lft, opt => opt.Ignore())
-            .ForMember(dest => dest.Rgt, opt => opt.Ignore())
-            .ForMember(dest => dest.Parent, opt => opt.MapFrom(src => src.ParentId))
-            .ForMember(dest => dest.Root, opt => opt.Ignore());
-
+       
         CreateMap<GroupResource, Group>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.GroupItems, opt => opt.Ignore())
@@ -313,7 +284,6 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
             .ForMember(dest => dest.Lft, opt => opt.Ignore())
             .ForMember(dest => dest.Rgt, opt => opt.Ignore())
-            .ForMember(dest => dest.Parent, opt => opt.MapFrom(src => src.ParentId))
             .ForMember(dest => dest.Root, opt => opt.Ignore())
             ;
 

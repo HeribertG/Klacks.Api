@@ -201,6 +201,12 @@ public class DataBaseContext : IdentityDbContext
       .HasForeignKey(a => a.ClientId)
       .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<Client>()
+     .HasMany(c => c.GroupItems)
+     .WithOne(a => a.Client)
+     .HasForeignKey(a => a.ClientId)
+     .OnDelete(DeleteBehavior.Cascade);
+
 
         modelBuilder.Entity<SelectedCalendar>()
         .HasOne(p => p.CalendarSelection)

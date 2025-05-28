@@ -18,7 +18,7 @@ public class GroupUpdateResource
     [DataType(DataType.Date)]
     public DateTime? ValidUntil { get; set; }
 
-    public Guid? ParentId { get; set; }
+    public Guid? Parent { get; set; }
 
     public ICollection<Guid> ClientIds { get; set; } = new Collection<Guid>();
 }

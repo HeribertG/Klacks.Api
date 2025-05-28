@@ -1,6 +1,5 @@
-﻿using Klacks.Api.Resources.Associations;
-using MediatR;
+﻿using MediatR;
 
 namespace Klacks.Api.Commands.Groups;
 
-public record CreateGroupNodeCommand(Guid? ParentId, GroupCreateResource Group) : IRequest<GroupResource>;
+public record CreateGroupNodeCommand(Guid? ParentId, GroupResource Group) : IRequest<GroupResource>;

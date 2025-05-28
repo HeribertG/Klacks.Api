@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
+
 namespace Klacks.Api.Models.Staffs;
 
 public class Client : BaseEntity
@@ -19,6 +20,7 @@ public class Client : BaseEntity
         Breaks = new Collection<Break>();
         Works = new Collection<Work>();
         GroupVisibilities = new Collection<GroupVisibility>();
+        GroupItems = new Collection<GroupItem>();
     }
 
     public ICollection<Address> Addresses { get; set; }
@@ -33,6 +35,9 @@ public class Client : BaseEntity
 
     [JsonIgnore]
     public ICollection<GroupVisibility> GroupVisibilities { get; set; }
+
+    [JsonIgnore]
+    public ICollection<GroupItem> GroupItems { get; set; }
 
     public ICollection<Communication> Communications { get; set; }
 

@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Klacks.Api.Commands.Groups;
 
-public record UpdateGroupNodeCommand(Guid Id, GroupUpdateResource Group) : IRequest<GroupResource>;
+public record UpdateGroupNodeCommand(Guid Id, GroupResource Group) : IRequest<GroupResource>;

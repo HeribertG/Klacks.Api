@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Datas;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20250528111233_FixMultiLanguageTableSharing")]
+    partial class FixMultiLanguageTableSharing
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2121,9 +2124,8 @@ namespace Klacks.Api.Migrations
             modelBuilder.Entity("Klacks.Api.Models.Associations.GroupItem", b =>
                 {
                     b.HasOne("Klacks.Api.Models.Staffs.Client", "Client")
-                        .WithMany("GroupItems")
+                        .WithMany()
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("fk_group_item_client_client_id");
 
                     b.HasOne("Klacks.Api.Models.Associations.Group", "Group")
@@ -2635,8 +2637,6 @@ namespace Klacks.Api.Migrations
                     b.Navigation("Breaks");
 
                     b.Navigation("Communications");
-
-                    b.Navigation("GroupItems");
 
                     b.Navigation("GroupVisibilities");
 
