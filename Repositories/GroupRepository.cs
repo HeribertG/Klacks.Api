@@ -201,7 +201,6 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         {
             if (rootId.HasValue)
             {
-                // Überprüfe, ob der Root-Knoten existiert
                 var root = await context.Group
                     .Where(g => g.Id == rootId)
                     .FirstOrDefaultAsync();
@@ -211,14 +210,12 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
                     throw new KeyNotFoundException($"Root group with ID {rootId} not found");
                 }
 
-                // Hole alle Knoten in diesem Teilbaum ohne Filterung
                 var allNodes = await context.Group
                     .Where(g => g.Root == rootId || g.Id == rootId)
                     .Include(g => g.GroupItems)
                     .ThenInclude(gi => gi.Client)
                     .ToListAsync();
 
-                // Filtere nach Datum ohne komplexe Logik
                 return allNodes
                     .Where(g => g.ValidFrom.Date <= today &&
                                (!g.ValidUntil.HasValue || g.ValidUntil.Value.Date >= today))
@@ -228,13 +225,11 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             }
             else
             {
-                // Hole alle Gruppen ohne Filterung
                 var allNodes = await context.Group
                     .Include(g => g.GroupItems)
                     .ThenInclude(gi => gi.Client)
                     .ToListAsync();
 
-                // Filtere nach Datum ohne komplexe Logik
                 return allNodes
                     .Where(g => g.ValidFrom.Date <= today &&
                                (!g.ValidUntil.HasValue || g.ValidUntil.Value.Date >= today))
@@ -245,11 +240,9 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         }
         catch (Exception ex)
         {
-            // Verbesserte Fehlerprotokollierung
             Console.WriteLine($"Fehler in GetTree: {ex.Message}");
             Console.WriteLine($"StackTrace: {ex.StackTrace}");
 
-            // Rethrow der Exception für die API
             throw;
         }
     }
@@ -327,48 +320,65 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
     public override async Task<Group?> Put(Group model)
     {
-        var existingIds = context.GroupItem.Where(x => x.GroupId == model.Id && x.ClientId.HasValue).Select(x => (Guid)x.ClientId!).ToList();
-        var modelListIds = model.GroupItems.Where(x=> x.ClientId.HasValue).Select(x => (Guid)x.ClientId!).ToList();
+        var existingIds = await context.GroupItem
+            .Where(x => x.GroupId == model.Id && x.ClientId.HasValue)
+            .Select(x => x.ClientId!.Value)
+            .ToHashSetAsync(); 
 
-        var newIds = modelListIds.Where(x => !existingIds.Contains(x)).ToList();
-        var deleteItems = existingIds.Where(x => !modelListIds.Contains(x)).ToList();
+        var newIds = model.GroupItems
+            .Where(x => x.ClientId.HasValue)
+            .Select(x => x.ClientId!.Value)
+            .ToHashSet();
 
-        if (newIds.Any())
+        var itemsToDelete = await context.GroupItem
+            .Where(x => x.GroupId == model.Id &&
+                       x.ClientId.HasValue &&
+                       !newIds.Contains(x.ClientId.Value))
+            .ToListAsync();
+
+        if (itemsToDelete.Any())
         {
-            var lst = CreateList(newIds, model.Id);
-            context.GroupItem.AddRange(lst.ToArray());
+            context.GroupItem.RemoveRange(itemsToDelete);
         }
 
-        foreach (var id in deleteItems)
+        var idsToAdd = newIds.Except(existingIds);
+        if (idsToAdd.Any())
         {
-            var item = context.GroupItem.FirstOrDefault(x => x.ClientId == id);
-            if (item != null)
+            var newItems = idsToAdd.Select(clientId => new GroupItem
             {
-                context.GroupItem.Remove(item);
-            }
+                ClientId = clientId,
+                GroupId = model.Id
+            });
+
+            context.GroupItem.AddRange(newItems);
         }
 
-        var existingGroup = await context.Group.Include(x=> x.GroupItems).AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.Id);
-        if (existingGroup != null)
-        {
-            if (existingGroup.Parent != model.Parent)
-            {
-                UpdateNode(model, existingGroup);
+        var existingGroup = await context.Group
+            .FirstOrDefaultAsync(x => x.Id == model.Id);
 
-                if (model.Parent.HasValue)
-                {
-                    await MoveNode(model.Id, model.Parent.Value);
-                }
-            }
-            else
-            {
-                UpdateNode(model, existingGroup);
-            }
-        }
-        else
+        if (existingGroup == null)
         {
             throw new KeyNotFoundException($"Group with ID {model.Id} not found");
         }
+
+        bool hierarchyChanged = existingGroup.Parent != model.Parent;
+
+        existingGroup.Name = model.Name;
+        existingGroup.Description = model.Description;
+        existingGroup.ValidFrom = model.ValidFrom;
+        existingGroup.ValidUntil = model.ValidUntil;
+
+        if (hierarchyChanged)
+        {
+            existingGroup.Parent = model.Parent;
+
+            if (model.Parent.HasValue)
+            {
+                await MoveNode(model.Id, model.Parent.Value);
+            }
+        }
+
+        context.Group.Update(existingGroup);
 
         return model;
     }
@@ -434,34 +444,26 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     {
         try
         {
-            // Alle Wurzelknoten abrufen
             var rootNodes = await context.Group
                 .Where(g => g.Parent == null)
                 .OrderBy(g => g.Id)
                 .ToListAsync();
 
-            // Für jeden Wurzelknoten die Baum-Rekonstruktion durchführen
             foreach (var rootNode in rootNodes)
             {
-                // Mit 1 beginnen (Lft-Wert des Wurzelknotens)
                 int counter = 1;
 
-                // Wurzelknoten aktualisieren
                 rootNode.Lft = counter++;
 
-                // Rekursiv alle Unterknoten aktualisieren
                 counter = await RebuildSubtree(rootNode.Id, counter);
 
-                // Rgt-Wert des Wurzelknotens setzen
                 rootNode.Rgt = counter++;
 
-                // Root-Wert aktualisieren
                 if (rootNode.Root != null)
                 {
                     rootNode.Root = rootNode.Id;
                 }
 
-                // Änderungen am Wurzelknoten speichern
                 context.Group.Update(rootNode);
             }
         }
@@ -475,10 +477,8 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
     public async Task FixRootValues()
     {
-        // Alle Gruppen abrufen
         var allGroups = await context.Group.ToListAsync();
 
-        // Gruppiere nach Root-ID für effiziente Verarbeitung
         var groupsByRoot = allGroups
             .Where(g => g.Root != null)
             .GroupBy(g => g.Root)
@@ -488,13 +488,10 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         {
             var rootId = rootGroup.Key;
 
-            // Überprüfe, ob der Root-Knoten existiert
             var rootExists = allGroups.Any(g => g.Id == rootId);
 
             if (!rootExists)
             {
-                // Wenn der Root-Knoten nicht existiert, setze die Root-ID auf den obersten
-                // vorhandenen Elternknoten in der Hierarchie
                 foreach (var group in rootGroup)
                 {
                     var newRootId = await FindExistingRoot(group.Id, allGroups);
@@ -517,62 +514,34 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         Dictionary<Guid?, List<Group>> childrenDict,
         List<Group> result)
     {
-        // Prüfe, ob es Kinder für diesen Elternknoten gibt
         if (!childrenDict.ContainsKey(parentId))
         {
             return;
         }
 
-        // Hole alle direkten Kinder des Elternknotens
         var children = childrenDict[parentId];
 
-        // Für jedes Kind...
         foreach (var child in children.OrderBy(c => c.Lft))
         {
-            // Prüfe, ob das Kind im gültigen Datumsbereich liegt
             if (child.ValidFrom.Date <= today &&
                 (!child.ValidUntil.HasValue || child.ValidUntil.Value.Date >= today))
             {
-                // Füge das Kind zur Ergebnisliste hinzu, wenn es nicht bereits enthalten ist
                 if (!result.Any(g => g.Id == child.Id))
                 {
                     result.Add(child);
                 }
 
-                // Rekursiv alle Kinder dieses Kindes hinzufügen
                 AddValidChildren(child.Id, today, groupDict, childrenDict, result);
             }
         }
     }
-
-    private  void UpdateNode(Group updatedGroup,Group existingGroup)
-    {
        
-        existingGroup.Name = updatedGroup.Name;
-        existingGroup.Description = updatedGroup.Description;
-        existingGroup.ValidFrom = updatedGroup.ValidFrom;
-        existingGroup.ValidUntil = updatedGroup.ValidUntil;
-       
-        context.Group.Update(existingGroup);
-    }
-
-    private List<GroupItem> CreateList(List<Guid> list, Guid groubId)
-    {
-        var lst = new List<GroupItem>();
-        foreach (var id in list)
-        {
-            lst.Add(new GroupItem() { ClientId = id, GroupId = groubId });
-        }
-
-        return lst;
-    }
 
     private IQueryable<Group> FilterByDateRange(bool activeDateRange, bool formerDateRange, bool futureDateRange, IQueryable<Group> tmp)
     {
 
         if (activeDateRange && formerDateRange && futureDateRange)
         {
-            // No need for filters
         }
         else if (!activeDateRange && !formerDateRange && !futureDateRange)
         {
@@ -705,29 +674,22 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
     private async Task<int> RebuildSubtree(Guid parentId, int counter)
     {
-        // Alle direkten Kinder des Elternknotens abrufen, sortiert nach Name
         var children = await context.Group
             .Where(g => g.Parent == parentId)
             .OrderBy(g => g.Name)
             .ToListAsync();
 
-        // Für jedes Kind rekursiv die Werte aktualisieren
         foreach (var child in children)
         {
-            // Lft-Wert setzen
             child.Lft = counter++;
 
-            // Rekursiv alle Unterknoten aktualisieren
             counter = await RebuildSubtree(child.Id, counter);
 
-            // Rgt-Wert setzen
             child.Rgt = counter++;
 
-            // Root-Wert sicherstellen (auf den Wurzelknoten verweisen)
             var rootId = await GetRootId(child.Id);
             child.Root = rootId;
 
-            // Änderungen am Knoten speichern
             context.Group.Update(child);
         }
 
@@ -745,13 +707,11 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             return null;
         }
 
-        // Wenn es ein Wurzelknoten ist, ist seine ID die Root-ID
         if (node.Parent == null)
         {
             return node.Id;
         }
 
-        // Sonst rekursiv zum Wurzelknoten navigieren
         return await GetRootId(node.Parent.Value);
     }
 
@@ -764,7 +724,6 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             return null;
         }
 
-        // Wenn es ein Wurzelknoten ist oder keinen Elternknoten hat
         if (currentNode.Parent == null)
         {
             return currentNode.Id;
@@ -775,11 +734,9 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
         if (!parentExists)
         {
-            // Wenn der Elternknoten nicht existiert, ist der aktuelle Knoten der neue Root
             return currentNode.Id;
         }
 
-        // Sonst rekursiv zum nächsten Elternknoten
         return await FindExistingRoot(parentId, allGroups);
     }
 
