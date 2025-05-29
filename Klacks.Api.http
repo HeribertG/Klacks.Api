@@ -1,6 +1,0 @@
-@Klacks.Api_HostAddress = http://localhost:5182
-
-GET {{Klacks.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
