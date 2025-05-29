@@ -8,8 +8,6 @@ public class GroupItem : BaseEntity
 
     public Guid? ClientId { get; set; }
 
-    public Guid? UserId { get; set; }
-
     public Guid GroupId { get; set; }
 
     public virtual Client? Client { get; set; } = null!;
