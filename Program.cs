@@ -1,6 +1,4 @@
-﻿using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
-using FluentValidation;
-using FluentValidation.AspNetCore;
+﻿using FluentValidation;
 using Klacks.Api;
 using Klacks.Api.BasicScriptInterpreter;
 using Klacks.Api.Converters;
@@ -19,6 +17,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
@@ -26,7 +25,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 var myAllowSpecificOrigins = "CorsPolicy";
-string[] headers = ["X-Operation", "X-Resource", "X-Total-Count"];
+string[] headers =["X-Operation", "X-Resource", "X-Total-Count"];
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,41 +42,46 @@ var jwtSettings = new JwtSettings();
 builder.Configuration.Bind(nameof(jwtSettings), jwtSettings);
 builder.Services.AddSingleton(jwtSettings);
 
-
-builder.Services.AddSwaggerGen(options =>
+builder.Services.AddSwaggerGen(c =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo
+    c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "Klacks-Net API",
         Version = "v1",
         Description = "API für Klacks-Net Anwendung"
     });
 
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
         Name = "Authorization",
-        Description = "Bearer authentication with JWT Token",
+        In = ParameterLocation.Header,
         Type = SecuritySchemeType.Http,
-        In = ParameterLocation.Header
+        Scheme = "bearer",
+        BearerFormat = "JWT"
     });
 
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
             {
                 Reference = new OpenApiReference
                 {
-                    Id = "Bearer",
                     Type = ReferenceType.SecurityScheme,
-                },
+                    Id = "Bearer"
+                }
             },
-            new List<string>()
-        },
+            new string[] {}
+        }
     });
 
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
 });
 
 
@@ -140,34 +144,17 @@ builder.Services.AddScoped<UploadFile>();
 builder.Services.AddScoped<IGetAllClientIdsFromGroupAndSubgroups, GroupClientService>();
 builder.Services.AddScoped<IAssignedGroupRepository, AssignedGroupRepository>();
 
-
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
-builder.Services
-    .AddFluentValidation(config =>
-    {
-        config.AutomaticValidationEnabled = true;  // Aktiviert automatische Validierung
-    })
-    .AddValidatorsFromAssemblyContaining<Klacks.Api.Validation.CalendarSelections.PostCommandValidator>()
-    .AddValidatorsFromAssemblyContaining<Klacks.Api.Validation.CalendarSelections.PutCommandValidator>()
-    .AddValidatorsFromAssemblyContaining<Klacks.Api.Validation.Groups.PostCommandValidator>()
-    .AddValidatorsFromAssemblyContaining<Klacks.Api.Validation.Groups.PutCommandValidator>()
-    .AddValidatorsFromAssemblyContaining<Klacks.Api.Validation.Clients.GetTruncatedListQueryValidator>()
-    .AddValidatorsFromAssemblyContaining<Klacks.Api.Validation.Clients.FilterResourceValidator>();
-
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services
     .AddControllers()
     .AddJsonOptions(opts =>
     {
-        // 1) camelCase keys (afterShift → AfterShift)
         opts.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-
-        // 2) Converter für DateOnly und TimeOnly
         opts.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
         opts.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
-
-        // 3) Optional: Reference-Cycles ignorieren und schön formatieren
         opts.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         opts.JsonSerializerOptions.WriteIndented = true;
     });
@@ -211,17 +198,19 @@ Console.WriteLine("UpdateDatabase done");
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
+    app.UseSwagger(options => options.OpenApiVersion = OpenApiSpecVersion.OpenApi2_0);
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Klacks-Net API V1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Klacks-Net API V1");
+        c.RoutePrefix = "swagger";
         c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
+        c.DisplayRequestDuration();
+        c.EnableDeepLinking();
+        c.EnableFilter();
+        c.ShowExtensions();
+        c.EnableValidator();
     });
     app.UseDeveloperExceptionPage();
-}
-else
-{
-    app.UseExceptionHandler("/Error");
 }
 
 // global cors policy

@@ -23,8 +23,6 @@ public interface ISettingsRepository
 
     bool CalendarRuleExists(Guid id);
 
-    HttpResultResource CreateExcelFile(CalendarRulesFilter filter);
-
     Task<BankDetails> DeleteBankDetail(Guid id);
 
     Task<CalendarRule> DeleteCalendarRule(Guid id);

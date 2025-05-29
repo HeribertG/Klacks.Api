@@ -1,5 +1,4 @@
 using Klacks.Api.Datas;
-using Klacks.Api.Helper.Excel;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Associations;
 using Klacks.Api.Models.Settings;
@@ -248,25 +247,6 @@ namespace Klacks.Api.Repositories
         public bool CalendarRuleExists(Guid id)
         {
             return this.context.CalendarRule.Any(e => e.Id == id);
-        }
-
-        public HttpResultResource CreateExcelFile(CalendarRulesFilter filter)
-        {
-            var result = new HttpResultResource();
-            try
-            {
-                var tmp = this.FilterCalendarRule(filter);
-                var excel = new CalendarRulesExcel(tmp);
-                result.Success = true;
-                result.Messages = excel.FileName;
-            }
-            catch (Exception e)
-            {
-                result.Success = false;
-                result.Messages = e.Message;
-            }
-
-            return result;
         }
 
         public async Task<CalendarRule> DeleteCalendarRule(Guid id)

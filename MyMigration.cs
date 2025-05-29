@@ -5,18 +5,16 @@ namespace Klacks.Api;
 
 public class MyMigration
 {
-
-    public MyMigration(IConfiguration configuration, ILoggerFactory LoggerFactory)
+    public MyMigration(IConfiguration configuration, ILoggerFactory loggerFactory)
     {
-
         var connectionString = configuration.GetConnectionString("Default");
-        var DatabaseContextOptionsBuilder = new DbContextOptionsBuilder<DataBaseContext>();
-        DatabaseContextOptionsBuilder.UseNpgsql(connectionString);
-        DatabaseContextOptionsBuilder.EnableDetailedErrors();
-        DatabaseContextOptionsBuilder.EnableSensitiveDataLogging();
-        DatabaseContextOptionsBuilder.UseLoggerFactory(LoggerFactory);
+        var databaseContextOptionsBuilder = new DbContextOptionsBuilder<DataBaseContext>();
+        databaseContextOptionsBuilder.UseNpgsql(connectionString);
+        databaseContextOptionsBuilder.EnableDetailedErrors();
+        databaseContextOptionsBuilder.EnableSensitiveDataLogging();
+        databaseContextOptionsBuilder.UseLoggerFactory(loggerFactory);
 
-        using var context = new DataBaseContext(DatabaseContextOptionsBuilder.Options, null!);
+        using var context = new DataBaseContext(databaseContextOptionsBuilder.Options, null!);
         var pendingMigrations = context.Database.GetPendingMigrations().ToArray();
         if (pendingMigrations.Any())
         {
@@ -27,9 +25,7 @@ public class MyMigration
                 Console.WriteLine("DONE");
             }
 
-
             context.Database.Migrate();
         }
     }
-
 }

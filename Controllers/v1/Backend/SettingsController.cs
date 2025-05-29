@@ -235,23 +235,7 @@ public class SettingsController : BaseController
     #endregion Vat
 
     #region CalendarRule
-
-    [HttpPost("CalendarRule/CreateExcelFile")]
-    public async Task<FileContentResult> CreateExcelFile([FromBody] CalendarRulesFilter filter)
-    {
-        var res = await mediator.Send(new Queries.Settings.CalendarRules.CreateExcelFileQuery(filter));
-        if (res.Success)
-        {
-            string fileName = res.Messages;
-            byte[] result = System.IO.File.ReadAllBytes(fileName);
-            return File(result, "application/octet-stream", "Absences.xlsx");
-        }
-        else
-        {
-            return File(Encoding.UTF8.GetBytes(res.Messages), "text/plain");
-        }
-    }
-
+        
     [HttpDelete("CalendarRule/{id}")]
     public async Task<ActionResult<CalendarRule>> DeleteCalendarRule(Guid id)
     {

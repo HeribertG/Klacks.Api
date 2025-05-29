@@ -1,5 +1,4 @@
 using Klacks.Api.Datas;
-using Klacks.Api.Helper.Excel;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Resources;
@@ -17,26 +16,7 @@ public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
     {
         this.context = context;
     }
-
-    public HttpResultResource CreateExcelFile(string language)
-    {
-        var result = new HttpResultResource();
-        try
-        {
-            var tmp = this.context.Absence.OrderBy(x => x.Name.De).ThenBy(x => x.Description.De).AsQueryable();
-            var excel = new AbsenceExcel(tmp, language);
-            result.Success = true;
-            result.Messages = excel.FileName;
-        }
-        catch (Exception e)
-        {
-            result.Success = false;
-            result.Messages = e.Message;
-        }
-
-        return result;
-    }
-
+    
     public async Task<TruncatedAbsence_dto> Truncated(AbsenceFilter filter)
     {
         var count = 0;

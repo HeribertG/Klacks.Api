@@ -18,7 +18,6 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-
         CreateMap<TruncatedClient, TruncatedClientResource>()
             .ForMember(dest => dest.Clients, opt => opt.MapFrom(src => src.Clients))
             ;
@@ -95,6 +94,8 @@ public class MappingProfile : Profile
           ;
 
         CreateMap<ClientResource, Client>()
+          .ForMember(dest => dest.GroupVisibilities, opt => opt.Ignore())
+          .ForMember(dest => dest.GroupItems, opt => opt.Ignore())
           .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
           .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
           .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
@@ -232,6 +233,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Lft, opt => opt.Ignore())
             .ForMember(dest => dest.Rgt, opt => opt.Ignore())
             .ForMember(dest => dest.Root, opt => opt.Ignore())
+            .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
             ;
 
         CreateMap<GroupItem, GroupItemResource>()
