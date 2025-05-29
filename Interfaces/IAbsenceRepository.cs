@@ -6,7 +6,7 @@ namespace Klacks.Api.Interfaces;
 
 public interface IAbsenceRepository : IBaseRepository<Absence>
 {
-  HttpResultResource CreateExcelFile(string language);
+    HttpResultResource CreateExcelFile(string language);
 
-  Task<TruncatedAbsence_dto> Truncated(AbsenceFilter filter);
+    Task<TruncatedAbsence_dto> Truncated(AbsenceFilter filter);
 }

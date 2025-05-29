@@ -9,21 +9,21 @@ namespace Klacks.Api.Controllers.V1.Backend;
 
 public class WorksController : InputBaseController<Work>
 {
-  private readonly ILogger<WorksController> _logger;
+    private readonly ILogger<WorksController> _logger;
 
-  public WorksController(IMediator mediator, ILogger<WorksController> logger)
-          : base(mediator, logger)
-  {
-    _logger = logger;
-  }
+    public WorksController(IMediator mediator, ILogger<WorksController> logger)
+            : base(mediator, logger)
+    {
+        _logger = logger;
+    }
 
-  /// <summary>
-  /// List of all Clients and all their Works in the current Year and Month.
-  /// </summary>
-  /// <param name="filter">Current Filter.</param>
-  [HttpPost("GetClientList")]
-  public async Task<ActionResult<IEnumerable<ClientWorkResource>>> GetClientList([FromBody] WorkFilter filter)
-  {
-    return Ok(await mediator.Send(new ListQuery(filter)));
-  }
+    /// <summary>
+    /// List of all Clients and all their Works in the current Year and Month.
+    /// </summary>
+    /// <param name="filter">Current Filter.</param>
+    [HttpPost("GetClientList")]
+    public async Task<ActionResult<IEnumerable<ClientWorkResource>>> GetClientList([FromBody] WorkFilter filter)
+    {
+        return Ok(await mediator.Send(new ListQuery(filter)));
+    }
 }

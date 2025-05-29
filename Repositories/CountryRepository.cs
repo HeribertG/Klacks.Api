@@ -4,14 +4,14 @@ using Klacks.Api.Models.Settings;
 
 namespace Klacks.Api.Repositories
 {
-  public class CountryRepository : BaseRepository<Countries>, ICountryRepository
-  {
-    private readonly DataBaseContext context;
-
-    public CountryRepository(DataBaseContext context)
-        : base(context)
+    public class CountryRepository : BaseRepository<Countries>, ICountryRepository
     {
-      this.context = context;
+        private readonly DataBaseContext context;
+
+        public CountryRepository(DataBaseContext context)
+            : base(context)
+        {
+            this.context = context;
+        }
     }
-  }
 }

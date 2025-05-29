@@ -4,5 +4,5 @@ namespace Klacks.Api.Interfaces;
 
 public interface IAnnotationRepository : IBaseRepository<Annotation>
 {
-  Task<List<Annotation>> SimpleList(Guid id);
+    Task<List<Annotation>> SimpleList(Guid id);
 }

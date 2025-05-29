@@ -3,5 +3,5 @@ using MediatR;
 
 namespace Klacks.Api.Queries.Addresses
 {
-  public record ClientAddressListQuery(Guid Id) : IRequest<IEnumerable<AddressResource>>;
+    public record ClientAddressListQuery(Guid Id) : IRequest<IEnumerable<AddressResource>>;
 }

@@ -40,7 +40,7 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
 
             if (mainGroup.GroupItems != null)
             {
-                foreach (var item in mainGroup.GroupItems.Where(x=> x.ClientId.HasValue))
+                foreach (var item in mainGroup.GroupItems.Where(x => x.ClientId.HasValue))
                 {
                     if (item != null)
                     {
@@ -79,7 +79,7 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
 
             if (childGroup.GroupItems != null && childGroup.GroupItems.Any())
             {
-                foreach (var item in childGroup.GroupItems.Where(x=> x.ClientId.HasValue))
+                foreach (var item in childGroup.GroupItems.Where(x => x.ClientId.HasValue))
                 {
                     if (item != null)
                     {

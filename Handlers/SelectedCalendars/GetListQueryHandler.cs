@@ -6,23 +6,23 @@ using MediatR;
 
 namespace Klacks.Api.Handlers.SelectedCalendars
 {
-  public class GetListQueryHandler : IRequestHandler<ListQuery<SelectedCalendarResource>, IEnumerable<SelectedCalendarResource>>
-  {
-    private readonly IMapper mapper;
-    private readonly ISelectedCalendarRepository repository;
-
-    public GetListQueryHandler(
-          IMapper mapper,
-          ISelectedCalendarRepository repository)
+    public class GetListQueryHandler : IRequestHandler<ListQuery<SelectedCalendarResource>, IEnumerable<SelectedCalendarResource>>
     {
-      this.mapper = mapper;
-      this.repository = repository;
-    }
+        private readonly IMapper mapper;
+        private readonly ISelectedCalendarRepository repository;
 
-    public async Task<IEnumerable<SelectedCalendarResource>> Handle(ListQuery<SelectedCalendarResource> request, CancellationToken cancellationToken)
-    {
-      var selectedCalendar = await this.repository.List();
-      return this.mapper.Map<List<Models.CalendarSelections.SelectedCalendar>, List<SelectedCalendarResource>>(selectedCalendar!);
+        public GetListQueryHandler(
+              IMapper mapper,
+              ISelectedCalendarRepository repository)
+        {
+            this.mapper = mapper;
+            this.repository = repository;
+        }
+
+        public async Task<IEnumerable<SelectedCalendarResource>> Handle(ListQuery<SelectedCalendarResource> request, CancellationToken cancellationToken)
+        {
+            var selectedCalendar = await this.repository.List();
+            return this.mapper.Map<List<Models.CalendarSelections.SelectedCalendar>, List<SelectedCalendarResource>>(selectedCalendar!);
+        }
     }
-  }
 }

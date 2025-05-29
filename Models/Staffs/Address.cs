@@ -11,7 +11,7 @@ public class Address : BaseEntity
 
     public Guid ClientId { get; set; }
 
-    public virtual Client Client { get; set; } = null!; 
+    public virtual Client Client { get; set; } = null!;
 
     [Required]
     [DataType(DataType.Date)]

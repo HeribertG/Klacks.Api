@@ -8,40 +8,40 @@ namespace Klacks.Api.Handlers.Settings.CalendarRules;
 
 public class PostCommandHandler : IRequestHandler<PostCommand, Models.Settings.CalendarRule?>
 {
-  private readonly ILogger<PostCommandHandler> logger;
-  private readonly IMapper mapper;
-  private readonly ISettingsRepository repository;
-  private readonly IUnitOfWork unitOfWork;
+    private readonly ILogger<PostCommandHandler> logger;
+    private readonly IMapper mapper;
+    private readonly ISettingsRepository repository;
+    private readonly IUnitOfWork unitOfWork;
 
-  public PostCommandHandler(
-                            IMapper mapper,
-                            ISettingsRepository repository,
-                            IUnitOfWork unitOfWork,
-                            ILogger<PostCommandHandler> logger)
-  {
-    this.mapper = mapper;
-    this.repository = repository;
-    this.unitOfWork = unitOfWork;
-    this.logger = logger;
-  }
-
-  public async Task<Models.Settings.CalendarRule?> Handle(PostCommand request, CancellationToken cancellationToken)
-  {
-    try
+    public PostCommandHandler(
+                              IMapper mapper,
+                              ISettingsRepository repository,
+                              IUnitOfWork unitOfWork,
+                              ILogger<PostCommandHandler> logger)
     {
-      var calendarRule = mapper.Map<CalendarRuleResource, Models.Settings.CalendarRule>(request.model);
-      repository.AddCalendarRule(calendarRule);
-
-      await unitOfWork.CompleteAsync();
-
-      logger.LogInformation("New CalendarRule added successfully. ID: {CalendarRuleId}", calendarRule.Id);
-
-      return calendarRule;
+        this.mapper = mapper;
+        this.repository = repository;
+        this.unitOfWork = unitOfWork;
+        this.logger = logger;
     }
-    catch (Exception ex)
+
+    public async Task<Models.Settings.CalendarRule?> Handle(PostCommand request, CancellationToken cancellationToken)
     {
-      logger.LogError(ex, "Error occurred while adding a new CalendarRule. ID: {CalendarRuleId}", request.model.Id);
-      throw;
+        try
+        {
+            var calendarRule = mapper.Map<CalendarRuleResource, Models.Settings.CalendarRule>(request.model);
+            repository.AddCalendarRule(calendarRule);
+
+            await unitOfWork.CompleteAsync();
+
+            logger.LogInformation("New CalendarRule added successfully. ID: {CalendarRuleId}", calendarRule.Id);
+
+            return calendarRule;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error occurred while adding a new CalendarRule. ID: {CalendarRuleId}", request.model.Id);
+            throw;
+        }
     }
-  }
 }

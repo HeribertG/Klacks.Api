@@ -2,12 +2,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Klacks.Api.Data.Seed
 {
-  public class Macros
-  {
-    public static void SeedData(MigrationBuilder migrationBuilder)
+    public class Macros
     {
-      migrationBuilder.Sql(
-                        @"INSERT INTO public.macro (id,""name"",""content"",""type"",description_de,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted ) VALUES
+        public static void SeedData(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.Sql(
+                              @"INSERT INTO public.macro (id,""name"",""content"",""type"",description_de,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted ) VALUES
 	 ('3bac9e54-4368-4174-8bc9-435ce08aecbd','Vacation','IF WeekdayNumber  = 1 OR WeekdayNumber  = 7 OR IsHolyday THEN
 	Hour= 0
 ELSE 
@@ -146,7 +146,7 @@ Message 1, Hour
  ',0,'','2022-07-10 07:08:53.041','admin','2023-07-16 14:42:01.647','admin',NULL,false,'' );
 
 "
-                        );
+                              );
+        }
     }
-  }
 }

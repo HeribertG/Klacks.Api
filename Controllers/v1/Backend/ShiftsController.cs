@@ -18,7 +18,7 @@ public class ShiftsController : InputBaseController<ShiftResource>
         _logger = logger;
     }
 
-   
+
     [HttpPost("GetSimpleList")]
     public async Task<ActionResult<TruncatedShiftResource>> GetSimpleList([FromBody] ShiftFilter filter)
     {

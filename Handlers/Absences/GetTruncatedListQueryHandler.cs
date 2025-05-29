@@ -6,22 +6,22 @@ using MediatR;
 
 namespace Klacks.Api.Handlers.Absences
 {
-  public class GetTruncatedListQueryHandler : IRequestHandler<TruncatedListQuery, TruncatedAbsence>
-  {
-    private readonly IMapper mapper;
-    private readonly IAbsenceRepository repository;
-
-    public GetTruncatedListQueryHandler(IMapper mapper,
-                                        IAbsenceRepository repository)
+    public class GetTruncatedListQueryHandler : IRequestHandler<TruncatedListQuery, TruncatedAbsence>
     {
-      this.mapper = mapper;
-      this.repository = repository;
-    }
+        private readonly IMapper mapper;
+        private readonly IAbsenceRepository repository;
 
-    public async Task<TruncatedAbsence> Handle(TruncatedListQuery request, CancellationToken cancellationToken)
-    {
-      var tmp = await repository.Truncated(request.Filter);
-      return mapper.Map<TruncatedAbsence_dto, TruncatedAbsence>(tmp!);
+        public GetTruncatedListQueryHandler(IMapper mapper,
+                                            IAbsenceRepository repository)
+        {
+            this.mapper = mapper;
+            this.repository = repository;
+        }
+
+        public async Task<TruncatedAbsence> Handle(TruncatedListQuery request, CancellationToken cancellationToken)
+        {
+            var tmp = await repository.Truncated(request.Filter);
+            return mapper.Map<TruncatedAbsence_dto, TruncatedAbsence>(tmp!);
+        }
     }
-  }
 }

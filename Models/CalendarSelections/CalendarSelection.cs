@@ -6,7 +6,7 @@ namespace Klacks.Api.Models.CalendarSelections;
 
 public class CalendarSelection : BaseEntity
 {
-  public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
 
-  public List<SelectedCalendar> SelectedCalendars { get; set; } = new();
+    public List<SelectedCalendar> SelectedCalendars { get; set; } = new();
 }

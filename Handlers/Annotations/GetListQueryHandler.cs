@@ -6,23 +6,23 @@ using MediatR;
 
 namespace Klacks.Api.Handlers.Annotations
 {
-  public class GetListQueryHandler : IRequestHandler<GetSimpleListQuery, IEnumerable<AnnotationResource>>
-  {
-    private readonly IMapper mapper;
-    private readonly IAnnotationRepository repository;
-
-    public GetListQueryHandler(IMapper mapper,
-                               IAnnotationRepository repository)
+    public class GetListQueryHandler : IRequestHandler<GetSimpleListQuery, IEnumerable<AnnotationResource>>
     {
-      this.mapper = mapper;
-      this.repository = repository;
-    }
+        private readonly IMapper mapper;
+        private readonly IAnnotationRepository repository;
 
-    public async Task<IEnumerable<AnnotationResource>> Handle(GetSimpleListQuery request, CancellationToken cancellationToken)
-    {
-      var annotation = await repository.List();
+        public GetListQueryHandler(IMapper mapper,
+                                   IAnnotationRepository repository)
+        {
+            this.mapper = mapper;
+            this.repository = repository;
+        }
 
-      return mapper.Map<List<Models.Staffs.Annotation>, List<AnnotationResource>>(annotation!);
+        public async Task<IEnumerable<AnnotationResource>> Handle(GetSimpleListQuery request, CancellationToken cancellationToken)
+        {
+            var annotation = await repository.List();
+
+            return mapper.Map<List<Models.Staffs.Annotation>, List<AnnotationResource>>(annotation!);
+        }
     }
-  }
 }

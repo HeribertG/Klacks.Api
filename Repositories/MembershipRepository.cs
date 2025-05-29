@@ -4,14 +4,14 @@ using Klacks.Api.Models.Associations;
 
 namespace Klacks.Api.Repositories
 {
-  public class MembershipRepository : BaseRepository<Membership>, IMembershipRepository
-  {
-    private readonly DataBaseContext context;
-
-    public MembershipRepository(DataBaseContext context)
-      : base(context)
+    public class MembershipRepository : BaseRepository<Membership>, IMembershipRepository
     {
-      this.context = context;
+        private readonly DataBaseContext context;
+
+        public MembershipRepository(DataBaseContext context)
+          : base(context)
+        {
+            this.context = context;
+        }
     }
-  }
 }

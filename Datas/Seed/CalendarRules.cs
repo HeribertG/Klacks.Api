@@ -2,12 +2,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Klacks.Api.Data.Seed
 {
-  public static class CalendarRules
-  {
-    public static void SeedData(MigrationBuilder migrationBuilder)
+    public static class CalendarRules
     {
-      migrationBuilder.Sql(
-        @"INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,country,description_de,description_en,description_fr,description_it,name_de,name_en,name_fr,name_it) VALUES
+        public static void SeedData(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.Sql(
+              @"INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,country,description_de,description_en,description_fr,description_it,name_de,name_en,name_fr,name_it) VALUES
                ('611f688c-8f58-4e8c-a3a6-a6c54f40f874', '11/01+21+SO', '', false, false, '4', 'CH', NULL, NULL, NULL, NULL, 'Eidg. Dank-, Buss- und Bettag', 'Federal Day of Thanksgiving, Repentance, and Prayer', 'Jeûne fédéral', 'Giorno federale di ringraziamento, pentimento e preghiera'),
                ('613c22be-e39f-4a40-be5a-e1202d21678f', '01/01', '', true, true, '4', 'CH', NULL, NULL, NULL, NULL, 'Neujahr', 'New Year''s Day', 'Jour de l''An', 'Capodanno'),
 	             ('317b4823-568e-4445-a262-23114affa987', '01/02', '', true, true, '4', 'CH', NULL, NULL, NULL, NULL, 'Barzelistag', 'St. Berchtold''s Day','Jour de Saint Berthold','Giorno di San Berchtold'),
@@ -50,7 +50,7 @@ namespace Klacks.Api.Data.Seed
 	             ('9b91ceed-b663-4eee-8af1-1bde6940b7b8','04/01+21+MO','',true,false,'ZH','CH','','','','','Sechseläuten
             ','Sechseläuten(traditional spring holiday in Zurich)','Sechseläuten(fête traditionnelle du printemps à Zurich)','Sechseläuten(festa tradizionale di primavera a Zurigo)'),
 	             ('8126395d-9180-4eb6-aec4-729593c0518c','11/01+14+MO','',true,false,'ZH','CH','','','','','Knabenschiessen','Knabenschiessen (traditional shooting competition in Zurich)','Knabenschiessen (compétition de tir traditionnelle à Zurich)','Knabenschiessen (competizione di tiro tradizionale a Zurigo)');"
-      );
+            );
+        }
     }
-  }
 }

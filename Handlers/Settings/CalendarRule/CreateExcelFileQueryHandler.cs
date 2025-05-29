@@ -5,18 +5,18 @@ using MediatR;
 
 namespace Klacks.Api.Handlers.Settings.CalendarRule
 {
-  public class CreateExcelFileQueryHandler : IRequestHandler<CreateExcelFileQuery, HttpResultResource>
-  {
-    private readonly ISettingsRepository _repository;
-
-    public CreateExcelFileQueryHandler(ISettingsRepository repository)
+    public class CreateExcelFileQueryHandler : IRequestHandler<CreateExcelFileQuery, HttpResultResource>
     {
-      _repository = repository;
-    }
+        private readonly ISettingsRepository _repository;
 
-    public async Task<HttpResultResource> Handle(CreateExcelFileQuery request, CancellationToken cancellationToken)
-    {
-      return await Task.Factory.StartNew(() => _repository.CreateExcelFile(request.Filter));
+        public CreateExcelFileQueryHandler(ISettingsRepository repository)
+        {
+            _repository = repository;
+        }
+
+        public async Task<HttpResultResource> Handle(CreateExcelFileQuery request, CancellationToken cancellationToken)
+        {
+            return await Task.Factory.StartNew(() => _repository.CreateExcelFile(request.Filter));
+        }
     }
-  }
 }

@@ -5,18 +5,18 @@ using MediatR;
 
 namespace Klacks.Api.Handlers.Communications
 {
-  public class GetTypeQueryHandler : IRequestHandler<GetTypeQuery, IEnumerable<CommunicationType>>
-  {
-    private readonly ICommunicationRepository repository;
-
-    public GetTypeQueryHandler(ICommunicationRepository repository)
+    public class GetTypeQueryHandler : IRequestHandler<GetTypeQuery, IEnumerable<CommunicationType>>
     {
-      this.repository = repository;
-    }
+        private readonly ICommunicationRepository repository;
 
-    public async Task<IEnumerable<CommunicationType>> Handle(GetTypeQuery request, CancellationToken cancellationToken)
-    {
-      return await repository.TypeList();
+        public GetTypeQueryHandler(ICommunicationRepository repository)
+        {
+            this.repository = repository;
+        }
+
+        public async Task<IEnumerable<CommunicationType>> Handle(GetTypeQuery request, CancellationToken cancellationToken)
+        {
+            return await repository.TypeList();
+        }
     }
-  }
 }

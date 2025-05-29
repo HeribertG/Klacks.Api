@@ -1,8 +1,8 @@
 namespace Klacks.Api.Resources.Registrations
 {
-  public class RefreshRequestResource
-  {
-    public string Token { get; set; } = "";
-    public string RefreshToken { get; set; } = "";
-  }
+    public class RefreshRequestResource
+    {
+        public string Token { get; set; } = "";
+        public string RefreshToken { get; set; } = "";
+    }
 }

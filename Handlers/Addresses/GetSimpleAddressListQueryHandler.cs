@@ -7,22 +7,22 @@ using MediatR;
 
 namespace Klacks.Api.Handlers.Addresses
 {
-  public class GetSimpleAddressListQueryHandler : IRequestHandler<GetSimpleAddressListQuery, IEnumerable<AddressResource>>
-  {
-    private readonly IMapper mapper;
-    private readonly IAddressRepository repository;
-
-    public GetSimpleAddressListQueryHandler(IMapper mapper,
-                                            IAddressRepository repository)
+    public class GetSimpleAddressListQueryHandler : IRequestHandler<GetSimpleAddressListQuery, IEnumerable<AddressResource>>
     {
-      this.mapper = mapper;
-      this.repository = repository;
-    }
+        private readonly IMapper mapper;
+        private readonly IAddressRepository repository;
 
-    public async Task<IEnumerable<AddressResource>> Handle(GetSimpleAddressListQuery request, CancellationToken cancellationToken)
-    {
-      var address = await repository.SimpleList(request.Id);
-      return mapper.Map<List<Address>, List<AddressResource>>(address);
+        public GetSimpleAddressListQueryHandler(IMapper mapper,
+                                                IAddressRepository repository)
+        {
+            this.mapper = mapper;
+            this.repository = repository;
+        }
+
+        public async Task<IEnumerable<AddressResource>> Handle(GetSimpleAddressListQuery request, CancellationToken cancellationToken)
+        {
+            var address = await repository.SimpleList(request.Id);
+            return mapper.Map<List<Address>, List<AddressResource>>(address);
+        }
     }
-  }
 }

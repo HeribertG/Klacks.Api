@@ -8,7 +8,7 @@ namespace Klacks.Api.Models.Schedules;
 public class Break : BaseEntity
 {
 
-  public Guid AbsenceId { get; set; }
+    public Guid AbsenceId { get; set; }
 
     public virtual Absence Absence { get; set; } = null!;
 
@@ -19,10 +19,10 @@ public class Break : BaseEntity
 
     public DateTime From { get; set; }
 
-  public string? Information { get; set; }
+    public string? Information { get; set; }
 
-  public DateTime Until { get; set; }
+    public DateTime Until { get; set; }
 
-  public Guid? BreakReasonId { get; set; }
-  public BreakReason? BreakReason { get; set; }
+    public Guid? BreakReasonId { get; set; }
+    public BreakReason? BreakReason { get; set; }
 }

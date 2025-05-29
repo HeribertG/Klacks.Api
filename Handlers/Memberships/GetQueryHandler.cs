@@ -6,22 +6,22 @@ using MediatR;
 
 namespace Klacks.Api.Handlers.Memberships
 {
-  public class GetQueryHandler : IRequestHandler<GetQuery<MembershipResource>, MembershipResource>
-  {
-    private readonly IMapper mapper;
-    private readonly IMembershipRepository repository;
-
-    public GetQueryHandler(IMapper mapper,
-                           IMembershipRepository repository)
+    public class GetQueryHandler : IRequestHandler<GetQuery<MembershipResource>, MembershipResource>
     {
-      this.mapper = mapper;
-      this.repository = repository;
-    }
+        private readonly IMapper mapper;
+        private readonly IMembershipRepository repository;
 
-    public async Task<MembershipResource> Handle(GetQuery<MembershipResource> request, CancellationToken cancellationToken)
-    {
-      var membership = await repository.Get(request.Id);
-      return mapper.Map<Models.Associations.Membership, MembershipResource>(membership!);
+        public GetQueryHandler(IMapper mapper,
+                               IMembershipRepository repository)
+        {
+            this.mapper = mapper;
+            this.repository = repository;
+        }
+
+        public async Task<MembershipResource> Handle(GetQuery<MembershipResource> request, CancellationToken cancellationToken)
+        {
+            var membership = await repository.Get(request.Id);
+            return mapper.Map<Models.Associations.Membership, MembershipResource>(membership!);
+        }
     }
-  }
 }

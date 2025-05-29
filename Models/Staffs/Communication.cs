@@ -8,20 +8,20 @@ namespace Klacks.Api.Models.Staffs;
 public class Communication : BaseEntity
 {
 
-   public Guid ClientId { get; set; }
+    public Guid ClientId { get; set; }
 
-  public virtual Client Client { get; set; } = null!;   
+    public virtual Client Client { get; set; } = null!;
 
-  [Required]
-  public CommunicationTypeEnum Type { get; set; }
+    [Required]
+    public CommunicationTypeEnum Type { get; set; }
 
 
-  [StringLength(100)]
-  public string Value { get; set; } = String.Empty;
+    [StringLength(100)]
+    public string Value { get; set; } = String.Empty;
 
-  public string Prefix { get; set; } = String.Empty;
+    public string Prefix { get; set; } = String.Empty;
 
-  public string Description { get; set; } = String.Empty;
+    public string Description { get; set; } = String.Empty;
 
 
 }

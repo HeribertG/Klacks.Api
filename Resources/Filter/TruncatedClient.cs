@@ -2,11 +2,11 @@ using Klacks.Api.Models.Staffs;
 
 namespace Klacks.Api.Resources.Filter
 {
-  public class TruncatedClient : BaseTruncatedResult
-  {
-    public ICollection<Client>? Clients { get; set; }
+    public class TruncatedClient : BaseTruncatedResult
+    {
+        public ICollection<Client>? Clients { get; set; }
 
-    public string Editor { get; set; } = string.Empty;
-    public DateTime LastChange { get; set; }
-  }
+        public string Editor { get; set; } = string.Empty;
+        public DateTime LastChange { get; set; }
+    }
 }

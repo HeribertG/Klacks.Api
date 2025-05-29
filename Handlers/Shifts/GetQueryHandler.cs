@@ -8,20 +8,20 @@ namespace Klacks.Api.Handlers.Shifts;
 
 public class GetQueryHandler : IRequestHandler<GetQuery<ShiftResource>, ShiftResource>
 {
-  private readonly IMapper mapper;
-  private readonly IShiftRepository repository;
+    private readonly IMapper mapper;
+    private readonly IShiftRepository repository;
 
-  public GetQueryHandler(
-                         IMapper mapper,
-                         IShiftRepository repository)
-  {
-    this.mapper = mapper;
-    this.repository = repository;
-  }
+    public GetQueryHandler(
+                           IMapper mapper,
+                           IShiftRepository repository)
+    {
+        this.mapper = mapper;
+        this.repository = repository;
+    }
 
-  public async Task<ShiftResource> Handle(GetQuery<ShiftResource> request, CancellationToken cancellationToken)
-  {
-    var shift = await repository.Get(request.Id);
-    return mapper.Map<Models.Schedules.Shift, ShiftResource>(shift!);
-  }
+    public async Task<ShiftResource> Handle(GetQuery<ShiftResource> request, CancellationToken cancellationToken)
+    {
+        var shift = await repository.Get(request.Id);
+        return mapper.Map<Models.Schedules.Shift, ShiftResource>(shift!);
+    }
 }

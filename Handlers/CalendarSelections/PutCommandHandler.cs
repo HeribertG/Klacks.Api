@@ -8,43 +8,43 @@ namespace Klacks.Api.Handlers.CalendarSelections;
 
 public class PutCommandHandler : IRequestHandler<PutCommand<CalendarSelectionResource>, CalendarSelectionResource?>
 {
-  private readonly ILogger<PutCommandHandler> logger;
-  private readonly IMapper mapper;
-  private readonly ICalendarSelectionRepository repository;
-  private readonly IUnitOfWork unitOfWork;
+    private readonly ILogger<PutCommandHandler> logger;
+    private readonly IMapper mapper;
+    private readonly ICalendarSelectionRepository repository;
+    private readonly IUnitOfWork unitOfWork;
 
-  public PutCommandHandler(
-                            IMapper mapper,
-                            ICalendarSelectionRepository repository,
-                            IUnitOfWork unitOfWork,
-                            ILogger<PutCommandHandler> logger)
-  {
-    this.mapper = mapper;
-    this.repository = repository;
-    this.unitOfWork = unitOfWork;
-    this.logger = logger;
-  }
-
-  public async Task<CalendarSelectionResource?> Handle(PutCommand<CalendarSelectionResource> request, CancellationToken cancellationToken)
-  {
-    try
+    public PutCommandHandler(
+                              IMapper mapper,
+                              ICalendarSelectionRepository repository,
+                              IUnitOfWork unitOfWork,
+                              ILogger<PutCommandHandler> logger)
     {
-      var calendarSelection = mapper.Map<CalendarSelectionResource, Models.CalendarSelections.CalendarSelection>(request.Resource);
-
-      await repository.Update(calendarSelection);
-
-      await unitOfWork.CompleteAsync();
-
-      var updatedCalendarSelection = await repository.Get(request.Resource.Id);
-
-      logger.LogInformation("CalendarSelection updated successfully. ID: {Id}", request.Resource.Id);
-
-      return mapper.Map<Models.CalendarSelections.CalendarSelection, CalendarSelectionResource>(updatedCalendarSelection);
+        this.mapper = mapper;
+        this.repository = repository;
+        this.unitOfWork = unitOfWork;
+        this.logger = logger;
     }
-    catch (Exception ex)
+
+    public async Task<CalendarSelectionResource?> Handle(PutCommand<CalendarSelectionResource> request, CancellationToken cancellationToken)
     {
-      logger.LogError(ex, "Error occurred while updating CalendarSelection. ID: {Id}", request.Resource.Id);
-      throw;
+        try
+        {
+            var calendarSelection = mapper.Map<CalendarSelectionResource, Models.CalendarSelections.CalendarSelection>(request.Resource);
+
+            await repository.Update(calendarSelection);
+
+            await unitOfWork.CompleteAsync();
+
+            var updatedCalendarSelection = await repository.Get(request.Resource.Id);
+
+            logger.LogInformation("CalendarSelection updated successfully. ID: {Id}", request.Resource.Id);
+
+            return mapper.Map<Models.CalendarSelections.CalendarSelection, CalendarSelectionResource>(updatedCalendarSelection);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error occurred while updating CalendarSelection. ID: {Id}", request.Resource.Id);
+            throw;
+        }
     }
-  }
 }

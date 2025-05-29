@@ -12,29 +12,29 @@ public class PostCommandHandler(
                         IUnitOfWork unitOfWork,
                         ILogger<PostCommandHandler> logger) : IRequestHandler<PostCommand<ShiftResource>, ShiftResource?>
 {
-  private readonly ILogger<PostCommandHandler> logger = logger;
-  private readonly IMapper mapper = mapper;
-  private readonly IShiftRepository repository = repository;
-  private readonly IUnitOfWork unitOfWork = unitOfWork;
+    private readonly ILogger<PostCommandHandler> logger = logger;
+    private readonly IMapper mapper = mapper;
+    private readonly IShiftRepository repository = repository;
+    private readonly IUnitOfWork unitOfWork = unitOfWork;
 
     public async Task<ShiftResource?> Handle(PostCommand<ShiftResource> request, CancellationToken cancellationToken)
-  {
-    try
     {
-      var shift = mapper.Map<ShiftResource, Models.Schedules.Shift>(request.Resource);
+        try
+        {
+            var shift = mapper.Map<ShiftResource, Models.Schedules.Shift>(request.Resource);
 
-      await repository.Add(shift);
+            await repository.Add(shift);
 
-      await unitOfWork.CompleteAsync();
+            await unitOfWork.CompleteAsync();
 
-      logger.LogInformation("New shift added successfully. ID: {ShiftId}", shift.Id);
+            logger.LogInformation("New shift added successfully. ID: {ShiftId}", shift.Id);
 
-      return mapper.Map<Models.Schedules.Shift, ShiftResource>(shift);
+            return mapper.Map<Models.Schedules.Shift, ShiftResource>(shift);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error occurred while adding a new shift.");
+            throw;
+        }
     }
-    catch (Exception ex)
-    {
-      logger.LogError(ex, "Error occurred while adding a new shift.");
-      throw;
-    }
-  }
 }

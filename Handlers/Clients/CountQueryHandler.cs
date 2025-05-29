@@ -4,18 +4,18 @@ using MediatR;
 
 namespace Klacks.Api.Handlers.Clients
 {
-  public class CountQueryHandler : IRequestHandler<CountQuery, int>
-  {
-    private readonly IClientRepository repository;
-
-    public CountQueryHandler(IClientRepository repository)
+    public class CountQueryHandler : IRequestHandler<CountQuery, int>
     {
-      this.repository = repository;
-    }
+        private readonly IClientRepository repository;
 
-    public Task<int> Handle(CountQuery request, CancellationToken cancellationToken)
-    {
-      return Task.FromResult(repository.Count());
+        public CountQueryHandler(IClientRepository repository)
+        {
+            this.repository = repository;
+        }
+
+        public Task<int> Handle(CountQuery request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(repository.Count());
+        }
     }
-  }
 }

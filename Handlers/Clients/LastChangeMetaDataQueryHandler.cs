@@ -5,18 +5,18 @@ using MediatR;
 
 namespace Klacks.Api.Handlers.Clients
 {
-  public class LastChangeMetaDataQueryHandler : IRequestHandler<LastChangeMetaDataQuery, LastChangeMetaDataResource>
-  {
-    private readonly IClientRepository repository;
-
-    public LastChangeMetaDataQueryHandler(IClientRepository repository)
+    public class LastChangeMetaDataQueryHandler : IRequestHandler<LastChangeMetaDataQuery, LastChangeMetaDataResource>
     {
-      this.repository = repository;
-    }
+        private readonly IClientRepository repository;
 
-    public async Task<LastChangeMetaDataResource> Handle(LastChangeMetaDataQuery request, CancellationToken cancellationToken)
-    {
-      return await repository.LastChangeMetaData();
+        public LastChangeMetaDataQueryHandler(IClientRepository repository)
+        {
+            this.repository = repository;
+        }
+
+        public async Task<LastChangeMetaDataResource> Handle(LastChangeMetaDataQuery request, CancellationToken cancellationToken)
+        {
+            return await repository.LastChangeMetaData();
+        }
     }
-  }
 }

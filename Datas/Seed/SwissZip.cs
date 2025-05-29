@@ -2,12 +2,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Klacks.Api.Data.Seed
 {
-  public static class SwissZip
-  {
-    public static void SeedData(MigrationBuilder migrationBuilder)
+    public static class SwissZip
     {
-      migrationBuilder.Sql(
-        @"INSERT INTO public.postcode_ch (zip,city,state) VALUES
+        public static void SeedData(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.Sql(
+              @"INSERT INTO public.postcode_ch (zip,city,state) VALUES
 	         (1008,'Jouxtens-Mézery','VD'),
 	         (1000,'Lausanne','VD'),
 	         (1003,'Lausanne','VD'),
@@ -4540,7 +4540,7 @@ namespace Klacks.Api.Data.Seed
 	         (9657,'Unterwasser','SG'),
 	         (9658,'Wildhaus','SG');"
 
-        );
+              );
+        }
     }
-  }
 }

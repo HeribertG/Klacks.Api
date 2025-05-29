@@ -5,34 +5,34 @@ using MediatR;
 
 namespace Klacks.Api.Handlers.Settings.MacrosType
 {
-  public class PutCommandHandler : IRequestHandler<PutCommand, Models.Settings.MacroType?>
-  {
-    private readonly IMapper mapper;
-    private readonly ISettingsRepository repository;
-    private readonly IUnitOfWork unitOfWork;
-
-    public PutCommandHandler(IMapper mapper,
-                              ISettingsRepository repository,
-                              IUnitOfWork unitOfWork)
+    public class PutCommandHandler : IRequestHandler<PutCommand, Models.Settings.MacroType?>
     {
-      this.mapper = mapper;
-      this.repository = repository;
-      this.unitOfWork = unitOfWork;
+        private readonly IMapper mapper;
+        private readonly ISettingsRepository repository;
+        private readonly IUnitOfWork unitOfWork;
+
+        public PutCommandHandler(IMapper mapper,
+                                  ISettingsRepository repository,
+                                  IUnitOfWork unitOfWork)
+        {
+            this.mapper = mapper;
+            this.repository = repository;
+            this.unitOfWork = unitOfWork;
+        }
+
+        public async Task<Models.Settings.MacroType?> Handle(PutCommand request, CancellationToken cancellationToken)
+        {
+            var dbMacrosType = await repository.GetMacroType(request.model.Id);
+            var updatedMacrostype = mapper.Map(request.model, dbMacrosType);
+
+            if (updatedMacrostype != null)
+            {
+                updatedMacrostype = repository.PutMacroType(updatedMacrostype);
+                await unitOfWork.CompleteAsync();
+                return updatedMacrostype;
+            }
+
+            return null;
+        }
     }
-
-    public async Task<Models.Settings.MacroType?> Handle(PutCommand request, CancellationToken cancellationToken)
-    {
-      var dbMacrosType = await repository.GetMacroType(request.model.Id);
-      var updatedMacrostype = mapper.Map(request.model, dbMacrosType);
-
-      if (updatedMacrostype != null)
-      {
-        updatedMacrostype = repository.PutMacroType(updatedMacrostype);
-        await unitOfWork.CompleteAsync();
-        return updatedMacrostype;
-      }
-
-      return null;
-    }
-  }
 }

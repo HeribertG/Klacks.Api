@@ -31,7 +31,7 @@ namespace Klacks.Api.Data.Seed
                 migrationBuilder.Sql(scriptForCommunications);
                 migrationBuilder.Sql(scriptForAnnotations);
 
-               //  migrationBuilder.Sql(scriptForBreaks);
+                //  migrationBuilder.Sql(scriptForBreaks);
             }
         }
 
@@ -376,7 +376,7 @@ namespace Klacks.Api.Data.Seed
 
         private static string GenerateInsertScriptForBreaks(List<BreakDb> breaks)
         {
-            
+
 
             if (breaks == null || !breaks.Any())
             {

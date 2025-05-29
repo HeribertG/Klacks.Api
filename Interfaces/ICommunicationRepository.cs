@@ -5,7 +5,7 @@ namespace Klacks.Api.Interfaces;
 
 public interface ICommunicationRepository : IBaseRepository<Communication>
 {
-  Task<List<CommunicationType>> TypeList();
+    Task<List<CommunicationType>> TypeList();
 
-  Task<List<Communication>> GetClient(Guid id);
+    Task<List<Communication>> GetClient(Guid id);
 }

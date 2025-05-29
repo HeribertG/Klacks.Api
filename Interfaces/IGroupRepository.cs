@@ -8,7 +8,7 @@ public interface IGroupRepository : IBaseRepository<Group>
     new Task<Group?> Get(Guid id);
 
     Task<TruncatedGroup> Truncated(GroupFilter filter);
-   
+
     Task MoveNode(Guid nodeId, Guid newParentId);
 
     Task<IEnumerable<Group>> GetChildren(Guid parentId);

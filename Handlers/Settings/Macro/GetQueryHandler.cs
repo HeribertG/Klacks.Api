@@ -6,22 +6,22 @@ using MediatR;
 
 namespace Klacks.Api.Handlers.Settings.Macro
 {
-  public class GetQueryHandler : IRequestHandler<GetQuery, MacroResource?>
-  {
-    private readonly IMapper mapper;
-    private readonly ISettingsRepository repository;
-
-    public GetQueryHandler(IMapper mapper, ISettingsRepository repository)
+    public class GetQueryHandler : IRequestHandler<GetQuery, MacroResource?>
     {
-      this.mapper = mapper;
-      this.repository = repository;
-    }
+        private readonly IMapper mapper;
+        private readonly ISettingsRepository repository;
 
-    public async Task<MacroResource?> Handle(GetQuery request, CancellationToken cancellationToken)
-    {
-      var macro = await repository.GetMacro(request.Id);
+        public GetQueryHandler(IMapper mapper, ISettingsRepository repository)
+        {
+            this.mapper = mapper;
+            this.repository = repository;
+        }
 
-      return mapper.Map<Models.Settings.Macro, MacroResource>(macro);
+        public async Task<MacroResource?> Handle(GetQuery request, CancellationToken cancellationToken)
+        {
+            var macro = await repository.GetMacro(request.Id);
+
+            return mapper.Map<Models.Settings.Macro, MacroResource>(macro);
+        }
     }
-  }
 }

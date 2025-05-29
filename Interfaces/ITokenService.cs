@@ -4,5 +4,5 @@ namespace Klacks.Api.Interfaces;
 
 public interface ITokenService
 {
-  Task<string> CreateToken(AppUser user, DateTime expires);
+    Task<string> CreateToken(AppUser user, DateTime expires);
 }

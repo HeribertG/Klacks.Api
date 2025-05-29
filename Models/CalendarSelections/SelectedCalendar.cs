@@ -5,17 +5,17 @@ using System.Text.Json.Serialization;
 
 namespace Klacks.Api.Models.CalendarSelections
 {
-  public class SelectedCalendar : BaseEntity
-  {
-    [JsonIgnore]
-    public CalendarSelection? CalendarSelection { get; set; }
+    public class SelectedCalendar : BaseEntity
+    {
+        [JsonIgnore]
+        public CalendarSelection? CalendarSelection { get; set; }
 
-    [Required]
-    [ForeignKey("CalendarSelections")]
-    public Guid CalendarSelectionId { get; set; }
+        [Required]
+        [ForeignKey("CalendarSelections")]
+        public Guid CalendarSelectionId { get; set; }
 
-    public string Country { get; set; } = string.Empty;
+        public string Country { get; set; } = string.Empty;
 
-    public string State { get; set; } = string.Empty;
-  }
+        public string State { get; set; } = string.Empty;
+    }
 }

@@ -64,8 +64,8 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     private async Task<Group> AddChildNode(Guid parentId, Group newGroup)
     {
         var parent = await context.Group
-            .Include(x=> x.GroupItems)
-            .Where(g => g.Id == parentId )
+            .Include(x => x.GroupItems)
+            .Where(g => g.Id == parentId)
             .FirstOrDefaultAsync();
 
         if (parent == null)
@@ -98,7 +98,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     {
 
         var maxRgt = await context.Group
-            .Where(g =>  g.Root == null)
+            .Where(g => g.Root == null)
             .OrderByDescending(g => g.Rgt)
             .Select(g => (int?)g.Rgt)
             .FirstOrDefaultAsync() ?? 0;
@@ -137,7 +137,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     public async Task<IEnumerable<Group>> GetChildren(Guid parentId)
     {
         var parent = await context.Group
-            .Where(g => g.Id == parentId  )
+            .Where(g => g.Id == parentId)
             .FirstOrDefaultAsync();
 
         if (parent == null)
@@ -147,7 +147,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
 
         return await context.Group
-            .Where(g => g.Parent == parentId  )
+            .Where(g => g.Parent == parentId)
             .OrderBy(g => g.Lft)
             .ToListAsync();
     }
@@ -179,7 +179,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     public async Task<IEnumerable<Group>> GetPath(Guid nodeId)
     {
         var node = await context.Group
-            .Where(g => g.Id == nodeId  )
+            .Where(g => g.Id == nodeId)
             .FirstOrDefaultAsync();
 
         if (node == null)
@@ -259,7 +259,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         }
 
         var newParent = await context.Group
-            .Where(g => g.Id == newParentId  )
+            .Where(g => g.Id == newParentId)
             .FirstOrDefaultAsync();
 
         if (newParent == null)
@@ -323,7 +323,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         var existingIds = await context.GroupItem
             .Where(x => x.GroupId == model.Id && x.ClientId.HasValue)
             .Select(x => x.ClientId!.Value)
-            .ToHashSetAsync(); 
+            .ToHashSetAsync();
 
         var newIds = model.GroupItems
             .Where(x => x.ClientId.HasValue)
@@ -439,7 +439,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
         return res;
     }
-    
+
     public async Task RepairNestedSetValues()
     {
         try
@@ -535,7 +535,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             }
         }
     }
-       
+
 
     private IQueryable<Group> FilterByDateRange(bool activeDateRange, bool formerDateRange, bool futureDateRange, IQueryable<Group> tmp)
     {
@@ -740,5 +740,5 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         return await FindExistingRoot(parentId, allGroups);
     }
 
-   
+
 }

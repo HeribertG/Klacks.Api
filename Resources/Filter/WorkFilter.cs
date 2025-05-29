@@ -4,18 +4,18 @@ namespace Klacks.Api.Resources.Filter;
 
 public class WorkFilter
 {
-  public int CurrentMonth { get; set; }
+    public int CurrentMonth { get; set; }
 
-  public int CurrentYear { get; set; }
+    public int CurrentYear { get; set; }
 
-  public string OrderBy { get; set; } = string.Empty;
+    public string OrderBy { get; set; } = string.Empty;
 
-  public string Search { get; set; } = string.Empty;
+    public string Search { get; set; } = string.Empty;
 
-  public string SortOrder { get; set; } = string.Empty;
+    public string SortOrder { get; set; } = string.Empty;
 
-  public List<WorkResource> Works { get; set; } = new List<WorkResource>();
+    public List<WorkResource> Works { get; set; } = new List<WorkResource>();
 
-  public Guid? SelectedGroup { get; set; }
+    public Guid? SelectedGroup { get; set; }
 
 }

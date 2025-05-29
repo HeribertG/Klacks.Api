@@ -12,7 +12,7 @@ public class GetPathToNodeQueryHandler(
         DataBaseContext context,
         IMapper mapper) : IRequestHandler<GetPathToNodeQuery, List<GroupResource>>
 {
-   
+
     public async Task<List<GroupResource>> Handle(GetPathToNodeQuery request, CancellationToken cancellationToken)
     {
         var pathNodes = await repository.GetPath(request.NodeId);
@@ -26,7 +26,7 @@ public class GetPathToNodeQueryHandler(
             var nodeResource = mapper.Map<GroupResource>(node);
 
             nodeResource.Depth = depth++;
-          
+
             result.Add(nodeResource);
         }
 

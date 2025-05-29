@@ -3,5 +3,5 @@ using MediatR;
 
 namespace Klacks.Api.Queries.Absences
 {
-  public record CreateExcelFileQuery(string Language) : IRequest<HttpResultResource>;
+    public record CreateExcelFileQuery(string Language) : IRequest<HttpResultResource>;
 }

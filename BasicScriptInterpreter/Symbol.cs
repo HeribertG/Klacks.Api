@@ -1,6 +1,6 @@
 namespace Klacks.Api.BasicScriptInterpreter
 {
-  public class Symbol
+    public class Symbol
     {
 
         // Symbol: Ein Symbol-Objekt steht immer für 1 im Quelltext

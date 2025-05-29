@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Klacks.Api.Handlers.Groups
 {
-   
+
     public class GetGroupTreeQueryHandler : IRequestHandler<GetGroupTreeQuery, GroupTreeResource>
     {
         private readonly IGroupRepository _repository;
@@ -109,7 +109,7 @@ namespace Klacks.Api.Handlers.Groups
             var depth = await _repository.GetNodeDepth(node.Id);
             nodeResource.Depth = depth;
 
-            
+
             // Initialisiere Children-Liste
             nodeResource.Children = new List<GroupResource>();
 

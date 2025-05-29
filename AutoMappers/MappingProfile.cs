@@ -221,7 +221,7 @@ public class MappingProfile : Profile
           ;
 
         CreateMap<GroupResource, Group>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore()) 
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.GroupItems, opt => opt.MapFrom(src => src.GroupItems))
             .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
             .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
@@ -229,7 +229,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
             .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
             .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
-            .ForMember(dest => dest.Lft, opt => opt.Ignore()) 
+            .ForMember(dest => dest.Lft, opt => opt.Ignore())
             .ForMember(dest => dest.Rgt, opt => opt.Ignore())
             .ForMember(dest => dest.Root, opt => opt.Ignore())
             ;
@@ -274,7 +274,7 @@ public class MappingProfile : Profile
           .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
           ;
 
-             
+
         CreateMap<AssignedGroup, AssignedGroupResource>()
             .ForMember(dest => dest.GroupName, opt => opt.MapFrom(src => src.Group.Name))
             ;

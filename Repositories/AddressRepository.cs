@@ -5,25 +5,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Repositories
 {
-  public class AddressRepository : BaseRepository<Address>, IAddressRepository
-  {
-    private readonly DataBaseContext context;
-
-    public AddressRepository(DataBaseContext context)
-      : base(context)
+    public class AddressRepository : BaseRepository<Address>, IAddressRepository
     {
-      this.context = context;
-    }
+        private readonly DataBaseContext context;
 
-    public async Task<List<Address>> ClienList(Guid id)
-    {
-      return await this.context.Address.IgnoreQueryFilters().Where(x => x.ClientId == id).OrderByDescending(x => x.ValidFrom).ToListAsync();
-    }
+        public AddressRepository(DataBaseContext context)
+          : base(context)
+        {
+            this.context = context;
+        }
 
-    public async Task<List<Address>> SimpleList(Guid id)
-    {
-      return await this.context.Address.Where(c => c.ClientId == id).ToListAsync();
-    }
+        public async Task<List<Address>> ClienList(Guid id)
+        {
+            return await this.context.Address.IgnoreQueryFilters().Where(x => x.ClientId == id).OrderByDescending(x => x.ValidFrom).ToListAsync();
+        }
+
+        public async Task<List<Address>> SimpleList(Guid id)
+        {
+            return await this.context.Address.Where(c => c.ClientId == id).ToListAsync();
+        }
 
         Task<List<Address>> IAddressRepository.ClienList(Guid id)
         {

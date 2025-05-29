@@ -4,5 +4,5 @@ namespace Klacks.Api.Interfaces;
 
 public interface IPrintPdfService
 {
-  HttpResultResource PrintAncenceGantt(int year, string lang);
+    HttpResultResource PrintAncenceGantt(int year, string lang);
 }

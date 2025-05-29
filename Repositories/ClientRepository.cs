@@ -870,7 +870,7 @@ public class ClientRepository : IClientRepository
         return tmp;
     }
 
-    private async Task<IQueryable<Client>> FilterClientsByGroupId( Guid? selectedGroupId, IQueryable<Client> tmp)
+    private async Task<IQueryable<Client>> FilterClientsByGroupId(Guid? selectedGroupId, IQueryable<Client> tmp)
     {
         if (selectedGroupId.HasValue)
         {

@@ -6,22 +6,22 @@ using MediatR;
 
 namespace Klacks.Api.Handlers.Countries
 {
-  public class GetListQueryHandler : IRequestHandler<ListQuery<CountryResource>, IEnumerable<CountryResource>>
-  {
-    private readonly IMapper mapper;
-    private readonly ICountryRepository repository;
-
-    public GetListQueryHandler(IMapper mapper,
-                               ICountryRepository repository)
+    public class GetListQueryHandler : IRequestHandler<ListQuery<CountryResource>, IEnumerable<CountryResource>>
     {
-      this.mapper = mapper;
-      this.repository = repository;
-    }
+        private readonly IMapper mapper;
+        private readonly ICountryRepository repository;
 
-    public async Task<IEnumerable<CountryResource>> Handle(ListQuery<CountryResource> request, CancellationToken cancellationToken)
-    {
-      var country = await this.repository.List();
-      return this.mapper.Map<List<Models.Settings.Countries>, List<CountryResource>>(country!);
+        public GetListQueryHandler(IMapper mapper,
+                                   ICountryRepository repository)
+        {
+            this.mapper = mapper;
+            this.repository = repository;
+        }
+
+        public async Task<IEnumerable<CountryResource>> Handle(ListQuery<CountryResource> request, CancellationToken cancellationToken)
+        {
+            var country = await this.repository.List();
+            return this.mapper.Map<List<Models.Settings.Countries>, List<CountryResource>>(country!);
+        }
     }
-  }
 }

@@ -139,10 +139,10 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             if (activeDateRange && !formerDateRange && futureDateRange)
             {
                 tmp = tmp.Where(co =>
-                                 ((co.FromDate<= nowDateOnly &&
+                                 ((co.FromDate <= nowDateOnly &&
                                  (co.UntilDate.HasValue == false ||
                                  (co.UntilDate.HasValue && co.UntilDate.Value > nowDateOnly))) ||
-                                 (co.FromDate> nowDateOnly)
+                                 (co.FromDate > nowDateOnly)
                                  ));
             }
 
@@ -222,5 +222,5 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         return tmp;
     }
 
-   
+
 }

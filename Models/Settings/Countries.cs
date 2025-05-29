@@ -3,14 +3,14 @@ using Klacks.Api.Datas;
 
 namespace Klacks.Api.Models.Settings
 {
-  public class Countries : BaseEntity
-  {
-    [StringLength(10)]
-    public string Abbreviation { get; set; } = string.Empty;
+    public class Countries : BaseEntity
+    {
+        [StringLength(10)]
+        public string Abbreviation { get; set; } = string.Empty;
 
-    public MultiLanguage Name { get; set; } = null!;
+        public MultiLanguage Name { get; set; } = null!;
 
-    [StringLength(10)]
-    public string Prefix { get; set; } = string.Empty;
-  }
+        [StringLength(10)]
+        public string Prefix { get; set; } = string.Empty;
+    }
 }

@@ -6,29 +6,29 @@ namespace Klacks.Api.Data.Seed
     /// User Default, Communications Type, Settings, Countries, States.
     /// </summary>
     public static class Default
-  {
-    public static void SeedData(MigrationBuilder migrationBuilder)
     {
-      migrationBuilder.InsertData(
-                table: "AspNetRoles",
-                columns: new[] { "id", "concurrency_stamp", "name", "normalized_name" },
-                values: new object[,]
-                {
+        public static void SeedData(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.InsertData(
+                      table: "AspNetRoles",
+                      columns: new[] { "id", "concurrency_stamp", "name", "normalized_name" },
+                      values: new object[,]
+                      {
                     { "9c05bb10-5855-4201-a755-1d92ed9df000", "d94790da-0103-4ade-b715-29526b2b1fc7", "Authorised", "AUTHORISED" },
                     { "e32d7319-6861-4c9a-b096-08a77088cadd", "402b8312-92a7-43f4-be73-b3400ccc2a7b", "Admin", "ADMIN" },
-                }
-                );
+                      }
+                      );
 
-      migrationBuilder.InsertData(
-          table: "AspNetUsers",
-          columns: new[] { "id", "access_failed_count", "concurrency_stamp", "discriminator", "email", "email_confirmed", "first_name", "last_name", "lockout_enabled", "lockout_end", "normalized_email", "normalized_user_name", "password_hash", "phone_number", "phone_number_confirmed", "security_stamp", "two_factor_enabled", "user_name" },
-          values: new object[] { "672f77e8-e479-4422-8781-84d218377fb3", 0, "217b0216-5440-4e51-a6e4-ea79d0da9155", "AppUser", "admin@test.com", true, "admin", "admin", false, null, "ADMIN@TEST.COM", "ADMIN", "AQAAAAEAACcQAAAAEM4rFqzwCkNDdqC7P5XDITL1ub4TLm1MPZMru7BlKyFLNSRfaamO4BUl/fAV4aNNlA==", "123456789", false, "a04e4667-082e-43df-b82a-3ff914fc7db7", false, "admin" });
+            migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "id", "access_failed_count", "concurrency_stamp", "discriminator", "email", "email_confirmed", "first_name", "last_name", "lockout_enabled", "lockout_end", "normalized_email", "normalized_user_name", "password_hash", "phone_number", "phone_number_confirmed", "security_stamp", "two_factor_enabled", "user_name" },
+                values: new object[] { "672f77e8-e479-4422-8781-84d218377fb3", 0, "217b0216-5440-4e51-a6e4-ea79d0da9155", "AppUser", "admin@test.com", true, "admin", "admin", false, null, "ADMIN@TEST.COM", "ADMIN", "AQAAAAEAACcQAAAAEM4rFqzwCkNDdqC7P5XDITL1ub4TLm1MPZMru7BlKyFLNSRfaamO4BUl/fAV4aNNlA==", "123456789", false, "a04e4667-082e-43df-b82a-3ff914fc7db7", false, "admin" });
 
-      migrationBuilder.InsertData(
-          table: "communication_type",
-          columns: new[] { "id", "category", "default_index", "name", "type" },
-          values: new object[,]
-          {
+            migrationBuilder.InsertData(
+                table: "communication_type",
+                columns: new[] { "id", "category", "default_index", "name", "type" },
+                values: new object[,]
+                {
                     { 1, 0, 0, "Festnetz P", 0 },
                     { 2, 0, 1, "Mobil P", 1 },
                     { 3, 0, 0, "Festnetz G", 2 },
@@ -37,13 +37,13 @@ namespace Klacks.Api.Data.Seed
                     { 6, 1, 2, "Email P", 4 },
                     { 7, 1, 0, "Email G", 5 },
                     { 8, 0, 0, "Anderes", 6 }
-          });
+                });
 
-      migrationBuilder.InsertData(
-          table: "settings",
-          columns: new[] { "id", "type", "value" },
-          values: new object[,]
-          {
+            migrationBuilder.InsertData(
+                table: "settings",
+                columns: new[] { "id", "type", "value" },
+                values: new object[,]
+                {
                     { new Guid("0f807cbb-e54a-4f5b-9383-5b03ccffc55d"), "authenticationType", "<None>" },
                     { new Guid("3be9b255-4b0b-49fd-8585-556375187dac"), "outgoingserver", "smtp-mail.outlook.com" },
                     { new Guid("789530bc-18a3-48b1-946f-a5da6d66d357"), "enabledSSL", "true" },
@@ -53,19 +53,19 @@ namespace Klacks.Api.Data.Seed
                     { new Guid("db3ee771-cbd6-420c-bdf7-8b1036bb82b9"), "outgoingserverPort" , "587"},
                     { new Guid("e16842eb-24ff-47c2-ad1b-5a3d6a2d20cd"), "outgoingserverTimeout", "100" },
                     { new Guid("e3e61605-c1e9-48b9-b5c7-9e66c41889fe"), "readReceipt" , "false"}
-          });
+                });
 
-      migrationBuilder.InsertData(
-          table: "AspNetUserRoles",
-          columns: new[] { "role_id", "user_id" },
-          values: new object[,]
-          {
+            migrationBuilder.InsertData(
+                table: "AspNetUserRoles",
+                columns: new[] { "role_id", "user_id" },
+                values: new object[,]
+                {
                     { "9c05bb10-5855-4201-a755-1d92ed9df000", "672f77e8-e479-4422-8781-84d218377fb3" },
                     { "e32d7319-6861-4c9a-b096-08a77088cadd", "672f77e8-e479-4422-8781-84d218377fb3" }
-          });
+                });
 
-      migrationBuilder.Sql(
-                            @"INSERT INTO public.countries (id,abbreviation,name_de,name_en,name_fr,name_it,prefix,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted) VALUES
+            migrationBuilder.Sql(
+                                  @"INSERT INTO public.countries (id,abbreviation,name_de,name_en,name_fr,name_it,prefix,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted) VALUES
 	                             ('c6cdb912-022d-47bf-baf0-49a80d24948c','CH','Schweiz','Switzerland','Suisse','Svizzera','+41','2023-06-10 11:57:38.449','admin',NULL,'',NULL,false,''),
 	                             ('1aa91576-f08e-4498-b47b-60d09aa2b614','DE','Deutschland','Germany','Allemagne','Germania','+49','2023-06-10 12:00:25.999','admin',NULL,'',NULL,false,''),
 	                             ('59c98d2e-0634-489b-8e44-a6f7d5532b6b','AT','Österreich','Austria','Autriche','Austria','+43','2023-06-10 13:00:39.491','admin',NULL,'',NULL,false,''),
@@ -73,10 +73,10 @@ namespace Klacks.Api.Data.Seed
 	                             ('276e0392-bfa3-4230-b8a7-8e9fdfecad57','USA','Vereinigte Staaten von Amerika','United States of America','États-Unis d''Amérique','Stati Uniti d''America','+1','2023-07-10 07:17:54.545','admin',NULL,'',NULL,false,''),
 	                             ('d8084ef6-df46-46ea-a71e-a708898d1650','IT','Italien','Italy','Italie','Italia','+39','2023-07-10 07:14:42.454','admin',NULL,'',NULL,false,''),
                                ('2d576ac5-7978-4e3c-b92b-e3d67493aecb','FR','Fankreich','France','France','Francia','+33','2023-07-10 07:14:42.454','admin',NULL,'',NULL,false,'')"
-      );
+            );
 
-      migrationBuilder.Sql(
-        @"INSERT INTO public.state (id,abbreviation,country_prefix,name_de,name_en,name_fr,name_it,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted) VALUES
+            migrationBuilder.Sql(
+              @"INSERT INTO public.state (id,abbreviation,country_prefix,name_de,name_en,name_fr,name_it,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted) VALUES
 	 ('57447b52-1f3e-4d62-a4b3-93c9c72b7ce6','AG','CH','Aargau','Aargau','Argovie','Argovia',NULL,NULL,NULL,NULL,NULL,false,NULL),
 	 ('5c1921ad-8b6c-4374-952d-3e9899d2a663','AI','CH','Appenzell Innerrhoden','Appenzell Innerrhoden','Appenzell Rhodes-Intérieures','Appenzello Interno',NULL,NULL,NULL,NULL,NULL,false,NULL),
 	 ('72a92755-95ff-48d5-963f-7681e26888a0','AR','CH','Appenzell Ausserrhoden','Appenzell Ausserrhoden','Appenzell Rhodes-Extérieures','Appenzello Esterno',NULL,NULL,NULL,NULL,NULL,false,NULL),
@@ -311,7 +311,7 @@ INSERT INTO public.state(id, abbreviation, country_prefix, name_de, name_en, nam
    ('d6ae2a47-8e65-4ccd-bbe9-000000000100','974', 'FR', 'La Réunion', 'La Réunion', 'La Réunion', 'La Réunion',NULL,NULL,NULL,NULL,NULL,false,NULL),
    ('d6ae2a47-8e65-4ccd-bbe9-000000000101','976', 'FR', 'Mayotte', 'Mayotte', 'Mayotte', 'Mayotte',NULL,NULL,NULL,NULL,NULL,false,NULL);"
 
-      ) ;
+            );
+        }
     }
-  }
 }

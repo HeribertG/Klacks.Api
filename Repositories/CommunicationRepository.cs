@@ -6,25 +6,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Repositories
 {
-  public class CommunicationRepository : BaseRepository<Communication>, ICommunicationRepository
+    public class CommunicationRepository : BaseRepository<Communication>, ICommunicationRepository
 
-  {
-    private readonly DataBaseContext context;
-
-    public CommunicationRepository(DataBaseContext context)
-      : base(context)
     {
-      this.context = context;
-    }
+        private readonly DataBaseContext context;
 
-    public async Task<List<Communication>> GetClient(Guid id)
-    {
-      return await this.context.Communication.Where(c => c.ClientId == id).ToListAsync();
-    }
+        public CommunicationRepository(DataBaseContext context)
+          : base(context)
+        {
+            this.context = context;
+        }
 
-    public async Task<List<CommunicationType>> TypeList()
-    {
-      return await this.context.CommunicationType.ToListAsync();
+        public async Task<List<Communication>> GetClient(Guid id)
+        {
+            return await this.context.Communication.Where(c => c.ClientId == id).ToListAsync();
+        }
+
+        public async Task<List<CommunicationType>> TypeList()
+        {
+            return await this.context.CommunicationType.ToListAsync();
+        }
     }
-  }
 }

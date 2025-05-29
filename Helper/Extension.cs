@@ -3,28 +3,28 @@ using System.Reflection;
 
 namespace Klacks.Api.Helper
 {
-  public static class Extension
-  {
-    public static string Fallback(this MultiLanguage item, string language)
+    public static class Extension
     {
-      var result = string.Empty;
-
-      if (item != null && !string.IsNullOrEmpty(language))
-      {
-        var propInfo = typeof(MultiLanguage).GetProperty(language);
-        if (propInfo != null)
+        public static string Fallback(this MultiLanguage item, string language)
         {
-          var res = (string?)propInfo.GetValue(item, null);
+            var result = string.Empty;
+
+            if (item != null && !string.IsNullOrEmpty(language))
+            {
+                var propInfo = typeof(MultiLanguage).GetProperty(language);
+                if (propInfo != null)
+                {
+                    var res = (string?)propInfo.GetValue(item, null);
+                }
+            }
+
+            return result;
         }
-      }
 
-      return result;
+        public static bool IsNumeric(this string s)
+        {
+            float output;
+            return float.TryParse(s.Trim(), out output);
+        }
     }
-
-    public static bool IsNumeric(this string s)
-    {
-      float output;
-      return float.TryParse(s.Trim(), out output);
-    }
-  }
 }

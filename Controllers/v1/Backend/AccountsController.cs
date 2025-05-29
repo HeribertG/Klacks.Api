@@ -12,7 +12,7 @@ public class AccountsController : BaseController
 {
     private const string MAILFAILURE = "Email Send Failure";
     private const string TRUERESULT = "true";
-   
+
 
     private readonly ILogger<AccountsController> _logger;
     private readonly IMapper mapper;

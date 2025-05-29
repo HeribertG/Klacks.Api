@@ -3,5 +3,5 @@ using MediatR;
 
 namespace Klacks.Api.Queries.Absences
 {
-  public record TruncatedListQuery(AbsenceFilter Filter) : IRequest<TruncatedAbsence>;
+    public record TruncatedListQuery(AbsenceFilter Filter) : IRequest<TruncatedAbsence>;
 }

@@ -3,5 +3,5 @@ using MediatR;
 
 namespace Klacks.Api.Queries.Annotation
 {
-  public record GetSimpleListQuery(Guid Id) : IRequest<IEnumerable<AnnotationResource>>;
+    public record GetSimpleListQuery(Guid Id) : IRequest<IEnumerable<AnnotationResource>>;
 }

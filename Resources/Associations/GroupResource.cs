@@ -29,7 +29,7 @@ public class GroupResource
     public int Lft { get; set; }
 
     public int Rgt { get; set; }
- 
+
     public int Depth { get; set; }
 
     public int ClientsCount

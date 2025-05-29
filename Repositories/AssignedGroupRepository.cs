@@ -10,7 +10,7 @@ public class AssignedGroupRepository : BaseRepository<AssignedGroup>, IAssignedG
 {
     private readonly DataBaseContext context;
     private readonly IUserService userService;
-    public AssignedGroupRepository(DataBaseContext context, IUserService userService) 
+    public AssignedGroupRepository(DataBaseContext context, IUserService userService)
         : base(context)
     {
         this.context = context;
@@ -20,14 +20,14 @@ public class AssignedGroupRepository : BaseRepository<AssignedGroup>, IAssignedG
     public async Task<IEnumerable<Group>> Assigned(Guid? id)
     {
         var currentId = id;
-        if(currentId==null)
+        if (currentId == null)
         {
             currentId = userService.GetId();
         }
 
-        var List = await context.AssignedGroup.Where(x => x.ClientId == currentId).Select(x=> x.GroupId).ToListAsync();
+        var List = await context.AssignedGroup.Where(x => x.ClientId == currentId).Select(x => x.GroupId).ToListAsync();
         return context.Group.Where(x => (x.Id == x.Root || !(x.Root.HasValue && x.Parent.HasValue)) && List.Contains(x.Id)).AsQueryable();
     }
 
-    
+
 }

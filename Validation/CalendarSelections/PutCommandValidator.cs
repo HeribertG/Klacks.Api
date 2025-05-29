@@ -4,11 +4,11 @@ using Klacks.Api.Resources.Schedules;
 
 namespace Klacks.Api.Validation.CalendarSelections
 {
-  public class PutCommandValidator : AbstractValidator<PutCommand<CalendarSelectionResource>>
-  {
-    public PutCommandValidator()
+    public class PutCommandValidator : AbstractValidator<PutCommand<CalendarSelectionResource>>
     {
-      RuleFor(x => x.Resource).Must(x => !string.IsNullOrEmpty(x.Name)).WithMessage("Name is required");
+        public PutCommandValidator()
+        {
+            RuleFor(x => x.Resource).Must(x => !string.IsNullOrEmpty(x.Name)).WithMessage("Name is required");
+        }
     }
-  }
 }

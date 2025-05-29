@@ -112,7 +112,7 @@ public class DataBaseContext : IdentityDbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.HasSequence<int>("client_idnumber_seq", schema: "public")
-            .StartsAt(1) 
+            .StartsAt(1)
             .IncrementsBy(1);
 
         modelBuilder.Entity<Client>(entity =>
