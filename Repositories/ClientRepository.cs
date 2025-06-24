@@ -820,7 +820,7 @@ public class ClientRepository : IClientRepository
 
     private IQueryable<Client> FilterMembershipYearMonth(WorkFilter filter, IQueryable<Client> tmp)
     {
-        var startDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1);
+        var startDate = new DateTime(filter.CurrentYear, filter.CurrentMonth + 1, 1);
         var endDate = startDate.AddMonths(1);
 
         tmp = tmp.Where(co =>

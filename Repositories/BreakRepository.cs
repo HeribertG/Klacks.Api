@@ -14,10 +14,5 @@ namespace Klacks.Api.Repositories
         {
             this.context = context;
         }
-
-        public async Task<List<Break>> GetClientBreakList(Guid id)
-        {
-            return await this.context.Break.Include(c => c.Client).ThenInclude(m => m!.Membership).Where(x => x.ClientId == id).OrderBy(x => x.From).ToListAsync();
-        }
     }
 }
