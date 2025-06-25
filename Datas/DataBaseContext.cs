@@ -28,8 +28,6 @@ public class DataBaseContext : IdentityDbContext
 
     public virtual DbSet<AppUser> AppUser { get; set; } = default!;
 
-    public DbSet<BankDetails> BankDetails { get; set; } = default!;
-
     public DbSet<Break> Break { get; set; } = default!;
 
     public DbSet<BreakReason> BreakReason { get; set; } = default!;
@@ -128,7 +126,6 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Membership>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Annotation>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<History>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<BankDetails>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Macro>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Absence>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Break>().HasQueryFilter(p => !p.IsDeleted);
@@ -149,7 +146,6 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Communication>().HasIndex(p => new { p.Value, p.IsDeleted });
         modelBuilder.Entity<Annotation>().HasIndex(p => new { p.Note, p.IsDeleted });
         modelBuilder.Entity<History>().HasIndex(p => new { p.IsDeleted });
-        modelBuilder.Entity<BankDetails>().HasIndex(p => new { p.IsDeleted });
         modelBuilder.Entity<Macro>().HasIndex(p => new { p.IsDeleted, p.Name });
         modelBuilder.Entity<Absence>().HasIndex(p => new { p.IsDeleted });
         modelBuilder.Entity<Break>().HasIndex(p => new { p.IsDeleted, p.AbsenceId, p.ClientId });

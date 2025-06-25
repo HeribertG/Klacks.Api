@@ -7,7 +7,6 @@ namespace Klacks.Api.Interfaces;
 
 public interface ISettingsRepository
 {
-    BankDetails AddBankDetail(BankDetails bankDetails);
 
     CalendarRule AddCalendarRule(CalendarRule calendarRule);
 
@@ -19,11 +18,7 @@ public interface ISettingsRepository
 
     Vat AddVAT(Vat vat);
 
-    bool BankDetailExists(Guid id);
-
     bool CalendarRuleExists(Guid id);
-
-    Task<BankDetails> DeleteBankDetail(Guid id);
 
     Task<CalendarRule> DeleteCalendarRule(Guid id);
 
@@ -32,10 +27,6 @@ public interface ISettingsRepository
     Task<MacroType> DeleteMacroType(Guid id);
 
     Task<Vat> DeleteVAT(Guid id);
-
-    Task<BankDetails> GetBankDetail(Guid id);
-
-    Task<List<BankDetails>> GetBankDetailList();
 
     Task<CalendarRule> GetCalendarRule(Guid id);
 
@@ -63,8 +54,6 @@ public interface ISettingsRepository
 
     bool MacroTypeExists(Guid id);
 
-    BankDetails PutBankDetail(BankDetails bankDetails);
-
     CalendarRule PutCalendarRule(CalendarRule calendarRule);
 
     Macro PutMacro(Macro macro);
@@ -74,8 +63,6 @@ public interface ISettingsRepository
     Task<Models.Settings.Settings> PutSetting(Models.Settings.Settings settings);
 
     Vat PutVAT(Vat vat);
-
-    void RemoveBankDetail(BankDetails bankDetails);
 
     void RemoveCalendarRule(CalendarRule calendarRule);
 
