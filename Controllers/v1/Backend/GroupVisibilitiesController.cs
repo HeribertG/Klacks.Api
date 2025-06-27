@@ -1,9 +1,8 @@
 ﻿using Klacks.Api.Controllers.V1.Backend;
-using Klacks.Api.Queries.Addresses;
 using Klacks.Api.Queries.GroupVisibilities;
 using Klacks.Api.Resources.Associations;
-using Klacks.Api.Resources.Staffs;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Controllers.v1.Backend;

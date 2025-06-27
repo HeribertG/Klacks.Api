@@ -169,10 +169,6 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("text")
                         .HasColumnName("app_user_id");
 
-                    b.Property<Guid?>("ClientId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("client_id");
-
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("create_time");
@@ -207,9 +203,6 @@ namespace Klacks.Api.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_group_visibility");
-
-                    b.HasIndex("ClientId")
-                        .HasDatabaseName("ix_group_visibility_client_id");
 
                     b.HasIndex("GroupId")
                         .HasDatabaseName("ix_group_visibility_group_id");
@@ -2020,11 +2013,6 @@ namespace Klacks.Api.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_group_visibility_app_user_app_user_id");
 
-                    b.HasOne("Klacks.Api.Models.Staffs.Client", null)
-                        .WithMany("GroupVisibilities")
-                        .HasForeignKey("ClientId")
-                        .HasConstraintName("fk_group_visibility_client_client_id");
-
                     b.HasOne("Klacks.Api.Models.Associations.Group", "Group")
                         .WithMany()
                         .HasForeignKey("GroupId")
@@ -2515,8 +2503,6 @@ namespace Klacks.Api.Migrations
                     b.Navigation("Communications");
 
                     b.Navigation("GroupItems");
-
-                    b.Navigation("GroupVisibilities");
 
                     b.Navigation("Membership");
 

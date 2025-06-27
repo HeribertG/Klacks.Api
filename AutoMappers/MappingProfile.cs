@@ -94,7 +94,6 @@ public class MappingProfile : Profile
           ;
 
         CreateMap<ClientResource, Client>()
-          .ForMember(dest => dest.GroupVisibilities, opt => opt.Ignore())
           .ForMember(dest => dest.GroupItems, opt => opt.Ignore())
           .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
           .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())

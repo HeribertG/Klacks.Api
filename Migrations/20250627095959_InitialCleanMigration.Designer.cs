@@ -12,151 +12,20 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20250512134808_add_AssignedGroup")]
-    partial class add_AssignedGroup
+    [Migration("20250627095959_InitialCleanMigration")]
+    partial class InitialCleanMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "9.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.HasSequence<int>("client_idnumber_seq", "public");
-
-            modelBuilder.Entity("Klacks.Api.Models.Associations.BankDetails", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("AccountDescription")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("account_description");
-
-                    b.Property<string>("AccountNumber")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("account_number");
-
-                    b.Property<string>("AdditionLine")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("addition_line");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("city");
-
-                    b.Property<string>("Company")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("company");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("country");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_time");
-
-                    b.Property<string>("CurrentUserCreated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_created");
-
-                    b.Property<string>("CurrentUserDeleted")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_deleted");
-
-                    b.Property<string>("CurrentUserUpdated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_updated");
-
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_time");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("PaymentSlipAddress")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("payment_slip_address");
-
-                    b.Property<int>("Position")
-                        .HasColumnType("integer")
-                        .HasColumnName("position");
-
-                    b.Property<string>("State")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("state");
-
-                    b.Property<string>("Street")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("street");
-
-                    b.Property<string>("Street2")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("street2");
-
-                    b.Property<string>("Street3")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("street3");
-
-                    b.Property<string>("SubscriberNumber")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("subscriber_number");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("character varying(15)")
-                        .HasColumnName("title");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_time");
-
-                    b.Property<string>("Zip")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("zip");
-
-                    b.HasKey("Id")
-                        .HasName("pk_bank_details");
-
-                    b.HasIndex("IsDeleted")
-                        .HasDatabaseName("ix_bank_details_is_deleted");
-
-                    b.ToTable("bank_details", (string)null);
-                });
 
             modelBuilder.Entity("Klacks.Api.Models.Associations.Group", b =>
                 {
@@ -243,7 +112,7 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("ClientId")
+                    b.Property<Guid?>("ClientId")
                         .HasColumnType("uuid")
                         .HasColumnName("client_id");
 
@@ -289,6 +158,62 @@ namespace Klacks.Api.Migrations
                         .HasDatabaseName("ix_group_item_client_id_group_id");
 
                     b.ToTable("group_item", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Models.Associations.GroupVisibility", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("app_user_id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("group_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_group_visibility");
+
+                    b.HasIndex("GroupId")
+                        .HasDatabaseName("ix_group_visibility_group_id");
+
+                    b.HasIndex("AppUserId", "GroupId")
+                        .HasDatabaseName("ix_group_visibility_app_user_id_group_id");
+
+                    b.ToTable("group_visibility", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Models.Associations.Membership", b =>
@@ -545,8 +470,7 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
 
-                    b.Property<DateTime?>("ValidFrom")
-                        .IsRequired()
+                    b.Property<DateTime>("ValidFrom")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("valid_from");
 
@@ -935,6 +859,10 @@ namespace Klacks.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
+
+                    b.Property<Guid?>("OriginalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("original_id");
 
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("uuid")
@@ -1483,8 +1411,7 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
 
-                    b.Property<DateTime?>("ValidFrom")
-                        .IsRequired()
+                    b.Property<DateTime>("ValidFrom")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("valid_from");
 
@@ -2063,10 +1990,9 @@ namespace Klacks.Api.Migrations
             modelBuilder.Entity("Klacks.Api.Models.Associations.GroupItem", b =>
                 {
                     b.HasOne("Klacks.Api.Models.Staffs.Client", "Client")
-                        .WithMany()
+                        .WithMany("GroupItems")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
                         .HasConstraintName("fk_group_item_client_client_id");
 
                     b.HasOne("Klacks.Api.Models.Associations.Group", "Group")
@@ -2077,6 +2003,27 @@ namespace Klacks.Api.Migrations
                         .HasConstraintName("fk_group_item_group_group_id");
 
                     b.Navigation("Client");
+
+                    b.Navigation("Group");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Models.Associations.GroupVisibility", b =>
+                {
+                    b.HasOne("Klacks.Api.Models.Authentification.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_group_visibility_app_user_app_user_id");
+
+                    b.HasOne("Klacks.Api.Models.Associations.Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_group_visibility_group_group_id");
+
+                    b.Navigation("AppUser");
 
                     b.Navigation("Group");
                 });
@@ -2126,6 +2073,7 @@ namespace Klacks.Api.Migrations
                                 .HasColumnName("id");
 
                             b1.Property<string>("De")
+                                .IsRequired()
                                 .HasColumnType("text")
                                 .HasColumnName("description_de");
 
@@ -2157,6 +2105,7 @@ namespace Klacks.Api.Migrations
                                 .HasColumnName("id");
 
                             b1.Property<string>("De")
+                                .IsRequired()
                                 .HasColumnType("text")
                                 .HasColumnName("name_de");
 
@@ -2246,6 +2195,7 @@ namespace Klacks.Api.Migrations
                                 .HasColumnName("id");
 
                             b1.Property<string>("De")
+                                .IsRequired()
                                 .HasColumnType("text")
                                 .HasColumnName("description_de");
 
@@ -2277,6 +2227,7 @@ namespace Klacks.Api.Migrations
                                 .HasColumnName("id");
 
                             b1.Property<string>("De")
+                                .IsRequired()
                                 .HasColumnType("text")
                                 .HasColumnName("name_de");
 
@@ -2315,6 +2266,7 @@ namespace Klacks.Api.Migrations
                                 .HasColumnName("id");
 
                             b1.Property<string>("De")
+                                .IsRequired()
                                 .HasColumnType("text")
                                 .HasColumnName("name_de");
 
@@ -2352,6 +2304,7 @@ namespace Klacks.Api.Migrations
                                 .HasColumnName("id");
 
                             b1.Property<string>("De")
+                                .IsRequired()
                                 .HasColumnType("text")
                                 .HasColumnName("description_de");
 
@@ -2389,6 +2342,7 @@ namespace Klacks.Api.Migrations
                                 .HasColumnName("id");
 
                             b1.Property<string>("De")
+                                .IsRequired()
                                 .HasColumnType("text")
                                 .HasColumnName("name_de");
 
@@ -2550,6 +2504,8 @@ namespace Klacks.Api.Migrations
                     b.Navigation("Breaks");
 
                     b.Navigation("Communications");
+
+                    b.Navigation("GroupItems");
 
                     b.Navigation("Membership");
 

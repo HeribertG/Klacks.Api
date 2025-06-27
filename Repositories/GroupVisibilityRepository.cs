@@ -17,6 +17,6 @@ public class GroupVisibilityRepository : BaseRepository<GroupVisibility>, IGroup
 
     public async Task<List<GroupVisibility>> GroupVisibilityList(string id)
     {
-        return await context.GroupVisibility.Where(x => x.AppUserId == id).ToListAsync();
+        return await context.GroupVisibility.Where(x=> x.AppUserId == id).ToListAsync();
     }
 }
