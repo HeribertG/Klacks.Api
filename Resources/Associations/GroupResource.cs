@@ -12,6 +12,7 @@ public class GroupResource
     public string Description { get; set; } = string.Empty;
 
     public ICollection<GroupItemResource> GroupItems { get; set; }
+
     public List<GroupResource> Children { get; set; }
 
     public Guid Id { get; set; }

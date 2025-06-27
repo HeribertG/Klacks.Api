@@ -1,5 +1,8 @@
 ﻿using Klacks.Api.Controllers.V1.Backend;
-using Klacks.Api.Queries.Groups;
+using Klacks.Api.Queries.Addresses;
+using Klacks.Api.Queries.GroupVisibilities;
+using Klacks.Api.Resources.Associations;
+using Klacks.Api.Resources.Staffs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,10 +18,20 @@ public class GroupVisibilitiesController : InputBaseController<GroupResource>
         _logger = logger;
     }
 
-    [HttpGet("visibility/{id}")]
-    public async Task<IEnumerable<GroupResource>> GroupVisibility(Guid id)
+    [HttpGet("GetSimpleList/{id}")]
+    public async Task<ActionResult<IEnumerable<GroupVisibilityResource>>> GetSimpleList(string id)
     {
-        return await mediator.Send(new GetGroupVisibilityListQuery(id));
-
+        try
+        {
+            _logger.LogInformation($"Fetching simple groupVisibilities list for ID: {id}");
+            var groupVisibilities = await mediator.Send(new GroupVisibilityListQuery(id));
+            _logger.LogInformation($"Retrieved {groupVisibilities.Count()} simple groupVisibilities list for ID: {id}");
+            return Ok(groupVisibilities);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error occurred while fetching simple groupVisibilities list for ID: {id}");
+            throw;
+        }
     }
 }

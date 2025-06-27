@@ -143,6 +143,8 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<UploadFile>();
 builder.Services.AddScoped<IGetAllClientIdsFromGroupAndSubgroups, GroupClientService>();
 builder.Services.AddScoped<IAssignedGroupRepository, AssignedGroupRepository>();
+builder.Services.AddScoped<IGroupVisibilityRepository, GroupVisibilityRepository>();
+
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 

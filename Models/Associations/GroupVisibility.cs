@@ -1,13 +1,13 @@
 ﻿using Klacks.Api.Datas;
-using Klacks.Api.Models.Staffs;
+using Klacks.Api.Models.Authentification;
 
 namespace Klacks.Api.Models.Associations;
 
 public class GroupVisibility : BaseEntity
 {
-    public Guid ClientId { get; set; }
+    public required string AppUserId { get; set; }
 
-    public virtual Client Client { get; set; } = null!;
+    public virtual AppUser AppUser { get; set; } = null!;
 
     public Guid GroupId { get; set; }
 

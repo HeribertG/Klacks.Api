@@ -1,7 +1,6 @@
 using AutoMapper;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Queries;
-using Klacks.Api.Resources.Associations;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Groups
@@ -16,6 +15,7 @@ namespace Klacks.Api.Handlers.Groups
             {
                 return mapper.Map<Models.Associations.Group, GroupResource>(group);
             }
+
             return null;
         }
     }

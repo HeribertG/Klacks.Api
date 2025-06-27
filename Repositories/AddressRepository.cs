@@ -15,7 +15,7 @@ namespace Klacks.Api.Repositories
             this.context = context;
         }
 
-        public async Task<List<Address>> ClienList(Guid id)
+        public async Task<List<Address>> AddressList(Guid id)
         {
             return await this.context.Address.IgnoreQueryFilters().Where(x => x.ClientId == id).OrderByDescending(x => x.ValidFrom).ToListAsync();
         }

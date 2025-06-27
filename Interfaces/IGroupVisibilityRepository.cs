@@ -1,8 +1,8 @@
 ﻿using Klacks.Api.Models.Associations;
 
-namespace Klacks.Api.Interfaces
+namespace Klacks.Api.Interfaces;
+
+public interface IGroupVisibilityRepository : IBaseRepository<GroupVisibility>
 {
-    public interface IGroupVisibilityRepository : IBaseRepository<GroupVisibility>
-    {
-    }
+    Task<List<GroupVisibility>> GroupVisibilityList(string id);
 }

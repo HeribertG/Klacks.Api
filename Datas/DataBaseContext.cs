@@ -158,8 +158,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Shift>().HasIndex(p => new { p.MacroId });
         modelBuilder.Entity<ClientScheduleDetail>().HasIndex(p => new { p.ClientId, p.CurrentYear, p.CurrentMonth });
         modelBuilder.Entity<AssignedGroup>().HasIndex(p => new { p.ClientId, p.GroupId });
-        modelBuilder.Entity<GroupVisibility>().HasIndex(p => new { p.ClientId, p.GroupId });
-
+        modelBuilder.Entity<GroupVisibility>().HasIndex(p => new { p.AppUserId, p.GroupId });
 
         modelBuilder.Entity<Membership>()
        .HasOne(m => m.Client)
@@ -192,17 +191,10 @@ public class DataBaseContext : IdentityDbContext
        .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Client>()
-      .HasMany(c => c.GroupVisibilities)
-      .WithOne(a => a.Client)
-      .HasForeignKey(a => a.ClientId)
-      .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Client>()
-     .HasMany(c => c.GroupItems)
-     .WithOne(a => a.Client)
-     .HasForeignKey(a => a.ClientId)
-     .OnDelete(DeleteBehavior.Cascade);
-
+         .HasMany(c => c.GroupItems)
+         .WithOne(a => a.Client)
+         .HasForeignKey(a => a.ClientId)
+         .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<SelectedCalendar>()
         .HasOne(p => p.CalendarSelection)
@@ -215,8 +207,6 @@ public class DataBaseContext : IdentityDbContext
        .HasForeignKey(gi => gi.GroupId)
        .OnDelete(DeleteBehavior.Cascade);
 
-
-
         modelBuilder.Entity<Work>()
                .HasOne(p => p.Client)
                .WithMany(b => b.Works)
@@ -225,11 +215,18 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Work>()
             .HasOne(p => p.Shift);
 
-        modelBuilder.Entity<GroupVisibility>()
-              .HasOne(p => p.Client)
-              .WithMany(b => b.GroupVisibilities)
-              .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<GroupVisibility>(entity =>
+        {
+          entity.Property(e => e.AppUserId)
+                .HasColumnName("app_user_id");
 
+          entity.HasIndex(p => new { p.AppUserId, p.GroupId });
+
+          entity.HasOne(p => p.AppUser)
+                .WithMany()
+                .HasForeignKey(p => p.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 
     private void OnBeforeSaving()
@@ -283,5 +280,4 @@ public class DataBaseContext : IdentityDbContext
             }
         }
     }
-
 }
