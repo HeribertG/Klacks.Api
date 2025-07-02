@@ -256,6 +256,8 @@ public class MappingProfile : Profile
         CreateMap<GroupVisibility, GroupVisibilityResource>()
             ;
         CreateMap<GroupVisibilityResource, GroupVisibility>()
+          .ForMember(dest => dest.AppUser, opt => opt.Ignore()) 
+          .ForMember(dest => dest.Group, opt => opt.Ignore())
           .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
           .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
           .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
