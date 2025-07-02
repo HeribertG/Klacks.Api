@@ -9,13 +9,13 @@ namespace Klacks.Api.Repositories;
 public class GroupRepository : BaseRepository<Group>, IGroupRepository
 {
     private readonly DataBaseContext context;
-    private readonly IUserService user;
+    private readonly IGroupVisibilityService groupVisibility;
 
-    public GroupRepository(DataBaseContext context, IUserService user)
+    public GroupRepository(DataBaseContext context, IGroupVisibilityService groupVisibility)
        : base(context)
     {
         this.context = context;
-        this.user = user;
+        this.groupVisibility = groupVisibility;
     }
 
     public new async Task Add(Group model)
@@ -729,7 +729,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
     private async Task<List<Group>> ReadAllNodes()
     {
-        var list = await ReadVisibleRootIdList();
+        var list = await groupVisibility.ReadVisibleRootIdList();
 
         if(list != null && list.Any())
         {
@@ -744,19 +744,5 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
                     .Include(g => g.GroupItems)
                     .ThenInclude(gi => gi.Client)
                     .ToListAsync();
-    }
-
-    private async Task<List<Guid>> ReadVisibleRootIdList()
-    {
-        List<Guid> list = [];
-        var isAdmin = await user.IsAdmin();
-        var userIdString = user.GetIdString();
-        if (!isAdmin && !string.IsNullOrEmpty(user.GetIdString()))
-        {
-            var userId = user.GetIdString()!;
-            return  await context.GroupVisibility.Where(x => x.AppUserId == userId!).Select(x => x.GroupId).ToListAsync();
-        }
-
-        return list;
-    }
+    }    
 }

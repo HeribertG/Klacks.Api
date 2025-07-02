@@ -4,6 +4,7 @@ using Klacks.Api.BasicScriptInterpreter;
 using Klacks.Api.Converters;
 using Klacks.Api.Data.Seed;
 using Klacks.Api.Datas;
+using Klacks.Api.Extensions;
 using Klacks.Api.Helper;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Authentification;
@@ -84,7 +85,6 @@ builder.Services.AddSwaggerGen(c =>
     }
 });
 
-
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters()
@@ -117,34 +117,7 @@ builder.Services.AddCors(options =>
                       });
 });
 
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IAccountRepository, AccountRepository>();
-builder.Services.AddScoped<IClientRepository, ClientRepository>();
-builder.Services.AddScoped<IAddressRepository, AddressRepository>();
-builder.Services.AddScoped<IAnnotationRepository, AnnotationRepository>();
-builder.Services.AddScoped<ICommunicationRepository, CommunicationRepository>();
-builder.Services.AddScoped<IMembershipRepository, MembershipRepository>();
-builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
-builder.Services.AddScoped<IAbsenceRepository, AbsenceRepository>();
-builder.Services.AddScoped<IBreakRepository, BreakRepository>();
-builder.Services.AddScoped<ICountryRepository, CountryRepository>();
-builder.Services.AddScoped<IStateRepository, StateRepository>();
-builder.Services.AddScoped<ICalendarSelectionRepository, CalendarSelectionRepository>();
-builder.Services.AddScoped<ISelectedCalendarRepository, SelectedCalendarRepository>();
-builder.Services.AddScoped<IWorkRepository, WorkRepository>();
-builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
-builder.Services.AddScoped<IGroupRepository, GroupRepository>();
-builder.Services.AddScoped<IGanttPdfExportService, GanttPdfExportService>();
-
-builder.Services.AddScoped<ITokenService, TokenService>();
-
-builder.Services.AddSingleton<IMacroEngine, MacroEngine>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<UploadFile>();
-builder.Services.AddScoped<IGetAllClientIdsFromGroupAndSubgroups, GroupClientService>();
-builder.Services.AddScoped<IAssignedGroupRepository, AssignedGroupRepository>();
-builder.Services.AddScoped<IGroupVisibilityRepository, GroupVisibilityRepository>();
-
+builder.Services.AddApplicationServices();
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
@@ -233,10 +206,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseEndpoints(endpoints =>
-{
-    endpoints.MapFallbackToFile("/index.html");
-    endpoints.MapControllers();
-}
+    {
+        endpoints.MapFallbackToFile("/index.html");
+        endpoints.MapControllers();
+    }
 );
 
 app.Run();

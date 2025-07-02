@@ -6,7 +6,7 @@ using Klacks.Api.Models.Associations;
 namespace Klacks.Api.Services.Groups;
 
 /// <summary>
-/// Service for retrieving all ClientIds from a group and subgroups
+/// Service for retrieving all ClientIds from groups and subgroups
 /// </summary>
 public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
 {
@@ -16,7 +16,6 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
     {
         this.context = context;
     }
-
 
     public async Task<List<Guid>> GetAllClientIdsFromGroupAndSubgroups(Guid groupId)
     {
@@ -30,7 +29,7 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
 
             if (mainGroup == null)
             {
-                throw new KeyNotFoundException($"Gruppe mit ID {groupId} wurde nicht gefunden");
+                throw new KeyNotFoundException($"Group with ID {groupId} was not found");
             }
 
             var allGroups = await context.Group
@@ -57,7 +56,78 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Fehler in GetAllClientIdsFromGroupAndSubgroups: {ex.Message}");
+            Console.WriteLine($"Error in GetAllClientIdsFromGroupAndSubgroups: {ex.Message}");
+            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+            throw;
+        }
+    }
+
+    public async Task<List<Guid>> GetAllClientIdsFromGroupsAndSubgroupsFromList(List<Guid> groupIds)
+    {
+        if (groupIds == null || !groupIds.Any())
+        {
+            return new List<Guid>();
+        }
+
+        HashSet<Guid> clientIds = new HashSet<Guid>();
+
+        try
+        {
+            // Verify all groups exist
+            var existingGroups = await context.Group
+                .Where(g => groupIds.Contains(g.Id))
+                .Select(g => g.Id)
+                .ToListAsync();
+
+            var missingGroups = groupIds.Except(existingGroups).ToList();
+            if (missingGroups.Any())
+            {
+                throw new KeyNotFoundException($"Groups with IDs {string.Join(", ", missingGroups)} were not found");
+            }
+
+            // Get all groups once
+            var allGroups = await context.Group
+                .AsNoTracking()
+                .Include(g => g.GroupItems)
+                .ToListAsync();
+
+            // Process each main group
+            HashSet<Guid> processedGroups = new HashSet<Guid>();
+
+            foreach (var groupId in groupIds)
+            {
+                if (processedGroups.Contains(groupId))
+                {
+                    continue; // Skip if already processed as subgroup
+                }
+
+                var mainGroup = allGroups.FirstOrDefault(g => g.Id == groupId);
+                if (mainGroup != null)
+                {
+                    // Add clients from main group
+                    if (mainGroup.GroupItems != null)
+                    {
+                        foreach (var item in mainGroup.GroupItems.Where(x => x.ClientId.HasValue))
+                        {
+                            if (item != null)
+                            {
+                                clientIds.Add((Guid)item.ClientId!);
+                            }
+                        }
+                    }
+
+                    processedGroups.Add(groupId);
+
+                    // Collect from subgroups
+                    await CollectClientIdsFromSubgroups(groupId, allGroups, clientIds, processedGroups);
+                }
+            }
+
+            return clientIds.ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in GetAllClientIdsFromGroupsAndSubgroups: {ex.Message}");
             Console.WriteLine($"StackTrace: {ex.StackTrace}");
             throw;
         }

@@ -15,12 +15,14 @@ public class ClientRepository : IClientRepository
     private readonly DataBaseContext context;
     private readonly IMacroEngine macroEngine;
     private readonly IGetAllClientIdsFromGroupAndSubgroups groupClient;
+    private readonly IGroupVisibilityService groupVisibility;
 
-    public ClientRepository(DataBaseContext context, IMacroEngine macroEngine, IGetAllClientIdsFromGroupAndSubgroups groupClient)
+    public ClientRepository(DataBaseContext context, IMacroEngine macroEngine, IGetAllClientIdsFromGroupAndSubgroups groupClient, IGroupVisibilityService groupVisibility)
     {
         this.context = context;
         this.macroEngine = macroEngine;
         this.groupClient = groupClient;
+        this.groupVisibility = groupVisibility;
     }
 
     public async Task Add(Client client)
@@ -46,7 +48,6 @@ public class ClientRepository : IClientRepository
     public async Task<List<Client>> BreakList(BreakFilter filter)
     {
         var tmp = await FilterClients(filter.SelectedGroup);
-
 
         if (!string.IsNullOrEmpty(filter.Search))
         {
@@ -875,10 +876,25 @@ public class ClientRepository : IClientRepository
         {
             var clientIds = await this.groupClient.GetAllClientIdsFromGroupAndSubgroups(selectedGroupId.Value);
             tmp = tmp.Where(client => clientIds.Contains(client.Id));
+        } 
+        else
+        {
+            if(!await groupVisibility.IsAdmin())
+            {
+                var rootlist = await groupVisibility.ReadVisibleRootIdList();
+                if(rootlist.Any())
+                {
+                    var clientIds = await this.groupClient.GetAllClientIdsFromGroupsAndSubgroupsFromList(rootlist);
+                    tmp = tmp.Where(client => clientIds.Contains(client.Id));
+                }    
+            }
         }
 
-        return tmp;
+
+
+            return tmp;
     }
+
     private IQueryable<Client> FilterWorks(WorkFilter filter, IQueryable<Client> tmp)
     {
         var startDate = new DateTime(filter.CurrentYear, 1, 1);
@@ -1121,7 +1137,6 @@ public class ClientRepository : IClientRepository
         Func<Guid, IQueryable<TEntity>> fetchEntities,
         Action<TEntity> removeEntity) where TEntity : class
     {
-
         IEnumerable<TEntity> entitiesToRemove;
 
         if (existingEntityIds.Length == 0)
@@ -1135,7 +1150,6 @@ public class ClientRepository : IClientRepository
                 .Where(e => !existingEntityIds.Contains(
                     (Guid)e.GetType().GetProperty("Id").GetValue(e)));
         }
-
 
         foreach (var entity in entitiesToRemove)
         {
