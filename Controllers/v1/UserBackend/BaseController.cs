@@ -1,4 +1,4 @@
-namespace Klacks.Api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.UserBackend;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;

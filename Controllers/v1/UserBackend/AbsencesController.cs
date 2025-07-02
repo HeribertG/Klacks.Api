@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Text;
 
-namespace Klacks.Api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.UserBackend;
 
 public class AbsencesController : InputBaseController<AbsenceResource>
 {

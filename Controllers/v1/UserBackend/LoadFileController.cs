@@ -2,8 +2,7 @@ using Klacks.Api.Helper;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 
-namespace Klacks.Api.Controllers.V1.Backend;
-
+namespace Klacks.Api.Controllers.V1.UserBackend;
 
 public class LoadFileController : BaseController
 {
@@ -22,6 +21,7 @@ public class LoadFileController : BaseController
         {
             System.IO.File.Delete(path);
         }
+
         return Ok();
     }
 
@@ -38,6 +38,7 @@ public class LoadFileController : BaseController
 
             return Ok();
         }
+
         return Ok("No File");
     }
 

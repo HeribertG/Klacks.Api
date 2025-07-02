@@ -3,16 +3,16 @@ using Klacks.Api.Resources.Associations;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Klacks.Api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.UserBackend;
 
 public class MembershipsController : InputBaseController<MembershipResource>
 {
-    private readonly ILogger<MembershipsController> _logger;
+    private readonly ILogger<MembershipsController> logger;
 
     public MembershipsController(IMediator mediator, ILogger<MembershipsController> logger)
       : base(mediator, logger)
     {
-        _logger = logger;
+        this.logger = logger;
     }
 
     [HttpGet]
@@ -20,14 +20,14 @@ public class MembershipsController : InputBaseController<MembershipResource>
     {
         try
         {
-            _logger.LogInformation("Fetching all memberships.");
+            logger.LogInformation("Fetching all memberships.");
             var memberships = await mediator.Send(new ListQuery<MembershipResource>());
-            _logger.LogInformation($"Retrieved {memberships.Count()} memberships.");
+            logger.LogInformation($"Retrieved {memberships.Count()} memberships.");
             return Ok(memberships);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while fetching memberships.");
+            logger.LogError(ex, "Error occurred while fetching memberships.");
             throw;
         }
     }

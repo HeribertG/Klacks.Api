@@ -8,11 +8,11 @@ namespace Klacks.Api.Controllers.v1.Backend;
 [Route("api/[controller]")]
 public class PdfExportController : ControllerBase
 {
-    private readonly IMediator _mediator;
+    private readonly IMediator mediator;
 
     public PdfExportController(IMediator mediator)
     {
-        _mediator = mediator;
+        this.mediator = mediator;
     }
 
     [HttpGet("gantt-pdf")]
@@ -25,7 +25,7 @@ public class PdfExportController : ControllerBase
             Language = language
         };
 
-        var result = await _mediator.Send(query);
+        var result = await mediator.Send(query);
 
         if (!result.Success)
         {

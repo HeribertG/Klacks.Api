@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
-namespace Klacks.Api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.UserBackend;
 
 public class AccountsController : BaseController
 {

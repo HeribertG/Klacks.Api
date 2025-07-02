@@ -4,16 +4,16 @@ using Klacks.Api.Resources.Staffs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Klacks.Api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.UserBackend;
 
 public class AnnotationsController : InputBaseController<AnnotationResource>
 {
-    private readonly ILogger<AnnotationsController> _logger;
+    private readonly ILogger<AnnotationsController> logger;
 
     public AnnotationsController(IMediator mediator, ILogger<AnnotationsController> logger)
       : base(mediator, logger)
     {
-        _logger = logger;
+        this.logger = logger;
     }
 
     [HttpGet]
@@ -21,14 +21,14 @@ public class AnnotationsController : InputBaseController<AnnotationResource>
     {
         try
         {
-            _logger.LogInformation("Fetching all annotations.");
+            logger.LogInformation("Fetching all annotations.");
             var annotations = await mediator.Send(new ListQuery<AnnotationResource>());
-            _logger.LogInformation($"Retrieved {annotations.Count()} annotations.");
+            logger.LogInformation($"Retrieved {annotations.Count()} annotations.");
             return Ok(annotations);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while fetching annotations.");
+            logger.LogError(ex, "Error occurred while fetching annotations.");
             throw;
         }
     }
@@ -38,14 +38,14 @@ public class AnnotationsController : InputBaseController<AnnotationResource>
     {
         try
         {
-            _logger.LogInformation($"Fetching simple annotations for ID: {id}");
+            logger.LogInformation($"Fetching simple annotations for ID: {id}");
             var annotations = await mediator.Send(new GetSimpleListQuery(id));
-            _logger.LogInformation($"Retrieved {annotations.Count()} simple annotations for ID: {id}");
+            logger.LogInformation($"Retrieved {annotations.Count()} simple annotations for ID: {id}");
             return Ok(annotations);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Error occurred while fetching simple annotations for ID: {id}");
+            logger.LogError(ex, $"Error occurred while fetching simple annotations for ID: {id}");
             throw;
         }
     }

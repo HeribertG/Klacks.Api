@@ -5,16 +5,16 @@ using Klacks.Api.Resources.Settings;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Klacks.Api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.UserBackend;
 
 public class CommunicationsController : InputBaseController<CommunicationResource>
 {
-    private readonly ILogger<CommunicationsController> _logger;
+    private readonly ILogger<CommunicationsController> logger;
 
     public CommunicationsController(IMediator mediator, ILogger<CommunicationsController> logger)
       : base(mediator, logger)
     {
-        _logger = logger;
+        this.logger = logger;
     }
 
     [HttpGet]
@@ -22,14 +22,14 @@ public class CommunicationsController : InputBaseController<CommunicationResourc
     {
         try
         {
-            _logger.LogInformation("Fetching communication resources.");
+            logger.LogInformation("Fetching communication resources.");
             var communications = await mediator.Send(new ListQuery<CommunicationResource>());
-            _logger.LogInformation($"Retrieved {communications.Count()} communication resources.");
+            logger.LogInformation($"Retrieved {communications.Count()} communication resources.");
             return Ok(communications);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while fetching communication resources.");
+            logger.LogError(ex, "Error occurred while fetching communication resources.");
             throw;
         }
     }
@@ -39,14 +39,14 @@ public class CommunicationsController : InputBaseController<CommunicationResourc
     {
         try
         {
-            _logger.LogInformation("Fetching communication types.");
+            logger.LogInformation("Fetching communication types.");
             var communicationTypes = await mediator.Send(new GetTypeQuery());
-            _logger.LogInformation($"Retrieved {communicationTypes.Count()} communication types.");
+            logger.LogInformation($"Retrieved {communicationTypes.Count()} communication types.");
             return Ok(communicationTypes);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while fetching communication types.");
+            logger.LogError(ex, "Error occurred while fetching communication types.");
             throw;
         }
     }

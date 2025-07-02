@@ -3,16 +3,16 @@ using Klacks.Api.Resources.Settings;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Klacks.Api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.UserBackend;
 
 public class CountriesController : InputBaseController<CountryResource>
 {
-    private readonly ILogger<CountriesController> _logger;
+    private readonly ILogger<CountriesController> logger;
 
     public CountriesController(IMediator mediator, ILogger<CountriesController> logger)
       : base(mediator, logger)
     {
-        _logger = logger;
+        this.logger = logger;
     }
 
     [HttpGet]
@@ -20,14 +20,14 @@ public class CountriesController : InputBaseController<CountryResource>
     {
         try
         {
-            _logger.LogInformation("Fetching list of countries.");
+            logger.LogInformation("Fetching list of countries.");
             var countries = await this.mediator.Send(new ListQuery<CountryResource>());
-            _logger.LogInformation($"Retrieved {countries.Count()} countries.");
+            logger.LogInformation($"Retrieved {countries.Count()} countries.");
             return Ok(countries);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while fetching list of countries.");
+            logger.LogError(ex, "Error occurred while fetching list of countries.");
             throw;
         }
     }

@@ -1,5 +1,5 @@
 ﻿using Klacks.Api.Commands.GroupVisibilities;
-using Klacks.Api.Controllers.V1.Backend;
+using Klacks.Api.Controllers.V1.UserBackend;
 using Klacks.Api.Queries;
 using Klacks.Api.Queries.GroupVisibilities;
 using Klacks.Api.Resources.Associations;

@@ -9,17 +9,17 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Text;
 
-namespace Klacks.Api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.UserBackend;
 
 public class SettingsController : BaseController
 {
-    private readonly ILogger<SettingsController> _logger;
+    private readonly ILogger<SettingsController> logger;
     private readonly IMediator mediator;
 
     public SettingsController(IMediator mediator, ILogger<SettingsController> logger)
     {
         this.mediator = mediator;
-        _logger = logger;
+        this.logger = logger;
     }
 
     #region Settings
@@ -29,14 +29,14 @@ public class SettingsController : BaseController
     {
         try
         {
-            _logger.LogInformation("Adding new setting.");
+            logger.LogInformation("Adding new setting.");
             var res = await mediator.Send(new PostCommand(setting));
-            _logger.LogInformation("Setting added successfully.");
+            logger.LogInformation("Setting added successfully.");
             return res;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while adding setting.");
+            logger.LogError(ex, "Error occurred while adding setting.");
             throw;
         }
     }
@@ -46,11 +46,11 @@ public class SettingsController : BaseController
     {
         try
         {
-            _logger.LogInformation($"Fetching setting of type: {type}");
+            logger.LogInformation($"Fetching setting of type: {type}");
             var setting = await mediator.Send(new Queries.Settings.Settings.GetQuery(type));
             if (setting == null)
             {
-                _logger.LogWarning($"Setting of type: {type} not found.");
+                logger.LogWarning($"Setting of type: {type} not found.");
                 return NotFound();
             }
 
@@ -58,7 +58,7 @@ public class SettingsController : BaseController
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Error occurred while fetching setting of type: {type}");
+            logger.LogError(ex, $"Error occurred while fetching setting of type: {type}");
             throw;
         }
     }
@@ -68,14 +68,14 @@ public class SettingsController : BaseController
     {
         try
         {
-            _logger.LogInformation("Fetching settings list.");
+            logger.LogInformation("Fetching settings list.");
             var settings = await mediator.Send(new Queries.Settings.Settings.ListQuery());
-            _logger.LogInformation($"Retrieved {settings.Count()} settings.");
+            logger.LogInformation($"Retrieved {settings.Count()} settings.");
             return settings;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while fetching settings list.");
+            logger.LogError(ex, "Error occurred while fetching settings list.");
             throw;
         }
     }
@@ -85,14 +85,14 @@ public class SettingsController : BaseController
     {
         try
         {
-            _logger.LogInformation("Updating setting.");
+            logger.LogInformation("Updating setting.");
             var res = await mediator.Send(new PutCommand(setting));
-            _logger.LogInformation("Setting updated successfully.");
+            logger.LogInformation("Setting updated successfully.");
             return res;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while updating setting.");
+            logger.LogError(ex, "Error occurred while updating setting.");
             throw;
         }
     }

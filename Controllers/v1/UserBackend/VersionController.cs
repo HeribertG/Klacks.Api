@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Klacks.Api.Controllers.V1.Backend
+namespace Klacks.Api.Controllers.V1.UserBackend
 {
     [ApiController]
     [Route("api/[controller]")]

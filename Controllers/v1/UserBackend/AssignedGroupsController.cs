@@ -1,4 +1,4 @@
-﻿using Klacks.Api.Controllers.V1.Backend;
+﻿using Klacks.Api.Controllers.V1.UserBackend;
 using Klacks.Api.Models.Staffs;
 using Klacks.Api.Queries.AssignedGroups;
 using MediatR;

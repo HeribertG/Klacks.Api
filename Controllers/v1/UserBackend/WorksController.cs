@@ -5,16 +5,16 @@ using Klacks.Api.Resources.Schedules;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Klacks.Api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.UserBackend;
 
 public class WorksController : InputBaseController<Work>
 {
-    private readonly ILogger<WorksController> _logger;
+    private readonly ILogger<WorksController> logger;
 
     public WorksController(IMediator mediator, ILogger<WorksController> logger)
             : base(mediator, logger)
     {
-        _logger = logger;
+        this.logger = logger;
     }
 
     /// <summary>

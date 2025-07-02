@@ -3,16 +3,16 @@ using Klacks.Api.Resources.Settings;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Klacks.Api.Controllers.V1.Backend;
+namespace Klacks.Api.Controllers.V1.UserBackend;
 
 public class StatesController : InputBaseController<StateResource>
 {
-    private readonly ILogger<StatesController> _logger;
+    private readonly ILogger<StatesController> logger;
 
     public StatesController(IMediator mediator, ILogger<StatesController> logger)
       : base(mediator, logger)
     {
-        _logger = logger;
+        this.logger = logger;
     }
 
     [HttpGet]
