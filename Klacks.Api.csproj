@@ -8,7 +8,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Playwright" Version="1.52.0" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.2" />
 		<PackageReference Include="Microsoft.OpenApi" Version="1.6.24" />
 		<PackageReference Include="AutoMapper" Version="14.0.0" />
 		<PackageReference Include="EFCore.NamingConventions" Version="9.0.0" />

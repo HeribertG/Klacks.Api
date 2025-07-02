@@ -21,7 +21,7 @@ public class GroupVisibilityListQueryHandler : IRequestHandler<GroupVisibilityLi
 
     public async Task<IEnumerable<GroupVisibilityResource>> Handle(GroupVisibilityListQuery request, CancellationToken cancellationToken)
     {
-        var address = await repository.GroupVisibilityList(request.Id);
-        return mapper.Map<List<GroupVisibility>, List<GroupVisibilityResource>>(address);
+        var groupVisibilityList = await repository.GroupVisibilityList(request.Id);
+        return mapper.Map<IEnumerable<GroupVisibility>, IEnumerable<GroupVisibilityResource>>(groupVisibilityList);
     }
 }

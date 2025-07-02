@@ -9,11 +9,13 @@ namespace Klacks.Api.Repositories;
 public class GroupRepository : BaseRepository<Group>, IGroupRepository
 {
     private readonly DataBaseContext context;
+    private readonly IUserService user;
 
-    public GroupRepository(DataBaseContext context)
+    public GroupRepository(DataBaseContext context, IUserService user)
        : base(context)
     {
         this.context = context;
+        this.user = user;
     }
 
     public new async Task Add(Group model)
@@ -41,12 +43,10 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
         var width = groupEntity.Rgt - groupEntity.Lft + 1;
 
-
         await context.Database.ExecuteSqlRawAsync(
             "UPDATE \"group\" SET \"is_deleted\" = true, \"deleted_time\" = @p0 " +
             "WHERE \"lft\" >= @p1 AND \"rgt\" <= @p2 AND \"root\" = @p3",
             DateTime.UtcNow, groupEntity.Lft, groupEntity.Rgt, groupEntity.Root);
-
 
         await context.Database.ExecuteSqlRawAsync(
             "UPDATE \"group\" SET \"lft\" = \"lft\" - @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
@@ -73,7 +73,6 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             throw new KeyNotFoundException($"Parent group with ID {parentId} not found");
         }
 
-
         await context.Database.ExecuteSqlRawAsync(
             "UPDATE \"group\" SET \"rgt\" = \"rgt\" + 2 WHERE \"rgt\" >= @p0 AND \"root\" = @p1 AND \"is_deleted\" = false",
             parent.Rgt, parent.Root);
@@ -81,7 +80,6 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         await context.Database.ExecuteSqlRawAsync(
             "UPDATE \"group\" SET \"lft\" = \"lft\" + 2 WHERE \"lft\" > @p0 AND \"root\" = @p1 AND \"is_deleted\" = false",
             parent.Rgt, parent.Root);
-
 
         newGroup.Lft = parent.Rgt;
         newGroup.Rgt = parent.Rgt + 1;
@@ -96,7 +94,6 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
     public async Task<Group> AddRootNode(Group newGroup)
     {
-
         var maxRgt = await context.Group
             .Where(g => g.Root == null)
             .OrderByDescending(g => g.Rgt)
@@ -144,7 +141,6 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         {
             throw new KeyNotFoundException($"Parent group with ID {parentId} not found");
         }
-
 
         return await context.Group
             .Where(g => g.Parent == parentId)
@@ -225,10 +221,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             }
             else
             {
-                var allNodes = await context.Group
-                    .Include(g => g.GroupItems)
-                    .ThenInclude(gi => gi.Client)
-                    .ToListAsync();
+                var allNodes = await ReadAllNodes();
 
                 return allNodes
                     .Where(g => g.ValidFrom.Date <= today &&
@@ -267,7 +260,6 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             throw new KeyNotFoundException($"New parent group with ID {newParentId} not found");
         }
 
-
         if (newParent.Lft > node.Lft && newParent.Rgt < node.Rgt)
         {
             throw new InvalidOperationException("The new parent cannot be a descendant of the groupEntity to be moved");
@@ -276,12 +268,10 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         var nodeWidth = node.Rgt - node.Lft + 1;
         var newPos = newParent.Rgt;
 
-
         await context.Database.ExecuteSqlRawAsync(
             "UPDATE \"group\" SET \"lft\" = -\"lft\", \"rgt\" = -\"rgt\" " +
             "WHERE \"lft\" >= @p0 AND \"rgt\" <= @p1 AND \"root\" = @p2",
             node.Lft, node.Rgt, node.Root);
-
 
         await context.Database.ExecuteSqlRawAsync(
             "UPDATE \"group\" SET \"lft\" = \"lft\" - @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2",
@@ -291,12 +281,10 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             "UPDATE \"group\" SET \"rgt\" = \"rgt\" - @p0 WHERE \"rgt\" > @p1 AND \"root\" = @p2",
             nodeWidth, node.Rgt, node.Root);
 
-
         if (newPos > node.Rgt)
         {
             newPos -= nodeWidth;
         }
-
 
         await context.Database.ExecuteSqlRawAsync(
             "UPDATE \"group\" SET \"rgt\" = \"rgt\" + @p0 WHERE \"rgt\" >= @p1 AND \"root\" = @p2",
@@ -306,13 +294,11 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             "UPDATE \"group\" SET \"lft\" = \"lft\" + @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2",
             nodeWidth, newPos, newParent.Root);
 
-
         var offset = newPos - node.Lft;
         await context.Database.ExecuteSqlRawAsync(
             "UPDATE \"group\" SET \"lft\" = -\"lft\" + @p0, \"rgt\" = -\"rgt\" + @p0, \"root\" = @p1 " +
             "WHERE \"lft\" <= 0 AND \"root\" = @p2",
             offset, newParent.Root, node.Root);
-
 
         node.Parent = newParentId;
         context.Group.Update(node);
@@ -505,11 +491,15 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     public async Task<IEnumerable<Group>> GetRoots()
     {
         return await context.Group
+        .AsNoTracking()
         .Where(g => g.Id == g.Root || !(g.Root.HasValue && g.Parent.HasValue))
+        .OrderBy(u => u.Name)
         .ToListAsync();
     }
 
-    private void AddValidChildren(Guid parentId, DateTime today,
+    private void AddValidChildren(
+        Guid parentId, 
+        DateTime today,
         Dictionary<Guid, Group> groupDict,
         Dictionary<Guid?, List<Group>> childrenDict,
         List<Group> result)
@@ -536,10 +526,8 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         }
     }
 
-
     private IQueryable<Group> FilterByDateRange(bool activeDateRange, bool formerDateRange, bool futureDateRange, IQueryable<Group> tmp)
     {
-
         if (activeDateRange && formerDateRange && futureDateRange)
         {
         }
@@ -610,7 +598,6 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
     private IQueryable<Group> FilterBySearchString(string searchString, IQueryable<Group> tmp)
     {
-
         var keywordList = searchString.TrimEnd().TrimStart().ToLower().Split(' ');
 
         if (keywordList.Length == 1)
@@ -643,12 +630,12 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             var trimmedKeyword = keyword.Trim().ToLower();
             tmp = tmp.Where(g => g.Name.ToLower().Contains(trimmedKeyword));
         }
+
         return tmp;
     }
 
     private IQueryable<Group> Sort(string orderBy, string sortOrder, IQueryable<Group> tmp)
     {
-
         if (sortOrder != string.Empty)
         {
             if (orderBy == "name")
@@ -740,5 +727,36 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         return await FindExistingRoot(parentId, allGroups);
     }
 
+    private async Task<List<Group>> ReadAllNodes()
+    {
+        var list = await ReadVisibleRootIdList();
 
+        if(list != null && list.Any())
+        {
+            return await context.Group
+                    .Where(x => (x.Root.HasValue && list.Contains((Guid)x.Root)) || list.Contains(x.Id))
+                    .Include(g => g.GroupItems)
+                    .ThenInclude(gi => gi.Client)
+                    .ToListAsync();
+        }
+
+        return  await context.Group
+                    .Include(g => g.GroupItems)
+                    .ThenInclude(gi => gi.Client)
+                    .ToListAsync();
+    }
+
+    private async Task<List<Guid>> ReadVisibleRootIdList()
+    {
+        List<Guid> list = [];
+        var isAdmin = await user.IsAdmin();
+        var userIdString = user.GetIdString();
+        if (!isAdmin && !string.IsNullOrEmpty(user.GetIdString()))
+        {
+            var userId = user.GetIdString()!;
+            return  await context.GroupVisibility.Where(x => x.AppUserId == userId!).Select(x => x.GroupId).ToListAsync();
+        }
+
+        return list;
+    }
 }

@@ -4,5 +4,9 @@ namespace Klacks.Api.Interfaces;
 
 public interface IGroupVisibilityRepository : IBaseRepository<GroupVisibility>
 {
-    Task<List<GroupVisibility>> GroupVisibilityList(string id);
+    Task<IEnumerable<GroupVisibility>> GroupVisibilityList(string id);
+
+    Task<IEnumerable<GroupVisibility>> GetGroupVisibilityList();
+
+    Task SetGroupVisibilityList(List<GroupVisibility> list);
 }

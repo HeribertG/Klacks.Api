@@ -13,8 +13,7 @@ public class AccountsController : BaseController
     private const string MAILFAILURE = "Email Send Failure";
     private const string TRUERESULT = "true";
 
-
-    private readonly ILogger<AccountsController> _logger;
+    private readonly ILogger<AccountsController> logger;
     private readonly IMapper mapper;
     private readonly IAccountRepository repository;
 
@@ -22,14 +21,14 @@ public class AccountsController : BaseController
     {
         this.mapper = mapper;
         this.repository = repository;
-        _logger = logger;
+        this.logger = logger;
     }
 
     [Authorize]
     [HttpPut("ChangePassword")]
     public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordResource model)
     {
-        _logger.LogInformation("ChangePassword requested for user: {Email}", model.Email);
+        this.logger.LogInformation("ChangePassword requested for user: {Email}", model.Email);
 
         var result = await repository.ChangePassword(model);
 
@@ -47,7 +46,7 @@ public class AccountsController : BaseController
     [HttpPost("ChangePasswordUser")]
     public async Task<ActionResult> ChangePasswordUser([FromBody] ChangePasswordResource model)
     {
-        _logger.LogInformation("ChangePasswordUser requested for user: {Email}", model.Email);
+        this.logger.LogInformation("ChangePasswordUser requested for user: {Email}", model.Email);
 
         var result = await repository.ChangePasswordUser(model);
 
@@ -64,7 +63,7 @@ public class AccountsController : BaseController
     [HttpPut("ChangeRoleUser")]
     public async Task<ActionResult> ChangeRoleUser([FromBody] ChangeRole changeRole)
     {
-        _logger.LogInformation($"ChangeRoleUser request received for user: {changeRole.UserId}");
+        this.logger.LogInformation($"ChangeRoleUser request received for user: {changeRole.UserId}");
         try
         {
             var result = await repository.ChangeRoleUser(changeRole);
@@ -73,12 +72,12 @@ public class AccountsController : BaseController
                 return Ok(result);
             }
 
-            _logger.LogWarning("Change role failed for user: {UserId}", changeRole.UserId);
+            this.logger.LogWarning("Change role failed for user: {UserId}", changeRole.UserId);
             return Conflict($"Change role failed for user: {changeRole.UserId}");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception occurred while changing role for user: {UserId}", changeRole.UserId);
+            this.logger.LogError(ex, "Exception occurred while changing role for user: {UserId}", changeRole.UserId);
             return StatusCode(500, "An unexpected error occurred.");
         }
     }
@@ -87,23 +86,23 @@ public class AccountsController : BaseController
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteAccountUser(Guid id)
     {
-        _logger.LogInformation($"DeleteAccountUser request received for user: {id}");
+        this.logger.LogInformation($"DeleteAccountUser request received for user: {id}");
         try
         {
             var result = await repository.DeleteAccountUser(id);
 
             if (result != null && result.Success)
             {
-                _logger.LogInformation("Account deletion successful for user: {UserId}", id);
+                this.logger.LogInformation("Account deletion successful for user: {UserId}", id);
                 return Ok(result);
             }
 
-            _logger.LogWarning("Account deletion failed for user: {UserId}, Reason: {Reason}", id, result?.Messages ?? "Unknown");
+            this.logger.LogWarning("Account deletion failed for user: {UserId}, Reason: {Reason}", id, result?.Messages ?? "Unknown");
             return NotFound($"User with ID {id} not found or could not be deleted.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception occurred while deleting account for user: {UserId}", id);
+            this.logger.LogError(ex, "Exception occurred while deleting account for user: {UserId}", id);
             return StatusCode(500, "An unexpected error occurred.");
         }
     }
@@ -111,20 +110,19 @@ public class AccountsController : BaseController
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserResource>>> GetUserList()
     {
-        _logger.LogInformation("GetUserList request received");
+        this.logger.LogInformation("GetUserList request received");
         try
         {
             var users = await repository.GetUserList();
-            _logger.LogInformation("Retrieved {Count} users", users.Count);
+            this.logger.LogInformation("Retrieved {Count} users", users.Count);
             return Ok(users);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception occurred while fetching user list");
+            this.logger.LogError(ex, "Exception occurred while fetching user list");
             return StatusCode(500, "An error has occurred. Please try again later.");
         }
     }
-
 
     [AllowAnonymous]
     [HttpPost("LoginUser")]
@@ -132,11 +130,11 @@ public class AccountsController : BaseController
     {
         if (model == null || !ModelState.IsValid)
         {
-            _logger.LogWarning("Invalid login request received.");
+            this.logger.LogWarning("Invalid login request received.");
             return BadRequest("Invalid login data.");
         }
 
-        _logger.LogInformation("Login attempt for user: {Email}", model.Email);
+        this.logger.LogInformation("Login attempt for user: {Email}", model.Email);
 
         try
         {
@@ -160,33 +158,31 @@ public class AccountsController : BaseController
                     Subject = model.Email
                 };
 
-                _logger.LogInformation("Login successful for user: {Email}", model.Email);
+                this.logger.LogInformation("Login successful for user: {Email}", model.Email);
                 return Ok(response);
             }
             else
             {
-                _logger.LogWarning("Login failed for user: {Email}", model.Email);
+                this.logger.LogWarning("Login failed for user: {Email}", model.Email);
                 return Unauthorized("Invalid e-mail address or password.");
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception occurred during user registration: {Email}", model.Email);
+            this.logger.LogError(ex, "Exception occurred during user registration: {Email}", model.Email);
             return StatusCode(500, "An error has occurred. Please try again later.");
         }
     }
-
-
 
     [AllowAnonymous]
     [HttpPost("RefreshToken")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshRequestResource model)
     {
-        _logger.LogInformation("RefreshToken requested.");
+        this.logger.LogInformation("RefreshToken requested.");
 
         if (model == null || !ModelState.IsValid)
         {
-            _logger.LogWarning("Invalid refresh token request received.");
+            this.logger.LogWarning("Invalid refresh token request received.");
             return BadRequest("Invalid data for token update.");
         }
 
@@ -211,27 +207,26 @@ public class AccountsController : BaseController
                     Version = new MyVersion().Get()
                 };
 
-                _logger.LogInformation("Token refresh successful for user: {UserId}", result.Id);
+                this.logger.LogInformation("Token refresh successful for user: {UserId}", result.Id);
                 return Ok(response);
             }
             else
             {
-                _logger.LogWarning("Token refresh failed: Registration has expired.");
+                this.logger.LogWarning("Token refresh failed: Registration has expired.");
                 return Unauthorized("Your registration has expired.");
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception occurred during token refresh.");
+            this.logger.LogError(ex, "Exception occurred during token refresh.");
             return StatusCode(500, "An error has occurred. Please try again later.");
         }
     }
 
-
     [HttpPost("RegisterUser")]
     public async Task<ActionResult> RegisterUser([FromBody] RegistrationResource model)
     {
-        _logger.LogInformation($"RegisterUser request received: {JsonConvert.SerializeObject(model)}");
+        this.logger.LogInformation($"RegisterUser request received: {JsonConvert.SerializeObject(model)}");
         try
         {
             var userIdentity = mapper.Map<AppUser>(model);
@@ -240,16 +235,16 @@ public class AccountsController : BaseController
 
             if (result != null && result.Success)
             {
-                _logger.LogInformation("User registration successful: {Email}", model.Email);
+                this.logger.LogInformation("User registration successful: {Email}", model.Email);
                 return Ok(result);
             }
 
-            _logger.LogWarning("User registration failed: {Email}, Reason: {Reason}", model.Email, result?.Message ?? "Unknow");
+            this.logger.LogWarning("User registration failed: {Email}, Reason: {Reason}", model.Email, result?.Message ?? "Unknow");
             return BadRequest(result);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception occurred during user registration: {Email}", model.Email);
+            this.logger.LogError(ex, "Exception occurred during user registration: {Email}", model.Email);
             return StatusCode(500, "An error has occurred during user registration.");
         }
     }

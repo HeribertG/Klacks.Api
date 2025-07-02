@@ -6,30 +6,29 @@ using MediatR;
 
 namespace Klacks.Api.Handlers.Groups
 {
-
     public class GetGroupTreeQueryHandler : IRequestHandler<GetGroupTreeQuery, GroupTreeResource>
     {
-        private readonly IGroupRepository _repository;
-        private readonly IMapper _mapper;
-        private readonly ILogger<GetGroupTreeQueryHandler> _logger;
+        private readonly IGroupRepository repository;
+        private readonly IMapper mapper;
+        private readonly ILogger<GetGroupTreeQueryHandler> logger;
 
         public GetGroupTreeQueryHandler(
             IGroupRepository repository,
             IMapper mapper,
             ILogger<GetGroupTreeQueryHandler> logger)
         {
-            _repository = repository;
-            _mapper = mapper;
-            _logger = logger;
+            this.repository = repository;
+            this.mapper = mapper;
+            this.logger = logger;
         }
 
         public async Task<GroupTreeResource> Handle(GetGroupTreeQuery request, CancellationToken cancellationToken)
         {
             try
             {
-                _logger.LogInformation($"Processing GetGroupTreeQuery with rootId: {request.RootId}");
+                logger.LogInformation($"Processing GetGroupTreeQuery with rootId: {request.RootId}");
 
-                var treeNodes = await _repository.GetTree(request.RootId);
+                var treeNodes = await repository.GetTree(request.RootId);
 
                 var result = new GroupTreeResource
                 {
@@ -41,25 +40,25 @@ namespace Klacks.Api.Handlers.Groups
 
                 if (allNodes.Any())
                 {
-                    _logger.LogInformation($"Found {allNodes.Count} nodes in tree");
+                    logger.LogInformation($"Found {allNodes.Count} nodes in tree");
 
                     await BuildTreeHierarchy(allNodes, result);
                 }
                 else
                 {
-                    _logger.LogInformation("No nodes found in tree");
+                    logger.LogInformation("No nodes found in tree");
                 }
 
                 return result;
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, $"Group tree with root {request.RootId} not found");
+                logger.LogWarning(ex, $"Group tree with root {request.RootId} not found");
                 throw;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error processing GetGroupTreeQuery with rootId: {request.RootId}");
+                logger.LogError(ex, $"Error processing GetGroupTreeQuery with rootId: {request.RootId}");
                 throw;
             }
         }
@@ -82,7 +81,7 @@ namespace Klacks.Api.Handlers.Groups
                     ? allNodes.Where(n => n.Parent == null || n.Id == result.RootId.Value).ToList()
                     : allNodes.Where(n => n.Parent == null).ToList();
 
-                _logger.LogInformation($"Found {rootNodes.Count} root nodes");
+                logger.LogInformation($"Found {rootNodes.Count} root nodes");
 
                 // 4. Rekursive Funktion zum Aufbau des Baums
                 foreach (var rootNode in rootNodes)
@@ -93,7 +92,7 @@ namespace Klacks.Api.Handlers.Groups
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error building tree hierarchy");
+                logger.LogError(ex, "Error building tree hierarchy");
                 throw;
             }
         }
@@ -103,12 +102,11 @@ namespace Klacks.Api.Handlers.Groups
             Dictionary<Guid, List<Models.Associations.Group>> childrenByParentId)
         {
             // Erstelle Ressource für den aktuellen Knoten
-            var nodeResource = _mapper.Map<GroupResource>(node);
+            var nodeResource = mapper.Map<GroupResource>(node);
 
             // Berechne Tiefe
-            var depth = await _repository.GetNodeDepth(node.Id);
+            var depth = await repository.GetNodeDepth(node.Id);
             nodeResource.Depth = depth;
-
 
             // Initialisiere Children-Liste
             nodeResource.Children = new List<GroupResource>();

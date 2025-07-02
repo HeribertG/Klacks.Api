@@ -253,7 +253,8 @@ public class MappingProfile : Profile
         CreateMap<TruncatedGroup, TruncatedGroupResource>()
          ;
 
-        CreateMap<GroupVisibility, GroupVisibilityResource>();
+        CreateMap<GroupVisibility, GroupVisibilityResource>()
+            ;
         CreateMap<GroupVisibilityResource, GroupVisibility>()
           .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
           .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
@@ -285,7 +286,6 @@ public class MappingProfile : Profile
           .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
           .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
           ;
-
 
         CreateMap<AssignedGroup, AssignedGroupResource>()
             .ForMember(dest => dest.GroupName, opt => opt.MapFrom(src => src.Group.Name))

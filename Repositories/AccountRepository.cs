@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using System.Text;
 
 namespace Klacks.Api.Repositories;
 
@@ -24,9 +23,7 @@ public class AccountRepository : IAccountRepository
     private readonly UserManager<AppUser> userManager;
     private readonly JwtValidator jwtValidator;
 
-
-    public AccountRepository(
-                             DataBaseContext appDbContext,
+    public AccountRepository(DataBaseContext appDbContext,
                              UserManager<AppUser> userManager,
                              JwtSettings jwtSettings,
                              ITokenService tokenService)
@@ -70,7 +67,6 @@ public class AccountRepository : IAccountRepository
         catch (Exception)
         {
             SetModelError(authenticatedResult, "An unexpected error has occurred.", string.Empty);
-
         }
 
         return authenticatedResult;
@@ -366,7 +362,6 @@ public class AccountRepository : IAccountRepository
     {
         try
         {
-
             var principal = jwtValidator.ValidateToken(token);
 
             if (principal == null)
@@ -374,7 +369,6 @@ public class AccountRepository : IAccountRepository
                 Console.WriteLine("❌ jwtValidator.ValidateToken returned NULL");
                 return null;
             }
-
 
             var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
 
@@ -395,7 +389,6 @@ public class AccountRepository : IAccountRepository
             {
                 Console.WriteLine($"✅ User found: {user.Email}");
             }
-
 
             return user;
         }
