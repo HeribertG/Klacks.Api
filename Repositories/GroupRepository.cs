@@ -501,7 +501,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         Guid parentId,
         DateTime today,
         Dictionary<Guid, Group> groupDict,
-        Dictionary<Guid?, List<Group>> childrenDict,
+        Dictionary<Guid, List<Group>> childrenDict,
         List<Group> result)
     {
         if (!childrenDict.ContainsKey(parentId))
