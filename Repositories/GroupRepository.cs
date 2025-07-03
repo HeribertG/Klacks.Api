@@ -498,7 +498,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     }
 
     private void AddValidChildren(
-        Guid parentId, 
+        Guid parentId,
         DateTime today,
         Dictionary<Guid, Group> groupDict,
         Dictionary<Guid?, List<Group>> childrenDict,
@@ -598,27 +598,27 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
     private IQueryable<Group> FilterBySearchString(string searchString, IQueryable<Group> tmp)
     {
-        var keywordList = searchString.TrimEnd().TrimStart().ToLower().Split(' ');
-
-        if (keywordList.Length == 1)
+        if(!string.IsNullOrWhiteSpace(searchString))
         {
-            if (keywordList[0].Length == 1)
+            var keywordList = searchString.TrimEnd().TrimStart().ToLower().Split(' ');
+
+            if (keywordList.Length == 1)
             {
                 tmp = this.FilterBySearchStringFirstSymbol(keywordList[0], tmp);
             }
+            else
+            {
+                tmp = this.FilterBySearchStringStandard(keywordList, tmp);
+            }
         }
-        else
-        {
-            tmp = this.FilterBySearchStringStandard(keywordList, tmp);
-        }
-
+        
         return tmp;
     }
 
     private IQueryable<Group> FilterBySearchStringFirstSymbol(string keyword, IQueryable<Group> tmp)
     {
-        tmp = tmp.Where(co =>
-            co.Name.ToLower().Substring(0, 1) == keyword.ToLower());
+        var trimmedKeyword = keyword.Trim().ToLower();
+        tmp = tmp.Where(g => g.Name.ToLower().Contains(trimmedKeyword));
 
         return tmp;
     }
@@ -627,8 +627,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     {
         foreach (var keyword in keywordList)
         {
-            var trimmedKeyword = keyword.Trim().ToLower();
-            tmp = tmp.Where(g => g.Name.ToLower().Contains(trimmedKeyword));
+            tmp = FilterBySearchStringFirstSymbol(keyword, tmp);
         }
 
         return tmp;
@@ -731,7 +730,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     {
         var list = await groupVisibility.ReadVisibleRootIdList();
 
-        if(list != null && list.Any())
+        if (list != null && list.Any())
         {
             return await context.Group
                     .Where(x => (x.Root.HasValue && list.Contains((Guid)x.Root)) || list.Contains(x.Id))
@@ -740,9 +739,9 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
                     .ToListAsync();
         }
 
-        return  await context.Group
+        return await context.Group
                     .Include(g => g.GroupItems)
                     .ThenInclude(gi => gi.Client)
                     .ToListAsync();
-    }    
+    }
 }
