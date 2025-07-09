@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Datas;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20250709131014_add_new_properties_in_shift")]
+    partial class add_new_properties_in_shift
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -148,10 +151,6 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<Guid?>("ShiftId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("shift_id");
-
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
@@ -162,11 +161,8 @@ namespace Klacks.Api.Migrations
                     b.HasIndex("GroupId")
                         .HasDatabaseName("ix_group_item_group_id");
 
-                    b.HasIndex("ShiftId")
-                        .HasDatabaseName("ix_group_item_shift_id");
-
-                    b.HasIndex("ClientId", "GroupId", "ShiftId")
-                        .HasDatabaseName("ix_group_item_client_id_group_id_shift_id");
+                    b.HasIndex("ClientId", "GroupId")
+                        .HasDatabaseName("ix_group_item_client_id_group_id");
 
                     b.ToTable("group_item", (string)null);
                 });
@@ -2045,17 +2041,9 @@ namespace Klacks.Api.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_group_item_group_group_id");
 
-                    b.HasOne("Klacks.Api.Models.Schedules.Shift", "Shift")
-                        .WithMany()
-                        .HasForeignKey("ShiftId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("fk_group_item_shift_shift_id");
-
                     b.Navigation("Client");
 
                     b.Navigation("Group");
-
-                    b.Navigation("Shift");
                 });
 
             modelBuilder.Entity("Klacks.Api.Models.Associations.GroupVisibility", b =>
@@ -2221,7 +2209,6 @@ namespace Klacks.Api.Migrations
                     b.HasOne("Klacks.Api.Models.Staffs.Client", "Client")
                         .WithMany()
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_shift_client_client_id");
 
                     b.Navigation("Client");

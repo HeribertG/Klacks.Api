@@ -241,6 +241,7 @@ public class MappingProfile : Profile
         CreateMap<GroupItemResource, GroupItem>()
         .ForMember(dest => dest.Group, opt => opt.Ignore())
         .ForMember(dest => dest.Client, opt => opt.Ignore())
+        .ForMember(dest => dest.Shift, opt => opt.Ignore())
         .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
         .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
         .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())

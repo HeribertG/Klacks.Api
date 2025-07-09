@@ -153,9 +153,9 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<CalendarRule>().HasIndex(p => new { p.State, p.Country });
         modelBuilder.Entity<SelectedCalendar>().HasIndex(p => new { p.State, p.Country, p.CalendarSelectionId });
         modelBuilder.Entity<Group>().HasIndex(p => new { p.Name });
-        modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.ClientId, p.GroupId });
+        modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.ClientId, p.GroupId, p.ShiftId });
         modelBuilder.Entity<Work>().HasIndex(p => new { p.ClientId, p.ShiftId });
-        modelBuilder.Entity<Shift>().HasIndex(p => new { p.MacroId });
+        modelBuilder.Entity<Shift>().HasIndex(p => new { p.MacroId, p.ClientId, p.Status , p.FromDate, p.UntilDate });
         modelBuilder.Entity<ClientScheduleDetail>().HasIndex(p => new { p.ClientId, p.CurrentYear, p.CurrentMonth });
         modelBuilder.Entity<AssignedGroup>().HasIndex(p => new { p.ClientId, p.GroupId });
         modelBuilder.Entity<GroupVisibility>().HasIndex(p => new { p.AppUserId, p.GroupId });
@@ -206,6 +206,18 @@ public class DataBaseContext : IdentityDbContext
        .WithOne(gi => gi.Group)
        .HasForeignKey(gi => gi.GroupId)
        .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Shift>()
+        .HasOne(s => s.Client)
+        .WithMany()
+        .HasForeignKey(s => s.ClientId)
+        .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<GroupItem>()
+         .HasOne(gi => gi.Shift)
+         .WithMany()
+         .HasForeignKey(gi => gi.ShiftId)
+         .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<Work>()
                .HasOne(p => p.Client)

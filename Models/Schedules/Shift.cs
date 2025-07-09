@@ -1,5 +1,7 @@
 using Klacks.Api.Datas;
 using Klacks.Api.Enums;
+using Klacks.Api.Models.Associations;
+using Klacks.Api.Models.Staffs;
 
 namespace Klacks.Api.Models.Schedules;
 
@@ -8,12 +10,13 @@ public class Shift : BaseEntity
     // If the shift was cut by a parent shift after midnight
     public bool CuttingAfterMidnight { get; set; }
 
+    public string Abbreviation { get; set; } = string.Empty;
+
     public string Description { get; set; } = string.Empty;
 
     public Guid MacroId { get; set; }
 
     public string Name { get; set; } = string.Empty;
-
 
     public ShiftStatus Status { get; set; }
 
@@ -65,11 +68,17 @@ public class Shift : BaseEntity
 
     public int Quantity { get; set; }
 
+    public int SumEmployees { get; set; }
+
     public decimal TravelTimeAfter { get; set; }
 
     public decimal TravelTimeBefore { get; set; }
 
     public decimal WorkTime { get; set; }
+
+    public TimeOnly BriefingTime { get; set; }
+
+    public TimeOnly DebriefingTime { get; set; }
 
     #endregion Time
 
@@ -88,4 +97,18 @@ public class Shift : BaseEntity
     public Guid? RootId { get; set; } // All Shift cuts are based on this root
 
     #endregion relation
+
+    #region Client
+
+    public Guid? ClientId { get; set; }
+
+    public Client? Client { get; set; }
+
+    #endregion Client
+
+    #region Groups
+
+    public List<Group> Groups { get; set; } = new List<Group>();
+
+    #endregion Groups
 }
