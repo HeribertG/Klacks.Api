@@ -1,6 +1,7 @@
 using AutoMapper;
 using Klacks.Api.Commands;
 using Klacks.Api.Interfaces;
+using Klacks.Api.Models.Associations;
 using Klacks.Api.Resources.Schedules;
 using MediatR;
 
@@ -21,9 +22,15 @@ public class PostCommandHandler(
     {
         try
         {
+            var idList= request.Resource.Groups.Select(x=> x.Id).ToList();
+
+            request.Resource.Groups.Clear();    
+
             var shift = mapper.Map<ShiftResource, Models.Schedules.Shift>(request.Resource);
 
             await repository.Add(shift);
+
+            await repository.UpdateGroupItems(shift.Id, idList);
 
             await unitOfWork.CompleteAsync();
 

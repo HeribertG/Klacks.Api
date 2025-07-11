@@ -1,5 +1,6 @@
 using Klacks.Api.Datas;
 using Klacks.Api.Interfaces;
+using Klacks.Api.Models.Associations;
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Resources.Filter;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,21 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         : base(context)
     {
         this.context = context;
+    }
+
+    public new async Task<Shift?> Get(Guid id)
+    {
+        var shift = await context.Shift
+            .Where(x => x.Id == id)
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
+
+        if (shift != null)
+        {
+            shift.Groups = await GetGroupsForShift(id);
+        }
+
+        return shift;
     }
 
     public async Task<TruncatedShift> Truncated(ShiftFilter filter)
@@ -87,7 +103,6 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     private IQueryable<Shift> FilterByDateRange(bool activeDateRange, bool formerDateRange, bool futureDateRange, IQueryable<Shift> tmp)
     {
-
         if (activeDateRange && formerDateRange && futureDateRange)
         {
             // No need for filters
@@ -160,7 +175,6 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     private IQueryable<Shift> FilterBySearchString(string searchString, IQueryable<Shift> tmp)
     {
-
         var keywordList = searchString.TrimEnd().TrimStart().ToLower().Split(' ');
 
         if (keywordList.Length == 1)
@@ -193,12 +207,12 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             var trimmedKeyword = keyword.Trim().ToLower();
             tmp = tmp.Where(g => g.Name.ToLower().Contains(trimmedKeyword));
         }
+
         return tmp;
     }
 
     private IQueryable<Shift> Sort(string orderBy, string sortOrder, IQueryable<Shift> tmp)
     {
-
         if (sortOrder != string.Empty)
         {
             if (orderBy == "name")
@@ -222,5 +236,27 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         return tmp;
     }
 
+    public async Task UpdateGroupItems(Guid shiftId, List<Guid> actualGroupIds)
+    {
+        var existingIds = await context.GroupItem
+        .Where(gi => gi.GroupId == shiftId)
+        .Select(x => x.Id)
+        .ToListAsync();
 
+        var newGroupIds = actualGroupIds.Where(x => !existingIds.Contains(x)).ToArray();
+        var deleteGroupItems = await context.GroupItem.Where(gi => gi.GroupId == shiftId && !actualGroupIds.Contains(gi.GroupId)).ToArrayAsync();
+        var newGroupItems = newGroupIds.Select(x => new GroupItem { ShiftId = shiftId, GroupId = x }).ToArray();
+
+        context.GroupItem.RemoveRange(deleteGroupItems);
+        context.GroupItem.AddRange(newGroupItems);
+    }
+
+    private async Task<List<Group>> GetGroupsForShift(Guid shiftId)
+    {
+        return await context.Group
+            .Include(g => g.GroupItems.Where(gi => gi.ShiftId == shiftId))
+            .Where(g => g.GroupItems.Any(gi => gi.ShiftId == shiftId))
+            .AsNoTracking()
+            .ToListAsync();
+    }
 }

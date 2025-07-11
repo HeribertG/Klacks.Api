@@ -15,7 +15,7 @@ public class GroupItemResource
 
     public Guid Id { get; set; }
 
-    public GroupResource Group { get; set; } = null!;
+      public GroupResource Group { get; set; } = null!;
 
-    public ShiftResource? Shift { get; set; } = null!;
+      public ShiftResource? Shift { get; set; } = null!;
 }

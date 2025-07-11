@@ -5,15 +5,19 @@ namespace Klacks.Api.Converters;
 
 public class DateOnlyJsonConverter : JsonConverter<DateOnly>
 {
-    private const string Format = "yyyy-MM-dd";
+    private const string Format = "yyyy-MM-ddTHH:mm:ss.fffZ";
 
     public override DateOnly Read(
         ref Utf8JsonReader reader,
         Type typeToConvert,
         JsonSerializerOptions options)
     {
-        var s = reader.GetString()
-                ?? throw new JsonException("Expected date string");
+        var s = reader.GetString();
+        if (DateTime.TryParse(s, out var dateTime))
+        {
+            return DateOnly.FromDateTime(dateTime);
+        }
+
         return DateOnly.ParseExact(s, Format, null);
     }
 
@@ -22,6 +26,6 @@ public class DateOnlyJsonConverter : JsonConverter<DateOnly>
         DateOnly value,
         JsonSerializerOptions options)
     {
-        writer.WriteStringValue(value.ToString(Format));
+        writer.WriteStringValue(value.ToString("yyyy-MM-dd"));
     }
 }

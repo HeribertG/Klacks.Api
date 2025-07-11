@@ -14,7 +14,7 @@ public class Shift : BaseEntity
 
     public string Description { get; set; } = string.Empty;
 
-    public Guid MacroId { get; set; }
+    public Guid? MacroId { get; set; }
 
     public string Name { get; set; } = string.Empty;
 
@@ -33,6 +33,14 @@ public class Shift : BaseEntity
     public TimeOnly StartShift { get; set; }
 
     public DateOnly? UntilDate { get; set; }
+
+    public TimeOnly BriefingTime { get; set; }
+
+    public TimeOnly DebriefingTime { get; set; }
+
+    public TimeOnly TravelTimeAfter { get; set; }
+
+    public TimeOnly TravelTimeBefore { get; set; }
 
     #endregion Date and Time
 
@@ -70,16 +78,8 @@ public class Shift : BaseEntity
 
     public int SumEmployees { get; set; }
 
-    public decimal TravelTimeAfter { get; set; }
-
-    public decimal TravelTimeBefore { get; set; }
-
     public decimal WorkTime { get; set; }
-
-    public TimeOnly BriefingTime { get; set; }
-
-    public TimeOnly DebriefingTime { get; set; }
-
+    
     #endregion Time
 
     #region Type

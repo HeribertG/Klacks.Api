@@ -213,6 +213,20 @@ public class MappingProfile : Profile
           .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
           .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
          ;
+         
+        CreateMap<SimpleGroupResource, Group>()
+            .ForMember(dest => dest.GroupItems, opt => opt.Ignore())
+            .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+            .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+            .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+            .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+            .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+            .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+            .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
+            .ForMember(dest => dest.Lft, opt => opt.Ignore())
+            .ForMember(dest => dest.Rgt, opt => opt.Ignore())
+            .ForMember(dest => dest.Root, opt => opt.Ignore())
+            ;
 
         CreateMap<Group, GroupResource>()
           .ForMember(dest => dest.Children, opt => opt.Ignore())
@@ -279,7 +293,9 @@ public class MappingProfile : Profile
           .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
           ;
 
-        CreateMap<Shift, ShiftResource>();
+        CreateMap<Shift, ShiftResource>()
+            .ForMember(dest => dest.Groups, opt => opt.Ignore())
+            ;
         CreateMap<ShiftResource, Shift>()
           .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
           .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())

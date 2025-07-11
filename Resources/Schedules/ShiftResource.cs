@@ -1,6 +1,5 @@
 using Klacks.Api.Enums;
-using Klacks.Api.Models.Associations;
-using Klacks.Api.Models.Staffs;
+using Klacks.Api.Resources.Associations;
 
 namespace Klacks.Api.Resources.Schedules
 {
@@ -42,6 +41,14 @@ namespace Klacks.Api.Resources.Schedules
 
         public DateOnly? UntilDate { get; set; }
 
+        public TimeOnly TravelTimeAfter { get; set; }
+
+        public TimeOnly TravelTimeBefore { get; set; }
+
+        public TimeOnly BriefingTime { get; set; }
+
+        public TimeOnly DebriefingTime { get; set; }
+
         #endregion Date and Time
 
         #region WeekDay
@@ -78,16 +85,8 @@ namespace Klacks.Api.Resources.Schedules
 
         public int SumEmployees { get; set; }
 
-        public decimal TravelTimeAfter { get; set; }
-
-        public decimal TravelTimeBefore { get; set; }
-
         public decimal WorkTime { get; set; }
-
-        public TimeOnly BriefingTime { get; set; }
-
-        public TimeOnly DebriefingTime { get; set; }
-
+      
         #endregion Time
 
         #region Type
@@ -100,13 +99,13 @@ namespace Klacks.Api.Resources.Schedules
 
         public Guid? ClientId { get; set; }
 
-        public Client? Client { get; set; }
+        public Staffs.ClientResource? Client { get; set; }
 
         #endregion Client
 
         #region Groups
 
-        public List<Group> Groups { get; set; } = new List<Group>();
+        public List<SimpleGroupResource> Groups { get; set; } = new List<SimpleGroupResource>();
 
         #endregion Groups
     }
