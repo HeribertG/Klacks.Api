@@ -21,6 +21,8 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     {
         var shift = await context.Shift
             .Where(x => x.Id == id)
+            .Include(x=> x.Client)
+            .ThenInclude(x=> x.Addresses)
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
@@ -253,10 +255,12 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     private async Task<List<Group>> GetGroupsForShift(Guid shiftId)
     {
-        return await context.Group
+        var groups =  await context.Group
             .Include(g => g.GroupItems.Where(gi => gi.ShiftId == shiftId))
             .Where(g => g.GroupItems.Any(gi => gi.ShiftId == shiftId))
             .AsNoTracking()
             .ToListAsync();
+
+        return groups;
     }
 }

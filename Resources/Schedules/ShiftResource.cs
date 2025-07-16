@@ -79,6 +79,8 @@ namespace Klacks.Api.Resources.Schedules
 
         public bool IsSporadic { get; set; }
 
+        public ShiftSporadic SporadicScope { get; set; }
+
         public bool IsTimeRange { get; set; }
 
         public int Quantity { get; set; }

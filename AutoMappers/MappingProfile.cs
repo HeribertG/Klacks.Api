@@ -228,6 +228,14 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Root, opt => opt.Ignore())
             ;
 
+        CreateMap<Group, SimpleGroupResource>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.ValidFrom, opt => opt.MapFrom(src => src.ValidFrom))
+            .ForMember(dest => dest.ValidUntil, opt => opt.MapFrom(src => src.ValidUntil))
+            ;
+
         CreateMap<Group, GroupResource>()
           .ForMember(dest => dest.Children, opt => opt.Ignore())
           .ForMember(dest => dest.Depth, opt => opt.Ignore())
@@ -294,7 +302,6 @@ public class MappingProfile : Profile
           ;
 
         CreateMap<Shift, ShiftResource>()
-            .ForMember(dest => dest.Groups, opt => opt.Ignore())
             ;
         CreateMap<ShiftResource, Shift>()
           .ForMember(dest => dest.CreateTime, opt => opt.Ignore())

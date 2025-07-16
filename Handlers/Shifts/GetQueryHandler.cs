@@ -22,6 +22,16 @@ public class GetQueryHandler : IRequestHandler<GetQuery<ShiftResource>, ShiftRes
     public async Task<ShiftResource> Handle(GetQuery<ShiftResource> request, CancellationToken cancellationToken)
     {
         var shift = await repository.Get(request.Id);
-        return mapper.Map<Models.Schedules.Shift, ShiftResource>(shift!);
+        try
+        {
+            var result = mapper.Map<Models.Schedules.Shift, ShiftResource>(shift!);
+            return result;
+        }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
+        
     }
 }
