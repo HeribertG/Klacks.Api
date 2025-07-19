@@ -735,23 +735,25 @@ public class ClientRepository : IClientRepository
     private IQueryable<Client> FilterBySearchStringStandard(string[] keywordList, bool includeAddress, IQueryable<Client> tmp)
     {
         if (keywordList.Length == 0)
+        {
             return tmp;
+        }
 
-        // Trimme und normalisiere alle Suchbegriffe
         var normalizedKeywords = keywordList
             .Select(k => k.Trim().ToLower())
             .Where(k => !string.IsNullOrEmpty(k))
             .ToArray();
 
         if (normalizedKeywords.Length == 0)
+        {
             return tmp;
+        }
 
-        // Verwende Expression Trees für die Datenbankabfrage
         var predicate = PredicateBuilder.False<Client>();
 
         foreach (var keyword in normalizedKeywords)
         {
-            var currentKeyword = keyword; // Capture für Lambda-Expression
+            var currentKeyword = keyword; 
 
             predicate = predicate.Or(c =>
                 (c.FirstName != null && c.FirstName.ToLower().Contains(currentKeyword)) ||

@@ -36,13 +36,23 @@ public class PutCommandHandler : IRequestHandler<PutCommand<ShiftResource>, Shif
                 return null;
             }
 
+            var idList = request.Resource.Groups.Select(x => x.Id).ToList();
+
+            request.Resource.Groups.Clear();
+
             var updatedShift = mapper.Map(request.Resource, dbShift);
-            updatedShift = await repository.Put(updatedShift);
+
+            await repository.Put(updatedShift);
+
+            await repository.UpdateGroupItems(updatedShift.Id, idList);
+
             await unitOfWork.CompleteAsync();
 
             logger.LogInformation("Shift with ID {ShiftId} updated successfully.", request.Resource.Id);
 
-            return mapper.Map<Models.Schedules.Shift, ShiftResource>(updatedShift);
+            var getShift = await repository.Get(request.Resource.Id);
+
+            return mapper.Map<Models.Schedules.Shift, ShiftResource>(getShift!);
         }
         catch (Exception ex)
         {

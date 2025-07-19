@@ -1,9 +1,13 @@
 using Klacks.Api.Datas;
+using Klacks.Api.Enums;
+using Klacks.Api.Helper;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Associations;
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Resources.Filter;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq.Expressions;
 
 namespace Klacks.Api.Repositories;
 
@@ -21,8 +25,8 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     {
         var shift = await context.Shift
             .Where(x => x.Id == id)
-            .Include(x=> x.Client)
-            .ThenInclude(x=> x.Addresses)
+            .Include(x => x.Client)
+            .ThenInclude(x => x.Addresses)
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
@@ -96,8 +100,14 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         var tmp = context.Shift.AsNoTracking()
                                .AsQueryable();
 
+        if (filter.IncludeClientName)
+        {
+            tmp = tmp.Include(x => x.Client).ThenInclude(x => x.Addresses!.Where(a => a != null));
+        }
+
+        tmp = FilterByStatus(filter.IsOriginal, tmp);
         tmp = FilterByDateRange(filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange, tmp);
-        tmp = FilterBySearchString(filter.SearchString, tmp);
+        tmp = FilterBySearchString(filter.SearchString, filter.IncludeClientName, tmp);
         tmp = Sort(filter.OrderBy, filter.SortOrder, tmp);
 
         return tmp;
@@ -175,23 +185,34 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         return tmp;
     }
 
-    private IQueryable<Shift> FilterBySearchString(string searchString, IQueryable<Shift> tmp)
+    private IQueryable<Shift> FilterByStatus(bool original, IQueryable<Shift> tmp)
     {
+        var status = original ? ShiftStatus.Original : ShiftStatus.Cut;
+
+        tmp = tmp.Where(co => co.Status == status);
+
+        return tmp;
+    }
+
+    private IQueryable<Shift> FilterBySearchString(string searchString, bool includeClient, IQueryable<Shift> tmp)
+    {
+        if (searchString == null || searchString.Length == 0)
+        {
+            return tmp;
+        }
+            
+
         var keywordList = searchString.TrimEnd().TrimStart().ToLower().Split(' ');
 
         if (keywordList.Length == 1)
         {
             if (keywordList[0].Length == 1)
             {
-                tmp = this.FilterBySearchStringFirstSymbol(keywordList[0], tmp);
+                return this.FilterBySearchStringFirstSymbol(keywordList[0], tmp);
             }
         }
-        else
-        {
-            tmp = this.FilterBySearchStringStandard(keywordList, tmp);
-        }
 
-        return tmp;
+        return this.FilterBySearchStringStandard(keywordList, includeClient, tmp);
     }
 
     private IQueryable<Shift> FilterBySearchStringFirstSymbol(string keyword, IQueryable<Shift> tmp)
@@ -202,15 +223,52 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         return tmp;
     }
 
-    private IQueryable<Shift> FilterBySearchStringStandard(string[] keywordList, IQueryable<Shift> tmp)
-    {
-        foreach (var keyword in keywordList)
+    private IQueryable<Shift> FilterBySearchStringStandard(string[] keywordList, bool includeClient, IQueryable<Shift> tmp)
+    {        
+        var normalizedKeywords = keywordList
+            .Where(k => !string.IsNullOrWhiteSpace(k))
+            .Select(k => k.Trim().ToLower())
+            .Distinct()
+            .ToArray();
+
+        if (normalizedKeywords.Length == 0)
         {
-            var trimmedKeyword = keyword.Trim().ToLower();
-            tmp = tmp.Where(g => g.Name.ToLower().Contains(trimmedKeyword));
+            return tmp;
         }
 
-        return tmp;
+        var predicate = PredicateBuilder.False<Shift>();
+
+        foreach (var keyword in normalizedKeywords)
+        {
+            predicate = predicate.Or(CreateShiftSearchPredicate(keyword));
+
+            if (includeClient)
+            {
+                predicate = predicate.Or(CreateClientSearchPredicate(keyword));
+            }
+        }
+
+        return tmp.Where(predicate);
+    }
+
+    private static Expression<Func<Shift, bool>> CreateShiftSearchPredicate(string keyword)
+    {
+        return shift =>
+            EF.Functions.Like(shift.Name, $"%{keyword}%") ||
+            EF.Functions.Like(shift.Abbreviation, keyword);
+    }
+
+    private static Expression<Func<Shift, bool>> CreateClientSearchPredicate(string keyword)
+    {
+        var pattern = $"%{keyword}%";
+
+        return shift => shift.Client != null && (
+            EF.Functions.Like(shift.Client.FirstName, pattern) ||
+            EF.Functions.Like(shift.Client.SecondName, pattern) ||
+            EF.Functions.Like(shift.Client.Name, pattern) ||
+            EF.Functions.Like(shift.Client.MaidenName, pattern) ||
+            EF.Functions.Like(shift.Client.Company, pattern)
+        );
     }
 
     private IQueryable<Shift> Sort(string orderBy, string sortOrder, IQueryable<Shift> tmp)
@@ -255,7 +313,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     private async Task<List<Group>> GetGroupsForShift(Guid shiftId)
     {
-        var groups =  await context.Group
+        var groups = await context.Group
             .Include(g => g.GroupItems.Where(gi => gi.ShiftId == shiftId))
             .Where(g => g.GroupItems.Any(gi => gi.ShiftId == shiftId))
             .AsNoTracking()
