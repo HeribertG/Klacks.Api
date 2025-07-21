@@ -23,6 +23,7 @@ public class PostCommandHandler(
 
     public async Task<ShiftResource?> Handle(PostCommand<ShiftResource> request, CancellationToken cancellationToken)
     {
+        var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
             var idList = request.Resource.Groups.Select(x => x.Id).ToList();
@@ -35,12 +36,15 @@ public class PostCommandHandler(
             
             await unitOfWork.CompleteAsync();
 
+            await unitOfWork.CommitTransactionAsync(transaction);
+
             logger.LogInformation("New shift added successfully. ID: {ShiftId}", shift.Id);
 
             return mapper.Map<Shift, ShiftResource>(shift);
         }
         catch (Exception ex)
         {
+            await unitOfWork.RollbackTransactionAsync(transaction);
             logger.LogError(ex, "Error occurred while adding a new shift.");
             throw new InvalidRequestException("Error occurred while adding a new shift. "  + ex.Message);
         }
@@ -60,7 +64,7 @@ public class PostCommandHandler(
             case ShiftStatus.IsCutOriginal:
                 throw new InvalidRequestException("This service may not be saved due to its status!");
             case ShiftStatus.ReadyToCut:
-                shift.Status = ShiftStatus.Original;
+                shift.Status = ShiftStatus.IsCutOriginal;
                 await Store(shift, groupIdList);
                 shift.OriginalId = shift.Id;
                 shift.Id = Guid.Empty;

@@ -1,5 +1,6 @@
 using AutoMapper;
 using Klacks.Api.Commands;
+using Klacks.Api.Datas;
 using Klacks.Api.Enums;
 using Klacks.Api.Exceptions;
 using Klacks.Api.Interfaces;
@@ -30,6 +31,8 @@ public class PutCommandHandler : IRequestHandler<PutCommand<ShiftResource>, Shif
 
     public async Task<ShiftResource?> Handle(PutCommand<ShiftResource> request, CancellationToken cancellationToken)
     {
+        var transaction = await unitOfWork.BeginTransactionAsync();
+
         try
         {
             var dbShift = await repository.Get(request.Resource.Id);
@@ -47,16 +50,17 @@ public class PutCommandHandler : IRequestHandler<PutCommand<ShiftResource>, Shif
 
             await StoreInRepostitory(updatedShift, idList);
 
-            await unitOfWork.CompleteAsync();
+            await unitOfWork.CommitTransactionAsync(transaction);
 
             logger.LogInformation("Shift with ID {ShiftId} updated successfully.", request.Resource.Id);
 
             var getShift = await repository.Get(request.Resource.Id);
 
-            return mapper.Map<Models.Schedules.Shift, ShiftResource>(getShift!);
+            return mapper.Map<Shift, ShiftResource>(getShift!);
         }
         catch (Exception ex)
         {
+            await unitOfWork.RollbackTransactionAsync(transaction);
             logger.LogError(ex, "Error occurred while updating shift with ID {ShiftId}.", request.Resource.Id);
             throw new InvalidRequestException("Error occurred while updating shift with ID {ShiftId}. " + ex.Message);
         }
@@ -76,12 +80,14 @@ public class PutCommandHandler : IRequestHandler<PutCommand<ShiftResource>, Shif
             case ShiftStatus.IsCutOriginal:
                 throw new InvalidRequestException("This service may not be saved due to its status!");
             case ShiftStatus.ReadyToCut:
-                shift.Status = ShiftStatus.Original;
+                shift.Status = ShiftStatus.IsCutOriginal;
                 await Store(shift, groupIdList);
+                await unitOfWork.CompleteAsync();
                 shift.OriginalId = shift.Id;
                 shift.Id = Guid.Empty;
                 shift.Status = ShiftStatus.IsCut;
                 await StorePost(shift, groupIdList);
+                await unitOfWork.CompleteAsync();
                 break;
         }
     }

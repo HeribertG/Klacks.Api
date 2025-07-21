@@ -6,6 +6,7 @@ using Klacks.Api.Models.Associations;
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Resources.Filter;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using System.Linq.Expressions;
 
 namespace Klacks.Api.Repositories;
@@ -20,6 +21,20 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         this.context = context;
     }
 
+    public async Task<IDbContextTransaction> BeginTransactionAsync()
+    {
+        return await context.Database.BeginTransactionAsync();
+    }
+
+    public async Task CommitTransactionAsync(IDbContextTransaction transaction)
+    {
+        await transaction.CommitAsync();
+    }
+
+    public async Task RollbackTransactionAsync(IDbContextTransaction transaction)
+    {
+        await transaction.RollbackAsync();
+    }
     public new async Task<Shift?> Get(Guid id)
     {
         var shift = await context.Shift

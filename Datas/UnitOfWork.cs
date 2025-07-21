@@ -1,8 +1,7 @@
-using Klacks.Api.Datas;
 using Klacks.Api.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Klacks.Api.Repositories
+namespace Klacks.Api.Datas
 {
     public class UnitOfWork : IUnitOfWork
     {

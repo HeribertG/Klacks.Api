@@ -1,4 +1,3 @@
-using Klacks.Api.Models.Associations;
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Resources.Filter;
 
