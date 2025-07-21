@@ -1,6 +1,7 @@
 using Klacks.Api.Queries.Shifts;
 using Klacks.Api.Resources.Filter;
 using Klacks.Api.Resources.Schedules;
+using Klacks.Api.Resources.Staffs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -33,4 +34,11 @@ public class ShiftsController : InputBaseController<ShiftResource>
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
+
+    [HttpGet("CutList/{id}")]
+    public async Task<IEnumerable<ShiftResource>> GetCutList(Guid id)
+    {
+
+    }
+
 }

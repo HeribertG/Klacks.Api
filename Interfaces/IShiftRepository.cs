@@ -8,4 +8,6 @@ public interface IShiftRepository : IBaseRepository<Shift>
     Task<TruncatedShift> Truncated(ShiftFilter filter);
 
     Task UpdateGroupItems(Guid shiftId, List<Guid> actualGroupIds);
+
+    Task<List<Shift>> CutList(Guid id);
 }
