@@ -1,3 +1,4 @@
+using Klacks.Api.Exceptions;
 using Klacks.Api.Queries;
 using Klacks.Api.Queries.Absences;
 using Klacks.Api.Resources.Filter;
@@ -43,7 +44,7 @@ public class AbsencesController : InputBaseController<AbsenceResource>
         catch (Exception ex)
         {
             _logger.LogError(ex, $"Error occurred while creating Excel file for absences in language: {language}");
-            throw;
+            throw new InvalidRequestException($"Error occurred while creating Excel file for absences in language: {language} " + ex.Message);
         }
     }
 
@@ -70,7 +71,7 @@ public class AbsencesController : InputBaseController<AbsenceResource>
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while retrieving truncated list of absences.");
-            throw;
+            throw new InvalidRequestException("Error occurred while retrieving truncated list of absences. " + ex.Message);
         }
     }
 }

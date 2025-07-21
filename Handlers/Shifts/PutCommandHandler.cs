@@ -1,6 +1,9 @@
 using AutoMapper;
 using Klacks.Api.Commands;
+using Klacks.Api.Enums;
+using Klacks.Api.Exceptions;
 using Klacks.Api.Interfaces;
+using Klacks.Api.Models.Schedules;
 using Klacks.Api.Resources.Schedules;
 using MediatR;
 
@@ -42,9 +45,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<ShiftResource>, Shif
 
             var updatedShift = mapper.Map(request.Resource, dbShift);
 
-            await repository.Put(updatedShift);
-
-            await repository.UpdateGroupItems(updatedShift.Id, idList);
+            await StoreInRepostitory(updatedShift, idList);
 
             await unitOfWork.CompleteAsync();
 
@@ -57,7 +58,45 @@ public class PutCommandHandler : IRequestHandler<PutCommand<ShiftResource>, Shif
         catch (Exception ex)
         {
             logger.LogError(ex, "Error occurred while updating shift with ID {ShiftId}.", request.Resource.Id);
-            throw;
+            throw new InvalidRequestException("Error occurred while updating shift with ID {ShiftId}. " + ex.Message);
         }
+    }
+
+    private async Task StoreInRepostitory(Shift shift, List<Guid> groupIdList)
+    {
+        var shiftStatus = shift.Status;
+
+        switch (shiftStatus)
+        {
+            case ShiftStatus.IsCut:
+            case ShiftStatus.Original:
+                await Store(shift, groupIdList);
+                break;
+            
+            case ShiftStatus.IsCutOriginal:
+                throw new InvalidRequestException("This service may not be saved due to its status!");
+            case ShiftStatus.ReadyToCut:
+                shift.Status = ShiftStatus.Original;
+                await Store(shift, groupIdList);
+                shift.OriginalId = shift.Id;
+                shift.Id = Guid.Empty;
+                shift.Status = ShiftStatus.IsCut;
+                await StorePost(shift, groupIdList);
+                break;
+        }
+    }
+
+    private async Task Store(Shift shift, List<Guid> groupIdList)
+    {
+        await repository.Put(shift);
+
+        await repository.UpdateGroupItems(shift.Id, groupIdList);
+    }
+
+    private async Task StorePost(Shift shift, List<Guid> groupIdList)
+    {
+        await repository.Add(shift);
+
+        await repository.UpdateGroupItems(shift.Id, groupIdList);
     }
 }

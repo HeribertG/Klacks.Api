@@ -3,6 +3,7 @@ using Klacks.Api;
 using Klacks.Api.Converters;
 using Klacks.Api.Data.Seed;
 using Klacks.Api.Datas;
+using Klacks.Api.Exceptions;
 using Klacks.Api.Extensions;
 using Klacks.Api.Models.Authentification;
 using Klacks.Api.Validation;
@@ -190,6 +191,8 @@ app.UseCors(x => x
   .AllowCredentials()); // allow credentials
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ValidationExceptionMiddleware>();
 
 app.UseRouting();
 app.UseDefaultFiles();

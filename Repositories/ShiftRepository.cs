@@ -6,7 +6,6 @@ using Klacks.Api.Models.Associations;
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Resources.Filter;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Linq.Expressions;
 
 namespace Klacks.Api.Repositories;
@@ -187,7 +186,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     private IQueryable<Shift> FilterByStatus(bool original, IQueryable<Shift> tmp)
     {
-        var status = original ? ShiftStatus.Original : ShiftStatus.Cut;
+        var status = original ? ShiftStatus.Original : ShiftStatus.IsCut;
 
         tmp = tmp.Where(co => co.Status == status);
 
@@ -200,7 +199,6 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         {
             return tmp;
         }
-            
 
         var keywordList = searchString.TrimEnd().TrimStart().ToLower().Split(' ');
 

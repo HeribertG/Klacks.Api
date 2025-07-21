@@ -120,5 +120,4 @@ public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
 
         return tmp;
     }
-
 }

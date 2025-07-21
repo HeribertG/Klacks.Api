@@ -1,7 +1,9 @@
+using Klacks.Api.Exceptions;
 using Klacks.Api.Queries.Addresses;
 using Klacks.Api.Resources.Staffs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Klacks.Api.Controllers.V1.UserBackend;
 
@@ -28,7 +30,7 @@ public class AddressesController : InputBaseController<AddressResource>
         catch (Exception ex)
         {
             logger.LogError(ex, $"Error occurred while fetching client address list for ID: {id}");
-            throw;
+            throw new InvalidRequestException($"Error occurred while fetching client address list for ID: {id}. " + ex.Message);
         }
     }
 
@@ -45,7 +47,7 @@ public class AddressesController : InputBaseController<AddressResource>
         catch (Exception ex)
         {
             logger.LogError(ex, $"Error occurred while fetching simple address list for ID: {id}");
-            throw;
+            throw new InvalidRequestException($"Error occurred while fetching simple address list for ID: {id}. " + ex.Message);
         }
     }
 }
