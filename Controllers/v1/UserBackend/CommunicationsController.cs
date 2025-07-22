@@ -11,8 +11,8 @@ public class CommunicationsController : InputBaseController<CommunicationResourc
 {
     private readonly ILogger<CommunicationsController> logger;
 
-    public CommunicationsController(IMediator mediator, ILogger<CommunicationsController> logger)
-      : base(mediator, logger)
+    public CommunicationsController(IMediator Mediator, ILogger<CommunicationsController> logger)
+      : base(Mediator, logger)
     {
         this.logger = logger;
     }
@@ -23,7 +23,7 @@ public class CommunicationsController : InputBaseController<CommunicationResourc
         try
         {
             logger.LogInformation("Fetching communication resources.");
-            var communications = await mediator.Send(new ListQuery<CommunicationResource>());
+            var communications = await Mediator.Send(new ListQuery<CommunicationResource>());
             logger.LogInformation($"Retrieved {communications.Count()} communication resources.");
             return Ok(communications);
         }
@@ -40,7 +40,7 @@ public class CommunicationsController : InputBaseController<CommunicationResourc
         try
         {
             logger.LogInformation("Fetching communication types.");
-            var communicationTypes = await mediator.Send(new GetTypeQuery());
+            var communicationTypes = await Mediator.Send(new GetTypeQuery());
             logger.LogInformation($"Retrieved {communicationTypes.Count()} communication types.");
             return Ok(communicationTypes);
         }

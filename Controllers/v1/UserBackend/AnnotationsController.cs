@@ -10,8 +10,8 @@ public class AnnotationsController : InputBaseController<AnnotationResource>
 {
     private readonly ILogger<AnnotationsController> logger;
 
-    public AnnotationsController(IMediator mediator, ILogger<AnnotationsController> logger)
-      : base(mediator, logger)
+    public AnnotationsController(IMediator Mediator, ILogger<AnnotationsController> logger)
+      : base(Mediator, logger)
     {
         this.logger = logger;
     }
@@ -22,7 +22,7 @@ public class AnnotationsController : InputBaseController<AnnotationResource>
         try
         {
             logger.LogInformation("Fetching all annotations.");
-            var annotations = await mediator.Send(new ListQuery<AnnotationResource>());
+            var annotations = await Mediator.Send(new ListQuery<AnnotationResource>());
             logger.LogInformation($"Retrieved {annotations.Count()} annotations.");
             return Ok(annotations);
         }
@@ -39,7 +39,7 @@ public class AnnotationsController : InputBaseController<AnnotationResource>
         try
         {
             logger.LogInformation($"Fetching simple annotations for ID: {id}");
-            var annotations = await mediator.Send(new GetSimpleListQuery(id));
+            var annotations = await Mediator.Send(new GetSimpleListQuery(id));
             logger.LogInformation($"Retrieved {annotations.Count()} simple annotations for ID: {id}");
             return Ok(annotations);
         }

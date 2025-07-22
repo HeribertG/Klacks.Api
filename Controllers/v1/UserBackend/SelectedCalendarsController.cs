@@ -7,8 +7,8 @@ namespace Klacks.Api.Controllers.V1.UserBackend
     {
         private readonly ILogger<SelectedCalendarsController> logger;
 
-        public SelectedCalendarsController(IMediator mediator, ILogger<SelectedCalendarsController> logger)
-            : base(mediator, logger)
+        public SelectedCalendarsController(IMediator Mediator, ILogger<SelectedCalendarsController> logger)
+            : base(Mediator, logger)
         {
             this.logger = logger;
         }

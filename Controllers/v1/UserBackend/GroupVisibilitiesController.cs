@@ -13,8 +13,8 @@ public class GroupVisibilitiesController : InputBaseController<GroupResource>
 {
     private readonly ILogger<GroupsController> logger;
 
-    public GroupVisibilitiesController(IMediator mediator, ILogger<GroupsController> logger)
-      : base(mediator, logger)
+    public GroupVisibilitiesController(IMediator Mediator, ILogger<GroupsController> logger)
+      : base(Mediator, logger)
     {
         this.logger = logger;
     }
@@ -26,7 +26,7 @@ public class GroupVisibilitiesController : InputBaseController<GroupResource>
         try
         {
             logger.LogInformation($"Fetching simple groupVisibilities list for ID: {id}");
-            var groupVisibilities = await mediator.Send(new GroupVisibilityListQuery(id));
+            var groupVisibilities = await Mediator.Send(new GroupVisibilityListQuery(id));
             logger.LogInformation($"Retrieved {groupVisibilities.Count()} simple groupVisibilities list for ID: {id}");
             return Ok(groupVisibilities);
         }
@@ -44,7 +44,7 @@ public class GroupVisibilitiesController : InputBaseController<GroupResource>
         try
         {
             logger.LogInformation($"Fetching simple groupVisibilities");
-            var groupVisibilities = await mediator.Send(new ListQuery<GroupVisibilityResource>());
+            var groupVisibilities = await Mediator.Send(new ListQuery<GroupVisibilityResource>());
             logger.LogInformation($"Retrieved {groupVisibilities.Count()} simple groupVisibilities list");
             return Ok(groupVisibilities);
         }
@@ -60,7 +60,7 @@ public class GroupVisibilitiesController : InputBaseController<GroupResource>
     public async Task<ActionResult> BulkList(List<GroupVisibilityResource> bulk)
     {
         logger.LogInformation($"storing Bulk list groupVisibilities");
-        await mediator.Send(new BulkGroupVisibilitiesCommand(bulk));
+        await Mediator.Send(new BulkGroupVisibilitiesCommand(bulk));
 
         return Ok(); 
     }

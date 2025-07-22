@@ -24,6 +24,6 @@ public class WorksController : InputBaseController<Work>
     [HttpPost("GetClientList")]
     public async Task<ActionResult<IEnumerable<ClientWorkResource>>> GetClientList([FromBody] WorkFilter filter)
     {
-        return Ok(await mediator.Send(new ListQuery(filter)));
+        return Ok(await Mediator.Send(new ListQuery(filter)));
     }
 }

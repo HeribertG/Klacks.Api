@@ -9,8 +9,8 @@ public class MembershipsController : InputBaseController<MembershipResource>
 {
     private readonly ILogger<MembershipsController> logger;
 
-    public MembershipsController(IMediator mediator, ILogger<MembershipsController> logger)
-      : base(mediator, logger)
+    public MembershipsController(IMediator Mediator, ILogger<MembershipsController> logger)
+      : base(Mediator, logger)
     {
         this.logger = logger;
     }
@@ -21,7 +21,7 @@ public class MembershipsController : InputBaseController<MembershipResource>
         try
         {
             logger.LogInformation("Fetching all memberships.");
-            var memberships = await mediator.Send(new ListQuery<MembershipResource>());
+            var memberships = await Mediator.Send(new ListQuery<MembershipResource>());
             logger.LogInformation($"Retrieved {memberships.Count()} memberships.");
             return Ok(memberships);
         }

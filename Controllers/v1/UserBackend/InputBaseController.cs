@@ -9,14 +9,12 @@ namespace Klacks.Api.Controllers.V1.UserBackend;
 [ApiController]
 public abstract class InputBaseController<TModel> : BaseController
 {
-#pragma warning disable SA1401 // FieldsMustBePrivate
-#pragma warning disable SA1307 // AccessibleFieldsMustBeginWithUpperCaseLetter
-    public readonly IMediator mediator;
+    protected readonly IMediator Mediator;
     private readonly ILogger<InputBaseController<TModel>> logger;
 
     protected InputBaseController(IMediator mediator, ILogger<InputBaseController<TModel>> logger)
     {
-        this.mediator = mediator;
+        this.Mediator = mediator;
         this.logger = logger;
     }
 
@@ -27,7 +25,7 @@ public abstract class InputBaseController<TModel> : BaseController
         {
             logger.LogInformation($"Attempting to delete {typeof(TModel).Name} with ID: {id}");
 
-            var model = await mediator.Send(new DeleteCommand<TModel>(id));
+            var model = await Mediator.Send(new DeleteCommand<TModel>(id));
             if (model == null)
             {
                 logger.LogWarning($"{typeof(TModel).Name} with ID: {id} not found for deletion.");
@@ -51,7 +49,7 @@ public abstract class InputBaseController<TModel> : BaseController
         {
             logger.LogInformation($"Fetching {typeof(TModel).Name} with ID: {id}");
 
-            var model = await mediator.Send(new GetQuery<TModel>(id));
+            var model = await Mediator.Send(new GetQuery<TModel>(id));
 
             if (model == null)
             {
@@ -75,7 +73,7 @@ public abstract class InputBaseController<TModel> : BaseController
         {
             logger.LogInformation($"Creating new {typeof(TModel).Name} Resource: {JsonConvert.SerializeObject(resource)}");
 
-            var model = await mediator.Send(new PostCommand<TModel>(resource));
+            var model = await Mediator.Send(new PostCommand<TModel>(resource));
 
             logger.LogInformation($"{typeof(TModel).Name} created successfully.");
             return Ok(model);
@@ -94,7 +92,7 @@ public abstract class InputBaseController<TModel> : BaseController
         {
             logger.LogInformation($"Updating {typeof(TModel).Name} Resource: {JsonConvert.SerializeObject(resource)}");
 
-            var model = await mediator.Send(new PutCommand<TModel>(resource));
+            var model = await Mediator.Send(new PutCommand<TModel>(resource));
 
             if (model == null)
             {
@@ -112,3 +110,4 @@ public abstract class InputBaseController<TModel> : BaseController
         }
     }
 }
+

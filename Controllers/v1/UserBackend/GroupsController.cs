@@ -12,8 +12,8 @@ public class GroupsController : InputBaseController<GroupResource>
 {
     private readonly ILogger<GroupsController> logger;
 
-    public GroupsController(IMediator mediator, ILogger<GroupsController> logger)
-      : base(mediator, logger)
+    public GroupsController(IMediator Mediator, ILogger<GroupsController> logger)
+      : base(Mediator, logger)
     {
         this.logger = logger;
     }
@@ -24,7 +24,7 @@ public class GroupsController : InputBaseController<GroupResource>
         try
         {
             logger.LogInformation($"Fetching simple group list with filter: {JsonConvert.SerializeObject(filter)}");
-            var truncatedGroups = await mediator.Send(new GetTruncatedListQuery(filter));
+            var truncatedGroups = await Mediator.Send(new GetTruncatedListQuery(filter));
             logger.LogInformation($"Retrieved {truncatedGroups.Groups.Count} truncated groups.");
             return Ok(truncatedGroups);
         }
@@ -44,7 +44,7 @@ public class GroupsController : InputBaseController<GroupResource>
         try
         {
             logger.LogInformation($"Fetching group tree with rootId: {rootId}");
-            var tree = await mediator.Send(new GetGroupTreeQuery(rootId));
+            var tree = await Mediator.Send(new GetGroupTreeQuery(rootId));
             logger.LogInformation($"Retrieved tree with {tree.Nodes.Count} nodes.");
             return Ok(tree);
         }
@@ -69,7 +69,7 @@ public class GroupsController : InputBaseController<GroupResource>
         try
         {
             logger.LogInformation($"Fetching path to node with ID: {id}");
-            var path = await mediator.Send(new GetPathToNodeQuery(id));
+            var path = await Mediator.Send(new GetPathToNodeQuery(id));
             logger.LogInformation($"Retrieved path with {path.Count} nodes.");
             return Ok(path);
         }
@@ -96,7 +96,7 @@ public class GroupsController : InputBaseController<GroupResource>
         try
         {
             logger.LogInformation($"Moving group with ID: {id} to parent ID: {newParentId}");
-            var movedGroup = await mediator.Send(new MoveGroupNodeCommand(id, newParentId));
+            var movedGroup = await Mediator.Send(new MoveGroupNodeCommand(id, newParentId));
             logger.LogInformation($"Moved group with ID: {id} to parent ID: {newParentId}");
             return Ok(movedGroup);
         }
@@ -120,14 +120,14 @@ public class GroupsController : InputBaseController<GroupResource>
     [HttpGet("refresh")]
     public async Task<ActionResult> Refresh()
     {
-        await mediator.Send(new RefreshTreeCommand());
+        await Mediator.Send(new RefreshTreeCommand());
         return Ok();
     }
 
     [HttpGet("roots")]
     public async Task<IEnumerable<GroupResource>> Roots()
     {
-        return await mediator.Send(new GetRootsQuery());
+        return await Mediator.Send(new GetRootsQuery());
 
     }
 }

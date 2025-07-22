@@ -12,8 +12,8 @@ public class ClientsController : InputBaseController<ClientResource>
 {
     private readonly ILogger<ClientsController> logger;
 
-    public ClientsController(IMediator mediator, ILogger<ClientsController> logger)
-    : base(mediator, logger)
+    public ClientsController(IMediator Mediator, ILogger<ClientsController> logger)
+    : base(Mediator, logger)
     {
         this.logger = logger;
     }
@@ -25,7 +25,7 @@ public class ClientsController : InputBaseController<ClientResource>
         try
         {
             logger.LogInformation("Fetching client count.");
-            var count = await mediator.Send(new CountQuery());
+            var count = await Mediator.Send(new CountQuery());
             logger.LogInformation($"Retrieved client count: {count}");
             return Ok(count);
         }
@@ -42,7 +42,7 @@ public class ClientsController : InputBaseController<ClientResource>
         try
         {
             logger.LogInformation($"Searching for clients with company: {company}, name: {name}, firstName: {firstName}");
-            var clients = await mediator.Send(new FindListQuery(company, name, firstName));
+            var clients = await Mediator.Send(new FindListQuery(company, name, firstName));
             logger.LogInformation($"Found {clients.Count()} clients matching criteria.");
             return Ok(clients);
         }
@@ -60,7 +60,7 @@ public class ClientsController : InputBaseController<ClientResource>
         try
         {
             logger.LogInformation($"Fetching simple client list with filter: {filter}");
-            var truncatedClients = await mediator.Send(new Queries.Clients.GetTruncatedListQuery(filter));
+            var truncatedClients = await Mediator.Send(new Queries.Clients.GetTruncatedListQuery(filter));
             logger.LogInformation($"Retrieved {truncatedClients.Clients?.Count} truncated clients.");
             return truncatedClients;
         }
@@ -77,7 +77,7 @@ public class ClientsController : InputBaseController<ClientResource>
         try
         {
             logger.LogInformation($"Fetching state token list with isSelected: {isSelected}");
-            var tokens = await mediator.Send(new Queries.Settings.CalendarRules.RuleTokenList(isSelected));
+            var tokens = await Mediator.Send(new Queries.Settings.CalendarRules.RuleTokenList(isSelected));
             logger.LogInformation($"Retrieved {tokens.Count()} state tokens.");
             return tokens;
         }
@@ -94,7 +94,7 @@ public class ClientsController : InputBaseController<ClientResource>
         try
         {
             logger.LogInformation("Fetching last change metadata.");
-            var metaData = await mediator.Send(new LastChangeMetaDataQuery());
+            var metaData = await Mediator.Send(new LastChangeMetaDataQuery());
             logger.LogInformation("Retrieved last change metadata.");
             return Ok(metaData);
         }

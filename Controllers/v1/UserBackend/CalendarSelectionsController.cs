@@ -9,8 +9,8 @@ public class CalendarSelectionsController : InputBaseController<CalendarSelectio
 {
     private readonly ILogger<CalendarSelectionsController> logger;
 
-    public CalendarSelectionsController(IMediator mediator, ILogger<CalendarSelectionsController> logger)
-        : base(mediator, logger)
+    public CalendarSelectionsController(IMediator Mediator, ILogger<CalendarSelectionsController> logger)
+        : base(Mediator, logger)
     {
         this.logger = logger;
     }
@@ -21,7 +21,7 @@ public class CalendarSelectionsController : InputBaseController<CalendarSelectio
         try
         {
             logger.LogInformation("Fetching calendar selections.");
-            var calendarSelections = await mediator.Send(new ListQuery<CalendarSelectionResource>());
+            var calendarSelections = await Mediator.Send(new ListQuery<CalendarSelectionResource>());
             logger.LogInformation($"Retrieved {calendarSelections.Count()} calendar selections.");
             return Ok(calendarSelections);
         }
