@@ -15,7 +15,7 @@ public class AssignedGroupsController(IMediator mediator, ILogger<AssignedGroups
         {
             logger.LogInformation($"Fetching AssignedGroup List {id}");
 
-            return await mediator.Send(new AssignedGroupListQuery(id));
+            return await Mediator.Send(new AssignedGroupListQuery(id));
 
         }
         catch (Exception ex)

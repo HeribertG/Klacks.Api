@@ -12,8 +12,8 @@ public class ShiftsController : InputBaseController<ShiftResource>
 {
     private readonly ILogger<ShiftsController> logger;
 
-    public ShiftsController(IMediator mediator, ILogger<ShiftsController> logger)
-            : base(mediator, logger)
+    public ShiftsController(IMediator Mediator, ILogger<ShiftsController> logger)
+            : base(Mediator, logger)
     {
         this.logger = logger;
     }
@@ -24,7 +24,7 @@ public class ShiftsController : InputBaseController<ShiftResource>
         try
         {
             logger.LogInformation($"Fetching simple shift list with filter: {JsonConvert.SerializeObject(filter)}");
-            var truncatedShifts = await mediator.Send(new GetTruncatedListQuery(filter));
+            var truncatedShifts = await Mediator.Send(new GetTruncatedListQuery(filter));
             logger.LogInformation($"Retrieved {truncatedShifts.Shifts.Count} truncated shift.");
             return Ok(truncatedShifts);
         }
@@ -39,7 +39,7 @@ public class ShiftsController : InputBaseController<ShiftResource>
     public async Task<IEnumerable<ShiftResource>> GetCutList(Guid id)
     {
         logger.LogInformation($"Fetching cut shift list with id: {id}");
-        var truncatedShifts = await mediator.Send(new CutListQuery(id));
+        var truncatedShifts = await Mediator.Send(new CutListQuery(id));
         logger.LogInformation($"Retrieved {id}  cut shift list.");
         return truncatedShifts;
     }

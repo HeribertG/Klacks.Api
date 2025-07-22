@@ -16,5 +16,5 @@ public class StatesController : InputBaseController<StateResource>
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<StateResource>>> List() => this.Ok(await this.mediator.Send(new ListQuery<StateResource>()));
+    public async Task<ActionResult<IEnumerable<StateResource>>> List() => this.Ok(await this.Mediator.Send(new ListQuery<StateResource>()));
 }

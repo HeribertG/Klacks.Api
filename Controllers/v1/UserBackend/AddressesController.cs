@@ -3,7 +3,6 @@ using Klacks.Api.Queries.Addresses;
 using Klacks.Api.Resources.Staffs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Klacks.Api.Controllers.V1.UserBackend;
 
@@ -11,8 +10,8 @@ public class AddressesController : InputBaseController<AddressResource>
 {
     private readonly ILogger<AddressesController> logger;
 
-    public AddressesController(IMediator mediator, ILogger<AddressesController> logger)
-        : base(mediator, logger)
+    public AddressesController(IMediator Mediator, ILogger<AddressesController> logger)
+        : base(Mediator, logger)
     {
         this.logger = logger;
     }
@@ -23,7 +22,7 @@ public class AddressesController : InputBaseController<AddressResource>
         try
         {
             logger.LogInformation($"Fetching client address list for ID: {id}");
-            var addresses = await mediator.Send(new ClientAddressListQuery(id));
+            var addresses = await Mediator.Send(new ClientAddressListQuery(id));
             logger.LogInformation($"Retrieved {addresses.Count()} addresses for client ID: {id}");
             return Ok(addresses);
         }
@@ -40,7 +39,7 @@ public class AddressesController : InputBaseController<AddressResource>
         try
         {
             logger.LogInformation($"Fetching simple address list for ID: {id}");
-            var addresses = await mediator.Send(new GetSimpleAddressListQuery(id));
+            var addresses = await Mediator.Send(new GetSimpleAddressListQuery(id));
             logger.LogInformation($"Retrieved {addresses.Count()} simple addresses for ID: {id}");
             return Ok(addresses);
         }

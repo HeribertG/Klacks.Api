@@ -9,8 +9,8 @@ public class CountriesController : InputBaseController<CountryResource>
 {
     private readonly ILogger<CountriesController> logger;
 
-    public CountriesController(IMediator mediator, ILogger<CountriesController> logger)
-      : base(mediator, logger)
+    public CountriesController(IMediator Mediator, ILogger<CountriesController> logger)
+      : base(Mediator, logger)
     {
         this.logger = logger;
     }
@@ -21,7 +21,7 @@ public class CountriesController : InputBaseController<CountryResource>
         try
         {
             logger.LogInformation("Fetching list of countries.");
-            var countries = await this.mediator.Send(new ListQuery<CountryResource>());
+            var countries = await this.Mediator.Send(new ListQuery<CountryResource>());
             logger.LogInformation($"Retrieved {countries.Count()} countries.");
             return Ok(countries);
         }

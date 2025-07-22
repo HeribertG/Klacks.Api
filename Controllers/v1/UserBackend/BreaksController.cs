@@ -11,8 +11,8 @@ namespace Klacks.Api.Controllers.V1.UserBackend
     {
         private readonly ILogger<BreaksController> logger;
 
-        public BreaksController(IMediator mediator, ILogger<BreaksController> logger)
-          : base(mediator, logger)
+        public BreaksController(IMediator Mediator, ILogger<BreaksController> logger)
+          : base(Mediator, logger)
         {
             this.logger = logger;
         }
@@ -23,7 +23,7 @@ namespace Klacks.Api.Controllers.V1.UserBackend
             logger.LogInformation($"BreaksController GetClientList Resource: {JsonConvert.SerializeObject(filter)}");
             try
             {
-                var clientList = await mediator.Send(new ListQuery(filter));
+                var clientList = await Mediator.Send(new ListQuery(filter));
                 logger.LogInformation($"Retrieved {clientList.Count()} client break resources.");
                 return Ok(clientList);
             }

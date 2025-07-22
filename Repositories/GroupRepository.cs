@@ -1,8 +1,10 @@
 using Klacks.Api.Datas;
+using Klacks.Api.Exceptions;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Associations;
 using Klacks.Api.Resources.Filter;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace Klacks.Api.Repositories;
 
@@ -11,8 +13,8 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     private readonly DataBaseContext context;
     private readonly IGroupVisibilityService groupVisibility;
 
-    public GroupRepository(DataBaseContext context, IGroupVisibilityService groupVisibility)
-       : base(context)
+    public GroupRepository(DataBaseContext context, IGroupVisibilityService groupVisibility, ILogger<Group> logger)
+       : base(context, logger)
     {
         this.context = context;
         this.groupVisibility = groupVisibility;
@@ -20,49 +22,82 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
     public new async Task Add(Group model)
     {
-        if (model.Parent.HasValue)
+        Logger.LogInformation("Adding new group: {GroupName}", model.Name);
+        try
         {
-            await AddChildNode(model.Parent.Value, model);
+            if (model.Parent.HasValue)
+            {
+                await AddChildNode(model.Parent.Value, model);
+            }
+            else
+            {
+                await AddRootNode(model);
+            }
+            await context.SaveChangesAsync();
+            Logger.LogInformation("Group {GroupName} added successfully.", model.Name);
         }
-        else
+        catch (DbUpdateException ex)
         {
-            await AddRootNode(model);
+            Logger.LogError(ex, "Failed to add group {GroupName}. Database update error.", model.Name);
+            throw new InvalidRequestException($"Failed to add group {model.Name} due to a database error.");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An unexpected error occurred while adding group {GroupName}.", model.Name);
+            throw;
         }
     }
 
-    public override async Task<Group?> Delete(Guid id)
+    public override async Task<Group> Delete(Guid id)
     {
+        Logger.LogInformation("Attempting to delete group with ID: {GroupId}", id);
         var groupEntity = await context.Group
             .Where(g => g.Id == id)
             .FirstOrDefaultAsync();
 
         if (groupEntity == null)
         {
-            throw new KeyNotFoundException($"Group with ID {id} not found");
+            Logger.LogWarning("Group with ID: {GroupId} not found for deletion.", id);
+            throw new KeyNotFoundException($"Group with ID {id} not found.");
         }
 
-        var width = groupEntity.Rgt - groupEntity.Lft + 1;
+        try
+        {
+            var width = groupEntity.Rgt - groupEntity.Lft + 1;
 
-        await context.Database.ExecuteSqlRawAsync(
-            "UPDATE \"group\" SET \"is_deleted\" = true, \"deleted_time\" = @p0 " +
-            "WHERE \"lft\" >= @p1 AND \"rgt\" <= @p2 AND \"root\" = @p3",
-            DateTime.UtcNow, groupEntity.Lft, groupEntity.Rgt, groupEntity.Root);
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"is_deleted\" = true, \"deleted_time\" = @p0 " +
+                "WHERE \"lft\" >= @p1 AND \"rgt\" <= @p2 AND \"root\" = @p3",
+                DateTime.UtcNow, groupEntity.Lft, groupEntity.Rgt, groupEntity.Root);
 
-        await context.Database.ExecuteSqlRawAsync(
-            "UPDATE \"group\" SET \"lft\" = \"lft\" - @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
-            width, groupEntity.Rgt, groupEntity.Root);
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"lft\" = \"lft\" - @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
+                width, groupEntity.Rgt, groupEntity.Root);
 
-        await context.Database.ExecuteSqlRawAsync(
-            "UPDATE \"group\" SET \"rgt\" = \"rgt\" - @p0 WHERE \"rgt\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
-            width, groupEntity.Rgt, groupEntity.Root);
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"rgt\" = \"rgt\" - @p0 WHERE \"rgt\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
+                width, groupEntity.Rgt, groupEntity.Root);
 
-        context.Group.Remove(groupEntity);
-
-        return groupEntity;
+            context.Group.Remove(groupEntity);
+            await context.SaveChangesAsync();
+            Logger.LogInformation("Group with ID: {GroupId} deleted successfully.", id);
+            return groupEntity;
+        }
+        catch (DbUpdateException ex)
+        {
+            Logger.LogError(ex, "Failed to delete group with ID: {GroupId}. Database update error.", id);
+            throw new InvalidRequestException($"Failed to delete group with ID {id} due to a database error.");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An unexpected error occurred while deleting group with ID: {GroupId}.", id);
+            throw;
+        }
     }
 
     private async Task<Group> AddChildNode(Guid parentId, Group newGroup)
     {
+        Logger.LogInformation("Adding child node to parent {ParentId} for new group {GroupName}", parentId, newGroup.Name);
         var parent = await context.Group
             .Include(x => x.GroupItems)
             .Where(g => g.Id == parentId)
@@ -70,45 +105,73 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
         if (parent == null)
         {
+            Logger.LogWarning("Parent group with ID {ParentId} not found.", parentId);
             throw new KeyNotFoundException($"Parent group with ID {parentId} not found");
         }
 
-        await context.Database.ExecuteSqlRawAsync(
-            "UPDATE \"group\" SET \"rgt\" = \"rgt\" + 2 WHERE \"rgt\" >= @p0 AND \"root\" = @p1 AND \"is_deleted\" = false",
-            parent.Rgt, parent.Root);
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"rgt\" = \"rgt\" + 2 WHERE \"rgt\" >= @p0 AND \"root\" = @p1 AND \"is_deleted\" = false",
+                parent.Rgt, parent.Root);
 
-        await context.Database.ExecuteSqlRawAsync(
-            "UPDATE \"group\" SET \"lft\" = \"lft\" + 2 WHERE \"lft\" > @p0 AND \"root\" = @p1 AND \"is_deleted\" = false",
-            parent.Rgt, parent.Root);
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"lft\" = \"lft\" + 2 WHERE \"lft\" > @p0 AND \"root\" = @p1 AND \"is_deleted\" = false",
+                parent.Rgt, parent.Root);
 
-        newGroup.Lft = parent.Rgt;
-        newGroup.Rgt = parent.Rgt + 1;
-        newGroup.Parent = parent.Id;
-        newGroup.Root = parent.Root ?? parent.Id;
-        newGroup.CreateTime = DateTime.UtcNow;
+            newGroup.Lft = parent.Rgt;
+            newGroup.Rgt = parent.Rgt + 1;
+            newGroup.Parent = parent.Id;
+            newGroup.Root = parent.Root ?? parent.Id;
+            newGroup.CreateTime = DateTime.UtcNow;
 
-        context.Group.Add(newGroup);
-
-        return newGroup;
+            context.Group.Add(newGroup);
+            Logger.LogInformation("Child node {GroupName} added successfully to parent {ParentId}.", newGroup.Name, parentId);
+            return newGroup;
+        }
+        catch (DbUpdateException ex)
+        {
+            Logger.LogError(ex, "Failed to add child node {GroupName} to parent {ParentId}. Database update error.", newGroup.Name, parentId);
+            throw new InvalidRequestException($"Failed to add child node {newGroup.Name} to parent {parentId} due to a database error.");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An unexpected error occurred while adding child node {GroupName} to parent {ParentId}.", newGroup.Name, parentId);
+            throw;
+        }
     }
 
     public async Task<Group> AddRootNode(Group newGroup)
     {
-        var maxRgt = await context.Group
-            .Where(g => g.Root == null)
-            .OrderByDescending(g => g.Rgt)
-            .Select(g => (int?)g.Rgt)
-            .FirstOrDefaultAsync() ?? 0;
+        Logger.LogInformation("Adding new root group: {GroupName}", newGroup.Name);
+        try
+        {
+            var maxRgt = await context.Group
+                .Where(g => g.Root == null)
+                .OrderByDescending(g => g.Rgt)
+                .Select(g => (int?)g.Rgt)
+                .FirstOrDefaultAsync() ?? 0;
 
-        newGroup.Lft = maxRgt + 1;
-        newGroup.Rgt = maxRgt + 2;
-        newGroup.Parent = null;
-        newGroup.Root = null;
-        newGroup.CreateTime = DateTime.UtcNow;
+            newGroup.Lft = maxRgt + 1;
+            newGroup.Rgt = maxRgt + 2;
+            newGroup.Parent = null;
+            newGroup.Root = null;
+            newGroup.CreateTime = DateTime.UtcNow;
 
-        context.Group.Add(newGroup);
-
-        return newGroup;
+            context.Group.Add(newGroup);
+            Logger.LogInformation("Root group {GroupName} added successfully.", newGroup.Name);
+            return newGroup;
+        }
+        catch (DbUpdateException ex)
+        {
+            Logger.LogError(ex, "Failed to add root group {GroupName}. Database update error.", newGroup.Name);
+            throw new InvalidRequestException($"Failed to add root group {newGroup.Name} due to a database error.");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An unexpected error occurred while adding root group {GroupName}.", newGroup.Name);
+            throw;
+        }
     }
 
     public IQueryable<Group> FilterGroup(GroupFilter filter)
@@ -126,9 +189,19 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         return tmp;
     }
 
-    public new async Task<Group?> Get(Guid id)
+    public new async Task<Group> Get(Guid id)
     {
-        return await context.Group.Where(x => x.Id == id).Include(gr => gr.GroupItems).ThenInclude(cl => cl.Client).AsNoTracking().FirstOrDefaultAsync();
+        Logger.LogInformation("Fetching group with ID: {GroupId}", id);
+        var group = await context.Group.Where(x => x.Id == id).Include(gr => gr.GroupItems).ThenInclude(cl => cl.Client).AsNoTracking().FirstOrDefaultAsync();
+
+        if (group == null)
+        {
+            Logger.LogWarning("Group with ID: {GroupId} not found.", id);
+            throw new KeyNotFoundException($"Group with ID {id} not found.");
+        }
+
+        Logger.LogInformation("Group with ID: {GroupId} found successfully.", id);
+        return group;
     }
 
     public async Task<IEnumerable<Group>> GetChildren(Guid parentId)
@@ -242,12 +315,14 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
     public async Task MoveNode(Guid nodeId, Guid newParentId)
     {
+        Logger.LogInformation("Attempting to move group with ID: {NodeId} to new parent ID: {NewParentId}", nodeId, newParentId);
         var node = await context.Group
             .Where(g => g.Id == nodeId)
             .FirstOrDefaultAsync();
 
         if (node == null)
         {
+            Logger.LogWarning("MoveNode: Group to be moved with ID {NodeId} not found.", nodeId);
             throw new KeyNotFoundException($"Group to be moved with ID {nodeId} not found");
         }
 
@@ -257,116 +332,149 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
         if (newParent == null)
         {
+            Logger.LogWarning("MoveNode: New parent group with ID {NewParentId} not found.", newParentId);
             throw new KeyNotFoundException($"New parent group with ID {newParentId} not found");
         }
 
         if (newParent.Lft > node.Lft && newParent.Rgt < node.Rgt)
         {
+            Logger.LogWarning("MoveNode: Invalid operation - new parent {NewParentId} is a descendant of node {NodeId}.", newParentId, nodeId);
             throw new InvalidOperationException("The new parent cannot be a descendant of the groupEntity to be moved");
         }
 
-        var nodeWidth = node.Rgt - node.Lft + 1;
-        var newPos = newParent.Rgt;
-
-        await context.Database.ExecuteSqlRawAsync(
-            "UPDATE \"group\" SET \"lft\" = -\"lft\", \"rgt\" = -\"rgt\" " +
-            "WHERE \"lft\" >= @p0 AND \"rgt\" <= @p1 AND \"root\" = @p2",
-            node.Lft, node.Rgt, node.Root);
-
-        await context.Database.ExecuteSqlRawAsync(
-            "UPDATE \"group\" SET \"lft\" = \"lft\" - @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2",
-            nodeWidth, node.Rgt, node.Root);
-
-        await context.Database.ExecuteSqlRawAsync(
-            "UPDATE \"group\" SET \"rgt\" = \"rgt\" - @p0 WHERE \"rgt\" > @p1 AND \"root\" = @p2",
-            nodeWidth, node.Rgt, node.Root);
-
-        if (newPos > node.Rgt)
+        try
         {
-            newPos -= nodeWidth;
+            var nodeWidth = node.Rgt - node.Lft + 1;
+            var newPos = newParent.Rgt;
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"lft\" = -\"lft\", \"rgt\" = -\"rgt\" " +
+                "WHERE \"lft\" >= @p0 AND \"rgt\" <= @p1 AND \"root\" = @p2",
+                node.Lft, node.Rgt, node.Root);
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"lft\" = \"lft\" - @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2",
+                nodeWidth, node.Rgt, node.Root);
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"rgt\" = \"rgt\" - @p0 WHERE \"rgt\" > @p1 AND \"root\" = @p2",
+                nodeWidth, node.Rgt, node.Root);
+
+            if (newPos > node.Rgt)
+            {
+                newPos -= nodeWidth;
+            }
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"rgt\" = \"rgt\" + @p0 WHERE \"rgt\" >= @p1 AND \"root\" = @p2",
+                nodeWidth, newPos, newParent.Root);
+
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"lft\" = \"lft\" + @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2",
+                nodeWidth, newPos, newParent.Root);
+
+            var offset = newPos - node.Lft;
+            await context.Database.ExecuteSqlRawAsync(
+                "UPDATE \"group\" SET \"lft\" = -\"lft\" + @p0, \"rgt\" = -\"rgt\" + @p0, \"root\" = @p1 " +
+                "WHERE \"lft\" <= 0 AND \"root\" = @p2",
+                offset, newParent.Root, node.Root);
+
+            node.Parent = newParentId;
+            context.Group.Update(node);
+            await context.SaveChangesAsync();
+            Logger.LogInformation("Group with ID: {NodeId} moved successfully to new parent {NewParentId}.", nodeId, newParentId);
         }
-
-        await context.Database.ExecuteSqlRawAsync(
-            "UPDATE \"group\" SET \"rgt\" = \"rgt\" + @p0 WHERE \"rgt\" >= @p1 AND \"root\" = @p2",
-            nodeWidth, newPos, newParent.Root);
-
-        await context.Database.ExecuteSqlRawAsync(
-            "UPDATE \"group\" SET \"lft\" = \"lft\" + @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2",
-            nodeWidth, newPos, newParent.Root);
-
-        var offset = newPos - node.Lft;
-        await context.Database.ExecuteSqlRawAsync(
-            "UPDATE \"group\" SET \"lft\" = -\"lft\" + @p0, \"rgt\" = -\"rgt\" + @p0, \"root\" = @p1 " +
-            "WHERE \"lft\" <= 0 AND \"root\" = @p2",
-            offset, newParent.Root, node.Root);
-
-        node.Parent = newParentId;
-        context.Group.Update(node);
+        catch (DbUpdateException ex)
+        {
+            Logger.LogError(ex, "Failed to move group with ID: {NodeId} to new parent {NewParentId}. Database update error.", nodeId, newParentId);
+            throw new InvalidRequestException($"Failed to move group with ID {nodeId} to new parent {newParentId} due to a database error.");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An unexpected error occurred while moving group with ID: {NodeId} to new parent {NewParentId}.", nodeId, newParentId);
+            throw;
+        }
     }
 
-    public override async Task<Group?> Put(Group model)
+    public override async Task<Group> Put(Group model)
     {
-        var existingIds = await context.GroupItem
-            .Where(x => x.GroupId == model.Id && x.ClientId.HasValue)
-            .Select(x => x.ClientId!.Value)
-            .ToHashSetAsync();
-
-        var newIds = model.GroupItems
-            .Where(x => x.ClientId.HasValue)
-            .Select(x => x.ClientId!.Value)
-            .ToHashSet();
-
-        var itemsToDelete = await context.GroupItem
-            .Where(x => x.GroupId == model.Id &&
-                       x.ClientId.HasValue &&
-                       !newIds.Contains(x.ClientId.Value))
-            .ToListAsync();
-
-        if (itemsToDelete.Any())
+        Logger.LogInformation("Updating group with ID: {GroupId}", model.Id);
+        try
         {
-            context.GroupItem.RemoveRange(itemsToDelete);
-        }
+            var existingIds = await context.GroupItem
+                .Where(x => x.GroupId == model.Id && x.ClientId.HasValue)
+                .Select(x => x.ClientId!.Value)
+                .ToHashSetAsync();
 
-        var idsToAdd = newIds.Except(existingIds);
-        if (idsToAdd.Any())
-        {
-            var newItems = idsToAdd.Select(clientId => new GroupItem
+            var newIds = model.GroupItems
+                .Where(x => x.ClientId.HasValue)
+                .Select(x => x.ClientId!.Value)
+                .ToHashSet();
+
+            var itemsToDelete = await context.GroupItem
+                .Where(x => x.GroupId == model.Id &&
+                           x.ClientId.HasValue &&
+                           !newIds.Contains(x.ClientId.Value))
+                .ToListAsync();
+
+            if (itemsToDelete.Any())
             {
-                ClientId = clientId,
-                GroupId = model.Id
-            });
-
-            context.GroupItem.AddRange(newItems);
-        }
-
-        var existingGroup = await context.Group
-            .FirstOrDefaultAsync(x => x.Id == model.Id);
-
-        if (existingGroup == null)
-        {
-            throw new KeyNotFoundException($"Group with ID {model.Id} not found");
-        }
-
-        bool hierarchyChanged = existingGroup.Parent != model.Parent;
-
-        existingGroup.Name = model.Name;
-        existingGroup.Description = model.Description;
-        existingGroup.ValidFrom = model.ValidFrom;
-        existingGroup.ValidUntil = model.ValidUntil;
-
-        if (hierarchyChanged)
-        {
-            existingGroup.Parent = model.Parent;
-
-            if (model.Parent.HasValue)
-            {
-                await MoveNode(model.Id, model.Parent.Value);
+                context.GroupItem.RemoveRange(itemsToDelete);
             }
+
+            var idsToAdd = newIds.Except(existingIds);
+            if (idsToAdd.Any())
+            {
+                var newItems = idsToAdd.Select(clientId => new GroupItem
+                {
+                    ClientId = clientId,
+                    GroupId = model.Id
+                });
+
+                context.GroupItem.AddRange(newItems);
+            }
+
+            var existingGroup = await context.Group
+                .FirstOrDefaultAsync(x => x.Id == model.Id);
+
+            if (existingGroup == null)
+            {
+                Logger.LogWarning("Put: Group with ID {GroupId} not found for update.", model.Id);
+                throw new ValidationException($"Group with ID {model.Id} not found");
+            }
+
+            bool hierarchyChanged = existingGroup.Parent != model.Parent;
+
+            existingGroup.Name = model.Name;
+            existingGroup.Description = model.Description;
+            existingGroup.ValidFrom = model.ValidFrom;
+            existingGroup.ValidUntil = model.ValidUntil;
+
+            if (hierarchyChanged)
+            {
+                existingGroup.Parent = model.Parent;
+
+                if (model.Parent.HasValue)
+                {
+                    await MoveNode(model.Id, model.Parent.Value);
+                }
+            }
+
+            context.Group.Update(existingGroup);
+            await context.SaveChangesAsync();
+            Logger.LogInformation("Group with ID: {GroupId} updated successfully.", model.Id);
+            return model;
         }
-
-        context.Group.Update(existingGroup);
-
-        return model;
+        catch (DbUpdateException ex)
+        {
+            Logger.LogError(ex, "Failed to update group with ID: {GroupId}. Database update error.", model.Id);
+            throw new InvalidRequestException($"Failed to update group with ID {model.Id} due to a database error.");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An unexpected error occurred while updating group with ID: {GroupId}.", model.Id);
+            throw;
+        }
     }
 
     public async Task<TruncatedGroup> Truncated(GroupFilter filter)
@@ -428,6 +536,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
     public async Task RepairNestedSetValues()
     {
+        Logger.LogInformation("Starting RepairNestedSetValues.");
         try
         {
             var rootNodes = await context.Group
@@ -452,11 +561,17 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
                 context.Group.Update(rootNode);
             }
+            await context.SaveChangesAsync();
+            Logger.LogInformation("RepairNestedSetValues completed successfully.");
+        }
+        catch (DbUpdateException ex)
+        {
+            Logger.LogError(ex, "RepairNestedSetValues: Database update error.");
+            throw new InvalidRequestException("Failed to repair nested set values due to a database error.");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Fehler in RepairNestedSetValues: {ex.Message}");
-            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+            Logger.LogError(ex, "RepairNestedSetValues: An unexpected error occurred.");
             throw;
         }
     }

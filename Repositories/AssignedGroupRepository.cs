@@ -10,8 +10,8 @@ public class AssignedGroupRepository : BaseRepository<AssignedGroup>, IAssignedG
 {
     private readonly DataBaseContext context;
     private readonly IUserService userService;
-    public AssignedGroupRepository(DataBaseContext context, IUserService userService)
-        : base(context)
+    public AssignedGroupRepository(DataBaseContext context, IUserService userService, ILogger<AssignedGroup> logger)
+        : base(context, logger)
     {
         this.context = context;
         this.userService = userService;

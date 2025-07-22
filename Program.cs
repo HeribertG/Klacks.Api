@@ -162,9 +162,9 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 Console.WriteLine("Version {0}", new MyVersion().Get(true));
 
-Console.WriteLine("UpdateDatabase start");
-_ = new MyMigration(builder.Configuration, app.Services.GetRequiredService<ILoggerFactory>());
-Console.WriteLine("UpdateDatabase done");
+// Console.WriteLine("UpdateDatabase start");
+// _ = new MyMigration(builder.Configuration, app.Services.GetRequiredService<ILoggerFactory>());
+// Console.WriteLine("UpdateDatabase done");
 
 if (app.Environment.IsDevelopment())
 {
@@ -184,11 +184,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // global cors policy
-app.UseCors(x => x
-  .AllowAnyMethod()
-  .AllowAnyHeader()
-  .SetIsOriginAllowed(origin => true) // allow any origin
-  .AllowCredentials()); // allow credentials
+app.UseCors(myAllowSpecificOrigins);
 
 app.UseHttpsRedirection();
 

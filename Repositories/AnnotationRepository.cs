@@ -2,6 +2,7 @@ using Klacks.Api.Datas;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Staffs;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Repositories
 {
@@ -9,8 +10,8 @@ namespace Klacks.Api.Repositories
     {
         private readonly DataBaseContext context;
 
-        public AnnotationRepository(DataBaseContext context)
-            : base(context)
+        public AnnotationRepository(DataBaseContext context, ILogger<Annotation> logger)
+            : base(context, logger)
         {
             this.context = context;
         }
