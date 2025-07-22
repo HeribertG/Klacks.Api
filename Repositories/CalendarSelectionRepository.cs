@@ -3,6 +3,7 @@ using Klacks.Api.Exceptions;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.CalendarSelections;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace Klacks.Api.Repositories;
 
@@ -24,9 +25,9 @@ public class CalendarSelectionRepository : BaseRepository<CalendarSelection>, IC
                           .FirstOrDefaultAsync(c => c.Id == id);
 
         if (calendarSelection == null)
-        {
+        { 
             Logger.LogWarning("CalendarSelection with ID: {CalendarSelectionId} not found.", id);
-            throw new KeyNotFoundException($"CalendarSelection with ID {id} not found.");
+            throw new ValidationException($"CalendarSelection with ID {id} not found.");
         }
 
         Logger.LogInformation("CalendarSelection with ID: {CalendarSelectionId} found successfully.", id);
@@ -41,7 +42,7 @@ public class CalendarSelectionRepository : BaseRepository<CalendarSelection>, IC
         if (existingCalendarSelection == null)
         {
             Logger.LogWarning("Update: CalendarSelection with ID: {CalendarSelectionId} not found.", model.Id);
-            throw new KeyNotFoundException($"The requested CalendarSelections was not found. {model.Name}!");
+            throw new ValidationException($"The requested CalendarSelections was not found. {model.Name}!");
         }
 
         try

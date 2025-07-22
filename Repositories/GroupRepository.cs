@@ -4,6 +4,7 @@ using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Associations;
 using Klacks.Api.Resources.Filter;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace Klacks.Api.Repositories;
 
@@ -439,7 +440,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             if (existingGroup == null)
             {
                 Logger.LogWarning("Put: Group with ID {GroupId} not found for update.", model.Id);
-                throw new KeyNotFoundException($"Group with ID {model.Id} not found");
+                throw new ValidationException($"Group with ID {model.Id} not found");
             }
 
             bool hierarchyChanged = existingGroup.Parent != model.Parent;

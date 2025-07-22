@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Exceptions;
 
@@ -96,4 +95,3 @@ public class ValidationExceptionMiddleware
         }
     }
 }
-

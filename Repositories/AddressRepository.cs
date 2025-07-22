@@ -2,6 +2,7 @@ using Klacks.Api.Datas;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Staffs;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace Klacks.Api.Repositories;
 
@@ -27,7 +28,7 @@ public class AddressRepository : BaseRepository<Address>, IAddressRepository
         if (!addresses.Any())
         {
             Logger.LogWarning("SimpleList: No addresses found for client ID: {ClientId}.", id);
-            throw new KeyNotFoundException($"No addresses found for client ID: {id}.");
+            throw new ValidationException($"No addresses found for client ID: {id}.");
         }
 
         Logger.LogInformation("SimpleList: Retrieved {Count} addresses for client ID: {ClientId}.", addresses.Count, id);
@@ -41,7 +42,7 @@ public class AddressRepository : BaseRepository<Address>, IAddressRepository
         if (!addresses.Any())
         {
             Logger.LogWarning("ClientList: No addresses found for client ID: {ClientId}.", id);
-            throw new KeyNotFoundException($"No addresses found for client ID: {id}.");
+            throw new ValidationException($"No addresses found for client ID: {id}.");
         }
 
         Logger.LogInformation("ClientList: Retrieved {Count} addresses for client ID: {ClientId}.", addresses.Count, id);
