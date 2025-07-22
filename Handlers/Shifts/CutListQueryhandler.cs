@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Klacks.Api.Handlers.Shifts;
 
-public class CutListQueryhandler : IRequestHandler<CutListQuery, IEnumerable<ShiftResource>
+public class CutListQueryhandler : IRequestHandler<CutListQuery, IEnumerable<ShiftResource>>
 {
     private readonly IMapper mapper;
     private readonly IShiftRepository repository;

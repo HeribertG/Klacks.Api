@@ -38,7 +38,9 @@ public class ShiftsController : InputBaseController<ShiftResource>
     [HttpGet("CutList/{id}")]
     public async Task<IEnumerable<ShiftResource>> GetCutList(Guid id)
     {
-
+        logger.LogInformation($"Fetching cut shift list with id: {id}");
+        var truncatedShifts = await mediator.Send(new CutListQuery(id));
+        logger.LogInformation($"Retrieved {id}  cut shift list.");
+        return truncatedShifts;
     }
-
 }
