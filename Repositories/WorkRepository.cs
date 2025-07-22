@@ -8,8 +8,8 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 {
     private readonly DataBaseContext context;
 
-    public WorkRepository(DataBaseContext context)
-        : base(context)
+    public WorkRepository(DataBaseContext context, ILogger<Work> logger)
+        : base(context, logger)
     {
         this.context = context;
     }

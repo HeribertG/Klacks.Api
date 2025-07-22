@@ -1,17 +1,20 @@
 using Klacks.Api.Datas;
 using Klacks.Api.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Repositories
 {
     public class BaseRepository<TEntity> : IBaseRepository<TEntity>
         where TEntity : BaseEntity
     {
+        protected readonly ILogger<TEntity> Logger;
         private readonly DataBaseContext context;
 
-        public BaseRepository(DataBaseContext context)
+        public BaseRepository(DataBaseContext context, ILogger<TEntity> logger)
         {
             this.context = context;
+            this.Logger = logger;
         }
 
         public virtual async Task Add(TEntity model)

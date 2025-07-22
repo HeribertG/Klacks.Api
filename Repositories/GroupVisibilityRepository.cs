@@ -10,8 +10,8 @@ public class GroupVisibilityRepository : BaseRepository<GroupVisibility>, IGroup
     private readonly DataBaseContext context;
     private readonly IGroupVisibilityService groupVisibility;
 
-    public GroupVisibilityRepository(DataBaseContext context, IGroupVisibilityService groupVisibility)
-      : base(context)
+    public GroupVisibilityRepository(DataBaseContext context, IGroupVisibilityService groupVisibility, ILogger<GroupVisibility> logger)
+      : base(context, logger)
     {
         this.context = context;
         this.groupVisibility = groupVisibility;

@@ -11,8 +11,8 @@ public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
 {
     private readonly DataBaseContext context;
 
-    public AbsenceRepository(DataBaseContext context)
-        : base(context)
+    public AbsenceRepository(DataBaseContext context, ILogger<Absence> logger)
+        : base(context, logger)
     {
         this.context = context;
     }

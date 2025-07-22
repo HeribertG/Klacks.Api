@@ -8,8 +8,8 @@ namespace Klacks.Api.Repositories
     {
         private readonly DataBaseContext context;
 
-        public StateRepository(DataBaseContext context)
-            : base(context)
+        public StateRepository(DataBaseContext context, ILogger<State> logger)
+            : base(context, logger)
         {
             this.context = context;
         }

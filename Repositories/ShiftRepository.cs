@@ -6,6 +6,7 @@ using Klacks.Api.Models.Associations;
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Resources.Filter;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace Klacks.Api.Repositories;
@@ -14,14 +15,15 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 {
     private readonly DataBaseContext context;
 
-    public ShiftRepository(DataBaseContext context)
-        : base(context)
+    public ShiftRepository(DataBaseContext context, ILogger<Shift> logger)
+        : base(context, logger)
     {
         this.context = context;
     }
 
     public new async Task<Shift?> Get(Guid id)
     {
+        Logger.LogInformation("Fetching shift with ID: {ShiftId}", id);
         var shift = await context.Shift
             .Where(x => x.Id == id)
             .Include(x => x.Client)
@@ -32,6 +34,11 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         if (shift != null)
         {
             shift.Groups = await GetGroupsForShift(id);
+            Logger.LogInformation("Shift with ID: {ShiftId} found.", id);
+        }
+        else
+        {
+            Logger.LogWarning("Shift with ID: {ShiftId} not found.", id);
         }
 
         return shift;

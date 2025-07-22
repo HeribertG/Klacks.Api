@@ -11,8 +11,8 @@ namespace Klacks.Api.Repositories
     {
         private readonly DataBaseContext context;
 
-        public CommunicationRepository(DataBaseContext context)
-          : base(context)
+        public CommunicationRepository(DataBaseContext context, ILogger<Communication> logger)
+          : base(context, logger)
         {
             this.context = context;
         }

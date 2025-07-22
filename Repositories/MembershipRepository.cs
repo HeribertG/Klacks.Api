@@ -8,8 +8,8 @@ namespace Klacks.Api.Repositories
     {
         private readonly DataBaseContext context;
 
-        public MembershipRepository(DataBaseContext context)
-          : base(context)
+        public MembershipRepository(DataBaseContext context, ILogger<Membership> logger)
+          : base(context, logger)
         {
             this.context = context;
         }

@@ -8,8 +8,8 @@ namespace Klacks.Api.Repositories
     {
         private readonly DataBaseContext context;
 
-        public SelectedCalendarRepository(DataBaseContext context)
-          : base(context)
+        public SelectedCalendarRepository(DataBaseContext context, ILogger<SelectedCalendar> logger)
+          : base(context, logger)
         {
             this.context = context;
         }

@@ -9,8 +9,8 @@ namespace Klacks.Api.Repositories
     {
         private readonly DataBaseContext context;
 
-        public BreakRepository(DataBaseContext context)
-          : base(context)
+        public BreakRepository(DataBaseContext context, ILogger<Break> logger)
+          : base(context, logger)
         {
             this.context = context;
         }

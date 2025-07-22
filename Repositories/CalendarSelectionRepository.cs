@@ -9,8 +9,8 @@ public class CalendarSelectionRepository : BaseRepository<CalendarSelection>, IC
 {
     private readonly DataBaseContext context;
 
-    public CalendarSelectionRepository(DataBaseContext context)
-      : base(context)
+    public CalendarSelectionRepository(DataBaseContext context, ILogger<CalendarSelection> logger)
+      : base(context, logger)
     {
         this.context = context;
     }
