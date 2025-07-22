@@ -1,4 +1,5 @@
 ﻿using Klacks.Api.Datas;
+using Klacks.Api.Exceptions;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Associations;
 using Microsoft.EntityFrameworkCore;
@@ -35,9 +36,25 @@ public class GroupVisibilityRepository : BaseRepository<GroupVisibility>, IGroup
 
     public async Task SetGroupVisibilityList(List<GroupVisibility> list)
     {
-        var existingGroupVisibilities = await context.GroupVisibility.ToListAsync();
-        context.GroupVisibility.RemoveRange(existingGroupVisibilities);
+        Logger.LogInformation("Setting group visibility list with {Count} entries.", list.Count);
+        try
+        {
+            var existingGroupVisibilities = await context.GroupVisibility.ToListAsync();
+            context.GroupVisibility.RemoveRange(existingGroupVisibilities);
 
-        context.GroupVisibility.AddRange(list);
+            context.GroupVisibility.AddRange(list);
+            await context.SaveChangesAsync();
+            Logger.LogInformation("Group visibility list updated successfully.");
+        }
+        catch (DbUpdateException ex)
+        {
+            Logger.LogError(ex, "Failed to set group visibility list. Database update error.");
+            throw new InvalidRequestException("Failed to set group visibility list due to a database error.");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An unexpected error occurred while setting group visibility list.");
+            throw;
+        }
     }
 }

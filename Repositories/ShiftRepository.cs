@@ -6,7 +6,6 @@ using Klacks.Api.Models.Associations;
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Resources.Filter;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace Klacks.Api.Repositories;
@@ -308,17 +307,34 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     public async Task UpdateGroupItems(Guid shiftId, List<Guid> actualGroupIds)
     {
-        var existingIds = await context.GroupItem
-        .Where(gi => gi.GroupId == shiftId)
-        .Select(x => x.Id)
-        .ToListAsync();
+        Logger.LogInformation("Updating group items for shift ID: {ShiftId}", shiftId);
+        try
+        {
+            var existingIds = await context.GroupItem
+            .Where(gi => gi.GroupId == shiftId)
+            .Select(x => x.Id)
+            .ToListAsync();
 
-        var newGroupIds = actualGroupIds.Where(x => !existingIds.Contains(x)).ToArray();
-        var deleteGroupItems = await context.GroupItem.Where(gi => gi.GroupId == shiftId && !actualGroupIds.Contains(gi.GroupId)).ToArrayAsync();
-        var newGroupItems = newGroupIds.Select(x => new GroupItem { ShiftId = shiftId, GroupId = x }).ToArray();
+            var newGroupIds = actualGroupIds.Where(x => !existingIds.Contains(x)).ToArray();
+            var deleteGroupItems = await context.GroupItem.Where(gi => gi.GroupId == shiftId && !actualGroupIds.Contains(gi.GroupId)).ToArrayAsync();
+            var newGroupItems = newGroupIds.Select(x => new GroupItem { ShiftId = shiftId, GroupId = x }).ToArray();
 
-        context.GroupItem.RemoveRange(deleteGroupItems);
-        context.GroupItem.AddRange(newGroupItems);
+            context.GroupItem.RemoveRange(deleteGroupItems);
+            context.GroupItem.AddRange(newGroupItems);
+
+            await context.SaveChangesAsync();
+            Logger.LogInformation("Group items for shift ID: {ShiftId} updated successfully.", shiftId);
+        }
+        catch (DbUpdateException ex)
+        {
+            Logger.LogError(ex, "Failed to update group items for shift ID: {ShiftId}.", shiftId);
+            throw new DbUpdateException($"Failed to update group items for shift ID: {shiftId}.", ex);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An unexpected error occurred while updating group items for shift ID: {ShiftId}.", shiftId);
+            throw;
+        }
     }
 
     private async Task<List<Group>> GetGroupsForShift(Guid shiftId)
