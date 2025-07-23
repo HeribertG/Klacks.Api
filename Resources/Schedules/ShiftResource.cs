@@ -23,6 +23,10 @@ namespace Klacks.Api.Resources.Schedules
         // All Shift cuts are based on this root
         public Guid? RootId { get; set; }
 
+        public int? Lft { get; set; }
+
+        public int? Rgt { get; set; }
+
         public Guid? OriginalId { get; set; }
 
         public ShiftStatus Status { get; set; }

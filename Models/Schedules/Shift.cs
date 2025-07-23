@@ -98,6 +98,10 @@ public class Shift : BaseEntity
 
     public Guid? RootId { get; set; } // All Shift cuts are based on this root
 
+    public int? Lft { get; set; }
+
+    public int? Rgt { get; set; }
+
     #endregion relation
 
     #region Client

@@ -215,6 +215,7 @@ public class MappingProfile : Profile
          ;
          
         CreateMap<SimpleGroupResource, Group>()
+             .ForMember(dest => dest.Parent, opt => opt.Ignore())
             .ForMember(dest => dest.GroupItems, opt => opt.Ignore())
             .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
             .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
