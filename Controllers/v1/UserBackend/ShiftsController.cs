@@ -1,3 +1,4 @@
+using Klacks.Api.Commands.Shifts;
 using Klacks.Api.Queries.Shifts;
 using Klacks.Api.Resources.Filter;
 using Klacks.Api.Resources.Schedules;
@@ -42,5 +43,39 @@ public class ShiftsController : InputBaseController<ShiftResource>
         var truncatedShifts = await Mediator.Send(new CutListQuery(id));
         logger.LogInformation($"Retrieved {id}  cut shift list.");
         return truncatedShifts;
+    }
+
+    [HttpPost("Cuts")]
+    public async Task<ActionResult<List<ShiftResource>>> PostCuts([FromBody] List<ShiftResource> cuts)
+    {
+        try
+        {
+            logger.LogInformation($"Creating {cuts.Count} cut shifts");
+            var createdCuts = await Mediator.Send(new PostCutsCommand(cuts));
+            logger.LogInformation($"Successfully created {createdCuts.Count} cut shifts");
+            return Ok(createdCuts);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error occurred while creating cut shifts.");
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
+    [HttpPut("Cuts")]
+    public async Task<ActionResult<List<ShiftResource>>> PutCuts([FromBody] List<ShiftResource> cuts)
+    {
+        try
+        {
+            logger.LogInformation($"Updating {cuts.Count} cut shifts");
+            var updatedCuts = await Mediator.Send(new PutCutsCommand(cuts));
+            logger.LogInformation($"Successfully updated {updatedCuts.Count} cut shifts");
+            return Ok(updatedCuts);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error occurred while updating cut shifts.");
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
 }
