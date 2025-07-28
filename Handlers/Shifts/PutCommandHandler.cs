@@ -76,7 +76,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<ShiftResource>, Shif
         {
                  var originalId = shift.Id;
             
-            var newShift = CreateShiftCopy(shift, originalId, originalId,1,2, ShiftStatus.IsCutOriginal);
+            var newShift = CreateShiftCopy(shift, originalId, ShiftStatus.IsCutOriginal);
                         
             shift.Status = ShiftStatus.ReadyToCut;
             await Store(shift, groupIdList);
@@ -92,11 +92,13 @@ public class PutCommandHandler : IRequestHandler<PutCommand<ShiftResource>, Shif
         }
     }
 
-    private Shift CreateShiftCopy(Shift originalShift, Guid originalId, Guid rootId,int lft, int rgt, ShiftStatus status)
+    private Shift CreateShiftCopy(Shift originalShift, Guid originalId,  ShiftStatus status)
     {
+        var newGuid = Guid.NewGuid();
+
         return new Shift
         {
-            Id = Guid.NewGuid(),
+            Id = newGuid,
             Name = originalShift.Name,
             Description = originalShift.Description,
             Abbreviation = originalShift.Abbreviation,
@@ -130,10 +132,9 @@ public class PutCommandHandler : IRequestHandler<PutCommand<ShiftResource>, Shif
             TravelTimeBefore = originalShift.TravelTimeBefore,
             CuttingAfterMidnight = originalShift.CuttingAfterMidnight,
             OriginalId = originalId,
-            ParentId = rootId,
-            RootId = rootId,
-            Lft=lft,
-            Rgt=rgt,
+            RootId = newGuid,
+            Lft=1,
+            Rgt=2,
             Status = status,  
         };
     }

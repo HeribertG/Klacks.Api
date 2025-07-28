@@ -44,19 +44,8 @@ public class PutCutsCommandHandler(
 
                 var groupIdList = cutResource.Groups.Select(x => x.Id).ToList();
                 cutResource.Groups.Clear();
-                        var originalLft = existingShift.Lft;
-                var originalRgt = existingShift.Rgt;
-                var originalParentId = existingShift.ParentId;
-                var originalRootId = existingShift.RootId;
-                var originalOriginalId = existingShift.OriginalId;
-
+               
                 mapper.Map(cutResource, existingShift);
-
-                existingShift.Lft = originalLft;
-                existingShift.Rgt = originalRgt;
-                existingShift.ParentId = originalParentId;
-                existingShift.RootId = originalRootId;
-                existingShift.OriginalId = originalOriginalId;
                 
                 existingShift.Status = ShiftStatus.IsCut;
 
