@@ -50,7 +50,24 @@ public class PutCutsCommandHandler(
                 var groupIdList = cutResource.Groups.Select(x => x.Id).ToList();
                 cutResource.Groups.Clear();
 
+                // Bewahre die Nested Set Werte vor dem Mapping
+                var originalLft = existingShift.Lft;
+                var originalRgt = existingShift.Rgt;
+                var originalParentId = existingShift.ParentId;
+                var originalRootId = existingShift.RootId;
+                var originalOriginalId = existingShift.OriginalId;
+
                 mapper.Map(cutResource, existingShift);
+
+                // Stelle die Nested Set Werte wieder her (diese dürfen bei Updates nicht geändert werden)
+                existingShift.Lft = originalLft;
+                existingShift.Rgt = originalRgt;
+                existingShift.ParentId = originalParentId;
+                existingShift.RootId = originalRootId;
+                existingShift.OriginalId = originalOriginalId;
+                
+                // Stelle auch sicher, dass der Status IsCut bleibt
+                existingShift.Status = ShiftStatus.IsCut;
 
                 await repository.Put(existingShift);
                 await repository.UpdateGroupItems(existingShift.Id, groupIdList);

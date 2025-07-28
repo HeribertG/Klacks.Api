@@ -36,10 +36,21 @@ public class PostCutsCommandHandler(
                     throw new InvalidRequestException($"Shift {cutResource.Id} must have status IsCut. Current status: {cutResource.Status}");
                 }
 
+                if (cutResource.OriginalId == null)
+                {
+                    throw new InvalidRequestException($"Cut shift {cutResource.Id} must have an OriginalId.");
+                }
+
                 var groupIdList = cutResource.Groups.Select(x => x.Id).ToList();
                 cutResource.Groups.Clear();
 
                 var shift = mapper.Map<ShiftResource, Shift>(cutResource);
+
+                // Stelle sicher, dass OriginalId gesetzt ist für die Nested Set Berechnung
+                if (shift.OriginalId == null)
+                {
+                    throw new InvalidRequestException($"Mapped shift must have an OriginalId for cut operations.");
+                }
 
                 await repository.Add(shift);
                 await repository.UpdateGroupItems(shift.Id, groupIdList);
