@@ -46,7 +46,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     public async Task<List<Shift>> CutList(Guid id)
     {
-        return await context.Shift.Where(x => x.OriginalId == id && x.Status == ShiftStatus.IsCut).AsNoTracking().ToListAsync();
+        return await context.Shift.Where(x => x.OriginalId == id && x.Status >= ShiftStatus.IsCutOriginal).AsNoTracking().ToListAsync();
     }
 
     public async Task<TruncatedShift> Truncated(ShiftFilter filter)
@@ -325,9 +325,16 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             var deleteGroupItems = await context.GroupItem.Where(gi => gi.GroupId == shiftId && !actualGroupIds.Contains(gi.GroupId)).ToArrayAsync();
             var newGroupItems = newGroupIds.Select(x => new GroupItem { ShiftId = shiftId, GroupId = x }).ToArray();
 
-            context.GroupItem.RemoveRange(deleteGroupItems);
-            context.GroupItem.AddRange(newGroupItems);
+            if (deleteGroupItems.Any())
+            {
+                context.GroupItem.RemoveRange(deleteGroupItems);
+            }
 
+            if (newGroupItems.Any())
+            {
+                context.GroupItem.AddRange(newGroupItems);
+            }
+               
             await context.SaveChangesAsync();
             Logger.LogInformation("Group items for shift ID: {ShiftId} updated successfully.", shiftId);
         }
@@ -352,139 +359,5 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .ToListAsync();
 
         return groups;
-    }
-
-    /// <summary>
-    /// Adds a new Original Shift with proper Nested Set Model values
-    /// </summary>
-    public async Task<Shift> AddOriginalShift(Shift newShift)
-    {
-        Logger.LogInformation("Adding new original shift: {ShiftName}", newShift.Name);
-        try
-        {
-            // Find the maximum rgt value among all root shifts (status: Original, no OriginalId)
-            var maxRgt = await context.Shift
-                .Where(s => s.Status == ShiftStatus.Original && s.OriginalId == null)
-                .OrderByDescending(s => s.Rgt)
-                .Select(s => (int?)s.Rgt)
-                .FirstOrDefaultAsync() ?? 0;
-
-            // Set Nested Set values for the new original shift
-            newShift.Lft = maxRgt + 1;
-            newShift.Rgt = maxRgt + 2;
-            newShift.ParentId = null;
-            newShift.RootId = null;  // Will be set to own ID after creation
-            // OriginalId nur bei Original Status auf null setzen
-            if (newShift.Status == ShiftStatus.Original)
-            {
-                newShift.OriginalId = null;
-            }
-
-            context.Shift.Add(newShift);
-            
-            // After saving, set RootId to own ID
-            await context.SaveChangesAsync();
-            newShift.RootId = newShift.Id;
-            
-            await context.SaveChangesAsync();
-            
-            Logger.LogInformation("Original shift {ShiftName} added successfully with lft={Lft}, rgt={Rgt}.", newShift.Name, newShift.Lft, newShift.Rgt);
-            return newShift;
-        }
-        catch (DbUpdateException ex)
-        {
-            Logger.LogError(ex, "Failed to add original shift {ShiftName}. Database update error.", newShift.Name);
-            throw new InvalidRequestException($"Failed to add original shift {newShift.Name} due to a database error.");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "An unexpected error occurred while adding original shift {ShiftName}.", newShift.Name);
-            throw;
-        }
-    }
-
-    /// <summary>
-    /// Adds a new Cut Shift as child of an Original Shift with proper Nested Set Model values
-    /// </summary>
-    public async Task<Shift> AddCutShift(Shift newCutShift, Guid originalShiftId)
-    {
-        Logger.LogInformation("Adding cut shift to original shift {OriginalShiftId} for new shift {ShiftName}", originalShiftId, newCutShift.Name);
-        
-        var originalShift = await context.Shift
-            .Where(s => s.Id == originalShiftId)
-            .FirstOrDefaultAsync();
-
-        if (originalShift == null)
-        {
-            Logger.LogWarning("Original shift with ID {OriginalShiftId} not found.", originalShiftId);
-            throw new KeyNotFoundException($"Original shift with ID {originalShiftId} not found");
-        }
-
-        try
-        {
-            // Update all shifts that are affected by the insertion
-            await context.Database.ExecuteSqlRawAsync(
-                "UPDATE \"shift\" SET \"rgt\" = \"rgt\" + 2 WHERE \"rgt\" >= @p0 AND (\"root_id\" = @p1 OR \"id\" = @p1) AND \"is_deleted\" = false",
-                originalShift.Rgt, originalShift.RootId ?? originalShift.Id);
-
-            await context.Database.ExecuteSqlRawAsync(
-                "UPDATE \"shift\" SET \"lft\" = \"lft\" + 2 WHERE \"lft\" > @p0 AND (\"root_id\" = @p1 OR \"id\" = @p1) AND \"is_deleted\" = false",
-                originalShift.Rgt, originalShift.RootId ?? originalShift.Id);
-
-            // Set Nested Set values for the new cut shift
-            newCutShift.Lft = originalShift.Rgt;
-            newCutShift.Rgt = originalShift.Rgt + 1;
-            newCutShift.ParentId = originalShift.Id;
-            newCutShift.RootId = originalShift.RootId ?? originalShift.Id;
-            newCutShift.OriginalId = originalShift.Id;
-            newCutShift.Status = ShiftStatus.IsCut;
-
-            context.Shift.Add(newCutShift);
-            await context.SaveChangesAsync();
-            Logger.LogInformation("Cut shift {ShiftName} added successfully to original shift {OriginalShiftId} with lft={Lft}, rgt={Rgt}.", newCutShift.Name, originalShiftId, newCutShift.Lft, newCutShift.Rgt);
-            return newCutShift;
-        }
-        catch (DbUpdateException ex)
-        {
-            Logger.LogError(ex, "Failed to add cut shift {ShiftName} to original shift {OriginalShiftId}. Database update error.", newCutShift.Name, originalShiftId);
-            throw new InvalidRequestException($"Failed to add cut shift {newCutShift.Name} to original shift {originalShiftId} due to a database error.");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "An unexpected error occurred while adding cut shift {ShiftName} to original shift {OriginalShiftId}.", newCutShift.Name, originalShiftId);
-            throw;
-        }
-    }
-
-    /// <summary>
-    /// Override Add method to automatically handle Nested Set Model based on ShiftStatus
-    /// </summary>
-    public override async Task Add(Shift entity)
-    {
-        if (entity.Status == ShiftStatus.Original && entity.OriginalId == null)
-        {
-            // This is a new Original Shift (root shift)
-            await AddOriginalShift(entity);
-        }
-        else if (entity.Status == ShiftStatus.IsCut && entity.OriginalId != null)
-        {
-            // This is a Cut Shift
-            await AddCutShift(entity, entity.OriginalId.Value);
-        }
-        else if ((entity.Status == ShiftStatus.IsCutOriginal || entity.Status == ShiftStatus.ReadyToCut) && entity.OriginalId != null)
-        {
-            // This is a Cut-based Shift with OriginalId - use standard Add to preserve OriginalId
-            await base.Add(entity);
-        }
-        else if ((entity.Status == ShiftStatus.IsCutOriginal || entity.Status == ShiftStatus.ReadyToCut) && entity.OriginalId == null)
-        {
-            // This is a root Cut-based Shift - treat as original for Nested Set
-            await AddOriginalShift(entity);
-        }
-        else
-        {
-            // Für alle anderen Fälle, verwende die Standard Add Methode
-            await base.Add(entity);
-        }
     }
 }

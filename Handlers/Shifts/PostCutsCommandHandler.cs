@@ -46,7 +46,6 @@ public class PostCutsCommandHandler(
 
                 var shift = mapper.Map<ShiftResource, Shift>(cutResource);
 
-                // Stelle sicher, dass OriginalId gesetzt ist für die Nested Set Berechnung
                 if (shift.OriginalId == null)
                 {
                     throw new InvalidRequestException($"Mapped shift must have an OriginalId for cut operations.");

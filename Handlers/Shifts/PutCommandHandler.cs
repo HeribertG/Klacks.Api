@@ -4,6 +4,7 @@ using Klacks.Api.Datas;
 using Klacks.Api.Enums;
 using Klacks.Api.Exceptions;
 using Klacks.Api.Interfaces;
+using Klacks.Api.Migrations;
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Resources.Schedules;
 using MediatR;
@@ -46,9 +47,12 @@ public class PutCommandHandler : IRequestHandler<PutCommand<ShiftResource>, Shif
 
             request.Resource.Groups.Clear();
 
+            var oldStatus = dbShift.Status;
+            var newStatus = request.Resource.Status;
+
             var updatedShift = mapper.Map(request.Resource, dbShift);
 
-            await StoreInRepostitory(updatedShift, idList);
+            await StoreInRepostitory(updatedShift, idList, oldStatus, newStatus);
 
             await unitOfWork.CommitTransactionAsync(transaction);
 
@@ -66,30 +70,72 @@ public class PutCommandHandler : IRequestHandler<PutCommand<ShiftResource>, Shif
         }
     }
 
-    private async Task StoreInRepostitory(Shift shift, List<Guid> groupIdList)
-    {
-        var shiftStatus = shift.Status;
-
-        switch (shiftStatus)
+    private async Task StoreInRepostitory(Shift shift, List<Guid> groupIdList, ShiftStatus oldStatus, ShiftStatus newStatus)
+    { 
+        if (oldStatus == ShiftStatus.Original && newStatus == ShiftStatus.ReadyToCut)
         {
-            case ShiftStatus.IsCut:
-            case ShiftStatus.Original:
-                await Store(shift, groupIdList);
-                break;
+                 var originalId = shift.Id;
             
-            case ShiftStatus.IsCutOriginal:
-                throw new InvalidRequestException("This service may not be saved due to its status!");
-            case ShiftStatus.ReadyToCut:
-                shift.Status = ShiftStatus.IsCutOriginal;
-                await Store(shift, groupIdList);
-                await unitOfWork.CompleteAsync();
-                shift.OriginalId = shift.Id;
-                shift.Id = Guid.Empty;
-                shift.Status = ShiftStatus.IsCut;
-                await StorePost(shift, groupIdList);
-                await unitOfWork.CompleteAsync();
-                break;
+            var newShift = CreateShiftCopy(shift, originalId, originalId,1,2, ShiftStatus.IsCutOriginal);
+                        
+            shift.Status = ShiftStatus.ReadyToCut;
+            await Store(shift, groupIdList);
+            await unitOfWork.CompleteAsync();
+            
+            await repository.Add(newShift);
+            await repository.UpdateGroupItems(newShift.Id, groupIdList);
+            await unitOfWork.CompleteAsync();
         }
+        else
+        {
+            await Store(shift, groupIdList);
+        }
+    }
+
+    private Shift CreateShiftCopy(Shift originalShift, Guid originalId, Guid rootId,int lft, int rgt, ShiftStatus status)
+    {
+        return new Shift
+        {
+            Id = Guid.NewGuid(),
+            Name = originalShift.Name,
+            Description = originalShift.Description,
+            Abbreviation = originalShift.Abbreviation,
+            FromDate = originalShift.FromDate,
+            UntilDate = originalShift.UntilDate,
+            StartShift = originalShift.StartShift,
+            EndShift = originalShift.EndShift,
+            BeforeShift = originalShift.BeforeShift,
+            AfterShift = originalShift.AfterShift,
+            WorkTime = originalShift.WorkTime,
+            Quantity = originalShift.Quantity,
+            SumEmployees = originalShift.SumEmployees,
+            IsMonday = originalShift.IsMonday,
+            IsTuesday = originalShift.IsTuesday,
+            IsWednesday = originalShift.IsWednesday,
+            IsThursday = originalShift.IsThursday,
+            IsFriday = originalShift.IsFriday,
+            IsSaturday = originalShift.IsSaturday,
+            IsSunday = originalShift.IsSunday,
+            IsHoliday = originalShift.IsHoliday,
+            IsWeekdayOrHoliday = originalShift.IsWeekdayOrHoliday,
+            ClientId = originalShift.ClientId,
+            MacroId = originalShift.MacroId,
+            IsSporadic = originalShift.IsSporadic,
+            SporadicScope = originalShift.SporadicScope,
+            IsTimeRange = originalShift.IsTimeRange,
+            ShiftType = originalShift.ShiftType,
+            BriefingTime = originalShift.BriefingTime,
+            DebriefingTime = originalShift.DebriefingTime,
+            TravelTimeAfter = originalShift.TravelTimeAfter,
+            TravelTimeBefore = originalShift.TravelTimeBefore,
+            CuttingAfterMidnight = originalShift.CuttingAfterMidnight,
+            OriginalId = originalId,
+            ParentId = rootId,
+            RootId = rootId,
+            Lft=lft,
+            Rgt=rgt,
+            Status = status,  
+        };
     }
 
     private async Task Store(Shift shift, List<Guid> groupIdList)

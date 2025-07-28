@@ -42,16 +42,9 @@ public class PutCutsCommandHandler(
                     throw new InvalidRequestException($"Shift with ID {cutResource.Id} not found.");
                 }
 
-                if (existingShift.Status != ShiftStatus.IsCut)
-                {
-                    throw new InvalidRequestException($"Existing shift {cutResource.Id} must have status IsCut. Current status: {existingShift.Status}");
-                }
-
                 var groupIdList = cutResource.Groups.Select(x => x.Id).ToList();
                 cutResource.Groups.Clear();
-
-                // Bewahre die Nested Set Werte vor dem Mapping
-                var originalLft = existingShift.Lft;
+                        var originalLft = existingShift.Lft;
                 var originalRgt = existingShift.Rgt;
                 var originalParentId = existingShift.ParentId;
                 var originalRootId = existingShift.RootId;
@@ -59,14 +52,12 @@ public class PutCutsCommandHandler(
 
                 mapper.Map(cutResource, existingShift);
 
-                // Stelle die Nested Set Werte wieder her (diese dürfen bei Updates nicht geändert werden)
                 existingShift.Lft = originalLft;
                 existingShift.Rgt = originalRgt;
                 existingShift.ParentId = originalParentId;
                 existingShift.RootId = originalRootId;
                 existingShift.OriginalId = originalOriginalId;
                 
-                // Stelle auch sicher, dass der Status IsCut bleibt
                 existingShift.Status = ShiftStatus.IsCut;
 
                 await repository.Put(existingShift);
