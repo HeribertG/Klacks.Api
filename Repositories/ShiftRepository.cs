@@ -46,7 +46,24 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     public async Task<List<Shift>> CutList(Guid id)
     {
-        return await context.Shift.Where(x => x.OriginalId == id && x.Status == ShiftStatus.IsCut).AsNoTracking().ToListAsync();
+           var startingShift = await context.Shift
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s => s.Id == id);
+   
+           if (startingShift == null)
+        {
+            return new List<Shift>();
+        }
+  
+        var rootId = startingShift.RootId ?? startingShift.Id;
+   
+        var entireHierarchy = await context.Shift
+            .Where(s => s.RootId == rootId || s.Id == rootId)
+            .OrderBy(s => s.Lft) 
+            .AsNoTracking()
+            .ToListAsync();
+   
+        return entireHierarchy;
     }
 
     public async Task<TruncatedShift> Truncated(ShiftFilter filter)
