@@ -46,7 +46,15 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     public async Task<List<Shift>> CutList(Guid id)
     {
-        return await context.Shift.Where(x => x.OriginalId == id && x.Status >= ShiftStatus.IsCutOriginal).AsNoTracking().ToListAsync();
+        var result= await context.Shift
+            .Where(x => x.OriginalId == id && x.Status >= ShiftStatus.IsCutOriginal)
+            .OrderBy(x => x.Lft)
+            .ThenBy(x=> x.FromDate)
+            .ThenBy(x=> x.StartShift)
+            .AsNoTracking()
+            .ToListAsync();
+
+        return result;
     }
 
     public async Task<TruncatedShift> Truncated(ShiftFilter filter)
@@ -108,8 +116,12 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     public IQueryable<Shift> FilterShift(ShiftFilter filter)
     {
-        var tmp = context.Shift.AsNoTracking()
-                               .AsQueryable();
+        var tmp = context.Shift
+            .OrderBy(x => x.OriginalId)
+            .ThenBy(x=> x.FromDate)
+            .ThenBy(x=> x.StartShift)
+            .AsNoTracking()
+            .AsQueryable();
 
         if (filter.IncludeClientName)
         {
@@ -119,7 +131,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         tmp = FilterByStatus(filter.IsOriginal, tmp);
         tmp = FilterByDateRange(filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange, tmp);
         tmp = FilterBySearchString(filter.SearchString, filter.IncludeClientName, tmp);
-        tmp = Sort(filter.OrderBy, filter.SortOrder, tmp);
+        //tmp = Sort(filter.OrderBy, filter.SortOrder, tmp);
 
         return tmp;
     }

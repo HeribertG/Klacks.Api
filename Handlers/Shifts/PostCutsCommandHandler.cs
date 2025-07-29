@@ -29,7 +29,7 @@ public class PostCutsCommandHandler(
 
             var createdShifts = new List<Shift>();
 
-            foreach (var cutResource in request.Cuts)
+            foreach (var cutResource in request.Cuts)     
             {
                 if (cutResource.Status != ShiftStatus.IsCut)
                 {
