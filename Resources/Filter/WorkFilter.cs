@@ -4,6 +4,10 @@ namespace Klacks.Api.Resources.Filter;
 
 public class WorkFilter
 {
+    public int DayVisibleBeforeMonth { get; set; }
+
+    public int DayVisibleAfterMonth { get; set; }
+
     public int CurrentMonth { get; set; }
 
     public int CurrentYear { get; set; }

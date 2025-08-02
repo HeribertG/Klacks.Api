@@ -3,7 +3,6 @@ namespace Klacks.Api.Enums;
 public enum MacroTypeEnum
 {
     defaultResult = 1,
-
     info = 5,
     filter = 8000
 }

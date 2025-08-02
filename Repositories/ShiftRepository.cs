@@ -1,6 +1,6 @@
 using Klacks.Api.Datas;
 using Klacks.Api.Enums;
-using Klacks.Api.Exceptions;
+using Klacks.Api.Extensions;
 using Klacks.Api.Helper;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Associations;
@@ -56,7 +56,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
         return result;
     }
-
+      
     public async Task<TruncatedShift> Truncated(ShiftFilter filter)
     {
         var tmp = FilterShift(filter);
@@ -372,4 +372,84 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
         return groups;
     }
+
+    #region Missing ShiftCollection Methods
+
+    public async Task<List<Shift>> ScheduleShiftList(ShiftScheduleFilter filter)
+    {
+        var tmp = GetShiftForScheduleClean(filter);
+        return await tmp.ToListAsync();
+    }
+
+    private IQueryable<Shift> GetShiftForScheduleClean(ShiftScheduleFilter filter)
+    {
+        var (startDate, endDate) = GetDateRange(filter);
+
+        return this.context.Shift.Where(b =>
+            (b.FromDate >= startDate && b.FromDate <= endDate) ||
+            (b.UntilDate >= startDate && b.UntilDate <= endDate) ||
+            (b.FromDate <= startDate && b.UntilDate >= endDate))
+            .OrderBy(b => b.FromDate).ThenBy(b => b.UntilDate)
+            .AsQueryable();
+    }
+
+    private(DateOnly startDate, DateOnly endDate) GetDateRange(ShiftScheduleFilter filter)
+    {
+        var startDateTime = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1)
+            .AddDays(filter.DayVisibleAfterMonth * -1);
+        var endDateTime = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1)
+            .AddMonths(1).AddDays(-1)
+            .AddDays(filter.DayVisibleAfterMonth);
+
+        return (DateOnly.FromDateTime(startDateTime), DateOnly.FromDateTime(endDateTime));
+    }
+
+
+    // Vereinfachte Holiday-Service Integration (ersetze durch deinen echten Service)
+    private async Task<HashSet<DateOnly>> GetHolidaysForDateRange(DateOnly startDate, DateOnly endDate)
+    {
+        // Option 1: Wenn du einen Holiday-Service hast
+        // return await _holidayService.GetHolidaysAsync(startDate, endDate);
+
+        // Option 2: Wenn du eine Holiday-Tabelle in der DB hast
+        // var holidays = await context.Holidays
+        //     .Where(h => h.Date >= startDate && h.Date <= endDate)
+        //     .Select(h => h.Date)
+        //     .ToListAsync();
+        // return new HashSet<DateOnly>(holidays);
+
+        // Option 3: Statische Feiertage für 2024/2025 (Schweiz)
+        var allHolidays = new HashSet<DateOnly>
+    {
+        // 2024
+        new DateOnly(2024, 1, 1),   // Neujahr
+        new DateOnly(2024, 1, 2),   // Berchtoldstag
+        new DateOnly(2024, 3, 29),  // Karfreitag
+        new DateOnly(2024, 4, 1),   // Ostermontag
+        new DateOnly(2024, 5, 1),   // Tag der Arbeit
+        new DateOnly(2024, 5, 9),   // Auffahrt
+        new DateOnly(2024, 5, 20),  // Pfingstmontag
+        new DateOnly(2024, 8, 1),   // Nationalfeiertag
+        new DateOnly(2024, 12, 25), // Weihnachten
+        new DateOnly(2024, 12, 26), // Stephanstag
+        
+        // 2025
+        new DateOnly(2025, 1, 1),   // Neujahr
+        new DateOnly(2025, 1, 2),   // Berchtoldstag
+        new DateOnly(2025, 4, 18),  // Karfreitag
+        new DateOnly(2025, 4, 21),  // Ostermontag
+        new DateOnly(2025, 5, 1),   // Tag der Arbeit
+        new DateOnly(2025, 5, 29),  // Auffahrt
+        new DateOnly(2025, 6, 9),   // Pfingstmontag
+        new DateOnly(2025, 8, 1),   // Nationalfeiertag
+        new DateOnly(2025, 12, 25), // Weihnachten
+        new DateOnly(2025, 12, 26)  // Stephanstag
+    };
+
+        // Filtere nur Feiertage im gewünschten Zeitraum
+        return new HashSet<DateOnly>(allHolidays.Where(h => h >= startDate && h <= endDate));
+    }
+
+    
+    #endregion Missing ShiftCollection Methods
 }

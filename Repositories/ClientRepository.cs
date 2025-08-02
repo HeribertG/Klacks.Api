@@ -899,8 +899,9 @@ public class ClientRepository : IClientRepository
 
     private IQueryable<Client> FilterWorks(WorkFilter filter, IQueryable<Client> tmp)
     {
-        var startDate = new DateTime(filter.CurrentYear, 1, 1);
-        var endDate = new DateTime(filter.CurrentYear, 12, 31);
+        var startDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1).AddDays(filter.DayVisibleAfterMonth *-1);
+        var endDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1).AddMonths(1).AddDays(-1).AddDays(filter.DayVisibleAfterMonth);
+
 
         var work = this.context.Work.Where(b => tmp.Select(c => c.Id).Contains(b.ClientId) &&
                                               ((b.From.Date >= startDate && b.From.Date <= endDate) ||
