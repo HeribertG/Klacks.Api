@@ -31,7 +31,6 @@ public class TokenService : ITokenService
           new Claim(ClaimTypes.Surname, user.LastName),
           new Claim("jti", Guid.NewGuid().ToString()),
           new Claim("iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
-
         };
 
         var userRoles = await GetUserRoles(user);

@@ -1,26 +1,26 @@
-using System.ComponentModel.DataAnnotations;
 using Klacks.Api.Datas;
-using Klacks.Api.Enums;
+using System.ComponentModel.DataAnnotations;
 
-namespace Klacks.Api.Models.Settings
+namespace Klacks.Api.Models.Settings;
+
+public class CalendarRule
 {
-    public class CalendarRule
-    {
-        public string Country { get; set; } = string.Empty;
+    public string Country { get; set; } = string.Empty;
 
-        public MultiLanguage? Description { get; set; } = null!;
+    public MultiLanguage? Description { get; set; } = null!;
 
-        [Key]
-        public Guid Id { get; set; }
+    [Key]
+    public Guid Id { get; set; }
 
-        public bool IsMandatory { get; set; }
-        public bool IsPaid { get; set; }
-        public MultiLanguage? Name { get; set; } = null!;
+    public bool IsMandatory { get; set; }
 
-        public string Rule { get; set; } = string.Empty;
+    public bool IsPaid { get; set; }
 
-        public string State { get; set; } = string.Empty;
+    public MultiLanguage? Name { get; set; } = null!;
 
-        public string SubRule { get; set; } = string.Empty;
-    }
+    public string Rule { get; set; } = string.Empty;
+
+    public string State { get; set; } = string.Empty;
+
+    public string SubRule { get; set; } = string.Empty;
 }

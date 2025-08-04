@@ -161,10 +161,6 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 Console.WriteLine("Version {0}", new MyVersion().Get(true));
 
-// Console.WriteLine("UpdateDatabase start");
-// _ = new MyMigration(builder.Configuration, app.Services.GetRequiredService<ILoggerFactory>());
-// Console.WriteLine("UpdateDatabase done");
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger(options => options.OpenApiVersion = OpenApiSpecVersion.OpenApi2_0);

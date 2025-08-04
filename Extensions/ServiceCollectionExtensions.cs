@@ -6,6 +6,7 @@ using Klacks.Api.Repositories;
 using Klacks.Api.Services;
 using Klacks.Api.Services.Exports;
 using Klacks.Api.Services.Groups;
+using Klacks.Api.Services.Holidays;
 
 namespace Klacks.Api.Extensions;
 
@@ -41,6 +42,7 @@ public static  class ServiceCollectionExtensions
 
         services.AddScoped<IGetAllClientIdsFromGroupAndSubgroups, GroupClientService>();
         services.AddScoped<IGroupVisibilityService, GroupVisibilityService>();
+        services.AddScoped<IHolidaysListCalculator, HolidaysListCalculator>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

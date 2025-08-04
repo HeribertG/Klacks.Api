@@ -20,63 +20,65 @@ public class DataBaseContext : IdentityDbContext
         : base(options) =>
         this.httpContextAccessor = httpContextAccessor;
 
-    public DbSet<Absence> Absence { get; set; } = default!;
+    public DbSet<Absence> Absence { get; set; }  
 
-    public DbSet<Address> Address { get; set; } = default!;
+    public DbSet<Address> Address { get; set; }  
 
-    public DbSet<Annotation> Annotation { get; set; } = default!;
+    public DbSet<Annotation> Annotation { get; set; }  
 
-    public virtual DbSet<AppUser> AppUser { get; set; } = default!;
+    public virtual DbSet<AppUser> AppUser { get; set; }  
 
-    public DbSet<Break> Break { get; set; } = default!;
+    public DbSet<Break> Break { get; set; }  
 
-    public DbSet<BreakReason> BreakReason { get; set; } = default!;
+    public DbSet<BreakReason> BreakReason { get; set; }  
 
-    public DbSet<CalendarRule> CalendarRule { get; set; } = default!;
+    public DbSet<CalendarRule> CalendarRule { get; set; }  
 
-    public DbSet<CalendarSelection> CalendarSelection { get; set; } = default!;
+    public DbSet<CalendarSelection> CalendarSelection { get; set; }  
 
-    public DbSet<Client> Client { get; set; } = default!;
+    public DbSet<Client> Client { get; set; }  
 
-    public DbSet<ClientScheduleDetail> ClientScheduleDetail { get; set; } = default!;
+    public DbSet<ClientScheduleDetail> ClientScheduleDetail { get; set; }  
 
-    public DbSet<Communication> Communication { get; set; } = default!;
+    public DbSet<Communication> Communication { get; set; }  
 
-    public DbSet<CommunicationType> CommunicationType { get; set; } = default!;
+    public DbSet<CommunicationType> CommunicationType { get; set; }  
 
-    public DbSet<Countries> Countries { get; set; } = default!;
+    public DbSet<Countries> Countries { get; set; }  
 
-    public DbSet<Group> Group { get; set; } = default!;
+    public DbSet<Group> Group { get; set; }  
 
-    public DbSet<GroupItem> GroupItem { get; set; } = default!;
+    public DbSet<GroupItem> GroupItem { get; set; }  
 
-    public DbSet<History> History { get; set; } = default!;
+    public DbSet<History> History { get; set; }  
 
-    public DbSet<Macro> Macro { get; set; } = default!;
+    public DbSet<Macro> Macro { get; set; }  
 
-    public DbSet<MacroType> MacroType { get; set; } = default!;
+    public DbSet<MacroType> MacroType { get; set; }  
 
-    public DbSet<Membership> Membership { get; set; } = default!;
+    public DbSet<Membership> Membership { get; set; }  
 
-    public DbSet<PostcodeCH> PostcodeCH { get; set; } = default!;
+    public DbSet<PostcodeCH> PostcodeCH { get; set; }  
 
-    public virtual DbSet<RefreshToken> RefreshToken { get; set; } = default!;
+    public virtual DbSet<RefreshToken> RefreshToken { get; set; }  
 
-    public DbSet<SelectedCalendar> SelectedCalendar { get; set; } = default!;
+    public DbSet<SelectedCalendar> SelectedCalendar { get; set; }  
 
-    public DbSet<Models.Settings.Settings> Settings { get; set; } = default!;
+    public DbSet<Models.Settings.Settings> Settings { get; set; }  
 
-    public DbSet<Shift> Shift { get; set; } = default!;
+    public DbSet<Shift> Shift { get; set; } 
 
-    public DbSet<State> State { get; set; } = default!;
+    public DbSet<ShiftDayAssignment> ShiftDayAssignments { get; set; }
 
-    public DbSet<Vat> Vat { get; set; } = default!;
+    public DbSet<State> State { get; set; }  
 
-    public DbSet<Work> Work { get; set; } = default!;
+    public DbSet<Vat> Vat { get; set; }  
 
-    public DbSet<AssignedGroup> AssignedGroup { get; set; } = default!;
+    public DbSet<Work> Work { get; set; }  
 
-    public DbSet<GroupVisibility> GroupVisibility { get; set; } = default!;
+    public DbSet<AssignedGroup> AssignedGroup { get; set; }  
+
+    public DbSet<GroupVisibility> GroupVisibility { get; set; }  
 
     public override int SaveChanges()
     {
@@ -107,6 +109,8 @@ public class DataBaseContext : IdentityDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<ShiftDayAssignment>().HasNoKey();
+
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.HasSequence<int>("client_idnumber_seq", schema: "public")
