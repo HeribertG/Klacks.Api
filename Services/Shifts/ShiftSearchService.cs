@@ -53,7 +53,7 @@ public class ShiftSearchService : IShiftSearchService
     public IQueryable<Shift> ApplyFirstSymbolSearch(IQueryable<Shift> query, string symbol)
     {
         var normalizedSymbol = symbol.ToLower();
-        return query.Where(shift => shift.Name.ToLower().Substring(0, 1) == normalizedSymbol);
+        return query.Where(shift => (shift.Name ?? "").ToLower().StartsWith(normalizedSymbol));
     }
 
     private string[] ParseSearchString(string searchString)
@@ -73,20 +73,18 @@ public class ShiftSearchService : IShiftSearchService
     private static Expression<Func<Shift, bool>> CreateShiftSearchPredicate(string keyword)
     {
         return shift =>
-            EF.Functions.Like(shift.Name, $"%{keyword}%") ||
-            EF.Functions.Like(shift.Abbreviation, keyword);
+            (shift.Name ?? "").ToLower().Contains(keyword) ||
+            (shift.Abbreviation ?? "").ToLower().Contains(keyword);
     }
 
     private static Expression<Func<Shift, bool>> CreateClientSearchPredicate(string keyword)
     {
-        var pattern = $"%{keyword}%";
-
         return shift => shift.Client != null && (
-            EF.Functions.Like(shift.Client.FirstName, pattern) ||
-            EF.Functions.Like(shift.Client.SecondName, pattern) ||
-            EF.Functions.Like(shift.Client.Name, pattern) ||
-            EF.Functions.Like(shift.Client.MaidenName, pattern) ||
-            EF.Functions.Like(shift.Client.Company, pattern)
+            (shift.Client.FirstName ?? "").ToLower().Contains(keyword) ||
+            (shift.Client.SecondName ?? "").ToLower().Contains(keyword) ||
+            (shift.Client.Name ?? "").ToLower().Contains(keyword) ||
+            (shift.Client.MaidenName ?? "").ToLower().Contains(keyword) ||
+            (shift.Client.Company ?? "").ToLower().Contains(keyword)
         );
     }
 }

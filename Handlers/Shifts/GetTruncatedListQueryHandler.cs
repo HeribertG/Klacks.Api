@@ -21,8 +21,8 @@ public class GetTruncatedListQueryHandler : IRequestHandler<GetTruncatedListQuer
 
     public async Task<TruncatedShiftResource> Handle(GetTruncatedListQuery request, CancellationToken cancellationToken)
     {
-        // Use the new ShiftFilterService which coordinates all domain services
         var truncated = await shiftFilterService.GetFilteredAndPaginatedShifts(request.Filter);
+
         return mapper.Map<TruncatedShift, TruncatedShiftResource>(truncated!);
     }
 }

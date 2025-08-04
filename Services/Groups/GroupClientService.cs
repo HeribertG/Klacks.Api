@@ -5,9 +5,6 @@ using Klacks.Api.Models.Associations;
 
 namespace Klacks.Api.Services.Groups;
 
-/// <summary>
-/// Service for retrieving all ClientIds from groups and subgroups
-/// </summary>
 public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
 {
     private readonly DataBaseContext context;
@@ -73,7 +70,6 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
 
         try
         {
-            // Verify all groups exist
             var existingGroups = await context.Group
                 .Where(g => groupIds.Contains(g.Id))
                 .Select(g => g.Id)
@@ -85,13 +81,12 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
                 throw new KeyNotFoundException($"Groups with IDs {string.Join(", ", missingGroups)} were not found");
             }
 
-            // Get all groups once
             var allGroups = await context.Group
                 .AsNoTracking()
                 .Include(g => g.GroupItems)
                 .ToListAsync();
 
-            // Process each main group
+
             HashSet<Guid> processedGroups = new HashSet<Guid>();
 
             foreach (var groupId in groupIds)
@@ -104,7 +99,6 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
                 var mainGroup = allGroups.FirstOrDefault(g => g.Id == groupId);
                 if (mainGroup != null)
                 {
-                    // Add clients from main group
                     if (mainGroup.GroupItems != null)
                     {
                         foreach (var item in mainGroup.GroupItems.Where(x => x.ClientId.HasValue))
@@ -118,7 +112,6 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
 
                     processedGroups.Add(groupId);
 
-                    // Collect from subgroups
                     await CollectClientIdsFromSubgroups(groupId, allGroups, clientIds, processedGroups);
                 }
             }

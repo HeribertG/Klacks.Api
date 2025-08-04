@@ -13,14 +13,28 @@ public class MultiLanguage
 
     public string? It { get; set; }
 
-
     public Dictionary<string, string> ToDictionary()
     {
         var result = new Dictionary<string, string>();
-        if (!string.IsNullOrEmpty(De)) result["de"] = De;
-        if (!string.IsNullOrEmpty(En)) result["en"] = En;
-        if (!string.IsNullOrEmpty(Fr)) result["fr"] = Fr;
-        if (!string.IsNullOrEmpty(It)) result["it"] = It;
+        if (!string.IsNullOrEmpty(De))
+        {
+            result["de"] = De;
+        }
+
+        if (!string.IsNullOrEmpty(En))
+        {
+            result["en"] = En;
+        }
+
+        if (!string.IsNullOrEmpty(Fr))
+        {
+            result["fr"] = Fr;
+        }
+
+        if (!string.IsNullOrEmpty(It))
+        {
+            result["it"] = It;
+        }
 
         return result;
     }

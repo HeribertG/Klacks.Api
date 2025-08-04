@@ -2,6 +2,7 @@ using Klacks.Api.Datas;
 using Klacks.Api.Enums;
 using Klacks.Api.Helper;
 using Klacks.Api.Interfaces;
+using Klacks.Api.Interfaces.Domains;
 using Klacks.Api.Models.Histories;
 using Klacks.Api.Models.Staffs;
 using Klacks.Api.Resources.Filter;
@@ -16,13 +17,29 @@ public class ClientRepository : IClientRepository
     private readonly IMacroEngine macroEngine;
     private readonly IGetAllClientIdsFromGroupAndSubgroups groupClient;
     private readonly IGroupVisibilityService groupVisibility;
+    private readonly IClientFilterService _clientFilterService;
+    private readonly IClientMembershipFilterService _membershipFilterService;
+    private readonly IClientSearchService _searchService;
+    private readonly IClientSortingService _sortingService;
 
-    public ClientRepository(DataBaseContext context, IMacroEngine macroEngine, IGetAllClientIdsFromGroupAndSubgroups groupClient, IGroupVisibilityService groupVisibility)
+    public ClientRepository(
+        DataBaseContext context, 
+        IMacroEngine macroEngine, 
+        IGetAllClientIdsFromGroupAndSubgroups groupClient, 
+        IGroupVisibilityService groupVisibility,
+        IClientFilterService clientFilterService,
+        IClientMembershipFilterService membershipFilterService,
+        IClientSearchService searchService,
+        IClientSortingService sortingService)
     {
         this.context = context;
         this.macroEngine = macroEngine;
         this.groupClient = groupClient;
         this.groupVisibility = groupVisibility;
+        _clientFilterService = clientFilterService;
+        _membershipFilterService = membershipFilterService;
+        _searchService = searchService;
+        _sortingService = sortingService;
     }
 
     public async Task Add(Client client)
@@ -52,19 +69,19 @@ public class ClientRepository : IClientRepository
         if (!string.IsNullOrEmpty(filter.Search))
         {
             // Ist der search string eine Nummer, sucht man nach der idNumber
-            if (filter.Search.Trim().All(char.IsNumber) && int.TryParse(filter.Search.Trim(), out _))
+            if (_searchService.IsNumericSearch(filter.Search))
             {
-                tmp = tmp.Where(x => x.IdNumber == int.Parse(filter.Search.Trim()));
+                tmp = _searchService.ApplyIdNumberSearch(tmp, int.Parse(filter.Search.Trim()));
             }
             else
             {
-                tmp = this.FilterBySearchString(filter.Search, false, tmp);
+                tmp = _searchService.ApplySearchFilter(tmp, filter.Search, false);
             }
         }
 
-        tmp = this.FilterMembershipYear(filter, tmp);
-        tmp = this.FilterBreaksYear(filter, tmp);
-        tmp = this.Sort(filter.OrderBy, filter.SortOrder, tmp);
+        tmp = _membershipFilterService.ApplyMembershipYearFilter(tmp, filter);
+        tmp = _membershipFilterService.ApplyBreaksYearFilter(tmp, filter);
+        tmp = _sortingService.ApplySorting(tmp, filter.OrderBy, filter.SortOrder);
         return await tmp.ToListAsync();
     }
 
@@ -160,13 +177,13 @@ public class ClientRepository : IClientRepository
         tmp = await FilterClientsByGroupId(filter.SelectedGroup, tmp);
 
         // Ist der searchString eine Nummer, sucht man nach der idNumber
-        if (filter.SearchString.Trim().All(char.IsNumber) && int.TryParse(filter.SearchString.Trim(), out _))
+        if (_searchService.IsNumericSearch(filter.SearchString))
         {
-            var tmp1 = tmp.Where(x => x.IdNumber == int.Parse(filter.SearchString.Trim()));
+            var tmp1 = _searchService.ApplyIdNumberSearch(tmp, int.Parse(filter.SearchString.Trim()));
 
             if (filter.IncludeAddress)
             {
-                tmp = this.FilterBySearchPhonOrZip(filter.SearchString.Trim(), tmp);
+                tmp = _searchService.ApplyPhoneOrZipSearch(tmp, filter.SearchString.Trim());
                 if (tmp1.Any() && tmp.Any())
                 {
                     tmp = tmp.Union(tmp1);
@@ -182,7 +199,7 @@ public class ClientRepository : IClientRepository
                 tmp = tmp1;
             }
 
-            tmp = this.Sort(filter.OrderBy, filter.SortOrder, tmp);
+            tmp = _sortingService.ApplySorting(tmp, filter.OrderBy, filter.SortOrder);
         }
         else
         {
@@ -194,32 +211,31 @@ public class ClientRepository : IClientRepository
             var addressTypeList = this.CreateAddressTypeList(filter.HomeAddress, filter.CompanyAddress, filter.InvoiceAddress);
             var gender = this.CreateGenderList(filter.Male, filter.Female, filter.LegalEntity);
 
-            tmp = this.FilterBySearchString(filter.SearchString, filter.IncludeAddress, tmp);
+            tmp = _searchService.ApplySearchFilter(tmp, filter.SearchString, filter.IncludeAddress);
 
             if (!(filter.SearchOnlyByName.HasValue && filter.SearchOnlyByName.Value))
             {
-                tmp = this.FilterByGender(gender, filter.LegalEntity, tmp);
+                tmp = _clientFilterService.ApplyGenderFilter(tmp, gender, filter.LegalEntity);
 
-                tmp = this.FilterByAnnotation(filter.HasAnnotation, tmp);
+                tmp = _clientFilterService.ApplyAnnotationFilter(tmp, filter.HasAnnotation);
 
-                tmp = this.FilterByAddresstype(addressTypeList, tmp);
+                tmp = _clientFilterService.ApplyAddressTypeFilter(tmp, addressTypeList);
 
-                tmp = this.FilterByStateOrCountry(filter.FilteredStateToken, filter.Countries, tmp);
+                tmp = _clientFilterService.ApplyStateOrCountryFilter(tmp, filter.FilteredStateToken, filter.Countries);
 
-                tmp = this.FilterByMembership(
+                tmp = _membershipFilterService.ApplyMembershipFilter(tmp,
                                               filter.ActiveMembership.HasValue && filter.ActiveMembership.Value,
                                               filter.FormerMembership.HasValue && filter.FormerMembership.Value,
-                                              filter.FutureMembership.HasValue && filter.FutureMembership.Value,
-                                              tmp);
+                                              filter.FutureMembership.HasValue && filter.FutureMembership.Value);
 
                 if ((filter.ScopeFromFlag.HasValue || filter.ScopeUntilFlag.HasValue) &&
                     (filter.ScopeFrom.HasValue || filter.ScopeUntil.HasValue))
                 {
-                    tmp = this.FilterScope(filter.ScopeFromFlag, filter.ScopeUntilFlag, filter.ScopeFrom, filter.ScopeUntil, tmp);
+                    tmp = _membershipFilterService.ApplyScopeFilter(tmp, filter.ScopeFromFlag, filter.ScopeUntilFlag, filter.ScopeFrom, filter.ScopeUntil);
                 }
             }
 
-            tmp = this.Sort(filter.OrderBy, filter.SortOrder, tmp);
+            tmp = _sortingService.ApplySorting(tmp, filter.OrderBy, filter.SortOrder);
         }
 
         return tmp;
@@ -435,19 +451,19 @@ public class ClientRepository : IClientRepository
         if (!string.IsNullOrEmpty(filter.Search))
         {
             // Ist der search string eine Nummer, sucht man nach der idNumber
-            if (filter.Search.Trim().All(char.IsNumber) && int.TryParse(filter.Search.Trim(), out _))
+            if (_searchService.IsNumericSearch(filter.Search))
             {
-                tmp = tmp.Where(x => x.IdNumber == int.Parse(filter.Search.Trim()));
+                tmp = _searchService.ApplyIdNumberSearch(tmp, int.Parse(filter.Search.Trim()));
             }
             else
             {
-                tmp = this.FilterBySearchString(filter.Search, false, tmp);
+                tmp = _searchService.ApplySearchFilter(tmp, filter.Search, false);
             }
         }
 
         tmp = this.FilterMembershipYearMonth(filter, tmp);
         tmp = this.FilterWorks(filter, tmp);
-        tmp = this.Sort(filter.OrderBy, filter.SortOrder, tmp);
+        tmp = _sortingService.ApplySorting(tmp, filter.OrderBy, filter.SortOrder);
         return await tmp.ToListAsync();
     }
 

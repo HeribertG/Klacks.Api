@@ -9,6 +9,7 @@ using Klacks.Api.Services.Exports;
 using Klacks.Api.Services.Groups;
 using Klacks.Api.Services.Holidays;
 using Klacks.Api.Services.Shifts;
+using Klacks.Api.Services.Clients;
 
 namespace Klacks.Api.Extensions;
 
@@ -53,6 +54,12 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IScheduleDateRangeService, ScheduleDateRangeService>();
         services.AddScoped<IShiftStatusFilterService, ShiftStatusFilterService>();
         services.AddScoped<IShiftFilterService, ShiftFilterService>();
+
+        // Client Domain Services
+        services.AddScoped<IClientFilterService, ClientFilterService>();
+        services.AddScoped<IClientMembershipFilterService, ClientMembershipFilterService>();
+        services.AddScoped<IClientSearchService, ClientSearchService>();
+        services.AddScoped<IClientSortingService, ClientSortingService>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

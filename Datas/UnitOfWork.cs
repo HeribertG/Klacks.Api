@@ -1,42 +1,41 @@
 using Klacks.Api.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Klacks.Api.Datas
+namespace Klacks.Api.Datas;
+
+public class UnitOfWork : IUnitOfWork
 {
-    public class UnitOfWork : IUnitOfWork
+    private readonly DataBaseContext context;
+    private readonly ILogger<UnitOfWork> logger;
+
+    public UnitOfWork(DataBaseContext context, ILogger<UnitOfWork> logger)
     {
-        private readonly DataBaseContext context;
-        private readonly ILogger<UnitOfWork> logger;
+        this.context = context;
+        this.logger = logger;
+    }
 
-        public UnitOfWork(DataBaseContext context, ILogger<UnitOfWork> logger)
-        {
-            this.context = context;
-            this.logger = logger;
-        }
+    public async Task CompleteAsync()
+    {
+        await context.SaveChangesAsync();
+    }
 
-        public async Task CompleteAsync()
-        {
-            await context.SaveChangesAsync();
-        }
+    public int Complete()
+    {
+        return context.SaveChanges();
+    }
 
-        public int Complete()
-        {
-            return context.SaveChanges();
-        }
+    public async Task<IDbContextTransaction> BeginTransactionAsync()
+    {
+        return await context.Database.BeginTransactionAsync();
+    }
 
-        public async Task<IDbContextTransaction> BeginTransactionAsync()
-        {
-            return await context.Database.BeginTransactionAsync();
-        }
+    public async Task CommitTransactionAsync(IDbContextTransaction transaction)
+    {
+        await transaction.CommitAsync();
+    }
 
-        public async Task CommitTransactionAsync(IDbContextTransaction transaction)
-        {
-            await transaction.CommitAsync();
-        }
-
-        public async Task RollbackTransactionAsync(IDbContextTransaction transaction)
-        {
-            await transaction.RollbackAsync();
-        }
+    public async Task RollbackTransactionAsync(IDbContextTransaction transaction)
+    {
+        await transaction.RollbackAsync();
     }
 }
