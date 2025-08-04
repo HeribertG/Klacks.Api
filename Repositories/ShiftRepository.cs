@@ -1,13 +1,9 @@
 using Klacks.Api.Datas;
-using Klacks.Api.Enums;
-using Klacks.Api.Extensions;
-using Klacks.Api.Helper;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Associations;
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Resources.Filter;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace Klacks.Api.Repositories;
 
@@ -44,26 +40,65 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         return shift;
     }
 
+    public IQueryable<Shift> GetQuery()
+    {
+        return context.Shift
+            .OrderBy(x => x.OriginalId)
+            .ThenBy(x => x.FromDate)
+            .ThenBy(x => x.StartShift)
+            .AsNoTracking();
+    }
+
+    public IQueryable<Shift> GetQueryWithClient()
+    {
+        return context.Shift
+            .Include(x => x.Client)
+            .ThenInclude(x => x.Addresses!.Where(a => a != null))
+            .OrderBy(x => x.OriginalId)
+            .ThenBy(x => x.FromDate)
+            .ThenBy(x => x.StartShift)
+            .AsNoTracking();
+    }
+
     public async Task<List<Shift>> CutList(Guid id)
     {
-        var result= await context.Shift
-            .Where(x => x.OriginalId == id && x.Status >= ShiftStatus.IsCutOriginal)
+        return await context.Shift
+            .Where(x => x.OriginalId == id && x.Status >= Klacks.Api.Enums.ShiftStatus.IsCutOriginal)
             .OrderBy(x => x.Lft)
-            .ThenBy(x=> x.FromDate)
-            .ThenBy(x=> x.StartShift)
+            .ThenBy(x => x.FromDate)
+            .ThenBy(x => x.StartShift)
             .AsNoTracking()
             .ToListAsync();
+    }
+
+    public async Task<TruncatedShift> GetPaginatedShifts(IQueryable<Shift> filteredQuery, ShiftFilter filter)
+    {
+        var count = await filteredQuery.CountAsync();
+        var maxPage = filter.NumberOfItemsPerPage > 0 ? (count / filter.NumberOfItemsPerPage) : 0;
+        var firstItem = CalculateFirstItem(filter, count);
+
+        var shifts = count == 0
+            ? new List<Shift>()
+            : await filteredQuery.Skip(firstItem).Take(filter.NumberOfItemsPerPage).ToListAsync();
+
+        var result = new TruncatedShift
+        {
+            Shifts = shifts,
+            MaxItems = count,
+            CurrentPage = filter.RequiredPage,
+            FirstItemOnPage = count <= firstItem ? -1 : firstItem
+        };
+
+        if (filter.NumberOfItemsPerPage > 0)
+        {
+            result.MaxPages = count % filter.NumberOfItemsPerPage == 0 ? maxPage - 1 : maxPage;
+        }
 
         return result;
     }
-      
-    public async Task<TruncatedShift> Truncated(ShiftFilter filter)
+
+    private int CalculateFirstItem(ShiftFilter filter, int count)
     {
-        var tmp = FilterShift(filter);
-
-        var count = tmp.Count();
-        var maxPage = filter.NumberOfItemsPerPage > 0 ? (count / filter.NumberOfItemsPerPage) : 0;
-
         var firstItem = 0;
 
         if (count > 0 && count > filter.NumberOfItemsPerPage)
@@ -94,233 +129,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             firstItem = filter.RequiredPage * filter.NumberOfItemsPerPage;
         }
 
-        tmp = tmp.Skip(firstItem).Take(filter.NumberOfItemsPerPage);
-
-        var shifts = count == 0 ? new List<Shift>() : await tmp.ToListAsync();
-        var res = new TruncatedShift
-        {
-            Shifts = shifts,
-            MaxItems = count,
-        };
-
-        if (filter.NumberOfItemsPerPage > 0)
-        {
-            res.MaxPages = count % filter.NumberOfItemsPerPage == 0 ? maxPage - 1 : maxPage;
-        }
-
-        res.CurrentPage = filter.RequiredPage;
-        res.FirstItemOnPage = res.MaxItems <= firstItem ? -1 : firstItem;
-
-        return res;
-    }
-
-    public IQueryable<Shift> FilterShift(ShiftFilter filter)
-    {
-        var tmp = context.Shift
-            .OrderBy(x => x.OriginalId)
-            .ThenBy(x=> x.FromDate)
-            .ThenBy(x=> x.StartShift)
-            .AsNoTracking()
-            .AsQueryable();
-
-        if (filter.IncludeClientName)
-        {
-            tmp = tmp.Include(x => x.Client).ThenInclude(x => x.Addresses!.Where(a => a != null));
-        }
-
-        tmp = FilterByStatus(filter.IsOriginal, tmp);
-        tmp = FilterByDateRange(filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange, tmp);
-        tmp = FilterBySearchString(filter.SearchString, filter.IncludeClientName, tmp);
-        //tmp = Sort(filter.OrderBy, filter.SortOrder, tmp);
-
-        return tmp;
-    }
-
-    private IQueryable<Shift> FilterByDateRange(bool activeDateRange, bool formerDateRange, bool futureDateRange, IQueryable<Shift> tmp)
-    {
-        if (activeDateRange && formerDateRange && futureDateRange)
-        {
-            // No need for filters
-        }
-        else if (!activeDateRange && !formerDateRange && !futureDateRange)
-        {
-            tmp = Enumerable.Empty<Shift>().AsQueryable();
-        }
-        else
-        {
-            var nowDate = DateTime.Now;
-            var nowDateOnly = DateOnly.FromDateTime(nowDate);
-
-            // only active
-            if (activeDateRange && !formerDateRange && !futureDateRange)
-            {
-                tmp = tmp.Where(co =>
-                                co.FromDate <= nowDateOnly &&
-                                (co.UntilDate.HasValue == false ||
-                                (co.UntilDate.HasValue && co.UntilDate.Value >= nowDateOnly)
-                                ));
-            }
-
-            // only former
-            if (!activeDateRange && formerDateRange && !futureDateRange)
-            {
-                tmp = tmp.Where(co =>
-                               (co.UntilDate.HasValue && co.UntilDate.Value < nowDateOnly));
-            }
-
-            // only future
-            if (!activeDateRange && !formerDateRange && futureDateRange)
-            {
-                tmp = tmp.Where(co =>
-                               (co.FromDate > nowDateOnly));
-            }
-
-            // former + active
-            if (activeDateRange && formerDateRange && !futureDateRange)
-            {
-                tmp = tmp.Where(co =>
-                                co.FromDate <= nowDateOnly &&
-                                (co.UntilDate.HasValue == false ||
-                                (co.UntilDate.HasValue && co.UntilDate.Value > nowDateOnly) ||
-                                (co.UntilDate.HasValue && co.UntilDate.Value < nowDateOnly)));
-            }
-
-            // active + future
-            if (activeDateRange && !formerDateRange && futureDateRange)
-            {
-                tmp = tmp.Where(co =>
-                                 ((co.FromDate <= nowDateOnly &&
-                                 (co.UntilDate.HasValue == false ||
-                                 (co.UntilDate.HasValue && co.UntilDate.Value > nowDateOnly))) ||
-                                 (co.FromDate > nowDateOnly)
-                                 ));
-            }
-
-            // former + future
-            if (!activeDateRange && formerDateRange && futureDateRange)
-            {
-                tmp = tmp.Where(co =>
-                              (co.UntilDate.HasValue && co.UntilDate.Value < nowDateOnly) ||
-                              (co.FromDate > nowDateOnly));
-            }
-        }
-
-        return tmp;
-    }
-
-    private IQueryable<Shift> FilterByStatus(bool original, IQueryable<Shift> tmp)
-    {
-        if (original)
-        {
-            tmp = tmp.Where(co => co.Status == ShiftStatus.Original);
-        }
-        else
-        {
-            tmp = tmp.Where(co => co.Status >= ShiftStatus.IsCutOriginal);
-        }
-
-        return tmp;
-    }
-
-    private IQueryable<Shift> FilterBySearchString(string searchString, bool includeClient, IQueryable<Shift> tmp)
-    {
-        if (searchString == null || searchString.Length == 0)
-        {
-            return tmp;
-        }
-
-        var keywordList = searchString.TrimEnd().TrimStart().ToLower().Split(' ');
-
-        if (keywordList.Length == 1)
-        {
-            if (keywordList[0].Length == 1)
-            {
-                return this.FilterBySearchStringFirstSymbol(keywordList[0], tmp);
-            }
-        }
-
-        return this.FilterBySearchStringStandard(keywordList, includeClient, tmp);
-    }
-
-    private IQueryable<Shift> FilterBySearchStringFirstSymbol(string keyword, IQueryable<Shift> tmp)
-    {
-        tmp = tmp.Where(co =>
-            co.Name.ToLower().Substring(0, 1) == keyword.ToLower());
-
-        return tmp;
-    }
-
-    private IQueryable<Shift> FilterBySearchStringStandard(string[] keywordList, bool includeClient, IQueryable<Shift> tmp)
-    {
-        var normalizedKeywords = keywordList
-            .Where(k => !string.IsNullOrWhiteSpace(k))
-            .Select(k => k.Trim().ToLower())
-            .Distinct()
-            .ToArray();
-
-        if (normalizedKeywords.Length == 0)
-        {
-            return tmp;
-        }
-
-        var predicate = PredicateBuilder.False<Shift>();
-
-        foreach (var keyword in normalizedKeywords)
-        {
-            predicate = predicate.Or(CreateShiftSearchPredicate(keyword));
-
-            if (includeClient)
-            {
-                predicate = predicate.Or(CreateClientSearchPredicate(keyword));
-            }
-        }
-
-        return tmp.Where(predicate);
-    }
-
-    private static Expression<Func<Shift, bool>> CreateShiftSearchPredicate(string keyword)
-    {
-        return shift =>
-            EF.Functions.Like(shift.Name, $"%{keyword}%") ||
-            EF.Functions.Like(shift.Abbreviation, keyword);
-    }
-
-    private static Expression<Func<Shift, bool>> CreateClientSearchPredicate(string keyword)
-    {
-        var pattern = $"%{keyword}%";
-
-        return shift => shift.Client != null && (
-            EF.Functions.Like(shift.Client.FirstName, pattern) ||
-            EF.Functions.Like(shift.Client.SecondName, pattern) ||
-            EF.Functions.Like(shift.Client.Name, pattern) ||
-            EF.Functions.Like(shift.Client.MaidenName, pattern) ||
-            EF.Functions.Like(shift.Client.Company, pattern)
-        );
-    }
-
-    private IQueryable<Shift> Sort(string orderBy, string sortOrder, IQueryable<Shift> tmp)
-    {
-        if (sortOrder != string.Empty)
-        {
-            if (orderBy == "name")
-            {
-                return sortOrder == "asc" ? tmp.OrderBy(x => x.Name) : tmp.OrderByDescending(x => x.Name);
-            }
-            else if (orderBy == "description")
-            {
-                return sortOrder == "asc" ? tmp.OrderBy(x => x.Description) : tmp.OrderByDescending(x => x.Description);
-            }
-            else if (orderBy == "valid_from")
-            {
-                return sortOrder == "asc" ? tmp.OrderBy(x => x.FromDate) : tmp.OrderByDescending(x => x.FromDate);
-            }
-            else if (orderBy == "valid_until")
-            {
-                return sortOrder == "asc" ? tmp.OrderBy(x => x.UntilDate) : tmp.OrderByDescending(x => x.UntilDate);
-            }
-        }
-
-        return tmp;
+        return firstItem;
     }
 
     public async Task UpdateGroupItems(Guid shiftId, List<Guid> actualGroupIds)
@@ -329,12 +138,14 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         try
         {
             var existingIds = await context.GroupItem
-            .Where(gi => gi.GroupId == shiftId)
-            .Select(x => x.Id)
-            .ToListAsync();
+                .Where(gi => gi.ShiftId == shiftId)
+                .Select(x => x.GroupId)
+                .ToListAsync();
 
             var newGroupIds = actualGroupIds.Where(x => !existingIds.Contains(x)).ToArray();
-            var deleteGroupItems = await context.GroupItem.Where(gi => gi.GroupId == shiftId && !actualGroupIds.Contains(gi.GroupId)).ToArrayAsync();
+            var deleteGroupItems = await context.GroupItem
+                .Where(gi => gi.ShiftId == shiftId && !actualGroupIds.Contains(gi.GroupId))
+                .ToArrayAsync();
             var newGroupItems = newGroupIds.Select(x => new GroupItem { ShiftId = shiftId, GroupId = x }).ToArray();
 
             if (deleteGroupItems.Any())
@@ -346,7 +157,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             {
                 context.GroupItem.AddRange(newGroupItems);
             }
-               
+
             await context.SaveChangesAsync();
             Logger.LogInformation("Group items for shift ID: {ShiftId} updated successfully.", shiftId);
         }
@@ -362,94 +173,12 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         }
     }
 
-    private async Task<List<Group>> GetGroupsForShift(Guid shiftId)
+    public async Task<List<Group>> GetGroupsForShift(Guid shiftId)
     {
-        var groups = await context.Group
+        return await context.Group
             .Include(g => g.GroupItems.Where(gi => gi.ShiftId == shiftId))
             .Where(g => g.GroupItems.Any(gi => gi.ShiftId == shiftId))
             .AsNoTracking()
             .ToListAsync();
-
-        return groups;
     }
-
-    #region Missing ShiftCollection Methods
-
-    public async Task<List<Shift>> ScheduleShiftList(ShiftScheduleFilter filter)
-    {
-        var tmp = GetShiftForScheduleClean(filter);
-        return await tmp.ToListAsync();
-    }
-
-    private IQueryable<Shift> GetShiftForScheduleClean(ShiftScheduleFilter filter)
-    {
-        var (startDate, endDate) = GetDateRange(filter);
-
-        return this.context.Shift.Where(b =>
-            (b.FromDate >= startDate && b.FromDate <= endDate) ||
-            (b.UntilDate >= startDate && b.UntilDate <= endDate) ||
-            (b.FromDate <= startDate && b.UntilDate >= endDate))
-            .OrderBy(b => b.FromDate).ThenBy(b => b.UntilDate)
-            .AsQueryable();
-    }
-
-    private(DateOnly startDate, DateOnly endDate) GetDateRange(ShiftScheduleFilter filter)
-    {
-        var startDateTime = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1)
-            .AddDays(filter.DayVisibleAfterMonth * -1);
-        var endDateTime = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1)
-            .AddMonths(1).AddDays(-1)
-            .AddDays(filter.DayVisibleAfterMonth);
-
-        return (DateOnly.FromDateTime(startDateTime), DateOnly.FromDateTime(endDateTime));
-    }
-
-
-    // Vereinfachte Holiday-Service Integration (ersetze durch deinen echten Service)
-    private async Task<HashSet<DateOnly>> GetHolidaysForDateRange(DateOnly startDate, DateOnly endDate)
-    {
-        // Option 1: Wenn du einen Holiday-Service hast
-        // return await _holidayService.GetHolidaysAsync(startDate, endDate);
-
-        // Option 2: Wenn du eine Holiday-Tabelle in der DB hast
-        // var holidays = await context.Holidays
-        //     .Where(h => h.Date >= startDate && h.Date <= endDate)
-        //     .Select(h => h.Date)
-        //     .ToListAsync();
-        // return new HashSet<DateOnly>(holidays);
-
-        // Option 3: Statische Feiertage für 2024/2025 (Schweiz)
-        var allHolidays = new HashSet<DateOnly>
-    {
-        // 2024
-        new DateOnly(2024, 1, 1),   // Neujahr
-        new DateOnly(2024, 1, 2),   // Berchtoldstag
-        new DateOnly(2024, 3, 29),  // Karfreitag
-        new DateOnly(2024, 4, 1),   // Ostermontag
-        new DateOnly(2024, 5, 1),   // Tag der Arbeit
-        new DateOnly(2024, 5, 9),   // Auffahrt
-        new DateOnly(2024, 5, 20),  // Pfingstmontag
-        new DateOnly(2024, 8, 1),   // Nationalfeiertag
-        new DateOnly(2024, 12, 25), // Weihnachten
-        new DateOnly(2024, 12, 26), // Stephanstag
-        
-        // 2025
-        new DateOnly(2025, 1, 1),   // Neujahr
-        new DateOnly(2025, 1, 2),   // Berchtoldstag
-        new DateOnly(2025, 4, 18),  // Karfreitag
-        new DateOnly(2025, 4, 21),  // Ostermontag
-        new DateOnly(2025, 5, 1),   // Tag der Arbeit
-        new DateOnly(2025, 5, 29),  // Auffahrt
-        new DateOnly(2025, 6, 9),   // Pfingstmontag
-        new DateOnly(2025, 8, 1),   // Nationalfeiertag
-        new DateOnly(2025, 12, 25), // Weihnachten
-        new DateOnly(2025, 12, 26)  // Stephanstag
-    };
-
-        // Filtere nur Feiertage im gewünschten Zeitraum
-        return new HashSet<DateOnly>(allHolidays.Where(h => h >= startDate && h <= endDate));
-    }
-
-    
-    #endregion Missing ShiftCollection Methods
 }

@@ -47,6 +47,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Folder Include="Interfaces\Domains\" />
 		<Folder Include="Migrations\" />
 	</ItemGroup>
 

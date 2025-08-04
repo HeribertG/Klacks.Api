@@ -2,11 +2,13 @@
 using Klacks.Api.Datas;
 using Klacks.Api.Helper;
 using Klacks.Api.Interfaces;
+using Klacks.Api.Interfaces.Domains;
 using Klacks.Api.Repositories;
 using Klacks.Api.Services;
 using Klacks.Api.Services.Exports;
 using Klacks.Api.Services.Groups;
 using Klacks.Api.Services.Holidays;
+using Klacks.Api.Services.Shifts;
 
 namespace Klacks.Api.Extensions;
 
@@ -43,6 +45,14 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IGetAllClientIdsFromGroupAndSubgroups, GroupClientService>();
         services.AddScoped<IGroupVisibilityService, GroupVisibilityService>();
         services.AddScoped<IHolidaysListCalculator, HolidaysListCalculator>();
+
+        // Shift Domain Services
+        services.AddScoped<IDateRangeFilterService, DateRangeFilterService>();
+        services.AddScoped<IShiftSearchService, ShiftSearchService>();
+        services.AddScoped<IShiftSortingService, ShiftSortingService>();
+        services.AddScoped<IScheduleDateRangeService, ScheduleDateRangeService>();
+        services.AddScoped<IShiftStatusFilterService, ShiftStatusFilterService>();
+        services.AddScoped<IShiftFilterService, ShiftFilterService>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
