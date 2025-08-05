@@ -146,7 +146,7 @@ public class MappingProfile : Profile
 
         CreateMap<CalendarRule, CalendarRuleResource>().ReverseMap();
 
-        CreateMap<TruncatedAbsence_dto, TruncatedAbsence>();
+        CreateMap<TruncatedAbsence, TruncatedAbsence>();
 
         CreateMap<Macro, MacroResource>()
           ;

@@ -8,6 +8,7 @@ namespace Klacks.Api.Resources.Filter
         public ICollection<ClientResource>? Clients { get; set; }
 
         public string Editor { get; set; } = string.Empty;
+        
         public DateTime LastChange { get; set; }
     }
 }

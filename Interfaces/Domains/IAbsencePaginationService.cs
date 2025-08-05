@@ -15,5 +15,5 @@ public interface IAbsencePaginationService
     /// <param name="query">The absence query to paginate</param>
     /// <param name="filter">Filter containing pagination parameters</param>
     /// <returns>Paginated absence result with metadata</returns>
-    Task<TruncatedAbsence_dto> ApplyPaginationAsync(IQueryable<Absence> query, AbsenceFilter filter);
+    Task<TruncatedAbsence> ApplyPaginationAsync(IQueryable<Absence> query, AbsenceFilter filter);
 }

@@ -21,7 +21,7 @@ namespace Klacks.Api.Handlers.Absences
         public async Task<TruncatedAbsence> Handle(TruncatedListQuery request, CancellationToken cancellationToken)
         {
             var tmp = await repository.Truncated(request.Filter);
-            return mapper.Map<TruncatedAbsence_dto, TruncatedAbsence>(tmp!);
+            return mapper.Map<TruncatedAbsence, TruncatedAbsence>(tmp!);
         }
     }
 }

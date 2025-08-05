@@ -25,7 +25,7 @@ public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
         _paginationService = paginationService;
     }
     
-    public async Task<TruncatedAbsence_dto> Truncated(AbsenceFilter filter)
+    public async Task<TruncatedAbsence> Truncated(AbsenceFilter filter)
     {
         Logger.LogInformation("Getting truncated absences with filter");
         

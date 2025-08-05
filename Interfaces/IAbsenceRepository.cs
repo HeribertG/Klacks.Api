@@ -8,5 +8,5 @@ public interface IAbsenceRepository : IBaseRepository<Absence>
 {
     HttpResultResource CreateExcelFile(string language);
 
-    Task<TruncatedAbsence_dto> Truncated(AbsenceFilter filter);
+    Task<TruncatedAbsence> Truncated(AbsenceFilter filter);
 }

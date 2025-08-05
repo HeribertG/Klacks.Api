@@ -8,7 +8,7 @@ namespace Klacks.Api.Services.Absences;
 
 public class AbsencePaginationService : IAbsencePaginationService
 {
-    public async Task<TruncatedAbsence_dto> ApplyPaginationAsync(IQueryable<Absence> query, AbsenceFilter filter)
+    public async Task<TruncatedAbsence> ApplyPaginationAsync(IQueryable<Absence> query, AbsenceFilter filter)
     {
         var count = await query.CountAsync();
         var firstItem = CalculateFirstItem(filter, count);
@@ -19,7 +19,7 @@ public class AbsencePaginationService : IAbsencePaginationService
 
         var absences = await paginatedQuery.ToListAsync();
 
-        var result = new TruncatedAbsence_dto
+        var result = new TruncatedAbsence
         {
             Absences = absences,
             MaxItems = count,
