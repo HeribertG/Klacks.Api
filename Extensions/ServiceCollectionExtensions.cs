@@ -10,6 +10,7 @@ using Klacks.Api.Services.Groups;
 using Klacks.Api.Services.Holidays;
 using Klacks.Api.Services.Shifts;
 using Klacks.Api.Services.Clients;
+using Klacks.Api.Services.Absences;
 
 namespace Klacks.Api.Extensions;
 
@@ -68,6 +69,10 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IGroupValidityService, GroupValidityService>();
         services.AddScoped<IGroupMembershipService, GroupMembershipService>();
         services.AddScoped<IGroupIntegrityService, GroupIntegrityService>();
+
+        // Absence Domain Services
+        services.AddScoped<IAbsenceSortingService, AbsenceSortingService>();
+        services.AddScoped<IAbsencePaginationService, AbsencePaginationService>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
