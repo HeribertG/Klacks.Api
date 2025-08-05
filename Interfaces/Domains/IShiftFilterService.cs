@@ -6,6 +6,4 @@ namespace Klacks.Api.Interfaces.Domains;
 public interface IShiftFilterService
 {
     IQueryable<Shift> ApplyAllFilters(IQueryable<Shift> query, ShiftFilter filter);
-    
-    Task<TruncatedShift> GetFilteredAndPaginatedShifts(ShiftFilter filter);
 }

@@ -12,6 +12,10 @@ public interface IShiftRepository : IBaseRepository<Shift>
    
     IQueryable<Shift> GetQueryWithClient();
 
+    IQueryable<Shift> FilterShifts(ShiftFilter filter);
+
+    Task<TruncatedShift> GetFilteredAndPaginatedShifts(ShiftFilter filter);
+
     Task UpdateGroupItems(Guid shiftId, List<Guid> actualGroupIds);
     
     Task<List<Group>> GetGroupsForShift(Guid shiftId);

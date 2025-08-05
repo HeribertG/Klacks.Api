@@ -1,5 +1,6 @@
 using Klacks.Api.Datas;
 using Klacks.Api.Interfaces;
+using Klacks.Api.Interfaces.Domains;
 using Klacks.Api.Models.Associations;
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Resources.Filter;
@@ -10,11 +11,23 @@ namespace Klacks.Api.Repositories;
 public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 {
     private readonly DataBaseContext context;
+    private readonly IDateRangeFilterService _dateRangeFilterService;
+    private readonly IShiftSearchService _searchService;
+    private readonly IShiftSortingService _sortingService;
+    private readonly IShiftStatusFilterService _statusFilterService;
 
-    public ShiftRepository(DataBaseContext context, ILogger<Shift> logger)
+    public ShiftRepository(DataBaseContext context, ILogger<Shift> logger,
+        IDateRangeFilterService dateRangeFilterService,
+        IShiftSearchService searchService,
+        IShiftSortingService sortingService,
+        IShiftStatusFilterService statusFilterService)
         : base(context, logger)
     {
         this.context = context;
+        _dateRangeFilterService = dateRangeFilterService;
+        _searchService = searchService;
+        _sortingService = sortingService;
+        _statusFilterService = statusFilterService;
     }
 
     public new async Task<Shift?> Get(Guid id)
@@ -69,6 +82,30 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .ThenBy(x => x.StartShift)
             .AsNoTracking()
             .ToListAsync();
+    }
+
+    public IQueryable<Shift> FilterShifts(ShiftFilter filter)
+    {
+        Logger.LogInformation("Applying filters to shifts query");
+        
+        var baseQuery = filter.IncludeClientName 
+            ? GetQueryWithClient() 
+            : GetQuery();
+
+        var query = _statusFilterService.ApplyStatusFilter(baseQuery, filter.IsOriginal);
+        query = _dateRangeFilterService.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange);
+        query = _searchService.ApplySearchFilter(query, filter.SearchString, filter.IncludeClientName);
+        query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder);
+
+        Logger.LogInformation("Filters applied to shifts query");
+        return query;
+    }
+
+    public async Task<TruncatedShift> GetFilteredAndPaginatedShifts(ShiftFilter filter)
+    {
+        Logger.LogInformation("Getting filtered and paginated shifts");
+        var filteredQuery = FilterShifts(filter);
+        return await GetPaginatedShifts(filteredQuery, filter);
     }
 
     public async Task<TruncatedShift> GetPaginatedShifts(IQueryable<Shift> filteredQuery, ShiftFilter filter)
