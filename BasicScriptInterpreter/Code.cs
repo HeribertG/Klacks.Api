@@ -496,14 +496,24 @@ namespace Klacks.Api.BasicScriptInterpreter
                             {
                                 string tmpAk;
                                 if (accumulator.GetType() == typeof(Identifier))
+                                {
                                     tmpAk = Convert.ToString(((Identifier)accumulator).Value)!;
+                                }
                                 else
+                                {
                                     tmpAk = Convert.ToString(accumulator)!;
+                                }
+
                                 string tmpReg;
                                 if (register.GetType() == typeof(Identifier))
+                                {
                                     tmpReg = Convert.ToString(((Identifier)register).Value)!;
+                                }
                                 else
+                                {
                                     tmpReg = Convert.ToString(register)!;
+                                }
+
                                 scopes.Push(tmpAk + tmpReg);
                                 break;
                             }
@@ -512,7 +522,9 @@ namespace Klacks.Api.BasicScriptInterpreter
                             {
                                 int tmpAk = 0;
                                 if (accumulator.GetType() == typeof(Identifier))
+                                {
                                     tmpAk = Convert.ToInt32(((Identifier)accumulator).Value);
+                                }
                                 else if (Helper.IsNumericInt(accumulator))
                                     tmpAk = Convert.ToInt32(accumulator);
                                 int tmpReg = 0;

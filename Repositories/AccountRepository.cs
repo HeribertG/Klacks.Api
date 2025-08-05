@@ -3,10 +3,10 @@ using Klacks.Api.Datas;
 using Klacks.Api.Helper;
 using Klacks.Api.Helper.Email;
 using Klacks.Api.Interfaces;
+using Klacks.Api.Interfaces.Domains;
 using Klacks.Api.Models.Authentification;
 using Klacks.Api.Resources;
 using Klacks.Api.Resources.Registrations;
-using Klacks.Api.Validation.Accounts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
@@ -16,23 +16,23 @@ namespace Klacks.Api.Repositories;
 
 public class AccountRepository : IAccountRepository
 {
-    private const string NotApplicable = "N/A";
     private readonly DataBaseContext appDbContext;
-    private readonly JwtSettings jwtSettings;
     private readonly ITokenService tokenService;
-    private readonly UserManager<AppUser> userManager;
-    private readonly JwtValidator jwtValidator;
+    private readonly IAuthenticationService _authenticationService;
+    private readonly IUserManagementService _userManagementService;
+    private readonly IRefreshTokenService _refreshTokenService;
 
     public AccountRepository(DataBaseContext appDbContext,
-                             UserManager<AppUser> userManager,
-                             JwtSettings jwtSettings,
-                             ITokenService tokenService)
+                             ITokenService tokenService,
+                             IAuthenticationService authenticationService,
+                             IUserManagementService userManagementService,
+                             IRefreshTokenService refreshTokenService)
     {
         this.appDbContext = appDbContext;
-        this.userManager = userManager;
-        this.jwtSettings = jwtSettings;
         this.tokenService = tokenService;
-        jwtValidator = new JwtValidator(jwtSettings);
+        _authenticationService = authenticationService;
+        _userManagementService = userManagementService;
+        _refreshTokenService = refreshTokenService;
     }
 
     public async Task<AuthenticatedResult> ChangePassword(ChangePasswordResource model)
@@ -44,29 +44,26 @@ public class AccountRepository : IAccountRepository
     {
         var authenticatedResult = new AuthenticatedResult { Success = false };
 
-        var existingUser = await userManager.FindByEmailAsync(model.Email);
+        var existingUser = await _userManagementService.FindUserByEmailAsync(model.Email);
 
         if (existingUser == null)
         {
-            SetModelError(authenticatedResult, "The user does not exist", "There is no user with this e-mail address.");
+            _authenticationService.SetModelError(authenticatedResult, "The user does not exist", "There is no user with this e-mail address.");
             return authenticatedResult;
         }
 
-        try
+        var (success, result) = await _authenticationService.ChangePasswordAsync(existingUser, model.OldPassword, model.Password);
+        if (success)
         {
-            var resetPassResult = await userManager.ChangePasswordAsync(existingUser, model.OldPassword, model.Password);
-            if (resetPassResult.Succeeded)
-            {
-                authenticatedResult.Success = true;
-            }
-            else
-            {
-                authenticatedResult.ModelState = AddErrorsToModelState(resetPassResult, authenticatedResult.ModelState ?? new ModelStateDictionary());
-            }
+            authenticatedResult.Success = true;
         }
-        catch (Exception)
+        else if (result != null)
         {
-            SetModelError(authenticatedResult, "An unexpected error has occurred.", string.Empty);
+            authenticatedResult.ModelState = _authenticationService.AddErrorsToModelState(result, authenticatedResult.ModelState);
+        }
+        else
+        {
+            _authenticationService.SetModelError(authenticatedResult, "An unexpected error has occurred.", string.Empty);
         }
 
         return authenticatedResult;
@@ -78,121 +75,60 @@ public class AccountRepository : IAccountRepository
     /// <param name="editUserRole">The information on the role change.</param>
     public async Task<HttpResultResource> ChangeRoleUser(ChangeRole editUserRole)
     {
-        var res = new HttpResultResource();
-        res.Success = false;
-        res.Messages = "User was not found.";
+        var (success, message) = await _userManagementService.ChangeUserRoleAsync(
+            editUserRole.UserId, editUserRole.RoleName, editUserRole.IsSelected);
 
-        var user = await userManager.FindByIdAsync(editUserRole.UserId);
-        if (user != null)
+        return new HttpResultResource
         {
-            IdentityResult? result = null;
-
-            if (editUserRole.IsSelected && !(await userManager.IsInRoleAsync(user, editUserRole.RoleName)))
-            {
-                result = await userManager.AddToRoleAsync(user, editUserRole.RoleName);
-            }
-            else if (!editUserRole.IsSelected && await userManager.IsInRoleAsync(user, editUserRole.RoleName))
-            {
-                result = await userManager.RemoveFromRoleAsync(user, editUserRole.RoleName);
-            }
-            else
-            {
-                res.Success = true;
-                res.Messages = "No change to the role required.";
-                return res;
-            }
-
-            if (result == null || result.Succeeded)
-            {
-                res.Success = true;
-                return res;
-            }
-
-            res.Messages = string.Join(Environment.NewLine, result.Errors.Select(e => e.Description));
-        }
-
-        return res;
+            Success = success,
+            Messages = message
+        };
     }
 
     public async Task<HttpResultResource> DeleteAccountUser(Guid id)
     {
-        var res = new HttpResultResource();
+        var (success, message) = await _userManagementService.DeleteUserAsync(id);
 
-        try
+        return new HttpResultResource
         {
-            var user = await appDbContext.AppUser.SingleOrDefaultAsync(x => x.Id == id.ToString());
-            if (user == null)
-            {
-                res.Success = false;
-                res.Messages = "User was not found.";
-                return res;
-            }
-
-            appDbContext.Remove(user!);
-            await appDbContext.SaveChangesAsync();
-            res.Success = true;
-        }
-        catch (Exception e)
-        {
-            res.Success = false;
-            res.Messages = e.Message;
-        }
-
-        return res;
+            Success = success,
+            Messages = message
+        };
     }
 
     public async Task<List<UserResource>> GetUserList()
     {
-        var users = await appDbContext.AppUser.ToListAsync();
-
-        var userResources = new List<UserResource>(users.Count);
-        var usersInAuthorisedRole = await userManager.GetUsersInRoleAsync(Roles.Authorised);
-        var usersInAdminRole = await userManager.GetUsersInRoleAsync(Roles.Admin);
-
-        foreach (var user in users)
-        {
-            var userResource = new UserResource
-            {
-                Id = user.Id,
-                UserName = user.UserName ?? NotApplicable,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email ?? NotApplicable,
-                IsAuthorised = usersInAuthorisedRole.Contains(user),
-                IsAdmin = usersInAdminRole.Contains(user),
-            };
-
-            userResources.Add(userResource);
-        }
-
-        return userResources;
+        return await _userManagementService.GetUserListAsync();
     }
 
     public async Task<AuthenticatedResult> LogInUser(string email, string password)
     {
         var authenticatedResult = new AuthenticatedResult { Success = false };
-        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        
+        var (isValid, user) = await _authenticationService.ValidateCredentialsAsync(email, password);
+        
+        if (!isValid || user == null)
         {
-            SetModelError(authenticatedResult, "Login failed", "The e-mail and password must not be empty.");
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            {
+                _authenticationService.SetModelError(authenticatedResult, "Login failed", "The e-mail and password must not be empty.");
+            }
+            else
+            {
+                _authenticationService.SetModelError(authenticatedResult, "Login failed", "The login details are not correct.");
+            }
             return authenticatedResult;
         }
 
         try
         {
-            var user = await userManager.FindByEmailAsync(email);
-            if (user != null && await userManager.CheckPasswordAsync(user, password))
-            {
-                return await GenerateAuthentication(user);
-            }
-
-            SetModelError(authenticatedResult, "Login failed", "The login details are not correct.");
+            return await GenerateAuthentication(user);
         }
         catch (Exception ex)
         {
-            SetModelError(authenticatedResult, "Login failed", ex.Message);
+            _authenticationService.SetModelError(authenticatedResult, "Login failed", ex.Message);
+            return authenticatedResult;
         }
-
-        return authenticatedResult;
     }
 
     public async Task<AuthenticatedResult> RefreshToken(RefreshRequestResource model)
@@ -201,41 +137,40 @@ public class AccountRepository : IAccountRepository
 
         if (model == null)
         {
-            SetModelError(authenticatedResult, "RefreshTokenError", "Refresh request model cannot be null.");
+            _authenticationService.SetModelError(authenticatedResult, "RefreshTokenError", "Refresh request model cannot be null.");
             return authenticatedResult;
         }
 
-        // Versuche zuerst den User aus dem Token zu bekommen
-        var user = await GetUserFromAccessToken(model.Token);
+        // Try to get user from access token first
+        var user = await _authenticationService.GetUserFromAccessTokenAsync(model.Token);
 
-        // Falls das fehlschlägt, versuche es über den RefreshToken direkt
+        // If that fails, try via refresh token directly
         if (user == null)
         {
-            user = await GetUserFromRefreshToken(model.RefreshToken);
+            user = await _refreshTokenService.GetUserFromRefreshTokenAsync(model.RefreshToken);
         }
 
         if (user == null)
         {
-            SetModelError(authenticatedResult, "RefreshTokenError", "Token invalid or expired.");
+            _authenticationService.SetModelError(authenticatedResult, "RefreshTokenError", "Token invalid or expired.");
             return authenticatedResult;
         }
 
         try
         {
-            if (await ValidateRefreshTokenAsync(user, model.RefreshToken))
+            if (await _refreshTokenService.ValidateRefreshTokenAsync(user.Id, model.RefreshToken))
             {
                 return await GenerateAuthentication(user, true);
             }
         }
         catch (Exception ex)
         {
-            SetModelError(authenticatedResult, "RefreshTokenError", "An error occurred while refreshing the token.");
-            // Log the exception for debugging
+            _authenticationService.SetModelError(authenticatedResult, "RefreshTokenError", "An error occurred while refreshing the token.");
             Console.WriteLine($"RefreshToken Error: {ex.Message}");
             return authenticatedResult;
         }
 
-        SetModelError(authenticatedResult, "RefreshTokenError", "Invalid refresh token.");
+        _authenticationService.SetModelError(authenticatedResult, "RefreshTokenError", "Invalid refresh token.");
         return authenticatedResult;
     }
 
@@ -248,40 +183,27 @@ public class AccountRepository : IAccountRepository
     {
         var authenticatedResult = new AuthenticatedResult { Success = false };
 
-        if (string.IsNullOrWhiteSpace(user.Email) || string.IsNullOrWhiteSpace(user.UserName))
+        var (success, result) = await _userManagementService.RegisterUserAsync(user, password);
+        
+        if (!success)
         {
-            SetModelError(authenticatedResult, "Incorrect or missing user information", "Username or email missing");
-
+            if (result != null)
+            {
+                authenticatedResult.ModelState = _authenticationService.AddErrorsToModelState(result, authenticatedResult.ModelState);
+            }
+            else
+            {
+                _authenticationService.SetModelError(authenticatedResult, "Registration failed", "User registration failed. Please check your input.");
+            }
             return authenticatedResult;
         }
 
-        var existingUser = await userManager.FindByEmailAsync(user.Email!);
-
-        if (existingUser != null)
-        {
-            authenticatedResult.Success = false;
-            SetModelError(authenticatedResult, "user exists", "User with this email address already exists");
-
-            return authenticatedResult;
-        }
-
-        user.UserName = FormatHelper.ReplaceUmlaud(user.UserName!);
-        var result = await userManager.CreateAsync(user, password);
-
-        if (!result.Succeeded)
-        {
-            authenticatedResult.Success = false;
-
-            authenticatedResult.ModelState = AddErrorsToModelState(result, authenticatedResult.ModelState!);
-            return authenticatedResult;
-        }
-
-        var expires = SetExpiresTimeForToken();
+        var expires = _refreshTokenService.CalculateTokenExpiryTime();
         authenticatedResult = await SetAuthenticatedResult(authenticatedResult, user, expires);
 
         await appDbContext.SaveChangesAsync();
 
-        return authenticatedResult!;
+        return authenticatedResult;
     }
 
     public Task<AuthenticatedResult> ResetPassword(ResetPasswordResource data)
@@ -297,60 +219,24 @@ public class AccountRepository : IAccountRepository
 
     public void SetModelError(AuthenticatedResult model, string key, string message)
     {
-        if (model.ModelState == null)
-        {
-            model.ModelState = new ModelStateDictionary();
-        }
-
-        model.ModelState.TryAddModelError(key, message);
+        _authenticationService.SetModelError(model, key, message);
     }
 
     public async Task<bool> ValidateRefreshTokenAsync(AppUser user, string refreshToken)
     {
-        var storedRefreshToken = await appDbContext.RefreshToken
-          .Where(x => x.Token == refreshToken && x.AspNetUsersId == user.Id)
-          .OrderByDescending(x => x.ExpiryDate)
-          .FirstOrDefaultAsync();
-
-        return storedRefreshToken?.ExpiryDate > DateTime.UtcNow;
+        return await _refreshTokenService.ValidateRefreshTokenAsync(user.Id, refreshToken);
     }
 
-    private ModelStateDictionary AddErrorsToModelState(IdentityResult identityResult, ModelStateDictionary modelState)
-    {
-        if (modelState == null)
-        {
-            modelState = new ModelStateDictionary();
-        }
-
-        foreach (var e in identityResult.Errors)
-        {
-            modelState.TryAddModelError(e.Code, e.Description);
-        }
-
-        return modelState;
-    }
 
     private async Task<AuthenticatedResult> GenerateAuthentication(AppUser user, bool withRefreshToken = true)
     {
         var authenticatedResult = new AuthenticatedResult { Success = false };
-        var expires = SetExpiresTimeForToken();
+        var expires = _refreshTokenService.CalculateTokenExpiryTime();
 
         if (withRefreshToken)
         {
-            await RemoveAllUserRefreshTokensAsync(user.Id);
-
-            var refreshToken = new RefreshToken
-            {
-                AspNetUsersId = user.Id,
-                Token = new RefreshTokenGenerator().GenerateRefreshToken(),
-                ExpiryDate = SetExpiresTimeForRefresh(),
-            };
-
-            appDbContext.RefreshToken.Add(refreshToken);
-
-            await appDbContext.SaveChangesAsync();
-
-            authenticatedResult.RefreshToken = refreshToken.Token;
+            var refreshToken = await _refreshTokenService.CreateRefreshTokenAsync(user.Id);
+            authenticatedResult.RefreshToken = refreshToken;
         }
 
         authenticatedResult = await SetAuthenticatedResult(authenticatedResult, user, expires);
@@ -358,47 +244,6 @@ public class AccountRepository : IAccountRepository
         return authenticatedResult;
     }
 
-    private async Task<AppUser?> GetUserFromAccessToken(string token)
-    {
-        try
-        {
-            var principal = jwtValidator.ValidateToken(token);
-
-            if (principal == null)
-            {
-                Console.WriteLine("❌ jwtValidator.ValidateToken returned NULL");
-                return null;
-            }
-
-            var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
-
-            if (userIdClaim == null)
-            {
-                Console.WriteLine($"❌ NameIdentifier claim not found!");
-                Console.WriteLine($"Expected claim type: '{ClaimTypes.NameIdentifier}'");
-                return null;
-            }
-
-            var user = await userManager.FindByIdAsync(userIdClaim.Value);
-
-            if (user == null)
-            {
-                Console.WriteLine($"❌ User not found with ID: '{userIdClaim.Value}'");
-            }
-            else
-            {
-                Console.WriteLine($"✅ User found: {user.Email}");
-            }
-
-            return user;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"❌ EXCEPTION in GetUserFromAccessToken: {ex.Message}");
-            Console.WriteLine($"Stack: {ex.StackTrace}");
-            return null;
-        }
-    }
 
     private async Task<AuthenticatedResult> SetAuthenticatedResult(AuthenticatedResult authenticatedResult, AppUser user, DateTime expires)
     {
@@ -409,48 +254,12 @@ public class AccountRepository : IAccountRepository
         authenticatedResult.FirstName = user.FirstName;
         authenticatedResult.Name = user.LastName;
         authenticatedResult.Id = user.Id;
-        authenticatedResult.IsAdmin = await userManager.IsInRoleAsync(user, Roles.Admin);
-        authenticatedResult.IsAuthorised = await userManager.IsInRoleAsync(user, Roles.Authorised);
+        authenticatedResult.IsAdmin = await _userManagementService.IsUserInRoleAsync(user, Roles.Admin);
+        authenticatedResult.IsAuthorised = await _userManagementService.IsUserInRoleAsync(user, Roles.Authorised);
 
         return authenticatedResult;
     }
 
-    private DateTime SetExpiresTimeForToken()
-    {
-        return DateTime.UtcNow.AddMinutes(15);
-    }
 
-    private DateTime SetExpiresTimeForRefresh()
-    {
-        return DateTime.UtcNow.AddHours(1);
-    }
 
-    private async Task RemoveAllUserRefreshTokensAsync(string userId)
-    {
-        var userTokens = appDbContext.RefreshToken.Where(rt => rt.AspNetUsersId == userId);
-        appDbContext.RefreshToken.RemoveRange(userTokens);
-        await appDbContext.SaveChangesAsync();
-    }
-
-    private async Task<AppUser?> GetUserFromRefreshToken(string refreshToken)
-    {
-        try
-        {
-            var storedRefreshToken = await appDbContext.RefreshToken
-                .Where(x => x.Token == refreshToken && x.ExpiryDate > DateTime.UtcNow)
-                .OrderByDescending(x => x.ExpiryDate)
-                .FirstOrDefaultAsync();
-
-            if (storedRefreshToken != null)
-            {
-                return await userManager.FindByIdAsync(storedRefreshToken.AspNetUsersId);
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"GetUserFromRefreshToken Error: {ex.Message}");
-        }
-
-        return null;
-    }
 }

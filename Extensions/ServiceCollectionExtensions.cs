@@ -11,6 +11,7 @@ using Klacks.Api.Services.Holidays;
 using Klacks.Api.Services.Shifts;
 using Klacks.Api.Services.Clients;
 using Klacks.Api.Services.Absences;
+using Klacks.Api.Services.Authentication;
 
 namespace Klacks.Api.Extensions;
 
@@ -21,7 +22,6 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IUserService, UserService>();
 
-        services.AddScoped<IAccountRepository, AccountRepository>();
         services.AddScoped<IClientRepository, ClientRepository>();
         services.AddScoped<IAddressRepository, AddressRepository>();
         services.AddScoped<IAnnotationRepository, AnnotationRepository>();
@@ -73,6 +73,14 @@ public static  class ServiceCollectionExtensions
         // Absence Domain Services
         services.AddScoped<IAbsenceSortingService, AbsenceSortingService>();
         services.AddScoped<IAbsencePaginationService, AbsencePaginationService>();
+
+        // Authentication Domain Services
+        services.AddScoped<Klacks.Api.Validation.Accounts.JwtValidator>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<IUserManagementService, UserManagementService>();
+        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+
+        services.AddScoped<IAccountRepository, AccountRepository>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
