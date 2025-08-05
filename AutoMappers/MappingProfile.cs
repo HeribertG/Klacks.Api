@@ -240,7 +240,7 @@ public class MappingProfile : Profile
         CreateMap<Group, GroupResource>()
           .ForMember(dest => dest.Children, opt => opt.Ignore())
           .ForMember(dest => dest.Depth, opt => opt.Ignore())
-          .ForMember(dest => dest.GroupItems, opt => opt.MapFrom(src => src.GroupItems))
+          .ForMember(dest => dest.GroupItems, opt => opt.MapFrom(src => src.GroupItems)) // Map GroupItems
           ;
 
         CreateMap<GroupResource, Group>()
@@ -259,6 +259,7 @@ public class MappingProfile : Profile
             ;
 
         CreateMap<GroupItem, GroupItemResource>()
+          .ForMember(dest => dest.Client, opt => opt.MapFrom(src => src.Client != null ? src.Client : null)) // Explicitly map Client
           ;
 
         CreateMap<GroupItemResource, GroupItem>()

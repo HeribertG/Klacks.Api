@@ -1,5 +1,6 @@
 using Klacks.Api.Resources.Schedules;
 using Klacks.Api.Resources.Staffs;
+using System.Text.Json.Serialization;
 
 namespace Klacks.Api.Resources.Associations;
 
@@ -15,7 +16,7 @@ public class GroupItemResource
 
     public Guid Id { get; set; }
 
-      public GroupResource Group { get; set; } = null!;
+      public GroupResource? Group { get; set; }
 
       public ShiftResource? Shift { get; set; } = null!;
 }

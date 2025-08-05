@@ -128,6 +128,30 @@ public class GroupsController : InputBaseController<GroupResource>
     public async Task<IEnumerable<GroupResource>> Roots()
     {
         return await Mediator.Send(new GetRootsQuery());
+    }
 
+    /// <summary>
+    /// Retrieves all members (GroupItems) for a specific group
+    /// </summary>
+    [HttpGet("{groupId}/members")]
+    public async Task<ActionResult<List<GroupItemResource>>> GetGroupMembers(Guid groupId)
+    {
+        try
+        {
+            logger.LogInformation($"Fetching members for group with ID: {groupId}");
+            var members = await Mediator.Send(new GetGroupMembersQuery(groupId));
+            logger.LogInformation($"Retrieved {members.Count} members for group {groupId}.");
+            return Ok(members);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            logger.LogWarning(ex, $"Group with ID {groupId} not found.");
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Error occurred while fetching members for group ID {groupId}.");
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
 }

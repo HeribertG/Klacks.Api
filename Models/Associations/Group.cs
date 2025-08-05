@@ -28,5 +28,6 @@ public class Group : BaseEntity
     public Guid? Root { get; set; }
 
     public int Lft { get; set; }
+
     public int Rgt { get; set; }
 }
