@@ -47,8 +47,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Folder Include="Application\" />
 		<Folder Include="Interfaces\Domains\" />
 		<Folder Include="Migrations\" />
+		<Folder Include="NewFolder\" />
 	</ItemGroup>
 
 </Project>

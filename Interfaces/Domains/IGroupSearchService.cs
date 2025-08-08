@@ -20,7 +20,7 @@ public interface IGroupSearchService
     /// Filters groups by search string using various search strategies
     /// </summary>
     /// <param name="query">Base query to filter</param>
-    /// <param name="searchString">Search term</param>
+    /// <param name="searchString">SearchString term</param>
     /// <returns>Filtered query matching search criteria</returns>
     IQueryable<Group> ApplySearchFilter(IQueryable<Group> query, string searchString);
 
