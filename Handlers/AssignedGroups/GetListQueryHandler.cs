@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Staffs;
-using Klacks.Api.Queries.AssignedGroups;
+using Klacks.Api.Application.Queries.AssignedGroups;
 using MediatR;
 
 namespace Klacks.Api.Handlers.AssignedGroups

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Klacks.Api.Interfaces;
-using Klacks.Api.Queries.Shifts;
+using Klacks.Api.Application.Queries.Shifts;
 using Klacks.Api.Presentation.DTOs.Filter;
 using MediatR;
 

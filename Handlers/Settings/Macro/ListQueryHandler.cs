@@ -1,6 +1,6 @@
 using AutoMapper;
 using Klacks.Api.Interfaces;
-using Klacks.Api.Queries.Settings.Macros;
+using Klacks.Api.Application.Queries.Settings.Macros;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 

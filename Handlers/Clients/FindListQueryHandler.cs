@@ -1,6 +1,6 @@
 using AutoMapper;
 using Klacks.Api.Interfaces;
-using Klacks.Api.Queries.Clients;
+using Klacks.Api.Application.Queries.Clients;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Clients

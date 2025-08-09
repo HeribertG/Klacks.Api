@@ -1,5 +1,5 @@
 using Klacks.Api.Models.Schedules;
-using Klacks.Api.Queries.Works;
+using Klacks.Api.Application.Queries.Works;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;

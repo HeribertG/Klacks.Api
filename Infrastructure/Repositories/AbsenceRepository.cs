@@ -5,7 +5,6 @@ using Klacks.Api.Interfaces.Domains;
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Presentation.DTOs;
 using Klacks.Api.Presentation.DTOs.Filter;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Repositories;
 
@@ -68,5 +67,4 @@ public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
             throw; // Let the middleware handle it
         }
     }
-
 }

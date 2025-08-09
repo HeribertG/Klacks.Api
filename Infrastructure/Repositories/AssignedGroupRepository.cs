@@ -10,6 +10,7 @@ public class AssignedGroupRepository : BaseRepository<AssignedGroup>, IAssignedG
 {
     private readonly DataBaseContext context;
     private readonly IUserService userService;
+
     public AssignedGroupRepository(DataBaseContext context, IUserService userService, ILogger<AssignedGroup> logger)
         : base(context, logger)
     {
@@ -28,6 +29,4 @@ public class AssignedGroupRepository : BaseRepository<AssignedGroup>, IAssignedG
         var List = await context.AssignedGroup.Where(x => x.ClientId == currentId).Select(x => x.GroupId).ToListAsync();
         return context.Group.Where(x => (x.Id == x.Root || !(x.Root.HasValue && x.Parent.HasValue)) && List.Contains(x.Id)).AsQueryable();
     }
-
-
 }

@@ -1,6 +1,6 @@
 using Klacks.Api.Commands.Settings.Settings;
 using Klacks.Api.Models.Settings;
-using Klacks.Api.Queries;
+using Klacks.Api.Application.Queries;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Presentation.DTOs.Settings;
@@ -47,7 +47,7 @@ public class SettingsController : BaseController
         try
         {
             logger.LogInformation($"Fetching setting of type: {type}");
-            var setting = await mediator.Send(new Queries.Settings.Settings.GetQuery(type));
+            var setting = await mediator.Send(new Application.Queries.Settings.Settings.GetQuery(type));
             if (setting == null)
             {
                 logger.LogWarning($"Setting of type: {type} not found.");
@@ -69,7 +69,7 @@ public class SettingsController : BaseController
         try
         {
             logger.LogInformation("Fetching settings list.");
-            var settings = await mediator.Send(new Queries.Settings.Settings.ListQuery());
+            var settings = await mediator.Send(new Application.Queries.Settings.Settings.ListQuery());
             logger.LogInformation($"Retrieved {settings.Count()} settings.");
             return settings;
         }
@@ -116,13 +116,13 @@ public class SettingsController : BaseController
     [HttpGet("MacroType")]
     public async Task<IEnumerable<MacroType>> GetMacroType()
     {
-        return await mediator.Send(new Queries.Settings.MacrosTypes.ListQuery());
+        return await mediator.Send(new Application.Queries.Settings.MacrosTypes.ListQuery());
     }
 
     [HttpGet("MacroType/{id}")]
     public async Task<ActionResult<MacroType>> GetMacroType(Guid id)
     {
-        var macroType = await mediator.Send(new Queries.Settings.MacrosTypes.GetQuery(id));
+        var macroType = await mediator.Send(new Application.Queries.Settings.MacrosTypes.GetQuery(id));
 
         if (macroType == null)
         {
@@ -157,13 +157,13 @@ public class SettingsController : BaseController
     [HttpGet("Macros")]
     public async Task<IEnumerable<MacroResource>> GetMacro()
     {
-        return await mediator.Send(new Queries.Settings.Macros.ListQuery());
+        return await mediator.Send(new Application.Queries.Settings.Macros.ListQuery());
     }
 
     [HttpGet("Macros/{id}")]
     public async Task<ActionResult<MacroResource>> GetMacro(Guid id)
     {
-        var macro = await mediator.Send(new Queries.Settings.Macros.GetQuery(id));
+        var macro = await mediator.Send(new Application.Queries.Settings.Macros.GetQuery(id));
 
         if (macro == null)
         {
@@ -204,13 +204,13 @@ public class SettingsController : BaseController
     [HttpGet("Vat")]
     public async Task<IEnumerable<Vat>> GetVAT()
     {
-        return await mediator.Send(new Queries.Settings.Vats.ListQuery());
+        return await mediator.Send(new Application.Queries.Settings.Vats.ListQuery());
     }
 
     [HttpGet("Vat/{id}")]
     public async Task<ActionResult<Vat>> GetVAT(Guid id)
     {
-        var vat = await mediator.Send(new Queries.Settings.Vats.GetQuery(id));
+        var vat = await mediator.Send(new Application.Queries.Settings.Vats.GetQuery(id));
 
         if (vat == null)
         {
@@ -251,7 +251,7 @@ public class SettingsController : BaseController
     [HttpGet("CalendarRule/{id}")]
     public async Task<ActionResult<CalendarRule>> GetCalendarRule(Guid id)
     {
-        var calendarRule = await mediator.Send(new Queries.Settings.CalendarRules.GetQuery(id));
+        var calendarRule = await mediator.Send(new Application.Queries.Settings.CalendarRules.GetQuery(id));
 
         if (calendarRule == null)
         {
@@ -264,20 +264,20 @@ public class SettingsController : BaseController
     [HttpGet("GetCalendarRuleList")]
     public async Task<IEnumerable<CalendarRule>> GetCalendarRuleList()
     {
-        return await mediator.Send(new Queries.Settings.CalendarRules.ListQuery());
+        return await mediator.Send(new Application.Queries.Settings.CalendarRules.ListQuery());
     }
 
     [HttpGet("GetRuleTokenList")]
     public async Task<IEnumerable<StateCountryToken>> GetRuleTokenList(bool isSelected)
     {
-        return await mediator.Send(new Queries.Settings.CalendarRules.RuleTokenList(isSelected));
+        return await mediator.Send(new Application.Queries.Settings.CalendarRules.RuleTokenList(isSelected));
     }
 
     [HttpPost("GetSimpleCalendarRuleList")]
     public async Task<TruncatedCalendarRule> GetSimpleCalendarRuleList([FromBody] CalendarRulesFilter filter)
     {
         var tmp = JsonConvert.SerializeObject(filter);
-        return await mediator.Send(new Queries.Settings.CalendarRules.TruncatedListQuery(filter));
+        return await mediator.Send(new Application.Queries.Settings.CalendarRules.TruncatedListQuery(filter));
     }
 
     [HttpPost("CalendarRule")]

@@ -1,5 +1,5 @@
 using Klacks.Api.Models.Staffs;
-using Klacks.Api.Queries.Clients;
+using Klacks.Api.Application.Queries.Clients;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
@@ -60,7 +60,7 @@ public class ClientsController : InputBaseController<ClientResource>
         try
         {
             logger.LogInformation($"Fetching simple client list with filter: {filter}");
-            var truncatedClients = await Mediator.Send(new Queries.Clients.GetTruncatedListQuery(filter));
+            var truncatedClients = await Mediator.Send(new Application.Queries.Clients.GetTruncatedListQuery(filter));
             logger.LogInformation($"Retrieved {truncatedClients.Clients?.Count} truncated clients.");
             return truncatedClients;
         }
@@ -77,7 +77,7 @@ public class ClientsController : InputBaseController<ClientResource>
         try
         {
             logger.LogInformation($"Fetching state token list with isSelected: {isSelected}");
-            var tokens = await Mediator.Send(new Queries.Settings.CalendarRules.RuleTokenList(isSelected));
+            var tokens = await Mediator.Send(new Application.Queries.Settings.CalendarRules.RuleTokenList(isSelected));
             logger.LogInformation($"Retrieved {tokens.Count()} state tokens.");
             return tokens;
         }

@@ -1,6 +1,6 @@
 using Klacks.Api.Models.Settings;
 using MediatR;
 
-namespace Klacks.Api.Queries.Communications;
+namespace Klacks.Api.Application.Queries.Communications;
 
 public record GetTypeQuery() : IRequest<IEnumerable<CommunicationType>>;

@@ -1,6 +1,6 @@
 ﻿using Klacks.Api.Presentation.Controllers.v1.UserBackend;
 using Klacks.Api.Models.Staffs;
-using Klacks.Api.Queries.AssignedGroups;
+using Klacks.Api.Application.Queries.AssignedGroups;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

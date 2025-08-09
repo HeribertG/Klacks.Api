@@ -1,6 +1,6 @@
 using Klacks.Api.Presentation.DTOs.Filter;
 using MediatR;
 
-namespace Klacks.Api.Queries.Clients;
+namespace Klacks.Api.Application.Queries.Clients;
 
 public record GetTruncatedListQuery(FilterResource Filter) : IRequest<TruncatedClientResource>;

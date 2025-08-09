@@ -1,5 +1,5 @@
 using MediatR;
 
-namespace Klacks.Api.Queries.Settings.Settings;
+namespace Klacks.Api.Application.Queries.Settings.Settings;
 
 public record GetQuery(string Type) : IRequest<Models.Settings.Settings?>;

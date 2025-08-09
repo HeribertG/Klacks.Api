@@ -1,6 +1,6 @@
 using FluentValidation;
 using Klacks.Api.Interfaces;
-using Klacks.Api.Queries.Clients;
+using Klacks.Api.Application.Queries.Clients;
 using Klacks.Api.Presentation.DTOs.Filter;
 
 namespace Klacks.Api.Validation.Clients

@@ -1,6 +1,6 @@
 using AutoMapper;
 using Klacks.Api.Interfaces;
-using Klacks.Api.Queries.Absences;
+using Klacks.Api.Application.Queries.Absences;
 using Klacks.Api.Presentation.DTOs.Filter;
 using MediatR;
 

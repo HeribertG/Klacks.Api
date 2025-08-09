@@ -1,6 +1,6 @@
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Settings;
-using Klacks.Api.Queries.Communications;
+using Klacks.Api.Application.Queries.Communications;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Communications

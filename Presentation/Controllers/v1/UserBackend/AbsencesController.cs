@@ -1,6 +1,6 @@
 using Klacks.Api.Exceptions;
-using Klacks.Api.Queries;
-using Klacks.Api.Queries.Absences;
+using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Queries.Absences;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;

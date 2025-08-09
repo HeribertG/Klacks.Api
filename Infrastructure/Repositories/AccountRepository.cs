@@ -1,16 +1,11 @@
 ﻿using Klacks.Api.Constants;
 using Klacks.Api.Datas;
-using Klacks.Api.Helper;
 using Klacks.Api.Helper.Email;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Interfaces.Domains;
 using Klacks.Api.Models.Authentification;
 using Klacks.Api.Presentation.DTOs;
 using Klacks.Api.Presentation.DTOs.Registrations;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace Klacks.Api.Infrastructure.Repositories;
 
@@ -117,6 +112,7 @@ public class AccountRepository : IAccountRepository
             {
                 _authenticationService.SetModelError(authenticatedResult, "Login failed", "The login details are not correct.");
             }
+
             return authenticatedResult;
         }
 
@@ -195,6 +191,7 @@ public class AccountRepository : IAccountRepository
             {
                 _authenticationService.SetModelError(authenticatedResult, "Registration failed", "User registration failed. Please check your input.");
             }
+
             return authenticatedResult;
         }
 
@@ -244,7 +241,6 @@ public class AccountRepository : IAccountRepository
         return authenticatedResult;
     }
 
-
     private async Task<AuthenticatedResult> SetAuthenticatedResult(AuthenticatedResult authenticatedResult, AppUser user, DateTime expires)
     {
         authenticatedResult.Token = await tokenService.CreateToken(user, expires);
@@ -259,7 +255,4 @@ public class AccountRepository : IAccountRepository
 
         return authenticatedResult;
     }
-
-
-
 }

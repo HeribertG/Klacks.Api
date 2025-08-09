@@ -1,6 +1,6 @@
 using Klacks.Api.Models.Settings;
-using Klacks.Api.Queries;
-using Klacks.Api.Queries.Communications;
+using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Queries.Communications;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

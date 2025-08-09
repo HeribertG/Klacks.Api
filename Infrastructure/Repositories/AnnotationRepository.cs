@@ -2,7 +2,6 @@ using Klacks.Api.Datas;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Staffs;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Infrastructure.Repositories
 {

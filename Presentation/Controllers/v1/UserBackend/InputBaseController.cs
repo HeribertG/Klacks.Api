@@ -1,5 +1,5 @@
 using Klacks.Api.Commands;
-using Klacks.Api.Queries;
+using Klacks.Api.Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;

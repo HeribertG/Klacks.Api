@@ -1,6 +1,6 @@
 using AutoMapper;
 using Klacks.Api.Interfaces;
-using Klacks.Api.Queries.Annotation;
+using Klacks.Api.Application.Queries.Annotation;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 

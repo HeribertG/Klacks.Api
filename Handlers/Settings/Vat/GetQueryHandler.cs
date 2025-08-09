@@ -1,6 +1,6 @@
 using AutoMapper;
 using Klacks.Api.Interfaces;
-using Klacks.Api.Queries.Settings.Vats;
+using Klacks.Api.Application.Queries.Settings.Vats;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Settings.Vat

@@ -1,6 +1,6 @@
 ﻿using Klacks.Api.Presentation.DTOs.Filter;
 using MediatR;
 
-namespace Klacks.Api.Queries.Shifts;
+namespace Klacks.Api.Application.Queries.Shifts;
 
 public record GetTruncatedListQuery(ShiftFilter Filter) : IRequest<TruncatedShiftResource>;

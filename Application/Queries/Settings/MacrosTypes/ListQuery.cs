@@ -1,5 +1,5 @@
 using MediatR;
 
-namespace Klacks.Api.Queries.Settings.MacrosTypes;
+namespace Klacks.Api.Application.Queries.Settings.MacrosTypes;
 
 public record ListQuery : IRequest<IEnumerable<Models.Settings.MacroType>>;

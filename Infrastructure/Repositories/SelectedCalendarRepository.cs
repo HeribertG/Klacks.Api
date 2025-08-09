@@ -4,66 +4,65 @@ using Klacks.Api.Interfaces;
 using Klacks.Api.Models.CalendarSelections;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Infrastructure.Repositories
+namespace Klacks.Api.Infrastructure.Repositories;
+
+public class SelectedCalendarRepository : BaseRepository<SelectedCalendar>, ISelectedCalendarRepository
 {
-    public class SelectedCalendarRepository : BaseRepository<SelectedCalendar>, ISelectedCalendarRepository
+    private readonly DataBaseContext context;
+
+    public SelectedCalendarRepository(DataBaseContext context, ILogger<SelectedCalendar> logger)
+      : base(context, logger)
     {
-        private readonly DataBaseContext context;
+        this.context = context;
+    }
 
-        public SelectedCalendarRepository(DataBaseContext context, ILogger<SelectedCalendar> logger)
-          : base(context, logger)
+    public async Task AddPulk(SelectedCalendar[] models)
+    {
+        Logger.LogInformation("Adding {Count} SelectedCalendar entities in bulk.", models.Length);
+        try
         {
-            this.context = context;
+            this.context.Set<SelectedCalendar>().AddRange(models);
+            await this.context.SaveChangesAsync();
+            Logger.LogInformation("{Count} SelectedCalendar entities added successfully.", models.Length);
         }
-
-        public async Task AddPulk(SelectedCalendar[] models)
+        catch (DbUpdateException ex)
         {
-            Logger.LogInformation("Adding {Count} SelectedCalendar entities in bulk.", models.Length);
-            try
+            Logger.LogError(ex, "Failed to add {Count} SelectedCalendar entities in bulk. Database update error.", models.Length);
+            throw new InvalidRequestException($"Failed to add {models.Length} SelectedCalendar entities due to a database error.");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An unexpected error occurred while adding {Count} SelectedCalendar entities.", models.Length);
+            throw;
+        }
+    }
+
+    public async Task DeleteFromParend(Guid id)
+    {
+        Logger.LogInformation("Deleting SelectedCalendar entries for parent ID: {ParentId}", id);
+        try
+        {
+            var entriesToDelete = await this.context.Set<SelectedCalendar>().Where(sc => sc.CalendarSelection != null && sc.CalendarSelection.Id == id).ToListAsync();
+            if (entriesToDelete.Any())
             {
-                this.context.Set<SelectedCalendar>().AddRange(models);
+                this.context.Set<SelectedCalendar>().RemoveRange(entriesToDelete);
                 await this.context.SaveChangesAsync();
-                Logger.LogInformation("{Count} SelectedCalendar entities added successfully.", models.Length);
+                Logger.LogInformation("{Count} SelectedCalendar entries deleted for parent ID: {ParentId}.", entriesToDelete.Count, id);
             }
-            catch (DbUpdateException ex)
+            else
             {
-                Logger.LogError(ex, "Failed to add {Count} SelectedCalendar entities in bulk. Database update error.", models.Length);
-                throw new InvalidRequestException($"Failed to add {models.Length} SelectedCalendar entities due to a database error.");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "An unexpected error occurred while adding {Count} SelectedCalendar entities.", models.Length);
-                throw;
+                Logger.LogInformation("No SelectedCalendar entries found for parent ID: {ParentId} to delete.", id);
             }
         }
-
-        public async Task DeleteFromParend(Guid id)
+        catch (DbUpdateException ex)
         {
-            Logger.LogInformation("Deleting SelectedCalendar entries for parent ID: {ParentId}", id);
-            try
-            {
-                var entriesToDelete = await this.context.Set<SelectedCalendar>().Where(sc => sc.CalendarSelection != null && sc.CalendarSelection.Id == id).ToListAsync();
-                if (entriesToDelete.Any())
-                {
-                    this.context.Set<SelectedCalendar>().RemoveRange(entriesToDelete);
-                    await this.context.SaveChangesAsync();
-                    Logger.LogInformation("{Count} SelectedCalendar entries deleted for parent ID: {ParentId}.", entriesToDelete.Count, id);
-                }
-                else
-                {
-                    Logger.LogInformation("No SelectedCalendar entries found for parent ID: {ParentId} to delete.", id);
-                }
-            }
-            catch (DbUpdateException ex)
-            {
-                Logger.LogError(ex, "Failed to delete SelectedCalendar entries for parent ID: {ParentId}. Database update error.", id);
-                throw new InvalidRequestException($"Failed to delete SelectedCalendar entries for parent ID {id} due to a database error.");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "An unexpected error occurred while deleting SelectedCalendar entries for parent ID: {ParentId}.", id);
-                throw;
-            }
+            Logger.LogError(ex, "Failed to delete SelectedCalendar entries for parent ID: {ParentId}. Database update error.", id);
+            throw new InvalidRequestException($"Failed to delete SelectedCalendar entries for parent ID {id} due to a database error.");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An unexpected error occurred while deleting SelectedCalendar entries for parent ID: {ParentId}.", id);
+            throw;
         }
     }
 }

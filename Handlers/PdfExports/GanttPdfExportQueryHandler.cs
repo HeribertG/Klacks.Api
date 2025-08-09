@@ -1,5 +1,5 @@
 ﻿using Klacks.Api.Interfaces;
-using Klacks.Api.Queries.PdfExports;
+using Klacks.Api.Application.Queries.PdfExports;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.PdfExports;
 using MediatR;

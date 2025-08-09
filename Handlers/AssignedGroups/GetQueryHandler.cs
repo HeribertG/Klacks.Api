@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Staffs;
-using Klacks.Api.Queries;
+using Klacks.Api.Application.Queries;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 

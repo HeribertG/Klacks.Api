@@ -1,6 +1,6 @@
 ﻿using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
-namespace Klacks.Api.Queries.GroupVisibilities;
+namespace Klacks.Api.Application.Queries.GroupVisibilities;
 
 public record GroupVisibilityListQuery(string Id) : IRequest<IEnumerable<GroupVisibilityResource>>;

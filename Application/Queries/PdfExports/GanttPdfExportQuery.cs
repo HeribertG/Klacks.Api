@@ -1,7 +1,7 @@
 ﻿using Klacks.Api.Presentation.DTOs.PdfExports;
 using MediatR;
 
-namespace Klacks.Api.Queries.PdfExports;
+namespace Klacks.Api.Application.Queries.PdfExports;
 
 public record GanttPdfExportQuery : IRequest<GanttPdfExportResponse>
 {

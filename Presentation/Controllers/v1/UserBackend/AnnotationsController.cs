@@ -1,5 +1,5 @@
-using Klacks.Api.Queries;
-using Klacks.Api.Queries.Annotation;
+using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Queries.Annotation;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

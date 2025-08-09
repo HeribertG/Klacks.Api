@@ -1,5 +1,5 @@
 using Klacks.Api.Interfaces;
-using Klacks.Api.Queries.Settings.Settings;
+using Klacks.Api.Application.Queries.Settings.Settings;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Settings.Setting

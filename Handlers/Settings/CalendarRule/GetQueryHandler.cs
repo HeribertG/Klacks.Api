@@ -1,6 +1,6 @@
 using AutoMapper;
 using Klacks.Api.Interfaces;
-using Klacks.Api.Queries.Settings.CalendarRules;
+using Klacks.Api.Application.Queries.Settings.CalendarRules;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Settings.CalendarRule

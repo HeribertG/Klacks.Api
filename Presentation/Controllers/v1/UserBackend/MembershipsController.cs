@@ -1,4 +1,4 @@
-using Klacks.Api.Queries;
+using Klacks.Api.Application.Queries;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

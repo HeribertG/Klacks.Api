@@ -1,5 +1,5 @@
 using Klacks.Api.Commands.Shifts;
-using Klacks.Api.Queries.Shifts;
+using Klacks.Api.Application.Queries.Shifts;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Presentation.DTOs.Staffs;

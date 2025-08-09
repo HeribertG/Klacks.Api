@@ -104,7 +104,6 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         }
     }
 
-
     public IQueryable<Group> FilterGroup(GroupFilter filter)
     {
         Logger.LogInformation("Filtering groups using domain services");
@@ -134,7 +133,6 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             Logger.LogWarning("Group with ID: {GroupId} not found.", id);
             throw new KeyNotFoundException($"Group with ID {id} not found.");
         }
-
 
         Console.WriteLine($"Repository: Group {id} loaded with {group.GroupItems?.Count ?? 0} items");
         if (group.GroupItems?.Any() == true)
@@ -307,13 +305,5 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     {
         Logger.LogInformation("Getting root groups using hierarchy service.");
         return await hierarchyService.GetRootsAsync();
-    }
-
-
-    private async Task<List<Group>> ReadAllNodes()
-    {
-        Logger.LogInformation("Reading all nodes with visibility restrictions");
-        var tree = await hierarchyService.GetTreeAsync();
-        return tree.ToList();
     }
 }

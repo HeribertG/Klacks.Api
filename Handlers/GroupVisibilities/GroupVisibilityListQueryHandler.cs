@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Associations;
-using Klacks.Api.Queries.GroupVisibilities;
+using Klacks.Api.Application.Queries.GroupVisibilities;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 

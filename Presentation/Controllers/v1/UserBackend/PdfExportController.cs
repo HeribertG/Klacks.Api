@@ -1,4 +1,4 @@
-﻿using Klacks.Api.Queries.PdfExports;
+﻿using Klacks.Api.Application.Queries.PdfExports;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
