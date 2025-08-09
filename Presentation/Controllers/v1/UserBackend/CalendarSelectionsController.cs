@@ -1,5 +1,5 @@
 using Klacks.Api.Queries;
-using Klacks.Api.Presentation.Resources.Schedules;
+using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

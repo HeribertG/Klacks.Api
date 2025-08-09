@@ -1,7 +1,7 @@
 using AutoMapper;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Queries;
-using Klacks.Api.Presentation.Resources.Settings;
+using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
 namespace Klacks.Api.Handlers.States;

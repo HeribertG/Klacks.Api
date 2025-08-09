@@ -1,7 +1,7 @@
 using AutoMapper;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Queries.Works;
-using Klacks.Api.Presentation.Resources.Schedules;
+using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Works;

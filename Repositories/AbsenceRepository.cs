@@ -3,8 +3,8 @@ using Klacks.Api.Exceptions;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Interfaces.Domains;
 using Klacks.Api.Models.Schedules;
-using Klacks.Api.Presentation.Resources;
-using Klacks.Api.Presentation.Resources.Filter;
+using Klacks.Api.Presentation.DTOs;
+using Klacks.Api.Presentation.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Repositories;

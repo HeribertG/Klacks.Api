@@ -1,7 +1,7 @@
 using Klacks.Api.Models.Staffs;
 using Klacks.Api.Queries.Clients;
-using Klacks.Api.Presentation.Resources.Filter;
-using Klacks.Api.Presentation.Resources.Staffs;
+using Klacks.Api.Presentation.DTOs.Filter;
+using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

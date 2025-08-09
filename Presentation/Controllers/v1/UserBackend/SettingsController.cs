@@ -1,9 +1,9 @@
 using Klacks.Api.Commands.Settings.Settings;
 using Klacks.Api.Models.Settings;
 using Klacks.Api.Queries;
-using Klacks.Api.Presentation.Resources.Filter;
-using Klacks.Api.Presentation.Resources.Schedules;
-using Klacks.Api.Presentation.Resources.Settings;
+using Klacks.Api.Presentation.DTOs.Filter;
+using Klacks.Api.Presentation.DTOs.Schedules;
+using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;

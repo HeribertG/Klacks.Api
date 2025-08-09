@@ -1,6 +1,6 @@
 using FluentValidation;
 using Klacks.Api.Commands;
-using Klacks.Api.Presentation.Resources.Schedules;
+using Klacks.Api.Presentation.DTOs.Schedules;
 
 namespace Klacks.Api.Validation.CalendarSelections
 {

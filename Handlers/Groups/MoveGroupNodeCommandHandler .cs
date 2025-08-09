@@ -2,7 +2,7 @@
 using Klacks.Api.Commands.Groups;
 using Klacks.Api.Datas;
 using Klacks.Api.Interfaces;
-using Klacks.Api.Presentation.Resources.Associations;
+using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

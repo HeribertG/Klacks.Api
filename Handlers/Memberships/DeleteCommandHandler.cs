@@ -1,7 +1,7 @@
 using AutoMapper;
 using Klacks.Api.Commands;
 using Klacks.Api.Interfaces;
-using Klacks.Api.Presentation.Resources.Associations;
+using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Memberships;

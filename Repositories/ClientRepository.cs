@@ -5,8 +5,8 @@ using Klacks.Api.Interfaces;
 using Klacks.Api.Interfaces.Domains;
 using Klacks.Api.Models.Histories;
 using Klacks.Api.Models.Staffs;
-using Klacks.Api.Presentation.Resources.Filter;
-using Klacks.Api.Presentation.Resources.Settings;
+using Klacks.Api.Presentation.DTOs.Filter;
+using Klacks.Api.Presentation.DTOs.Settings;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Repositories;

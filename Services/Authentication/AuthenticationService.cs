@@ -1,6 +1,6 @@
 using Klacks.Api.Interfaces.Domains;
 using Klacks.Api.Models.Authentification;
-using Klacks.Api.Presentation.Resources;
+using Klacks.Api.Presentation.DTOs;
 using Klacks.Api.Validation.Accounts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding;

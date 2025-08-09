@@ -1,7 +1,7 @@
 ﻿using Klacks.Api.Interfaces;
 using Klacks.Api.Queries.PdfExports;
-using Klacks.Api.Presentation.Resources.Filter;
-using Klacks.Api.Presentation.Resources.PdfExports;
+using Klacks.Api.Presentation.DTOs.Filter;
+using Klacks.Api.Presentation.DTOs.PdfExports;
 using MediatR;
 using System;
 using System.Threading;

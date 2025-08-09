@@ -6,7 +6,7 @@ using Klacks.Api.Exceptions;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Migrations;
 using Klacks.Api.Models.Schedules;
-using Klacks.Api.Presentation.Resources.Schedules;
+using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Shifts;

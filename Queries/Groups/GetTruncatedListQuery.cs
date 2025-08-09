@@ -1,4 +1,4 @@
-using Klacks.Api.Presentation.Resources.Filter;
+using Klacks.Api.Presentation.DTOs.Filter;
 using MediatR;
 
 namespace Klacks.Api.Queries.Groups;

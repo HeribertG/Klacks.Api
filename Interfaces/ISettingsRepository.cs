@@ -1,7 +1,7 @@
 using Klacks.Api.Models.Associations;
 using Klacks.Api.Models.Settings;
-using Klacks.Api.Presentation.Resources;
-using Klacks.Api.Presentation.Resources.Filter;
+using Klacks.Api.Presentation.DTOs;
+using Klacks.Api.Presentation.DTOs.Filter;
 
 namespace Klacks.Api.Interfaces;
 

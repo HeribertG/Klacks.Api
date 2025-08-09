@@ -1,7 +1,7 @@
 using Klacks.Api.Commands.Groups;
 using Klacks.Api.Queries.Groups;
-using Klacks.Api.Presentation.Resources.Associations;
-using Klacks.Api.Presentation.Resources.Filter;
+using Klacks.Api.Presentation.DTOs.Associations;
+using Klacks.Api.Presentation.DTOs.Filter;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;

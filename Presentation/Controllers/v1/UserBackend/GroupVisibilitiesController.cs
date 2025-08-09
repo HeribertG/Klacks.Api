@@ -2,7 +2,7 @@
 using Klacks.Api.Presentation.Controllers.v1.UserBackend;
 using Klacks.Api.Queries;
 using Klacks.Api.Queries.GroupVisibilities;
-using Klacks.Api.Presentation.Resources.Associations;
+using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

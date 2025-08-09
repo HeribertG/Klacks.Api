@@ -1,8 +1,8 @@
 using AutoMapper;
-using Klacks.Api.Presentation.Resources.Filter;
+using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Queries.Clients;
-using Klacks.Api.Presentation.Resources.Filter;
+using Klacks.Api.Presentation.DTOs.Filter;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Clients

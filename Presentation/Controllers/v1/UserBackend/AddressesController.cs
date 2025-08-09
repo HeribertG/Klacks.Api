@@ -1,6 +1,6 @@
 using Klacks.Api.Exceptions;
 using Klacks.Api.Queries.Addresses;
-using Klacks.Api.Presentation.Resources.Staffs;
+using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

@@ -2,7 +2,7 @@ using AutoMapper;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Staffs;
 using Klacks.Api.Queries.Addresses;
-using Klacks.Api.Presentation.Resources.Staffs;
+using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Addresses

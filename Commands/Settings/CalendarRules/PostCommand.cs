@@ -1,4 +1,4 @@
-using Klacks.Api.Presentation.Resources.Settings;
+using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
 namespace Klacks.Api.Commands.Settings.CalendarRules;

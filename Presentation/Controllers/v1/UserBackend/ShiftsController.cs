@@ -1,8 +1,8 @@
 using Klacks.Api.Commands.Shifts;
 using Klacks.Api.Queries.Shifts;
-using Klacks.Api.Presentation.Resources.Filter;
-using Klacks.Api.Presentation.Resources.Schedules;
-using Klacks.Api.Presentation.Resources.Staffs;
+using Klacks.Api.Presentation.DTOs.Filter;
+using Klacks.Api.Presentation.DTOs.Schedules;
+using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;

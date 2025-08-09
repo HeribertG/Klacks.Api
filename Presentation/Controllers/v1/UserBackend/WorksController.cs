@@ -1,7 +1,7 @@
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Queries.Works;
-using Klacks.Api.Presentation.Resources.Filter;
-using Klacks.Api.Presentation.Resources.Schedules;
+using Klacks.Api.Presentation.DTOs.Filter;
+using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

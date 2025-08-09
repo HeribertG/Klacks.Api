@@ -1,7 +1,7 @@
 using AutoMapper;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Authentification;
-using Klacks.Api.Presentation.Resources.Registrations;
+using Klacks.Api.Presentation.DTOs.Registrations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;

@@ -1,6 +1,6 @@
 using Klacks.Api.Interfaces;
 using Klacks.Api.Queries.Settings.CalendarRules;
-using Klacks.Api.Presentation.Resources.Filter;
+using Klacks.Api.Presentation.DTOs.Filter;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Settings.CalendarRules;
