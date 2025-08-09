@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
-namespace Klacks.Api.Repositories;
+namespace Klacks.Api.Infrastructure.Repositories;
 
 public class AccountRepository : IAccountRepository
 {

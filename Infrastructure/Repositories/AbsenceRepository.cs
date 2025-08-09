@@ -7,7 +7,7 @@ using Klacks.Api.Presentation.DTOs;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Repositories;
+namespace Klacks.Api.Infrastructure.Repositories;
 
 public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
 {

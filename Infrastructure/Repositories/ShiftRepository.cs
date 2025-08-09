@@ -6,7 +6,7 @@ using Klacks.Api.Models.Schedules;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Repositories;
+namespace Klacks.Api.Infrastructure.Repositories;
 
 public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 {

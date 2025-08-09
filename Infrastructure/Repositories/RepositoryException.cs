@@ -1,4 +1,4 @@
-namespace Klacks.Api.Repositories;
+namespace Klacks.Api.Infrastructure.Repositories;
 
 public class RepositoryException : Exception
 {

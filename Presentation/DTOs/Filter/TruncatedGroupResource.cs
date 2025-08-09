@@ -1,3 +1,5 @@
+using Klacks.Api.Presentation.DTOs.Associations;
+
 namespace Klacks.Api.Presentation.DTOs.Filter;
 
 public class TruncatedGroupResource : BaseTruncatedResult

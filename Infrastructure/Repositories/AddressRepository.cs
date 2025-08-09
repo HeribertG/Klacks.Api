@@ -4,7 +4,7 @@ using Klacks.Api.Models.Staffs;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks.Api.Repositories;
+namespace Klacks.Api.Infrastructure.Repositories;
 
 public class AddressRepository : BaseRepository<Address>, IAddressRepository
 {

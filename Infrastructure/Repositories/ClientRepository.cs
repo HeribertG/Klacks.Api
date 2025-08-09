@@ -9,7 +9,7 @@ using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Settings;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Repositories;
+namespace Klacks.Api.Infrastructure.Repositories;
 
 public class ClientRepository : IClientRepository
 {

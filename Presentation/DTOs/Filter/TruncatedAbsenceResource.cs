@@ -1,9 +1,8 @@
 using Klacks.Api.Presentation.DTOs.Schedules;
 
-namespace Klacks.Api.Presentation.DTOs.Filter
+namespace Klacks.Api.Presentation.DTOs.Filter;
+
+public class TruncatedAbsenceResource : BaseTruncatedResult
 {
-    public class TruncatedAbsenceResource : BaseTruncatedResult
-    {
-        public ICollection<AbsenceResource> Absences { get; set; } = null!;
-    }
+    public ICollection<AbsenceResource> Absences { get; set; } = null!;
 }

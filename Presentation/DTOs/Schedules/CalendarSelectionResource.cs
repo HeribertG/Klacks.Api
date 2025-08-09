@@ -1,11 +1,10 @@
-using Klacks.Api.Models.Schedules;
+namespace Klacks.Api.Presentation.DTOs.Schedules;
 
-namespace Klacks.Api.Presentation.DTOs.Schedules
+public class CalendarSelectionResource
 {
-    public class CalendarSelectionResource
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public List<SelectedCalendarResource> SelectedCalendars { get; set; } = new();
-    }
+    public Guid Id { get; set; }
+
+    public string Name { get; set; } = string.Empty;
+
+    public List<SelectedCalendarResource> SelectedCalendars { get; set; } = new();
 }

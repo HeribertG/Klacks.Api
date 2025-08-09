@@ -4,7 +4,7 @@ using Klacks.Api.Models.Settings;
 using Klacks.Api.Models.Staffs;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Repositories
+namespace Klacks.Api.Infrastructure.Repositories
 {
     public class CommunicationRepository : BaseRepository<Communication>, ICommunicationRepository
 

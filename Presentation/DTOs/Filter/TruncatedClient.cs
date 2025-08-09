@@ -1,13 +1,12 @@
 using Klacks.Api.Models.Staffs;
 
-namespace Klacks.Api.Presentation.DTOs.Filter
+namespace Klacks.Api.Presentation.DTOs.Filter;
+
+public class TruncatedClient : BaseTruncatedResult
 {
-    public class TruncatedClient : BaseTruncatedResult
-    {
-        public ICollection<Client>? Clients { get; set; }
+    public ICollection<Client>? Clients { get; set; }
 
-        public string Editor { get; set; } = string.Empty;
+    public string Editor { get; set; } = string.Empty;
 
-        public DateTime LastChange { get; set; }
-    }
+    public DateTime LastChange { get; set; }
 }

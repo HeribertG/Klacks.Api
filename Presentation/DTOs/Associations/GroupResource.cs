@@ -1,5 +1,6 @@
-using Klacks.Api.Presentation.DTOs.Associations;
 using System.Collections.ObjectModel;
+
+namespace Klacks.Api.Presentation.DTOs.Associations;
 
 public class GroupResource : SimpleGroupResource
 {

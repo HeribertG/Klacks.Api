@@ -3,7 +3,7 @@ using Klacks.Api.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Klacks.Api.Repositories
+namespace Klacks.Api.Infrastructure.Repositories
 {
     public class BaseRepository<TEntity> : IBaseRepository<TEntity>
         where TEntity : BaseEntity

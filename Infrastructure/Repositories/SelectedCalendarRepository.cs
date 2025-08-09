@@ -4,7 +4,7 @@ using Klacks.Api.Interfaces;
 using Klacks.Api.Models.CalendarSelections;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Repositories
+namespace Klacks.Api.Infrastructure.Repositories
 {
     public class SelectedCalendarRepository : BaseRepository<SelectedCalendar>, ISelectedCalendarRepository
     {

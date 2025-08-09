@@ -18,6 +18,7 @@ public class ChangePasswordResource
 
     [Required]
     public string OldPassword { get; set; } = string.Empty;
+
     [Required]
     public string Password { get; set; } = string.Empty;
 

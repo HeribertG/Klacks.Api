@@ -4,7 +4,7 @@ using Klacks.Api.Models.Associations;
 using Klacks.Api.Models.Staffs;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Repositories;
+namespace Klacks.Api.Infrastructure.Repositories;
 
 public class AssignedGroupRepository : BaseRepository<AssignedGroup>, IAssignedGroupRepository
 {

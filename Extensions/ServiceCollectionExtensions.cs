@@ -3,7 +3,7 @@ using Klacks.Api.Datas;
 using Klacks.Api.Helper;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Interfaces.Domains;
-using Klacks.Api.Repositories;
+using Klacks.Api.Infrastructure.Repositories;
 using Klacks.Api.Services;
 using Klacks.Api.Services.Exports;
 using Klacks.Api.Services.Groups;

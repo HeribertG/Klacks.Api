@@ -1,17 +1,16 @@
 using Klacks.Api.Datas;
 
-namespace Klacks.Api.Presentation.DTOs.Settings
+namespace Klacks.Api.Presentation.DTOs.Settings;
+
+public class MacroResource
 {
-    public class MacroResource
-    {
-        public string Content { get; set; } = string.Empty;
+    public string Content { get; set; } = string.Empty;
 
-        public MultiLanguage Description { get; set; } = null!;
+    public MultiLanguage Description { get; set; } = null!;
 
-        public Guid Id { get; set; }
+    public Guid Id { get; set; }
 
-        public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
 
-        public int Type { get; set; }
-    }
+    public int Type { get; set; }
 }

@@ -1,13 +1,12 @@
-namespace Klacks.Api.Presentation.DTOs.Schedules
+namespace Klacks.Api.Presentation.DTOs.Schedules;
+
+public class SelectedCalendarResource
 {
-    public class SelectedCalendarResource
-    {
-        public Guid CalendarSelectionId { get; set; }
+    public Guid CalendarSelectionId { get; set; }
 
-        public string Country { get; set; } = string.Empty;
+    public string Country { get; set; } = string.Empty;
 
-        public Guid Id { get; set; }
+    public Guid Id { get; set; }
 
-        public string State { get; set; } = string.Empty;
-    }
+    public string State { get; set; } = string.Empty;
 }

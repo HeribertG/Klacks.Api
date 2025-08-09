@@ -1,9 +1,8 @@
-namespace Klacks.Api.Presentation.DTOs
-{
-    public class HttpResultResource
-    {
-        public bool Success { get; set; }
+namespace Klacks.Api.Presentation.DTOs;
 
-        public string Messages { get; set; } = string.Empty;
-    }
+public class HttpResultResource
+{
+    public bool Success { get; set; }
+
+    public string Messages { get; set; } = string.Empty;
 }

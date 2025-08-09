@@ -4,7 +4,7 @@ using Klacks.Api.Models.Staffs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Klacks.Api.Repositories
+namespace Klacks.Api.Infrastructure.Repositories
 {
     public class AnnotationRepository : BaseRepository<Annotation>, IAnnotationRepository
     {
