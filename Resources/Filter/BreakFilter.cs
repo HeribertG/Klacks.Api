@@ -8,7 +8,7 @@ public class BreakFilter
 
     public string OrderBy { get; set; } = string.Empty;
 
-    public string Search { get; set; } = string.Empty;
+    public string SearchString { get; set; } = string.Empty;
 
     public string SortOrder { get; set; } = string.Empty;
 

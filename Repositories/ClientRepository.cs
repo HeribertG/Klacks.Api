@@ -66,16 +66,16 @@ public class ClientRepository : IClientRepository
     {
         var tmp = await FilterClients(filter.SelectedGroup);
 
-        if (!string.IsNullOrEmpty(filter.Search))
+        if (!string.IsNullOrEmpty(filter.SearchString))
         {
             // Ist der search string eine Nummer, sucht man nach der idNumber
-            if (_searchService.IsNumericSearch(filter.Search))
+            if (_searchService.IsNumericSearch(filter.SearchString))
             {
-                tmp = _searchService.ApplyIdNumberSearch(tmp, int.Parse(filter.Search.Trim()));
+                tmp = _searchService.ApplyIdNumberSearch(tmp, int.Parse(filter.SearchString.Trim()));
             }
             else
             {
-                tmp = _searchService.ApplySearchFilter(tmp, filter.Search, false);
+                tmp = _searchService.ApplySearchFilter(tmp, filter.SearchString, false);
             }
         }
 
