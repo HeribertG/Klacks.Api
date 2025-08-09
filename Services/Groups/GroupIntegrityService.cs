@@ -1,5 +1,5 @@
 using Klacks.Api.Datas;
-using Klacks.Api.Interfaces.Domains;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Models.Associations;
 using Microsoft.EntityFrameworkCore;
 
@@ -330,12 +330,12 @@ public class GroupIntegrityService : IGroupIntegrityService
         return true;
     }
 
-    public async Task<Klacks.Api.Interfaces.Domains.GroupIntegrityReport> PerformFullIntegrityCheckAsync()
+    public async Task<GroupIntegrityReport> PerformFullIntegrityCheckAsync()
     {
         _logger.LogInformation("Perform" +
             "ing full integrity check");
 
-        var report = new Klacks.Api.Interfaces.Domains.GroupIntegrityReport
+        var report = new GroupIntegrityReport
         {
             OrphanedGroups = await FindOrphanedGroupsAsync(),
             CircularReferences = await FindCircularReferencesAsync()

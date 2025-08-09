@@ -12,7 +12,7 @@ using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Presentation.DTOs.Settings;
 using Klacks.Api.Presentation.DTOs.Staffs;
 
-namespace Klacks.Api.AutoMappers;
+namespace Klacks.Api.Application.AutoMapper;
 
 public class MappingProfile : Profile
 {

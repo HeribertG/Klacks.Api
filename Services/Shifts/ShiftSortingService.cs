@@ -1,4 +1,4 @@
-using Klacks.Api.Interfaces.Domains;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Models.Schedules;
 
 namespace Klacks.Api.Services.Shifts;

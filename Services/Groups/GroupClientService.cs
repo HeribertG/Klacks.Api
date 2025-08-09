@@ -1,5 +1,5 @@
 ﻿using Klacks.Api.Datas;
-using Klacks.Api.Interfaces;
+using Klacks.Api.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Klacks.Api.Models.Associations;
 

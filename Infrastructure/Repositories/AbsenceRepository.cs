@@ -1,7 +1,7 @@
 using Klacks.Api.Datas;
 using Klacks.Api.Exceptions;
-using Klacks.Api.Interfaces;
-using Klacks.Api.Interfaces.Domains;
+using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Presentation.DTOs;
 using Klacks.Api.Presentation.DTOs.Filter;

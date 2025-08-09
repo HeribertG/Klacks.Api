@@ -3,7 +3,7 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Datas;
 using Klacks.Api.Enums;
 using Klacks.Api.Exceptions;
-using Klacks.Api.Interfaces;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Migrations;
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Presentation.DTOs.Schedules;

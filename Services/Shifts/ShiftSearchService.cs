@@ -1,6 +1,6 @@
 using Klacks.Api.Extensions;
 using Klacks.Api.Helper;
-using Klacks.Api.Interfaces.Domains;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Models.Schedules;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;

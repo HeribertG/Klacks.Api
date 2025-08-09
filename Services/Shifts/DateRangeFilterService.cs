@@ -1,5 +1,5 @@
 using Klacks.Api.Helper;
-using Klacks.Api.Interfaces.Domains;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Models.Schedules;
 using System.Linq.Expressions;
 

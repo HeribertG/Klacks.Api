@@ -1,6 +1,6 @@
 using Klacks.Api.Enums;
 using Klacks.Api.Helper;
-using Klacks.Api.Interfaces.Domains;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Models.Staffs;
 using Microsoft.EntityFrameworkCore;
 

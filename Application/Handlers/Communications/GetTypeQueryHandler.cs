@@ -1,4 +1,4 @@
-using Klacks.Api.Interfaces;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Models.Settings;
 using Klacks.Api.Application.Queries.Communications;
 using MediatR;

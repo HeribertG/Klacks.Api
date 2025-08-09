@@ -1,4 +1,4 @@
-using Klacks.Api.Interfaces;
+using Klacks.Api.Application.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Klacks.Api.Datas;

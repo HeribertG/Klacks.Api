@@ -1,6 +1,6 @@
 using AutoMapper;
 using Klacks.Api.Application.Commands.Settings.MacrosTypes;
-using Klacks.Api.Interfaces;
+using Klacks.Api.Application.Interfaces;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.MacrosType

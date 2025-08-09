@@ -1,5 +1,5 @@
 
-using Klacks.Api.Interfaces;
+using Klacks.Api.Infrastructure.Interfaces;
 
 
 namespace Klacks.Api.BasicScriptInterpreter

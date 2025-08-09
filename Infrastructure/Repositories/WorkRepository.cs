@@ -1,5 +1,5 @@
 using Klacks.Api.Datas;
-using Klacks.Api.Interfaces;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Models.Schedules;
 
 namespace Klacks.Api.Infrastructure.Repositories;
