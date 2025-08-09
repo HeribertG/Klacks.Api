@@ -1,5 +1,5 @@
 using MediatR;
 
-namespace Klacks.Api.Commands.Settings.Settings;
+namespace Klacks.Api.Application.Commands.Settings.Settings;
 
 public record PutCommand(Models.Settings.Settings model) : IRequest<Models.Settings.Settings>;

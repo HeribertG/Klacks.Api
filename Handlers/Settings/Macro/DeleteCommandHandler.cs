@@ -1,5 +1,5 @@
 using AutoMapper;
-using Klacks.Api.Commands.Settings.Macros;
+using Klacks.Api.Application.Commands.Settings.Macros;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;

@@ -1,4 +1,4 @@
-using Klacks.Api.Commands;
+using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

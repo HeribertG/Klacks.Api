@@ -1,5 +1,5 @@
 using AutoMapper;
-using Klacks.Api.Commands.Settings.Vats;
+using Klacks.Api.Application.Commands.Settings.Vats;
 using Klacks.Api.Interfaces;
 using MediatR;
 

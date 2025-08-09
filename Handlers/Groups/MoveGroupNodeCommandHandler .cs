@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Klacks.Api.Commands.Groups;
+using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Datas;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Presentation.DTOs.Associations;

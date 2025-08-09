@@ -1,4 +1,4 @@
-using Klacks.Api.Commands.Settings.Settings;
+using Klacks.Api.Application.Commands.Settings.Settings;
 using Klacks.Api.Models.Settings;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Presentation.DTOs.Filter;
@@ -104,7 +104,7 @@ public class SettingsController : BaseController
     [HttpDelete("MacroType/{id}")]
     public async Task<ActionResult<MacroType>> DeleteMacroType(Guid id)
     {
-        var macroType = await mediator.Send(new Commands.Settings.MacrosTypes.DeleteCommand(id));
+        var macroType = await mediator.Send(new Application.Commands.Settings.MacrosTypes.DeleteCommand(id));
         if (macroType == null)
         {
             return NotFound();
@@ -135,13 +135,13 @@ public class SettingsController : BaseController
     [HttpPost("MacroType")]
     public async Task<MacroType> PostMacroType([FromBody] MacroType macroType)
     {
-        return await mediator.Send(new Commands.Settings.MacrosTypes.PostCommand(macroType));
+        return await mediator.Send(new Application.Commands.Settings.MacrosTypes.PostCommand(macroType));
     }
 
     [HttpPut("MacroType")]
     public async Task<MacroType> PutMacroType([FromBody] MacroType macroType)
     {
-        return await mediator.Send(new Commands.Settings.MacrosTypes.PutCommand(macroType));
+        return await mediator.Send(new Application.Commands.Settings.MacrosTypes.PutCommand(macroType));
     }
 
     #endregion MacrosType
@@ -151,7 +151,7 @@ public class SettingsController : BaseController
     [HttpDelete("Macros/{id}")]
     public async Task<ActionResult<MacroResource>> DeleteMacro(Guid id)
     {
-        return await mediator.Send(new Commands.Settings.Macros.DeleteCommand(id));
+        return await mediator.Send(new Application.Commands.Settings.Macros.DeleteCommand(id));
     }
 
     [HttpGet("Macros")]
@@ -176,13 +176,13 @@ public class SettingsController : BaseController
     [HttpPost("Macros")]
     public async Task<ActionResult<MacroResource>> PostMacro([FromBody] MacroResource macroResource)
     {
-        return await mediator.Send(new Commands.Settings.Macros.PostCommand(macroResource));
+        return await mediator.Send(new Application.Commands.Settings.Macros.PostCommand(macroResource));
     }
 
     [HttpPut("Macros")]
     public async Task<ActionResult<MacroResource>> PutMacro([FromBody] MacroResource macroResource)
     {
-        return await mediator.Send(new Commands.Settings.Macros.PutCommand(macroResource));
+        return await mediator.Send(new Application.Commands.Settings.Macros.PutCommand(macroResource));
     }
 
     #endregion Macros
@@ -192,7 +192,7 @@ public class SettingsController : BaseController
     [HttpDelete("Vat/{id}")]
     public async Task<ActionResult<Vat>> DeleteVAT(Guid id)
     {
-        var vat = await mediator.Send(new Commands.Settings.Vats.DeleteCommand(id));
+        var vat = await mediator.Send(new Application.Commands.Settings.Vats.DeleteCommand(id));
         if (vat == null)
         {
             return NotFound();
@@ -223,13 +223,13 @@ public class SettingsController : BaseController
     [HttpPost("Vat")]
     public async Task<ActionResult<Vat>> PostVAT([FromBody] Vat vat)
     {
-        return await mediator.Send(new Commands.Settings.Vats.PostCommand(vat));
+        return await mediator.Send(new Application.Commands.Settings.Vats.PostCommand(vat));
     }
 
     [HttpPut("Vat")]
     public async Task<ActionResult<Vat>> PutVAT([FromBody] Vat vat)
     {
-        return await mediator.Send(new Commands.Settings.Vats.PutCommand(vat));
+        return await mediator.Send(new Application.Commands.Settings.Vats.PutCommand(vat));
     }
 
     #endregion Vat
@@ -239,7 +239,7 @@ public class SettingsController : BaseController
     [HttpDelete("CalendarRule/{id}")]
     public async Task<ActionResult<CalendarRule>> DeleteCalendarRule(Guid id)
     {
-        var calendarRule = await mediator.Send(new Commands.Settings.CalendarRules.DeleteCommand(id));
+        var calendarRule = await mediator.Send(new Application.Commands.Settings.CalendarRules.DeleteCommand(id));
         if (calendarRule == null)
         {
             return NotFound();
@@ -283,7 +283,7 @@ public class SettingsController : BaseController
     [HttpPost("CalendarRule")]
     public async Task<ActionResult<CalendarRule>> PostCalendarRule([FromBody] CalendarRuleResource calendarRuleResource)
     {
-        var calendarRule = await mediator.Send(new Commands.Settings.CalendarRules.PostCommand(calendarRuleResource));
+        var calendarRule = await mediator.Send(new Application.Commands.Settings.CalendarRules.PostCommand(calendarRuleResource));
 
         return Ok(calendarRule);
     }
@@ -291,7 +291,7 @@ public class SettingsController : BaseController
     [HttpPut("CalendarRule")]
     public async Task<ActionResult<CalendarRule>> PutCalendarRule([FromBody] CalendarRule calendarRule)
     {
-        await mediator.Send(new Commands.Settings.CalendarRules.PutCommand(calendarRule));
+        await mediator.Send(new Application.Commands.Settings.CalendarRules.PutCommand(calendarRule));
 
         return calendarRule;
     }

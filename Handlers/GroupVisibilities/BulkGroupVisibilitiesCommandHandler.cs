@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Klacks.Api.Commands.GroupVisibilities;
+using Klacks.Api.Application.Commands.GroupVisibilities;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Associations;
 using MediatR;

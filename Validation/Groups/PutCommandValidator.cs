@@ -1,5 +1,5 @@
 using FluentValidation;
-using Klacks.Api.Commands;
+using Klacks.Api.Application.Commands;
 using Klacks.Api.Presentation.DTOs.Associations;
 
 namespace Klacks.Api.Validation.Groups;

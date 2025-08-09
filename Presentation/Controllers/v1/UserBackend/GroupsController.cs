@@ -1,4 +1,4 @@
-using Klacks.Api.Commands.Groups;
+using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.Queries.Groups;
 using Klacks.Api.Presentation.DTOs.Associations;
 using Klacks.Api.Presentation.DTOs.Filter;

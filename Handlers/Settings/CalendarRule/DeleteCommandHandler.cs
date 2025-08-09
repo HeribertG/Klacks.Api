@@ -1,5 +1,5 @@
 using AutoMapper;
-using Klacks.Api.Commands.Settings.CalendarRules;
+using Klacks.Api.Application.Commands.Settings.CalendarRules;
 using Klacks.Api.Interfaces;
 using MediatR;
 

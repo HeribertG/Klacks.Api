@@ -1,5 +1,5 @@
 using MediatR;
 
-namespace Klacks.Api.Commands;
+namespace Klacks.Api.Application.Commands;
 
 public record PutCommand<TModel>(TModel Resource) : IRequest<TModel?>;

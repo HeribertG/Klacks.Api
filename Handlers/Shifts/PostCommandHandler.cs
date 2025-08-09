@@ -1,5 +1,5 @@
 using AutoMapper;
-using Klacks.Api.Commands;
+using Klacks.Api.Application.Commands;
 using Klacks.Api.Enums;
 using Klacks.Api.Exceptions;
 using Klacks.Api.Interfaces;

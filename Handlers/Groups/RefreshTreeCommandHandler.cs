@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Klacks.Api.Commands;
-using Klacks.Api.Commands.Groups;
+using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Interfaces;
 using MediatR;
 
