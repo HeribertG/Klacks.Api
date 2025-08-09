@@ -1,7 +1,7 @@
 using AutoMapper;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Queries;
-using Klacks.Api.Resources.Schedules;
+using Klacks.Api.Presentation.Resources.Schedules;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Absences

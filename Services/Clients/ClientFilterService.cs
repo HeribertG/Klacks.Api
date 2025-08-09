@@ -1,7 +1,7 @@
 using Klacks.Api.Interfaces.Domains;
 using Klacks.Api.Models.Staffs;
-using Klacks.Api.Resources.Filter;
-using Klacks.Api.Resources.Settings;
+using Klacks.Api.Presentation.Resources.Filter;
+using Klacks.Api.Presentation.Resources.Settings;
 
 namespace Klacks.Api.Services.Clients;
 

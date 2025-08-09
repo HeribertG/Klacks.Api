@@ -1,4 +1,4 @@
-using Klacks.Api.Resources;
+using Klacks.Api.Presentation.Resources;
 using MediatR;
 
 namespace Klacks.Api.Queries.Absences

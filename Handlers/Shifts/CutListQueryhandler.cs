@@ -2,7 +2,7 @@
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Queries.Shifts;
-using Klacks.Api.Resources.Schedules;
+using Klacks.Api.Presentation.Resources.Schedules;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Shifts;

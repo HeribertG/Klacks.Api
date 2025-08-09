@@ -1,7 +1,7 @@
 using Klacks.Api.Datas;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Settings;
-using Klacks.Api.Resources.Filter;
+using Klacks.Api.Presentation.Resources.Filter;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Repositories;

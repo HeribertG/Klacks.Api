@@ -1,4 +1,4 @@
-using Klacks.Api.Resources.Settings;
+using Klacks.Api.Presentation.Resources.Settings;
 using MediatR;
 
 namespace Klacks.Api.Commands.Settings.Macros;

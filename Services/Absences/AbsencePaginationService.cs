@@ -1,7 +1,7 @@
 using Klacks.Api.Interfaces.Domains;
 using Klacks.Api.Models.Schedules;
-using Klacks.Api.Resources;
-using Klacks.Api.Resources.Filter;
+using Klacks.Api.Presentation.Resources;
+using Klacks.Api.Presentation.Resources.Filter;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Services.Absences;

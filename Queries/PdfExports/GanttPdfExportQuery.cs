@@ -1,4 +1,4 @@
-﻿using Klacks.Api.Resources.PdfExports;
+﻿using Klacks.Api.Presentation.Resources.PdfExports;
 using MediatR;
 
 namespace Klacks.Api.Queries.PdfExports;

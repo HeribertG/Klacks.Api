@@ -1,4 +1,4 @@
-using Klacks.Api.Resources.Staffs;
+using Klacks.Api.Presentation.Resources.Staffs;
 using MediatR;
 
 namespace Klacks.Api.Queries.Addresses;

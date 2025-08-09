@@ -1,6 +1,6 @@
 using Klacks.Api.Models.Associations;
 using Klacks.Api.Models.Schedules;
-using Klacks.Api.Resources.Filter;
+using Klacks.Api.Presentation.Resources.Filter;
 
 namespace Klacks.Api.Interfaces;
 

@@ -1,5 +1,5 @@
-using Klacks.Api.Resources.Filter;
-using Klacks.Api.Resources.Schedules;
+using Klacks.Api.Presentation.Resources.Filter;
+using Klacks.Api.Presentation.Resources.Schedules;
 using MediatR;
 
 namespace Klacks.Api.Queries.Breaks;

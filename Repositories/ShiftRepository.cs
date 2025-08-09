@@ -3,7 +3,7 @@ using Klacks.Api.Interfaces;
 using Klacks.Api.Interfaces.Domains;
 using Klacks.Api.Models.Associations;
 using Klacks.Api.Models.Schedules;
-using Klacks.Api.Resources.Filter;
+using Klacks.Api.Presentation.Resources.Filter;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Repositories;

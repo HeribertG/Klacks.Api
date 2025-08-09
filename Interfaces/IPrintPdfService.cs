@@ -1,4 +1,4 @@
-using Klacks.Api.Resources;
+using Klacks.Api.Presentation.Resources;
 
 namespace Klacks.Api.Interfaces;
 

@@ -2,7 +2,7 @@ using AutoMapper;
 using Klacks.Api.Commands.Settings.CalendarRules;
 using Klacks.Api.Interfaces;
 using MediatR;
-using Klacks.Api.Resources.Settings;
+using Klacks.Api.Presentation.Resources.Settings;
 
 namespace Klacks.Api.Handlers.Settings.CalendarRules;
 

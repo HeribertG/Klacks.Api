@@ -1,7 +1,7 @@
 using AutoMapper;
 using Klacks.Api.Commands;
 using Klacks.Api.Interfaces;
-using Klacks.Api.Resources.Staffs;
+using Klacks.Api.Presentation.Resources.Staffs;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Annotations;

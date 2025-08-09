@@ -1,7 +1,7 @@
 using AutoMapper;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Queries;
-using Klacks.Api.Resources.Settings;
+using Klacks.Api.Presentation.Resources.Settings;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Countries

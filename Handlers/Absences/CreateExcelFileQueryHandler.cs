@@ -1,6 +1,6 @@
 using Klacks.Api.Interfaces;
 using Klacks.Api.Queries.Absences;
-using Klacks.Api.Resources;
+using Klacks.Api.Presentation.Resources;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Absences;

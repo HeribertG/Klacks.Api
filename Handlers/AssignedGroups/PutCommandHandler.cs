@@ -2,7 +2,7 @@
 using Klacks.Api.Commands;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Staffs;
-using Klacks.Api.Resources.Staffs;
+using Klacks.Api.Presentation.Resources.Staffs;
 using MediatR;
 
 namespace Klacks.Api.Handlers.AssignedGroups

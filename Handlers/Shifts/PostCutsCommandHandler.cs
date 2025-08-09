@@ -4,7 +4,7 @@ using Klacks.Api.Enums;
 using Klacks.Api.Exceptions;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Schedules;
-using Klacks.Api.Resources.Schedules;
+using Klacks.Api.Presentation.Resources.Schedules;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Shifts;

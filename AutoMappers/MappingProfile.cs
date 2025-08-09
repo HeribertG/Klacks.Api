@@ -5,12 +5,12 @@ using Klacks.Api.Models.CalendarSelections;
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Models.Settings;
 using Klacks.Api.Models.Staffs;
-using Klacks.Api.Resources.Associations;
-using Klacks.Api.Resources.Filter;
-using Klacks.Api.Resources.Registrations;
-using Klacks.Api.Resources.Schedules;
-using Klacks.Api.Resources.Settings;
-using Klacks.Api.Resources.Staffs;
+using Klacks.Api.Presentation.Resources.Associations;
+using Klacks.Api.Presentation.Resources.Filter;
+using Klacks.Api.Presentation.Resources.Registrations;
+using Klacks.Api.Presentation.Resources.Schedules;
+using Klacks.Api.Presentation.Resources.Settings;
+using Klacks.Api.Presentation.Resources.Staffs;
 
 namespace Klacks.Api.AutoMappers;
 

@@ -1,7 +1,7 @@
 using AutoMapper;
 using Klacks.Api.Interfaces;
 using Klacks.Api.Queries.Groups;
-using Klacks.Api.Resources.Associations;
+using Klacks.Api.Presentation.Resources.Associations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

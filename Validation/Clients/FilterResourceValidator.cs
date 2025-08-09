@@ -1,6 +1,6 @@
 using FluentValidation;
 using Klacks.Api.Interfaces;
-using Klacks.Api.Resources.Filter;
+using Klacks.Api.Presentation.Resources.Filter;
 
 namespace Klacks.Api.Validation.Clients;
 

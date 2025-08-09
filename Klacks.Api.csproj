@@ -50,7 +50,8 @@
 		<Folder Include="Application\" />
 		<Folder Include="Interfaces\Domains\" />
 		<Folder Include="Migrations\" />
-		<Folder Include="NewFolder\" />
+		<Folder Include="Domain\" />
+		<Folder Include="Infrastructure\" />
 	</ItemGroup>
 
 </Project>

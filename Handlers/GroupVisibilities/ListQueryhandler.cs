@@ -2,7 +2,7 @@
 using Klacks.Api.Interfaces;
 using Klacks.Api.Models.Associations;
 using Klacks.Api.Queries;
-using Klacks.Api.Resources.Associations;
+using Klacks.Api.Presentation.Resources.Associations;
 using MediatR;
 
 namespace Klacks.Api.Handlers.GroupVisibilities;

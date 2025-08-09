@@ -1,7 +1,7 @@
 using AutoMapper;
 using Klacks.Api.Commands.Settings.Macros;
 using Klacks.Api.Interfaces;
-using Klacks.Api.Resources.Settings;
+using Klacks.Api.Presentation.Resources.Settings;
 using MediatR;
 
 namespace Klacks.Api.Handlers.Settings.Macro

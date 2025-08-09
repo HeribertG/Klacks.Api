@@ -1,5 +1,5 @@
 using Klacks.Api.Models.Staffs;
-using Klacks.Api.Resources.Filter;
+using Klacks.Api.Presentation.Resources.Filter;
 
 namespace Klacks.Api.Interfaces.Domains;
 
