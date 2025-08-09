@@ -1,6 +1,6 @@
 ﻿using Klacks.Api.Domain.Enums;
 
-namespace Klacks.Api.Extensions;
+namespace Klacks.Api.Domain.Extensions;
 
 public static class DayOfWeekExtensions
 {

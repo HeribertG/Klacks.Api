@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Klacks.Api.Domain.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Exceptions;
+namespace Klacks.Api.Infrastructure.Exceptions;
 
 public class ValidationExceptionMiddleware
 {

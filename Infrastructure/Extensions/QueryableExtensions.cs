@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Extensions;
+namespace Klacks.Api.Infrastructure.Extensions;
 
 public static class QueryableExtensions
 {

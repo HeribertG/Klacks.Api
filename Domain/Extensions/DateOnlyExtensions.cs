@@ -1,4 +1,4 @@
-﻿namespace Klacks.Api.Extensions;
+﻿namespace Klacks.Api.Domain.Extensions;
 
 public static class DateOnlyExtensions
 {

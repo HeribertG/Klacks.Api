@@ -14,7 +14,7 @@ using Klacks.Api.Services.Clients;
 using Klacks.Api.Services.Absences;
 using Klacks.Api.Services.Authentication;
 
-namespace Klacks.Api.Extensions;
+namespace Klacks.Api.Infrastructure.Extensions;
 
 public static  class ServiceCollectionExtensions
 {

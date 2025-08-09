@@ -1,4 +1,4 @@
-﻿namespace Klacks.Api.Exceptions;
+﻿namespace Klacks.Api.Domain.Exceptions;
 
 /// <summary>
 /// s thrown if a command is invalid.

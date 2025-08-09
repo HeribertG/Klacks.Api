@@ -1,4 +1,3 @@
-using Klacks.Api.Extensions;
 using Klacks.Api.Helper;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Models.Schedules;

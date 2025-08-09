@@ -1,4 +1,4 @@
-using Klacks.Api.Exceptions;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.Absences;
 using Klacks.Api.Presentation.DTOs.Filter;
