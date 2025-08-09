@@ -1,5 +1,5 @@
 using Klacks.Api.Datas;
-using Klacks.Api.Enums;
+using Klacks.Api.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

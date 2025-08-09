@@ -1,6 +1,7 @@
 using Klacks.Api.Datas;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Models.Associations;
 using Klacks.Api.Models.Schedules;
 using Klacks.Api.Presentation.DTOs.Filter;
@@ -76,7 +77,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     public async Task<List<Shift>> CutList(Guid id)
     {
         return await context.Shift
-            .Where(x => x.OriginalId == id && x.Status >= Klacks.Api.Enums.ShiftStatus.IsCutOriginal)
+            .Where(x => x.OriginalId == id && x.Status >= ShiftStatus.IsCutOriginal)
             .OrderBy(x => x.Lft)
             .ThenBy(x => x.FromDate)
             .ThenBy(x => x.StartShift)

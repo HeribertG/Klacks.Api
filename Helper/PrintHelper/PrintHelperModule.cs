@@ -1,7 +1,7 @@
 
 using iTextSharp.text;
 using iTextSharp.text.pdf;
-using Klacks.Api.Enums;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Models.Staffs;
 using System.Text;
 

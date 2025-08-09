@@ -1,5 +1,5 @@
 using Klacks.Api.Datas;
-using Klacks.Api.Enums;
+using Klacks.Api.Domain.Enums;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 

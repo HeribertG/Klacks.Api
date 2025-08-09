@@ -1,4 +1,4 @@
-namespace Klacks.Api.Enums;
+namespace Klacks.Api.Domain.Enums;
 
 public enum MacroTypeEnum
 {

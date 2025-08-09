@@ -1,4 +1,4 @@
-﻿using Klacks.Api.Enums;
+﻿using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Models.Settings;
 

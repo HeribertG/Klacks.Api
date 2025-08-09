@@ -1,4 +1,4 @@
-using Klacks.Api.Enums;
+using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Presentation.DTOs.Staffs;
 
