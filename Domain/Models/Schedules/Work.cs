@@ -1,4 +1,4 @@
-using Klacks.Api.Datas;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Staffs;
 using Newtonsoft.Json;
 

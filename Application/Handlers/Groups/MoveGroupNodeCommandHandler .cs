@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Klacks.Api.Application.Commands.Groups;
-using Klacks.Api.Datas;
+using Klacks.Api.Domain.Common;
+using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;

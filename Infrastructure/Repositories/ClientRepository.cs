@@ -1,4 +1,5 @@
-using Klacks.Api.Datas;
+using Klacks.Api.Domain.Common;
+using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Helpers;
 using Klacks.Api.Application.Interfaces;

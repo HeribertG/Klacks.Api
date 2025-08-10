@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Klacks.Api.Datas;
+using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Domain.Models.Settings
 {

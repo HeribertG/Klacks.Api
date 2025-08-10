@@ -1,6 +1,7 @@
 using AutoMapper;
 using Klacks.Api.Application.Commands;
-using Klacks.Api.Datas;
+using Klacks.Api.Domain.Common;
+using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.Interfaces;

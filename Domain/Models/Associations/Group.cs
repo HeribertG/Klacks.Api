@@ -1,4 +1,4 @@
-using Klacks.Api.Datas;
+using Klacks.Api.Domain.Common;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 

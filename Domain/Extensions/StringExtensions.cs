@@ -1,4 +1,5 @@
-using Klacks.Api.Datas;
+using Klacks.Api.Domain.Common;
+using Klacks.Api.Infrastructure.Persistence;
 using System.Reflection;
 
 namespace Klacks.Api.Domain.Extensions

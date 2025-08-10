@@ -2,7 +2,8 @@
 using Klacks.Api;
 using Klacks.Api.Infrastructure.Converters;
 using Klacks.Api.Data.Seed;
-using Klacks.Api.Datas;
+using Klacks.Api.Domain.Common;
+using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Exceptions;
 using Klacks.Api.Infrastructure.Extensions;
 using Klacks.Api.Domain.Models.Authentification;

@@ -1,7 +1,7 @@
 using Klacks.Api.Application.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Klacks.Api.Datas;
+namespace Klacks.Api.Infrastructure.Persistence;
 
 public class UnitOfWork : IUnitOfWork
 {

@@ -1,4 +1,5 @@
-﻿using Klacks.Api.Datas;
+﻿using Klacks.Api.Domain.Common;
+using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Klacks.Api.Domain.Models.Associations;

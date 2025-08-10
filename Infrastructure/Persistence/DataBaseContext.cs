@@ -1,3 +1,4 @@
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Models.CalendarSelections;
@@ -10,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Security.Claims;
 
-namespace Klacks.Api.Datas;
+namespace Klacks.Api.Infrastructure.Persistence;
 
 public class DataBaseContext : IdentityDbContext
 {

@@ -1,5 +1,6 @@
 using Klacks.Api.Application.Constants;
-using Klacks.Api.Datas;
+using Klacks.Api.Domain.Common;
+using Klacks.Api.Infrastructure.Persistence;
 
 namespace Klacks.Api.Infrastructure.Email;
 

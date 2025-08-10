@@ -4,7 +4,7 @@ using Klacks.Api.Domain.Models.Authentification;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
-namespace Klacks.Api.Datas;
+namespace Klacks.Api.Infrastructure.Persistence;
 
 public class UserService : IUserService
 {
