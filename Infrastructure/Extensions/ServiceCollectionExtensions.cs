@@ -1,18 +1,18 @@
 ﻿using Klacks.Api.BasicScriptInterpreter;
 using Klacks.Api.Datas;
-using Klacks.Api.Helper;
+using Klacks.Api.Infrastructure.FileHandling;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Repositories;
-using Klacks.Api.Services;
-using Klacks.Api.Services.Exports;
-using Klacks.Api.Services.Groups;
-using Klacks.Api.Services.Holidays;
-using Klacks.Api.Services.Shifts;
-using Klacks.Api.Services.Clients;
-using Klacks.Api.Services.Absences;
-using Klacks.Api.Services.Authentication;
+using Klacks.Api.Infrastructure.Services;
+using Klacks.Api.Infrastructure.Services.PdfExports;
+using Klacks.Api.Domain.Services.Groups;
+using Klacks.Api.Domain.Services.Holidays;
+using Klacks.Api.Domain.Services.Shifts;
+using Klacks.Api.Domain.Services.Clients;
+using Klacks.Api.Domain.Services.Absences;
+using Klacks.Api.Infrastructure.Services.Authentication;
 
 namespace Klacks.Api.Infrastructure.Extensions;
 
@@ -76,7 +76,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IAbsencePaginationService, AbsencePaginationService>();
 
         // Authentication Domain Services
-        services.AddScoped<Klacks.Api.Validation.Accounts.JwtValidator>();
+        services.AddScoped<Klacks.Api.Application.Validation.Accounts.JwtValidator>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IUserManagementService, UserManagementService>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();

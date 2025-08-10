@@ -1,6 +1,6 @@
-﻿using Klacks.Api.Constants;
+﻿using Klacks.Api.Domain.Constants;
 using Klacks.Api.Datas;
-using Klacks.Api.Helper.Email;
+using Klacks.Api.Infrastructure.Email;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Interfaces;

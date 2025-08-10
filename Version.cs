@@ -1,3 +1,5 @@
+using Klacks.Api.Infrastructure.Constants;
+
 namespace Klacks.Api;
 
 public class MyVersion : VersionConstant
