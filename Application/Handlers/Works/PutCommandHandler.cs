@@ -42,7 +42,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<WorkResource>, WorkR
 
             logger.LogInformation("Work with ID {WorkId} updated successfully.", request.Resource.Id);
 
-            return mapper.Map<Models.Schedules.Work, WorkResource>(updatedWork);
+            return mapper.Map<Klacks.Api.Domain.Models.Schedules.Work, WorkResource>(updatedWork);
         }
         catch (Exception ex)
         {

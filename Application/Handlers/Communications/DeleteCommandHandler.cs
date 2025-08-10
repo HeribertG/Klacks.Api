@@ -40,7 +40,7 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<CommunicationR
 
             logger.LogInformation("Communication with ID {CommunicationId} deleted successfully.", request.Id);
 
-            return mapper.Map<Models.Staffs.Communication, CommunicationResource>(communication);
+            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Communication, CommunicationResource>(communication);
         }
         catch (Exception ex)
         {

@@ -29,14 +29,14 @@ public class PostCommandHandler : IRequestHandler<PostCommand<AbsenceResource>, 
     {
         try
         {
-            var absence = mapper.Map<AbsenceResource, Models.Schedules.Absence>(request.Resource);
+            var absence = mapper.Map<AbsenceResource, Klacks.Api.Domain.Models.Schedules.Absence>(request.Resource);
             await repository.Add(absence);
 
             await unitOfWork.CompleteAsync();
 
             logger.LogInformation("New absence added successfully. ID: {AbsenceId}", absence.Id);
 
-            return mapper.Map<Models.Schedules.Absence, AbsenceResource>(absence);
+            return mapper.Map<Klacks.Api.Domain.Models.Schedules.Absence, AbsenceResource>(absence);
         }
         catch (Exception ex)
         {

@@ -40,7 +40,7 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<BreakResource>
 
             logger.LogInformation("Break with ID {BreakId} deleted successfully.", request.Id);
 
-            return mapper.Map<Models.Schedules.Break, BreakResource>(breakItem);
+            return mapper.Map<Klacks.Api.Domain.Models.Schedules.Break, BreakResource>(breakItem);
         }
         catch (Exception ex)
         {

@@ -1,7 +1,7 @@
 using Klacks.Api.Datas;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Models.Settings;
-using Klacks.Api.Models.Staffs;
+using Klacks.Api.Domain.Models.Settings;
+using Klacks.Api.Domain.Models.Staffs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Repositories;

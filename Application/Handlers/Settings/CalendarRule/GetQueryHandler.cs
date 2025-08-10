@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.CalendarRule
 {
-    public class GetQueryHandler : IRequestHandler<GetQuery, Models.Settings.CalendarRule?>
+    public class GetQueryHandler : IRequestHandler<GetQuery, Klacks.Api.Domain.Models.Settings.CalendarRule?>
     {
         private readonly IMapper mapper;
         private readonly ISettingsRepository repository;
@@ -16,7 +16,7 @@ namespace Klacks.Api.Application.Handlers.Settings.CalendarRule
             this.repository = repository;
         }
 
-        public async Task<Models.Settings.CalendarRule?> Handle(GetQuery request, CancellationToken cancellationToken)
+        public async Task<Klacks.Api.Domain.Models.Settings.CalendarRule?> Handle(GetQuery request, CancellationToken cancellationToken)
         {
             return await repository.GetCalendarRule(request.Id);
         }

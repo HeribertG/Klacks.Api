@@ -29,14 +29,14 @@ public class PostCommandHandler : IRequestHandler<PostCommand<BreakResource>, Br
     {
         try
         {
-            var breakItem = mapper.Map<BreakResource, Models.Schedules.Break>(request.Resource);
+            var breakItem = mapper.Map<BreakResource, Klacks.Api.Domain.Models.Schedules.Break>(request.Resource);
             await repository.Add(breakItem);
 
             await unitOfWork.CompleteAsync();
 
             logger.LogInformation("New break added successfully. ID: {BreakId}", breakItem.Id);
 
-            return mapper.Map<Models.Schedules.Break, BreakResource>(breakItem);
+            return mapper.Map<Klacks.Api.Domain.Models.Schedules.Break, BreakResource>(breakItem);
         }
         catch (Exception ex)
         {

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Models.Schedules;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Application.Queries.Shifts;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;

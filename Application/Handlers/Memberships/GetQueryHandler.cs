@@ -21,7 +21,7 @@ namespace Klacks.Api.Application.Handlers.Memberships
         public async Task<MembershipResource> Handle(GetQuery<MembershipResource> request, CancellationToken cancellationToken)
         {
             var membership = await repository.Get(request.Id);
-            return mapper.Map<Models.Associations.Membership, MembershipResource>(membership!);
+            return mapper.Map<Klacks.Api.Domain.Models.Associations.Membership, MembershipResource>(membership!);
         }
     }
 }

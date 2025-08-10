@@ -21,6 +21,6 @@ public class GetRootsQueryHandler : IRequestHandler<GetRootsQuery, IEnumerable<G
     public async Task<IEnumerable<GroupResource>> Handle(GetRootsQuery request, CancellationToken cancellationToken)
     {
         var list = await repository.GetRoots();
-        return mapper.Map<IEnumerable<Models.Associations.Group>, IEnumerable<GroupResource>>(list);
+        return mapper.Map<IEnumerable<Klacks.Api.Domain.Models.Associations.Group>, IEnumerable<GroupResource>>(list);
     }
 }

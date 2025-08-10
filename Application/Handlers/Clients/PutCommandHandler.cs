@@ -34,7 +34,7 @@ public class PutCommandHandler(
 
             logger.LogInformation("Client with ID {ClientId} updated successfully.", request.Resource.Id);
 
-            return mapper.Map<Models.Staffs.Client, ClientResource>(updatedClient);
+            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Client, ClientResource>(updatedClient);
         }
         catch (Exception ex)
         {

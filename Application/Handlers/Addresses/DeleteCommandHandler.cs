@@ -40,7 +40,7 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<AddressResourc
 
             logger.LogInformation("Address with ID {AddressId} deleted successfully.", request.Id);
 
-            return mapper.Map<Models.Staffs.Address, AddressResource>(address);
+            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Address, AddressResource>(address);
         }
         catch (Exception ex)
         {

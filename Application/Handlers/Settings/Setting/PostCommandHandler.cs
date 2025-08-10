@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.Setting
 {
-    public class PostCommandHandler : IRequestHandler<PostCommand, Models.Settings.Settings?>
+    public class PostCommandHandler : IRequestHandler<PostCommand, Klacks.Api.Domain.Models.Settings.Settings?>
     {
         private readonly IMapper mapper;
         private readonly ISettingsRepository repository;
@@ -20,7 +20,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
             this.unitOfWork = unitOfWork;
         }
 
-        public async Task<Models.Settings.Settings?> Handle(PostCommand request, CancellationToken cancellationToken)
+        public async Task<Klacks.Api.Domain.Models.Settings.Settings?> Handle(PostCommand request, CancellationToken cancellationToken)
         {
             var res = await repository.AddSetting(request.model);
             await unitOfWork.CompleteAsync();

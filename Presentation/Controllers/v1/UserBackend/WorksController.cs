@@ -1,4 +1,4 @@
-using Klacks.Api.Models.Schedules;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Application.Queries.Works;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Schedules;

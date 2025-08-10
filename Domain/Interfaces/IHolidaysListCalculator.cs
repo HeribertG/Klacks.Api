@@ -1,5 +1,5 @@
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Models.Settings;
+using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Services.Holidays;
 
 namespace Klacks.Api.Domain.Interfaces;

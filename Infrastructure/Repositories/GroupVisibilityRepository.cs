@@ -2,7 +2,7 @@
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Interfaces;
-using Klacks.Api.Models.Associations;
+using Klacks.Api.Domain.Models.Associations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Repositories;

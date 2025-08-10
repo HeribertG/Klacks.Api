@@ -29,7 +29,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<AddressResource>, 
     {
         try
         {
-            var address = mapper.Map<AddressResource, Models.Staffs.Address>(request.Resource);
+            var address = mapper.Map<AddressResource, Klacks.Api.Domain.Models.Staffs.Address>(request.Resource);
 
             await repository.Add(address);
 
@@ -37,7 +37,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<AddressResource>, 
 
             logger.LogInformation("New address added successfully. ID: {AddressId}", address.Id);
 
-            return mapper.Map<Models.Staffs.Address, AddressResource>(address);
+            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Address, AddressResource>(address);
         }
         catch (Exception ex)
         {

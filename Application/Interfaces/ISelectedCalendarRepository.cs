@@ -1,4 +1,4 @@
-using Klacks.Api.Models.CalendarSelections;
+using Klacks.Api.Domain.Models.CalendarSelections;
 
 namespace Klacks.Api.Application.Interfaces;
 

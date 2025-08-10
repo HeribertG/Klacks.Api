@@ -1,5 +1,5 @@
 ﻿using Klacks.Api.Domain.Enums;
-using Klacks.Api.Models.Schedules;
+using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Presentation.DTOs.Schedules.Corrections;
 

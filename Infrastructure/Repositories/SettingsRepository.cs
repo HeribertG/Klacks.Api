@@ -1,6 +1,6 @@
 using Klacks.Api.Datas;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Models.Settings;
+using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,23 +17,23 @@ public class SettingsRepository : ISettingsRepository
 
     #region Setting
 
-    public async Task<Models.Settings.Settings> AddSetting(Models.Settings.Settings settings)
+    public async Task<Klacks.Api.Domain.Models.Settings.Settings> AddSetting(Klacks.Api.Domain.Models.Settings.Settings settings)
     {
         await context.Settings.AddAsync(settings);
         return settings;
     }
 
-    public async Task<Models.Settings.Settings?> GetSetting(string type)
+    public async Task<Klacks.Api.Domain.Models.Settings.Settings?> GetSetting(string type)
     {
         return await context.Settings.FirstOrDefaultAsync(x => x.Type == type);
     }
 
-    public async Task<IEnumerable<Models.Settings.Settings>> GetSettingsList()
+    public async Task<IEnumerable<Klacks.Api.Domain.Models.Settings.Settings>> GetSettingsList()
     {
         return await context.Settings.ToListAsync();
     }
 
-    public Task<Models.Settings.Settings> PutSetting(Models.Settings.Settings settings)
+    public Task<Klacks.Api.Domain.Models.Settings.Settings> PutSetting(Klacks.Api.Domain.Models.Settings.Settings settings)
     {
         context.Settings.Update(settings);
         return Task.FromResult(settings);

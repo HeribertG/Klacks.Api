@@ -40,7 +40,7 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<AnnotationReso
 
             logger.LogInformation("Annotation with ID {AnnotationId} deleted successfully.", request.Id);
 
-            return mapper.Map<Models.Staffs.Annotation, AnnotationResource>(annotation);
+            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Annotation, AnnotationResource>(annotation);
         }
         catch (Exception ex)
         {

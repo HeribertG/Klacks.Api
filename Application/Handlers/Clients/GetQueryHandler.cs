@@ -22,7 +22,7 @@ namespace Klacks.Api.Application.Handlers.Clients
         public async Task<ClientResource> Handle(GetQuery<ClientResource> request, CancellationToken cancellationToken)
         {
             var client = await repository.Get(request.Id);
-            return mapper.Map<Models.Staffs.Client, ClientResource>(client!);
+            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Client, ClientResource>(client!);
         }
     }
 }

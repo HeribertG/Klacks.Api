@@ -22,7 +22,7 @@ namespace Klacks.Api.Application.Handlers.Memberships
         {
             var memberships = await repository.List();
 
-            return mapper.Map<List<Models.Associations.Membership>, List<MembershipResource>>(memberships!);
+            return mapper.Map<List<Klacks.Api.Domain.Models.Associations.Membership>, List<MembershipResource>>(memberships!);
         }
     }
 }

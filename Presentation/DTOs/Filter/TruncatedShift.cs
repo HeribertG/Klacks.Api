@@ -1,4 +1,4 @@
-﻿using Klacks.Api.Models.Schedules;
+﻿using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Presentation.DTOs.Filter;
 

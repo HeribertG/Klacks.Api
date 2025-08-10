@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Clients
 {
-    public class FindListQueryHandler : IRequestHandler<FindListQuery, IEnumerable<Models.Staffs.Client>>
+    public class FindListQueryHandler : IRequestHandler<FindListQuery, IEnumerable<Klacks.Api.Domain.Models.Staffs.Client>>
     {
         private readonly IClientRepository repository;
         private readonly IMapper mapper;
@@ -16,7 +16,7 @@ namespace Klacks.Api.Application.Handlers.Clients
             this.mapper = mapper;
         }
 
-        public async Task<IEnumerable<Models.Staffs.Client>> Handle(FindListQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Klacks.Api.Domain.Models.Staffs.Client>> Handle(FindListQuery request, CancellationToken cancellationToken)
         {
             return await repository.FindList(request.Company, request.Name, request.FirstName);
         }

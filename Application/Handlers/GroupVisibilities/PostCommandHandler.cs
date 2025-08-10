@@ -28,7 +28,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<GroupVisibilityRes
     {       
         try
         {
-            var groupVisibility = mapper.Map<GroupVisibilityResource, Models.Associations.GroupVisibility>(request.Resource);
+            var groupVisibility = mapper.Map<GroupVisibilityResource, Klacks.Api.Domain.Models.Associations.GroupVisibility>(request.Resource);
 
             await repository.Add(groupVisibility);
 
@@ -38,7 +38,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<GroupVisibilityRes
 
             var createdGroupVisibility = await repository.Get(groupVisibility.Id);
 
-            return createdGroupVisibility != null ? mapper.Map<Models.Associations.GroupVisibility, GroupVisibilityResource>(createdGroupVisibility) : null;
+            return createdGroupVisibility != null ? mapper.Map<Klacks.Api.Domain.Models.Associations.GroupVisibility, GroupVisibilityResource>(createdGroupVisibility) : null;
         }
         catch (Exception ex)
         {

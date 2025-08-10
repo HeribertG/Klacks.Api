@@ -1,10 +1,10 @@
 using AutoMapper;
-using Klacks.Api.Models.Associations;
-using Klacks.Api.Models.Authentification;
-using Klacks.Api.Models.CalendarSelections;
-using Klacks.Api.Models.Schedules;
-using Klacks.Api.Models.Settings;
-using Klacks.Api.Models.Staffs;
+using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.Authentification;
+using Klacks.Api.Domain.Models.CalendarSelections;
+using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Models.Settings;
+using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Presentation.DTOs.Associations;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Registrations;

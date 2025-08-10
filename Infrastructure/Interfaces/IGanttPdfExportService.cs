@@ -1,5 +1,5 @@
-﻿using Klacks.Api.Models.Schedules;
-using Klacks.Api.Models.Staffs;
+﻿using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Models.Staffs;
 
 namespace Klacks.Api.Infrastructure.Interfaces;
 

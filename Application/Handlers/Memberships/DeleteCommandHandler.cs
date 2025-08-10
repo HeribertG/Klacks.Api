@@ -40,7 +40,7 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<MembershipReso
 
             logger.LogInformation("Membership with ID {MembershipId} deleted successfully.", request.Id);
 
-            return mapper.Map<Models.Associations.Membership, MembershipResource>(membership);
+            return mapper.Map<Klacks.Api.Domain.Models.Associations.Membership, MembershipResource>(membership);
         }
         catch (Exception ex)
         {

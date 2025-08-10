@@ -21,7 +21,7 @@ namespace Klacks.Api.Application.Handlers.Communications
         public async Task<CommunicationResource> Handle(GetQuery<CommunicationResource> request, CancellationToken cancellationToken)
         {
             var communication = await repository.Get(request.Id);
-            return mapper.Map<Models.Staffs.Communication, CommunicationResource>(communication!);
+            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Communication, CommunicationResource>(communication!);
         }
     }
 }

@@ -29,7 +29,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<CalendarSelectionRes
     {
         try
         {
-            var calendarSelection = mapper.Map<CalendarSelectionResource, Models.CalendarSelections.CalendarSelection>(request.Resource);
+            var calendarSelection = mapper.Map<CalendarSelectionResource, Klacks.Api.Domain.Models.CalendarSelections.CalendarSelection>(request.Resource);
 
             await repository.Update(calendarSelection);
 
@@ -39,7 +39,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<CalendarSelectionRes
 
             logger.LogInformation("CalendarSelection updated successfully. ID: {Id}", request.Resource.Id);
 
-            return mapper.Map<Models.CalendarSelections.CalendarSelection, CalendarSelectionResource>(updatedCalendarSelection);
+            return mapper.Map<Klacks.Api.Domain.Models.CalendarSelections.CalendarSelection, CalendarSelectionResource>(updatedCalendarSelection);
         }
         catch (Exception ex)
         {

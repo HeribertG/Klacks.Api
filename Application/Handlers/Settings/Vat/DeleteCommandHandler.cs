@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.Vat
 {
-    public class DeleteCommandHandler : IRequestHandler<DeleteCommand, Models.Settings.Vat>
+    public class DeleteCommandHandler : IRequestHandler<DeleteCommand, Klacks.Api.Domain.Models.Settings.Vat>
     {
         private readonly IMapper mapper;
         private readonly ISettingsRepository repository;
@@ -20,7 +20,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Vat
             this.unitOfWork = unitOfWork;
         }
 
-        public async Task<Models.Settings.Vat> Handle(DeleteCommand request, CancellationToken cancellationToken)
+        public async Task<Klacks.Api.Domain.Models.Settings.Vat> Handle(DeleteCommand request, CancellationToken cancellationToken)
         {
             var vat = await repository.DeleteVAT(request.Id);
 

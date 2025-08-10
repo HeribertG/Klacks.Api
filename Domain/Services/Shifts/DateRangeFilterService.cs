@@ -1,6 +1,6 @@
 using Klacks.Api.Domain.Helpers;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Models.Schedules;
+using Klacks.Api.Domain.Models.Schedules;
 using System.Linq.Expressions;
 
 namespace Klacks.Api.Domain.Services.Shifts;

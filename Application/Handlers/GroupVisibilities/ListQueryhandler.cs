@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Models.Associations;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;

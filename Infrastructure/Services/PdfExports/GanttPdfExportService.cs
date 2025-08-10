@@ -1,8 +1,8 @@
 ﻿using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Klacks.Api.Infrastructure.Interfaces; // Ersetzen durch korrekten Namespace
-using Klacks.Api.Models.Schedules; // Ersetzen durch korrekten Namespace
-using Klacks.Api.Models.Staffs; // Ersetzen durch korrekten Namespace
+using Klacks.Api.Domain.Models.Schedules; // Ersetzen durch korrekten Namespace
+using Klacks.Api.Domain.Models.Staffs; // Ersetzen durch korrekten Namespace
 using System;
 using System.Collections.Generic;
 using System.Globalization;

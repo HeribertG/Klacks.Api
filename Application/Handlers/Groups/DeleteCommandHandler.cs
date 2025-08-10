@@ -41,7 +41,7 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<GroupResource>
 
             logger.LogInformation("Group with ID {GroupId} deleted successfully.", request.Id);
 
-            return mapper.Map<Models.Associations.Group, GroupResource>(group);
+            return mapper.Map<Klacks.Api.Domain.Models.Associations.Group, GroupResource>(group);
         }
         catch (Exception ex)
         {

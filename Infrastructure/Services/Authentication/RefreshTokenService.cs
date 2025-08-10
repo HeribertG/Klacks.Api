@@ -1,7 +1,7 @@
 using Klacks.Api.Datas;
 using Klacks.Api.Infrastructure.Security;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Models.Authentification;
+using Klacks.Api.Domain.Models.Authentification;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.Authentication;

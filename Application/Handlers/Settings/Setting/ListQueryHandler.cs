@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.Setting
 {
-    public class ListQueryHandler : IRequestHandler<ListQuery, IEnumerable<Models.Settings.Settings>>
+    public class ListQueryHandler : IRequestHandler<ListQuery, IEnumerable<Klacks.Api.Domain.Models.Settings.Settings>>
     {
         private readonly ISettingsRepository repository;
 
@@ -13,6 +13,6 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
             this.repository = repository;
         }
 
-        public async Task<IEnumerable<Models.Settings.Settings>> Handle(ListQuery request, CancellationToken cancellationToken) => await repository.GetSettingsList();
+        public async Task<IEnumerable<Klacks.Api.Domain.Models.Settings.Settings>> Handle(ListQuery request, CancellationToken cancellationToken) => await repository.GetSettingsList();
     }
 }

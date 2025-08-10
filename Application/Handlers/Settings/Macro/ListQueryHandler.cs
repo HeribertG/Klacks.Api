@@ -20,6 +20,6 @@ public class ListQueryHandler : IRequestHandler<ListQuery, IEnumerable<MacroReso
     public async Task<IEnumerable<MacroResource>> Handle(ListQuery request, CancellationToken cancellationToken)
     {
         var macro = await repository.GetMacroList();
-        return mapper.Map<List<Models.Settings.Macro>, List<MacroResource>>(macro);
+        return mapper.Map<List<Klacks.Api.Domain.Models.Settings.Macro>, List<MacroResource>>(macro);
     }
 }

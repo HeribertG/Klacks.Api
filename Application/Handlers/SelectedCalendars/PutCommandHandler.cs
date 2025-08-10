@@ -42,7 +42,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<SelectedCalendarReso
 
             logger.LogInformation("SelectedCalendar with ID {Id} updated successfully.", request.Resource.Id);
 
-            return mapper.Map<Models.CalendarSelections.SelectedCalendar, SelectedCalendarResource>(updatedSelectedCalendar);
+            return mapper.Map<Klacks.Api.Domain.Models.CalendarSelections.SelectedCalendar, SelectedCalendarResource>(updatedSelectedCalendar);
         }
         catch (Exception ex)
         {

@@ -3,7 +3,7 @@ using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Interfaces;
-using Klacks.Api.Models.Associations;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;

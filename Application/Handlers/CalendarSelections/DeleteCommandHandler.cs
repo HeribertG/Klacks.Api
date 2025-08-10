@@ -40,7 +40,7 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<CalendarSelect
 
             logger.LogInformation("CalendarSelection with ID {Id} deleted successfully.", request.Id);
 
-            return mapper.Map<Models.CalendarSelections.CalendarSelection, CalendarSelectionResource>(calendarSelection);
+            return mapper.Map<Klacks.Api.Domain.Models.CalendarSelections.CalendarSelection, CalendarSelectionResource>(calendarSelection);
         }
         catch (Exception ex)
         {

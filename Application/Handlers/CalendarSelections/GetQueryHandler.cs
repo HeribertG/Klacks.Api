@@ -20,7 +20,7 @@ namespace Klacks.Api.Application.Handlers.CalendarSelections
         public async Task<CalendarSelectionResource?> Handle(GetQuery<CalendarSelectionResource> request, CancellationToken cancellationToken)
         {
             var calendarSelection = await repository.GetWithSelectedCalendars(request.Id);
-            return mapper.Map<Models.CalendarSelections.CalendarSelection, CalendarSelectionResource>(calendarSelection!);
+            return mapper.Map<Klacks.Api.Domain.Models.CalendarSelections.CalendarSelection, CalendarSelectionResource>(calendarSelection!);
         }
     }
 }

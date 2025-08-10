@@ -22,7 +22,7 @@ namespace Klacks.Api.Application.Handlers.Communications
         {
             var communications = await repository.List();
 
-            return mapper.Map<List<Models.Staffs.Communication>, List<CommunicationResource>>(communications!);
+            return mapper.Map<List<Klacks.Api.Domain.Models.Staffs.Communication>, List<CommunicationResource>>(communications!);
         }
     }
 }

@@ -1,5 +1,5 @@
 using Klacks.Api.Infrastructure.Interfaces;
-using Klacks.Api.Models.Authentification;
+using Klacks.Api.Domain.Models.Authentification;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

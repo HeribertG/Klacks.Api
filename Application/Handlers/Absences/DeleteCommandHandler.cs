@@ -40,7 +40,7 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<AbsenceResourc
 
             logger.LogInformation("Absence with ID {AbsenceId} deleted successfully.", request.Id);
 
-            return mapper.Map<Models.Schedules.Absence, AbsenceResource>(absence);
+            return mapper.Map<Klacks.Api.Domain.Models.Schedules.Absence, AbsenceResource>(absence);
         }
         catch (Exception ex)
         {

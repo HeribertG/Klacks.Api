@@ -1,5 +1,5 @@
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Models.Schedules;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Presentation.DTOs.Associations;
 using System.Collections.ObjectModel;
 

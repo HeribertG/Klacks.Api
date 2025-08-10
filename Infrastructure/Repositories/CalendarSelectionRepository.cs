@@ -1,7 +1,7 @@
 using Klacks.Api.Datas;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Models.CalendarSelections;
+using Klacks.Api.Domain.Models.CalendarSelections;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 

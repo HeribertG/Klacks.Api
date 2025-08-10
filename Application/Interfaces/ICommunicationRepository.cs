@@ -1,5 +1,5 @@
-using Klacks.Api.Models.Settings;
-using Klacks.Api.Models.Staffs;
+using Klacks.Api.Domain.Models.Settings;
+using Klacks.Api.Domain.Models.Staffs;
 
 namespace Klacks.Api.Application.Interfaces;
 

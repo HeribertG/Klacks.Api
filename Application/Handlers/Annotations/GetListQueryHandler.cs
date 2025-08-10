@@ -22,7 +22,7 @@ namespace Klacks.Api.Application.Handlers.Annotations
         {
             var annotation = await repository.List();
 
-            return mapper.Map<List<Models.Staffs.Annotation>, List<AnnotationResource>>(annotation!);
+            return mapper.Map<List<Klacks.Api.Domain.Models.Staffs.Annotation>, List<AnnotationResource>>(annotation!);
         }
     }
 }

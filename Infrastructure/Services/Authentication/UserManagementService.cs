@@ -2,7 +2,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Datas;
 using Klacks.Api.Domain.Helpers;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Models.Authentification;
+using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Presentation.DTOs;
 using Klacks.Api.Presentation.DTOs.Registrations;
 using Microsoft.AspNetCore.Identity;

@@ -3,7 +3,7 @@ using Klacks.Api.Application.Commands.Shifts;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Models.Schedules;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 

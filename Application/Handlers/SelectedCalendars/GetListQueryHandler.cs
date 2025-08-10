@@ -22,7 +22,7 @@ namespace Klacks.Api.Application.Handlers.SelectedCalendars
         public async Task<IEnumerable<SelectedCalendarResource>> Handle(ListQuery<SelectedCalendarResource> request, CancellationToken cancellationToken)
         {
             var selectedCalendar = await this.repository.List();
-            return this.mapper.Map<List<Models.CalendarSelections.SelectedCalendar>, List<SelectedCalendarResource>>(selectedCalendar!);
+            return this.mapper.Map<List<Klacks.Api.Domain.Models.CalendarSelections.SelectedCalendar>, List<SelectedCalendarResource>>(selectedCalendar!);
         }
     }
 }

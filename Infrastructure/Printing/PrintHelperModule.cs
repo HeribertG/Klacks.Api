@@ -2,7 +2,7 @@
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Models.Staffs;
+using Klacks.Api.Domain.Models.Staffs;
 using System.Text;
 
 namespace Klacks.Api.Infrastructure.Printing;

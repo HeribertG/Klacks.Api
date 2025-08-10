@@ -22,7 +22,7 @@ namespace Klacks.Api.Application.Handlers.Breaks
         public async Task<BreakResource> Handle(GetQuery<BreakResource> request, CancellationToken cancellationToken)
         {
             var breaks = await repository.Get(request.Id);
-            return mapper.Map<Models.Schedules.Break, BreakResource>(breaks!);
+            return mapper.Map<Klacks.Api.Domain.Models.Schedules.Break, BreakResource>(breaks!);
         }
     }
 }

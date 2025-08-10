@@ -30,7 +30,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<GroupResource>, Gr
         using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            var group = mapper.Map<GroupResource, Models.Associations.Group>(request.Resource);
+            var group = mapper.Map<GroupResource, Klacks.Api.Domain.Models.Associations.Group>(request.Resource);
 
             await repository.Add(group);
 
@@ -41,7 +41,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<GroupResource>, Gr
 
             var createdGroup = await repository.Get(group.Id);
 
-            return createdGroup != null ? mapper.Map<Models.Associations.Group, GroupResource>(createdGroup) : null;
+            return createdGroup != null ? mapper.Map<Klacks.Api.Domain.Models.Associations.Group, GroupResource>(createdGroup) : null;
         }
         catch (Exception ex)
         {

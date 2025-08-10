@@ -40,7 +40,7 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<StateResource>
 
             logger.LogInformation("State with ID {StateId} deleted successfully.", request.Id);
 
-            return this.mapper.Map<Models.Settings.State, StateResource>(state);
+            return this.mapper.Map<Klacks.Api.Domain.Models.Settings.State, StateResource>(state);
         }
         catch (Exception ex)
         {

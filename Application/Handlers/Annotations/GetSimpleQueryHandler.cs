@@ -21,7 +21,7 @@ namespace Klacks.Api.Application.Handlers.Annotations
         public async Task<IEnumerable<AnnotationResource>> Handle(GetSimpleListQuery request, CancellationToken cancellationToken)
         {
             var annotations = await repository.SimpleList(request.Id);
-            return mapper.Map<List<Models.Staffs.Annotation>, List<AnnotationResource>>(annotations!);
+            return mapper.Map<List<Klacks.Api.Domain.Models.Staffs.Annotation>, List<AnnotationResource>>(annotations!);
         }
     }
 }

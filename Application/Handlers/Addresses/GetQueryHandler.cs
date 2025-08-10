@@ -21,6 +21,6 @@ public class GetQueryHandler : IRequestHandler<GetQuery<AddressResource>, Addres
     public async Task<AddressResource> Handle(GetQuery<AddressResource> request, CancellationToken cancellationToken)
     {
         var address = await repository.Get(request.Id);
-        return mapper.Map<Models.Staffs.Address, AddressResource>(address!);
+        return mapper.Map<Klacks.Api.Domain.Models.Staffs.Address, AddressResource>(address!);
     }
 }

@@ -20,6 +20,6 @@ public class ListQueryHandler : IRequestHandler<ListQuery<StateResource>, IEnume
     public async Task<IEnumerable<StateResource>> Handle(ListQuery<StateResource> request, CancellationToken cancellationToken)
     {
         var states = await this.repository.List();
-        return this.mapper.Map<List<Models.Settings.State>, List<StateResource>>(states!);
+        return this.mapper.Map<List<Klacks.Api.Domain.Models.Settings.State>, List<StateResource>>(states!);
     }
 }

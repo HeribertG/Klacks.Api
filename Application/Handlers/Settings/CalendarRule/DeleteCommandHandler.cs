@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.CalendarRule;
 
-public class DeleteCommandHandler : IRequestHandler<DeleteCommand, Models.Settings.CalendarRule>
+public class DeleteCommandHandler : IRequestHandler<DeleteCommand, Klacks.Api.Domain.Models.Settings.CalendarRule>
 {
     private readonly ILogger<DeleteCommandHandler> logger;
     private readonly IMapper mapper;
@@ -24,7 +24,7 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand, Models.Settin
         this.logger = logger;
     }
 
-    public async Task<Models.Settings.CalendarRule> Handle(DeleteCommand request, CancellationToken cancellationToken)
+    public async Task<Klacks.Api.Domain.Models.Settings.CalendarRule> Handle(DeleteCommand request, CancellationToken cancellationToken)
     {
         try
         {

@@ -40,7 +40,7 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<CountryResourc
 
             logger.LogInformation("Country with ID {CountryId} deleted successfully.", request.Id);
 
-            return this.mapper.Map<Models.Settings.Countries, CountryResource>(country);
+            return this.mapper.Map<Klacks.Api.Domain.Models.Settings.Countries, CountryResource>(country);
         }
         catch (Exception ex)
         {

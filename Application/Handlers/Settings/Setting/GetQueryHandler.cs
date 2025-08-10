@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.Setting
 {
-    public class GetQueryHandler : IRequestHandler<GetQuery, Models.Settings.Settings?>
+    public class GetQueryHandler : IRequestHandler<GetQuery, Klacks.Api.Domain.Models.Settings.Settings?>
     {
         private readonly ISettingsRepository repository;
 
@@ -13,7 +13,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
             this.repository = repository;
         }
 
-        public async Task<Models.Settings.Settings?> Handle(GetQuery request, CancellationToken cancellationToken)
+        public async Task<Klacks.Api.Domain.Models.Settings.Settings?> Handle(GetQuery request, CancellationToken cancellationToken)
         {
             return await repository.GetSetting(request.Type);
         }

@@ -42,7 +42,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<MembershipResource>,
 
             logger.LogInformation("Membership with ID {MembershipId} updated successfully.", request.Resource.Id);
 
-            return mapper.Map<Models.Associations.Membership, MembershipResource>(updatedMembership);
+            return mapper.Map<Klacks.Api.Domain.Models.Associations.Membership, MembershipResource>(updatedMembership);
         }
         catch (Exception ex)
         {

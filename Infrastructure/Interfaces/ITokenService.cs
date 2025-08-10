@@ -1,4 +1,4 @@
-using Klacks.Api.Models.Authentification;
+using Klacks.Api.Domain.Models.Authentification;
 
 namespace Klacks.Api.Infrastructure.Interfaces;
 

@@ -41,7 +41,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<StateResource>, Stat
 
             logger.LogInformation("State with ID {StateId} updated successfully.", request.Resource.Id);
 
-            return this.mapper.Map<Models.Settings.State, StateResource>(updatedState);
+            return this.mapper.Map<Klacks.Api.Domain.Models.Settings.State, StateResource>(updatedState);
         }
         catch (Exception ex)
         {

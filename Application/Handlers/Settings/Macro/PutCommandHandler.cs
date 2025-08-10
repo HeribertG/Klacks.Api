@@ -30,7 +30,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Macro
             {
                 updatedMacro = repository.PutMacro(updatedMacro);
                 await unitOfWork.CompleteAsync();
-                return mapper.Map<Models.Settings.Macro, MacroResource>(updatedMacro);
+                return mapper.Map<Klacks.Api.Domain.Models.Settings.Macro, MacroResource>(updatedMacro);
             }
 
             return null;

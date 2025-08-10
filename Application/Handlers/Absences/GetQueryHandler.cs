@@ -21,7 +21,7 @@ namespace Klacks.Api.Application.Handlers.Absences
         public async Task<AbsenceResource> Handle(GetQuery<AbsenceResource> request, CancellationToken cancellationToken)
         {
             var absence = await repository.Get(request.Id);
-            return mapper.Map<Models.Schedules.Absence, AbsenceResource>(absence!);
+            return mapper.Map<Klacks.Api.Domain.Models.Schedules.Absence, AbsenceResource>(absence!);
         }
     }
 }

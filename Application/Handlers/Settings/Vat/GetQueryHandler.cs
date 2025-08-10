@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.Vat
 {
-    public class GetQueryHandler : IRequestHandler<GetQuery, Models.Settings.Vat?>
+    public class GetQueryHandler : IRequestHandler<GetQuery, Klacks.Api.Domain.Models.Settings.Vat?>
     {
         private readonly IMapper mapper;
         private readonly ISettingsRepository repository;
@@ -16,7 +16,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Vat
             this.repository = repository;
         }
 
-        public async Task<Models.Settings.Vat?> Handle(GetQuery request, CancellationToken cancellationToken)
+        public async Task<Klacks.Api.Domain.Models.Settings.Vat?> Handle(GetQuery request, CancellationToken cancellationToken)
         {
             return await repository.GetVAT(request.Id);
         }

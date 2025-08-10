@@ -1,4 +1,4 @@
-using Klacks.Api.Models.Histories;
+using Klacks.Api.Domain.Models.Histories;
 
 namespace Klacks.Api.Presentation.DTOs.Filter;
 

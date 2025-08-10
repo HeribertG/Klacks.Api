@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.Setting
 {
-    public class PutCommandHandler : IRequestHandler<PutCommand, Models.Settings.Settings?>
+    public class PutCommandHandler : IRequestHandler<PutCommand, Klacks.Api.Domain.Models.Settings.Settings?>
     {
         private readonly IMapper mapper;
         private readonly ISettingsRepository repository;
@@ -20,7 +20,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
             this.unitOfWork = unitOfWork;
         }
 
-        public async Task<Models.Settings.Settings?> Handle(PutCommand request, CancellationToken cancellationToken)
+        public async Task<Klacks.Api.Domain.Models.Settings.Settings?> Handle(PutCommand request, CancellationToken cancellationToken)
         {
             var res = await repository.PutSetting(request.model);
             await unitOfWork.CompleteAsync();

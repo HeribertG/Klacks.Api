@@ -6,7 +6,7 @@ using Klacks.Api.Presentation.DTOs.Settings;
 
 namespace Klacks.Api.Application.Handlers.Settings.CalendarRules;
 
-public class PostCommandHandler : IRequestHandler<PostCommand, Models.Settings.CalendarRule?>
+public class PostCommandHandler : IRequestHandler<PostCommand, Klacks.Api.Domain.Models.Settings.CalendarRule?>
 {
     private readonly ILogger<PostCommandHandler> logger;
     private readonly IMapper mapper;
@@ -25,11 +25,11 @@ public class PostCommandHandler : IRequestHandler<PostCommand, Models.Settings.C
         this.logger = logger;
     }
 
-    public async Task<Models.Settings.CalendarRule?> Handle(PostCommand request, CancellationToken cancellationToken)
+    public async Task<Klacks.Api.Domain.Models.Settings.CalendarRule?> Handle(PostCommand request, CancellationToken cancellationToken)
     {
         try
         {
-            var calendarRule = mapper.Map<CalendarRuleResource, Models.Settings.CalendarRule>(request.model);
+            var calendarRule = mapper.Map<CalendarRuleResource, Klacks.Api.Domain.Models.Settings.CalendarRule>(request.model);
             repository.AddCalendarRule(calendarRule);
 
             await unitOfWork.CompleteAsync();

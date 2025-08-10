@@ -42,7 +42,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<CommunicationResourc
 
             logger.LogInformation("Communication with ID {CommunicationId} updated successfully.", request.Resource.Id);
 
-            return mapper.Map<Models.Staffs.Communication, CommunicationResource>(updatedCommunication);
+            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Communication, CommunicationResource>(updatedCommunication);
         }
         catch (Exception ex)
         {

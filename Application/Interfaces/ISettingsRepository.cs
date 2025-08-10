@@ -1,5 +1,5 @@
-using Klacks.Api.Models.Associations;
-using Klacks.Api.Models.Settings;
+using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Presentation.DTOs;
 using Klacks.Api.Presentation.DTOs.Filter;
 
@@ -14,7 +14,7 @@ public interface ISettingsRepository
 
     MacroType AddMacroType(MacroType macroType);
 
-    Task<Models.Settings.Settings> AddSetting(Models.Settings.Settings settings);
+    Task<Klacks.Api.Domain.Models.Settings.Settings> AddSetting(Klacks.Api.Domain.Models.Settings.Settings settings);
 
     Vat AddVAT(Vat vat);
 
@@ -40,9 +40,9 @@ public interface ISettingsRepository
 
     Task<List<MacroType>> GetOriginalMacroTypeList();
 
-    Task<Models.Settings.Settings?> GetSetting(string type);
+    Task<Klacks.Api.Domain.Models.Settings.Settings?> GetSetting(string type);
 
-    Task<IEnumerable<Models.Settings.Settings>> GetSettingsList();
+    Task<IEnumerable<Klacks.Api.Domain.Models.Settings.Settings>> GetSettingsList();
 
     Task<TruncatedCalendarRule> GetTruncatedCalendarRuleList(CalendarRulesFilter filter);
 
@@ -60,7 +60,7 @@ public interface ISettingsRepository
 
     MacroType PutMacroType(MacroType macroType);
 
-    Task<Models.Settings.Settings> PutSetting(Models.Settings.Settings settings);
+    Task<Klacks.Api.Domain.Models.Settings.Settings> PutSetting(Klacks.Api.Domain.Models.Settings.Settings settings);
 
     Vat PutVAT(Vat vat);
 

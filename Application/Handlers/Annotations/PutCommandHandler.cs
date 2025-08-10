@@ -42,7 +42,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<AnnotationResource>,
 
             logger.LogInformation("Annotation with ID {AnnotationId} updated successfully.", request.Resource.Id);
 
-            return mapper.Map<Models.Staffs.Annotation, AnnotationResource>(updatedAnnotation);
+            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Annotation, AnnotationResource>(updatedAnnotation);
         }
         catch (Exception ex)
         {

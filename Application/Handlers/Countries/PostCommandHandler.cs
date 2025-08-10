@@ -29,7 +29,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<CountryResource>, 
     {
         try
         {
-            var country = this.mapper.Map<CountryResource, Models.Settings.Countries>(request.Resource);
+            var country = this.mapper.Map<CountryResource, Klacks.Api.Domain.Models.Settings.Countries>(request.Resource);
 
             await this.repository.Add(country);
 
@@ -37,7 +37,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<CountryResource>, 
 
             logger.LogInformation("New country added successfully. ID: {CountryId}", country.Id);
 
-            return this.mapper.Map<Models.Settings.Countries, CountryResource>(country);
+            return this.mapper.Map<Klacks.Api.Domain.Models.Settings.Countries, CountryResource>(country);
         }
         catch (Exception ex)
         {

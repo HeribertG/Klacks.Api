@@ -21,6 +21,6 @@ public class GetListQueryHandler : IRequestHandler<ListQuery, IEnumerable<Client
     {
         var client = await repository.WorkList(request.Filter);
 
-        return mapper.Map<List<Models.Staffs.Client>, List<ClientWorkResource>>(client!);
+        return mapper.Map<List<Klacks.Api.Domain.Models.Staffs.Client>, List<ClientWorkResource>>(client!);
     }
 }

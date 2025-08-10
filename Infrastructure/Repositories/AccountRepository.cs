@@ -4,7 +4,7 @@ using Klacks.Api.Infrastructure.Email;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Interfaces;
-using Klacks.Api.Models.Authentification;
+using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Presentation.DTOs;
 using Klacks.Api.Presentation.DTOs.Registrations;
 

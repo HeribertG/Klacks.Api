@@ -7,6 +7,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Interfaces\**" />
+	  <Content Remove="Interfaces\**" />
+	  <EmbeddedResource Remove="Interfaces\**" />
+	  <None Remove="Interfaces\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.Playwright" Version="1.52.0" />
 		<PackageReference Include="Microsoft.OpenApi" Version="1.6.24" />
 		<PackageReference Include="AutoMapper" Version="14.0.0" />
@@ -48,7 +55,6 @@
 
 	<ItemGroup>
 		<Folder Include="Application\" />
-		<Folder Include="Interfaces\Domains\" />
 		<Folder Include="Migrations\" />
 		<Folder Include="Domain\" />
 		<Folder Include="Infrastructure\" />

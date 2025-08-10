@@ -1,5 +1,5 @@
 using Klacks.Api.Application.Commands.Settings.Settings;
-using Klacks.Api.Models.Settings;
+using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Schedules;
@@ -25,7 +25,7 @@ public class SettingsController : BaseController
     #region Settings
 
     [HttpPost("AddSetting")]
-    public async Task<Models.Settings.Settings> AddSetting([FromBody] Models.Settings.Settings setting)
+    public async Task<Klacks.Api.Domain.Models.Settings.Settings> AddSetting([FromBody] Klacks.Api.Domain.Models.Settings.Settings setting)
     {
         try
         {
@@ -42,7 +42,7 @@ public class SettingsController : BaseController
     }
 
     [HttpGet("GetSetting/{type}")]
-    public async Task<ActionResult<Models.Settings.Settings?>> GetSetting(string type)
+    public async Task<ActionResult<Klacks.Api.Domain.Models.Settings.Settings?>> GetSetting(string type)
     {
         try
         {
@@ -64,7 +64,7 @@ public class SettingsController : BaseController
     }
 
     [HttpGet("GetSettingsList")]
-    public async Task<IEnumerable<Models.Settings.Settings>> GetSettingsListAsync()
+    public async Task<IEnumerable<Klacks.Api.Domain.Models.Settings.Settings>> GetSettingsListAsync()
     {
         try
         {
@@ -81,7 +81,7 @@ public class SettingsController : BaseController
     }
 
     [HttpPut("PutSetting")]
-    public async Task<Models.Settings.Settings> PutSetting([FromBody] Models.Settings.Settings setting)
+    public async Task<Klacks.Api.Domain.Models.Settings.Settings> PutSetting([FromBody] Klacks.Api.Domain.Models.Settings.Settings setting)
     {
         try
         {

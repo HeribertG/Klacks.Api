@@ -42,7 +42,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<AbsenceResource>, Ab
 
             logger.LogInformation("Absence with ID {AbsenceId} updated successfully.", request.Resource.Id);
 
-            return mapper.Map<Models.Schedules.Absence, AbsenceResource>(updatedAbsence);
+            return mapper.Map<Klacks.Api.Domain.Models.Schedules.Absence, AbsenceResource>(updatedAbsence);
         }
         catch (Exception ex)
         {

@@ -42,7 +42,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<CountryResource>, Co
 
             logger.LogInformation("Country with ID {CountryId} updated successfully.", request.Resource.Id);
 
-            return this.mapper.Map<Models.Settings.Countries, CountryResource>(updatedCountry);
+            return this.mapper.Map<Klacks.Api.Domain.Models.Settings.Countries, CountryResource>(updatedCountry);
         }
         catch (Exception ex)
         {

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Klacks.Api.Application.Commands.GroupVisibilities;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Models.Associations;
+using Klacks.Api.Domain.Models.Associations;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.GroupVisibilities;

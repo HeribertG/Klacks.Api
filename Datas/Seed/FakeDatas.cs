@@ -1,8 +1,8 @@
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Models.Associations;
-using Klacks.Api.Models.Schedules;
-using Klacks.Api.Models.Settings;
-using Klacks.Api.Models.Staffs;
+using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Models.Settings;
+using Klacks.Api.Domain.Models.Staffs;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Newtonsoft.Json;
 using System.Text;

@@ -20,7 +20,7 @@ namespace Klacks.Api.Application.Handlers.States
         public async Task<StateResource?> Handle(GetQuery<StateResource> request, CancellationToken cancellationToken)
         {
             var state = await this.repository.Get(request.Id);
-            return this.mapper.Map<Models.Settings.State, StateResource>(state!);
+            return this.mapper.Map<Klacks.Api.Domain.Models.Settings.State, StateResource>(state!);
         }
     }
 }

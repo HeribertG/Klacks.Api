@@ -21,7 +21,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Macro
         {
             var macro = await repository.GetMacro(request.Id);
 
-            return mapper.Map<Models.Settings.Macro, MacroResource>(macro);
+            return mapper.Map<Klacks.Api.Domain.Models.Settings.Macro, MacroResource>(macro);
         }
     }
 }

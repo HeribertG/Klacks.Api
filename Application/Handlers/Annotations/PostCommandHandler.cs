@@ -29,14 +29,14 @@ public class PostCommandHandler : IRequestHandler<PostCommand<AnnotationResource
     {
         try
         {
-            var annotation = mapper.Map<AnnotationResource, Models.Staffs.Annotation>(request.Resource);
+            var annotation = mapper.Map<AnnotationResource, Klacks.Api.Domain.Models.Staffs.Annotation>(request.Resource);
             await repository.Add(annotation);
 
             await unitOfWork.CompleteAsync();
 
             logger.LogInformation("New annotation added successfully. ID: {AnnotationId}", annotation.Id);
 
-            return mapper.Map<Models.Staffs.Annotation, AnnotationResource>(annotation);
+            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Annotation, AnnotationResource>(annotation);
         }
         catch (Exception ex)
         {

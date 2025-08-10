@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.Vat
 {
-    public class PutCommandHandler : IRequestHandler<PutCommand, Models.Settings.Vat?>
+    public class PutCommandHandler : IRequestHandler<PutCommand, Klacks.Api.Domain.Models.Settings.Vat?>
     {
         private readonly IMapper mapper;
         private readonly ISettingsRepository repository;
@@ -20,7 +20,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Vat
             this.unitOfWork = unitOfWork;
         }
 
-        public async Task<Models.Settings.Vat?> Handle(PutCommand request, CancellationToken cancellationToken)
+        public async Task<Klacks.Api.Domain.Models.Settings.Vat?> Handle(PutCommand request, CancellationToken cancellationToken)
         {
             var dbVat = await repository.GetVAT(request.model.Id);
             var updatedVat = mapper.Map(request.model, dbVat);

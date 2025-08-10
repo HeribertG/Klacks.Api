@@ -21,6 +21,6 @@ public class GetQueryHandler : IRequestHandler<GetQuery<WorkResource>, WorkResou
     public async Task<WorkResource> Handle(GetQuery<WorkResource> request, CancellationToken cancellationToken)
     {
         var work = await repository.Get(request.Id);
-        return mapper.Map<Models.Schedules.Work, WorkResource>(work!);
+        return mapper.Map<Klacks.Api.Domain.Models.Schedules.Work, WorkResource>(work!);
     }
 }

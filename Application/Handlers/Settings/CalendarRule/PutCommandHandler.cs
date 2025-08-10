@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.CalendarRules;
 
-public class PutCommandHandler : IRequestHandler<PutCommand, Models.Settings.CalendarRule?>
+public class PutCommandHandler : IRequestHandler<PutCommand, Klacks.Api.Domain.Models.Settings.CalendarRule?>
 {
     private readonly ILogger<PutCommandHandler> logger;
     private readonly IMapper mapper;
@@ -24,7 +24,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand, Models.Settings.Cal
         this.logger = logger;
     }
 
-    public async Task<Models.Settings.CalendarRule?> Handle(PutCommand request, CancellationToken cancellationToken)
+    public async Task<Klacks.Api.Domain.Models.Settings.CalendarRule?> Handle(PutCommand request, CancellationToken cancellationToken)
     {
         try
         {

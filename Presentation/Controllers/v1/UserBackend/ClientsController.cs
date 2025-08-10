@@ -1,4 +1,4 @@
-using Klacks.Api.Models.Staffs;
+using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Application.Queries.Clients;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Staffs;

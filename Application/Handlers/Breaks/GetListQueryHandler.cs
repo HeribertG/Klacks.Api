@@ -15,6 +15,6 @@ public class GetListQueryHandler(IMapper mapper, IClientRepository repository) :
     {
         var client = await repository.BreakList(request.Filter);
 
-        return mapper.Map<List<Models.Staffs.Client>, List<ClientBreakResource>>(client!);
+        return mapper.Map<List<Klacks.Api.Domain.Models.Staffs.Client>, List<ClientBreakResource>>(client!);
     }
 }

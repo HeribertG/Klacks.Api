@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.MacrosTypes;
 
-public class ListQueryHandler : IRequestHandler<ListQuery, IEnumerable<Models.Settings.MacroType>>
+public class ListQueryHandler : IRequestHandler<ListQuery, IEnumerable<Klacks.Api.Domain.Models.Settings.MacroType>>
 {
     private readonly IMapper mapper;
     private readonly ISettingsRepository repository;
@@ -16,7 +16,7 @@ public class ListQueryHandler : IRequestHandler<ListQuery, IEnumerable<Models.Se
         this.repository = repository;
     }
 
-    public async Task<IEnumerable<Models.Settings.MacroType>> Handle(ListQuery request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<Klacks.Api.Domain.Models.Settings.MacroType>> Handle(ListQuery request, CancellationToken cancellationToken)
     {
         return await repository.GetOriginalMacroTypeList();
     }

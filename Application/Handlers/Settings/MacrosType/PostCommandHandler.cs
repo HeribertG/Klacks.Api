@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.MacrosType
 {
-    public class PostCommandHandler : IRequestHandler<PostCommand, Models.Settings.MacroType?>
+    public class PostCommandHandler : IRequestHandler<PostCommand, Klacks.Api.Domain.Models.Settings.MacroType?>
     {
         private readonly IMapper mapper;
         private readonly ISettingsRepository repository;
@@ -20,7 +20,7 @@ namespace Klacks.Api.Application.Handlers.Settings.MacrosType
             this.unitOfWork = unitOfWork;
         }
 
-        public async Task<Models.Settings.MacroType?> Handle(PostCommand request, CancellationToken cancellationToken)
+        public async Task<Klacks.Api.Domain.Models.Settings.MacroType?> Handle(PostCommand request, CancellationToken cancellationToken)
         {
             repository.AddMacroType(request.model);
 

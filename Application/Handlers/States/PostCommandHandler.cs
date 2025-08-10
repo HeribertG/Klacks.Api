@@ -29,14 +29,14 @@ public class PostCommandHandler : IRequestHandler<PostCommand<StateResource>, St
     {
         try
         {
-            var state = this.mapper.Map<StateResource, Models.Settings.State>(request.Resource);
+            var state = this.mapper.Map<StateResource, Klacks.Api.Domain.Models.Settings.State>(request.Resource);
             await this.repository.Add(state);
 
             await this.unitOfWork.CompleteAsync();
 
             logger.LogInformation("New state added successfully. ID: {StateId}", state.Id);
 
-            return this.mapper.Map<Models.Settings.State, StateResource>(state);
+            return this.mapper.Map<Klacks.Api.Domain.Models.Settings.State, StateResource>(state);
         }
         catch (Exception ex)
         {

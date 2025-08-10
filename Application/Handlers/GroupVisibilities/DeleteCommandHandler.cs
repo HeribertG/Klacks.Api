@@ -41,7 +41,7 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<GroupVisibilit
 
             logger.LogInformation("GroupVisibility with ID {GroupId} deleted successfully.", request.Id);
 
-            return mapper.Map<Models.Associations.GroupVisibility, GroupVisibilityResource>(groupVisibility);
+            return mapper.Map<Klacks.Api.Domain.Models.Associations.GroupVisibility, GroupVisibilityResource>(groupVisibility);
         }
         catch (Exception ex)
         {

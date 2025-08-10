@@ -27,7 +27,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Macro
 
             await unitOfWork.CompleteAsync();
 
-            return mapper.Map<Models.Settings.Macro, MacroResource>(client!);
+            return mapper.Map<Klacks.Api.Domain.Models.Settings.Macro, MacroResource>(client!);
         }
     }
 }

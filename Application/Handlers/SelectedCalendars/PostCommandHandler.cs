@@ -29,14 +29,14 @@ public class PostCommandHandler : IRequestHandler<PostCommand<SelectedCalendarRe
     {
         try
         {
-            var selectedCalendar = mapper.Map<SelectedCalendarResource, Models.CalendarSelections.SelectedCalendar>(request.Resource);
+            var selectedCalendar = mapper.Map<SelectedCalendarResource, Klacks.Api.Domain.Models.CalendarSelections.SelectedCalendar>(request.Resource);
             await repository.Add(selectedCalendar);
 
             await unitOfWork.CompleteAsync();
 
             logger.LogInformation("New SelectedCalendar added successfully. ID: {Id}", selectedCalendar.Id);
 
-            return mapper.Map<Models.CalendarSelections.SelectedCalendar, SelectedCalendarResource>(selectedCalendar);
+            return mapper.Map<Klacks.Api.Domain.Models.CalendarSelections.SelectedCalendar, SelectedCalendarResource>(selectedCalendar);
         }
         catch (Exception ex)
         {

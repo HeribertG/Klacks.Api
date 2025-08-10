@@ -1,6 +1,6 @@
 using Klacks.Api.Datas;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Models.Associations;
+using Klacks.Api.Domain.Models.Associations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Domain.Services.Groups;

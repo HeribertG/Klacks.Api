@@ -29,7 +29,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<WorkResource>, Wor
     {
         try
         {
-            var work = mapper.Map<WorkResource, Models.Schedules.Work>(request.Resource);
+            var work = mapper.Map<WorkResource, Klacks.Api.Domain.Models.Schedules.Work>(request.Resource);
 
             await repository.Add(work);
 
@@ -37,7 +37,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<WorkResource>, Wor
 
             logger.LogInformation("Work item added successfully. ID: {WorkId}", work.Id);
 
-            return mapper.Map<Models.Schedules.Work, WorkResource>(work);
+            return mapper.Map<Klacks.Api.Domain.Models.Schedules.Work, WorkResource>(work);
         }
         catch (Exception ex)
         {

@@ -24,7 +24,7 @@ public class GetQueryHandler : IRequestHandler<GetQuery<ShiftResource>, ShiftRes
         var shift = await repository.Get(request.Id);
         try
         {
-            var result = mapper.Map<Models.Schedules.Shift, ShiftResource>(shift!);
+            var result = mapper.Map<Klacks.Api.Domain.Models.Schedules.Shift, ShiftResource>(shift!);
             return result;
         }
         catch (Exception ex)

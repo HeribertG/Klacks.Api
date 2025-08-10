@@ -29,7 +29,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<MembershipResource
     {
         try
         {
-            var membership = mapper.Map<MembershipResource, Models.Associations.Membership>(request.Resource);
+            var membership = mapper.Map<MembershipResource, Klacks.Api.Domain.Models.Associations.Membership>(request.Resource);
 
             await repository.Add(membership);
 
@@ -37,7 +37,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<MembershipResource
 
             logger.LogInformation("New membership added successfully. ID: {MembershipId}", membership.Id);
 
-            return mapper.Map<Models.Associations.Membership, MembershipResource>(membership);
+            return mapper.Map<Klacks.Api.Domain.Models.Associations.Membership, MembershipResource>(membership);
         }
         catch (Exception ex)
         {

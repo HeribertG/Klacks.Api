@@ -14,7 +14,7 @@ public class GetQueryHandler(IMapper mapper, IGroupVisibilityRepository reposito
         var groupVisibility = await repository.Get(request.Id);
         if (groupVisibility != null)
         {
-            return mapper.Map<Models.Associations.GroupVisibility, GroupVisibilityResource>(groupVisibility);
+            return mapper.Map<Klacks.Api.Domain.Models.Associations.GroupVisibility, GroupVisibilityResource>(groupVisibility);
         }
 
         return null;

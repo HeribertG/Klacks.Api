@@ -1,5 +1,5 @@
 using Klacks.Api.Datas;
-using Klacks.Api.Models.Settings;
+using Klacks.Api.Domain.Models.Settings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

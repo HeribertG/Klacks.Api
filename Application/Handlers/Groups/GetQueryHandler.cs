@@ -14,7 +14,7 @@ namespace Klacks.Api.Application.Handlers.Groups
             var group = await repository.Get(request.Id);
             if (group != null)
             {
-                return mapper.Map<Models.Associations.Group, GroupResource>(group);
+                return mapper.Map<Klacks.Api.Domain.Models.Associations.Group, GroupResource>(group);
             }
 
             return null;

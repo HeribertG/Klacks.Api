@@ -45,7 +45,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<GroupVisibilityResou
 
             logger.LogInformation("Group with ID {GroupId} updated successfully.", request.Resource.Id);
 
-            return dbUpdatedGroup != null ? mapper.Map<Models.Associations.GroupVisibility, GroupVisibilityResource>(dbUpdatedGroup) : null;
+            return dbUpdatedGroup != null ? mapper.Map<Klacks.Api.Domain.Models.Associations.GroupVisibility, GroupVisibilityResource>(dbUpdatedGroup) : null;
         }
         catch (Exception ex)
         {

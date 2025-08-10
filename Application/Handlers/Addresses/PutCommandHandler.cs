@@ -42,7 +42,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<AddressResource>, Ad
 
             logger.LogInformation("Address with ID {AddressId} updated successfully.", request.Resource.Id);
 
-            return mapper.Map<Models.Staffs.Address, AddressResource>(updatedAddress);
+            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Address, AddressResource>(updatedAddress);
         }
         catch (Exception ex)
         {

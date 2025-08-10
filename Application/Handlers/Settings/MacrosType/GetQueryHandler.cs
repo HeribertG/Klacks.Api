@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.MacrosTypes;
 
-public class GetQueryHandler : IRequestHandler<GetQuery, Models.Settings.MacroType?>
+public class GetQueryHandler : IRequestHandler<GetQuery, Klacks.Api.Domain.Models.Settings.MacroType?>
 {
     private readonly IMapper mapper;
     private readonly ISettingsRepository repository;
@@ -16,7 +16,7 @@ public class GetQueryHandler : IRequestHandler<GetQuery, Models.Settings.MacroTy
         this.repository = repository;
     }
 
-    public async Task<Models.Settings.MacroType?> Handle(GetQuery request, CancellationToken cancellationToken)
+    public async Task<Klacks.Api.Domain.Models.Settings.MacroType?> Handle(GetQuery request, CancellationToken cancellationToken)
     {
         return await repository.GetMacroType(request.Id);
     }

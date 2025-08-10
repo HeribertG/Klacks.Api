@@ -1,4 +1,4 @@
-﻿using Klacks.Api.Models.Authentification;
+﻿using Klacks.Api.Domain.Models.Authentification;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

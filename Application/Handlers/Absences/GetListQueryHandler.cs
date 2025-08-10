@@ -20,6 +20,6 @@ public class GetListQueryHandler : IRequestHandler<ListQuery<AbsenceResource>, I
     public async Task<IEnumerable<AbsenceResource>> Handle(ListQuery<AbsenceResource> request, CancellationToken cancellationToken)
     {
         var absence = await repository.List();
-        return mapper.Map<List<Models.Schedules.Absence>, List<AbsenceResource>>(absence);
+        return mapper.Map<List<Klacks.Api.Domain.Models.Schedules.Absence>, List<AbsenceResource>>(absence);
     }
 }

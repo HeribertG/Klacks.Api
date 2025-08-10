@@ -29,7 +29,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<CommunicationResou
     {
         try
         {
-            var communication = mapper.Map<CommunicationResource, Models.Staffs.Communication>(request.Resource);
+            var communication = mapper.Map<CommunicationResource, Klacks.Api.Domain.Models.Staffs.Communication>(request.Resource);
 
             await repository.Add(communication);
 
@@ -37,7 +37,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<CommunicationResou
 
             logger.LogInformation("New communication added successfully. ID: {CommunicationId}", communication.Id);
 
-            return mapper.Map<Models.Staffs.Communication, CommunicationResource>(communication);
+            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Communication, CommunicationResource>(communication);
         }
         catch (Exception ex)
         {

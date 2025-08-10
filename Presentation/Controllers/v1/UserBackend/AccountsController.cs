@@ -1,6 +1,6 @@
 using AutoMapper;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Models.Authentification;
+using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Presentation.DTOs.Registrations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

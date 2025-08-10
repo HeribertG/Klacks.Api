@@ -1,4 +1,4 @@
-using Klacks.Api.Models.Settings;
+using Klacks.Api.Domain.Models.Settings;
 
 namespace Klacks.Api.Presentation.DTOs.Filter;
 

@@ -23,13 +23,13 @@ namespace Klacks.Api.Application.Handlers.Settings.Macro
 
         public async Task<MacroResource?> Handle(PostCommand request, CancellationToken cancellationToken)
         {
-            var macro = mapper.Map<MacroResource, Models.Settings.Macro>(request.model);
+            var macro = mapper.Map<MacroResource, Klacks.Api.Domain.Models.Settings.Macro>(request.model);
 
             repository.AddMacro(macro);
 
             await unitOfWork.CompleteAsync();
 
-            return mapper.Map<Models.Settings.Macro, MacroResource>(macro);
+            return mapper.Map<Klacks.Api.Domain.Models.Settings.Macro, MacroResource>(macro);
         }
     }
 }

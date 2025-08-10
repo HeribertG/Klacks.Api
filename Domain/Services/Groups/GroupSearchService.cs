@@ -1,6 +1,6 @@
 using Klacks.Api.Datas;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Models.Associations;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 

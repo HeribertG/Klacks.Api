@@ -21,7 +21,7 @@ namespace Klacks.Api.Settings.Countries
         public async Task<CountryResource> Handle(GetQuery<CountryResource> request, CancellationToken cancellationToken)
         {
             var country = await this.repository.Get(request.Id);
-            return this.mapper.Map<Models.Settings.Countries, CountryResource>(country!);
+            return this.mapper.Map<Klacks.Api.Domain.Models.Settings.Countries, CountryResource>(country!);
         }
     }
 }

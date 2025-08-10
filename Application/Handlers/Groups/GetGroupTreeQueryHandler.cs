@@ -63,7 +63,7 @@ namespace Klacks.Api.Application.Handlers.Groups
             }
         }
 
-        private async Task BuildTreeHierarchy(List<Models.Associations.Group> allNodes, GroupTreeResource result)
+        private async Task BuildTreeHierarchy(List<Klacks.Api.Domain.Models.Associations.Group> allNodes, GroupTreeResource result)
         {
             try
             {
@@ -98,8 +98,8 @@ namespace Klacks.Api.Application.Handlers.Groups
         }
 
         private async Task<GroupResource> CreateNodeResourceWithChildren(
-            Models.Associations.Group node,
-            Dictionary<Guid, List<Models.Associations.Group>> childrenByParentId)
+            Klacks.Api.Domain.Models.Associations.Group node,
+            Dictionary<Guid, List<Klacks.Api.Domain.Models.Associations.Group>> childrenByParentId)
         {
             // Erstelle Ressource für den aktuellen Knoten
             var nodeResource = mapper.Map<GroupResource>(node);

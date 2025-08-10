@@ -42,7 +42,7 @@ public class PutCommandHandler : IRequestHandler<PutCommand<BreakResource>, Brea
 
             logger.LogInformation("Break with ID {BreakId} updated successfully.", request.Resource.Id);
 
-            return mapper.Map<Models.Schedules.Break, BreakResource>(updatedBreak);
+            return mapper.Map<Klacks.Api.Domain.Models.Schedules.Break, BreakResource>(updatedBreak);
         }
         catch (Exception ex)
         {

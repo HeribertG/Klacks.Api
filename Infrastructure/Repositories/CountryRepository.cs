@@ -1,6 +1,6 @@
 using Klacks.Api.Datas;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Models.Settings;
+using Klacks.Api.Domain.Models.Settings;
 
 namespace Klacks.Api.Infrastructure.Repositories;
 
