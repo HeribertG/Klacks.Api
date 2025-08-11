@@ -1,9 +1,8 @@
 ﻿using AutoMapper;
-using Klacks.Api.Domain.Common;
-using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Presentation.DTOs.Associations;
 using Klacks.Api.Application.Queries.Groups;
+using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +13,6 @@ public class GetPathToNodeQueryHandler(
         DataBaseContext context,
         IMapper mapper) : IRequestHandler<GetPathToNodeQuery, List<GroupResource>>
 {
-
     public async Task<List<GroupResource>> Handle(GetPathToNodeQuery request, CancellationToken cancellationToken)
     {
         var pathNodes = await repository.GetPath(request.NodeId);

@@ -1,6 +1,4 @@
 using Klacks.Api.Domain.Common;
-using System.ComponentModel.DataAnnotations;
-
 
 namespace Klacks.Api.Domain.Models.CalendarSelections;
 

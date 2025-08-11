@@ -79,7 +79,9 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<AssignedGroup> AssignedGroup { get; set; }  
 
-    public DbSet<GroupVisibility> GroupVisibility { get; set; }  
+    public DbSet<GroupVisibility> GroupVisibility { get; set; }
+
+    public DbSet<Contract> Contract { get; set; }
 
     public override int SaveChanges()
     {
@@ -145,7 +147,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Work>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<AssignedGroup>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<GroupVisibility>().HasQueryFilter(p => !p.IsDeleted);
-
+        modelBuilder.Entity<Contract>().HasQueryFilter(p => !p.IsDeleted);
 
         modelBuilder.Entity<Address>().HasIndex(p => new { p.ClientId, p.Street, p.Street2, p.Street3, p.City, p.IsDeleted });
         modelBuilder.Entity<Communication>().HasIndex(p => new { p.Value, p.IsDeleted });
@@ -164,6 +166,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<ClientScheduleDetail>().HasIndex(p => new { p.ClientId, p.CurrentYear, p.CurrentMonth });
         modelBuilder.Entity<AssignedGroup>().HasIndex(p => new { p.ClientId, p.GroupId });
         modelBuilder.Entity<GroupVisibility>().HasIndex(p => new { p.AppUserId, p.GroupId });
+        modelBuilder.Entity<Contract>().HasIndex(p => new { p.Name, p.ValidFrom, p.ValidUntil });
 
         modelBuilder.Entity<Membership>()
        .HasOne(m => m.Client)
@@ -244,6 +247,18 @@ public class DataBaseContext : IdentityDbContext
                 .HasForeignKey(p => p.AppUserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+
+        modelBuilder.Entity<Membership>()
+           .HasOne(m => m.Contract)
+           .WithMany()
+           .HasForeignKey(m => m.ContractId)
+           .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Contract>()
+           .HasOne(c => c.CalendarSelection)
+           .WithMany()
+           .HasForeignKey(c => c.CalendarSelectionId)
+           .OnDelete(DeleteBehavior.Restrict);
     }
 
     private void OnBeforeSaving()

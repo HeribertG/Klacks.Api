@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Groups;
 using Klacks.Api.Presentation.DTOs.Associations;

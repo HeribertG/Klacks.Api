@@ -21,4 +21,9 @@ public class Membership : BaseEntity
 
     [DataType(DataType.Date)]
     public DateTime? ValidUntil { get; set; }
+
+    [ForeignKey("Contract")]
+    public Guid? ContractId { get; set; }
+
+    public Contract? Contract { get; set; }
 }

@@ -1,5 +1,4 @@
-﻿using Klacks.Api.BasicScriptInterpreter;
-using Klacks.Api.Domain.Common;
+using Klacks.Api.BasicScriptInterpreter;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.FileHandling;
 using Klacks.Api.Application.Interfaces;

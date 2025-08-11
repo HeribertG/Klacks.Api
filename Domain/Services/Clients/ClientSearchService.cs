@@ -2,7 +2,6 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Helpers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Staffs;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Domain.Services.Clients;
 
