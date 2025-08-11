@@ -1,8 +1,7 @@
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Infrastructure.Persistence;
-using Klacks.Api.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Infrastructure.Repositories
 {
@@ -35,12 +34,12 @@ namespace Klacks.Api.Infrastructure.Repositories
             return await this.context.Set<TEntity>().AnyAsync(e => e.Id == id);
         }
 
-        public async Task<TEntity?> Get(Guid id)
+        public virtual async Task<TEntity?> Get(Guid id)
         {
             return await this.context.Set<TEntity>().FirstOrDefaultAsync(add => add.Id == id);
         }
 
-        public async Task<List<TEntity>> List()
+        public virtual async Task<List<TEntity>> List()
         {
             return await this.context.Set<TEntity>().ToListAsync();
         }
