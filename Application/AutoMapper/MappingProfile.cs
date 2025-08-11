@@ -93,10 +93,12 @@ public class MappingProfile : Profile
          ;
 
         CreateMap<Contract, ContractResource>()
+          .ForMember(dest => dest.CalendarSelection, opt => opt.MapFrom(src => src.CalendarSelection))
           ;
 
         CreateMap<ContractResource, Contract>()
           .ForMember(dest => dest.CalendarSelection, opt => opt.Ignore())
+          .ForMember(dest => dest.CalendarSelectionId, opt => opt.MapFrom(src => src.CalendarSelection != null ? src.CalendarSelection.Id : (Guid?)null))
           .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
           .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
           .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())

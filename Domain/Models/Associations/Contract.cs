@@ -22,7 +22,7 @@ public class Contract : BaseEntity
     public DateTime? ValidUntil { get; set; }
 
     [ForeignKey("CalendarSelection")]
-    public Guid CalendarSelectionId { get; set; }
+    public Guid? CalendarSelectionId { get; set; }
     
     [JsonIgnore]
     public CalendarSelection? CalendarSelection { get; set; }

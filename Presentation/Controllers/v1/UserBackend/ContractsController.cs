@@ -1,6 +1,7 @@
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
@@ -15,6 +16,7 @@ public class ContractsController : InputBaseController<ContractResource>
         this.logger = logger;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ContractResource>>> GetContracts()
     {
