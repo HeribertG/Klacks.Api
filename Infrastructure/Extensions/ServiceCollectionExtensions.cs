@@ -41,6 +41,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IGanttPdfExportService, GanttPdfExportService>();
         services.AddScoped<IAssignedGroupRepository, AssignedGroupRepository>();
         services.AddScoped<IGroupVisibilityRepository, GroupVisibilityRepository>();
+        services.AddScoped<IContractRepository, ContractRepository>();
 
         services.AddSingleton<IMacroEngine, MacroEngine>();
         services.AddScoped<UploadFile>();

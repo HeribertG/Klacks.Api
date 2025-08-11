@@ -81,6 +81,22 @@ public class MappingProfile : Profile
 
         CreateMap<MembershipResource, Membership>()
           .ForMember(dest => dest.Client, opt => opt.Ignore())
+          .ForMember(dest => dest.Contract, opt => opt.Ignore())
+          .ForMember(dest => dest.ContractId, opt => opt.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
+         ;
+
+        CreateMap<Contract, ContractResource>()
+          ;
+
+        CreateMap<ContractResource, Contract>()
+          .ForMember(dest => dest.CalendarSelection, opt => opt.Ignore())
           .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
           .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
           .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
