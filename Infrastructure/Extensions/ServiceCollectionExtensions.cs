@@ -79,6 +79,7 @@ public static  class ServiceCollectionExtensions
         // Absence Domain Services
         services.AddScoped<IAbsenceSortingService, AbsenceSortingService>();
         services.AddScoped<IAbsencePaginationService, AbsencePaginationService>();
+        services.AddScoped<IAbsenceExportService, AbsenceExportService>();
 
         // Authentication Domain Services
         services.AddScoped<Klacks.Api.Application.Validation.Accounts.JwtValidator>();

@@ -1,6 +1,5 @@
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Infrastructure.Persistence;
-using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
@@ -14,15 +13,18 @@ public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
     private readonly DataBaseContext context;
     private readonly IAbsenceSortingService _sortingService;
     private readonly IAbsencePaginationService _paginationService;
+    private readonly IAbsenceExportService _exportService;
 
     public AbsenceRepository(DataBaseContext context, ILogger<Absence> logger,
         IAbsenceSortingService sortingService,
-        IAbsencePaginationService paginationService)
+        IAbsencePaginationService paginationService,
+        IAbsenceExportService exportService)
         : base(context, logger)
     {
         this.context = context;
         _sortingService = sortingService;
         _paginationService = paginationService;
+        _exportService = exportService;
     }
     
     public async Task<TruncatedAbsence> Truncated(AbsenceFilter filter)
@@ -45,27 +47,6 @@ public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
 
     public HttpResultResource CreateExcelFile(string language)
     {
-        Logger.LogInformation("Attempting to create Excel file for language: {Language}", language);
-        try
-        {
-            // Hier würde die Logik zur Erstellung der Excel-Datei stehen.
-            // Da ich keinen Zugriff auf Dateisystemoperationen habe, simuliere ich einen Fehler.
-            // In einer echten Implementierung würden Sie hier die Datei erstellen und den Pfad zurückgeben.
-            bool success = false; // Simulate failure for demonstration
-
-            if (!success)
-            {
-                Logger.LogError("Failed to create Excel file for language: {Language}. Simulated failure.", language);
-                throw new InvalidRequestException($"Failed to create Excel file for language '{language}'.");
-            }
-
-            // If successful, return a success result (adjust as per actual return type)
-            return new HttpResultResource { Success = true, Messages = "Excel file created successfully." };
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error creating Excel file for language: {Language}.", language);
-            throw; // Let the middleware handle it
-        }
+        return _exportService.CreateExcelFile(language);
     }
 }

@@ -10,4 +10,5 @@ public interface IAccountAuthenticationService
     Task<AuthenticatedResult> GenerateAuthenticationAsync(AppUser user, bool withRefreshToken = true);
     Task<AuthenticatedResult> SetAuthenticatedResultAsync(AuthenticatedResult authenticatedResult, AppUser user, DateTime expires);
     Task<bool> ValidateRefreshTokenAsync(AppUser user, string refreshToken);
+    void SetModelErrorAsync(AuthenticatedResult model, string key, string message);
 }

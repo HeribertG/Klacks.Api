@@ -137,4 +137,9 @@ public class AccountAuthenticationService : IAccountAuthenticationService
     {
         return await _refreshTokenService.ValidateRefreshTokenAsync(user.Id, refreshToken);
     }
+
+    public void SetModelErrorAsync(AuthenticatedResult model, string key, string message)
+    {
+        _authenticationService.SetModelError(model, key, message);
+    }
 }
