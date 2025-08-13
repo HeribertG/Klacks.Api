@@ -1,35 +1,26 @@
-﻿using AutoMapper;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Groups;
-using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Groups;
 
-public class GetPathToNodeQueryHandler(
-        IGroupRepository repository,
-        DataBaseContext context,
-        IMapper mapper) : IRequestHandler<GetPathToNodeQuery, List<GroupResource>>
+/// <summary>
+/// CQRS Handler for getting path to a group node
+/// Refactored to use Application Service following Clean Architecture
+/// </summary>
+public class GetPathToNodeQueryHandler : IRequestHandler<GetPathToNodeQuery, List<GroupResource>>
 {
+    private readonly GroupApplicationService _groupApplicationService;
+
+    public GetPathToNodeQueryHandler(GroupApplicationService groupApplicationService)
+    {
+        _groupApplicationService = groupApplicationService;
+    }
+
     public async Task<List<GroupResource>> Handle(GetPathToNodeQuery request, CancellationToken cancellationToken)
     {
-        var pathNodes = await repository.GetPath(request.NodeId);
-        var result = new List<GroupResource>();
-        var depth = 0;
-
-        foreach (var node in pathNodes.OrderBy(n => n.Lft))
-        {
-            var clientsCount = await context.GroupItem.CountAsync(gi => gi.GroupId == node.Id, cancellationToken);
-
-            var nodeResource = mapper.Map<GroupResource>(node);
-
-            nodeResource.Depth = depth++;
-
-            result.Add(nodeResource);
-        }
-
-        return result;
+        // Clean Architecture: Delegate to Application Service
+        return await _groupApplicationService.GetPathToNodeAsync(request.NodeId, cancellationToken);
     }
 }

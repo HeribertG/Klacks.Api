@@ -1,7 +1,10 @@
 using AutoMapper;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Models.CalendarSelections;
+using Klacks.Api.Domain.Models.Criteria;
+using Klacks.Api.Domain.Models.Results;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
@@ -351,5 +354,166 @@ public class MappingProfile : Profile
 
         CreateMap<TruncatedShift, TruncatedShiftResource>()
          ;
+
+        // Phase 3: Clean Architecture Mappings - Domain Models to Criteria and Results
+        ConfigureDomainToCriteriaMappings();
+        ConfigureDomainToResultMappings();
+    }
+
+    /// <summary>
+    /// Phase 3: Configure Presentation Filter DTOs to Domain Criteria mappings
+    /// </summary>
+    private void ConfigureDomainToCriteriaMappings()
+    {
+        // Base Filter to Base Criteria mapping
+        CreateMap<BaseFilter, BaseCriteria>()
+            .ForMember(dest => dest.FirstItemOnLastPage, opt => opt.MapFrom(src => src.FirstItemOnLastPage))
+            .ForMember(dest => dest.IsNextPage, opt => opt.MapFrom(src => src.IsNextPage))
+            .ForMember(dest => dest.IsPreviousPage, opt => opt.MapFrom(src => src.IsPreviousPage))
+            .ForMember(dest => dest.NumberOfItemsPerPage, opt => opt.MapFrom(src => src.NumberOfItemsPerPage))
+            .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => src.OrderBy))
+            .ForMember(dest => dest.RequiredPage, opt => opt.MapFrom(src => src.RequiredPage))
+            .ForMember(dest => dest.SortOrder, opt => opt.MapFrom(src => src.SortOrder));
+
+        // Filter Resource to Client Search Criteria
+        CreateMap<FilterResource, ClientSearchCriteria>()
+            .ForMember(dest => dest.FirstItemOnLastPage, opt => opt.MapFrom(src => src.FirstItemOnLastPage))
+            .ForMember(dest => dest.IsNextPage, opt => opt.MapFrom(src => src.IsNextPage))
+            .ForMember(dest => dest.IsPreviousPage, opt => opt.MapFrom(src => src.IsPreviousPage))
+            .ForMember(dest => dest.NumberOfItemsPerPage, opt => opt.MapFrom(src => src.NumberOfItemsPerPage))
+            .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => src.OrderBy))
+            .ForMember(dest => dest.RequiredPage, opt => opt.MapFrom(src => src.RequiredPage))
+            .ForMember(dest => dest.SortOrder, opt => opt.MapFrom(src => src.SortOrder))
+            .ForMember(dest => dest.SearchString, opt => opt.MapFrom(src => src.SearchString))
+            .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => 
+                src.Male == true ? 1 : 
+                src.Female == true ? 0 : 
+                src.LegalEntity == true ? 3 : (int?)null))
+            .ForMember(dest => dest.AddressType, opt => opt.MapFrom(src => 
+                src.HomeAddress == true ? 1 : 
+                src.CompanyAddress == true ? 2 : 
+                src.InvoiceAddress == true ? 3 : (int?)null))
+            .ForMember(dest => dest.HasAnnotation, opt => opt.MapFrom(src => src.HasAnnotation))
+            .ForMember(dest => dest.IsActiveMember, opt => opt.MapFrom(src => src.ActiveMembership))
+            .ForMember(dest => dest.IsFormerMember, opt => opt.MapFrom(src => src.FormerMembership))
+            .ForMember(dest => dest.IsFutureMember, opt => opt.MapFrom(src => src.FutureMembership))
+            .ForMember(dest => dest.MembershipStartDate, opt => opt.MapFrom(src => src.ScopeFrom.HasValue ? DateOnly.FromDateTime(src.ScopeFrom.Value) : (DateOnly?)null))
+            .ForMember(dest => dest.MembershipEndDate, opt => opt.MapFrom(src => src.ScopeUntil.HasValue ? DateOnly.FromDateTime(src.ScopeUntil.Value) : (DateOnly?)null))
+            .ForMember(dest => dest.StateOrCountryCode, opt => opt.Ignore()) // Not in FilterResource, or map if available
+            .ForMember(dest => dest.AnnotationText, opt => opt.Ignore()) // Not in FilterResource, or map if available
+            .ForMember(dest => dest.MembershipYear, opt => opt.Ignore()) // Not in FilterResource, or map if available
+            .ForMember(dest => dest.BreaksYear, opt => opt.Ignore()); // Not in FilterResource, or map if available
+
+        // Group Filter to Group Search Criteria
+        CreateMap<GroupFilter, GroupSearchCriteria>()
+            .ForMember(dest => dest.FirstItemOnLastPage, opt => opt.MapFrom(src => src.FirstItemOnLastPage))
+            .ForMember(dest => dest.IsNextPage, opt => opt.MapFrom(src => src.IsNextPage))
+            .ForMember(dest => dest.IsPreviousPage, opt => opt.MapFrom(src => src.IsPreviousPage))
+            .ForMember(dest => dest.NumberOfItemsPerPage, opt => opt.MapFrom(src => src.NumberOfItemsPerPage))
+            .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => src.OrderBy))
+            .ForMember(dest => dest.RequiredPage, opt => opt.MapFrom(src => src.RequiredPage))
+            .ForMember(dest => dest.SortOrder, opt => opt.MapFrom(src => src.SortOrder))
+            .ForMember(dest => dest.SearchString, opt => opt.MapFrom(src => src.SearchString))
+            .ForMember(dest => dest.ActiveDateRange, opt => opt.MapFrom(src => src.ActiveDateRange))
+            .ForMember(dest => dest.FormerDateRange, opt => opt.MapFrom(src => src.FormerDateRange))
+            .ForMember(dest => dest.FutureDateRange, opt => opt.MapFrom(src => src.FutureDateRange))
+            .ForMember(dest => dest.ValidFromDate, opt => opt.Ignore()) // Not in GroupFilter, or map if available
+            .ForMember(dest => dest.ValidToDate, opt => opt.Ignore()) // Not in GroupFilter, or map if available
+            .ForMember(dest => dest.ParentGroupId, opt => opt.Ignore()) // Not in GroupFilter, or map if available
+            .ForMember(dest => dest.IncludeSubGroups, opt => opt.Ignore()) // Not in GroupFilter, or map if available
+            .ForMember(dest => dest.MaxDepth, opt => opt.Ignore()) // Not in GroupFilter, or map if available
+            .ForMember(dest => dest.HasMembers, opt => opt.Ignore()) // Not in GroupFilter, or map if available
+            .ForMember(dest => dest.MinMemberCount, opt => opt.Ignore()) // Not in GroupFilter, or map if available
+            .ForMember(dest => dest.MaxMemberCount, opt => opt.Ignore()); // Not in GroupFilter, or map if available
+    }
+
+    /// <summary>
+    /// Phase 3: Configure Domain Summary Results to Presentation DTO mappings
+    /// </summary>
+    private void ConfigureDomainToResultMappings()
+    {
+        // Domain Summary to Presentation Resource mappings
+        CreateMap<ClientSummary, ClientResource>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid())) // Convert int to Guid
+            .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.LastName)) // Map LastName to Name field
+            .ForMember(dest => dest.Company, opt => opt.MapFrom(src => src.Company))
+            .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender ?? GenderEnum.Female))
+            .ForMember(dest => dest.IdNumber, opt => opt.MapFrom(src => ParseIdNumber(src.IdNumber)))
+            .ForMember(dest => dest.Birthdate, opt => opt.MapFrom(src => src.DateOfBirth.HasValue ? src.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null))
+            .ForMember(dest => dest.Addresses, opt => opt.Ignore()) // Collections not available in ClientSummary
+            .ForMember(dest => dest.Annotations, opt => opt.Ignore()) // Collections not available in ClientSummary
+            .ForMember(dest => dest.Communications, opt => opt.Ignore()) // Collections not available in ClientSummary
+            .ForMember(dest => dest.LegalEntity, opt => opt.MapFrom(src => src.Gender == GenderEnum.LegalEntity))
+            .ForMember(dest => dest.MaidenName, opt => opt.Ignore()) // Not available in ClientSummary
+            .ForMember(dest => dest.Membership, opt => opt.Ignore()) // Complex object not available in ClientSummary
+            .ForMember(dest => dest.MembershipId, opt => opt.MapFrom(src => Guid.Empty)) // Default value
+            .ForMember(dest => dest.PasswortResetToken, opt => opt.Ignore()) // Not available in ClientSummary
+            .ForMember(dest => dest.SecondName, opt => opt.Ignore()) // Not available in ClientSummary
+            .ForMember(dest => dest.Title, opt => opt.Ignore()) // Not available in ClientSummary
+            .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => !src.IsActive))
+            .ForMember(dest => dest.Type, opt => opt.Ignore()) // Not available in ClientSummary
+            .ForMember(dest => dest.Works, opt => opt.Ignore()); // Collections not available in ClientSummary
+
+        CreateMap<GroupSummary, GroupResource>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid())) // Convert int to Guid
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.ValidFrom, opt => opt.MapFrom(src => src.ValidFrom.HasValue ? src.ValidFrom.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue))
+            .ForMember(dest => dest.ValidUntil, opt => opt.MapFrom(src => src.ValidTo.HasValue ? src.ValidTo.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null))
+            .ForMember(dest => dest.GroupItems, opt => opt.Ignore()) // Collections not available in GroupSummary
+            .ForMember(dest => dest.Children, opt => opt.Ignore()) // Collections not available in GroupSummary
+            .ForMember(dest => dest.Parent, opt => opt.MapFrom(src => src.ParentId.HasValue ? Guid.NewGuid() : (Guid?)null))
+            .ForMember(dest => dest.Root, opt => opt.Ignore()) // Not available in GroupSummary
+            .ForMember(dest => dest.Lft, opt => opt.MapFrom(src => src.LeftValue))
+            .ForMember(dest => dest.Rgt, opt => opt.MapFrom(src => src.RightValue));
+
+        // Add GroupSummary to Group mapping for TruncatedGroup compatibility
+        CreateMap<GroupSummary, Group>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid())) // Convert int to Guid
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.ValidFrom, opt => opt.MapFrom(src => src.ValidFrom.HasValue ? src.ValidFrom.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue))
+            .ForMember(dest => dest.ValidUntil, opt => opt.MapFrom(src => src.ValidTo.HasValue ? src.ValidTo.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null))
+            .ForMember(dest => dest.GroupItems, opt => opt.Ignore()) // Collections not available in GroupSummary
+            .ForMember(dest => dest.Parent, opt => opt.Ignore()) // Complex object not available in GroupSummary
+            .ForMember(dest => dest.Root, opt => opt.Ignore()) // Not available in GroupSummary
+            .ForMember(dest => dest.Lft, opt => opt.MapFrom(src => src.LeftValue))
+            .ForMember(dest => dest.Rgt, opt => opt.MapFrom(src => src.RightValue))
+            .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore()) // BaseEntity properties
+            .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore()) // BaseEntity properties
+            .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore()) // BaseEntity properties
+            .ForMember(dest => dest.DeletedTime, opt => opt.Ignore()) // BaseEntity properties
+            .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => !src.IsActive))
+            .ForMember(dest => dest.CreateTime, opt => opt.MapFrom(src => src.CreateTime))
+            .ForMember(dest => dest.UpdateTime, opt => opt.MapFrom(src => src.UpdateTime));
+
+        // Domain PagedResult to Presentation mappings
+        CreateMap<PagedResult<ClientSummary>, BaseTruncatedResult>()
+            .ForMember(dest => dest.MaxItems, opt => opt.MapFrom(src => src.TotalCount))
+            .ForMember(dest => dest.MaxPages, opt => opt.MapFrom(src => src.TotalPages))
+            .ForMember(dest => dest.CurrentPage, opt => opt.MapFrom(src => src.PageNumber))
+            .ForMember(dest => dest.FirstItemOnPage, opt => opt.MapFrom(src => (src.PageNumber - 1) * src.PageSize + 1));
+
+        CreateMap<PagedResult<GroupSummary>, BaseTruncatedResult>()
+            .ForMember(dest => dest.MaxItems, opt => opt.MapFrom(src => src.TotalCount))
+            .ForMember(dest => dest.MaxPages, opt => opt.MapFrom(src => src.TotalPages))
+            .ForMember(dest => dest.CurrentPage, opt => opt.MapFrom(src => src.PageNumber))
+            .ForMember(dest => dest.FirstItemOnPage, opt => opt.MapFrom(src => (src.PageNumber - 1) * src.PageSize + 1));
+
+        CreateMap<PagedResult<GroupSummary>, TruncatedGroup>()
+            .ForMember(dest => dest.Groups, opt => opt.MapFrom(src => src.Items))
+            .ForMember(dest => dest.MaxItems, opt => opt.MapFrom(src => src.TotalCount))
+            .ForMember(dest => dest.MaxPages, opt => opt.MapFrom(src => src.TotalPages))
+            .ForMember(dest => dest.CurrentPage, opt => opt.MapFrom(src => src.PageNumber))
+            .ForMember(dest => dest.FirstItemOnPage, opt => opt.MapFrom(src => (src.PageNumber - 1) * src.PageSize + 1));
+    }
+    
+    /// <summary>
+    /// Helper method to parse string ID to int (needed to avoid expression tree issues)
+    /// </summary>
+    private static int ParseIdNumber(string idNumber)
+    {
+        return int.TryParse(idNumber, out var id) ? id : 0;
     }
 }

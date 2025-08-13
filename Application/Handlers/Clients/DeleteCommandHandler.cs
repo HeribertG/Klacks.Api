@@ -1,50 +1,61 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Clients;
 
+/// <summary>
+/// CQRS Command Handler for deleting clients
+/// Refactored to use Application Service following Clean Architecture
+/// </summary>
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<ClientResource>, ClientResource?>
 {
-    private readonly ILogger<DeleteCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IClientRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly ClientApplicationService _clientApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<DeleteCommandHandler> _logger;
 
     public DeleteCommandHandler(
-                                IMapper mapper,
-                                IClientRepository repository,
-                                IUnitOfWork unitOfWork,
-                                ILogger<DeleteCommandHandler> logger)
+        ClientApplicationService clientApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<DeleteCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _clientApplicationService = clientApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<ClientResource?> Handle(DeleteCommand<ClientResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var client = await repository.Delete(request.Id);
-            if (client == null)
+            // Get client before deletion for return value
+            var clientToDelete = await _clientApplicationService.GetClientByIdAsync(request.Id, cancellationToken);
+            if (clientToDelete == null)
             {
-                logger.LogWarning("Client with ID {ClientId} not found for deletion.", request.Id);
+                _logger.LogWarning("Client with ID {ClientId} not found for deletion.", request.Id);
                 return null;
             }
 
-            await unitOfWork.CompleteAsync();
+            // Clean Architecture: Delegate to Application Service
+            await _clientApplicationService.DeleteClientAsync(request.Id, cancellationToken);
 
-            logger.LogInformation("Client with ID {ClientId} deleted successfully.", request.Id);
+            // Unit of Work for transaction management
+            await _unitOfWork.CompleteAsync();
 
-            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Client, ClientResource>(client);
+            _logger.LogInformation("Client with ID {ClientId} deleted successfully.", request.Id);
+
+            return clientToDelete;
+        }
+        catch (KeyNotFoundException)
+        {
+            _logger.LogWarning("Client with ID {ClientId} not found for deletion.", request.Id);
+            return null;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while deleting client with ID {ClientId}.", request.Id);
+            _logger.LogError(ex, "Error occurred while deleting client with ID {ClientId}.", request.Id);
             throw;
         }
     }

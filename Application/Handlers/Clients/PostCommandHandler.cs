@@ -1,47 +1,48 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Clients;
 
+/// <summary>
+/// CQRS Command Handler for creating new clients
+/// Refactored to use Application Service following Clean Architecture
+/// </summary>
 public class PostCommandHandler : IRequestHandler<PostCommand<ClientResource>, ClientResource?>
 {
-    private readonly ILogger<PostCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IClientRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly ClientApplicationService _clientApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<PostCommandHandler> _logger;
 
     public PostCommandHandler(
-                              IMapper mapper,
-                              IClientRepository repository,
-                              IUnitOfWork unitOfWork,
-                              ILogger<PostCommandHandler> logger)
+        ClientApplicationService clientApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<PostCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _clientApplicationService = clientApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<ClientResource?> Handle(PostCommand<ClientResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var client = mapper.Map<ClientResource, Klacks.Api.Domain.Models.Staffs.Client>(request.Resource);
+            // Clean Architecture: Delegate business logic to Application Service
+            var createdClient = await _clientApplicationService.CreateClientAsync(request.Resource, cancellationToken);
 
-            await repository.Add(client);
+            // Unit of Work for transaction management
+            await _unitOfWork.CompleteAsync();
 
-            await unitOfWork.CompleteAsync();
+            _logger.LogInformation("New client created successfully. ID: {ClientId}", createdClient.Id);
 
-            logger.LogInformation("New client added successfully. ID: {ClientId}", client.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Client, ClientResource>(client);
+            return createdClient;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while adding a new client.");
+            _logger.LogError(ex, "Error occurred while creating a new client.");
             throw;
         }
     }

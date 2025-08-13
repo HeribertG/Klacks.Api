@@ -1,8 +1,10 @@
+using Klacks.Api.Application.AutoMapper;
 using Klacks.Api.BasicScriptInterpreter;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.FileHandling;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Repositories;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Repositories;
 using Klacks.Api.Infrastructure.Services;
@@ -13,6 +15,7 @@ using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Domain.Services.Absences;
 using Klacks.Api.Infrastructure.Services.Authentication;
+using Klacks.Api.Application.Services;
 
 namespace Klacks.Api.Infrastructure.Extensions;
 
@@ -83,6 +86,14 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
         services.AddScoped<IAccountRepository, AccountRepository>();
+
+        // Phase 2: Domain Repository Implementations (TODO: Implement with correct Domain Model mappings)
+
+        // Phase 3: Application Services (Clean Architecture)
+        services.AddScoped<ClientApplicationService>();
+        services.AddScoped<GroupApplicationService>();
+
+        // Phase 3: AutoMapper Configuration (erweitert bestehende MappingProfile)
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

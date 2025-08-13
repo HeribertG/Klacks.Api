@@ -1,28 +1,28 @@
-using AutoMapper;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Groups;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Filter;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Groups
 {
+    /// <summary>
+    /// CQRS Handler that uses GroupApplicationService instead of direct Repository access
+    /// Follows Clean Architecture - Handler orchestrates, Application Service contains business logic
+    /// </summary>
     public class GetTruncatedListQueryHandler : IRequestHandler<GetTruncatedListQuery, TruncatedGroupResource>
     {
-        private readonly IMapper mapper;
-        private readonly IGroupRepository repository;
+        private readonly GroupApplicationService _groupApplicationService;
 
-        public GetTruncatedListQueryHandler(
-                                            IMapper mapper,
-                                            IGroupRepository repository)
+        public GetTruncatedListQueryHandler(GroupApplicationService groupApplicationService)
         {
-            this.mapper = mapper;
-            this.repository = repository;
+            _groupApplicationService = groupApplicationService;
         }
 
         public async Task<TruncatedGroupResource> Handle(GetTruncatedListQuery request, CancellationToken cancellationToken)
         {
-            var truncated = await repository.Truncated(request.Filter);
-            return mapper.Map<TruncatedGroup, TruncatedGroupResource>(truncated!);
+            // Clean Architecture: Handler delegates to Application Service
+            // Application Service handles DTO→Domain→DTO mapping
+            return await _groupApplicationService.SearchGroupsAsync(request.Filter, cancellationToken);
         }
     }
 }

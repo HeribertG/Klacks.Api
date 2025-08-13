@@ -1,52 +1,50 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Groups;
 
+/// <summary>
+/// CQRS Command Handler for creating new groups
+/// Refactored to use Application Service following Clean Architecture
+/// </summary>
 public class PostCommandHandler : IRequestHandler<PostCommand<GroupResource>, GroupResource?>
 {
-    private readonly ILogger<PostCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IGroupRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly GroupApplicationService _groupApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<PostCommandHandler> _logger;
 
     public PostCommandHandler(
-                              IMapper mapper,
-                              IGroupRepository repository,
-                              IUnitOfWork unitOfWork,
-                              ILogger<PostCommandHandler> logger)
+        GroupApplicationService groupApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<PostCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _groupApplicationService = groupApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<GroupResource?> Handle(PostCommand<GroupResource> request, CancellationToken cancellationToken)
     {
-        using var transaction = await unitOfWork.BeginTransactionAsync();
+        using var transaction = await _unitOfWork.BeginTransactionAsync();
         try
         {
-            var group = mapper.Map<GroupResource, Klacks.Api.Domain.Models.Associations.Group>(request.Resource);
+            // Clean Architecture: Delegate business logic to Application Service
+            var createdGroup = await _groupApplicationService.CreateGroupAsync(request.Resource, cancellationToken);
 
-            await repository.Add(group);
+            await _unitOfWork.CompleteAsync();
+            await _unitOfWork.CommitTransactionAsync(transaction);
 
-            await unitOfWork.CompleteAsync();
-            await unitOfWork.CommitTransactionAsync(transaction);
+            _logger.LogInformation("Command {CommandName} processed successfully.", "PostCommand<GroupResource>");
 
-            logger.LogInformation("Command {CommandName} processed successfully.", "PostCommand<GroupResource>");
-
-            var createdGroup = await repository.Get(group.Id);
-
-            return createdGroup != null ? mapper.Map<Klacks.Api.Domain.Models.Associations.Group, GroupResource>(createdGroup) : null;
+            return createdGroup;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error creating group: {ErrorMessage}", ex.Message);
-            await unitOfWork.RollbackTransactionAsync(transaction);
+            _logger.LogError(ex, "Error creating group: {ErrorMessage}", ex.Message);
+            await _unitOfWork.RollbackTransactionAsync(transaction);
             throw;
         }
     }

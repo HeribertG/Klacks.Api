@@ -10,6 +10,7 @@ public class History : BaseEntity
     [Required]
     [ForeignKey("Client")]
     public Guid ClientId { get; set; }
+
     public Client? Client { get; set; }
 
     [Required]
@@ -17,7 +18,10 @@ public class History : BaseEntity
     public DateTime? ValidFrom { get; set; }
 
     public int Type { get; set; }
+
     public string Data { get; set; } = String.Empty;
+
     public string OldData { get; set; } = String.Empty;
+
     public string NewData { get; set; } = String.Empty;
 }
