@@ -15,6 +15,8 @@ using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Domain.Services.Absences;
 using Klacks.Api.Domain.Services.Accounts;
+using Klacks.Api.Domain.Services.Settings;
+using Klacks.Api.Domain.Services.CalendarSelections;
 using Klacks.Api.Infrastructure.Services.Authentication;
 using Klacks.Api.Application.Services;
 
@@ -80,6 +82,14 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IAbsenceSortingService, AbsenceSortingService>();
         services.AddScoped<IAbsencePaginationService, AbsencePaginationService>();
         services.AddScoped<IAbsenceExportService, AbsenceExportService>();
+
+        // Settings Domain Services
+        services.AddScoped<ICalendarRuleFilterService, CalendarRuleFilterService>();
+        services.AddScoped<ICalendarRuleSortingService, CalendarRuleSortingService>();
+        services.AddScoped<ICalendarRulePaginationService, CalendarRulePaginationService>();
+
+        // CalendarSelection Domain Services
+        services.AddScoped<ICalendarSelectionUpdateService, CalendarSelectionUpdateService>();
 
         // Authentication Domain Services
         services.AddScoped<Klacks.Api.Application.Validation.Accounts.JwtValidator>();

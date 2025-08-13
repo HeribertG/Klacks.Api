@@ -2,6 +2,7 @@ using Klacks.Api.Domain.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
@@ -11,67 +12,36 @@ namespace Klacks.Api.Infrastructure.Repositories;
 public class CalendarSelectionRepository : BaseRepository<CalendarSelection>, ICalendarSelectionRepository
 {
     private readonly DataBaseContext context;
+    private readonly ICalendarSelectionUpdateService _updateService;
 
-    public CalendarSelectionRepository(DataBaseContext context, ILogger<CalendarSelection> logger)
+    public CalendarSelectionRepository(DataBaseContext context, ILogger<CalendarSelection> logger,
+        ICalendarSelectionUpdateService updateService)
       : base(context, logger)
     {
         this.context = context;
+        _updateService = updateService;
     }
 
     public async Task<CalendarSelection> GetWithSelectedCalendars(Guid id)
     {
-        Logger.LogInformation("Fetching CalendarSelection with ID: {CalendarSelectionId}", id);
-        var calendarSelection = await context.CalendarSelection
-                          .Include(c => c.SelectedCalendars)
-                          .FirstOrDefaultAsync(c => c.Id == id);
-
-        if (calendarSelection == null)
-        { 
-            Logger.LogWarning("CalendarSelection with ID: {CalendarSelectionId} not found.", id);
-            throw new ValidationException($"CalendarSelection with ID {id} not found.");
-        }
-
-        Logger.LogInformation("CalendarSelection with ID: {CalendarSelectionId} found successfully.", id);
-        return calendarSelection;
+        return await _updateService.GetWithSelectedCalendarsAsync(id);
     }
 
     public async Task Update(CalendarSelection model)
     {
-        Logger.LogInformation("Updating CalendarSelection with ID: {CalendarSelectionId}", model.Id);
-        var existingCalendarSelection = await context.CalendarSelection.Include(cu => cu.SelectedCalendars)
-                                                                     .SingleOrDefaultAsync(c => c.Id == model.Id);
-        if (existingCalendarSelection == null)
-        {
-            Logger.LogWarning("Update: CalendarSelection with ID: {CalendarSelectionId} not found.", model.Id);
-            throw new ValidationException($"The requested CalendarSelections was not found. {model.Name}!");
-        }
-
         try
         {
-            existingCalendarSelection.Name = model.Name;
-
-            var updatedKeys = model.SelectedCalendars
-                .Select(sc => $"{sc.Country}|{sc.State}")
-                .ToHashSet();
-
-            existingCalendarSelection.SelectedCalendars.RemoveAll(sc =>
-                !updatedKeys.Contains($"{sc.Country}|{sc.State}"));
-
-            foreach (var updatedSelectedCalendar in model.SelectedCalendars)
+            var existingCalendarSelection = await context.CalendarSelection
+                .Include(cu => cu.SelectedCalendars)
+                .SingleOrDefaultAsync(c => c.Id == model.Id);
+                
+            if (existingCalendarSelection == null)
             {
-                var existingSelectedCalendar = existingCalendarSelection.SelectedCalendars
-                    .FirstOrDefault(sc =>
-                        sc.Country == updatedSelectedCalendar.Country &&
-                        sc.State == updatedSelectedCalendar.State);
-
-                if (existingSelectedCalendar == null)
-                {
-                    existingCalendarSelection.SelectedCalendars.Add(updatedSelectedCalendar);
-                }
+                Logger.LogWarning("Update: CalendarSelection with ID: {CalendarSelectionId} not found.", model.Id);
+                throw new ValidationException($"The requested CalendarSelections was not found. {model.Name}!");
             }
 
-            await context.SaveChangesAsync();
-            Logger.LogInformation("CalendarSelection with ID: {CalendarSelectionId} updated successfully.", model.Id);
+            await _updateService.UpdateCalendarSelectionAsync(existingCalendarSelection, model);
         }
         catch (DbUpdateException ex)
         {

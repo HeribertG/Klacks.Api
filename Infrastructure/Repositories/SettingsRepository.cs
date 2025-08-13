@@ -1,6 +1,7 @@
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +11,19 @@ namespace Klacks.Api.Infrastructure.Repositories;
 public class SettingsRepository : ISettingsRepository
 {
     private readonly DataBaseContext context;
+    private readonly ICalendarRuleFilterService _filterService;
+    private readonly ICalendarRuleSortingService _sortingService;
+    private readonly ICalendarRulePaginationService _paginationService;
 
-    public SettingsRepository(DataBaseContext context)
+    public SettingsRepository(DataBaseContext context,
+        ICalendarRuleFilterService filterService,
+        ICalendarRuleSortingService sortingService,
+        ICalendarRulePaginationService paginationService)
     {
         this.context = context;
+        _filterService = filterService;
+        _sortingService = sortingService;
+        _paginationService = paginationService;
     }
 
     #region Setting
@@ -222,54 +232,12 @@ public class SettingsRepository : ISettingsRepository
 
     public async Task<TruncatedCalendarRule> GetTruncatedCalendarRuleList(CalendarRulesFilter filter)
     {
-        var count = 0;
-
-        var tmp = FilterCalendarRule(filter);
-
-        if (tmp != null)
-        {
-            count = tmp.Count();
-        }
-
-        var firstItem = 0;
-
-        if (count > 0 && count > filter.NumberOfItemsPerPage)
-        {
-            if ((filter.IsNextPage.HasValue || filter.IsPreviousPage.HasValue) && filter.FirstItemOnLastPage.HasValue)
-            {
-                if (filter.IsNextPage.HasValue)
-                {
-                    firstItem = filter.FirstItemOnLastPage.Value + filter.NumberOfItemsPerPage;
-                }
-                else
-                {
-                    var numberOfItem = filter.NumberOfItemOnPreviousPage ?? filter.NumberOfItemsPerPage;
-                    firstItem = filter.FirstItemOnLastPage.Value - numberOfItem;
-                    if (firstItem < 0)
-                    {
-                        firstItem = 0;
-                    }
-                }
-            }
-            else
-            {
-                firstItem = filter.RequiredPage * filter.NumberOfItemsPerPage;
-            }
-
-            tmp = tmp!.Skip(firstItem).Take(filter.NumberOfItemsPerPage);
-        }
-
-        var res = new TruncatedCalendarRule
-        {
-            CalendarRules = await tmp!.ToListAsync(),
-            MaxItems = count,
-        };
-
-        res.MaxPages = filter.NumberOfItemsPerPage > 0 ? (res.MaxItems / filter.NumberOfItemsPerPage) : 0;
-        res.CurrentPage = filter.RequiredPage;
-        res.FirstItemOnPage = firstItem;
-
-        return res;
+        var query = context.CalendarRule.AsQueryable();
+        
+        query = _filterService.ApplyFilters(query, filter);
+        query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder, filter.Language);
+        
+        return await _paginationService.ApplyPaginationAsync(query, filter);
     }
 
     public CalendarRule PutCalendarRule(CalendarRule calendarRule)
@@ -286,78 +254,4 @@ public class SettingsRepository : ISettingsRepository
 
     #endregion CalendarRule
 
-    private IQueryable<CalendarRule> FilterByState(List<StateCountryToken> list, IQueryable<CalendarRule> tmp)
-    {
-        var filteredStateList = list.Where(x => x.Select == true).Select(x => x.State).ToList();
-        var filteredCountryList = list.Where(x => x.Select == true).Select(x => x.Country).Distinct().ToList();
-        filteredStateList.AddRange(filteredCountryList.ToArray());
-
-        tmp = tmp.Where(st => filteredStateList.Contains(st.State));
-        tmp = tmp.Where(co => filteredCountryList.Contains(co.Country));
-
-        return tmp;
-    }
-
-    private IQueryable<CalendarRule> FilterCalendarRule(CalendarRulesFilter filter)
-    {
-        var tmp = context.CalendarRule.AsQueryable();
-
-        tmp = FilterByState(filter.List, tmp);
-
-        tmp = Sort(filter.OrderBy, filter.SortOrder, filter.Language, tmp);
-
-        return tmp;
-    }
-
-    private IQueryable<CalendarRule> Sort(string orderBy, string sortOrder, string language, IQueryable<CalendarRule> tmp)
-    {
-        var lang = language.ToLower();
-        if (sortOrder != string.Empty)
-        {
-            if (orderBy == "Name")
-            {
-                switch (lang)
-                {
-                    case "de":
-                        return sortOrder == "asc" ? tmp.OrderBy(x => x.Name!.De!) : tmp.OrderByDescending(x => x.Name!.De!);
-
-                    case "en":
-                        return sortOrder == "asc" ? tmp.OrderBy(x => x.Name!.En!) : tmp.OrderByDescending(x => x.Name!.En!);
-
-                    case "fr":
-                        return sortOrder == "asc" ? tmp.OrderBy(x => x.Name!.Fr!) : tmp.OrderByDescending(x => x.Name!.Fr!);
-
-                    case "it":
-                        return sortOrder == "asc" ? tmp.OrderBy(x => x.Name!.It!) : tmp.OrderByDescending(x => x.Name!.It!);
-                }
-            }
-            else if (orderBy == "state")
-            {
-                return sortOrder == "asc" ? tmp.OrderBy(x => x.State) : tmp.OrderByDescending(x => x.State);
-            }
-            else if (orderBy == "country")
-            {
-                return sortOrder == "asc" ? tmp.OrderBy(x => x.Country) : tmp.OrderByDescending(x => x.Country);
-            }
-            else if (orderBy == "description")
-            {
-                switch (lang)
-                {
-                    case "de":
-                        return sortOrder == "asc" ? tmp.OrderBy(x => x.Description!.De!) : tmp.OrderByDescending(x => x.Description!.De!);
-
-                    case "en":
-                        return sortOrder == "asc" ? tmp.OrderBy(x => x.Description!.En!) : tmp.OrderByDescending(x => x.Description!.En!);
-
-                    case "fr":
-                        return sortOrder == "asc" ? tmp.OrderBy(x => x.Description!.Fr!) : tmp.OrderByDescending(x => x.Description!.Fr!);
-
-                    case "it":
-                        return sortOrder == "asc" ? tmp.OrderBy(x => x.Description!.It!) : tmp.OrderByDescending(x => x.Description!.It!);
-                }
-            }
-        }
-
-        return tmp;
-    }
 }
