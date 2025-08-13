@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
@@ -8,43 +8,39 @@ namespace Klacks.Api.Application.Handlers.Communications;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<CommunicationResource>, CommunicationResource?>
 {
-    private readonly ILogger<DeleteCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly ICommunicationRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly CommunicationApplicationService _communicationApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<DeleteCommandHandler> _logger;
 
     public DeleteCommandHandler(
-                                IMapper mapper,
-                                ICommunicationRepository repository,
-                                IUnitOfWork unitOfWork,
-                                ILogger<DeleteCommandHandler> logger)
+        CommunicationApplicationService communicationApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<DeleteCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _communicationApplicationService = communicationApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<CommunicationResource?> Handle(DeleteCommand<CommunicationResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var communication = await repository.Delete(request.Id);
-            if (communication == null)
+            var existingCommunication = await _communicationApplicationService.GetCommunicationByIdAsync(request.Id, cancellationToken);
+            if (existingCommunication == null)
             {
-                logger.LogWarning("Communication with ID {CommunicationId} not found for deletion.", request.Id);
+                _logger.LogWarning("Communication with ID {CommunicationId} not found for deletion.", request.Id);
                 return null;
             }
 
-            await unitOfWork.CompleteAsync();
+            await _communicationApplicationService.DeleteCommunicationAsync(request.Id, cancellationToken);
+            await _unitOfWork.CompleteAsync();
 
-            logger.LogInformation("Communication with ID {CommunicationId} deleted successfully.", request.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Communication, CommunicationResource>(communication);
+            return existingCommunication;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while deleting communication with ID {CommunicationId}.", request.Id);
+            _logger.LogError(ex, "Error occurred while deleting communication with ID {CommunicationId}.", request.Id);
             throw;
         }
     }

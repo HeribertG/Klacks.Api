@@ -1,15 +1,15 @@
 ﻿using Klacks.Api.Presentation.Controllers.v1.UserBackend;
-using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Presentation.DTOs.Associations;
 using Klacks.Api.Application.Queries.AssignedGroups;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
 
-public class AssignedGroupsController(IMediator mediator, ILogger<AssignedGroupsController> logger) : InputBaseController<AssignedGroup>(mediator, logger)
+public class AssignedGroupsController(IMediator mediator, ILogger<AssignedGroupsController> logger) : InputBaseController<GroupResource>(mediator, logger)
 {
     [HttpGet("list")]
-    public async Task<IEnumerable<AssignedGroup>> Get(Guid? id)
+    public async Task<IEnumerable<GroupResource>> Get(Guid? id)
     {
         try
         {

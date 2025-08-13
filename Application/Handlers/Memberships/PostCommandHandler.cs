@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
@@ -8,40 +8,31 @@ namespace Klacks.Api.Application.Handlers.Memberships;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<MembershipResource>, MembershipResource?>
 {
-    private readonly ILogger<PostCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IMembershipRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly MembershipApplicationService _membershipApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<PostCommandHandler> _logger;
 
     public PostCommandHandler(
-                              IMapper mapper,
-                              IMembershipRepository repository,
-                              IUnitOfWork unitOfWork,
-                              ILogger<PostCommandHandler> logger)
+        MembershipApplicationService membershipApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<PostCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _membershipApplicationService = membershipApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<MembershipResource?> Handle(PostCommand<MembershipResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var membership = mapper.Map<MembershipResource, Klacks.Api.Domain.Models.Associations.Membership>(request.Resource);
-
-            await repository.Add(membership);
-
-            await unitOfWork.CompleteAsync();
-
-            logger.LogInformation("New membership added successfully. ID: {MembershipId}", membership.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.Associations.Membership, MembershipResource>(membership);
+            var result = await _membershipApplicationService.CreateMembershipAsync(request.Resource, cancellationToken);
+            await _unitOfWork.CompleteAsync();
+            return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while adding a new membership.");
+            _logger.LogError(ex, "Error occurred while adding a new membership.");
             throw;
         }
     }

@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
@@ -8,40 +8,31 @@ namespace Klacks.Api.Application.Handlers.Communications;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<CommunicationResource>, CommunicationResource?>
 {
-    private readonly ILogger<PostCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly ICommunicationRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly CommunicationApplicationService _communicationApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<PostCommandHandler> _logger;
 
     public PostCommandHandler(
-                              IMapper mapper,
-                              ICommunicationRepository repository,
-                              IUnitOfWork unitOfWork,
-                              ILogger<PostCommandHandler> logger)
+        CommunicationApplicationService communicationApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<PostCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _communicationApplicationService = communicationApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<CommunicationResource?> Handle(PostCommand<CommunicationResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var communication = mapper.Map<CommunicationResource, Klacks.Api.Domain.Models.Staffs.Communication>(request.Resource);
-
-            await repository.Add(communication);
-
-            await unitOfWork.CompleteAsync();
-
-            logger.LogInformation("New communication added successfully. ID: {CommunicationId}", communication.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Communication, CommunicationResource>(communication);
+            var result = await _communicationApplicationService.CreateCommunicationAsync(request.Resource, cancellationToken);
+            await _unitOfWork.CompleteAsync();
+            return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while adding a new communication.");
+            _logger.LogError(ex, "Error occurred while adding a new communication.");
             throw;
         }
     }

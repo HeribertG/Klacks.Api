@@ -1,6 +1,5 @@
-using AutoMapper;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -8,20 +7,16 @@ namespace Klacks.Api.Application.Handlers.Annotations
 {
     public class GetQueryHandler : IRequestHandler<GetQuery<AnnotationResource>, AnnotationResource?>
     {
-        private readonly IMapper mapper;
-        private readonly IAnnotationRepository repository;
+        private readonly AnnotationApplicationService _annotationApplicationService;
 
-        public GetQueryHandler(IMapper mapper,
-                               IAnnotationRepository repository)
+        public GetQueryHandler(AnnotationApplicationService annotationApplicationService)
         {
-            this.mapper = mapper;
-            this.repository = repository;
+            _annotationApplicationService = annotationApplicationService;
         }
 
         public async Task<AnnotationResource?> Handle(GetQuery<AnnotationResource> request, CancellationToken cancellationToken)
         {
-            var annotation = await repository.Get(request.Id);
-            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Annotation, AnnotationResource>(annotation!);
+            return await _annotationApplicationService.GetAnnotationByIdAsync(request.Id, cancellationToken);
         }
     }
 }

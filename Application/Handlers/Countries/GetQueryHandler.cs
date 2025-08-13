@@ -1,27 +1,22 @@
-using AutoMapper;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
-namespace Klacks.Api.Settings.Countries
+namespace Klacks.Api.Application.Handlers.Countries
 {
     public class GetQueryHandler : IRequestHandler<GetQuery<CountryResource>, CountryResource>
     {
-        private readonly IMapper mapper;
-        private readonly ICountryRepository repository;
+        private readonly CountryApplicationService _countryApplicationService;
 
-        public GetQueryHandler(IMapper mapper,
-                               ICountryRepository repository)
+        public GetQueryHandler(CountryApplicationService countryApplicationService)
         {
-            this.mapper = mapper;
-            this.repository = repository;
+            _countryApplicationService = countryApplicationService;
         }
 
         public async Task<CountryResource> Handle(GetQuery<CountryResource> request, CancellationToken cancellationToken)
         {
-            var country = await this.repository.Get(request.Id);
-            return this.mapper.Map<Klacks.Api.Domain.Models.Settings.Countries, CountryResource>(country!);
+            return await _countryApplicationService.GetCountryByIdAsync(request.Id, cancellationToken) ?? new CountryResource();
         }
     }
 }

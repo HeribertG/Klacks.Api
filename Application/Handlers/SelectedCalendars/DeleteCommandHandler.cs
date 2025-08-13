@@ -1,6 +1,5 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 
@@ -8,44 +7,16 @@ namespace Klacks.Api.Application.Handlers.SelectedCalendars;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<SelectedCalendarResource>, SelectedCalendarResource?>
 {
-    private readonly ILogger<DeleteCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly ISelectedCalendarRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly SelectedCalendarApplicationService _selectedCalendarApplicationService;
 
-    public DeleteCommandHandler(
-                                IMapper mapper,
-                                ISelectedCalendarRepository repository,
-                                IUnitOfWork unitOfWork,
-                                ILogger<DeleteCommandHandler> logger)
+    public DeleteCommandHandler(SelectedCalendarApplicationService selectedCalendarApplicationService)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _selectedCalendarApplicationService = selectedCalendarApplicationService;
     }
 
     public async Task<SelectedCalendarResource?> Handle(DeleteCommand<SelectedCalendarResource> request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var selectedCalendar = await repository.Delete(request.Id);
-            if (selectedCalendar == null)
-            {
-                logger.LogWarning("SelectedCalendar with ID {Id} not found for deletion.", request.Id);
-                return null;
-            }
-
-            await unitOfWork.CompleteAsync();
-
-            logger.LogInformation("SelectedCalendar with ID {Id} deleted successfully.", request.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.CalendarSelections.SelectedCalendar, SelectedCalendarResource>(selectedCalendar);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while deleting SelectedCalendar with ID {Id}.", request.Id);
-            throw;
-        }
+        await _selectedCalendarApplicationService.DeleteSelectedCalendarAsync(request.Id, cancellationToken);
+        return null;
     }
 }

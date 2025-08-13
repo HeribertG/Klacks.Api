@@ -1,6 +1,5 @@
-using AutoMapper;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -8,19 +7,15 @@ namespace Klacks.Api.Application.Handlers.Addresses;
 
 public class GetQueryHandler : IRequestHandler<GetQuery<AddressResource>, AddressResource>
 {
-    private readonly IMapper mapper;
-    private readonly IAddressRepository repository;
+    private readonly AddressApplicationService _addressApplicationService;
 
-    public GetQueryHandler(IMapper mapper,
-                           IAddressRepository repository)
+    public GetQueryHandler(AddressApplicationService addressApplicationService)
     {
-        this.mapper = mapper;
-        this.repository = repository;
+        _addressApplicationService = addressApplicationService;
     }
 
     public async Task<AddressResource> Handle(GetQuery<AddressResource> request, CancellationToken cancellationToken)
     {
-        var address = await repository.Get(request.Id);
-        return mapper.Map<Klacks.Api.Domain.Models.Staffs.Address, AddressResource>(address!);
+        return await _addressApplicationService.GetAddressByIdAsync(request.Id, cancellationToken) ?? new AddressResource();
     }
 }

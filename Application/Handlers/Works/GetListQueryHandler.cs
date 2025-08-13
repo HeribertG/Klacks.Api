@@ -1,6 +1,5 @@
-using AutoMapper;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Works;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 
@@ -8,19 +7,15 @@ namespace Klacks.Api.Application.Handlers.Works;
 
 public class GetListQueryHandler : IRequestHandler<ListQuery, IEnumerable<ClientWorkResource>>
 {
-    private readonly IMapper mapper;
-    private readonly IClientRepository repository;
+    private readonly WorkApplicationService _workApplicationService;
 
-    public GetListQueryHandler(IMapper mapper, IClientRepository repository)
+    public GetListQueryHandler(WorkApplicationService workApplicationService)
     {
-        this.mapper = mapper;
-        this.repository = repository;
+        _workApplicationService = workApplicationService;
     }
 
     public async Task<IEnumerable<ClientWorkResource>> Handle(ListQuery request, CancellationToken cancellationToken)
     {
-        var client = await repository.WorkList(request.Filter);
-
-        return mapper.Map<List<Klacks.Api.Domain.Models.Staffs.Client>, List<ClientWorkResource>>(client!);
+        return await _workApplicationService.GetAllWorksAsync(request.Filter, cancellationToken);
     }
 }

@@ -1,22 +1,22 @@
-using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Application.Queries.Communications;
+using Klacks.Api.Application.Services;
+using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Communications
 {
-    public class GetTypeQueryHandler : IRequestHandler<GetTypeQuery, IEnumerable<CommunicationType>>
+    public class GetTypeQueryHandler : IRequestHandler<GetTypeQuery, IEnumerable<CommunicationTypeResource>>
     {
-        private readonly ICommunicationRepository repository;
+        private readonly CommunicationApplicationService _communicationApplicationService;
 
-        public GetTypeQueryHandler(ICommunicationRepository repository)
+        public GetTypeQueryHandler(CommunicationApplicationService communicationApplicationService)
         {
-            this.repository = repository;
+            _communicationApplicationService = communicationApplicationService;
         }
 
-        public async Task<IEnumerable<CommunicationType>> Handle(GetTypeQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<CommunicationTypeResource>> Handle(GetTypeQuery request, CancellationToken cancellationToken)
         {
-            return await repository.TypeList();
+            return await _communicationApplicationService.GetCommunicationTypesAsync(cancellationToken);
         }
     }
 }

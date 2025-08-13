@@ -1,6 +1,5 @@
-using AutoMapper;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
@@ -8,20 +7,16 @@ namespace Klacks.Api.Application.Handlers.Communications
 {
     public class GetQueryHandler : IRequestHandler<GetQuery<CommunicationResource>, CommunicationResource>
     {
-        private readonly IMapper mapper;
-        private readonly ICommunicationRepository repository;
+        private readonly CommunicationApplicationService _communicationApplicationService;
 
-        public GetQueryHandler(IMapper mapper,
-                               ICommunicationRepository repository)
+        public GetQueryHandler(CommunicationApplicationService communicationApplicationService)
         {
-            this.mapper = mapper;
-            this.repository = repository;
+            _communicationApplicationService = communicationApplicationService;
         }
 
         public async Task<CommunicationResource> Handle(GetQuery<CommunicationResource> request, CancellationToken cancellationToken)
         {
-            var communication = await repository.Get(request.Id);
-            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Communication, CommunicationResource>(communication!);
+            return await _communicationApplicationService.GetCommunicationByIdAsync(request.Id, cancellationToken) ?? new CommunicationResource();
         }
     }
 }

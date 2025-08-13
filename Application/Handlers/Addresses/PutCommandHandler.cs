@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -8,45 +8,38 @@ namespace Klacks.Api.Application.Handlers.Addresses;
 
 public class PutCommandHandler : IRequestHandler<PutCommand<AddressResource>, AddressResource?>
 {
-    private readonly ILogger<PutCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IAddressRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly AddressApplicationService _addressApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<PutCommandHandler> _logger;
 
     public PutCommandHandler(
-                              IMapper mapper,
-                              IAddressRepository repository,
-                              IUnitOfWork unitOfWork,
-                              ILogger<PutCommandHandler> logger)
+        AddressApplicationService addressApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<PutCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _addressApplicationService = addressApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<AddressResource?> Handle(PutCommand<AddressResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var dbAddress = await repository.Get(request.Resource.Id);
-            if (dbAddress == null)
+            var existingAddress = await _addressApplicationService.GetAddressByIdAsync(request.Resource.Id, cancellationToken);
+            if (existingAddress == null)
             {
-                logger.LogWarning("Address with ID {AddressId} not found.", request.Resource.Id);
+                _logger.LogWarning("Address with ID {AddressId} not found.", request.Resource.Id);
                 return null;
             }
 
-            var updatedAddress = mapper.Map(request.Resource, dbAddress);
-            updatedAddress = await repository.Put(updatedAddress);
-            await unitOfWork.CompleteAsync();
-
-            logger.LogInformation("Address with ID {AddressId} updated successfully.", request.Resource.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Address, AddressResource>(updatedAddress);
+            var result = await _addressApplicationService.UpdateAddressAsync(request.Resource, cancellationToken);
+            await _unitOfWork.CompleteAsync();
+            return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while updating address with ID {AddressId}.", request.Resource.Id);
+            _logger.LogError(ex, "Error occurred while updating address with ID {AddressId}.", request.Resource.Id);
             throw;
         }
     }

@@ -1,6 +1,5 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 
@@ -8,40 +7,15 @@ namespace Klacks.Api.Application.Handlers.SelectedCalendars;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<SelectedCalendarResource>, SelectedCalendarResource?>
 {
-    private readonly ILogger<PostCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly ISelectedCalendarRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly SelectedCalendarApplicationService _selectedCalendarApplicationService;
 
-    public PostCommandHandler(
-                              IMapper mapper,
-                              ISelectedCalendarRepository repository,
-                              IUnitOfWork unitOfWork,
-                              ILogger<PostCommandHandler> logger)
+    public PostCommandHandler(SelectedCalendarApplicationService selectedCalendarApplicationService)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _selectedCalendarApplicationService = selectedCalendarApplicationService;
     }
 
     public async Task<SelectedCalendarResource?> Handle(PostCommand<SelectedCalendarResource> request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var selectedCalendar = mapper.Map<SelectedCalendarResource, Klacks.Api.Domain.Models.CalendarSelections.SelectedCalendar>(request.Resource);
-            await repository.Add(selectedCalendar);
-
-            await unitOfWork.CompleteAsync();
-
-            logger.LogInformation("New SelectedCalendar added successfully. ID: {Id}", selectedCalendar.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.CalendarSelections.SelectedCalendar, SelectedCalendarResource>(selectedCalendar);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while adding a new SelectedCalendar. ID: {Id}", request.Resource.Id);
-            throw;
-        }
+        return await _selectedCalendarApplicationService.CreateSelectedCalendarAsync(request.Resource, cancellationToken);
     }
 }

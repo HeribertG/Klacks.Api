@@ -1,27 +1,22 @@
-﻿using AutoMapper;
-using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Models.Staffs;
-using Klacks.Api.Application.Queries.AssignedGroups;
+﻿using Klacks.Api.Application.Queries.AssignedGroups;
+using Klacks.Api.Application.Services;
+using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.AssignedGroups
 {
-    public class GetListQueryHandler : IRequestHandler<AssignedGroupListQuery, IEnumerable<AssignedGroup>>
+    public class GetListQueryHandler : IRequestHandler<AssignedGroupListQuery, IEnumerable<GroupResource>>
     {
-        private readonly IMapper mapper;
-        private readonly IAssignedGroupRepository repository;
+        private readonly AssignedGroupApplicationService _assignedGroupApplicationService;
 
-        public GetListQueryHandler(IMapper mapper, IAssignedGroupRepository repository)
+        public GetListQueryHandler(AssignedGroupApplicationService assignedGroupApplicationService)
         {
-            this.mapper = mapper;
-            this.repository = repository;
+            _assignedGroupApplicationService = assignedGroupApplicationService;
         }
 
-        public async Task<IEnumerable<AssignedGroup>> Handle(AssignedGroupListQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<GroupResource>> Handle(AssignedGroupListQuery request, CancellationToken cancellationToken)
         {
-            var list = await repository.Assigned(request.Id);
-
-            return mapper.Map<IEnumerable<AssignedGroup>, IEnumerable<AssignedGroup>>((IEnumerable<AssignedGroup>)list);
+            return await _assignedGroupApplicationService.GetAssignedGroupsAsync(request.Id, cancellationToken);
         }
     }
 }

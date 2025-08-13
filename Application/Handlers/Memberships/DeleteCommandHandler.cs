@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
@@ -8,43 +8,39 @@ namespace Klacks.Api.Application.Handlers.Memberships;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<MembershipResource>, MembershipResource?>
 {
-    private readonly ILogger<DeleteCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IMembershipRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly MembershipApplicationService _membershipApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<DeleteCommandHandler> _logger;
 
     public DeleteCommandHandler(
-                                IMapper mapper,
-                                IMembershipRepository repository,
-                                IUnitOfWork unitOfWork,
-                                ILogger<DeleteCommandHandler> logger)
+        MembershipApplicationService membershipApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<DeleteCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _membershipApplicationService = membershipApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<MembershipResource?> Handle(DeleteCommand<MembershipResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var membership = await repository.Delete(request.Id);
-            if (membership == null)
+            var existingMembership = await _membershipApplicationService.GetMembershipByIdAsync(request.Id, cancellationToken);
+            if (existingMembership == null)
             {
-                logger.LogWarning("Membership with ID {MembershipId} not found for deletion.", request.Id);
+                _logger.LogWarning("Membership with ID {MembershipId} not found for deletion.", request.Id);
                 return null;
             }
 
-            await unitOfWork.CompleteAsync();
+            await _membershipApplicationService.DeleteMembershipAsync(request.Id, cancellationToken);
+            await _unitOfWork.CompleteAsync();
 
-            logger.LogInformation("Membership with ID {MembershipId} deleted successfully.", request.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.Associations.Membership, MembershipResource>(membership);
+            return existingMembership;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while deleting membership with ID {MembershipId}.", request.Id);
+            _logger.LogError(ex, "Error occurred while deleting membership with ID {MembershipId}.", request.Id);
             throw;
         }
     }

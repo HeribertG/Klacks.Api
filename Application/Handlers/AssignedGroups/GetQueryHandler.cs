@@ -1,7 +1,5 @@
-﻿using AutoMapper;
-using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Models.Staffs;
-using Klacks.Api.Application.Queries;
+﻿using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -9,19 +7,15 @@ namespace Klacks.Api.Application.Handlers.AssignedGroups;
 
 public class GetQueryHandler : IRequestHandler<GetQuery<AssignedGroupResource>, AssignedGroupResource>
 {
-    private readonly IMapper mapper;
-    private readonly IAssignedGroupRepository repository;
+    private readonly AssignedGroupApplicationService _assignedGroupApplicationService;
 
-    public GetQueryHandler(IMapper mapper,
-                           IAssignedGroupRepository repository)
+    public GetQueryHandler(AssignedGroupApplicationService assignedGroupApplicationService)
     {
-        this.mapper = mapper;
-        this.repository = repository;
+        _assignedGroupApplicationService = assignedGroupApplicationService;
     }
 
     public async Task<AssignedGroupResource> Handle(GetQuery<AssignedGroupResource> request, CancellationToken cancellationToken)
     {
-        var assignedGroup = await repository.Get(request.Id);
-        return mapper.Map<AssignedGroup, AssignedGroupResource>(assignedGroup!);
+        return await _assignedGroupApplicationService.GetAssignedGroupByIdAsync(request.Id, cancellationToken) ?? new AssignedGroupResource();
     }
 }

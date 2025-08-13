@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
@@ -8,45 +8,38 @@ namespace Klacks.Api.Application.Handlers.Contracts;
 
 public class PutCommandHandler : IRequestHandler<PutCommand<ContractResource>, ContractResource?>
 {
-    private readonly ILogger<PutCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IContractRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly ContractApplicationService _contractApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<PutCommandHandler> _logger;
 
     public PutCommandHandler(
-                             IMapper mapper,
-                             IContractRepository repository,
-                             IUnitOfWork unitOfWork,
-                             ILogger<PutCommandHandler> logger)
+        ContractApplicationService contractApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<PutCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _contractApplicationService = contractApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<ContractResource?> Handle(PutCommand<ContractResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var dbContract = await repository.Get(request.Resource.Id);
-            if (dbContract == null)
+            var existingContract = await _contractApplicationService.GetContractByIdAsync(request.Resource.Id, cancellationToken);
+            if (existingContract == null)
             {
-                logger.LogWarning("Contract with ID {ContractId} not found.", request.Resource.Id);
+                _logger.LogWarning("Contract with ID {ContractId} not found.", request.Resource.Id);
                 return null;
             }
 
-            var updatedContract = mapper.Map(request.Resource, dbContract);
-            updatedContract = await repository.Put(updatedContract);
-            await unitOfWork.CompleteAsync();
-
-            logger.LogInformation("Contract with ID {ContractId} updated successfully.", request.Resource.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.Associations.Contract, ContractResource>(updatedContract);
+            var result = await _contractApplicationService.UpdateContractAsync(request.Resource, cancellationToken);
+            await _unitOfWork.CompleteAsync();
+            return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while updating contract with ID {ContractId}.", request.Resource.Id);
+            _logger.LogError(ex, "Error occurred while updating contract with ID {ContractId}.", request.Resource.Id);
             throw;
         }
     }

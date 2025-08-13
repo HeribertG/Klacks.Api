@@ -1,7 +1,6 @@
-﻿using AutoMapper;
-using Klacks.Api.Application.Commands;
+﻿using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -9,45 +8,38 @@ namespace Klacks.Api.Application.Handlers.AssignedGroups
 {
     public class PutCommandHandler : IRequestHandler<PutCommand<AssignedGroupResource>, AssignedGroupResource?>
     {
-        private readonly ILogger<PutCommandHandler> logger;
-        private readonly IMapper mapper;
-        private readonly IAssignedGroupRepository repository;
-        private readonly IUnitOfWork unitOfWork;
+        private readonly AssignedGroupApplicationService _assignedGroupApplicationService;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<PutCommandHandler> _logger;
 
         public PutCommandHandler(
-                                  IMapper mapper,
-                                  IAssignedGroupRepository repository,
-                                  IUnitOfWork unitOfWork,
-                                  ILogger<PutCommandHandler> logger)
+            AssignedGroupApplicationService assignedGroupApplicationService,
+            IUnitOfWork unitOfWork,
+            ILogger<PutCommandHandler> logger)
         {
-            this.mapper = mapper;
-            this.repository = repository;
-            this.unitOfWork = unitOfWork;
-            this.logger = logger;
+            _assignedGroupApplicationService = assignedGroupApplicationService;
+            _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<AssignedGroupResource?> Handle(PutCommand<AssignedGroupResource> request, CancellationToken cancellationToken)
         {
             try
             {
-                var dbAssignedGroup = await repository.Get(request.Resource.Id);
-                if (dbAssignedGroup == null)
+                var existingAssignedGroup = await _assignedGroupApplicationService.GetAssignedGroupByIdAsync(request.Resource.Id, cancellationToken);
+                if (existingAssignedGroup == null)
                 {
-                    logger.LogWarning("AssignedGroup with ID {AssignedGroupId} not found.", request.Resource.Id);
+                    _logger.LogWarning("AssignedGroup with ID {AssignedGroupId} not found.", request.Resource.Id);
                     return null;
                 }
 
-                var updatedAssignedGroup = mapper.Map(request.Resource, dbAssignedGroup);
-                updatedAssignedGroup = await repository.Put(updatedAssignedGroup);
-                await unitOfWork.CompleteAsync();
-
-                logger.LogInformation("AssignedGroup with ID {AssignedGroupId} updated successfully.", request.Resource.Id);
-
-                return mapper.Map<AssignedGroup, AssignedGroupResource>(updatedAssignedGroup);
+                var result = await _assignedGroupApplicationService.UpdateAssignedGroupAsync(request.Resource, cancellationToken);
+                await _unitOfWork.CompleteAsync();
+                return result;
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error occurred while updating AssignedGroup with ID {AssignedGroupId}.", request.Resource.Id);
+                _logger.LogError(ex, "Error occurred while updating AssignedGroup with ID {AssignedGroupId}.", request.Resource.Id);
                 throw;
             }
         }

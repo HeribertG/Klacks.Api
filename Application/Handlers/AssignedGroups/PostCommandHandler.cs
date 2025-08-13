@@ -1,7 +1,6 @@
-﻿using AutoMapper;
-using Klacks.Api.Application.Commands;
+﻿using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -9,40 +8,31 @@ namespace Klacks.Api.Application.Handlers.AssignedGroups;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<AssignedGroupResource>, AssignedGroupResource?>
 {
-    private readonly ILogger<PostCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IAssignedGroupRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly AssignedGroupApplicationService _assignedGroupApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<PostCommandHandler> _logger;
 
     public PostCommandHandler(
-                              IMapper mapper,
-                              IAssignedGroupRepository repository,
-                              IUnitOfWork unitOfWork,
-                              ILogger<PostCommandHandler> logger)
+        AssignedGroupApplicationService assignedGroupApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<PostCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _assignedGroupApplicationService = assignedGroupApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<AssignedGroupResource?> Handle(PostCommand<AssignedGroupResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var assignedGroup = mapper.Map<AssignedGroupResource, AssignedGroup>(request.Resource);
-
-            await repository.Add(assignedGroup);
-
-            await unitOfWork.CompleteAsync();
-
-            logger.LogInformation("New assignedGroup added successfully. ID: {assignedGroup}", assignedGroup.Id);
-
-            return mapper.Map<AssignedGroup, AssignedGroupResource>(assignedGroup);
+            var result = await _assignedGroupApplicationService.CreateAssignedGroupAsync(request.Resource, cancellationToken);
+            await _unitOfWork.CompleteAsync();
+            return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while adding a new address. ID: {assignedGroup}", request.Resource.Id);
+            _logger.LogError(ex, "Error occurred while adding a new assigned group. ID: {AssignedGroupId}", request.Resource.Id);
             throw;
         }
     }

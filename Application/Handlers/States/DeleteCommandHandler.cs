@@ -1,6 +1,5 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
@@ -8,44 +7,16 @@ namespace Klacks.Api.Application.Handlers.States;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<StateResource>, StateResource?>
 {
-    private readonly ILogger<DeleteCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IStateRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly StateApplicationService _stateApplicationService;
 
-    public DeleteCommandHandler(
-                                IMapper mapper,
-                                IStateRepository repository,
-                                IUnitOfWork unitOfWork,
-                                ILogger<DeleteCommandHandler> logger)
+    public DeleteCommandHandler(StateApplicationService stateApplicationService)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _stateApplicationService = stateApplicationService;
     }
 
     public async Task<StateResource?> Handle(DeleteCommand<StateResource> request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var state = await this.repository.Delete(request.Id);
-            if (state == null)
-            {
-                logger.LogWarning("State with ID {StateId} not found for deletion.", request.Id);
-                return null;
-            }
-
-            await this.unitOfWork.CompleteAsync();
-
-            logger.LogInformation("State with ID {StateId} deleted successfully.", request.Id);
-
-            return this.mapper.Map<Klacks.Api.Domain.Models.Settings.State, StateResource>(state);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while deleting state with ID {StateId}.", request.Id);
-            throw;
-        }
+        await _stateApplicationService.DeleteStateAsync(request.Id, cancellationToken);
+        return null;
     }
 }

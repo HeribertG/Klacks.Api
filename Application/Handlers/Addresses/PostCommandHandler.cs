@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -8,40 +8,31 @@ namespace Klacks.Api.Application.Handlers.Addresses;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<AddressResource>, AddressResource?>
 {
-    private readonly ILogger<PostCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IAddressRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly AddressApplicationService _addressApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<PostCommandHandler> _logger;
 
     public PostCommandHandler(
-                              IMapper mapper,
-                              IAddressRepository repository,
-                              IUnitOfWork unitOfWork,
-                              ILogger<PostCommandHandler> logger)
+        AddressApplicationService addressApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<PostCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _addressApplicationService = addressApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<AddressResource?> Handle(PostCommand<AddressResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var address = mapper.Map<AddressResource, Klacks.Api.Domain.Models.Staffs.Address>(request.Resource);
-
-            await repository.Add(address);
-
-            await unitOfWork.CompleteAsync();
-
-            logger.LogInformation("New address added successfully. ID: {AddressId}", address.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Address, AddressResource>(address);
+            var result = await _addressApplicationService.CreateAddressAsync(request.Resource, cancellationToken);
+            await _unitOfWork.CompleteAsync();
+            return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while adding a new address. ID: {AddressId}", request.Resource.Id);
+            _logger.LogError(ex, "Error occurred while adding a new address. ID: {AddressId}", request.Resource.Id);
             throw;
         }
     }

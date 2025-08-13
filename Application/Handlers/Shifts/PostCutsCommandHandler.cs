@@ -1,75 +1,21 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands.Shifts;
-using Klacks.Api.Domain.Enums;
-using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Shifts;
 
-public class PostCutsCommandHandler(
-                        IMapper mapper,
-                        IShiftRepository repository,
-                        IUnitOfWork unitOfWork,
-                        ILogger<PostCutsCommandHandler> logger) : IRequestHandler<PostCutsCommand, List<ShiftResource>>
+public class PostCutsCommandHandler : IRequestHandler<PostCutsCommand, List<ShiftResource>>
 {
-    private readonly ILogger<PostCutsCommandHandler> logger = logger;
-    private readonly IMapper mapper = mapper;
-    private readonly IShiftRepository repository = repository;
-    private readonly IUnitOfWork unitOfWork = unitOfWork;
+    private readonly IShiftApplicationService _shiftApplicationService;
+
+    public PostCutsCommandHandler(IShiftApplicationService shiftApplicationService)
+    {
+        _shiftApplicationService = shiftApplicationService;
+    }
 
     public async Task<List<ShiftResource>> Handle(PostCutsCommand request, CancellationToken cancellationToken)
     {
-        var transaction = await unitOfWork.BeginTransactionAsync();
-        try
-        {
-            logger.LogInformation("Starting bulk creation of {Count} cut shifts.", request.Cuts.Count);
-
-            var createdShifts = new List<Shift>();
-
-            foreach (var cutResource in request.Cuts)     
-            {
-                if (cutResource.Status != ShiftStatus.IsCut)
-                {
-                    throw new InvalidRequestException($"Shift {cutResource.Id} must have status IsCut. Current status: {cutResource.Status}");
-                }
-
-                if (cutResource.OriginalId == null)
-                {
-                    throw new InvalidRequestException($"Cut shift {cutResource.Id} must have an OriginalId.");
-                }
-
-                var groupIdList = cutResource.Groups.Select(x => x.Id).ToList();
-                cutResource.Groups.Clear();
-
-                var shift = mapper.Map<ShiftResource, Shift>(cutResource);
-
-                if (shift.OriginalId == null)
-                {
-                    throw new InvalidRequestException($"Mapped shift must have an OriginalId for cut operations.");
-                }
-
-                await repository.Add(shift);
-                await repository.UpdateGroupItems(shift.Id, groupIdList);
-
-                createdShifts.Add(shift);
-                logger.LogInformation("Created cut shift with ID: {ShiftId}", shift.Id);
-            }
-
-            await unitOfWork.CompleteAsync();
-            await unitOfWork.CommitTransactionAsync(transaction);
-
-            logger.LogInformation("Successfully created {Count} cut shifts.", createdShifts.Count);
-
-            return mapper.Map<List<Shift>, List<ShiftResource>>(createdShifts);
-        }
-        catch (Exception ex)
-        {
-            await unitOfWork.RollbackTransactionAsync(transaction);
-            logger.LogError(ex, "Error occurred while creating cut shifts.");
-            throw new InvalidRequestException("Error occurred while creating cut shifts. " + ex.Message);
-        }
+        return await _shiftApplicationService.CreateShiftCutsAsync(request.Cuts.ToList(), cancellationToken);
     }
 }

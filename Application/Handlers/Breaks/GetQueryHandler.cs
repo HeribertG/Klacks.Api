@@ -1,6 +1,5 @@
-using AutoMapper;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 
@@ -8,21 +7,16 @@ namespace Klacks.Api.Application.Handlers.Breaks
 {
     public class GetQueryHandler : IRequestHandler<GetQuery<BreakResource>, BreakResource>
     {
-        private readonly IMapper mapper;
-        private readonly IBreakRepository repository;
+        private readonly BreakApplicationService _breakApplicationService;
 
-        public GetQueryHandler(
-                               IMapper mapper,
-                               IBreakRepository repository)
+        public GetQueryHandler(BreakApplicationService breakApplicationService)
         {
-            this.mapper = mapper;
-            this.repository = repository;
+            _breakApplicationService = breakApplicationService;
         }
 
         public async Task<BreakResource> Handle(GetQuery<BreakResource> request, CancellationToken cancellationToken)
         {
-            var breaks = await repository.Get(request.Id);
-            return mapper.Map<Klacks.Api.Domain.Models.Schedules.Break, BreakResource>(breaks!);
+            return await _breakApplicationService.GetBreakByIdAsync(request.Id, cancellationToken) ?? new BreakResource();
         }
     }
 }

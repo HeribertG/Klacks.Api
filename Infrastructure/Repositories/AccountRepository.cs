@@ -1,11 +1,6 @@
-﻿using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Common;
-using Klacks.Api.Infrastructure.Persistence;
-using Klacks.Api.Infrastructure.Email;
-using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Infrastructure.Interfaces;
+﻿using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
+using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Presentation.DTOs;
 using Klacks.Api.Presentation.DTOs.Registrations;
 
@@ -13,23 +8,24 @@ namespace Klacks.Api.Infrastructure.Repositories;
 
 public class AccountRepository : IAccountRepository
 {
-    private readonly DataBaseContext appDbContext;
-    private readonly ITokenService tokenService;
-    private readonly IAuthenticationService _authenticationService;
-    private readonly IUserManagementService _userManagementService;
-    private readonly IRefreshTokenService _refreshTokenService;
+    private readonly IAccountAuthenticationService _accountAuthenticationService;
+    private readonly IAccountPasswordService _accountPasswordService;
+    private readonly IAccountRegistrationService _accountRegistrationService;
+    private readonly IAccountManagementService _accountManagementService;
+    private readonly IAccountNotificationService _accountNotificationService;
 
-    public AccountRepository(DataBaseContext appDbContext,
-                             ITokenService tokenService,
-                             IAuthenticationService authenticationService,
-                             IUserManagementService userManagementService,
-                             IRefreshTokenService refreshTokenService)
+    public AccountRepository(
+        IAccountAuthenticationService accountAuthenticationService,
+        IAccountPasswordService accountPasswordService,
+        IAccountRegistrationService accountRegistrationService,
+        IAccountManagementService accountManagementService,
+        IAccountNotificationService accountNotificationService)
     {
-        this.appDbContext = appDbContext;
-        this.tokenService = tokenService;
-        _authenticationService = authenticationService;
-        _userManagementService = userManagementService;
-        _refreshTokenService = refreshTokenService;
+        _accountAuthenticationService = accountAuthenticationService;
+        _accountPasswordService = accountPasswordService;
+        _accountRegistrationService = accountRegistrationService;
+        _accountManagementService = accountManagementService;
+        _accountNotificationService = accountNotificationService;
     }
 
     public async Task<AuthenticatedResult> ChangePassword(ChangePasswordResource model)

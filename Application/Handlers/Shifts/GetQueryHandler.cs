@@ -1,4 +1,3 @@
-using AutoMapper;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Presentation.DTOs.Schedules;
@@ -8,30 +7,15 @@ namespace Klacks.Api.Application.Handlers.Shifts;
 
 public class GetQueryHandler : IRequestHandler<GetQuery<ShiftResource>, ShiftResource>
 {
-    private readonly IMapper mapper;
-    private readonly IShiftRepository repository;
+    private readonly IShiftApplicationService _shiftApplicationService;
 
-    public GetQueryHandler(
-                           IMapper mapper,
-                           IShiftRepository repository)
+    public GetQueryHandler(IShiftApplicationService shiftApplicationService)
     {
-        this.mapper = mapper;
-        this.repository = repository;
+        _shiftApplicationService = shiftApplicationService;
     }
 
     public async Task<ShiftResource> Handle(GetQuery<ShiftResource> request, CancellationToken cancellationToken)
     {
-        var shift = await repository.Get(request.Id);
-        try
-        {
-            var result = mapper.Map<Klacks.Api.Domain.Models.Schedules.Shift, ShiftResource>(shift!);
-            return result;
-        }
-        catch (Exception ex)
-        {
-
-            throw;
-        }
-        
+        return await _shiftApplicationService.GetShiftByIdAsync(request.Id, cancellationToken) ?? new ShiftResource();
     }
 }

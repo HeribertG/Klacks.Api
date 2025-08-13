@@ -52,6 +52,9 @@ public class MappingProfile : Profile
           .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
         ;
 
+        CreateMap<CommunicationType, CommunicationTypeResource>();
+        CreateMap<CommunicationTypeResource, CommunicationType>();
+
         CreateMap<Annotation, AnnotationResource>()
           ;
         CreateMap<AnnotationResource, Annotation>()

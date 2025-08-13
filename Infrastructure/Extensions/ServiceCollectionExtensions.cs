@@ -14,6 +14,7 @@ using Klacks.Api.Domain.Services.Holidays;
 using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Domain.Services.Absences;
+using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Infrastructure.Services.Authentication;
 using Klacks.Api.Application.Services;
 
@@ -85,6 +86,13 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IUserManagementService, UserManagementService>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
+        // Account Domain Services
+        services.AddScoped<IAccountAuthenticationService, AccountAuthenticationService>();
+        services.AddScoped<IAccountPasswordService, AccountPasswordService>();
+        services.AddScoped<IAccountRegistrationService, AccountRegistrationService>();
+        services.AddScoped<IAccountManagementService, AccountManagementService>();
+        services.AddScoped<IAccountNotificationService, AccountNotificationService>();
+
         services.AddScoped<IAccountRepository, AccountRepository>();
 
         // Phase 2: Domain Repository Implementations (TODO: Implement with correct Domain Model mappings)
@@ -95,6 +103,21 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<AccountApplicationService>();
         services.AddScoped<AbsenceApplicationService>();
         services.AddScoped<SettingsApplicationService>();
+        services.AddScoped<AddressApplicationService>();
+        services.AddScoped<AnnotationApplicationService>();
+        services.AddScoped<MembershipApplicationService>();
+        services.AddScoped<CommunicationApplicationService>();
+        services.AddScoped<BreakApplicationService>();
+        services.AddScoped<AssignedGroupApplicationService>();
+        services.AddScoped<CalendarSelectionApplicationService>();
+        services.AddScoped<ContractApplicationService>();
+        services.AddScoped<CountryApplicationService>();
+        services.AddScoped<GroupVisibilityApplicationService>();
+        services.AddScoped<StateApplicationService>();
+        services.AddScoped<PdfExportApplicationService>();
+        services.AddScoped<SelectedCalendarApplicationService>();
+        services.AddScoped<IShiftApplicationService, ShiftApplicationService>();
+        services.AddScoped<WorkApplicationService>();
 
         // Phase 3: AutoMapper Configuration (erweitert bestehende MappingProfile)
 

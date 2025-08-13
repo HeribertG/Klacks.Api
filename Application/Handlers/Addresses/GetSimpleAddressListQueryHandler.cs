@@ -1,7 +1,5 @@
-using AutoMapper;
-using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Application.Queries.Addresses;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -9,20 +7,16 @@ namespace Klacks.Api.Application.Handlers.Addresses
 {
     public class GetSimpleAddressListQueryHandler : IRequestHandler<GetSimpleAddressListQuery, IEnumerable<AddressResource>>
     {
-        private readonly IMapper mapper;
-        private readonly IAddressRepository repository;
+        private readonly AddressApplicationService _addressApplicationService;
 
-        public GetSimpleAddressListQueryHandler(IMapper mapper,
-                                                IAddressRepository repository)
+        public GetSimpleAddressListQueryHandler(AddressApplicationService addressApplicationService)
         {
-            this.mapper = mapper;
-            this.repository = repository;
+            _addressApplicationService = addressApplicationService;
         }
 
         public async Task<IEnumerable<AddressResource>> Handle(GetSimpleAddressListQuery request, CancellationToken cancellationToken)
         {
-            var address = await repository.SimpleList(request.Id);
-            return mapper.Map<List<Address>, List<AddressResource>>(address);
+            return await _addressApplicationService.GetSimpleAddressListAsync(request.Id, cancellationToken);
         }
     }
 }

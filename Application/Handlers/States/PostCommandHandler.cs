@@ -1,6 +1,5 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
@@ -8,40 +7,15 @@ namespace Klacks.Api.Application.Handlers.States;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<StateResource>, StateResource?>
 {
-    private readonly ILogger<PostCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IStateRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly StateApplicationService _stateApplicationService;
 
-    public PostCommandHandler(
-                              IMapper mapper,
-                              IStateRepository repository,
-                              IUnitOfWork unitOfWork,
-                              ILogger<PostCommandHandler> logger)
+    public PostCommandHandler(StateApplicationService stateApplicationService)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _stateApplicationService = stateApplicationService;
     }
 
     public async Task<StateResource?> Handle(PostCommand<StateResource> request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var state = this.mapper.Map<StateResource, Klacks.Api.Domain.Models.Settings.State>(request.Resource);
-            await this.repository.Add(state);
-
-            await this.unitOfWork.CompleteAsync();
-
-            logger.LogInformation("New state added successfully. ID: {StateId}", state.Id);
-
-            return this.mapper.Map<Klacks.Api.Domain.Models.Settings.State, StateResource>(state);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while adding a new state.");
-            throw;
-        }
+        return await _stateApplicationService.CreateStateAsync(request.Resource, cancellationToken);
     }
 }

@@ -1,6 +1,5 @@
-using AutoMapper;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 
@@ -8,21 +7,16 @@ namespace Klacks.Api.Application.Handlers.CalendarSelections
 {
     public class GetListQueryHandler : IRequestHandler<ListQuery<CalendarSelectionResource>, IEnumerable<CalendarSelectionResource>>
     {
-        private readonly IMapper mapper;
-        private readonly ICalendarSelectionRepository repository;
+        private readonly CalendarSelectionApplicationService _calendarSelectionApplicationService;
 
-        public GetListQueryHandler(
-              IMapper mapper,
-              ICalendarSelectionRepository repository)
+        public GetListQueryHandler(CalendarSelectionApplicationService calendarSelectionApplicationService)
         {
-            this.mapper = mapper;
-            this.repository = repository;
+            _calendarSelectionApplicationService = calendarSelectionApplicationService;
         }
 
         public async Task<IEnumerable<CalendarSelectionResource>> Handle(ListQuery<CalendarSelectionResource> request, CancellationToken cancellationToken)
         {
-            var calendarSelection = await this.repository.List();
-            return this.mapper.Map<List<Klacks.Api.Domain.Models.CalendarSelections.CalendarSelection>, List<CalendarSelectionResource>>(calendarSelection!);
+            return await _calendarSelectionApplicationService.GetAllCalendarSelectionsAsync(cancellationToken);
         }
     }
 }

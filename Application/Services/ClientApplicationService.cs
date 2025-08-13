@@ -8,6 +8,7 @@ using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Presentation.DTOs;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Staffs;
+using Klacks.Api.Presentation.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Services;
@@ -76,6 +77,12 @@ public class ClientApplicationService
     public async Task<LastChangeMetaDataResource> GetLastChangeMetaDataAsync(CancellationToken cancellationToken = default)
     {
         return await _clientRepository.LastChangeMetaData();
+    }
+
+    public async Task<List<ClientBreakResource>> GetBreakListAsync(BreakFilter filter, CancellationToken cancellationToken = default)
+    {
+        var clients = await _clientRepository.BreakList(filter);
+        return _mapper.Map<List<ClientBreakResource>>(clients);
     }
 
     private bool IsActiveClient(Client client)

@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -8,43 +8,39 @@ namespace Klacks.Api.Application.Handlers.Annotations;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<AnnotationResource>, AnnotationResource?>
 {
-    private readonly ILogger<DeleteCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IAnnotationRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly AnnotationApplicationService _annotationApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<DeleteCommandHandler> _logger;
 
     public DeleteCommandHandler(
-                                IMapper mapper,
-                                IAnnotationRepository repository,
-                                IUnitOfWork unitOfWork,
-                                ILogger<DeleteCommandHandler> logger)
+        AnnotationApplicationService annotationApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<DeleteCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _annotationApplicationService = annotationApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<AnnotationResource?> Handle(DeleteCommand<AnnotationResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var annotation = await repository.Delete(request.Id);
-            if (annotation == null)
+            var existingAnnotation = await _annotationApplicationService.GetAnnotationByIdAsync(request.Id, cancellationToken);
+            if (existingAnnotation == null)
             {
-                logger.LogWarning("Annotation with ID {AnnotationId} not found for deletion.", request.Id);
+                _logger.LogWarning("Annotation with ID {AnnotationId} not found for deletion.", request.Id);
                 return null;
             }
 
-            await unitOfWork.CompleteAsync();
+            await _annotationApplicationService.DeleteAnnotationAsync(request.Id, cancellationToken);
+            await _unitOfWork.CompleteAsync();
 
-            logger.LogInformation("Annotation with ID {AnnotationId} deleted successfully.", request.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Annotation, AnnotationResource>(annotation);
+            return existingAnnotation;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while deleting annotation with ID {AnnotationId}.", request.Id);
+            _logger.LogError(ex, "Error occurred while deleting annotation with ID {AnnotationId}.", request.Id);
             throw;
         }
     }

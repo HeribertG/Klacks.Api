@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 
@@ -8,43 +8,39 @@ namespace Klacks.Api.Application.Handlers.CalendarSelections;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<CalendarSelectionResource>, CalendarSelectionResource?>
 {
-    private readonly ILogger<DeleteCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly ICalendarSelectionRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly CalendarSelectionApplicationService _calendarSelectionApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<DeleteCommandHandler> _logger;
 
     public DeleteCommandHandler(
-                                IMapper mapper,
-                                ICalendarSelectionRepository repository,
-                                IUnitOfWork unitOfWork,
-                                ILogger<DeleteCommandHandler> logger)
+        CalendarSelectionApplicationService calendarSelectionApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<DeleteCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _calendarSelectionApplicationService = calendarSelectionApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<CalendarSelectionResource?> Handle(DeleteCommand<CalendarSelectionResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var calendarSelection = await repository.Delete(request.Id);
-            if (calendarSelection == null)
+            var existingCalendarSelection = await _calendarSelectionApplicationService.GetCalendarSelectionByIdAsync(request.Id, cancellationToken);
+            if (existingCalendarSelection == null)
             {
-                logger.LogWarning("CalendarSelection with ID {Id} not found for deletion.", request.Id);
+                _logger.LogWarning("CalendarSelection with ID {Id} not found for deletion.", request.Id);
                 return null;
             }
 
-            await unitOfWork.CompleteAsync();
+            await _calendarSelectionApplicationService.DeleteCalendarSelectionAsync(request.Id, cancellationToken);
+            await _unitOfWork.CompleteAsync();
 
-            logger.LogInformation("CalendarSelection with ID {Id} deleted successfully.", request.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.CalendarSelections.CalendarSelection, CalendarSelectionResource>(calendarSelection);
+            return existingCalendarSelection;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while deleting CalendarSelection with ID {Id}.", request.Id);
+            _logger.LogError(ex, "Error occurred while deleting CalendarSelection with ID {Id}.", request.Id);
             throw;
         }
     }

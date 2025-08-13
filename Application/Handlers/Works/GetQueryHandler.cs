@@ -1,6 +1,5 @@
-using AutoMapper;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 
@@ -8,19 +7,15 @@ namespace Klacks.Api.Application.Handlers.Works;
 
 public class GetQueryHandler : IRequestHandler<GetQuery<WorkResource>, WorkResource>
 {
-    private readonly IMapper mapper;
-    private readonly IWorkRepository repository;
+    private readonly WorkApplicationService _workApplicationService;
 
-    public GetQueryHandler(IMapper mapper,
-                           IWorkRepository repository)
+    public GetQueryHandler(WorkApplicationService workApplicationService)
     {
-        this.mapper = mapper;
-        this.repository = repository;
+        _workApplicationService = workApplicationService;
     }
 
     public async Task<WorkResource> Handle(GetQuery<WorkResource> request, CancellationToken cancellationToken)
     {
-        var work = await repository.Get(request.Id);
-        return mapper.Map<Klacks.Api.Domain.Models.Schedules.Work, WorkResource>(work!);
+        return await _workApplicationService.GetWorkByIdAsync(request.Id, cancellationToken) ?? new WorkResource();
     }
 }

@@ -1,6 +1,5 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
@@ -8,45 +7,15 @@ namespace Klacks.Api.Application.Handlers.States;
 
 public class PutCommandHandler : IRequestHandler<PutCommand<StateResource>, StateResource?>
 {
-    private readonly ILogger<PutCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IStateRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly StateApplicationService _stateApplicationService;
 
-    public PutCommandHandler(IMapper mapper,
-                             IStateRepository repository,
-                             IUnitOfWork unitOfWork,
-                             ILogger<PutCommandHandler> logger)
+    public PutCommandHandler(StateApplicationService stateApplicationService)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _stateApplicationService = stateApplicationService;
     }
 
     public async Task<StateResource?> Handle(PutCommand<StateResource> request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var dbState = await this.repository.Get(request.Resource.Id);
-            if (dbState == null)
-            {
-                logger.LogWarning("State with ID {StateId} not found.", request.Resource.Id);
-                return null;
-            }
-
-            var updatedState = this.mapper.Map(request.Resource, dbState);
-            updatedState = await this.repository.Put(updatedState);
-            await this.unitOfWork.CompleteAsync();
-
-            logger.LogInformation("State with ID {StateId} updated successfully.", request.Resource.Id);
-
-            return this.mapper.Map<Klacks.Api.Domain.Models.Settings.State, StateResource>(updatedState);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while updating state with ID {StateId}.", request.Resource.Id);
-            throw;
-        }
+        return await _stateApplicationService.UpdateStateAsync(request.Resource, cancellationToken);
     }
 }

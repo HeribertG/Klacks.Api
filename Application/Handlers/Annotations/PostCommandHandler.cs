@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -8,39 +8,31 @@ namespace Klacks.Api.Application.Handlers.Annotations;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<AnnotationResource>, AnnotationResource?>
 {
-    private readonly ILogger<PostCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IAnnotationRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly AnnotationApplicationService _annotationApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<PostCommandHandler> _logger;
 
     public PostCommandHandler(
-                              IMapper mapper,
-                              IAnnotationRepository repository,
-                              IUnitOfWork unitOfWork,
-                              ILogger<PostCommandHandler> logger)
+        AnnotationApplicationService annotationApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<PostCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _annotationApplicationService = annotationApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<AnnotationResource?> Handle(PostCommand<AnnotationResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var annotation = mapper.Map<AnnotationResource, Klacks.Api.Domain.Models.Staffs.Annotation>(request.Resource);
-            await repository.Add(annotation);
-
-            await unitOfWork.CompleteAsync();
-
-            logger.LogInformation("New annotation added successfully. ID: {AnnotationId}", annotation.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Annotation, AnnotationResource>(annotation);
+            var result = await _annotationApplicationService.CreateAnnotationAsync(request.Resource, cancellationToken);
+            await _unitOfWork.CompleteAsync();
+            return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while adding a new annotation. ID: {AnnotationId}", request.Resource.Id);
+            _logger.LogError(ex, "Error occurred while adding a new annotation. ID: {AnnotationId}", request.Resource.Id);
             throw;
         }
     }

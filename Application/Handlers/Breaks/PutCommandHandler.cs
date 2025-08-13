@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 
@@ -8,45 +8,38 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 
 public class PutCommandHandler : IRequestHandler<PutCommand<BreakResource>, BreakResource?>
 {
-    private readonly ILogger<PutCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IBreakRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly BreakApplicationService _breakApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<PutCommandHandler> _logger;
 
     public PutCommandHandler(
-                              IMapper mapper,
-                              IBreakRepository repository,
-                              IUnitOfWork unitOfWork,
-                              ILogger<PutCommandHandler> logger)
+        BreakApplicationService breakApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<PutCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _breakApplicationService = breakApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<BreakResource?> Handle(PutCommand<BreakResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var dbBreak = await repository.Get(request.Resource.Id);
-            if (dbBreak == null)
+            var existingBreak = await _breakApplicationService.GetBreakByIdAsync(request.Resource.Id, cancellationToken);
+            if (existingBreak == null)
             {
-                logger.LogWarning("Break with ID {BreakId} not found.", request.Resource.Id);
+                _logger.LogWarning("Break with ID {BreakId} not found.", request.Resource.Id);
                 return null;
             }
 
-            var updatedBreak = mapper.Map(request.Resource, dbBreak);
-            updatedBreak = await repository.Put(updatedBreak);
-            await unitOfWork.CompleteAsync();
-
-            logger.LogInformation("Break with ID {BreakId} updated successfully.", request.Resource.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.Schedules.Break, BreakResource>(updatedBreak);
+            var result = await _breakApplicationService.UpdateBreakAsync(request.Resource, cancellationToken);
+            await _unitOfWork.CompleteAsync();
+            return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while updating break with ID {BreakId}.", request.Resource.Id);
+            _logger.LogError(ex, "Error occurred while updating break with ID {BreakId}.", request.Resource.Id);
             throw;
         }
     }

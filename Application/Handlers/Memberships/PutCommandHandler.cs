@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
@@ -8,45 +8,38 @@ namespace Klacks.Api.Application.Handlers.Memberships;
 
 public class PutCommandHandler : IRequestHandler<PutCommand<MembershipResource>, MembershipResource?>
 {
-    private readonly ILogger<PutCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IMembershipRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly MembershipApplicationService _membershipApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<PutCommandHandler> _logger;
 
     public PutCommandHandler(
-                             IMapper mapper,
-                             IMembershipRepository repository,
-                             IUnitOfWork unitOfWork,
-                             ILogger<PutCommandHandler> logger)
+        MembershipApplicationService membershipApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<PutCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _membershipApplicationService = membershipApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<MembershipResource?> Handle(PutCommand<MembershipResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var dbMembership = await repository.Get(request.Resource.Id);
-            if (dbMembership == null)
+            var existingMembership = await _membershipApplicationService.GetMembershipByIdAsync(request.Resource.Id, cancellationToken);
+            if (existingMembership == null)
             {
-                logger.LogWarning("Membership with ID {MembershipId} not found.", request.Resource.Id);
+                _logger.LogWarning("Membership with ID {MembershipId} not found.", request.Resource.Id);
                 return null;
             }
 
-            var updatedMembership = mapper.Map(request.Resource, dbMembership);
-            updatedMembership = await repository.Put(updatedMembership);
-            await unitOfWork.CompleteAsync();
-
-            logger.LogInformation("Membership with ID {MembershipId} updated successfully.", request.Resource.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.Associations.Membership, MembershipResource>(updatedMembership);
+            var result = await _membershipApplicationService.UpdateMembershipAsync(request.Resource, cancellationToken);
+            await _unitOfWork.CompleteAsync();
+            return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while updating membership with ID {MembershipId}.", request.Resource.Id);
+            _logger.LogError(ex, "Error occurred while updating membership with ID {MembershipId}.", request.Resource.Id);
             throw;
         }
     }

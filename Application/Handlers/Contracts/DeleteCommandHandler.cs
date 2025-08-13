@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
@@ -8,43 +8,39 @@ namespace Klacks.Api.Application.Handlers.Contracts;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<ContractResource>, ContractResource?>
 {
-    private readonly ILogger<DeleteCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IContractRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly ContractApplicationService _contractApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<DeleteCommandHandler> _logger;
 
     public DeleteCommandHandler(
-                                IMapper mapper,
-                                IContractRepository repository,
-                                IUnitOfWork unitOfWork,
-                                ILogger<DeleteCommandHandler> logger)
+        ContractApplicationService contractApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<DeleteCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _contractApplicationService = contractApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<ContractResource?> Handle(DeleteCommand<ContractResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var contract = await repository.Delete(request.Id);
-            if (contract == null)
+            var existingContract = await _contractApplicationService.GetContractByIdAsync(request.Id, cancellationToken);
+            if (existingContract == null)
             {
-                logger.LogWarning("Contract with ID {ContractId} not found for deletion.", request.Id);
+                _logger.LogWarning("Contract with ID {ContractId} not found for deletion.", request.Id);
                 return null;
             }
 
-            await unitOfWork.CompleteAsync();
+            await _contractApplicationService.DeleteContractAsync(request.Id, cancellationToken);
+            await _unitOfWork.CompleteAsync();
 
-            logger.LogInformation("Contract with ID {ContractId} deleted successfully.", request.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.Associations.Contract, ContractResource>(contract);
+            return existingContract;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while deleting contract with ID {ContractId}.", request.Id);
+            _logger.LogError(ex, "Error occurred while deleting contract with ID {ContractId}.", request.Id);
             throw;
         }
     }

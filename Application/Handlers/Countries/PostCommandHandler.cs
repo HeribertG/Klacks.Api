@@ -1,48 +1,21 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
-namespace Klacks.Api.Settings.Countries;
+namespace Klacks.Api.Application.Handlers.Countries;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<CountryResource>, CountryResource?>
 {
-    private readonly ILogger<PostCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly ICountryRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly CountryApplicationService _countryApplicationService;
 
-    public PostCommandHandler(
-                              IMapper mapper,
-                              ICountryRepository repository,
-                              IUnitOfWork unitOfWork,
-                              ILogger<PostCommandHandler> logger)
+    public PostCommandHandler(CountryApplicationService countryApplicationService)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _countryApplicationService = countryApplicationService;
     }
 
     public async Task<CountryResource?> Handle(PostCommand<CountryResource> request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var country = this.mapper.Map<CountryResource, Klacks.Api.Domain.Models.Settings.Countries>(request.Resource);
-
-            await this.repository.Add(country);
-
-            await this.unitOfWork.CompleteAsync();
-
-            logger.LogInformation("New country added successfully. ID: {CountryId}", country.Id);
-
-            return this.mapper.Map<Klacks.Api.Domain.Models.Settings.Countries, CountryResource>(country);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while adding a new country.");
-            throw;
-        }
+        return await _countryApplicationService.CreateCountryAsync(request.Resource, cancellationToken);
     }
 }

@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -8,45 +8,38 @@ namespace Klacks.Api.Application.Handlers.Annotations;
 
 public class PutCommandHandler : IRequestHandler<PutCommand<AnnotationResource>, AnnotationResource?>
 {
-    private readonly ILogger<PutCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IAnnotationRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly AnnotationApplicationService _annotationApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<PutCommandHandler> _logger;
 
     public PutCommandHandler(
-                              IMapper mapper,
-                              IAnnotationRepository repository,
-                              IUnitOfWork unitOfWork,
-                              ILogger<PutCommandHandler> logger)
+        AnnotationApplicationService annotationApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<PutCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _annotationApplicationService = annotationApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<AnnotationResource?> Handle(PutCommand<AnnotationResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var dbAnnotation = await repository.Get(request.Resource.Id);
-            if (dbAnnotation == null)
+            var existingAnnotation = await _annotationApplicationService.GetAnnotationByIdAsync(request.Resource.Id, cancellationToken);
+            if (existingAnnotation == null)
             {
-                logger.LogWarning("Annotation with ID {AnnotationId} not found.", request.Resource.Id);
+                _logger.LogWarning("Annotation with ID {AnnotationId} not found.", request.Resource.Id);
                 return null;
             }
 
-            var updatedAnnotation = mapper.Map(request.Resource, dbAnnotation);
-            updatedAnnotation = await repository.Put(updatedAnnotation);
-            await unitOfWork.CompleteAsync();
-
-            logger.LogInformation("Annotation with ID {AnnotationId} updated successfully.", request.Resource.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.Staffs.Annotation, AnnotationResource>(updatedAnnotation);
+            var result = await _annotationApplicationService.UpdateAnnotationAsync(request.Resource, cancellationToken);
+            await _unitOfWork.CompleteAsync();
+            return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while updating annotation with ID {AnnotationId}.", request.Resource.Id);
+            _logger.LogError(ex, "Error occurred while updating annotation with ID {AnnotationId}.", request.Resource.Id);
             throw;
         }
     }
