@@ -4,12 +4,14 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Criteria;
+using Klacks.Api.Domain.Models.Histories;
 using Klacks.Api.Domain.Models.Results;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Presentation.DTOs.Associations;
 using Klacks.Api.Presentation.DTOs.Filter;
+using Klacks.Api.Presentation.DTOs.Histories;
 using Klacks.Api.Presentation.DTOs.Registrations;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Presentation.DTOs.Settings;
@@ -357,6 +359,42 @@ public class MappingProfile : Profile
 
         CreateMap<TruncatedShift, TruncatedShiftResource>()
          ;
+
+        // Missing Mappings - BreakReason
+        CreateMap<BreakReason, BreakReasonResource>()
+          ;
+        CreateMap<BreakReasonResource, BreakReason>()
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
+          ;
+
+        // Missing Mappings - History
+        CreateMap<History, HistoryResource>()
+          ;
+        CreateMap<HistoryResource, History>()
+          .ForMember(dest => dest.Client, opt => opt.Ignore())
+          .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
+          .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserUpdated, opt => opt.Ignore())
+          .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
+          .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+          .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
+          ;
+
+        // Missing Mappings - MacroType (No BaseEntity)
+        CreateMap<MacroType, MacroTypeResource>().ReverseMap();
+
+        // Missing Mappings - Settings (No BaseEntity)
+        CreateMap<Klacks.Api.Domain.Models.Settings.Settings, SettingsResource>().ReverseMap();
+
+        // Missing Mappings - Vat (No BaseEntity)
+        CreateMap<Vat, VatResource>().ReverseMap();
 
         // Phase 3: Clean Architecture Mappings - Domain Models to Criteria and Results
         ConfigureDomainToCriteriaMappings();

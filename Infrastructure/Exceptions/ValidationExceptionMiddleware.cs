@@ -1,4 +1,5 @@
 ﻿using Klacks.Api.Domain.Exceptions;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,24 @@ public class ValidationExceptionMiddleware
         try
         {
             await next(context);
+        }
+        catch (ValidationException ex)
+        {
+            _logger.LogWarning(ex, "FluentValidation ValidationException caught by middleware");
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            context.Response.ContentType = "application/problem+json";
+
+            var problem = new ProblemDetails
+            {
+                Title = "One or more validation failures occurred.",
+                Status = StatusCodes.Status400BadRequest,
+                Detail = "Please refer to the errors property for additional details."
+            };
+
+            problem.Extensions.Add("errors", ex.Errors.GroupBy(x => x.PropertyName)
+                .ToDictionary(g => g.Key, g => g.Select(x => x.ErrorMessage).ToArray()));
+
+            await context.Response.WriteAsJsonAsync(problem);
         }
         catch (InvalidRequestException ex)
         {
