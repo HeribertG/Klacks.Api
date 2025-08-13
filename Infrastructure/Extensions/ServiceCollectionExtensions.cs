@@ -92,6 +92,9 @@ public static  class ServiceCollectionExtensions
         // Phase 3: Application Services (Clean Architecture)
         services.AddScoped<ClientApplicationService>();
         services.AddScoped<GroupApplicationService>();
+        services.AddScoped<AccountApplicationService>();
+        services.AddScoped<AbsenceApplicationService>();
+        services.AddScoped<SettingsApplicationService>();
 
         // Phase 3: AutoMapper Configuration (erweitert bestehende MappingProfile)
 

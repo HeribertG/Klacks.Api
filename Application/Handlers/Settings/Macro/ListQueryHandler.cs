@@ -1,5 +1,5 @@
 using AutoMapper;
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Application.Queries.Settings.Macros;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
@@ -8,18 +8,15 @@ namespace Klacks.Api.Application.Handlers.Settings.Macros;
 
 public class ListQueryHandler : IRequestHandler<ListQuery, IEnumerable<MacroResource>>
 {
-    private readonly IMapper mapper;
-    private readonly ISettingsRepository repository;
+    private readonly SettingsApplicationService _settingsApplicationService;
 
-    public ListQueryHandler(IMapper mapper, ISettingsRepository repository)
+    public ListQueryHandler(SettingsApplicationService settingsApplicationService)
     {
-        this.mapper = mapper;
-        this.repository = repository;
+        _settingsApplicationService = settingsApplicationService;
     }
 
     public async Task<IEnumerable<MacroResource>> Handle(ListQuery request, CancellationToken cancellationToken)
     {
-        var macro = await repository.GetMacroList();
-        return mapper.Map<List<Klacks.Api.Domain.Models.Settings.Macro>, List<MacroResource>>(macro);
+        return await _settingsApplicationService.GetAllMacrosAsync(cancellationToken);
     }
 }

@@ -1,32 +1,29 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands.Settings.Vats;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.Vat
 {
     public class DeleteCommandHandler : IRequestHandler<DeleteCommand, Klacks.Api.Domain.Models.Settings.Vat>
     {
-        private readonly IMapper mapper;
-        private readonly ISettingsRepository repository;
+        private readonly SettingsApplicationService _settingsApplicationService;
         private readonly IUnitOfWork unitOfWork;
 
-        public DeleteCommandHandler(IMapper mapper,
-                                    ISettingsRepository repository,
+        public DeleteCommandHandler(SettingsApplicationService settingsApplicationService,
                                     IUnitOfWork unitOfWork)
         {
-            this.mapper = mapper;
-            this.repository = repository;
+            _settingsApplicationService = settingsApplicationService;
             this.unitOfWork = unitOfWork;
         }
 
         public async Task<Klacks.Api.Domain.Models.Settings.Vat> Handle(DeleteCommand request, CancellationToken cancellationToken)
         {
-            var vat = await repository.DeleteVAT(request.Id);
+            var deletedVat = await _settingsApplicationService.DeleteVatAsync(request.Id, cancellationToken);
 
             await unitOfWork.CompleteAsync();
 
-            return vat;
+            return deletedVat!;
         }
     }
 }

@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands.Settings.CalendarRules;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using MediatR;
 using Klacks.Api.Presentation.DTOs.Settings;
 
@@ -9,18 +9,15 @@ namespace Klacks.Api.Application.Handlers.Settings.CalendarRules;
 public class PostCommandHandler : IRequestHandler<PostCommand, Klacks.Api.Domain.Models.Settings.CalendarRule?>
 {
     private readonly ILogger<PostCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly ISettingsRepository repository;
+    private readonly SettingsApplicationService _settingsApplicationService;
     private readonly IUnitOfWork unitOfWork;
 
     public PostCommandHandler(
-                              IMapper mapper,
-                              ISettingsRepository repository,
+                              SettingsApplicationService settingsApplicationService,
                               IUnitOfWork unitOfWork,
                               ILogger<PostCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
+        _settingsApplicationService = settingsApplicationService;
         this.unitOfWork = unitOfWork;
         this.logger = logger;
     }
@@ -29,8 +26,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand, Klacks.Api.Domain
     {
         try
         {
-            var calendarRule = mapper.Map<CalendarRuleResource, Klacks.Api.Domain.Models.Settings.CalendarRule>(request.model);
-            repository.AddCalendarRule(calendarRule);
+            var calendarRule = await _settingsApplicationService.CreateCalendarRuleAsync(request.model, cancellationToken);
 
             await unitOfWork.CompleteAsync();
 

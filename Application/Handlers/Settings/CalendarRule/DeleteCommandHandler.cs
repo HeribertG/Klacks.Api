@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands.Settings.CalendarRules;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.CalendarRule;
@@ -8,18 +8,15 @@ namespace Klacks.Api.Application.Handlers.Settings.CalendarRule;
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand, Klacks.Api.Domain.Models.Settings.CalendarRule>
 {
     private readonly ILogger<DeleteCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly ISettingsRepository repository;
+    private readonly SettingsApplicationService _settingsApplicationService;
     private readonly IUnitOfWork unitOfWork;
 
     public DeleteCommandHandler(
-                                IMapper mapper,
-                                ISettingsRepository repository,
+                                SettingsApplicationService settingsApplicationService,
                                 IUnitOfWork unitOfWork,
                                 ILogger<DeleteCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
+        _settingsApplicationService = settingsApplicationService;
         this.unitOfWork = unitOfWork;
         this.logger = logger;
     }
@@ -28,11 +25,11 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand, Klacks.Api.Do
     {
         try
         {
-            var calendarRule = await repository.DeleteCalendarRule(request.Id);
+            var calendarRule = await _settingsApplicationService.DeleteCalendarRuleAsync(request.Id, cancellationToken);
             if (calendarRule == null)
             {
                 logger.LogWarning("CalendarRule with ID {CalendarRuleId} not found for deletion.", request.Id);
-                return null;
+                return null!;
             }
 
             await unitOfWork.CompleteAsync();

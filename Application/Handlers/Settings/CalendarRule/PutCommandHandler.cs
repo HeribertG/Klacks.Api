@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands.Settings.CalendarRules;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.CalendarRules;
@@ -8,18 +8,15 @@ namespace Klacks.Api.Application.Handlers.Settings.CalendarRules;
 public class PutCommandHandler : IRequestHandler<PutCommand, Klacks.Api.Domain.Models.Settings.CalendarRule?>
 {
     private readonly ILogger<PutCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly ISettingsRepository repository;
+    private readonly SettingsApplicationService _settingsApplicationService;
     private readonly IUnitOfWork unitOfWork;
 
     public PutCommandHandler(
-                              IMapper mapper,
-                              ISettingsRepository repository,
+                              SettingsApplicationService settingsApplicationService,
                               IUnitOfWork unitOfWork,
                               ILogger<PutCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
+        _settingsApplicationService = settingsApplicationService;
         this.unitOfWork = unitOfWork;
         this.logger = logger;
     }
@@ -28,20 +25,12 @@ public class PutCommandHandler : IRequestHandler<PutCommand, Klacks.Api.Domain.M
     {
         try
         {
-            var dbCalendarRule = await repository.GetCalendarRule(request.model.Id);
-            if (dbCalendarRule == null)
-            {
-                logger.LogWarning("CalendarRule with ID {CalendarRuleId} not found.", request.model.Id);
-                return null;
-            }
-
-            var updatedCalendarRule = mapper.Map(request.model, dbCalendarRule);
-            updatedCalendarRule = repository.PutCalendarRule(updatedCalendarRule);
+            await _settingsApplicationService.UpdateCalendarRuleAsync(request.model, cancellationToken);
             await unitOfWork.CompleteAsync();
 
             logger.LogInformation("CalendarRule with ID {CalendarRuleId} updated successfully.", request.model.Id);
 
-            return updatedCalendarRule;
+            return request.model;
         }
         catch (Exception ex)
         {

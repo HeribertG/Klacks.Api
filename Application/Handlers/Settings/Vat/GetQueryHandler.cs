@@ -1,24 +1,22 @@
-using AutoMapper;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Settings.Vats;
+using Klacks.Api.Application.Services;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.Vat
 {
     public class GetQueryHandler : IRequestHandler<GetQuery, Klacks.Api.Domain.Models.Settings.Vat?>
     {
-        private readonly IMapper mapper;
-        private readonly ISettingsRepository repository;
+        private readonly SettingsApplicationService _settingsApplicationService;
 
-        public GetQueryHandler(IMapper mapper, ISettingsRepository repository)
+        public GetQueryHandler(SettingsApplicationService settingsApplicationService)
         {
-            this.mapper = mapper;
-            this.repository = repository;
+            _settingsApplicationService = settingsApplicationService;
         }
 
         public async Task<Klacks.Api.Domain.Models.Settings.Vat?> Handle(GetQuery request, CancellationToken cancellationToken)
         {
-            return await repository.GetVAT(request.Id);
+            return await _settingsApplicationService.GetVatByIdAsync(request.Id, cancellationToken);
         }
     }
 }

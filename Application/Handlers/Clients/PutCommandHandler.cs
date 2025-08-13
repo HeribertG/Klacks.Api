@@ -6,10 +6,6 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Clients;
 
-/// <summary>
-/// CQRS Command Handler for updating existing clients
-/// Refactored to use Application Service following Clean Architecture
-/// </summary>
 public class PutCommandHandler : IRequestHandler<PutCommand<ClientResource>, ClientResource?>
 {
     private readonly ClientApplicationService _clientApplicationService;
@@ -30,14 +26,9 @@ public class PutCommandHandler : IRequestHandler<PutCommand<ClientResource>, Cli
     {
         try
         {
-            // Clean Architecture: Delegate business logic to Application Service
             var updatedClient = await _clientApplicationService.UpdateClientAsync(request.Resource, cancellationToken);
-
-            // Unit of Work for transaction management
             await _unitOfWork.CompleteAsync();
-
             _logger.LogInformation("Client with ID {ClientId} updated successfully.", request.Resource.Id);
-
             return updatedClient;
         }
         catch (KeyNotFoundException)

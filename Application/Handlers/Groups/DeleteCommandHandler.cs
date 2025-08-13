@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
@@ -8,44 +8,47 @@ namespace Klacks.Api.Application.Handlers.Groups;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<GroupResource>, GroupResource?>
 {
-    private readonly ILogger<DeleteCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IGroupRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly GroupApplicationService _groupApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<DeleteCommandHandler> _logger;
 
     public DeleteCommandHandler(
-                                IMapper mapper,
-                                IGroupRepository repository,
-                                IUnitOfWork unitOfWork,
-                                ILogger<DeleteCommandHandler> logger)
+        GroupApplicationService groupApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<DeleteCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _groupApplicationService = groupApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<GroupResource?> Handle(DeleteCommand<GroupResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var group = await repository.Delete(request.Id);
-
-            if (group == null)
+            var groupToDelete = await _groupApplicationService.GetGroupByIdAsync(request.Id, cancellationToken);
+            if (groupToDelete == null)
             {
-                logger.LogWarning("Group with ID {GroupId} not found for deletion.", request.Id);
+                _logger.LogWarning("Group with ID {GroupId} not found for deletion.", request.Id);
                 return null;
             }
 
-            await unitOfWork.CompleteAsync();
+            await _groupApplicationService.DeleteGroupAsync(request.Id, cancellationToken);
 
-            logger.LogInformation("Group with ID {GroupId} deleted successfully.", request.Id);
+            await _unitOfWork.CompleteAsync();
 
-            return mapper.Map<Klacks.Api.Domain.Models.Associations.Group, GroupResource>(group);
+            _logger.LogInformation("Group with ID {GroupId} deleted successfully.", request.Id);
+
+            return groupToDelete;
+        }
+        catch (KeyNotFoundException)
+        {
+            _logger.LogWarning("Group with ID {GroupId} not found for deletion.", request.Id);
+            return null;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error deleting group with ID {GroupId}.", request.Id);
+            _logger.LogError(ex, "Error occurred while deleting group with ID {GroupId}.", request.Id);
             throw;
         }
     }

@@ -1,5 +1,6 @@
 using AutoMapper;
 using Klacks.Api.Application.Commands.Settings.Macros;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
@@ -8,28 +9,23 @@ namespace Klacks.Api.Application.Handlers.Settings.Macro
 {
     public class PostCommandHandler : IRequestHandler<PostCommand, MacroResource?>
     {
-        private readonly IMapper mapper;
-        private readonly ISettingsRepository repository;
+        private readonly SettingsApplicationService _settingsApplicationService;
         private readonly IUnitOfWork unitOfWork;
 
-        public PostCommandHandler(IMapper mapper,
-                                  ISettingsRepository repository,
+        public PostCommandHandler(SettingsApplicationService settingsApplicationService,
                                   IUnitOfWork unitOfWork)
         {
-            this.mapper = mapper;
-            this.repository = repository;
+            _settingsApplicationService = settingsApplicationService;
             this.unitOfWork = unitOfWork;
         }
 
         public async Task<MacroResource?> Handle(PostCommand request, CancellationToken cancellationToken)
         {
-            var macro = mapper.Map<MacroResource, Klacks.Api.Domain.Models.Settings.Macro>(request.model);
-
-            repository.AddMacro(macro);
+            var result = await _settingsApplicationService.CreateMacroAsync(request.model, cancellationToken);
 
             await unitOfWork.CompleteAsync();
 
-            return mapper.Map<Klacks.Api.Domain.Models.Settings.Macro, MacroResource>(macro);
+            return result;
         }
     }
 }

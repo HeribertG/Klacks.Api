@@ -1,38 +1,27 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands.Settings.Vats;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.Vat
 {
     public class PutCommandHandler : IRequestHandler<PutCommand, Klacks.Api.Domain.Models.Settings.Vat?>
     {
-        private readonly IMapper mapper;
-        private readonly ISettingsRepository repository;
+        private readonly SettingsApplicationService _settingsApplicationService;
         private readonly IUnitOfWork unitOfWork;
 
-        public PutCommandHandler(IMapper mapper,
-                                  ISettingsRepository repository,
+        public PutCommandHandler(SettingsApplicationService settingsApplicationService,
                                   IUnitOfWork unitOfWork)
         {
-            this.mapper = mapper;
-            this.repository = repository;
+            _settingsApplicationService = settingsApplicationService;
             this.unitOfWork = unitOfWork;
         }
 
         public async Task<Klacks.Api.Domain.Models.Settings.Vat?> Handle(PutCommand request, CancellationToken cancellationToken)
         {
-            var dbVat = await repository.GetVAT(request.model.Id);
-            var updatedVat = mapper.Map(request.model, dbVat);
-
-            if (updatedVat != null)
-            {
-                updatedVat = repository.PutVAT(updatedVat);
-                await unitOfWork.CompleteAsync();
-                return updatedVat;
-            }
-
-            return null;
+            var updatedVat = await _settingsApplicationService.UpdateVatAsync(request.model, cancellationToken);
+            await unitOfWork.CompleteAsync();
+            return updatedVat;
         }
     }
 }

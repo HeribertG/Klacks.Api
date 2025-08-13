@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 
@@ -8,39 +8,40 @@ namespace Klacks.Api.Application.Handlers.Absences;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<AbsenceResource>, AbsenceResource?>
 {
-    private readonly ILogger<PostCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IAbsenceRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly AbsenceApplicationService _absenceApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<PostCommandHandler> _logger;
 
     public PostCommandHandler(
-                              IMapper mapper,
-                              IAbsenceRepository repository,
-                              IUnitOfWork unitOfWork,
-                              ILogger<PostCommandHandler> logger)
+        AbsenceApplicationService absenceApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<PostCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _absenceApplicationService = absenceApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<AbsenceResource?> Handle(PostCommand<AbsenceResource> request, CancellationToken cancellationToken)
     {
+        using var transaction = await _unitOfWork.BeginTransactionAsync();
+        
         try
         {
-            var absence = mapper.Map<AbsenceResource, Klacks.Api.Domain.Models.Schedules.Absence>(request.Resource);
-            await repository.Add(absence);
-
-            await unitOfWork.CompleteAsync();
-
-            logger.LogInformation("New absence added successfully. ID: {AbsenceId}", absence.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.Schedules.Absence, AbsenceResource>(absence);
+            _logger.LogInformation("Processing create absence command");
+            
+            var result = await _absenceApplicationService.CreateAbsenceAsync(request.Resource, cancellationToken);
+            
+            await _unitOfWork.CompleteAsync();
+            await _unitOfWork.CommitTransactionAsync(transaction);
+            
+            _logger.LogInformation("New absence added successfully. ID: {AbsenceId}", result.Id);
+            return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while adding a new absence. ID: {AbsenceId}", request.Resource.Id);
+            await _unitOfWork.RollbackTransactionAsync(transaction);
+            _logger.LogError(ex, "Error occurred while adding a new absence. ID: {AbsenceId}", request.Resource.Id);
             throw;
         }
     }

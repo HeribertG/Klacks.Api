@@ -5,10 +5,6 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Clients
 {
-    /// <summary>
-    /// CQRS Handler that uses Application Service instead of direct Repository access
-    /// Follows Clean Architecture - Handler orchestrates, Application Service contains business logic
-    /// </summary>
     public class GetTruncatedListQueryHandler : IRequestHandler<GetTruncatedListQuery, TruncatedClientResource>
     {
         private readonly ClientApplicationService _clientApplicationService;
@@ -20,8 +16,6 @@ namespace Klacks.Api.Application.Handlers.Clients
 
         public async Task<TruncatedClientResource> Handle(GetTruncatedListQuery request, CancellationToken cancellationToken)
         {
-            // Clean Architecture: Handler delegates to Application Service
-            // Application Service handles DTO→Domain→DTO mapping
             return await _clientApplicationService.SearchClientsAsync(request.Filter, cancellationToken);
         }
     }

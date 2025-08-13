@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands.Settings.Macros;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
@@ -8,32 +8,21 @@ namespace Klacks.Api.Application.Handlers.Settings.Macro
 {
     public class PutCommandHandler : IRequestHandler<PutCommand, MacroResource?>
     {
-        private readonly IMapper mapper;
-        private readonly ISettingsRepository repository;
+        private readonly SettingsApplicationService _settingsApplicationService;
         private readonly IUnitOfWork unitOfWork;
 
-        public PutCommandHandler(IMapper mapper,
-                                  ISettingsRepository repository,
+        public PutCommandHandler(SettingsApplicationService settingsApplicationService,
                                   IUnitOfWork unitOfWork)
         {
-            this.mapper = mapper;
-            this.repository = repository;
+            _settingsApplicationService = settingsApplicationService;
             this.unitOfWork = unitOfWork;
         }
 
         public async Task<MacroResource?> Handle(PutCommand request, CancellationToken cancellationToken)
         {
-            var dbMacro = await repository.GetMacro(request.model.Id);
-            var updatedMacro = mapper.Map(request.model, dbMacro);
-
-            if (updatedMacro != null)
-            {
-                updatedMacro = repository.PutMacro(updatedMacro);
-                await unitOfWork.CompleteAsync();
-                return mapper.Map<Klacks.Api.Domain.Models.Settings.Macro, MacroResource>(updatedMacro);
-            }
-
-            return null;
+            var updatedMacro = await _settingsApplicationService.UpdateMacroAsync(request.model, cancellationToken);
+            await unitOfWork.CompleteAsync();
+            return updatedMacro;
         }
     }
 }

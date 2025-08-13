@@ -1,7 +1,8 @@
-using AutoMapper;
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Commands.Accounts;
+using Klacks.Api.Application.Queries.Accounts;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Presentation.DTOs.Registrations;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -10,17 +11,12 @@ namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
 
 public class AccountsController : BaseController
 {
-    private const string MAILFAILURE = "Email Send Failure";
-    private const string TRUERESULT = "true";
-
     private readonly ILogger<AccountsController> logger;
-    private readonly IMapper mapper;
-    private readonly IAccountRepository repository;
+    private readonly IMediator mediator;
 
-    public AccountsController(IMapper mapper, IAccountRepository repository, ILogger<AccountsController> logger)
+    public AccountsController(IMediator mediator, ILogger<AccountsController> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
+        this.mediator = mediator;
         this.logger = logger;
     }
 
@@ -30,12 +26,10 @@ public class AccountsController : BaseController
     {
         this.logger.LogInformation("ChangePassword requested for user: {Email}", model.Email);
 
-        var result = await repository.ChangePassword(model);
+        var result = await mediator.Send(new ChangePasswordCommand(model));
 
         if (result.Success)
         {
-            result = await SendEmail(result, model.Title, model.Email, model.Message.Replace("{appName}", model.AppName ?? "Klacks").Replace("{password}", model.Password));
-
             return Ok(result);
         }
 
@@ -48,11 +42,10 @@ public class AccountsController : BaseController
     {
         this.logger.LogInformation("ChangePasswordUser requested for user: {Email}", model.Email);
 
-        var result = await repository.ChangePasswordUser(model);
+        var result = await mediator.Send(new ChangePasswordUserCommand(model));
 
         if (result != null && result.Success)
         {
-            result = await SendEmail(result, model.Title, model.Email, model.Message.Replace("{appName}", model.AppName ?? "Klacks").Replace("{password}", model.Password));
             return Ok(result);
         }
 
@@ -66,7 +59,7 @@ public class AccountsController : BaseController
         this.logger.LogInformation($"ChangeRoleUser request received for user: {changeRole.UserId}");
         try
         {
-            var result = await repository.ChangeRoleUser(changeRole);
+            var result = await mediator.Send(new ChangeRoleCommand(changeRole));
             if (result != null && result.Success)
             {
                 return Ok(result);
@@ -89,7 +82,7 @@ public class AccountsController : BaseController
         this.logger.LogInformation($"DeleteAccountUser request received for user: {id}");
         try
         {
-            var result = await repository.DeleteAccountUser(id);
+            var result = await mediator.Send(new DeleteAccountCommand(id));
 
             if (result != null && result.Success)
             {
@@ -113,7 +106,7 @@ public class AccountsController : BaseController
         this.logger.LogInformation("GetUserList request received");
         try
         {
-            var users = await repository.GetUserList();
+            var users = await mediator.Send(new GetUserListQuery());
             this.logger.LogInformation("Retrieved {Count} users", users.Count);
             return Ok(users);
         }
@@ -138,28 +131,12 @@ public class AccountsController : BaseController
 
         try
         {
-            var result = await repository.LogInUser(model.Email, model.Password);
+            var result = await mediator.Send(new LoginUserQuery(model.Email, model.Password));
 
-            if (result != null && result.Success)
+            if (result != null)
             {
-                var response = new TokenResource
-                {
-                    Success = true,
-                    Token = result.Token,
-                    Username = result.UserName,
-                    FirstName = result.FirstName,
-                    Name = result.Name,
-                    Id = result.Id,
-                    ExpTime = result.Expires,
-                    IsAdmin = result.IsAdmin,
-                    IsAuthorised = result.IsAuthorised,
-                    RefreshToken = result.RefreshToken,
-                    Version = new MyVersion().Get(),
-                    Subject = model.Email
-                };
-
                 this.logger.LogInformation("Login successful for user: {Email}", model.Email);
-                return Ok(response);
+                return Ok(result);
             }
             else
             {
@@ -169,7 +146,7 @@ public class AccountsController : BaseController
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Exception occurred during user registration: {Email}", model.Email);
+            this.logger.LogError(ex, "Exception occurred during user login: {Email}", model.Email);
             return StatusCode(500, "An error has occurred. Please try again later.");
         }
     }
@@ -188,27 +165,12 @@ public class AccountsController : BaseController
 
         try
         {
-            var result = await repository.RefreshToken(model);
+            var result = await mediator.Send(new RefreshTokenQuery(model));
 
-            if (result != null && result.Success)
+            if (result != null)
             {
-                var response = new TokenResource
-                {
-                    Success = true,
-                    Token = result.Token,
-                    Username = result.UserName,
-                    FirstName = result.FirstName,
-                    Name = result.Name,
-                    Id = result.Id,
-                    ExpTime = result.Expires,
-                    IsAdmin = result.IsAdmin,
-                    IsAuthorised = result.IsAuthorised,
-                    RefreshToken = result.RefreshToken,
-                    Version = new MyVersion().Get()
-                };
-
                 this.logger.LogInformation("Token refresh successful for user: {UserId}", result.Id);
-                return Ok(response);
+                return Ok(result);
             }
             else
             {
@@ -229,9 +191,7 @@ public class AccountsController : BaseController
         this.logger.LogInformation($"RegisterUser request received: {JsonConvert.SerializeObject(model)}");
         try
         {
-            var userIdentity = mapper.Map<AppUser>(model);
-
-            var result = await repository.RegisterUser(userIdentity, model.Password);
+            var result = await mediator.Send(new RegisterUserCommand(model));
 
             if (result != null && result.Success)
             {
@@ -239,7 +199,7 @@ public class AccountsController : BaseController
                 return Ok(result);
             }
 
-            this.logger.LogWarning("User registration failed: {Email}, Reason: {Reason}", model.Email, result?.Message ?? "Unknow");
+            this.logger.LogWarning("User registration failed: {Email}, Reason: {Reason}", model.Email, result?.Message ?? "Unknown");
             return BadRequest(result);
         }
         catch (Exception ex)
@@ -247,24 +207,5 @@ public class AccountsController : BaseController
             this.logger.LogError(ex, "Exception occurred during user registration: {Email}", model.Email);
             return StatusCode(500, "An error has occurred during user registration.");
         }
-    }
-
-    private async Task<AuthenticatedResult> SendEmail(AuthenticatedResult result, string title, string email, string message)
-    {
-        var mailResult = await repository.SendEmail(title, email, message);
-
-        result.MailSuccess = false;
-
-        if (!string.IsNullOrEmpty(mailResult))
-        {
-            result.MailSuccess = string.Compare(mailResult, TRUERESULT) == 0 ? true : false;
-        }
-
-        if (!result.MailSuccess)
-        {
-            repository.SetModelError(result, MAILFAILURE, mailResult);
-        }
-
-        return result;
     }
 }

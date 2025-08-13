@@ -5,10 +5,6 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Groups
 {
-    /// <summary>
-    /// CQRS Handler for getting group tree structure
-    /// Refactored to use Application Service following Clean Architecture
-    /// </summary>
     public class GetGroupTreeQueryHandler : IRequestHandler<GetGroupTreeQuery, GroupTreeResource>
     {
         private readonly GroupApplicationService _groupApplicationService;
@@ -28,7 +24,6 @@ namespace Klacks.Api.Application.Handlers.Groups
             {
                 _logger.LogInformation($"Processing GetGroupTreeQuery with rootId: {request.RootId}");
 
-                // Clean Architecture: Delegate complex tree operations to Application Service
                 var result = await _groupApplicationService.GetGroupTreeAsync(request.RootId, cancellationToken);
 
                 _logger.LogInformation($"Retrieved tree with {result.Nodes.Count} root nodes");

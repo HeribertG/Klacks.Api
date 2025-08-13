@@ -6,10 +6,6 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Groups;
 
-/// <summary>
-/// CQRS Command Handler for creating new groups
-/// Refactored to use Application Service following Clean Architecture
-/// </summary>
 public class PostCommandHandler : IRequestHandler<PostCommand<GroupResource>, GroupResource?>
 {
     private readonly GroupApplicationService _groupApplicationService;
@@ -31,7 +27,6 @@ public class PostCommandHandler : IRequestHandler<PostCommand<GroupResource>, Gr
         using var transaction = await _unitOfWork.BeginTransactionAsync();
         try
         {
-            // Clean Architecture: Delegate business logic to Application Service
             var createdGroup = await _groupApplicationService.CreateGroupAsync(request.Resource, cancellationToken);
 
             await _unitOfWork.CompleteAsync();

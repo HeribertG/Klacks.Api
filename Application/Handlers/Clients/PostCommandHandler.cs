@@ -6,10 +6,6 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Clients;
 
-/// <summary>
-/// CQRS Command Handler for creating new clients
-/// Refactored to use Application Service following Clean Architecture
-/// </summary>
 public class PostCommandHandler : IRequestHandler<PostCommand<ClientResource>, ClientResource?>
 {
     private readonly ClientApplicationService _clientApplicationService;
@@ -30,14 +26,9 @@ public class PostCommandHandler : IRequestHandler<PostCommand<ClientResource>, C
     {
         try
         {
-            // Clean Architecture: Delegate business logic to Application Service
             var createdClient = await _clientApplicationService.CreateClientAsync(request.Resource, cancellationToken);
-
-            // Unit of Work for transaction management
             await _unitOfWork.CompleteAsync();
-
             _logger.LogInformation("New client created successfully. ID: {ClientId}", createdClient.Id);
-
             return createdClient;
         }
         catch (Exception ex)

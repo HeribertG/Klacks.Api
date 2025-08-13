@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
@@ -8,48 +8,40 @@ namespace Klacks.Api.Application.Handlers.Groups;
 
 public class PutCommandHandler : IRequestHandler<PutCommand<GroupResource>, GroupResource?>
 {
-    private readonly ILogger<PutCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IGroupRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly GroupApplicationService _groupApplicationService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<PutCommandHandler> _logger;
 
     public PutCommandHandler(
-                              IMapper mapper,
-                              IGroupRepository repository,
-                              IUnitOfWork unitOfWork,
-                              ILogger<PutCommandHandler> logger)
+        GroupApplicationService groupApplicationService,
+        IUnitOfWork unitOfWork,
+        ILogger<PutCommandHandler> logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _groupApplicationService = groupApplicationService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<GroupResource?> Handle(PutCommand<GroupResource> request, CancellationToken cancellationToken)
     {
         try
         {
-            var dbGroup = await repository.Get(request.Resource.Id);
-            if (dbGroup == null)
-            {
-                logger.LogWarning("Group with ID {GroupId} not found.", request.Resource.Id);
-                return null;
-            }
+            var updatedGroup = await _groupApplicationService.UpdateGroupAsync(request.Resource, cancellationToken);
 
-            var updatedGroup = mapper.Map(request.Resource, dbGroup);
+            await _unitOfWork.CompleteAsync();
 
-            await repository.Put(updatedGroup);
-            await unitOfWork.CompleteAsync();
+            _logger.LogInformation("Group with ID {GroupId} updated successfully.", request.Resource.Id);
 
-            var dbUpdatedGroup = await repository.Get(request.Resource.Id);
-
-            logger.LogInformation("Group with ID {GroupId} updated successfully.", request.Resource.Id);
-
-            return dbUpdatedGroup != null ? mapper.Map<Klacks.Api.Domain.Models.Associations.Group, GroupResource>(dbUpdatedGroup) : null;
+            return updatedGroup;
+        }
+        catch (KeyNotFoundException)
+        {
+            _logger.LogWarning("Group with ID {GroupId} not found.", request.Resource.Id);
+            return null;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error updating group with ID {GroupId}.", request.Resource.Id);
+            _logger.LogError(ex, "Error occurred while updating group with ID {GroupId}.", request.Resource.Id);
             throw;
         }
     }

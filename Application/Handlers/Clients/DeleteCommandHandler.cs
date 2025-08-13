@@ -6,10 +6,6 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Clients;
 
-/// <summary>
-/// CQRS Command Handler for deleting clients
-/// Refactored to use Application Service following Clean Architecture
-/// </summary>
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<ClientResource>, ClientResource?>
 {
     private readonly ClientApplicationService _clientApplicationService;
@@ -30,7 +26,6 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<ClientResource
     {
         try
         {
-            // Get client before deletion for return value
             var clientToDelete = await _clientApplicationService.GetClientByIdAsync(request.Id, cancellationToken);
             if (clientToDelete == null)
             {
@@ -38,14 +33,9 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<ClientResource
                 return null;
             }
 
-            // Clean Architecture: Delegate to Application Service
             await _clientApplicationService.DeleteClientAsync(request.Id, cancellationToken);
-
-            // Unit of Work for transaction management
             await _unitOfWork.CompleteAsync();
-
             _logger.LogInformation("Client with ID {ClientId} deleted successfully.", request.Id);
-
             return clientToDelete;
         }
         catch (KeyNotFoundException)

@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands.Settings.Macros;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
@@ -8,26 +8,23 @@ namespace Klacks.Api.Application.Handlers.Settings.Macro
 {
     public class DeleteCommandHandler : IRequestHandler<DeleteCommand, MacroResource>
     {
-        private readonly IMapper mapper;
-        private readonly ISettingsRepository repository;
+        private readonly SettingsApplicationService _settingsApplicationService;
         private readonly IUnitOfWork unitOfWork;
 
-        public DeleteCommandHandler(IMapper mapper,
-                                    ISettingsRepository repository,
+        public DeleteCommandHandler(SettingsApplicationService settingsApplicationService,
                                     IUnitOfWork unitOfWork)
         {
-            this.mapper = mapper;
-            this.repository = repository;
+            _settingsApplicationService = settingsApplicationService;
             this.unitOfWork = unitOfWork;
         }
 
         async Task<MacroResource> IRequestHandler<DeleteCommand, MacroResource>.Handle(DeleteCommand request, CancellationToken cancellationToken)
         {
-            var client = await repository.DeleteMacro(request.Id);
+            var deletedMacro = await _settingsApplicationService.DeleteMacroAsync(request.Id, cancellationToken);
 
             await unitOfWork.CompleteAsync();
 
-            return mapper.Map<Klacks.Api.Domain.Models.Settings.Macro, MacroResource>(client!);
+            return deletedMacro;
         }
     }
 }

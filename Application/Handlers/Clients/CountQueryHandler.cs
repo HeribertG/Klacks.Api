@@ -1,21 +1,21 @@
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Clients;
+using Klacks.Api.Application.Services;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Clients
 {
     public class CountQueryHandler : IRequestHandler<CountQuery, int>
     {
-        private readonly IClientRepository repository;
+        private readonly ClientApplicationService _clientApplicationService;
 
-        public CountQueryHandler(IClientRepository repository)
+        public CountQueryHandler(ClientApplicationService clientApplicationService)
         {
-            this.repository = repository;
+            _clientApplicationService = clientApplicationService;
         }
 
-        public Task<int> Handle(CountQuery request, CancellationToken cancellationToken)
+        public async Task<int> Handle(CountQuery request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(repository.Count());
+            return await _clientApplicationService.GetClientCountAsync(cancellationToken);
         }
     }
 }

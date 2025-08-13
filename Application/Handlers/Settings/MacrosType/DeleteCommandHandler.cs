@@ -1,5 +1,6 @@
 using AutoMapper;
 using Klacks.Api.Application.Commands.Settings.MacrosTypes;
+using Klacks.Api.Application.Services;
 using Klacks.Api.Application.Interfaces;
 using MediatR;
 
@@ -7,22 +8,19 @@ namespace Klacks.Api.Application.Handlers.Settings.MacrosTypes;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand, Klacks.Api.Domain.Models.Settings.MacroType>
 {
-    private readonly IMapper mapper;
-    private readonly ISettingsRepository repository;
+    private readonly SettingsApplicationService _settingsApplicationService;
     private readonly IUnitOfWork unitOfWork;
 
-    public DeleteCommandHandler(IMapper mapper,
-                                ISettingsRepository repository,
+    public DeleteCommandHandler(SettingsApplicationService settingsApplicationService,
                                 IUnitOfWork unitOfWork)
     {
-        this.mapper = mapper;
-        this.repository = repository;
+        _settingsApplicationService = settingsApplicationService;
         this.unitOfWork = unitOfWork;
     }
 
     async Task<Klacks.Api.Domain.Models.Settings.MacroType> IRequestHandler<DeleteCommand, Klacks.Api.Domain.Models.Settings.MacroType>.Handle(DeleteCommand request, CancellationToken cancellationToken)
     {
-        var macroType = await repository.DeleteMacroType(request.Id);
+        var macroType = await _settingsApplicationService.DeleteMacroTypeAsync(request.Id, cancellationToken);
 
         await unitOfWork.CompleteAsync();
 

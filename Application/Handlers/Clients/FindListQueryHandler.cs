@@ -1,24 +1,22 @@
-using AutoMapper;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Clients;
+using Klacks.Api.Application.Services;
+using Klacks.Api.Domain.Models.Staffs;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Clients
 {
-    public class FindListQueryHandler : IRequestHandler<FindListQuery, IEnumerable<Klacks.Api.Domain.Models.Staffs.Client>>
+    public class FindListQueryHandler : IRequestHandler<FindListQuery, IEnumerable<Client>>
     {
-        private readonly IClientRepository repository;
-        private readonly IMapper mapper;
+        private readonly ClientApplicationService _clientApplicationService;
 
-        public FindListQueryHandler(IClientRepository repository, IMapper mapper)
+        public FindListQueryHandler(ClientApplicationService clientApplicationService)
         {
-            this.repository = repository;
-            this.mapper = mapper;
+            _clientApplicationService = clientApplicationService;
         }
 
-        public async Task<IEnumerable<Klacks.Api.Domain.Models.Staffs.Client>> Handle(FindListQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Client>> Handle(FindListQuery request, CancellationToken cancellationToken)
         {
-            return await repository.FindList(request.Company, request.Name, request.FirstName);
+            return await _clientApplicationService.FindClientsAsync(request.Company, request.Name, request.FirstName, cancellationToken);
         }
     }
 }
