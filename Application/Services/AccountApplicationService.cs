@@ -1,6 +1,6 @@
 using AutoMapper;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
+using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Presentation.DTOs;
 using Klacks.Api.Presentation.DTOs.Registrations;
 using Microsoft.Extensions.Logging;
@@ -9,16 +9,28 @@ namespace Klacks.Api.Application.Services;
 
 public class AccountApplicationService
 {
-    private readonly IAccountRepository _accountRepository;
+    private readonly IAccountAuthenticationService _accountAuthenticationService;
+    private readonly IAccountPasswordService _accountPasswordService;
+    private readonly IAccountRegistrationService _accountRegistrationService;
+    private readonly IAccountManagementService _accountManagementService;
+    private readonly IAccountNotificationService _accountNotificationService;
     private readonly IMapper _mapper;
     private readonly ILogger<AccountApplicationService> _logger;
 
     public AccountApplicationService(
-        IAccountRepository accountRepository,
+        IAccountAuthenticationService accountAuthenticationService,
+        IAccountPasswordService accountPasswordService,
+        IAccountRegistrationService accountRegistrationService,
+        IAccountManagementService accountManagementService,
+        IAccountNotificationService accountNotificationService,
         IMapper mapper,
         ILogger<AccountApplicationService> logger)
     {
-        _accountRepository = accountRepository;
+        _accountAuthenticationService = accountAuthenticationService;
+        _accountPasswordService = accountPasswordService;
+        _accountRegistrationService = accountRegistrationService;
+        _accountManagementService = accountManagementService;
+        _accountNotificationService = accountNotificationService;
         _mapper = mapper;
         _logger = logger;
     }
@@ -27,7 +39,7 @@ public class AccountApplicationService
     {
         _logger.LogInformation("Login attempt for user: {Email}", email);
         
-        var result = await _accountRepository.LogInUser(email, password);
+        var result = await _accountAuthenticationService.LogInUserAsync(email, password);
         
         if (result != null && result.Success)
         {
@@ -60,7 +72,7 @@ public class AccountApplicationService
         _logger.LogInformation("User registration requested: {Email}", registrationResource.Email);
         
         var userIdentity = _mapper.Map<AppUser>(registrationResource);
-        var result = await _accountRepository.RegisterUser(userIdentity, registrationResource.Password);
+        var result = await _accountRegistrationService.RegisterUserAsync(userIdentity, registrationResource.Password);
         
         if (result != null && result.Success)
         {
@@ -79,7 +91,7 @@ public class AccountApplicationService
     {
         _logger.LogInformation("RefreshToken requested");
         
-        var result = await _accountRepository.RefreshToken(refreshRequest);
+        var result = await _accountAuthenticationService.RefreshTokenAsync(refreshRequest);
         
         if (result != null && result.Success)
         {
@@ -110,7 +122,7 @@ public class AccountApplicationService
     {
         _logger.LogInformation("ChangePassword requested for user: {Email}", changePasswordResource.Email);
         
-        var result = await _accountRepository.ChangePassword(changePasswordResource);
+        var result = await _accountPasswordService.ChangePasswordAsync(changePasswordResource);
         
         if (result.Success)
         {
@@ -125,7 +137,7 @@ public class AccountApplicationService
     {
         _logger.LogInformation("ChangePasswordUser requested for user: {Email}", changePasswordResource.Email);
         
-        var result = await _accountRepository.ChangePasswordUser(changePasswordResource);
+        var result = await _accountPasswordService.ChangePasswordAsync(changePasswordResource);
         
         if (result != null && result.Success)
         {
@@ -140,7 +152,7 @@ public class AccountApplicationService
     {
         _logger.LogInformation("ChangeRoleUser request received for user: {UserId}", changeRole.UserId);
         
-        var result = await _accountRepository.ChangeRoleUser(changeRole);
+        var result = await _accountManagementService.ChangeRoleUserAsync(changeRole);
         
         if (result != null && result.Success)
         {
@@ -158,7 +170,7 @@ public class AccountApplicationService
     {
         _logger.LogInformation("DeleteAccountUser request received for user: {UserId}", userId);
         
-        var result = await _accountRepository.DeleteAccountUser(userId);
+        var result = await _accountManagementService.DeleteAccountUserAsync(userId);
         
         if (result != null && result.Success)
         {
@@ -177,7 +189,7 @@ public class AccountApplicationService
     {
         _logger.LogInformation("GetUserList request received");
         
-        var users = await _accountRepository.GetUserList();
+        var users = await _accountManagementService.GetUserListAsync();
         
         _logger.LogInformation("Retrieved {Count} users", users.Count);
         return users;
@@ -192,7 +204,7 @@ public class AccountApplicationService
             .Replace("{appName}", changePasswordResource.AppName ?? "Klacks")
             .Replace("{password}", changePasswordResource.Password);
             
-        var mailResult = await _accountRepository.SendEmail(
+        var mailResult = await _accountNotificationService.SendEmailAsync(
             changePasswordResource.Title, 
             changePasswordResource.Email, 
             message);
@@ -206,7 +218,7 @@ public class AccountApplicationService
 
         if (!result.MailSuccess)
         {
-            _accountRepository.SetModelError(result, MAILFAILURE, mailResult);
+            _accountAuthenticationService.SetModelErrorAsync(result, MAILFAILURE, mailResult);
         }
 
         return result;

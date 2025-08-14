@@ -1,8 +1,7 @@
-using Klacks.Api.Domain.Common;
-using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Settings;
+using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,16 +13,25 @@ public class SettingsRepository : ISettingsRepository
     private readonly ICalendarRuleFilterService _filterService;
     private readonly ICalendarRuleSortingService _sortingService;
     private readonly ICalendarRulePaginationService _paginationService;
+    private readonly IMacroManagementService _macroManagementService;
+    private readonly IMacroTypeManagementService _macroTypeManagementService;
+    private readonly IVatManagementService _vatManagementService;
 
     public SettingsRepository(DataBaseContext context,
         ICalendarRuleFilterService filterService,
         ICalendarRuleSortingService sortingService,
-        ICalendarRulePaginationService paginationService)
+        ICalendarRulePaginationService paginationService,
+        IMacroManagementService macroManagementService,
+        IMacroTypeManagementService macroTypeManagementService,
+        IVatManagementService vatManagementService)
     {
         this.context = context;
         _filterService = filterService;
         _sortingService = sortingService;
         _paginationService = paginationService;
+        _macroManagementService = macroManagementService;
+        _macroTypeManagementService = macroTypeManagementService;
+        _vatManagementService = vatManagementService;
     }
 
     #region Setting
@@ -56,40 +64,32 @@ public class SettingsRepository : ISettingsRepository
 
     public Macro AddMacro(Macro macro)
     {
-        context.Macro.Add(macro);
-        return macro;
+        return _macroManagementService.AddMacroAsync(macro).Result;
     }
 
     public async Task<Macro> DeleteMacro(Guid id)
     {
-        var macro = await context.Macro.FindAsync(id);
-
-        context.Macro.Remove(macro!);
-
-        return macro!;
+        return await _macroManagementService.DeleteMacroAsync(id);
     }
 
     public async Task<Macro> GetMacro(Guid id)
     {
-        var macro = await context.Macro.FindAsync(id);
-
-        return macro!;
+        return await _macroManagementService.GetMacroAsync(id);
     }
 
     public async Task<List<Macro>> GetMacroList()
     {
-        return await context.Macro.ToListAsync();
+        return await _macroManagementService.GetMacroListAsync();
     }
 
     public bool MacroExists(Guid id)
     {
-        return context.Macro.Any(e => e.Id == id);
+        return _macroManagementService.MacroExistsAsync(id).Result;
     }
 
     public Macro PutMacro(Macro macro)
     {
-        context.Macro.Update(macro);
-        return macro;
+        return _macroManagementService.UpdateMacroAsync(macro).Result;
     }
 
     public void RemoveMacro(Macro macro)
@@ -103,40 +103,32 @@ public class SettingsRepository : ISettingsRepository
 
     public MacroType AddMacroType(MacroType macroType)
     {
-        context.MacroType.Add(macroType);
-        return macroType;
+        return _macroTypeManagementService.AddMacroTypeAsync(macroType).Result;
     }
 
     public async Task<MacroType> DeleteMacroType(Guid id)
     {
-        var macroType = await context.MacroType.FindAsync(id);
-
-        context.MacroType.Remove(macroType!);
-
-        return macroType!;
+        return await _macroTypeManagementService.DeleteMacroTypeAsync(id);
     }
 
     public async Task<MacroType> GetMacroType(Guid id)
     {
-        var macroType = await context.MacroType.FindAsync(id);
-
-        return macroType!;
+        return await _macroTypeManagementService.GetMacroTypeAsync(id);
     }
 
     public async Task<List<MacroType>> GetOriginalMacroTypeList()
     {
-        return await context.MacroType.ToListAsync();
+        return await _macroTypeManagementService.GetMacroTypeListAsync();
     }
 
     public bool MacroTypeExists(Guid id)
     {
-        return context.MacroType.Any(e => e.Id == id);
+        return _macroTypeManagementService.MacroTypeExistsAsync(id).Result;
     }
 
     public MacroType PutMacroType(MacroType macroType)
     {
-        context.MacroType.Update(macroType);
-        return macroType;
+        return _macroTypeManagementService.UpdateMacroTypeAsync(macroType).Result;
     }
 
     public void RemoveMacroType(MacroType macroType)
@@ -150,37 +142,27 @@ public class SettingsRepository : ISettingsRepository
 
     public Vat AddVAT(Vat vat)
     {
-        context.Vat.Add(vat);
-
-        return vat;
+        return _vatManagementService.AddVatAsync(vat).Result;
     }
 
     public async Task<Vat> DeleteVAT(Guid id)
     {
-        var vat = await context.Vat.FindAsync(id);
-
-        context.Vat.Remove(vat!);
-
-        return vat!;
+        return await _vatManagementService.DeleteVatAsync(id);
     }
 
     public async Task<Vat> GetVAT(Guid id)
     {
-        var vat = await context.Vat.FindAsync(id);
-
-        return vat!;
+        return await _vatManagementService.GetVatAsync(id);
     }
 
     public async Task<List<Vat>> GetVATList()
     {
-        return await context.Vat.ToListAsync();
+        return await _vatManagementService.GetVatListAsync();
     }
 
     public Vat PutVAT(Vat vat)
     {
-        context.Vat.Update(vat);
-
-        return vat;
+        return _vatManagementService.UpdateVatAsync(vat).Result;
     }
 
     public void RemoveVAT(Vat vat)
@@ -190,7 +172,7 @@ public class SettingsRepository : ISettingsRepository
 
     public bool VATExists(Guid id)
     {
-        return context.Vat.Any(e => e.Id == id);
+        return _vatManagementService.VatExistsAsync(id).Result;
     }
 
     #endregion Vat

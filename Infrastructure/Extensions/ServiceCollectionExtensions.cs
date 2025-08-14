@@ -63,6 +63,8 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IScheduleDateRangeService, ScheduleDateRangeService>();
         services.AddScoped<IShiftStatusFilterService, ShiftStatusFilterService>();
         services.AddScoped<IShiftFilterService, ShiftFilterService>();
+        services.AddScoped<IShiftPaginationService, ShiftPaginationService>();
+        services.AddScoped<IShiftGroupManagementService, ShiftGroupManagementService>();
 
         // Client Domain Services
         services.AddScoped<IClientFilterService, ClientFilterService>();
@@ -87,6 +89,9 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<ICalendarRuleFilterService, CalendarRuleFilterService>();
         services.AddScoped<ICalendarRuleSortingService, CalendarRuleSortingService>();
         services.AddScoped<ICalendarRulePaginationService, CalendarRulePaginationService>();
+        services.AddScoped<IMacroManagementService, MacroManagementService>();
+        services.AddScoped<IMacroTypeManagementService, MacroTypeManagementService>();
+        services.AddScoped<IVatManagementService, VatManagementService>();
 
         // CalendarSelection Domain Services
         services.AddScoped<ICalendarSelectionUpdateService, CalendarSelectionUpdateService>();
@@ -104,11 +109,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IAccountManagementService, AccountManagementService>();
         services.AddScoped<IAccountNotificationService, AccountNotificationService>();
 
-        services.AddScoped<IAccountRepository, AccountRepository>();
 
-        // Phase 2: Domain Repository Implementations (TODO: Implement with correct Domain Model mappings)
-
-        // Phase 3: Application Services (Clean Architecture)
         services.AddScoped<ClientApplicationService>();
         services.AddScoped<GroupApplicationService>();
         services.AddScoped<AccountApplicationService>();
@@ -130,7 +131,6 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IShiftApplicationService, ShiftApplicationService>();
         services.AddScoped<WorkApplicationService>();
 
-        // Phase 3: AutoMapper Configuration (erweitert bestehende MappingProfile)
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
