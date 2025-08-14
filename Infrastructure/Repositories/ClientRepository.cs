@@ -59,12 +59,7 @@ public class ClientRepository : IClientRepository
         this.context.Client.Add(client);
     }
 
-    /// <summary>
-    /// Listet alle aktiven Mitarbeiter mit ihren Absenzen auf.
-    /// </summary>
-    /// <param name="filter">Der Filter.</param>
-    /// <returns> Gibt alle gefilterten Mitarbeiter mit ihren Absenzen zurück. </returns>
-    public async Task<List<Client>> BreakList(BreakFilter filter)
+     public async Task<List<Client>> BreakList(BreakFilter filter)
     {
         var tmp = await FilterClients(filter.SelectedGroup);
 
