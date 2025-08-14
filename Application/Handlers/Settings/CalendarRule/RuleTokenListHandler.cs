@@ -1,6 +1,5 @@
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Settings.CalendarRules;
-using Klacks.Api.Application.Services;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Presentation.DTOs.Filter;
 using MediatR;
 
@@ -8,15 +7,15 @@ namespace Klacks.Api.Application.Handlers.Settings.CalendarRules;
 
 public class RuleTokenListHandler : IRequestHandler<RuleTokenList, IEnumerable<StateCountryToken>>
 {
-    private readonly SettingsApplicationService _settingsApplicationService;
+    private readonly ISettingsTokenService _settingsTokenService;
 
-    public RuleTokenListHandler(SettingsApplicationService settingsApplicationService)
+    public RuleTokenListHandler(ISettingsTokenService settingsTokenService)
     {
-        _settingsApplicationService = settingsApplicationService;
+        _settingsTokenService = settingsTokenService;
     }
 
     public async Task<IEnumerable<StateCountryToken>> Handle(RuleTokenList request, CancellationToken cancellationToken)
     {
-        return await _settingsApplicationService.GetRuleTokenListAsync(request.IsSelected, cancellationToken);
+        return await _settingsTokenService.GetRuleTokenListAsync(request.IsSelected);
     }
 }

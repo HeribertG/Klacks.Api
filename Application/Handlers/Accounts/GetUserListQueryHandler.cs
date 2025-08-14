@@ -1,5 +1,5 @@
 using Klacks.Api.Application.Queries.Accounts;
-using Klacks.Api.Application.Services;
+using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Presentation.DTOs.Registrations;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -8,14 +8,14 @@ namespace Klacks.Api.Application.Handlers.Accounts;
 
 public class GetUserListQueryHandler : IRequestHandler<GetUserListQuery, List<UserResource>>
 {
-    private readonly AccountApplicationService _accountApplicationService;
+    private readonly IAccountManagementService _accountManagementService;
     private readonly ILogger<GetUserListQueryHandler> _logger;
 
     public GetUserListQueryHandler(
-        AccountApplicationService accountApplicationService,
+        IAccountManagementService accountManagementService,
         ILogger<GetUserListQueryHandler> logger)
     {
-        _accountApplicationService = accountApplicationService;
+        _accountManagementService = accountManagementService;
         _logger = logger;
     }
 
@@ -25,7 +25,7 @@ public class GetUserListQueryHandler : IRequestHandler<GetUserListQuery, List<Us
         {
             _logger.LogInformation("Processing get user list request");
             
-            var result = await _accountApplicationService.GetUserListAsync(cancellationToken);
+            var result = await _accountManagementService.GetUserListAsync();
             
             _logger.LogInformation("Retrieved {Count} users", result.Count);
             return result;

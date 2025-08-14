@@ -1,6 +1,7 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
+using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 
@@ -8,16 +9,19 @@ namespace Klacks.Api.Application.Handlers.CalendarSelections;
 
 public class PutCommandHandler : IRequestHandler<PutCommand<CalendarSelectionResource>, CalendarSelectionResource?>
 {
-    private readonly CalendarSelectionApplicationService _calendarSelectionApplicationService;
+    private readonly ICalendarSelectionRepository _calendarSelectionRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PutCommandHandler> _logger;
 
     public PutCommandHandler(
-        CalendarSelectionApplicationService calendarSelectionApplicationService,
+        ICalendarSelectionRepository calendarSelectionRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
     {
-        _calendarSelectionApplicationService = calendarSelectionApplicationService;
+        _calendarSelectionRepository = calendarSelectionRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,11 +30,12 @@ public class PutCommandHandler : IRequestHandler<PutCommand<CalendarSelectionRes
     {
         try
         {
-            await _calendarSelectionApplicationService.UpdateCalendarSelectionDirectAsync(request.Resource, cancellationToken);
+            var calendarSelection = _mapper.Map<CalendarSelection>(request.Resource);
+            await _calendarSelectionRepository.Update(calendarSelection);
             await _unitOfWork.CompleteAsync();
             
-            var updatedCalendarSelection = await _calendarSelectionApplicationService.GetCalendarSelectionByIdAsync(request.Resource.Id, cancellationToken);
-            return updatedCalendarSelection;
+            var updatedCalendarSelection = await _calendarSelectionRepository.GetWithSelectedCalendars(request.Resource.Id);
+            return _mapper.Map<CalendarSelectionResource>(updatedCalendarSelection);
         }
         catch (Exception ex)
         {

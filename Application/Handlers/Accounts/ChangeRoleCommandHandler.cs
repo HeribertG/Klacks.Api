@@ -1,6 +1,6 @@
 using Klacks.Api.Application.Commands.Accounts;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
+using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Presentation.DTOs;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -9,16 +9,16 @@ namespace Klacks.Api.Application.Handlers.Accounts;
 
 public class ChangeRoleCommandHandler : IRequestHandler<ChangeRoleCommand, HttpResultResource>
 {
-    private readonly AccountApplicationService _accountApplicationService;
+    private readonly IAccountManagementService _accountManagementService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ChangeRoleCommandHandler> _logger;
 
     public ChangeRoleCommandHandler(
-        AccountApplicationService accountApplicationService,
+        IAccountManagementService accountManagementService,
         IUnitOfWork unitOfWork,
         ILogger<ChangeRoleCommandHandler> logger)
     {
-        _accountApplicationService = accountApplicationService;
+        _accountManagementService = accountManagementService;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -31,7 +31,7 @@ public class ChangeRoleCommandHandler : IRequestHandler<ChangeRoleCommand, HttpR
         {
             _logger.LogInformation("Processing role change for user: {UserId}", request.ChangeRole.UserId);
             
-            var result = await _accountApplicationService.ChangeRoleUserAsync(request.ChangeRole, cancellationToken);
+            var result = await _accountManagementService.ChangeRoleUserAsync(request.ChangeRole);
             
             if (result != null && result.Success)
             {

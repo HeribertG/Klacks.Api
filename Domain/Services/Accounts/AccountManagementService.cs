@@ -2,7 +2,6 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Presentation.DTOs;
 using Klacks.Api.Presentation.DTOs.Registrations;
-using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Domain.Services.Accounts;
 

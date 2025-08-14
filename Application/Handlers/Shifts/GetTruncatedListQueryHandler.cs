@@ -1,4 +1,5 @@
-﻿using Klacks.Api.Application.Interfaces;
+﻿using AutoMapper;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Shifts;
 using Klacks.Api.Presentation.DTOs.Filter;
 using MediatR;
@@ -7,15 +8,18 @@ namespace Klacks.Api.Application.Handlers.Shifts;
 
 public class GetTruncatedListQueryHandler : IRequestHandler<GetTruncatedListQuery, TruncatedShiftResource>
 {
-    private readonly IShiftApplicationService _shiftApplicationService;
+    private readonly IShiftRepository _shiftRepository;
+    private readonly IMapper _mapper;
 
-    public GetTruncatedListQueryHandler(IShiftApplicationService shiftApplicationService)
+    public GetTruncatedListQueryHandler(IShiftRepository shiftRepository, IMapper mapper)
     {
-        _shiftApplicationService = shiftApplicationService;
+        _shiftRepository = shiftRepository;
+        _mapper = mapper;
     }
 
     public async Task<TruncatedShiftResource> Handle(GetTruncatedListQuery request, CancellationToken cancellationToken)
     {
-        return await _shiftApplicationService.GetTruncatedShiftsAsync(request.Filter, cancellationToken);
+        var truncatedShift = await _shiftRepository.GetFilteredAndPaginatedShifts(request.Filter);
+        return _mapper.Map<TruncatedShiftResource>(truncatedShift);
     }
 }

@@ -1,5 +1,5 @@
 using Klacks.Api.Application.Queries.Accounts;
-using Klacks.Api.Application.Services;
+using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Presentation.DTOs.Registrations;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -8,14 +8,14 @@ namespace Klacks.Api.Application.Handlers.Accounts;
 
 public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, TokenResource?>
 {
-    private readonly AccountApplicationService _accountApplicationService;
+    private readonly IAccountAuthenticationService _accountAuthenticationService;
     private readonly ILogger<LoginUserQueryHandler> _logger;
 
     public LoginUserQueryHandler(
-        AccountApplicationService accountApplicationService,
+        IAccountAuthenticationService accountAuthenticationService,
         ILogger<LoginUserQueryHandler> logger)
     {
-        _accountApplicationService = accountApplicationService;
+        _accountAuthenticationService = accountAuthenticationService;
         _logger = logger;
     }
 
@@ -25,14 +25,32 @@ public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, TokenResour
         {
             _logger.LogInformation("Processing login request for user: {Email}", request.Email);
             
-            var result = await _accountApplicationService.LoginUserAsync(request.Email, request.Password, cancellationToken);
+            var result = await _accountAuthenticationService.LogInUserAsync(request.Email, request.Password);
             
-            if (result == null)
+            if (result != null && result.Success)
             {
-                _logger.LogWarning("Login failed for user: {Email}", request.Email);
+                var response = new TokenResource
+                {
+                    Success = true,
+                    Token = result.Token,
+                    Username = result.UserName,
+                    FirstName = result.FirstName,
+                    Name = result.Name,
+                    Id = result.Id,
+                    ExpTime = result.Expires,
+                    IsAdmin = result.IsAdmin,
+                    IsAuthorised = result.IsAuthorised,
+                    RefreshToken = result.RefreshToken,
+                    Version = new Klacks.Api.MyVersion().Get(),
+                    Subject = request.Email
+                };
+                
+                _logger.LogInformation("Login successful for user: {Email}", request.Email);
+                return response;
             }
             
-            return result;
+            _logger.LogWarning("Login failed for user: {Email}", request.Email);
+            return null;
         }
         catch (Exception ex)
         {

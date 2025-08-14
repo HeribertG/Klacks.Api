@@ -1,22 +1,21 @@
-﻿using Klacks.Api.Application.Commands.Groups;
+using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Groups
 {
     public class RefreshTreeCommandHandler : IRequestHandler<RefreshTreeCommand>
     {
-        private readonly GroupApplicationService _groupApplicationService;
+        private readonly IGroupRepository _groupRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<RefreshTreeCommandHandler> _logger;
 
         public RefreshTreeCommandHandler(
-            GroupApplicationService groupApplicationService,
+            IGroupRepository groupRepository,
             IUnitOfWork unitOfWork,
             ILogger<RefreshTreeCommandHandler> logger)
         {
-            _groupApplicationService = groupApplicationService;
+            _groupRepository = groupRepository;
             _unitOfWork = unitOfWork;
             _logger = logger;
         }
@@ -25,7 +24,7 @@ namespace Klacks.Api.Application.Handlers.Groups
         {
             _logger.LogInformation("Refresh the group tree");
             
-            await _groupApplicationService.RefreshTreeStructureAsync(cancellationToken);
+            await _groupRepository.RepairNestedSetValues();
             await _unitOfWork.CompleteAsync();
         }
     }

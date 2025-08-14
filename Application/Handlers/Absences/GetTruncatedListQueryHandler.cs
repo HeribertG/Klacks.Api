@@ -1,5 +1,5 @@
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Absences;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Filter;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -8,14 +8,14 @@ namespace Klacks.Api.Application.Handlers.Absences
 {
     public class GetTruncatedListQueryHandler : IRequestHandler<TruncatedListQuery, TruncatedAbsence>
     {
-        private readonly AbsenceApplicationService _absenceApplicationService;
+        private readonly IAbsenceRepository _absenceRepository;
         private readonly ILogger<GetTruncatedListQueryHandler> _logger;
 
         public GetTruncatedListQueryHandler(
-            AbsenceApplicationService absenceApplicationService,
+            IAbsenceRepository absenceRepository,
             ILogger<GetTruncatedListQueryHandler> logger)
         {
-            _absenceApplicationService = absenceApplicationService;
+            _absenceRepository = absenceRepository;
             _logger = logger;
         }
 
@@ -25,7 +25,7 @@ namespace Klacks.Api.Application.Handlers.Absences
             {
                 _logger.LogInformation("Processing truncated absence list query");
                 
-                var result = await _absenceApplicationService.GetTruncatedAbsencesAsync(request.Filter, cancellationToken);
+                var result = await _absenceRepository.Truncated(request.Filter);
                 
                 _logger.LogInformation("Truncated absence list retrieved successfully");
                 return result;

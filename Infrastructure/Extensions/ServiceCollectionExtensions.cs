@@ -18,7 +18,6 @@ using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Domain.Services.Settings;
 using Klacks.Api.Domain.Services.CalendarSelections;
 using Klacks.Api.Infrastructure.Services.Authentication;
-using Klacks.Api.Application.Services;
 
 namespace Klacks.Api.Infrastructure.Extensions;
 
@@ -92,6 +91,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IMacroManagementService, MacroManagementService>();
         services.AddScoped<IMacroTypeManagementService, MacroTypeManagementService>();
         services.AddScoped<IVatManagementService, VatManagementService>();
+        services.AddScoped<ISettingsTokenService, SettingsTokenService>();
 
         // CalendarSelection Domain Services
         services.AddScoped<ICalendarSelectionUpdateService, CalendarSelectionUpdateService>();
@@ -110,14 +110,6 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IAccountNotificationService, AccountNotificationService>();
 
 
-        services.AddScoped<GroupApplicationService>();
-        services.AddScoped<AccountApplicationService>();
-        services.AddScoped<AbsenceApplicationService>();
-        services.AddScoped<SettingsApplicationService>();
-        services.AddScoped<CalendarSelectionApplicationService>();
-        services.AddScoped<PdfExportApplicationService>();
-        services.AddScoped<IShiftApplicationService, ShiftApplicationService>();
-        services.AddScoped<WorkApplicationService>();
 
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();

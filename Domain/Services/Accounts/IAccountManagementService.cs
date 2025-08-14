@@ -7,6 +7,8 @@ namespace Klacks.Api.Domain.Services.Accounts;
 public interface IAccountManagementService
 {
     Task<HttpResultResource> ChangeRoleUserAsync(ChangeRole editUserRole);
+
     Task<HttpResultResource> DeleteAccountUserAsync(Guid id);
+
     Task<List<UserResource>> GetUserListAsync();
 }

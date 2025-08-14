@@ -1,7 +1,8 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands.Accounts;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Domain.Models.Authentification;
+using Klacks.Api.Domain.Services.Accounts;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -9,16 +10,19 @@ namespace Klacks.Api.Application.Handlers.Accounts;
 
 public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, AuthenticatedResult>
 {
-    private readonly AccountApplicationService _accountApplicationService;
+    private readonly IAccountRegistrationService _accountRegistrationService;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<RegisterUserCommandHandler> _logger;
 
     public RegisterUserCommandHandler(
-        AccountApplicationService accountApplicationService,
+        IAccountRegistrationService accountRegistrationService,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<RegisterUserCommandHandler> logger)
     {
-        _accountApplicationService = accountApplicationService;
+        _accountRegistrationService = accountRegistrationService;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -31,7 +35,8 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, A
         {
             _logger.LogInformation("Processing user registration for: {Email}", request.Registration.Email);
             
-            var result = await _accountApplicationService.RegisterUserAsync(request.Registration, cancellationToken);
+            var userIdentity = _mapper.Map<AppUser>(request.Registration);
+            var result = await _accountRegistrationService.RegisterUserAsync(userIdentity, request.Registration.Password);
             
             if (result != null && result.Success)
             {
@@ -42,7 +47,8 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, A
             else
             {
                 await _unitOfWork.RollbackTransactionAsync(transaction);
-                _logger.LogWarning("User registration failed: {Email}", request.Registration.Email);
+                _logger.LogWarning("User registration failed: {Email}, Reason: {Reason}", 
+                    request.Registration.Email, result?.Message ?? "Unknown");
             }
             
             return result;

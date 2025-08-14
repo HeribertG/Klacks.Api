@@ -1,6 +1,7 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
+using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 
@@ -8,16 +9,19 @@ namespace Klacks.Api.Application.Handlers.CalendarSelections;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<CalendarSelectionResource>, CalendarSelectionResource?>
 {
-    private readonly CalendarSelectionApplicationService _calendarSelectionApplicationService;
+    private readonly ICalendarSelectionRepository _calendarSelectionRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PostCommandHandler> _logger;
 
     public PostCommandHandler(
-        CalendarSelectionApplicationService calendarSelectionApplicationService,
+        ICalendarSelectionRepository calendarSelectionRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
     {
-        _calendarSelectionApplicationService = calendarSelectionApplicationService;
+        _calendarSelectionRepository = calendarSelectionRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,9 +30,10 @@ public class PostCommandHandler : IRequestHandler<PostCommand<CalendarSelectionR
     {
         try
         {
-            var result = await _calendarSelectionApplicationService.CreateCalendarSelectionAsync(request.Resource, cancellationToken);
+            var calendarSelection = _mapper.Map<CalendarSelection>(request.Resource);
+            await _calendarSelectionRepository.Add(calendarSelection);
             await _unitOfWork.CompleteAsync();
-            return result;
+            return _mapper.Map<CalendarSelectionResource>(calendarSelection);
         }
         catch (Exception ex)
         {

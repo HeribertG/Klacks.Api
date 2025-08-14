@@ -1,6 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands.Settings.CalendarRules;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using MediatR;
 using Klacks.Api.Presentation.DTOs.Settings;
 
@@ -9,15 +9,18 @@ namespace Klacks.Api.Application.Handlers.Settings.CalendarRules;
 public class PostCommandHandler : IRequestHandler<PostCommand, Klacks.Api.Domain.Models.Settings.CalendarRule?>
 {
     private readonly ILogger<PostCommandHandler> logger;
-    private readonly SettingsApplicationService _settingsApplicationService;
+    private readonly ISettingsRepository _settingsRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork unitOfWork;
 
     public PostCommandHandler(
-                              SettingsApplicationService settingsApplicationService,
+                              ISettingsRepository settingsRepository,
+                              IMapper mapper,
                               IUnitOfWork unitOfWork,
                               ILogger<PostCommandHandler> logger)
     {
-        _settingsApplicationService = settingsApplicationService;
+        _settingsRepository = settingsRepository;
+        _mapper = mapper;
         this.unitOfWork = unitOfWork;
         this.logger = logger;
     }
@@ -26,13 +29,14 @@ public class PostCommandHandler : IRequestHandler<PostCommand, Klacks.Api.Domain
     {
         try
         {
-            var calendarRule = await _settingsApplicationService.CreateCalendarRuleAsync(request.model, cancellationToken);
+            var calendarRule = _mapper.Map<Klacks.Api.Domain.Models.Settings.CalendarRule>(request.model);
+            var result = _settingsRepository.AddCalendarRule(calendarRule);
 
             await unitOfWork.CompleteAsync();
 
-            logger.LogInformation("New CalendarRule added successfully. ID: {CalendarRuleId}", calendarRule.Id);
+            logger.LogInformation("New CalendarRule added successfully. ID: {CalendarRuleId}", result.Id);
 
-            return calendarRule;
+            return result;
         }
         catch (Exception ex)
         {

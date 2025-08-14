@@ -1,6 +1,5 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Settings.CalendarRules;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Filter;
 using MediatR;
 
@@ -8,15 +7,15 @@ namespace Klacks.Api.Application.Handlers.Settings.CalendarRules;
 
 public class TruncatedListQueryHandler : IRequestHandler<TruncatedListQuery, TruncatedCalendarRule>
 {
-    private readonly SettingsApplicationService _settingsApplicationService;
+    private readonly ISettingsRepository _settingsRepository;
 
-    public TruncatedListQueryHandler(SettingsApplicationService settingsApplicationService)
+    public TruncatedListQueryHandler(ISettingsRepository settingsRepository)
     {
-        _settingsApplicationService = settingsApplicationService;
+        _settingsRepository = settingsRepository;
     }
 
     public async Task<TruncatedCalendarRule> Handle(TruncatedListQuery request, CancellationToken cancellationToken)
     {
-        return await _settingsApplicationService.GetTruncatedCalendarRulesAsync(request.Filter, cancellationToken);
+        return await _settingsRepository.GetTruncatedCalendarRuleList(request.Filter);
     }
 }

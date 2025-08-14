@@ -1,6 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
@@ -8,16 +8,19 @@ namespace Klacks.Api.Application.Handlers.Groups;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<GroupResource>, GroupResource?>
 {
-    private readonly GroupApplicationService _groupApplicationService;
+    private readonly IGroupRepository _groupRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PostCommandHandler> _logger;
 
     public PostCommandHandler(
-        GroupApplicationService groupApplicationService,
+        IGroupRepository groupRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
     {
-        _groupApplicationService = groupApplicationService;
+        _groupRepository = groupRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -27,7 +30,9 @@ public class PostCommandHandler : IRequestHandler<PostCommand<GroupResource>, Gr
         using var transaction = await _unitOfWork.BeginTransactionAsync();
         try
         {
-            var createdGroup = await _groupApplicationService.CreateGroupAsync(request.Resource, cancellationToken);
+            var group = _mapper.Map<Klacks.Api.Domain.Models.Associations.Group>(request.Resource);
+            await _groupRepository.Add(group);
+            var createdGroup = _mapper.Map<GroupResource>(group);
 
             await _unitOfWork.CompleteAsync();
             await _unitOfWork.CommitTransactionAsync(transaction);

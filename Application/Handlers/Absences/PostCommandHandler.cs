@@ -1,23 +1,28 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Absences;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<AbsenceResource>, AbsenceResource?>
 {
-    private readonly AbsenceApplicationService _absenceApplicationService;
+    private readonly IAbsenceRepository _absenceRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PostCommandHandler> _logger;
 
     public PostCommandHandler(
-        AbsenceApplicationService absenceApplicationService,
+        IAbsenceRepository absenceRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
     {
-        _absenceApplicationService = absenceApplicationService;
+        _absenceRepository = absenceRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -30,10 +35,13 @@ public class PostCommandHandler : IRequestHandler<PostCommand<AbsenceResource>, 
         {
             _logger.LogInformation("Processing create absence command");
             
-            var result = await _absenceApplicationService.CreateAbsenceAsync(request.Resource, cancellationToken);
+            var absence = _mapper.Map<Absence>(request.Resource);
+            await _absenceRepository.Add(absence);
             
             await _unitOfWork.CompleteAsync();
             await _unitOfWork.CommitTransactionAsync(transaction);
+            
+            var result = _mapper.Map<AbsenceResource>(absence);
             
             _logger.LogInformation("New absence added successfully. ID: {AbsenceId}", result.Id);
             return result;

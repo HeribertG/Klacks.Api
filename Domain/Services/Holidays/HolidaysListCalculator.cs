@@ -129,6 +129,7 @@ public class HolidaysListCalculator : IHolidaysListCalculator
                 {
                     holiday.CurrentDate = holiday.CurrentDate.AddDays(-dayOffset);
                 }
+
                 break; // Apply only the first matching rule
             }
         }

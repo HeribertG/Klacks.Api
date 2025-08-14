@@ -1,5 +1,5 @@
 using AutoMapper;
-using Klacks.Api.Application.Services;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Settings.MacrosTypes;
 using MediatR;
 
@@ -7,15 +7,15 @@ namespace Klacks.Api.Application.Handlers.Settings.MacrosTypes;
 
 public class ListQueryHandler : IRequestHandler<ListQuery, IEnumerable<Klacks.Api.Domain.Models.Settings.MacroType>>
 {
-    private readonly SettingsApplicationService _settingsApplicationService;
+    private readonly ISettingsRepository _settingsRepository;
 
-    public ListQueryHandler(SettingsApplicationService settingsApplicationService)
+    public ListQueryHandler(ISettingsRepository settingsRepository)
     {
-        _settingsApplicationService = settingsApplicationService;
+        _settingsRepository = settingsRepository;
     }
 
     public async Task<IEnumerable<Klacks.Api.Domain.Models.Settings.MacroType>> Handle(ListQuery request, CancellationToken cancellationToken)
     {
-        return await _settingsApplicationService.GetAllMacroTypesAsync(cancellationToken);
+        return await _settingsRepository.GetOriginalMacroTypeList();
     }
 }

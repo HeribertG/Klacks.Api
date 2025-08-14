@@ -1,4 +1,5 @@
-﻿using Klacks.Api.Application.Interfaces;
+﻿using AutoMapper;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Shifts;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
@@ -7,15 +8,18 @@ namespace Klacks.Api.Application.Handlers.Shifts;
 
 public class CutListQueryhandler : IRequestHandler<CutListQuery, IEnumerable<ShiftResource>>
 {
-    private readonly IShiftApplicationService _shiftApplicationService;
+    private readonly IShiftRepository _shiftRepository;
+    private readonly IMapper _mapper;
 
-    public CutListQueryhandler(IShiftApplicationService shiftApplicationService)
+    public CutListQueryhandler(IShiftRepository shiftRepository, IMapper mapper)
     {
-        _shiftApplicationService = shiftApplicationService;
+        _shiftRepository = shiftRepository;
+        _mapper = mapper;
     }
 
     public async Task<IEnumerable<ShiftResource>> Handle(CutListQuery request, CancellationToken cancellationToken)
     {
-        return await _shiftApplicationService.GetShiftCutsAsync(request.Id, cancellationToken);
+        var cuts = await _shiftRepository.CutList(request.Id);
+        return _mapper.Map<IEnumerable<ShiftResource>>(cuts);
     }
 }

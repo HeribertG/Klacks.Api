@@ -1,8 +1,7 @@
-﻿using Klacks.Api.Domain.Common;
-using Klacks.Api.Infrastructure.Persistence;
+﻿using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Infrastructure.Interfaces;
+using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Klacks.Api.Domain.Models.Associations;
 
 namespace Klacks.Api.Domain.Services.Groups;
 
@@ -86,7 +85,6 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
                 .AsNoTracking()
                 .Include(g => g.GroupItems)
                 .ToListAsync();
-
 
             HashSet<Guid> processedGroups = new HashSet<Guid>();
 

@@ -1,6 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
@@ -8,16 +8,19 @@ namespace Klacks.Api.Application.Handlers.Groups;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<GroupResource>, GroupResource?>
 {
-    private readonly GroupApplicationService _groupApplicationService;
+    private readonly IGroupRepository _groupRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<DeleteCommandHandler> _logger;
 
     public DeleteCommandHandler(
-        GroupApplicationService groupApplicationService,
+        IGroupRepository groupRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
     {
-        _groupApplicationService = groupApplicationService;
+        _groupRepository = groupRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,14 +29,15 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<GroupResource>
     {
         try
         {
-            var groupToDelete = await _groupApplicationService.GetGroupByIdAsync(request.Id, cancellationToken);
-            if (groupToDelete == null)
+            var group = await _groupRepository.Get(request.Id);
+            if (group == null)
             {
                 _logger.LogWarning("Group with ID {GroupId} not found for deletion.", request.Id);
                 return null;
             }
 
-            await _groupApplicationService.DeleteGroupAsync(request.Id, cancellationToken);
+            var groupToDelete = _mapper.Map<GroupResource>(group);
+            await _groupRepository.Delete(request.Id);
 
             await _unitOfWork.CompleteAsync();
 

@@ -1,6 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands.Settings.CalendarRules;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.CalendarRules;
@@ -8,15 +8,18 @@ namespace Klacks.Api.Application.Handlers.Settings.CalendarRules;
 public class PutCommandHandler : IRequestHandler<PutCommand, Klacks.Api.Domain.Models.Settings.CalendarRule?>
 {
     private readonly ILogger<PutCommandHandler> logger;
-    private readonly SettingsApplicationService _settingsApplicationService;
+    private readonly ISettingsRepository _settingsRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork unitOfWork;
 
     public PutCommandHandler(
-                              SettingsApplicationService settingsApplicationService,
+                              ISettingsRepository settingsRepository,
+                              IMapper mapper,
                               IUnitOfWork unitOfWork,
                               ILogger<PutCommandHandler> logger)
     {
-        _settingsApplicationService = settingsApplicationService;
+        _settingsRepository = settingsRepository;
+        _mapper = mapper;
         this.unitOfWork = unitOfWork;
         this.logger = logger;
     }
@@ -25,12 +28,13 @@ public class PutCommandHandler : IRequestHandler<PutCommand, Klacks.Api.Domain.M
     {
         try
         {
-            await _settingsApplicationService.UpdateCalendarRuleAsync(request.model, cancellationToken);
+            var calendarRule = _mapper.Map<Klacks.Api.Domain.Models.Settings.CalendarRule>(request.model);
+            var result = _settingsRepository.PutCalendarRule(calendarRule);
             await unitOfWork.CompleteAsync();
 
-            logger.LogInformation("CalendarRule with ID {CalendarRuleId} updated successfully.", request.model.Id);
+            logger.LogInformation("CalendarRule with ID {CalendarRuleId} updated successfully.", result.Id);
 
-            return request.model;
+            return result;
         }
         catch (Exception ex)
         {
