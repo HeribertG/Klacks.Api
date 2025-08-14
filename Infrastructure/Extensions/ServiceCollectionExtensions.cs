@@ -110,7 +110,6 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IAccountNotificationService, AccountNotificationService>();
 
 
-        services.AddScoped<ClientApplicationService>();
         services.AddScoped<GroupApplicationService>();
         services.AddScoped<AccountApplicationService>();
         services.AddScoped<AbsenceApplicationService>();

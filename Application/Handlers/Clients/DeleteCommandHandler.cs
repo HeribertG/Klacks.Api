@@ -1,6 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -8,16 +8,19 @@ namespace Klacks.Api.Application.Handlers.Clients;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<ClientResource>, ClientResource?>
 {
-    private readonly ClientApplicationService _clientApplicationService;
+    private readonly IClientRepository _clientRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<DeleteCommandHandler> _logger;
 
     public DeleteCommandHandler(
-        ClientApplicationService clientApplicationService,
+        IClientRepository clientRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
     {
-        _clientApplicationService = clientApplicationService;
+        _clientRepository = clientRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,17 +29,18 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<ClientResource
     {
         try
         {
-            var clientToDelete = await _clientApplicationService.GetClientByIdAsync(request.Id, cancellationToken);
-            if (clientToDelete == null)
+            var client = await _clientRepository.Get(request.Id);
+            if (client == null)
             {
                 _logger.LogWarning("Client with ID {ClientId} not found for deletion.", request.Id);
                 return null;
             }
 
-            await _clientApplicationService.DeleteClientAsync(request.Id, cancellationToken);
+            var clientResource = _mapper.Map<ClientResource>(client);
+            await _clientRepository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
             _logger.LogInformation("Client with ID {ClientId} deleted successfully.", request.Id);
-            return clientToDelete;
+            return clientResource;
         }
         catch (KeyNotFoundException)
         {

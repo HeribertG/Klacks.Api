@@ -110,4 +110,3 @@ public abstract class InputBaseController<TModel> : BaseController
         }
     }
 }
-

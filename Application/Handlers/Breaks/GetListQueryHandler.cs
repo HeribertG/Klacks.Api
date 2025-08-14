@@ -1,16 +1,19 @@
+using AutoMapper;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Breaks;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Breaks;
 
-public class GetListQueryHandler(ClientApplicationService clientApplicationService) : IRequestHandler<ListQuery, IEnumerable<ClientBreakResource>>
+public class GetListQueryHandler(IClientRepository clientRepository, IMapper mapper) : IRequestHandler<ListQuery, IEnumerable<ClientBreakResource>>
 {
-    private readonly ClientApplicationService _clientApplicationService = clientApplicationService;
+    private readonly IClientRepository _clientRepository = clientRepository;
+    private readonly IMapper _mapper = mapper;
 
     public async Task<IEnumerable<ClientBreakResource>> Handle(ListQuery request, CancellationToken cancellationToken)
     {
-        return await _clientApplicationService.GetBreakListAsync(request.Filter, cancellationToken);
+        var clients = await _clientRepository.BreakList(request.Filter);
+        return _mapper.Map<IEnumerable<ClientBreakResource>>(clients);
     }
 }

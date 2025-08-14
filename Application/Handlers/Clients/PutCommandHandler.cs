@@ -1,6 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -8,16 +8,19 @@ namespace Klacks.Api.Application.Handlers.Clients;
 
 public class PutCommandHandler : IRequestHandler<PutCommand<ClientResource>, ClientResource?>
 {
-    private readonly ClientApplicationService _clientApplicationService;
+    private readonly IClientRepository _clientRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PutCommandHandler> _logger;
 
     public PutCommandHandler(
-        ClientApplicationService clientApplicationService,
+        IClientRepository clientRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
     {
-        _clientApplicationService = clientApplicationService;
+        _clientRepository = clientRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,10 +29,11 @@ public class PutCommandHandler : IRequestHandler<PutCommand<ClientResource>, Cli
     {
         try
         {
-            var updatedClient = await _clientApplicationService.UpdateClientAsync(request.Resource, cancellationToken);
+            var client = _mapper.Map<Klacks.Api.Domain.Models.Staffs.Client>(request.Resource);
+            var updatedClient = await _clientRepository.Put(client);
             await _unitOfWork.CompleteAsync();
             _logger.LogInformation("Client with ID {ClientId} updated successfully.", request.Resource.Id);
-            return updatedClient;
+            return _mapper.Map<ClientResource>(updatedClient);
         }
         catch (KeyNotFoundException)
         {
