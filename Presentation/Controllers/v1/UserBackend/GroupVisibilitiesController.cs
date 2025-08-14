@@ -1,10 +1,8 @@
 ﻿using Klacks.Api.Application.Commands.GroupVisibilities;
-using Klacks.Api.Presentation.Controllers.v1.UserBackend;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.GroupVisibilities;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
@@ -20,7 +18,6 @@ public class GroupVisibilitiesController : InputBaseController<GroupResource>
     }
 
     [HttpGet("GetSimpleList/{id}")]
-    [AllowAnonymous]
     public async Task<ActionResult<IEnumerable<GroupVisibilityResource>>> GetPersonalSimpleList(string id)
     {
         try
@@ -38,7 +35,6 @@ public class GroupVisibilitiesController : InputBaseController<GroupResource>
     }
 
     [HttpGet("GetSimpleList")]
-    [AllowAnonymous]
     public async Task<ActionResult<IEnumerable<GroupVisibilityResource>>> GetSimpleList()
     {
         try
@@ -56,12 +52,11 @@ public class GroupVisibilitiesController : InputBaseController<GroupResource>
     }
 
     [HttpPost("BulkList")]
-    [AllowAnonymous]
     public async Task<ActionResult> BulkList(List<GroupVisibilityResource> bulk)
     {
         logger.LogInformation($"storing Bulk list groupVisibilities");
         await Mediator.Send(new BulkGroupVisibilitiesCommand(bulk));
 
-        return Ok(); 
+        return Ok();
     }
 }
