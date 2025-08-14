@@ -108,6 +108,9 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IAccountManagementService, AccountManagementService>();
         services.AddScoped<IAccountNotificationService, AccountNotificationService>();
 
+        // Generic Services
+        services.AddScoped(typeof(IGenericPaginationService<>), typeof(Klacks.Api.Domain.Services.Common.GenericPaginationService<>));
+
 
 
 
