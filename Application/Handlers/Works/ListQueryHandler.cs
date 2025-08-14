@@ -6,12 +6,12 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Works;
 
-public class GetListQueryHandler : IRequestHandler<ListQuery, IEnumerable<ClientWorkResource>>
+public class ListQueryHandler : IRequestHandler<ListQuery, IEnumerable<ClientWorkResource>>
 {
     private readonly IClientRepository _clientRepository;
     private readonly IMapper _mapper;
 
-    public GetListQueryHandler(IClientRepository clientRepository, IMapper mapper)
+    public ListQueryHandler(IClientRepository clientRepository, IMapper mapper)
     {
         _clientRepository = clientRepository;
         _mapper = mapper;
