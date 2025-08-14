@@ -262,11 +262,11 @@ public class ClientRepository : IClientRepository
         {
             lst = await this.context.Client.Where(x => x.Company!.ToLower().Contains(company.ToLower().Trim())).ToListAsync();
         } // company + firstname
-        else if (!string.IsNullOrWhiteSpace(company) && string.IsNullOrWhiteSpace(company) && !string.IsNullOrWhiteSpace(firstname))
+        else if (!string.IsNullOrWhiteSpace(company) && !string.IsNullOrWhiteSpace(firstname))
         {
             lst = await this.context.Client.Where(x => x.Company!.ToLower().Contains(company.ToLower().Trim()) && x.FirstName!.ToLower().Contains(firstname.ToLower().Trim())).ToListAsync();
         } // company + Name
-        else if (!string.IsNullOrWhiteSpace(company) && !string.IsNullOrWhiteSpace(company) && string.IsNullOrWhiteSpace(firstname))
+        else if (!string.IsNullOrWhiteSpace(company) && !string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(firstname))
         {
             lst = await this.context.Client.Where(x => x.Company!.ToLower().Contains(company.ToLower().Trim()) &&
                                                   x.Name!.ToLower().Contains(name!.ToLower().Trim())).ToListAsync();
