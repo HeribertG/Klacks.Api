@@ -1,12 +1,13 @@
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Common;
-using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Helpers;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Domain.Models.Histories;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Infrastructure.Interfaces;
+using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Settings;
 using Microsoft.EntityFrameworkCore;
@@ -896,30 +897,32 @@ public class ClientRepository : IClientRepository
             }
         }
 
-
-
             return tmp;
     }
 
     private IQueryable<Client> FilterWorks(WorkFilter filter, IQueryable<Client> tmp)
     {
-        var startDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1).AddDays(filter.DayVisibleAfterMonth *-1);
+        var startDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1).AddDays(filter.DayVisibleAfterMonth * -1);
         var endDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1).AddMonths(1).AddDays(-1).AddDays(filter.DayVisibleAfterMonth);
 
+        var clients = tmp.ToList();
+        var clientIds = clients.Select(c => c.Id).ToList();
 
-        var work = this.context.Work.Where(b => tmp.Select(c => c.Id).Contains(b.ClientId) &&
+        var works = this.context.Work.Where(b => clientIds.Contains(b.ClientId) &&
                                               ((b.From.Date >= startDate && b.From.Date <= endDate) ||
                                               (b.Until.Date >= startDate && b.Until.Date <= endDate) ||
                                               (b.From.Date <= startDate && b.Until.Date >= endDate)))
-                                  .OrderBy(b => b.From).ThenBy(b => b.Until)
-                                  .ToList();
+                                    .OrderBy(b => b.From).ThenBy(b => b.Until)
+                                    .ToList();
 
-        foreach (var c in tmp)
+        var worksByClientId = works.ToLookup(w => w.ClientId);
+
+        foreach (var client in clients)
         {
-            c.Works = work.Where(x => x.ClientId == c.Id).ToList();
+            client.Works = worksByClientId.Contains(client.Id) ? worksByClientId[client.Id].ToList() : new List<Work>();
         }
 
-        return tmp;
+        return clients.AsQueryable();
     }
 
     private async Task<Tuple<IQueryable<Client>, List<string>, DateTime>> LastChangeClientAsync(FilterResource filter)
