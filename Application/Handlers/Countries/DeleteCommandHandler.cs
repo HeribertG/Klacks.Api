@@ -1,5 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
-using Klacks.Api.Application.Services;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
@@ -7,16 +8,31 @@ namespace Klacks.Api.Application.Handlers.Countries;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<CountryResource>, CountryResource?>
 {
-    private readonly CountryApplicationService _countryApplicationService;
+    private readonly ICountryRepository _countryRepository;
+    private readonly IMapper _mapper;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteCommandHandler(CountryApplicationService countryApplicationService)
+    public DeleteCommandHandler(
+        ICountryRepository countryRepository,
+        IMapper mapper,
+        IUnitOfWork unitOfWork)
     {
-        _countryApplicationService = countryApplicationService;
+        _countryRepository = countryRepository;
+        _mapper = mapper;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<CountryResource?> Handle(DeleteCommand<CountryResource> request, CancellationToken cancellationToken)
     {
-        await _countryApplicationService.DeleteCountryAsync(request.Id, cancellationToken);
-        return null;
+        var existingCountry = await _countryRepository.Get(request.Id);
+        if (existingCountry == null)
+        {
+            return null;
+        }
+
+        var countryResource = _mapper.Map<CountryResource>(existingCountry);
+        await _countryRepository.Delete(request.Id);
+        await _unitOfWork.CompleteAsync();
+        return countryResource;
     }
 }

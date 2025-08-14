@@ -1,6 +1,7 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 
@@ -8,16 +9,19 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<BreakResource>, BreakResource?>
 {
-    private readonly BreakApplicationService _breakApplicationService;
+    private readonly IBreakRepository _breakRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PostCommandHandler> _logger;
 
     public PostCommandHandler(
-        BreakApplicationService breakApplicationService,
+        IBreakRepository breakRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
     {
-        _breakApplicationService = breakApplicationService;
+        _breakRepository = breakRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,9 +30,10 @@ public class PostCommandHandler : IRequestHandler<PostCommand<BreakResource>, Br
     {
         try
         {
-            var result = await _breakApplicationService.CreateBreakAsync(request.Resource, cancellationToken);
+            var breakEntity = _mapper.Map<Break>(request.Resource);
+            await _breakRepository.Add(breakEntity);
             await _unitOfWork.CompleteAsync();
-            return result;
+            return _mapper.Map<BreakResource>(breakEntity);
         }
         catch (Exception ex)
         {

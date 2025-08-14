@@ -1,6 +1,7 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands.GroupVisibilities;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
+using Klacks.Api.Domain.Models.Associations;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.GroupVisibilities;
@@ -8,16 +9,19 @@ namespace Klacks.Api.Application.Handlers.GroupVisibilities;
 public class BulkGroupVisibilitiesCommandHandler : IRequestHandler<BulkGroupVisibilitiesCommand>
 {
     private readonly ILogger<BulkGroupVisibilitiesCommandHandler> _logger; 
-    private readonly GroupVisibilityApplicationService _groupVisibilityApplicationService;
+    private readonly IGroupVisibilityRepository _groupVisibilityRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public BulkGroupVisibilitiesCommandHandler(
         ILogger<BulkGroupVisibilitiesCommandHandler> logger,
-        GroupVisibilityApplicationService groupVisibilityApplicationService,
+        IGroupVisibilityRepository groupVisibilityRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork)
     {
         _logger = logger;
-        _groupVisibilityApplicationService = groupVisibilityApplicationService;
+        _groupVisibilityRepository = groupVisibilityRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
     }
 
@@ -27,7 +31,8 @@ public class BulkGroupVisibilitiesCommandHandler : IRequestHandler<BulkGroupVisi
 
         try
         {
-            await _groupVisibilityApplicationService.SetGroupVisibilityListAsync(request.List, cancellationToken);
+            var groupVisibilities = _mapper.Map<List<GroupVisibility>>(request.List);
+            await _groupVisibilityRepository.SetGroupVisibilityList(groupVisibilities);
             await _unitOfWork.CompleteAsync();
             
             _logger.LogInformation("Bulk update of GroupVisibility list completed successfully.");

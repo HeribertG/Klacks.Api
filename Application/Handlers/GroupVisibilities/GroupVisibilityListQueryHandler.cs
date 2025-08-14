@@ -1,5 +1,6 @@
-﻿using Klacks.Api.Application.Queries.GroupVisibilities;
-using Klacks.Api.Application.Services;
+﻿using AutoMapper;
+using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Queries.GroupVisibilities;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
@@ -7,15 +8,18 @@ namespace Klacks.Api.Application.Handlers.GroupVisibilities;
 
 public class GroupVisibilityListQueryHandler : IRequestHandler<GroupVisibilityListQuery, IEnumerable<GroupVisibilityResource>>
 {
-    private readonly GroupVisibilityApplicationService _groupVisibilityApplicationService;
+    private readonly IGroupVisibilityRepository _groupVisibilityRepository;
+    private readonly IMapper _mapper;
 
-    public GroupVisibilityListQueryHandler(GroupVisibilityApplicationService groupVisibilityApplicationService)
+    public GroupVisibilityListQueryHandler(IGroupVisibilityRepository groupVisibilityRepository, IMapper mapper)
     {
-        _groupVisibilityApplicationService = groupVisibilityApplicationService;
+        _groupVisibilityRepository = groupVisibilityRepository;
+        _mapper = mapper;
     }
 
     public async Task<IEnumerable<GroupVisibilityResource>> Handle(GroupVisibilityListQuery request, CancellationToken cancellationToken)
     {
-        return await _groupVisibilityApplicationService.GetGroupVisibilityListAsync(request.Id, cancellationToken);
+        var groupVisibilities = await _groupVisibilityRepository.GroupVisibilityList(request.Id);
+        return _mapper.Map<IEnumerable<GroupVisibilityResource>>(groupVisibilities);
     }
 }

@@ -1,6 +1,7 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
@@ -8,16 +9,19 @@ namespace Klacks.Api.Application.Handlers.Memberships;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<MembershipResource>, MembershipResource?>
 {
-    private readonly MembershipApplicationService _membershipApplicationService;
+    private readonly IMembershipRepository _membershipRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PostCommandHandler> _logger;
 
     public PostCommandHandler(
-        MembershipApplicationService membershipApplicationService,
+        IMembershipRepository membershipRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
     {
-        _membershipApplicationService = membershipApplicationService;
+        _membershipRepository = membershipRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,9 +30,10 @@ public class PostCommandHandler : IRequestHandler<PostCommand<MembershipResource
     {
         try
         {
-            var result = await _membershipApplicationService.CreateMembershipAsync(request.Resource, cancellationToken);
+            var membership = _mapper.Map<Membership>(request.Resource);
+            await _membershipRepository.Add(membership);
             await _unitOfWork.CompleteAsync();
-            return result;
+            return _mapper.Map<MembershipResource>(membership);
         }
         catch (Exception ex)
         {

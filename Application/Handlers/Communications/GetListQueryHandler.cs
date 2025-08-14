@@ -1,5 +1,6 @@
+using AutoMapper;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
@@ -7,16 +8,19 @@ namespace Klacks.Api.Application.Handlers.Communications
 {
     public class GetListQueryHandler : IRequestHandler<ListQuery<CommunicationResource>, IEnumerable<CommunicationResource>>
     {
-        private readonly CommunicationApplicationService _communicationApplicationService;
+        private readonly ICommunicationRepository _communicationRepository;
+        private readonly IMapper _mapper;
 
-        public GetListQueryHandler(CommunicationApplicationService communicationApplicationService)
+        public GetListQueryHandler(ICommunicationRepository communicationRepository, IMapper mapper)
         {
-            _communicationApplicationService = communicationApplicationService;
+            _communicationRepository = communicationRepository;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<CommunicationResource>> Handle(ListQuery<CommunicationResource> request, CancellationToken cancellationToken)
         {
-            return await _communicationApplicationService.GetAllCommunicationsAsync(cancellationToken);
+            var communications = await _communicationRepository.List();
+            return _mapper.Map<IEnumerable<CommunicationResource>>(communications);
         }
     }
 }

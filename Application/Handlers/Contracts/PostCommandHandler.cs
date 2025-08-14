@@ -1,6 +1,7 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
@@ -8,16 +9,19 @@ namespace Klacks.Api.Application.Handlers.Contracts;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<ContractResource>, ContractResource?>
 {
-    private readonly ContractApplicationService _contractApplicationService;
+    private readonly IContractRepository _contractRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PostCommandHandler> _logger;
 
     public PostCommandHandler(
-        ContractApplicationService contractApplicationService,
+        IContractRepository contractRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
     {
-        _contractApplicationService = contractApplicationService;
+        _contractRepository = contractRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,9 +30,10 @@ public class PostCommandHandler : IRequestHandler<PostCommand<ContractResource>,
     {
         try
         {
-            var result = await _contractApplicationService.CreateContractAsync(request.Resource, cancellationToken);
+            var contract = _mapper.Map<Contract>(request.Resource);
+            await _contractRepository.Add(contract);
             await _unitOfWork.CompleteAsync();
-            return result;
+            return _mapper.Map<ContractResource>(contract);
         }
         catch (Exception ex)
         {

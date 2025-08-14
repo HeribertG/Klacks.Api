@@ -1,6 +1,7 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
+using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -8,16 +9,19 @@ namespace Klacks.Api.Application.Handlers.Annotations;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<AnnotationResource>, AnnotationResource?>
 {
-    private readonly AnnotationApplicationService _annotationApplicationService;
+    private readonly IAnnotationRepository _annotationRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PostCommandHandler> _logger;
 
     public PostCommandHandler(
-        AnnotationApplicationService annotationApplicationService,
+        IAnnotationRepository annotationRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
     {
-        _annotationApplicationService = annotationApplicationService;
+        _annotationRepository = annotationRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,9 +30,10 @@ public class PostCommandHandler : IRequestHandler<PostCommand<AnnotationResource
     {
         try
         {
-            var result = await _annotationApplicationService.CreateAnnotationAsync(request.Resource, cancellationToken);
+            var annotation = _mapper.Map<Annotation>(request.Resource);
+            await _annotationRepository.Add(annotation);
             await _unitOfWork.CompleteAsync();
-            return result;
+            return _mapper.Map<AnnotationResource>(annotation);
         }
         catch (Exception ex)
         {

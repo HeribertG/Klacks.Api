@@ -1,6 +1,6 @@
-﻿using Klacks.Api.Application.Commands;
+﻿using AutoMapper;
+using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -8,16 +8,19 @@ namespace Klacks.Api.Application.Handlers.AssignedGroups
 {
     public class PutCommandHandler : IRequestHandler<PutCommand<AssignedGroupResource>, AssignedGroupResource?>
     {
-        private readonly AssignedGroupApplicationService _assignedGroupApplicationService;
+        private readonly IAssignedGroupRepository _assignedGroupRepository;
+        private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<PutCommandHandler> _logger;
 
         public PutCommandHandler(
-            AssignedGroupApplicationService assignedGroupApplicationService,
+            IAssignedGroupRepository assignedGroupRepository,
+            IMapper mapper,
             IUnitOfWork unitOfWork,
             ILogger<PutCommandHandler> logger)
         {
-            _assignedGroupApplicationService = assignedGroupApplicationService;
+            _assignedGroupRepository = assignedGroupRepository;
+            _mapper = mapper;
             _unitOfWork = unitOfWork;
             _logger = logger;
         }
@@ -26,16 +29,17 @@ namespace Klacks.Api.Application.Handlers.AssignedGroups
         {
             try
             {
-                var existingAssignedGroup = await _assignedGroupApplicationService.GetAssignedGroupByIdAsync(request.Resource.Id, cancellationToken);
+                var existingAssignedGroup = await _assignedGroupRepository.Get(request.Resource.Id);
                 if (existingAssignedGroup == null)
                 {
                     _logger.LogWarning("AssignedGroup with ID {AssignedGroupId} not found.", request.Resource.Id);
                     return null;
                 }
 
-                var result = await _assignedGroupApplicationService.UpdateAssignedGroupAsync(request.Resource, cancellationToken);
+                _mapper.Map(request.Resource, existingAssignedGroup);
+                await _assignedGroupRepository.Put(existingAssignedGroup);
                 await _unitOfWork.CompleteAsync();
-                return result;
+                return _mapper.Map<AssignedGroupResource>(existingAssignedGroup);
             }
             catch (Exception ex)
             {

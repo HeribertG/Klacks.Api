@@ -1,6 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 
@@ -8,16 +8,19 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 
 public class PutCommandHandler : IRequestHandler<PutCommand<BreakResource>, BreakResource?>
 {
-    private readonly BreakApplicationService _breakApplicationService;
+    private readonly IBreakRepository _breakRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PutCommandHandler> _logger;
 
     public PutCommandHandler(
-        BreakApplicationService breakApplicationService,
+        IBreakRepository breakRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
     {
-        _breakApplicationService = breakApplicationService;
+        _breakRepository = breakRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,16 +29,17 @@ public class PutCommandHandler : IRequestHandler<PutCommand<BreakResource>, Brea
     {
         try
         {
-            var existingBreak = await _breakApplicationService.GetBreakByIdAsync(request.Resource.Id, cancellationToken);
+            var existingBreak = await _breakRepository.Get(request.Resource.Id);
             if (existingBreak == null)
             {
                 _logger.LogWarning("Break with ID {BreakId} not found.", request.Resource.Id);
                 return null;
             }
 
-            var result = await _breakApplicationService.UpdateBreakAsync(request.Resource, cancellationToken);
+            _mapper.Map(request.Resource, existingBreak);
+            await _breakRepository.Put(existingBreak);
             await _unitOfWork.CompleteAsync();
-            return result;
+            return _mapper.Map<BreakResource>(existingBreak);
         }
         catch (Exception ex)
         {

@@ -114,19 +114,8 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<AccountApplicationService>();
         services.AddScoped<AbsenceApplicationService>();
         services.AddScoped<SettingsApplicationService>();
-        services.AddScoped<AddressApplicationService>();
-        services.AddScoped<AnnotationApplicationService>();
-        services.AddScoped<MembershipApplicationService>();
-        services.AddScoped<CommunicationApplicationService>();
-        services.AddScoped<BreakApplicationService>();
-        services.AddScoped<AssignedGroupApplicationService>();
         services.AddScoped<CalendarSelectionApplicationService>();
-        services.AddScoped<ContractApplicationService>();
-        services.AddScoped<CountryApplicationService>();
-        services.AddScoped<GroupVisibilityApplicationService>();
-        services.AddScoped<StateApplicationService>();
         services.AddScoped<PdfExportApplicationService>();
-        services.AddScoped<SelectedCalendarApplicationService>();
         services.AddScoped<IShiftApplicationService, ShiftApplicationService>();
         services.AddScoped<WorkApplicationService>();
 

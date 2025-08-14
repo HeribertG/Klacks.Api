@@ -1,6 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -8,16 +8,19 @@ namespace Klacks.Api.Application.Handlers.Annotations;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<AnnotationResource>, AnnotationResource?>
 {
-    private readonly AnnotationApplicationService _annotationApplicationService;
+    private readonly IAnnotationRepository _annotationRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<DeleteCommandHandler> _logger;
 
     public DeleteCommandHandler(
-        AnnotationApplicationService annotationApplicationService,
+        IAnnotationRepository annotationRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
     {
-        _annotationApplicationService = annotationApplicationService;
+        _annotationRepository = annotationRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,17 +29,18 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<AnnotationReso
     {
         try
         {
-            var existingAnnotation = await _annotationApplicationService.GetAnnotationByIdAsync(request.Id, cancellationToken);
+            var existingAnnotation = await _annotationRepository.Get(request.Id);
             if (existingAnnotation == null)
             {
                 _logger.LogWarning("Annotation with ID {AnnotationId} not found for deletion.", request.Id);
                 return null;
             }
 
-            await _annotationApplicationService.DeleteAnnotationAsync(request.Id, cancellationToken);
+            var annotationResource = _mapper.Map<AnnotationResource>(existingAnnotation);
+            await _annotationRepository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
 
-            return existingAnnotation;
+            return annotationResource;
         }
         catch (Exception ex)
         {

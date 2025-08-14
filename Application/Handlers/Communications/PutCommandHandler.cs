@@ -1,6 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
@@ -8,16 +8,19 @@ namespace Klacks.Api.Application.Handlers.Communications;
 
 public class PutCommandHandler : IRequestHandler<PutCommand<CommunicationResource>, CommunicationResource?>
 {
-    private readonly CommunicationApplicationService _communicationApplicationService;
+    private readonly ICommunicationRepository _communicationRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PutCommandHandler> _logger;
 
     public PutCommandHandler(
-        CommunicationApplicationService communicationApplicationService,
+        ICommunicationRepository communicationRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
     {
-        _communicationApplicationService = communicationApplicationService;
+        _communicationRepository = communicationRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,16 +29,17 @@ public class PutCommandHandler : IRequestHandler<PutCommand<CommunicationResourc
     {
         try
         {
-            var existingCommunication = await _communicationApplicationService.GetCommunicationByIdAsync(request.Resource.Id, cancellationToken);
+            var existingCommunication = await _communicationRepository.Get(request.Resource.Id);
             if (existingCommunication == null)
             {
                 _logger.LogWarning("Communication with ID {CommunicationId} not found.", request.Resource.Id);
                 return null;
             }
 
-            var result = await _communicationApplicationService.UpdateCommunicationAsync(request.Resource, cancellationToken);
+            _mapper.Map(request.Resource, existingCommunication);
+            await _communicationRepository.Put(existingCommunication);
             await _unitOfWork.CompleteAsync();
-            return result;
+            return _mapper.Map<CommunicationResource>(existingCommunication);
         }
         catch (Exception ex)
         {

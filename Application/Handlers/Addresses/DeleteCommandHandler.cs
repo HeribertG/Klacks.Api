@@ -1,6 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -8,16 +8,19 @@ namespace Klacks.Api.Application.Handlers.Addresses;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<AddressResource>, AddressResource?>
 {
-    private readonly AddressApplicationService _addressApplicationService;
+    private readonly IAddressRepository _addressRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<DeleteCommandHandler> _logger;
 
     public DeleteCommandHandler(
-        AddressApplicationService addressApplicationService,
+        IAddressRepository addressRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
     {
-        _addressApplicationService = addressApplicationService;
+        _addressRepository = addressRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,17 +29,18 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<AddressResourc
     {
         try
         {
-            var existingAddress = await _addressApplicationService.GetAddressByIdAsync(request.Id, cancellationToken);
+            var existingAddress = await _addressRepository.Get(request.Id);
             if (existingAddress == null)
             {
                 _logger.LogWarning("Address with ID {AddressId} not found for deletion.", request.Id);
                 return null;
             }
 
-            await _addressApplicationService.DeleteAddressAsync(request.Id, cancellationToken);
+            var addressResource = _mapper.Map<AddressResource>(existingAddress);
+            await _addressRepository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
 
-            return existingAddress;
+            return addressResource;
         }
         catch (Exception ex)
         {

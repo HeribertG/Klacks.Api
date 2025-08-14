@@ -1,6 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
@@ -8,16 +8,19 @@ namespace Klacks.Api.Application.Handlers.Memberships;
 
 public class PutCommandHandler : IRequestHandler<PutCommand<MembershipResource>, MembershipResource?>
 {
-    private readonly MembershipApplicationService _membershipApplicationService;
+    private readonly IMembershipRepository _membershipRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PutCommandHandler> _logger;
 
     public PutCommandHandler(
-        MembershipApplicationService membershipApplicationService,
+        IMembershipRepository membershipRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
     {
-        _membershipApplicationService = membershipApplicationService;
+        _membershipRepository = membershipRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,16 +29,17 @@ public class PutCommandHandler : IRequestHandler<PutCommand<MembershipResource>,
     {
         try
         {
-            var existingMembership = await _membershipApplicationService.GetMembershipByIdAsync(request.Resource.Id, cancellationToken);
+            var existingMembership = await _membershipRepository.Get(request.Resource.Id);
             if (existingMembership == null)
             {
                 _logger.LogWarning("Membership with ID {MembershipId} not found.", request.Resource.Id);
                 return null;
             }
 
-            var result = await _membershipApplicationService.UpdateMembershipAsync(request.Resource, cancellationToken);
+            _mapper.Map(request.Resource, existingMembership);
+            await _membershipRepository.Put(existingMembership);
             await _unitOfWork.CompleteAsync();
-            return result;
+            return _mapper.Map<MembershipResource>(existingMembership);
         }
         catch (Exception ex)
         {

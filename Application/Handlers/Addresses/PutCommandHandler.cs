@@ -1,6 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -8,16 +8,19 @@ namespace Klacks.Api.Application.Handlers.Addresses;
 
 public class PutCommandHandler : IRequestHandler<PutCommand<AddressResource>, AddressResource?>
 {
-    private readonly AddressApplicationService _addressApplicationService;
+    private readonly IAddressRepository _addressRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PutCommandHandler> _logger;
 
     public PutCommandHandler(
-        AddressApplicationService addressApplicationService,
+        IAddressRepository addressRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
     {
-        _addressApplicationService = addressApplicationService;
+        _addressRepository = addressRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,16 +29,17 @@ public class PutCommandHandler : IRequestHandler<PutCommand<AddressResource>, Ad
     {
         try
         {
-            var existingAddress = await _addressApplicationService.GetAddressByIdAsync(request.Resource.Id, cancellationToken);
+            var existingAddress = await _addressRepository.Get(request.Resource.Id);
             if (existingAddress == null)
             {
                 _logger.LogWarning("Address with ID {AddressId} not found.", request.Resource.Id);
                 return null;
             }
 
-            var result = await _addressApplicationService.UpdateAddressAsync(request.Resource, cancellationToken);
+            var address = _mapper.Map<Klacks.Api.Domain.Models.Staffs.Address>(request.Resource);
+            var updatedAddress = await _addressRepository.Put(address);
             await _unitOfWork.CompleteAsync();
-            return result;
+            return _mapper.Map<AddressResource>(updatedAddress);
         }
         catch (Exception ex)
         {

@@ -1,6 +1,7 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
@@ -8,16 +9,19 @@ namespace Klacks.Api.Application.Handlers.Contracts;
 
 public class PutCommandHandler : IRequestHandler<PutCommand<ContractResource>, ContractResource?>
 {
-    private readonly ContractApplicationService _contractApplicationService;
+    private readonly IContractRepository _contractRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PutCommandHandler> _logger;
 
     public PutCommandHandler(
-        ContractApplicationService contractApplicationService,
+        IContractRepository contractRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
     {
-        _contractApplicationService = contractApplicationService;
+        _contractRepository = contractRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,16 +30,17 @@ public class PutCommandHandler : IRequestHandler<PutCommand<ContractResource>, C
     {
         try
         {
-            var existingContract = await _contractApplicationService.GetContractByIdAsync(request.Resource.Id, cancellationToken);
+            var existingContract = await _contractRepository.Get(request.Resource.Id);
             if (existingContract == null)
             {
                 _logger.LogWarning("Contract with ID {ContractId} not found.", request.Resource.Id);
                 return null;
             }
 
-            var result = await _contractApplicationService.UpdateContractAsync(request.Resource, cancellationToken);
+            _mapper.Map(request.Resource, existingContract);
+            await _contractRepository.Put(existingContract);
             await _unitOfWork.CompleteAsync();
-            return result;
+            return _mapper.Map<ContractResource>(existingContract);
         }
         catch (Exception ex)
         {

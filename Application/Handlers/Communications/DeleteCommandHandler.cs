@@ -1,6 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
@@ -8,16 +8,19 @@ namespace Klacks.Api.Application.Handlers.Communications;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<CommunicationResource>, CommunicationResource?>
 {
-    private readonly CommunicationApplicationService _communicationApplicationService;
+    private readonly ICommunicationRepository _communicationRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<DeleteCommandHandler> _logger;
 
     public DeleteCommandHandler(
-        CommunicationApplicationService communicationApplicationService,
+        ICommunicationRepository communicationRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
     {
-        _communicationApplicationService = communicationApplicationService;
+        _communicationRepository = communicationRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,17 +29,18 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<CommunicationR
     {
         try
         {
-            var existingCommunication = await _communicationApplicationService.GetCommunicationByIdAsync(request.Id, cancellationToken);
+            var existingCommunication = await _communicationRepository.Get(request.Id);
             if (existingCommunication == null)
             {
                 _logger.LogWarning("Communication with ID {CommunicationId} not found for deletion.", request.Id);
                 return null;
             }
 
-            await _communicationApplicationService.DeleteCommunicationAsync(request.Id, cancellationToken);
+            var communicationResource = _mapper.Map<CommunicationResource>(existingCommunication);
+            await _communicationRepository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
 
-            return existingCommunication;
+            return communicationResource;
         }
         catch (Exception ex)
         {

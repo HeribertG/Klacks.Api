@@ -1,5 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
-using Klacks.Api.Application.Services;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 
@@ -7,16 +8,31 @@ namespace Klacks.Api.Application.Handlers.States;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<StateResource>, StateResource?>
 {
-    private readonly StateApplicationService _stateApplicationService;
+    private readonly IStateRepository _stateRepository;
+    private readonly IMapper _mapper;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteCommandHandler(StateApplicationService stateApplicationService)
+    public DeleteCommandHandler(
+        IStateRepository stateRepository,
+        IMapper mapper,
+        IUnitOfWork unitOfWork)
     {
-        _stateApplicationService = stateApplicationService;
+        _stateRepository = stateRepository;
+        _mapper = mapper;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<StateResource?> Handle(DeleteCommand<StateResource> request, CancellationToken cancellationToken)
     {
-        await _stateApplicationService.DeleteStateAsync(request.Id, cancellationToken);
-        return null;
+        var existingState = await _stateRepository.Get(request.Id);
+        if (existingState == null)
+        {
+            return null;
+        }
+
+        var stateResource = _mapper.Map<StateResource>(existingState);
+        await _stateRepository.Delete(request.Id);
+        await _unitOfWork.CompleteAsync();
+        return stateResource;
     }
 }

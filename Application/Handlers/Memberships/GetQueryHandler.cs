@@ -1,5 +1,6 @@
+using AutoMapper;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
@@ -7,16 +8,19 @@ namespace Klacks.Api.Application.Handlers.Memberships
 {
     public class GetQueryHandler : IRequestHandler<GetQuery<MembershipResource>, MembershipResource>
     {
-        private readonly MembershipApplicationService _membershipApplicationService;
+        private readonly IMembershipRepository _membershipRepository;
+        private readonly IMapper _mapper;
 
-        public GetQueryHandler(MembershipApplicationService membershipApplicationService)
+        public GetQueryHandler(IMembershipRepository membershipRepository, IMapper mapper)
         {
-            _membershipApplicationService = membershipApplicationService;
+            _membershipRepository = membershipRepository;
+            _mapper = mapper;
         }
 
         public async Task<MembershipResource> Handle(GetQuery<MembershipResource> request, CancellationToken cancellationToken)
         {
-            return await _membershipApplicationService.GetMembershipByIdAsync(request.Id, cancellationToken) ?? new MembershipResource();
+            var membership = await _membershipRepository.Get(request.Id);
+            return membership != null ? _mapper.Map<MembershipResource>(membership) : new MembershipResource();
         }
     }
 }

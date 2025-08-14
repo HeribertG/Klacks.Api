@@ -1,6 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -8,16 +8,19 @@ namespace Klacks.Api.Application.Handlers.Annotations;
 
 public class PutCommandHandler : IRequestHandler<PutCommand<AnnotationResource>, AnnotationResource?>
 {
-    private readonly AnnotationApplicationService _annotationApplicationService;
+    private readonly IAnnotationRepository _annotationRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PutCommandHandler> _logger;
 
     public PutCommandHandler(
-        AnnotationApplicationService annotationApplicationService,
+        IAnnotationRepository annotationRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
     {
-        _annotationApplicationService = annotationApplicationService;
+        _annotationRepository = annotationRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,16 +29,17 @@ public class PutCommandHandler : IRequestHandler<PutCommand<AnnotationResource>,
     {
         try
         {
-            var existingAnnotation = await _annotationApplicationService.GetAnnotationByIdAsync(request.Resource.Id, cancellationToken);
+            var existingAnnotation = await _annotationRepository.Get(request.Resource.Id);
             if (existingAnnotation == null)
             {
                 _logger.LogWarning("Annotation with ID {AnnotationId} not found.", request.Resource.Id);
                 return null;
             }
 
-            var result = await _annotationApplicationService.UpdateAnnotationAsync(request.Resource, cancellationToken);
+            _mapper.Map(request.Resource, existingAnnotation);
+            await _annotationRepository.Put(existingAnnotation);
             await _unitOfWork.CompleteAsync();
-            return result;
+            return _mapper.Map<AnnotationResource>(existingAnnotation);
         }
         catch (Exception ex)
         {

@@ -1,6 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
@@ -8,16 +8,19 @@ namespace Klacks.Api.Application.Handlers.Memberships;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand<MembershipResource>, MembershipResource?>
 {
-    private readonly MembershipApplicationService _membershipApplicationService;
+    private readonly IMembershipRepository _membershipRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<DeleteCommandHandler> _logger;
 
     public DeleteCommandHandler(
-        MembershipApplicationService membershipApplicationService,
+        IMembershipRepository membershipRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
     {
-        _membershipApplicationService = membershipApplicationService;
+        _membershipRepository = membershipRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,17 +29,18 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<MembershipReso
     {
         try
         {
-            var existingMembership = await _membershipApplicationService.GetMembershipByIdAsync(request.Id, cancellationToken);
+            var existingMembership = await _membershipRepository.Get(request.Id);
             if (existingMembership == null)
             {
                 _logger.LogWarning("Membership with ID {MembershipId} not found for deletion.", request.Id);
                 return null;
             }
 
-            await _membershipApplicationService.DeleteMembershipAsync(request.Id, cancellationToken);
+            var membershipResource = _mapper.Map<MembershipResource>(existingMembership);
+            await _membershipRepository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
 
-            return existingMembership;
+            return membershipResource;
         }
         catch (Exception ex)
         {

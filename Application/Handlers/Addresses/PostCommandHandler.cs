@@ -1,6 +1,6 @@
+using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
 
@@ -8,16 +8,19 @@ namespace Klacks.Api.Application.Handlers.Addresses;
 
 public class PostCommandHandler : IRequestHandler<PostCommand<AddressResource>, AddressResource?>
 {
-    private readonly AddressApplicationService _addressApplicationService;
+    private readonly IAddressRepository _addressRepository;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PostCommandHandler> _logger;
 
     public PostCommandHandler(
-        AddressApplicationService addressApplicationService,
+        IAddressRepository addressRepository,
+        IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
     {
-        _addressApplicationService = addressApplicationService;
+        _addressRepository = addressRepository;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -26,9 +29,10 @@ public class PostCommandHandler : IRequestHandler<PostCommand<AddressResource>, 
     {
         try
         {
-            var result = await _addressApplicationService.CreateAddressAsync(request.Resource, cancellationToken);
+            var address = _mapper.Map<Klacks.Api.Domain.Models.Staffs.Address>(request.Resource);
+            await _addressRepository.Add(address);
             await _unitOfWork.CompleteAsync();
-            return result;
+            return _mapper.Map<AddressResource>(address);
         }
         catch (Exception ex)
         {
