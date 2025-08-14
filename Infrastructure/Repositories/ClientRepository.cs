@@ -251,35 +251,26 @@ public class ClientRepository : IClientRepository
 
     public async Task<List<Client>> FindList(string? company = null, string? name = null, string? firstname = null)
     {
-        var lst = new List<Client>();
+        var query = this.context.Client.AsQueryable();
 
-        // Name
-        if (string.IsNullOrWhiteSpace(company) && !string.IsNullOrWhiteSpace(name) && !string.IsNullOrWhiteSpace(firstname))
+        if (!string.IsNullOrWhiteSpace(company))
         {
-            lst = await this.context.Client.Where(x => x.Name!.ToLower().Contains(name.ToLower().Trim()) && x.FirstName!.ToLower().Contains(firstname.ToLower().Trim())).ToListAsync();
-        } // company
-        else if (!string.IsNullOrWhiteSpace(company) && string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(firstname))
-        {
-            lst = await this.context.Client.Where(x => x.Company!.ToLower().Contains(company.ToLower().Trim())).ToListAsync();
-        } // company + firstname
-        else if (!string.IsNullOrWhiteSpace(company) && !string.IsNullOrWhiteSpace(firstname))
-        {
-            lst = await this.context.Client.Where(x => x.Company!.ToLower().Contains(company.ToLower().Trim()) && x.FirstName!.ToLower().Contains(firstname.ToLower().Trim())).ToListAsync();
-        } // company + Name
-        else if (!string.IsNullOrWhiteSpace(company) && !string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(firstname))
-        {
-            lst = await this.context.Client.Where(x => x.Company!.ToLower().Contains(company.ToLower().Trim()) &&
-                                                  x.Name!.ToLower().Contains(name!.ToLower().Trim())).ToListAsync();
-        }
-        else if (!string.IsNullOrWhiteSpace(company) && !string.IsNullOrWhiteSpace(company) && !string.IsNullOrWhiteSpace(firstname))
-        {
-            lst = await this.context.Client.Where(x => x.Company!.ToLower().Contains(company.ToLower().Trim()) &&
-                                                  (x.Name!.ToLower().Contains(name!.ToLower().Trim()) &&
-                                                   x.FirstName!.ToLower().Contains(firstname.ToLower().Trim()))).ToListAsync();
+            query = query.Where(x => x.Company!.ToLower().Contains(company.ToLower().Trim()));
         }
 
-        return lst;
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            query = query.Where(x => x.Name!.ToLower().Contains(name.ToLower().Trim()));
+        }
+
+        if (!string.IsNullOrWhiteSpace(firstname))
+        {
+            query = query.Where(x => x.FirstName!.ToLower().Contains(firstname.ToLower().Trim()));
+        }
+
+        return await query.ToListAsync();
     }
+
 
     public async Task<string> FindStatePostCode(string zip)
     {
