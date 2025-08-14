@@ -4,7 +4,6 @@ using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.FileHandling;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Interfaces.Repositories;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Repositories;
 using Klacks.Api.Infrastructure.Services;
