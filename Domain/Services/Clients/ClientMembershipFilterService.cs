@@ -98,32 +98,28 @@ public class ClientMembershipFilterService : IClientMembershipFilterService
     public IQueryable<Client> ApplyMembershipYearFilter(IQueryable<Client> query, BreakFilter filter)
     {
         var startDate = new DateTime(filter.CurrentYear, 1, 1);
-        var endDate = new DateTime(filter.CurrentYear, 12, 31);
+        var endDate = new DateTime(filter.CurrentYear + 1, 1, 1);
 
-        return query.Where(c => c.Membership!.ValidFrom.Date <= endDate && 
-                               (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value.Date >= startDate));
+        return query.Where(c => c.Membership!.ValidFrom < endDate &&
+                               (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startDate));
     }
 
     public IQueryable<Client> ApplyBreaksYearFilter(IQueryable<Client> query, BreakFilter filter)
     {
         var startDate = new DateTime(filter.CurrentYear, 1, 1);
-        var endDate = new DateTime(filter.CurrentYear, 12, 31);
-        var absenceIds = filter.Absences.Where(x => x.Checked).Select(x => x.Id);
+        var endDate = new DateTime(filter.CurrentYear + 1, 1, 1);
+        var absenceIds = filter.Absences.Where(x => x.Checked).Select(x => x.Id).ToList();
 
-        // Use Include with filtered navigation to efficiently load breaks
-        // EF Core 5+ supports filtered includes
-        return query.Include(c => c.Breaks.Where(b => 
-            absenceIds.Contains(b.AbsenceId) &&
-            ((b.From >= startDate && b.From <= endDate) ||
-             (b.Until >= startDate && b.Until <= endDate) ||
-             (b.From <= startDate && b.Until >= endDate))))
-        .ThenInclude(b => b.Absence);
+        return query.Include(c => c.Breaks.Where(b =>
+               absenceIds.Contains(b.AbsenceId) &&
+              b.From < endDate && b.Until >= startDate))
+         .ThenInclude(b => b.Absence);
     }
 
     public bool IsActiveMembership(DateTime validFrom, DateTime? validUntil)
     {
         var nowDate = DateTime.Now;
-        return validFrom.Date <= nowDate && 
+        return validFrom.Date <= nowDate &&
                (!validUntil.HasValue || validUntil.Value.Date >= nowDate);
     }
 
