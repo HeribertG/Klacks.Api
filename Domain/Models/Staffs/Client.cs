@@ -68,7 +68,7 @@ public class Client : BaseEntity
     public string? Title { get; set; } = string.Empty;
 
     [DefaultValue(0)]
-    public int Type { get; set; }
+    public EntityTypeEnum Type { get; set; }
 
     public ICollection<Work> Works { get; set; }
 }

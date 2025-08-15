@@ -110,21 +110,14 @@ public class ClientMembershipFilterService : IClientMembershipFilterService
         var endDate = new DateTime(filter.CurrentYear, 12, 31);
         var absenceIds = filter.Absences.Where(x => x.Checked).Select(x => x.Id);
 
-        var breaks = _context.Break
-                              .Where(b => absenceIds.Contains(b.AbsenceId) &&
-                                          query.Select(c => c.Id).Contains(b.ClientId) &&
-                                          ((b.From.Date >= startDate && b.From.Date <= endDate) ||
-                                          (b.Until.Date >= startDate && b.Until.Date <= endDate) ||
-                                          (b.From.Date <= startDate && b.Until.Date >= endDate)))
-                              .OrderBy(b => b.From).ThenBy(b => b.Until)
-                              .ToList();
-
-        foreach (var c in query)
-        {
-            c.Breaks = breaks.Where(x => x.ClientId == c.Id).ToList();
-        }
-
-        return query;
+        // Use Include with filtered navigation to efficiently load breaks
+        // EF Core 5+ supports filtered includes
+        return query.Include(c => c.Breaks.Where(b => 
+            absenceIds.Contains(b.AbsenceId) &&
+            ((b.From >= startDate && b.From <= endDate) ||
+             (b.Until >= startDate && b.Until <= endDate) ||
+             (b.From <= startDate && b.Until >= endDate))))
+        .ThenInclude(b => b.Absence);
     }
 
     public bool IsActiveMembership(DateTime validFrom, DateTime? validUntil)

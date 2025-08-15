@@ -22,20 +22,18 @@ namespace Klacks.Api.Data.Seed
                 ON CONFLICT (id) DO NOTHING;"
             );
 
-            migrationBuilder.InsertData(
-                table: "communication_type",
-                columns: new[] { "id", "category", "default_index", "name", "type" },
-                values: new object[,]
-                {
-                    { 1, 0, 0, "Festnetz P", 0 },
-                    { 2, 0, 1, "Mobil P", 1 },
-                    { 3, 0, 0, "Festnetz G", 2 },
-                    { 4, 0, 0, "Mobil G", 3 },
-                    { 5, 0, 0, "NotfallNo", 7 },
-                    { 6, 1, 2, "Email P", 4 },
-                    { 7, 1, 0, "Email G", 5 },
-                    { 8, 0, 0, "Anderes", 6 }
-                });
+            migrationBuilder.Sql(
+                @"INSERT INTO communication_type (id, category, default_index, name, type) VALUES 
+                (1, 0, 0, 'Festnetz P', 0),
+                (2, 0, 1, 'Mobil P', 1),
+                (3, 0, 0, 'Festnetz G', 2),
+                (4, 0, 0, 'Mobil G', 3),
+                (5, 0, 0, 'NotfallNo', 7),
+                (6, 1, 2, 'Email P', 4),
+                (7, 1, 0, 'Email G', 5),
+                (8, 0, 0, 'Anderes', 6)
+                ON CONFLICT (id) DO NOTHING;"
+            );
 
             migrationBuilder.InsertData(
                 table: "settings",
@@ -55,7 +53,6 @@ namespace Klacks.Api.Data.Seed
 
             migrationBuilder.Sql(
                 @"INSERT INTO ""AspNetUserRoles"" (role_id, user_id) VALUES 
-                ('9c05bb10-5855-4201-a755-1d92ed9df000', '672f77e8-e479-4422-8781-84d218377fb3'),
                 ('e32d7319-6861-4c9a-b096-08a77088cadd', '672f77e8-e479-4422-8781-84d218377fb3')
                 ON CONFLICT (role_id, user_id) DO NOTHING;"
             );

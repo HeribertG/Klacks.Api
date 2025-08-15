@@ -26,6 +26,7 @@ namespace Klacks.Api.Data.Seed
                 var scriptForBreaks = GenerateInsertScriptForBreaks(results.Breaks);
                 var scriptForSettings = GenerateInsertScriptForSettings();
                 var scriptForGroups = FakeDataGroups.GenerateInsertScriptForGroups();
+                var scriptForGroupItems = GenerateInsertScriptForGroupItems(results.Clients, results.Addresses);
 
                 migrationBuilder.Sql(scriptForClients);
                 migrationBuilder.Sql(scriptForAddresses);
@@ -35,6 +36,7 @@ namespace Klacks.Api.Data.Seed
                 migrationBuilder.Sql(scriptForBreaks);
                 migrationBuilder.Sql(scriptForSettings);
                 migrationBuilder.Sql(scriptForGroups);
+                migrationBuilder.Sql(scriptForGroupItems);
             }
         }
 
@@ -174,22 +176,26 @@ namespace Klacks.Api.Data.Seed
         {
             Random rand = new Random();
             DateTime start = DateTime.Now.AddYears(-1).AddDays(rand.Next(365));
-            PostcodeCH randomPostcode = postcodes[rand.Next(postcodes.Count)];
+            
+            // Use comprehensive Swiss postcode data instead of limited hardcoded list
+            var swissPostcodes = GenerateComprehensiveSwissPostcodes();
+            PostcodeCH randomPostcode = swissPostcodes[rand.Next(swissPostcodes.Count)];
+            
             return new List<AddressDb>
-        {
-          new AddressDb
-          {
-            ValidFrom = start,
-            Id = Guid.NewGuid(),
-            ClientId = clientId,
-            Street = "SomeStreet",
-            Street2 = FakeSettings.ClientsNumber,
-            Zip = randomPostcode.Zip.ToString(),
-            City = randomPostcode.City,
-            State = randomPostcode.State,
-            Country = "CH",
-          },
-        };
+            {
+                new AddressDb
+                {
+                    ValidFrom = start,
+                    Id = Guid.NewGuid(),
+                    ClientId = clientId,
+                    Street = "SomeStreet",
+                    Street2 = FakeSettings.ClientsNumber,
+                    Zip = randomPostcode.Zip.ToString(),
+                    City = randomPostcode.City,
+                    State = randomPostcode.State,
+                    Country = "CH",
+                },
+            };
         }
 
         private static ICollection<Annotation> GenerateAnnotations(Guid clientId)
@@ -282,11 +288,24 @@ namespace Klacks.Api.Data.Seed
             var maleFirstNames = CreateMaleFirstNames();
             var femaleFirstNames = CreateFemaleFirstNames();
             var postcodeCH = GeneratePostCodeCH();
+            var rand = new Random();
 
             for (int i = 0; i < count; i++)
             {
                 var id = Guid.NewGuid();
                 var gender = GenerateRandomGender();
+                var isLegalEntity = rand.Next(100) < 20; // 20% chance for legal entity
+                var clientType = EntityTypeEnum.Client; // Default
+                
+                if (isLegalEntity)
+                {
+                    clientType = EntityTypeEnum.Customer; // LegalEntity ist immer Customer
+                }
+                else
+                {
+                    clientType = rand.Next(100) < 20 ? EntityTypeEnum.ExternEmp : EntityTypeEnum.Client;
+                }
+                
                 var client = new ClientDb
                 {
                     Id = id,
@@ -295,11 +314,13 @@ namespace Klacks.Api.Data.Seed
                     Gender = gender,
                     Name = GetRandomName(names),
                     FirstName = GetRandomFirstName(gender, maleFirstNames, femaleFirstNames, i),
+                    LegalEntity = isLegalEntity,
+                    Type = clientType,
                 };
 
                 if (withIncludes == true)
                 {
-                    var address = GenerateAddresses(id, postcodeCH);
+                    var address = GenerateAddresses(id, null); // Pass null since we use comprehensive data now
                     addresses.AddRange(address);
                     var communication = GenerateCommunications(id);
                     communications.AddRange(communication);
@@ -406,7 +427,7 @@ namespace Klacks.Api.Data.Seed
 
             foreach (var client in clients)
             {
-                script.Append($"INSERT INTO public.client (id, birthdate, company, first_name, gender, id_number, legal_entity, maiden_name, membership_id, name, passwort_reset_token, second_name, title,type,create_time,current_user_created,current_user_deleted, current_user_updated,deleted_time,is_deleted,update_time) VALUES ('{client.Id}','{client.BirthdateString}', '{client.Company}', '{client.FirstName}', {(int)client.Gender}, {client.IdNumber}, '{client.LegalEntity}', '{client.MaidenName}', '{client.MembershipId}', '{client.Name}', '{client.PasswortResetToken}', '{client.SecondName}', '{client.Title}', {client.IdNumber}, '{client.CreateTimeString}', '{client.CurrentUserCreated}', NULL, NULL, NULL, FALSE, NULL);\n");
+                script.Append($"INSERT INTO public.client (id, birthdate, company, first_name, gender, id_number, legal_entity, maiden_name, membership_id, name, passwort_reset_token, second_name, title,type,create_time,current_user_created,current_user_deleted, current_user_updated,deleted_time,is_deleted,update_time) VALUES ('{client.Id}','{client.BirthdateString}', '{client.Company}', '{client.FirstName}', {(int)client.Gender}, {client.IdNumber}, '{client.LegalEntity}', '{client.MaidenName}', '{client.MembershipId}', '{client.Name}', '{client.PasswortResetToken}', '{client.SecondName}', '{client.Title}', {(int)client.Type}, '{client.CreateTimeString}', '{client.CurrentUserCreated}', NULL, NULL, NULL, FALSE, NULL);\n");
             }
 
             return script.ToString();
@@ -1946,6 +1967,185 @@ namespace Klacks.Api.Data.Seed
                     }
                 }
             }
+        }
+
+        private static string GenerateInsertScriptForGroupItems(List<ClientDb> clients, List<AddressDb> addresses)
+        {
+            StringBuilder script = new StringBuilder();
+            var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            var adminUser = "672f77e8-e479-4422-8781-84d218377fb3";
+            var cantonGroupIds = FakeDataGroups.CantonGroupIds;
+            var cityGroupIds = FakeDataGroups.CityGroupIds;
+
+            foreach (var client in clients)
+            {
+                // Only process clients with Type == EntityTypeEnum.Client (0)
+                if (client.Type != EntityTypeEnum.Client)
+                    continue;
+
+                // Find the client's address  
+                var clientAddress = addresses.FirstOrDefault(a => a.ClientId == client.Id && a.Country == "CH");
+                if (clientAddress == null || string.IsNullOrEmpty(clientAddress.State))
+                    continue;
+
+                Guid? groupId = null;
+                
+                // 1. First try to match by city name (priority)
+                if (!string.IsNullOrEmpty(clientAddress.City) && cityGroupIds.ContainsKey(clientAddress.City))
+                {
+                    groupId = cityGroupIds[clientAddress.City];
+                }
+                // 2. If no city match, try canton code
+                else if (cantonGroupIds.ContainsKey(clientAddress.State))
+                {
+                    groupId = cantonGroupIds[clientAddress.State];
+                }
+
+                // Create GroupItem if we found a matching group
+                if (groupId.HasValue)
+                {
+                    var groupItemId = Guid.NewGuid();
+                    
+                    script.AppendLine($@"INSERT INTO public.group_item (id, client_id, shift_id, group_id, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time) VALUES 
+                    ('{groupItemId}', '{client.Id}', NULL, '{groupId}', '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL);");
+                }
+            }
+
+            return script.ToString();
+        }
+
+        private static List<PostcodeCH> GenerateComprehensiveSwissPostcodes()
+        {
+            // Representative postcodes for all 26 Swiss cantons plus major cities
+            var postcodes = new List<PostcodeCH>
+            {
+                // AG - Aargau
+                new PostcodeCH { Zip = 5000, City = "Aarau", State = "AG" },
+                new PostcodeCH { Zip = 5400, City = "Baden", State = "AG" },
+                new PostcodeCH { Zip = 8957, City = "Spreitenbach", State = "AG" },
+                
+                // AI - Appenzell Innerrhoden
+                new PostcodeCH { Zip = 9050, City = "Appenzell", State = "AI" },
+                new PostcodeCH { Zip = 9063, City = "Stein AR", State = "AI" },
+                
+                // AR - Appenzell Ausserrhoden  
+                new PostcodeCH { Zip = 9100, City = "Herisau", State = "AR" },
+                new PostcodeCH { Zip = 9200, City = "Gossau SG", State = "AR" },
+                
+                // BE - Bern
+                new PostcodeCH { Zip = 3000, City = "Bern", State = "BE" },
+                new PostcodeCH { Zip = 3600, City = "Thun", State = "BE" },
+                new PostcodeCH { Zip = 2500, City = "Biel/Bienne", State = "BE" },
+                new PostcodeCH { Zip = 3048, City = "Worblaufen", State = "BE" },
+                new PostcodeCH { Zip = 3027, City = "Köniz", State = "BE" },
+                
+                // BL - Basel Land
+                new PostcodeCH { Zip = 4410, City = "Liestal", State = "BL" },
+                new PostcodeCH { Zip = 4123, City = "Allschwil", State = "BL" },
+                new PostcodeCH { Zip = 4153, City = "Reinach BL", State = "BL" },
+                new PostcodeCH { Zip = 4132, City = "Muttenz", State = "BL" },
+                
+                // BS - Basel Stadt
+                new PostcodeCH { Zip = 4000, City = "Basel", State = "BS" },
+                new PostcodeCH { Zip = 4001, City = "Basel", State = "BS" },
+                new PostcodeCH { Zip = 4056, City = "Basel", State = "BS" },
+                
+                // FR - Freiburg
+                new PostcodeCH { Zip = 1700, City = "Fribourg", State = "FR" },
+                new PostcodeCH { Zip = 1630, City = "Bulle", State = "FR" },
+                new PostcodeCH { Zip = 1580, City = "Avenches", State = "FR" },
+                
+                // GE - Genf
+                new PostcodeCH { Zip = 1200, City = "Genève", State = "GE" },
+                new PostcodeCH { Zip = 1201, City = "Genève", State = "GE" },
+                new PostcodeCH { Zip = 1202, City = "Genève", State = "GE" },
+                new PostcodeCH { Zip = 1220, City = "Les Avanchets", State = "GE" },
+                
+                // GL - Glarus
+                new PostcodeCH { Zip = 8750, City = "Glarus", State = "GL" },
+                new PostcodeCH { Zip = 8783, City = "Linthal", State = "GL" },
+                
+                // GR - Graubünden
+                new PostcodeCH { Zip = 7000, City = "Chur", State = "GR" },
+                new PostcodeCH { Zip = 7500, City = "St. Moritz", State = "GR" },
+                new PostcodeCH { Zip = 7260, City = "Davos Dorf", State = "GR" },
+                
+                // JU - Jura
+                new PostcodeCH { Zip = 2800, City = "Delémont", State = "JU" },
+                new PostcodeCH { Zip = 2900, City = "Porrentruy", State = "JU" },
+                
+                // LU - Luzern
+                new PostcodeCH { Zip = 6000, City = "Luzern", State = "LU" },
+                new PostcodeCH { Zip = 6020, City = "Emmenbrücke", State = "LU" },
+                new PostcodeCH { Zip = 6030, City = "Ebikon", State = "LU" },
+                new PostcodeCH { Zip = 6010, City = "Kriens", State = "LU" },
+                
+                // NE - Neuenburg
+                new PostcodeCH { Zip = 2000, City = "Neuchâtel", State = "NE" },
+                new PostcodeCH { Zip = 2300, City = "La Chaux-de-Fonds", State = "NE" },
+                
+                // NW - Nidwalden
+                new PostcodeCH { Zip = 6370, City = "Stans", State = "NW" },
+                new PostcodeCH { Zip = 6390, City = "Engelberg", State = "NW" },
+                
+                // OW - Obwalden
+                new PostcodeCH { Zip = 6060, City = "Sarnen", State = "OW" },
+                new PostcodeCH { Zip = 6078, City = "Lungern", State = "OW" },
+                
+                // SG - St. Gallen
+                new PostcodeCH { Zip = 9000, City = "St. Gallen", State = "SG" },
+                new PostcodeCH { Zip = 8640, City = "Rapperswil-Jona", State = "SG" },
+                new PostcodeCH { Zip = 9200, City = "Gossau SG", State = "SG" },
+                
+                // SH - Schaffhausen
+                new PostcodeCH { Zip = 8200, City = "Schaffhausen", State = "SH" },
+                new PostcodeCH { Zip = 8260, City = "Stein am Rhein", State = "SH" },
+                
+                // SO - Solothurn
+                new PostcodeCH { Zip = 4500, City = "Solothurn", State = "SO" },
+                new PostcodeCH { Zip = 4600, City = "Olten", State = "SO" },
+                
+                // SZ - Schwyz
+                new PostcodeCH { Zip = 6430, City = "Schwyz", State = "SZ" },
+                new PostcodeCH { Zip = 6440, City = "Brunnen", State = "SZ" },
+                
+                // TG - Thurgau
+                new PostcodeCH { Zip = 8500, City = "Frauenfeld", State = "TG" },
+                new PostcodeCH { Zip = 8280, City = "Kreuzlingen", State = "TG" },
+                
+                // TI - Tessin
+                new PostcodeCH { Zip = 6900, City = "Lugano", State = "TI" },
+                new PostcodeCH { Zip = 6500, City = "Bellinzona", State = "TI" },
+                new PostcodeCH { Zip = 6600, City = "Locarno", State = "TI" },
+                
+                // UR - Uri
+                new PostcodeCH { Zip = 6460, City = "Altdorf", State = "UR" },
+                new PostcodeCH { Zip = 6490, City = "Andermatt", State = "UR" },
+                
+                // VD - Waadt
+                new PostcodeCH { Zip = 1000, City = "Lausanne", State = "VD" },
+                new PostcodeCH { Zip = 1800, City = "Vevey", State = "VD" },
+                new PostcodeCH { Zip = 1400, City = "Yverdon-les-Bains", State = "VD" },
+                new PostcodeCH { Zip = 1110, City = "Morges", State = "VD" },
+                
+                // VS - Wallis
+                new PostcodeCH { Zip = 1950, City = "Sion", State = "VS" },
+                new PostcodeCH { Zip = 3900, City = "Brig", State = "VS" },
+                new PostcodeCH { Zip = 1870, City = "Monthey", State = "VS" },
+                
+                // ZG - Zug
+                new PostcodeCH { Zip = 6300, City = "Zug", State = "ZG" },
+                new PostcodeCH { Zip = 6330, City = "Cham", State = "ZG" },
+                
+                // ZH - Zürich
+                new PostcodeCH { Zip = 8000, City = "Zürich", State = "ZH" },
+                new PostcodeCH { Zip = 8400, City = "Winterthur", State = "ZH" },
+                new PostcodeCH { Zip = 8610, City = "Uster", State = "ZH" },
+                new PostcodeCH { Zip = 8001, City = "Zürich", State = "ZH" },
+                new PostcodeCH { Zip = 8050, City = "Zürich", State = "ZH" }
+            };
+            
+            return postcodes;
         }
     }
 }

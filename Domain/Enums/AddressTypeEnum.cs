@@ -11,4 +11,5 @@ public enum EntityTypeEnum
 {
     Client = 0,
     ExternEmp = 1,
+    Customer = 2
 }

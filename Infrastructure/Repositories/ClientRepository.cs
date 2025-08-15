@@ -1,14 +1,11 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Domain.Helpers;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Models.Histories;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Presentation.DTOs.Filter;
-using Klacks.Api.Presentation.DTOs.Settings;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Repositories;
@@ -63,7 +60,7 @@ public class ClientRepository : IClientRepository
     {
         var tmp = await FilterClients(filter.SelectedGroup);
 
-        if (!string.IsNullOrEmpty(filter.SearchString))
+         if (!string.IsNullOrEmpty(filter.SearchString))
         {
             // Ist der search string eine Nummer, sucht man nach der idNumber
             if (_searchService.IsNumericSearch(filter.SearchString))
@@ -202,7 +199,7 @@ public class ClientRepository : IClientRepository
         {
             if (filter.ClientType.HasValue && filter.ClientType.Value != -1)
             {
-                tmp = tmp.Where(x => x.Type == filter.ClientType.Value);
+                tmp = tmp.Where(x => (int)x.Type == filter.ClientType.Value);
             }
 
             var addressTypeList = this.CreateAddressTypeList(filter.HomeAddress, filter.CompanyAddress, filter.InvoiceAddress);
@@ -271,7 +268,6 @@ public class ClientRepository : IClientRepository
         return await query.ToListAsync();
     }
 
-
     public async Task<string> FindStatePostCode(string zip)
     {
         int zipCode;
@@ -297,38 +293,6 @@ public class ClientRepository : IClientRepository
                                       .SingleOrDefaultAsync(emp => emp.Id == id);
 
         return res!;
-    }
-
-    public async Task<TruncatedHistory> GetHistoryList(FilterHistoryResource filter)
-    {
-        var tmp = this.context.History
-          .Where(x => x.ClientId == filter.Key)
-          .AsQueryable();
-
-        tmp = this.SortHistory(filter.OrderBy, filter.SortOrder, tmp);
-
-        var maxPages = 0;
-
-        var count = tmp.Count();
-
-        if (count > 0)
-        {
-            maxPages = count / filter.NumberOfItemsPerPage;
-            if (maxPages <= 0)
-            {
-                maxPages = 1;
-            }
-            tmp = tmp.Skip((filter.RequiredPage - 1) * filter.NumberOfItemsPerPage).Take(filter.NumberOfItemsPerPage);
-        }
-
-        var res = new TruncatedHistory
-        {
-            Histories = await tmp.ToListAsync(),
-            MaxItems = count,
-            MaxPages = maxPages,
-            CurrentPage = filter.RequiredPage,
-        };
-        return res;
     }
 
     public async Task<LastChangeMetaDataResource> LastChangeMetaData()
@@ -368,11 +332,6 @@ public class ClientRepository : IClientRepository
     public void Remove(Client client)
     {
         this.context.Client.Remove(client);
-    }
-
-    public async Task<Client?> Simple(Guid id)
-    {
-        return await this.context.Client.SingleOrDefaultAsync(emp => emp.Id == id);
     }
 
     public async Task<TruncatedClient> Truncated(FilterResource filter)
@@ -451,7 +410,7 @@ public class ClientRepository : IClientRepository
         tmp = this.FilterMembershipYearMonth(filter, tmp);
         tmp = this.FilterWorks(filter, tmp);
         tmp = _sortingService.ApplySorting(tmp, filter.OrderBy, filter.SortOrder);
-        return await tmp.ToListAsync();
+        return await Task.FromResult(tmp.ToList());
     }
 
     private void ChangeClientNestedLists(Client client)
@@ -516,310 +475,12 @@ public class ClientRepository : IClientRepository
 
         return tmp.ToArray();
     }
-
-    private IQueryable<Client> FilterBreaksYear(BreakFilter filter, IQueryable<Client> tmp)
-    {
-        var startDate = new DateTime(filter.CurrentYear, 1, 1);
-        var endDate = new DateTime(filter.CurrentYear, 12, 31);
-        var absenceIds = filter.Absences.Where(x => x.Checked).Select(x => x.Id);
-
-        var breaks = this.context.Break
-                                  .Where(b => absenceIds.Contains(b.AbsenceId) &&
-                                              tmp.Select(c => c.Id).Contains(b.ClientId) &&
-                                              ((b.From.Date >= startDate && b.From.Date <= endDate) ||
-                                              (b.Until.Date >= startDate && b.Until.Date <= endDate) ||
-                                              (b.From.Date <= startDate && b.Until.Date >= endDate)))
-                                  .OrderBy(b => b.From).ThenBy(b => b.Until)
-                                  .ToList();
-
-        foreach (var c in tmp)
-        {
-            c.Breaks = breaks.Where(x => x.ClientId == c.Id).ToList();
-        }
-
-        return tmp;
-    }
-
-    private IQueryable<Client> FilterByAddresstype(int[] addresstype, IQueryable<Client> tmp)
-    {
-        if (addresstype.Length < 3)
-        {
-            tmp = tmp.Where(x => x.Addresses.Count == 0 || x.Addresses.Any(y => addresstype.Contains((int)y.Type)));
-        }
-
-        return tmp;
-    }
-
-    private IQueryable<Client> FilterByAnnotation(bool? hasAnnotation, IQueryable<Client> tmp)
-    {
-        if (hasAnnotation != null && hasAnnotation.Value) { tmp = tmp.Where(co => co.Annotations.Count > 0); }
-
-        return tmp;
-    }
-
-    private IQueryable<Client> FilterByGender(int[] gender, bool? legalEntity, IQueryable<Client> tmp)
-    {
-        if ((legalEntity == null || (legalEntity.Value == false)) && gender.Length == 0)
-        {
-            tmp = tmp.Where(co => (int)co.Gender == -1 && co.LegalEntity == false);
-        }
-
-        if (legalEntity == null || (legalEntity.Value == false))
-        {
-            tmp = tmp.Where(co => gender.Any(y => y == ((int)co.Gender)));
-        }
-        else if (legalEntity != null && legalEntity.Value)
-        {
-            tmp = tmp.Where(co => gender.Any(y => y == ((int)co.Gender)) || co.LegalEntity);
-        }
-
-        return tmp;
-    }
-
-    private IQueryable<Client> FilterByMembership(bool activeMembership, bool formerMembership, bool futureMembership, IQueryable<Client> tmp)
-    {
-        if (activeMembership && formerMembership && futureMembership)
-        {
-            // No need for filters
-        }
-        else
-        {
-            var nowDate = DateTime.Now;
-
-            // only active
-            if (activeMembership && !formerMembership && !futureMembership)
-            {
-                tmp = tmp.Where(co =>
-                                co.Membership!.ValidFrom.Date <= nowDate &&
-                                (co.Membership.ValidUntil.HasValue == false ||
-                                (co.Membership.ValidUntil.HasValue && co.Membership.ValidUntil.Value.Date >= nowDate)
-                                ));
-            }
-
-            // only former
-            if (!activeMembership && formerMembership && !futureMembership)
-            {
-                tmp = tmp.Where(co =>
-                               (co.Membership!.ValidUntil.HasValue && co.Membership.ValidUntil.Value.Date < nowDate));
-            }
-
-            // only future
-            if (!activeMembership && !formerMembership && futureMembership)
-            {
-                tmp = tmp.Where(co =>
-                               (co.Membership!.ValidFrom.Date > nowDate));
-            }
-
-            // former + active
-            if (activeMembership && formerMembership && !futureMembership)
-            {
-                tmp = tmp.Where(co =>
-                                co.Membership!.ValidFrom.Date <= nowDate &&
-                                (co.Membership.ValidUntil.HasValue == false ||
-                                (co.Membership.ValidUntil.HasValue && co.Membership.ValidUntil.Value.Date > nowDate) ||
-                                co.Membership.ValidUntil.HasValue && co.Membership.ValidUntil.Value.Date < nowDate));
-            }
-
-            // active + future
-            if (activeMembership && !formerMembership && futureMembership)
-            {
-                tmp = tmp.Where(co =>
-                                 (co.Membership!.ValidFrom.Date <= nowDate &&
-                                 (co.Membership.ValidUntil.HasValue == false ||
-                                 (co.Membership.ValidUntil.HasValue && co.Membership.ValidUntil.Value.Date > nowDate)) ||
-                                 (co.Membership.ValidFrom.Date > nowDate)));
-            }
-
-            // former + future
-            if (!activeMembership && formerMembership && futureMembership)
-            {
-                tmp = tmp.Where(co =>
-                              (co.Membership!.ValidUntil.HasValue && co.Membership.ValidUntil.Value.Date < nowDate) ||
-                              (co.Membership.ValidFrom.Date > nowDate));
-            }
-        }
-
-        return tmp;
-    }
-
-    private IQueryable<Client> FilterBySearchPhonOrZip(string number, IQueryable<Client> tmp)
-    {
-        tmp = tmp.Where(co =>
-                  co.Communications.Any(com => (com.Type == CommunicationTypeEnum.EmergencyPhone ||
-                                                com.Type == CommunicationTypeEnum.PrivateCellPhone ||
-                                                com.Type == CommunicationTypeEnum.OfficeCellPhone) && com.Value == number) ||
-                  co.Addresses.Any(ad => ad.Zip.Trim() == number));
-        return tmp;
-    }
-
-    private IQueryable<Client> FilterBySearchString(string searchString, bool includeAddress, IQueryable<Client> tmp)
-    {
-        if (!string.IsNullOrEmpty(searchString))
-        {
-            if (searchString.Contains("+"))
-            {
-                var keywordList = searchString.ToLower().Split("+");
-                tmp = FilterBySearchStringExact(keywordList, includeAddress, tmp);
-            }
-            else
-            {
-                var keywordList = searchString.TrimEnd().TrimStart().ToLower().Split(' ');
-
-                if (keywordList.Length == 1)
-                {
-                    if (keywordList[0].Length == 1)
-                    {
-                        tmp = this.FilterBySearchStringFirstSymbol(keywordList[0], tmp);
-                    }
-                    else
-                    {
-                        tmp = this.FilterBySearchStringExact(keywordList, includeAddress, tmp);
-                    }
-                }
-                else
-                {
-                    tmp = this.FilterBySearchStringStandard(keywordList, includeAddress, tmp);
-                }
-            }
-        }
-
-        return tmp;
-    }
-
-    private IQueryable<Client> FilterBySearchStringExact(string[] keywordList, bool includeAddress, IQueryable<Client> tmp)
-    {
-        foreach (var keyword in keywordList)
-        {
-            var tmpKeyword = keyword.TrimEnd().TrimEnd().ToLower();
-
-            if (tmpKeyword.Contains("@"))
-            {
-                tmp = tmp.Where(co =>
-                  co.Communications.Any(com => com.Value != null && com.Value.ToLower() == tmpKeyword));
-            }
-            else
-            {
-                if (includeAddress)
-                {
-                    tmp = tmp.Where(co =>
-                        (co.FirstName != null && co.FirstName.ToLower().Contains(tmpKeyword)) ||
-                        (co.SecondName != null && co.SecondName.ToLower().Contains(tmpKeyword)) ||
-                        co.Name.ToLower().Contains(tmpKeyword) ||
-                        (co.MaidenName != null && co.MaidenName.ToLower().Contains(tmpKeyword)) ||
-                        (co.Company != null && co.Company.ToLower().Contains(tmpKeyword)) ||
-                        co.Addresses.Any(ad => ad.Street.ToLower().Contains(tmpKeyword)) ||
-                        co.Addresses.Any(ad => (ad.Street2 != null && ad.Street2.ToLower().Contains(tmpKeyword))) ||
-                        co.Addresses.Any(ad => (ad.Street3 != null && ad.Street3.ToLower().Contains(tmpKeyword))) ||
-                        co.Addresses.Any(ad => ad.City.ToLower() == tmpKeyword));
-                }
-                else
-                {
-                    tmp = tmp.Where(co =>
-                        (co.FirstName != null && co.FirstName.ToLower().Contains(tmpKeyword)) ||
-                        (co.SecondName != null && co.SecondName.ToLower().Contains(tmpKeyword)) ||
-                        co.Name.ToLower().Contains(tmpKeyword) ||
-                        (co.MaidenName != null && co.MaidenName.ToLower().Contains(tmpKeyword)) ||
-                        (co.Company != null && co.Company.ToLower().Contains(tmpKeyword)));
-                }
-            }
-        }
-
-        return tmp;
-    }
-
-    private IQueryable<Client> FilterBySearchStringFirstSymbol(string keyword, IQueryable<Client> tmp)
-    {
-        tmp = tmp.Where(co =>
-            co.Name.ToLower().Substring(0, 1) == keyword.ToLower());
-
-        return tmp;
-    }
-
-    private IQueryable<Client> FilterBySearchStringStandard(string[] keywordList, bool includeAddress, IQueryable<Client> tmp)
-    {
-        if (keywordList.Length == 0)
-        {
-            return tmp;
-        }
-
-        var normalizedKeywords = keywordList
-            .Select(k => k.Trim().ToLower())
-            .Where(k => !string.IsNullOrEmpty(k))
-            .ToArray();
-
-        if (normalizedKeywords.Length == 0)
-        {
-            return tmp;
-        }
-
-        var predicate = PredicateBuilder.False<Client>();
-
-        foreach (var keyword in normalizedKeywords)
-        {
-            var currentKeyword = keyword;
-
-            predicate = predicate.Or(c =>
-                (c.FirstName != null && c.FirstName.ToLower().Contains(currentKeyword)) ||
-                (c.SecondName != null && c.SecondName.ToLower().Contains(currentKeyword)) ||
-                (c.Name != null && c.Name.ToLower().Contains(currentKeyword)) ||
-                (c.MaidenName != null && c.MaidenName.ToLower().Contains(currentKeyword)) ||
-                (c.Company != null && c.Company.ToLower().Contains(currentKeyword))
-            );
-
-            if (includeAddress)
-            {
-                predicate = predicate.Or(c =>
-                    c.Addresses.Any(addr =>
-                        (addr.Street != null && addr.Street.ToLower().Contains(currentKeyword)) ||
-                        (addr.Street2 != null && addr.Street2.ToLower().Contains(currentKeyword)) ||
-                        (addr.Street3 != null && addr.Street3.ToLower().Contains(currentKeyword)) ||
-                        (addr.City != null && addr.City.ToLower().Contains(currentKeyword))
-                    )
-                );
-            }
-        }
-
-        return tmp.Where(predicate);
-    }
-
-    private IQueryable<Client> FilterByStateOrCountry(List<StateCountryToken> list, List<CountryResource> countries, IQueryable<Client> tmp)
-    {
-        var filteredStateList = list.Where(x => x.Select == true).Select(x => x.State).ToList();
-        var filteredCountryList = list.Where(x => x.Select == true).Select(x => x.Country).Distinct().ToList();
-        var allStateCountryList = list.Select(x => x.Country).Distinct().ToList();
-        var filteredOnlyCountryList = countries.Where(x => x.Select == true && !filteredCountryList.Contains(x.Abbreviation)).Select(x => x.Abbreviation).ToList();
-
-        if (!filteredStateList.Any() && !filteredCountryList.Any() && filteredOnlyCountryList.Any())
-        {
-            tmp = tmp.Where(co => co.Addresses.Count == 0 || co.Addresses.Any(ad => filteredOnlyCountryList.Contains(ad.Country)));
-        }
-        else
-        {
-            tmp = tmp.Where(co => co.Addresses.Count == 0 || co.Addresses.Any(ad => string.IsNullOrEmpty(ad.Country) || filteredCountryList.Contains(ad.Country) || filteredOnlyCountryList.Contains(ad.Country)));
-            tmp = tmp.Where(co => co.Addresses.Count == 0 || co.Addresses.Any(ad => string.IsNullOrEmpty(ad.State) || filteredStateList.Contains(ad.State) || filteredOnlyCountryList.Contains(ad.Country)));
-        }
-
-        return tmp;
-    }
-
+    
     private async Task<IQueryable<Client>> FilterClients(Guid? selectedGroup)
     {
-        var tmp = this.context.Client.Include(c => c.Membership).OrderBy(x => x.Name).ThenBy(x => x.FirstName).ThenBy(x => x.Company).AsQueryable();
+        var tmp = this.context.Client.Include(c => c.Membership).AsQueryable();
 
         tmp = await FilterClientsByGroupId(selectedGroup, tmp);
-
-        return tmp;
-    }
-
-    private IQueryable<Client> FilterMembershipYear(BreakFilter filter, IQueryable<Client> tmp)
-    {
-        var startDate = new DateTime(filter.CurrentYear, 1, 1);
-        var endDate = new DateTime(filter.CurrentYear, 12, 31);
-
-        tmp = tmp.Where(co =>
-                            co.Membership!.ValidFrom.Date <= startDate &&
-                            (co.Membership.ValidUntil.HasValue == false ||
-                            (co.Membership.ValidUntil.HasValue && co.Membership.ValidUntil.Value.Date > endDate)));
 
         return tmp;
     }
@@ -833,44 +494,6 @@ public class ClientRepository : IClientRepository
                             co.Membership!.ValidFrom.Date <= startDate &&
                             (co.Membership.ValidUntil.HasValue == false ||
                             (co.Membership.ValidUntil.HasValue && co.Membership.ValidUntil.Value.Date > endDate)));
-
-        return tmp;
-    }
-
-    private IQueryable<Client> FilterScope(bool? scopeFromFlag, bool? scopeUntilFlag, DateTime? scopeFrom,
-                                           DateTime? scopeUntil, IQueryable<Client> tmp)
-    {
-        if ((scopeFromFlag.HasValue && scopeFromFlag.Value) &&
-            (scopeUntilFlag.HasValue && scopeUntilFlag.Value) &&
-            (scopeFrom.HasValue && scopeUntil.HasValue))
-        {
-            return this.ScopeFrom2Date1(scopeFrom.Value, scopeUntil.Value, tmp);
-        }
-        else
-        {
-            if (scopeFromFlag.HasValue && scopeFromFlag.Value)
-            {
-                if (scopeFrom.HasValue && scopeUntil.HasValue)
-                {
-                    return this.ScopeFrom2Date(scopeFrom.Value, scopeUntil.Value, tmp);
-                }
-                else
-                {
-                    return this.ScopeFrom1Date(scopeFrom, scopeUntil, tmp);
-                }
-            }
-            else if (scopeUntilFlag.HasValue && scopeUntilFlag.Value)
-            {
-                if (scopeFrom.HasValue && scopeUntil.HasValue)
-                {
-                    return this.ScopeUntil2Date(scopeFrom.Value, scopeUntil.Value, tmp);
-                }
-                else
-                {
-                    return this.ScopeUntil1Date(scopeFrom, scopeUntil, tmp);
-                }
-            }
-        }
 
         return tmp;
     }
@@ -1031,52 +654,6 @@ public class ClientRepository : IClientRepository
         return new Tuple<DateTime, List<Guid>, List<string>>(lastChangesDate, lst, autors);
     }
 
-    private IQueryable<Client> ScopeFrom1Date(DateTime? scopeFrom, DateTime? scopeUntil, IQueryable<Client> tmp)
-    {
-        if (scopeFrom.HasValue)
-        {
-            return tmp.Where(x => x.Membership!.ValidFrom.Date >= scopeFrom.Value.Date);
-        }
-        else if (scopeUntil.HasValue)
-        {
-            return tmp.Where(x => x.Membership!.ValidFrom.Date <= scopeUntil.Value.Date);
-        }
-
-        return tmp;
-    }
-
-    private IQueryable<Client> ScopeFrom2Date(DateTime scopeFrom, DateTime scopeUntil, IQueryable<Client> tmp)
-    {
-        return tmp.Where(x => x.Membership!.ValidFrom.Date >= scopeFrom.Date && x.Membership.ValidFrom.Date <= scopeUntil.Date);
-    }
-
-    private IQueryable<Client> ScopeFrom2Date1(DateTime scopeFrom, DateTime scopeUntil, IQueryable<Client> tmp)
-    {
-        return tmp.Where(x => (x.Membership!.ValidFrom.Date >= scopeFrom.Date &&
-                              x.Membership.ValidFrom.Date <= scopeUntil.Date) ||
-                              (x.Membership.ValidUntil!.Value.Date >= scopeFrom.Date &&
-                              x.Membership.ValidUntil.Value.Date <= scopeUntil.Date));
-    }
-
-    private IQueryable<Client> ScopeUntil1Date(DateTime? scopeFrom, DateTime? scopeUntil, IQueryable<Client> tmp)
-    {
-        if (scopeFrom.HasValue)
-        {
-            return tmp.Where(x => x.Membership!.ValidUntil.HasValue && x.Membership.ValidUntil.Value.Date >= scopeFrom.Value.Date);
-        }
-        else if (scopeUntil.HasValue)
-        {
-            return tmp.Where(x => x.Membership!.ValidUntil!.Value.Date <= scopeUntil.Value.Date);
-        }
-
-        return tmp;
-    }
-
-    private IQueryable<Client> ScopeUntil2Date(DateTime scopeFrom, DateTime scopeUntil, IQueryable<Client> tmp)
-    {
-        return tmp.Where(x => x.Membership!.ValidUntil.HasValue && (x.Membership.ValidUntil.Value.Date >= scopeFrom.Date && x.Membership.ValidUntil.Value.Date <= scopeUntil.Date));
-    }
-
     private IQueryable<Client> Sort(string orderBy, string sortOrder, IQueryable<Client> tmp)
     {
         if (sortOrder != string.Empty)
@@ -1096,35 +673,6 @@ public class ClientRepository : IClientRepository
             else if (orderBy == "name")
             {
                 return sortOrder == "asc" ? tmp.OrderBy(x => x.Name).ThenBy(x => x.FirstName).ThenBy(x => x.IdNumber) : tmp.OrderByDescending(x => x.Name).ThenByDescending(x => x.FirstName).ThenByDescending(x => x.IdNumber);
-            }
-        }
-
-        return tmp;
-    }
-
-    private IQueryable<History> SortHistory(string orderBy, string sortOrder, IQueryable<History> tmp)
-    {
-        if (sortOrder != string.Empty)
-        {
-            if (orderBy == "validFrom")
-            {
-                return sortOrder == "asc" ? tmp.OrderBy(x => x.ValidFrom) : tmp.OrderByDescending(x => x.ValidFrom);
-            }
-            else if (orderBy == "currentUserCreated")
-            {
-                return sortOrder == "asc" ? tmp.OrderBy(x => x.CurrentUserCreated) : tmp.OrderByDescending(x => x.CurrentUserCreated);
-            }
-            else if (orderBy == "data")
-            {
-                return sortOrder == "asc" ? tmp.OrderBy(x => x.Data) : tmp.OrderByDescending(x => x.Data);
-            }
-            else if (orderBy == "newData")
-            {
-                return sortOrder == "asc" ? tmp.OrderBy(x => x.NewData) : tmp.OrderByDescending(x => x.NewData);
-            }
-            else if (orderBy == "oldData")
-            {
-                return sortOrder == "asc" ? tmp.OrderBy(x => x.OldData) : tmp.OrderByDescending(x => x.OldData);
             }
         }
 
