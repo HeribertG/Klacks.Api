@@ -24,14 +24,17 @@ namespace Klacks.Api.Data.Seed
                 var scriptForCommunications = GenerateInsertScriptForCommunications(results.Communications);
                 var scriptForAnnotations = GenerateInsertScriptForAnnotations(results.Annotations);
                 var scriptForBreaks = GenerateInsertScriptForBreaks(results.Breaks);
+                var scriptForSettings = GenerateInsertScriptForSettings();
+                var scriptForGroups = FakeDataGroups.GenerateInsertScriptForGroups();
 
                 migrationBuilder.Sql(scriptForClients);
                 migrationBuilder.Sql(scriptForAddresses);
                 migrationBuilder.Sql(scriptForMemberships);
                 migrationBuilder.Sql(scriptForCommunications);
                 migrationBuilder.Sql(scriptForAnnotations);
-
-                //  migrationBuilder.Sql(scriptForBreaks);
+                migrationBuilder.Sql(scriptForBreaks);
+                migrationBuilder.Sql(scriptForSettings);
+                migrationBuilder.Sql(scriptForGroups);
             }
         }
 
@@ -213,7 +216,8 @@ namespace Klacks.Api.Data.Seed
         {
             var breaks = new List<BreakDb>();
             Random rand = new Random();
-            var sum = rand.Next(30);
+            var maxBreaks = int.TryParse(FakeSettings.MaxBreaksPerClient, out int max) ? max : 30;
+            var sum = rand.Next(maxBreaks);
             var absencesId = new Guid[]
             {
         Guid.Parse("1070d7e6-f314-4d20-bc18-98c5357a4f89"),
@@ -240,7 +244,7 @@ namespace Klacks.Api.Data.Seed
 
             for (int i = 0; i < sum; i++)
             {
-                var index = rand.Next(absencesId.Length - 1);
+                var index = rand.Next(absencesId.Length);
                 var absenceId = absencesId[index];
                 var absenceMin = absenceMinLength[index];
                 if (rand.Next(2) != 0)
@@ -376,8 +380,6 @@ namespace Klacks.Api.Data.Seed
 
         private static string GenerateInsertScriptForBreaks(List<BreakDb> breaks)
         {
-
-
             if (breaks == null || !breaks.Any())
             {
                 return string.Empty;
@@ -426,6 +428,75 @@ namespace Klacks.Api.Data.Seed
 
             return script.ToString();
         }
+
+        private static string GenerateInsertScriptForSettings()
+        {
+            StringBuilder script = new StringBuilder();
+            
+            var settings = new[]
+            {
+                // Email Settings
+                ("0f807cbb-e54a-4f5b-9383-5b03ccffc55d", "authenticationType", "<None>"),
+                ("3be9b255-4b0b-49fd-8585-556375187dac", "outgoingserver", "smtp-mail.outlook.com"),
+                ("789530bc-18a3-48b1-946f-a5da6d66d357", "enabledSSL", "true"),
+                ("8d8b2ae3-7d7b-4f31-9778-0e348deb1fca", "dispositionNotification", "false"),
+                ("91f43fe3-0db7-4554-aa4d-8dac0151f118", "replyTo", "doNotReply@klacks-net.com"),
+                ("db3ee771-cbd6-420c-bdf7-8b1036bb82b9", "outgoingserverPort", "587"),
+                ("e16842eb-24ff-47c2-ad1b-5a3d6a2d20cd", "outgoingserverTimeout", "100"),
+                ("e3e61605-c1e9-48b9-b5c7-9e66c41889fe", "readReceipt", "false"),
+                
+                // Application Settings
+                ("d5bbf185-b799-4aa4-86ca-c3fe879654f2", "appName", "Klacks-Net"),
+                ("1234567a-1234-1234-1234-123456789001", "defaultLanguage", "de"),
+                ("1234567a-1234-1234-1234-123456789002", "timezone", "Europe/Zurich"),
+                ("1234567a-1234-1234-1234-123456789003", "dateFormat", "dd.MM.yyyy"),
+                ("1234567a-1234-1234-1234-123456789004", "timeFormat", "HH:mm"),
+                ("1234567a-1234-1234-1234-123456789005", "currency", "CHF"),
+                
+                // UI Settings
+                ("1234567a-1234-1234-1234-123456789006", "theme", "light"),
+                ("1234567a-1234-1234-1234-123456789007", "itemsPerPage", "25"),
+                ("1234567a-1234-1234-1234-123456789008", "autoRefresh", "true"),
+                ("1234567a-1234-1234-1234-123456789009", "showWelcomeMessage", "true"),
+                
+                // Security Settings
+                ("1234567a-1234-1234-1234-123456789010", "sessionTimeout", "120"),
+                ("1234567a-1234-1234-1234-123456789011", "passwordMinLength", "8"),
+                ("1234567a-1234-1234-1234-123456789012", "requireStrongPassword", "true"),
+                ("1234567a-1234-1234-1234-123456789013", "lockoutDuration", "15"),
+                ("1234567a-1234-1234-1234-123456789014", "maxLoginAttempts", "5"),
+                
+                // Feature Flags
+                ("1234567a-1234-1234-1234-123456789015", "enableAdvancedSearch", "true"),
+                ("1234567a-1234-1234-1234-123456789016", "enableExport", "true"),
+                ("1234567a-1234-1234-1234-123456789017", "enableNotifications", "true"),
+                ("1234567a-1234-1234-1234-123456789018", "enableDarkMode", "false"),
+                ("1234567a-1234-1234-1234-123456789019", "enableBulkOperations", "true"),
+                
+                // Business Settings
+                ("1234567a-1234-1234-1234-123456789020", "defaultWorkingHours", "8.5"),
+                ("1234567a-1234-1234-1234-123456789021", "overtimeThreshold", "42"),
+                ("1234567a-1234-1234-1234-123456789022", "vacationDaysPerYear", "25"),
+                ("1234567a-1234-1234-1234-123456789023", "probationPeriod", "3"),
+                ("1234567a-1234-1234-1234-123456789024", "noticePeriod", "30"),
+                
+                // System Settings
+                ("1234567a-1234-1234-1234-123456789025", "backupFrequency", "daily"),
+                ("1234567a-1234-1234-1234-123456789026", "logLevel", "Information"),
+                ("1234567a-1234-1234-1234-123456789027", "enableCaching", "true"),
+                ("1234567a-1234-1234-1234-123456789028", "cacheExpiration", "3600"),
+                ("1234567a-1234-1234-1234-123456789029", "enableCompression", "true"),
+                ("1234567a-1234-1234-1234-123456789030", "maxFileUploadSize", "10485760")
+            };
+
+            foreach (var (id, type, value) in settings)
+            {
+                script.AppendLine($"INSERT INTO public.settings (id, type, value) VALUES ('{id}', '{type}', '{value}');");
+            }
+
+            return script.ToString();
+        }
+
 
         private static string GenerateInsertScriptForMemberships(List<MembershipDb> memberships)
         {

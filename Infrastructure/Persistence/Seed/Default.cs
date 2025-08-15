@@ -9,20 +9,18 @@ namespace Klacks.Api.Data.Seed
     {
         public static void SeedData(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.InsertData(
-                      table: "AspNetRoles",
-                      columns: new[] { "id", "concurrency_stamp", "name", "normalized_name" },
-                      values: new object[,]
-                      {
-                    { "9c05bb10-5855-4201-a755-1d92ed9df000", "d94790da-0103-4ade-b715-29526b2b1fc7", "Authorised", "AUTHORISED" },
-                    { "e32d7319-6861-4c9a-b096-08a77088cadd", "402b8312-92a7-43f4-be73-b3400ccc2a7b", "Admin", "ADMIN" },
-                      }
-                      );
+            migrationBuilder.Sql(
+                @"INSERT INTO ""AspNetRoles"" (id, concurrency_stamp, name, normalized_name) VALUES 
+                ('9c05bb10-5855-4201-a755-1d92ed9df000', 'd94790da-0103-4ade-b715-29526b2b1fc7', 'Authorised', 'AUTHORISED'),
+                ('e32d7319-6861-4c9a-b096-08a77088cadd', '402b8312-92a7-43f4-be73-b3400ccc2a7b', 'Admin', 'ADMIN')
+                ON CONFLICT (id) DO NOTHING;"
+            );
 
-            migrationBuilder.InsertData(
-                table: "AspNetUsers",
-                columns: new[] { "id", "access_failed_count", "concurrency_stamp", "discriminator", "email", "email_confirmed", "first_name", "last_name", "lockout_enabled", "lockout_end", "normalized_email", "normalized_user_name", "password_hash", "phone_number", "phone_number_confirmed", "security_stamp", "two_factor_enabled", "user_name" },
-                values: new object[] { "672f77e8-e479-4422-8781-84d218377fb3", 0, "217b0216-5440-4e51-a6e4-ea79d0da9155", "AppUser", "admin@test.com", true, "admin", "admin", false, null, "ADMIN@TEST.COM", "ADMIN", "AQAAAAEAACcQAAAAEM4rFqzwCkNDdqC7P5XDITL1ub4TLm1MPZMru7BlKyFLNSRfaamO4BUl/fAV4aNNlA==", "123456789", false, "a04e4667-082e-43df-b82a-3ff914fc7db7", false, "admin" });
+            migrationBuilder.Sql(
+                @"INSERT INTO ""AspNetUsers"" (id, access_failed_count, concurrency_stamp, discriminator, email, email_confirmed, first_name, last_name, lockout_enabled, lockout_end, normalized_email, normalized_user_name, password_hash, phone_number, phone_number_confirmed, security_stamp, two_factor_enabled, user_name) VALUES 
+                ('672f77e8-e479-4422-8781-84d218377fb3', 0, '217b0216-5440-4e51-a6e4-ea79d0da9155', 'AppUser', 'admin@test.com', true, 'admin', 'admin', false, null, 'ADMIN@TEST.COM', 'ADMIN', 'AQAAAAEAACcQAAAAEM4rFqzwCkNDdqC7P5XDITL1ub4TLm1MPZMru7BlKyFLNSRfaamO4BUl/fAV4aNNlA==', '123456789', false, 'a04e4667-082e-43df-b82a-3ff914fc7db7', false, 'admin')
+                ON CONFLICT (id) DO NOTHING;"
+            );
 
             migrationBuilder.InsertData(
                 table: "communication_type",
@@ -55,14 +53,12 @@ namespace Klacks.Api.Data.Seed
                     { new Guid("e3e61605-c1e9-48b9-b5c7-9e66c41889fe"), "readReceipt" , "false"}
                 });
 
-            migrationBuilder.InsertData(
-                table: "AspNetUserRoles",
-                columns: new[] { "role_id", "user_id" },
-                values: new object[,]
-                {
-                    { "9c05bb10-5855-4201-a755-1d92ed9df000", "672f77e8-e479-4422-8781-84d218377fb3" },
-                    { "e32d7319-6861-4c9a-b096-08a77088cadd", "672f77e8-e479-4422-8781-84d218377fb3" }
-                });
+            migrationBuilder.Sql(
+                @"INSERT INTO ""AspNetUserRoles"" (role_id, user_id) VALUES 
+                ('9c05bb10-5855-4201-a755-1d92ed9df000', '672f77e8-e479-4422-8781-84d218377fb3'),
+                ('e32d7319-6861-4c9a-b096-08a77088cadd', '672f77e8-e479-4422-8781-84d218377fb3')
+                ON CONFLICT (role_id, user_id) DO NOTHING;"
+            );
 
             migrationBuilder.Sql(
                                   @"INSERT INTO public.countries (id,abbreviation,name_de,name_en,name_fr,name_it,prefix,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted) VALUES

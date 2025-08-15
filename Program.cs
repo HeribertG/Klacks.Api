@@ -32,7 +32,8 @@ builder.Logging.AddConsole();
 var corsHost = builder.Configuration["Cors:Host"];
 var corsHome = builder.Configuration["Cors:Home"];
 FakeSettings.WithFake = builder.Configuration["Fake:WithFake"] ?? string.Empty;
-FakeSettings.ClientsNumber = builder.Configuration["Clients:Number"] ?? string.Empty;
+FakeSettings.ClientsNumber = builder.Configuration["Fake:ClientNumber"] ?? string.Empty;
+FakeSettings.MaxBreaksPerClient = builder.Configuration["Fake:MaxBreaksPerClient"] ?? "30";
 
 var jwtSettings = new JwtSettings();
 builder.Configuration.Bind(nameof(jwtSettings), jwtSettings);
@@ -147,6 +148,9 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // Registering Mediator
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
+// Registering Database Initializer
+builder.Services.AddDatabaseInitializer();
+
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Password.RequireDigit = true;
@@ -200,5 +204,16 @@ app.UseEndpoints(endpoints =>
         endpoints.MapControllers();
     }
 );
+
+// Optional: Datenbank automatisch initialisieren beim Start
+// Kann über appsettings.json gesteuert werden
+if (builder.Configuration.GetValue<bool>("Database:InitializeOnStartup", false))
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbInitializer = scope.ServiceProvider.GetRequiredService<IDatabaseInitializer>();
+        await dbInitializer.InitializeAsync();
+    }
+}
 
 app.Run();

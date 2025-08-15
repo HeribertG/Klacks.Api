@@ -1,5 +1,4 @@
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Helpers;
 using Klacks.Api.Domain.Interfaces;
@@ -26,9 +25,9 @@ public class ClientRepository : IClientRepository
     private readonly IClientSortingService _sortingService;
 
     public ClientRepository(
-        DataBaseContext context, 
-        IMacroEngine macroEngine, 
-        IGetAllClientIdsFromGroupAndSubgroups groupClient, 
+        DataBaseContext context,
+        IMacroEngine macroEngine,
+        IGetAllClientIdsFromGroupAndSubgroups groupClient,
         IGroupVisibilityService groupVisibility,
         IClientFilterService clientFilterService,
         IClientMembershipFilterService membershipFilterService,
@@ -60,7 +59,7 @@ public class ClientRepository : IClientRepository
         this.context.Client.Add(client);
     }
 
-     public async Task<List<Client>> BreakList(BreakFilter filter)
+    public async Task<List<Client>> BreakList(BreakFilter filter)
     {
         var tmp = await FilterClients(filter.SelectedGroup);
 
@@ -350,7 +349,6 @@ public class ClientRepository : IClientRepository
                                         .Include(cu => cu.Membership)
                                         .ToListAsync();
     }
-
 
     public async Task<Client> Put(Client client)
     {
@@ -758,7 +756,7 @@ public class ClientRepository : IClientRepository
 
         foreach (var keyword in normalizedKeywords)
         {
-            var currentKeyword = keyword; 
+            var currentKeyword = keyword;
 
             predicate = predicate.Or(c =>
                 (c.FirstName != null && c.FirstName.ToLower().Contains(currentKeyword)) ||
@@ -883,21 +881,21 @@ public class ClientRepository : IClientRepository
         {
             var clientIds = await this.groupClient.GetAllClientIdsFromGroupAndSubgroups(selectedGroupId.Value);
             tmp = tmp.Where(client => clientIds.Contains(client.Id));
-        } 
+        }
         else
         {
-            if(!await groupVisibility.IsAdmin())
+            if (!await groupVisibility.IsAdmin())
             {
                 var rootlist = await groupVisibility.ReadVisibleRootIdList();
-                if(rootlist.Any())
+                if (rootlist.Any())
                 {
                     var clientIds = await this.groupClient.GetAllClientIdsFromGroupsAndSubgroupsFromList(rootlist);
                     tmp = tmp.Where(client => clientIds.Contains(client.Id));
-                }    
+                }
             }
         }
 
-            return tmp;
+        return tmp;
     }
 
     private IQueryable<Client> FilterWorks(WorkFilter filter, IQueryable<Client> tmp)
@@ -1133,19 +1131,11 @@ public class ClientRepository : IClientRepository
         return tmp;
     }
 
-    /// <summary>
-    /// Aktualisiert verschachtelte Entitäten eines Clients
-    /// </summary>
-    /// <typeparam name="TEntity">Der Typ der zu aktualisierenden Entität</typeparam>
-    /// <param name="clientId">Die ID des Clients</param>
-    /// <param name="existingEntityIds">Die IDs der vorhandenen Entitäten</param>
-    /// <param name="fetchEntities">Funktion zum Abrufen von Entitäten für einen Client</param>
-    /// <param name="removeEntity">Aktion zum Entfernen einer Entität</param>
     private void UpdateNestedEntities<TEntity>(
-        Guid clientId,
-        Guid[] existingEntityIds,
-        Func<Guid, IQueryable<TEntity>> fetchEntities,
-        Action<TEntity> removeEntity) where TEntity : class
+     Guid clientId,
+     Guid[] existingEntityIds,
+     Func<Guid, IQueryable<TEntity>> fetchEntities,
+     Action<TEntity> removeEntity) where TEntity : class
     {
         IEnumerable<TEntity> entitiesToRemove;
 

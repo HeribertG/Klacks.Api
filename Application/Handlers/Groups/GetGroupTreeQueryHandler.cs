@@ -38,13 +38,18 @@ namespace Klacks.Api.Application.Handlers.Groups
                     if (node.Parent == null || !nodeDict.ContainsKey(node.Parent.Value))
                     {
                         rootNodes.Add(node);
-                        CalculateDepthRecursive(node, 0);
                     }
                     else
                     {
                         var parent = nodeDict[node.Parent.Value];
                         parent.Children.Add(node);
                     }
+                }
+                
+                // Calculate depths AFTER tree structure is built
+                foreach (var rootNode in rootNodes)
+                {
+                    CalculateDepthRecursive(rootNode, 0);
                 }
                 
                 SortChildrenRecursive(rootNodes);
