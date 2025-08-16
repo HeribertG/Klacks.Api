@@ -71,4 +71,37 @@ public class ClientFilterService : IClientFilterService
 
         return query;
     }
+
+    public int[] CreateAddressTypeList(bool? homeAddress, bool? companyAddress, bool? invoiceAddress)
+    {
+        var tmp = new List<int>();
+
+        if (homeAddress != null && homeAddress.Value)
+        {
+            tmp.Add(0);
+        }
+
+        if (companyAddress != null && companyAddress.Value)
+        {
+            tmp.Add(1);
+        }
+
+        if (invoiceAddress != null && invoiceAddress.Value)
+        {
+            tmp.Add(2);
+        }
+
+        return tmp.ToArray();
+    }
+
+    public int[] CreateGenderList(bool? male, bool? female, bool? legalEntity)
+    {
+        var tmp = new List<int>();
+
+        if (male != null && male.Value) { tmp.Add(1); }
+        if (female != null && female.Value) { tmp.Add(0); }
+        if (legalEntity != null && legalEntity.Value) { tmp.Add(2); }
+
+        return tmp.ToArray();
+    }
 }

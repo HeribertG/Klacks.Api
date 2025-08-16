@@ -10,4 +10,6 @@ public interface IClientFilterService
     IQueryable<Client> ApplyAddressTypeFilter(IQueryable<Client> query, int[] addressTypes);
     IQueryable<Client> ApplyAnnotationFilter(IQueryable<Client> query, bool? hasAnnotation);
     IQueryable<Client> ApplyStateOrCountryFilter(IQueryable<Client> query, List<StateCountryToken> stateTokens, List<CountryResource> countries);
+    int[] CreateAddressTypeList(bool? homeAddress, bool? companyAddress, bool? invoiceAddress);
+    int[] CreateGenderList(bool? male, bool? female, bool? legalEntity);
 }

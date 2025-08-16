@@ -106,14 +106,9 @@ public class ClientMembershipFilterService : IClientMembershipFilterService
 
     public IQueryable<Client> ApplyBreaksYearFilter(IQueryable<Client> query, BreakFilter filter)
     {
-        var startDate = new DateTime(filter.CurrentYear, 1, 1);
-        var endDate = new DateTime(filter.CurrentYear + 1, 1, 1);
-        var absenceIds = filter.Absences.Where(x => x.Checked).Select(x => x.Id).ToList();
-
-        return query.Include(c => c.Breaks.Where(b =>
-               absenceIds.Contains(b.AbsenceId) &&
-              b.From < endDate && b.Until >= startDate))
-         .ThenInclude(b => b.Absence);
+        // Break filtering is now handled directly in BreakList method for better EF control
+        // This method is kept for interface compatibility but doesn't modify the query
+        return query;
     }
 
     public bool IsActiveMembership(DateTime validFrom, DateTime? validUntil)

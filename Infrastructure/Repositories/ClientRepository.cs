@@ -20,6 +20,9 @@ public class ClientRepository : IClientRepository
     private readonly IClientMembershipFilterService _membershipFilterService;
     private readonly IClientSearchService _searchService;
     private readonly IClientSortingService _sortingService;
+    private readonly IClientChangeTrackingService _changeTrackingService;
+    private readonly IClientEntityManagementService _entityManagementService;
+    private readonly IClientWorkFilterService _workFilterService;
 
     public ClientRepository(
         DataBaseContext context,
@@ -29,7 +32,10 @@ public class ClientRepository : IClientRepository
         IClientFilterService clientFilterService,
         IClientMembershipFilterService membershipFilterService,
         IClientSearchService searchService,
-        IClientSortingService sortingService)
+        IClientSortingService sortingService,
+        IClientChangeTrackingService changeTrackingService,
+        IClientEntityManagementService entityManagementService,
+        IClientWorkFilterService workFilterService)
     {
         this.context = context;
         this.macroEngine = macroEngine;
@@ -39,20 +45,14 @@ public class ClientRepository : IClientRepository
         _membershipFilterService = membershipFilterService;
         _searchService = searchService;
         _sortingService = sortingService;
+        _changeTrackingService = changeTrackingService;
+        _entityManagementService = entityManagementService;
+        _workFilterService = workFilterService;
     }
 
     public async Task Add(Client client)
     {
-        for (int i = client.Annotations.Count - 1; i > -1; i--)
-        {
-            var itm = client.Annotations.ToList()[i];
-            if (string.IsNullOrEmpty(itm.Note) || string.IsNullOrWhiteSpace(itm.Note))
-            {
-                client.Annotations.Remove(itm);
-            }
-        }
-
-        client.IdNumber = 0;
+        _entityManagementService.PrepareClientForAdd(client);
         this.context.Client.Add(client);
     }
 
@@ -74,15 +74,46 @@ public class ClientRepository : IClientRepository
         }
 
         tmp = _membershipFilterService.ApplyMembershipYearFilter(tmp, filter);
-        tmp = _membershipFilterService.ApplyBreaksYearFilter(tmp, filter);
         tmp = _sortingService.ApplySorting(tmp, filter.OrderBy, filter.SortOrder);
-        return await tmp.ToListAsync();
+        
+        // Materialize clients first, then fetch and assign breaks separately (like FilterWorks pattern)
+        var clients = await tmp.ToListAsync();
+        var clientIds = clients.Select(c => c.Id).ToList();
+        
+        // Get breaks for these clients with proper filtering
+        var startDate = new DateTime(filter.CurrentYear, 1, 1);
+        var endDate = new DateTime(filter.CurrentYear + 1, 1, 1);
+        var absenceIds = filter.Absences.Where(x => x.Checked).Select(x => x.Id).ToList();
+        
+        var breaks = await this.context.Break
+            .Include(b => b.Absence)
+            .Where(b => clientIds.Contains(b.ClientId) &&
+                       absenceIds.Contains(b.AbsenceId) &&
+                       b.From < endDate && b.Until >= startDate)
+            .ToListAsync();
+        
+        var breaksByClientId = breaks.ToLookup(b => b.ClientId);
+        
+        // Assign breaks to clients
+        foreach (var client in clients)
+        {
+            client.Breaks = breaksByClientId.Contains(client.Id) ? breaksByClientId[client.Id].ToList() : new List<Break>();
+        }
+        
+        return clients;
     }
 
     public async Task<TruncatedClient> ChangeList(FilterResource filter)
     {
-        var myTuple = await this.LastChangeClientAsync(filter);
-        var tmp = myTuple.Item1;
+        var baseQuery = this.context.Client.IgnoreQueryFilters()
+                                .Include(cu => cu.Addresses)
+                                .Include(cu => cu.Communications)
+                                .Include(cu => cu.Annotations)
+                                .Include(cu => cu.Membership)
+                                .AsQueryable();
+
+        var myTuple = await _changeTrackingService.GetLastChangedClientsAsync(baseQuery, filter);
+        var tmp = myTuple.clients;
 
         var maxPages = 0;
 
@@ -104,8 +135,8 @@ public class ClientRepository : IClientRepository
             MaxItems = count,
             MaxPages = maxPages,
             CurrentPage = filter.RequiredPage,
-            Editor = string.Join(", ", myTuple.Item2.ToArray()),
-            LastChange = myTuple.Item3,
+            Editor = string.Join(", ", myTuple.authors.ToArray()),
+            LastChange = myTuple.lastChangeDate,
         };
 
         return res;
@@ -202,8 +233,8 @@ public class ClientRepository : IClientRepository
                 tmp = tmp.Where(x => (int)x.Type == filter.ClientType.Value);
             }
 
-            var addressTypeList = this.CreateAddressTypeList(filter.HomeAddress, filter.CompanyAddress, filter.InvoiceAddress);
-            var gender = this.CreateGenderList(filter.Male, filter.Female, filter.LegalEntity);
+            var addressTypeList = _clientFilterService.CreateAddressTypeList(filter.HomeAddress, filter.CompanyAddress, filter.InvoiceAddress);
+            var gender = _clientFilterService.CreateGenderList(filter.Male, filter.Female, filter.LegalEntity);
 
             tmp = _searchService.ApplySearchFilter(tmp, filter.SearchString, filter.IncludeAddress);
 
@@ -297,12 +328,7 @@ public class ClientRepository : IClientRepository
 
     public async Task<LastChangeMetaDataResource> LastChangeMetaData()
     {
-        var result = new LastChangeMetaDataResource();
-        var res = await LastChangeMetaDataAsync();
-
-        result.LastChangesDate = res.Item1;
-        result.Autor = string.Join(", ", res.Item3.ToArray());
-        return result;
+        return await _changeTrackingService.GetLastChangeMetadataResourceAsync();
     }
 
     public async Task<List<Client>> List()
@@ -407,29 +433,29 @@ public class ClientRepository : IClientRepository
             }
         }
 
-        tmp = this.FilterMembershipYearMonth(filter, tmp);
-        tmp = this.FilterWorks(filter, tmp);
+        tmp = _workFilterService.FilterByMembershipYearMonth(tmp, filter.CurrentYear, filter.CurrentMonth);
+        tmp = _workFilterService.FilterByWorkSchedule(tmp, filter, this.context);
         tmp = _sortingService.ApplySorting(tmp, filter.OrderBy, filter.SortOrder);
         return await Task.FromResult(tmp.ToList());
     }
 
     private void ChangeClientNestedLists(Client client)
     {
-        UpdateNestedEntities<Communication>(
+        _entityManagementService.UpdateNestedEntities<Communication>(
              client.Id,
              client.Communications.Select(x => x.Id).ToArray(),
              id => this.context.Communication.Where(x => x.ClientId == id),
              entity => this.context.Communication.Remove(entity)
          );
 
-        UpdateNestedEntities<Address>(
+        _entityManagementService.UpdateNestedEntities<Address>(
              client.Id,
              client.Addresses.Select(x => x.Id).ToArray(),
              id => this.context.Address.Where(x => x.ClientId == id),
              entity => this.context.Address.Remove(entity)
          );
 
-        UpdateNestedEntities<Annotation>(
+        _entityManagementService.UpdateNestedEntities<Annotation>(
                client.Id,
                client.Annotations.Select(x => x.Id).ToArray(),
                id => this.context.Annotation.Where(x => x.ClientId == id),
@@ -443,38 +469,6 @@ public class ClientRepository : IClientRepository
         }
     }
 
-    private int[] CreateAddressTypeList(bool? homeAddress, bool? companyAddress, bool? invoiceAddress)
-    {
-        var tmp = new List<int>();
-
-        if (homeAddress != null && homeAddress.Value)
-        {
-            tmp.Add(0);
-        }
-
-        if (companyAddress != null && companyAddress.Value)
-        {
-            tmp.Add(1);
-        }
-
-        if (invoiceAddress != null && invoiceAddress.Value)
-        {
-            tmp.Add(2);
-        }
-
-        return tmp.ToArray();
-    }
-
-    private int[] CreateGenderList(bool? male, bool? female, bool? legalEntity)
-    {
-        var tmp = new List<int>();
-
-        if (male != null && male.Value) { tmp.Add(1); }
-        if (female != null && female.Value) { tmp.Add(0); }
-        if (legalEntity != null && legalEntity.Value) { tmp.Add(2); }
-
-        return tmp.ToArray();
-    }
     
     private async Task<IQueryable<Client>> FilterClients(Guid? selectedGroup)
     {
@@ -485,18 +479,6 @@ public class ClientRepository : IClientRepository
         return tmp;
     }
 
-    private IQueryable<Client> FilterMembershipYearMonth(WorkFilter filter, IQueryable<Client> tmp)
-    {
-        var startDate = new DateTime(filter.CurrentYear, filter.CurrentMonth + 1, 1);
-        var endDate = startDate.AddMonths(1);
-
-        tmp = tmp.Where(co =>
-                            co.Membership!.ValidFrom.Date <= startDate &&
-                            (co.Membership.ValidUntil.HasValue == false ||
-                            (co.Membership.ValidUntil.HasValue && co.Membership.ValidUntil.Value.Date > endDate)));
-
-        return tmp;
-    }
 
     private async Task<IQueryable<Client>> FilterClientsByGroupId(Guid? selectedGroupId, IQueryable<Client> tmp)
     {
@@ -521,187 +503,8 @@ public class ClientRepository : IClientRepository
         return tmp;
     }
 
-    private IQueryable<Client> FilterWorks(WorkFilter filter, IQueryable<Client> tmp)
-    {
-        var startDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1).AddDays(filter.DayVisibleAfterMonth * -1);
-        var endDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1).AddMonths(1).AddDays(-1).AddDays(filter.DayVisibleAfterMonth);
 
-        var clients = tmp.ToList();
-        var clientIds = clients.Select(c => c.Id).ToList();
 
-        var works = this.context.Work.Where(b => clientIds.Contains(b.ClientId) &&
-                                              ((b.From.Date >= startDate && b.From.Date <= endDate) ||
-                                              (b.Until.Date >= startDate && b.Until.Date <= endDate) ||
-                                              (b.From.Date <= startDate && b.Until.Date >= endDate)))
-                                    .OrderBy(b => b.From).ThenBy(b => b.Until)
-                                    .ToList();
 
-        var worksByClientId = works.ToLookup(w => w.ClientId);
 
-        foreach (var client in clients)
-        {
-            client.Works = worksByClientId.Contains(client.Id) ? worksByClientId[client.Id].ToList() : new List<Work>();
-        }
-
-        return clients.AsQueryable();
-    }
-
-    private async Task<Tuple<IQueryable<Client>, List<string>, DateTime>> LastChangeClientAsync(FilterResource filter)
-    {
-        var res = await this.LastChangeMetaDataAsync();
-        var lastChangesDate = res.Item1;
-        var lst = res.Item2;
-        var lstAutor = res.Item3;
-
-        var tmp = this.context.Client.IgnoreQueryFilters()
-                                .Include(cu => cu.Addresses)
-                                .Include(cu => cu.Communications)
-                                .Include(cu => cu.Annotations)
-                                .Include(cu => cu.Membership)
-                                .AsQueryable();
-
-        tmp = this.Sort(filter.OrderBy, filter.SortOrder, tmp);
-
-        tmp = tmp.Where(x => lst.Contains(x.Id));
-
-        return new Tuple<IQueryable<Client>, List<string>, DateTime>(tmp, lstAutor, lastChangesDate);
-    }
-
-    private async Task<Tuple<DateTime, List<Guid>, List<string>>> LastChangeMetaDataAsync()
-    {
-        DateTime lastChangesDate = new DateTime(0);
-        var lst = new List<Guid>();
-        var lstAutor = new List<string>();
-
-        var c = await this.context.Client.Where(x => x.CreateTime.HasValue).OrderByDescending(x => x.CreateTime).FirstOrDefaultAsync();
-        if (c != null)
-        {
-            if (c.CreateTime != null && lastChangesDate.Date < c.CreateTime.Value.Date)
-            {
-                lastChangesDate = c.CreateTime.Value.Date;
-                var date = lastChangesDate;
-                lst = await this.context.Client.Where(x => x.CreateTime.HasValue && x.CreateTime.Value.Date == date).Select(x => x.Id).ToListAsync();
-                var changesDate = lastChangesDate;
-                lstAutor = await this.context.Client.Where(x => x.CreateTime!.HasValue! && x.CreateTime!.Value!.Date == changesDate).Select(x => x.CurrentUserCreated!).ToListAsync();
-            }
-            if (c.CreateTime != null && lastChangesDate.Date == c.CreateTime.Value.Date)
-            {
-                var date = lastChangesDate;
-                lst.AddRange(await this.context.Client
-                  .Where(x => x.CreateTime.HasValue && x.CreateTime.Value.Date == date).Select(x => x.Id)
-                  .ToListAsync());
-                var changesDate = lastChangesDate;
-#pragma warning disable CS8620 // Das Argument kann aufgrund von Unterschieden bei der NULL-Zul�ssigkeit von Verweistypen nicht f�r den Parameter verwendet werden.
-                lstAutor.AddRange(await this.context.Client.Where(x => x.CreateTime.HasValue && x.CreateTime.Value.Date == changesDate).Select(x => x.CurrentUserCreated).ToListAsync());
-#pragma warning restore CS8620 // Das Argument kann aufgrund von Unterschieden bei der NULL-Zul�ssigkeit von Verweistypen nicht f�r den Parameter verwendet werden.
-            }
-        }
-        c = await this.context.Client.Where(x => x.UpdateTime.HasValue).OrderByDescending(x => x.UpdateTime).FirstOrDefaultAsync();
-        if (c != null)
-        {
-            if (c.UpdateTime != null && lastChangesDate.Date < c.UpdateTime.Value.Date)
-            {
-                lstAutor.Clear();
-                lst.Clear();
-
-                lastChangesDate = c.UpdateTime.Value.Date;
-                var date = lastChangesDate;
-                lst = await this.context.Client.Where(x => x.UpdateTime.HasValue && x.UpdateTime.Value.Date == date).Select(x => x.Id).ToListAsync();
-                var changesDate = lastChangesDate;
-#pragma warning disable CS8619 // Die NULL-Zul�ssigkeit von Verweistypen im Wert entspricht nicht dem Zieltyp.
-                lstAutor = await this.context.Client.Where(x => x.UpdateTime.HasValue && x.UpdateTime.Value.Date == changesDate).Select(x => x.CurrentUserUpdated).ToListAsync();
-#pragma warning restore CS8619 // Die NULL-Zul�ssigkeit von Verweistypen im Wert entspricht nicht dem Zieltyp.
-            }
-            if (c.UpdateTime != null && lastChangesDate.Date == c.UpdateTime.Value.Date)
-            {
-                var date = lastChangesDate;
-                lst.AddRange(await this.context.Client.Where(x => x.UpdateTime.HasValue && x.UpdateTime.Value.Date == date).Select(x => x.Id).ToListAsync());
-                var changesDate = lastChangesDate;
-#pragma warning disable CS8620 // Das Argument kann aufgrund von Unterschieden bei der NULL-Zul�ssigkeit von Verweistypen nicht f�r den Parameter verwendet werden.
-                lstAutor.AddRange(await this.context.Client.Where(x => x.UpdateTime.HasValue && x.UpdateTime.Value.Date == changesDate).Select(x => x.CurrentUserUpdated).ToListAsync());
-#pragma warning restore CS8620 // Das Argument kann aufgrund von Unterschieden bei der NULL-Zul�ssigkeit von Verweistypen nicht f�r den Parameter verwendet werden.
-            }
-        }
-        c = await this.context.Client.IgnoreQueryFilters().Where(x => x.DeletedTime.HasValue).OrderByDescending(x => x.DeletedTime).FirstOrDefaultAsync();
-        if (c != null)
-        {
-            if (c.DeletedTime != null && lastChangesDate.Date < c.DeletedTime.Value.Date)
-            {
-                lstAutor.Clear();
-                lst.Clear();
-
-                lastChangesDate = c.DeletedTime.Value.Date;
-                var date = lastChangesDate;
-                lst = await this.context.Client.IgnoreQueryFilters().Where(x => x.DeletedTime.HasValue && x.DeletedTime.Value.Date == date).Select(x => x.Id).ToListAsync();
-                var changesDate = lastChangesDate;
-#pragma warning disable CS8619 // Die NULL-Zul�ssigkeit von Verweistypen im Wert entspricht nicht dem Zieltyp.
-                lstAutor = await this.context.Client.IgnoreQueryFilters().Where(x => x.DeletedTime.HasValue && x.DeletedTime.Value.Date == changesDate).Select(x => x.CurrentUserDeleted).ToListAsync();
-#pragma warning restore CS8619 // Die NULL-Zul�ssigkeit von Verweistypen im Wert entspricht nicht dem Zieltyp.
-            }
-            if (c.DeletedTime != null && lastChangesDate.Date == c.DeletedTime.Value.Date)
-            {
-                var date = lastChangesDate;
-                lst.AddRange(await this.context.Client.IgnoreQueryFilters().Where(x => x.DeletedTime.HasValue && x.DeletedTime.Value.Date == date).Select(x => x.Id).ToListAsync());
-                var changesDate = lastChangesDate;
-#pragma warning disable CS8620 // Das Argument kann aufgrund von Unterschieden bei der NULL-Zul�ssigkeit von Verweistypen nicht f�r den Parameter verwendet werden.
-                lstAutor.AddRange(await this.context.Client.IgnoreQueryFilters().Where(x => x.DeletedTime.HasValue && x.DeletedTime.Value.Date == changesDate).Select(x => x.CurrentUserDeleted).ToListAsync());
-#pragma warning restore CS8620 // Das Argument kann aufgrund von Unterschieden bei der NULL-Zul�ssigkeit von Verweistypen nicht f�r den Parameter verwendet werden.
-            }
-        }
-
-        var autors = lstAutor.Where(x => x != null).Distinct().ToList();
-
-        return new Tuple<DateTime, List<Guid>, List<string>>(lastChangesDate, lst, autors);
-    }
-
-    private IQueryable<Client> Sort(string orderBy, string sortOrder, IQueryable<Client> tmp)
-    {
-        if (sortOrder != string.Empty)
-        {
-            if (orderBy == "firstName")
-            {
-                return sortOrder == "asc" ? tmp.OrderBy(x => x.FirstName).ThenBy(x => x.Name).ThenBy(x => x.IdNumber) : tmp.OrderByDescending(x => x.FirstName).ThenByDescending(x => x.Name).ThenByDescending(x => x.IdNumber);
-            }
-            else if (orderBy == "idNumber")
-            {
-                return sortOrder == "asc" ? tmp.OrderBy(x => x.IdNumber) : tmp.OrderByDescending(x => x.IdNumber);
-            }
-            else if (orderBy == "company")
-            {
-                return sortOrder == "asc" ? tmp.OrderBy(x => x.Company).ThenBy(x => x.IdNumber) : tmp.OrderByDescending(x => x.Company).ThenByDescending(x => x.IdNumber);
-            }
-            else if (orderBy == "name")
-            {
-                return sortOrder == "asc" ? tmp.OrderBy(x => x.Name).ThenBy(x => x.FirstName).ThenBy(x => x.IdNumber) : tmp.OrderByDescending(x => x.Name).ThenByDescending(x => x.FirstName).ThenByDescending(x => x.IdNumber);
-            }
-        }
-
-        return tmp;
-    }
-
-    private void UpdateNestedEntities<TEntity>(
-     Guid clientId,
-     Guid[] existingEntityIds,
-     Func<Guid, IQueryable<TEntity>> fetchEntities,
-     Action<TEntity> removeEntity) where TEntity : class
-    {
-        IEnumerable<TEntity> entitiesToRemove;
-
-        if (existingEntityIds.Length == 0)
-        {
-            entitiesToRemove = fetchEntities(clientId).AsEnumerable();
-        }
-        else
-        {
-            entitiesToRemove = fetchEntities(clientId)
-                .AsEnumerable()
-                .Where(e => !existingEntityIds.Contains(
-                    (Guid)e.GetType().GetProperty("Id").GetValue(e)));
-        }
-
-        foreach (var entity in entitiesToRemove)
-        {
-            removeEntity(entity);
-        }
-    }
 }

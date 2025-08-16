@@ -69,6 +69,9 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IClientMembershipFilterService, ClientMembershipFilterService>();
         services.AddScoped<IClientSearchService, ClientSearchService>();
         services.AddScoped<IClientSortingService, ClientSortingService>();
+        services.AddScoped<IClientChangeTrackingService, ClientChangeTrackingService>();
+        services.AddScoped<IClientEntityManagementService, ClientEntityManagementService>();
+        services.AddScoped<IClientWorkFilterService, ClientWorkFilterService>();
 
         // Group Domain Services
         services.AddScoped<IGroupTreeService, GroupTreeService>();
