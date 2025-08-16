@@ -2,6 +2,7 @@ using Klacks.Api.Domain.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 
@@ -97,19 +98,12 @@ public class ClientMembershipFilterService : IClientMembershipFilterService
 
     public IQueryable<Client> ApplyMembershipYearFilter(IQueryable<Client> query, BreakFilter filter)
     {
-        var startDate = new DateTime(filter.CurrentYear, 1, 1);
-        var endDate = new DateTime(filter.CurrentYear + 1, 1, 1);
+        var (startDate, endDate) = DateRangeUtility.GetYearRange(filter.CurrentYear);
 
         return query.Where(c => c.Membership!.ValidFrom < endDate &&
                                (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startDate));
     }
 
-    public IQueryable<Client> ApplyBreaksYearFilter(IQueryable<Client> query, BreakFilter filter)
-    {
-        // Break filtering is now handled directly in BreakList method for better EF control
-        // This method is kept for interface compatibility but doesn't modify the query
-        return query;
-    }
 
     public bool IsActiveMembership(DateTime validFrom, DateTime? validUntil)
     {

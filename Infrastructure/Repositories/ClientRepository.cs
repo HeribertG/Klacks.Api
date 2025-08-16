@@ -3,6 +3,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Presentation.DTOs.Filter;
@@ -76,13 +77,10 @@ public class ClientRepository : IClientRepository
         tmp = _membershipFilterService.ApplyMembershipYearFilter(tmp, filter);
         tmp = _sortingService.ApplySorting(tmp, filter.OrderBy, filter.SortOrder);
         
-        // Materialize clients first, then fetch and assign breaks separately (like FilterWorks pattern)
         var clients = await tmp.ToListAsync();
         var clientIds = clients.Select(c => c.Id).ToList();
         
-        // Get breaks for these clients with proper filtering
-        var startDate = new DateTime(filter.CurrentYear, 1, 1);
-        var endDate = new DateTime(filter.CurrentYear + 1, 1, 1);
+        var (startDate, endDate) = DateRangeUtility.GetYearRange(filter.CurrentYear);
         var absenceIds = filter.Absences.Where(x => x.Checked).Select(x => x.Id).ToList();
         
         var breaks = await this.context.Break
@@ -462,7 +460,6 @@ public class ClientRepository : IClientRepository
                entity => this.context.Annotation.Remove(entity)
            );
 
-
         if (this.context.ChangeTracker.HasChanges())
         {
             this.context.SaveChanges();
@@ -502,9 +499,4 @@ public class ClientRepository : IClientRepository
 
         return tmp;
     }
-
-
-
-
-
 }

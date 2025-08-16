@@ -1,6 +1,7 @@
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
@@ -11,8 +12,8 @@ public class ClientWorkFilterService : IClientWorkFilterService
 {
     public IQueryable<Client> FilterByMembershipYearMonth(IQueryable<Client> query, int year, int month)
     {
-        var startDate = new DateTime(year, month + 1, 1);
-        var endDate = startDate.AddMonths(1);
+        // Note: This uses month + 1 (different from standard month range)
+        var (startDate, endDate) = DateRangeUtility.GetMonthRange(year, month + 1);
 
         return query.Where(co =>
             co.Membership!.ValidFrom.Date <= startDate &&
@@ -22,8 +23,11 @@ public class ClientWorkFilterService : IClientWorkFilterService
 
     public IQueryable<Client> FilterByWorkSchedule(IQueryable<Client> query, WorkFilter filter, DataBaseContext context)
     {
-        var startDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1).AddDays(filter.DayVisibleAfterMonth * -1);
-        var endDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1).AddMonths(1).AddDays(-1).AddDays(filter.DayVisibleAfterMonth);
+        var (startDate, endDate) = DateRangeUtility.GetExtendedMonthRange(
+            filter.CurrentYear, 
+            filter.CurrentMonth, 
+            filter.DayVisibleAfterMonth, 
+            filter.DayVisibleAfterMonth);
 
         // First materialize the clients
         var clients = query.ToList();

@@ -11,7 +11,6 @@ public interface IClientMembershipFilterService
 
     IQueryable<Client> ApplyMembershipYearFilter(IQueryable<Client> query, BreakFilter filter);
 
-    IQueryable<Client> ApplyBreaksYearFilter(IQueryable<Client> query, BreakFilter filter);
 
     bool IsActiveMembership(DateTime validFrom, DateTime? validUntil);
 
