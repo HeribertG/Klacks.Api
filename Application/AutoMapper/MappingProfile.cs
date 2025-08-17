@@ -130,9 +130,7 @@ public class MappingProfile : Profile
           .ForMember(dest => dest.Breaks, opt => opt.Ignore())
           ;
 
-        CreateMap<Client, ClientBreakResource>()
-          .ForMember(dest => dest.Membership, opt => opt.Ignore())
-          ;
+        CreateMap<Client, ClientBreakResource>();
 
         CreateMap<Client, ClientWorkResource>()
          .ForMember(dest => dest.Membership, opt => opt.Ignore())
