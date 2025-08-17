@@ -11,6 +11,7 @@ namespace Klacks.Api.Data.Seed
             CalendarRules.SeedData(migrationBuilder);
             AbsencesSeed.SeedData(migrationBuilder);
             Macros.SeedData(migrationBuilder);
+            SwissCantonCalendarSeed.SeedCalendarSelections(migrationBuilder);
             FakeDatas.SeedData(migrationBuilder);
         }
     }

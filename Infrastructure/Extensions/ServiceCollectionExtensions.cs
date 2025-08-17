@@ -7,7 +7,6 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Repositories;
 using Klacks.Api.Infrastructure.Services;
-using Klacks.Api.Infrastructure.Services.PdfExports;
 using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Domain.Services.Holidays;
 using Klacks.Api.Domain.Services.Shifts;
@@ -42,7 +41,6 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IWorkRepository, WorkRepository>();
         services.AddScoped<IShiftRepository, ShiftRepository>();
         services.AddScoped<IGroupRepository, GroupRepository>();
-        services.AddScoped<IGanttPdfExportService, GanttPdfExportService>();
         services.AddScoped<IAssignedGroupRepository, AssignedGroupRepository>();
         services.AddScoped<IGroupVisibilityRepository, GroupVisibilityRepository>();
         services.AddScoped<IContractRepository, ContractRepository>();

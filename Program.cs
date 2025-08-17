@@ -1,13 +1,12 @@
 ﻿using FluentValidation;
 using Klacks.Api;
-using Klacks.Api.Infrastructure.Converters;
+using Klacks.Api.Application.Validation;
 using Klacks.Api.Data.Seed;
-using Klacks.Api.Domain.Common;
-using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Domain.Models.Authentification;
+using Klacks.Api.Infrastructure.Converters;
 using Klacks.Api.Infrastructure.Exceptions;
 using Klacks.Api.Infrastructure.Extensions;
-using Klacks.Api.Domain.Models.Authentification;
-using Klacks.Api.Application.Validation;
+using Klacks.Api.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
