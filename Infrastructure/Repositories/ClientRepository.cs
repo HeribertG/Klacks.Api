@@ -59,25 +59,25 @@ public class ClientRepository : IClientRepository
 
     public async Task<List<Client>> BreakList(BreakFilter filter)
     {
-        var tmp = await FilterClients(filter.SelectedGroup);
+        var query = await FilterClients(filter.SelectedGroup);
 
          if (!string.IsNullOrEmpty(filter.SearchString))
         {
             // Ist der search string eine Nummer, sucht man nach der idNumber
             if (_searchService.IsNumericSearch(filter.SearchString))
             {
-                tmp = _searchService.ApplyIdNumberSearch(tmp, int.Parse(filter.SearchString.Trim()));
+                query = _searchService.ApplyIdNumberSearch(query, int.Parse(filter.SearchString.Trim()));
             }
             else
             {
-                tmp = _searchService.ApplySearchFilter(tmp, filter.SearchString, false);
+                query = _searchService.ApplySearchFilter(query, filter.SearchString, false);
             }
         }
 
-        tmp = _membershipFilterService.ApplyMembershipYearFilter(tmp, filter);
-        tmp = _sortingService.ApplySorting(tmp, filter.OrderBy, filter.SortOrder);
+        query = _membershipFilterService.ApplyMembershipYearFilter(query, filter);
+        query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder);
         
-        var clients = await tmp.ToListAsync();
+        var clients = await query.ToListAsync();
         var clientIds = clients.Select(c => c.Id).ToList();
         
         var (startDate, endDate) = DateRangeUtility.GetYearRange(filter.CurrentYear);
@@ -111,11 +111,11 @@ public class ClientRepository : IClientRepository
                                 .AsQueryable();
 
         var myTuple = await _changeTrackingService.GetLastChangedClientsAsync(baseQuery, filter);
-        var tmp = myTuple.clients;
+        var query = myTuple.clients;
 
         var maxPages = 0;
 
-        var count = tmp.Count();
+        var count = query.Count();
         if (count > 0)
         {
             maxPages = count / filter.NumberOfItemsPerPage;
@@ -124,12 +124,12 @@ public class ClientRepository : IClientRepository
                 maxPages = 1;
             }
 
-            tmp = tmp.Skip(filter.RequiredPage * filter.NumberOfItemsPerPage).Take(filter.NumberOfItemsPerPage);
+            query = query.Skip(filter.RequiredPage * filter.NumberOfItemsPerPage).Take(filter.NumberOfItemsPerPage);
         }
 
         var res = new TruncatedClient
         {
-            Clients = await tmp.ToListAsync(),
+            Clients = await query.ToListAsync(),
             MaxItems = count,
             MaxPages = maxPages,
             CurrentPage = filter.RequiredPage,
@@ -174,11 +174,11 @@ public class ClientRepository : IClientRepository
 
     public async Task<IQueryable<Client>> FilterClients(FilterResource filter)
     {
-        IQueryable<Client> tmp;
+        IQueryable<Client> query;
 
         if (filter.ShowDeleteEntries)
         {
-            tmp = this.context.Client.IgnoreQueryFilters()
+            query = this.context.Client.IgnoreQueryFilters()
                                 .Include(cu => cu.Addresses)
                                 .Include(cu => cu.Communications)
                                 .Include(cu => cu.Annotations)
@@ -189,7 +189,7 @@ public class ClientRepository : IClientRepository
         }
         else
         {
-            tmp = this.context.Client.Include(cu => cu.Addresses)
+            query = this.context.Client.Include(cu => cu.Addresses)
                                 .Include(cu => cu.Communications)
                                 .Include(cu => cu.Annotations)
                                 .Include(cu => cu.Membership)
@@ -197,56 +197,54 @@ public class ClientRepository : IClientRepository
                                 .AsQueryable();
         }
 
-        tmp = await FilterClientsByGroupId(filter.SelectedGroup, tmp);
+        query = await FilterClientsByGroupId(filter.SelectedGroup, query);
 
         // Ist der searchString eine Nummer, sucht man nach der idNumber
         if (_searchService.IsNumericSearch(filter.SearchString))
         {
-            var tmp1 = _searchService.ApplyIdNumberSearch(tmp, int.Parse(filter.SearchString.Trim()));
+            var query1 = _searchService.ApplyIdNumberSearch(query, int.Parse(filter.SearchString.Trim()));
 
             if (filter.IncludeAddress)
             {
-                tmp = _searchService.ApplyPhoneOrZipSearch(tmp, filter.SearchString.Trim());
-                if (tmp1.Any() && tmp.Any())
+                query = _searchService.ApplyPhoneOrZipSearch(query, filter.SearchString.Trim());
+                if (query1.Any() && query.Any())
                 {
-                    tmp = tmp.Union(tmp1);
+                    query = query.Union(query1);
                 }
 
-                if (tmp1.Any() && !tmp.Any())
+                if (query1.Any() && !query.Any())
                 {
-                    tmp = tmp1;
+                    query = query1;
                 }
             }
             else
             {
-                tmp = tmp1;
+                query = query1;
             }
 
-            tmp = _sortingService.ApplySorting(tmp, filter.OrderBy, filter.SortOrder);
+            query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder);
         }
         else
         {
-            if (filter.ClientType.HasValue && filter.ClientType.Value != -1)
-            {
-                tmp = tmp.Where(x => (int)x.Type == filter.ClientType.Value);
-            }
+            // Apply entity type filter (Employee, ExternEmp, Customer)
+            query = _clientFilterService.ApplyEntityTypeFilter(query, filter.Employee, filter.ExternEmp, filter.Customer);
 
             var addressTypeList = _clientFilterService.CreateAddressTypeList(filter.HomeAddress, filter.CompanyAddress, filter.InvoiceAddress);
-            var gender = _clientFilterService.CreateGenderList(filter.Male, filter.Female, filter.LegalEntity);
+            var gender = _clientFilterService.CreateGenderList(filter.Male, filter.Female, filter.LegalEntity, filter.Intersexuality);
 
-            tmp = _searchService.ApplySearchFilter(tmp, filter.SearchString, filter.IncludeAddress);
+            query = _searchService.ApplySearchFilter(query, filter.SearchString, filter.IncludeAddress);
 
             if (!(filter.SearchOnlyByName.HasValue && filter.SearchOnlyByName.Value))
             {
-                tmp = _clientFilterService.ApplyGenderFilter(tmp, gender, filter.LegalEntity);
+                query = _clientFilterService.ApplyGenderFilter(query, gender, filter.LegalEntity);
 
-                tmp = _clientFilterService.ApplyAnnotationFilter(tmp, filter.HasAnnotation);
+                query = _clientFilterService.ApplyAnnotationFilter(query, filter.HasAnnotation);
 
-                tmp = _clientFilterService.ApplyAddressTypeFilter(tmp, addressTypeList);
+                query = _clientFilterService.ApplyAddressTypeFilter(query, addressTypeList);
 
-                tmp = _clientFilterService.ApplyStateOrCountryFilter(tmp, filter.FilteredStateToken, filter.Countries);
+                query = _clientFilterService.ApplyStateOrCountryFilter(query, filter.FilteredStateToken, filter.Countries);
 
-                tmp = _membershipFilterService.ApplyMembershipFilter(tmp,
+                query = _membershipFilterService.ApplyMembershipFilter(query,
                                               filter.ActiveMembership.HasValue && filter.ActiveMembership.Value,
                                               filter.FormerMembership.HasValue && filter.FormerMembership.Value,
                                               filter.FutureMembership.HasValue && filter.FutureMembership.Value);
@@ -254,22 +252,22 @@ public class ClientRepository : IClientRepository
                 if ((filter.ScopeFromFlag.HasValue || filter.ScopeUntilFlag.HasValue) &&
                     (filter.ScopeFrom.HasValue || filter.ScopeUntil.HasValue))
                 {
-                    tmp = _membershipFilterService.ApplyScopeFilter(tmp, filter.ScopeFromFlag, filter.ScopeUntilFlag, filter.ScopeFrom, filter.ScopeUntil);
+                    query = _membershipFilterService.ApplyScopeFilter(query, filter.ScopeFromFlag, filter.ScopeUntilFlag, filter.ScopeFrom, filter.ScopeUntil);
                 }
             }
 
-            tmp = _sortingService.ApplySorting(tmp, filter.OrderBy, filter.SortOrder);
+            query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder);
         }
 
-        return tmp;
+        return query;
     }
 
     public async Task<Client?> FindByMail(string mail)
     {
-        var tmp = await this.context.Communication.FirstOrDefaultAsync(x => x.Value == mail && (x.Type == CommunicationTypeEnum.OfficeMail || x.Type == CommunicationTypeEnum.PrivateMail));
-        if (tmp != null)
+        var query = await this.context.Communication.FirstOrDefaultAsync(x => x.Value == mail && (x.Type == CommunicationTypeEnum.OfficeMail || x.Type == CommunicationTypeEnum.PrivateMail));
+        if (query != null)
         {
-            return await this.context.Client.FirstOrDefaultAsync(x => x.Id == tmp.ClientId);
+            return await this.context.Client.FirstOrDefaultAsync(x => x.Id == query.ClientId);
         }
 
         return null!;
@@ -360,9 +358,9 @@ public class ClientRepository : IClientRepository
 
     public async Task<TruncatedClient> Truncated(FilterResource filter)
     {
-        var tmp = await this.FilterClients(filter);
+        var query = await this.FilterClients(filter);
 
-        var count = tmp.Count();
+        var count = query.Count();
         var maxPage = filter.NumberOfItemsPerPage > 0 ? (count / filter.NumberOfItemsPerPage) : 0;
 
         var firstItem = 0;
@@ -395,11 +393,11 @@ public class ClientRepository : IClientRepository
             firstItem = filter.RequiredPage * filter.NumberOfItemsPerPage;
         }
 
-        tmp = tmp.Skip(firstItem).Take(filter.NumberOfItemsPerPage);
+        query = query.Skip(firstItem).Take(filter.NumberOfItemsPerPage);
 
         var res = new TruncatedClient
         {
-            Clients = await tmp.ToListAsync(),
+            Clients = await query.ToListAsync(),
             MaxItems = count,
         };
 
@@ -416,25 +414,25 @@ public class ClientRepository : IClientRepository
 
     public async Task<List<Client>> WorkList(WorkFilter filter)
     {
-        var tmp = await this.FilterClients(filter.SelectedGroup);
+        var query = await this.FilterClients(filter.SelectedGroup);
 
         if (!string.IsNullOrEmpty(filter.SearchString))
         {
             // Ist der search string eine Nummer, sucht man nach der idNumber
             if (_searchService.IsNumericSearch(filter.SearchString))
             {
-                tmp = _searchService.ApplyIdNumberSearch(tmp, int.Parse(filter.SearchString.Trim()));
+                query = _searchService.ApplyIdNumberSearch(query, int.Parse(filter.SearchString.Trim()));
             }
             else
             {
-                tmp = _searchService.ApplySearchFilter(tmp, filter.SearchString, false);
+                query = _searchService.ApplySearchFilter(query, filter.SearchString, false);
             }
         }
 
-        tmp = _workFilterService.FilterByMembershipYearMonth(tmp, filter.CurrentYear, filter.CurrentMonth);
-        tmp = _workFilterService.FilterByWorkSchedule(tmp, filter, this.context);
-        tmp = _sortingService.ApplySorting(tmp, filter.OrderBy, filter.SortOrder);
-        return await Task.FromResult(tmp.ToList());
+        query = _workFilterService.FilterByMembershipYearMonth(query, filter.CurrentYear, filter.CurrentMonth);
+        query = _workFilterService.FilterByWorkSchedule(query, filter, this.context);
+        query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder);
+        return await Task.FromResult(query.ToList());
     }
 
     private void ChangeClientNestedLists(Client client)
@@ -465,24 +463,23 @@ public class ClientRepository : IClientRepository
             this.context.SaveChanges();
         }
     }
-
-    
+        
     private async Task<IQueryable<Client>> FilterClients(Guid? selectedGroup)
     {
-        var tmp = this.context.Client.Include(c => c.Membership).AsQueryable();
+        var query = this.context.Client.Include(c => c.Membership).AsQueryable();
 
-        tmp = await FilterClientsByGroupId(selectedGroup, tmp);
+        query = await FilterClientsByGroupId(selectedGroup, query);
 
-        return tmp;
+        return query;
     }
 
 
-    private async Task<IQueryable<Client>> FilterClientsByGroupId(Guid? selectedGroupId, IQueryable<Client> tmp)
+    private async Task<IQueryable<Client>> FilterClientsByGroupId(Guid? selectedGroupId, IQueryable<Client> query)
     {
         if (selectedGroupId.HasValue)
         {
             var clientIds = await this.groupClient.GetAllClientIdsFromGroupAndSubgroups(selectedGroupId.Value);
-            tmp = tmp.Where(client => clientIds.Contains(client.Id));
+            query = query.Where(client => clientIds.Contains(client.Id));
         }
         else
         {
@@ -492,11 +489,11 @@ public class ClientRepository : IClientRepository
                 if (rootlist.Any())
                 {
                     var clientIds = await this.groupClient.GetAllClientIdsFromGroupsAndSubgroupsFromList(rootlist);
-                    tmp = tmp.Where(client => clientIds.Contains(client.Id));
+                    query = query.Where(client => clientIds.Contains(client.Id));
                 }
             }
         }
 
-        return tmp;
+        return query;
     }
 }
