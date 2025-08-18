@@ -1,8 +1,6 @@
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Presentation.DTOs.Filter;
-using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Domain.Services.Settings;
 
@@ -30,21 +28,23 @@ public class SettingsTokenService : ISettingsTokenService
         var countries = await _countryRepository.List();
         var tokens = new List<StateCountryToken>();
         
-        // Transform states into tokens
         foreach (var state in states)
         {
-            tokens.Add(new StateCountryToken
+            var country = countries.FirstOrDefault(c => c.Abbreviation == state.CountryPrefix);
+            if (country != null)
             {
-                Id = state.Id,
-                State = state.Abbreviation,
-                StateName = state.Name,
-                Country = string.Empty,
-                CountryName = new MultiLanguage(),
-                Select = isSelected
-            });
+                tokens.Add(new StateCountryToken
+                {
+                    Id = state.Id,
+                    State = state.Abbreviation,
+                    StateName = state.Name,
+                    Country = country.Abbreviation,
+                    CountryName = country.Name,
+                    Select = isSelected
+                });
+            }
         }
         
-        // Transform countries into tokens
         foreach (var country in countries)
         {
             tokens.Add(new StateCountryToken
@@ -52,8 +52,8 @@ public class SettingsTokenService : ISettingsTokenService
                 Id = country.Id,
                 Country = country.Abbreviation,
                 CountryName = country.Name,
-                State = string.Empty,
-                StateName = new MultiLanguage(),
+                State = country.Abbreviation,
+                StateName = country.Name,
                 Select = isSelected
             });
         }

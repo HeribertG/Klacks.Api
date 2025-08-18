@@ -1,20 +1,19 @@
-using Klacks.Api.Application.AutoMapper;
-using Klacks.Api.BasicScriptInterpreter;
-using Klacks.Api.Infrastructure.Persistence;
-using Klacks.Api.Infrastructure.FileHandling;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.BasicScriptInterpreter;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Infrastructure.Interfaces;
-using Klacks.Api.Infrastructure.Repositories;
-using Klacks.Api.Infrastructure.Services;
-using Klacks.Api.Domain.Services.Groups;
-using Klacks.Api.Domain.Services.Holidays;
-using Klacks.Api.Domain.Services.Shifts;
-using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Domain.Services.Absences;
 using Klacks.Api.Domain.Services.Accounts;
-using Klacks.Api.Domain.Services.Settings;
 using Klacks.Api.Domain.Services.CalendarSelections;
+using Klacks.Api.Domain.Services.Clients;
+using Klacks.Api.Domain.Services.Groups;
+using Klacks.Api.Domain.Services.Holidays;
+using Klacks.Api.Domain.Services.Settings;
+using Klacks.Api.Domain.Services.Shifts;
+using Klacks.Api.Infrastructure.FileHandling;
+using Klacks.Api.Infrastructure.Interfaces;
+using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Repositories;
+using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Infrastructure.Services.Authentication;
 
 namespace Klacks.Api.Infrastructure.Extensions;
@@ -111,9 +110,6 @@ public static  class ServiceCollectionExtensions
 
         // Generic Services
         services.AddScoped(typeof(IGenericPaginationService<>), typeof(Klacks.Api.Domain.Services.Common.GenericPaginationService<>));
-
-
-
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
