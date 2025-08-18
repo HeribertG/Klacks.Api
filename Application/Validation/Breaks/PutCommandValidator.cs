@@ -64,7 +64,7 @@ public class PutCommandValidator : AbstractValidator<PutCommand<BreakResource>>
 
                     if (client.Membership == null)
                     {
-                        _logger.LogWarning("Client {ClientId} has no membership", breakResource.ClientId);
+                        _logger.LogWarning("Employee {ClientId} has no membership", breakResource.ClientId);
                         return false;
                     }
 

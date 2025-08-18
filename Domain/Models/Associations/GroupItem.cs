@@ -8,7 +8,7 @@ namespace Klacks.Api.Domain.Models.Associations;
 
 public class GroupItem : BaseEntity
 {
-    [ForeignKey("Client")]
+    [ForeignKey("Employee")]
     public Guid? ClientId { get; set; }
 
     [ForeignKey("Shift")]

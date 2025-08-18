@@ -32,12 +32,12 @@ public class PutCommandHandler : IRequestHandler<PutCommand<ClientResource>, Cli
             var client = _mapper.Map<Klacks.Api.Domain.Models.Staffs.Client>(request.Resource);
             var updatedClient = await _clientRepository.Put(client);
             await _unitOfWork.CompleteAsync();
-            _logger.LogInformation("Client with ID {ClientId} updated successfully.", request.Resource.Id);
+            _logger.LogInformation("Employee with ID {ClientId} updated successfully.", request.Resource.Id);
             return _mapper.Map<ClientResource>(updatedClient);
         }
         catch (KeyNotFoundException)
         {
-            _logger.LogWarning("Client with ID {ClientId} not found.", request.Resource.Id);
+            _logger.LogWarning("Employee with ID {ClientId} not found.", request.Resource.Id);
             return null;
         }
         catch (Exception ex)

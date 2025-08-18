@@ -9,7 +9,7 @@ public enum AddressTypeEnum
 
 public enum EntityTypeEnum
 {
-    Client = 0,
+    Employee = 0,
     ExternEmp = 1,
     Customer = 2
 }

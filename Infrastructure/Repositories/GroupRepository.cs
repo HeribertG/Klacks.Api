@@ -141,7 +141,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         {
             foreach (var item in group.GroupItems)
             {
-                Console.WriteLine($"Repository: GroupItem {item.Id} - ClientId: {item.ClientId}, Client: {item.Client?.Name ?? "NULL"}");
+                Console.WriteLine($"Repository: GroupItem {item.Id} - ClientId: {item.ClientId}, Employee: {item.Client?.Name ?? "NULL"}");
             }
         }
 

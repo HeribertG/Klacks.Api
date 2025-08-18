@@ -10,7 +10,7 @@ public class Membership : BaseEntity
     public virtual Client Client { get; set; } = null!;
 
     [Required]
-    [ForeignKey("Client")]
+    [ForeignKey("Employee")]
     public Guid ClientId { get; set; }
 
     public int Type { get; set; }

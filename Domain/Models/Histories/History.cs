@@ -8,7 +8,7 @@ namespace Klacks.Api.Domain.Models.Histories;
 public class History : BaseEntity
 {
     [Required]
-    [ForeignKey("Client")]
+    [ForeignKey("Employee")]
     public Guid ClientId { get; set; }
 
     public Client? Client { get; set; }

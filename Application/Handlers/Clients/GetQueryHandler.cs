@@ -23,7 +23,7 @@ namespace Klacks.Api.Application.Handlers.Clients
             
             if (client == null)
             {
-                throw new KeyNotFoundException($"Client with ID {request.Id} not found.");
+                throw new KeyNotFoundException($"Employee with ID {request.Id} not found.");
             }
             
             return _mapper.Map<ClientResource>(client);

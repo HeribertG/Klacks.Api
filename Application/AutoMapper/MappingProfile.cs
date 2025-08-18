@@ -283,7 +283,7 @@ public class MappingProfile : Profile
             ;
 
         CreateMap<GroupItem, GroupItemResource>()
-          .ForMember(dest => dest.Client, opt => opt.MapFrom(src => src.Client != null ? src.Client : null)) // Explicitly map Client
+          .ForMember(dest => dest.Client, opt => opt.MapFrom(src => src.Client != null ? src.Client : null)) // Explicitly map Employee
           ;
 
         CreateMap<GroupItemResource, GroupItem>()
@@ -414,7 +414,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.RequiredPage, opt => opt.MapFrom(src => src.RequiredPage))
             .ForMember(dest => dest.SortOrder, opt => opt.MapFrom(src => src.SortOrder));
 
-        // Filter Resource to Client Search Criteria
+        // Filter Resource to Employee Search Criteria
         CreateMap<FilterResource, ClientSearchCriteria>()
             .ForMember(dest => dest.FirstItemOnLastPage, opt => opt.MapFrom(src => src.FirstItemOnLastPage))
             .ForMember(dest => dest.IsNextPage, opt => opt.MapFrom(src => src.IsNextPage))

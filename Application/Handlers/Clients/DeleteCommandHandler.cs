@@ -32,19 +32,19 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<ClientResource
             var client = await _clientRepository.Get(request.Id);
             if (client == null)
             {
-                _logger.LogWarning("Client with ID {ClientId} not found for deletion.", request.Id);
+                _logger.LogWarning("Employee with ID {ClientId} not found for deletion.", request.Id);
                 return null;
             }
 
             var clientResource = _mapper.Map<ClientResource>(client);
             await _clientRepository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
-            _logger.LogInformation("Client with ID {ClientId} deleted successfully.", request.Id);
+            _logger.LogInformation("Employee with ID {ClientId} deleted successfully.", request.Id);
             return clientResource;
         }
         catch (KeyNotFoundException)
         {
-            _logger.LogWarning("Client with ID {ClientId} not found for deletion.", request.Id);
+            _logger.LogWarning("Employee with ID {ClientId} not found for deletion.", request.Id);
             return null;
         }
         catch (Exception ex)

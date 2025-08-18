@@ -61,7 +61,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IShiftPaginationService, ShiftPaginationService>();
         services.AddScoped<IShiftGroupManagementService, ShiftGroupManagementService>();
 
-        // Client Domain Services
+        // Employee Domain Services
         services.AddScoped<IClientFilterService, ClientFilterService>();
         services.AddScoped<IClientMembershipFilterService, ClientMembershipFilterService>();
         services.AddScoped<IClientSearchService, ClientSearchService>();

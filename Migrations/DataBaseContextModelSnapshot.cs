@@ -1692,7 +1692,7 @@ namespace Klacks.Api.Migrations
                     b.ToTable("assigned_group", (string)null);
                 });
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.Client", b =>
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.Employee", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -2160,7 +2160,7 @@ namespace Klacks.Api.Migrations
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Associations.GroupItem", b =>
                 {
-                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "Client")
+                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Employee", "Employee")
                         .WithMany("GroupItems")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2179,7 +2179,7 @@ namespace Klacks.Api.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_group_item_shift_shift_id");
 
-                    b.Navigation("Client");
+                    b.Navigation("Employee");
 
                     b.Navigation("Group");
 
@@ -2209,7 +2209,7 @@ namespace Klacks.Api.Migrations
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Associations.Membership", b =>
                 {
-                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "Client")
+                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Employee", "Employee")
                         .WithOne("Membership")
                         .HasForeignKey("Klacks.Api.Domain.Models.Associations.Membership", "ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2222,7 +2222,7 @@ namespace Klacks.Api.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_membership_contract_contract_id");
 
-                    b.Navigation("Client");
+                    b.Navigation("Employee");
 
                     b.Navigation("Contract");
                 });
@@ -2241,14 +2241,14 @@ namespace Klacks.Api.Migrations
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Histories.History", b =>
                 {
-                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "Client")
+                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Employee", "Employee")
                         .WithMany()
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_history_client_client_id");
 
-                    b.Navigation("Client");
+                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Absence", b =>
@@ -2338,7 +2338,7 @@ namespace Klacks.Api.Migrations
                         .HasForeignKey("BreakReasonId")
                         .HasConstraintName("fk_break_break_reason_break_reason_id");
 
-                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "Client")
+                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Employee", "Employee")
                         .WithMany("Breaks")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2349,23 +2349,23 @@ namespace Klacks.Api.Migrations
 
                     b.Navigation("BreakReason");
 
-                    b.Navigation("Client");
+                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Shift", b =>
                 {
-                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "Client")
+                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Employee", "Employee")
                         .WithMany()
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_shift_client_client_id");
 
-                    b.Navigation("Client");
+                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Work", b =>
                 {
-                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "Client")
+                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Employee", "Employee")
                         .WithMany("Works")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2379,7 +2379,7 @@ namespace Klacks.Api.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_work_shift_shift_id");
 
-                    b.Navigation("Client");
+                    b.Navigation("Employee");
 
                     b.Navigation("Shift");
                 });
@@ -2571,31 +2571,31 @@ namespace Klacks.Api.Migrations
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.Address", b =>
                 {
-                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "Client")
+                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Employee", "Employee")
                         .WithMany("Addresses")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_address_client_client_id");
 
-                    b.Navigation("Client");
+                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.Annotation", b =>
                 {
-                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "Client")
+                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Employee", "Employee")
                         .WithMany("Annotations")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_annotation_client_client_id");
 
-                    b.Navigation("Client");
+                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.AssignedGroup", b =>
                 {
-                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "Client")
+                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Employee", "Employee")
                         .WithMany()
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2609,21 +2609,21 @@ namespace Klacks.Api.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_assigned_group_group_group_id");
 
-                    b.Navigation("Client");
+                    b.Navigation("Employee");
 
                     b.Navigation("Group");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.Communication", b =>
                 {
-                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "Client")
+                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Employee", "Employee")
                         .WithMany("Communications")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_communication_client_client_id");
 
-                    b.Navigation("Client");
+                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -2698,7 +2698,7 @@ namespace Klacks.Api.Migrations
                     b.Navigation("Groups");
                 });
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.Client", b =>
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.Employee", b =>
                 {
                     b.Navigation("Addresses");
 

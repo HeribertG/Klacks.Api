@@ -73,7 +73,7 @@ public class GroupMembershipService : IGroupMembershipService
 
         if (existingItem != null)
         {
-            _logger.LogDebug("Client {ClientId} is already a member of group {GroupId}", clientId, groupId);
+            _logger.LogDebug("Employee {ClientId} is already a member of group {GroupId}", clientId, groupId);
             return;
         }
 
@@ -87,7 +87,7 @@ public class GroupMembershipService : IGroupMembershipService
         _context.GroupItem.Add(groupItem);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Client {ClientId} added to group {GroupId}", clientId, groupId);
+        _logger.LogInformation("Employee {ClientId} added to group {GroupId}", clientId, groupId);
     }
 
     public async Task RemoveClientFromGroupAsync(Guid groupId, Guid clientId)
@@ -99,14 +99,14 @@ public class GroupMembershipService : IGroupMembershipService
 
         if (groupItem == null)
         {
-            _logger.LogDebug("Client {ClientId} is not a member of group {GroupId}", clientId, groupId);
+            _logger.LogDebug("Employee {ClientId} is not a member of group {GroupId}", clientId, groupId);
             return;
         }
 
         _context.GroupItem.Remove(groupItem);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Client {ClientId} removed from group {GroupId}", clientId, groupId);
+        _logger.LogInformation("Employee {ClientId} removed from group {GroupId}", clientId, groupId);
     }
 
     public async Task<IEnumerable<Client>> GetGroupMembersAsync(Guid groupId)
@@ -145,7 +145,7 @@ public class GroupMembershipService : IGroupMembershipService
         var exists = await _context.GroupItem
             .AnyAsync(gi => gi.GroupId == groupId && gi.ClientId == clientId);
 
-        _logger.LogDebug("Client {ClientId} membership in group {GroupId}: {IsMember}", clientId, groupId, exists);
+        _logger.LogDebug("Employee {ClientId} membership in group {GroupId}: {IsMember}", clientId, groupId, exists);
         return exists;
     }
 

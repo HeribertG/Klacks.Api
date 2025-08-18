@@ -295,7 +295,7 @@ namespace Klacks.Api.Data.Seed
                 var id = Guid.NewGuid();
                 var gender = GenerateRandomGender();
                 var isLegalEntity = rand.Next(100) < 20; // 20% chance for legal entity
-                var clientType = EntityTypeEnum.Client; // Default
+                var clientType = EntityTypeEnum.Employee; // Default
                 
                 if (isLegalEntity)
                 {
@@ -303,7 +303,7 @@ namespace Klacks.Api.Data.Seed
                 }
                 else
                 {
-                    clientType = rand.Next(100) < 20 ? EntityTypeEnum.ExternEmp : EntityTypeEnum.Client;
+                    clientType = rand.Next(100) < 20 ? EntityTypeEnum.ExternEmp : EntityTypeEnum.Employee;
                 }
                 
                 var client = new ClientDb
@@ -1979,8 +1979,8 @@ namespace Klacks.Api.Data.Seed
 
             foreach (var client in clients)
             {
-                // Only process clients with Type == EntityTypeEnum.Client (0)
-                if (client.Type != EntityTypeEnum.Client)
+                // Only process clients with Type == EntityTypeEnum.Employee (0)
+                if (client.Type != EntityTypeEnum.Employee)
                     continue;
 
                 // Find the client's address  
