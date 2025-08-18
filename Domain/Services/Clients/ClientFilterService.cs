@@ -17,17 +17,17 @@ public class ClientFilterService : IClientFilterService
 
         if (legalEntity != null && legalEntity.Value)
         {
-            if (genderTypes.Length > 0 )
+            if (genderTypes.Length > 0)
             {
                 return query.Where(co => co.LegalEntity == legalEntity.Value && genderTypes.Any(y => y == ((int)co.Gender)));
             }
 
-            return query.Where(co => co.LegalEntity == legalEntity.Value );
-        } 
+            return query.Where(co => co.LegalEntity == legalEntity.Value);
+        }
 
         if (genderTypes.Length > 0 && (legalEntity == null || !legalEntity.Value))
         {
-            return query.Where(co => genderTypes.Any(y => y == ((int)co.Gender)));
+            return query.Where(co => genderTypes.Any(y => y == ((int)co.Gender)) && !co.LegalEntity);
         }
 
         return query;
@@ -81,24 +81,24 @@ public class ClientFilterService : IClientFilterService
 
     public int[] CreateAddressTypeList(bool? homeAddress, bool? companyAddress, bool? invoiceAddress)
     {
-        var tmp = new List<int>();
+        var lst = new List<int>();
 
         if (homeAddress != null && homeAddress.Value)
         {
-            tmp.Add(0);
+            lst.Add(0);
         }
 
         if (companyAddress != null && companyAddress.Value)
         {
-            tmp.Add(1);
+            lst.Add(1);
         }
 
         if (invoiceAddress != null && invoiceAddress.Value)
         {
-            tmp.Add(2);
+            lst.Add(2);
         }
 
-        return tmp.ToArray();
+        return lst.ToArray();
     }
 
     public int[] CreateGenderList(bool? male, bool? female, bool? legalEntity, bool? intersexuality)
@@ -113,11 +113,6 @@ public class ClientFilterService : IClientFilterService
         if (female != null && female.Value)
         {
             tmp.Add((int)GenderEnum.Female);
-        }
-
-        if (legalEntity != null && legalEntity.Value)
-        {
-            tmp.Add((int)GenderEnum.LegalEntity);
         }
 
         if (intersexuality != null && intersexuality.Value)
