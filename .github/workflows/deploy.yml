@@ -1,0 +1,67 @@
+# .github/workflows/deploy.yml für Klacks.Api
+name: Deploy Klacks.Api to Hetzner
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup SSH Key
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy to Hetzner Server
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          cd ~/apps
+          
+          echo "🚀 Deploying Klacks.Api..."
+          
+          # Klacks.Api Repository aktualisieren
+          if [ -d "Klacks.Api" ]; then
+            echo "📦 Updating Klacks.Api..."
+            cd Klacks.Api && git pull origin main && cd ..
+          else
+            echo "📦 Cloning Klacks.Api..."
+            git clone https://github.com/HeribertG/Klacks.Api.git
+          fi
+          
+          # Nur API neu bauen und starten
+          echo "🔨 Building Klacks.Api..."
+          docker compose build klacks-api --no-cache
+          docker compose up -d klacks-api
+          
+          echo "✅ Klacks.Api deployment completed!"
+          
+          # Status prüfen
+          docker compose ps klacks-api
+        EOF
+
+    - name: Health Check
+      run: |
+        sleep 15
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          echo "🏥 Health Check for Klacks.Api..."
+          
+          if curl -f -s http://localhost:5000/health > /dev/null; then
+            echo "✅ Klacks.Api is healthy"
+          else
+            echo "❌ Klacks.Api health check failed"
+            docker compose logs klacks-api --tail=10
+          fi
+          
+          # PostgreSQL Connection Test
+          if curl -f -s http://localhost:5000/api/database-test > /dev/null; then
+            echo "✅ Database connection working"
+          else
+            echo "⚠️  Database test endpoint not available"
+          fi
+        EOF

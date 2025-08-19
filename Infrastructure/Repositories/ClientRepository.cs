@@ -88,6 +88,7 @@ public class ClientRepository : IClientRepository
             .Where(b => clientIds.Contains(b.ClientId) &&
                        absenceIds.Contains(b.AbsenceId) &&
                        b.From < endDate && b.Until >= startDate)
+            .OrderBy(b => b.From)
             .ToListAsync();
         
         var breaksByClientId = breaks.ToLookup(b => b.ClientId);
@@ -466,13 +467,12 @@ public class ClientRepository : IClientRepository
         
     private async Task<IQueryable<Client>> FilterClients(Guid? selectedGroup)
     {
-        var query = this.context.Client.Include(c => c.Membership).AsQueryable();
+        var query = this.context.Client.Where(c => c.Type != EntityTypeEnum.Customer).Include(c => c.Membership).AsQueryable();
 
         query = await FilterClientsByGroupId(selectedGroup, query);
 
         return query;
     }
-
 
     private async Task<IQueryable<Client>> FilterClientsByGroupId(Guid? selectedGroupId, IQueryable<Client> query)
     {

@@ -1,7 +1,6 @@
-using Klacks.Api.Domain.Common;
-using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Infrastructure.Persistence;
 
 namespace Klacks.Api.Infrastructure.Repositories
 {

@@ -104,27 +104,5 @@ public class PutCommandValidator : AbstractValidator<PutCommand<BreakResource>>
             })
             .WithMessage("Invalid AbsenceId - absence type does not exist");
 
-        RuleFor(x => x.Resource)
-            .MustAsync(async (breakResource, cancellation) => 
-            {
-                try
-                {
-                    var hasOverlap = await _context.Break
-                        .AsNoTracking()
-                        .Where(b => b.ClientId == breakResource.ClientId)
-                        .Where(b => b.Id != breakResource.Id) // Exclude current break
-                        .Where(b => 
-                            (b.From < breakResource.Until && b.Until > breakResource.From))
-                        .AnyAsync(cancellation);
-
-                    return !hasOverlap;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error checking for overlapping breaks for client {ClientId}", breakResource.ClientId);
-                    return false;
-                }
-            })
-            .WithMessage("Break overlaps with an existing break for this client");
     }
 }
