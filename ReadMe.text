@@ -1,1 +1,0 @@
-dotnet run --project Klacks.Api.csproj  --urls "https://localhost:44371"
