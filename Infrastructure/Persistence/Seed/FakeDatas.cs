@@ -27,6 +27,8 @@ namespace Klacks.Api.Data.Seed
                 var scriptForSettings = GenerateInsertScriptForSettings();
                 var scriptForGroups = FakeDataGroups.GenerateInsertScriptForGroups();
                 var scriptForGroupItems = GenerateInsertScriptForGroupItems(results.Clients, results.Addresses);
+                var (scriptForShifts, shiftIds) = GenerateInsertScriptForShifts();
+                var scriptForShiftGroupItems = GenerateInsertScriptForShiftGroupItems(shiftIds);
 
                 migrationBuilder.Sql(scriptForClients);
                 migrationBuilder.Sql(scriptForAddresses);
@@ -37,6 +39,8 @@ namespace Klacks.Api.Data.Seed
                 migrationBuilder.Sql(scriptForSettings);
                 migrationBuilder.Sql(scriptForGroups);
                 migrationBuilder.Sql(scriptForGroupItems);
+                migrationBuilder.Sql(scriptForShifts);
+                migrationBuilder.Sql(scriptForShiftGroupItems);
             }
         }
 
@@ -172,6 +176,47 @@ namespace Klacks.Api.Data.Seed
         };
         }
 
+        private static List<string> CreateCompanyNames()
+        {
+            return new List<string> 
+            {
+                "Alpine", "Summit", "Crystal", "Phoenix", "Horizon", "Stellar", "Quantum", "Nexus", "Vertex", "Zenith",
+                "Pioneer", "Atlas", "Vanguard", "Meridian", "Pinnacle", "Orion", "Eclipse", "Aurora", "Cascade", "Titan",
+                "Synergy", "Apex", "Frontier", "Infinity", "Dynamic", "Global", "Prime", "Elite", "Optimal", "Strategic",
+                "Innovation", "Solutions", "Systems", "Technologies", "Consulting", "Services", "Partners", "Ventures",
+                "Holdings", "International", "Swiss", "Europe", "Digital", "Smart", "Future", "Advanced", "Professional",
+                "Enterprise", "Corporate", "Business", "Management", "Development", "Resources", "Capital", "Investment"
+            };
+        }
+
+        private static List<string> CreateCompanySuffixes()
+        {
+            return new List<string> 
+            {
+                "AG", "GmbH", "SA", "Sàrl", "Ltd", "Inc", "KG", "OHG", "KGaA", "SE", "Co", "Corp", "LLC", "PLC"
+            };
+        }
+
+        private static string GenerateCompanyName(Random rand)
+        {
+            var companyNames = CreateCompanyNames();
+            var suffixes = CreateCompanySuffixes();
+            
+            // Generate 1-3 word company name
+            var wordCount = rand.Next(1, 4);
+            var nameParts = new List<string>();
+            
+            for (int i = 0; i < wordCount; i++)
+            {
+                nameParts.Add(companyNames[rand.Next(companyNames.Count)]);
+            }
+            
+            var companyName = string.Join(" ", nameParts);
+            var suffix = suffixes[rand.Next(suffixes.Count)];
+            
+            return $"{companyName} {suffix}";
+        }
+
         private static ICollection<AddressDb> GenerateAddresses(Guid clientId, List<PostcodeCH> postcodes)
         {
             Random rand = new Random();
@@ -218,12 +263,12 @@ namespace Klacks.Api.Data.Seed
             return annotations;
         }
 
-        private static ICollection<BreakDb> GenerateBreaks(Guid clientId, int year)
+        private static ICollection<BreakDb> GenerateBreaks(Guid clientId, int year, MembershipDb membership)
         {
             var breaks = new List<BreakDb>();
             Random rand = new Random();
-            var maxBreaks = int.TryParse(FakeSettings.MaxBreaksPerClient, out int max) ? max : 30;
-            var sum = rand.Next(maxBreaks);
+            var maxBreaks = int.TryParse(FakeSettings.MaxBreaksPerClientPerYear, out int max) ? max : 30;
+            var sum = rand.Next(1, maxBreaks + 1); // Generate between 1 and maxBreaks inclusive
             var absencesId = new Guid[]
             {
         Guid.Parse("1070d7e6-f314-4d20-bc18-98c5357a4f89"),
@@ -246,31 +291,66 @@ namespace Klacks.Api.Data.Seed
         1,
             };
 
-            DateTime startOfYear = new DateTime(year, 1, 1);
-
-            for (int i = 0; i < sum; i++)
+            // Determine the valid range for breaks based on membership
+            DateTime membershipStart = membership.ValidFrom;
+            DateTime membershipEnd = membership.ValidUntil ?? DateTime.Now.AddYears(1);
+            
+            // Generate breaks for previous year, current year, and next year
+            // MaxBreaksPerClient applies per year, not total
+            var yearsToGenerate = new[] { year - 1, year, year + 1 };
+            
+            foreach (var targetYear in yearsToGenerate)
             {
-                var index = rand.Next(absencesId.Length);
-                var absenceId = absencesId[index];
-                var absenceMin = absenceMinLength[index];
-                if (rand.Next(2) != 0)
+                DateTime yearStart = new DateTime(targetYear, 1, 1);
+                DateTime yearEnd = new DateTime(targetYear, 12, 31);
+                
+                // Constrain to membership period
+                DateTime breakPeriodStart = membershipStart > yearStart ? membershipStart : yearStart;
+                DateTime breakPeriodEnd = membershipEnd < yearEnd ? membershipEnd : yearEnd;
+                
+                // Skip this year if no valid period exists
+                if (breakPeriodStart > breakPeriodEnd) continue;
+                
+                // Calculate days available for breaks in this year
+                int totalDays = (int)(breakPeriodEnd - breakPeriodStart).TotalDays + 1;
+                if (totalDays <= 0) continue;
+
+                // Generate breaks for this specific year
+                for (int i = 0; i < sum; i++)
                 {
-                    absenceMin *= 2;
+                    var index = rand.Next(absencesId.Length);
+                    var absenceId = absencesId[index];
+                    var absenceMin = absenceMinLength[index];
+                    if (rand.Next(2) != 0)
+                    {
+                        absenceMin *= 2;
+                    }
+
+                    // Ensure we don't go beyond the valid period for this year
+                    if (absenceMin > totalDays) continue;
+
+                    // Random start date within the valid period for this year
+                    int maxStartDay = Math.Max(0, totalDays - absenceMin);
+                    DateTime start = breakPeriodStart.AddDays(rand.Next(maxStartDay + 1));
+                    DateTime end = start.AddDays(absenceMin);
+
+                    // Double-check the end date is within bounds for this year
+                    if (end > breakPeriodEnd) 
+                    {
+                        end = breakPeriodEnd;
+                    }
+
+                    var item = new BreakDb()
+                    {
+                        Id = Guid.NewGuid(),
+                        ClientId = clientId,
+                        AbsenceId = absenceId,
+                        From = start,
+                        Until = end,
+                    };
+
+                    breaks.Add(item);
                 }
-
-                DateTime start = startOfYear.AddDays(rand.Next(365 - absenceMin));
-                DateTime end = start.AddDays(absenceMin);
-
-                var item = new BreakDb()
-                {
-                    Id = Guid.NewGuid(),
-                    ClientId = clientId,
-                    AbsenceId = absenceId,
-                    From = start,
-                    Until = end,
-                };
-
-                breaks.Add(item);
             }
 
             return breaks;
@@ -316,7 +396,12 @@ namespace Klacks.Api.Data.Seed
                     FirstName = GetRandomFirstName(gender, maleFirstNames, femaleFirstNames, i),
                     LegalEntity = isLegalEntity,
                     Type = clientType,
+                    Company = isLegalEntity ? GenerateCompanyName(rand) : string.Empty,
                 };
+
+                var membership = GenerateMembershipForClient(client, year);
+                memberships.Add(membership);
+                client.MembershipId = membership.Id;
 
                 if (withIncludes == true)
                 {
@@ -326,13 +411,9 @@ namespace Klacks.Api.Data.Seed
                     communications.AddRange(communication);
                     var annotation = GenerateAnnotations(id);
                     annotations.AddRange(annotation);
-                    var _break = GenerateBreaks(id, year);
+                    var _break = GenerateBreaks(id, year, membership);
                     breaks.AddRange(_break);
                 }
-
-                var membership = GenerateMembershipForClient(client, year);
-                memberships.Add(membership);
-                client.MembershipId = membership.Id;
 
                 clients.Add(client);
             }
@@ -457,14 +538,17 @@ namespace Klacks.Api.Data.Seed
             var settings = new[]
             {
                 // Email Settings
-                ("0f807cbb-e54a-4f5b-9383-5b03ccffc55d", "authenticationType", "<None>"),
-                ("3be9b255-4b0b-49fd-8585-556375187dac", "outgoingserver", "smtp-mail.outlook.com"),
+                ("0f807cbb-e54a-4f5b-9383-5b03ccffc55d", "authenticationType", "LOGIN"),
+                ("3be9b255-4b0b-49fd-8585-556375187dac", "outgoingserver", "mail.gmx.net"),
                 ("789530bc-18a3-48b1-946f-a5da6d66d357", "enabledSSL", "true"),
                 ("8d8b2ae3-7d7b-4f31-9778-0e348deb1fca", "dispositionNotification", "false"),
-                ("91f43fe3-0db7-4554-aa4d-8dac0151f118", "replyTo", "doNotReply@klacks-net.com"),
+                ("91f43fe3-0db7-4554-aa4d-8dac0151f118", "replyTo", "hgasparoli@gmx.ch"),
                 ("db3ee771-cbd6-420c-bdf7-8b1036bb82b9", "outgoingserverPort", "587"),
                 ("e16842eb-24ff-47c2-ad1b-5a3d6a2d20cd", "outgoingserverTimeout", "100"),
                 ("e3e61605-c1e9-48b9-b5c7-9e66c41889fe", "readReceipt", "false"),
+                ("a1b2c3d4-e5f6-7890-abcd-ef1234567890", "outgoingserverUsername", "hgasparoli@gmx.ch"),
+                ("a1b2c3d4-e5f6-7890-abcd-ef1234567891", "outgoingserverPassword", ""),
+                ("a1b2c3d4-e5f6-7890-abcd-ef1234567892", "mark", ""),
                 
                 // Application Settings
                 ("d5bbf185-b799-4aa4-86ca-c3fe879654f2", "appName", "Klacks-Net"),
@@ -2146,6 +2230,386 @@ namespace Klacks.Api.Data.Seed
             };
             
             return postcodes;
+        }
+
+        private static (string script, List<Guid> shiftIds) GenerateInsertScriptForShifts()
+        {
+            StringBuilder script = new StringBuilder();
+            var shiftIds = new List<Guid>();
+            var usedNames = new HashSet<string>();
+            var usedAbbreviations = new HashSet<string>();
+            
+            var baseDate = new DateOnly(2025, 1, 1);
+            var currentTime = DateTime.Now;
+            var userId = "672f77e8-e479-4422-8781-84d218377fb3";
+            var random = new Random();
+
+            // Helper function to generate unique names and abbreviations
+            string GetUniqueName(string baseName, int counter)
+            {
+                var name = counter == 1 ? baseName : $"{baseName} {counter}";
+                while (usedNames.Contains(name))
+                {
+                    counter++;
+                    name = $"{baseName} {counter}";
+                }
+                usedNames.Add(name);
+                return name;
+            }
+
+            string GetUniqueAbbreviation(string baseAbbr, int counter)
+            {
+                var abbr = counter <= 9 ? $"{baseAbbr}{counter:D1}" : $"{baseAbbr}{counter:D2}";
+                while (usedAbbreviations.Contains(abbr))
+                {
+                    counter++;
+                    abbr = counter <= 99 ? $"{baseAbbr}{counter:D2}" : $"{baseAbbr}{counter:D3}";
+                }
+                usedAbbreviations.Add(abbr);
+                return abbr;
+            }
+
+            // 0. Erst einige einfache Original-Shifts wie in deinem Beispiel (status=1, keine Hierarchie)
+            var simpleShifts = new[]
+            {
+                new { Name = "Frühschicht", Abbr = "FRÜHSC", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1 },
+                new { Name = "Spätschicht", Abbr = "SPÄT", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2 },
+                new { Name = "Nachtschicht", Abbr = "NACHT", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1 },
+                new { Name = "Tagdienst", Abbr = "TAG", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1 },
+                new { Name = "Bereitschaft", Abbr = "BEREIT", Start = "00:00:00", End = "24:00:00", WorkTime = 24, Employees = 1 }
+            };
+
+            foreach (var shift in simpleShifts)
+            {
+                var simpleShiftId = Guid.NewGuid();
+                var isCuttingAfterMidnight = shift.Start.CompareTo(shift.End) > 0;
+                var uniqueName = GetUniqueName(shift.Name, 1);
+                var uniqueAbbr = GetUniqueAbbreviation(shift.Abbr, 1);
+
+                script.AppendLine($@"INSERT INTO public.shift (
+                    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+                    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+                    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+                    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+                    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+                ) VALUES (
+                    '{simpleShiftId}', {(isCuttingAfterMidnight ? "true" : "false")}, '', '00000000-0000-0000-0000-000000000000', '{uniqueName}', NULL, NULL, 1,
+                    '00:00:00', '00:00:00', '{shift.End}', '{baseDate:yyyy-MM-dd}', '{shift.Start}', NULL,
+                    true, false, true, false, false, true, true, true,
+                    false, false, false, 1, '00:00:00', '00:00:00',
+                    {shift.WorkTime}, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}+02', '{userId}', NULL, '{userId}',
+                    NULL, false, '{currentTime.AddMinutes(5):yyyy-MM-dd HH:mm:ss.ffffff}+02', NULL, '{uniqueAbbr}', '00:00:00', NULL,
+                    '00:00:00', {shift.Employees}, 0, NULL, NULL
+                );");
+
+                shiftIds.Add(simpleShiftId);
+            }
+
+            // 1. 10x 24-Stunden Schichten (07:00 - 07:00) mit 3 Teilungen bei 15:00 und 23:00
+            for (int i = 1; i <= 10; i++)
+            {
+                var shift24hRootId = Guid.NewGuid();
+                var originalId = Guid.NewGuid();
+                
+                // Hauptschicht 24h - meist 1 MA, nur bei kritischen Schichten 2 MA
+                var employeesPerShift = (i <= 2) ? 2 : 1; // Nur die ersten 2 Schichten haben 2 MA, Rest 1 MA
+                var uniqueName24h = GetUniqueName("24h-Schichtdienst", i);
+                var uniqueAbbr24h = GetUniqueAbbreviation("24H", i);
+                
+                script.AppendLine($@"INSERT INTO public.shift (
+                    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+                    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+                    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+                    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+                    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+                ) VALUES (
+                    '{shift24hRootId}', true, '24-Stunden Schichtdienst - {employeesPerShift} Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueName24h}', '{shift24hRootId}', '{shift24hRootId}', 3,
+                    '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '07:00:00', NULL,
+                    true, true, true, true, true, true, true, true,
+                    false, false, false, 1, '00:00:00', '00:00:00',
+                    24, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}+02', '{userId}', NULL, '{userId}',
+                    NULL, false, '{currentTime.AddMinutes(5):yyyy-MM-dd HH:mm:ss.ffffff}+02', '{originalId}', '{uniqueAbbr24h}', '00:00:00', NULL,
+                    '00:00:00', {employeesPerShift}, 0, 1, 8
+                );");
+
+                // Add shift IDs for later group assignment
+                shiftIds.Add(shift24hRootId);
+
+                // Teilschicht 1: 07:00-15:00 (8h) - gleiche Mitarbeiteranzahl wie Hauptschicht
+                var part1Id = Guid.NewGuid();
+                var uniqueNameFrüh = GetUniqueName("Frühschicht-Teil", i);
+                var uniqueAbbrFrüh = GetUniqueAbbreviation("F", i);
+                
+                script.AppendLine($@"INSERT INTO public.shift (
+                    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+                    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+                    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+                    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+                    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+                ) VALUES (
+                    '{part1Id}', false, 'Frühschicht - {employeesPerShift} Mitarbeiter', '00000000-0000-0000-0000-000000000000', '{uniqueNameFrüh}', '{shift24hRootId}', '{shift24hRootId}', 3,
+                    '00:00:00', '00:00:00', '15:00:00', '{baseDate:yyyy-MM-dd}', '07:00:00', NULL,
+                    true, true, true, true, true, true, true, true,
+                    false, false, false, 1, '00:00:00', '00:00:00',
+                    8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}+02', '{userId}', NULL, NULL,
+                    NULL, false, NULL, '{originalId}', '{uniqueAbbrFrüh}', '00:00:00', NULL,
+                    '00:00:00', {employeesPerShift}, 0, 2, 3
+                );");
+
+                shiftIds.Add(part1Id);
+
+                // Teilschicht 2: 15:00-23:00 (8h) - gleiche Mitarbeiteranzahl wie Hauptschicht
+                var part2Id = Guid.NewGuid();
+                var uniqueNameSpät = GetUniqueName("Spätschicht-Teil", i);
+                var uniqueAbbrSpät = GetUniqueAbbreviation("S", i);
+                
+                script.AppendLine($@"INSERT INTO public.shift (
+                    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+                    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+                    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+                    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+                    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+                ) VALUES (
+                    '{part2Id}', false, 'Spätschicht - {employeesPerShift} Mitarbeiter', '00000000-0000-0000-0000-000000000000', '{uniqueNameSpät}', '{shift24hRootId}', '{shift24hRootId}', 3,
+                    '00:00:00', '00:00:00', '23:00:00', '{baseDate:yyyy-MM-dd}', '15:00:00', NULL,
+                    true, true, true, true, true, true, true, true,
+                    false, false, false, 1, '00:00:00', '00:00:00',
+                    8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}+02', '{userId}', NULL, NULL,
+                    NULL, false, NULL, '{originalId}', '{uniqueAbbrSpät}', '00:00:00', NULL,
+                    '00:00:00', {employeesPerShift}, 0, 4, 5
+                );");
+
+                shiftIds.Add(part2Id);
+
+                // Teilschicht 3: 23:00-07:00 (8h) - Nachtschicht - gleiche Mitarbeiteranzahl wie Hauptschicht
+                var part3Id = Guid.NewGuid();
+                var uniqueNameNacht = GetUniqueName("Nachtschicht-Teil", i);
+                var uniqueAbbrNacht = GetUniqueAbbreviation("N", i);
+                
+                script.AppendLine($@"INSERT INTO public.shift (
+                    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+                    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+                    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+                    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+                    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+                ) VALUES (
+                    '{part3Id}', true, 'Nachtschicht - {employeesPerShift} Mitarbeiter', '00000000-0000-0000-0000-000000000000', '{uniqueNameNacht}', '{shift24hRootId}', '{shift24hRootId}', 3,
+                    '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
+                    true, true, true, true, true, true, true, true,
+                    false, true, false, 1, '00:00:00', '00:00:00',
+                    8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}+02', '{userId}', NULL, NULL,
+                    NULL, false, NULL, '{originalId}', '{uniqueAbbrNacht}', '00:00:00', NULL,
+                    '00:00:00', {employeesPerShift}, 0, 6, 7
+                );");
+
+                shiftIds.Add(part3Id);
+            }
+
+            // 2. 20 Morgenschichten (6 Stunden) - meist 1 MA, nur wenige mit 2 MA
+            for (int i = 1; i <= 20; i++)
+            {
+                var morningShiftId = Guid.NewGuid();
+                var startHour = random.Next(5, 8); // 05:00 bis 07:00
+                var endHour = startHour + 6;
+                var employees = (i <= 3) ? 2 : 1; // Nur die ersten 3 haben 2 MA
+                var uniqueNameMorning = GetUniqueName("Morgenschicht", i);
+                var uniqueAbbrMorning = GetUniqueAbbreviation("MOR", i);
+                
+                script.AppendLine($@"INSERT INTO public.shift (
+                    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+                    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+                    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+                    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+                    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+                ) VALUES (
+                    '{morningShiftId}', false, '6-Stunden Morgenschicht - {employees} Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameMorning}', NULL, NULL, 1,
+                    '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
+                    true, false, true, false, false, true, true, true,
+                    false, false, false, 1, '00:00:00', '00:00:00',
+                    6, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}+02', '{userId}', NULL, '{userId}',
+                    NULL, false, '{currentTime.AddMinutes(10):yyyy-MM-dd HH:mm:ss.ffffff}+02', NULL, '{uniqueAbbrMorning}', '00:00:00', NULL,
+                    '00:00:00', {employees}, 0, NULL, NULL
+                );");
+
+                shiftIds.Add(morningShiftId);
+            }
+
+            // 3. 30 Tagschichten Mo-Fr 08:00-17:00 - meist 1 MA, nur wenige mit mehr MA
+            for (int i = 1; i <= 30; i++)
+            {
+                var dayShiftId = Guid.NewGuid();
+                var employees = (i <= 5) ? 2 : 1; // Nur die ersten 5 haben 2 MA
+                var uniqueNameDay = GetUniqueName("Tagschicht", i);
+                var uniqueAbbrDay = GetUniqueAbbreviation("TAG", i + 100); // +100 to avoid conflict with simple "TAG"
+                
+                script.AppendLine($@"INSERT INTO public.shift (
+                    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+                    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+                    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+                    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+                    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+                ) VALUES (
+                    '{dayShiftId}', false, 'Tagschicht Mo-Fr mit 1h Mittagspause - {employees} Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameDay}', NULL, NULL, 1,
+                    '00:00:00', '00:00:00', '17:00:00', '{baseDate:yyyy-MM-dd}', '08:00:00', NULL,
+                    true, false, true, false, false, true, true, true,
+                    true, false, false, 1, '00:00:00', '00:00:00',
+                    8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}+02', '{userId}', NULL, '{userId}',
+                    NULL, false, '{currentTime.AddMinutes(15):yyyy-MM-dd HH:mm:ss.ffffff}+02', NULL, '{uniqueAbbrDay}', '00:00:00', NULL,
+                    '00:00:00', {employees}, 0, NULL, NULL
+                );");
+
+                shiftIds.Add(dayShiftId);
+            }
+
+            // 4. 20 Nachtdienste Mo-Fr 23:00-07:00 - 1 Mitarbeiter pro Schicht
+            for (int i = 1; i <= 20; i++)
+            {
+                var nightShiftId = Guid.NewGuid();
+                var uniqueNameNightMF = GetUniqueName("Nachtdienst Mo-Fr", i);
+                var uniqueAbbrNightMF = GetUniqueAbbreviation("NMF", i);
+                
+                script.AppendLine($@"INSERT INTO public.shift (
+                    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+                    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+                    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+                    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+                    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+                ) VALUES (
+                    '{nightShiftId}', true, 'Nachtdienst Mo-Fr - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightMF}', NULL, NULL, 1,
+                    '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
+                    true, false, true, false, false, true, true, false,
+                    true, false, false, 1, '00:00:00', '00:00:00',
+                    8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}+02', '{userId}', NULL, '{userId}',
+                    NULL, false, '{currentTime.AddMinutes(20):yyyy-MM-dd HH:mm:ss.ffffff}+02', NULL, '{uniqueAbbrNightMF}', '00:00:00', NULL,
+                    '00:00:00', 1, 0, NULL, NULL
+                );");
+
+                shiftIds.Add(nightShiftId);
+            }
+
+            // 5. 20 Nachtdienste Sa-So 23:00-07:00 - 1 Mitarbeiter pro Schicht
+            for (int i = 1; i <= 20; i++)
+            {
+                var weekendNightId = Guid.NewGuid();
+                var uniqueNameNightSS = GetUniqueName("Nachtdienst Sa-So", i);
+                var uniqueAbbrNightSS = GetUniqueAbbreviation("NSS", i);
+                
+                script.AppendLine($@"INSERT INTO public.shift (
+                    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+                    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+                    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+                    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+                    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+                ) VALUES (
+                    '{weekendNightId}', true, 'Nachtdienst Sa-So - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightSS}', NULL, NULL, 1,
+                    '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
+                    false, false, false, true, true, false, false, false,
+                    false, false, false, 1, '00:00:00', '00:00:00',
+                    8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}+02', '{userId}', NULL, '{userId}',
+                    NULL, false, '{currentTime.AddMinutes(25):yyyy-MM-dd HH:mm:ss.ffffff}+02', NULL, '{uniqueAbbrNightSS}', '00:00:00', NULL,
+                    '00:00:00', 1, 0, NULL, NULL
+                );");
+
+                shiftIds.Add(weekendNightId);
+            }
+
+            // 6. 6x Original-Only Shifts (keine Teilschichten, nur Hauptschicht)
+            for (int i = 1; i <= 6; i++)
+            {
+                var originalOnlyId = Guid.NewGuid();
+                var employees = (i == 1 || i == 2) ? 2 : 1; // Erste 2 haben 2 MA, Rest 1 MA
+                
+                // Verschiedene Schichttypen für Abwechslung
+                var (startTime, endTime, hours, name, baseAbbr) = i switch
+                {
+                    1 => ("06:00:00", "14:00:00", 8, "Frühdienst Spezial", "FRÜSP"),
+                    2 => ("14:00:00", "22:00:00", 8, "Spätdienst Spezial", "SPÄTSP"),
+                    3 => ("22:00:00", "06:00:00", 8, "Nachtdienst Spezial", "NACHSP"),
+                    4 => ("09:00:00", "17:00:00", 8, "Tagdienst Büro", "TAGBÜ"),
+                    5 => ("12:00:00", "20:00:00", 8, "Nachmittag-Abend", "NMAB"),
+                    6 => ("20:00:00", "04:00:00", 8, "Abend-Nacht", "ABNA"),
+                    _ => ("08:00:00", "16:00:00", 8, "Standard", "STD")
+                };
+                
+                var isCuttingAfterMidnight = startTime.CompareTo(endTime) > 0; // Über Mitternacht?
+                var uniqueNameOriginal = GetUniqueName(name, 1);
+                var uniqueAbbrOriginal = GetUniqueAbbreviation(baseAbbr, i);
+                
+                script.AppendLine($@"INSERT INTO public.shift (
+                    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+                    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+                    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+                    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+                    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+                ) VALUES (
+                    '{originalOnlyId}', {(isCuttingAfterMidnight ? "true" : "false")}, 'Original-Only Schicht ohne Teilungen - {employees} Mitarbeiter', '00000000-0000-0000-0000-000000000000', '{uniqueNameOriginal}', NULL, NULL, 1,
+                    '00:00:00', '00:00:00', '{endTime}', '{baseDate:yyyy-MM-dd}', '{startTime}', NULL,
+                    true, false, true, true, true, true, true, true,
+                    false, false, false, 1, '00:00:00', '00:00:00',
+                    {hours}, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}+02', '{userId}', NULL, '{userId}',
+                    NULL, false, '{currentTime.AddMinutes(30):yyyy-MM-dd HH:mm:ss.ffffff}+02', NULL, '{uniqueAbbrOriginal}', '00:00:00', NULL,
+                    '00:00:00', {employees}, 0, NULL, NULL
+                );");
+
+                shiftIds.Add(originalOnlyId);
+            }
+
+            return (script.ToString(), shiftIds);
+        }
+
+        private static string GenerateInsertScriptForShiftGroupItems(List<Guid> shiftIds)
+        {
+            StringBuilder script = new StringBuilder();
+            var currentTime = DateTime.Now;
+            var userId = "672f77e8-e479-4422-8781-84d218377fb3";
+            var random = new Random();
+
+            // Use the actual Canton Group IDs that were generated in FakeDataGroups
+            var cantonGroupNames = new[] { "ZH", "BE", "LU", "SG", "AG", "BS", "BL", "GE", "VD", "NE", "JU", "FR" };
+            
+            script.AppendLine("\n-- GroupItem entries for Shift-Group assignments");
+            script.AppendLine("-- Note: These use Canton group names from FakeDataGroups");
+            
+            foreach (var shiftId in shiftIds)
+            {
+                // Assign each shift to 1-2 random canton groups
+                var numGroups = random.Next(1, 3);
+                var selectedCantons = cantonGroupNames.OrderBy(x => random.Next()).Take(numGroups);
+                
+                foreach (var cantonName in selectedCantons)
+                {
+                    var groupItemId = Guid.NewGuid();
+                    
+                    // We need to get the actual group ID at runtime using the canton name
+                    script.AppendLine($@"INSERT INTO public.group_item (id, client_id, group_id, shift_id, create_time, current_user_created, is_deleted) 
+                        SELECT '{groupItemId}', NULL, g.id, '{shiftId}', '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}+02', '{userId}', false 
+                        FROM public.""group"" g 
+                        WHERE g.name = '{cantonName}' AND g.is_deleted = false 
+                        LIMIT 1;");
+                }
+            }
+            
+            return script.ToString();
         }
     }
 }

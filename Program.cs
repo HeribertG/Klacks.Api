@@ -32,7 +32,7 @@ var corsHost = builder.Configuration["Cors:Host"];
 var corsHome = builder.Configuration["Cors:Home"];
 FakeSettings.WithFake = builder.Configuration["Fake:WithFake"] ?? string.Empty;
 FakeSettings.ClientsNumber = builder.Configuration["Fake:ClientNumber"] ?? string.Empty;
-FakeSettings.MaxBreaksPerClient = builder.Configuration["Fake:MaxBreaksPerClient"] ?? "30";
+FakeSettings.MaxBreaksPerClientPerYear = builder.Configuration["Fake:MaxBreaksPerClientPerYear"] ?? "30";
 
 var jwtSettings = new JwtSettings();
 builder.Configuration.Bind(nameof(jwtSettings), jwtSettings);

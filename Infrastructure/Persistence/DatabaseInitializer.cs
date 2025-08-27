@@ -2,14 +2,13 @@ using Klacks.Api.Data.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
-using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Infrastructure.Persistence;
 
 public interface IDatabaseInitializer
 {
     Task InitializeAsync();
+
     Task SeedDataAsync();
 }
 

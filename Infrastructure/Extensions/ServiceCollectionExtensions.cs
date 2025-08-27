@@ -9,6 +9,7 @@ using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Domain.Services.Holidays;
 using Klacks.Api.Domain.Services.Settings;
 using Klacks.Api.Domain.Services.Shifts;
+using Klacks.Api.Infrastructure.Email;
 using Klacks.Api.Infrastructure.FileHandling;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
@@ -91,6 +92,9 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IMacroTypeManagementService, MacroTypeManagementService>();
         services.AddScoped<IVatManagementService, VatManagementService>();
         services.AddScoped<ISettingsTokenService, SettingsTokenService>();
+        
+        // Email Services
+        services.AddScoped<IEmailTestService, EmailTestService>();
 
         // CalendarSelection Domain Services
         services.AddScoped<ICalendarSelectionUpdateService, CalendarSelectionUpdateService>();

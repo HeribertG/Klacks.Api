@@ -4,6 +4,7 @@ using Klacks.Api.Application.Queries;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Presentation.DTOs.Settings;
+using Klacks.Api.Infrastructure.Email;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -15,11 +16,13 @@ public class SettingsController : BaseController
 {
     private readonly ILogger<SettingsController> logger;
     private readonly IMediator mediator;
+    private readonly IEmailTestService emailTestService;
 
-    public SettingsController(IMediator mediator, ILogger<SettingsController> logger)
+    public SettingsController(IMediator mediator, ILogger<SettingsController> logger, IEmailTestService emailTestService)
     {
         this.mediator = mediator;
         this.logger = logger;
+        this.emailTestService = emailTestService;
     }
 
     #region Settings
@@ -94,6 +97,28 @@ public class SettingsController : BaseController
         {
             logger.LogError(ex, "Error occurred while updating setting.");
             throw;
+        }
+    }
+
+    [HttpPost("TestEmailConfiguration")]
+    public async Task<ActionResult<EmailTestResult>> TestEmailConfiguration([FromBody] EmailTestRequest request)
+    {
+        try
+        {
+            logger.LogInformation("Testing email configuration");
+            var result = await emailTestService.TestConnectionAsync(request);
+            logger.LogInformation("Email configuration test completed. Success: {Success}", result.Success);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error occurred while testing email configuration");
+            return Ok(new EmailTestResult 
+            { 
+                Success = false, 
+                Message = "An unexpected error occurred during the test.",
+                ErrorDetails = ex.Message
+            });
         }
     }
 
