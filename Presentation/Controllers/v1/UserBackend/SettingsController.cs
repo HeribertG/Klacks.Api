@@ -1,14 +1,11 @@
 using Klacks.Api.Application.Commands.Settings.Settings;
 using Klacks.Api.Domain.Models.Settings;
-using Klacks.Api.Application.Queries;
-using Klacks.Api.Presentation.DTOs.Filter;
-using Klacks.Api.Presentation.DTOs.Schedules;
-using Klacks.Api.Presentation.DTOs.Settings;
 using Klacks.Api.Infrastructure.Email;
+using Klacks.Api.Presentation.DTOs.Filter;
+using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Text;
 
 namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
 
