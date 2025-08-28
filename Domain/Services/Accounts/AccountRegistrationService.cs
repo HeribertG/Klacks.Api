@@ -11,6 +11,7 @@ public class AccountRegistrationService : IAccountRegistrationService
     private readonly IUserManagementService _userManagementService;
     private readonly IRefreshTokenService _refreshTokenService;
     private readonly IAccountAuthenticationService _accountAuthenticationService;
+    private readonly IAccountPasswordService _accountPasswordService;
     private readonly ILogger<AccountRegistrationService> _logger;
 
     public AccountRegistrationService(
@@ -19,6 +20,7 @@ public class AccountRegistrationService : IAccountRegistrationService
         IUserManagementService userManagementService,
         IRefreshTokenService refreshTokenService,
         IAccountAuthenticationService accountAuthenticationService,
+        IAccountPasswordService accountPasswordService,
         ILogger<AccountRegistrationService> logger)
     {
         _appDbContext = appDbContext;
@@ -26,6 +28,7 @@ public class AccountRegistrationService : IAccountRegistrationService
         _userManagementService = userManagementService;
         _refreshTokenService = refreshTokenService;
         _accountAuthenticationService = accountAuthenticationService;
+        _accountPasswordService = accountPasswordService;
         _logger = logger;
     }
 
@@ -55,6 +58,27 @@ public class AccountRegistrationService : IAccountRegistrationService
         authenticatedResult = await _accountAuthenticationService.SetAuthenticatedResultAsync(authenticatedResult, user, expires);
 
         await _appDbContext.SaveChangesAsync();
+
+        // Generate password reset token and send email after successful registration
+        try
+        {
+            _logger.LogInformation("Generating password reset token for new user: {Email}", user.Email);
+            var tokenGenerated = await _accountPasswordService.GeneratePasswordResetTokenAsync(user.Email);
+            
+            if (tokenGenerated)
+            {
+                _logger.LogInformation("Password reset token generated and email sent for new user: {Email}", user.Email);
+            }
+            else
+            {
+                _logger.LogWarning("Failed to generate password reset token for new user: {Email}", user.Email);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating password reset token for new user: {Email}", user.Email);
+            // Don't fail registration if token generation fails
+        }
 
         _logger.LogInformation("User registered successfully: {Email}", user.Email);
         return authenticatedResult;

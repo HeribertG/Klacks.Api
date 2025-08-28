@@ -23,6 +23,7 @@ public class AccountPasswordService : IAccountPasswordService
         _authenticationService = authenticationService;
         _userManagementService = userManagementService;
         _serviceProvider = serviceProvider;
+        _configuration = configuration;
         _logger = logger;
     }
 
@@ -113,18 +114,23 @@ public class AccountPasswordService : IAccountPasswordService
             }
 
             var token = GenerateSecureToken();
+            _logger.LogInformation("Generated token for user {Email}: {Token}", email, token.Substring(0, 10) + "...");
+            
             user.PasswordResetToken = token;
             user.PasswordResetTokenExpires = DateTime.UtcNow.AddHours(24);
-
+            
+            _logger.LogInformation("Updating user {Email} with reset token", email);
             await _userManagementService.UpdateUserAsync(user);
+            _logger.LogInformation("User {Email} updated successfully with reset token", email);
 
             try
             {
                 var notificationService = _serviceProvider.GetService<IAccountNotificationService>();
                 if (notificationService != null)
                 {
-                    var baseUrl = _configuration["PasswordReset:BaseUrl"] ?? "https://localhost:7001";
+                    var baseUrl = _configuration["PasswordReset:BaseUrl"] ?? "https://localhost:7002";
                     var resetLink = $"{baseUrl}/reset-password?token={token}";
+                    _logger.LogInformation("Generated reset link: {ResetLink}", resetLink);
                     var message = $@"
                         <h2>Reset Password</h2>
                         <p>You have requested to reset your password.</p>
