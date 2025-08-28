@@ -3,7 +3,6 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Presentation.DTOs;
 using MediatR;
-using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Accounts;
 

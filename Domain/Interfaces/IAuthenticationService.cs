@@ -16,4 +16,6 @@ public interface IAuthenticationService
     ModelStateDictionary AddErrorsToModelState(IdentityResult identityResult, ModelStateDictionary? modelState = null);
 
     void SetModelError(AuthenticatedResult model, string key, string message);
+
+    Task<(bool Success, IdentityResult? Result)> ResetPasswordAsync(AppUser user, string token, string newPassword);
 }

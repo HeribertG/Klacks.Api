@@ -208,4 +208,88 @@ public class AccountsController : BaseController
             return StatusCode(500, "An error has occurred during user registration.");
         }
     }
+
+    [AllowAnonymous]
+    [HttpPost("RequestPasswordReset")]
+    public async Task<ActionResult> RequestPasswordReset([FromBody] RequestPasswordResetResource model)
+    {
+        if (model == null || string.IsNullOrWhiteSpace(model.Email))
+        {
+            this.logger.LogWarning("Invalid password reset request received");
+            return BadRequest("Email address is required.");
+        }
+
+        this.logger.LogInformation("Password reset requested for email: {Email}", model.Email);
+        
+        try
+        {
+            var result = await mediator.Send(new RequestPasswordResetCommand(model.Email));
+            
+            this.logger.LogInformation("Password reset request processed for email: {Email}", model.Email);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Exception occurred during password reset request: {Email}", model.Email);
+            return StatusCode(500, "An error occurred. Please try again later.");
+        }
+    }
+
+    [AllowAnonymous]
+    [HttpPost("ResetPassword")]
+    public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordResource model)
+    {
+        if (model == null || !ModelState.IsValid)
+        {
+            this.logger.LogWarning("Invalid reset password request received");
+            return BadRequest("Invalid data for password reset.");
+        }
+
+        this.logger.LogInformation("Password reset confirmation requested");
+        
+        try
+        {
+            var result = await mediator.Send(new ResetPasswordCommand(model));
+            
+            if (result.Success)
+            {
+                this.logger.LogInformation("Password reset successful");
+                return Ok(result);
+            }
+            
+            this.logger.LogWarning("Password reset failed");
+            return BadRequest(result);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Exception occurred during password reset");
+            return StatusCode(500, "An error occurred. Please try again later.");
+        }
+    }
+
+    [AllowAnonymous]
+    [HttpGet("ValidatePasswordResetToken")]
+    public async Task<ActionResult<bool>> ValidatePasswordResetToken([FromQuery] string token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            this.logger.LogWarning("Empty token provided for validation");
+            return BadRequest("Token is required.");
+        }
+
+        this.logger.LogInformation("Password reset token validation requested");
+        
+        try
+        {
+            var isValid = await mediator.Send(new ValidatePasswordResetTokenQuery(token));
+            
+            this.logger.LogInformation("Token validation result: {IsValid}", isValid);
+            return Ok(isValid);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Exception occurred during token validation");
+            return StatusCode(500, false);
+        }
+    }
 }

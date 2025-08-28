@@ -118,6 +118,16 @@ builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBeh
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
+// Add Blazor Server
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+
+// Add MVC Views
+builder.Services.AddControllersWithViews();
+
+// Add Blazor Services
+builder.Services.AddScoped<Klacks.Api.Presentation.Services.IPasswordGeneratorService, Klacks.Api.Presentation.Services.PasswordGeneratorService>();
+
 builder.Services
     .AddControllers()
     .AddJsonOptions(opts =>
@@ -199,7 +209,8 @@ app.UseAuthorization();
 
 app.UseEndpoints(endpoints =>
     {
-        endpoints.MapFallbackToFile("/index.html");
+        endpoints.MapRazorPages();
+        endpoints.MapBlazorHub();
         endpoints.MapControllers();
     }
 );

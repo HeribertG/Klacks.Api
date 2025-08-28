@@ -1,6 +1,7 @@
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Presentation.DTOs.Registrations;
+using System.Security.Cryptography;
 
 namespace Klacks.Api.Domain.Services.Accounts;
 
@@ -8,15 +9,20 @@ public class AccountPasswordService : IAccountPasswordService
 {
     private readonly IAuthenticationService _authenticationService;
     private readonly IUserManagementService _userManagementService;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<AccountPasswordService> _logger;
 
     public AccountPasswordService(
         IAuthenticationService authenticationService,
         IUserManagementService userManagementService,
+        IServiceProvider serviceProvider,
+        IConfiguration configuration,
         ILogger<AccountPasswordService> logger)
     {
         _authenticationService = authenticationService;
         _userManagementService = userManagementService;
+        _serviceProvider = serviceProvider;
         _logger = logger;
     }
 
@@ -52,9 +58,125 @@ public class AccountPasswordService : IAccountPasswordService
         return authenticatedResult;
     }
 
-    public Task<AuthenticatedResult> ResetPasswordAsync(ResetPasswordResource data)
+    public async Task<AuthenticatedResult> ResetPasswordAsync(ResetPasswordResource data)
     {
-        _logger.LogWarning("ResetPassword not yet implemented");
-        throw new NotImplementedException("Password reset functionality is not yet implemented.");
+        var authenticatedResult = new AuthenticatedResult { Success = false };
+
+        var existingUser = await _userManagementService.FindUserByTokenAsync(data.Token);
+        if (existingUser == null || existingUser.PasswordResetToken != data.Token)
+        {
+            _logger.LogWarning("Invalid password reset token attempted");
+            _authenticationService.SetModelError(authenticatedResult, "Invalid token", "The password reset token is invalid.");
+            return authenticatedResult;
+        }
+
+        if (existingUser.PasswordResetTokenExpires == null || existingUser.PasswordResetTokenExpires < DateTime.UtcNow)
+        {
+            _logger.LogWarning("Expired password reset token attempted for user {UserId}", existingUser.Id);
+            _authenticationService.SetModelError(authenticatedResult, "Token expired", "The password reset token has expired.");
+            return authenticatedResult;
+        }
+
+        var (success, result) = await _authenticationService.ResetPasswordAsync(existingUser, data.Token, data.Password);
+        if (success)
+        {
+            existingUser.PasswordResetToken = null;
+            existingUser.PasswordResetTokenExpires = null;
+            await _userManagementService.UpdateUserAsync(existingUser);
+
+            _logger.LogInformation("Password reset successfully for user {Email}", existingUser.Email);
+            authenticatedResult.Success = true;
+        }
+        else if (result != null)
+        {
+            _logger.LogWarning("Password reset failed for user {Email}: {Errors}", existingUser.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
+            authenticatedResult.ModelState = _authenticationService.AddErrorsToModelState(result, authenticatedResult.ModelState);
+        }
+        else
+        {
+            _logger.LogError("Unexpected error during password reset for user {Email}", existingUser.Email);
+            _authenticationService.SetModelError(authenticatedResult, "An unexpected error has occurred.", string.Empty);
+        }
+
+        return authenticatedResult;
+    }
+
+    public async Task<bool> GeneratePasswordResetTokenAsync(string email)
+    {
+        try
+        {
+            var user = await _userManagementService.FindUserByEmailAsync(email);
+            if (user == null)
+            {
+                _logger.LogWarning("Password reset requested for non-existing email: {Email}", email);
+                return false;
+            }
+
+            var token = GenerateSecureToken();
+            user.PasswordResetToken = token;
+            user.PasswordResetTokenExpires = DateTime.UtcNow.AddHours(24);
+
+            await _userManagementService.UpdateUserAsync(user);
+
+            try
+            {
+                var notificationService = _serviceProvider.GetService<IAccountNotificationService>();
+                if (notificationService != null)
+                {
+                    var baseUrl = _configuration["PasswordReset:BaseUrl"] ?? "https://localhost:7001";
+                    var resetLink = $"{baseUrl}/reset-password?token={token}";
+                    var message = $@"
+                        <h2>Reset Password</h2>
+                        <p>You have requested to reset your password.</p>
+                        <p>Click the following link to reset your password:</p>
+                        <p><a href=""{resetLink}"">Reset Password</a></p>
+                        <p>This link is valid for 24 hours.</p>
+                        <p>If you did not make this request, please ignore this email.</p>";
+
+                    await notificationService.SendEmailAsync("Reset Password", email, message);
+                    _logger.LogInformation("Password reset token generated and email sent to {Email}", email);
+                }
+                else
+                {
+                    _logger.LogWarning("Password reset token generated but notification service not available to send email to {Email}", email);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Password reset token generated but failed to send email to {Email}", email);
+            }
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating password reset token for email: {Email}", email);
+            return false;
+        }
+    }
+
+    public async Task<bool> ValidatePasswordResetTokenAsync(string token)
+    {
+        try
+        {
+            var user = await _userManagementService.FindUserByTokenAsync(token);
+            return user != null && 
+                   user.PasswordResetToken == token && 
+                   user.PasswordResetTokenExpires != null && 
+                   user.PasswordResetTokenExpires > DateTime.UtcNow;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error validating password reset token");
+            return false;
+        }
+    }
+
+    private static string GenerateSecureToken()
+    {
+        using var rng = RandomNumberGenerator.Create();
+        var bytes = new byte[64];
+        rng.GetBytes(bytes);
+        return Convert.ToBase64String(bytes).Replace('+', '-').Replace('/', '_').TrimEnd('=');
     }
 }

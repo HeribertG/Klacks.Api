@@ -9,4 +9,8 @@ public class AppUser : IdentityUser
 
     public string LastName { get; set; } = string.Empty;
 
+    // Password Reset Properties
+    public string? PasswordResetToken { get; set; }
+    public DateTime? PasswordResetTokenExpires { get; set; }
+
 }

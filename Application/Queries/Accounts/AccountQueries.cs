@@ -11,3 +11,6 @@ public record RefreshTokenQuery(RefreshRequestResource RefreshRequest) : IReques
 
 // Get User List Query
 public record GetUserListQuery() : IRequest<List<UserResource>>;
+
+// Validate Password Reset Token Query
+public record ValidatePasswordResetTokenQuery(string Token) : IRequest<bool>;

@@ -10,28 +10,30 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
         ClassLevelCascadeMode = CascadeMode.Stop;
 
         RuleFor(x => x.Registration.Email)
-            .NotEmpty().WithMessage("Email is required.")
-            .EmailAddress().WithMessage("Email must be a valid email address.")
-            .MaximumLength(255).WithMessage("Email must not exceed 255 characters.");
+            .NotEmpty().WithMessage("E-Mail-Adresse ist erforderlich.")
+            .EmailAddress().WithMessage("E-Mail-Adresse ist ungültig.")
+            .MaximumLength(255).WithMessage("E-Mail-Adresse darf maximal 255 Zeichen haben.");
 
         RuleFor(x => x.Registration.Password)
-            .NotEmpty().WithMessage("Password is required.")
-            .MinimumLength(8).WithMessage("Password must be at least 8 characters long.")
+            .NotEmpty().WithMessage("Passwort ist erforderlich.")
+            .MinimumLength(8).WithMessage("Passwort muss mindestens 8 Zeichen lang sein.")
             .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]")
-            .WithMessage("Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.");
+            .WithMessage("Passwort muss mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Ziffer und ein Sonderzeichen enthalten.");
 
         RuleFor(x => x.Registration.FirstName)
-            .NotEmpty().WithMessage("First name is required.")
-            .MaximumLength(100).WithMessage("First name must not exceed 100 characters.");
+            .NotEmpty().WithMessage("Vorname ist erforderlich.")
+            .MinimumLength(2).WithMessage("Vorname muss mindestens 2 Zeichen lang sein.")
+            .MaximumLength(100).WithMessage("Vorname darf maximal 100 Zeichen haben.");
 
         RuleFor(x => x.Registration.LastName)
-            .NotEmpty().WithMessage("Last name is required.")
-            .MaximumLength(100).WithMessage("Last name must not exceed 100 characters.");
+            .NotEmpty().WithMessage("Nachname ist erforderlich.")
+            .MinimumLength(2).WithMessage("Nachname muss mindestens 2 Zeichen lang sein.")
+            .MaximumLength(100).WithMessage("Nachname darf maximal 100 Zeichen haben.");
 
         RuleFor(x => x.Registration.UserName)
-            .NotEmpty().WithMessage("Username is required.")
-            .MinimumLength(3).WithMessage("Username must be at least 3 characters long.")
-            .MaximumLength(50).WithMessage("Username must not exceed 50 characters.")
-            .Matches(@"^[a-zA-Z0-9_-]+$").WithMessage("Username can only contain letters, numbers, underscores, and hyphens.");
+            .NotEmpty().WithMessage("Benutzername ist erforderlich.")
+            .MinimumLength(3).WithMessage("Benutzername muss mindestens 3 Zeichen lang sein.")
+            .MaximumLength(50).WithMessage("Benutzername darf maximal 50 Zeichen haben.")
+            .Matches(@"^[a-zA-Z0-9_-]+$").WithMessage("Benutzername darf nur Buchstaben, Zahlen, Unterstriche und Bindestriche enthalten.");
     }
 }

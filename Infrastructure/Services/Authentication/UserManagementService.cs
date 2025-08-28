@@ -134,4 +134,16 @@ public class UserManagementService : IUserManagementService
     {
         return await _userManager.IsInRoleAsync(user, role);
     }
+
+    public async Task<(bool Success, IdentityResult? Result)> UpdateUserAsync(AppUser user)
+    {
+        var result = await _userManager.UpdateAsync(user);
+        return (result.Succeeded, result);
+    }
+
+    public async Task<AppUser?> FindUserByTokenAsync(string token)
+    {
+        return await _context.AppUser
+            .FirstOrDefaultAsync(u => u.PasswordResetToken == token);
+    }
 }

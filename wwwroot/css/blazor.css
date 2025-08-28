@@ -1,0 +1,311 @@
+/* Password Reset Blazor Styles */
+
+.password-reset-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.password-reset-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    max-width: 450px;
+    width: 100%;
+    padding: 40px;
+    text-align: center;
+}
+
+.password-reset-logo {
+    font-size: 3rem;
+    color: #667eea;
+    margin-bottom: 20px;
+}
+
+.password-reset-title {
+    color: #333;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.password-reset-subtitle {
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-control {
+    border: 2px solid #e0e6ed;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 30px;
+    font-weight: 600;
+    font-size: 16px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #f8f9fa;
+    border: 2px solid #e0e6ed;
+    color: #666;
+    border-radius: 8px;
+    padding: 12px 30px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+    color: #495057;
+}
+
+.alert {
+    border: none;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #155724;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #721c24;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    color: #856404;
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+.loading-text {
+    margin-left: 10px;
+}
+
+/* Expired page specific styles */
+.expired-icon {
+    font-size: 4rem;
+    color: #dc3545;
+    margin-bottom: 20px;
+}
+
+.expired-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    max-width: 450px;
+    width: 100%;
+    padding: 40px;
+    text-align: center;
+    border-top: 4px solid #dc3545;
+}
+
+/* Validation errors */
+.validation-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 5px;
+    display: block;
+}
+
+.is-invalid {
+    border-color: #dc3545;
+}
+
+.is-invalid:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Password Generator Features */
+.input-group .btn {
+    border-left: none;
+}
+
+.input-group .btn:not(:last-child) {
+    border-right: none;
+}
+
+.input-group .btn:hover {
+    z-index: 2;
+}
+
+.password-strength {
+    margin-top: 10px;
+}
+
+.password-strength-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.password-strength-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.strength-too-weak {
+    background-color: #dc3545;
+}
+
+.strength-very-weak {
+    background-color: #fd7e14;
+}
+
+.strength-weak {
+    background-color: #ffc107;
+}
+
+.strength-fair {
+    background-color: #20c997;
+}
+
+.strength-strong {
+    background-color: #28a745;
+}
+
+.strength-very-strong {
+    background-color: #198754;
+}
+
+/* Input group button improvements */
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+
+.btn-outline-success:hover {
+    background-color: #198754;
+    border-color: #198754;
+    color: white;
+}
+
+/* Button tooltips */
+.btn[title] {
+    position: relative;
+}
+
+/* Password field improvements */
+.form-control[type="password"],
+.form-control[type="text"] {
+    font-family: 'Courier New', monospace;
+}
+
+/* Loading state for buttons */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .password-reset-card, .expired-card {
+        padding: 30px 20px;
+        margin: 10px;
+    }
+    
+    .password-reset-logo {
+        font-size: 2.5rem;
+    }
+    
+    .expired-icon {
+        font-size: 3rem;
+    }
+    
+    .input-group {
+        flex-wrap: wrap;
+    }
+    
+    .input-group .form-control {
+        border-radius: 8px 8px 0 0;
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .input-group .btn {
+        border-radius: 0;
+        border-right: 2px solid #e0e6ed;
+        flex: 1;
+    }
+    
+    .input-group .btn:last-child {
+        border-radius: 0 0 8px 8px;
+        border-right: 2px solid #e0e6ed;
+    }
+}
+
+/* Blazor error UI */
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}

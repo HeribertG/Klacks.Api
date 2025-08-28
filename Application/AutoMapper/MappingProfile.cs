@@ -166,6 +166,8 @@ public class MappingProfile : Profile
           .ForMember(dest => dest.LockoutEnabled, opt => opt.Ignore())
           .ForMember(dest => dest.AccessFailedCount, opt => opt.Ignore())
           .ForMember(dest => dest.LockoutEnd, opt => opt.Ignore())
+          .ForMember(dest => dest.PasswordResetToken, opt => opt.Ignore())
+          .ForMember(dest => dest.PasswordResetTokenExpires, opt => opt.Ignore())
           ;
 
         CreateMap<CalendarRule, CalendarRuleResource>().ReverseMap();

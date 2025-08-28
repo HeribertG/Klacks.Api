@@ -19,3 +19,9 @@ public record ChangeRoleCommand(ChangeRole ChangeRole) : IRequest<HttpResultReso
 
 // Delete Account Command
 public record DeleteAccountCommand(Guid UserId) : IRequest<HttpResultResource>;
+
+// Request Password Reset Command
+public record RequestPasswordResetCommand(string Email) : IRequest<HttpResultResource>;
+
+// Reset Password Command
+public record ResetPasswordCommand(ResetPasswordResource ResetPassword) : IRequest<AuthenticatedResult>;

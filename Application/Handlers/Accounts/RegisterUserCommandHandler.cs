@@ -4,7 +4,6 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Services.Accounts;
 using MediatR;
-using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Accounts;
 

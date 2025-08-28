@@ -26,42 +26,60 @@ public class MsgEMail
 
     private EmailWrapper? InitEMailWrapper()
     {
-        var setting = context.Settings.ToList();
-
-        var email = new EmailWrapper();
         try
         {
-            var tmpEMailAddress = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_EMAIL_ADDRESS)?.Value!;
-            if (tmpEMailAddress != null)
+            // Use explicit ToList() call to avoid deferred execution issues
+            var setting = context.Settings?.ToList();
+
+            if (setting == null || !setting.Any())
+            {
+                // No email settings configured
+                return null;
+            }
+
+            var email = new EmailWrapper();
+
+            var tmpEMailAddress = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_EMAIL_ADDRESS)?.Value;
+            if (!string.IsNullOrEmpty(tmpEMailAddress))
             {
                 email.EMailAddress = tmpEMailAddress;
             }
 
-            var tmpSubject = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_SUBJECT)?.Value!;
-            if (tmpSubject != null)
+            var tmpSubject = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_SUBJECT)?.Value;
+            if (!string.IsNullOrEmpty(tmpSubject))
             {
                 email.Subject = tmpSubject;
             }
 
-            email.Mark = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_MARK)?.Value!;
-            email.ReplyTo = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_REPLY_TO)?.Value!;
-            email.Outgoingserver = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_OUTGOING_SERVER)?.Value!;
-            email.OutgoingserverPort = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_OUTGOING_SERVER_PORT)?.Value!;
-            email.OutgoingserverUsername = setting.FirstOrDefault(x => x.Type == "outgoingserverUsername")?.Value!;
-            email.OutgoingserverPassword = setting.FirstOrDefault(x => x.Type == "outgoingserverPassword")?.Value!;
-            email.EnabledSsl = bool.Parse(setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_ENABLE_SSL)?.Value!);
-            email.AuthenticationType = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_AUTHENTICATION_TYPE)?.Value!;
-            email.ReadReceipt = bool.Parse(setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_READ_RECEIPT)?.Value!);
-            email.DispositionNotification = bool.Parse(setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_DISPOSITION_NOTIFICATION)?.Value!);
-            email.OutgoingserverTimeout = int.Parse(setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_OUTGOING_SERVER_TIMEOUT)?.Value!);
+            email.Mark = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_MARK)?.Value ?? string.Empty;
+            email.ReplyTo = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_REPLY_TO)?.Value ?? string.Empty;
+            email.Outgoingserver = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_OUTGOING_SERVER)?.Value ?? string.Empty;
+            email.OutgoingserverPort = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_OUTGOING_SERVER_PORT)?.Value ?? string.Empty;
+            email.OutgoingserverUsername = setting.FirstOrDefault(x => x.Type == "outgoingserverUsername")?.Value ?? string.Empty;
+            email.OutgoingserverPassword = setting.FirstOrDefault(x => x.Type == "outgoingserverPassword")?.Value ?? string.Empty;
+
+            // Handle boolean parsing more safely
+            var enableSslValue = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_ENABLE_SSL)?.Value;
+            email.EnabledSsl = !string.IsNullOrEmpty(enableSslValue) && bool.TryParse(enableSslValue, out var enableSsl) && enableSsl;
+
+            email.AuthenticationType = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_AUTHENTICATION_TYPE)?.Value ?? string.Empty;
+
+            var readReceiptValue = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_READ_RECEIPT)?.Value;
+            email.ReadReceipt = !string.IsNullOrEmpty(readReceiptValue) && bool.TryParse(readReceiptValue, out var readReceipt) && readReceipt;
+
+            var dispositionValue = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_DISPOSITION_NOTIFICATION)?.Value;
+            email.DispositionNotification = !string.IsNullOrEmpty(dispositionValue) && bool.TryParse(dispositionValue, out var disposition) && disposition;
+
+            var timeoutValue = setting.FirstOrDefault(x => x.Type == Application.Constants.Settings.APP_OUTGOING_SERVER_TIMEOUT)?.Value;
+            email.OutgoingserverTimeout = !string.IsNullOrEmpty(timeoutValue) && int.TryParse(timeoutValue, out var timeout) ? timeout : 30000; // Default 30 seconds
 
             return email;
         }
-        catch
+        catch (Exception ex)
         {
-            // ignored
+            // Log the specific error for debugging
+            Console.WriteLine($"Email configuration error: {ex.Message}");
+            return null;
         }
-
-        return null;
     }
 }

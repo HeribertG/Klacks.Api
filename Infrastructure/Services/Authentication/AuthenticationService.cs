@@ -89,4 +89,21 @@ public class AuthenticationService : IAuthenticationService
         model.ModelState ??= new ModelStateDictionary();
         model.ModelState.TryAddModelError(key, message);
     }
+
+    public async Task<(bool Success, IdentityResult? Result)> ResetPasswordAsync(AppUser user, string token, string newPassword)
+    {
+        try
+        {
+            // For our custom token system, we'll change the password directly
+            var passwordHasher = new PasswordHasher<AppUser>();
+            user.PasswordHash = passwordHasher.HashPassword(user, newPassword);
+            
+            var result = await _userManager.UpdateAsync(user);
+            return (result.Succeeded, result);
+        }
+        catch
+        {
+            return (false, null);
+        }
+    }
 }

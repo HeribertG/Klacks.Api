@@ -8,4 +8,8 @@ public interface IAccountPasswordService
     Task<AuthenticatedResult> ChangePasswordAsync(ChangePasswordResource model);
 
     Task<AuthenticatedResult> ResetPasswordAsync(ResetPasswordResource data);
+
+    Task<bool> GeneratePasswordResetTokenAsync(string email);
+
+    Task<bool> ValidatePasswordResetTokenAsync(string token);
 }

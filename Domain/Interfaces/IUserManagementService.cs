@@ -61,4 +61,18 @@ public interface IUserManagementService
     /// <param name="role">Role name</param>
     /// <returns>True if user is in role</returns>
     Task<bool> IsUserInRoleAsync(AppUser user, string role);
+
+    /// <summary>
+    /// Updates an existing user
+    /// </summary>
+    /// <param name="user">User to update</param>
+    /// <returns>Success status and identity result</returns>
+    Task<(bool Success, IdentityResult? Result)> UpdateUserAsync(AppUser user);
+
+    /// <summary>
+    /// Finds a user by password reset token
+    /// </summary>
+    /// <param name="token">Password reset token</param>
+    /// <returns>User if found</returns>
+    Task<AppUser?> FindUserByTokenAsync(string token);
 }
