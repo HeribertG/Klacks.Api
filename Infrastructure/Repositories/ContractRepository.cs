@@ -2,7 +2,6 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Infrastructure.Repositories;
 

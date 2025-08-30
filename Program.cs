@@ -125,8 +125,8 @@ builder.Services.AddServerSideBlazor();
 // Add MVC Views
 builder.Services.AddControllersWithViews();
 
-// Add Blazor Services
-builder.Services.AddScoped<Klacks.Api.Presentation.Services.IPasswordGeneratorService, Klacks.Api.Presentation.Services.PasswordGeneratorService>();
+// Add Domain Services
+builder.Services.AddScoped<Klacks.Api.Domain.Interfaces.IPasswordGeneratorService, Klacks.Api.Domain.Services.Accounts.PasswordGeneratorService>();
 
 builder.Services
     .AddControllers()
