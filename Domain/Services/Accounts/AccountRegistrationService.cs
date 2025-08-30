@@ -59,7 +59,6 @@ public class AccountRegistrationService : IAccountRegistrationService
 
         await _appDbContext.SaveChangesAsync();
 
-        // Generate password reset token and send email after successful registration
         try
         {
             _logger.LogInformation("Generating password reset token for new user: {Email}", user.Email);
@@ -77,7 +76,6 @@ public class AccountRegistrationService : IAccountRegistrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error generating password reset token for new user: {Email}", user.Email);
-            // Don't fail registration if token generation fails
         }
 
         _logger.LogInformation("User registered successfully: {Email}", user.Email);

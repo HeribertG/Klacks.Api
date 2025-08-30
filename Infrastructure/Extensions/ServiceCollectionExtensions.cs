@@ -93,7 +93,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IVatManagementService, VatManagementService>();
         services.AddScoped<ISettingsTokenService, SettingsTokenService>();
         
-        // Email Services
+        // Email Services  
         services.AddScoped<IEmailTestService, EmailTestService>();
 
         // CalendarSelection Domain Services
