@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.SelectedCalendars;
 
-public class PostCommandHandler : IRequestHandler<PostCommand<SelectedCalendarResource>, SelectedCalendarResource?>
+public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<SelectedCalendarResource>, SelectedCalendarResource?>
 {
     private readonly ISelectedCalendarRepository _selectedCalendarRepository;
     private readonly IMapper _mapper;
@@ -16,7 +16,9 @@ public class PostCommandHandler : IRequestHandler<PostCommand<SelectedCalendarRe
     public PostCommandHandler(
         ISelectedCalendarRepository selectedCalendarRepository,
         IMapper mapper,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ILogger<PostCommandHandler> logger)
+        : base(logger)
     {
         _selectedCalendarRepository = selectedCalendarRepository;
         _mapper = mapper;

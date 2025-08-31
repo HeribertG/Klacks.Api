@@ -19,4 +19,6 @@ public class ContractResource
     public DateTime? ValidUntil { get; set; }
 
     public CalendarSelectionResource? CalendarSelection { get; set; }
+
+    public Guid? CalendarSelectionId { get; set; }
 }

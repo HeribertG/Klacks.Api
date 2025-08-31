@@ -6,21 +6,20 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Accounts;
 
-public class DeleteAccountCommandHandler : IRequestHandler<DeleteAccountCommand, HttpResultResource>
+public class DeleteAccountCommandHandler : BaseHandler, IRequestHandler<DeleteAccountCommand, HttpResultResource>
 {
     private readonly IAccountManagementService _accountManagementService;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ILogger<DeleteAccountCommandHandler> _logger;
-
+    
     public DeleteAccountCommandHandler(
         IAccountManagementService accountManagementService,
         IUnitOfWork unitOfWork,
         ILogger<DeleteAccountCommandHandler> logger)
+        : base(logger)
     {
         _accountManagementService = accountManagementService;
         _unitOfWork = unitOfWork;
-        _logger = logger;
-    }
+        }
 
     public async Task<HttpResultResource> Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
     {

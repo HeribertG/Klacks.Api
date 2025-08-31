@@ -4,21 +4,20 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Groups
 {
-    public class RefreshTreeCommandHandler : IRequestHandler<RefreshTreeCommand>
+    public class RefreshTreeCommandHandler : BaseHandler, IRequestHandler<RefreshTreeCommand>
     {
         private readonly IGroupRepository _groupRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<RefreshTreeCommandHandler> _logger;
-
+        
         public RefreshTreeCommandHandler(
             IGroupRepository groupRepository,
             IUnitOfWork unitOfWork,
             ILogger<RefreshTreeCommandHandler> logger)
+        : base(logger)
         {
             _groupRepository = groupRepository;
             _unitOfWork = unitOfWork;
-            _logger = logger;
-        }
+            }
         
         public async Task Handle(RefreshTreeCommand request, CancellationToken cancellationToken)
         {

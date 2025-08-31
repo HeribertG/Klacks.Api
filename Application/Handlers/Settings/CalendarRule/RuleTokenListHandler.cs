@@ -5,11 +5,14 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.CalendarRules;
 
-public class RuleTokenListHandler : IRequestHandler<RuleTokenList, IEnumerable<StateCountryToken>>
+public class RuleTokenListHandler : BaseHandler, IRequestHandler<RuleTokenList, IEnumerable<StateCountryToken>>
 {
     private readonly ISettingsTokenService _settingsTokenService;
 
-    public RuleTokenListHandler(ISettingsTokenService settingsTokenService)
+    public RuleTokenListHandler(
+        ISettingsTokenService settingsTokenService,
+        ILogger<RuleTokenListHandler> logger)
+        : base(logger)
     {
         _settingsTokenService = settingsTokenService;
     }

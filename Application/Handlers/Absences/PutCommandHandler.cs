@@ -6,48 +6,41 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Absences;
 
-public class PutCommandHandler : IRequestHandler<PutCommand<AbsenceResource>, AbsenceResource?>
-{
-    private readonly ILogger<PutCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IAbsenceRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<AbsenceResource>, AbsenceResource?>
+{    
+    private readonly IMapper _mapper;
+    private readonly IAbsenceRepository _repository;
+    private readonly IUnitOfWork _unitOfWork;
 
     public PutCommandHandler(
                               IMapper mapper,
                               IAbsenceRepository repository,
                               IUnitOfWork unitOfWork,
                               ILogger<PutCommandHandler> logger)
+        : base(logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _mapper = mapper;
+        _repository = repository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<AbsenceResource?> Handle(PutCommand<AbsenceResource> request, CancellationToken cancellationToken)
     {
-        try
+        return await ExecuteAsync(async () =>
         {
-            var dbAbsence = await repository.Get(request.Resource.Id);
+            var dbAbsence = await _repository.Get(request.Resource.Id);
             if (dbAbsence == null)
             {
-                logger.LogWarning("Absence with ID {AbsenceId} not found.", request.Resource.Id);
-                return null;
+                throw new KeyNotFoundException($"Absence with ID {request.Resource.Id} not found.");
             }
 
-            var updatedAbsence = mapper.Map(request.Resource, dbAbsence);
-            updatedAbsence = await repository.Put(updatedAbsence);
-            await unitOfWork.CompleteAsync();
+            var updatedAbsence = _mapper.Map(request.Resource, dbAbsence);
+            updatedAbsence = await _repository.Put(updatedAbsence);
+            await _unitOfWork.CompleteAsync();
 
-            logger.LogInformation("Absence with ID {AbsenceId} updated successfully.", request.Resource.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.Schedules.Absence, AbsenceResource>(updatedAbsence);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while updating absence with ID {AbsenceId}.", request.Resource.Id);
-            throw;
-        }
+            return _mapper.Map<AbsenceResource>(updatedAbsence);
+        }, 
+        "updating absence", 
+        new { AbsenceId = request.Resource.Id });
     }
 }

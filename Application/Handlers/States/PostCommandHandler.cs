@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.States;
 
-public class PostCommandHandler : IRequestHandler<PostCommand<StateResource>, StateResource?>
+public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<StateResource>, StateResource?>
 {
     private readonly IStateRepository _stateRepository;
     private readonly IMapper _mapper;
@@ -16,7 +16,9 @@ public class PostCommandHandler : IRequestHandler<PostCommand<StateResource>, St
     public PostCommandHandler(
         IStateRepository stateRepository,
         IMapper mapper,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ILogger<PostCommandHandler> logger)
+        : base(logger)
     {
         _stateRepository = stateRepository;
         _mapper = mapper;

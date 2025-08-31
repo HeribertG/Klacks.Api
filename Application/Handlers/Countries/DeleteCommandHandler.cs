@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Countries;
 
-public class DeleteCommandHandler : IRequestHandler<DeleteCommand<CountryResource>, CountryResource?>
+public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<CountryResource>, CountryResource?>
 {
     private readonly ICountryRepository _countryRepository;
     private readonly IMapper _mapper;
@@ -15,7 +15,9 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<CountryResourc
     public DeleteCommandHandler(
         ICountryRepository countryRepository,
         IMapper mapper,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ILogger<DeleteCommandHandler> logger)
+        : base(logger)
     {
         _countryRepository = countryRepository;
         _mapper = mapper;

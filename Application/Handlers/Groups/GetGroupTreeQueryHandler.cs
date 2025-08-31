@@ -32,7 +32,6 @@ namespace Klacks.Api.Application.Handlers.Groups
                 var nodeDict = flatNodes.ToDictionary(g => g.Id, g => _mapper.Map<GroupResource>(g));
                 var rootNodes = new List<GroupResource>();
                 
-                // Build tree structure from flat nodes
                 foreach (var node in nodeDict.Values)
                 {
                     if (node.Parent == null || !nodeDict.ContainsKey(node.Parent.Value))
@@ -46,7 +45,6 @@ namespace Klacks.Api.Application.Handlers.Groups
                     }
                 }
                 
-                // Calculate depths AFTER tree structure is built
                 foreach (var rootNode in rootNodes)
                 {
                     CalculateDepthRecursive(rootNode, 0);
@@ -74,7 +72,7 @@ namespace Klacks.Api.Application.Handlers.Groups
                 _logger.LogError(ex, $"Error processing GetGroupTreeQuery with rootId: {request.RootId}");
                 throw;
             }
-        }
+    }
         
         private void CalculateDepthRecursive(GroupResource node, int depth)
         {
@@ -83,7 +81,7 @@ namespace Klacks.Api.Application.Handlers.Groups
             {
                 CalculateDepthRecursive(child, depth + 1);
             }
-        }
+    }
         
         private void SortChildrenRecursive(List<GroupResource> nodes)
         {
@@ -98,6 +96,6 @@ namespace Klacks.Api.Application.Handlers.Groups
                     SortChildrenRecursive(node.Children);
                 }
             }
-        }
+    }
     }
 }

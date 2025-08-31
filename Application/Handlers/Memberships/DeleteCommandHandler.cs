@@ -6,34 +6,32 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Memberships;
 
-public class DeleteCommandHandler : IRequestHandler<DeleteCommand<MembershipResource>, MembershipResource?>
+public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<MembershipResource>, MembershipResource?>
 {
     private readonly IMembershipRepository _membershipRepository;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ILogger<DeleteCommandHandler> _logger;
-
+    
     public DeleteCommandHandler(
         IMembershipRepository membershipRepository,
         IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
+        : base(logger)
     {
         _membershipRepository = membershipRepository;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
-        _logger = logger;
-    }
+        }
 
     public async Task<MembershipResource?> Handle(DeleteCommand<MembershipResource> request, CancellationToken cancellationToken)
     {
-        try
+        return await ExecuteAsync(async () =>
         {
             var existingMembership = await _membershipRepository.Get(request.Id);
             if (existingMembership == null)
             {
-                _logger.LogWarning("Membership with ID {MembershipId} not found for deletion.", request.Id);
-                return null;
+                throw new KeyNotFoundException($"Membership with ID {request.Id} not found.");
             }
 
             var membershipResource = _mapper.Map<MembershipResource>(existingMembership);
@@ -41,11 +39,8 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<MembershipReso
             await _unitOfWork.CompleteAsync();
 
             return membershipResource;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error occurred while deleting membership with ID {MembershipId}.", request.Id);
-            throw;
-        }
+        }, 
+        "deleting membership", 
+        new { MembershipId = request.Id });
     }
 }

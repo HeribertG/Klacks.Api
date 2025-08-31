@@ -6,26 +6,29 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.Macro
 {
-    public class DeleteCommandHandler : IRequestHandler<DeleteCommand, MacroResource>
+    public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand, MacroResource>
     {
         private readonly ISettingsRepository _settingsRepository;
         private readonly IMapper _mapper;
-        private readonly IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DeleteCommandHandler(ISettingsRepository settingsRepository,
+        public DeleteCommandHandler(
+        ISettingsRepository settingsRepository,
                                     IMapper mapper,
-                                    IUnitOfWork unitOfWork)
-        {
+                                    IUnitOfWork unitOfWork,
+        ILogger<DeleteCommandHandler> logger)
+        : base(logger)
+    {
             _settingsRepository = settingsRepository;
             _mapper = mapper;
-            this.unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
         }
 
         async Task<MacroResource> IRequestHandler<DeleteCommand, MacroResource>.Handle(DeleteCommand request, CancellationToken cancellationToken)
         {
             var deletedMacro = await _settingsRepository.DeleteMacro(request.Id);
 
-            await unitOfWork.CompleteAsync();
+            await _unitOfWork.CompleteAsync();
 
             return _mapper.Map<MacroResource>(deletedMacro);
         }

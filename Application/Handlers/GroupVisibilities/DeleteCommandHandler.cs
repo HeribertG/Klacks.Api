@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.GroupVisibilities;
 
-public class DeleteCommandHandler : IRequestHandler<DeleteCommand<GroupVisibilityResource>, GroupVisibilityResource?>
+public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<GroupVisibilityResource>, GroupVisibilityResource?>
 {
     private readonly IGroupVisibilityRepository _groupVisibilityRepository;
     private readonly IMapper _mapper;
@@ -15,7 +15,9 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<GroupVisibilit
     public DeleteCommandHandler(
         IGroupVisibilityRepository groupVisibilityRepository,
         IMapper mapper,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ILogger<DeleteCommandHandler> logger)
+        : base(logger)
     {
         _groupVisibilityRepository = groupVisibilityRepository;
         _mapper = mapper;

@@ -7,12 +7,15 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Shifts;
 
-public class PostCutsCommandHandler : IRequestHandler<PostCutsCommand, List<ShiftResource>>
+public class PostCutsCommandHandler : BaseHandler, IRequestHandler<PostCutsCommand, List<ShiftResource>>
 {
     private readonly IShiftRepository _shiftRepository;
     private readonly IMapper _mapper;
 
-    public PostCutsCommandHandler(IShiftRepository shiftRepository, IMapper mapper)
+    public PostCutsCommandHandler(
+        IShiftRepository shiftRepository, IMapper mapper,
+        ILogger<PostCutsCommandHandler> logger)
+        : base(logger)
     {
         _shiftRepository = shiftRepository;
         _mapper = mapper;

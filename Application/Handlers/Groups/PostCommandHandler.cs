@@ -6,46 +6,32 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Groups;
 
-public class PostCommandHandler : IRequestHandler<PostCommand<GroupResource>, GroupResource?>
+public class PostCommandHandler : BaseTransactionHandler, IRequestHandler<PostCommand<GroupResource>, GroupResource?>
 {
     private readonly IGroupRepository _groupRepository;
     private readonly IMapper _mapper;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly ILogger<PostCommandHandler> _logger;
-
+    
     public PostCommandHandler(
         IGroupRepository groupRepository,
         IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
+        : base(unitOfWork, logger)
     {
         _groupRepository = groupRepository;
         _mapper = mapper;
-        _unitOfWork = unitOfWork;
-        _logger = logger;
     }
 
     public async Task<GroupResource?> Handle(PostCommand<GroupResource> request, CancellationToken cancellationToken)
     {
-        using var transaction = await _unitOfWork.BeginTransactionAsync();
-        try
+        return await ExecuteWithTransactionAsync(async () =>
         {
             var group = _mapper.Map<Klacks.Api.Domain.Models.Associations.Group>(request.Resource);
             await _groupRepository.Add(group);
-            var createdGroup = _mapper.Map<GroupResource>(group);
-
             await _unitOfWork.CompleteAsync();
-            await _unitOfWork.CommitTransactionAsync(transaction);
-
-            _logger.LogInformation("Command {CommandName} processed successfully.", "PostCommand<GroupResource>");
-
-            return createdGroup;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error creating group: {ErrorMessage}", ex.Message);
-            await _unitOfWork.RollbackTransactionAsync(transaction);
-            throw;
-        }
+            return _mapper.Map<GroupResource>(group);
+        }, 
+        "creating group", 
+        new { GroupId = request.Resource?.Id });
     }
 }

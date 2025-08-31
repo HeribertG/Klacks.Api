@@ -5,27 +5,30 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.Vat
 {
-    public class PostCommandHandler : IRequestHandler<PostCommand, Klacks.Api.Domain.Models.Settings.Vat?>
+    public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand, Domain.Models.Settings.Vat?>
     {
         private readonly ISettingsRepository _settingsRepository;
         private readonly IMapper _mapper;
-        private readonly IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public PostCommandHandler(ISettingsRepository settingsRepository,
+        public PostCommandHandler(
+        ISettingsRepository settingsRepository,
                                   IMapper mapper,
-                                  IUnitOfWork unitOfWork)
-        {
+                                  IUnitOfWork unitOfWork,
+        ILogger<PostCommandHandler> logger)
+        : base(logger)
+    {
             _settingsRepository = settingsRepository;
             _mapper = mapper;
-            this.unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<Klacks.Api.Domain.Models.Settings.Vat?> Handle(PostCommand request, CancellationToken cancellationToken)
+        public async Task<Domain.Models.Settings.Vat?> Handle(PostCommand request, CancellationToken cancellationToken)
         {
-            var vat = _mapper.Map<Klacks.Api.Domain.Models.Settings.Vat>(request.model);
+            var vat = _mapper.Map<Domain.Models.Settings.Vat>(request.model);
             var createdVat = _settingsRepository.AddVAT(vat);
 
-            await unitOfWork.CompleteAsync();
+            await _unitOfWork.CompleteAsync();
 
             return createdVat;
         }

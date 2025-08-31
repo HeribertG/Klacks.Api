@@ -6,7 +6,7 @@ using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.GroupVisibilities;
-public class PostCommandHandler : IRequestHandler<PostCommand<GroupVisibilityResource>, GroupVisibilityResource?>
+public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<GroupVisibilityResource>, GroupVisibilityResource?>
 {
     private readonly IGroupVisibilityRepository _groupVisibilityRepository;
     private readonly IMapper _mapper;
@@ -15,7 +15,9 @@ public class PostCommandHandler : IRequestHandler<PostCommand<GroupVisibilityRes
     public PostCommandHandler(
         IGroupVisibilityRepository groupVisibilityRepository,
         IMapper mapper,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ILogger<PostCommandHandler> logger)
+        : base(logger)
     {
         _groupVisibilityRepository = groupVisibilityRepository;
         _mapper = mapper;

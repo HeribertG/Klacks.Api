@@ -6,34 +6,32 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Groups;
 
-public class DeleteCommandHandler : IRequestHandler<DeleteCommand<GroupResource>, GroupResource?>
+public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<GroupResource>, GroupResource?>
 {
     private readonly IGroupRepository _groupRepository;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ILogger<DeleteCommandHandler> _logger;
-
+    
     public DeleteCommandHandler(
         IGroupRepository groupRepository,
         IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
+        : base(logger)
     {
         _groupRepository = groupRepository;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
-        _logger = logger;
-    }
+        }
 
     public async Task<GroupResource?> Handle(DeleteCommand<GroupResource> request, CancellationToken cancellationToken)
     {
-        try
+        return await ExecuteAsync(async () =>
         {
             var group = await _groupRepository.Get(request.Id);
             if (group == null)
             {
-                _logger.LogWarning("Group with ID {GroupId} not found for deletion.", request.Id);
-                return null;
+                throw new KeyNotFoundException($"Group with ID {request.Id} not found.");
             }
 
             var groupToDelete = _mapper.Map<GroupResource>(group);
@@ -41,19 +39,9 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<GroupResource>
 
             await _unitOfWork.CompleteAsync();
 
-            _logger.LogInformation("Group with ID {GroupId} deleted successfully.", request.Id);
-
             return groupToDelete;
-        }
-        catch (KeyNotFoundException)
-        {
-            _logger.LogWarning("Group with ID {GroupId} not found for deletion.", request.Id);
-            return null;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error occurred while deleting group with ID {GroupId}.", request.Id);
-            throw;
-        }
+        }, 
+        "deleting group", 
+        new { GroupId = request.Id });
     }
 }

@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.States;
 
-public class PutCommandHandler : IRequestHandler<PutCommand<StateResource>, StateResource?>
+public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<StateResource>, StateResource?>
 {
     private readonly IStateRepository _stateRepository;
     private readonly IMapper _mapper;
@@ -15,7 +15,9 @@ public class PutCommandHandler : IRequestHandler<PutCommand<StateResource>, Stat
     public PutCommandHandler(
         IStateRepository stateRepository,
         IMapper mapper,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ILogger<PutCommandHandler> logger)
+        : base(logger)
     {
         _stateRepository = stateRepository;
         _mapper = mapper;

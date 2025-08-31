@@ -7,24 +7,23 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Accounts;
 
-public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, AuthenticatedResult>
+public class RegisterUserCommandHandler : BaseHandler, IRequestHandler<RegisterUserCommand, AuthenticatedResult>
 {
     private readonly IAccountRegistrationService _accountRegistrationService;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ILogger<RegisterUserCommandHandler> _logger;
-
+    
     public RegisterUserCommandHandler(
         IAccountRegistrationService accountRegistrationService,
         IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<RegisterUserCommandHandler> logger)
+        : base(logger)
     {
         _accountRegistrationService = accountRegistrationService;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
-        _logger = logger;
-    }
+        }
 
     public async Task<AuthenticatedResult> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {

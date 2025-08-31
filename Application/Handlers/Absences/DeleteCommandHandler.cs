@@ -6,46 +6,38 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Absences;
 
-public class DeleteCommandHandler : IRequestHandler<DeleteCommand<AbsenceResource>, AbsenceResource?>
+public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<AbsenceResource>, AbsenceResource?>
 {
-    private readonly ILogger<DeleteCommandHandler> logger;
-    private readonly IMapper mapper;
-    private readonly IAbsenceRepository repository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly IMapper _mapper;
+    private readonly IAbsenceRepository _repository;
+    private readonly IUnitOfWork _unitOfWork;
 
     public DeleteCommandHandler(
-                                IMapper mapper,
-                                IAbsenceRepository repository,
-                                IUnitOfWork unitOfWork,
-                                ILogger<DeleteCommandHandler> logger)
+        IMapper mapper,
+        IAbsenceRepository repository,
+        IUnitOfWork unitOfWork,
+        ILogger<DeleteCommandHandler> logger)
+        : base(logger)
     {
-        this.mapper = mapper;
-        this.repository = repository;
-        this.unitOfWork = unitOfWork;
-        this.logger = logger;
+        _mapper = mapper;
+        _repository = repository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<AbsenceResource?> Handle(DeleteCommand<AbsenceResource> request, CancellationToken cancellationToken)
     {
-        try
+        return await ExecuteAsync(async () =>
         {
-            var absence = await repository.Delete(request.Id);
+            var absence = await _repository.Delete(request.Id);
             if (absence == null)
             {
-                logger.LogWarning("Absence with ID {AbsenceId} not found for deletion.", request.Id);
-                return null;
+                throw new KeyNotFoundException($"Absence with ID {request.Id} not found.");
             }
 
-            await unitOfWork.CompleteAsync();
-
-            logger.LogInformation("Absence with ID {AbsenceId} deleted successfully.", request.Id);
-
-            return mapper.Map<Klacks.Api.Domain.Models.Schedules.Absence, AbsenceResource>(absence);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while deleting absence with ID {AbsenceId}.", request.Id);
-            throw;
-        }
+            await _unitOfWork.CompleteAsync();
+            return _mapper.Map<AbsenceResource>(absence);
+        }, 
+        "deleting absence", 
+        new { AbsenceId = request.Id });
     }
 }

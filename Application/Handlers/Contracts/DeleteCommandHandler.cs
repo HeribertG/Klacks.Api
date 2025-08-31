@@ -1,39 +1,38 @@
 using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Presentation.DTOs.Associations;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Contracts;
 
-public class DeleteCommandHandler : IRequestHandler<DeleteCommand<ContractResource>, ContractResource?>
+public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<ContractResource>, ContractResource?>
 {
     private readonly IContractRepository _contractRepository;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ILogger<DeleteCommandHandler> _logger;
 
     public DeleteCommandHandler(
         IContractRepository contractRepository,
         IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
+        : base(logger)
     {
         _contractRepository = contractRepository;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
-        _logger = logger;
     }
 
     public async Task<ContractResource?> Handle(DeleteCommand<ContractResource> request, CancellationToken cancellationToken)
     {
-        try
+        return await ExecuteAsync(async () =>
         {
             var existingContract = await _contractRepository.Get(request.Id);
             if (existingContract == null)
             {
-                _logger.LogWarning("Contract with ID {ContractId} not found for deletion.", request.Id);
-                return null;
+                throw new KeyNotFoundException($"Contract with ID {request.Id} not found.");
             }
 
             var contractResource = _mapper.Map<ContractResource>(existingContract);
@@ -41,11 +40,8 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<ContractResour
             await _unitOfWork.CompleteAsync();
 
             return contractResource;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error occurred while deleting contract with ID {ContractId}.", request.Id);
-            throw;
-        }
+        }, 
+        "deleting contract", 
+        new { ContractId = request.Id });
     }
 }

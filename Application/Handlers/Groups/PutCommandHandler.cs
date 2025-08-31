@@ -6,28 +6,27 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Groups;
 
-public class PutCommandHandler : IRequestHandler<PutCommand<GroupResource>, GroupResource?>
+public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<GroupResource>, GroupResource?>
 {
     private readonly IGroupRepository _groupRepository;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ILogger<PutCommandHandler> _logger;
-
+    
     public PutCommandHandler(
         IGroupRepository groupRepository,
         IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
+        : base(logger)
     {
         _groupRepository = groupRepository;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
-        _logger = logger;
-    }
+        }
 
     public async Task<GroupResource?> Handle(PutCommand<GroupResource> request, CancellationToken cancellationToken)
     {
-        try
+        return await ExecuteAsync(async () =>
         {
             var group = _mapper.Map<Klacks.Api.Domain.Models.Associations.Group>(request.Resource);
             var updatedGroup = await _groupRepository.Put(group);
@@ -35,19 +34,9 @@ public class PutCommandHandler : IRequestHandler<PutCommand<GroupResource>, Grou
 
             await _unitOfWork.CompleteAsync();
 
-            _logger.LogInformation("Group with ID {GroupId} updated successfully.", request.Resource.Id);
-
             return result;
-        }
-        catch (KeyNotFoundException)
-        {
-            _logger.LogWarning("Group with ID {GroupId} not found.", request.Resource.Id);
-            return null;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error occurred while updating group with ID {GroupId}.", request.Resource.Id);
-            throw;
-        }
+        }, 
+        "updating", 
+        new { });
     }
 }

@@ -1,5 +1,6 @@
 using Klacks.Api.Application.Commands.Accounts;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Presentation.DTOs.Registrations;
@@ -7,61 +8,42 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Accounts;
 
-public class ChangePasswordUserCommandHandler : IRequestHandler<ChangePasswordUserCommand, AuthenticatedResult>
+public class ChangePasswordUserCommandHandler : BaseTransactionHandler, IRequestHandler<ChangePasswordUserCommand, AuthenticatedResult>
 {
     private readonly IAccountPasswordService _accountPasswordService;
     private readonly IAccountNotificationService _accountNotificationService;
     private readonly IAccountAuthenticationService _accountAuthenticationService;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly ILogger<ChangePasswordUserCommandHandler> _logger;
-
+    
     public ChangePasswordUserCommandHandler(
         IAccountPasswordService accountPasswordService,
         IAccountNotificationService accountNotificationService,
         IAccountAuthenticationService accountAuthenticationService,
         IUnitOfWork unitOfWork,
         ILogger<ChangePasswordUserCommandHandler> logger)
+        : base(unitOfWork, logger)
     {
         _accountPasswordService = accountPasswordService;
         _accountNotificationService = accountNotificationService;
         _accountAuthenticationService = accountAuthenticationService;
-        _unitOfWork = unitOfWork;
-        _logger = logger;
-    }
+        }
 
     public async Task<AuthenticatedResult> Handle(ChangePasswordUserCommand request, CancellationToken cancellationToken)
     {
-        using var transaction = await _unitOfWork.BeginTransactionAsync();
-        
-        try
+        return await ExecuteWithTransactionAsync(async () =>
         {
-            _logger.LogInformation("Processing user password change for user: {Email}", request.ChangePassword.Email);
-            
             var result = await _accountPasswordService.ChangePasswordAsync(request.ChangePassword);
             
             if (result != null && result.Success)
             {
-                // Send email notification
-                result = await SendPasswordChangeEmailAsync(result, request.ChangePassword);
-                
-                await _unitOfWork.CompleteAsync();
-                await _unitOfWork.CommitTransactionAsync(transaction);
-                _logger.LogInformation("User password change successful for user: {Email}", request.ChangePassword.Email);
+                return await SendPasswordChangeEmailAsync(result, request.ChangePassword);
             }
             else
             {
-                await _unitOfWork.RollbackTransactionAsync(transaction);
-                _logger.LogWarning("User password change failed for user: {Email}", request.ChangePassword.Email);
+                throw new InvalidRequestException("Password change failed.");
             }
-            
-            return result;
-        }
-        catch (Exception ex)
-        {
-            await _unitOfWork.RollbackTransactionAsync(transaction);
-            _logger.LogError(ex, "Error changing user password for user: {Email}", request.ChangePassword.Email);
-            throw;
-        }
+        }, 
+        "changing user password", 
+        new { Email = request.ChangePassword.Email });
     }
     
     private async Task<AuthenticatedResult> SendPasswordChangeEmailAsync(AuthenticatedResult result, ChangePasswordResource changePasswordResource)

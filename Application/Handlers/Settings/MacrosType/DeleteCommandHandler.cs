@@ -1,27 +1,29 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands.Settings.MacrosTypes;
 using Klacks.Api.Application.Interfaces;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.MacrosTypes;
 
-public class DeleteCommandHandler : IRequestHandler<DeleteCommand, Klacks.Api.Domain.Models.Settings.MacroType>
+public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand, Domain.Models.Settings.MacroType>
 {
     private readonly ISettingsRepository _settingsRepository;
-    private readonly IUnitOfWork unitOfWork;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteCommandHandler(ISettingsRepository settingsRepository,
-                                IUnitOfWork unitOfWork)
+    public DeleteCommandHandler(
+        ISettingsRepository settingsRepository,
+                                IUnitOfWork unitOfWork,
+        ILogger<DeleteCommandHandler> logger)
+        : base(logger)
     {
         _settingsRepository = settingsRepository;
-        this.unitOfWork = unitOfWork;
+        _unitOfWork = unitOfWork;
     }
 
-    async Task<Klacks.Api.Domain.Models.Settings.MacroType> IRequestHandler<DeleteCommand, Klacks.Api.Domain.Models.Settings.MacroType>.Handle(DeleteCommand request, CancellationToken cancellationToken)
+    async Task<Domain.Models.Settings.MacroType> IRequestHandler<DeleteCommand, Domain.Models.Settings.MacroType>.Handle(DeleteCommand request, CancellationToken cancellationToken)
     {
         var macroType = await _settingsRepository.DeleteMacroType(request.Id);
 
-        await unitOfWork.CompleteAsync();
+        await _unitOfWork.CompleteAsync();
 
         return macroType;
     }

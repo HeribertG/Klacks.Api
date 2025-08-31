@@ -6,12 +6,15 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Works;
 
-public class PostCommandHandler : IRequestHandler<PostCommand<WorkResource>, WorkResource?>
+public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkResource>, WorkResource?>
 {
     private readonly IWorkRepository _workRepository;
     private readonly IMapper _mapper;
 
-    public PostCommandHandler(IWorkRepository workRepository, IMapper mapper)
+    public PostCommandHandler(
+        IWorkRepository workRepository, IMapper mapper,
+        ILogger<PostCommandHandler> logger)
+        : base(logger)
     {
         _workRepository = workRepository;
         _mapper = mapper;
@@ -19,7 +22,7 @@ public class PostCommandHandler : IRequestHandler<PostCommand<WorkResource>, Wor
 
     public async Task<WorkResource?> Handle(PostCommand<WorkResource> request, CancellationToken cancellationToken)
     {
-        var work = _mapper.Map<Klacks.Api.Domain.Models.Schedules.Work>(request.Resource);
+        var work = _mapper.Map<Domain.Models.Schedules.Work>(request.Resource);
         await _workRepository.Add(work);
         return _mapper.Map<WorkResource>(work);
     }

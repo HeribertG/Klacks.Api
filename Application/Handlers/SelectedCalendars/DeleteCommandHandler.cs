@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.SelectedCalendars;
 
-public class DeleteCommandHandler : IRequestHandler<DeleteCommand<SelectedCalendarResource>, SelectedCalendarResource?>
+public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<SelectedCalendarResource>, SelectedCalendarResource?>
 {
     private readonly ISelectedCalendarRepository _selectedCalendarRepository;
     private readonly IMapper _mapper;
@@ -15,7 +15,9 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<SelectedCalend
     public DeleteCommandHandler(
         ISelectedCalendarRepository selectedCalendarRepository,
         IMapper mapper,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ILogger<DeleteCommandHandler> logger)
+        : base(logger)
     {
         _selectedCalendarRepository = selectedCalendarRepository;
         _mapper = mapper;

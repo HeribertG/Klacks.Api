@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.GroupVisibilities;
 
-public class BulkGroupVisibilitiesCommandHandler : IRequestHandler<BulkGroupVisibilitiesCommand>
+public class BulkGroupVisibilitiesCommandHandler : BaseHandler, IRequestHandler<BulkGroupVisibilitiesCommand>
 {
     private readonly ILogger<BulkGroupVisibilitiesCommandHandler> _logger; 
     private readonly IGroupVisibilityRepository _groupVisibilityRepository;
@@ -18,8 +18,8 @@ public class BulkGroupVisibilitiesCommandHandler : IRequestHandler<BulkGroupVisi
         IGroupVisibilityRepository groupVisibilityRepository,
         IMapper mapper,
         IUnitOfWork unitOfWork)
+        : base(logger)
     {
-        _logger = logger;
         _groupVisibilityRepository = groupVisibilityRepository;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
@@ -29,18 +29,13 @@ public class BulkGroupVisibilitiesCommandHandler : IRequestHandler<BulkGroupVisi
     {
         _logger.LogInformation("Starting bulk update of GroupVisibility list with {Count} items.", request.List.Count);
 
-        try
+        await ExecuteAsync(async () =>
         {
             var groupVisibilities = _mapper.Map<List<GroupVisibility>>(request.List);
             await _groupVisibilityRepository.SetGroupVisibilityList(groupVisibilities);
             await _unitOfWork.CompleteAsync();
-            
-            _logger.LogInformation("Bulk update of GroupVisibility list completed successfully.");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error occurred while updating GroupVisibility list.");
-            throw;
-        }
+        }, 
+        "operation", 
+        new { });
     }
 }

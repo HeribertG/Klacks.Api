@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.States;
 
-public class DeleteCommandHandler : IRequestHandler<DeleteCommand<StateResource>, StateResource?>
+public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<StateResource>, StateResource?>
 {
     private readonly IStateRepository _stateRepository;
     private readonly IMapper _mapper;
@@ -15,7 +15,9 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<StateResource>
     public DeleteCommandHandler(
         IStateRepository stateRepository,
         IMapper mapper,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ILogger<DeleteCommandHandler> logger)
+        : base(logger)
     {
         _stateRepository = stateRepository;
         _mapper = mapper;

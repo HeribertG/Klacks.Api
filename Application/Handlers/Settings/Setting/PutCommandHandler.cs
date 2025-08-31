@@ -5,26 +5,29 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.Setting
 {
-    public class PutCommandHandler : IRequestHandler<PutCommand, Klacks.Api.Domain.Models.Settings.Settings?>
+    public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand, Domain.Models.Settings.Settings?>
     {
         private readonly ISettingsRepository _settingsRepository;
         private readonly IMapper _mapper;
-        private readonly IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public PutCommandHandler(ISettingsRepository settingsRepository,
+        public PutCommandHandler(
+        ISettingsRepository settingsRepository,
                                   IMapper mapper,
-                                  IUnitOfWork unitOfWork)
-        {
+                                  IUnitOfWork unitOfWork,
+        ILogger<PutCommandHandler> logger)
+        : base(logger)
+    {
             _settingsRepository = settingsRepository;
             _mapper = mapper;
-            this.unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<Klacks.Api.Domain.Models.Settings.Settings?> Handle(PutCommand request, CancellationToken cancellationToken)
+        public async Task<Domain.Models.Settings.Settings?> Handle(PutCommand request, CancellationToken cancellationToken)
         {
-            var setting = _mapper.Map<Klacks.Api.Domain.Models.Settings.Settings>(request.model);
+            var setting = _mapper.Map<Domain.Models.Settings.Settings>(request.model);
             var res = await _settingsRepository.PutSetting(setting);
-            await unitOfWork.CompleteAsync();
+            await _unitOfWork.CompleteAsync();
             return res;
         }
     }

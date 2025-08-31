@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Countries;
 
-public class PutCommandHandler : IRequestHandler<PutCommand<CountryResource>, CountryResource?>
+public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<CountryResource>, CountryResource?>
 {
     private readonly ICountryRepository _countryRepository;
     private readonly IMapper _mapper;
@@ -15,7 +15,9 @@ public class PutCommandHandler : IRequestHandler<PutCommand<CountryResource>, Co
     public PutCommandHandler(
         ICountryRepository countryRepository,
         IMapper mapper,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ILogger<PutCommandHandler> logger)
+        : base(logger)
     {
         _countryRepository = countryRepository;
         _mapper = mapper;

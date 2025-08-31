@@ -3,37 +3,36 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
+using Klacks.Api.Domain.Exceptions;
 
 namespace Klacks.Api.Application.Handlers.Breaks;
 
-public class DeleteCommandHandler : IRequestHandler<DeleteCommand<BreakResource>, BreakResource?>
+public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<BreakResource>, BreakResource?>
 {
     private readonly IBreakRepository _breakRepository;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ILogger<DeleteCommandHandler> _logger;
-
+    
     public DeleteCommandHandler(
         IBreakRepository breakRepository,
         IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
+        : base(logger)
     {
         _breakRepository = breakRepository;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
-        _logger = logger;
-    }
+        }
 
     public async Task<BreakResource?> Handle(DeleteCommand<BreakResource> request, CancellationToken cancellationToken)
     {
-        try
+        return await ExecuteAsync(async () =>
         {
             var existingBreak = await _breakRepository.Get(request.Id);
             if (existingBreak == null)
             {
-                _logger.LogWarning("Break with ID {BreakId} not found for deletion.", request.Id);
-                return null;
+                throw new KeyNotFoundException($"Break with ID {request.Id} not found.");
             }
 
             var breakResource = _mapper.Map<BreakResource>(existingBreak);
@@ -41,11 +40,8 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand<BreakResource>
             await _unitOfWork.CompleteAsync();
 
             return breakResource;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error occurred while deleting break with ID {BreakId}.", request.Id);
-            throw;
-        }
+        }, 
+        "deleting break", 
+        new { BreakId = request.Id });
     }
 }

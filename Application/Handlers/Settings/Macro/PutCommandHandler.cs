@@ -6,26 +6,29 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Settings.Macro
 {
-    public class PutCommandHandler : IRequestHandler<PutCommand, MacroResource?>
+    public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand, MacroResource?>
     {
         private readonly ISettingsRepository _settingsRepository;
         private readonly IMapper _mapper;
-        private readonly IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public PutCommandHandler(ISettingsRepository settingsRepository,
+        public PutCommandHandler(
+        ISettingsRepository settingsRepository,
                                   IMapper mapper,
-                                  IUnitOfWork unitOfWork)
-        {
+                                  IUnitOfWork unitOfWork,
+        ILogger<PutCommandHandler> logger)
+        : base(logger)
+    {
             _settingsRepository = settingsRepository;
             _mapper = mapper;
-            this.unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<MacroResource?> Handle(PutCommand request, CancellationToken cancellationToken)
         {
-            var macro = _mapper.Map<Klacks.Api.Domain.Models.Settings.Macro>(request.model);
+            var macro = _mapper.Map<Domain.Models.Settings.Macro>(request.model);
             var updatedMacro = _settingsRepository.PutMacro(macro);
-            await unitOfWork.CompleteAsync();
+            await _unitOfWork.CompleteAsync();
             return _mapper.Map<MacroResource>(updatedMacro);
         }
     }

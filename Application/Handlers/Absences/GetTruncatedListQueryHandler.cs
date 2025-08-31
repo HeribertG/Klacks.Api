@@ -2,7 +2,6 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Absences;
 using Klacks.Api.Presentation.DTOs.Filter;
 using MediatR;
-using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Absences
 {
@@ -35,6 +34,6 @@ namespace Klacks.Api.Application.Handlers.Absences
                 _logger.LogError(ex, "Error processing truncated absence list query");
                 throw;
             }
-        }
+    }
     }
 }

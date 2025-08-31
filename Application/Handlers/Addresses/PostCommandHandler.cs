@@ -6,38 +6,34 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Addresses;
 
-public class PostCommandHandler : IRequestHandler<PostCommand<AddressResource>, AddressResource?>
+public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<AddressResource>, AddressResource?>
 {
     private readonly IAddressRepository _addressRepository;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ILogger<PostCommandHandler> _logger;
-
+    
     public PostCommandHandler(
         IAddressRepository addressRepository,
         IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
+        : base(logger)
     {
         _addressRepository = addressRepository;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
-        _logger = logger;
-    }
+        }
 
     public async Task<AddressResource?> Handle(PostCommand<AddressResource> request, CancellationToken cancellationToken)
     {
-        try
+        return await ExecuteAsync(async () =>
         {
             var address = _mapper.Map<Klacks.Api.Domain.Models.Staffs.Address>(request.Resource);
             await _addressRepository.Add(address);
             await _unitOfWork.CompleteAsync();
             return _mapper.Map<AddressResource>(address);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error occurred while adding a new address. ID: {AddressId}", request.Resource.Id);
-            throw;
-        }
+        }, 
+        "creating address", 
+        new { AddressId = request.Resource?.Id });
     }
 }
