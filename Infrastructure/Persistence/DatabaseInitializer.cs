@@ -67,11 +67,26 @@ public class DatabaseInitializer : IDatabaseInitializer
             {
                 _logger.LogWarning("Model changes detected but no migration needed. Continuing...");
 
-                // Use EnsureCreated as fallback for new databases
-                if (!(await _context.Database.GetAppliedMigrationsAsync()).Any())
+                // Use EnsureCreated as fallback only for completely new databases
+                var appliedMigrations = await _context.Database.GetAppliedMigrationsAsync();
+                if (!appliedMigrations.Any())
                 {
-                    _logger.LogInformation("No migrations found. Creating database schema...");
-                    await _context.Database.EnsureCreatedAsync();
+                    // Check if database already has tables - if so, don't use EnsureCreated
+                    var connection = _context.Database.GetDbConnection();
+                    await connection.OpenAsync();
+                    var command = connection.CreateCommand();
+                    command.CommandText = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public'";
+                    var tableCount = (long)await command.ExecuteScalarAsync();
+                    
+                    if (tableCount == 0)
+                    {
+                        _logger.LogInformation("No migrations and no tables found. Creating database schema...");
+                        await _context.Database.EnsureCreatedAsync();
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"Database already contains {tableCount} tables. Skipping schema creation.");
+                    }
                 }
             }
 
