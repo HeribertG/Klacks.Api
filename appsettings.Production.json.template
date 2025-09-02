@@ -1,0 +1,26 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=postgres;Database=Klacks;Username=admin;Password=YOUR_PASSWORD_HERE"
+  },
+  "JwtSettings": {
+    "SecretKey": "YOUR_SECRET_KEY_HERE",
+    "Issuer": "KlacksApi",
+    "Audience": "KlacksClient",
+    "ExpirationInMinutes": 60
+  },
+  "Email": {
+    "SmtpServer": "smtp.example.com",
+    "SmtpPort": 587,
+    "SmtpUsername": "your-email@example.com",
+    "SmtpPassword": "YOUR_EMAIL_PASSWORD_HERE",
+    "FromEmail": "noreply@klacks.app",
+    "FromName": "Klacks Application"
+  },
+  "AllowedHosts": "*"
+}

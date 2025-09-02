@@ -365,3 +365,9 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /Klacks.Api.sln
+
+# Production configuration files (contain sensitive data)
+appsettings.Production.json
+appsettings.*.json
+!appsettings.Development.json
+!appsettings.json
