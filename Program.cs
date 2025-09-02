@@ -145,7 +145,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options => options.SignIn.Re
         .AddDefaultTokenProviders();
 
 // Registering Database
-string connectionString = builder.Configuration.GetConnectionString("Default")!;
+string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 builder.Services.AddDbContext<DataBaseContext>(options =>
 {
     options.UseNpgsql(connectionString);
