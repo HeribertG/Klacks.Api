@@ -4,6 +4,14 @@ name: Deploy Klacks.Api to Hetzner
 on:
   push:
     branches: [ main ]
+    paths:
+      - '**'
+      - '!README.md'
+      - '!docs/**'
+
+concurrency:
+  group: deploy-klacks-api-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   deploy:

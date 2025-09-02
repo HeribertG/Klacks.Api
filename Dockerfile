@@ -3,12 +3,12 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copy csproj and restore dependencies
-COPY *.csproj .
-RUN dotnet restore
+COPY Klacks.Api.csproj .
+RUN dotnet restore Klacks.Api.csproj
 
 # Copy everything else and build
 COPY . .
-RUN dotnet publish -c Release -o /app/publish
+RUN dotnet publish Klacks.Api.csproj -c Release -o /app/publish
 
 # Runtime stage  
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
