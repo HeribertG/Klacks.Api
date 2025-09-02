@@ -66,6 +66,7 @@ public class DatabaseInitializer : IDatabaseInitializer
             catch (InvalidOperationException ex) when (ex.Message.Contains("PendingModelChangesWarning"))
             {
                 _logger.LogWarning("Model changes detected but no migration needed. Continuing...");
+
                 // Use EnsureCreated as fallback for new databases
                 if (!(await _context.Database.GetAppliedMigrationsAsync()).Any())
                 {

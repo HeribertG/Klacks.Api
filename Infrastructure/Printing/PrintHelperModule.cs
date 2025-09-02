@@ -30,7 +30,7 @@ public static class PrintHelperModule
 
         if (address != null)
         {
-            if (address.Type == AddressTypeEnum.Customer)
+            if (address.Type == AddressTypeEnum.Employee)
             {
                 if (!string.IsNullOrEmpty(item.Company)) { tmp.Append(item.Company); }
                 if (!string.IsNullOrEmpty(tmp.ToString())) { tmp.Append("<br>"); }
@@ -232,9 +232,9 @@ public static class PrintHelperModule
             // ignored
         }
     }
+
     public static Address ReadAddressDetails(Guid addressId, ICollection<Address> addresses, DateTime currentDate)
     {
-
         Address address = null!;
         if (addressId != Guid.Empty)
         {
@@ -250,29 +250,33 @@ public static class PrintHelperModule
         {
             var current = addresses.Where(x => !x.IsDeleted && x.ValidFrom != null && x.ValidFrom.Value.Date <= currentDate.Date && x.Type == AddressTypeEnum.InvoicingAddress).OrderByDescending(x => x.ValidFrom).FirstOrDefault();
             if (current == null)
-                current = addresses.Where(x => !x.IsDeleted && x.ValidFrom != null && x.ValidFrom.Value.Date <= currentDate.Date && x.Type == AddressTypeEnum.Customer).OrderByDescending(x => x.ValidFrom).FirstOrDefault();
+            {
+                current = addresses.Where(x => !x.IsDeleted && x.ValidFrom != null && x.ValidFrom.Value.Date <= currentDate.Date && x.Type == AddressTypeEnum.Employee).OrderByDescending(x => x.ValidFrom).FirstOrDefault();
+            }
+
             if (current == null)
+            {
                 current = addresses.Where(x => !x.IsDeleted && x.ValidFrom != null && x.ValidFrom.Value.Date <= currentDate.Date).OrderByDescending(x => x.ValidFrom).FirstOrDefault();
+            }
+
             if (current != null)
             {
                 return current;
-
             }
-
         }
 
         return null!;
     }
+
     public static Tuple<string, string> CreateFileName(string currentFolder)
     {
         string tmpFileName = Path.GetRandomFileName();
         tmpFileName = tmpFileName.Replace(tmpFileName.Substring(tmpFileName.Length - 4), ".pdf");
         string fileName = Path.Combine(currentFolder, tmpFileName);
 
-
         return new Tuple<string, string>(tmpFileName, fileName);
-
     }
+
     public static Tuple<string, string> CreateTmpFileName(IConfiguration configuration)
     {
         ClearEnvironment(configuration);
@@ -282,15 +286,13 @@ public static class PrintHelperModule
 
         if (!Directory.Exists(docuDirectory)) { Directory.CreateDirectory(docuDirectory); }
 
-
         string tmpFileName = Path.GetRandomFileName();
         tmpFileName = tmpFileName.Replace(tmpFileName.Substring(tmpFileName.Length - 4), ".pdf");
         string fileName = Path.Combine(baseDirectory, tmpFileName);
 
-
         return new Tuple<string, string>(tmpFileName, fileName);
-
     }
+
     public static void ClearEnvironment(IConfiguration configuration)
     {
         var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -301,6 +303,7 @@ public static class PrintHelperModule
             EmptyFolder(new DirectoryInfo(docuDirectory));
         }
     }
+
     private static void EmptyFolder(DirectoryInfo directoryInfo)
     {
         foreach (FileInfo file in directoryInfo.GetFiles())

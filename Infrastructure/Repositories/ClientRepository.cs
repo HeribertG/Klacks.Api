@@ -227,17 +227,19 @@ public class ClientRepository : IClientRepository
         }
         else
         {
-            // Apply entity type filter (Employee, ExternEmp, Customer)
             query = _clientFilterService.ApplyEntityTypeFilter(query, filter.Employee, filter.ExternEmp, filter.Customer);
 
             var addressTypeList = _clientFilterService.CreateAddressTypeList(filter.HomeAddress, filter.CompanyAddress, filter.InvoiceAddress);
             var gender = _clientFilterService.CreateGenderList(filter.Male, filter.Female, filter.LegalEntity, filter.Intersexuality);
+            var clientType = _clientFilterService.CreateClientTypeList(filter.Employee, filter.Customer, filter.ExternEmp);
 
             query = _searchService.ApplySearchFilter(query, filter.SearchString, filter.IncludeAddress);
 
             if (!(filter.SearchOnlyByName.HasValue && filter.SearchOnlyByName.Value))
             {
-                query = _clientFilterService.ApplyGenderFilter(query, gender, filter.LegalEntity);
+                query = _clientFilterService.ApplyGenderFilter(query, gender);
+
+                query = _clientFilterService.ApplyClientTypeFilter(query, clientType);
 
                 query = _clientFilterService.ApplyAnnotationFilter(query, filter.HasAnnotation);
 

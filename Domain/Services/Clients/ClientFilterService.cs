@@ -8,26 +8,21 @@ namespace Klacks.Api.Domain.Services.Clients;
 
 public class ClientFilterService : IClientFilterService
 {
-    public IQueryable<Client> ApplyGenderFilter(IQueryable<Client> query, int[] genderTypes, bool? legalEntity)
+    public IQueryable<Client> ApplyGenderFilter(IQueryable<Client> query, int[] genderTypes)
     {
-        if (genderTypes.Length == 0 && (legalEntity == null || !legalEntity.Value))
+        if (genderTypes.Length > 0)
         {
-            return query.Where(co => false);
+            return query.Where(co => genderTypes.Any(y => y == ((int)co.Gender)));
         }
 
-        if (legalEntity != null && legalEntity.Value)
-        {
-            if (genderTypes.Length > 0)
-            {
-                return query.Where(co => co.LegalEntity == legalEntity.Value && genderTypes.Any(y => y == ((int)co.Gender)));
-            }
+        return query;
+    }
 
-            return query.Where(co => co.LegalEntity == legalEntity.Value);
-        }
-
-        if (genderTypes.Length > 0 && (legalEntity == null || !legalEntity.Value))
+    public IQueryable<Client> ApplyClientTypeFilter(IQueryable<Client> query, int[] clientsTypes)
+    {
+        if (clientsTypes.Length > 0)
         {
-            return query.Where(co => genderTypes.Any(y => y == ((int)co.Gender)) && !co.LegalEntity);
+            return query.Where(co => clientsTypes.Contains((int)co.Type));
         }
 
         return query;
@@ -120,6 +115,33 @@ public class ClientFilterService : IClientFilterService
             tmp.Add((int)GenderEnum.Intersexuality);
         }
 
+        if (legalEntity != null && legalEntity.Value)
+        {
+            tmp.Add((int)GenderEnum.LegalEntity);
+        }
+
+        return tmp.ToArray();
+    }
+
+    public int[] CreateClientTypeList(bool? employee, bool? customer, bool? externEmp)
+    {
+        var tmp = new List<int>();
+
+        if (employee != null && employee.Value)
+        {
+            tmp.Add((int)EntityTypeEnum.Employee);
+        }
+
+        if (customer != null && customer.Value)
+        {
+            tmp.Add((int)EntityTypeEnum.Customer);
+        }
+
+        if (externEmp != null && externEmp.Value)
+        {
+            tmp.Add((int)EntityTypeEnum.ExternEmp);
+        }
+
         return tmp.ToArray();
     }
 
@@ -149,9 +171,11 @@ public class ClientFilterService : IClientFilterService
 
         if (customer)
         {
-            selectedTypes.Add((int)EntityTypeEnum.Employee);
+            selectedTypes.Add((int)EntityTypeEnum.Customer);
         }
 
         return query.Where(x => selectedTypes.Contains((int)x.Type));
     }
+
+    
 }

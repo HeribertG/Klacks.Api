@@ -5,6 +5,7 @@ namespace Klacks.Api.Data.Seed
     public static class FakeDataGroups
     {
         public static Dictionary<string, Guid> CantonGroupIds { get; private set; } = new Dictionary<string, Guid>();
+
         public static Dictionary<string, Guid> CityGroupIds { get; private set; } = new Dictionary<string, Guid>();
         
         public static string GenerateInsertScriptForGroups()

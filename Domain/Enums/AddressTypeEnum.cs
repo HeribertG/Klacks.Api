@@ -2,7 +2,7 @@ namespace Klacks.Api.Domain.Enums;
 
 public enum AddressTypeEnum
 {
-    Customer = 0,
+    Employee = 0,
     Workplace = 1,
     InvoicingAddress = 2,
 }
