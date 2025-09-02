@@ -10,10 +10,10 @@
 1. **First Deployment:**
    - Copy `appsettings.Production.json.template` to `appsettings.Production.json`
    - Update all placeholder values with your actual configuration:
-     - Database password
-     - JWT secret key
-     - Email credentials
-     - Other environment-specific settings
+     - `YOUR_PASSWORD_HERE` → Your actual database password
+     - `YOUR_SECRET_KEY_HERE` → Your JWT secret key 
+     - `YOUR_SERVER_IP` → Your actual server IP (e.g., 157.180.42.127)
+   - For production, set `Fake.WithFake` to `"false"` to disable test data
 
 2. **Configuration Management:**
    - The production configuration file is ignored by Git

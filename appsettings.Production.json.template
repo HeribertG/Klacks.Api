@@ -1,26 +1,35 @@
 {
+  "ConnectionStrings": {
+    "Default": "Host=postgres;Database=klacks;Username=admin;Password=YOUR_PASSWORD_HERE;Port=5432;Pooling=true;"
+  },
+  "JwtSettings": {
+    "Secret": "YOUR_SECRET_KEY_HERE",
+    "ValidAudience": "http://YOUR_SERVER_IP:5000",
+    "ValidIssuer": "http://YOUR_SERVER_IP:5000"
+  },
   "Logging": {
     "LogLevel": {
       "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
+      "Microsoft.AspNetCore": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
     }
   },
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=postgres;Database=Klacks;Username=admin;Password=YOUR_PASSWORD_HERE"
+  "CurrentPaths": {
+    "Documents": "Documents",
+    "Images": "Images",
+    "Temp": "Temp"
   },
-  "JwtSettings": {
-    "SecretKey": "YOUR_SECRET_KEY_HERE",
-    "Issuer": "KlacksApi",
-    "Audience": "KlacksClient",
-    "ExpirationInMinutes": 60
+  "AllowedHosts": "*",
+  "Cors": {
+    "Host": "http://YOUR_SERVER_IP:3000",
+    "Home": "http://YOUR_SERVER_IP:3000"
   },
-  "Email": {
-    "SmtpServer": "smtp.example.com",
-    "SmtpPort": 587,
-    "SmtpUsername": "your-email@example.com",
-    "SmtpPassword": "YOUR_EMAIL_PASSWORD_HERE",
-    "FromEmail": "noreply@klacks.app",
-    "FromName": "Klacks Application"
+  "Database": {
+    "InitializeOnStartup": true
   },
-  "AllowedHosts": "*"
+  "Fake": {
+    "WithFake": "false",
+    "ClientNumber": "0",
+    "MaxBreaksPerClient": "0"
+  }
 }
