@@ -13,55 +13,84 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup SSH Key
-      uses: webfactory/ssh-agent@v0.8.0
+    - name: Deploy to server
+      uses: appleboy/ssh-action@master
       with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-    - name: Deploy to Hetzner Server
-      run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-          cd ~/apps
-          
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SSH_PORT || 22 }}
+        script: |
+          set -e
           echo "🚀 Deploying Klacks.Api..."
           
-          # Klacks.Api Repository aktualisieren
+          # Navigate to correct directory
+          cd /root/apps
+          
+          # Update Klacks.Api Repository
           if [ -d "Klacks.Api" ]; then
             echo "📦 Updating Klacks.Api..."
-            cd Klacks.Api && git pull origin main && cd ..
+            cd Klacks.Api
+            # Get current branch name
+            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            echo "Current branch: $CURRENT_BRANCH"
+            git fetch origin
+            git pull origin $CURRENT_BRANCH
+            cd ..
           else
             echo "📦 Cloning Klacks.Api..."
             git clone https://github.com/HeribertG/Klacks.Api.git
           fi
           
-          # Nur API neu bauen und starten
+          # Check Docker Compose version
+          if command -v docker-compose &> /dev/null; then
+            COMPOSE_CMD="docker-compose"
+          else
+            COMPOSE_CMD="docker compose"
+          fi
+          echo "Using: $COMPOSE_CMD"
+          
+          # Rebuild and restart only API service
           echo "🔨 Building Klacks.Api..."
-          docker compose build klacks-api --no-cache
-          docker compose up -d klacks-api
+          $COMPOSE_CMD build klacks-api --no-cache
+          
+          echo "🔄 Restarting Klacks.Api..."
+          $COMPOSE_CMD up -d klacks-api
           
           echo "✅ Klacks.Api deployment completed!"
           
-          # Status prüfen
-          docker compose ps klacks-api
-        EOF
-
-    - name: Health Check
-      run: |
-        sleep 15
-        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          # Status check
+          echo "📊 Service status:"
+          $COMPOSE_CMD ps klacks-api
+          
+          # Health Check
+          sleep 15
           echo "🏥 Health Check for Klacks.Api..."
           
-          if curl -f -s http://localhost:5000/health > /dev/null; then
-            echo "✅ Klacks.Api is healthy"
+          # Check if service is running
+          if $COMPOSE_CMD ps klacks-api | grep -q "Up"; then
+            echo "✅ Container is running"
           else
-            echo "❌ Klacks.Api health check failed"
-            docker compose logs klacks-api --tail=10
+            echo "❌ Container is not running"
+            $COMPOSE_CMD logs klacks-api --tail=20
+            exit 1
           fi
           
-          # PostgreSQL Connection Test
-          if curl -f -s http://localhost:5000/api/database-test > /dev/null; then
-            echo "✅ Database connection working"
+          # Check HTTP response (API might have different endpoints)
+          if curl -f -s -o /dev/null -w "%{http_code}" http://localhost:5000/api/values 2>/dev/null | grep -q "200\|401\|404"; then
+            echo "✅ Klacks.Api is responding on port 5000"
+          elif curl -f -s -o /dev/null -w "%{http_code}" http://localhost:5000/swagger 2>/dev/null | grep -q "200\|301\|302"; then
+            echo "✅ Klacks.Api Swagger is accessible"
           else
-            echo "⚠️  Database test endpoint not available"
+            echo "⚠️  API endpoints not directly accessible (might be normal for secured APIs)"
           fi
-        EOF
+          
+          # Check database connectivity via container logs
+          echo "🔍 Checking for database connection errors..."
+          if $COMPOSE_CMD logs klacks-api --tail=50 | grep -i "error\|exception" | grep -i "database\|postgres"; then
+            echo "❌ Database connection errors found!"
+            $COMPOSE_CMD logs klacks-api --tail=30
+            exit 1
+          else
+            echo "✅ No database connection errors detected"
+          fi

@@ -430,6 +430,7 @@ namespace Klacks.Api.Data.Seed
                 new PostcodeCH { Zip = 6000, City = "Luzern", State = "LU" },
                 new PostcodeCH { Zip = 6020, City = "Emmenbrücke", State = "LU" },
                 new PostcodeCH { Zip = 6030, City = "Ebikon", State = "LU" },
+                new PostcodeCH { Zip = 6032, City = "Emmen", State = "LU" },
                 new PostcodeCH { Zip = 6010, City = "Kriens", State = "LU" },
                 
                 // NE - Neuenburg
