@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCleanMigration : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -75,6 +75,8 @@ namespace Klacks.Api.Migrations
                     discriminator = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false),
                     first_name = table.Column<string>(type: "text", nullable: true),
                     last_name = table.Column<string>(type: "text", nullable: true),
+                    password_reset_token = table.Column<string>(type: "text", nullable: true),
+                    password_reset_token_expires = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     normalized_user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -252,32 +254,6 @@ namespace Klacks.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "group",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    description = table.Column<string>(type: "text", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    valid_from = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    valid_until = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    parent = table.Column<Guid>(type: "uuid", nullable: true),
-                    root = table.Column<Guid>(type: "uuid", nullable: true),
-                    lft = table.Column<int>(type: "integer", nullable: false),
-                    rgt = table.Column<int>(type: "integer", nullable: false),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_group", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "macro",
                 columns: table => new
                 {
@@ -359,51 +335,16 @@ namespace Klacks.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "shift",
+                name: "shift_day_assignments",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    cutting_after_midnight = table.Column<bool>(type: "boolean", nullable: false),
-                    description = table.Column<string>(type: "text", nullable: false),
-                    macro_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    status = table.Column<int>(type: "integer", nullable: false),
-                    after_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
-                    before_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
-                    end_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
-                    from_date = table.Column<DateOnly>(type: "date", nullable: false),
-                    start_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
-                    until_date = table.Column<DateOnly>(type: "date", nullable: true),
-                    is_friday = table.Column<bool>(type: "boolean", nullable: false),
-                    is_holiday = table.Column<bool>(type: "boolean", nullable: false),
-                    is_monday = table.Column<bool>(type: "boolean", nullable: false),
-                    is_saturday = table.Column<bool>(type: "boolean", nullable: false),
-                    is_sunday = table.Column<bool>(type: "boolean", nullable: false),
-                    is_thursday = table.Column<bool>(type: "boolean", nullable: false),
-                    is_tuesday = table.Column<bool>(type: "boolean", nullable: false),
-                    is_wednesday = table.Column<bool>(type: "boolean", nullable: false),
-                    is_weekday_or_holiday = table.Column<bool>(type: "boolean", nullable: false),
-                    is_sporadic = table.Column<bool>(type: "boolean", nullable: false),
-                    is_time_range = table.Column<bool>(type: "boolean", nullable: false),
-                    quantity = table.Column<int>(type: "integer", nullable: false),
-                    travel_time_after = table.Column<decimal>(type: "numeric", nullable: false),
-                    travel_time_before = table.Column<decimal>(type: "numeric", nullable: false),
-                    work_time = table.Column<decimal>(type: "numeric", nullable: false),
-                    shift_type = table.Column<int>(type: "integer", nullable: false),
-                    original_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    parent_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    root_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    shift_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    date = table.Column<DateOnly>(type: "date", nullable: false),
+                    day_of_week = table.Column<int>(type: "integer", nullable: false),
+                    shift_name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_shift", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -547,6 +488,37 @@ namespace Klacks.Api.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "contract",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    guaranteed_hours_per_month = table.Column<decimal>(type: "numeric", nullable: false),
+                    maximum_hours_per_month = table.Column<decimal>(type: "numeric", nullable: false),
+                    minimum_hours_per_month = table.Column<decimal>(type: "numeric", nullable: false),
+                    valid_from = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    valid_until = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    calendar_selection_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_contract", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_contract_calendar_selection_calendar_selection_id",
+                        column: x => x.calendar_selection_id,
+                        principalTable: "calendar_selection",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -739,6 +711,68 @@ namespace Klacks.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "shift",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    cutting_after_midnight = table.Column<bool>(type: "boolean", nullable: false),
+                    abbreviation = table.Column<string>(type: "text", nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    macro_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false),
+                    after_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    before_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    end_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    from_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    start_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    until_date = table.Column<DateOnly>(type: "date", nullable: true),
+                    briefing_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    debriefing_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    travel_time_after = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    travel_time_before = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    is_friday = table.Column<bool>(type: "boolean", nullable: false),
+                    is_holiday = table.Column<bool>(type: "boolean", nullable: false),
+                    is_monday = table.Column<bool>(type: "boolean", nullable: false),
+                    is_saturday = table.Column<bool>(type: "boolean", nullable: false),
+                    is_sunday = table.Column<bool>(type: "boolean", nullable: false),
+                    is_thursday = table.Column<bool>(type: "boolean", nullable: false),
+                    is_tuesday = table.Column<bool>(type: "boolean", nullable: false),
+                    is_wednesday = table.Column<bool>(type: "boolean", nullable: false),
+                    is_weekday_or_holiday = table.Column<bool>(type: "boolean", nullable: false),
+                    is_sporadic = table.Column<bool>(type: "boolean", nullable: false),
+                    sporadic_scope = table.Column<int>(type: "integer", nullable: false),
+                    is_time_range = table.Column<bool>(type: "boolean", nullable: false),
+                    quantity = table.Column<int>(type: "integer", nullable: false),
+                    sum_employees = table.Column<int>(type: "integer", nullable: false),
+                    work_time = table.Column<decimal>(type: "numeric", nullable: false),
+                    shift_type = table.Column<int>(type: "integer", nullable: false),
+                    original_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    parent_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    root_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    lft = table.Column<int>(type: "integer", nullable: true),
+                    rgt = table.Column<int>(type: "integer", nullable: true),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_shift", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_shift_client_client_id",
+                        column: x => x.client_id,
+                        principalTable: "client",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "membership",
                 columns: table => new
                 {
@@ -747,6 +781,7 @@ namespace Klacks.Api.Migrations
                     type = table.Column<int>(type: "integer", nullable: false),
                     valid_from = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     valid_until = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    contract_id = table.Column<Guid>(type: "uuid", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -762,6 +797,80 @@ namespace Klacks.Api.Migrations
                         name: "fk_membership_client_client_id",
                         column: x => x.client_id,
                         principalTable: "client",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_membership_contract_contract_id",
+                        column: x => x.contract_id,
+                        principalTable: "contract",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "group",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    valid_from = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    valid_until = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    parent = table.Column<Guid>(type: "uuid", nullable: true),
+                    root = table.Column<Guid>(type: "uuid", nullable: true),
+                    lft = table.Column<int>(type: "integer", nullable: false),
+                    rgt = table.Column<int>(type: "integer", nullable: false),
+                    shift_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_group", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_group_shift_shift_id",
+                        column: x => x.shift_id,
+                        principalTable: "shift",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "work",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    from = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    information = table.Column<string>(type: "text", nullable: true),
+                    is_sealed = table.Column<bool>(type: "boolean", nullable: false),
+                    shift_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    until = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_work", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_work_client_client_id",
+                        column: x => x.client_id,
+                        principalTable: "client",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_work_shift_shift_id",
+                        column: x => x.shift_id,
+                        principalTable: "shift",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -804,6 +913,7 @@ namespace Klacks.Api.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     client_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    shift_id = table.Column<Guid>(type: "uuid", nullable: true),
                     group_id = table.Column<Guid>(type: "uuid", nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
@@ -828,6 +938,12 @@ namespace Klacks.Api.Migrations
                         principalTable: "group",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_group_item_shift_shift_id",
+                        column: x => x.shift_id,
+                        principalTable: "shift",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -858,42 +974,6 @@ namespace Klacks.Api.Migrations
                         name: "fk_group_visibility_group_group_id",
                         column: x => x.group_id,
                         principalTable: "group",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "work",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    client_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    from = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    information = table.Column<string>(type: "text", nullable: true),
-                    is_sealed = table.Column<bool>(type: "boolean", nullable: false),
-                    shift_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    until = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_work", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_work_client_client_id",
-                        column: x => x.client_id,
-                        principalTable: "client",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_work_shift_shift_id",
-                        column: x => x.shift_id,
-                        principalTable: "shift",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1016,19 +1096,39 @@ namespace Klacks.Api.Migrations
                 columns: new[] { "value", "is_deleted" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_contract_calendar_selection_id",
+                table: "contract",
+                column: "calendar_selection_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_contract_name_valid_from_valid_until",
+                table: "contract",
+                columns: new[] { "name", "valid_from", "valid_until" });
+
+            migrationBuilder.CreateIndex(
                 name: "ix_group_name",
                 table: "group",
                 column: "name");
 
             migrationBuilder.CreateIndex(
-                name: "ix_group_item_client_id_group_id",
+                name: "ix_group_shift_id",
+                table: "group",
+                column: "shift_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_group_item_client_id_group_id_shift_id",
                 table: "group_item",
-                columns: new[] { "client_id", "group_id" });
+                columns: new[] { "client_id", "group_id", "shift_id" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_group_item_group_id",
                 table: "group_item",
                 column: "group_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_group_item_shift_id",
+                table: "group_item",
+                column: "shift_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_group_visibility_app_user_id_group_id",
@@ -1062,6 +1162,11 @@ namespace Klacks.Api.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "ix_membership_contract_id",
+                table: "membership",
+                column: "contract_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_selected_calendar_calendar_selection_id",
                 table: "selected_calendar",
                 column: "calendar_selection_id");
@@ -1072,9 +1177,14 @@ namespace Klacks.Api.Migrations
                 columns: new[] { "state", "country", "calendar_selection_id" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_shift_macro_id",
+                name: "ix_shift_client_id",
                 table: "shift",
-                column: "macro_id");
+                column: "client_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_shift_macro_id_client_id_status_from_date_until_date",
+                table: "shift",
+                columns: new[] { "macro_id", "client_id", "status", "from_date", "until_date" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_work_client_id_shift_id",
@@ -1163,6 +1273,9 @@ namespace Klacks.Api.Migrations
                 name: "settings");
 
             migrationBuilder.DropTable(
+                name: "shift_day_assignments");
+
+            migrationBuilder.DropTable(
                 name: "state");
 
             migrationBuilder.DropTable(
@@ -1187,13 +1300,16 @@ namespace Klacks.Api.Migrations
                 name: "group");
 
             migrationBuilder.DropTable(
+                name: "contract");
+
+            migrationBuilder.DropTable(
+                name: "shift");
+
+            migrationBuilder.DropTable(
                 name: "calendar_selection");
 
             migrationBuilder.DropTable(
                 name: "client");
-
-            migrationBuilder.DropTable(
-                name: "shift");
 
             migrationBuilder.DropSequence(
                 name: "client_idnumber_seq",

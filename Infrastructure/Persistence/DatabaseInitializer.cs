@@ -16,11 +16,13 @@ public class DatabaseInitializer : IDatabaseInitializer
 {
     private readonly DataBaseContext _context;
     private readonly ILogger<DatabaseInitializer> _logger;
+    private readonly IConfiguration _configuration;
 
-    public DatabaseInitializer(DataBaseContext context, ILogger<DatabaseInitializer> logger)
+    public DatabaseInitializer(DataBaseContext context, ILogger<DatabaseInitializer> logger, IConfiguration configuration)
     {
         _context = context;
         _logger = logger;
+        _configuration = configuration;
     }
 
     public async Task InitializeAsync()
@@ -38,19 +40,19 @@ public class DatabaseInitializer : IDatabaseInitializer
             catch (Npgsql.PostgresException ex) when (ex.SqlState == "3D000") // database does not exist
             {
                 _logger.LogInformation("Database does not exist. Creating database...");
-                
+
                 // Create database using master connection
                 var connectionString = _context.Database.GetConnectionString();
                 var builder = new Npgsql.NpgsqlConnectionStringBuilder(connectionString);
                 var databaseName = builder.Database;
                 builder.Database = "postgres"; // Connect to default postgres database
-                
+
                 using var masterConnection = new Npgsql.NpgsqlConnection(builder.ToString());
                 await masterConnection.OpenAsync();
                 using var command = masterConnection.CreateCommand();
                 command.CommandText = $"CREATE DATABASE \"{databaseName}\"";
                 await command.ExecuteNonQueryAsync();
-                
+
                 _logger.LogInformation($"Database '{databaseName}' created successfully.");
             }
 
@@ -65,32 +67,16 @@ public class DatabaseInitializer : IDatabaseInitializer
             }
             catch (InvalidOperationException ex) when (ex.Message.Contains("PendingModelChangesWarning"))
             {
-                _logger.LogWarning("Model changes detected but no migration needed. Continuing...");
+                _logger.LogWarning("Model changes detected but no migration needed. Forcing migration to ensure __EFMigrationsHistory table...");
 
-                // Use EnsureCreated as fallback only for completely new databases
                 var appliedMigrations = await _context.Database.GetAppliedMigrationsAsync();
                 if (!appliedMigrations.Any())
                 {
-                    // Check if database already has tables - if so, don't use EnsureCreated
-                    var connection = _context.Database.GetDbConnection();
-                    await connection.OpenAsync();
-                    var command = connection.CreateCommand();
-                    command.CommandText = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public'";
-                    var tableCount = (long)await command.ExecuteScalarAsync();
-                    
-                    if (tableCount == 0)
-                    {
-                        _logger.LogInformation("No migrations and no tables found. Creating database schema...");
-                        await _context.Database.EnsureCreatedAsync();
-                    }
-                    else
-                    {
-                        _logger.LogInformation($"Database already contains {tableCount} tables. Skipping schema creation.");
-                    }
+                    _logger.LogInformation("No migrations applied. Forcing migration to create __EFMigrationsHistory table...");
+                    await _context.Database.MigrateAsync();
                 }
             }
 
-            // Seed-Daten einfügen
             await SeedDataAsync();
 
             _logger.LogInformation("Database initialization completed.");
@@ -104,7 +90,6 @@ public class DatabaseInitializer : IDatabaseInitializer
 
     public async Task SeedDataAsync()
     {
-        // Prüfe ob bereits Daten vorhanden sind
         if (await _context.Client.AnyAsync())
         {
             _logger.LogInformation("Database already contains data. Skipping seed.");
@@ -114,19 +99,18 @@ public class DatabaseInitializer : IDatabaseInitializer
         _logger.LogInformation("Starting seed data insertion...");
 
         using var transaction = await _context.Database.BeginTransactionAsync();
-        
+
         try
         {
-            // Erstelle einen MigrationBuilder um die existierenden Seed-Methoden zu nutzen
             var activeProvider = _context.Database.ProviderName;
             var migrationBuilder = new MigrationBuilder(activeProvider);
-            
-            // Rufe DataSeeder auf, der alle Seed-Operationen orchestriert
-            DataSeeder.Add(migrationBuilder);
-            
-            // Extrahiere und führe alle SQL-Operationen aus
+
+            var withFake = _configuration.GetValue<bool>("Fake:WithFake", false);
+
+            DataSeeder.Add(migrationBuilder, withFake);
+
             var sqlOperations = migrationBuilder.Operations.OfType<SqlOperation>();
-            
+
             foreach (var operation in sqlOperations)
             {
                 if (!string.IsNullOrWhiteSpace(operation.Sql))
@@ -137,7 +121,7 @@ public class DatabaseInitializer : IDatabaseInitializer
             }
 
             await transaction.CommitAsync();
-            
+
             var clientCount = await _context.Client.CountAsync();
             _logger.LogInformation($"Seed data successfully inserted. {clientCount} clients created.");
         }
@@ -150,7 +134,6 @@ public class DatabaseInitializer : IDatabaseInitializer
     }
 }
 
-// Extension für ServiceCollection
 public static class DatabaseInitializerExtensions
 {
     public static IServiceCollection AddDatabaseInitializer(this IServiceCollection services)

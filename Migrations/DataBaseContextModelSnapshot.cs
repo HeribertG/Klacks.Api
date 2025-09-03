@@ -2286,7 +2286,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("AbsenceId");
 
-                            b1.ToTable("absence");
+                            b1.ToTable("absence", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("AbsenceId")
@@ -2318,7 +2318,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("AbsenceId");
 
-                            b1.ToTable("absence");
+                            b1.ToTable("absence", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("AbsenceId")
@@ -2419,7 +2419,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("CalendarRuleId");
 
-                            b1.ToTable("calendar_rule");
+                            b1.ToTable("calendar_rule", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("CalendarRuleId")
@@ -2451,7 +2451,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("CalendarRuleId");
 
-                            b1.ToTable("calendar_rule");
+                            b1.ToTable("calendar_rule", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("CalendarRuleId")
@@ -2490,7 +2490,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("CountriesId");
 
-                            b1.ToTable("countries");
+                            b1.ToTable("countries", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("CountriesId")
@@ -2528,7 +2528,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("MacroId");
 
-                            b1.ToTable("macro");
+                            b1.ToTable("macro", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("MacroId")
@@ -2566,7 +2566,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("StateId");
 
-                            b1.ToTable("state");
+                            b1.ToTable("state", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("StateId")

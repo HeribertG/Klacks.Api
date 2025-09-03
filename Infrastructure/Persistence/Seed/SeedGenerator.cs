@@ -116,40 +116,7 @@ namespace Klacks.Api.Data.Seed
 
             return $"{prefix} {industry} {suffix}";
         }
-
-        //public static ICollection<Address> GenerateAddresses(Guid clientId, List<PostcodeCH> postcodes)
-        //{
-        //    var addresses = new List<Address>();
-        //    var addressCount = Random.Shared.Next(1, 3); // 1-2 addresses per client
-
-        //    for (int i = 0; i < addressCount; i++)
-        //    {
-        //        var postcode = postcodes[Random.Shared.Next(postcodes.Count)];
-        //        var streetAddress = $"{SeedNamesAndDescriptions.StreetNames[Random.Shared.Next(SeedNamesAndDescriptions.StreetNames.Count)]} {Random.Shared.Next(1, 200)}";
-        //        addresses.Add(new Address
-        //        {
-        //            Id = Guid.NewGuid(),
-        //            ClientId = clientId,
-        //            AddressLine1 = streetAddress,
-        //            AddressLine2 = string.Empty,
-        //            Street = streetAddress,
-        //            Street2 = string.Empty,
-        //            Street3 = string.Empty,
-        //            Zip = postcode.Zip.ToString(),
-        //            City = postcode.City,
-        //            State = postcode.State,
-        //            Country = "CH",
-        //            ValidFrom = DateTime.Now.AddDays(-Random.Shared.Next(1, 365)),
-        //            Type = AddressTypeEnum.Employee,
-        //            IsDeleted = false,
-        //            CreateTime = DateTime.Now,
-        //            CurrentUserCreated = user
-        //        });
-        //    }
-
-        //    return addresses;
-        //}
-
+               
         private static ICollection<Address> GenerateAddresses(Guid clientId)
         {
             Random rand = new Random();

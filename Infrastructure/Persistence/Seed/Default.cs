@@ -40,15 +40,17 @@ namespace Klacks.Api.Data.Seed
                 columns: new[] { "id", "type", "value" },
                 values: new object[,]
                 {
-                    { new Guid("0f807cbb-e54a-4f5b-9383-5b03ccffc55d"), "authenticationType", "<None>" },
-                    { new Guid("3be9b255-4b0b-49fd-8585-556375187dac"), "outgoingserver", "smtp-mail.outlook.com" },
+                    { new Guid("0f807cbb-e54a-4f5b-9383-5b03ccffc55d"), "authenticationType", "LOGIN" },
+                    { new Guid("3be9b255-4b0b-49fd-8585-556375187dac"), "outgoingserver", "mail.gmx.net" },
                     { new Guid("789530bc-18a3-48b1-946f-a5da6d66d357"), "enabledSSL", "true" },
                     { new Guid("8d8b2ae3-7d7b-4f31-9778-0e348deb1fca"), "dispositionNotification" , "false"},
-                    { new Guid("91f43fe3-0db7-4554-aa4d-8dac0151f118"), "replyTo" , "doNotReply@klacks-net.com"},
+                    { new Guid("91f43fe3-0db7-4554-aa4d-8dac0151f118"), "replyTo" , "hgasparoli@gmx.ch"},
                     { new Guid("d5bbf185-b799-4aa4-86ca-c3fe879654f2"), "klacks-net", "mark" },
                     { new Guid("db3ee771-cbd6-420c-bdf7-8b1036bb82b9"), "outgoingserverPort" , "587"},
                     { new Guid("e16842eb-24ff-47c2-ad1b-5a3d6a2d20cd"), "outgoingserverTimeout", "100" },
-                    { new Guid("e3e61605-c1e9-48b9-b5c7-9e66c41889fe"), "readReceipt" , "false"}
+                    { new Guid("e3e61605-c1e9-48b9-b5c7-9e66c41889fe"), "readReceipt" , "false"},
+                    { new Guid("d3f33e97-c4c4-4c05-93d9-68ff87b02c5e"), "outgoingserverUsername", "hgasparoli@gmx.ch"},
+                    { new Guid("63502ce7-4d6d-42b2-a55b-4e3610870200"), "outgoingserverPassword", ""}
                 });
 
             migrationBuilder.Sql(

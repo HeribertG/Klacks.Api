@@ -49,9 +49,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Migrations\" />
 		<Folder Include="Domain\" />
 		<Folder Include="Infrastructure\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Update="appsettings.Production.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 </Project>
