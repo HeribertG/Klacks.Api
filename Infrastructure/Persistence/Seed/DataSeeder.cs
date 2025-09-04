@@ -6,16 +6,17 @@ namespace Klacks.Api.Data.Seed
     {
         public static void Add(MigrationBuilder migrationBuilder, bool withFake = false)
         {
-            Default.SeedData(migrationBuilder);
+            DefaultSeed.SeedData(migrationBuilder);
             
             if (withFake)
             {
-                SwissZip.SeedData(migrationBuilder);
-                CalendarRules.SeedData(migrationBuilder);
+                SwissZipSeed.SeedData(migrationBuilder);
+                CalendarRulesSeed.SeedData(migrationBuilder);
                 AbsencesSeed.SeedData(migrationBuilder);
-                Macros.SeedData(migrationBuilder);
-                SwissCantonCalendarSeed.SeedCalendarSelections(migrationBuilder);
-                FakeDatas.SeedData(migrationBuilder);
+                MacrosSeed.SeedData(migrationBuilder);
+                SwissCantonCalendarSelectionsSeed.SeedCalendarSelections(migrationBuilder);
+                FakeDataSeed.SeedData(migrationBuilder);
+                ContractsSeed.SeedContracts(migrationBuilder);
             }
         }
     }

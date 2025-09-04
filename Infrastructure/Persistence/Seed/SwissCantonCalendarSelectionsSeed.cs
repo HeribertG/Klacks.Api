@@ -3,8 +3,38 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Klacks.Api.Data.Seed
 {
-    public static class SwissCantonCalendarSeed
+    public static class SwissCantonCalendarSelectionsSeed
     {
+        public static readonly Dictionary<string, Guid> CalendarSelectionIds = new Dictionary<string, Guid>
+        {
+            { "AG", Guid.Parse("a1111111-1111-1111-1111-111111111111") },
+            { "AI", Guid.Parse("a2222222-2222-2222-2222-222222222222") },
+            { "AR", Guid.Parse("a3333333-3333-3333-3333-333333333333") },
+            { "BE", Guid.Parse("a4444444-4444-4444-4444-444444444444") },
+            { "BL", Guid.Parse("a5555555-5555-5555-5555-555555555555") },
+            { "BS", Guid.Parse("a6666666-6666-6666-6666-666666666666") },
+            { "FR", Guid.Parse("a7777777-7777-7777-7777-777777777777") },
+            { "GE", Guid.Parse("a8888888-8888-8888-8888-888888888888") },
+            { "GL", Guid.Parse("a9999999-9999-9999-9999-999999999999") },
+            { "GR", Guid.Parse("b1111111-1111-1111-1111-111111111111") },
+            { "JU", Guid.Parse("b2222222-2222-2222-2222-222222222222") },
+            { "LU", Guid.Parse("b3333333-3333-3333-3333-333333333333") },
+            { "NE", Guid.Parse("b4444444-4444-4444-4444-444444444444") },
+            { "NW", Guid.Parse("b5555555-5555-5555-5555-555555555555") },
+            { "OW", Guid.Parse("b6666666-6666-6666-6666-666666666666") },
+            { "SG", Guid.Parse("b7777777-7777-7777-7777-777777777777") },
+            { "SH", Guid.Parse("b8888888-8888-8888-8888-888888888888") },
+            { "SO", Guid.Parse("b9999999-9999-9999-9999-999999999999") },
+            { "SZ", Guid.Parse("c1111111-1111-1111-1111-111111111111") },
+            { "TG", Guid.Parse("c2222222-2222-2222-2222-222222222222") },
+            { "TI", Guid.Parse("c3333333-3333-3333-3333-333333333333") },
+            { "UR", Guid.Parse("c4444444-4444-4444-4444-444444444444") },
+            { "VD", Guid.Parse("c5555555-5555-5555-5555-555555555555") },
+            { "VS", Guid.Parse("c6666666-6666-6666-6666-666666666666") },
+            { "ZG", Guid.Parse("c7777777-7777-7777-7777-777777777777") },
+            { "ZH", Guid.Parse("c8888888-8888-8888-8888-888888888888") }
+        };
+
         public static void SeedCalendarSelections(MigrationBuilder migrationBuilder)
         {
             var calendarSelections = GetSwissCantonCalendarSelections();
@@ -17,46 +47,47 @@ namespace Klacks.Api.Data.Seed
             migrationBuilder.Sql(selectedCalendarsScript);
         }
 
+        public static readonly Dictionary<string, string> SwissCantons = new Dictionary<string, string>
+        {
+            { "AG", "Kanton Aargau" },
+            { "AI", "Kanton Appenzell Innerrhoden" },
+            { "AR", "Kanton Appenzell Ausserrhoden" },
+            { "BE", "Kanton Bern" },
+            { "BL", "Kanton Basel-Landschaft" },
+            { "BS", "Kanton Basel-Stadt" },
+            { "FR", "Kanton Freiburg" },
+            { "GE", "Kanton Genf" },
+            { "GL", "Kanton Glarus" },
+            { "GR", "Kanton Graubünden" },
+            { "JU", "Kanton Jura" },
+            { "LU", "Kanton Luzern" },
+            { "NE", "Kanton Neuenburg" },
+            { "NW", "Kanton Nidwalden" },
+            { "OW", "Kanton Obwalden" },
+            { "SG", "Kanton St. Gallen" },
+            { "SH", "Kanton Schaffhausen" },
+            { "SO", "Kanton Solothurn" },
+            { "SZ", "Kanton Schwyz" },
+            { "TG", "Kanton Thurgau" },
+            { "TI", "Kanton Tessin" },
+            { "UR", "Kanton Uri" },
+            { "VD", "Kanton Waadt" },
+            { "VS", "Kanton Wallis" },
+            { "ZG", "Kanton Zug" },
+            { "ZH", "Kanton Zürich" }
+        };
+
         private static List<CalendarSelection> GetSwissCantonCalendarSelections()
         {
-            var swissCantons = new Dictionary<string, string>
-            {
-                { "AG", "Kanton Aargau" },
-                { "AI", "Kanton Appenzell Innerrhoden" },
-                { "AR", "Kanton Appenzell Ausserrhoden" },
-                { "BE", "Kanton Bern" },
-                { "BL", "Kanton Basel-Landschaft" },
-                { "BS", "Kanton Basel-Stadt" },
-                { "FR", "Kanton Freiburg" },
-                { "GE", "Kanton Genf" },
-                { "GL", "Kanton Glarus" },
-                { "GR", "Kanton Graubünden" },
-                { "JU", "Kanton Jura" },
-                { "LU", "Kanton Luzern" },
-                { "NE", "Kanton Neuenburg" },
-                { "NW", "Kanton Nidwalden" },
-                { "OW", "Kanton Obwalden" },
-                { "SG", "Kanton St. Gallen" },
-                { "SH", "Kanton Schaffhausen" },
-                { "SO", "Kanton Solothurn" },
-                { "SZ", "Kanton Schwyz" },
-                { "TG", "Kanton Thurgau" },
-                { "TI", "Kanton Tessin" },
-                { "UR", "Kanton Uri" },
-                { "VD", "Kanton Waadt" },
-                { "VS", "Kanton Wallis" },
-                { "ZG", "Kanton Zug" },
-                { "ZH", "Kanton Zürich" }
-            };
-
             var calendarSelections = new List<CalendarSelection>();
             var now = DateTime.UtcNow;
 
-            foreach (var canton in swissCantons)
+            foreach (var canton in SwissCantons)
             {
+                var id = CalendarSelectionIds[canton.Key]; 
                 calendarSelections.Add(new CalendarSelection
                 {
-                    Id = Guid.NewGuid(),
+                    Id = id,
                     Name = canton.Value,
                     CreateTime = now,
                     UpdateTime = now,
@@ -71,42 +102,14 @@ namespace Klacks.Api.Data.Seed
 
         private static List<SelectedCalendar> GetSwissCantonSelectedCalendars(List<CalendarSelection> calendarSelections)
         {
-            var cantonAbbreviations = new Dictionary<string, string>
-            {
-                { "Kanton Aargau", "AG" },
-                { "Kanton Appenzell Innerrhoden", "AI" },
-                { "Kanton Appenzell Ausserrhoden", "AR" },
-                { "Kanton Bern", "BE" },
-                { "Kanton Basel-Landschaft", "BL" },
-                { "Kanton Basel-Stadt", "BS" },
-                { "Kanton Freiburg", "FR" },
-                { "Kanton Genf", "GE" },
-                { "Kanton Glarus", "GL" },
-                { "Kanton Graubünden", "GR" },
-                { "Kanton Jura", "JU" },
-                { "Kanton Luzern", "LU" },
-                { "Kanton Neuenburg", "NE" },
-                { "Kanton Nidwalden", "NW" },
-                { "Kanton Obwalden", "OW" },
-                { "Kanton St. Gallen", "SG" },
-                { "Kanton Schaffhausen", "SH" },
-                { "Kanton Solothurn", "SO" },
-                { "Kanton Schwyz", "SZ" },
-                { "Kanton Thurgau", "TG" },
-                { "Kanton Tessin", "TI" },
-                { "Kanton Uri", "UR" },
-                { "Kanton Waadt", "VD" },
-                { "Kanton Wallis", "VS" },
-                { "Kanton Zug", "ZG" },
-                { "Kanton Zürich", "ZH" }
-            };
+            var cantonNameToAbbreviation = SwissCantons.ToDictionary(x => x.Value, x => x.Key);
 
             var selectedCalendars = new List<SelectedCalendar>();
             var now = DateTime.UtcNow;
 
             foreach (var calendarSelection in calendarSelections)
             {
-                if (cantonAbbreviations.TryGetValue(calendarSelection.Name, out var abbreviation))
+                if (cantonNameToAbbreviation.TryGetValue(calendarSelection.Name, out var abbreviation))
                 {
                     selectedCalendars.Add(new SelectedCalendar
                     {

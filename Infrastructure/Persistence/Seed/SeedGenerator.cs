@@ -3,7 +3,6 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
-using Newtonsoft.Json;
 using System.Text;
 
 namespace Klacks.Api.Data.Seed
@@ -1071,11 +1070,11 @@ namespace Klacks.Api.Data.Seed
             var userId = user;
             var random = Random.Shared;
 
-            // Use the actual Canton Group IDs that were generated in FakeDataGroups
+            // Use the actual Canton Group IDs that were generated in GroupsSeed
             var cantonGroupNames = new[] { "ZH", "BE", "LU", "SG", "AG", "BS", "BL", "GE", "VD", "NE", "JU", "FR" };
 
             script.AppendLine("\n-- GroupItem entries for Shift-Group assignments");
-            script.AppendLine("-- Note: These use Canton group names from FakeDataGroups");
+            script.AppendLine("-- Note: These use Canton group names from GroupsSeed");
 
             foreach (var shiftId in shiftIds)
             {

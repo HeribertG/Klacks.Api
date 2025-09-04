@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Klacks.Api.Data.Seed
 {
-    public class Macros
+    public class MacrosSeed
     {
         public static void SeedData(MigrationBuilder migrationBuilder)
         {

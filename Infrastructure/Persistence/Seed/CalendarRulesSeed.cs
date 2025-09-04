@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Klacks.Api.Data.Seed
 {
-    public static class CalendarRules
+    public static class CalendarRulesSeed
     {
         public static void SeedData(MigrationBuilder migrationBuilder)
         {

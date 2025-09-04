@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Klacks.Api.Data.Seed
 {
-    public static class SwissZip
+    public static class SwissZipSeed
     {
         public static void SeedData(MigrationBuilder migrationBuilder)
         {

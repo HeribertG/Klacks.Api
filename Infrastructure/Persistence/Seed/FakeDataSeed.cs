@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Klacks.Api.Data.Seed
 {
-    public static class FakeDatas
+    public static class FakeDataSeed
     {
         public static void SeedData(MigrationBuilder migrationBuilder)
         {
@@ -19,7 +19,7 @@ namespace Klacks.Api.Data.Seed
                 var scriptForAnnotations = SeedGenerator.GenerateInsertScriptForAnnotations(results.Annotations);
                 var scriptForBreaks = SeedGenerator.GenerateInsertScriptForBreaks(results.Breaks);
                 var scriptForSettings = SeedGenerator.GenerateInsertScriptForSettings();
-                var scriptForGroups = FakeDataGroups.GenerateInsertScriptForGroups();
+                var scriptForGroups = GroupsSeed.GenerateInsertScriptForGroups();
                 var scriptForGroupItems = SeedGenerator.GenerateInsertScriptForGroupItems(results.Clients, results.Addresses);
                 var (scriptForShifts, shiftIds) = SeedGenerator.GenerateInsertScriptForShifts();
                 var scriptForShiftGroupItems = SeedGenerator.GenerateInsertScriptForShiftGroupItems(shiftIds);

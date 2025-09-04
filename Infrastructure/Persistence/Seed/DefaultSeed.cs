@@ -5,7 +5,7 @@ namespace Klacks.Api.Data.Seed
     /// <summary>
     /// User Default, Communications Type, Settings, Countries, States.
     /// </summary>
-    public static class Default
+    public static class DefaultSeed
     {
         public static void SeedData(MigrationBuilder migrationBuilder)
         {
@@ -50,7 +50,7 @@ namespace Klacks.Api.Data.Seed
                     { new Guid("e16842eb-24ff-47c2-ad1b-5a3d6a2d20cd"), "outgoingserverTimeout", "100" },
                     { new Guid("e3e61605-c1e9-48b9-b5c7-9e66c41889fe"), "readReceipt" , "false"},
                     { new Guid("d3f33e97-c4c4-4c05-93d9-68ff87b02c5e"), "outgoingserverUsername", "hgasparoli@gmx.ch"},
-                    { new Guid("63502ce7-4d6d-42b2-a55b-4e3610870200"), "outgoingserverPassword", ""}
+                    { new Guid("e3e61605-c1e9-48b9-b5c7-9e66c41889fe"), "outgoingserverPassword", ""}
                 });
 
             migrationBuilder.Sql(
@@ -67,7 +67,7 @@ namespace Klacks.Api.Data.Seed
 	                             ('11046a85-dfc0-48c8-878b-53b724b9c0d9','LI','Fürstentum Liechtenstein','Principality of Liechtenstein','Principauté de Liechtenstein','Principato del Liechtenstein','+423','2023-06-10 13:26:04.182','admin',NULL,'',NULL,false,''),
 	                             ('276e0392-bfa3-4230-b8a7-8e9fdfecad57','USA','Vereinigte Staaten von Amerika','United States of America','États-Unis d''Amérique','Stati Uniti d''America','+1','2023-07-10 07:17:54.545','admin',NULL,'',NULL,false,''),
 	                             ('d8084ef6-df46-46ea-a71e-a708898d1650','IT','Italien','Italy','Italie','Italia','+39','2023-07-10 07:14:42.454','admin',NULL,'',NULL,false,''),
-                               ('2d576ac5-7978-4e3c-b92b-e3d67493aecb','FR','Fankreich','France','France','Francia','+33','2023-07-10 07:14:42.454','admin',NULL,'',NULL,false,'')"
+                                 ('2d576ac5-7978-4e3c-b92b-e3d67493aecb','FR','Fankreich','France','France','Francia','+33','2023-07-10 07:14:42.454','admin',NULL,'',NULL,false,'')"
             );
 
             migrationBuilder.Sql(
