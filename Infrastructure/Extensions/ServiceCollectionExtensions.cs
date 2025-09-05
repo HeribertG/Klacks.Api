@@ -117,6 +117,9 @@ public static  class ServiceCollectionExtensions
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        // LLM Services
+        services.AddScoped<ILLMService, Klacks.Api.Domain.Services.LLM.LLMService>();
+
         return services;
     }
 }
