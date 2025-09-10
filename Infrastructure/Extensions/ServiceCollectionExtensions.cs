@@ -9,6 +9,7 @@ using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Domain.Services.Holidays;
 using Klacks.Api.Domain.Services.Settings;
 using Klacks.Api.Domain.Services.Shifts;
+using Klacks.Api.Domain.Services.LLM;
 using Klacks.Api.Infrastructure.Email;
 using Klacks.Api.Infrastructure.FileHandling;
 using Klacks.Api.Infrastructure.Interfaces;
@@ -118,7 +119,19 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // LLM Services
+        services.AddScoped<ILLMRepository, LLMRepository>();
         services.AddScoped<ILLMService, Klacks.Api.Domain.Services.LLM.LLMService>();
+        services.AddScoped<ILLMProviderFactory, Klacks.Api.Domain.Services.LLM.LLMProviderFactory>();
+        
+        // LLM Providers
+        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.OpenAIProvider>();
+        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.AnthropicProvider>();
+        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.GeminiProvider>();
+        
+        // HttpClients for Providers
+        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.OpenAIProvider>();
+        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.AnthropicProvider>();
+        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.GeminiProvider>();
 
         return services;
     }

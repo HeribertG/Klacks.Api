@@ -3,6 +3,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Histories;
+using Klacks.Api.Domain.Models.LLM;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
@@ -65,7 +66,7 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<SelectedCalendar> SelectedCalendar { get; set; }  
 
-    public DbSet<Klacks.Api.Domain.Models.Settings.Settings> Settings { get; set; }  
+    public DbSet<Settings> Settings { get; set; }  
 
     public DbSet<Shift> Shift { get; set; } 
 
@@ -82,6 +83,13 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<GroupVisibility> GroupVisibility { get; set; }
 
     public DbSet<Contract> Contract { get; set; }
+
+    // LLM DbSets
+    public DbSet<LLMProvider> LLMProviders { get; set; }
+    public DbSet<LLMModel> LLMModels { get; set; }
+    public DbSet<LLMUsage> LLMUsages { get; set; }
+    public DbSet<LLMConversation> LLMConversations { get; set; }
+    public DbSet<LLMMessage> LLMMessages { get; set; }
 
     public override int SaveChanges()
     {
@@ -148,6 +156,13 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<AssignedGroup>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<GroupVisibility>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Contract>().HasQueryFilter(p => !p.IsDeleted);
+        
+        // LLM Query Filters
+        modelBuilder.Entity<LLMProvider>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<LLMModel>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<LLMUsage>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<LLMConversation>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<LLMMessage>().HasQueryFilter(p => !p.IsDeleted);
 
         modelBuilder.Entity<Address>().HasIndex(p => new { p.ClientId, p.Street, p.Street2, p.Street3, p.City, p.IsDeleted });
         modelBuilder.Entity<Communication>().HasIndex(p => new { p.Value, p.IsDeleted });

@@ -8,4 +8,6 @@ public class LLMRequest
     public string Message { get; set; } = string.Empty;
     
     public string? ConversationId { get; set; }
+    
+    public string? ModelId { get; set; }
 }

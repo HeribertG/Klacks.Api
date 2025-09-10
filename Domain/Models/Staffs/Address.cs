@@ -8,7 +8,6 @@ namespace Klacks.Api.Domain.Models.Staffs;
 
 public class Address : BaseEntity
 {
-
     public Guid ClientId { get; set; }
 
     public virtual Client Client { get; set; } = null!;

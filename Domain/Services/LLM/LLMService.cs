@@ -1,13 +1,9 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Models.Staffs;
-using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.LLM;
+using Klacks.Api.Domain.Services.LLM.Providers;
 using Klacks.Api.Presentation.DTOs.LLM;
-using Klacks.Api.Presentation.DTOs.Staffs;
-using Klacks.Api.Presentation.DTOs.Associations;
-using Klacks.Api.Presentation.DTOs.Filter;
-using Klacks.Api.Application.Queries.Clients;
-using Klacks.Api.Application.Commands;
 using MediatR;
 
 namespace Klacks.Api.Domain.Services.LLM;
@@ -16,324 +12,317 @@ public class LLMService : ILLMService
 {
     private readonly IMediator _mediator;
     private readonly ILogger<LLMService> _logger;
+    private readonly ILLMProviderFactory _providerFactory;
+    private readonly ILLMRepository _repository;
     private readonly IConfiguration _configuration;
 
-    public LLMService(IMediator mediator, ILogger<LLMService> logger, IConfiguration configuration)
+    public LLMService(
+        IMediator mediator,
+        ILogger<LLMService> logger,
+        ILLMProviderFactory providerFactory,
+        ILLMRepository repository,
+        IConfiguration configuration)
     {
         _mediator = mediator;
         _logger = logger;
+        _providerFactory = providerFactory;
+        _repository = repository;
         _configuration = configuration;
     }
 
     public async Task<LLMResponse> ProcessAsync(LLMContext context)
     {
+        var stopwatch = Stopwatch.StartNew();
+        
         try
         {
             _logger.LogInformation("Processing LLM request from user {UserId}: {Message}", 
                 context.UserId, context.Message);
 
-            // Einfache Keyword-basierte Verarbeitung (später durch echtes LLM ersetzen)
-            var message = context.Message.ToLowerInvariant();
-
-            if (message.Contains("erstelle") && message.Contains("mitarbeiter"))
-            {
-                return await HandleCreateClient(context);
-            }
+            // Get the model and provider
+            var modelId = context.ModelId ?? await GetDefaultModelIdAsync();
+            var model = await _repository.GetModelByIdAsync(modelId);
             
-            if (message.Contains("suche") || message.Contains("finde"))
+            if (model == null || !model.IsEnabled)
             {
-                return await HandleSearchClients(context);
+                _logger.LogWarning("Model {ModelId} not found or not enabled", modelId);
+                return GetErrorResponse("Das gewählte Modell ist nicht verfügbar.");
             }
+
+            var provider = await _providerFactory.GetProviderForModelAsync(modelId);
+            if (provider == null)
+            {
+                _logger.LogWarning("Provider for model {ModelId} not found", modelId);
+                return GetErrorResponse("Der Provider für das gewählte Modell ist nicht verfügbar.");
+            }
+
+            // Get or create conversation
+            var conversation = await _repository.GetOrCreateConversationAsync(
+                context.ConversationId ?? Guid.NewGuid().ToString(), 
+                context.UserId);
+
+            // Get conversation history
+            var history = await _repository.GetConversationMessagesAsync(conversation.ConversationId);
+            var llmHistory = history.Select(m => new Providers.LLMMessage
+            {
+                Role = m.Role,
+                Content = m.Content,
+                Timestamp = m.CreateTime ?? DateTime.UtcNow
+            }).ToList();
+
+            // Prepare the request
+            var providerRequest = new LLMProviderRequest
+            {
+                Message = context.Message,
+                SystemPrompt = BuildSystemPrompt(context),
+                ModelId = model.ApiModelId,
+                ConversationHistory = llmHistory,
+                AvailableFunctions = context.AvailableFunctions,
+                Temperature = 0.7,
+                MaxTokens = model.MaxTokens
+            };
+
+            // Call the provider
+            var providerResponse = await provider.ProcessAsync(providerRequest);
             
-            if (message.Contains("hilfe") || message.Contains("help"))
+            if (!providerResponse.Success)
             {
-                return HandleHelp(context);
+                _logger.LogError("Provider returned error: {Error}", providerResponse.Error);
+                await TrackErrorUsageAsync(context, model, conversation, stopwatch.ElapsedMilliseconds, providerResponse.Error);
+                return GetErrorResponse(providerResponse.Error ?? "Ein Fehler ist aufgetreten.");
             }
 
-            if (message.Contains("navigiere") || message.Contains("öffne") || message.Contains("gehe zu"))
+            // Process function calls if any
+            if (providerResponse.FunctionCalls.Any())
             {
-                return HandleNavigation(context);
+                var functionResults = await ProcessFunctionCallsAsync(context, providerResponse.FunctionCalls);
+                if (!string.IsNullOrEmpty(functionResults))
+                {
+                    providerResponse.Content += "\n\n" + functionResults;
+                }
             }
 
-            // Standard-Antwort für unverstandene Anfragen
-            return GetDefaultResponse();
+            // Save the conversation messages
+            await SaveConversationMessagesAsync(conversation, context.Message, providerResponse.Content, model.ModelId);
+
+            // Track usage
+            await TrackUsageAsync(context, model, conversation, providerResponse.Usage, stopwatch.ElapsedMilliseconds);
+
+            // Build response
+            var response = new LLMResponse
+            {
+                Message = providerResponse.Content,
+                ConversationId = conversation.ConversationId,
+                ActionPerformed = providerResponse.FunctionCalls.Any(),
+                FunctionCalls = providerResponse.FunctionCalls.Select(f => (object)new { f.FunctionName, f.Parameters }).ToList()
+            };
+
+            // Extract navigation if mentioned in the response
+            response.NavigateTo = ExtractNavigation(providerResponse.Content);
+
+            // Generate suggestions
+            response.Suggestions = await GenerateSuggestionsAsync(context, providerResponse.Content);
+
+            return response;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing LLM request for user {UserId}", context.UserId);
-            return new LLMResponse 
-            { 
-                Message = "❌ Entschuldigung, bei der Verarbeitung Ihrer Anfrage ist ein Fehler aufgetreten."
-            };
+            return GetErrorResponse("Ein interner Fehler ist aufgetreten.");
         }
     }
 
-    private LLMResponse GetDefaultResponse()
+    private string BuildSystemPrompt(LLMContext context)
     {
-        return new LLMResponse 
-        { 
-            Message = "Entschuldigung, ich habe Ihre Anfrage nicht verstanden. Sie können mich bitten:\n\n" +
-                     "• **Mitarbeiter erstellen**: 'Erstelle Mitarbeiter Max Muster'\n" +
-                     "• **Personen suchen**: 'Suche nach Hans'\n" +
-                     "• **Navigation**: 'Öffne Mitarbeiter-Seite'\n" +
-                     "• **Hilfe**: 'Hilfe' für detaillierte Informationen",
-            Suggestions = new List<string>
+        return $@"Du bist der KI-Assistent für das Klacks HR-System. Du hilfst Benutzern bei der Verwaltung von Mitarbeitern, Verträgen und anderen HR-Aufgaben.
+
+Benutzer-Kontext:
+- User ID: {context.UserId}
+- Berechtigungen: {string.Join(", ", context.UserRights)}
+
+Verfügbare Funktionen:
+{string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}
+
+Richtlinien:
+- Antworte immer auf Deutsch
+- Sei höflich und professionell
+- Verwende die verfügbaren Funktionen, wenn der Benutzer danach fragt
+- Gib klare und präzise Anweisungen
+- Bei Fehlern erkläre, was schief gelaufen ist und wie es behoben werden kann";
+    }
+
+    private async Task<string> ProcessFunctionCallsAsync(LLMContext context, List<LLMFunctionCall> functionCalls)
+    {
+        var results = new List<string>();
+
+        foreach (var call in functionCalls)
+        {
+            try
             {
-                "Erstelle einen Mitarbeiter",
-                "Suche nach Personen aus Zürich", 
-                "Öffne Dashboard",
-                "Zeige mir die Hilfe"
+                var result = await ExecuteFunctionAsync(context, call);
+                if (!string.IsNullOrEmpty(result))
+                {
+                    results.Add(result);
+                }
             }
-        };
-    }
-
-    private async Task<LLMResponse> HandleCreateClient(LLMContext context)
-    {
-        // Extrahiere Parameter aus der Nachricht (vereinfacht)
-        var message = context.Message;
-        
-        // Einfache Pattern-Erkennung
-        var firstName = ExtractFirstName(message);
-        var lastName = ExtractLastName(message);
-        
-        if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
-        {
-            return new LLMResponse 
-            { 
-                Message = "Um einen Mitarbeiter zu erstellen, benötige ich mindestens Vor- und Nachname.\n\n" +
-                         "**Beispiel:** 'Erstelle Mitarbeiter Hans Muster'",
-                Suggestions = new List<string>
-                {
-                    "Erstelle Mitarbeiter Max Muster",
-                    "Erstelle Mitarbeiter Anna Weber",
-                    "Zeige mir alle Mitarbeiter"
-                }
-            };
-        }
-
-        try
-        {
-            // Mock-Implementation - später durch echte Erstellung ersetzen
-            _logger.LogInformation("Creating client: {FirstName} {LastName}", firstName, lastName);
-            
-            return new LLMResponse 
-            { 
-                Message = $"✅ **Mitarbeiter erfolgreich erstellt**\n\n" +
-                         $"**Name:** {firstName} {lastName}\n" +
-                         $"**Status:** Aktiv\n" +
-                         $"**Typ:** Employee\n\n" +
-                         $"Der Mitarbeiter wurde im System angelegt und kann nun verwendet werden.",
-                NavigateTo = "/clients",
-                ActionPerformed = true,
-                Suggestions = new List<string>
-                {
-                    "Zeige alle Mitarbeiter",
-                    "Erstelle weiteren Mitarbeiter",
-                    "Suche nach " + firstName
-                }
-            };
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error creating client {FirstName} {LastName}", firstName, lastName);
-            return new LLMResponse 
-            { 
-                Message = $"❌ **Fehler beim Erstellen**\n\nBeim Erstellen des Mitarbeiters {firstName} {lastName} ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
-            };
-        }
-    }
-
-    private async Task<LLMResponse> HandleSearchClients(LLMContext context)
-    {
-        var message = context.Message;
-        var searchTerm = ExtractSearchTerm(message);
-        
-        if (string.IsNullOrEmpty(searchTerm))
-        {
-            return new LLMResponse 
-            { 
-                Message = "Nach was möchten Sie suchen?\n\n**Beispiele:**\n• 'Suche nach Hans'\n• 'Finde alle Müller'\n• 'Zeige Personen aus Zürich'",
-                Suggestions = new List<string>
-                {
-                    "Suche nach Hans",
-                    "Finde alle aus Zürich", 
-                    "Zeige alle Mitarbeiter"
-                }
-            };
-        }
-
-        try
-        {
-            _logger.LogInformation("Searching for clients with term: {SearchTerm}", searchTerm);
-
-            // Mock-Implementation - später durch echte Suche ersetzen
-            var mockResults = new List<string>
+            catch (Exception ex)
             {
-                "Hans Muster (Mitarbeiter)",
-                "Anna Müller (Kunde)",
-                "Max Weber (Externer)"
-            }.Where(r => r.ToLowerInvariant().Contains(searchTerm.ToLowerInvariant())).ToList();
-
-            var responseMessage = mockResults.Any() 
-                ? $"🔍 **Suchergebnisse für '{searchTerm}'**\n\n{string.Join("\n• ", mockResults.Select(r => $"• {r}"))}"
-                : $"❌ **Keine Ergebnisse gefunden**\n\nFür '{searchTerm}' wurden keine Personen gefunden.";
-
-            return new LLMResponse 
-            { 
-                Message = responseMessage,
-                NavigateTo = mockResults.Any() ? "/clients" : null,
-                Suggestions = mockResults.Any() 
-                    ? new List<string> { "Zeige Details", "Neue Suche", "Alle Mitarbeiter anzeigen" }
-                    : new List<string> { "Alle Mitarbeiter anzeigen", "Neue Suche versuchen", "Neuen Mitarbeiter erstellen" }
-            };
+                _logger.LogError(ex, "Error executing function {FunctionName}", call.FunctionName);
+                results.Add($"❌ Fehler beim Ausführen von {call.FunctionName}");
+            }
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error searching for clients with term: {SearchTerm}", searchTerm);
-            return new LLMResponse 
-            { 
-                Message = "❌ Bei der Suche ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
-            };
-        }
+
+        return string.Join("\n", results);
     }
 
-    private LLMResponse HandleNavigation(LLMContext context)
+    private async Task<string> ExecuteFunctionAsync(LLMContext context, LLMFunctionCall call)
     {
-        var message = context.Message.ToLowerInvariant();
+        // This would be implemented to actually execute the functions
+        // For now, return a placeholder
+        _logger.LogInformation("Executing function {FunctionName} with parameters {Parameters}", 
+            call.FunctionName, JsonSerializer.Serialize(call.Parameters));
         
-        var navigationMap = new Dictionary<string, (string path, string description)>
+        return $"✅ Funktion '{call.FunctionName}' wurde ausgeführt.";
+    }
+
+    private string? ExtractNavigation(string content)
+    {
+        // Simple navigation extraction - could be improved with regex or NLP
+        var navigationMap = new Dictionary<string, string>
         {
-            ["dashboard"] = ("/dashboard", "Dashboard"),
-            ["mitarbeiter"] = ("/clients", "Mitarbeiter-Übersicht"),
-            ["kunde"] = ("/clients", "Kunden-Übersicht"),
-            ["vertrag"] = ("/contracts", "Vertrags-Verwaltung"),
-            ["einstellung"] = ("/settings", "Einstellungen"),
-            ["kalender"] = ("/calendar", "Kalender")
+            ["dashboard"] = "/dashboard",
+            ["mitarbeiter"] = "/clients",
+            ["verträge"] = "/contracts",
+            ["einstellungen"] = "/settings"
         };
 
+        var lowerContent = content.ToLower();
         foreach (var nav in navigationMap)
         {
-            if (message.Contains(nav.Key))
+            if (lowerContent.Contains($"navigiere zu {nav.Key}") || 
+                lowerContent.Contains($"öffne {nav.Key}"))
             {
-                return new LLMResponse 
-                { 
-                    Message = $"📍 **Navigation zu {nav.Value.description}**\n\nIch öffne die {nav.Value.description} für Sie.",
-                    NavigateTo = nav.Value.path,
-                    ActionPerformed = true
-                };
+                return nav.Value;
             }
         }
 
+        return null;
+    }
+
+    private async Task<List<string>> GenerateSuggestionsAsync(LLMContext context, string response)
+    {
+        // Generate contextual suggestions based on the response
+        var suggestions = new List<string>();
+
+        if (response.ToLower().Contains("mitarbeiter") || response.ToLower().Contains("erstellt"))
+        {
+            suggestions.Add("Zeige alle Mitarbeiter");
+            suggestions.Add("Erstelle weiteren Mitarbeiter");
+        }
+
+        if (response.ToLower().Contains("suche") || response.ToLower().Contains("gefunden"))
+        {
+            suggestions.Add("Erweiterte Suche");
+            suggestions.Add("Filter anwenden");
+        }
+
+        suggestions.Add("Hilfe anzeigen");
+        suggestions.Add("Zum Dashboard");
+
+        return suggestions.Take(4).ToList();
+    }
+
+    private async Task SaveConversationMessagesAsync(LLMConversation conversation, string userMessage, string assistantMessage, string modelId)
+    {
+        // Save user message
+        await _repository.SaveMessageAsync(new Domain.Models.LLM.LLMMessage
+        {
+            ConversationId = conversation.Id,
+            Role = "user",
+            Content = userMessage,
+            CreateTime = DateTime.UtcNow
+        });
+
+        // Save assistant message
+        await _repository.SaveMessageAsync(new Domain.Models.LLM.LLMMessage
+        {
+            ConversationId = conversation.Id,
+            Role = "assistant",
+            Content = assistantMessage,
+            ModelId = modelId,
+            CreateTime = DateTime.UtcNow
+        });
+
+        // Update conversation
+        conversation.LastMessageAt = DateTime.UtcNow;
+        conversation.MessageCount += 2;
+        conversation.LastModelId = modelId;
+        
+        // Generate title if this is the first exchange
+        if (conversation.MessageCount == 2)
+        {
+            conversation.Title = GenerateConversationTitle(userMessage, assistantMessage);
+        }
+
+        await _repository.UpdateConversationAsync(conversation);
+    }
+
+    private string GenerateConversationTitle(string userMessage, string assistantMessage)
+    {
+        // Simple title generation - take first few words of user message
+        var words = userMessage.Split(' ').Take(5);
+        return string.Join(' ', words) + (words.Count() >= 5 ? "..." : "");
+    }
+
+    private async Task TrackUsageAsync(LLMContext context, LLMModel model, LLMConversation conversation, Providers.LLMUsage usage, long responseTimeMs)
+    {
+        await _repository.TrackUsageAsync(new Domain.Models.LLM.LLMUsage
+        {
+            UserId = context.UserId,
+            ModelId = model.Id,
+            ConversationId = conversation.ConversationId,
+            InputTokens = usage.InputTokens,
+            OutputTokens = usage.OutputTokens,
+            Cost = usage.Cost,
+            ResponseTimeMs = (int)responseTimeMs,
+            HasError = false,
+            CreateTime = DateTime.UtcNow
+        });
+
+        // Update conversation totals
+        conversation.TotalTokens += usage.TotalTokens;
+        conversation.TotalCost += usage.Cost;
+    }
+
+    private async Task TrackErrorUsageAsync(LLMContext context, LLMModel model, LLMConversation conversation, long responseTimeMs, string? error)
+    {
+        await _repository.TrackUsageAsync(new Domain.Models.LLM.LLMUsage
+        {
+            UserId = context.UserId,
+            ModelId = model.Id,
+            ConversationId = conversation.ConversationId,
+            InputTokens = 0,
+            OutputTokens = 0,
+            Cost = 0,
+            ResponseTimeMs = (int)responseTimeMs,
+            HasError = true,
+            ErrorMessage = error,
+            CreateTime = DateTime.UtcNow
+        });
+    }
+
+    private async Task<string> GetDefaultModelIdAsync()
+    {
+        var defaultModel = await _repository.GetDefaultModelAsync();
+        return defaultModel?.ModelId ?? "gpt-5";
+    }
+
+    private LLMResponse GetErrorResponse(string message)
+    {
         return new LLMResponse 
         { 
-            Message = "Wohin möchten Sie navigieren?\n\n**Verfügbare Bereiche:**\n• Dashboard\n• Mitarbeiter\n• Kunden\n• Verträge\n• Einstellungen\n• Kalender",
-            Suggestions = new List<string>
-            {
-                "Öffne Dashboard",
-                "Zeige Mitarbeiter",
-                "Gehe zu Einstellungen"
-            }
+            Message = $"❌ {message}",
+            Suggestions = new List<string> { "Hilfe anzeigen", "Erneut versuchen" }
         };
     }
-
-    private LLMResponse HandleHelp(LLMContext context)
-    {
-        var userRights = string.Join(", ", context.UserRights);
-        
-        return new LLMResponse 
-        { 
-            Message = "🤖 **Klacks KI-Assistent - Hilfe**\n\n" +
-                     $"**Ihre Berechtigungen:** {userRights}\n\n" +
-                     "**💼 Mitarbeiter-Verwaltung:**\n" +
-                     "• 'Erstelle Mitarbeiter Max Muster'\n" +
-                     "• 'Suche nach Hans'\n" +
-                     "• 'Zeige alle aus Zürich'\n\n" +
-                     "**🧭 Navigation:**\n" +
-                     "• 'Öffne Dashboard'\n" +
-                     "• 'Zeige Mitarbeiter'\n" +
-                     "• 'Gehe zu Einstellungen'\n\n" +
-                     "**ℹ️ Allgemein:**\n" +
-                     "• 'Hilfe' - Diese Hilfe anzeigen\n" +
-                     "• Sie können natürlich mit mir sprechen!",
-            Suggestions = new List<string>
-            {
-                "Erstelle Mitarbeiter Max Muster",
-                "Suche nach Personen aus Bern", 
-                "Öffne Dashboard",
-                "Zeige alle Mitarbeiter"
-            }
-        };
-    }
-
-    #region Helper Methods für Pattern Recognition
-
-    private string ExtractFirstName(string message)
-    {
-        // Vereinfachte Extraktion - später durch NLP ersetzen
-        var words = message.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var keywordIndex = Array.FindIndex(words, w => 
-            w.ToLowerInvariant().Contains("mitarbeiter") || 
-            w.ToLowerInvariant().Contains("erstelle"));
-        
-        if (keywordIndex >= 0 && keywordIndex + 1 < words.Length)
-        {
-            return words[keywordIndex + 1];
-        }
-        
-        return string.Empty;
-    }
-
-    private string ExtractLastName(string message)
-    {
-        var words = message.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var keywordIndex = Array.FindIndex(words, w => 
-            w.ToLowerInvariant().Contains("mitarbeiter") || 
-            w.ToLowerInvariant().Contains("erstelle"));
-        
-        if (keywordIndex >= 0 && keywordIndex + 2 < words.Length)
-        {
-            return words[keywordIndex + 2];
-        }
-        
-        return string.Empty;
-    }
-
-    private string ExtractSearchTerm(string message)
-    {
-        // Vereinfachte Extraktion
-        var words = message.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var keywordIndex = Array.FindIndex(words, w => 
-            w.ToLowerInvariant().Contains("suche") || 
-            w.ToLowerInvariant().Contains("finde") ||
-            w.ToLowerInvariant().Contains("nach"));
-        
-        if (keywordIndex >= 0 && keywordIndex + 1 < words.Length)
-        {
-            // Nimm das nächste Wort nach "suche nach" oder "finde"
-            var nextWordIndex = keywordIndex + 1;
-            if (words[keywordIndex].ToLowerInvariant() == "nach" && keywordIndex > 0)
-            {
-                nextWordIndex = keywordIndex + 1;
-            }
-            else if (words[nextWordIndex].ToLowerInvariant() == "nach" && keywordIndex + 2 < words.Length)
-            {
-                nextWordIndex = keywordIndex + 2;
-            }
-            
-            return nextWordIndex < words.Length ? words[nextWordIndex] : string.Empty;
-        }
-        
-        return string.Empty;
-    }
-
-    private string ExtractCanton(string message)
-    {
-        var cantons = new[] { "BE", "ZH", "SG", "VD", "AG", "LU", "BS", "Bern", "Zürich", "St. Gallen", "Waadt", "Aargau", "Luzern", "Basel" };
-        var words = message.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        
-        return cantons.FirstOrDefault(canton => 
-            words.Any(word => word.Equals(canton, StringComparison.OrdinalIgnoreCase))) ?? string.Empty;
-    }
-
-    #endregion
 }

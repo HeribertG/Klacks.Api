@@ -11,7 +11,6 @@ public static class PrintHelperModule
 {
     public static dynamic PrepareImport()
     {
-
         dynamic values = new System.Dynamic.ExpandoObject();
 
         values.ClientType = 1;
@@ -19,11 +18,10 @@ public static class PrintHelperModule
         values.BindOR = 3;
         values.BindAND = 4;
 
-
-
         return values;
 
     }
+
     public static string GetAddressAsHtmlWrapString(Client item, Address address, string currentCountry)
     {
         var tmp = new StringBuilder();

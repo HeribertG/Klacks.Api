@@ -6,5 +6,7 @@ public class LLMFunction
     
     public string Description { get; set; } = string.Empty;
     
-    public object Parameters { get; set; } = new();
+    public Dictionary<string, object> Parameters { get; set; } = new();
+    
+    public List<string> RequiredParameters { get; set; } = new();
 }

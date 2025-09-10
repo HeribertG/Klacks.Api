@@ -13,4 +13,6 @@ public class LLMResponse
     public List<string>? Suggestions { get; set; }
     
     public string? NavigateTo { get; set; }
+    
+    public List<object>? FunctionCalls { get; set; }
 }

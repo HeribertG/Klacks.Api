@@ -1,27 +1,28 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Klacks.Api.Domain.Interfaces;
+using MediatR;
+using Klacks.Api.Application.Commands.LLM;
 using Klacks.Api.Presentation.DTOs.LLM;
 using Klacks.Api.Domain.Services.LLM;
 using System.Security.Claims;
 
-namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
+namespace Klacks.Api.Presentation.Controllers.v1.Assistant;
 
 [ApiController]
-[Route("api/v1/llm")]
+[Route("api/v1/assistant/chat")]
 [Authorize] // User muss eingeloggt sein
-public class LLMController : ControllerBase
+public class ChatController : ControllerBase
 {
-    private readonly ILLMService _llmService;
-    private readonly ILogger<LLMController> _logger;
+    private readonly ILogger<ChatController> _logger;
+    private readonly IMediator _mediator;
 
-    public LLMController(ILLMService llmService, ILogger<LLMController> logger)
+    public ChatController(ILogger<ChatController> logger, IMediator mediator)
     {
-        _llmService = llmService;
         _logger = logger;
+        _mediator = mediator;
     }
 
-    [HttpPost("chat")]
+    [HttpPost]
     public async Task<ActionResult<LLMResponse>> ProcessMessage([FromBody] LLMRequest request)
     {
         try
@@ -35,18 +36,16 @@ public class LLMController : ControllerBase
             var userId = GetCurrentUserId();
             var userRights = GetCurrentUserRights();
             
-            var llmContext = new LLMContext
+            _logger.LogInformation("Processing assistant request for user {UserId}: {Message}", userId, request.Message);
+            
+            var response = await _mediator.Send(new ProcessLLMMessageCommand
             {
                 Message = request.Message,
                 UserId = userId,
-                UserRights = userRights,
-                AvailableFunctions = GetAvailableFunctions(userRights),
-                ConversationId = request.ConversationId
-            };
-            
-            _logger.LogInformation("Processing LLM request for user {UserId}: {Message}", userId, request.Message);
-            
-            var response = await _llmService.ProcessAsync(llmContext);
+                ConversationId = request.ConversationId,
+                ModelId = request.ModelId,
+                UserRights = userRights
+            });
             
             response.ConversationId = request.ConversationId ?? Guid.NewGuid().ToString();
             
@@ -54,7 +53,7 @@ public class LLMController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error processing LLM request: {Message}", request.Message);
+            _logger.LogError(ex, "Error processing assistant request: {Message}", request.Message);
             return StatusCode(500, new LLMResponse 
             { 
                 Message = "Entschuldigung, es ist ein interner Fehler aufgetreten." 
@@ -94,16 +93,16 @@ public class LLMController : ControllerBase
         });
     }
 
-    private Guid GetCurrentUserId()
+    private string GetCurrentUserId()
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
+        if (userIdClaim != null)
         {
-            return userId;
+            return userIdClaim.Value;
         }
         
         // Fallback - sollte nicht vorkommen bei korrekt authentifizierten Requests
-        return Guid.Empty;
+        return string.Empty;
     }
 
     private List<string> GetCurrentUserRights()
