@@ -5,13 +5,11 @@ namespace Klacks.Api.Domain.Interfaces;
 
 public interface ILLMRepository : IBaseRepository<LLMModel>
 {
-    // Provider methods
     Task<List<LLMProvider>> GetProvidersAsync();
     Task<LLMProvider?> GetProviderByIdAsync(string providerId);
     Task<LLMProvider> CreateProviderAsync(LLMProvider provider);
     Task<LLMProvider> UpdateProviderAsync(LLMProvider provider);
     
-    // Model methods
     Task<List<LLMModel>> GetModelsAsync(bool onlyEnabled = false);
     Task<LLMModel?> GetModelByIdAsync(string modelId);
     Task<LLMModel?> GetDefaultModelAsync();
@@ -19,19 +17,16 @@ public interface ILLMRepository : IBaseRepository<LLMModel>
     Task<LLMModel> UpdateModelAsync(LLMModel model);
     Task SetDefaultModelAsync(string modelId);
     
-    // Usage tracking
     Task<LLMUsage> TrackUsageAsync(LLMUsage usage);
     Task<List<LLMUsage>> GetUserUsageAsync(string userId, DateTime fromDate, DateTime toDate);
     Task<Dictionary<string, decimal>> GetUsageSummaryByModelAsync(string userId, int days);
     Task<decimal> GetTotalCostAsync(string userId, int days);
     
-    // Conversation management
     Task<LLMConversation> GetOrCreateConversationAsync(string conversationId, string userId);
     Task<List<LLMConversation>> GetUserConversationsAsync(string userId, int limit, int offset);
     Task<LLMConversation> UpdateConversationAsync(LLMConversation conversation);
     Task<bool> ArchiveConversationAsync(string conversationId, string userId);
     
-    // Message history
     Task<LLMMessage> SaveMessageAsync(LLMMessage message);
     Task<List<LLMMessage>> GetConversationMessagesAsync(string conversationId, int limit = 20);
     Task<int> GetConversationTokenCountAsync(string conversationId);

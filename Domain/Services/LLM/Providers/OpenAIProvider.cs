@@ -12,25 +12,34 @@ public class OpenAIProvider : ILLMProvider
     private readonly HttpClient _httpClient;
     private readonly ILogger<OpenAIProvider> _logger;
     private readonly IConfiguration _configuration;
-    private readonly string _apiKey;
+    private string _apiKey = string.Empty;
+    private Models.LLM.LLMProvider? _providerConfig;
 
     public string ProviderId => "openai";
     public string ProviderName => "OpenAI";
-    public bool IsEnabled { get; private set; }
+    public bool IsEnabled => _providerConfig?.IsEnabled ?? false;
 
     public OpenAIProvider(HttpClient httpClient, ILogger<OpenAIProvider> logger, IConfiguration configuration)
     {
         _httpClient = httpClient;
         _logger = logger;
         _configuration = configuration;
-        
-        _apiKey = _configuration["LLM:OpenAI:ApiKey"] ?? string.Empty;
-        IsEnabled = !string.IsNullOrEmpty(_apiKey) && _configuration.GetValue<bool>("LLM:OpenAI:Enabled", false);
+        _httpClient.BaseAddress = new Uri("https://api.openai.com/v1/");
+    }
 
-        if (IsEnabled)
+    public void Configure(Models.LLM.LLMProvider providerConfig)
+    {
+        _providerConfig = providerConfig;
+        _apiKey = providerConfig.ApiKey ?? string.Empty;
+        
+        if (!string.IsNullOrEmpty(_apiKey))
         {
-            _httpClient.BaseAddress = new Uri("https://api.openai.com/v1/");
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+        }
+        
+        if (!string.IsNullOrEmpty(providerConfig.BaseUrl))
+        {
+            _httpClient.BaseAddress = new Uri(providerConfig.BaseUrl);
         }
     }
 
@@ -42,6 +51,15 @@ public class OpenAIProvider : ILLMProvider
             { 
                 Success = false, 
                 Error = "OpenAI provider is not enabled" 
+            };
+        }
+
+        if (string.IsNullOrEmpty(_apiKey))
+        {
+            return new LLMProviderResponse 
+            { 
+                Success = false, 
+                Error = "Der Provider für das gewählte Modell ist nicht verfügbar." 
             };
         }
 

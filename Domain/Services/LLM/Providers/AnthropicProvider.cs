@@ -12,26 +12,37 @@ public class AnthropicProvider : ILLMProvider
     private readonly HttpClient _httpClient;
     private readonly ILogger<AnthropicProvider> _logger;
     private readonly IConfiguration _configuration;
-    private readonly string _apiKey;
+    private string _apiKey = string.Empty;
+    private Models.LLM.LLMProvider? _providerConfig;
 
     public string ProviderId => "anthropic";
     public string ProviderName => "Anthropic";
-    public bool IsEnabled { get; private set; }
+    public bool IsEnabled => _providerConfig?.IsEnabled ?? false;
 
     public AnthropicProvider(HttpClient httpClient, ILogger<AnthropicProvider> logger, IConfiguration configuration)
     {
         _httpClient = httpClient;
         _logger = logger;
         _configuration = configuration;
-        
-        _apiKey = _configuration["LLM:Anthropic:ApiKey"] ?? string.Empty;
-        IsEnabled = !string.IsNullOrEmpty(_apiKey) && _configuration.GetValue<bool>("LLM:Anthropic:Enabled", false);
+        _httpClient.BaseAddress = new Uri("https://api.anthropic.com/v1/");
+    }
 
-        if (IsEnabled)
+    public void Configure(Models.LLM.LLMProvider providerConfig)
+    {
+        _providerConfig = providerConfig;
+        _apiKey = providerConfig.ApiKey ?? string.Empty;
+        
+        if (!string.IsNullOrEmpty(_apiKey))
         {
-            _httpClient.BaseAddress = new Uri("https://api.anthropic.com/v1/");
+            _httpClient.DefaultRequestHeaders.Remove("x-api-key");
             _httpClient.DefaultRequestHeaders.Add("x-api-key", _apiKey);
-            _httpClient.DefaultRequestHeaders.Add("anthropic-version", "2024-01-01");
+            _httpClient.DefaultRequestHeaders.Remove("anthropic-version");
+            _httpClient.DefaultRequestHeaders.Add("anthropic-version", providerConfig.ApiVersion ?? "2024-01-01");
+        }
+        
+        if (!string.IsNullOrEmpty(providerConfig.BaseUrl))
+        {
+            _httpClient.BaseAddress = new Uri(providerConfig.BaseUrl);
         }
     }
 
@@ -43,6 +54,15 @@ public class AnthropicProvider : ILLMProvider
             { 
                 Success = false, 
                 Error = "Anthropic provider is not enabled" 
+            };
+        }
+
+        if (string.IsNullOrEmpty(_apiKey))
+        {
+            return new LLMProviderResponse 
+            { 
+                Success = false, 
+                Error = "Der Provider für das gewählte Modell ist nicht verfügbar." 
             };
         }
 

@@ -8,7 +8,6 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.LLM;
 
-// Standard CRUD Handlers die BaseHandler erweitern
 public class GetLLMModelQueryHandler : BaseHandler, IRequestHandler<GetQuery<LLMModel>, LLMModel>
 {
     private readonly ILLMRepository _repository;
@@ -22,7 +21,6 @@ public class GetLLMModelQueryHandler : BaseHandler, IRequestHandler<GetQuery<LLM
     {
         return await ExecuteAsync(() =>
         {
-            // Verwende BaseRepository Get-Methode
             return _repository.Get(request.Id);
         }, "GetLLMModel", request.Id);
     }
@@ -41,7 +39,6 @@ public class ListLLMModelsQueryHandler : BaseHandler, IRequestHandler<ListQuery<
     {
         return await ExecuteAsync(() =>
         {
-            // Verwende spezialisierte Repository-Methode für Models mit Provider-Info
             return _repository.GetModelsAsync(onlyEnabled: false);
         }, "ListLLMModels");
     }
@@ -60,17 +57,15 @@ public class CreateLLMModelCommandHandler : BaseTransactionHandler, IRequestHand
     {
         return await ExecuteWithTransactionAsync(async () =>
         {
-            // Validierung
             if (string.IsNullOrEmpty(request.Resource.ModelId))
             {
-                throw new ArgumentException("ModelId ist erforderlich");
+                throw new ArgumentException("ModelId is required");
             }
 
-            // Prüfe auf Duplikate
             var existing = await _repository.GetModelByIdAsync(request.Resource.ModelId);
             if (existing != null)
             {
-                throw new InvalidOperationException($"Model mit ID {request.Resource.ModelId} existiert bereits");
+                throw new InvalidOperationException($"Model with ID {request.Resource.ModelId} already exists");
             }
 
             return await _repository.CreateModelAsync(request.Resource);
@@ -91,14 +86,12 @@ public class UpdateLLMModelCommandHandler : BaseTransactionHandler, IRequestHand
     {
         return await ExecuteWithTransactionAsync(async () =>
         {
-            // Prüfe ob Model existiert
             var existing = await _repository.Get(request.Resource.Id);
             if (existing == null)
             {
-                throw new KeyNotFoundException($"LLM Model mit ID {request.Resource.Id} nicht gefunden");
+                throw new KeyNotFoundException($"LLM Model with ID {request.Resource.Id} not found");
             }
 
-            // Update relevante Felder
             existing.ModelName = request.Resource.ModelName;
             existing.IsEnabled = request.Resource.IsEnabled;
             existing.IsDefault = request.Resource.IsDefault;
@@ -130,16 +123,14 @@ public class DeleteLLMModelCommandHandler : BaseTransactionHandler, IRequestHand
             var model = await _repository.Get(request.Id);
             if (model == null)
             {
-                throw new KeyNotFoundException($"LLM Model mit ID {request.Id} nicht gefunden");
+                throw new KeyNotFoundException($"LLM Model with ID {request.Id} not found");
             }
 
-            // Prüfe ob es das Default-Model ist
             if (model.IsDefault)
             {
-                throw new InvalidOperationException("Das Standard-Modell kann nicht gelöscht werden");
+                throw new InvalidOperationException("Default model cannot be deleted");
             }
 
-            // Soft Delete über BaseRepository (nutzt BaseEntity.IsDeleted)
             return await _repository.Delete(request.Id);
         }, "DeleteLLMModel", request.Id);
     }

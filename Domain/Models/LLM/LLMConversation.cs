@@ -5,7 +5,6 @@ using Klacks.Api.Domain.Models.Authentification;
 
 namespace Klacks.Api.Domain.Models.LLM;
 
-[Table("LLMConversations")]
 public class LLMConversation : BaseEntity
 {
     [Required]
@@ -42,7 +41,6 @@ public class LLMConversation : BaseEntity
     public virtual ICollection<LLMMessage> Messages { get; set; } = new List<LLMMessage>();
 }
 
-[Table("LLMMessages")]
 public class LLMMessage : BaseEntity
 {
     [Required]

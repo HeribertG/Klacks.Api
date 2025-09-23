@@ -33,13 +33,20 @@ public class LLMProviderFactory : ILLMProviderFactory
         if (providerConfig == null || !providerConfig.IsEnabled)
             return null;
 
-        return providerId.ToLower() switch
+        ILLMProvider? provider = providerId.ToLower() switch
         {
             "openai" => _serviceProvider.GetService<OpenAIProvider>(),
             "anthropic" => _serviceProvider.GetService<AnthropicProvider>(),
             "google" => _serviceProvider.GetService<GeminiProvider>(),
             _ => null
         };
+
+        if (provider != null)
+        {
+            provider.Configure(providerConfig);
+        }
+
+        return provider;
     }
 
     public async Task<ILLMProvider?> GetProviderForModelAsync(string modelId)

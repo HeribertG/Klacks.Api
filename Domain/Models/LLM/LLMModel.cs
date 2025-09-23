@@ -4,7 +4,6 @@ using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Domain.Models.LLM;
 
-[Table("LLMModels")]
 public class LLMModel : BaseEntity
 {
     [Required]

@@ -86,9 +86,13 @@ public class DataBaseContext : IdentityDbContext
 
     // LLM DbSets
     public DbSet<LLMProvider> LLMProviders { get; set; }
+
     public DbSet<LLMModel> LLMModels { get; set; }
+
     public DbSet<LLMUsage> LLMUsages { get; set; }
+
     public DbSet<LLMConversation> LLMConversations { get; set; }
+
     public DbSet<LLMMessage> LLMMessages { get; set; }
 
     public override int SaveChanges()

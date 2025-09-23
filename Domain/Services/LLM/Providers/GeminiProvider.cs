@@ -12,24 +12,29 @@ public class GeminiProvider : ILLMProvider
     private readonly HttpClient _httpClient;
     private readonly ILogger<GeminiProvider> _logger;
     private readonly IConfiguration _configuration;
-    private readonly string _apiKey;
+    private string _apiKey = string.Empty;
+    private Models.LLM.LLMProvider? _providerConfig;
 
     public string ProviderId => "google";
     public string ProviderName => "Google Gemini";
-    public bool IsEnabled { get; private set; }
+    public bool IsEnabled => _providerConfig?.IsEnabled ?? false;
 
     public GeminiProvider(HttpClient httpClient, ILogger<GeminiProvider> logger, IConfiguration configuration)
     {
         _httpClient = httpClient;
         _logger = logger;
         _configuration = configuration;
-        
-        _apiKey = _configuration["LLM:Google:ApiKey"] ?? string.Empty;
-        IsEnabled = !string.IsNullOrEmpty(_apiKey) && _configuration.GetValue<bool>("LLM:Google:Enabled", false);
+        _httpClient.BaseAddress = new Uri("https://generativelanguage.googleapis.com/v1beta/");
+    }
 
-        if (IsEnabled)
+    public void Configure(Models.LLM.LLMProvider providerConfig)
+    {
+        _providerConfig = providerConfig;
+        _apiKey = providerConfig.ApiKey ?? string.Empty;
+        
+        if (!string.IsNullOrEmpty(providerConfig.BaseUrl))
         {
-            _httpClient.BaseAddress = new Uri("https://generativelanguage.googleapis.com/v1beta/");
+            _httpClient.BaseAddress = new Uri(providerConfig.BaseUrl);
         }
     }
 
@@ -41,6 +46,15 @@ public class GeminiProvider : ILLMProvider
             { 
                 Success = false, 
                 Error = "Google Gemini provider is not enabled" 
+            };
+        }
+
+        if (string.IsNullOrEmpty(_apiKey))
+        {
+            return new LLMProviderResponse 
+            { 
+                Success = false, 
+                Error = "Der Provider für das gewählte Modell ist nicht verfügbar." 
             };
         }
 

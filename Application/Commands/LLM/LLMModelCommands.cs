@@ -1,16 +1,9 @@
 using MediatR;
-using Klacks.Api.Application.Commands;
 using Klacks.Api.Domain.Models.LLM;
 using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Commands.LLM;
 
-// Standard CRUD Commands
-public record CreateLLMModelCommand(LLMModel Resource) : PostCommand<LLMModel>(Resource);
-public record UpdateLLMModelCommand(LLMModel Resource) : PutCommand<LLMModel>(Resource);  
-public record DeleteLLMModelCommand(Guid Id) : DeleteCommand<LLMModel>(Id);
-
-// Spezielle LLM Model Commands
 public record EnableLLMModelCommand(string ModelId) : IRequest<LLMModel>;
 public record DisableLLMModelCommand(string ModelId) : IRequest<LLMModel>;
 public record SetDefaultLLMModelCommand(string ModelId) : IRequest<LLMModel>;
@@ -29,7 +22,7 @@ public class EnableLLMModelCommandHandler : IRequestHandler<EnableLLMModelComman
         var model = await _repository.GetModelByIdAsync(request.ModelId);
         if (model == null)
         {
-            throw new ArgumentException($"Model {request.ModelId} nicht gefunden");
+            throw new ArgumentException($"Model {request.ModelId} not found");
         }
 
         model.IsEnabled = true;
@@ -51,13 +44,12 @@ public class DisableLLMModelCommandHandler : IRequestHandler<DisableLLMModelComm
         var model = await _repository.GetModelByIdAsync(request.ModelId);
         if (model == null)
         {
-            throw new ArgumentException($"Model {request.ModelId} nicht gefunden");
+            throw new ArgumentException($"Model {request.ModelId} not found");
         }
 
-        // Prüfe ob es das Default-Model ist
         if (model.IsDefault)
         {
-            throw new InvalidOperationException("Das Standard-Modell kann nicht deaktiviert werden");
+            throw new InvalidOperationException("Default model cannot be disabled");
         }
 
         model.IsEnabled = false;
@@ -79,13 +71,12 @@ public class SetDefaultLLMModelCommandHandler : IRequestHandler<SetDefaultLLMMod
         var model = await _repository.GetModelByIdAsync(request.ModelId);
         if (model == null)
         {
-            throw new ArgumentException($"Model {request.ModelId} nicht gefunden");
+            throw new ArgumentException($"Model {request.ModelId} not found");
         }
 
-        // Model muss aktiviert sein
         if (!model.IsEnabled)
         {
-            throw new InvalidOperationException("Nur aktivierte Modelle können als Standard gesetzt werden");
+            throw new InvalidOperationException("Only enabled models can be set as default");
         }
 
         await _repository.SetDefaultModelAsync(request.ModelId);

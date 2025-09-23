@@ -42,11 +42,9 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     {
         var functions = new List<LLMFunction>();
         
-        // Basis-Funktionen die jeder hat
         functions.Add(LLMFunctions.GetSystemInfo);
         functions.Add(LLMFunctions.NavigateToPage);
         
-        // Rechte-basierte Funktionen
         if (userRights.Contains("CanViewClients") || userRights.Contains("Admin"))
         {
             functions.Add(LLMFunctions.SearchClients);

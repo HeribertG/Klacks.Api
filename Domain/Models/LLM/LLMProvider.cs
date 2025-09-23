@@ -4,7 +4,6 @@ using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Domain.Models.LLM;
 
-[Table("LLMProviders")]
 public class LLMProvider : BaseEntity
 {
     [Required]

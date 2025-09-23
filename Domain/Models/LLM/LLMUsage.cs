@@ -5,7 +5,6 @@ using Klacks.Api.Domain.Models.Authentification;
 
 namespace Klacks.Api.Domain.Models.LLM;
 
-[Table("LLMUsages")]
 public class LLMUsage : BaseEntity
 {
     [Required]

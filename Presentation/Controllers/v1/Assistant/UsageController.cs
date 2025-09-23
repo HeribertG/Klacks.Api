@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using MediatR;
 using Klacks.Api.Application.Queries.LLM;
 using System.Security.Claims;
@@ -7,8 +8,8 @@ using System.Security.Claims;
 namespace Klacks.Api.Presentation.Controllers.v1.Assistant;
 
 [ApiController]
-[Route("api/v1/assistant/usage")]
-[Authorize]
+[Route("api/v1/backend/assistant/usage")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class UsageController : ControllerBase
 {
     private readonly ILogger<UsageController> _logger;

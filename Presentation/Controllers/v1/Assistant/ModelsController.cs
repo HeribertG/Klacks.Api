@@ -1,17 +1,17 @@
+using Klacks.Api.Application.Commands.LLM;
+using Klacks.Api.Application.Queries.LLM;
+using Klacks.Api.Domain.Models.LLM;
+using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MediatR;
-using Klacks.Api.Application.Queries;
-using Klacks.Api.Application.Queries.LLM;
-using Klacks.Api.Application.Commands.LLM;
-using Klacks.Api.Domain.Models.LLM;
 using System.Security.Claims;
 
 namespace Klacks.Api.Presentation.Controllers.v1.Assistant;
 
 [ApiController]
-[Route("api/v1/assistant/models")]
-[Authorize]
+[Route("api/v1/backend/assistant/models")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ModelsController : ControllerBase
 {
     private readonly ILogger<ModelsController> _logger;
@@ -32,19 +32,17 @@ public class ModelsController : ControllerBase
             
             var response = models.Select(m => new
             {
-                Id = m.ModelId,
-                Name = m.ModelName,
-                Provider = m.Provider.ProviderId,
-                IsDefault = m.IsDefault,
-                IsEnabled = m.IsEnabled,
-                CostPer1kTokens = new
-                {
-                    Input = m.CostPerInputToken * 1000,
-                    Output = m.CostPerOutputToken * 1000
-                },
-                MaxTokens = m.MaxTokens,
-                ContextWindow = m.ContextWindow,
-                Category = m.Category
+                modelId = m.ModelId,
+                providerId = m.Provider.ProviderId,
+                displayName = m.ModelName,
+                description = m.Description ?? $"{m.Provider.ProviderName} {m.ModelName}",
+                contextWindow = m.ContextWindow,
+                maxOutputTokens = m.MaxTokens,
+                costPerInputToken = m.CostPerInputToken,
+                costPerOutputToken = m.CostPerOutputToken,
+                isEnabled = m.IsEnabled,
+                isDefault = m.IsDefault,
+                capabilities = GetModelCapabilities(m)
             }).ToList();
 
             return Ok(response);
@@ -57,7 +55,7 @@ public class ModelsController : ControllerBase
     }
 
     [HttpPost("{modelId}/enable")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     public async Task<ActionResult> EnableModel(string modelId)
     {
         try
@@ -83,7 +81,7 @@ public class ModelsController : ControllerBase
     }
 
     [HttpPost("{modelId}/disable")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     public async Task<ActionResult> DisableModel(string modelId)
     {
         try
@@ -109,7 +107,7 @@ public class ModelsController : ControllerBase
     }
 
     [HttpPost("{modelId}/set-default")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     public async Task<ActionResult> SetDefaultModel(string modelId)
     {
         try
@@ -132,5 +130,28 @@ public class ModelsController : ControllerBase
             _logger.LogError(ex, "Error setting default model {ModelId}", modelId);
             return StatusCode(500, new { Message = "Fehler beim Setzen des Standard-Modells" });
         }
+    }
+
+
+
+    private string[] GetModelCapabilities(LLMModel model)
+    {
+        var capabilities = new List<string> { "chat" };
+        
+        if (model.Provider.ProviderId == "openai" || 
+            (model.Provider.ProviderId == "anthropic" && !model.ModelId.Contains("claude-instant")) ||
+            (model.Provider.ProviderId == "google" && model.ModelId.Contains("gemini")))
+        {
+            capabilities.Add("function_calling");
+        }
+        
+        if ((model.Provider.ProviderId == "openai" && model.ModelId.Contains("gpt-4")) ||
+            (model.Provider.ProviderId == "anthropic" && model.ModelId.Contains("claude-3")) ||
+            (model.Provider.ProviderId == "google" && model.ModelId.Contains("gemini")))
+        {
+            capabilities.Add("vision");
+        }
+        
+        return capabilities.ToArray();
     }
 }

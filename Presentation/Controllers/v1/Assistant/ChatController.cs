@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using MediatR;
 using Klacks.Api.Application.Commands.LLM;
 using Klacks.Api.Presentation.DTOs.LLM;
@@ -9,8 +10,8 @@ using System.Security.Claims;
 namespace Klacks.Api.Presentation.Controllers.v1.Assistant;
 
 [ApiController]
-[Route("api/v1/assistant/chat")]
-[Authorize] // User muss eingeloggt sein
+[Route("api/v1/backend/assistant/chat")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // User muss eingeloggt sein
 public class ChatController : ControllerBase
 {
     private readonly ILogger<ChatController> _logger;
