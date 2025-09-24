@@ -8,25 +8,24 @@ public class LLMProvider : BaseEntity
 {
     [Required]
     [MaxLength(50)]
-    public string ProviderId { get; set; } = string.Empty; // openai, anthropic, google
+    public string ProviderId { get; set; } = string.Empty; 
     
     [Required]
     [MaxLength(100)]
-    public string ProviderName { get; set; } = string.Empty; // OpenAI, Anthropic, Google Gemini
+    public string ProviderName { get; set; } = string.Empty;
     
     [MaxLength(500)]
-    public string? ApiKey { get; set; } // Encrypted
+    public string? ApiKey { get; set; } 
     
     public bool IsEnabled { get; set; }
     
     [MaxLength(200)]
-    public string? BaseUrl { get; set; } // Custom endpoint URL if needed
+    public string? BaseUrl { get; set; } 
     
     [MaxLength(50)]
     public string? ApiVersion { get; set; }
     
-    public int Priority { get; set; } // For fallback ordering
+    public int Priority { get; set; } 
     
-    // Navigation
     public virtual ICollection<LLMModel> Models { get; set; } = new List<LLMModel>();
 }

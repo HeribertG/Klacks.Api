@@ -42,7 +42,6 @@ public class LLMUsage : BaseEntity
     [MaxLength(200)]
     public string? FunctionsCalled { get; set; } // JSON array of function names
     
-    // Navigation
     [ForeignKey("UserId")]
     public virtual AppUser User { get; set; } = null!;
     

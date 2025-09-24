@@ -40,28 +40,3 @@ public class LLMConversation : BaseEntity
     
     public virtual ICollection<LLMMessage> Messages { get; set; } = new List<LLMMessage>();
 }
-
-public class LLMMessage : BaseEntity
-{
-    [Required]
-    public Guid ConversationId { get; set; }
-    
-    [Required]
-    [MaxLength(20)]
-    public string Role { get; set; } = string.Empty; // user, assistant, system
-    
-    [Required]
-    public string Content { get; set; } = string.Empty;
-    
-    public int? TokenCount { get; set; }
-    
-    [MaxLength(50)]
-    public string? ModelId { get; set; }
-    
-    [MaxLength(500)]
-    public string? FunctionCalls { get; set; } // JSON
-    
-    // Navigation
-    [ForeignKey("ConversationId")]
-    public virtual LLMConversation Conversation { get; set; } = null!;
-}
