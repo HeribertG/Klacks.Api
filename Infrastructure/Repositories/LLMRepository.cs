@@ -46,12 +46,36 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
         return provider;
     }
 
+    public async Task<LLMProvider?> GetProviderAsync(Guid id)
+    {
+        return await _context.Set<LLMProvider>()
+            .Where(p => !p.IsDeleted && p.Id == id)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<bool> DeleteProviderAsync(Guid id)
+    {
+        var provider = await GetProviderAsync(id);
+        if (provider != null)
+        {
+            provider.IsDeleted = true;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        return false;
+    }
+
     // Model methods (erweiterte BaseRepository Funktionalität)
     public async Task<List<LLMModel>> GetModelsAsync(bool onlyEnabled = false)
     {
         var query = _context.Set<LLMModel>()
             .Where(m => !m.IsDeleted)
-            .Include(m => m.Provider)
+            .Join(_context.Set<LLMProvider>(),
+                model => model.ProviderId,
+                provider => provider.ProviderId,
+                (model, provider) => new { Model = model, Provider = provider })
+            .Where(joined => !joined.Provider.IsDeleted && joined.Provider.IsEnabled)
+            .Select(joined => joined.Model)
             .AsQueryable();
 
         if (onlyEnabled)
@@ -60,7 +84,7 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
         }
 
         return await query
-            .OrderBy(m => m.Provider.Priority)
+            .OrderBy(m => m.ProviderId)
             .ThenBy(m => m.ModelName)
             .ToListAsync();
     }
@@ -69,7 +93,6 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
     {
         return await _context.Set<LLMModel>()
             .Where(m => !m.IsDeleted && m.ModelId == modelId)
-            .Include(m => m.Provider)
             .FirstOrDefaultAsync();
     }
 
@@ -77,7 +100,6 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
     {
         return await _context.Set<LLMModel>()
             .Where(m => !m.IsDeleted && m.IsDefault && m.IsEnabled)
-            .Include(m => m.Provider)
             .FirstOrDefaultAsync();
     }
 
@@ -135,7 +157,6 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
                        u.CreateTime >= fromDate && 
                        u.CreateTime <= toDate)
             .Include(u => u.Model)
-            .ThenInclude(m => m.Provider)
             .OrderByDescending(u => u.CreateTime)
             .ToListAsync();
     }

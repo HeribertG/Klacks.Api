@@ -1,6 +1,8 @@
+using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.LLM;
 using Klacks.Api.Application.Queries.LLM;
 using Klacks.Api.Domain.Models.LLM;
+using Klacks.Api.Domain.Services.LLM;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -26,132 +28,82 @@ public class ModelsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<object>> GetAvailableModels()
     {
-        try
+        var models = await _mediator.Send(new GetEnabledLLMModelsQuery(OnlyEnabled: false));
+        
+        var response = models.Select(m => new
         {
-            var models = await _mediator.Send(new GetEnabledLLMModelsQuery(OnlyEnabled: false));
-            
-            var response = models.Select(m => new
-            {
-                modelId = m.ModelId,
-                providerId = m.Provider.ProviderId,
-                displayName = m.ModelName,
-                description = m.Description ?? $"{m.Provider.ProviderName} {m.ModelName}",
-                contextWindow = m.ContextWindow,
-                maxOutputTokens = m.MaxTokens,
-                costPerInputToken = m.CostPerInputToken,
-                costPerOutputToken = m.CostPerOutputToken,
-                isEnabled = m.IsEnabled,
-                isDefault = m.IsDefault,
-                capabilities = GetModelCapabilities(m)
-            }).ToList();
+            id = m.Id.ToString(),
+            modelId = m.ModelId,
+            apiModelId = m.ApiModelId,
+            providerId = m.ProviderId,
+            modelName = m.ModelName,
+            description = m.Description ?? $"{m.ProviderId} {m.ModelName}",
+            contextWindow = m.ContextWindow,
+            maxTokens = m.MaxTokens,
+            costPerInputToken = m.CostPerInputToken,
+            costPerOutputToken = m.CostPerOutputToken,
+            isEnabled = m.IsEnabled,
+            isDefault = m.IsDefault,
+            capabilities = LLMCapabilityService.GetCapabilities(m).Select(c => c.ToString().ToLower()).ToArray(),
+            displayName = m.ModelName,
+            maxOutputTokens = m.MaxTokens
+        }).ToList();
 
-            return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting available models");
-            return StatusCode(500, new { Message = "Fehler beim Abrufen der Modelle" });
-        }
+        return Ok(response);
     }
 
     [HttpPost("{modelId}/enable")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     public async Task<ActionResult> EnableModel(string modelId)
     {
-        try
-        {
-            await _mediator.Send(new EnableLLMModelCommand(modelId));
-            
-            _logger.LogInformation("Admin {UserId} enabled model {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, modelId);
-            return Ok(new { Message = $"Model {modelId} erfolgreich aktiviert" });
-        }
-        catch (ArgumentException ex)
-        {
-            return NotFound(new { Message = ex.Message });
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { Message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error enabling model {ModelId}", modelId);
-            return StatusCode(500, new { Message = "Fehler beim Aktivieren des Modells" });
-        }
+        await _mediator.Send(new EnableLLMModelCommand(modelId));
+        _logger.LogInformation("Admin {UserId} enabled model {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, modelId);
+        return Ok(new { Message = $"Model {modelId} enabled successfully" });
     }
 
     [HttpPost("{modelId}/disable")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     public async Task<ActionResult> DisableModel(string modelId)
     {
-        try
-        {
-            await _mediator.Send(new DisableLLMModelCommand(modelId));
-            
-            _logger.LogInformation("Admin {UserId} disabled model {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, modelId);
-            return Ok(new { Message = $"Model {modelId} erfolgreich deaktiviert" });
-        }
-        catch (ArgumentException ex)
-        {
-            return NotFound(new { Message = ex.Message });
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { Message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error disabling model {ModelId}", modelId);
-            return StatusCode(500, new { Message = "Fehler beim Deaktivieren des Modells" });
-        }
+        await _mediator.Send(new DisableLLMModelCommand(modelId));
+        _logger.LogInformation("Admin {UserId} disabled model {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, modelId);
+        return Ok(new { Message = $"Model {modelId} disabled successfully" });
     }
 
     [HttpPost("{modelId}/set-default")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     public async Task<ActionResult> SetDefaultModel(string modelId)
     {
-        try
-        {
-            await _mediator.Send(new SetDefaultLLMModelCommand(modelId));
-            
-            _logger.LogInformation("Admin {UserId} set default model to {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, modelId);
-            return Ok(new { Message = $"Model {modelId} als Standard gesetzt" });
-        }
-        catch (ArgumentException ex)
-        {
-            return NotFound(new { Message = ex.Message });
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { Message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error setting default model {ModelId}", modelId);
-            return StatusCode(500, new { Message = "Fehler beim Setzen des Standard-Modells" });
-        }
+        await _mediator.Send(new SetDefaultLLMModelCommand(modelId));
+        _logger.LogInformation("Admin {UserId} set default model to {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, modelId);
+        return Ok(new { Message = $"Model {modelId} set as default" });
     }
 
-
-
-    private string[] GetModelCapabilities(LLMModel model)
+    [HttpPost]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+    public async Task<ActionResult<LLMModel>> CreateModel([FromBody] LLMModel model)
     {
-        var capabilities = new List<string> { "chat" };
-        
-        if (model.Provider.ProviderId == "openai" || 
-            (model.Provider.ProviderId == "anthropic" && !model.ModelId.Contains("claude-instant")) ||
-            (model.Provider.ProviderId == "google" && model.ModelId.Contains("gemini")))
-        {
-            capabilities.Add("function_calling");
-        }
-        
-        if ((model.Provider.ProviderId == "openai" && model.ModelId.Contains("gpt-4")) ||
-            (model.Provider.ProviderId == "anthropic" && model.ModelId.Contains("claude-3")) ||
-            (model.Provider.ProviderId == "google" && model.ModelId.Contains("gemini")))
-        {
-            capabilities.Add("vision");
-        }
-        
-        return capabilities.ToArray();
+        var result = await _mediator.Send(new PostCommand<LLMModel>(model));
+        _logger.LogInformation("Admin {UserId} created model {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, model.ModelId);
+        return CreatedAtAction(nameof(GetAvailableModels), new { id = result?.Id }, result);
+    }
+
+    [HttpPut("{id}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+    public async Task<ActionResult<LLMModel>> UpdateModel(Guid id, [FromBody] LLMModel model)
+    {
+        model.Id = id;
+        var result = await _mediator.Send(new PutCommand<LLMModel>(model));
+        _logger.LogInformation("Admin {UserId} updated model {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, model.ModelId);
+        return Ok(result);
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+    public async Task<ActionResult> DeleteModel(Guid id)
+    {
+        await _mediator.Send(new DeleteCommand<LLMModel>(id));
+        _logger.LogInformation("Admin {UserId} deleted model with ID {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, id);
+        return NoContent();
     }
 }

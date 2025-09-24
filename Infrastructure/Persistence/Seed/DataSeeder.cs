@@ -7,6 +7,7 @@ namespace Klacks.Api.Data.Seed
         public static void Add(MigrationBuilder migrationBuilder, bool withFake = false)
         {
             DefaultSeed.SeedData(migrationBuilder);
+            LLMSeed.SeedData(migrationBuilder);
             
             if (withFake)
             {

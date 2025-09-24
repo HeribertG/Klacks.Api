@@ -57,11 +57,6 @@ public class CreateLLMModelCommandHandler : BaseTransactionHandler, IRequestHand
     {
         return await ExecuteWithTransactionAsync(async () =>
         {
-            if (string.IsNullOrEmpty(request.Resource.ModelId))
-            {
-                throw new ArgumentException("ModelId is required");
-            }
-
             var existing = await _repository.GetModelByIdAsync(request.Resource.ModelId);
             if (existing != null)
             {

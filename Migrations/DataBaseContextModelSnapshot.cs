@@ -580,6 +580,461 @@ namespace Klacks.Api.Migrations
                     b.ToTable("history", (string)null);
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMConversation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ConversationId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("conversation_id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_archived");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime>("LastMessageAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_message_at");
+
+                    b.Property<string>("LastModelId")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("last_model_id");
+
+                    b.Property<int>("MessageCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("message_count");
+
+                    b.Property<string>("Summary")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("summary");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<decimal>("TotalCost")
+                        .HasColumnType("decimal(10, 4)")
+                        .HasColumnName("total_cost");
+
+                    b.Property<int>("TotalTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("total_tokens");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_llm_conversations");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_llm_conversations_user_id");
+
+                    b.ToTable("llm_conversations", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<Guid>("ConversationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("conversation_id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<string>("FunctionCalls")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("function_calls");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("ModelId")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("model_id");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("role");
+
+                    b.Property<int?>("TokenCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("token_count");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_llm_messages");
+
+                    b.HasIndex("ConversationId")
+                        .HasDatabaseName("ix_llm_messages_conversation_id");
+
+                    b.ToTable("llm_messages", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ApiModelId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("api_model_id");
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("category");
+
+                    b.Property<int>("ContextWindow")
+                        .HasColumnType("integer")
+                        .HasColumnName("context_window");
+
+                    b.Property<decimal>("CostPerInputToken")
+                        .HasColumnType("decimal(10, 6)")
+                        .HasColumnName("cost_per_input_token");
+
+                    b.Property<decimal>("CostPerOutputToken")
+                        .HasColumnType("decimal(10, 6)")
+                        .HasColumnName("cost_per_output_token");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<DateTime?>("DeprecatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deprecated_at");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<Guid?>("LLMProviderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("llm_provider_id");
+
+                    b.Property<int>("MaxTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_tokens");
+
+                    b.Property<string>("ModelId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("model_id");
+
+                    b.Property<string>("ModelName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("model_name");
+
+                    b.Property<string>("ProviderId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("provider_id");
+
+                    b.Property<DateTime?>("ReleasedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("released_at");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_llm_models");
+
+                    b.HasIndex("LLMProviderId")
+                        .HasDatabaseName("ix_llm_models_llm_provider_id");
+
+                    b.ToTable("llm_models", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMProvider", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ApiKey")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("api_key");
+
+                    b.Property<string>("ApiVersion")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("api_version");
+
+                    b.Property<string>("BaseUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("base_url");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer")
+                        .HasColumnName("priority");
+
+                    b.Property<string>("ProviderId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("provider_id");
+
+                    b.Property<string>("ProviderName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("provider_name");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_llm_providers");
+
+                    b.ToTable("llm_providers", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMUsage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AssistantMessage")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("assistant_message");
+
+                    b.Property<string>("ConversationId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("conversation_id");
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("decimal(10, 4)")
+                        .HasColumnName("cost");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("error_message");
+
+                    b.Property<string>("FunctionsCalled")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("functions_called");
+
+                    b.Property<bool>("HasError")
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_error");
+
+                    b.Property<int>("InputTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("input_tokens");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid>("ModelId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("model_id");
+
+                    b.Property<int>("OutputTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("output_tokens");
+
+                    b.Property<int>("ResponseTimeMs")
+                        .HasColumnType("integer")
+                        .HasColumnName("response_time_ms");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("UserMessage")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("user_message");
+
+                    b.HasKey("Id")
+                        .HasName("pk_llm_usages");
+
+                    b.HasIndex("ModelId")
+                        .HasDatabaseName("ix_llm_usages_model_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_llm_usages_user_id");
+
+                    b.ToTable("llm_usages", (string)null);
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Absence", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2259,6 +2714,59 @@ namespace Klacks.Api.Migrations
                     b.Navigation("Client");
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMConversation", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Authentification.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_llm_conversations_app_user_user_id");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMMessage", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.LLM.LLMConversation", "Conversation")
+                        .WithMany("Messages")
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_llm_messages_llm_conversations_conversation_id");
+
+                    b.Navigation("Conversation");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMModel", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.LLM.LLMProvider", null)
+                        .WithMany("Models")
+                        .HasForeignKey("LLMProviderId")
+                        .HasConstraintName("fk_llm_models_llm_providers_llm_provider_id");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMUsage", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.LLM.LLMModel", "Model")
+                        .WithMany("Usages")
+                        .HasForeignKey("ModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_llm_usages_llm_models_model_id");
+
+                    b.HasOne("Klacks.Api.Domain.Models.Authentification.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_llm_usages_app_user_user_id");
+
+                    b.Navigation("Model");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Absence", b =>
                 {
                     b.OwnsOne("Klacks.Api.Domain.Common.MultiLanguage", "Description", b1 =>
@@ -2286,7 +2794,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("AbsenceId");
 
-                            b1.ToTable("absence", (string)null);
+                            b1.ToTable("absence");
 
                             b1.WithOwner()
                                 .HasForeignKey("AbsenceId")
@@ -2318,7 +2826,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("AbsenceId");
 
-                            b1.ToTable("absence", (string)null);
+                            b1.ToTable("absence");
 
                             b1.WithOwner()
                                 .HasForeignKey("AbsenceId")
@@ -2419,7 +2927,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("CalendarRuleId");
 
-                            b1.ToTable("calendar_rule", (string)null);
+                            b1.ToTable("calendar_rule");
 
                             b1.WithOwner()
                                 .HasForeignKey("CalendarRuleId")
@@ -2451,7 +2959,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("CalendarRuleId");
 
-                            b1.ToTable("calendar_rule", (string)null);
+                            b1.ToTable("calendar_rule");
 
                             b1.WithOwner()
                                 .HasForeignKey("CalendarRuleId")
@@ -2490,7 +2998,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("CountriesId");
 
-                            b1.ToTable("countries", (string)null);
+                            b1.ToTable("countries");
 
                             b1.WithOwner()
                                 .HasForeignKey("CountriesId")
@@ -2528,7 +3036,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("MacroId");
 
-                            b1.ToTable("macro", (string)null);
+                            b1.ToTable("macro");
 
                             b1.WithOwner()
                                 .HasForeignKey("MacroId")
@@ -2566,7 +3074,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("StateId");
 
-                            b1.ToTable("state", (string)null);
+                            b1.ToTable("state");
 
                             b1.WithOwner()
                                 .HasForeignKey("StateId")
@@ -2699,6 +3207,21 @@ namespace Klacks.Api.Migrations
             modelBuilder.Entity("Klacks.Api.Domain.Models.CalendarSelections.CalendarSelection", b =>
                 {
                     b.Navigation("SelectedCalendars");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMConversation", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMModel", b =>
+                {
+                    b.Navigation("Usages");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMProvider", b =>
+                {
+                    b.Navigation("Models");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Shift", b =>

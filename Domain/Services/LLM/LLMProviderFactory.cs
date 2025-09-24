@@ -55,7 +55,7 @@ public class LLMProviderFactory : ILLMProviderFactory
         if (model == null || !model.IsEnabled)
             return null;
 
-        return await GetProviderAsync(model.Provider.ProviderId);
+        return await GetProviderAsync(model.ProviderId);
     }
 
     public async Task<List<ILLMProvider>> GetEnabledProvidersAsync()

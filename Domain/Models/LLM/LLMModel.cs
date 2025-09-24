@@ -8,18 +8,19 @@ public class LLMModel : BaseEntity
 {
     [Required]
     [MaxLength(50)]
-    public string ModelId { get; set; } = string.Empty; // gpt-5, claude-37-opus, etc.
+    public string ModelId { get; set; } = string.Empty;
     
     [Required]
     [MaxLength(100)]
-    public string ModelName { get; set; } = string.Empty; // Display name
+    public string ModelName { get; set; } = string.Empty;
     
     [Required]
     [MaxLength(50)]
-    public string ApiModelId { get; set; } = string.Empty; // Actual API model identifier
+    public string ApiModelId { get; set; } = string.Empty;
     
     [Required]
-    public Guid ProviderId { get; set; }
+    [MaxLength(50)]
+    public string ProviderId { get; set; } = string.Empty;
     
     public bool IsEnabled { get; set; }
     
@@ -39,15 +40,11 @@ public class LLMModel : BaseEntity
     public string? Description { get; set; }
     
     [MaxLength(50)]
-    public string? Category { get; set; } // fast, balanced, powerful
+    public string? Category { get; set; }
     
     public DateTime? ReleasedAt { get; set; }
     
     public DateTime? DeprecatedAt { get; set; }
-    
-    // Navigation
-    [ForeignKey("ProviderId")]
-    public virtual LLMProvider Provider { get; set; } = null!;
     
     public virtual ICollection<LLMUsage> Usages { get; set; } = new List<LLMUsage>();
 }

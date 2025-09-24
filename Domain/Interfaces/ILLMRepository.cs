@@ -7,8 +7,10 @@ public interface ILLMRepository : IBaseRepository<LLMModel>
 {
     Task<List<LLMProvider>> GetProvidersAsync();
     Task<LLMProvider?> GetProviderByIdAsync(string providerId);
+    Task<LLMProvider?> GetProviderAsync(Guid id);
     Task<LLMProvider> CreateProviderAsync(LLMProvider provider);
     Task<LLMProvider> UpdateProviderAsync(LLMProvider provider);
+    Task<bool> DeleteProviderAsync(Guid id);
     
     Task<List<LLMModel>> GetModelsAsync(bool onlyEnabled = false);
     Task<LLMModel?> GetModelByIdAsync(string modelId);

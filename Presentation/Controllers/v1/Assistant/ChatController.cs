@@ -11,7 +11,7 @@ namespace Klacks.Api.Presentation.Controllers.v1.Assistant;
 
 [ApiController]
 [Route("api/v1/backend/assistant/chat")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // User muss eingeloggt sein
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] 
 public class ChatController : ControllerBase
 {
     private readonly ILogger<ChatController> _logger;
@@ -102,7 +102,6 @@ public class ChatController : ControllerBase
             return userIdClaim.Value;
         }
         
-        // Fallback - sollte nicht vorkommen bei korrekt authentifizierten Requests
         return string.Empty;
     }
 

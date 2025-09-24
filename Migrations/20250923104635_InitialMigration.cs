@@ -254,6 +254,31 @@ namespace Klacks.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "llm_providers",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    provider_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    provider_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    api_key = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    is_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    base_url = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    api_version = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    priority = table.Column<int>(type: "integer", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_llm_providers", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "macro",
                 columns: table => new
                 {
@@ -484,6 +509,40 @@ namespace Klacks.Api.Migrations
                     table.PrimaryKey("pk_asp_net_user_tokens", x => new { x.user_id, x.login_provider, x.name });
                     table.ForeignKey(
                         name: "fk_asp_net_user_tokens_asp_net_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "llm_conversations",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    conversation_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    user_id = table.Column<string>(type: "text", nullable: false),
+                    title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    summary = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    last_message_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    message_count = table.Column<int>(type: "integer", nullable: false),
+                    total_tokens = table.Column<int>(type: "integer", nullable: false),
+                    total_cost = table.Column<decimal>(type: "numeric(10,4)", nullable: false),
+                    last_model_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    is_archived = table.Column<bool>(type: "boolean", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_llm_conversations", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_llm_conversations_app_user_user_id",
                         column: x => x.user_id,
                         principalTable: "AspNetUsers",
                         principalColumn: "id",
@@ -773,6 +832,74 @@ namespace Klacks.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "llm_models",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    model_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    model_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    api_model_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    provider_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    is_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    is_default = table.Column<bool>(type: "boolean", nullable: false),
+                    cost_per_input_token = table.Column<decimal>(type: "numeric(10,6)", nullable: false),
+                    cost_per_output_token = table.Column<decimal>(type: "numeric(10,6)", nullable: false),
+                    max_tokens = table.Column<int>(type: "integer", nullable: false),
+                    context_window = table.Column<int>(type: "integer", nullable: false),
+                    description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    category = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    released_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deprecated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    llm_provider_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_llm_models", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_llm_models_llm_providers_llm_provider_id",
+                        column: x => x.llm_provider_id,
+                        principalTable: "llm_providers",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "llm_messages",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    conversation_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    role = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    content = table.Column<string>(type: "text", nullable: false),
+                    token_count = table.Column<int>(type: "integer", nullable: true),
+                    model_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    function_calls = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_llm_messages", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_llm_messages_llm_conversations_conversation_id",
+                        column: x => x.conversation_id,
+                        principalTable: "llm_conversations",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "membership",
                 columns: table => new
                 {
@@ -871,6 +998,48 @@ namespace Klacks.Api.Migrations
                         name: "fk_work_shift_shift_id",
                         column: x => x.shift_id,
                         principalTable: "shift",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "llm_usages",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<string>(type: "text", nullable: false),
+                    model_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    conversation_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    input_tokens = table.Column<int>(type: "integer", nullable: false),
+                    output_tokens = table.Column<int>(type: "integer", nullable: false),
+                    cost = table.Column<decimal>(type: "numeric(10,4)", nullable: false),
+                    user_message = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: true),
+                    assistant_message = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: true),
+                    response_time_ms = table.Column<int>(type: "integer", nullable: false),
+                    has_error = table.Column<bool>(type: "boolean", nullable: false),
+                    error_message = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    functions_called = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_llm_usages", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_llm_usages_app_user_user_id",
+                        column: x => x.user_id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_llm_usages_llm_models_model_id",
+                        column: x => x.model_id,
+                        principalTable: "llm_models",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1151,6 +1320,31 @@ namespace Klacks.Api.Migrations
                 column: "is_deleted");
 
             migrationBuilder.CreateIndex(
+                name: "ix_llm_conversations_user_id",
+                table: "llm_conversations",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_llm_messages_conversation_id",
+                table: "llm_messages",
+                column: "conversation_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_llm_models_llm_provider_id",
+                table: "llm_models",
+                column: "llm_provider_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_llm_usages_model_id",
+                table: "llm_usages",
+                column: "model_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_llm_usages_user_id",
+                table: "llm_usages",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_macro_is_deleted_name",
                 table: "macro",
                 columns: new[] { "is_deleted", "name" });
@@ -1252,6 +1446,12 @@ namespace Klacks.Api.Migrations
                 name: "history");
 
             migrationBuilder.DropTable(
+                name: "llm_messages");
+
+            migrationBuilder.DropTable(
+                name: "llm_usages");
+
+            migrationBuilder.DropTable(
                 name: "macro");
 
             migrationBuilder.DropTable(
@@ -1294,16 +1494,25 @@ namespace Klacks.Api.Migrations
                 name: "break_reason");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "group");
 
             migrationBuilder.DropTable(
-                name: "group");
+                name: "llm_conversations");
+
+            migrationBuilder.DropTable(
+                name: "llm_models");
 
             migrationBuilder.DropTable(
                 name: "contract");
 
             migrationBuilder.DropTable(
                 name: "shift");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "llm_providers");
 
             migrationBuilder.DropTable(
                 name: "calendar_selection");
