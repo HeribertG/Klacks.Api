@@ -2,6 +2,7 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Handlers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.LLM;
 using MediatR;
@@ -123,7 +124,7 @@ public class DeleteLLMModelCommandHandler : BaseTransactionHandler, IRequestHand
 
             if (model.IsDefault)
             {
-                throw new InvalidOperationException("Default model cannot be deleted");
+                throw new InvalidRequestException("Default model cannot be deleted");
             }
 
             return await _repository.Delete(request.Id);

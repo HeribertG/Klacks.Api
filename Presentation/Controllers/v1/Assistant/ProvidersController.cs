@@ -1,14 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using MediatR;
 using Klacks.Api.Application.Queries.LLM;
 using Klacks.Api.Application.Commands.LLM;
 
-namespace Klacks.Api.Presentation.Controllers;
+namespace Klacks.Api.Presentation.Controllers.v1.Assistant;
 
 [ApiController]
 [Route("api/v1/backend/assistant/providers")]
-[Authorize]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ProvidersController : ControllerBase
 {
     private readonly IMediator _mediator;

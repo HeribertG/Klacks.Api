@@ -119,7 +119,6 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
 
     public async Task SetDefaultModelAsync(string modelId)
     {
-        // Zuerst alle anderen Modelle auf nicht-default setzen
         var allModels = await _context.Set<LLMModel>()
             .Where(m => !m.IsDeleted && m.IsDefault)
             .ToListAsync();
@@ -129,7 +128,6 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
             model.IsDefault = false;
         }
 
-        // Dann das gewünschte Modell auf default setzen
         var targetModel = await _context.Set<LLMModel>()
             .FirstOrDefaultAsync(m => !m.IsDeleted && m.ModelId == modelId);
 
@@ -139,6 +137,30 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
         }
 
         await _context.SaveChangesAsync();
+    }
+
+    public override async Task<LLMModel?> Delete(Guid id)
+    {
+        var model = await _context.Set<LLMModel>()
+            .FirstOrDefaultAsync(m => m.Id == id);
+            
+        if (model == null)
+        {
+            return null;
+        }
+
+        if (model.IsDefault)
+        {
+            throw new InvalidOperationException("Cannot delete default model");
+        }
+
+        model.IsDeleted = true;
+        model.DeletedTime = DateTime.UtcNow;
+        
+        _context.Set<LLMModel>().Update(model);
+        await _context.SaveChangesAsync();
+        
+        return model;
     }
 
     // Usage tracking

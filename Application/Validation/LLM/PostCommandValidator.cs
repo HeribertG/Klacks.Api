@@ -1,13 +1,17 @@
 using FluentValidation;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Domain.Models.LLM;
+using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Validation.LLM;
 
 public class PostCommandValidator : AbstractValidator<PostCommand<LLMModel>>
 {
-    public PostCommandValidator()
+    private readonly ILLMRepository _repository;
+
+    public PostCommandValidator(ILLMRepository repository)
     {
+        _repository = repository;
         ClassLevelCascadeMode = CascadeMode.Stop;
 
         RuleFor(x => x.Resource.ModelId)
@@ -16,7 +20,13 @@ public class PostCommandValidator : AbstractValidator<PostCommand<LLMModel>>
             .MaximumLength(50)
             .WithMessage("ModelId must not exceed 50 characters")
             .Matches("^[a-zA-Z0-9-_.]+$")
-            .WithMessage("ModelId can only contain alphanumeric characters, hyphens, underscores, and dots");
+            .WithMessage("ModelId can only contain alphanumeric characters, hyphens, underscores, and dots")
+            .MustAsync(async (modelId, cancellation) => 
+            {
+                var existing = await _repository.GetModelByIdAsync(modelId);
+                return existing == null;
+            })
+            .WithMessage("A model with this ModelId already exists");
 
         RuleFor(x => x.Resource.ModelName)
             .NotEmpty()
@@ -28,7 +38,13 @@ public class PostCommandValidator : AbstractValidator<PostCommand<LLMModel>>
             .NotEmpty()
             .WithMessage("ProviderId is required")
             .MaximumLength(50)
-            .WithMessage("ProviderId must not exceed 50 characters");
+            .WithMessage("ProviderId must not exceed 50 characters")
+            .MustAsync(async (providerId, cancellation) => 
+            {
+                var provider = await _repository.GetProviderByIdAsync(providerId);
+                return provider != null;
+            })
+            .WithMessage("The specified provider does not exist");
 
         RuleFor(x => x.Resource.ContextWindow)
             .GreaterThan(0)

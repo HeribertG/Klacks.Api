@@ -100,10 +100,27 @@ public class ModelsController : ControllerBase
 
     [HttpDelete("{id}")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
-    public async Task<ActionResult> DeleteModel(Guid id)
+    public async Task<ActionResult> DeleteModel(string id)
     {
-        await _mediator.Send(new DeleteCommand<LLMModel>(id));
-        _logger.LogInformation("Admin {UserId} deleted model with ID {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, id);
+        if (Guid.TryParse(id, out var guidId))
+        {
+            await _mediator.Send(new DeleteCommand<LLMModel>(guidId));
+            _logger.LogInformation("Admin {UserId} deleted model with ID {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, guidId);
+        }
+        else
+        {
+            var models = await _mediator.Send(new GetEnabledLLMModelsQuery(OnlyEnabled: false));
+            var model = models.FirstOrDefault(m => m.ModelId == id);
+            
+            if (model == null)
+            {
+                return NotFound($"Model with ID {id} not found");
+            }
+            
+            await _mediator.Send(new DeleteCommand<LLMModel>(model.Id));
+            _logger.LogInformation("Admin {UserId} deleted model with modelId {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, id);
+        }
+        
         return NoContent();
     }
 }
