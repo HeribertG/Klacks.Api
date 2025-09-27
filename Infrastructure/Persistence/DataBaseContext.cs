@@ -162,7 +162,15 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Contract>().HasQueryFilter(p => !p.IsDeleted);
         
         // LLM Query Filters
-        modelBuilder.Entity<LLMProvider>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<LLMProvider>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.Property(e => e.Settings)
+                  .HasConversion(
+                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions)null),
+                      v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(v, (System.Text.Json.JsonSerializerOptions)null))
+                  .HasColumnType("jsonb");
+        });
         modelBuilder.Entity<LLMModel>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<LLMUsage>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<LLMConversation>().HasQueryFilter(p => !p.IsDeleted);

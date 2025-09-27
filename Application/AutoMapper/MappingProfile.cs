@@ -352,7 +352,9 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
             .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
             .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
-            .ForMember(dest => dest.Models, opt => opt.Ignore());
+            .ForMember(dest => dest.Models, opt => opt.Ignore())
+            .ForMember(dest => dest.ApiVersion, opt => opt.Ignore())
+            .ForMember(dest => dest.Settings, opt => opt.Ignore());
         CreateMap<UpdateProviderCommand, LLMProvider>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.ProviderId, opt => opt.Ignore())
@@ -364,7 +366,9 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.DeletedTime, opt => opt.Ignore())
             .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
             .ForMember(dest => dest.CurrentUserDeleted, opt => opt.Ignore())
-            .ForMember(dest => dest.Models, opt => opt.Ignore());
+            .ForMember(dest => dest.Models, opt => opt.Ignore())
+            .ForMember(dest => dest.ApiVersion, opt => opt.Ignore())
+            .ForMember(dest => dest.Settings, opt => opt.Ignore());
         CreateMap<LLMUsageRawData, LLMUsageResponse>()
             .ForMember(dest => dest.TotalTokens, opt => opt.MapFrom(src => src.Usages.Sum(u => u.TotalTokens)))
             .ForMember(dest => dest.TotalCost, opt => opt.MapFrom(src => src.TotalCost))
