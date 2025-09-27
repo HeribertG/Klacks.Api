@@ -79,7 +79,9 @@ public class LLMService : ILLMService
                 ConversationHistory = llmHistory,
                 AvailableFunctions = context.AvailableFunctions,
                 Temperature = 0.7,
-                MaxTokens = model.MaxTokens
+                MaxTokens = model.MaxTokens,
+                CostPerInputToken = model.CostPerInputToken,
+                CostPerOutputToken = model.CostPerOutputToken
             };
 
             // Call the provider

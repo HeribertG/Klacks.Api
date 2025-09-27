@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -265,6 +266,7 @@ namespace Klacks.Api.Migrations
                     base_url = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     api_version = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     priority = table.Column<int>(type: "integer", nullable: false),
+                    settings = table.Column<Dictionary<string, object>>(type: "jsonb", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),

@@ -27,5 +27,8 @@ public class LLMProvider : BaseEntity
     
     public int Priority { get; set; } 
     
+    [Column(TypeName = "jsonb")]
+    public Dictionary<string, object>? Settings { get; set; }
+    
     public virtual ICollection<LLMModel> Models { get; set; } = new List<LLMModel>();
 }

@@ -1,13 +1,21 @@
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Services.LLM.Providers;
-using Microsoft.Extensions.DependencyInjection;
+using Klacks.Api.Domain.Services.LLM.Providers.Anthropic;
+using Klacks.Api.Domain.Services.LLM.Providers.Azure;
+using Klacks.Api.Domain.Services.LLM.Providers.Cohere;
+using Klacks.Api.Domain.Services.LLM.Providers.DeepSeek;
+using Klacks.Api.Domain.Services.LLM.Providers.Gemini;
+using Klacks.Api.Domain.Services.LLM.Providers.Mistral;
+using Klacks.Api.Domain.Services.LLM.Providers.OpenAI;
 
 namespace Klacks.Api.Domain.Services.LLM;
 
 public interface ILLMProviderFactory
 {
     Task<ILLMProvider?> GetProviderAsync(string providerId);
+
     Task<ILLMProvider?> GetProviderForModelAsync(string modelId);
+
     Task<List<ILLMProvider>> GetEnabledProvidersAsync();
 }
 
@@ -31,13 +39,19 @@ public class LLMProviderFactory : ILLMProviderFactory
     {
         var providerConfig = await _repository.GetProviderByIdAsync(providerId);
         if (providerConfig == null || !providerConfig.IsEnabled)
+        {
             return null;
+        }
 
         ILLMProvider? provider = providerId.ToLower() switch
         {
             "openai" => _serviceProvider.GetService<OpenAIProvider>(),
             "anthropic" => _serviceProvider.GetService<AnthropicProvider>(),
             "google" => _serviceProvider.GetService<GeminiProvider>(),
+            "azure" => _serviceProvider.GetService<AzureOpenAIProvider>(),
+            "mistral" => _serviceProvider.GetService<MistralProvider>(),
+            "cohere" => _serviceProvider.GetService<CohereProvider>(),
+            "deepseek" => _serviceProvider.GetService<DeepSeekProvider>(),
             _ => null
         };
 
@@ -53,7 +67,9 @@ public class LLMProviderFactory : ILLMProviderFactory
     {
         var model = await _repository.GetModelByIdAsync(modelId);
         if (model == null || !model.IsEnabled)
+        {
             return null;
+        }
 
         return await GetProviderAsync(model.ProviderId);
     }

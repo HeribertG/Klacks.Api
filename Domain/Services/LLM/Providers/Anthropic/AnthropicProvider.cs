@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
 using Klacks.Api.Presentation.DTOs.LLM;
 
-namespace Klacks.Api.Domain.Services.LLM.Providers;
+namespace Klacks.Api.Domain.Services.LLM.Providers.Anthropic;
 
 public class AnthropicProvider : ILLMProvider
 {
@@ -70,7 +70,7 @@ public class AnthropicProvider : ILLMProvider
         {
             var anthropicRequest = new AnthropicRequest
             {
-                Model = MapModelId(request.ModelId),
+                Model = request.ModelId,
                 Messages = BuildMessages(request),
                 System = request.SystemPrompt,
                 Temperature = request.Temperature,
@@ -121,7 +121,7 @@ public class AnthropicProvider : ILLMProvider
                 {
                     InputTokens = anthropicResponse.Usage?.InputTokens ?? 0,
                     OutputTokens = anthropicResponse.Usage?.OutputTokens ?? 0,
-                    Cost = CalculateCost(request.ModelId, anthropicResponse.Usage)
+                    Cost = CalculateCost(request, anthropicResponse.Usage)
                 }
             };
 
@@ -179,19 +179,6 @@ public class AnthropicProvider : ILLMProvider
         }
     }
 
-    private string MapModelId(string modelId)
-    {
-        return modelId switch
-        {
-            "claude-3-haiku" => "claude-3-haiku-20240307",
-            "claude-3-sonnet" => "claude-3-5-sonnet-20241022",
-            "claude-3-opus" => "claude-3-opus-20240229",
-            "claude-37-haiku" => "claude-3.7-haiku-20250115",
-            "claude-37-sonnet" => "claude-3.7-sonnet-20250115", 
-            "claude-37-opus" => "claude-3.7-opus-20250115",
-            _ => "claude-3.7-sonnet-20250115"
-        };
-    }
 
     private List<AnthropicMessage> BuildMessages(LLMProviderRequest request)
     {
@@ -200,13 +187,12 @@ public class AnthropicProvider : ILLMProvider
         // Add conversation history
         foreach (var msg in request.ConversationHistory)
         {
-            if (msg.Role != "system") // System messages are handled separately in Anthropic
+            if (msg.Role != "system")
             {
                 messages.Add(new AnthropicMessage { Role = msg.Role, Content = msg.Content });
             }
         }
 
-        // Add current message
         messages.Add(new AnthropicMessage { Role = "user", Content = request.Message });
 
         return messages;
@@ -241,76 +227,12 @@ public class AnthropicProvider : ILLMProvider
         return string.Join("\n", textContents);
     }
 
-    private decimal CalculateCost(string modelId, AnthropicUsage? usage)
+    private decimal CalculateCost(LLMProviderRequest request, AnthropicUsage? usage)
     {
         if (usage == null) return 0;
 
-        var (inputCost, outputCost) = modelId switch
-        {
-            "claude-3-haiku" => (0.00025m, 0.00125m),
-            "claude-3-sonnet" => (0.003m, 0.015m),
-            "claude-3-opus" => (0.015m, 0.075m),
-            "claude-37-haiku" => (0.0002m, 0.001m),
-            "claude-37-sonnet" => (0.0025m, 0.012m),
-            "claude-37-opus" => (0.012m, 0.06m),
-            _ => (0.0025m, 0.012m)
-        };
-
-        return (usage.InputTokens / 1000m * inputCost) + (usage.OutputTokens / 1000m * outputCost);
+        return (usage.InputTokens / 1000m * request.CostPerInputToken) + 
+               (usage.OutputTokens / 1000m * request.CostPerOutputToken);
     }
 
-    #region Anthropic API Models
-    private class AnthropicRequest
-    {
-        public string Model { get; set; } = string.Empty;
-        public List<AnthropicMessage> Messages { get; set; } = new();
-        public string? System { get; set; }
-        public double Temperature { get; set; }
-        public int MaxTokens { get; set; }
-        public List<AnthropicTool>? Tools { get; set; }
-    }
-
-    private class AnthropicMessage
-    {
-        public string Role { get; set; } = string.Empty;
-        public string Content { get; set; } = string.Empty;
-    }
-
-    private class AnthropicTool
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public AnthropicInputSchema InputSchema { get; set; } = new();
-    }
-
-    private class AnthropicInputSchema
-    {
-        public string Type { get; set; } = "object";
-        public Dictionary<string, object> Properties { get; set; } = new();
-        public List<string> Required { get; set; } = new();
-    }
-
-    private class AnthropicResponse
-    {
-        public string? Id { get; set; }
-        public string? Type { get; set; }
-        public string? Role { get; set; }
-        public List<AnthropicContent>? Content { get; set; }
-        public AnthropicUsage? Usage { get; set; }
-    }
-
-    private class AnthropicContent
-    {
-        public string Type { get; set; } = string.Empty;
-        public string? Text { get; set; }
-        public string? Name { get; set; }
-        public Dictionary<string, object>? Input { get; set; }
-    }
-
-    private class AnthropicUsage
-    {
-        public int InputTokens { get; set; }
-        public int OutputTokens { get; set; }
-    }
-    #endregion
 }

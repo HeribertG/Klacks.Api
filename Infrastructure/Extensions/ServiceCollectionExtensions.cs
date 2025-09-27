@@ -101,7 +101,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<ICalendarSelectionUpdateService, CalendarSelectionUpdateService>();
 
         // Authentication Domain Services
-        services.AddScoped<Klacks.Api.Application.Validation.Accounts.JwtValidator>();
+        services.AddScoped<Application.Validation.Accounts.JwtValidator>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IUserManagementService, UserManagementService>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
@@ -114,24 +114,32 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IAccountNotificationService, AccountNotificationService>();
 
         // Generic Services
-        services.AddScoped(typeof(IGenericPaginationService<>), typeof(Klacks.Api.Domain.Services.Common.GenericPaginationService<>));
+        services.AddScoped(typeof(IGenericPaginationService<>), typeof(Domain.Services.Common.GenericPaginationService<>));
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // LLM Services
         services.AddScoped<ILLMRepository, LLMRepository>();
-        services.AddScoped<ILLMService, Klacks.Api.Domain.Services.LLM.LLMService>();
-        services.AddScoped<ILLMProviderFactory, Klacks.Api.Domain.Services.LLM.LLMProviderFactory>();
+        services.AddScoped<ILLMService, LLMService>();
+        services.AddScoped<ILLMProviderFactory, LLMProviderFactory>();
         
         // LLM Providers
-        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.OpenAIProvider>();
-        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.AnthropicProvider>();
-        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.GeminiProvider>();
+        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.OpenAI.OpenAIProvider>();
+        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.Anthropic.AnthropicProvider>();
+        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.Gemini.GeminiProvider>();
+        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.Azure.AzureOpenAIProvider>();
+        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.Mistral.MistralProvider>();
+        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.Cohere.CohereProvider>();
+        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.DeepSeek.DeepSeekProvider>();
         
         // HttpClients for Providers
-        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.OpenAIProvider>();
-        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.AnthropicProvider>();
-        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.GeminiProvider>();
+        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.OpenAI.OpenAIProvider>();
+        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.Anthropic.AnthropicProvider>();
+        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.Gemini.GeminiProvider>();
+        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.Azure.AzureOpenAIProvider>();
+        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.Mistral.MistralProvider>();
+        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.Cohere.CohereProvider>();
+        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.DeepSeek.DeepSeekProvider>();
 
         return services;
     }
