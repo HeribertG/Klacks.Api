@@ -15,35 +15,33 @@ public class AnthropicProvider : ILLMProvider
     private string _apiKey = string.Empty;
     private Models.LLM.LLMProvider? _providerConfig;
 
-    public string ProviderId => _providerConfig?.ProviderId ?? "anthropic";
-    public string ProviderName => _providerConfig?.ProviderName ?? "Anthropic";
-    public bool IsEnabled => _providerConfig?.IsEnabled ?? false;
+    public string ProviderId => _providerConfig!.ProviderId;
+
+    public string ProviderName => _providerConfig!.ProviderName;
+
+    public bool IsEnabled => _providerConfig!.IsEnabled;
 
     public AnthropicProvider(HttpClient httpClient, ILogger<AnthropicProvider> logger, IConfiguration configuration)
     {
         _httpClient = httpClient;
         _logger = logger;
         _configuration = configuration;
-        _httpClient.BaseAddress = new Uri("https://api.anthropic.com/v1/");
     }
 
     public void Configure(Models.LLM.LLMProvider providerConfig)
     {
         _providerConfig = providerConfig;
-        _apiKey = providerConfig.ApiKey ?? string.Empty;
+        _apiKey = providerConfig.ApiKey!;
         
         if (!string.IsNullOrEmpty(_apiKey))
         {
             _httpClient.DefaultRequestHeaders.Remove("x-api-key");
             _httpClient.DefaultRequestHeaders.Add("x-api-key", _apiKey);
             _httpClient.DefaultRequestHeaders.Remove("anthropic-version");
-            _httpClient.DefaultRequestHeaders.Add("anthropic-version", providerConfig.ApiVersion ?? "2024-01-01");
+            _httpClient.DefaultRequestHeaders.Add("anthropic-version", providerConfig.ApiVersion!);
         }
         
-        if (!string.IsNullOrEmpty(providerConfig.BaseUrl))
-        {
-            _httpClient.BaseAddress = new Uri(providerConfig.BaseUrl);
-        }
+        _httpClient.BaseAddress = new Uri(providerConfig.BaseUrl!);
     }
 
     public async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request)
@@ -62,7 +60,7 @@ public class AnthropicProvider : ILLMProvider
             return new LLMProviderResponse 
             { 
                 Success = false, 
-                Error = "Der Provider für das gewählte Modell ist nicht verfügbar." 
+                Error = "The provider for the selected model is not available."
             };
         }
 
@@ -90,11 +88,12 @@ public class AnthropicProvider : ILLMProvider
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
+                var errorMessage = ExtractAnthropicErrorMessage(error, response.StatusCode);
                 _logger.LogError("Anthropic API error: {StatusCode} - {Error}", response.StatusCode, error);
                 return new LLMProviderResponse 
                 { 
                     Success = false, 
-                    Error = $"Anthropic API error: {response.StatusCode}" 
+                    Error = errorMessage
                 };
             }
 
@@ -125,7 +124,6 @@ public class AnthropicProvider : ILLMProvider
                 }
             };
 
-            // Handle tool calls if any
             if (anthropicResponse.Content != null)
             {
                 foreach (var content in anthropicResponse.Content)
@@ -184,7 +182,6 @@ public class AnthropicProvider : ILLMProvider
     {
         var messages = new List<AnthropicMessage>();
 
-        // Add conversation history
         foreach (var msg in request.ConversationHistory)
         {
             if (msg.Role != "system")
@@ -233,6 +230,45 @@ public class AnthropicProvider : ILLMProvider
 
         return (usage.InputTokens / 1000m * request.CostPerInputToken) + 
                (usage.OutputTokens / 1000m * request.CostPerOutputToken);
+    }
+
+    private string ExtractAnthropicErrorMessage(string responseJson, System.Net.HttpStatusCode statusCode)
+    {
+        try
+        {
+            var errorObj = JsonSerializer.Deserialize<JsonElement>(responseJson);
+            
+            if (errorObj.TryGetProperty("error", out var error))
+            {
+                if (error.TryGetProperty("message", out var message))
+                {
+                    var msg = message.GetString() ?? "";
+                    
+                    if (msg.Contains("api key"))
+                        return "Invalid Anthropic API key";
+                    
+                    if (msg.Contains("max_tokens"))
+                        return "max_tokens field required";
+                        
+                    if (msg.Contains("anthropic-version"))
+                        return "Invalid Anthropic API version";
+                        
+                    return msg;
+                }
+            }
+        }
+        catch
+        {
+        }
+        
+        return statusCode switch
+        {
+            System.Net.HttpStatusCode.Unauthorized => "Invalid Anthropic API key",
+            System.Net.HttpStatusCode.PaymentRequired => "Anthropic payment required", 
+            System.Net.HttpStatusCode.TooManyRequests => "Anthropic rate limit exceeded",
+            System.Net.HttpStatusCode.NotFound => "Anthropic model not found",
+            _ => $"Anthropic API error: {(int)statusCode}"
+        };
     }
 
 }

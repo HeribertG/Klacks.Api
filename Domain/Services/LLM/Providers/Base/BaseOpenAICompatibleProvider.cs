@@ -1,5 +1,6 @@
 using Klacks.Api.Domain.Services.LLM.Providers.Shared;
 using Klacks.Api.Presentation.DTOs.LLM;
+using System.Text.Json;
 
 namespace Klacks.Api.Domain.Services.LLM.Providers.Base;
 

@@ -7,10 +7,10 @@ public class AzureOpenAIProvider : BaseOpenAICompatibleProvider
 {
     private readonly IConfiguration _configuration;
     private string _deploymentName = string.Empty;
-    private string _apiVersion = "2024-02-15-preview";
+    private string _apiVersion = string.Empty;
 
-    public override string ProviderId => _providerConfig?.ProviderId ?? "azure";
-    public override string ProviderName => _providerConfig?.ProviderName ?? "Azure OpenAI";
+    public override string ProviderId => _providerConfig!.ProviderId;
+    public override string ProviderName => _providerConfig!.ProviderName;
 
     public AzureOpenAIProvider(HttpClient httpClient, ILogger<AzureOpenAIProvider> logger, IConfiguration configuration)
         : base(httpClient, logger)
@@ -31,7 +31,7 @@ public class AzureOpenAIProvider : BaseOpenAICompatibleProvider
             
             if (providerConfig.Settings.TryGetValue("apiVersion", out var version))
             {
-                _apiVersion = version.ToString() ?? _apiVersion;
+                _apiVersion = _providerConfig!.ApiVersion!;
             }
         }
     }

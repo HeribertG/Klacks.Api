@@ -8,8 +8,8 @@ public class CohereProvider : BaseHttpProvider
 {
     private readonly IConfiguration _configuration;
 
-    public override string ProviderId => _providerConfig?.ProviderId ?? "cohere";
-    public override string ProviderName => _providerConfig?.ProviderName ?? "Cohere";
+    public override string ProviderId => _providerConfig!.ProviderId;
+    public override string ProviderName => _providerConfig!.ProviderName;
 
     public CohereProvider(HttpClient httpClient, ILogger<CohereProvider> logger, IConfiguration configuration)
         : base(httpClient, logger)

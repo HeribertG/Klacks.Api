@@ -136,7 +136,53 @@ public class LLMService : ILLMService
 
     private string BuildSystemPrompt(LLMContext context)
     {
-        return $@"Du bist der KI-Assistent für das Klacks HR-System. Du hilfst Benutzern bei der Verwaltung von Mitarbeitern, Verträgen und anderen HR-Aufgaben.
+        var language = context.Language ?? "de";
+        
+        return language switch
+        {
+            "en" => $@"You are a helpful AI assistant for this planning system.
+
+User Context:
+- User ID: {context.UserId}
+- Permissions: {string.Join(", ", context.UserRights)}
+
+Available Functions:
+{string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}
+
+Guidelines:
+- Be polite and professional
+- Use available functions when users ask for them
+- Give clear and precise instructions",
+            
+            "fr" => $@"Vous êtes un assistant IA utile pour ce système de planification.
+
+Contexte utilisateur:
+- ID utilisateur: {context.UserId}
+- Autorisations: {string.Join(", ", context.UserRights)}
+
+Fonctions disponibles:
+{string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}
+
+Directives:
+- Soyez poli et professionnel
+- Utilisez les fonctions disponibles lorsque les utilisateurs le demandent
+- Donnez des instructions claires et précises",
+            
+            "it" => $@"Sei un assistente AI utile per questo sistema di pianificazione.
+
+Contesto utente:
+- ID utente: {context.UserId}
+- Autorizzazioni: {string.Join(", ", context.UserRights)}
+
+Funzioni disponibili:
+{string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}
+
+Linee guida:
+- Sii educato e professionale
+- Usa le funzioni disponibili quando gli utenti le richiedono
+- Dai istruzioni chiare e precise",
+            
+            _ => $@"Du bist ein hilfreicher KI-Assistent für dieses Planungs-System.
 
 Benutzer-Kontext:
 - User ID: {context.UserId}
@@ -146,11 +192,10 @@ Verfügbare Funktionen:
 {string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}
 
 Richtlinien:
-- Antworte immer auf Deutsch
 - Sei höflich und professionell
 - Verwende die verfügbaren Funktionen, wenn der Benutzer danach fragt
-- Gib klare und präzise Anweisungen
-- Bei Fehlern erkläre, was schief gelaufen ist und wie es behoben werden kann";
+- Gib klare und präzise Anweisungen"
+        };
     }
 
     private async Task<string> ProcessFunctionCallsAsync(LLMContext context, List<LLMFunctionCall> functionCalls)

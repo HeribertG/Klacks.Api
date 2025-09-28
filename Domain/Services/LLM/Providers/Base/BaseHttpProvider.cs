@@ -1,6 +1,8 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Net;
+using Klacks.Api.Presentation.DTOs.LLM;
 
 namespace Klacks.Api.Domain.Services.LLM.Providers.Base;
 
@@ -15,7 +17,7 @@ public abstract class BaseHttpProvider : ILLMProvider
 
     public abstract string ProviderName { get; }
 
-    public bool IsEnabled => _providerConfig?.IsEnabled ?? false;
+    public bool IsEnabled => _providerConfig!.IsEnabled;
 
     protected BaseHttpProvider(HttpClient httpClient, ILogger logger)
     {
@@ -26,7 +28,7 @@ public abstract class BaseHttpProvider : ILLMProvider
     public virtual void Configure(Models.LLM.LLMProvider providerConfig)
     {
         _providerConfig = providerConfig;
-        _apiKey = providerConfig.ApiKey ?? string.Empty;
+        _apiKey = providerConfig.ApiKey!;
         
         if (!string.IsNullOrEmpty(providerConfig.BaseUrl))
         {
@@ -64,7 +66,9 @@ public abstract class BaseHttpProvider : ILLMProvider
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogError("{Provider} API error: {StatusCode} - {Error}", ProviderName, response.StatusCode, responseJson);
-            return default;
+            
+            var errorMessage = ExtractErrorMessage(responseJson, response.StatusCode);
+            throw new InvalidOperationException($"{ProviderName} API error: {errorMessage}");
         }
 
         return JsonSerializer.Deserialize<TResponse>(responseJson, GetJsonSerializerOptions());
@@ -92,6 +96,46 @@ public abstract class BaseHttpProvider : ILLMProvider
         { 
             Success = false, 
             Error = error 
+        };
+    }
+
+    private string ExtractErrorMessage(string responseJson, HttpStatusCode statusCode)
+    {
+        try
+        {
+            var errorObj = JsonSerializer.Deserialize<JsonElement>(responseJson);
+            
+            if (errorObj.TryGetProperty("error", out var error))
+            {
+                if (error.TryGetProperty("message", out var message))
+                {
+                    var msg = message.GetString() ?? "";
+                    
+                    if (msg.Contains("insufficient_quota") || msg.Contains("exceeded your current quota"))
+                        return "Insufficient credits. Please add funds to your account.";
+                    
+                    if (msg.Contains("model") && msg.Contains("not found"))
+                        return $"Model not available for your account.";
+                    
+                    if (msg.Contains("context length") || msg.Contains("maximum context"))
+                        return "Message too long. Please reduce the text length.";
+                        
+                    return msg;
+                }
+            }
+        }
+        catch
+        {
+            // Fallback wenn JSON parsing fehlschlägt
+        }
+        
+        return statusCode switch
+        {
+            HttpStatusCode.Unauthorized => "Invalid API key",
+            HttpStatusCode.PaymentRequired => "Payment required", 
+            HttpStatusCode.TooManyRequests => "Rate limit exceeded",
+            HttpStatusCode.NotFound => "Model or endpoint not found",
+            _ => $"HTTP {(int)statusCode} error"
         };
     }
 }

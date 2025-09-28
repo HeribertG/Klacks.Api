@@ -8,9 +8,9 @@ public class MistralProvider : BaseOpenAICompatibleProvider
 {
     private readonly IConfiguration _configuration;
 
-    public override string ProviderId => _providerConfig?.ProviderId ?? "mistral";
+    public override string ProviderId => _providerConfig!.ProviderId;
 
-    public override string ProviderName => _providerConfig?.ProviderName ?? "Mistral AI";
+    public override string ProviderName => _providerConfig!.ProviderName;
 
     public MistralProvider(HttpClient httpClient, ILogger<MistralProvider> logger, IConfiguration configuration)
         : base(httpClient, logger)
