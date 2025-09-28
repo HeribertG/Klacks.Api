@@ -11,6 +11,7 @@ public class ProcessLLMMessageCommand : IRequest<LLMResponse>
     public string UserId { get; set; } = string.Empty;
     public string? ConversationId { get; set; }
     public string? ModelId { get; set; }
+    public string? Language { get; set; }
     public List<string> UserRights { get; set; } = new();
 }
 
@@ -31,6 +32,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             UserId = request.UserId,
             ConversationId = request.ConversationId,
             ModelId = request.ModelId,
+            Language = request.Language,
             UserRights = request.UserRights,
             AvailableFunctions = GetAvailableFunctions(request.UserRights)
         };

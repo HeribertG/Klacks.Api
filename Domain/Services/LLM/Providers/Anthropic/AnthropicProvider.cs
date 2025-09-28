@@ -184,13 +184,16 @@ public class AnthropicProvider : ILLMProvider
 
         foreach (var msg in request.ConversationHistory)
         {
-            if (msg.Role != "system")
+            if (msg.Role != "system" && !string.IsNullOrWhiteSpace(msg.Content))
             {
                 messages.Add(new AnthropicMessage { Role = msg.Role, Content = msg.Content });
             }
         }
 
-        messages.Add(new AnthropicMessage { Role = "user", Content = request.Message });
+        if (!string.IsNullOrWhiteSpace(request.Message))
+        {
+            messages.Add(new AnthropicMessage { Role = "user", Content = request.Message });
+        }
 
         return messages;
     }

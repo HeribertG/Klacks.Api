@@ -13,4 +13,6 @@ public class LLMContext
     public string? ConversationId { get; set; }
     
     public string? ModelId { get; set; }
+    
+    public string? Language { get; set; }
 }
