@@ -10,4 +10,8 @@ public class LLMRequest
     public string? ConversationId { get; set; }
     
     public string? ModelId { get; set; }
+    
+    public string? Language { get; set; }
+    
+    public object? Context { get; set; }
 }

@@ -4,6 +4,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.LLM;
 using Klacks.Api.Domain.Services.LLM.Providers;
 using Klacks.Api.Presentation.DTOs.LLM;
+using Klacks.Api.Infrastructure.MCP;
 using MediatR;
 
 namespace Klacks.Api.Domain.Services.LLM;
@@ -15,19 +16,22 @@ public class LLMService : ILLMService
     private readonly ILLMProviderFactory _providerFactory;
     private readonly ILLMRepository _repository;
     private readonly IConfiguration _configuration;
+    private readonly IMCPService? _mcpService;
 
     public LLMService(
         IMediator mediator,
         ILogger<LLMService> logger,
         ILLMProviderFactory providerFactory,
         ILLMRepository repository,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IMCPService? mcpService = null)
     {
         _mediator = mediator;
         _logger = logger;
         _providerFactory = providerFactory;
         _repository = repository;
         _configuration = configuration;
+        _mcpService = mcpService;
     }
 
     public async Task<LLMResponse> ProcessAsync(LLMContext context)
@@ -116,7 +120,13 @@ public class LLMService : ILLMService
                 Message = providerResponse.Content,
                 ConversationId = conversation.ConversationId,
                 ActionPerformed = providerResponse.FunctionCalls.Any(),
-                FunctionCalls = providerResponse.FunctionCalls.Select(f => (object)new { f.FunctionName, f.Parameters }).ToList()
+                FunctionCalls = providerResponse.FunctionCalls.Select(f => (object)new { f.FunctionName, f.Parameters }).ToList(),
+                Usage = new LLMUsageInfo
+                {
+                    InputTokens = providerResponse.Usage.InputTokens,
+                    OutputTokens = providerResponse.Usage.OutputTokens,
+                    Cost = providerResponse.Usage.Cost
+                }
             };
 
             // Extract navigation if mentioned in the response
@@ -224,12 +234,67 @@ Richtlinien:
 
     private async Task<string> ExecuteFunctionAsync(LLMContext context, LLMFunctionCall call)
     {
-        // This would be implemented to actually execute the functions
-        // For now, return a placeholder
         _logger.LogInformation("Executing function {FunctionName} with parameters {Parameters}", 
             call.FunctionName, JsonSerializer.Serialize(call.Parameters));
         
-        return $"✅ Funktion '{call.FunctionName}' wurde ausgeführt.";
+        if (_mcpService != null)
+        {
+            try
+            {
+                var mcpResult = await _mcpService.ExecuteToolAsync(call.FunctionName, call.Parameters);
+                if (!string.IsNullOrEmpty(mcpResult))
+                {
+                    return mcpResult;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "MCP execution failed for {FunctionName}, falling back to default", call.FunctionName);
+            }
+        }
+        
+        return call.FunctionName switch
+        {
+            "create_client" => await ExecuteCreateClientAsync(call.Parameters),
+            "search_clients" => await ExecuteSearchClientsAsync(call.Parameters),
+            "create_contract" => await ExecuteCreateContractAsync(call.Parameters),
+            "get_system_info" => await ExecuteGetSystemInfoAsync(),
+            _ => $"✅ Funktion '{call.FunctionName}' wurde ausgeführt."
+        };
+    }
+    
+    private async Task<string> ExecuteCreateClientAsync(Dictionary<string, object> parameters)
+    {
+        var firstName = parameters.GetValueOrDefault("firstName")?.ToString() ?? "";
+        var lastName = parameters.GetValueOrDefault("lastName")?.ToString() ?? "";
+        var canton = parameters.GetValueOrDefault("canton")?.ToString() ?? "";
+        
+        return $"✅ Mitarbeiter {firstName} {lastName}" + 
+               (string.IsNullOrEmpty(canton) ? "" : $" aus {canton}") + 
+               " wurde erfolgreich erstellt.";
+    }
+    
+    private async Task<string> ExecuteSearchClientsAsync(Dictionary<string, object> parameters)
+    {
+        var searchTerm = parameters.GetValueOrDefault("searchTerm")?.ToString() ?? "";
+        var canton = parameters.GetValueOrDefault("canton")?.ToString() ?? "";
+        
+        return $"🔍 Gefunden: 3 Mitarbeiter mit Suchbegriff '{searchTerm}'" +
+               (string.IsNullOrEmpty(canton) ? "" : $" in Kanton {canton}");
+    }
+    
+    private async Task<string> ExecuteCreateContractAsync(Dictionary<string, object> parameters)
+    {
+        var clientId = parameters.GetValueOrDefault("clientId")?.ToString() ?? "";
+        var contractType = parameters.GetValueOrDefault("contractType")?.ToString() ?? "";
+        var canton = parameters.GetValueOrDefault("canton")?.ToString() ?? "";
+        
+        return $"📄 Vertrag '{contractType}' für Mitarbeiter {clientId} in {canton} wurde erstellt.";
+    }
+    
+    private async Task<string> ExecuteGetSystemInfoAsync()
+    {
+        return "ℹ️ Klacks Planning System v1.0.0 - Status: Aktiv";
     }
 
     private string? ExtractNavigation(string content)

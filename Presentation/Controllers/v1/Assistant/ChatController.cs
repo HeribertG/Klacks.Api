@@ -45,6 +45,7 @@ public class ChatController : ControllerBase
                 UserId = userId,
                 ConversationId = request.ConversationId,
                 ModelId = request.ModelId,
+                Language = request.Language,
                 UserRights = userRights
             });
             
