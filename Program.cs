@@ -199,7 +199,7 @@ app.UseCors(myAllowSpecificOrigins);
 
 app.UseHttpsRedirection();
 
-app.UseMiddleware<ValidationExceptionMiddleware>();
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseRouting();
 app.UseDefaultFiles();

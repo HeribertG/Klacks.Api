@@ -1,16 +1,17 @@
-﻿using Klacks.Api.Domain.Exceptions;
+﻿using Klacks.Api.Application.Exceptions;
+using Klacks.Api.Domain.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Exceptions;
 
-public class ValidationExceptionMiddleware
+public class ErrorHandlingMiddleware
 {
     private readonly RequestDelegate next;
-    private readonly ILogger<ValidationExceptionMiddleware> _logger;
+    private readonly ILogger<ErrorHandlingMiddleware> _logger;
 
-    public ValidationExceptionMiddleware(RequestDelegate next, ILogger<ValidationExceptionMiddleware> logger)
+    public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
     {
         this.next = next;
         _logger = logger;
@@ -84,10 +85,35 @@ public class ValidationExceptionMiddleware
             };
 
             // In development, you might want to expose more details
-            if (context.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
+            await context.Response.WriteAsJsonAsync(problem);
+        }
+        catch (ConflictException ex)
+        {
+            _logger.LogWarning(ex, "ConflictException caught by middleware: {Message}", ex.Message);
+            context.Response.StatusCode = StatusCodes.Status409Conflict;
+            context.Response.ContentType = "application/problem+json";
+
+            var problem = new ProblemDetails
             {
-                problem.Detail = ex.InnerException?.Message ?? ex.Message;
-            }
+                Title = "Conflict",
+                Status = StatusCodes.Status409Conflict,
+                Detail = ex.Message
+            };
+
+            await context.Response.WriteAsJsonAsync(problem);
+        }
+        catch (UnauthorizedException ex)
+        {
+            _logger.LogWarning(ex, "UnauthorizedException caught by middleware: {Message}", ex.Message);
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            context.Response.ContentType = "application/problem+json";
+
+            var problem = new ProblemDetails
+            {
+                Title = "Unauthorized",
+                Status = StatusCodes.Status401Unauthorized,
+                Detail = ex.Message
+            };
 
             await context.Response.WriteAsJsonAsync(problem);
         }

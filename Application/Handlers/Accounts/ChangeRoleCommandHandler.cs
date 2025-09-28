@@ -1,4 +1,5 @@
 using Klacks.Api.Application.Commands.Accounts;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Services.Accounts;
@@ -28,7 +29,7 @@ public class ChangeRoleCommandHandler : BaseTransactionHandler, IRequestHandler<
             
             if (result == null || !result.Success)
             {
-                throw new InvalidRequestException("Role change failed.");
+                throw new ConflictException(result?.Messages ?? "Role change failed. The user might not exist or the role is invalid.");
             }
             
             return result;

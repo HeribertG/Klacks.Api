@@ -1,3 +1,4 @@
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Queries.Accounts;
 using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Presentation.DTOs.Registrations;
@@ -5,7 +6,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Accounts;
 
-public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, TokenResource?>
+public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, TokenResource>
 {
     private readonly IAccountAuthenticationService _accountAuthenticationService;
     private readonly ILogger<LoginUserQueryHandler> _logger;
@@ -18,7 +19,7 @@ public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, TokenResour
         _logger = logger;
     }
 
-    public async Task<TokenResource?> Handle(LoginUserQuery request, CancellationToken cancellationToken)
+    public async Task<TokenResource> Handle(LoginUserQuery request, CancellationToken cancellationToken)
     {
         try
         {
@@ -49,7 +50,7 @@ public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, TokenResour
             }
             
             _logger.LogWarning("Login failed for user: {Email}", request.Email);
-            return null;
+            throw new UnauthorizedException("Invalid e-mail address or password.");
         }
         catch (Exception ex)
         {

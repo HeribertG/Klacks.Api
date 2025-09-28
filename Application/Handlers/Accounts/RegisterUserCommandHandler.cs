@@ -1,5 +1,6 @@
 using AutoMapper;
 using Klacks.Api.Application.Commands.Accounts;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Services.Accounts;
@@ -41,15 +42,13 @@ public class RegisterUserCommandHandler : BaseHandler, IRequestHandler<RegisterU
                 await _unitOfWork.CompleteAsync();
                 await _unitOfWork.CommitTransactionAsync(transaction);
                 _logger.LogInformation("User registration successful: {Email}", request.Registration.Email);
-            }
-            else
-            {
-                await _unitOfWork.RollbackTransactionAsync(transaction);
-                _logger.LogWarning("User registration failed: {Email}, Reason: {Reason}", 
-                    request.Registration.Email, result?.Message ?? "Unknown");
+                return result;
             }
             
-            return result;
+            await _unitOfWork.RollbackTransactionAsync(transaction);
+            _logger.LogWarning("User registration failed: {Email}, Reason: {Reason}", 
+                request.Registration.Email, result?.Message ?? "Unknown");
+            throw new ConflictException(result?.Message ?? "User registration failed.");
         }
         catch (Exception ex)
         {

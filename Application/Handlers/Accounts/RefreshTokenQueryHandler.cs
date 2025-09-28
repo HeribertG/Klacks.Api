@@ -1,3 +1,4 @@
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Queries.Accounts;
 using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Presentation.DTOs.Registrations;
@@ -5,7 +6,7 @@ using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Accounts;
 
-public class RefreshTokenQueryHandler : IRequestHandler<RefreshTokenQuery, TokenResource?>
+public class RefreshTokenQueryHandler : IRequestHandler<RefreshTokenQuery, TokenResource>
 {
     private readonly IAccountAuthenticationService _accountAuthenticationService;
     private readonly ILogger<RefreshTokenQueryHandler> _logger;
@@ -18,7 +19,7 @@ public class RefreshTokenQueryHandler : IRequestHandler<RefreshTokenQuery, Token
         _logger = logger;
     }
 
-    public async Task<TokenResource?> Handle(RefreshTokenQuery request, CancellationToken cancellationToken)
+    public async Task<TokenResource> Handle(RefreshTokenQuery request, CancellationToken cancellationToken)
     {
         try
         {
@@ -48,7 +49,7 @@ public class RefreshTokenQueryHandler : IRequestHandler<RefreshTokenQuery, Token
             }
             
             _logger.LogWarning("Token refresh failed");
-            return null;
+            throw new UnauthorizedException("Invalid or expired refresh token.");
         }
         catch (Exception ex)
         {

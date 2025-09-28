@@ -28,12 +28,7 @@ public class AccountsController : BaseController
 
         var result = await mediator.Send(new ChangePasswordCommand(model));
 
-        if (result.Success)
-        {
-            return Ok(result);
-        }
-
-        return BadRequest(result);
+        return Ok(result);
     }
 
     [Authorize]
@@ -44,12 +39,7 @@ public class AccountsController : BaseController
 
         var result = await mediator.Send(new ChangePasswordUserCommand(model));
 
-        if (result != null && result.Success)
-        {
-            return Ok(result);
-        }
-
-        return BadRequest(result);
+        return Ok(result);
     }
 
     [Authorize(Roles = "Admin")]
@@ -57,22 +47,8 @@ public class AccountsController : BaseController
     public async Task<ActionResult> ChangeRoleUser([FromBody] ChangeRole changeRole)
     {
         this.logger.LogInformation($"ChangeRoleUser request received for user: {changeRole.UserId}");
-        try
-        {
-            var result = await mediator.Send(new ChangeRoleCommand(changeRole));
-            if (result != null && result.Success)
-            {
-                return Ok(result);
-            }
-
-            this.logger.LogWarning("Change role failed for user: {UserId}", changeRole.UserId);
-            return Conflict($"Change role failed for user: {changeRole.UserId}");
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Exception occurred while changing role for user: {UserId}", changeRole.UserId);
-            return StatusCode(500, "An unexpected error occurred.");
-        }
+        var result = await mediator.Send(new ChangeRoleCommand(changeRole));
+        return Ok(result);
     }
 
     [Authorize(Roles = "Admin")]
@@ -80,41 +56,17 @@ public class AccountsController : BaseController
     public async Task<ActionResult> DeleteAccountUser(Guid id)
     {
         this.logger.LogInformation($"DeleteAccountUser request received for user: {id}");
-        try
-        {
-            var result = await mediator.Send(new DeleteAccountCommand(id));
-
-            if (result != null && result.Success)
-            {
-                this.logger.LogInformation("Account deletion successful for user: {UserId}", id);
-                return Ok(result);
-            }
-
-            this.logger.LogWarning("Account deletion failed for user: {UserId}, Reason: {Reason}", id, result?.Messages ?? "Unknown");
-            return NotFound($"User with ID {id} not found or could not be deleted.");
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Exception occurred while deleting account for user: {UserId}", id);
-            return StatusCode(500, "An unexpected error occurred.");
-        }
+        var result = await mediator.Send(new DeleteAccountCommand(id));
+        return Ok(result);
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserResource>>> GetUserList()
     {
         this.logger.LogInformation("GetUserList request received");
-        try
-        {
-            var users = await mediator.Send(new GetUserListQuery());
-            this.logger.LogInformation("Retrieved {Count} users", users.Count);
-            return Ok(users);
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Exception occurred while fetching user list");
-            return StatusCode(500, "An error has occurred. Please try again later.");
-        }
+        var users = await mediator.Send(new GetUserListQuery());
+        this.logger.LogInformation("Retrieved {Count} users", users.Count);
+        return Ok(users);
     }
 
     [AllowAnonymous]
@@ -129,26 +81,8 @@ public class AccountsController : BaseController
 
         this.logger.LogInformation("Login attempt for user: {Email}", model.Email);
 
-        try
-        {
-            var result = await mediator.Send(new LoginUserQuery(model.Email, model.Password));
-
-            if (result != null)
-            {
-                this.logger.LogInformation("Login successful for user: {Email}", model.Email);
-                return Ok(result);
-            }
-            else
-            {
-                this.logger.LogWarning("Login failed for user: {Email}", model.Email);
-                return Unauthorized("Invalid e-mail address or password.");
-            }
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Exception occurred during user login: {Email}", model.Email);
-            return StatusCode(500, "An error has occurred. Please try again later.");
-        }
+        var result = await mediator.Send(new LoginUserQuery(model.Email, model.Password));
+        return Ok(result);
     }
 
     [AllowAnonymous]
@@ -163,50 +97,16 @@ public class AccountsController : BaseController
             return BadRequest("Invalid data for token update.");
         }
 
-        try
-        {
-            var result = await mediator.Send(new RefreshTokenQuery(model));
-
-            if (result != null)
-            {
-                this.logger.LogInformation("Token refresh successful for user: {UserId}", result.Id);
-                return Ok(result);
-            }
-            else
-            {
-                this.logger.LogWarning("Token refresh failed: Registration has expired.");
-                return Unauthorized("Your registration has expired.");
-            }
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Exception occurred during token refresh.");
-            return StatusCode(500, "An error has occurred. Please try again later.");
-        }
+        var result = await mediator.Send(new RefreshTokenQuery(model));
+        return Ok(result);
     }
 
     [HttpPost("RegisterUser")]
     public async Task<ActionResult> RegisterUser([FromBody] RegistrationResource model)
     {
         this.logger.LogInformation($"RegisterUser request received: {JsonConvert.SerializeObject(model)}");
-        try
-        {
-            var result = await mediator.Send(new RegisterUserCommand(model));
-
-            if (result != null && result.Success)
-            {
-                this.logger.LogInformation("User registration successful: {Email}", model.Email);
-                return Ok(result);
-            }
-
-            this.logger.LogWarning("User registration failed: {Email}, Reason: {Reason}", model.Email, result?.Message ?? "Unknown");
-            return BadRequest(result);
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Exception occurred during user registration: {Email}", model.Email);
-            return StatusCode(500, "An error has occurred during user registration.");
-        }
+        var result = await mediator.Send(new RegisterUserCommand(model));
+        return Ok(result);
     }
 
     [AllowAnonymous]
@@ -221,18 +121,10 @@ public class AccountsController : BaseController
 
         this.logger.LogInformation("Password reset requested for email: {Email}", model.Email);
         
-        try
-        {
-            var result = await mediator.Send(new RequestPasswordResetCommand(model.Email));
-            
-            this.logger.LogInformation("Password reset request processed for email: {Email}", model.Email);
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Exception occurred during password reset request: {Email}", model.Email);
-            return StatusCode(500, "An error occurred. Please try again later.");
-        }
+        var result = await mediator.Send(new RequestPasswordResetCommand(model.Email));
+        
+        this.logger.LogInformation("Password reset request processed for email: {Email}", model.Email);
+        return Ok(result);
     }
 
     [AllowAnonymous]
@@ -247,24 +139,9 @@ public class AccountsController : BaseController
 
         this.logger.LogInformation("Password reset confirmation requested");
         
-        try
-        {
-            var result = await mediator.Send(new ResetPasswordCommand(model));
-            
-            if (result.Success)
-            {
-                this.logger.LogInformation("Password reset successful");
-                return Ok(result);
-            }
-            
-            this.logger.LogWarning("Password reset failed");
-            return BadRequest(result);
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Exception occurred during password reset");
-            return StatusCode(500, "An error occurred. Please try again later.");
-        }
+        var result = await mediator.Send(new ResetPasswordCommand(model));
+        
+        return Ok(result);
     }
 
     [AllowAnonymous]
@@ -279,17 +156,9 @@ public class AccountsController : BaseController
 
         this.logger.LogInformation("Password reset token validation requested");
         
-        try
-        {
-            var isValid = await mediator.Send(new ValidatePasswordResetTokenQuery(token));
-            
-            this.logger.LogInformation("Token validation result: {IsValid}", isValid);
-            return Ok(isValid);
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Exception occurred during token validation");
-            return StatusCode(500, false);
-        }
+        var isValid = await mediator.Send(new ValidatePasswordResetTokenQuery(token));
+        
+        this.logger.LogInformation("Token validation result: {IsValid}", isValid);
+        return Ok(isValid);
     }
 }

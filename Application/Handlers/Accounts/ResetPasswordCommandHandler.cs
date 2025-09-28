@@ -3,6 +3,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Services.Accounts;
 using MediatR;
+using Klacks.Api.Domain.Exceptions;
 
 namespace Klacks.Api.Application.Handlers.Accounts;
 
@@ -23,7 +24,14 @@ public class ResetPasswordCommandHandler : BaseTransactionHandler, IRequestHandl
     {
         return await ExecuteWithTransactionAsync(async () =>
         {
-            return await _accountPasswordService.ResetPasswordAsync(request.ResetPassword);
+            var result = await _accountPasswordService.ResetPasswordAsync(request.ResetPassword);
+
+            if (result == null || !result.Success)
+            {
+                throw new InvalidRequestException(result?.Message ?? "Password reset failed.");
+            }
+
+            return result;
         }, 
         "resetting password", 
         new { Token = request.ResetPassword.Token });
