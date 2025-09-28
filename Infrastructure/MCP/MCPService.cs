@@ -5,13 +5,15 @@ namespace Klacks.Api.Infrastructure.MCP;
 public class MCPService : IMCPService, IDisposable
 {
     private readonly ILogger<MCPService> _logger;
+    private readonly ILoggerFactory _loggerFactory;
     private MCPClient? _client;
     private readonly object _lock = new();
     private bool _isConnected;
 
-    public MCPService(ILogger<MCPService> logger)
+    public MCPService(ILogger<MCPService> logger, ILoggerFactory loggerFactory)
     {
         _logger = logger;
+        _loggerFactory = loggerFactory;
     }
 
     public async Task<bool> ConnectAsync()
@@ -25,7 +27,7 @@ public class MCPService : IMCPService, IDisposable
 
             try
             {
-                _client = new MCPClient(_logger);
+                _client = new MCPClient(_loggerFactory.CreateLogger<MCPClient>());
             }
             catch (Exception ex)
             {
