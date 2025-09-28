@@ -15,8 +15,8 @@ public class AnthropicProvider : ILLMProvider
     private string _apiKey = string.Empty;
     private Models.LLM.LLMProvider? _providerConfig;
 
-    public string ProviderId => "anthropic";
-    public string ProviderName => "Anthropic";
+    public string ProviderId => _providerConfig?.ProviderId ?? "anthropic";
+    public string ProviderName => _providerConfig?.ProviderName ?? "Anthropic";
     public bool IsEnabled => _providerConfig?.IsEnabled ?? false;
 
     public AnthropicProvider(HttpClient httpClient, ILogger<AnthropicProvider> logger, IConfiguration configuration)

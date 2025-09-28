@@ -7,8 +7,8 @@ public class OpenAIProvider : BaseOpenAICompatibleProvider
 {
     private readonly IConfiguration _configuration;
 
-    public override string ProviderId => "openai";
-    public override string ProviderName => "OpenAI";
+    public override string ProviderId => _providerConfig?.ProviderId ?? "openai";
+    public override string ProviderName => _providerConfig?.ProviderName ?? "OpenAI";
 
     public OpenAIProvider(HttpClient httpClient, ILogger<OpenAIProvider> logger, IConfiguration configuration)
         : base(httpClient, logger)

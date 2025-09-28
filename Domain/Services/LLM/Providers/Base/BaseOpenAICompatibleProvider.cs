@@ -19,7 +19,7 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
 
         if (string.IsNullOrEmpty(_apiKey))
         {
-            return CreateErrorResponse("Der Provider für das gewählte Modell ist nicht verfügbar.");
+            return CreateErrorResponse("The provider for the selected model is not available.");
         }
 
         try
@@ -101,7 +101,10 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
 
     protected virtual List<OpenAIFunction>? MapFunctions(List<LLMFunction> functions)
     {
-        if (!functions.Any()) return null;
+        if (!functions.Any())
+        {
+            return null;
+        }
 
         return functions.Select(f => new OpenAIFunction
         {

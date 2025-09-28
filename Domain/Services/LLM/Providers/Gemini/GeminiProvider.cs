@@ -9,8 +9,9 @@ public class GeminiProvider : BaseHttpProvider
 {
     private readonly IConfiguration _configuration;
 
-    public override string ProviderId => "google";
-    public override string ProviderName => "Google Gemini";
+    public override string ProviderId => _providerConfig?.ProviderId ?? "google";
+
+    public override string ProviderName => _providerConfig?.ProviderName ?? "Google Gemini";
 
     public GeminiProvider(HttpClient httpClient, ILogger<GeminiProvider> logger, IConfiguration configuration)
         : base(httpClient, logger)

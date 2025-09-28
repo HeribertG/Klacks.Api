@@ -9,8 +9,8 @@ public class AzureOpenAIProvider : BaseOpenAICompatibleProvider
     private string _deploymentName = string.Empty;
     private string _apiVersion = "2024-02-15-preview";
 
-    public override string ProviderId => "azure";
-    public override string ProviderName => "Azure OpenAI";
+    public override string ProviderId => _providerConfig?.ProviderId ?? "azure";
+    public override string ProviderName => _providerConfig?.ProviderName ?? "Azure OpenAI";
 
     public AzureOpenAIProvider(HttpClient httpClient, ILogger<AzureOpenAIProvider> logger, IConfiguration configuration)
         : base(httpClient, logger)
