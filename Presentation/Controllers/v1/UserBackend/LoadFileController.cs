@@ -46,9 +46,9 @@ public class LoadFileController : BaseController
     [HttpGet("DownLoad")]
     public async Task<FileContentResult> SingleFile(string type)
     {
-        try
+        var task = await Task.Factory.StartNew((export) =>
         {
-            var task = await Task.Factory.StartNew((export) =>
+            try
             {
                 var path = GetFileFromDocumentDirectory((string)export!);
 
@@ -61,14 +61,14 @@ public class LoadFileController : BaseController
                 {
                     return File(Encoding.UTF8.GetBytes("File nicht gefunden"), "text/plain");
                 }
-            }, type);
+            }
+            catch (Exception ex)
+            {
+                return File(Encoding.UTF8.GetBytes(ex.Message), "text/plain");
+            }
+        }, type);
 
-            return task;
-        }
-        catch (Exception ex)
-        {
-            return File(Encoding.UTF8.GetBytes(ex.Message), "text/plain");
-        }
+        return task;
     }
 
     private string GetFileFromDocumentDirectory(string type)

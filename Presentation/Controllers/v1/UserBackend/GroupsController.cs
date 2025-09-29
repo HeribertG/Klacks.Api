@@ -21,18 +21,10 @@ public class GroupsController : InputBaseController<GroupResource>
     [HttpPost("GetSimpleList")]
     public async Task<ActionResult<TruncatedGroupResource>> GetSimpleList([FromBody] GroupFilter filter)
     {
-        try
-        {
-            logger.LogInformation($"Fetching simple group list with filter: {JsonConvert.SerializeObject(filter)}");
-            var truncatedGroups = await Mediator.Send(new GetTruncatedListQuery(filter));
-            logger.LogInformation($"Retrieved {truncatedGroups.Groups.Count} truncated groups.");
-            return Ok(truncatedGroups);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while fetching simple group list.");
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
+        logger.LogInformation($"Fetching simple group list with filter: {JsonConvert.SerializeObject(filter)}");
+        var truncatedGroups = await Mediator.Send(new GetTruncatedListQuery(filter));
+        logger.LogInformation($"Retrieved {truncatedGroups.Groups.Count} truncated groups.");
+        return Ok(truncatedGroups);
     }
 
     /// <summary>
@@ -41,23 +33,10 @@ public class GroupsController : InputBaseController<GroupResource>
     [HttpGet("tree")]
     public async Task<ActionResult<GroupTreeResource>> GetTree([FromQuery] Guid? rootId = null)
     {
-        try
-        {
-            logger.LogInformation($"Fetching group tree with rootId: {rootId}");
-            var tree = await Mediator.Send(new GetGroupTreeQuery(rootId));
-            logger.LogInformation($"Retrieved tree with {tree.Nodes.Count} nodes.");
-            return Ok(tree);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            logger.LogWarning(ex, "Group tree not found.");
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while fetching group tree.");
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
+        logger.LogInformation($"Fetching group tree with rootId: {rootId}");
+        var tree = await Mediator.Send(new GetGroupTreeQuery(rootId));
+        logger.LogInformation($"Retrieved tree with {tree.Nodes.Count} nodes.");
+        return Ok(tree);
     }
 
     /// <summary>
@@ -66,23 +45,10 @@ public class GroupsController : InputBaseController<GroupResource>
     [HttpGet("path/{id}")]
     public async Task<ActionResult<List<GroupResource>>> GetPath(Guid id)
     {
-        try
-        {
-            logger.LogInformation($"Fetching path to node with ID: {id}");
-            var path = await Mediator.Send(new GetPathToNodeQuery(id));
-            logger.LogInformation($"Retrieved path with {path.Count} nodes.");
-            return Ok(path);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            logger.LogWarning(ex, $"Path to node with ID {id} not found.");
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Error occurred while fetching path for node ID {id}.");
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
+        logger.LogInformation($"Fetching path to node with ID: {id}");
+        var path = await Mediator.Send(new GetPathToNodeQuery(id));
+        logger.LogInformation($"Retrieved path with {path.Count} nodes.");
+        return Ok(path);
     }
 
 
@@ -93,28 +59,10 @@ public class GroupsController : InputBaseController<GroupResource>
     [HttpPost("move/{id}")]
     public async Task<ActionResult<GroupResource>> MoveGroup(Guid id, [FromQuery] Guid newParentId)
     {
-        try
-        {
-            logger.LogInformation($"Moving group with ID: {id} to parent ID: {newParentId}");
-            var movedGroup = await Mediator.Send(new MoveGroupNodeCommand(id, newParentId));
-            logger.LogInformation($"Moved group with ID: {id} to parent ID: {newParentId}");
-            return Ok(movedGroup);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            logger.LogWarning(ex, $"Failed to move group with ID {id}.");
-            return NotFound(ex.Message);
-        }
-        catch (InvalidOperationException ex)
-        {
-            logger.LogWarning(ex, $"Invalid operation when moving group with ID {id}.");
-            return BadRequest(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Error occurred while moving group with ID {id}.");
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
+        logger.LogInformation($"Moving group with ID: {id} to parent ID: {newParentId}");
+        var movedGroup = await Mediator.Send(new MoveGroupNodeCommand(id, newParentId));
+        logger.LogInformation($"Moved group with ID: {id} to parent ID: {newParentId}");
+        return Ok(movedGroup);
     }
 
     [HttpGet("refresh")]
@@ -136,22 +84,9 @@ public class GroupsController : InputBaseController<GroupResource>
     [HttpGet("{groupId}/members")]
     public async Task<ActionResult<List<GroupItemResource>>> GetGroupMembers(Guid groupId)
     {
-        try
-        {
-            logger.LogInformation($"Fetching members for group with ID: {groupId}");
-            var members = await Mediator.Send(new GetGroupMembersQuery(groupId));
-            logger.LogInformation($"Retrieved {members.Count} members for group {groupId}.");
-            return Ok(members);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            logger.LogWarning(ex, $"Group with ID {groupId} not found.");
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Error occurred while fetching members for group ID {groupId}.");
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
+        logger.LogInformation($"Fetching members for group with ID: {groupId}");
+        var members = await Mediator.Send(new GetGroupMembersQuery(groupId));
+        logger.LogInformation($"Retrieved {members.Count} members for group {groupId}.");
+        return Ok(members);
     }
 }

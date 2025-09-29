@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Klacks.Api.Application.Queries.Accounts;
 
-public record RefreshTokenQuery(RefreshRequestResource RefreshRequest) : IRequest<TokenResource>;
+public record RefreshTokenQuery(RefreshRequestResource RefreshRequest) : IRequest<TokenResource?>;

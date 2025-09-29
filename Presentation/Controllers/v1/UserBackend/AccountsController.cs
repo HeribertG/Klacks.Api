@@ -98,6 +98,13 @@ public class AccountsController : BaseController
         }
 
         var result = await mediator.Send(new RefreshTokenQuery(model));
+        
+        if (result == null)
+        {
+            this.logger.LogWarning("Token refresh failed - invalid or expired refresh token");
+            return Unauthorized("Invalid or expired refresh token");
+        }
+        
         return Ok(result);
     }
 

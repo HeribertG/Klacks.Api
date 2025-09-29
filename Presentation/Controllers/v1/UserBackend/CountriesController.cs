@@ -18,17 +18,9 @@ public class CountriesController : InputBaseController<CountryResource>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CountryResource>>> List()
     {
-        try
-        {
-            logger.LogInformation("Fetching list of countries.");
-            var countries = await this.Mediator.Send(new ListQuery<CountryResource>());
-            logger.LogInformation($"Retrieved {countries.Count()} countries.");
-            return Ok(countries);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while fetching list of countries.");
-            throw;
-        }
+        logger.LogInformation("Fetching list of countries.");
+        var countries = await this.Mediator.Send(new ListQuery<CountryResource>());
+        logger.LogInformation($"Retrieved {countries.Count()} countries.");
+        return Ok(countries);
     }
 }

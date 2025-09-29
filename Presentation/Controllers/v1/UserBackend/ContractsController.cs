@@ -18,17 +18,9 @@ public class ContractsController : InputBaseController<ContractResource>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ContractResource>>> GetContracts()
     {
-        try
-        {
-            logger.LogInformation("Fetching all contracts.");
-            var contracts = await Mediator.Send(new ListQuery<ContractResource>());
-            logger.LogInformation($"Retrieved {contracts.Count()} contracts.");
-            return Ok(contracts);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while fetching contracts.");
-            throw;
-        }
+        logger.LogInformation("Fetching all contracts.");
+        var contracts = await Mediator.Send(new ListQuery<ContractResource>());
+        logger.LogInformation($"Retrieved {contracts.Count()} contracts.");
+        return Ok(contracts);
     }
 }

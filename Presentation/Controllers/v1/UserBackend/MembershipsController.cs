@@ -18,17 +18,9 @@ public class MembershipsController : InputBaseController<MembershipResource>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<MembershipResource>>> GetMembership()
     {
-        try
-        {
-            logger.LogInformation("Fetching all memberships.");
-            var memberships = await Mediator.Send(new ListQuery<MembershipResource>());
-            logger.LogInformation($"Retrieved {memberships.Count()} memberships.");
-            return Ok(memberships);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while fetching memberships.");
-            throw;
-        }
+        logger.LogInformation("Fetching all memberships.");
+        var memberships = await Mediator.Send(new ListQuery<MembershipResource>());
+        logger.LogInformation($"Retrieved {memberships.Count()} memberships.");
+        return Ok(memberships);
     }
 }

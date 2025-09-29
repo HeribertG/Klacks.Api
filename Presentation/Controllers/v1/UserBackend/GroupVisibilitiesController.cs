@@ -20,35 +20,19 @@ public class GroupVisibilitiesController : InputBaseController<GroupResource>
     [HttpGet("GetSimpleList/{id}")]
     public async Task<ActionResult<IEnumerable<GroupVisibilityResource>>> GetPersonalSimpleList(string id)
     {
-        try
-        {
-            logger.LogInformation($"Fetching simple groupVisibilities list for ID: {id}");
-            var groupVisibilities = await Mediator.Send(new GroupVisibilityListQuery(id));
-            logger.LogInformation($"Retrieved {groupVisibilities.Count()} simple groupVisibilities list for ID: {id}");
-            return Ok(groupVisibilities);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Error occurred while fetching simple groupVisibilities list for ID: {id}");
-            throw;
-        }
+        logger.LogInformation($"Fetching simple groupVisibilities list for ID: {id}");
+        var groupVisibilities = await Mediator.Send(new GroupVisibilityListQuery(id));
+        logger.LogInformation($"Retrieved {groupVisibilities.Count()} simple groupVisibilities list for ID: {id}");
+        return Ok(groupVisibilities);
     }
 
     [HttpGet("GetSimpleList")]
     public async Task<ActionResult<IEnumerable<GroupVisibilityResource>>> GetSimpleList()
     {
-        try
-        {
-            logger.LogInformation($"Fetching simple groupVisibilities");
-            var groupVisibilities = await Mediator.Send(new ListQuery<GroupVisibilityResource>());
-            logger.LogInformation($"Retrieved {groupVisibilities.Count()} simple groupVisibilities list");
-            return Ok(groupVisibilities);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Error occurred while fetching simple groupVisibilities list");
-            throw;
-        }
+        logger.LogInformation($"Fetching simple groupVisibilities");
+        var groupVisibilities = await Mediator.Send(new ListQuery<GroupVisibilityResource>());
+        logger.LogInformation($"Retrieved {groupVisibilities.Count()} simple groupVisibilities list");
+        return Ok(groupVisibilities);
     }
 
     [HttpPost("BulkList")]
