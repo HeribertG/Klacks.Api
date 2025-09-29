@@ -26,41 +26,30 @@ public class ChatController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<LLMResponse>> ProcessMessage([FromBody] LLMRequest request)
     {
-        try
+        if (string.IsNullOrWhiteSpace(request.Message))
         {
-            if (string.IsNullOrWhiteSpace(request.Message))
-            {
-                return BadRequest("Message cannot be empty");
-            }
+            return BadRequest("Message cannot be empty");
+        }
 
-            // User-Kontext aus dem JWT Token extrahieren
-            var userId = GetCurrentUserId();
-            var userRights = GetCurrentUserRights();
-            
-            _logger.LogInformation("Processing assistant request for user {UserId}: {Message}", userId, request.Message);
-            
-            var response = await _mediator.Send(new ProcessLLMMessageCommand
-            {
-                Message = request.Message,
-                UserId = userId,
-                ConversationId = request.ConversationId,
-                ModelId = request.ModelId,
-                Language = request.Language,
-                UserRights = userRights
-            });
-            
-            response.ConversationId = request.ConversationId ?? Guid.NewGuid().ToString();
-            
-            return Ok(response);
-        }
-        catch (Exception ex)
+        // User-Kontext aus dem JWT Token extrahieren
+        var userId = GetCurrentUserId();
+        var userRights = GetCurrentUserRights();
+        
+        _logger.LogInformation("Processing assistant request for user {UserId}: {Message}", userId, request.Message);
+        
+        var response = await _mediator.Send(new ProcessLLMMessageCommand
         {
-            _logger.LogError(ex, "Error processing assistant request: {Message}", request.Message);
-            return StatusCode(500, new LLMResponse 
-            { 
-                Message = "Entschuldigung, es ist ein interner Fehler aufgetreten." 
-            });
-        }
+            Message = request.Message,
+            UserId = userId,
+            ConversationId = request.ConversationId,
+            ModelId = request.ModelId,
+            Language = request.Language,
+            UserRights = userRights
+        });
+        
+        response.ConversationId = request.ConversationId ?? Guid.NewGuid().ToString();
+        
+        return Ok(response);
     }
 
     [HttpGet("functions")]
