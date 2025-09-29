@@ -41,7 +41,7 @@ public class RefreshTokenQueryHandler : IRequestHandler<RefreshTokenQuery, Token
                     IsAdmin = result.IsAdmin,
                     IsAuthorised = result.IsAuthorised,
                     RefreshToken = result.RefreshToken,
-                    Version = new Klacks.Api.MyVersion().Get()
+                    Version = new MyVersion().Get()
                 };
                 
                 _logger.LogInformation("Token refresh successful for user: {UserId}", result.Id);

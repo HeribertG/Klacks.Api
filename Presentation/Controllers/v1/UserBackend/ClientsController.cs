@@ -20,85 +20,45 @@ public class ClientsController : InputBaseController<ClientResource>
     [HttpGet("Count")]
     public async Task<IActionResult> CountAsync()
     {
-        try
-        {
-            logger.LogInformation("Fetching client count.");
-            var count = await Mediator.Send(new CountQuery());
-            logger.LogInformation($"Retrieved client count: {count}");
-            return Ok(count);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while fetching client count.");
-            return Problem("An error occurred while fetching the client count.", statusCode: 500);
-        }
+        logger.LogInformation("Fetching client count.");
+        var count = await Mediator.Send(new CountQuery());
+        logger.LogInformation($"Retrieved client count: {count}");
+        return Ok(count);
     }
 
     [HttpGet("FindClient/{company}/{Name}/{firstName}")]
     public async Task<ActionResult<IEnumerable<Client>>> FindClient(string? company = null, string? name = null, string? firstName = null)
     {
-        try
-        {
-            logger.LogInformation($"Searching for clients with company: {company}, name: {name}, firstName: {firstName}");
-            var clients = await Mediator.Send(new FindListQuery(company, name, firstName));
-            logger.LogInformation($"Found {clients.Count()} clients matching criteria.");
-            return Ok(clients);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while searching for clients.");
-            throw;
-        }
+        logger.LogInformation($"Searching for clients with company: {company}, name: {name}, firstName: {firstName}");
+        var clients = await Mediator.Send(new FindListQuery(company, name, firstName));
+        logger.LogInformation($"Found {clients.Count()} clients matching criteria.");
+        return Ok(clients);
     }
 
     [HttpPost("GetSimpleList")]
     public async Task<TruncatedClientResource> GetSimpleList([FromBody] FilterResource filter)
     {
-        try
-        {
-            logger.LogInformation($"Fetching simple client list with filter: {filter}");
-            var truncatedClients = await Mediator.Send(new Application.Queries.Clients.GetTruncatedListQuery(filter));
-            logger.LogInformation($"Retrieved {truncatedClients.Clients?.Count} truncated clients.");
-            return truncatedClients;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while fetching simple client list.");
-            throw;
-        }
+        logger.LogInformation($"Fetching simple client list with filter: {filter}");
+        var truncatedClients = await Mediator.Send(new Application.Queries.Clients.GetTruncatedListQuery(filter));
+        logger.LogInformation($"Retrieved {truncatedClients.Clients?.Count} truncated clients.");
+        return truncatedClients;
     }
 
     [HttpGet("GetStateTokenList")]
     public async Task<IEnumerable<StateCountryToken>> GetStateTokenList(bool isSelected)
     {
-        try
-        {
-            logger.LogInformation($"Fetching state token list with isSelected: {isSelected}");
-            var tokens = await Mediator.Send(new Application.Queries.Settings.CalendarRules.RuleTokenList(isSelected));
-            logger.LogInformation($"Retrieved {tokens.Count()} state tokens.");
-            return tokens;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while fetching state token list.");
-            throw;
-        }
+        logger.LogInformation($"Fetching state token list with isSelected: {isSelected}");
+        var tokens = await Mediator.Send(new Application.Queries.Settings.CalendarRules.RuleTokenList(isSelected));
+        logger.LogInformation($"Retrieved {tokens.Count()} state tokens.");
+        return tokens;
     }
 
     [HttpGet("LastChangeMetaData")]
     public async Task<ActionResult<LastChangeMetaDataResource>> LastChangeMetaData()
     {
-        try
-        {
-            logger.LogInformation("Fetching last change metadata.");
-            var metaData = await Mediator.Send(new LastChangeMetaDataQuery());
-            logger.LogInformation("Retrieved last change metadata.");
-            return Ok(metaData);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while fetching last change metadata.");
-            throw;
-        }
+        logger.LogInformation("Fetching last change metadata.");
+        var metaData = await Mediator.Send(new LastChangeMetaDataQuery());
+        logger.LogInformation("Retrieved last change metadata.");
+        return Ok(metaData);
     }
 }

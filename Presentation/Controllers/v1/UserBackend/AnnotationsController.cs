@@ -19,34 +19,18 @@ public class AnnotationsController : InputBaseController<AnnotationResource>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<AnnotationResource>>> GetAnnotation()
     {
-        try
-        {
-            logger.LogInformation("Fetching all annotations.");
-            var annotations = await Mediator.Send(new ListQuery<AnnotationResource>());
-            logger.LogInformation($"Retrieved {annotations.Count()} annotations.");
-            return Ok(annotations);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error occurred while fetching annotations.");
-            throw;
-        }
+        logger.LogInformation("Fetching all annotations.");
+        var annotations = await Mediator.Send(new ListQuery<AnnotationResource>());
+        logger.LogInformation($"Retrieved {annotations.Count()} annotations.");
+        return Ok(annotations);
     }
 
     [HttpGet("GetSimpleAnnotation/{id}")]
     public async Task<ActionResult<IEnumerable<AnnotationResource>>> GetSimpleAnnotation(Guid id)
     {
-        try
-        {
-            logger.LogInformation($"Fetching simple annotations for ID: {id}");
-            var annotations = await Mediator.Send(new GetSimpleListQuery(id));
-            logger.LogInformation($"Retrieved {annotations.Count()} simple annotations for ID: {id}");
-            return Ok(annotations);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Error occurred while fetching simple annotations for ID: {id}");
-            throw;
-        }
+        logger.LogInformation($"Fetching simple annotations for ID: {id}");
+        var annotations = await Mediator.Send(new GetSimpleListQuery(id));
+        logger.LogInformation($"Retrieved {annotations.Count()} simple annotations for ID: {id}");
+        return Ok(annotations);
     }
 }

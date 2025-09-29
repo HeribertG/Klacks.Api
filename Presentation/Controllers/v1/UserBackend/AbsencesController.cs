@@ -1,4 +1,3 @@
-using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.Absences;
 using Klacks.Api.Presentation.DTOs.Filter;
@@ -25,26 +24,18 @@ public class AbsencesController : InputBaseController<AbsenceResource>
     {
         _logger.LogInformation($"Starting to create Excel file for absences in language: {language}");
 
-        try
+        var res = await Mediator.Send(new CreateExcelFileQuery(language));
+        if (res.Success)
         {
-            var res = await Mediator.Send(new CreateExcelFileQuery(language));
-            if (res.Success)
-            {
-                string fileName = res.Messages;
-                byte[] result = System.IO.File.ReadAllBytes(fileName);
-                _logger.LogInformation($"Excel file for absences created successfully: {fileName}");
-                return File(result, "application/octet-stream", "Absences.xlsx");
-            }
-            else
-            {
-                _logger.LogWarning($"Failed to create Excel file for absences: {res.Messages}");
-                return File(Encoding.UTF8.GetBytes(res.Messages), "text/plain");
-            }
+            string fileName = res.Messages;
+            byte[] result = System.IO.File.ReadAllBytes(fileName);
+            _logger.LogInformation($"Excel file for absences created successfully: {fileName}");
+            return File(result, "application/octet-stream", "Absences.xlsx");
         }
-        catch (Exception ex)
+        else
         {
-            _logger.LogError(ex, $"Error occurred while creating Excel file for absences in language: {language}");
-            throw new InvalidRequestException($"Error occurred while creating Excel file for absences in language: {language} " + ex.Message);
+            _logger.LogWarning($"Failed to create Excel file for absences: {res.Messages}");
+            return File(Encoding.UTF8.GetBytes(res.Messages), "text/plain");
         }
     }
 
@@ -62,16 +53,8 @@ public class AbsencesController : InputBaseController<AbsenceResource>
     {
         _logger.LogInformation($"Received request for GetSimpleAbsenceList with filter: {JsonConvert.SerializeObject(filter)}");
 
-        try
-        {
-            var truncatedAbsence = await Mediator.Send(new TruncatedListQuery(filter));
-            _logger.LogInformation($"Retrieved truncated list of absences.");
-            return truncatedAbsence;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error occurred while retrieving truncated list of absences.");
-            throw new InvalidRequestException("Error occurred while retrieving truncated list of absences. " + ex.Message);
-        }
+        var truncatedAbsence = await Mediator.Send(new TruncatedListQuery(filter));
+        _logger.LogInformation($"Retrieved truncated list of absences.");
+        return truncatedAbsence;
     }
 }
