@@ -21,12 +21,16 @@ public abstract class BaseHandler
         {
             return await operation();
         }
-        catch (InvalidRequestException)
+        catch (InvalidRequestException ex)
         {
+            _logger.LogWarning(ex, "Invalid request during {OperationName}. Context: {@ContextData}", 
+                operationName, contextData);
             throw;
         }
-        catch (KeyNotFoundException)
+        catch (KeyNotFoundException ex)
         {
+            _logger.LogWarning(ex, "Resource not found during {OperationName}. Context: {@ContextData}", 
+                operationName, contextData);
             throw;
         }
         catch (DbUpdateConcurrencyException ex)
