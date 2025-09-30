@@ -13,11 +13,6 @@ public interface IClientRepository : IBaseRepository<Client>
 
     Task<IQueryable<Client>> FilterClients(ClientFilter filter);
 
-    Task<Client?> FindByMail(string mail);
-
-    Task<List<Client>> FindList(string? company = null, string? name = null, string? firstName = null);
-
-    Task<string> FindStatePostCode(string zip);
 
     Task<LastChangeMetaData> LastChangeMetaData();
 
