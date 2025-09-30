@@ -52,16 +52,5 @@ public class ClientWorkFilterService : IClientWorkFilterService
         return clients.AsQueryable();
     }
 
-    public IQueryable<Client> ApplyBreakYearFilter(IQueryable<Client> query, BreakFilter filter)
-    {
-        return query;
-    }
 
-    public IQueryable<Client> ApplyDateRangeFilter(IQueryable<Client> query, DateTime startDate, DateTime endDate)
-    {
-        return query.Where(c => c.Works.Any(w => 
-            (w.From >= startDate && w.From <= endDate) ||
-            (w.Until >= startDate && w.Until <= endDate) ||
-            (w.From <= startDate && w.Until >= endDate)));
-    }
 }

@@ -6,7 +6,6 @@ namespace Klacks.Api.Application.Interfaces;
 
 public interface IClientRepository : IBaseRepository<Client>
 {
-    Task<List<Client>> BreakList(BreakFilter filter, PaginationParams pagination);
 
     Task<PagedResult<Client>> GetFilteredClients(ClientFilter filter, PaginationParams pagination);
 
@@ -22,5 +21,4 @@ public interface IClientRepository : IBaseRepository<Client>
 
     Task<LastChangeMetaData> LastChangeMetaData();
 
-    Task<List<Client>> WorkList(WorkFilter filter, PaginationParams pagination);
 }

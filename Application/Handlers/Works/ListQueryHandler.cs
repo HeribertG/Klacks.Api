@@ -9,23 +9,22 @@ namespace Klacks.Api.Application.Handlers.Works;
 
 public class ListQueryHandler : IRequestHandler<ListQuery, IEnumerable<ClientWorkResource>>
 {
-    private readonly IClientRepository _clientRepository;
+    private readonly IClientWorkRepository _clientWorkRepository;
     private readonly IMapper _mapper;
 
     public ListQueryHandler(
-        IClientRepository clientRepository, 
+        IClientWorkRepository clientWorkRepository, 
         IMapper mapper)
     {
-        _clientRepository = clientRepository;
+        _clientWorkRepository = clientWorkRepository;
         _mapper = mapper;
     }
 
     public async Task<IEnumerable<ClientWorkResource>> Handle(ListQuery request, CancellationToken cancellationToken)
     {
         var workFilter = _mapper.Map<WorkFilter>(request.Filter);
-        var pagination = new PaginationParams { PageIndex = 0, PageSize = 1000 }; // Default für Liste
         
-        var clients = await _clientRepository.WorkList(workFilter, pagination);
+        var clients = await _clientWorkRepository.WorkList(workFilter);
         return _mapper.Map<IEnumerable<ClientWorkResource>>(clients);
     }
 }

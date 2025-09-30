@@ -10,6 +10,7 @@ using Klacks.Api.Domain.Services.Holidays;
 using Klacks.Api.Domain.Services.Settings;
 using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Domain.Services.LLM;
+using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Email;
 using Klacks.Api.Infrastructure.FileHandling;
 using Klacks.Api.Infrastructure.Interfaces;
@@ -17,6 +18,8 @@ using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Repositories;
 using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Infrastructure.Services.Authentication;
+using ClientGroupFilterService = Klacks.Api.Infrastructure.Services.ClientGroupFilterService;
+using ClientSearchFilterService = Klacks.Api.Infrastructure.Services.ClientSearchFilterService;
 
 namespace Klacks.Api.Infrastructure.Extensions;
 
@@ -28,6 +31,10 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IUserService, UserService>();
 
         services.AddScoped<IClientRepository, ClientRepository>();
+        services.AddScoped<IClientBreakRepository, ClientBreakRepository>();
+        services.AddScoped<IClientWorkRepository, ClientWorkRepository>();
+        services.AddScoped<IClientGroupFilterService, ClientGroupFilterService>();
+        services.AddScoped<IClientSearchFilterService, ClientSearchFilterService>();
         services.AddScoped<IAddressRepository, AddressRepository>();
         services.AddScoped<IAnnotationRepository, AnnotationRepository>();
         services.AddScoped<ICommunicationRepository, CommunicationRepository>();

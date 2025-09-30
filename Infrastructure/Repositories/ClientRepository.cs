@@ -3,7 +3,6 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Results;
-using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Interfaces;
@@ -16,8 +15,7 @@ public class ClientRepository : IClientRepository
 {
     private readonly DataBaseContext context;
     private readonly IMacroEngine macroEngine;
-    private readonly IGetAllClientIdsFromGroupAndSubgroups groupClient;
-    private readonly IGroupVisibilityService groupVisibility;
+    private readonly IClientGroupFilterService _groupFilterService;
     private readonly IClientFilterService _clientFilterService;
     private readonly IClientMembershipFilterService _membershipFilterService;
     private readonly IClientSearchService _searchService;
@@ -29,8 +27,7 @@ public class ClientRepository : IClientRepository
     public ClientRepository(
         DataBaseContext context,
         IMacroEngine macroEngine,
-        IGetAllClientIdsFromGroupAndSubgroups groupClient,
-        IGroupVisibilityService groupVisibility,
+        IClientGroupFilterService groupFilterService,
         IClientFilterService clientFilterService,
         IClientMembershipFilterService membershipFilterService,
         IClientSearchService searchService,
@@ -41,8 +38,7 @@ public class ClientRepository : IClientRepository
     {
         this.context = context;
         this.macroEngine = macroEngine;
-        this.groupClient = groupClient;
-        this.groupVisibility = groupVisibility;
+        _groupFilterService = groupFilterService;
         _clientFilterService = clientFilterService;
         _membershipFilterService = membershipFilterService;
         _searchService = searchService;
@@ -58,47 +54,6 @@ public class ClientRepository : IClientRepository
         this.context.Client.Add(client);
     }
 
-    public async Task<List<Client>> BreakList(BreakFilter filter, PaginationParams pagination)
-    {
-        var query = this.context.Client
-            .Include(c => c.Addresses)
-            .Include(c => c.Communications)
-            .Include(c => c.Membership)
-            .AsQueryable();
-
-        query = await FilterClientsByGroupId(filter.SelectedGroup, query);
-
-        if (!string.IsNullOrEmpty(filter.SearchString))
-        {
-            if (_searchService.IsNumericSearch(filter.SearchString))
-            {
-                var numericValue = int.Parse(filter.SearchString.Trim());
-                query = _searchService.ApplyIdNumberSearch(query, numericValue);
-            }
-            else
-            {
-                query = _searchService.ApplySearchFilter(query, filter.SearchString, false);
-            }
-        }
-
-        if (filter.AbsenceIds?.Any() == true)
-        {
-            // Filter nach Abwesenheiten für das aktuelle Jahr
-            var startOfYear = new DateTime(filter.CurrentYear, 1, 1);
-            var endOfYear = new DateTime(filter.CurrentYear, 12, 31);
-            
-            query = query.Where(c => this.context.Break
-                .Any(b => filter.AbsenceIds.Contains(b.AbsenceId) && 
-                         b.ClientId == c.Id &&
-                         b.From >= startOfYear && 
-                         b.From <= endOfYear));
-        }
-
-        return await query
-            .Skip(pagination.Skip)
-            .Take(pagination.Take)
-            .ToListAsync();
-    }
 
     public async Task<PagedResult<Client>> GetFilteredClients(ClientFilter filter, PaginationParams pagination)
     {
@@ -175,6 +130,7 @@ public class ClientRepository : IClientRepository
                                 .Include(cu => cu.Communications)
                                 .Include(cu => cu.Annotations)
                                 .Include(cu => cu.Membership)
+                                .Include(cu => cu.Breaks)
                                 .Where(cu => cu.IsDeleted)
                                 .AsNoTracking()
                                 .AsQueryable();
@@ -185,11 +141,12 @@ public class ClientRepository : IClientRepository
                                 .Include(cu => cu.Communications)
                                 .Include(cu => cu.Annotations)
                                 .Include(cu => cu.Membership)
+                                .Include(cu => cu.Breaks)
                                 .AsNoTracking()
                                 .AsQueryable();
         }
 
-        query = await FilterClientsByGroupId(filter.SelectedGroup, query);
+        query = await _groupFilterService.FilterClientsByGroupId(filter.SelectedGroup, query);
 
         // Ist der searchString eine Nummer, sucht man nach der idNumber
         if (_searchService.IsNumericSearch(filter.SearchString))
@@ -310,6 +267,7 @@ public class ClientRepository : IClientRepository
                                       .Include(cu => cu.Communications)
                                       .Include(cu => cu.Annotations)
                                       .Include(cu => cu.Membership)
+                                      .Include(cu => cu.Breaks)
                                       .AsNoTracking()
                                       .SingleOrDefaultAsync(emp => emp.Id == id);
 
@@ -332,6 +290,7 @@ public class ClientRepository : IClientRepository
                                         .Include(cu => cu.Communications)
                                         .Include(cu => cu.Annotations)
                                         .Include(cu => cu.Membership)
+                                        .Include(cu => cu.Breaks)
                                         .ToListAsync();
     }
 
@@ -342,6 +301,7 @@ public class ClientRepository : IClientRepository
             .Include(c => c.Communications)
             .Include(c => c.Annotations)
             .Include(c => c.Membership)
+            .Include(c => c.Breaks)
             .FirstOrDefaultAsync(c => c.Id == client.Id);
 
         if (existingClient == null)
@@ -477,88 +437,5 @@ public class ClientRepository : IClientRepository
     public void Remove(Client client)
     {
         this.context.Client.Remove(client);
-    }
-
-
-    public async Task<List<Client>> WorkList(WorkFilter filter, PaginationParams pagination)
-    {
-        var query = this.context.Client
-            .Include(c => c.Addresses)
-            .Include(c => c.Communications)
-            .Include(c => c.Membership)
-            .AsQueryable();
-
-        query = await FilterClientsByGroupId(filter.SelectedGroup, query);
-
-        if (!string.IsNullOrEmpty(filter.SearchString))
-        {
-            if (_searchService.IsNumericSearch(filter.SearchString))
-            {
-                var numericValue = int.Parse(filter.SearchString.Trim());
-                query = _searchService.ApplyIdNumberSearch(query, numericValue);
-            }
-            else
-            {
-                query = _searchService.ApplySearchFilter(query, filter.SearchString, false);
-            }
-        }
-
-        if (filter.CurrentYear > 0 && filter.CurrentMonth > 0)
-        {
-            var startDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1)
-                .AddDays(-filter.DayVisibleBeforeMonth);
-            var endDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, DateTime.DaysInMonth(filter.CurrentYear, filter.CurrentMonth))
-                .AddDays(filter.DayVisibleAfterMonth);
-
-            query = _workFilterService.ApplyDateRangeFilter(query, startDate, endDate);
-        }
-
-        try
-        {
-            return await query
-                .Skip(pagination.Skip)
-                .Take(pagination.Take)
-                .ToListAsync();
-        }
-        catch (InvalidOperationException)
-        {
-            return query
-                .Skip(pagination.Skip)
-                .Take(pagination.Take)
-                .ToList();
-        }
-    }
-
-        
-    private async Task<IQueryable<Client>> FilterClients(Guid? selectedGroup)
-    {
-        var query = this.context.Client.Where(c => c.Type != EntityTypeEnum.Customer).Include(c => c.Membership).AsQueryable();
-
-        query = await FilterClientsByGroupId(selectedGroup, query);
-
-        return query;
-    }
-
-    private async Task<IQueryable<Client>> FilterClientsByGroupId(Guid? selectedGroupId, IQueryable<Client> query)
-    {
-        if (selectedGroupId.HasValue)
-        {
-            var clientIds = await this.groupClient.GetAllClientIdsFromGroupAndSubgroups(selectedGroupId.Value);
-            query = query.Where(client => clientIds.Contains(client.Id));
-        }
-        else
-        {
-            if (!await groupVisibility.IsAdmin())
-            {
-                var rootlist = await groupVisibility.ReadVisibleRootIdList();
-                if (rootlist.Any())
-                {
-                    var clientIds = await this.groupClient.GetAllClientIdsFromGroupsAndSubgroupsFromList(rootlist);
-                    query = query.Where(client => clientIds.Contains(client.Id));
-                }
-            }
-        }
-
-        return query;
     }
 }

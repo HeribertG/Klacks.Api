@@ -8,6 +8,4 @@ public interface IClientWorkFilterService
 {
     IQueryable<Client> FilterByMembershipYearMonth(IQueryable<Client> query, int year, int month);
     IQueryable<Client> FilterByWorkSchedule(IQueryable<Client> query, WorkFilter filter, DataBaseContext context);
-    IQueryable<Client> ApplyBreakYearFilter(IQueryable<Client> query, BreakFilter filter);
-    IQueryable<Client> ApplyDateRangeFilter(IQueryable<Client> query, DateTime startDate, DateTime endDate);
 }

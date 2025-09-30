@@ -33,10 +33,8 @@ public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
         
         var query = context.Absence.AsQueryable();
         
-        // Apply sorting using domain service
         query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder, filter.Language);
         
-        // Apply pagination using domain service
         var result = await _paginationService.ApplyPaginationAsync(query, filter);
         
         Logger.LogInformation("Retrieved {Count} absences out of {Total}", 

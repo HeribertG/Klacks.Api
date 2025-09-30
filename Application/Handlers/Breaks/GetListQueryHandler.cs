@@ -11,16 +11,16 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 
 public class GetListQueryHandler : IRequestHandler<ListQuery, IEnumerable<ClientBreakResource>>
 {
-    private readonly IClientRepository _clientRepository;
+    private readonly IClientBreakRepository _clientBreakRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<GetListQueryHandler> _logger;
 
     public GetListQueryHandler(
-        IClientRepository clientRepository, 
+        IClientBreakRepository clientBreakRepository, 
         IMapper mapper, 
         ILogger<GetListQueryHandler> logger)
     {
-        _clientRepository = clientRepository;
+        _clientBreakRepository = clientBreakRepository;
         _mapper = mapper;
         _logger = logger;
     }
@@ -38,9 +38,8 @@ public class GetListQueryHandler : IRequestHandler<ListQuery, IEnumerable<Client
             }
             
             var breakFilter = _mapper.Map<BreakFilter>(request.Filter);
-            var pagination = new PaginationParams { PageIndex = 0, PageSize = 1000 }; // Default für Liste
             
-            var clients = await _clientRepository.BreakList(breakFilter, pagination);
+            var clients = await _clientBreakRepository.BreakList(breakFilter);
             var clientList = clients.ToList();
             
             _logger.LogInformation($"Retrieved {clientList.Count} clients with break data");
