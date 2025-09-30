@@ -1,17 +1,18 @@
 using Klacks.Api.Domain.Models.Staffs;
-using Klacks.Api.Presentation.DTOs.Filter;
+using Klacks.Api.Domain.Models.Filters;
+using Klacks.Api.Domain.Models.Results;
 
 namespace Klacks.Api.Application.Interfaces;
 
 public interface IClientRepository : IBaseRepository<Client>
 {
-    Task<List<Client>> BreakList(BreakFilter filter);
+    Task<List<Client>> BreakList(BreakFilter filter, PaginationParams pagination);
 
-    Task<TruncatedClient> ChangeList(FilterResource filter);
+    Task<PagedResult<Client>> GetFilteredClients(ClientFilter filter, PaginationParams pagination);
 
     int Count();
 
-    Task<IQueryable<Client>> FilterClients(FilterResource filter);
+    Task<IQueryable<Client>> FilterClients(ClientFilter filter);
 
     Task<Client?> FindByMail(string mail);
 
@@ -19,9 +20,7 @@ public interface IClientRepository : IBaseRepository<Client>
 
     Task<string> FindStatePostCode(string zip);
 
-    Task<LastChangeMetaDataResource> LastChangeMetaData();
+    Task<LastChangeMetaData> LastChangeMetaData();
 
-    Task<TruncatedClient> Truncated(FilterResource filter);
-
-    Task<List<Client>> WorkList(WorkFilter filter);
+    Task<List<Client>> WorkList(WorkFilter filter, PaginationParams pagination);
 }

@@ -2,6 +2,7 @@ using AutoMapper;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Clients;
 using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Presentation.DTOs.Filter;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -14,7 +15,10 @@ namespace Klacks.Api.Application.Handlers.Clients
         private readonly IMapper _mapper;
         private readonly ILogger<GetTruncatedListQueryHandler> _logger;
 
-        public GetTruncatedListQueryHandler(IClientRepository clientRepository, IMapper mapper, ILogger<GetTruncatedListQueryHandler> logger)
+        public GetTruncatedListQueryHandler(
+            IClientRepository clientRepository, 
+            IMapper mapper, 
+            ILogger<GetTruncatedListQueryHandler> logger)
         {
             _clientRepository = clientRepository;
             _mapper = mapper;
@@ -33,9 +37,17 @@ namespace Klacks.Api.Application.Handlers.Clients
             
             try
             {
-                var truncatedClients = await _clientRepository.Truncated(request.Filter);
+                var clientFilter = _mapper.Map<ClientFilter>(request.Filter);
+                var pagination = _mapper.Map<PaginationParams>(request.Filter);
                 
-                _logger.LogInformation($"Retrieved truncated client list with {truncatedClients?.Clients?.Count ?? 0} clients");
+                var pagedResult = await _clientRepository.GetFilteredClients(clientFilter, pagination);
+                var lastChangeMetaData = await _clientRepository.LastChangeMetaData();
+                
+                var truncatedClients = _mapper.Map<TruncatedClient>(pagedResult);
+                truncatedClients.Editor = lastChangeMetaData.Author;
+                truncatedClients.LastChange = lastChangeMetaData.LastChangesDate;
+                
+                _logger.LogInformation($"Retrieved truncated client list with {pagedResult.Items.Count()} clients");
                 
                 return _mapper.Map<TruncatedClientResource>(truncatedClients);
             }

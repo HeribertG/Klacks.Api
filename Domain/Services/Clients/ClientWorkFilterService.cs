@@ -54,9 +54,14 @@ public class ClientWorkFilterService : IClientWorkFilterService
 
     public IQueryable<Client> ApplyBreakYearFilter(IQueryable<Client> query, BreakFilter filter)
     {
-        // This is already handled by the existing IClientMembershipFilterService
-        // through ApplyMembershipYearFilter and ApplyBreaksYearFilter methods
-        // So this method can delegate to those or be removed if not needed
         return query;
+    }
+
+    public IQueryable<Client> ApplyDateRangeFilter(IQueryable<Client> query, DateTime startDate, DateTime endDate)
+    {
+        return query.Where(c => c.Works.Any(w => 
+            (w.From >= startDate && w.From <= endDate) ||
+            (w.Until >= startDate && w.Until <= endDate) ||
+            (w.From <= startDate && w.Until >= endDate)));
     }
 }

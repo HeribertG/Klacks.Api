@@ -1,8 +1,7 @@
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Staffs;
-using Klacks.Api.Presentation.DTOs.Filter;
-using Klacks.Api.Presentation.DTOs.Settings;
+using Klacks.Api.Domain.Models.Filters;
 
 namespace Klacks.Api.Domain.Services.Clients;
 
@@ -48,29 +47,62 @@ public class ClientFilterService : IClientFilterService
         return query;
     }
 
-    public IQueryable<Client> ApplyStateOrCountryFilter(IQueryable<Client> query, List<StateCountryToken> stateTokens, List<CountryResource> countries)
+    public IQueryable<Client> ApplyStateOrCountryFilter(IQueryable<Client> query, List<StateCountryFilter> stateTokens, List<string> countries)
     {
         if (stateTokens?.Any() == true || countries?.Any() == true)
         {
-            var stateNames = stateTokens?.Where(x => x.Select).Select(x => x.State.ToLower()).ToList() ?? new List<string>();
-            var countryNames = countries?.Where(x => x.Select).Select(x => x.Name.De.ToLower()).ToList() ?? new List<string>();
+            var selectedTokens = stateTokens?.Where(x => x.Select).ToList() ?? new List<StateCountryFilter>();
+            
+            var selectedCountries = new List<string>();
+            if (countries?.Any() == true)
+            {
+                selectedCountries = countries.Select(x => x.ToLower()).ToList();
+            }
 
-            if (stateNames.Any() && !countryNames.Any())
+            System.Console.WriteLine($"StateFilter - StateTokens count: {stateTokens?.Count ?? 0}, Selected: {selectedTokens.Count}, Countries: {selectedCountries.Count}");
+            if (selectedCountries.Any())
+                System.Console.WriteLine($"StateFilter - Countries list: [{string.Join(", ", selectedCountries)}]");
+
+            if (selectedTokens.Any())
             {
-                return query.Where(co => co.Addresses.Any(ad => stateNames.Contains(ad.State.ToLower())));
+                System.Console.WriteLine("StateFilter - Applying state+country pairs filter");
+                
+                var validStateCountryKeys = new List<string>();
+                foreach (var token in selectedTokens)
+                {
+                    if (selectedCountries.Any())
+                    {
+                        if (selectedCountries.Contains(token.Country.ToLower()))
+                        {
+                            validStateCountryKeys.Add((token.State + "|" + token.Country).ToLower());
+                        }
+                    }
+                    else
+                    {
+                        validStateCountryKeys.Add((token.State + "|" + token.Country).ToLower());
+                    }
+                }
+                
+                System.Console.WriteLine($"StateFilter - Valid state+country combinations: [{string.Join(", ", validStateCountryKeys)}]");
+                
+                if (validStateCountryKeys.Any())
+                {
+                    return query.Where(co => co.Addresses.Any(ad => 
+                        validStateCountryKeys.Contains((ad.State + "|" + ad.Country).ToLower())));
+                }
+                else
+                {
+                    return query.Where(co => false);
+                }
             }
-            else if (!stateNames.Any() && countryNames.Any())
+            else if (selectedCountries.Any())
             {
-                return query.Where(co => co.Addresses.Any(ad => countryNames.Contains(ad.Country.ToLower())));
-            }
-            else if (stateNames.Any() && countryNames.Any())
-            {
-                return query.Where(co => co.Addresses.Any(ad =>
-                    stateNames.Contains(ad.State.ToLower()) ||
-                    countryNames.Contains(ad.Country.ToLower())));
+                System.Console.WriteLine("StateFilter - Applying country-only filter");
+                return query.Where(co => co.Addresses.Any(ad => selectedCountries.Contains(ad.Country.ToLower())));
             }
         }
 
+        System.Console.WriteLine("StateFilter - No filter applied");
         return query;
     }
 

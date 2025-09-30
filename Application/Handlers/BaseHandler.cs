@@ -63,9 +63,9 @@ public abstract class BaseHandler
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error during {OperationName}. Context: {@ContextData}", 
-                operationName, contextData);
-            throw new InvalidRequestException($"An unexpected error occurred during {operationName}");
+            _logger.LogError(ex, "Unexpected error during {OperationName}. Context: {@ContextData}. Exception: {ExceptionType}, Message: {ExceptionMessage}", 
+                operationName, contextData, ex.GetType().Name, ex.Message);
+            throw new InvalidRequestException($"An unexpected error occurred during {operationName}: {ex.Message}");
         }
     }
 

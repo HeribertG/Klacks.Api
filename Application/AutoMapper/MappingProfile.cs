@@ -10,6 +10,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Models.LLM;
+using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Presentation.DTOs.Associations;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Histories;
@@ -26,7 +27,12 @@ public class MappingProfile : Profile
     {
         CreateMap<TruncatedClient, TruncatedClientResource>()
             .ForMember(dest => dest.Clients, opt => opt.MapFrom(src => src.Clients))
-            ;
+            .ForMember(dest => dest.Editor, opt => opt.MapFrom(src => src.Editor))
+            .ForMember(dest => dest.LastChange, opt => opt.MapFrom(src => src.LastChange))
+            .ForMember(dest => dest.MaxItems, opt => opt.MapFrom(src => src.MaxItems))
+            .ForMember(dest => dest.MaxPages, opt => opt.MapFrom(src => src.MaxPages))
+            .ForMember(dest => dest.CurrentPage, opt => opt.MapFrom(src => src.CurrentPage))
+            .ForMember(dest => dest.FirstItemOnPage, opt => opt.MapFrom(src => src.FirstItemOnPage));
         CreateMap<Address, AddressResource>()
           ;
         CreateMap<AddressResource, Address>()
@@ -426,7 +432,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.AnnotationText, opt => opt.Ignore()) 
             .ForMember(dest => dest.MembershipYear, opt => opt.Ignore()) 
             .ForMember(dest => dest.BreaksYear, opt => opt.Ignore()); 
-        CreateMap<GroupFilter, GroupSearchCriteria>()
+        CreateMap<Presentation.DTOs.Filter.GroupFilter, GroupSearchCriteria>()
             .ForMember(dest => dest.FirstItemOnLastPage, opt => opt.MapFrom(src => src.FirstItemOnLastPage))
             .ForMember(dest => dest.IsNextPage, opt => opt.MapFrom(src => src.IsNextPage))
             .ForMember(dest => dest.IsPreviousPage, opt => opt.MapFrom(src => src.IsPreviousPage))
@@ -516,6 +522,47 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.MaxPages, opt => opt.MapFrom(src => src.TotalPages))
             .ForMember(dest => dest.CurrentPage, opt => opt.MapFrom(src => src.PageNumber))
             .ForMember(dest => dest.FirstItemOnPage, opt => opt.MapFrom(src => (src.PageNumber - 1) * src.PageSize + 1));
+
+        CreateMap<FilterResource, ClientFilter>()
+            .ForMember(dest => dest.FilteredCantons, opt => opt.MapFrom(src => 
+                src.List.Select(t => t.State).ToList()))
+            .ForMember(dest => dest.Countries, opt => opt.MapFrom(src => src.Countries.Select(c => c.Abbreviation).ToList()))
+            .ForMember(dest => dest.FilteredStateToken, opt => opt.MapFrom(src => 
+                src.List.Select(t => new StateCountryFilter 
+                { 
+                    Id = t.Id, 
+                    Country = t.Country, 
+                    State = t.State, 
+                    Select = t.Select 
+                }).ToList()));
+
+        CreateMap<StateCountryToken, StateCountryFilter>();
+
+        CreateMap<Presentation.DTOs.Filter.BreakFilter, Domain.Models.Filters.BreakFilter>()
+            .ForMember(dest => dest.AbsenceIds, opt => opt.MapFrom(src => src.Absences.Where(a => a.Checked).Select(a => a.Id).ToList()));
+
+        CreateMap<Presentation.DTOs.Filter.WorkFilter, Domain.Models.Filters.WorkFilter>();
+        CreateMap<Presentation.DTOs.Filter.GroupFilter, Domain.Models.Filters.GroupFilter>();
+        CreateMap<Presentation.DTOs.Filter.AbsenceFilter, Domain.Models.Filters.AbsenceFilter>();
+
+        CreateMap<BaseFilter, PaginationParams>()
+            .ForMember(dest => dest.PageIndex, opt => opt.MapFrom(src => src.RequiredPage))
+            .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.NumberOfItemsPerPage > 0 ? src.NumberOfItemsPerPage : 20))
+            .ForMember(dest => dest.SortBy, opt => opt.MapFrom(src => src.OrderBy))
+            .ForMember(dest => dest.IsDescending, opt => opt.MapFrom(src => src.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase)));
+
+        // Response Mappings - Domain Models to Presentation DTOs
+        CreateMap<LastChangeMetaData, LastChangeMetaDataResource>()
+            .ForMember(dest => dest.Autor, opt => opt.MapFrom(src => src.Author));
+
+        CreateMap<Domain.Models.Results.PagedResult<Client>, TruncatedClient>()
+            .ForMember(dest => dest.Clients, opt => opt.MapFrom(src => src.Items))
+            .ForMember(dest => dest.MaxItems, opt => opt.MapFrom(src => src.TotalCount))
+            .ForMember(dest => dest.MaxPages, opt => opt.MapFrom(src => src.TotalPages))
+            .ForMember(dest => dest.CurrentPage, opt => opt.MapFrom(src => src.PageNumber))
+            .ForMember(dest => dest.FirstItemOnPage, opt => opt.MapFrom(src => src.Items.Count() == 0 ? -1 : src.PageNumber * src.PageSize))
+            .ForMember(dest => dest.Editor, opt => opt.Ignore())
+            .ForMember(dest => dest.LastChange, opt => opt.Ignore());
     }
     private static int ParseIdNumber(string idNumber)
     {

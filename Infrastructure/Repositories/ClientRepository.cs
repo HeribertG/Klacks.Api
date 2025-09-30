@@ -1,12 +1,13 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Models.Filters;
+using Klacks.Api.Domain.Models.Results;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
-using Klacks.Api.Presentation.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Repositories;
@@ -57,16 +58,22 @@ public class ClientRepository : IClientRepository
         this.context.Client.Add(client);
     }
 
-    public async Task<List<Client>> BreakList(BreakFilter filter)
+    public async Task<List<Client>> BreakList(BreakFilter filter, PaginationParams pagination)
     {
-        var query = await FilterClients(filter.SelectedGroup);
+        var query = this.context.Client
+            .Include(c => c.Addresses)
+            .Include(c => c.Communications)
+            .Include(c => c.Membership)
+            .AsQueryable();
 
-         if (!string.IsNullOrEmpty(filter.SearchString))
+        query = await FilterClientsByGroupId(filter.SelectedGroup, query);
+
+        if (!string.IsNullOrEmpty(filter.SearchString))
         {
-            // Ist der search string eine Nummer, sucht man nach der idNumber
             if (_searchService.IsNumericSearch(filter.SearchString))
             {
-                query = _searchService.ApplyIdNumberSearch(query, int.Parse(filter.SearchString.Trim()));
+                var numericValue = int.Parse(filter.SearchString.Trim());
+                query = _searchService.ApplyIdNumberSearch(query, numericValue);
             }
             else
             {
@@ -74,71 +81,55 @@ public class ClientRepository : IClientRepository
             }
         }
 
-        query = _membershipFilterService.ApplyMembershipYearFilter(query, filter);
-        query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder);
-        
-        var clients = await query.ToListAsync();
-        var clientIds = clients.Select(c => c.Id).ToList();
-        
-        var (startDate, endDate) = DateRangeUtility.GetYearRange(filter.CurrentYear);
-        var absenceIds = filter.Absences.Where(x => x.Checked).Select(x => x.Id).ToList();
-        
-        var breaks = await this.context.Break
-            .Include(b => b.Absence)
-            .Where(b => clientIds.Contains(b.ClientId) &&
-                       absenceIds.Contains(b.AbsenceId) &&
-                       b.From < endDate && b.Until >= startDate)
-            .OrderBy(b => b.From)
-            .ToListAsync();
-        
-        var breaksByClientId = breaks.ToLookup(b => b.ClientId);
-        
-        // Assign breaks to clients
-        foreach (var client in clients)
+        if (filter.AbsenceIds?.Any() == true)
         {
-            client.Breaks = breaksByClientId.Contains(client.Id) ? breaksByClientId[client.Id].ToList() : new List<Break>();
+            // Filter nach Abwesenheiten für das aktuelle Jahr
+            var startOfYear = new DateTime(filter.CurrentYear, 1, 1);
+            var endOfYear = new DateTime(filter.CurrentYear, 12, 31);
+            
+            query = query.Where(c => this.context.Break
+                .Any(b => filter.AbsenceIds.Contains(b.AbsenceId) && 
+                         b.ClientId == c.Id &&
+                         b.From >= startOfYear && 
+                         b.From <= endOfYear));
         }
-        
-        return clients;
+
+        return await query
+            .Skip(pagination.Skip)
+            .Take(pagination.Take)
+            .ToListAsync();
     }
 
-    public async Task<TruncatedClient> ChangeList(FilterResource filter)
+    public async Task<PagedResult<Client>> GetFilteredClients(ClientFilter filter, PaginationParams pagination)
     {
-        var baseQuery = this.context.Client.IgnoreQueryFilters()
-                                .Include(cu => cu.Addresses)
-                                .Include(cu => cu.Communications)
-                                .Include(cu => cu.Annotations)
-                                .Include(cu => cu.Membership)
-                                .AsQueryable();
-
-        var myTuple = await _changeTrackingService.GetLastChangedClientsAsync(baseQuery, filter);
-        var query = myTuple.clients;
-
-        var maxPages = 0;
-
-        var count = query.Count();
-        if (count > 0)
+        var query = await FilterClients(filter);
+        
+        var totalCount = await query.CountAsync();
+        
+        var totalPages = (int)Math.Ceiling((double)totalCount / pagination.PageSize);
+        if (pagination.PageIndex >= totalPages && totalCount > 0)
         {
-            maxPages = count / filter.NumberOfItemsPerPage;
-            if (maxPages <= 0)
+            return new PagedResult<Client>
             {
-                maxPages = 1;
-            }
-
-            query = query.Skip(filter.RequiredPage * filter.NumberOfItemsPerPage).Take(filter.NumberOfItemsPerPage);
+                Items = new List<Client>(),
+                TotalCount = totalCount,
+                PageNumber = pagination.PageIndex,
+                PageSize = pagination.PageSize
+            };
         }
+        
+        var items = await query
+            .Skip(pagination.Skip)
+            .Take(pagination.Take)
+            .ToListAsync();
 
-        var res = new TruncatedClient
+        return new PagedResult<Client>
         {
-            Clients = await query.ToListAsync(),
-            MaxItems = count,
-            MaxPages = maxPages,
-            CurrentPage = filter.RequiredPage,
-            Editor = string.Join(", ", myTuple.authors.ToArray()),
-            LastChange = myTuple.lastChangeDate,
+            Items = items.ToList(),
+            TotalCount = totalCount,
+            PageNumber = pagination.PageIndex,
+            PageSize = pagination.PageSize
         };
-
-        return res;
     }
 
     public int Count()
@@ -173,7 +164,7 @@ public class ClientRepository : IClientRepository
         return await this.context.Client.AnyAsync(e => e.Id == id);
     }
 
-    public async Task<IQueryable<Client>> FilterClients(FilterResource filter)
+    public async Task<IQueryable<Client>> FilterClients(ClientFilter filter)
     {
         IQueryable<Client> query;
 
@@ -325,9 +316,14 @@ public class ClientRepository : IClientRepository
         return res!;
     }
 
-    public async Task<LastChangeMetaDataResource> LastChangeMetaData()
+    public async Task<LastChangeMetaData> LastChangeMetaData()
     {
-        return await _changeTrackingService.GetLastChangeMetadataResourceAsync();
+        var result = await _changeTrackingService.GetLastChangeMetadataAsync();
+        return new LastChangeMetaData
+        {
+            LastChangesDate = result.lastChangeDate,
+            Author = string.Join(", ", result.authors)
+        };
     }
 
     public async Task<List<Client>> List()
@@ -341,17 +337,141 @@ public class ClientRepository : IClientRepository
 
     public async Task<Client> Put(Client client)
     {
-        this.ChangeClientNestedLists(client);
+        var existingClient = await this.context.Client
+            .Include(c => c.Addresses)
+            .Include(c => c.Communications)
+            .Include(c => c.Annotations)
+            .Include(c => c.Membership)
+            .FirstOrDefaultAsync(c => c.Id == client.Id);
 
-        this.context.Update(client);
+        if (existingClient == null)
+        {
+            throw new KeyNotFoundException($"Client with ID {client.Id} not found");
+        }
 
-        var result = this.context.Client.Include(cu => cu.Addresses)
-                                        .Include(cu => cu.Communications)
-                                        .Include(cu => cu.Annotations)
-                                        .Include(cu => cu.Membership)
-                                        .FirstOrDefault(x => x.Id == client.Id);
+        var entry = this.context.Entry(existingClient);
+        entry.CurrentValues.SetValues(client);
+        entry.State = EntityState.Modified;
 
-        return result!;
+        UpdateNestedEntitiesManually(existingClient, client);
+
+        return existingClient;
+    }
+
+    private void UpdateNestedEntitiesManually(Client existingClient, Client updatedClient)
+    {
+        UpdateAddresses(existingClient, updatedClient);
+        UpdateCommunications(existingClient, updatedClient);
+        UpdateAnnotations(existingClient, updatedClient);
+        UpdateMembership(existingClient, updatedClient);
+    }
+
+    private void UpdateAddresses(Client existingClient, Client updatedClient)
+    {
+        var existingAddresses = existingClient.Addresses.ToList();
+        var updatedAddresses = updatedClient.Addresses.ToList();
+
+        foreach (var address in existingAddresses.ToList())
+        {
+            var updatedAddress = updatedAddresses.FirstOrDefault(a => a.Id == address.Id);
+            if (updatedAddress == null)
+            {
+                this.context.Entry(address).State = EntityState.Deleted;
+            }
+            else
+            {
+                var entry = this.context.Entry(address);
+                entry.CurrentValues.SetValues(updatedAddress);
+                entry.State = EntityState.Modified;
+            }
+        }
+
+        foreach (var newAddress in updatedAddresses.Where(a => a.Id == Guid.Empty || !existingAddresses.Any(ea => ea.Id == a.Id)))
+        {
+            newAddress.ClientId = existingClient.Id;
+            this.context.Entry(newAddress).State = EntityState.Added;
+            existingClient.Addresses.Add(newAddress);
+        }
+    }
+
+    private void UpdateCommunications(Client existingClient, Client updatedClient)
+    {
+        var existingCommunications = existingClient.Communications.ToList();
+        var updatedCommunications = updatedClient.Communications.ToList();
+
+        foreach (var communication in existingCommunications.ToList())
+        {
+            var updatedCommunication = updatedCommunications.FirstOrDefault(c => c.Id == communication.Id);
+            if (updatedCommunication == null)
+            {
+                this.context.Entry(communication).State = EntityState.Deleted;
+            }
+            else
+            {
+                var entry = this.context.Entry(communication);
+                entry.CurrentValues.SetValues(updatedCommunication);
+                entry.State = EntityState.Modified;
+            }
+        }
+
+        foreach (var newCommunication in updatedCommunications.Where(c => c.Id == Guid.Empty || !existingCommunications.Any(ec => ec.Id == c.Id)))
+        {
+            newCommunication.ClientId = existingClient.Id;
+            this.context.Entry(newCommunication).State = EntityState.Added;
+            existingClient.Communications.Add(newCommunication);
+        }
+    }
+
+    private void UpdateAnnotations(Client existingClient, Client updatedClient)
+    {
+        var existingAnnotations = existingClient.Annotations.ToList();
+        var updatedAnnotations = updatedClient.Annotations.ToList();
+
+        foreach (var annotation in existingAnnotations.ToList())
+        {
+            var updatedAnnotation = updatedAnnotations.FirstOrDefault(a => a.Id == annotation.Id);
+            if (updatedAnnotation == null)
+            {
+                this.context.Entry(annotation).State = EntityState.Deleted;
+            }
+            else
+            {
+                var entry = this.context.Entry(annotation);
+                entry.CurrentValues.SetValues(updatedAnnotation);
+                entry.State = EntityState.Modified;
+            }
+        }
+
+        foreach (var newAnnotation in updatedAnnotations.Where(a => a.Id == Guid.Empty || !existingAnnotations.Any(ea => ea.Id == a.Id)))
+        {
+            newAnnotation.ClientId = existingClient.Id;
+            this.context.Entry(newAnnotation).State = EntityState.Added;
+            existingClient.Annotations.Add(newAnnotation);
+        }
+    }
+
+    private void UpdateMembership(Client existingClient, Client updatedClient)
+    {
+        if (updatedClient.Membership != null)
+        {
+            if (existingClient.Membership == null)
+            {
+                updatedClient.Membership.ClientId = existingClient.Id;
+                this.context.Entry(updatedClient.Membership).State = EntityState.Added;
+                existingClient.Membership = updatedClient.Membership;
+            }
+            else
+            {
+                var entry = this.context.Entry(existingClient.Membership);
+                entry.CurrentValues.SetValues(updatedClient.Membership);
+                entry.State = EntityState.Modified;
+            }
+        }
+        else if (existingClient.Membership != null)
+        {
+            this.context.Entry(existingClient.Membership).State = EntityState.Deleted;
+            existingClient.Membership = null;
+        }
     }
 
     public void Remove(Client client)
@@ -359,72 +479,23 @@ public class ClientRepository : IClientRepository
         this.context.Client.Remove(client);
     }
 
-    public async Task<TruncatedClient> Truncated(FilterResource filter)
+
+    public async Task<List<Client>> WorkList(WorkFilter filter, PaginationParams pagination)
     {
-        var query = await this.FilterClients(filter);
+        var query = this.context.Client
+            .Include(c => c.Addresses)
+            .Include(c => c.Communications)
+            .Include(c => c.Membership)
+            .AsQueryable();
 
-        var count = query.Count();
-        var maxPage = filter.NumberOfItemsPerPage > 0 ? (count / filter.NumberOfItemsPerPage) : 0;
-
-        var firstItem = 0;
-
-        if (count > 0 && count > filter.NumberOfItemsPerPage)
-        {
-            if ((filter.IsNextPage.HasValue || filter.IsPreviousPage.HasValue) && filter.FirstItemOnLastPage.HasValue)
-            {
-                if (filter.IsNextPage.HasValue)
-                {
-                    firstItem = filter.FirstItemOnLastPage.Value + filter.NumberOfItemsPerPage;
-                }
-                else
-                {
-                    var numberOfItem = filter.NumberOfItemOnPreviousPage ?? filter.NumberOfItemsPerPage;
-                    firstItem = filter.FirstItemOnLastPage.Value - numberOfItem;
-                    if (firstItem < 0)
-                    {
-                        firstItem = 0;
-                    }
-                }
-            }
-            else
-            {
-                firstItem = filter.RequiredPage * filter.NumberOfItemsPerPage;
-            }
-        }
-        else
-        {
-            firstItem = filter.RequiredPage * filter.NumberOfItemsPerPage;
-        }
-
-        query = query.Skip(firstItem).Take(filter.NumberOfItemsPerPage);
-
-        var res = new TruncatedClient
-        {
-            Clients = await query.ToListAsync(),
-            MaxItems = count,
-        };
-
-        if (filter.NumberOfItemsPerPage > 0)
-        {
-            res.MaxPages = count % filter.NumberOfItemsPerPage == 0 ? maxPage - 1 : maxPage;
-        }
-
-        res.CurrentPage = filter.RequiredPage;
-        res.FirstItemOnPage = res.MaxItems <= firstItem ? -1 : firstItem;
-
-        return res;
-    }
-
-    public async Task<List<Client>> WorkList(WorkFilter filter)
-    {
-        var query = await this.FilterClients(filter.SelectedGroup);
+        query = await FilterClientsByGroupId(filter.SelectedGroup, query);
 
         if (!string.IsNullOrEmpty(filter.SearchString))
         {
-            // Ist der search string eine Nummer, sucht man nach der idNumber
             if (_searchService.IsNumericSearch(filter.SearchString))
             {
-                query = _searchService.ApplyIdNumberSearch(query, int.Parse(filter.SearchString.Trim()));
+                var numericValue = int.Parse(filter.SearchString.Trim());
+                query = _searchService.ApplyIdNumberSearch(query, numericValue);
             }
             else
             {
@@ -432,40 +503,32 @@ public class ClientRepository : IClientRepository
             }
         }
 
-        query = _workFilterService.FilterByMembershipYearMonth(query, filter.CurrentYear, filter.CurrentMonth);
-        query = _workFilterService.FilterByWorkSchedule(query, filter, this.context);
-        query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder);
-        return await Task.FromResult(query.ToList());
-    }
-
-    private void ChangeClientNestedLists(Client client)
-    {
-        _entityManagementService.UpdateNestedEntities<Communication>(
-             client.Id,
-             client.Communications.Select(x => x.Id).ToArray(),
-             id => this.context.Communication.Where(x => x.ClientId == id),
-             entity => this.context.Communication.Remove(entity)
-         );
-
-        _entityManagementService.UpdateNestedEntities<Address>(
-             client.Id,
-             client.Addresses.Select(x => x.Id).ToArray(),
-             id => this.context.Address.Where(x => x.ClientId == id),
-             entity => this.context.Address.Remove(entity)
-         );
-
-        _entityManagementService.UpdateNestedEntities<Annotation>(
-               client.Id,
-               client.Annotations.Select(x => x.Id).ToArray(),
-               id => this.context.Annotation.Where(x => x.ClientId == id),
-               entity => this.context.Annotation.Remove(entity)
-           );
-
-        if (this.context.ChangeTracker.HasChanges())
+        if (filter.CurrentYear > 0 && filter.CurrentMonth > 0)
         {
-            this.context.SaveChanges();
+            var startDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1)
+                .AddDays(-filter.DayVisibleBeforeMonth);
+            var endDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, DateTime.DaysInMonth(filter.CurrentYear, filter.CurrentMonth))
+                .AddDays(filter.DayVisibleAfterMonth);
+
+            query = _workFilterService.ApplyDateRangeFilter(query, startDate, endDate);
+        }
+
+        try
+        {
+            return await query
+                .Skip(pagination.Skip)
+                .Take(pagination.Take)
+                .ToListAsync();
+        }
+        catch (InvalidOperationException)
+        {
+            return query
+                .Skip(pagination.Skip)
+                .Take(pagination.Take)
+                .ToList();
         }
     }
+
         
     private async Task<IQueryable<Client>> FilterClients(Guid? selectedGroup)
     {

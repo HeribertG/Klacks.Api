@@ -1,6 +1,5 @@
 using Klacks.Api.Domain.Models.Staffs;
-using Klacks.Api.Presentation.DTOs.Filter;
-using Klacks.Api.Presentation.DTOs.Settings;
+using Klacks.Api.Domain.Models.Filters;
 
 namespace Klacks.Api.Domain.Interfaces;
 
@@ -14,7 +13,7 @@ public interface IClientFilterService
 
     IQueryable<Client> ApplyAnnotationFilter(IQueryable<Client> query, bool? hasAnnotation);
 
-    IQueryable<Client> ApplyStateOrCountryFilter(IQueryable<Client> query, List<StateCountryToken> stateTokens, List<CountryResource> countries);
+    IQueryable<Client> ApplyStateOrCountryFilter(IQueryable<Client> query, List<StateCountryFilter> stateTokens, List<string> countries);
 
     int[] CreateAddressTypeList(bool? homeAddress, bool? companyAddress, bool? invoiceAddress);
 

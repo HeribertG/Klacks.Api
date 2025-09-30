@@ -2,6 +2,7 @@ using AutoMapper;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Breaks;
 using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -14,7 +15,10 @@ public class GetListQueryHandler : IRequestHandler<ListQuery, IEnumerable<Client
     private readonly IMapper _mapper;
     private readonly ILogger<GetListQueryHandler> _logger;
 
-    public GetListQueryHandler(IClientRepository clientRepository, IMapper mapper, ILogger<GetListQueryHandler> logger)
+    public GetListQueryHandler(
+        IClientRepository clientRepository, 
+        IMapper mapper, 
+        ILogger<GetListQueryHandler> logger)
     {
         _clientRepository = clientRepository;
         _mapper = mapper;
@@ -33,7 +37,10 @@ public class GetListQueryHandler : IRequestHandler<ListQuery, IEnumerable<Client
                 throw new InvalidRequestException("Filter parameter is required for break list query");
             }
             
-            var clients = await _clientRepository.BreakList(request.Filter);
+            var breakFilter = _mapper.Map<BreakFilter>(request.Filter);
+            var pagination = new PaginationParams { PageIndex = 0, PageSize = 1000 }; // Default für Liste
+            
+            var clients = await _clientRepository.BreakList(breakFilter, pagination);
             var clientList = clients.ToList();
             
             _logger.LogInformation($"Retrieved {clientList.Count} clients with break data");
