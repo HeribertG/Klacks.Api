@@ -31,6 +31,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IUserService, UserService>();
 
         services.AddScoped<IClientRepository, ClientRepository>();
+        services.AddScoped<IClientFilterRepository, ClientFilterRepository>();
         services.AddScoped<IClientBreakRepository, ClientBreakRepository>();
         services.AddScoped<IClientWorkRepository, ClientWorkRepository>();
         services.AddScoped<IClientSearchRepository, ClientSearchRepository>();
