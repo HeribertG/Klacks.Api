@@ -1,85 +1,60 @@
 using System.Diagnostics;
-using System.Text.Json;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Models.LLM;
 using Klacks.Api.Domain.Services.LLM.Providers;
 using Klacks.Api.Presentation.DTOs.LLM;
-using Klacks.Api.Infrastructure.MCP;
-using MediatR;
 
 namespace Klacks.Api.Domain.Services.LLM;
 
 public class LLMService : ILLMService
 {
-    private readonly IMediator _mediator;
     private readonly ILogger<LLMService> _logger;
-    private readonly ILLMProviderFactory _providerFactory;
-    private readonly ILLMRepository _repository;
-    private readonly IConfiguration _configuration;
-    private readonly IMCPService? _mcpService;
+    private readonly LLMProviderOrchestrator _providerOrchestrator;
+    private readonly LLMConversationManager _conversationManager;
+    private readonly LLMFunctionExecutor _functionExecutor;
+    private readonly LLMResponseBuilder _responseBuilder;
+    private readonly LLMSystemPromptBuilder _promptBuilder;
 
     public LLMService(
-        IMediator mediator,
         ILogger<LLMService> logger,
-        ILLMProviderFactory providerFactory,
-        ILLMRepository repository,
-        IConfiguration configuration,
-        IMCPService? mcpService = null)
+        LLMProviderOrchestrator providerOrchestrator,
+        LLMConversationManager conversationManager,
+        LLMFunctionExecutor functionExecutor,
+        LLMResponseBuilder responseBuilder,
+        LLMSystemPromptBuilder promptBuilder)
     {
-        _mediator = mediator;
         _logger = logger;
-        _providerFactory = providerFactory;
-        _repository = repository;
-        _configuration = configuration;
-        _mcpService = mcpService;
+        _providerOrchestrator = providerOrchestrator;
+        _conversationManager = conversationManager;
+        _functionExecutor = functionExecutor;
+        _responseBuilder = responseBuilder;
+        _promptBuilder = promptBuilder;
     }
 
     public async Task<LLMResponse> ProcessAsync(LLMContext context)
     {
         var stopwatch = Stopwatch.StartNew();
-        
+
         try
         {
-            _logger.LogInformation("Processing LLM request from user {UserId}: {Message}", 
+            _logger.LogInformation("Processing LLM request from user {UserId}: {Message}",
                 context.UserId, context.Message);
 
-            // Get the model and provider
-            var modelId = context.ModelId ?? await GetDefaultModelIdAsync();
-            var model = await _repository.GetModelByIdAsync(modelId);
-            
-            if (model == null || !model.IsEnabled)
+            var (model, provider, error) = await _providerOrchestrator.GetModelAndProviderAsync(context.ModelId);
+            if (error != null)
             {
-                _logger.LogWarning("Model {ModelId} not found or not enabled", modelId);
-                return GetErrorResponse("Das gewählte Modell ist nicht verfügbar.");
+                return _responseBuilder.BuildErrorResponse(error);
             }
 
-            var provider = await _providerFactory.GetProviderForModelAsync(modelId);
-            if (provider == null)
-            {
-                _logger.LogWarning("Provider for model {ModelId} not found", modelId);
-                return GetErrorResponse("Der Provider für das gewählte Modell ist nicht verfügbar.");
-            }
+            var conversation = await _conversationManager.GetOrCreateConversationAsync(
+                context.ConversationId, context.UserId);
 
-            // Get or create conversation
-            var conversation = await _repository.GetOrCreateConversationAsync(
-                context.ConversationId ?? Guid.NewGuid().ToString(), 
-                context.UserId);
+            var llmHistory = await _conversationManager.GetConversationHistoryAsync(conversation.ConversationId);
 
-            // Get conversation history
-            var history = await _repository.GetConversationMessagesAsync(conversation.ConversationId);
-            var llmHistory = history.Select(m => new Providers.LLMMessage
-            {
-                Role = m.Role,
-                Content = m.Content,
-                Timestamp = m.CreateTime ?? DateTime.UtcNow
-            }).ToList();
-
-            // Prepare the request
             var providerRequest = new LLMProviderRequest
             {
                 Message = context.Message,
-                SystemPrompt = BuildSystemPrompt(context),
-                ModelId = model.ApiModelId,
+                SystemPrompt = _promptBuilder.BuildSystemPrompt(context),
+                ModelId = model!.ApiModelId,
                 ConversationHistory = llmHistory,
                 AvailableFunctions = context.AvailableFunctions,
                 Temperature = 0.7,
@@ -88,353 +63,42 @@ public class LLMService : ILLMService
                 CostPerOutputToken = model.CostPerOutputToken
             };
 
-            // Call the provider
-            var providerResponse = await provider.ProcessAsync(providerRequest);
-            
+            var providerResponse = await provider!.ProcessAsync(providerRequest);
+
             if (!providerResponse.Success)
             {
                 _logger.LogError("Provider returned error: {Error}", providerResponse.Error);
-                await TrackErrorUsageAsync(context, model, conversation, stopwatch.ElapsedMilliseconds, providerResponse.Error);
-                return GetErrorResponse(providerResponse.Error ?? "Ein Fehler ist aufgetreten.");
+                await _conversationManager.TrackUsageAsync(
+                    context.UserId, model, conversation,
+                    new Providers.LLMUsage(), stopwatch.ElapsedMilliseconds,
+                    hasError: true, errorMessage: providerResponse.Error);
+                return _responseBuilder.BuildErrorResponse(providerResponse.Error ?? "Ein Fehler ist aufgetreten.");
             }
 
-            // Process function calls if any
+            var responseContent = providerResponse.Content;
             if (providerResponse.FunctionCalls.Any())
             {
-                var functionResults = await ProcessFunctionCallsAsync(context, providerResponse.FunctionCalls);
+                var functionResults = await _functionExecutor.ProcessFunctionCallsAsync(context, providerResponse.FunctionCalls);
                 if (!string.IsNullOrEmpty(functionResults))
                 {
-                    providerResponse.Content += "\n\n" + functionResults;
+                    responseContent += "\n\n" + functionResults;
                 }
             }
 
-            // Save the conversation messages
-            await SaveConversationMessagesAsync(conversation, context.Message, providerResponse.Content, model.ModelId);
+            await _conversationManager.SaveConversationMessagesAsync(
+                conversation, context.Message, responseContent, model.ModelId);
 
-            // Track usage
-            await TrackUsageAsync(context, model, conversation, providerResponse.Usage, stopwatch.ElapsedMilliseconds);
+            await _conversationManager.TrackUsageAsync(
+                context.UserId, model, conversation,
+                providerResponse.Usage, stopwatch.ElapsedMilliseconds);
 
-            // Build response
-            var response = new LLMResponse
-            {
-                Message = providerResponse.Content,
-                ConversationId = conversation.ConversationId,
-                ActionPerformed = providerResponse.FunctionCalls.Any(),
-                FunctionCalls = providerResponse.FunctionCalls.Select(f => (object)new { f.FunctionName, f.Parameters }).ToList(),
-                Usage = new LLMUsageInfo
-                {
-                    InputTokens = providerResponse.Usage.InputTokens,
-                    OutputTokens = providerResponse.Usage.OutputTokens,
-                    Cost = providerResponse.Usage.Cost
-                }
-            };
-
-            // Extract navigation if mentioned in the response
-            response.NavigateTo = ExtractNavigation(providerResponse.Content);
-
-            // Generate suggestions
-            response.Suggestions = await GenerateSuggestionsAsync(context, providerResponse.Content);
-
-            return response;
+            return _responseBuilder.BuildSuccessResponse(providerResponse, conversation.ConversationId, responseContent);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing LLM request for user {UserId}", context.UserId);
-            return GetErrorResponse("Ein interner Fehler ist aufgetreten.");
+            return _responseBuilder.BuildErrorResponse("Ein interner Fehler ist aufgetreten.");
         }
     }
 
-    private string BuildSystemPrompt(LLMContext context)
-    {
-        var language = context.Language ?? "de";
-        
-        return language switch
-        {
-            "en" => $@"You are a helpful AI assistant for this planning system.
-
-User Context:
-- User ID: {context.UserId}
-- Permissions: {string.Join(", ", context.UserRights)}
-
-Available Functions:
-{string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}
-
-Guidelines:
-- Be polite and professional
-- Use available functions when users ask for them
-- Give clear and precise instructions",
-            
-            "fr" => $@"Vous êtes un assistant IA utile pour ce système de planification.
-
-Contexte utilisateur:
-- ID utilisateur: {context.UserId}
-- Autorisations: {string.Join(", ", context.UserRights)}
-
-Fonctions disponibles:
-{string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}
-
-Directives:
-- Soyez poli et professionnel
-- Utilisez les fonctions disponibles lorsque les utilisateurs le demandent
-- Donnez des instructions claires et précises",
-            
-            "it" => $@"Sei un assistente AI utile per questo sistema di pianificazione.
-
-Contesto utente:
-- ID utente: {context.UserId}
-- Autorizzazioni: {string.Join(", ", context.UserRights)}
-
-Funzioni disponibili:
-{string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}
-
-Linee guida:
-- Sii educato e professionale
-- Usa le funzioni disponibili quando gli utenti le richiedono
-- Dai istruzioni chiare e precise",
-            
-            _ => $@"Du bist ein hilfreicher KI-Assistent für dieses Planungs-System.
-
-Benutzer-Kontext:
-- User ID: {context.UserId}
-- Berechtigungen: {string.Join(", ", context.UserRights)}
-
-Verfügbare Funktionen:
-{string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}
-
-Richtlinien:
-- Sei höflich und professionell
-- Verwende die verfügbaren Funktionen, wenn der Benutzer danach fragt
-- Gib klare und präzise Anweisungen"
-        };
-    }
-
-    private async Task<string> ProcessFunctionCallsAsync(LLMContext context, List<LLMFunctionCall> functionCalls)
-    {
-        var results = new List<string>();
-
-        foreach (var call in functionCalls)
-        {
-            try
-            {
-                var result = await ExecuteFunctionAsync(context, call);
-                if (!string.IsNullOrEmpty(result))
-                {
-                    results.Add(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error executing function {FunctionName}", call.FunctionName);
-                results.Add($"❌ Fehler beim Ausführen von {call.FunctionName}");
-            }
-        }
-
-        return string.Join("\n", results);
-    }
-
-    private async Task<string> ExecuteFunctionAsync(LLMContext context, LLMFunctionCall call)
-    {
-        _logger.LogInformation("Executing function {FunctionName} with parameters {Parameters}", 
-            call.FunctionName, JsonSerializer.Serialize(call.Parameters));
-        
-        if (_mcpService != null)
-        {
-            try
-            {
-                var mcpResult = await _mcpService.ExecuteToolAsync(call.FunctionName, call.Parameters);
-                if (!string.IsNullOrEmpty(mcpResult))
-                {
-                    return mcpResult;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "MCP execution failed for {FunctionName}, falling back to default", call.FunctionName);
-            }
-        }
-        
-        return call.FunctionName switch
-        {
-            "create_client" => await ExecuteCreateClientAsync(call.Parameters),
-            "search_clients" => await ExecuteSearchClientsAsync(call.Parameters),
-            "create_contract" => await ExecuteCreateContractAsync(call.Parameters),
-            "get_system_info" => await ExecuteGetSystemInfoAsync(),
-            _ => $"✅ Funktion '{call.FunctionName}' wurde ausgeführt."
-        };
-    }
-    
-    private async Task<string> ExecuteCreateClientAsync(Dictionary<string, object> parameters)
-    {
-        var firstName = parameters.GetValueOrDefault("firstName")?.ToString() ?? "";
-        var lastName = parameters.GetValueOrDefault("lastName")?.ToString() ?? "";
-        var canton = parameters.GetValueOrDefault("canton")?.ToString() ?? "";
-        
-        return $"✅ Mitarbeiter {firstName} {lastName}" + 
-               (string.IsNullOrEmpty(canton) ? "" : $" aus {canton}") + 
-               " wurde erfolgreich erstellt.";
-    }
-    
-    private async Task<string> ExecuteSearchClientsAsync(Dictionary<string, object> parameters)
-    {
-        var searchTerm = parameters.GetValueOrDefault("searchTerm")?.ToString() ?? "";
-        var canton = parameters.GetValueOrDefault("canton")?.ToString() ?? "";
-        
-        return $"🔍 Gefunden: 3 Mitarbeiter mit Suchbegriff '{searchTerm}'" +
-               (string.IsNullOrEmpty(canton) ? "" : $" in Kanton {canton}");
-    }
-    
-    private async Task<string> ExecuteCreateContractAsync(Dictionary<string, object> parameters)
-    {
-        var clientId = parameters.GetValueOrDefault("clientId")?.ToString() ?? "";
-        var contractType = parameters.GetValueOrDefault("contractType")?.ToString() ?? "";
-        var canton = parameters.GetValueOrDefault("canton")?.ToString() ?? "";
-        
-        return $"📄 Vertrag '{contractType}' für Mitarbeiter {clientId} in {canton} wurde erstellt.";
-    }
-    
-    private async Task<string> ExecuteGetSystemInfoAsync()
-    {
-        return "ℹ️ Klacks Planning System v1.0.0 - Status: Aktiv";
-    }
-
-    private string? ExtractNavigation(string content)
-    {
-        // Simple navigation extraction - could be improved with regex or NLP
-        var navigationMap = new Dictionary<string, string>
-        {
-            ["dashboard"] = "/dashboard",
-            ["mitarbeiter"] = "/clients",
-            ["verträge"] = "/contracts",
-            ["einstellungen"] = "/settings"
-        };
-
-        var lowerContent = content.ToLower();
-        foreach (var nav in navigationMap)
-        {
-            if (lowerContent.Contains($"navigiere zu {nav.Key}") || 
-                lowerContent.Contains($"öffne {nav.Key}"))
-            {
-                return nav.Value;
-            }
-        }
-
-        return null;
-    }
-
-    private async Task<List<string>> GenerateSuggestionsAsync(LLMContext context, string response)
-    {
-        // Generate contextual suggestions based on the response
-        var suggestions = new List<string>();
-
-        if (response.ToLower().Contains("mitarbeiter") || response.ToLower().Contains("erstellt"))
-        {
-            suggestions.Add("Zeige alle Mitarbeiter");
-            suggestions.Add("Erstelle weiteren Mitarbeiter");
-        }
-
-        if (response.ToLower().Contains("suche") || response.ToLower().Contains("gefunden"))
-        {
-            suggestions.Add("Erweiterte Suche");
-            suggestions.Add("Filter anwenden");
-        }
-
-        suggestions.Add("Hilfe anzeigen");
-        suggestions.Add("Zum Dashboard");
-
-        return suggestions.Take(4).ToList();
-    }
-
-    private async Task SaveConversationMessagesAsync(LLMConversation conversation, string userMessage, string assistantMessage, string modelId)
-    {
-        // Save user message
-        await _repository.SaveMessageAsync(new Domain.Models.LLM.LLMMessage
-        {
-            ConversationId = conversation.Id,
-            Role = "user",
-            Content = userMessage,
-            CreateTime = DateTime.UtcNow
-        });
-
-        // Save assistant message
-        await _repository.SaveMessageAsync(new Domain.Models.LLM.LLMMessage
-        {
-            ConversationId = conversation.Id,
-            Role = "assistant",
-            Content = assistantMessage,
-            ModelId = modelId,
-            CreateTime = DateTime.UtcNow
-        });
-
-        // Update conversation
-        conversation.LastMessageAt = DateTime.UtcNow;
-        conversation.MessageCount += 2;
-        conversation.LastModelId = modelId;
-        
-        // Generate title if this is the first exchange
-        if (conversation.MessageCount == 2)
-        {
-            conversation.Title = GenerateConversationTitle(userMessage, assistantMessage);
-        }
-
-        await _repository.UpdateConversationAsync(conversation);
-    }
-
-    private string GenerateConversationTitle(string userMessage, string assistantMessage)
-    {
-        // Simple title generation - take first few words of user message
-        var words = userMessage.Split(' ').Take(5);
-        return string.Join(' ', words) + (words.Count() >= 5 ? "..." : "");
-    }
-
-    private async Task TrackUsageAsync(LLMContext context, LLMModel model, LLMConversation conversation, Providers.LLMUsage usage, long responseTimeMs)
-    {
-        await _repository.TrackUsageAsync(new Domain.Models.LLM.LLMUsage
-        {
-            UserId = context.UserId,
-            ModelId = model.Id,
-            ConversationId = conversation.ConversationId,
-            InputTokens = usage.InputTokens,
-            OutputTokens = usage.OutputTokens,
-            Cost = usage.Cost,
-            ResponseTimeMs = (int)responseTimeMs,
-            HasError = false,
-            CreateTime = DateTime.UtcNow
-        });
-
-        // Update conversation totals
-        conversation.TotalTokens += usage.TotalTokens;
-        conversation.TotalCost += usage.Cost;
-    }
-
-    private async Task TrackErrorUsageAsync(LLMContext context, LLMModel model, LLMConversation conversation, long responseTimeMs, string? error)
-    {
-        await _repository.TrackUsageAsync(new Domain.Models.LLM.LLMUsage
-        {
-            UserId = context.UserId,
-            ModelId = model.Id,
-            ConversationId = conversation.ConversationId,
-            InputTokens = 0,
-            OutputTokens = 0,
-            Cost = 0,
-            ResponseTimeMs = (int)responseTimeMs,
-            HasError = true,
-            ErrorMessage = error,
-            CreateTime = DateTime.UtcNow
-        });
-    }
-
-    private async Task<string> GetDefaultModelIdAsync()
-    {
-        var defaultModel = await _repository.GetDefaultModelAsync();
-        return defaultModel?.ModelId ?? "gpt-5";
-    }
-
-    private LLMResponse GetErrorResponse(string message)
-    {
-        return new LLMResponse 
-        { 
-            Message = $"❌ {message}",
-            Suggestions = new List<string> { "Hilfe anzeigen", "Erneut versuchen" }
-        };
-    }
 }

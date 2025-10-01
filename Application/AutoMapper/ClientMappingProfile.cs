@@ -2,6 +2,7 @@ using AutoMapper;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Results;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Presentation.DTOs.Clients;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Presentation.DTOs.Staffs;
@@ -12,6 +13,15 @@ public class ClientMappingProfile : Profile
 {
     public ClientMappingProfile()
     {
+        CreateMap<Client, ClientListItemResource>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.IdNumber, opt => opt.MapFrom(src => src.IdNumber))
+            .ForMember(dest => dest.Company, opt => opt.MapFrom(src => src.Company))
+            .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (int)src.Type))
+            .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted));
+
         CreateMap<TruncatedClient, TruncatedClientResource>()
             .ForMember(dest => dest.Clients, opt => opt.MapFrom(src => src.Clients))
             .ForMember(dest => dest.Editor, opt => opt.MapFrom(src => src.Editor))

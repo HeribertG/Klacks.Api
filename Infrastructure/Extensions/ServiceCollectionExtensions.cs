@@ -127,11 +127,31 @@ public static  class ServiceCollectionExtensions
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        // Infrastructure Services
+        services.AddScoped<EntityCollectionUpdateService>();
+
+        // Database Adapters - Register based on environment
+        services.AddScoped<IGroupTreeDatabaseAdapter>(sp =>
+        {
+            var context = sp.GetRequiredService<DataBaseContext>();
+            var isInMemory = context.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory";
+            return isInMemory
+                ? new Persistence.Adapters.GroupTreeInMemoryAdapter(context)
+                : new Persistence.Adapters.GroupTreeProductionAdapter(context);
+        });
+
         // LLM Services
         services.AddScoped<ILLMRepository, LLMRepository>();
         services.AddScoped<ILLMService, LLMService>();
         services.AddScoped<ILLMProviderFactory, LLMProviderFactory>();
-        
+
+        // LLM Domain Services
+        services.AddScoped<LLMProviderOrchestrator>();
+        services.AddScoped<LLMConversationManager>();
+        services.AddScoped<LLMFunctionExecutor>();
+        services.AddScoped<LLMResponseBuilder>();
+        services.AddScoped<LLMSystemPromptBuilder>();
+
         // LLM Providers
         services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.OpenAI.OpenAIProvider>();
         services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.Anthropic.AnthropicProvider>();
@@ -140,7 +160,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.Mistral.MistralProvider>();
         services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.Cohere.CohereProvider>();
         services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.DeepSeek.DeepSeekProvider>();
-        
+
         // HttpClients for Providers
         services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.OpenAI.OpenAIProvider>();
         services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.Anthropic.AnthropicProvider>();

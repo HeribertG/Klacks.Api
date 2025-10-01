@@ -1,6 +1,7 @@
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Domain.Services.Groups;
@@ -9,11 +10,16 @@ public class GroupTreeService : IGroupTreeService
 {
     private readonly DataBaseContext _context;
     private readonly ILogger<GroupTreeService> _logger;
+    private readonly IGroupTreeDatabaseAdapter _databaseAdapter;
 
-    public GroupTreeService(DataBaseContext context, ILogger<GroupTreeService> logger)
+    public GroupTreeService(
+        DataBaseContext context,
+        ILogger<GroupTreeService> logger,
+        IGroupTreeDatabaseAdapter databaseAdapter)
     {
         _context = context;
         _logger = logger;
+        _databaseAdapter = databaseAdapter;
     }
 
     public async Task<Group> AddChildNodeAsync(Guid parentId, Group newGroup)
@@ -32,38 +38,8 @@ public class GroupTreeService : IGroupTreeService
         }
 
         // Update existing nodes to make space for the new node
-        if (IsInMemoryDatabase())
-        {
-            // Use EF operations for InMemory database (testing)
-            var groupsToUpdateRgt = await _context.Group
-                .Where(g => g.Rgt >= parent.Rgt && g.Root == parent.Root && !g.IsDeleted)
-                .ToListAsync();
-            foreach (var group in groupsToUpdateRgt)
-            {
-                group.Rgt += 2;
-                _context.Group.Update(group);
-            }
-
-            var groupsToUpdateLft = await _context.Group
-                .Where(g => g.Lft > parent.Rgt && g.Root == parent.Root && !g.IsDeleted)
-                .ToListAsync();
-            foreach (var group in groupsToUpdateLft)
-            {
-                group.Lft += 2;
-                _context.Group.Update(group);
-            }
-        }
-        else
-        {
-            // Use raw SQL for production database
-            await _context.Database.ExecuteSqlRawAsync(
-                "UPDATE \"group\" SET \"rgt\" = \"rgt\" + 2 WHERE \"rgt\" >= @p0 AND \"root\" = @p1 AND \"is_deleted\" = false",
-                parent.Rgt, parent.Root);
-
-            await _context.Database.ExecuteSqlRawAsync(
-                "UPDATE \"group\" SET \"lft\" = \"lft\" + 2 WHERE \"lft\" > @p0 AND \"root\" = @p1 AND \"is_deleted\" = false",
-                parent.Rgt, parent.Root);
-        }
+        await _databaseAdapter.UpdateRgtValuesAsync(parent.Rgt, parent.Root ?? parent.Id, 2);
+        await _databaseAdapter.UpdateLftValuesAsync(parent.Rgt, parent.Root ?? parent.Id, 2);
 
         // Set the new node's position
         newGroup.Lft = parent.Rgt;
@@ -130,75 +106,25 @@ public class GroupTreeService : IGroupTreeService
             throw new InvalidOperationException("The new parent cannot be a descendant of the node to be moved");
         }
 
-        if (IsInMemoryDatabase())
+        var nodeWidth = node.Rgt - node.Lft + 1;
+        var newPos = newParent.Rgt;
+
+        await _databaseAdapter.MarkSubtreeWithNegativeValuesAsync(node.Lft, node.Rgt, node.Root ?? node.Id);
+
+        await _databaseAdapter.ShiftNodesToCloseGapAsync(node.Rgt, node.Root ?? node.Id, nodeWidth);
+
+        if (newPos > node.Rgt)
         {
-            // For InMemory database (testing), use a simpler approach
-            // Just update parent relationship and mark tree as needing repair
-            _logger.LogInformation("Using simplified move operation for InMemory database");
-            
-            // Update parent reference
-            node.Parent = newParentId;
-            node.Root = newParent.Root ?? newParent.Id;
-            _context.Group.Update(node);
-            
-            // Update all descendants to have the correct root
-            var descendants = await _context.Group
-                .Where(g => g.Lft > node.Lft && g.Rgt < node.Rgt && g.Root == node.Root)
-                .ToListAsync();
-                
-            foreach (var descendant in descendants)
-            {
-                descendant.Root = newParent.Root ?? newParent.Id;
-                _context.Group.Update(descendant);
-            }
+            newPos -= nodeWidth;
         }
-        else
-        {
-            // Complex nested set move operation for production database
-            var nodeWidth = node.Rgt - node.Lft + 1;
-            var newPos = newParent.Rgt;
 
-            // Step 1: Mark the subtree being moved with negative values
-            await _context.Database.ExecuteSqlRawAsync(
-                "UPDATE \"group\" SET \"lft\" = -\"lft\", \"rgt\" = -\"rgt\" " +
-                "WHERE \"lft\" >= @p0 AND \"rgt\" <= @p1 AND \"root\" = @p2",
-                node.Lft, node.Rgt, node.Root);
+        await _databaseAdapter.MakeSpaceAtPositionAsync(newPos, newParent.Root ?? newParent.Id, nodeWidth);
 
-            // Step 2: Shift nodes to close the gap left by the moved subtree
-            await _context.Database.ExecuteSqlRawAsync(
-                "UPDATE \"group\" SET \"lft\" = \"lft\" - @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2",
-                nodeWidth, node.Rgt, node.Root);
+        var offset = newPos - node.Lft;
+        await _databaseAdapter.MoveMarkedSubtreeAsync(offset, newParent.Root ?? newParent.Id, node.Root ?? node.Id);
 
-            await _context.Database.ExecuteSqlRawAsync(
-                "UPDATE \"group\" SET \"rgt\" = \"rgt\" - @p0 WHERE \"rgt\" > @p1 AND \"root\" = @p2",
-                nodeWidth, node.Rgt, node.Root);
-
-            // Step 3: Adjust new position if needed
-            if (newPos > node.Rgt)
-            {
-                newPos -= nodeWidth;
-            }
-
-            // Step 4: Make space at the new location
-            await _context.Database.ExecuteSqlRawAsync(
-                "UPDATE \"group\" SET \"rgt\" = \"rgt\" + @p0 WHERE \"rgt\" >= @p1 AND \"root\" = @p2",
-                nodeWidth, newPos, newParent.Root);
-
-            await _context.Database.ExecuteSqlRawAsync(
-                "UPDATE \"group\" SET \"lft\" = \"lft\" + @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2",
-                nodeWidth, newPos, newParent.Root);
-
-            // Step 5: Move the subtree to its new position
-            var offset = newPos - node.Lft;
-            await _context.Database.ExecuteSqlRawAsync(
-                "UPDATE \"group\" SET \"lft\" = -\"lft\" + @p0, \"rgt\" = -\"rgt\" + @p0, \"root\" = @p1 " +
-                "WHERE \"lft\" <= 0 AND \"root\" = @p2",
-                offset, newParent.Root, node.Root);
-
-            // Update parent reference
-            node.Parent = newParentId;
-            _context.Group.Update(node);
-        }
+        node.Parent = newParentId;
+        _context.Group.Update(node);
         
         _logger.LogInformation("Group with ID: {NodeId} moved to new parent {NewParentId}.", nodeId, newParentId);
     }
@@ -219,68 +145,11 @@ public class GroupTreeService : IGroupTreeService
 
         var width = CalculateTreeWidth(groupEntity.Lft, groupEntity.Rgt);
 
-        if (IsInMemoryDatabase())
-        {
-            // For InMemory database (testing), use EF operations
-            _logger.LogInformation("Using EF operations for InMemory database");
-            
-            // Mark entire subtree as deleted using EF operations
-            var subtreeNodes = await _context.Group
-                .Where(g => g.Lft >= groupEntity.Lft && g.Rgt <= groupEntity.Rgt && g.Root == groupEntity.Root)
-                .ToListAsync();
-                
-            foreach (var node in subtreeNodes)
-            {
-                node.IsDeleted = true;
-                node.DeletedTime = DateTime.UtcNow;
-                _context.Group.Update(node);
-            }
+        await _databaseAdapter.MarkSubtreeAsDeletedAsync(
+            groupEntity.Lft, groupEntity.Rgt, groupEntity.Root ?? groupEntity.Id, DateTime.UtcNow);
 
-            // Shift remaining nodes to close the gap using EF operations
-            var nodesToUpdateLft = await _context.Group
-                .Where(g => g.Lft > groupEntity.Rgt && g.Root == groupEntity.Root && !g.IsDeleted)
-                .ToListAsync();
-                
-            foreach (var node in nodesToUpdateLft)
-            {
-                node.Lft -= width;
-                _context.Group.Update(node);
-            }
-
-            var nodesToUpdateRgt = await _context.Group
-                .Where(g => g.Rgt > groupEntity.Rgt && g.Root == groupEntity.Root && !g.IsDeleted)
-                .ToListAsync();
-                
-            foreach (var node in nodesToUpdateRgt)
-            {
-                node.Rgt -= width;
-                _context.Group.Update(node);
-            }
-
-            // Remove from EF context
-            _context.Group.Remove(groupEntity);
-        }
-        else
-        {
-            // For production database, use raw SQL for performance
-            // Mark entire subtree as deleted
-            await _context.Database.ExecuteSqlRawAsync(
-                "UPDATE \"group\" SET \"is_deleted\" = true, \"deleted_time\" = @p0 " +
-                "WHERE \"lft\" >= @p1 AND \"rgt\" <= @p2 AND \"root\" = @p3",
-                DateTime.UtcNow, groupEntity.Lft, groupEntity.Rgt, groupEntity.Root);
-
-            // Shift remaining nodes to close the gap
-            await _context.Database.ExecuteSqlRawAsync(
-                "UPDATE \"group\" SET \"lft\" = \"lft\" - @p0 WHERE \"lft\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
-                width, groupEntity.Rgt, groupEntity.Root);
-
-            await _context.Database.ExecuteSqlRawAsync(
-                "UPDATE \"group\" SET \"rgt\" = \"rgt\" - @p0 WHERE \"rgt\" > @p1 AND \"root\" = @p2 AND \"is_deleted\" = false",
-                width, groupEntity.Rgt, groupEntity.Root);
-
-            // Remove from EF context
-            _context.Group.Remove(groupEntity);
-        }
+        await _databaseAdapter.ShiftNodesAfterDeleteAsync(
+            groupEntity.Rgt, groupEntity.Root ?? groupEntity.Id, width);
         
         _logger.LogInformation("Group with ID: {NodeId} and its subtree deleted.", nodeId);
         return width;
@@ -327,10 +196,5 @@ public class GroupTreeService : IGroupTreeService
             .CountAsync();
             
         _logger.LogInformation("Would update {Count} nodes in tree {RootId}.", affectedNodes, rootId);
-    }
-
-    private bool IsInMemoryDatabase()
-    {
-        return _context.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory";
     }
 }

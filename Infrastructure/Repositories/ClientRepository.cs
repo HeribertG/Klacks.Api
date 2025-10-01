@@ -1,12 +1,10 @@
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Filters;
-using Klacks.Api.Domain.Models.Results;
 using Klacks.Api.Domain.Models.Staffs;
-using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Repositories;
@@ -17,17 +15,20 @@ public class ClientRepository : IClientRepository
     private readonly IMacroEngine macroEngine;
     private readonly IClientChangeTrackingService _changeTrackingService;
     private readonly IClientEntityManagementService _entityManagementService;
+    private readonly EntityCollectionUpdateService _collectionUpdateService;
 
     public ClientRepository(
         DataBaseContext context,
         IMacroEngine macroEngine,
         IClientChangeTrackingService changeTrackingService,
-        IClientEntityManagementService entityManagementService)
+        IClientEntityManagementService entityManagementService,
+        EntityCollectionUpdateService collectionUpdateService)
     {
         this.context = context;
         this.macroEngine = macroEngine;
         _changeTrackingService = changeTrackingService;
         _entityManagementService = entityManagementService;
+        _collectionUpdateService = collectionUpdateService;
     }
 
     public async Task Add(Client client)
@@ -127,118 +128,31 @@ public class ClientRepository : IClientRepository
 
     private void UpdateNestedEntitiesManually(Client existingClient, Client updatedClient)
     {
-        UpdateAddresses(existingClient, updatedClient);
-        UpdateCommunications(existingClient, updatedClient);
-        UpdateAnnotations(existingClient, updatedClient);
-        UpdateMembership(existingClient, updatedClient);
-    }
+        _collectionUpdateService.UpdateCollection(
+            existingClient.Addresses,
+            updatedClient.Addresses,
+            existingClient.Id,
+            (address, clientId) => address.ClientId = clientId);
 
-    private void UpdateAddresses(Client existingClient, Client updatedClient)
-    {
-        var existingAddresses = existingClient.Addresses.ToList();
-        var updatedAddresses = updatedClient.Addresses.ToList();
+        _collectionUpdateService.UpdateCollection(
+            existingClient.Communications,
+            updatedClient.Communications,
+            existingClient.Id,
+            (communication, clientId) => communication.ClientId = clientId);
 
-        foreach (var address in existingAddresses.ToList())
-        {
-            var updatedAddress = updatedAddresses.FirstOrDefault(a => a.Id == address.Id);
-            if (updatedAddress == null)
-            {
-                this.context.Entry(address).State = EntityState.Deleted;
-            }
-            else
-            {
-                var entry = this.context.Entry(address);
-                entry.CurrentValues.SetValues(updatedAddress);
-                entry.State = EntityState.Modified;
-            }
-        }
+        _collectionUpdateService.UpdateCollection(
+            existingClient.Annotations,
+            updatedClient.Annotations,
+            existingClient.Id,
+            (annotation, clientId) => annotation.ClientId = clientId);
 
-        foreach (var newAddress in updatedAddresses.Where(a => a.Id == Guid.Empty || !existingAddresses.Any(ea => ea.Id == a.Id)))
-        {
-            newAddress.ClientId = existingClient.Id;
-            this.context.Entry(newAddress).State = EntityState.Added;
-            existingClient.Addresses.Add(newAddress);
-        }
-    }
-
-    private void UpdateCommunications(Client existingClient, Client updatedClient)
-    {
-        var existingCommunications = existingClient.Communications.ToList();
-        var updatedCommunications = updatedClient.Communications.ToList();
-
-        foreach (var communication in existingCommunications.ToList())
-        {
-            var updatedCommunication = updatedCommunications.FirstOrDefault(c => c.Id == communication.Id);
-            if (updatedCommunication == null)
-            {
-                this.context.Entry(communication).State = EntityState.Deleted;
-            }
-            else
-            {
-                var entry = this.context.Entry(communication);
-                entry.CurrentValues.SetValues(updatedCommunication);
-                entry.State = EntityState.Modified;
-            }
-        }
-
-        foreach (var newCommunication in updatedCommunications.Where(c => c.Id == Guid.Empty || !existingCommunications.Any(ec => ec.Id == c.Id)))
-        {
-            newCommunication.ClientId = existingClient.Id;
-            this.context.Entry(newCommunication).State = EntityState.Added;
-            existingClient.Communications.Add(newCommunication);
-        }
-    }
-
-    private void UpdateAnnotations(Client existingClient, Client updatedClient)
-    {
-        var existingAnnotations = existingClient.Annotations.ToList();
-        var updatedAnnotations = updatedClient.Annotations.ToList();
-
-        foreach (var annotation in existingAnnotations.ToList())
-        {
-            var updatedAnnotation = updatedAnnotations.FirstOrDefault(a => a.Id == annotation.Id);
-            if (updatedAnnotation == null)
-            {
-                this.context.Entry(annotation).State = EntityState.Deleted;
-            }
-            else
-            {
-                var entry = this.context.Entry(annotation);
-                entry.CurrentValues.SetValues(updatedAnnotation);
-                entry.State = EntityState.Modified;
-            }
-        }
-
-        foreach (var newAnnotation in updatedAnnotations.Where(a => a.Id == Guid.Empty || !existingAnnotations.Any(ea => ea.Id == a.Id)))
-        {
-            newAnnotation.ClientId = existingClient.Id;
-            this.context.Entry(newAnnotation).State = EntityState.Added;
-            existingClient.Annotations.Add(newAnnotation);
-        }
-    }
-
-    private void UpdateMembership(Client existingClient, Client updatedClient)
-    {
-        if (updatedClient.Membership != null)
-        {
-            if (existingClient.Membership == null)
-            {
-                updatedClient.Membership.ClientId = existingClient.Id;
-                this.context.Entry(updatedClient.Membership).State = EntityState.Added;
-                existingClient.Membership = updatedClient.Membership;
-            }
-            else
-            {
-                var entry = this.context.Entry(existingClient.Membership);
-                entry.CurrentValues.SetValues(updatedClient.Membership);
-                entry.State = EntityState.Modified;
-            }
-        }
-        else if (existingClient.Membership != null)
-        {
-            this.context.Entry(existingClient.Membership).State = EntityState.Deleted;
-            existingClient.Membership = null;
-        }
+        _collectionUpdateService.UpdateSingleEntity(
+            existingClient.Membership,
+            updatedClient.Membership,
+            existingClient.Id,
+            (membership, clientId) => membership.ClientId = clientId,
+            (membership) => existingClient.Membership = membership,
+            () => existingClient.Membership = null);
     }
 
     public void Remove(Client client)

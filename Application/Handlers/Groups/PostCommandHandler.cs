@@ -27,11 +27,12 @@ public class PostCommandHandler : BaseTransactionHandler, IRequestHandler<PostCo
         return await ExecuteWithTransactionAsync(async () =>
         {
             var group = _mapper.Map<Klacks.Api.Domain.Models.Associations.Group>(request.Resource);
+            group.Id = Guid.NewGuid();
             await _groupRepository.Add(group);
             await _unitOfWork.CompleteAsync();
             return _mapper.Map<GroupResource>(group);
-        }, 
-        "creating group", 
+        },
+        "creating group",
         new { GroupId = request.Resource?.Id });
     }
 }

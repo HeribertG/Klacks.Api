@@ -34,7 +34,6 @@ public class GroupMappingProfile : Profile
             .ForMember(dest => dest.GroupItems, opt => opt.MapFrom(src => src.GroupItems));
 
         CreateMap<GroupResource, Group>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.GroupItems, opt => opt.MapFrom(src => src.GroupItems))
             .ForMember(dest => dest.CurrentUserCreated, opt => opt.Ignore())
             .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
