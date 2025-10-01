@@ -10,20 +10,20 @@ namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
 
 public class GroupsController : InputBaseController<GroupResource>
 {
-    private readonly ILogger<GroupsController> logger;
+    private readonly ILogger<GroupsController> _logger;
 
     public GroupsController(IMediator Mediator, ILogger<GroupsController> logger)
       : base(Mediator, logger)
     {
-        this.logger = logger;
+        this._logger = logger;
     }
 
     [HttpPost("GetSimpleList")]
     public async Task<ActionResult<TruncatedGroupResource>> GetSimpleList([FromBody] GroupFilter filter)
     {
-        logger.LogInformation($"Fetching simple group list with filter: {JsonConvert.SerializeObject(filter)}");
+        _logger.LogInformation($"Fetching simple group list with filter: {JsonConvert.SerializeObject(filter)}");
         var truncatedGroups = await Mediator.Send(new GetTruncatedListQuery(filter));
-        logger.LogInformation($"Retrieved {truncatedGroups.Groups.Count} truncated groups.");
+        _logger.LogInformation($"Retrieved {truncatedGroups.Groups.Count} truncated groups.");
         return Ok(truncatedGroups);
     }
 
@@ -33,9 +33,9 @@ public class GroupsController : InputBaseController<GroupResource>
     [HttpGet("tree")]
     public async Task<ActionResult<GroupTreeResource>> GetTree([FromQuery] Guid? rootId = null)
     {
-        logger.LogInformation($"Fetching group tree with rootId: {rootId}");
+        _logger.LogInformation($"Fetching group tree with rootId: {rootId}");
         var tree = await Mediator.Send(new GetGroupTreeQuery(rootId));
-        logger.LogInformation($"Retrieved tree with {tree.Nodes.Count} nodes.");
+        _logger.LogInformation($"Retrieved tree with {tree.Nodes.Count} nodes.");
         return Ok(tree);
     }
 
@@ -45,9 +45,9 @@ public class GroupsController : InputBaseController<GroupResource>
     [HttpGet("path/{id}")]
     public async Task<ActionResult<List<GroupResource>>> GetPath(Guid id)
     {
-        logger.LogInformation($"Fetching path to node with ID: {id}");
+        _logger.LogInformation($"Fetching path to node with ID: {id}");
         var path = await Mediator.Send(new GetPathToNodeQuery(id));
-        logger.LogInformation($"Retrieved path with {path.Count} nodes.");
+        _logger.LogInformation($"Retrieved path with {path.Count} nodes.");
         return Ok(path);
     }
 
@@ -59,9 +59,9 @@ public class GroupsController : InputBaseController<GroupResource>
     [HttpPost("move/{id}")]
     public async Task<ActionResult<GroupResource>> MoveGroup(Guid id, [FromQuery] Guid newParentId)
     {
-        logger.LogInformation($"Moving group with ID: {id} to parent ID: {newParentId}");
+        _logger.LogInformation($"Moving group with ID: {id} to parent ID: {newParentId}");
         var movedGroup = await Mediator.Send(new MoveGroupNodeCommand(id, newParentId));
-        logger.LogInformation($"Moved group with ID: {id} to parent ID: {newParentId}");
+        _logger.LogInformation($"Moved group with ID: {id} to parent ID: {newParentId}");
         return Ok(movedGroup);
     }
 
@@ -84,9 +84,9 @@ public class GroupsController : InputBaseController<GroupResource>
     [HttpGet("{groupId}/members")]
     public async Task<ActionResult<List<GroupItemResource>>> GetGroupMembers(Guid groupId)
     {
-        logger.LogInformation($"Fetching members for group with ID: {groupId}");
+        _logger.LogInformation($"Fetching members for group with ID: {groupId}");
         var members = await Mediator.Send(new GetGroupMembersQuery(groupId));
-        logger.LogInformation($"Retrieved {members.Count} members for group {groupId}.");
+        _logger.LogInformation($"Retrieved {members.Count} members for group {groupId}.");
         return Ok(members);
     }
 }

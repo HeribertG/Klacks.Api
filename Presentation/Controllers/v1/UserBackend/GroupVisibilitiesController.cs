@@ -9,36 +9,36 @@ namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
 
 public class GroupVisibilitiesController : InputBaseController<GroupResource>
 {
-    private readonly ILogger<GroupsController> logger;
+    private readonly ILogger<GroupsController> _logger;
 
     public GroupVisibilitiesController(IMediator Mediator, ILogger<GroupsController> logger)
       : base(Mediator, logger)
     {
-        this.logger = logger;
+        this._logger = logger;
     }
 
     [HttpGet("GetSimpleList/{id}")]
     public async Task<ActionResult<IEnumerable<GroupVisibilityResource>>> GetPersonalSimpleList(string id)
     {
-        logger.LogInformation($"Fetching simple groupVisibilities list for ID: {id}");
+        _logger.LogInformation($"Fetching simple groupVisibilities list for ID: {id}");
         var groupVisibilities = await Mediator.Send(new GroupVisibilityListQuery(id));
-        logger.LogInformation($"Retrieved {groupVisibilities.Count()} simple groupVisibilities list for ID: {id}");
+        _logger.LogInformation($"Retrieved {groupVisibilities.Count()} simple groupVisibilities list for ID: {id}");
         return Ok(groupVisibilities);
     }
 
     [HttpGet("GetSimpleList")]
     public async Task<ActionResult<IEnumerable<GroupVisibilityResource>>> GetSimpleList()
     {
-        logger.LogInformation($"Fetching simple groupVisibilities");
+        _logger.LogInformation($"Fetching simple groupVisibilities");
         var groupVisibilities = await Mediator.Send(new ListQuery<GroupVisibilityResource>());
-        logger.LogInformation($"Retrieved {groupVisibilities.Count()} simple groupVisibilities list");
+        _logger.LogInformation($"Retrieved {groupVisibilities.Count()} simple groupVisibilities list");
         return Ok(groupVisibilities);
     }
 
     [HttpPost("BulkList")]
     public async Task<ActionResult> BulkList(List<GroupVisibilityResource> bulk)
     {
-        logger.LogInformation($"storing Bulk list groupVisibilities");
+        _logger.LogInformation($"storing Bulk list groupVisibilities");
         await Mediator.Send(new BulkGroupVisibilitiesCommand(bulk));
 
         return Ok();

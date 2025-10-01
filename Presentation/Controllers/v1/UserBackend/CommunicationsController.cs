@@ -9,29 +9,29 @@ namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
 
 public class CommunicationsController : InputBaseController<CommunicationResource>
 {
-    private readonly ILogger<CommunicationsController> logger;
+    private readonly ILogger<CommunicationsController> _logger;
 
     public CommunicationsController(IMediator Mediator, ILogger<CommunicationsController> logger)
       : base(Mediator, logger)
     {
-        this.logger = logger;
+        this._logger = logger;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CommunicationResource>>> GetCommunication()
     {
-        logger.LogInformation("Fetching communication resources.");
+        _logger.LogInformation("Fetching communication resources.");
         var communications = await Mediator.Send(new ListQuery<CommunicationResource>());
-        logger.LogInformation($"Retrieved {communications.Count()} communication resources.");
+        _logger.LogInformation($"Retrieved {communications.Count()} communication resources.");
         return Ok(communications);
     }
 
     [HttpGet("CommunicationTypes")]
     public async Task<ActionResult<IEnumerable<CommunicationType>>> GetCommunicationType()
     {
-        logger.LogInformation("Fetching communication types.");
+        _logger.LogInformation("Fetching communication types.");
         var communicationTypes = await Mediator.Send(new GetTypeQuery());
-        logger.LogInformation($"Retrieved {communicationTypes.Count()} communication types.");
+        _logger.LogInformation($"Retrieved {communicationTypes.Count()} communication types.");
         return Ok(communicationTypes);
     }
 }

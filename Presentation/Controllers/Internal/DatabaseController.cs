@@ -32,7 +32,7 @@ public class DatabaseController : ControllerBase
     public DatabaseController(IDatabaseInitializer databaseInitializer, ILogger<DatabaseController> logger)
     {
         _databaseInitializer = databaseInitializer;
-        _logger = logger;
+        this._logger = logger;
     }
 
     /// <summary>

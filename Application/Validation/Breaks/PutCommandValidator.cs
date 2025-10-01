@@ -14,7 +14,7 @@ public class PutCommandValidator : AbstractValidator<PutCommand<BreakResource>>
     public PutCommandValidator(DataBaseContext context, ILogger<PutCommandValidator> logger)
     {
         _context = context;
-        _logger = logger;
+        this._logger = logger;
 
         RuleFor(x => x.Resource.Id)
             .NotEmpty().WithMessage("Break Id is required");

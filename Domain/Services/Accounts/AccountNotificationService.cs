@@ -13,7 +13,7 @@ public class AccountNotificationService : IAccountNotificationService
         ILogger<AccountNotificationService> logger)
     {
         _appDbContext = appDbContext;
-        _logger = logger;
+        this._logger = logger;
     }
 
     public async Task<string> SendEmailAsync(string title, string email, string message)

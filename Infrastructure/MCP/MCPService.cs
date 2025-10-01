@@ -12,7 +12,7 @@ public class MCPService : IMCPService, IDisposable
 
     public MCPService(ILogger<MCPService> logger, ILoggerFactory loggerFactory)
     {
-        _logger = logger;
+        this._logger = logger;
         _loggerFactory = loggerFactory;
     }
 

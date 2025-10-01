@@ -16,7 +16,7 @@ public class GroupMembershipService : IGroupMembershipService
     public GroupMembershipService(DataBaseContext context, ILogger<GroupMembershipService> logger, IGroupHierarchyService hierarchyService)
     {
         _context = context;
-        _logger = logger;
+        this._logger = logger;
         _hierarchyService = hierarchyService;
     }
 

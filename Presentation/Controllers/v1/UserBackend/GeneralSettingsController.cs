@@ -8,14 +8,14 @@ namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
 
 public class GeneralSettingsController : BaseController
 {
-    private readonly ILogger<GeneralSettingsController> logger;
+    private readonly ILogger<GeneralSettingsController> _logger;
     private readonly IMediator mediator;
     private readonly IEmailTestService emailTestService;
 
     public GeneralSettingsController(IMediator mediator, ILogger<GeneralSettingsController> logger, IEmailTestService emailTestService)
     {
         this.mediator = mediator;
-        this.logger = logger;
+        this._logger = logger;
         this.emailTestService = emailTestService;
     }
 
@@ -24,14 +24,14 @@ public class GeneralSettingsController : BaseController
     {
         try
         {
-            logger.LogInformation("Adding new setting.");
+            _logger.LogInformation("Adding new setting.");
             var res = await mediator.Send(new PostCommand(setting));
-            logger.LogInformation("Setting added successfully.");
+            _logger.LogInformation("Setting added successfully.");
             return res;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while adding setting.");
+            _logger.LogError(ex, "Error occurred while adding setting.");
             throw;
         }
     }
@@ -41,11 +41,11 @@ public class GeneralSettingsController : BaseController
     {
         try
         {
-            logger.LogInformation($"Fetching setting of type: {type}");
+            _logger.LogInformation($"Fetching setting of type: {type}");
             var setting = await mediator.Send(new Application.Queries.Settings.Settings.GetQuery(type));
             if (setting == null)
             {
-                logger.LogWarning($"Setting of type: {type} not found.");
+                _logger.LogWarning($"Setting of type: {type} not found.");
                 return NotFound();
             }
 
@@ -53,7 +53,7 @@ public class GeneralSettingsController : BaseController
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Error occurred while fetching setting of type: {type}");
+            _logger.LogError(ex, $"Error occurred while fetching setting of type: {type}");
             throw;
         }
     }
@@ -63,14 +63,14 @@ public class GeneralSettingsController : BaseController
     {
         try
         {
-            logger.LogInformation("Fetching settings list.");
+            _logger.LogInformation("Fetching settings list.");
             var settings = await mediator.Send(new Application.Queries.Settings.Settings.ListQuery());
-            logger.LogInformation($"Retrieved {settings.Count()} settings.");
+            _logger.LogInformation($"Retrieved {settings.Count()} settings.");
             return settings;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while fetching settings list.");
+            _logger.LogError(ex, "Error occurred while fetching settings list.");
             throw;
         }
     }
@@ -80,14 +80,14 @@ public class GeneralSettingsController : BaseController
     {
         try
         {
-            logger.LogInformation("Updating setting.");
+            _logger.LogInformation("Updating setting.");
             var res = await mediator.Send(new PutCommand(setting));
-            logger.LogInformation("Setting updated successfully.");
+            _logger.LogInformation("Setting updated successfully.");
             return res;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while updating setting.");
+            _logger.LogError(ex, "Error occurred while updating setting.");
             throw;
         }
     }
@@ -97,14 +97,14 @@ public class GeneralSettingsController : BaseController
     {
         try
         {
-            logger.LogInformation("Testing email configuration");
+            _logger.LogInformation("Testing email configuration");
             var result = await emailTestService.TestConnectionAsync(request);
-            logger.LogInformation("Email configuration test completed. Success: {Success}", result.Success);
+            _logger.LogInformation("Email configuration test completed. Success: {Success}", result.Success);
             return Ok(result);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while testing email configuration");
+            _logger.LogError(ex, "Error occurred while testing email configuration");
             return Ok(new EmailTestResult
             {
                 Success = false,

@@ -32,7 +32,7 @@ public class LLMProviderFactory : ILLMProviderFactory
     {
         _serviceProvider = serviceProvider;
         _repository = repository;
-        _logger = logger;
+        this._logger = logger;
     }
 
     public async Task<ILLMProvider?> GetProviderAsync(string providerId)

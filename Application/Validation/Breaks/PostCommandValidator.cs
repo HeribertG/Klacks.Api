@@ -14,7 +14,7 @@ public class PostCommandValidator : AbstractValidator<PostCommand<BreakResource>
     public PostCommandValidator(DataBaseContext context, ILogger<PostCommandValidator> logger)
     {
         _context = context;
-        _logger = logger;
+        this._logger = logger;
 
         RuleFor(x => x.Resource.ClientId)
             .NotEmpty().WithMessage("ClientId is required");

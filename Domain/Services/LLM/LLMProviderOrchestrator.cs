@@ -15,7 +15,7 @@ public class LLMProviderOrchestrator
         ILLMProviderFactory providerFactory,
         ILLMRepository repository)
     {
-        _logger = logger;
+        this._logger = logger;
         _providerFactory = providerFactory;
         _repository = repository;
     }

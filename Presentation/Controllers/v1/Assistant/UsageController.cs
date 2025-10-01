@@ -17,7 +17,7 @@ public class UsageController : ControllerBase
 
     public UsageController(ILogger<UsageController> logger, IMediator mediator)
     {
-        _logger = logger;
+        this._logger = logger;
         _mediator = mediator;
     }
 

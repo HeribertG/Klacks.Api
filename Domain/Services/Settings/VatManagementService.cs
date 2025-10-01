@@ -13,7 +13,7 @@ public class VatManagementService : IVatManagementService
     public VatManagementService(DataBaseContext context, ILogger<VatManagementService> logger)
     {
         _context = context;
-        _logger = logger;
+        this._logger = logger;
     }
 
     public async Task<Vat> AddVatAsync(Vat vat)

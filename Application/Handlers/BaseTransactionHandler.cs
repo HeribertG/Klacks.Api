@@ -12,7 +12,7 @@ public abstract class BaseTransactionHandler : BaseHandler
 {
     protected readonly IUnitOfWork _unitOfWork;
 
-    protected BaseTransactionHandler(IUnitOfWork unitOfWork, ILogger logger) 
+    protected BaseTransactionHandler(IUnitOfWork unitOfWork, ILogger logger)
         : base(logger)
     {
         _unitOfWork = unitOfWork;

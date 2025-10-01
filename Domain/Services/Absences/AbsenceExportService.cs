@@ -11,7 +11,7 @@ public class AbsenceExportService : IAbsenceExportService
 
     public AbsenceExportService(ILogger<AbsenceExportService> logger)
     {
-        _logger = logger;
+        this._logger = logger;
     }
 
     public HttpResultResource CreateExcelFile(string language)

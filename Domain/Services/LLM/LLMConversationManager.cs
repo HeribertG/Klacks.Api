@@ -12,7 +12,7 @@ public class LLMConversationManager
         ILogger<LLMConversationManager> logger,
         ILLMRepository repository)
     {
-        _logger = logger;
+        this._logger = logger;
         _repository = repository;
     }
 

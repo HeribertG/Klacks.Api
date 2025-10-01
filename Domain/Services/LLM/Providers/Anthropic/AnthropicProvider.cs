@@ -24,7 +24,7 @@ public class AnthropicProvider : ILLMProvider
     public AnthropicProvider(HttpClient httpClient, ILogger<AnthropicProvider> logger, IConfiguration configuration)
     {
         _httpClient = httpClient;
-        _logger = logger;
+        this._logger = logger;
         _configuration = configuration;
     }
 

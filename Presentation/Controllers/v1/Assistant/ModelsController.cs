@@ -21,7 +21,7 @@ public class ModelsController : ControllerBase
 
     public ModelsController(ILogger<ModelsController> logger, IMediator mediator)
     {
-        _logger = logger;
+        this._logger = logger;
         _mediator = mediator;
     }
 

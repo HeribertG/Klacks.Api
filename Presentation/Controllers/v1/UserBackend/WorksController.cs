@@ -9,12 +9,12 @@ namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
 
 public class WorksController : InputBaseController<Work>
 {
-    private readonly ILogger<WorksController> logger;
+    private readonly ILogger<WorksController> _logger;
 
     public WorksController(IMediator mediator, ILogger<WorksController> logger)
             : base(mediator, logger)
     {
-        this.logger = logger;
+        this._logger = logger;
     }
 
     /// <summary>

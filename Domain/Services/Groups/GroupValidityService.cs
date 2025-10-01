@@ -13,7 +13,7 @@ public class GroupValidityService : IGroupValidityService
     public GroupValidityService(DataBaseContext context, ILogger<GroupValidityService> logger)
     {
         _context = context;
-        _logger = logger;
+        this._logger = logger;
     }
 
     public IQueryable<Group> ApplyDateRangeFilter(IQueryable<Group> query, bool activeDateRange, bool formerDateRange, bool futureDateRange)

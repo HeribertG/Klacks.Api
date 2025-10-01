@@ -18,7 +18,7 @@ public class GetQueryHandler : IRequestHandler<GetQuery<WorkResource>, WorkResou
     {
         _workRepository = workRepository;
         _mapper = mapper;
-        _logger = logger;
+        this._logger = logger;
     }
 
     public async Task<WorkResource> Handle(GetQuery<WorkResource> request, CancellationToken cancellationToken)

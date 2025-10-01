@@ -16,7 +16,7 @@ public class AbsencesController : InputBaseController<AbsenceResource>
     public AbsencesController(IMediator Mediator, ILogger<AbsencesController> logger)
           : base(Mediator, logger)
     {
-        _logger = logger;
+        this._logger = logger;
     }
 
     [HttpGet("CreateExcelFile/{language}")]

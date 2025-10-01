@@ -7,20 +7,20 @@ namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
 
 public class ContractsController : InputBaseController<ContractResource>
 {
-    private readonly ILogger<ContractsController> logger;
+    private readonly ILogger<ContractsController> _logger;
 
     public ContractsController(IMediator Mediator, ILogger<ContractsController> logger)
         : base(Mediator, logger)
     {
-        this.logger = logger;
+        this._logger = logger;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ContractResource>>> GetContracts()
     {
-        logger.LogInformation("Fetching all contracts.");
+        _logger.LogInformation("Fetching all contracts.");
         var contracts = await Mediator.Send(new ListQuery<ContractResource>());
-        logger.LogInformation($"Retrieved {contracts.Count()} contracts.");
+        _logger.LogInformation($"Retrieved {contracts.Count()} contracts.");
         return Ok(contracts);
     }
 }

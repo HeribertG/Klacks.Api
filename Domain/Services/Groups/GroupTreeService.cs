@@ -18,7 +18,7 @@ public class GroupTreeService : IGroupTreeService
         IGroupTreeDatabaseAdapter databaseAdapter)
     {
         _context = context;
-        _logger = logger;
+        this._logger = logger;
         _databaseAdapter = databaseAdapter;
     }
 

@@ -16,7 +16,7 @@ public class CalendarSelectionUpdateService : ICalendarSelectionUpdateService
         ILogger<CalendarSelectionUpdateService> logger)
     {
         _context = context;
-        _logger = logger;
+        this._logger = logger;
     }
 
     public async Task<CalendarSelection> GetWithSelectedCalendarsAsync(Guid id)

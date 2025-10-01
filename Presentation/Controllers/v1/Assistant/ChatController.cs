@@ -19,7 +19,7 @@ public class ChatController : ControllerBase
 
     public ChatController(ILogger<ChatController> logger, IMediator mediator)
     {
-        _logger = logger;
+        this._logger = logger;
         _mediator = mediator;
     }
 

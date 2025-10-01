@@ -29,7 +29,7 @@ public class AccountRegistrationService : IAccountRegistrationService
         _refreshTokenService = refreshTokenService;
         _accountAuthenticationService = accountAuthenticationService;
         _accountPasswordService = accountPasswordService;
-        _logger = logger;
+        this._logger = logger;
     }
 
     public async Task<AuthenticatedResult> RegisterUserAsync(AppUser user, string password)

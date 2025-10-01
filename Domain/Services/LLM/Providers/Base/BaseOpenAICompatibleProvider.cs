@@ -6,7 +6,7 @@ namespace Klacks.Api.Domain.Services.LLM.Providers.Base;
 
 public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
 {
-    protected BaseOpenAICompatibleProvider(HttpClient httpClient, ILogger logger) 
+    protected BaseOpenAICompatibleProvider(HttpClient httpClient, ILogger logger)
         : base(httpClient, logger)
     {
     }

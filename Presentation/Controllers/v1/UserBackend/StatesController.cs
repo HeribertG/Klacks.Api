@@ -7,12 +7,12 @@ namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
 
 public class StatesController : InputBaseController<StateResource>
 {
-    private readonly ILogger<StatesController> logger;
+    private readonly ILogger<StatesController> _logger;
 
     public StatesController(IMediator mediator, ILogger<StatesController> logger)
       : base(mediator, logger)
     {
-        this.logger = logger;
+        this._logger = logger;
     }
 
     [HttpGet]

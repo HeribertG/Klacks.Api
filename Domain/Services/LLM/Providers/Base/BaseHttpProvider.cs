@@ -22,7 +22,7 @@ public abstract class BaseHttpProvider : ILLMProvider
     protected BaseHttpProvider(HttpClient httpClient, ILogger logger)
     {
         _httpClient = httpClient;
-        _logger = logger;
+        this._logger = logger;
     }
 
     public virtual void Configure(Models.LLM.LLMProvider providerConfig)

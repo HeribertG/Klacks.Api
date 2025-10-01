@@ -6,12 +6,12 @@ namespace Klacks.Api.Infrastructure.Persistence;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly DataBaseContext context;
-    private readonly ILogger<UnitOfWork> logger;
+    private readonly ILogger<UnitOfWork> _logger;
 
     public UnitOfWork(DataBaseContext context, ILogger<UnitOfWork> logger)
     {
         this.context = context;
-        this.logger = logger;
+        this._logger = logger;
     }
 
     public async Task CompleteAsync()

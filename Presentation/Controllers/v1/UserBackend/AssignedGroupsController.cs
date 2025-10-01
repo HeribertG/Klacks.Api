@@ -10,7 +10,7 @@ public class AssignedGroupsController(IMediator mediator, ILogger<AssignedGroups
     [HttpGet("list")]
     public async Task<IEnumerable<GroupResource>> Get(Guid? id)
     {
-        logger.LogInformation($"Fetching AssignedGroup List {id}");
+        _logger.LogInformation($"Fetching AssignedGroup List {id}");
         return await Mediator.Send(new AssignedGroupListQuery(id));
     }
 }

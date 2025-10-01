@@ -24,7 +24,7 @@ public class AccountPasswordService : IAccountPasswordService
         _userManagementService = userManagementService;
         _serviceProvider = serviceProvider;
         _configuration = configuration;
-        _logger = logger;
+        this._logger = logger;
     }
 
     public async Task<AuthenticatedResult> ChangePasswordAsync(ChangePasswordResource model)

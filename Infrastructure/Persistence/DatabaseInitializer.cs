@@ -21,7 +21,7 @@ public class DatabaseInitializer : IDatabaseInitializer
     public DatabaseInitializer(DataBaseContext context, ILogger<DatabaseInitializer> logger, IConfiguration configuration)
     {
         _context = context;
-        _logger = logger;
+        this._logger = logger;
         _configuration = configuration;
     }
 

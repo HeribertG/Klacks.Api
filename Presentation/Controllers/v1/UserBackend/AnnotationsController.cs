@@ -8,29 +8,29 @@ namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
 
 public class AnnotationsController : InputBaseController<AnnotationResource>
 {
-    private readonly ILogger<AnnotationsController> logger;
+    private readonly ILogger<AnnotationsController> _logger;
 
     public AnnotationsController(IMediator Mediator, ILogger<AnnotationsController> logger)
       : base(Mediator, logger)
     {
-        this.logger = logger;
+        this._logger = logger;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<AnnotationResource>>> GetAnnotation()
     {
-        logger.LogInformation("Fetching all annotations.");
+        _logger.LogInformation("Fetching all annotations.");
         var annotations = await Mediator.Send(new ListQuery<AnnotationResource>());
-        logger.LogInformation($"Retrieved {annotations.Count()} annotations.");
+        _logger.LogInformation($"Retrieved {annotations.Count()} annotations.");
         return Ok(annotations);
     }
 
     [HttpGet("GetSimpleAnnotation/{id}")]
     public async Task<ActionResult<IEnumerable<AnnotationResource>>> GetSimpleAnnotation(Guid id)
     {
-        logger.LogInformation($"Fetching simple annotations for ID: {id}");
+        _logger.LogInformation($"Fetching simple annotations for ID: {id}");
         var annotations = await Mediator.Send(new GetSimpleListQuery(id));
-        logger.LogInformation($"Retrieved {annotations.Count()} simple annotations for ID: {id}");
+        _logger.LogInformation($"Retrieved {annotations.Count()} simple annotations for ID: {id}");
         return Ok(annotations);
     }
 }

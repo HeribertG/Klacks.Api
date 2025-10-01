@@ -13,7 +13,7 @@ public class MacroTypeManagementService : IMacroTypeManagementService
     public MacroTypeManagementService(DataBaseContext context, ILogger<MacroTypeManagementService> logger)
     {
         _context = context;
-        _logger = logger;
+        this._logger = logger;
     }
 
     public async Task<MacroType> AddMacroTypeAsync(MacroType macroType)

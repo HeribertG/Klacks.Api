@@ -13,7 +13,7 @@ public class GroupIntegrityService : IGroupIntegrityService
     public GroupIntegrityService(DataBaseContext context, ILogger<GroupIntegrityService> logger)
     {
         _context = context;
-        _logger = logger;
+        this._logger = logger;
     }
 
     public async Task RepairNestedSetValuesAsync(Guid? rootId = null)

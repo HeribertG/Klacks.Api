@@ -25,7 +25,7 @@ public class AccountAuthenticationService : IAccountAuthenticationService
         _authenticationService = authenticationService;
         _userManagementService = userManagementService;
         _refreshTokenService = refreshTokenService;
-        _logger = logger;
+        this._logger = logger;
     }
 
     public async Task<AuthenticatedResult> LogInUserAsync(string email, string password)

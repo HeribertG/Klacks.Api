@@ -15,7 +15,7 @@ public class GroupSearchService : IGroupSearchService
     public GroupSearchService(DataBaseContext context, ILogger<GroupSearchService> logger, IGroupValidityService validityService)
     {
         _context = context;
-        _logger = logger;
+        this._logger = logger;
         _validityService = validityService;
     }
 

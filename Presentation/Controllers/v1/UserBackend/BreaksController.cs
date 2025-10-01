@@ -8,20 +8,20 @@ using Newtonsoft.Json;
 namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
     public class BreaksController : InputBaseController<BreakResource>
     {
-        private readonly ILogger<BreaksController> logger;
+        private readonly ILogger<BreaksController> _logger;
 
         public BreaksController(IMediator Mediator, ILogger<BreaksController> logger)
           : base(Mediator, logger)
         {
-            this.logger = logger;
+            this._logger = logger;
         }
 
         [HttpPost("GetClientList")]
         public async Task<ActionResult<IEnumerable<ClientBreakResource>>> GetClientList([FromBody] BreakFilter filter)
         {
-            logger.LogInformation($"BreaksController GetClientList Resource: {JsonConvert.SerializeObject(filter)}");
+            _logger.LogInformation($"BreaksController GetClientList Resource: {JsonConvert.SerializeObject(filter)}");
             var clientList = await Mediator.Send(new ListQuery(filter));
-            logger.LogInformation($"Retrieved {clientList.Count()} client break resources.");
+            _logger.LogInformation($"Retrieved {clientList.Count()} client break resources.");
             return Ok(clientList);
         }
     }

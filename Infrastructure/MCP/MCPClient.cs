@@ -16,7 +16,7 @@ public class MCPClient : IDisposable
 
     public MCPClient(ILogger<MCPClient> logger, string serverPath = "")
     {
-        _logger = logger;
+        this._logger = logger;
         _serverPath = string.IsNullOrEmpty(serverPath) 
             ? Path.Combine(Directory.GetCurrentDirectory(), "..", "Klacks.MCP.Server")
             : serverPath;

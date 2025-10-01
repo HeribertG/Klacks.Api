@@ -14,7 +14,7 @@ public class LLMFunctionExecutor
         ILogger<LLMFunctionExecutor> logger,
         IMCPService? mcpService = null)
     {
-        _logger = logger;
+        this._logger = logger;
         _mcpService = mcpService;
     }
 

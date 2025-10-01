@@ -22,7 +22,7 @@ public class LLMService : ILLMService
         LLMResponseBuilder responseBuilder,
         LLMSystemPromptBuilder promptBuilder)
     {
-        _logger = logger;
+        this._logger = logger;
         _providerOrchestrator = providerOrchestrator;
         _conversationManager = conversationManager;
         _functionExecutor = functionExecutor;

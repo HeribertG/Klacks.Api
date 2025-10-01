@@ -13,7 +13,7 @@ public class MacroManagementService : IMacroManagementService
     public MacroManagementService(DataBaseContext context, ILogger<MacroManagementService> logger)
     {
         _context = context;
-        _logger = logger;
+        this._logger = logger;
     }
 
     public async Task<Macro> AddMacroAsync(Macro macro)

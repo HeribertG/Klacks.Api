@@ -14,7 +14,7 @@ public class EmailTestService : IEmailTestService
 
     public EmailTestService(ILogger<EmailTestService> logger)
     {
-        _logger = logger;
+        this._logger = logger;
     }
 
     public async Task<EmailTestResult> TestConnectionAsync(EmailTestRequest request)

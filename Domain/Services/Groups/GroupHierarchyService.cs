@@ -13,7 +13,7 @@ public class GroupHierarchyService : IGroupHierarchyService
     public GroupHierarchyService(DataBaseContext context, ILogger<GroupHierarchyService> logger)
     {
         _context = context;
-        _logger = logger;
+        this._logger = logger;
     }
 
     public async Task<IEnumerable<Group>> GetChildrenAsync(Guid parentId)
