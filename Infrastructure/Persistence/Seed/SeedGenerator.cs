@@ -3,6 +3,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Data.Seed.Generators;
 using System.Text;
 
 namespace Klacks.Api.Data.Seed
@@ -103,18 +104,7 @@ namespace Klacks.Api.Data.Seed
             return (clients, addresses, memberships, communications, annotations, breaks);
         }
 
-        public static string GenerateCompanyName(Random rand)
-        {
-            var prefixes = new[] { "Swiss", "Alpine", "Helvetic", "Geneva", "Zurich", "Basel", "Bern" };
-            var suffixes = SeedNamesAndDescriptions.CompanySuffixes;
-            var industries = SeedNamesAndDescriptions.CompanyNames;
-
-            var prefix = prefixes[rand.Next(prefixes.Length)];
-            var industry = industries[rand.Next(industries.Count)];
-            var suffix = suffixes[rand.Next(suffixes.Count)];
-
-            return $"{prefix} {industry} {suffix}";
-        }
+        public static string GenerateCompanyName(Random rand) => RandomDataGenerator.GenerateCompanyName(rand);
                
         private static ICollection<Address> GenerateAddresses(Guid clientId)
         {
@@ -321,195 +311,24 @@ namespace Klacks.Api.Data.Seed
             };
         }
 
-        public static string GenerateMockName(int index)
-        {
-            var firstNames = SeedNamesAndDescriptions.FemaleFirstNames;
-            var lastNames = SeedNamesAndDescriptions.LastNames;
-
-            var firstName = firstNames[index % firstNames.Count];
-            var lastName = lastNames[index % lastNames.Count];
-
-            return $"{firstName} {lastName}";
-        }
+        public static string GenerateMockName(int index) => RandomDataGenerator.GenerateMockName(index);
 
         private static List<PostcodeCH> GenerateComprehensiveSwissPostcodes()
-        {
-            // Representative postcodes for all 26 Swiss cantons plus major cities
-            var postcodes = new List<PostcodeCH>
-            {
-                // AG - Aargau
-                new PostcodeCH { Zip = 5000, City = "Aarau", State = "AG" },
-                new PostcodeCH { Zip = 5400, City = "Baden", State = "AG" },
-                new PostcodeCH { Zip = 8957, City = "Spreitenbach", State = "AG" },
-                
-                // AI - Appenzell Innerrhoden
-                new PostcodeCH { Zip = 9050, City = "Appenzell", State = "AI" },
-                new PostcodeCH { Zip = 9063, City = "Stein AR", State = "AI" },
-                
-                // AR - Appenzell Ausserrhoden  
-                new PostcodeCH { Zip = 9100, City = "Herisau", State = "AR" },
-                new PostcodeCH { Zip = 9200, City = "Gossau SG", State = "AR" },
-                
-                // BE - Bern
-                new PostcodeCH { Zip = 3000, City = "Bern", State = "BE" },
-                new PostcodeCH { Zip = 3600, City = "Thun", State = "BE" },
-                new PostcodeCH { Zip = 2500, City = "Biel/Bienne", State = "BE" },
-                new PostcodeCH { Zip = 3048, City = "Worblaufen", State = "BE" },
-                new PostcodeCH { Zip = 3027, City = "Köniz", State = "BE" },
-                
-                // BL - Basel Land
-                new PostcodeCH { Zip = 4410, City = "Liestal", State = "BL" },
-                new PostcodeCH { Zip = 4123, City = "Allschwil", State = "BL" },
-                new PostcodeCH { Zip = 4153, City = "Reinach BL", State = "BL" },
-                new PostcodeCH { Zip = 4132, City = "Muttenz", State = "BL" },
-                
-                // BS - Basel Stadt
-                new PostcodeCH { Zip = 4000, City = "Basel", State = "BS" },
-                new PostcodeCH { Zip = 4001, City = "Basel", State = "BS" },
-                new PostcodeCH { Zip = 4056, City = "Basel", State = "BS" },
-                
-                // FR - Freiburg
-                new PostcodeCH { Zip = 1700, City = "Fribourg", State = "FR" },
-                new PostcodeCH { Zip = 1630, City = "Bulle", State = "FR" },
-                new PostcodeCH { Zip = 1580, City = "Avenches", State = "FR" },
-                
-                // GE - Genf
-                new PostcodeCH { Zip = 1200, City = "Genève", State = "GE" },
-                new PostcodeCH { Zip = 1201, City = "Genève", State = "GE" },
-                new PostcodeCH { Zip = 1202, City = "Genève", State = "GE" },
-                new PostcodeCH { Zip = 1220, City = "Les Avanchets", State = "GE" },
-                
-                // GL - Glarus
-                new PostcodeCH { Zip = 8750, City = "Glarus", State = "GL" },
-                new PostcodeCH { Zip = 8783, City = "Linthal", State = "GL" },
-                
-                // GR - Graubünden
-                new PostcodeCH { Zip = 7000, City = "Chur", State = "GR" },
-                new PostcodeCH { Zip = 7500, City = "St. Moritz", State = "GR" },
-                new PostcodeCH { Zip = 7260, City = "Davos Dorf", State = "GR" },
-                
-                // JU - Jura
-                new PostcodeCH { Zip = 2800, City = "Delémont", State = "JU" },
-                new PostcodeCH { Zip = 2900, City = "Porrentruy", State = "JU" },
-                
-                // LU - Luzern
-                new PostcodeCH { Zip = 6000, City = "Luzern", State = "LU" },
-                new PostcodeCH { Zip = 6020, City = "Emmenbrücke", State = "LU" },
-                new PostcodeCH { Zip = 6030, City = "Ebikon", State = "LU" },
-                new PostcodeCH { Zip = 6032, City = "Emmen", State = "LU" },
-                new PostcodeCH { Zip = 6010, City = "Kriens", State = "LU" },
-                
-                // NE - Neuenburg
-                new PostcodeCH { Zip = 2000, City = "Neuchâtel", State = "NE" },
-                new PostcodeCH { Zip = 2300, City = "La Chaux-de-Fonds", State = "NE" },
-                
-                // NW - Nidwalden
-                new PostcodeCH { Zip = 6370, City = "Stans", State = "NW" },
-                new PostcodeCH { Zip = 6390, City = "Engelberg", State = "NW" },
-                
-                // OW - Obwalden
-                new PostcodeCH { Zip = 6060, City = "Sarnen", State = "OW" },
-                new PostcodeCH { Zip = 6078, City = "Lungern", State = "OW" },
-                
-                // SG - St. Gallen
-                new PostcodeCH { Zip = 9000, City = "St. Gallen", State = "SG" },
-                new PostcodeCH { Zip = 8640, City = "Rapperswil-Jona", State = "SG" },
-                new PostcodeCH { Zip = 9200, City = "Gossau SG", State = "SG" },
-                
-                // SH - Schaffhausen
-                new PostcodeCH { Zip = 8200, City = "Schaffhausen", State = "SH" },
-                new PostcodeCH { Zip = 8260, City = "Stein am Rhein", State = "SH" },
-                
-                // SO - Solothurn
-                new PostcodeCH { Zip = 4500, City = "Solothurn", State = "SO" },
-                new PostcodeCH { Zip = 4600, City = "Olten", State = "SO" },
-                
-                // SZ - Schwyz
-                new PostcodeCH { Zip = 6430, City = "Schwyz", State = "SZ" },
-                new PostcodeCH { Zip = 6440, City = "Brunnen", State = "SZ" },
-                
-                // TG - Thurgau
-                new PostcodeCH { Zip = 8500, City = "Frauenfeld", State = "TG" },
-                new PostcodeCH { Zip = 8280, City = "Kreuzlingen", State = "TG" },
-                
-                // TI - Tessin
-                new PostcodeCH { Zip = 6900, City = "Lugano", State = "TI" },
-                new PostcodeCH { Zip = 6500, City = "Bellinzona", State = "TI" },
-                new PostcodeCH { Zip = 6600, City = "Locarno", State = "TI" },
-                
-                // UR - Uri
-                new PostcodeCH { Zip = 6460, City = "Altdorf", State = "UR" },
-                new PostcodeCH { Zip = 6490, City = "Andermatt", State = "UR" },
-                
-                // VD - Waadt
-                new PostcodeCH { Zip = 1000, City = "Lausanne", State = "VD" },
-                new PostcodeCH { Zip = 1800, City = "Vevey", State = "VD" },
-                new PostcodeCH { Zip = 1400, City = "Yverdon-les-Bains", State = "VD" },
-                new PostcodeCH { Zip = 1110, City = "Morges", State = "VD" },
-                
-                // VS - Wallis
-                new PostcodeCH { Zip = 1950, City = "Sion", State = "VS" },
-                new PostcodeCH { Zip = 3900, City = "Brig", State = "VS" },
-                new PostcodeCH { Zip = 1870, City = "Monthey", State = "VS" },
-                
-                // ZG - Zug
-                new PostcodeCH { Zip = 6300, City = "Zug", State = "ZG" },
-                new PostcodeCH { Zip = 6330, City = "Cham", State = "ZG" },
-                
-                // ZH - Zürich
-                new PostcodeCH { Zip = 8000, City = "Zürich", State = "ZH" },
-                new PostcodeCH { Zip = 8400, City = "Winterthur", State = "ZH" },
-                new PostcodeCH { Zip = 8610, City = "Uster", State = "ZH" },
-                new PostcodeCH { Zip = 8001, City = "Zürich", State = "ZH" },
-                new PostcodeCH { Zip = 8050, City = "Zürich", State = "ZH" }
-            };
-
-            return postcodes;
-        }
+            => PostcodeGenerator.GenerateComprehensiveSwissPostcodes();
 
         #endregion
 
         #region Random Generation Helper Methods
 
-        public static DateTime GenerateRandomBirthday()
-        {
-            var random = Random.Shared;
-            var start = new DateTime(1950, 1, 1);
-            var end = new DateTime(2000, 12, 31);
-            var range = (end - start).Days;
-            return start.AddDays(random.Next(range));
-        }
+        public static DateTime GenerateRandomBirthday() => RandomDataGenerator.GenerateRandomBirthday();
 
-        public static string GenerateRandomEmail()
-        {
-            var domains = new[] { "gmail.com", "outlook.com", "yahoo.com", "bluewin.ch", "sunrise.ch" };
-            var name = GenerateRandomString(8).ToLower();
-            var domain = domains[Random.Shared.Next(domains.Length)];
-            return $"{name}@{domain}";
-        }
+        public static string GenerateRandomEmail() => RandomDataGenerator.GenerateRandomEmail();
 
-        public static GenderEnum GenerateRandomGender()
-        {
-            return Random.Shared.Next(0, 2) == 0 ? GenderEnum.Female : GenderEnum.Male;
-        }
+        public static GenderEnum GenerateRandomGender() => RandomDataGenerator.GenerateRandomGender();
 
-        private static string GenerateRandomNumber()
-        {
-            var random = new Random();
-            var prefixes = new[] { "076", "077", "078", "079" };
-            var prefix = prefixes[random.Next(prefixes.Length)];
+        private static string GenerateRandomNumber() => RandomDataGenerator.GenerateRandomPhoneNumber();
 
-            var number = (random.Next(0, 10000000) + 10000000).ToString("D7");
-
-            return $"{prefix}{number}";
-        }
-
-        public static string GenerateRandomString(int length)
-        {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            return new string(Enumerable.Repeat(chars, length)
-                .Select(s => s[Random.Shared.Next(s.Length)]).ToArray()); // chars string bleibt .Length
-        }
+        public static string GenerateRandomString(int length) => RandomDataGenerator.GenerateRandomString(length);
 
         #endregion
 
@@ -1100,20 +919,7 @@ namespace Klacks.Api.Data.Seed
 
         #endregion
 
-        private static string GetRandomFirstName(GenderEnum gender,  int i)
-        {
-            Random rand = new Random();
-            switch (gender)
-            {
-                case GenderEnum.Female:
-                    return SeedNamesAndDescriptions.FemaleFirstNames[rand.Next(SeedNamesAndDescriptions.FemaleFirstNames.Count)];
-
-                case GenderEnum.Male:
-                    return SeedNamesAndDescriptions.MaleFirstNames[rand.Next(SeedNamesAndDescriptions.MaleFirstNames.Count)];
-
-                default:
-                    return GenerateMockName(i + 10);
-            }
-        }
+        private static string GetRandomFirstName(GenderEnum gender, int i)
+            => RandomDataGenerator.GetRandomFirstName(gender, i);
     }
 }

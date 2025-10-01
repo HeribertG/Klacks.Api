@@ -8,13 +8,13 @@ namespace Klacks.Api.Data.Seed
         {
             DefaultSeed.SeedData(migrationBuilder);
             LLMSeed.SeedData(migrationBuilder);
-            
+            SwissZipSeed.SeedData(migrationBuilder);
+            MacrosSeed.SeedData(migrationBuilder);
+
             if (withFake)
             {
-                SwissZipSeed.SeedData(migrationBuilder);
                 CalendarRulesSeed.SeedData(migrationBuilder);
                 AbsencesSeed.SeedData(migrationBuilder);
-                MacrosSeed.SeedData(migrationBuilder);
                 SwissCantonCalendarSelectionsSeed.SeedCalendarSelections(migrationBuilder);
                 FakeDataSeed.SeedData(migrationBuilder);
                 ContractsSeed.SeedContracts(migrationBuilder);
