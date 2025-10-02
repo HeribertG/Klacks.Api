@@ -14,34 +14,16 @@ namespace Klacks.Api.Infrastructure.Repositories;
 public class GroupRepository : BaseRepository<Group>, IGroupRepository
 {
     private readonly DataBaseContext context;
-    private readonly IGroupVisibilityService groupVisibility;
-    private readonly IGroupTreeService treeService;
-    private readonly IGroupHierarchyService hierarchyService;
-    private readonly IGroupSearchService searchService;
-    private readonly IGroupValidityService validityService;
-    private readonly IGroupMembershipService membershipService;
-    private readonly IGroupIntegrityService integrityService;
+    private readonly IGroupServiceFacade groupServices;
 
     public GroupRepository(
-        DataBaseContext context, 
-        IGroupVisibilityService groupVisibility, 
-        IGroupTreeService treeService,
-        IGroupHierarchyService hierarchyService,
-        IGroupSearchService searchService,
-        IGroupValidityService validityService,
-        IGroupMembershipService membershipService,
-        IGroupIntegrityService integrityService,
+        DataBaseContext context,
+        IGroupServiceFacade groupServices,
         ILogger<Group> logger)
        : base(context, logger)
     {
         this.context = context;
-        this.groupVisibility = groupVisibility;
-        this.treeService = treeService;
-        this.hierarchyService = hierarchyService;
-        this.searchService = searchService;
-        this.validityService = validityService;
-        this.membershipService = membershipService;
-        this.integrityService = integrityService;
+        this.groupServices = groupServices;
     }
 
     public new async Task Add(Group model)
@@ -51,11 +33,11 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         {
             if (model.Parent.HasValue)
             {
-                await treeService.AddChildNodeAsync(model.Parent.Value, model);
+                await groupServices.TreeService.AddChildNodeAsync(model.Parent.Value, model);
             }
             else
             {
-                await treeService.AddRootNodeAsync(model);
+                await groupServices.TreeService.AddRootNodeAsync(model);
             }
 
             await context.SaveChangesAsync();
@@ -89,7 +71,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
         try
         {
-            await treeService.DeleteNodeAsync(id);
+            await groupServices.TreeService.DeleteNodeAsync(id);
             await context.SaveChangesAsync();
             Logger.LogInformation("Group with ID: {GroupId} deleted successfully.", id);
             return groupEntity;
@@ -118,7 +100,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             .OrderBy(g => g.Root);
         
         // Domain services apply filters to the query
-        return searchService.ApplyFilters(baseQuery, filter);
+        return groupServices.SearchService.ApplyFilters(baseQuery, filter);
     }
 
     public new async Task<Group> Get(Guid id)
@@ -152,19 +134,19 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     public async Task<IEnumerable<Group>> GetChildren(Guid parentId)
     {
         Logger.LogInformation("Getting children for parent {ParentId} using hierarchy service", parentId);
-        return await hierarchyService.GetChildrenAsync(parentId);
+        return await groupServices.HierarchyService.GetChildrenAsync(parentId);
     }
 
     public async Task<int> GetNodeDepth(Guid nodeId)
     {
         Logger.LogInformation("Getting node depth for {NodeId} using hierarchy service", nodeId);
-        return await hierarchyService.GetNodeDepthAsync(nodeId);
+        return await groupServices.HierarchyService.GetNodeDepthAsync(nodeId);
     }
 
     public async Task<IEnumerable<Group>> GetPath(Guid nodeId)
     {
         Logger.LogInformation("Getting path for node {NodeId} using hierarchy service", nodeId);
-        return await hierarchyService.GetPathAsync(nodeId);
+        return await groupServices.HierarchyService.GetPathAsync(nodeId);
     }
 
     public async Task<IEnumerable<Group>> GetTree(Guid? rootId = null)
@@ -172,7 +154,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         Logger.LogInformation("Getting tree for root {RootId} using hierarchy service", rootId?.ToString() ?? "all");
         try
         {
-            return await hierarchyService.GetTreeAsync(rootId);
+            return await groupServices.HierarchyService.GetTreeAsync(rootId);
         }
         catch (Exception ex)
         {
@@ -187,7 +169,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         
         try
         {
-            await treeService.MoveNodeAsync(nodeId, newParentId);
+            await groupServices.TreeService.MoveNodeAsync(nodeId, newParentId);
             await context.SaveChangesAsync();
             Logger.LogInformation("Group with ID: {NodeId} moved successfully to new parent {NewParentId}.", nodeId, newParentId);
         }
@@ -212,8 +194,8 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             var newClientIds = model.GroupItems
                 .Where(x => x.ClientId.HasValue)
                 .Select(x => x.ClientId!.Value);
-            
-            await membershipService.UpdateGroupMembershipAsync(model.Id, newClientIds);
+
+            await groupServices.MembershipService.UpdateGroupMembershipAsync(model.Id, newClientIds);
 
             var existingGroup = await context.Group
                 .FirstOrDefaultAsync(x => x.Id == model.Id);
@@ -270,10 +252,10 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             .OrderBy(g => g.Root);
         
         // Apply filters first
-        var filteredQuery = searchService.ApplyFilters(baseQuery, filter);
-        
+        var filteredQuery = groupServices.SearchService.ApplyFilters(baseQuery, filter);
+
         // Then apply pagination
-        return await searchService.ApplyPaginationAsync(filteredQuery, filter);
+        return await groupServices.SearchService.ApplyPaginationAsync(filteredQuery, filter);
     }
 
     public async Task RepairNestedSetValues()
@@ -281,7 +263,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         Logger.LogInformation("Starting RepairNestedSetValues using integrity service.");
         try
         {
-            await integrityService.RepairNestedSetValuesAsync();
+            await groupServices.IntegrityService.RepairNestedSetValuesAsync();
             await context.SaveChangesAsync();
             Logger.LogInformation("RepairNestedSetValues completed successfully.");
         }
@@ -300,12 +282,12 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     public async Task FixRootValues()
     {
         Logger.LogInformation("Fixing root values using integrity service.");
-        await integrityService.FixRootValuesAsync();
+        await groupServices.IntegrityService.FixRootValuesAsync();
     }
 
     public async Task<IEnumerable<Group>> GetRoots()
     {
         Logger.LogInformation("Getting root groups using hierarchy service.");
-        return await hierarchyService.GetRootsAsync();
+        return await groupServices.HierarchyService.GetRootsAsync();
     }
 }

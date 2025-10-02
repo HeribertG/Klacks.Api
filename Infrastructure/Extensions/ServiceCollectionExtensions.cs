@@ -89,6 +89,15 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IGroupMembershipService, GroupMembershipService>();
         services.AddScoped<IGroupIntegrityService, GroupIntegrityService>();
 
+        // Group Integrity Sub-Services (refactored from 478-line GroupIntegrityService)
+        services.AddScoped<Domain.Services.Groups.Integrity.NestedSetRepairService>();
+        services.AddScoped<Domain.Services.Groups.Integrity.NestedSetValidationService>();
+        services.AddScoped<Domain.Services.Groups.Integrity.GroupIssueFindingService>();
+        services.AddScoped<Domain.Services.Groups.Integrity.RootIntegrityService>();
+
+        // Group Service Façade (reduces GroupRepository dependencies from 8 to 1)
+        services.AddScoped<IGroupServiceFacade, GroupServiceFacade>();
+
         // Absence Domain Services
         services.AddScoped<IAbsenceSortingService, AbsenceSortingService>();
         services.AddScoped<IAbsencePaginationService, AbsencePaginationService>();
