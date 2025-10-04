@@ -19,6 +19,7 @@ public class Client : BaseEntity
         Breaks = new Collection<Break>();
         Works = new Collection<Work>();
         GroupItems = new Collection<GroupItem>();
+        ClientContracts = new Collection<ClientContract>();
     }
 
     public ICollection<Address> Addresses { get; set; }
@@ -30,6 +31,8 @@ public class Client : BaseEntity
 
     [JsonIgnore]
     public ICollection<Break> Breaks { get; set; }
+
+    public ICollection<ClientContract> ClientContracts { get; set; }
 
     [JsonIgnore]
     public ICollection<GroupItem> GroupItems { get; set; }

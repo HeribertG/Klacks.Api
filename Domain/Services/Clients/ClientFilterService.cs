@@ -9,7 +9,7 @@ public class ClientFilterService : IClientFilterService
 {
     public IQueryable<Client> ApplyGenderFilter(IQueryable<Client> query, int[] genderTypes)
     {
-        if (genderTypes.Length > 0)
+        if (genderTypes.Any())
         {
             return query.Where(co => genderTypes.Any(y => y == ((int)co.Gender)));
         }
@@ -19,7 +19,7 @@ public class ClientFilterService : IClientFilterService
 
     public IQueryable<Client> ApplyClientTypeFilter(IQueryable<Client> query, int[] clientsTypes)
     {
-        if (clientsTypes.Length > 0)
+        if (clientsTypes.Any())
         {
             return query.Where(co => clientsTypes.Contains((int)co.Type));
         }
@@ -29,7 +29,7 @@ public class ClientFilterService : IClientFilterService
 
     public IQueryable<Client> ApplyAddressTypeFilter(IQueryable<Client> query, int[] addressTypes)
     {
-        if (addressTypes.Length < 3)
+        if (addressTypes.Any())
         {
             return query.Where(x => x.Addresses.Count == 0 || x.Addresses.Any(y => addressTypes.Contains((int)y.Type)));
         }

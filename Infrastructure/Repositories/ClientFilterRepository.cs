@@ -73,22 +73,29 @@ public class ClientFilterRepository : IClientFilterRepository
         if (filter.ShowDeleteEntries)
         {
             query = this.context.Client.IgnoreQueryFilters()
+                                .Include(cu => cu.Membership)
                                 .Include(cu => cu.Addresses)
                                 .Include(cu => cu.Communications)
                                 .Include(cu => cu.Annotations)
-                                .Include(cu => cu.Membership)
                                 .Include(cu => cu.Breaks)
+                                .Include(cu => cu.ClientContracts)
+                                    .ThenInclude(cc => cc.Contract)
+                                .AsSplitQuery()
                                 .Where(cu => cu.IsDeleted)
                                 .AsNoTracking()
                                 .AsQueryable();
         }
         else
         {
-            query = this.context.Client.Include(cu => cu.Addresses)
+            query = this.context.Client
+                                .Include(cu => cu.Membership)
+                                .Include(cu => cu.Addresses)
                                 .Include(cu => cu.Communications)
                                 .Include(cu => cu.Annotations)
-                                .Include(cu => cu.Membership)
                                 .Include(cu => cu.Breaks)
+                                .Include(cu => cu.ClientContracts)
+                                    .ThenInclude(cc => cc.Contract)
+                                .AsSplitQuery()
                                 .AsNoTracking()
                                 .AsQueryable();
         }
@@ -101,16 +108,8 @@ public class ClientFilterRepository : IClientFilterRepository
 
             if (filter.IncludeAddress)
             {
-                query = _searchService.ApplyPhoneOrZipSearch(query, filter.SearchString.Trim());
-                if (query1.Any() && query.Any())
-                {
-                    query = query.Union(query1);
-                }
-
-                if (query1.Any() && !query.Any())
-                {
-                    query = query1;
-                }
+                var query2 = _searchService.ApplyPhoneOrZipSearch(query, filter.SearchString.Trim());
+                query = query1.Union(query2);
             }
             else
             {

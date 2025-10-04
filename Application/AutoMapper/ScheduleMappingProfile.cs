@@ -25,9 +25,7 @@ public class ScheduleMappingProfile : Profile
 
         CreateMap<MembershipResource, Membership>()
             .IgnoreAuditFields()
-            .ForMember(dest => dest.Client, opt => opt.Ignore())
-            .ForMember(dest => dest.Contract, opt => opt.Ignore())
-            .ForMember(dest => dest.ContractId, opt => opt.Ignore());
+            .ForMember(dest => dest.Client, opt => opt.Ignore());
 
         CreateMap<Break, BreakResource>();
 

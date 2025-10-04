@@ -84,6 +84,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<Contract> Contract { get; set; }
 
+    public DbSet<ClientContract> ClientContract { get; set; }
+
     // LLM DbSets
     public DbSet<LLMProvider> LLMProviders { get; set; }
 
@@ -160,7 +162,8 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<AssignedGroup>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<GroupVisibility>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Contract>().HasQueryFilter(p => !p.IsDeleted);
-        
+        modelBuilder.Entity<ClientContract>().HasQueryFilter(p => !p.IsDeleted);
+
         // LLM Query Filters
         modelBuilder.Entity<LLMProvider>(entity =>
         {
@@ -194,6 +197,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<AssignedGroup>().HasIndex(p => new { p.ClientId, p.GroupId });
         modelBuilder.Entity<GroupVisibility>().HasIndex(p => new { p.AppUserId, p.GroupId });
         modelBuilder.Entity<Contract>().HasIndex(p => new { p.Name, p.ValidFrom, p.ValidUntil });
+        modelBuilder.Entity<ClientContract>().HasIndex(p => new { p.ClientId, p.ContractId, p.FromDate, p.UntilDate });
 
         modelBuilder.Entity<Membership>()
        .HasOne(m => m.Client)
@@ -230,6 +234,18 @@ public class DataBaseContext : IdentityDbContext
          .WithOne(a => a.Client)
          .HasForeignKey(a => a.ClientId)
          .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Client>()
+         .HasMany(c => c.ClientContracts)
+         .WithOne(cc => cc.Client)
+         .HasForeignKey(cc => cc.ClientId)
+         .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ClientContract>()
+         .HasOne(cc => cc.Contract)
+         .WithMany()
+         .HasForeignKey(cc => cc.ContractId)
+         .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<SelectedCalendar>()
         .HasOne(p => p.CalendarSelection)
@@ -275,11 +291,6 @@ public class DataBaseContext : IdentityDbContext
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
-        modelBuilder.Entity<Membership>()
-           .HasOne(m => m.Contract)
-           .WithMany()
-           .HasForeignKey(m => m.ContractId)
-           .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<Contract>()
            .HasOne(c => c.CalendarSelection)

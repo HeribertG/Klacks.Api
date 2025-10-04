@@ -35,12 +35,19 @@ public class ClientMappingProfile : Profile
             .ForMember(dest => dest.Communications, opt => opt.MapFrom(src => src.Communications))
             .ForMember(dest => dest.Addresses, opt => opt.MapFrom(src => src.Addresses))
             .ForMember(dest => dest.Annotations, opt => opt.MapFrom(src => src.Annotations))
+            .ForMember(dest => dest.ClientContracts, opt => opt.MapFrom(src => src.ClientContracts))
             .ForMember(dest => dest.Works, opt => opt.MapFrom(src => src.Works));
 
         CreateMap<ClientResource, Client>()
             .IgnoreAuditFields()
             .ForMember(dest => dest.GroupItems, opt => opt.Ignore())
             .ForMember(dest => dest.Breaks, opt => opt.Ignore());
+
+        CreateMap<ClientContract, ClientContractResource>();
+        CreateMap<ClientContractResource, ClientContract>()
+            .IgnoreAuditFields()
+            .ForMember(dest => dest.Client, opt => opt.Ignore())
+            .ForMember(dest => dest.Contract, opt => opt.Ignore());
 
         CreateMap<Client, ClientBreakResource>();
 

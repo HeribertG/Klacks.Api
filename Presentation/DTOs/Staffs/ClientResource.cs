@@ -16,6 +16,7 @@ public class ClientResource
         Communications = new Collection<CommunicationResource>();
         Annotations = new Collection<AnnotationResource>();
         Works = new Collection<WorkResource>();
+        ClientContracts = new Collection<ClientContractResource>();
     }
 
     public ICollection<AddressResource> Addresses { get; set; }
@@ -24,6 +25,8 @@ public class ClientResource
 
     [DataType(DataType.Date)]
     public DateTime? Birthdate { get; set; }
+
+    public ICollection<ClientContractResource> ClientContracts { get; set; }
 
     public ICollection<CommunicationResource> Communications { get; set; }
 

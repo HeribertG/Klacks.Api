@@ -41,20 +41,20 @@ public abstract class BaseHandler
         }
         catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, "Database error during {OperationName}. Context: {@ContextData}", 
-                operationName, contextData);
-            
+            _logger.LogError(ex, "Database error during {OperationName}. InnerException: {InnerMessage}. Context: {@ContextData}",
+                operationName, ex.InnerException?.Message ?? "No inner exception", contextData);
+
             if (ex.InnerException?.Message.Contains("duplicate", StringComparison.OrdinalIgnoreCase) == true)
             {
                 throw new InvalidRequestException($"A duplicate entry already exists. Operation: {operationName}");
             }
-            
+
             if (ex.InnerException?.Message.Contains("foreign key", StringComparison.OrdinalIgnoreCase) == true)
             {
-                throw new InvalidRequestException($"Referenced data not found or constraint violation. Operation: {operationName}");
+                throw new InvalidRequestException($"Referenced data not found or constraint violation. Operation: {operationName}. Detail: {ex.InnerException?.Message}");
             }
-            
-            throw new InvalidRequestException($"Database constraint violation during {operationName}");
+
+            throw new InvalidRequestException($"Database constraint violation during {operationName}. Detail: {ex.InnerException?.Message}");
         }
         catch (OperationCanceledException ex)
         {

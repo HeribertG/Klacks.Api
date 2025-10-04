@@ -34,6 +34,7 @@ public class ClientRepository : IClientRepository
     public async Task Add(Client client)
     {
         _entityManagementService.PrepareClientForAdd(client);
+        EnsureSingleActiveContract(client.ClientContracts);
         this.context.Client.Add(client);
     }
 
@@ -51,9 +52,11 @@ public class ClientRepository : IClientRepository
 
     public async Task<Client?> Delete(Guid id)
     {
-        var client = await this.context.Client.Include(a => a.Addresses)
-                                             .Include(co => co.Communications)
+        var client = await this.context.Client
                                              .Include(co => co.Membership)
+                                             .Include(a => a.Addresses)
+                                             .Include(co => co.Communications)
+                                             .AsSplitQuery()
                                              .SingleOrDefaultAsync(emp => emp.Id == id);
 
         if (client != null)
@@ -71,11 +74,15 @@ public class ClientRepository : IClientRepository
 
     public async Task<Client?> Get(Guid id)
     {
-        var res = await this.context.Client.Include(cu => cu.Addresses)
+        var res = await this.context.Client
+                                      .Include(cu => cu.Membership)
+                                      .Include(cu => cu.Addresses)
                                       .Include(cu => cu.Communications)
                                       .Include(cu => cu.Annotations)
-                                      .Include(cu => cu.Membership)
                                       .Include(cu => cu.Breaks)
+                                      .Include(cu => cu.ClientContracts)
+                                          .ThenInclude(cc => cc.Contract)
+                                      .AsSplitQuery()
                                       .AsNoTracking()
                                       .SingleOrDefaultAsync(emp => emp.Id == id);
 
@@ -94,22 +101,27 @@ public class ClientRepository : IClientRepository
 
     public async Task<List<Client>> List()
     {
-        return await this.context.Client.Include(cu => cu.Addresses)
+        return await this.context.Client
+                                        .Include(cu => cu.Membership)
+                                        .Include(cu => cu.Addresses)
                                         .Include(cu => cu.Communications)
                                         .Include(cu => cu.Annotations)
-                                        .Include(cu => cu.Membership)
                                         .Include(cu => cu.Breaks)
+                                        .AsSplitQuery()
                                         .ToListAsync();
     }
 
     public async Task<Client> Put(Client client)
     {
         var existingClient = await this.context.Client
+            .Include(c => c.Membership)
             .Include(c => c.Addresses)
             .Include(c => c.Communications)
             .Include(c => c.Annotations)
-            .Include(c => c.Membership)
             .Include(c => c.Breaks)
+            .Include(c => c.ClientContracts)
+                .ThenInclude(cc => cc.Contract)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(c => c.Id == client.Id);
 
         if (existingClient == null)
@@ -146,6 +158,14 @@ public class ClientRepository : IClientRepository
             existingClient.Id,
             (annotation, clientId) => annotation.ClientId = clientId);
 
+        _collectionUpdateService.UpdateCollection(
+            existingClient.ClientContracts,
+            updatedClient.ClientContracts,
+            existingClient.Id,
+            (clientContract, clientId) => clientContract.ClientId = clientId);
+
+        EnsureSingleActiveContract(existingClient.ClientContracts);
+
         _collectionUpdateService.UpdateSingleEntity(
             existingClient.Membership,
             updatedClient.Membership,
@@ -153,6 +173,24 @@ public class ClientRepository : IClientRepository
             (membership, clientId) => membership.ClientId = clientId,
             (membership) => existingClient.Membership = membership,
             () => existingClient.Membership = null);
+    }
+
+    private void EnsureSingleActiveContract(ICollection<ClientContract> clientContracts)
+    {
+        var activeContracts = clientContracts.Where(cc => cc.IsActive).ToList();
+
+        if (activeContracts.Count > 1)
+        {
+            var lastActive = activeContracts.Last();
+
+            foreach (var contract in clientContracts)
+            {
+                if (contract.Id != lastActive.Id)
+                {
+                    contract.IsActive = false;
+                }
+            }
+        }
     }
 
     public void Remove(Client client)

@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20251003112721_AddIsActiveToClientContract")]
+    partial class AddIsActiveToClientContract
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2861,7 +2864,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("AbsenceId");
 
-                            b1.ToTable("absence", (string)null);
+                            b1.ToTable("absence");
 
                             b1.WithOwner()
                                 .HasForeignKey("AbsenceId")
@@ -2893,7 +2896,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("AbsenceId");
 
-                            b1.ToTable("absence", (string)null);
+                            b1.ToTable("absence");
 
                             b1.WithOwner()
                                 .HasForeignKey("AbsenceId")
@@ -2994,7 +2997,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("CalendarRuleId");
 
-                            b1.ToTable("calendar_rule", (string)null);
+                            b1.ToTable("calendar_rule");
 
                             b1.WithOwner()
                                 .HasForeignKey("CalendarRuleId")
@@ -3026,7 +3029,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("CalendarRuleId");
 
-                            b1.ToTable("calendar_rule", (string)null);
+                            b1.ToTable("calendar_rule");
 
                             b1.WithOwner()
                                 .HasForeignKey("CalendarRuleId")
@@ -3065,7 +3068,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("CountriesId");
 
-                            b1.ToTable("countries", (string)null);
+                            b1.ToTable("countries");
 
                             b1.WithOwner()
                                 .HasForeignKey("CountriesId")
@@ -3103,7 +3106,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("MacroId");
 
-                            b1.ToTable("macro", (string)null);
+                            b1.ToTable("macro");
 
                             b1.WithOwner()
                                 .HasForeignKey("MacroId")
@@ -3141,7 +3144,7 @@ namespace Klacks.Api.Migrations
 
                             b1.HasKey("StateId");
 
-                            b1.ToTable("state", (string)null);
+                            b1.ToTable("state");
 
                             b1.WithOwner()
                                 .HasForeignKey("StateId")

@@ -399,8 +399,8 @@ namespace Klacks.Api.Data.Seed
             StringBuilder script = new StringBuilder();
             foreach (var membership in memberships)
             {
-                script.AppendLine($@"INSERT INTO public.membership (id, client_id, type, valid_from, valid_until, contract_id, is_deleted, create_time, current_user_created) 
-                    VALUES ('{membership.Id}', '{membership.ClientId}', {membership.Type}, '{membership.ValidFrom:yyyy-MM-dd}', {(membership.ValidUntil.HasValue ? $"'{membership.ValidUntil.Value:yyyy-MM-dd}'" : "NULL")}, {(membership.ContractId.HasValue ? $"'{membership.ContractId}'" : "NULL")}, {membership.IsDeleted.ToString().ToLower()}, '{membership.CreateTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{membership.CurrentUserCreated}');");
+                script.AppendLine($@"INSERT INTO public.membership (id, client_id, type, valid_from, valid_until, is_deleted, create_time, current_user_created)
+                    VALUES ('{membership.Id}', '{membership.ClientId}', {membership.Type}, '{membership.ValidFrom:yyyy-MM-dd}', {(membership.ValidUntil.HasValue ? $"'{membership.ValidUntil.Value:yyyy-MM-dd}'" : "NULL")}, {membership.IsDeleted.ToString().ToLower()}, '{membership.CreateTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{membership.CurrentUserCreated}');");
             }
 
             return script.ToString();
