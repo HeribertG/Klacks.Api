@@ -8,88 +8,46 @@ namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
 
 public class GeneralSettingsController : BaseController
 {
-    private readonly ILogger<GeneralSettingsController> _logger;
     private readonly IMediator mediator;
     private readonly IEmailTestService emailTestService;
 
     public GeneralSettingsController(IMediator mediator, ILogger<GeneralSettingsController> logger, IEmailTestService emailTestService)
     {
         this.mediator = mediator;
-        this._logger = logger;
         this.emailTestService = emailTestService;
     }
 
     [HttpPost("AddSetting")]
     public async Task<Klacks.Api.Domain.Models.Settings.Settings> AddSetting([FromBody] Klacks.Api.Domain.Models.Settings.Settings setting)
     {
-        try
-        {
-            _logger.LogInformation("Adding new setting.");
-            var res = await mediator.Send(new PostCommand(setting));
-            _logger.LogInformation("Setting added successfully.");
-            return res;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error occurred while adding setting.");
-            throw;
-        }
+        var res = await mediator.Send(new PostCommand(setting));
+        return res;
     }
 
     [HttpGet("GetSetting/{type}")]
     public async Task<ActionResult<Klacks.Api.Domain.Models.Settings.Settings?>> GetSetting(string type)
     {
-        try
+        var setting = await mediator.Send(new Application.Queries.Settings.Settings.GetQuery(type));
+        if (setting == null)
         {
-            _logger.LogInformation($"Fetching setting of type: {type}");
-            var setting = await mediator.Send(new Application.Queries.Settings.Settings.GetQuery(type));
-            if (setting == null)
-            {
-                _logger.LogWarning($"Setting of type: {type} not found.");
-                return NotFound();
-            }
+            return NotFound();
+        }
 
-            return setting;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Error occurred while fetching setting of type: {type}");
-            throw;
-        }
+        return setting;
     }
 
     [HttpGet("GetSettingsList")]
     public async Task<IEnumerable<Klacks.Api.Domain.Models.Settings.Settings>> GetSettingsListAsync()
     {
-        try
-        {
-            _logger.LogInformation("Fetching settings list.");
-            var settings = await mediator.Send(new Application.Queries.Settings.Settings.ListQuery());
-            _logger.LogInformation($"Retrieved {settings.Count()} settings.");
-            return settings;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error occurred while fetching settings list.");
-            throw;
-        }
+        var settings = await mediator.Send(new Application.Queries.Settings.Settings.ListQuery());
+        return settings;
     }
 
     [HttpPut("PutSetting")]
     public async Task<Klacks.Api.Domain.Models.Settings.Settings> PutSetting([FromBody] Klacks.Api.Domain.Models.Settings.Settings setting)
     {
-        try
-        {
-            _logger.LogInformation("Updating setting.");
-            var res = await mediator.Send(new PutCommand(setting));
-            _logger.LogInformation("Setting updated successfully.");
-            return res;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error occurred while updating setting.");
-            throw;
-        }
+        var res = await mediator.Send(new PutCommand(setting));
+        return res;
     }
 
     [HttpPost("TestEmailConfiguration")]
@@ -97,14 +55,11 @@ public class GeneralSettingsController : BaseController
     {
         try
         {
-            _logger.LogInformation("Testing email configuration");
             var result = await emailTestService.TestConnectionAsync(request);
-            _logger.LogInformation("Email configuration test completed. Success: {Success}", result.Success);
             return Ok(result);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while testing email configuration");
             return Ok(new EmailTestResult
             {
                 Success = false,
