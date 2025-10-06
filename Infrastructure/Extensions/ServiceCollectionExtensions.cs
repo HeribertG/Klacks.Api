@@ -52,6 +52,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IShiftRepository, ShiftRepository>();
         services.AddScoped<IGroupRepository, GroupRepository>();
         services.AddScoped<IAssignedGroupRepository, AssignedGroupRepository>();
+        services.AddScoped<IGroupItemRepository, GroupItemRepository>();
         services.AddScoped<IGroupVisibilityRepository, GroupVisibilityRepository>();
         services.AddScoped<IContractRepository, ContractRepository>();
 

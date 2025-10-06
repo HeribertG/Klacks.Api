@@ -491,6 +491,8 @@ namespace Klacks.Api.Data.Seed
             foreach (var client in clients)
             {
                 var clientAddresses = addresses.Where(a => a.ClientId == client.Id).ToList();
+                var validFrom = client.Membership?.ValidFrom ?? currentTime;
+                var validFromStr = validFrom.ToString("yyyy-MM-dd HH:mm:ss.ffffff");
 
                 foreach (var address in clientAddresses)
                 {
@@ -518,10 +520,10 @@ namespace Klacks.Api.Data.Seed
 
                     var groupItemId = Guid.NewGuid();
 
-                    script.AppendLine($@"INSERT INTO public.group_item (id, client_id, group_id, shift_id, create_time, current_user_created, is_deleted) 
-                        SELECT '{groupItemId}', '{client.Id}', g.id, NULL, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{userId}', false 
-                        FROM public.""group"" g 
-                        WHERE g.name = '{cantonAbbr}' AND g.is_deleted = false 
+                    script.AppendLine($@"INSERT INTO public.group_item (id, client_id, group_id, shift_id, valid_from, valid_until, create_time, current_user_created, is_deleted)
+                        SELECT '{groupItemId}', '{client.Id}', g.id, NULL, '{validFromStr}', NULL, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{userId}', false
+                        FROM public.""group"" g
+                        WHERE g.name = '{cantonAbbr}' AND g.is_deleted = false
                         LIMIT 1;");
                 }
             }

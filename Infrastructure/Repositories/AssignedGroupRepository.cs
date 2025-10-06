@@ -29,6 +29,6 @@ public class AssignedGroupRepository : BaseRepository<AssignedGroup>, IAssignedG
         }
 
         var List = await context.AssignedGroup.Where(x => x.ClientId == currentId).Select(x => x.GroupId).ToListAsync();
-        return context.Group.Where(x => (x.Id == x.Root || !(x.Root.HasValue && x.Parent.HasValue)) && List.Contains(x.Id)).AsQueryable();
+        return await context.Group.Where(x => (x.Id == x.Root || !(x.Root.HasValue && x.Parent.HasValue)) && List.Contains(x.Id)).ToListAsync();
     }
 }

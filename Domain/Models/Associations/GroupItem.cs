@@ -18,6 +18,12 @@ public class GroupItem : BaseEntity
     [ForeignKey("Group")]
     public Guid GroupId { get; set; }
 
+    [DataType(DataType.Date)]
+    public DateTime? ValidFrom { get; set; }
+
+    [DataType(DataType.Date)]
+    public DateTime? ValidUntil { get; set; }
+
     public virtual Client? Client { get; set; } = null!;
 
     public virtual Shift? Shift { get; set; } = null!;

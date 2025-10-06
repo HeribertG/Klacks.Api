@@ -17,6 +17,7 @@ public class ClientResource
         Annotations = new Collection<AnnotationResource>();
         Works = new Collection<WorkResource>();
         ClientContracts = new Collection<ClientContractResource>();
+        GroupItems = new Collection<ClientGroupItemResource>();
     }
 
     public ICollection<AddressResource> Addresses { get; set; }
@@ -63,4 +64,6 @@ public class ClientResource
     public int Type { get; set; }
 
     public ICollection<WorkResource> Works { get; set; }
+
+    public ICollection<ClientGroupItemResource> GroupItems { get; set; }
 }

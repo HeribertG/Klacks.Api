@@ -36,7 +36,8 @@ public class ClientMappingProfile : Profile
             .ForMember(dest => dest.Addresses, opt => opt.MapFrom(src => src.Addresses))
             .ForMember(dest => dest.Annotations, opt => opt.MapFrom(src => src.Annotations))
             .ForMember(dest => dest.ClientContracts, opt => opt.MapFrom(src => src.ClientContracts))
-            .ForMember(dest => dest.Works, opt => opt.MapFrom(src => src.Works));
+            .ForMember(dest => dest.Works, opt => opt.MapFrom(src => src.Works))
+            .ForMember(dest => dest.GroupItems, opt => opt.MapFrom(src => src.GroupItems));
 
         CreateMap<ClientResource, Client>()
             .IgnoreAuditFields()
@@ -85,6 +86,25 @@ public class ClientMappingProfile : Profile
             .ForMember(dest => dest.FirstItemOnPage, opt => opt.MapFrom(src => src.Items.Count() == 0 ? -1 : src.PageNumber * src.PageSize))
             .ForMember(dest => dest.Editor, opt => opt.Ignore())
             .ForMember(dest => dest.LastChange, opt => opt.Ignore());
+
+        CreateMap<Domain.Models.Associations.GroupItem, ClientGroupItemResource>()
+            .ForMember(dest => dest.GroupName, opt => opt.MapFrom(src => src.Group != null ? src.Group.Name : string.Empty))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Group != null ? src.Group.Description : string.Empty))
+            .ForMember(dest => dest.ValidFrom, opt => opt.MapFrom(src => src.ValidFrom))
+            .ForMember(dest => dest.ValidUntil, opt => opt.MapFrom(src => src.ValidUntil))
+            .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.GroupId))
+            .ForMember(dest => dest.ClientId, opt => opt.MapFrom(src => src.ClientId));
+
+        CreateMap<ClientGroupItemResource, Domain.Models.Associations.GroupItem>()
+            .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.GroupId))
+            .ForMember(dest => dest.ClientId, opt => opt.MapFrom(src => src.ClientId))
+            .ForMember(dest => dest.ValidFrom, opt => opt.MapFrom(src => src.ValidFrom))
+            .ForMember(dest => dest.ValidUntil, opt => opt.MapFrom(src => src.ValidUntil))
+            .ForMember(dest => dest.ShiftId, opt => opt.Ignore())
+            .ForMember(dest => dest.Client, opt => opt.Ignore())
+            .ForMember(dest => dest.Shift, opt => opt.Ignore())
+            .ForMember(dest => dest.Group, opt => opt.Ignore())
+            .IgnoreAuditFields();
     }
 
     private static int ParseIdNumber(string idNumber)

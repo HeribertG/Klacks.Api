@@ -82,6 +82,8 @@ public class ClientRepository : IClientRepository
                                       .Include(cu => cu.Breaks)
                                       .Include(cu => cu.ClientContracts)
                                           .ThenInclude(cc => cc.Contract)
+                                      .Include(cu => cu.GroupItems)
+                                          .ThenInclude(gi => gi.Group)
                                       .AsSplitQuery()
                                       .AsNoTracking()
                                       .SingleOrDefaultAsync(emp => emp.Id == id);
