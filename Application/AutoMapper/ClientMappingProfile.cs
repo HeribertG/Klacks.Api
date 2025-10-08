@@ -75,7 +75,9 @@ public class ClientMappingProfile : Profile
             .ForMember(dest => dest.Title, opt => opt.Ignore())
             .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => !src.IsActive))
             .ForMember(dest => dest.Type, opt => opt.Ignore())
-            .ForMember(dest => dest.Works, opt => opt.Ignore());
+            .ForMember(dest => dest.Works, opt => opt.Ignore())
+            .ForMember(dest => dest.ClientContracts, opt => opt.Ignore())
+            .ForMember(dest => dest.GroupItems, opt => opt.Ignore());
 
         CreateMap<PagedResult<Client>, TruncatedClient>()
             .ForMember(dest => dest.Clients, opt => opt.MapFrom(src => src.Items))
@@ -99,6 +101,7 @@ public class ClientMappingProfile : Profile
             .ForMember(dest => dest.ClientId, opt => opt.MapFrom(src => src.ClientId))
             .ForMember(dest => dest.ValidFrom, opt => opt.MapFrom(src => src.ValidFrom))
             .ForMember(dest => dest.ValidUntil, opt => opt.MapFrom(src => src.ValidUntil))
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.ShiftId, opt => opt.Ignore())
             .ForMember(dest => dest.Client, opt => opt.Ignore())
             .ForMember(dest => dest.Shift, opt => opt.Ignore())
