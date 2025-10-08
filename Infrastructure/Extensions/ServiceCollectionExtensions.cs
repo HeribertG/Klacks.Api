@@ -80,6 +80,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IClientSortingService, ClientSortingService>();
         services.AddScoped<IClientChangeTrackingService, ClientChangeTrackingService>();
         services.AddScoped<IClientEntityManagementService, ClientEntityManagementService>();
+        services.AddScoped<IClientValidator, ClientValidator>();
         services.AddScoped<IClientWorkFilterService, ClientWorkFilterService>();
 
         // Group Domain Services

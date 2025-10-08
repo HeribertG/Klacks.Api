@@ -16,25 +16,30 @@ public class ClientRepository : IClientRepository
     private readonly IClientChangeTrackingService _changeTrackingService;
     private readonly IClientEntityManagementService _entityManagementService;
     private readonly EntityCollectionUpdateService _collectionUpdateService;
+    private readonly IClientValidator _clientValidator;
 
     public ClientRepository(
         DataBaseContext context,
         IMacroEngine macroEngine,
         IClientChangeTrackingService changeTrackingService,
         IClientEntityManagementService entityManagementService,
-        EntityCollectionUpdateService collectionUpdateService)
+        EntityCollectionUpdateService collectionUpdateService,
+        IClientValidator clientValidator)
     {
         this.context = context;
         this.macroEngine = macroEngine;
         _changeTrackingService = changeTrackingService;
         _entityManagementService = entityManagementService;
         _collectionUpdateService = collectionUpdateService;
+        _clientValidator = clientValidator;
     }
 
     public async Task Add(Client client)
     {
         _entityManagementService.PrepareClientForAdd(client);
-        EnsureSingleActiveContract(client.ClientContracts);
+        _clientValidator.EnsureUniqueGroupItems(client.GroupItems);
+        _clientValidator.EnsureUniqueClientContracts(client.ClientContracts);
+        _clientValidator.EnsureSingleActiveContract(client.ClientContracts);
         this.context.Client.Add(client);
     }
 
@@ -123,6 +128,8 @@ public class ClientRepository : IClientRepository
             .Include(c => c.Breaks)
             .Include(c => c.ClientContracts)
                 .ThenInclude(cc => cc.Contract)
+            .Include(c => c.GroupItems)
+                .ThenInclude(gi => gi.Group)
             .AsSplitQuery()
             .FirstOrDefaultAsync(c => c.Id == client.Id);
 
@@ -134,6 +141,8 @@ public class ClientRepository : IClientRepository
         var entry = this.context.Entry(existingClient);
         entry.CurrentValues.SetValues(client);
         entry.State = EntityState.Modified;
+
+        _clientValidator.RemoveEmptyCollections(client);
 
         UpdateNestedEntitiesManually(existingClient, client);
 
@@ -166,7 +175,15 @@ public class ClientRepository : IClientRepository
             existingClient.Id,
             (clientContract, clientId) => clientContract.ClientId = clientId);
 
-        EnsureSingleActiveContract(existingClient.ClientContracts);
+        _collectionUpdateService.UpdateCollection(
+            existingClient.GroupItems,
+            updatedClient.GroupItems,
+            existingClient.Id,
+            (groupItem, clientId) => groupItem.ClientId = clientId);
+
+        _clientValidator.EnsureUniqueGroupItems(existingClient.GroupItems);
+        _clientValidator.EnsureUniqueClientContracts(existingClient.ClientContracts);
+        _clientValidator.EnsureSingleActiveContract(existingClient.ClientContracts);
 
         _collectionUpdateService.UpdateSingleEntity(
             existingClient.Membership,
@@ -175,24 +192,6 @@ public class ClientRepository : IClientRepository
             (membership, clientId) => membership.ClientId = clientId,
             (membership) => existingClient.Membership = membership,
             () => existingClient.Membership = null);
-    }
-
-    private void EnsureSingleActiveContract(ICollection<ClientContract> clientContracts)
-    {
-        var activeContracts = clientContracts.Where(cc => cc.IsActive).ToList();
-
-        if (activeContracts.Count > 1)
-        {
-            var lastActive = activeContracts.Last();
-
-            foreach (var contract in clientContracts)
-            {
-                if (contract.Id != lastActive.Id)
-                {
-                    contract.IsActive = false;
-                }
-            }
-        }
     }
 
     public void Remove(Client client)

@@ -41,7 +41,6 @@ public class ClientMappingProfile : Profile
 
         CreateMap<ClientResource, Client>()
             .IgnoreAuditFields()
-            .ForMember(dest => dest.GroupItems, opt => opt.Ignore())
             .ForMember(dest => dest.Breaks, opt => opt.Ignore());
 
         CreateMap<ClientContract, ClientContractResource>();
@@ -78,7 +77,7 @@ public class ClientMappingProfile : Profile
             .ForMember(dest => dest.Type, opt => opt.Ignore())
             .ForMember(dest => dest.Works, opt => opt.Ignore());
 
-        CreateMap<Domain.Models.Results.PagedResult<Client>, TruncatedClient>()
+        CreateMap<PagedResult<Client>, TruncatedClient>()
             .ForMember(dest => dest.Clients, opt => opt.MapFrom(src => src.Items))
             .ForMember(dest => dest.MaxItems, opt => opt.MapFrom(src => src.TotalCount))
             .ForMember(dest => dest.MaxPages, opt => opt.MapFrom(src => src.TotalPages))

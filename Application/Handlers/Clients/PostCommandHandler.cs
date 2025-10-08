@@ -3,7 +3,6 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Staffs;
 using MediatR;
-using Klacks.Api.Domain.Exceptions;
 
 namespace Klacks.Api.Application.Handlers.Clients;
 
@@ -29,7 +28,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Clien
     {
         return await ExecuteAsync(async () =>
         {
-            var client = _mapper.Map<Klacks.Api.Domain.Models.Staffs.Client>(request.Resource);
+            var client = _mapper.Map<Domain.Models.Staffs.Client>(request.Resource);
             await _clientRepository.Add(client);
             await _unitOfWork.CompleteAsync();
             return _mapper.Map<ClientResource>(client);

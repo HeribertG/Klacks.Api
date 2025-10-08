@@ -41,7 +41,7 @@ public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, TokenResour
                     IsAdmin = result.IsAdmin,
                     IsAuthorised = result.IsAuthorised,
                     RefreshToken = result.RefreshToken,
-                    Version = new Klacks.Api.MyVersion().Get(),
+                    Version = new MyVersion().Get(),
                     Subject = request.Email
                 };
                 

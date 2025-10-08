@@ -3,7 +3,6 @@ using Klacks.Api.Domain.Enums;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
-
 namespace Klacks.Api.Domain.Models.Staffs;
 
 public class Address : BaseEntity
@@ -36,7 +35,4 @@ public class Address : BaseEntity
     public string State { get; set; } = string.Empty;
 
     public string Country { get; set; } = string.Empty;
-
-
-
 }

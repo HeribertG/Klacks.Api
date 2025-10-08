@@ -5,6 +5,12 @@ namespace Klacks.Api.Domain.Services.Clients;
 
 public class ClientEntityManagementService : IClientEntityManagementService
 {
+    private readonly IClientValidator _clientValidator;
+
+    public ClientEntityManagementService(IClientValidator clientValidator)
+    {
+        _clientValidator = clientValidator;
+    }
     public void UpdateNestedEntities<TEntity>(
         Guid clientId,
         Guid[] existingEntityIds,
@@ -33,17 +39,7 @@ public class ClientEntityManagementService : IClientEntityManagementService
 
     public void PrepareClientForAdd(Client client)
     {
-        // Remove empty annotations
-        for (int i = client.Annotations.Count - 1; i > -1; i--)
-        {
-            var itm = client.Annotations.ToList()[i];
-            if (string.IsNullOrEmpty(itm.Note) || string.IsNullOrWhiteSpace(itm.Note))
-            {
-                client.Annotations.Remove(itm);
-            }
-        }
-
-        // Reset IdNumber - it will be set by the database
+        _clientValidator.RemoveEmptyCollections(client);
         client.IdNumber = 0;
     }
 }
