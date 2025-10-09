@@ -65,8 +65,10 @@ public class EntityCollectionUpdateService
             }
             else
             {
+                var existingId = existingEntity.Id;
                 var entry = _context.Entry(existingEntity);
                 entry.CurrentValues.SetValues(updatedEntity);
+                existingEntity.Id = existingId;
                 entry.State = EntityState.Modified;
             }
         }

@@ -6,6 +6,7 @@ using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Infrastructure.Repositories;
 
@@ -17,6 +18,7 @@ public class ClientRepository : IClientRepository
     private readonly IClientEntityManagementService _entityManagementService;
     private readonly EntityCollectionUpdateService _collectionUpdateService;
     private readonly IClientValidator _clientValidator;
+    private readonly ILogger<ClientRepository> _logger;
 
     public ClientRepository(
         DataBaseContext context,
@@ -24,10 +26,12 @@ public class ClientRepository : IClientRepository
         IClientChangeTrackingService changeTrackingService,
         IClientEntityManagementService entityManagementService,
         EntityCollectionUpdateService collectionUpdateService,
-        IClientValidator clientValidator)
+        IClientValidator clientValidator,
+        ILogger<ClientRepository> logger)
     {
         this.context = context;
         this.macroEngine = macroEngine;
+        _logger = logger;
         _changeTrackingService = changeTrackingService;
         _entityManagementService = entityManagementService;
         _collectionUpdateService = collectionUpdateService;
@@ -40,6 +44,12 @@ public class ClientRepository : IClientRepository
         _clientValidator.EnsureUniqueGroupItems(client.GroupItems);
         _clientValidator.EnsureUniqueClientContracts(client.ClientContracts);
         _clientValidator.EnsureSingleActiveContract(client.ClientContracts);
+
+        if (client.ClientImage != null)
+        {
+            client.ClientImage.CreateTime = DateTime.UtcNow;
+        }
+
         this.context.Client.Add(client);
     }
 
@@ -89,6 +99,7 @@ public class ClientRepository : IClientRepository
                                           .ThenInclude(cc => cc.Contract)
                                       .Include(cu => cu.GroupItems)
                                           .ThenInclude(gi => gi.Group)
+                                      .Include(cu => cu.ClientImage)
                                       .AsSplitQuery()
                                       .AsNoTracking()
                                       .SingleOrDefaultAsync(emp => emp.Id == id);
@@ -130,6 +141,7 @@ public class ClientRepository : IClientRepository
                 .ThenInclude(cc => cc.Contract)
             .Include(c => c.GroupItems)
                 .ThenInclude(gi => gi.Group)
+            .Include(c => c.ClientImage)
             .AsSplitQuery()
             .FirstOrDefaultAsync(c => c.Id == client.Id);
 
@@ -138,18 +150,29 @@ public class ClientRepository : IClientRepository
             throw new KeyNotFoundException($"Client with ID {client.Id} not found");
         }
 
+        var existingClientImage = existingClient.ClientImage;
+        var existingMembership = existingClient.Membership;
+
+        var tempClientImage = client.ClientImage;
+        var tempMembership = client.Membership;
+        client.ClientImage = null;
+        client.Membership = null;
+
         var entry = this.context.Entry(existingClient);
         entry.CurrentValues.SetValues(client);
         entry.State = EntityState.Modified;
 
+        client.ClientImage = tempClientImage;
+        client.Membership = tempMembership;
+
         _clientValidator.RemoveEmptyCollections(client);
 
-        UpdateNestedEntitiesManually(existingClient, client);
+        UpdateNestedEntitiesManually(existingClient, client, existingClientImage);
 
         return existingClient;
     }
 
-    private void UpdateNestedEntitiesManually(Client existingClient, Client updatedClient)
+    private void UpdateNestedEntitiesManually(Client existingClient, Client updatedClient, ClientImage? existingClientImage)
     {
         _collectionUpdateService.UpdateCollection(
             existingClient.Addresses,
@@ -192,6 +215,29 @@ public class ClientRepository : IClientRepository
             (membership, clientId) => membership.ClientId = clientId,
             (membership) => existingClient.Membership = membership,
             () => existingClient.Membership = null);
+
+        if (updatedClient.ClientImage != null)
+        {
+            if (existingClientImage != null)
+            {
+                updatedClient.ClientImage.CreateTime = existingClientImage.CreateTime;
+                context.ClientImage.Remove(existingClientImage);
+            }
+            else
+            {
+                updatedClient.ClientImage.CreateTime = DateTime.UtcNow;
+            }
+
+            updatedClient.ClientImage.ClientId = existingClient.Id;
+            updatedClient.ClientImage.UpdateTime = DateTime.UtcNow;
+            context.ClientImage.Add(updatedClient.ClientImage);
+            existingClient.ClientImage = updatedClient.ClientImage;
+        }
+        else if (existingClientImage != null)
+        {
+            context.ClientImage.Remove(existingClientImage);
+            existingClient.ClientImage = null;
+        }
     }
 
     public void Remove(Client client)

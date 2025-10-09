@@ -86,6 +86,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<ClientContract> ClientContract { get; set; }
 
+    public DbSet<ClientImage> ClientImage { get; set; }
+
     // LLM DbSets
     public DbSet<LLMProvider> LLMProviders { get; set; }
 
@@ -246,6 +248,12 @@ public class DataBaseContext : IdentityDbContext
          .WithMany()
          .HasForeignKey(cc => cc.ContractId)
          .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Client>()
+         .HasOne(c => c.ClientImage)
+         .WithOne(ci => ci.Client)
+         .HasForeignKey<ClientImage>(ci => ci.ClientId)
+         .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<SelectedCalendar>()
         .HasOne(p => p.CalendarSelection)

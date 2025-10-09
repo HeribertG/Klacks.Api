@@ -55,6 +55,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IGroupItemRepository, GroupItemRepository>();
         services.AddScoped<IGroupVisibilityRepository, GroupVisibilityRepository>();
         services.AddScoped<IContractRepository, ContractRepository>();
+        services.AddScoped<IClientImageRepository, ClientImageRepository>();
 
         services.AddSingleton<IMacroEngine, MacroEngine>();
         services.AddScoped<UploadFile>();

@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20251009122107_RemoveSoftDeleteFromClientImage")]
+    partial class RemoveSoftDeleteFromClientImage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2341,7 +2344,7 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("content_type");
 
-                    b.Property<DateTime?>("CreateTime")
+                    b.Property<DateTime>("CreateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("create_time");
 
@@ -2359,7 +2362,7 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("bytea")
                         .HasColumnName("image_data");
 
-                    b.Property<DateTime?>("UpdateTime")
+                    b.Property<DateTime>("UpdateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
 

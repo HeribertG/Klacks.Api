@@ -22,6 +22,8 @@ public class Client : BaseEntity
         ClientContracts = new Collection<ClientContract>();
     }
 
+    public ClientImage? ClientImage { get; set; }
+
     public ICollection<Address> Addresses { get; set; }
 
     public ICollection<Annotation> Annotations { get; set; }

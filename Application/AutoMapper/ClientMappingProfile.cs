@@ -37,11 +37,29 @@ public class ClientMappingProfile : Profile
             .ForMember(dest => dest.Annotations, opt => opt.MapFrom(src => src.Annotations))
             .ForMember(dest => dest.ClientContracts, opt => opt.MapFrom(src => src.ClientContracts))
             .ForMember(dest => dest.Works, opt => opt.MapFrom(src => src.Works))
-            .ForMember(dest => dest.GroupItems, opt => opt.MapFrom(src => src.GroupItems));
+            .ForMember(dest => dest.GroupItems, opt => opt.MapFrom(src => src.GroupItems))
+            .ForMember(dest => dest.ClientImage, opt => opt.MapFrom(src => src.ClientImage));
 
         CreateMap<ClientResource, Client>()
             .IgnoreAuditFields()
-            .ForMember(dest => dest.Breaks, opt => opt.Ignore());
+            .ForMember(dest => dest.Breaks, opt => opt.Ignore())
+            .ForMember(dest => dest.ClientImage, opt => opt.MapFrom(src => src.ClientImage));
+
+        CreateMap<ClientImage, ClientImageResource>()
+            .ForMember(dest => dest.ImageData, opt => opt.MapFrom(src =>
+                src.ImageData != null && src.ImageData.Length > 0
+                    ? Convert.ToBase64String(src.ImageData)
+                    : string.Empty));
+
+        CreateMap<ClientImageResource, ClientImage>()
+            .ForMember(dest => dest.ImageData, opt => opt.MapFrom(src =>
+                !string.IsNullOrEmpty(src.ImageData)
+                    ? Convert.FromBase64String(src.ImageData)
+                    : Array.Empty<byte>()))
+            .ForMember(dest => dest.Client, opt => opt.Ignore())
+            .ForMember(dest => dest.CreateTime, opt => opt.Ignore())
+            .ForMember(dest => dest.UpdateTime, opt => opt.Ignore())
+            .ForMember(dest => dest.Id, opt => opt.Ignore());
 
         CreateMap<ClientContract, ClientContractResource>();
         CreateMap<ClientContractResource, ClientContract>()

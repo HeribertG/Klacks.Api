@@ -66,4 +66,6 @@ public class ClientResource
     public ICollection<WorkResource> Works { get; set; }
 
     public ICollection<ClientGroupItemResource> GroupItems { get; set; }
+
+    public ClientImageResource? ClientImage { get; set; }
 }
