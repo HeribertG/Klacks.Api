@@ -95,7 +95,8 @@ public class ClientMappingProfile : Profile
             .ForMember(dest => dest.Type, opt => opt.Ignore())
             .ForMember(dest => dest.Works, opt => opt.Ignore())
             .ForMember(dest => dest.ClientContracts, opt => opt.Ignore())
-            .ForMember(dest => dest.GroupItems, opt => opt.Ignore());
+            .ForMember(dest => dest.GroupItems, opt => opt.Ignore())
+            .ForMember(dest => dest.ClientImage, opt => opt.Ignore());
 
         CreateMap<PagedResult<Client>, TruncatedClient>()
             .ForMember(dest => dest.Clients, opt => opt.MapFrom(src => src.Items))
