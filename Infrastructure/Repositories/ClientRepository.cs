@@ -47,6 +47,7 @@ public class ClientRepository : IClientRepository
 
         if (client.ClientImage != null)
         {
+            client.ClientImage.ClientId = client.Id;
             client.ClientImage.CreateTime = DateTime.UtcNow;
         }
 

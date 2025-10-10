@@ -71,5 +71,16 @@ public class PostCommandValidator : AbstractValidator<PostCommand<ClientResource
                 return contracts.Any(c => c.IsActive);
             })
             .WithMessage("address.edit-address.contracts.validation.at-least-one-active");
+
+        When(x => x.Resource.ClientImage != null, () =>
+        {
+            RuleFor(x => x.Resource.ClientImage!.ImageData)
+                .NotEmpty()
+                .WithMessage("ClientImage requires image data");
+
+            RuleFor(x => x.Resource.ClientImage!.ContentType)
+                .NotEmpty()
+                .WithMessage("ClientImage requires content type");
+        });
     }
 }
