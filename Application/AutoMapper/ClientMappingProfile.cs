@@ -34,7 +34,7 @@ public class ClientMappingProfile : Profile
         CreateMap<Client, ClientResource>()
             .ForMember(dest => dest.Communications, opt => opt.MapFrom(src => src.Communications))
             .ForMember(dest => dest.Addresses, opt => opt.MapFrom(src => src.Addresses))
-            .ForMember(dest => dest.Annotations, opt => opt.MapFrom(src => src.Annotations))
+            .ForMember(dest => dest.Annotations, opt => opt.MapFrom(src => src.Annotations.OrderByDescending(a => a.CreateTime)))
             .ForMember(dest => dest.ClientContracts, opt => opt.MapFrom(src => src.ClientContracts))
             .ForMember(dest => dest.Works, opt => opt.MapFrom(src => src.Works))
             .ForMember(dest => dest.GroupItems, opt => opt.MapFrom(src => src.GroupItems))

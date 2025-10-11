@@ -1,10 +1,8 @@
-using Klacks.Api.Domain.Common;
-using Klacks.Api.Infrastructure.Persistence;
-using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
@@ -56,7 +54,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         }
     }
 
-    public override async Task<Group> Delete(Guid id)
+    public override async Task<Group?> Delete(Guid id)
     {
         Logger.LogInformation("Attempting to delete group with ID: {GroupId}", id);
         var groupEntity = await context.Group
