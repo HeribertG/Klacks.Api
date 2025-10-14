@@ -1,8 +1,10 @@
 using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Presentation.DTOs.Settings;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.States;
 
@@ -10,18 +12,18 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<S
 {
     private readonly IStateRepository _stateRepository;
     private readonly IMapper _mapper;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly DataBaseContext _context;
 
     public DeleteCommandHandler(
         IStateRepository stateRepository,
         IMapper mapper,
-        IUnitOfWork unitOfWork,
+        DataBaseContext context,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _stateRepository = stateRepository;
         _mapper = mapper;
-        _unitOfWork = unitOfWork;
+        _context = context;
     }
 
     public async Task<StateResource?> Handle(DeleteCommand<StateResource> request, CancellationToken cancellationToken)
@@ -33,8 +35,9 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<S
         }
 
         var stateResource = _mapper.Map<StateResource>(existingState);
-        await _stateRepository.Delete(request.Id);
-        await _unitOfWork.CompleteAsync();
+
+        await _context.State.Where(s => s.Id == request.Id).ExecuteDeleteAsync(cancellationToken);
+
         return stateResource;
     }
 }
