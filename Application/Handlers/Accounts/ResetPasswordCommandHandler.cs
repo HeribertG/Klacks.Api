@@ -1,7 +1,7 @@
 using Klacks.Api.Application.Commands.Accounts;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
-using Klacks.Api.Domain.Services.Accounts;
+using Klacks.Api.Domain.Interfaces;
 using MediatR;
 using Klacks.Api.Domain.Exceptions;
 

@@ -1,6 +1,6 @@
 using Klacks.Api.Domain.Models.Authentification;
 
-namespace Klacks.Api.Domain.Services.Accounts;
+namespace Klacks.Api.Domain.Interfaces;
 
 public interface IAccountRegistrationService
 {

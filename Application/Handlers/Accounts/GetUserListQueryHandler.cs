@@ -1,5 +1,5 @@
 using Klacks.Api.Application.Queries.Accounts;
-using Klacks.Api.Domain.Services.Accounts;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Presentation.DTOs.Registrations;
 using MediatR;
 

@@ -2,7 +2,7 @@ using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Presentation.DTOs;
 using Klacks.Api.Presentation.DTOs.Registrations;
 
-namespace Klacks.Api.Domain.Services.Accounts;
+namespace Klacks.Api.Domain.Interfaces;
 
 public interface IAccountManagementService
 {

@@ -3,7 +3,7 @@ using Klacks.Api.Application.Commands.Accounts;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
-using Klacks.Api.Domain.Services.Accounts;
+using Klacks.Api.Domain.Interfaces;
 using MediatR;
 
 namespace Klacks.Api.Application.Handlers.Accounts;
