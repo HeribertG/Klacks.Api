@@ -8,7 +8,6 @@ namespace Klacks.Api.Application.Handlers.GroupVisibilities;
 
 public class BulkGroupVisibilitiesCommandHandler : BaseHandler, IRequestHandler<BulkGroupVisibilitiesCommand>
 {
-    private readonly ILogger<BulkGroupVisibilitiesCommandHandler> _logger; 
     private readonly IGroupVisibilityRepository _groupVisibilityRepository;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
