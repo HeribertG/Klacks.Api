@@ -91,6 +91,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IGroupValidityService, GroupValidityService>();
         services.AddScoped<IGroupMembershipService, GroupMembershipService>();
         services.AddScoped<IGroupIntegrityService, GroupIntegrityService>();
+        services.AddSingleton<IGroupCacheService, GroupCacheService>();
 
         // Group Integrity Sub-Services (refactored from 478-line GroupIntegrityService)
         services.AddScoped<Domain.Services.Groups.Integrity.NestedSetRepairService>();

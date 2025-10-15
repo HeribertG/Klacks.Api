@@ -22,8 +22,10 @@ public class ClientGroupFilterService : IClientGroupFilterService
     {
         if (selectedGroupId.HasValue)
         {
-            var clientIds = await _groupClient.GetAllClientIdsFromGroupAndSubgroups(selectedGroupId.Value);
-            query = query.Where(client => clientIds.Contains(client.Id));
+            var groupIds = await _groupClient.GetAllGroupIdsIncludingSubgroups(selectedGroupId.Value);
+            query = from client in query
+                    where client.GroupItems.Any(gi => groupIds.Contains(gi.GroupId))
+                    select client;
         }
         else
         {
@@ -32,8 +34,10 @@ public class ClientGroupFilterService : IClientGroupFilterService
                 var rootlist = await _groupVisibility.ReadVisibleRootIdList();
                 if (rootlist.Any())
                 {
-                    var clientIds = await _groupClient.GetAllClientIdsFromGroupsAndSubgroupsFromList(rootlist);
-                    query = query.Where(client => clientIds.Contains(client.Id));
+                    var groupIds = await _groupClient.GetAllGroupIdsIncludingSubgroupsFromList(rootlist);
+                    query = from client in query
+                            where client.GroupItems.Any(gi => groupIds.Contains(gi.GroupId))
+                            select client;
                 }
             }
         }

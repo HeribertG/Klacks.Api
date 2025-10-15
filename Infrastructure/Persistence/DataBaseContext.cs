@@ -142,6 +142,10 @@ public class DataBaseContext : IdentityDbContext
             entity.Property(e => e.IdNumber)
                   .HasDefaultValueSql("nextval('public.client_idnumber_seq')");
 
+            entity.HasIndex(p => new { p.IsDeleted, p.Name, p.FirstName });
+            entity.HasIndex(p => new { p.IsDeleted, p.FirstName, p.Name });
+            entity.HasIndex(p => new { p.IsDeleted, p.Company, p.Name });
+            entity.HasIndex(p => new { p.IsDeleted, p.IdNumber });
             entity.HasIndex(p => new { p.FirstName, p.SecondName, p.Name, p.MaidenName, p.Company, p.Gender, p.Type, p.LegalEntity, p.IsDeleted });
         });
         modelBuilder.Entity<Address>().HasQueryFilter(p => !p.IsDeleted);
@@ -192,6 +196,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<CalendarRule>().HasIndex(p => new { p.State, p.Country });
         modelBuilder.Entity<SelectedCalendar>().HasIndex(p => new { p.State, p.Country, p.CalendarSelectionId });
         modelBuilder.Entity<Group>().HasIndex(p => new { p.Name });
+        modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.GroupId, p.ClientId, p.IsDeleted });
         modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.ClientId, p.GroupId, p.ShiftId });
         modelBuilder.Entity<Work>().HasIndex(p => new { p.ClientId, p.ShiftId });
         modelBuilder.Entity<Shift>().HasIndex(p => new { p.MacroId, p.ClientId, p.Status , p.FromDate, p.UntilDate });

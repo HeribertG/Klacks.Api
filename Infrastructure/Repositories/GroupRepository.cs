@@ -2,6 +2,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
@@ -13,15 +14,18 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 {
     private readonly DataBaseContext context;
     private readonly IGroupServiceFacade groupServices;
+    private readonly IGroupCacheService _groupCacheService;
 
     public GroupRepository(
         DataBaseContext context,
         IGroupServiceFacade groupServices,
+        IGroupCacheService groupCacheService,
         ILogger<Group> logger)
        : base(context, logger)
     {
         this.context = context;
         this.groupServices = groupServices;
+        _groupCacheService = groupCacheService;
     }
 
     public new async Task Add(Group model)
@@ -39,6 +43,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             }
 
             await context.SaveChangesAsync();
+            _groupCacheService.InvalidateGroupHierarchyCache();
 
             Logger.LogInformation("Group {GroupName} added successfully.", model.Name);
         }
@@ -71,6 +76,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         {
             await groupServices.TreeService.DeleteNodeAsync(id);
             await context.SaveChangesAsync();
+            _groupCacheService.InvalidateGroupHierarchyCache();
             Logger.LogInformation("Group with ID: {GroupId} deleted successfully.", id);
             return groupEntity;
         }
@@ -169,6 +175,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         {
             await groupServices.TreeService.MoveNodeAsync(nodeId, newParentId);
             await context.SaveChangesAsync();
+            _groupCacheService.InvalidateGroupHierarchyCache();
             Logger.LogInformation("Group with ID: {NodeId} moved successfully to new parent {NewParentId}.", nodeId, newParentId);
         }
         catch (DbUpdateException ex)
@@ -223,6 +230,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
             context.Group.Update(existingGroup);
             await context.SaveChangesAsync();
+            _groupCacheService.InvalidateGroupHierarchyCache();
             Logger.LogInformation("Group with ID: {GroupId} updated successfully.", model.Id);
             return model;
         }

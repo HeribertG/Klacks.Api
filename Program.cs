@@ -114,6 +114,8 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddApplicationServices();
 
+builder.Services.AddMemoryCache();
+
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();

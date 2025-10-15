@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20251015162712_OptimizeClientAndGroupItemIndices")]
+    partial class OptimizeClientAndGroupItemIndices
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -243,14 +246,14 @@ namespace Klacks.Api.Migrations
                     b.HasKey("Id")
                         .HasName("pk_group_item");
 
+                    b.HasIndex("GroupId")
+                        .HasDatabaseName("ix_group_item_group_id");
+
                     b.HasIndex("ShiftId")
                         .HasDatabaseName("ix_group_item_shift_id");
 
                     b.HasIndex("ClientId", "GroupId", "ShiftId")
                         .HasDatabaseName("ix_group_item_client_id_group_id_shift_id");
-
-                    b.HasIndex("GroupId", "ClientId", "IsDeleted")
-                        .HasDatabaseName("ix_group_item_group_id_client_id_is_deleted");
 
                     b.ToTable("group_item", (string)null);
                 });
@@ -2250,18 +2253,6 @@ namespace Klacks.Api.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_client");
-
-                    b.HasIndex("IsDeleted", "IdNumber")
-                        .HasDatabaseName("ix_client_is_deleted_id_number");
-
-                    b.HasIndex("IsDeleted", "Company", "Name")
-                        .HasDatabaseName("ix_client_is_deleted_company_name");
-
-                    b.HasIndex("IsDeleted", "FirstName", "Name")
-                        .HasDatabaseName("ix_client_is_deleted_first_name_name");
-
-                    b.HasIndex("IsDeleted", "Name", "FirstName")
-                        .HasDatabaseName("ix_client_is_deleted_name_first_name");
 
                     b.HasIndex("FirstName", "SecondName", "Name", "MaidenName", "Company", "Gender", "Type", "LegalEntity", "IsDeleted")
                         .HasDatabaseName("ix_client_first_name_second_name_name_maiden_name_company_gend");
