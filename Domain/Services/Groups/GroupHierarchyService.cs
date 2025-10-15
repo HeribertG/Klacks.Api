@@ -1,5 +1,6 @@
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,11 +10,13 @@ public class GroupHierarchyService : IGroupHierarchyService
 {
     private readonly DataBaseContext _context;
     private readonly ILogger<GroupHierarchyService> _logger;
+    private readonly IGroupVisibilityService _groupVisibilityService;
 
-    public GroupHierarchyService(DataBaseContext context, ILogger<GroupHierarchyService> logger)
+    public GroupHierarchyService(DataBaseContext context, ILogger<GroupHierarchyService> logger, IGroupVisibilityService groupVisibilityService)
     {
         _context = context;
         this._logger = logger;
+        _groupVisibilityService = groupVisibilityService;
     }
 
     public async Task<IEnumerable<Group>> GetChildrenAsync(Guid parentId)
@@ -96,9 +99,29 @@ public class GroupHierarchyService : IGroupHierarchyService
         _logger.LogInformation("Getting tree structure for root {RootId}", rootId?.ToString() ?? "all roots");
 
         var today = DateTime.UtcNow.Date;
+        var isAdmin = await _groupVisibilityService.IsAdmin();
+        var visibleRootIds = new List<Guid>();
+
+        if (!isAdmin)
+        {
+            visibleRootIds = await _groupVisibilityService.ReadVisibleRootIdList();
+            _logger.LogInformation("Non-admin user has access to {Count} root groups", visibleRootIds.Count);
+
+            if (visibleRootIds.Count == 0)
+            {
+                _logger.LogWarning("Non-admin user has no visible groups");
+                return new List<Group>();
+            }
+        }
 
         if (rootId.HasValue)
         {
+            if (!isAdmin && !visibleRootIds.Contains(rootId.Value))
+            {
+                _logger.LogWarning("Non-admin user attempted to access root {RootId} without permission", rootId);
+                return new List<Group>();
+            }
+
             var root = await _context.Group
                 .Where(g => g.Id == rootId)
                 .FirstOrDefaultAsync();
@@ -128,7 +151,14 @@ public class GroupHierarchyService : IGroupHierarchyService
         }
         else
         {
-            var allNodes = await _context.Group
+            IQueryable<Group> query = _context.Group;
+
+            if (!isAdmin && visibleRootIds.Any())
+            {
+                query = query.Where(g => visibleRootIds.Contains(g.Root ?? g.Id));
+            }
+
+            var allNodes = await query
                 .Include(g => g.GroupItems.Where(gi => !gi.ShiftId.HasValue && gi.ClientId.HasValue))
                 .ThenInclude(gi => gi.Client)
                 .ToListAsync();
@@ -150,9 +180,26 @@ public class GroupHierarchyService : IGroupHierarchyService
     {
         _logger.LogInformation("Getting all root groups");
 
-        var roots = await _context.Group
+        var isAdmin = await _groupVisibilityService.IsAdmin();
+        IQueryable<Group> query = _context.Group
             .AsNoTracking()
-            .Where(g => g.Id == g.Root || !(g.Root.HasValue && g.Parent.HasValue))
+            .Where(g => g.Id == g.Root || !(g.Root.HasValue && g.Parent.HasValue));
+
+        if (!isAdmin)
+        {
+            var visibleRootIds = await _groupVisibilityService.ReadVisibleRootIdList();
+            _logger.LogInformation("Non-admin user has access to {Count} root groups", visibleRootIds.Count);
+
+            if (visibleRootIds.Count == 0)
+            {
+                _logger.LogWarning("Non-admin user has no visible groups");
+                return new List<Group>();
+            }
+
+            query = query.Where(g => visibleRootIds.Contains(g.Id));
+        }
+
+        var roots = await query
             .OrderBy(g => g.Name)
             .ToListAsync();
 
