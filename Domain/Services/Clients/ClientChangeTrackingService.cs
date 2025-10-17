@@ -35,6 +35,7 @@ public class ClientChangeTrackingService : IClientChangeTrackingService
                 var changesDate = lastChangesDate;
                 lstAutor = await _context.Client.Where(x => x.CreateTime!.HasValue! && x.CreateTime!.Value!.Date == changesDate).Select(x => x.CurrentUserCreated!).ToListAsync();
             }
+
             if (c.CreateTime != null && lastChangesDate.Date == c.CreateTime.Value.Date)
             {
                 var date = lastChangesDate;
