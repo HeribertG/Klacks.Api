@@ -6,6 +6,10 @@ public class BreakFilter
 
     public int CurrentYear { get; set; }
 
+    public string OrderBy { get; set; } = "name";
+
+    public string SortOrder { get; set; } = "asc";
+
     public Guid? SelectedGroup { get; set; }
 
     public List<Guid> AbsenceIds { get; set; } = new List<Guid>();

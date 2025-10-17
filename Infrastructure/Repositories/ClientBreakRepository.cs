@@ -35,9 +35,10 @@ public class ClientBreakRepository : IClientBreakRepository
 
         var query = this.context.Client
             .Include(c => c.Membership)
+            .Include(c => c.GroupItems)
             .Where(c => c.Type != EntityTypeEnum.Customer)
             .AsQueryable();
-            
+
         query = await _groupFilterService.FilterClientsByGroupId(filter.SelectedGroup, query);
 
         query = _searchFilterService.ApplySearchFilter(query, filter.SearchString, false);
@@ -50,6 +51,8 @@ public class ClientBreakRepository : IClientBreakRepository
             (c.Membership.ValidUntil.HasValue == false ||
             (c.Membership.ValidUntil.HasValue && c.Membership.ValidUntil.Value.Date >= startOfYear.Date)));
 
+        query = ApplySorting(query, filter.OrderBy, filter.SortOrder);
+
         if (filter.AbsenceIds?.Any() == true)
         {
             query = query.Include(c => c.Breaks.Where(b => filter.AbsenceIds.Contains(b.AbsenceId) && 
@@ -58,5 +61,25 @@ public class ClientBreakRepository : IClientBreakRepository
         }
 
         return await query.ToListAsync();
+    }
+
+    private IQueryable<Client> ApplySorting(IQueryable<Client> query, string orderBy, string sortOrder)
+    {
+        var isDescending = sortOrder?.ToLower() == "desc";
+
+        return (orderBy?.ToLower()) switch
+        {
+            "firstname" => isDescending
+                ? query.OrderByDescending(c => c.FirstName).ThenByDescending(c => c.Name)
+                : query.OrderBy(c => c.FirstName).ThenBy(c => c.Name),
+
+            "company" => isDescending
+                ? query.OrderByDescending(c => c.Company).ThenByDescending(c => c.Name)
+                : query.OrderBy(c => c.Company).ThenBy(c => c.Name),
+
+            "name" or _ => isDescending
+                ? query.OrderByDescending(c => c.Name).ThenByDescending(c => c.FirstName)
+                : query.OrderBy(c => c.Name).ThenBy(c => c.FirstName)
+        };
     }
 }
