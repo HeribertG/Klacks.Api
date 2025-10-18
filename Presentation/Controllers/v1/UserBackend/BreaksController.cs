@@ -16,7 +16,11 @@ public class BreaksController : InputBaseController<BreakResource>
     [HttpPost("GetClientList")]
     public async Task<ActionResult<IEnumerable<ClientBreakResource>>> GetClientList([FromBody] BreakFilter filter)
     {
-        var clientList = await Mediator.Send(new ListQuery(filter));
+        var (clientList, totalCount) = await Mediator.Send(new ListQuery(filter));
+
+        Response.Headers.Append("X-Total-Count", totalCount.ToString());
+        Response.Headers.Append("Access-Control-Expose-Headers", "X-Total-Count");
+
         return Ok(clientList);
     }
 }

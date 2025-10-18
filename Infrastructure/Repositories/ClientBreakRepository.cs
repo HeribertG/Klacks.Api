@@ -26,12 +26,15 @@ public class ClientBreakRepository : IClientBreakRepository
         _searchFilterService = searchFilterService;
     }
 
-    public async Task<List<Client>> BreakList(BreakFilter filter)
+    public async Task<(List<Client> Clients, int TotalCount)> BreakList(BreakFilter filter)
     {
         if (filter.CurrentYear <= 0)
         {
-            return new List<Client>();
+            return (new List<Client>(), 0);
         }
+
+        var startOfYear = new DateTime(filter.CurrentYear, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var endOfYear = new DateTime(filter.CurrentYear, 12, 31, 23, 59, 59, DateTimeKind.Utc);
 
         var query = this.context.Client
             .Include(c => c.Membership)
@@ -43,24 +46,32 @@ public class ClientBreakRepository : IClientBreakRepository
 
         query = _searchFilterService.ApplySearchFilter(query, filter.SearchString, false);
 
-        var startOfYear = new DateTime(filter.CurrentYear, 1, 1);
-        var endOfYear = new DateTime(filter.CurrentYear, 12, 31);
-        
         query = query.Where(c =>
-            c.Membership!.ValidFrom.Date <= endOfYear.Date &&
-            (c.Membership.ValidUntil.HasValue == false ||
-            (c.Membership.ValidUntil.HasValue && c.Membership.ValidUntil.Value.Date >= startOfYear.Date)));
+            c.Membership!.ValidFrom <= endOfYear &&
+            (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startOfYear));
 
         query = ApplySorting(query, filter.OrderBy, filter.SortOrder);
 
-        if (filter.AbsenceIds?.Any() == true)
+        var totalCount = await query.CountAsync();
+
+        if (filter.StartRow.HasValue && filter.RowCount.HasValue)
         {
-            query = query.Include(c => c.Breaks.Where(b => filter.AbsenceIds.Contains(b.AbsenceId) && 
-                                                          b.From >= startOfYear && 
-                                                          b.From <= endOfYear).OrderBy(b => b.From).ThenBy(b => b.Until));
+            query = query.Skip(filter.StartRow.Value).Take(filter.RowCount.Value);
         }
 
-        return await query.ToListAsync();
+        if (filter.AbsenceIds?.Any() == true)
+        {
+            query = query.Include(c => c.Breaks
+                .Where(b => filter.AbsenceIds.Contains(b.AbsenceId) &&
+                           b.From >= startOfYear &&
+                           b.From <= endOfYear)
+                .OrderBy(b => b.From)
+                .ThenBy(b => b.Until));
+        }
+
+        var clients = await query.AsSingleQuery().ToListAsync();
+
+        return (clients, totalCount);
     }
 
     private IQueryable<Client> ApplySorting(IQueryable<Client> query, string orderBy, string sortOrder)

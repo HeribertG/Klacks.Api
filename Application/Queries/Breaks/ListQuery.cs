@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Klacks.Api.Application.Queries.Breaks;
 
-public record ListQuery(BreakFilter Filter) : IRequest<IEnumerable<ClientBreakResource>>;
+public record ListQuery(BreakFilter Filter) : IRequest<(IEnumerable<ClientBreakResource> Clients, int TotalCount)>;

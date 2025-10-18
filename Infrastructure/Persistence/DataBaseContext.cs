@@ -188,10 +188,12 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Address>().HasIndex(p => new { p.ClientId, p.Street, p.Street2, p.Street3, p.City, p.IsDeleted });
         modelBuilder.Entity<Communication>().HasIndex(p => new { p.Value, p.IsDeleted });
         modelBuilder.Entity<Annotation>().HasIndex(p => new { p.Note, p.IsDeleted });
+        modelBuilder.Entity<Membership>().HasIndex(p => new { p.ClientId, p.ValidFrom, p.ValidUntil, p.IsDeleted });
         modelBuilder.Entity<History>().HasIndex(p => new { p.IsDeleted });
         modelBuilder.Entity<Macro>().HasIndex(p => new { p.IsDeleted, p.Name });
         modelBuilder.Entity<Absence>().HasIndex(p => new { p.IsDeleted });
         modelBuilder.Entity<Break>().HasIndex(p => new { p.IsDeleted, p.AbsenceId, p.ClientId });
+        modelBuilder.Entity<Break>().HasIndex(p => new { p.IsDeleted, p.ClientId, p.From, p.Until });
         modelBuilder.Entity<BreakReason>().HasIndex(p => new { p.IsDeleted, p.Name });
         modelBuilder.Entity<CalendarRule>().HasIndex(p => new { p.State, p.Country });
         modelBuilder.Entity<SelectedCalendar>().HasIndex(p => new { p.State, p.Country, p.CalendarSelectionId });

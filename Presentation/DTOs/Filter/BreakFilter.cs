@@ -13,4 +13,8 @@ public class BreakFilter
     public string SortOrder { get; set; } = string.Empty;
 
     public Guid? SelectedGroup { get; set; }
+
+    public int? StartRow { get; set; }
+
+    public int? RowCount { get; set; }
 }
