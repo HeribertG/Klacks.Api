@@ -1,20 +1,24 @@
+using Klacks.Api.Domain.Common;
+
 namespace Klacks.Api.Presentation.DTOs.Settings;
 
 public class CalendarRuleResource
 {
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
 
-    public string Name { get; set; } = string.Empty;
+    public string Country { get; set; } = string.Empty;
 
-    public string Description { get; set; } = string.Empty;
-
-    public string Rule { get; set; } = string.Empty;
-
-    public string SubRule { get; set; } = string.Empty;
+    public MultiLanguage? Description { get; set; }
 
     public bool IsMandatory { get; set; }
 
     public bool IsPaid { get; set; }
 
-    public int State { get; set; } = 0;
+    public MultiLanguage? Name { get; set; }
+
+    public string Rule { get; set; } = string.Empty;
+
+    public string State { get; set; } = string.Empty;
+
+    public string SubRule { get; set; } = string.Empty;
 }

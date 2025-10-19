@@ -28,16 +28,18 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<A
     {
         return await ExecuteAsync(async () =>
         {
-            var absence = await _repository.Delete(request.Id);
+            var absence = await _repository.Get(request.Id);
             if (absence == null)
             {
                 throw new KeyNotFoundException($"Absence with ID {request.Id} not found.");
             }
 
+            var absenceResource = _mapper.Map<AbsenceResource>(absence);
+            await _repository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
-            return _mapper.Map<AbsenceResource>(absence);
-        }, 
-        "deleting absence", 
+            return absenceResource;
+        },
+        "deleting absence",
         new { AbsenceId = request.Id });
     }
 }

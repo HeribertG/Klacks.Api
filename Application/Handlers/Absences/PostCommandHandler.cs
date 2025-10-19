@@ -46,9 +46,13 @@ public class PostCommandHandler : BaseTransactionHandler, IRequestHandler<PostCo
             throw new InvalidRequestException("Absence data is required.");
         }
 
-        if (string.IsNullOrWhiteSpace(resource.Name?.En))
+        if (resource.Name == null ||
+            (string.IsNullOrWhiteSpace(resource.Name.De) &&
+             string.IsNullOrWhiteSpace(resource.Name.En) &&
+             string.IsNullOrWhiteSpace(resource.Name.Fr) &&
+             string.IsNullOrWhiteSpace(resource.Name.It)))
         {
-            throw new InvalidRequestException("Absence name is required.");
+            throw new InvalidRequestException("Absence name is required in at least one language.");
         }
     }
 }

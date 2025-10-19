@@ -5,7 +5,7 @@ namespace Klacks.Api.Domain.Common;
 [Owned]
 public class MultiLanguage
 {
-    public string De { get; set; } = string.Empty;
+    public string? De { get; set; }
 
     public string? En { get; set; }
 
@@ -44,5 +44,5 @@ public class MultiLanguage
                           string.IsNullOrEmpty(Fr) &&
                           string.IsNullOrEmpty(It);
 
-    public static MultiLanguage Empty() => new() { De = string.Empty };
+    public static MultiLanguage Empty() => new();
 }

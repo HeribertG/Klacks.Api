@@ -154,7 +154,24 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Annotation>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<History>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Macro>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<Absence>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<Absence>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.OwnsOne(a => a.Name, nav =>
+            {
+                nav.Property(ml => ml.De).HasColumnName("name_de");
+                nav.Property(ml => ml.En).HasColumnName("name_en");
+                nav.Property(ml => ml.Fr).HasColumnName("name_fr");
+                nav.Property(ml => ml.It).HasColumnName("name_it");
+            });
+            entity.OwnsOne(a => a.Description, nav =>
+            {
+                nav.Property(ml => ml.De).HasColumnName("description_de");
+                nav.Property(ml => ml.En).HasColumnName("description_en");
+                nav.Property(ml => ml.Fr).HasColumnName("description_fr");
+                nav.Property(ml => ml.It).HasColumnName("description_it");
+            });
+        });
         modelBuilder.Entity<Break>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<BreakReason>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Countries>().HasQueryFilter(p => !p.IsDeleted);
@@ -346,9 +363,16 @@ public class DataBaseContext : IdentityDbContext
             {
                 case EntityState.Deleted:
                     entry.State = EntityState.Modified;
-                    entityBase.DeletedTime = now;
-                    entityBase.IsDeleted = true;
-                    entityBase.CurrentUserDeleted = currentUserName!;
+                    entry.CurrentValues[nameof(BaseEntity.IsDeleted)] = true;
+                    entry.CurrentValues[nameof(BaseEntity.DeletedTime)] = now;
+                    entry.CurrentValues[nameof(BaseEntity.CurrentUserDeleted)] = currentUserName!;
+
+                    foreach (var property in entry.Properties)
+                    {
+                        property.IsModified = property.Metadata.Name == nameof(BaseEntity.IsDeleted) ||
+                                             property.Metadata.Name == nameof(BaseEntity.DeletedTime) ||
+                                             property.Metadata.Name == nameof(BaseEntity.CurrentUserDeleted);
+                    }
                     break;
 
                 case EntityState.Added:
