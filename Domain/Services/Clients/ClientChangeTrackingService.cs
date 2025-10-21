@@ -21,7 +21,7 @@ public class ClientChangeTrackingService : IClientChangeTrackingService
     {
         DateTime lastChangesDate = new DateTime(0);
         var lst = new List<Guid>();
-        var lstAutor = new List<string>();
+        var lstAutorKeys = new List<string>();
 
         // Check Create Time
         var c = await _context.Client.Where(x => x.CreateTime.HasValue).OrderByDescending(x => x.CreateTime).FirstOrDefaultAsync();
@@ -33,7 +33,7 @@ public class ClientChangeTrackingService : IClientChangeTrackingService
                 var date = lastChangesDate;
                 lst = await _context.Client.Where(x => x.CreateTime.HasValue && x.CreateTime.Value.Date == date).Select(x => x.Id).ToListAsync();
                 var changesDate = lastChangesDate;
-                lstAutor = await _context.Client.Where(x => x.CreateTime!.HasValue! && x.CreateTime!.Value!.Date == changesDate).Select(x => x.CurrentUserCreated!).ToListAsync();
+                lstAutorKeys = await _context.Client.Where(x => x.CreateTime!.HasValue! && x.CreateTime!.Value!.Date == changesDate).Select(x => x.CurrentUserCreated!).ToListAsync();
             }
 
             if (c.CreateTime != null && lastChangesDate.Date == c.CreateTime.Value.Date)
@@ -44,7 +44,7 @@ public class ClientChangeTrackingService : IClientChangeTrackingService
                   .ToListAsync());
                 var changesDate = lastChangesDate;
 #pragma warning disable CS8620
-                lstAutor.AddRange(await _context.Client.Where(x => x.CreateTime.HasValue && x.CreateTime.Value.Date == changesDate).Select(x => x.CurrentUserCreated).ToListAsync());
+                lstAutorKeys.AddRange(await _context.Client.Where(x => x.CreateTime.HasValue && x.CreateTime.Value.Date == changesDate).Select(x => x.CurrentUserCreated).ToListAsync());
 #pragma warning restore CS8620
             }
         }
@@ -55,7 +55,7 @@ public class ClientChangeTrackingService : IClientChangeTrackingService
         {
             if (c.UpdateTime != null && lastChangesDate.Date < c.UpdateTime.Value.Date)
             {
-                lstAutor.Clear();
+                lstAutorKeys.Clear();
                 lst.Clear();
 
                 lastChangesDate = c.UpdateTime.Value.Date;
@@ -63,7 +63,7 @@ public class ClientChangeTrackingService : IClientChangeTrackingService
                 lst = await _context.Client.Where(x => x.UpdateTime.HasValue && x.UpdateTime.Value.Date == date).Select(x => x.Id).ToListAsync();
                 var changesDate = lastChangesDate;
 #pragma warning disable CS8619
-                lstAutor = await _context.Client.Where(x => x.UpdateTime.HasValue && x.UpdateTime.Value.Date == changesDate).Select(x => x.CurrentUserUpdated).ToListAsync();
+                lstAutorKeys = await _context.Client.Where(x => x.UpdateTime.HasValue && x.UpdateTime.Value.Date == changesDate).Select(x => x.CurrentUserUpdated).ToListAsync();
 #pragma warning restore CS8619
             }
             if (c.UpdateTime != null && lastChangesDate.Date == c.UpdateTime.Value.Date)
@@ -72,7 +72,7 @@ public class ClientChangeTrackingService : IClientChangeTrackingService
                 lst.AddRange(await _context.Client.Where(x => x.UpdateTime.HasValue && x.UpdateTime.Value.Date == date).Select(x => x.Id).ToListAsync());
                 var changesDate = lastChangesDate;
 #pragma warning disable CS8620
-                lstAutor.AddRange(await _context.Client.Where(x => x.UpdateTime.HasValue && x.UpdateTime.Value.Date == changesDate).Select(x => x.CurrentUserUpdated).ToListAsync());
+                lstAutorKeys.AddRange(await _context.Client.Where(x => x.UpdateTime.HasValue && x.UpdateTime.Value.Date == changesDate).Select(x => x.CurrentUserUpdated).ToListAsync());
 #pragma warning restore CS8620
             }
         }
@@ -83,7 +83,7 @@ public class ClientChangeTrackingService : IClientChangeTrackingService
         {
             if (c.DeletedTime != null && lastChangesDate.Date < c.DeletedTime.Value.Date)
             {
-                lstAutor.Clear();
+                lstAutorKeys.Clear();
                 lst.Clear();
 
                 lastChangesDate = c.DeletedTime.Value.Date;
@@ -91,7 +91,7 @@ public class ClientChangeTrackingService : IClientChangeTrackingService
                 lst = await _context.Client.IgnoreQueryFilters().Where(x => x.DeletedTime.HasValue && x.DeletedTime.Value.Date == date).Select(x => x.Id).ToListAsync();
                 var changesDate = lastChangesDate;
 #pragma warning disable CS8619
-                lstAutor = await _context.Client.IgnoreQueryFilters().Where(x => x.DeletedTime.HasValue && x.DeletedTime.Value.Date == changesDate).Select(x => x.CurrentUserDeleted).ToListAsync();
+                lstAutorKeys = await _context.Client.IgnoreQueryFilters().Where(x => x.DeletedTime.HasValue && x.DeletedTime.Value.Date == changesDate).Select(x => x.CurrentUserDeleted).ToListAsync();
 #pragma warning restore CS8619
             }
             if (c.DeletedTime != null && lastChangesDate.Date == c.DeletedTime.Value.Date)
@@ -100,14 +100,19 @@ public class ClientChangeTrackingService : IClientChangeTrackingService
                 lst.AddRange(await _context.Client.IgnoreQueryFilters().Where(x => x.DeletedTime.HasValue && x.DeletedTime.Value.Date == date).Select(x => x.Id).ToListAsync());
                 var changesDate = lastChangesDate;
 #pragma warning disable CS8620
-                lstAutor.AddRange(await _context.Client.IgnoreQueryFilters().Where(x => x.DeletedTime.HasValue && x.DeletedTime.Value.Date == changesDate).Select(x => x.CurrentUserDeleted).ToListAsync());
+                lstAutorKeys.AddRange(await _context.Client.IgnoreQueryFilters().Where(x => x.DeletedTime.HasValue && x.DeletedTime.Value.Date == changesDate).Select(x => x.CurrentUserDeleted).ToListAsync());
 #pragma warning restore CS8620
             }
         }
 
-        var autors = lstAutor.Where(x => x != null).Distinct().ToList();
+        var distinctUserKeys = lstAutorKeys.Where(x => x != null).Distinct().ToList();
 
-        return (lastChangesDate, lst, autors);
+        var userNames = await _context.Users
+            .Where(u => distinctUserKeys.Contains(u.Id))
+            .Select(u => u.UserName!)
+            .ToListAsync();
+
+        return (lastChangesDate, lst, userNames);
     }
 
     public async Task<(IQueryable<Client> clients, List<string> authors, DateTime lastChangeDate)> GetLastChangedClientsAsync(IQueryable<Client> baseQuery, FilterResource filter)
