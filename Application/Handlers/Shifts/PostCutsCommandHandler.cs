@@ -11,27 +11,32 @@ public class PostCutsCommandHandler : BaseHandler, IRequestHandler<PostCutsComma
 {
     private readonly IShiftRepository _shiftRepository;
     private readonly IMapper _mapper;
+    private readonly IUnitOfWork _unitOfWork;
 
     public PostCutsCommandHandler(
-        IShiftRepository shiftRepository, IMapper mapper,
+        IShiftRepository shiftRepository,
+        IMapper mapper,
+        IUnitOfWork unitOfWork,
         ILogger<PostCutsCommandHandler> logger)
         : base(logger)
     {
         _shiftRepository = shiftRepository;
         _mapper = mapper;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<List<ShiftResource>> Handle(PostCutsCommand request, CancellationToken cancellationToken)
     {
         var createdShifts = new List<ShiftResource>();
-        
+
         foreach (var cutResource in request.Cuts)
         {
             var shift = _mapper.Map<Shift>(cutResource);
             await _shiftRepository.Add(shift);
             createdShifts.Add(_mapper.Map<ShiftResource>(shift));
         }
-        
+
+        await _unitOfWork.CompleteAsync();
         return createdShifts;
     }
 }

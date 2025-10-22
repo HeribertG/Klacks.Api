@@ -56,10 +56,27 @@ public class ScheduleMappingProfile : Profile
         CreateMap<WorkResource, Work>()
             .IgnoreAuditFields();
 
-        CreateMap<Shift, ShiftResource>();
+        CreateMap<Shift, ShiftResource>()
+            .ForMember(dest => dest.Groups, opt => opt.MapFrom(src =>
+                src.GroupItems.Select(gi => new SimpleGroupResource
+                {
+                    Id = gi.GroupId,
+                    Name = gi.Group != null ? gi.Group.Name : string.Empty,
+                    Description = gi.Group != null ? gi.Group.Description : string.Empty,
+                    ValidFrom = gi.ValidFrom ?? DateTime.MinValue,
+                    ValidUntil = gi.ValidUntil
+                })));
 
         CreateMap<ShiftResource, Shift>()
-            .IgnoreAuditFields();
+            .IgnoreAuditFields()
+            .ForMember(dest => dest.GroupItems, opt => opt.MapFrom(src =>
+                src.Groups.Select(g => new GroupItem
+                {
+                    GroupId = g.Id,
+                    ValidFrom = g.ValidFrom,
+                    ValidUntil = g.ValidUntil
+                })))
+            .ForMember(dest => dest.Client, opt => opt.Ignore());
 
         CreateMap<TruncatedShift, TruncatedShiftResource>();
     }

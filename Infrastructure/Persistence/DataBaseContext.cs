@@ -298,7 +298,7 @@ public class DataBaseContext : IdentityDbContext
 
         modelBuilder.Entity<GroupItem>()
          .HasOne(gi => gi.Shift)
-         .WithMany()
+         .WithMany(s => s.GroupItems)
          .HasForeignKey(gi => gi.ShiftId)
          .OnDelete(DeleteBehavior.SetNull);
 

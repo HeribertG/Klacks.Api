@@ -1,10 +1,10 @@
-using Klacks.Api.Domain.Common;
-using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +19,8 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     private readonly IShiftStatusFilterService _statusFilterService;
     private readonly IShiftPaginationService _paginationService;
     private readonly IShiftGroupManagementService _groupManagementService;
+    private readonly EntityCollectionUpdateService _collectionUpdateService;
+    private readonly IShiftValidator _shiftValidator;
 
     public ShiftRepository(DataBaseContext context, ILogger<Shift> logger,
         IDateRangeFilterService dateRangeFilterService,
@@ -26,7 +28,9 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         IShiftSortingService sortingService,
         IShiftStatusFilterService statusFilterService,
         IShiftPaginationService paginationService,
-        IShiftGroupManagementService groupManagementService)
+        IShiftGroupManagementService groupManagementService,
+        EntityCollectionUpdateService collectionUpdateService,
+        IShiftValidator shiftValidator)
         : base(context, logger)
     {
         this.context = context;
@@ -36,6 +40,52 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         _statusFilterService = statusFilterService;
         _paginationService = paginationService;
         _groupManagementService = groupManagementService;
+        _collectionUpdateService = collectionUpdateService;
+        _shiftValidator = shiftValidator;
+    }
+
+    public new async Task Add(Shift shift)
+    {
+        _shiftValidator.EnsureUniqueGroupItems(shift.GroupItems);
+
+        foreach (var groupItem in shift.GroupItems)
+        {
+            groupItem.ShiftId = shift.Id;
+        }
+
+        context.Shift.Add(shift);
+        Logger.LogInformation("Shift added: {ShiftId}, GroupItems count: {Count}", shift.Id, shift.GroupItems.Count);
+    }
+
+    public new async Task<Shift?> Put(Shift shift)
+    {
+        var existingShift = await context.Shift
+            .Include(s => s.Client)
+            .Include(s => s.GroupItems)
+                .ThenInclude(gi => gi.Group)
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(s => s.Id == shift.Id);
+
+        if (existingShift == null)
+        {
+            Logger.LogWarning("Shift not found for update: {ShiftId}", shift.Id);
+            return null;
+        }
+
+        var entry = context.Entry(existingShift);
+        entry.CurrentValues.SetValues(shift);
+        entry.State = EntityState.Modified;
+
+        _collectionUpdateService.UpdateCollection(
+            existingShift.GroupItems,
+            shift.GroupItems,
+            existingShift.Id,
+            (groupItem, shiftId) => groupItem.ShiftId = shiftId);
+
+        _shiftValidator.EnsureUniqueGroupItems(existingShift.GroupItems);
+
+        Logger.LogInformation("Shift updated: {ShiftId}, GroupItems count: {Count}", shift.Id, existingShift.GroupItems.Count);
+        return existingShift;
     }
 
     public new async Task<Shift?> Get(Guid id)
@@ -44,14 +94,16 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         var shift = await context.Shift
             .Where(x => x.Id == id)
             .Include(x => x.Client)
-            .ThenInclude(x => x.Addresses)
+                .ThenInclude(x => x.Addresses)
+            .Include(x => x.GroupItems)
+                .ThenInclude(gi => gi.Group)
+            .AsSplitQuery()
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
         if (shift != null)
         {
-            shift.Groups = await _groupManagementService.GetGroupsForShiftAsync(id);
-            Logger.LogInformation("Shift with ID: {ShiftId} found.", id);
+            Logger.LogInformation("Shift with ID: {ShiftId} found with {GroupItemsCount} group items.", id, shift.GroupItems.Count);
         }
         else
         {

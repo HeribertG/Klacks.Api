@@ -72,6 +72,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IShiftStatusFilterService, ShiftStatusFilterService>();
         services.AddScoped<IShiftFilterService, ShiftFilterService>();
         services.AddScoped<IShiftPaginationService, ShiftPaginationService>();
+        services.AddScoped<IShiftValidator, ShiftValidator>();
         services.AddScoped<IShiftGroupManagementService, ShiftGroupManagementService>();
 
         // Employee Domain Services
