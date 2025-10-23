@@ -10,11 +10,11 @@ public class ShiftStatusFilterService : IShiftStatusFilterService
     {
         if (isOriginal)
         {
-            return query.Where(shift => shift.Status == ShiftStatus.Original);
+            return query.Where(shift => shift.Status == ShiftStatus.OriginalOrder);
         }
         else
         {
-            return query.Where(shift => shift.Status >= ShiftStatus.IsCutOriginal);
+            return query.Where(shift => shift.Status >= ShiftStatus.OriginalShift);
         }
     }
 }

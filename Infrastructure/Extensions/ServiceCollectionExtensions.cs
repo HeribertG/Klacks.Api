@@ -70,6 +70,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IShiftSortingService, ShiftSortingService>();
         services.AddScoped<IScheduleDateRangeService, ScheduleDateRangeService>();
         services.AddScoped<IShiftStatusFilterService, ShiftStatusFilterService>();
+        services.AddScoped<IShiftStatusTransitionService, ShiftStatusTransitionService>();
         services.AddScoped<IShiftFilterService, ShiftFilterService>();
         services.AddScoped<IShiftPaginationService, ShiftPaginationService>();
         services.AddScoped<IShiftValidator, ShiftValidator>();

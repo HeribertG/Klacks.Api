@@ -1,6 +1,8 @@
 using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using MediatR;
@@ -10,17 +12,20 @@ namespace Klacks.Api.Application.Handlers.Shifts;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftResource>, ShiftResource?>
 {
     private readonly IShiftRepository _shiftRepository;
+    private readonly IShiftStatusTransitionService _statusTransitionService;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public PutCommandHandler(
         IShiftRepository shiftRepository,
+        IShiftStatusTransitionService statusTransitionService,
         IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _shiftRepository = shiftRepository;
+        _statusTransitionService = statusTransitionService;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
     }
@@ -31,6 +36,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
             request.Resource.Id, request.Resource.Name, request.Resource.MacroId, request.Resource.ClientId, request.Resource.Groups?.Count ?? 0);
 
         var shift = _mapper.Map<Shift>(request.Resource);
+
         var updatedShift = await _shiftRepository.Put(shift);
 
         if (updatedShift == null)
@@ -41,9 +47,16 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
 
         await _unitOfWork.CompleteAsync();
 
-        _logger.LogInformation("Shift updated successfully: Id={ShiftId}, Name={Name}",
-            updatedShift.Id, updatedShift.Name);
+        var resultShift = await _statusTransitionService.HandleReadyToCutTransition(updatedShift);
 
-        return _mapper.Map<ShiftResource>(updatedShift);
+        if (resultShift.Id != updatedShift.Id)
+        {
+            await _unitOfWork.CompleteAsync();
+        }
+
+        _logger.LogInformation("Shift updated successfully: Id={ShiftId}, Name={Name}, Status={Status}",
+            resultShift.Id, resultShift.Name, resultShift.Status);
+
+        return _mapper.Map<ShiftResource>(resultShift);
     }
 }

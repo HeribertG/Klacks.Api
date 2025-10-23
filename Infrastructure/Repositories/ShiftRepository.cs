@@ -136,7 +136,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     public async Task<List<Shift>> CutList(Guid id)
     {
         return await context.Shift
-            .Where(x => x.OriginalId == id && x.Status >= ShiftStatus.IsCutOriginal)
+            .Where(x => x.OriginalId == id && x.Status >= ShiftStatus.OriginalShift)
             .OrderBy(x => x.Lft)
             .ThenBy(x => x.FromDate)
             .ThenBy(x => x.StartShift)

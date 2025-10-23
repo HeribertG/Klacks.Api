@@ -79,5 +79,18 @@ public class ScheduleMappingProfile : Profile
             .ForMember(dest => dest.Client, opt => opt.Ignore());
 
         CreateMap<TruncatedShift, TruncatedShiftResource>();
+
+        CreateMap<Shift, Shift>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(_ => Guid.Empty))
+            .ForMember(dest => dest.GroupItems, opt => opt.MapFrom(src =>
+                src.GroupItems.Select(gi => new GroupItem
+                {
+                    Id = Guid.Empty,
+                    GroupId = gi.GroupId,
+                    ValidFrom = gi.ValidFrom,
+                    ValidUntil = gi.ValidUntil,
+                    ShiftId = Guid.Empty
+                })))
+            .ForMember(dest => dest.Client, opt => opt.Ignore());
     }
 }
