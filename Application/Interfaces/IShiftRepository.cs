@@ -7,7 +7,9 @@ namespace Klacks.Api.Application.Interfaces;
 public interface IShiftRepository : IBaseRepository<Shift>
 {
     new Task<Shift?> Get(Guid id);
-    
+
+    Task<Shift?> GetTrackedOrFromDb(Guid id);
+
     IQueryable<Shift> GetQuery();
    
     IQueryable<Shift> GetQueryWithClient();

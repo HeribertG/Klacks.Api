@@ -113,6 +113,20 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         return shift;
     }
 
+    public async Task<Shift?> GetTrackedOrFromDb(Guid id)
+    {
+        var trackedShift = context.Shift.Local.FirstOrDefault(s => s.Id == id);
+
+        if (trackedShift != null)
+        {
+            Logger.LogInformation("Shift {ShiftId} found in EF Change Tracker (tracked entity)", id);
+            return trackedShift;
+        }
+
+        Logger.LogInformation("Shift {ShiftId} not in Change Tracker, loading from database", id);
+        return await Get(id);
+    }
+
     public IQueryable<Shift> GetQuery()
     {
         return context.Shift

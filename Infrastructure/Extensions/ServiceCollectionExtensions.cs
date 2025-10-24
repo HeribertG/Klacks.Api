@@ -70,11 +70,12 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IShiftSortingService, ShiftSortingService>();
         services.AddScoped<IScheduleDateRangeService, ScheduleDateRangeService>();
         services.AddScoped<IShiftStatusFilterService, ShiftStatusFilterService>();
-        services.AddScoped<IShiftStatusTransitionService, ShiftStatusTransitionService>();
+        services.AddScoped<ICreateShiftFromOrderService, CreateShiftFromOrderService>();
         services.AddScoped<IShiftFilterService, ShiftFilterService>();
         services.AddScoped<IShiftPaginationService, ShiftPaginationService>();
         services.AddScoped<IShiftValidator, ShiftValidator>();
         services.AddScoped<IShiftGroupManagementService, ShiftGroupManagementService>();
+        services.AddScoped<IShiftTreeService, ShiftTreeService>();
 
         // Employee Domain Services
         services.AddScoped<IClientFilterService, ClientFilterService>();

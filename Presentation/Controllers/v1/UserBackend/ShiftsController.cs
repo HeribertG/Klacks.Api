@@ -29,17 +29,10 @@ public class ShiftsController : InputBaseController<ShiftResource>
         return truncatedShifts;
     }
 
-    [HttpPost("Cuts")]
-    public async Task<ActionResult<List<ShiftResource>>> PostCuts([FromBody] List<ShiftResource> cuts)
+    [HttpPost("Cuts/Batch")]
+    public async Task<ActionResult<List<ShiftResource>>> PostBatchCuts([FromBody] PostBatchCutsRequest request)
     {
-        var createdCuts = await Mediator.Send(new PostCutsCommand(cuts));
-        return Ok(createdCuts);
-    }
-
-    [HttpPut("Cuts")]
-    public async Task<ActionResult<List<ShiftResource>>> PutCuts([FromBody] List<ShiftResource> cuts)
-    {
-        var updatedCuts = await Mediator.Send(new PutCutsCommand(cuts));
-        return Ok(updatedCuts);
+        var results = await Mediator.Send(new PostBatchCutsCommand(request.Operations));
+        return Ok(results);
     }
 }

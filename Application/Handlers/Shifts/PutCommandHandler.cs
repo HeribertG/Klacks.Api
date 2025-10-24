@@ -12,20 +12,20 @@ namespace Klacks.Api.Application.Handlers.Shifts;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftResource>, ShiftResource?>
 {
     private readonly IShiftRepository _shiftRepository;
-    private readonly IShiftStatusTransitionService _statusTransitionService;
+    private readonly ICreateShiftFromOrderService _createShiftFromOrderService;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public PutCommandHandler(
         IShiftRepository shiftRepository,
-        IShiftStatusTransitionService statusTransitionService,
+        ICreateShiftFromOrderService createShiftFromOrderService,
         IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _shiftRepository = shiftRepository;
-        _statusTransitionService = statusTransitionService;
+        _createShiftFromOrderService = createShiftFromOrderService;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
     }
@@ -47,7 +47,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
 
         await _unitOfWork.CompleteAsync();
 
-        var resultShift = await _statusTransitionService.HandleReadyToCutTransition(updatedShift);
+        var resultShift = await _createShiftFromOrderService.CreateFromSealedOrder(updatedShift);
 
         if (resultShift.Id != updatedShift.Id)
         {
