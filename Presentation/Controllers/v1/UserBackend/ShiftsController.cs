@@ -35,4 +35,12 @@ public class ShiftsController : InputBaseController<ShiftResource>
         var results = await Mediator.Send(new PostBatchCutsCommand(request.Operations));
         return Ok(results);
     }
+
+    [HttpPost("Cuts/Reset")]
+    public async Task<ActionResult<List<ShiftResource>>> PostResetCuts([FromBody] PostResetCutsRequest request)
+    {
+        var newStartDate = DateOnly.FromDateTime(request.NewStartDate);
+        var results = await Mediator.Send(new PostResetCutsCommand(request.OriginalId, newStartDate));
+        return Ok(results);
+    }
 }

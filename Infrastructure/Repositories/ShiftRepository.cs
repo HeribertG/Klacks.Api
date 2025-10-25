@@ -147,15 +147,41 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .AsNoTracking();
     }
 
-    public async Task<List<Shift>> CutList(Guid id)
+    public async Task<List<Shift>> CutList(Guid id, DateOnly? filterClosedBefore = null, bool tracked = false)
     {
-        return await context.Shift
-            .Where(x => x.OriginalId == id && x.Status >= ShiftStatus.OriginalShift)
+        var query = context.Shift
+            .Where(x => x.OriginalId == id );
+
+        if (filterClosedBefore.HasValue)
+        {
+            query = query.Where(x => !x.UntilDate.HasValue || x.UntilDate >= filterClosedBefore.Value);
+        }
+
+        query = query
+            .Include(x => x.GroupItems)
+                .ThenInclude(gi => gi.Group)
             .OrderBy(x => x.Lft)
             .ThenBy(x => x.FromDate)
             .ThenBy(x => x.StartShift)
+            .AsSplitQuery();
+
+        if (!tracked)
+        {
+            query = query.AsNoTracking();
+        }
+
+        return await query.ToListAsync();
+    }
+
+    public async Task<Shift?> GetSealedOrder(Guid originalId)
+    {
+        return await context.Shift
+            .Where(x => x.Id == originalId && x.Status == ShiftStatus.SealedOrder)
+            .Include(x => x.GroupItems)
+                .ThenInclude(gi => gi.Group)
+            .AsSplitQuery()
             .AsNoTracking()
-            .ToListAsync();
+            .FirstOrDefaultAsync();
     }
 
     public IQueryable<Shift> FilterShifts(ShiftFilter filter)

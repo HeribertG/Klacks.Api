@@ -22,7 +22,9 @@ public interface IShiftRepository : IBaseRepository<Shift>
     
     Task<List<Group>> GetGroupsForShift(Guid shiftId);
 
-    Task<List<Shift>> CutList(Guid id);
+    Task<List<Shift>> CutList(Guid id, DateOnly? filterClosedBefore = null, bool tracked = false);
+
+    Task<Shift?> GetSealedOrder(Guid originalId);
 
     Task<TruncatedShift> GetPaginatedShifts(IQueryable<Shift> filteredQuery, ShiftFilter filter);
 }
