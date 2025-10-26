@@ -25,7 +25,7 @@ public class ShiftFilterService : IShiftFilterService
 
     public IQueryable<Shift> ApplyAllFilters(IQueryable<Shift> query, ShiftFilter filter)
     {
-        query = _statusFilterService.ApplyStatusFilter(query, filter.IsOriginal);
+        query = _statusFilterService.ApplyStatusFilter(query, filter.FilterType);
         query = _dateRangeFilterService.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange);
         query = _searchService.ApplySearchFilter(query, filter.SearchString, filter.IncludeClientName);
         query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder);

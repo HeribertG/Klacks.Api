@@ -1,4 +1,6 @@
-﻿namespace Klacks.Api.Presentation.DTOs.Filter;
+﻿using Klacks.Api.Domain.Enums;
+
+namespace Klacks.Api.Presentation.DTOs.Filter;
 
 public class ShiftFilter : BaseFilter
 {
@@ -10,7 +12,7 @@ public class ShiftFilter : BaseFilter
 
     public string SearchString { get; set; } = string.Empty;
 
-    public bool IsOriginal { get; set; }
+    public ShiftFilterType FilterType { get; set; } = ShiftFilterType.Original;
 
     public bool IncludeClientName { get; set; }
 }

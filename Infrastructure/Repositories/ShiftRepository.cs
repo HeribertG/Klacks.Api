@@ -192,7 +192,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             ? GetQueryWithClient() 
             : GetQuery();
 
-        var query = _statusFilterService.ApplyStatusFilter(baseQuery, filter.IsOriginal);
+        var query = _statusFilterService.ApplyStatusFilter(baseQuery, filter.FilterType);
         query = _dateRangeFilterService.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange);
         query = _searchService.ApplySearchFilter(query, filter.SearchString, filter.IncludeClientName);
         query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder);

@@ -8,6 +8,8 @@ public class ShiftResource
     // If the shift was cut by a parent shift after midnight
     public bool CuttingAfterMidnight { get; set; }
 
+    public bool IsContainer { get; set; }
+
     public string Abbreviation { get; set; } = string.Empty;
 
     public string Description { get; set; } = string.Empty;
