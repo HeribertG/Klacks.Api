@@ -1,6 +1,8 @@
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Queries;
+using Klacks.Api.Domain.Constants;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
@@ -16,7 +18,8 @@ public abstract class InputBaseController<TModel> : BaseController
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult<TModel>> Delete(Guid id)
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
+    public virtual async Task<ActionResult<TModel>> Delete(Guid id)
     {
         var model = await Mediator.Send(new DeleteCommand<TModel>(id));
         if (model == null)
@@ -28,7 +31,7 @@ public abstract class InputBaseController<TModel> : BaseController
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<TModel>> Get([FromRoute] Guid id)
+    public virtual async Task<ActionResult<TModel>> Get([FromRoute] Guid id)
     {
         var model = await Mediator.Send(new GetQuery<TModel>(id));
 
@@ -41,14 +44,16 @@ public abstract class InputBaseController<TModel> : BaseController
     }
 
     [HttpPost]
-    public async Task<ActionResult<TModel>> Post([FromBody] TModel resource)
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
+    public virtual async Task<ActionResult<TModel>> Post([FromBody] TModel resource)
     {
         var model = await Mediator.Send(new PostCommand<TModel>(resource));
         return Ok(model);
     }
 
     [HttpPut]
-    public async Task<ActionResult<TModel>> Put([FromBody] TModel resource)
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
+    public virtual async Task<ActionResult<TModel>> Put([FromBody] TModel resource)
     {
         var model = await Mediator.Send(new PutCommand<TModel>(resource));
 

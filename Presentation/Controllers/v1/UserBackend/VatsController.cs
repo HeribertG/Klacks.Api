@@ -40,6 +40,7 @@ public class VatsController : BaseController
         {
             return NotFound();
         }
+
         return vat;
     }
 

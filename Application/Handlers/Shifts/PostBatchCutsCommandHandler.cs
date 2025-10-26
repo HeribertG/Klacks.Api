@@ -13,12 +13,14 @@ public class PostBatchCutsCommandHandler : BaseHandler, IRequestHandler<PostBatc
 {
     private readonly IShiftRepository _shiftRepository;
     private readonly IShiftTreeService _shiftTreeService;
+    private readonly IShiftValidator _shiftValidator;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public PostBatchCutsCommandHandler(
         IShiftRepository shiftRepository,
         IShiftTreeService shiftTreeService,
+        IShiftValidator shiftValidator,
         IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<PostBatchCutsCommandHandler> logger)
@@ -26,6 +28,7 @@ public class PostBatchCutsCommandHandler : BaseHandler, IRequestHandler<PostBatc
     {
         _shiftRepository = shiftRepository;
         _shiftTreeService = shiftTreeService;
+        _shiftValidator = shiftValidator;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
     }
@@ -34,6 +37,25 @@ public class PostBatchCutsCommandHandler : BaseHandler, IRequestHandler<PostBatc
     {
         _logger.LogInformation("=== PostBatchCutsCommand START (2-Phase Approach) ===");
         _logger.LogInformation("Number of operations: {OpCount}", request.Operations.Count);
+
+        _logger.LogInformation("=== Validating cut dates against allowed range ===");
+        foreach (var op in request.Operations)
+        {
+            if (op.Data.OriginalId.HasValue)
+            {
+                await _shiftValidator.ValidateCutDatesWithinAllowedRange(
+                    op.Data.OriginalId.Value,
+                    op.Data.FromDate,
+                    op.Data.UntilDate,
+                    _shiftRepository);
+
+                _logger.LogInformation(
+                    "Validated cut dates for OriginalId={OriginalId}, FromDate={FromDate}, UntilDate={UntilDate}",
+                    op.Data.OriginalId.Value,
+                    op.Data.FromDate,
+                    op.Data.UntilDate);
+            }
+        }
 
         var results = new List<ShiftResource>();
         var shiftsToDelete = new HashSet<Guid>();
