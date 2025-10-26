@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20251006074956_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251026110333_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -160,10 +160,6 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("root");
 
-                    b.Property<Guid?>("ShiftId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("shift_id");
-
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
@@ -181,9 +177,6 @@ namespace Klacks.Api.Migrations
 
                     b.HasIndex("Name")
                         .HasDatabaseName("ix_group_name");
-
-                    b.HasIndex("ShiftId")
-                        .HasDatabaseName("ix_group_shift_id");
 
                     b.ToTable("group", (string)null);
                 });
@@ -246,14 +239,14 @@ namespace Klacks.Api.Migrations
                     b.HasKey("Id")
                         .HasName("pk_group_item");
 
-                    b.HasIndex("GroupId")
-                        .HasDatabaseName("ix_group_item_group_id");
-
                     b.HasIndex("ShiftId")
                         .HasDatabaseName("ix_group_item_shift_id");
 
                     b.HasIndex("ClientId", "GroupId", "ShiftId")
                         .HasDatabaseName("ix_group_item_client_id_group_id_shift_id");
+
+                    b.HasIndex("GroupId", "ClientId", "IsDeleted")
+                        .HasDatabaseName("ix_group_item_group_id_client_id_is_deleted");
 
                     b.ToTable("group_item", (string)null);
                 });
@@ -371,6 +364,9 @@ namespace Klacks.Api.Migrations
                     b.HasIndex("ClientId")
                         .IsUnique()
                         .HasDatabaseName("ix_membership_client_id");
+
+                    b.HasIndex("ClientId", "ValidFrom", "ValidUntil", "IsDeleted")
+                        .HasDatabaseName("ix_membership_client_id_valid_from_valid_until_is_deleted");
 
                     b.ToTable("membership", (string)null);
                 });
@@ -1193,6 +1189,9 @@ namespace Klacks.Api.Migrations
 
                     b.HasIndex("IsDeleted", "AbsenceId", "ClientId")
                         .HasDatabaseName("ix_break_is_deleted_absence_id_client_id");
+
+                    b.HasIndex("IsDeleted", "ClientId", "From", "Until")
+                        .HasDatabaseName("ix_break_is_deleted_client_id_from_until");
 
                     b.ToTable("break", (string)null);
                 });
@@ -2254,6 +2253,18 @@ namespace Klacks.Api.Migrations
                     b.HasKey("Id")
                         .HasName("pk_client");
 
+                    b.HasIndex("IsDeleted", "IdNumber")
+                        .HasDatabaseName("ix_client_is_deleted_id_number");
+
+                    b.HasIndex("IsDeleted", "Company", "Name")
+                        .HasDatabaseName("ix_client_is_deleted_company_name");
+
+                    b.HasIndex("IsDeleted", "FirstName", "Name")
+                        .HasDatabaseName("ix_client_is_deleted_first_name_name");
+
+                    b.HasIndex("IsDeleted", "Name", "FirstName")
+                        .HasDatabaseName("ix_client_is_deleted_name_first_name");
+
                     b.HasIndex("FirstName", "SecondName", "Name", "MaidenName", "Company", "Gender", "Type", "LegalEntity", "IsDeleted")
                         .HasDatabaseName("ix_client_first_name_second_name_name_maiden_name_company_gend");
 
@@ -2325,6 +2336,55 @@ namespace Klacks.Api.Migrations
                         .HasDatabaseName("ix_client_contract_client_id_contract_id_from_date_until_date");
 
                     b.ToTable("client_contract", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.ClientImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("client_id");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("content_type");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("FileName")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("file_name");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint")
+                        .HasColumnName("file_size");
+
+                    b.Property<byte[]>("ImageData")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("image_data");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_client_image");
+
+                    b.HasIndex("ClientId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_client_image_client_id");
+
+                    b.ToTable("client_image", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.Communication", b =>
@@ -2688,14 +2748,6 @@ namespace Klacks.Api.Migrations
                     b.Navigation("CalendarSelection");
                 });
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Associations.Group", b =>
-                {
-                    b.HasOne("Klacks.Api.Domain.Models.Schedules.Shift", null)
-                        .WithMany("Groups")
-                        .HasForeignKey("ShiftId")
-                        .HasConstraintName("fk_group_shift_shift_id");
-                });
-
             modelBuilder.Entity("Klacks.Api.Domain.Models.Associations.GroupItem", b =>
                 {
                     b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "Client")
@@ -2712,7 +2764,7 @@ namespace Klacks.Api.Migrations
                         .HasConstraintName("fk_group_item_group_group_id");
 
                     b.HasOne("Klacks.Api.Domain.Models.Schedules.Shift", "Shift")
-                        .WithMany()
+                        .WithMany("GroupItems")
                         .HasForeignKey("ShiftId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_group_item_shift_shift_id");
@@ -2843,7 +2895,6 @@ namespace Klacks.Api.Migrations
                                 .HasColumnName("id");
 
                             b1.Property<string>("De")
-                                .IsRequired()
                                 .HasColumnType("text")
                                 .HasColumnName("description_de");
 
@@ -2875,7 +2926,6 @@ namespace Klacks.Api.Migrations
                                 .HasColumnName("id");
 
                             b1.Property<string>("De")
-                                .IsRequired()
                                 .HasColumnType("text")
                                 .HasColumnName("name_de");
 
@@ -2976,7 +3026,6 @@ namespace Klacks.Api.Migrations
                                 .HasColumnName("id");
 
                             b1.Property<string>("De")
-                                .IsRequired()
                                 .HasColumnType("text")
                                 .HasColumnName("description_de");
 
@@ -3008,7 +3057,6 @@ namespace Klacks.Api.Migrations
                                 .HasColumnName("id");
 
                             b1.Property<string>("De")
-                                .IsRequired()
                                 .HasColumnType("text")
                                 .HasColumnName("name_de");
 
@@ -3047,7 +3095,6 @@ namespace Klacks.Api.Migrations
                                 .HasColumnName("id");
 
                             b1.Property<string>("De")
-                                .IsRequired()
                                 .HasColumnType("text")
                                 .HasColumnName("name_de");
 
@@ -3085,7 +3132,6 @@ namespace Klacks.Api.Migrations
                                 .HasColumnName("id");
 
                             b1.Property<string>("De")
-                                .IsRequired()
                                 .HasColumnType("text")
                                 .HasColumnName("description_de");
 
@@ -3123,7 +3169,6 @@ namespace Klacks.Api.Migrations
                                 .HasColumnName("id");
 
                             b1.Property<string>("De")
-                                .IsRequired()
                                 .HasColumnType("text")
                                 .HasColumnName("name_de");
 
@@ -3216,6 +3261,18 @@ namespace Klacks.Api.Migrations
                     b.Navigation("Client");
 
                     b.Navigation("Contract");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.ClientImage", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "Client")
+                        .WithOne("ClientImage")
+                        .HasForeignKey("Klacks.Api.Domain.Models.Staffs.ClientImage", "ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_client_image_client_client_id");
+
+                    b.Navigation("Client");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.Communication", b =>
@@ -3314,7 +3371,7 @@ namespace Klacks.Api.Migrations
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Shift", b =>
                 {
-                    b.Navigation("Groups");
+                    b.Navigation("GroupItems");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.Client", b =>
@@ -3326,6 +3383,8 @@ namespace Klacks.Api.Migrations
                     b.Navigation("Breaks");
 
                     b.Navigation("ClientContracts");
+
+                    b.Navigation("ClientImage");
 
                     b.Navigation("Communications");
 

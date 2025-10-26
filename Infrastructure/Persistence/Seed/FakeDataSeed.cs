@@ -21,9 +21,9 @@ namespace Klacks.Api.Data.Seed
                 var scriptForSettings = SeedGenerator.GenerateInsertScriptForSettings();
                 var scriptForGroups = GroupsSeed.GenerateInsertScriptForGroups();
                 var scriptForGroupItems = SeedGenerator.GenerateInsertScriptForGroupItems(results.Clients, results.Addresses);
-                var (scriptForShifts, shiftIds) = SeedGenerator.GenerateInsertScriptForShifts();
-                var scriptForShiftGroupItems = SeedGenerator.GenerateInsertScriptForShiftGroupItems(shiftIds);
-                
+                var (scriptForShifts, shiftIds) = ShiftSeed.GenerateInsertScriptForShifts();
+                var scriptForShiftGroupItems = ShiftSeed.GenerateInsertScriptForShiftGroupItems(shiftIds);
+
                 migrationBuilder.Sql(scriptForClients);
                 migrationBuilder.Sql(scriptForAddresses);
                 migrationBuilder.Sql(scriptForMemberships);

@@ -157,10 +157,6 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("root");
 
-                    b.Property<Guid?>("ShiftId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("shift_id");
-
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
@@ -178,9 +174,6 @@ namespace Klacks.Api.Migrations
 
                     b.HasIndex("Name")
                         .HasDatabaseName("ix_group_name");
-
-                    b.HasIndex("ShiftId")
-                        .HasDatabaseName("ix_group_shift_id");
 
                     b.ToTable("group", (string)null);
                 });
@@ -2752,14 +2745,6 @@ namespace Klacks.Api.Migrations
                     b.Navigation("CalendarSelection");
                 });
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Associations.Group", b =>
-                {
-                    b.HasOne("Klacks.Api.Domain.Models.Schedules.Shift", null)
-                        .WithMany("Groups")
-                        .HasForeignKey("ShiftId")
-                        .HasConstraintName("fk_group_shift_shift_id");
-                });
-
             modelBuilder.Entity("Klacks.Api.Domain.Models.Associations.GroupItem", b =>
                 {
                     b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "Client")
@@ -2776,7 +2761,7 @@ namespace Klacks.Api.Migrations
                         .HasConstraintName("fk_group_item_group_group_id");
 
                     b.HasOne("Klacks.Api.Domain.Models.Schedules.Shift", "Shift")
-                        .WithMany()
+                        .WithMany("GroupItems")
                         .HasForeignKey("ShiftId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_group_item_shift_shift_id");
@@ -3383,7 +3368,7 @@ namespace Klacks.Api.Migrations
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Shift", b =>
                 {
-                    b.Navigation("Groups");
+                    b.Navigation("GroupItems");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.Client", b =>
