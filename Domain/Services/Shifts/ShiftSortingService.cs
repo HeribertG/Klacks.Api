@@ -16,22 +16,26 @@ public class ShiftSortingService : IShiftSortingService
 
         return orderBy?.ToLower() switch
         {
-            "name" => isAscending 
-                ? query.OrderBy(x => x.Name) 
+            "abbreviation" => isAscending
+                ? query.OrderBy(x => x.Abbreviation)
+                : query.OrderByDescending(x => x.Abbreviation),
+
+            "name" => isAscending
+                ? query.OrderBy(x => x.Name)
                 : query.OrderByDescending(x => x.Name),
-                
-            "description" => isAscending 
-                ? query.OrderBy(x => x.Description) 
+
+            "description" => isAscending
+                ? query.OrderBy(x => x.Description)
                 : query.OrderByDescending(x => x.Description),
-                
-            "valid_from" => isAscending 
-                ? query.OrderBy(x => x.FromDate) 
+
+            "valid_from" => isAscending
+                ? query.OrderBy(x => x.FromDate)
                 : query.OrderByDescending(x => x.FromDate),
-                
-            "valid_until" => isAscending 
-                ? query.OrderBy(x => x.UntilDate) 
+
+            "valid_until" => isAscending
+                ? query.OrderBy(x => x.UntilDate)
                 : query.OrderByDescending(x => x.UntilDate),
-                
+
             _ => query
         };
     }

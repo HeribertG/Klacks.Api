@@ -67,7 +67,7 @@ namespace Klacks.Api.Data.Seed
                 new { Name = "Spätschicht", Abbr = "SS", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2, CuttingAfterMidnight = false },
                 new { Name = "Nachtschicht", Abbr = "NS", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1, CuttingAfterMidnight = true },
                 new { Name = "Tagdienst", Abbr = "TAG", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1, CuttingAfterMidnight = false },
-                new { Name = "Bereitschaft", Abbr = "BD", Start = "00:00:00", End = "24:00:00", WorkTime = 24, Employees = 1, CuttingAfterMidnight = false }
+                new { Name = "Bereitschaft", Abbr = "BD", Start = "00:00:00", End = "00:00:00", WorkTime = 24, Employees = 1, CuttingAfterMidnight = false }
             };
 
             script.AppendLine("\n-- 1. Simple OriginalOrder Shifts (Status = 0)");
