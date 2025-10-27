@@ -6,11 +6,13 @@ namespace Klacks.Api.Domain.Services.Shifts;
 
 public class ShiftStatusFilterService : IShiftStatusFilterService
 {
-    public IQueryable<Shift> ApplyStatusFilter(IQueryable<Shift> query, ShiftFilterType filterType)
+    public IQueryable<Shift> ApplyStatusFilter(IQueryable<Shift> query, ShiftFilterType filterType, bool isSealedOrder = false)
     {
         return filterType switch
         {
-            ShiftFilterType.Original => query.Where(shift => shift.Status == ShiftStatus.OriginalOrder),
+            ShiftFilterType.Original => isSealedOrder
+                ? query.Where(shift => shift.Status == ShiftStatus.OriginalOrder || shift.Status == ShiftStatus.SealedOrder)
+                : query.Where(shift => shift.Status == ShiftStatus.OriginalOrder),
             ShiftFilterType.Shift => query.Where(shift => shift.Status >= ShiftStatus.OriginalShift && !shift.IsContainer),
             ShiftFilterType.Container => query.Where(shift => shift.IsContainer),
             ShiftFilterType.Absence => query.Where(shift => false),

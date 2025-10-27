@@ -188,11 +188,11 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     {
         Logger.LogInformation("Applying filters to shifts query");
         
-        var baseQuery = filter.IncludeClientName 
-            ? GetQueryWithClient() 
+        var baseQuery = filter.IncludeClientName
+            ? GetQueryWithClient()
             : GetQuery();
 
-        var query = _statusFilterService.ApplyStatusFilter(baseQuery, filter.FilterType);
+        var query = _statusFilterService.ApplyStatusFilter(baseQuery, filter.FilterType, filter.IsSealedOrder);
         query = _dateRangeFilterService.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange);
         query = _searchService.ApplySearchFilter(query, filter.SearchString, filter.IncludeClientName);
         query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder);

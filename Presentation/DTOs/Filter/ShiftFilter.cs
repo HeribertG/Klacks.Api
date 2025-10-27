@@ -15,4 +15,6 @@ public class ShiftFilter : BaseFilter
     public ShiftFilterType FilterType { get; set; } = ShiftFilterType.Original;
 
     public bool IncludeClientName { get; set; }
+
+    public bool IsSealedOrder { get; set; }
 }

@@ -13,4 +13,6 @@ public class ShiftFilter
     public bool IsOriginal { get; set; }
 
     public bool IncludeClientName { get; set; }
+
+    public bool IsSealedOrder { get; set; }
 }
