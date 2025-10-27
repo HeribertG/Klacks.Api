@@ -11,11 +11,15 @@ public class ShiftStatusFilterService : IShiftStatusFilterService
         return filterType switch
         {
             ShiftFilterType.Original => isSealedOrder
-                ? query.Where(shift => shift.Status == ShiftStatus.OriginalOrder || shift.Status == ShiftStatus.SealedOrder)
-                : query.Where(shift => shift.Status == ShiftStatus.OriginalOrder),
-            ShiftFilterType.Shift => query.Where(shift => shift.Status >= ShiftStatus.OriginalShift && !shift.IsContainer),
-            ShiftFilterType.Container => query.Where(shift => shift.IsContainer),
+                ? query.Where(shift => shift.Status == ShiftStatus.SealedOrder)
+                : query.Where(shift => shift.ShiftType == ShiftType.IsTask && shift.Status == ShiftStatus.OriginalOrder),
+
+            ShiftFilterType.Shift => query.Where(shift => shift.Status >= ShiftStatus.OriginalShift && shift.ShiftType == ShiftType.IsTask),
+
+            ShiftFilterType.Container => query.Where(shift => shift.Status == ShiftStatus.OriginalShift && shift.ShiftType == ShiftType.IsContainer),
+
             ShiftFilterType.Absence => query.Where(shift => false),
+
             _ => query
         };
     }
