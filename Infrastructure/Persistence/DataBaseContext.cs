@@ -68,13 +68,15 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<Settings> Settings { get; set; }  
 
-    public DbSet<Shift> Shift { get; set; } 
+    public DbSet<Shift> Shift { get; set; }
 
     public DbSet<ShiftDayAssignment> ShiftDayAssignments { get; set; }
 
-    public DbSet<State> State { get; set; }  
+    public DbSet<ContainerTemplate> ContainerTemplate { get; set; }
 
-    public DbSet<Vat> Vat { get; set; }  
+    public DbSet<ContainerTemplateItem> ContainerTemplateItem { get; set; }
+
+    public DbSet<State> State { get; set; }
 
     public DbSet<Work> Work { get; set; }  
 
@@ -181,6 +183,8 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Group>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<GroupItem>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Shift>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<ContainerTemplate>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<ContainerTemplateItem>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Work>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<AssignedGroup>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<GroupVisibility>().HasQueryFilter(p => !p.IsDeleted);
@@ -219,6 +223,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.ClientId, p.GroupId, p.ShiftId });
         modelBuilder.Entity<Work>().HasIndex(p => new { p.ClientId, p.ShiftId });
         modelBuilder.Entity<Shift>().HasIndex(p => new { p.MacroId, p.ClientId, p.Status , p.FromDate, p.UntilDate });
+        modelBuilder.Entity<ContainerTemplate>().HasIndex(p => new { p.Id, p.ContainerId, p.Weekday, p.IsWeekdayOrHoliday, p.IsHoliday });
         modelBuilder.Entity<ClientScheduleDetail>().HasIndex(p => new { p.ClientId, p.CurrentYear, p.CurrentMonth });
         modelBuilder.Entity<AssignedGroup>().HasIndex(p => new { p.ClientId, p.GroupId });
         modelBuilder.Entity<GroupVisibility>().HasIndex(p => new { p.AppUserId, p.GroupId });
@@ -295,6 +300,18 @@ public class DataBaseContext : IdentityDbContext
         .WithMany()
         .HasForeignKey(s => s.ClientId)
         .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<ContainerTemplate>()
+        .HasOne(ct => ct.Shift)
+        .WithMany()
+        .HasForeignKey(ct => ct.ContainerId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ContainerTemplateItem>()
+        .HasOne(cti => cti.ContainerTemplate)
+        .WithMany(ct => ct.Items)
+        .HasForeignKey(cti => cti.ContainerTemplateId)
+        .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<GroupItem>()
          .HasOne(gi => gi.Shift)
@@ -373,6 +390,7 @@ public class DataBaseContext : IdentityDbContext
                                              property.Metadata.Name == nameof(BaseEntity.DeletedTime) ||
                                              property.Metadata.Name == nameof(BaseEntity.CurrentUserDeleted);
                     }
+
                     break;
 
                 case EntityState.Added:

@@ -15,15 +15,13 @@ public class SettingsRepository : ISettingsRepository
     private readonly ICalendarRulePaginationService _paginationService;
     private readonly IMacroManagementService _macroManagementService;
     private readonly IMacroTypeManagementService _macroTypeManagementService;
-    private readonly IVatManagementService _vatManagementService;
 
     public SettingsRepository(DataBaseContext context,
         ICalendarRuleFilterService filterService,
         ICalendarRuleSortingService sortingService,
         ICalendarRulePaginationService paginationService,
         IMacroManagementService macroManagementService,
-        IMacroTypeManagementService macroTypeManagementService,
-        IVatManagementService vatManagementService)
+        IMacroTypeManagementService macroTypeManagementService)
     {
         this.context = context;
         _filterService = filterService;
@@ -31,7 +29,6 @@ public class SettingsRepository : ISettingsRepository
         _paginationService = paginationService;
         _macroManagementService = macroManagementService;
         _macroTypeManagementService = macroTypeManagementService;
-        _vatManagementService = vatManagementService;
     }
 
     #region Setting
@@ -137,45 +134,6 @@ public class SettingsRepository : ISettingsRepository
     }
 
     #endregion MacroType
-
-    #region Vat
-
-    public Vat AddVAT(Vat vat)
-    {
-        return _vatManagementService.AddVatAsync(vat).Result;
-    }
-
-    public async Task<Vat> DeleteVAT(Guid id)
-    {
-        return await _vatManagementService.DeleteVatAsync(id);
-    }
-
-    public async Task<Vat> GetVAT(Guid id)
-    {
-        return await _vatManagementService.GetVatAsync(id);
-    }
-
-    public async Task<List<Vat>> GetVATList()
-    {
-        return await _vatManagementService.GetVatListAsync();
-    }
-
-    public Vat PutVAT(Vat vat)
-    {
-        return _vatManagementService.UpdateVatAsync(vat).Result;
-    }
-
-    public void RemoveVAT(Vat vat)
-    {
-        context.Vat.Remove(vat);
-    }
-
-    public bool VATExists(Guid id)
-    {
-        return _vatManagementService.VatExistsAsync(id).Result;
-    }
-
-    #endregion Vat
 
     #region CalendarRule
 

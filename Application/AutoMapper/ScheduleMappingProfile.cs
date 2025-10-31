@@ -92,5 +92,22 @@ public class ScheduleMappingProfile : Profile
                     ShiftId = Guid.Empty
                 })))
             .ForMember(dest => dest.Client, opt => opt.Ignore());
+
+        CreateMap<ContainerTemplate, ContainerTemplateResource>()
+            .ForMember(dest => dest.Shift, opt => opt.MapFrom(src => src.Shift))
+            .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
+
+        CreateMap<ContainerTemplateResource, ContainerTemplate>()
+            .IgnoreAuditFields()
+            .ForMember(dest => dest.Shift, opt => opt.Ignore())
+            .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
+
+        CreateMap<ContainerTemplateItem, ContainerTemplateItemResource>()
+            .ForMember(dest => dest.Shift, opt => opt.MapFrom(src => src.Shift));
+
+        CreateMap<ContainerTemplateItemResource, ContainerTemplateItem>()
+            .IgnoreAuditFields()
+            .ForMember(dest => dest.Shift, opt => opt.Ignore())
+            .ForMember(dest => dest.ContainerTemplate, opt => opt.Ignore());
     }
 }

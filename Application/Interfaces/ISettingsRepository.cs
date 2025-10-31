@@ -16,8 +16,6 @@ public interface ISettingsRepository
 
     Task<Klacks.Api.Domain.Models.Settings.Settings> AddSetting(Klacks.Api.Domain.Models.Settings.Settings settings);
 
-    Vat AddVAT(Vat vat);
-
     bool CalendarRuleExists(Guid id);
 
     Task<CalendarRule> DeleteCalendarRule(Guid id);
@@ -25,8 +23,6 @@ public interface ISettingsRepository
     Task<Macro> DeleteMacro(Guid id);
 
     Task<MacroType> DeleteMacroType(Guid id);
-
-    Task<Vat> DeleteVAT(Guid id);
 
     Task<CalendarRule> GetCalendarRule(Guid id);
 
@@ -46,10 +42,6 @@ public interface ISettingsRepository
 
     Task<TruncatedCalendarRule> GetTruncatedCalendarRuleList(CalendarRulesFilter filter);
 
-    Task<Vat> GetVAT(Guid id);
-
-    Task<List<Vat>> GetVATList();
-
     bool MacroExists(Guid id);
 
     bool MacroTypeExists(Guid id);
@@ -62,15 +54,9 @@ public interface ISettingsRepository
 
     Task<Klacks.Api.Domain.Models.Settings.Settings> PutSetting(Klacks.Api.Domain.Models.Settings.Settings settings);
 
-    Vat PutVAT(Vat vat);
-
     void RemoveCalendarRule(CalendarRule calendarRule);
 
     void RemoveMacro(Macro macro);
 
     void RemoveMacroType(MacroType macroType);
-
-    void RemoveVAT(Vat vat);
-
-    bool VATExists(Guid id);
 }

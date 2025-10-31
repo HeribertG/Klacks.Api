@@ -56,6 +56,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IGroupVisibilityRepository, GroupVisibilityRepository>();
         services.AddScoped<IContractRepository, ContractRepository>();
         services.AddScoped<IClientImageRepository, ClientImageRepository>();
+        services.AddScoped<IContainerTemplateRepository, ContainerTemplateRepository>();
 
         services.AddSingleton<IMacroEngine, MacroEngine>();
         services.AddScoped<UploadFile>();
@@ -117,7 +118,6 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<ICalendarRulePaginationService, CalendarRulePaginationService>();
         services.AddScoped<IMacroManagementService, MacroManagementService>();
         services.AddScoped<IMacroTypeManagementService, MacroTypeManagementService>();
-        services.AddScoped<IVatManagementService, VatManagementService>();
         services.AddScoped<ISettingsTokenService, SettingsTokenService>();
         
         // Email Services  

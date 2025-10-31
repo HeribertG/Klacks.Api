@@ -58,7 +58,6 @@ public class SettingsMappingProfile : Profile
 
         CreateMap<MacroType, MacroTypeResource>().ReverseMap();
         CreateMap<Klacks.Api.Domain.Models.Settings.Settings, SettingsResource>().ReverseMap();
-        CreateMap<Vat, VatResource>().ReverseMap();
 
         CreateMap<LastChangeMetaData, LastChangeMetaDataResource>()
             .ForMember(dest => dest.Autor, opt => opt.MapFrom(src => src.Author));
