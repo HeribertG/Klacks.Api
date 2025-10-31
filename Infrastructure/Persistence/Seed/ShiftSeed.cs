@@ -23,12 +23,17 @@ namespace Klacks.Api.Data.Seed
             script.AppendLine("-- Shift Seed Data - Following Correct Workflow");
             script.AppendLine("-- Status: 0 = OriginalOrder, 1 = SealedOrder, 2 = OriginalShift, 3 = SplitShift");
 
-            // Available canton group names for random assignment
-            var availableCantons = new[] { "ZH", "BE", "LU", "SG", "AG", "BS", "BL", "GE", "VD", "NE", "JU", "FR" };
+            // Available ROOT GROUP names for assignment (4 Root Groups)
+            var availableRootGroups = new[] {
+                "Westschweiz",           // Root 1: GE, VD, NE, JU, FR
+                "Deutschweiz Zürich",    // Root 2: ZH, AG
+                "Deutschweiz Mitte",     // Root 3: BE, SO, BS, BL
+                "Deutschweiz Ost"        // Root 4: LU, SG, etc.
+            };
 
-            List<string> GetRandomCantons(int count)
+            List<string> GetRandomRootGroups(int count)
             {
-                return availableCantons.OrderBy(x => random.Next()).Take(count).ToList();
+                return availableRootGroups.OrderBy(x => random.Next()).Take(count).ToList();
             }
 
             void TrackShiftGroups(Guid shiftId, List<string> cantonNames)
@@ -60,9 +65,15 @@ namespace Klacks.Api.Data.Seed
                 return abbr;
             }
 
-            // 1. Create 5 simple OriginalOrder shifts (Status = 0)
+            // 1. Create 10 simple OriginalOrder shifts (Status = 0) → SealedOrder (Status = 1) → OriginalShift (Status = 2)
+            // VERDOPPELT: 5 → 10, Root Groups zugewiesen
             var simpleShifts = new[]
             {
+                new { Name = "Frühschicht", Abbr = "FS", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1, CuttingAfterMidnight = false },
+                new { Name = "Spätschicht", Abbr = "SS", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2, CuttingAfterMidnight = false },
+                new { Name = "Nachtschicht", Abbr = "NS", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1, CuttingAfterMidnight = true },
+                new { Name = "Tagdienst", Abbr = "TAG", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1, CuttingAfterMidnight = false },
+                new { Name = "Bereitschaft", Abbr = "BD", Start = "00:00:00", End = "00:00:00", WorkTime = 24, Employees = 1, CuttingAfterMidnight = false },
                 new { Name = "Frühschicht", Abbr = "FS", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1, CuttingAfterMidnight = false },
                 new { Name = "Spätschicht", Abbr = "SS", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2, CuttingAfterMidnight = false },
                 new { Name = "Nachtschicht", Abbr = "NS", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1, CuttingAfterMidnight = true },
@@ -70,15 +81,19 @@ namespace Klacks.Api.Data.Seed
                 new { Name = "Bereitschaft", Abbr = "BD", Start = "00:00:00", End = "00:00:00", WorkTime = 24, Employees = 1, CuttingAfterMidnight = false }
             };
 
-            script.AppendLine("\n-- 1. Simple OriginalOrder Shifts (Status = 0)");
+            script.AppendLine("\n-- 1. Simple Shifts (Workflow: OriginalOrder → SealedOrder → OriginalShift) - VERDOPPELT mit Root Groups");
             foreach (var shift in simpleShifts)
             {
-                var shiftId = Guid.NewGuid();
+                var orderId = Guid.NewGuid(); // SealedOrder ID
+                var originalShiftId = Guid.NewGuid(); // OriginalShift ID (Kopie)
                 var uniqueName = GetUniqueName(shift.Name, 1);
                 var uniqueAbbr = GetUniqueAbbreviation(shift.Abbr, 1);
-                var assignedGroups = GetRandomCantons(random.Next(1, 3)); // 1-2 random groups
+                var assignedGroups = GetRandomRootGroups(random.Next(1, 3)); // 1-2 random ROOT GROUPS
 
-                script.AppendLine($@"INSERT INTO public.shift (
+                // Step 1: Create OriginalOrder (Status = 0)
+                script.AppendLine($@"
+-- OriginalOrder (Status = 0)
+INSERT INTO public.shift (
                     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
                     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
                     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
@@ -87,7 +102,7 @@ namespace Klacks.Api.Data.Seed
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{shiftId}', {(shift.CuttingAfterMidnight ? "true" : "false")}, '{shift.Name} mit {shift.Employees} Mitarbeiter(n)', '00000000-0000-0000-0000-000000000000', '{uniqueName}', NULL, NULL, 0,
+                    '{orderId}', {(shift.CuttingAfterMidnight ? "true" : "false")}, '{shift.Name} mit {shift.Employees} Mitarbeiter(n)', '00000000-0000-0000-0000-000000000000', '{uniqueName}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '{shift.End}', '{baseDate:yyyy-MM-dd}', '{shift.Start}', NULL,
                     true, false, true, false, false, true, true, true,
                     false, false, false, 1, '00:00:00', '00:00:00',
@@ -96,23 +111,22 @@ namespace Klacks.Api.Data.Seed
                     '00:00:00', {shift.Employees}, 0, NULL, NULL
                 );");
 
-                shiftIds.Add(shiftId);
-                TrackShiftGroups(shiftId, assignedGroups);
-            }
+                shiftIds.Add(orderId);
+                TrackShiftGroups(orderId, assignedGroups);
 
-            // 2. Create 20 Morgenschichten (6 Stunden) - OriginalOrder (Status = 0)
-            script.AppendLine("\n-- 2. Morning Shifts - OriginalOrder (Status = 0)");
-            for (int i = 1; i <= 20; i++)
-            {
-                var morningShiftId = Guid.NewGuid();
-                var startHour = random.Next(5, 8);
-                var endHour = startHour + 6;
-                var employees = (i <= 3) ? 2 : 1;
-                var uniqueNameMorning = GetUniqueName("Morgenschicht", i);
-                var uniqueAbbrMorning = GetUniqueAbbreviation("MOR", i);
-                var assignedGroups = GetRandomCantons(random.Next(1, 3)); // 1-2 random groups
+                // Step 2: Update to SealedOrder (Status 0 → 1)
+                script.AppendLine($@"
+-- Update to SealedOrder (Status = 1)
+UPDATE public.shift
+SET status = 1,
+    update_time = '{currentTime.AddMinutes(6):yyyy-MM-dd HH:mm:ss.ffffff}',
+    current_user_updated = '{user}'
+WHERE id = '{orderId}';");
 
-                script.AppendLine($@"INSERT INTO public.shift (
+                // Step 3: Create OriginalShift (Status = 2) - 1:1 Kopie mit GLEICHEN Groups!
+                script.AppendLine($@"
+-- OriginalShift (Status = 2) - Verplanbare Kopie mit GLEICHEN Groups!
+INSERT INTO public.shift (
                     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
                     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
                     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
@@ -121,7 +135,46 @@ namespace Klacks.Api.Data.Seed
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{morningShiftId}', false, '6-Stunden Morgenschicht - {employees} Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameMorning}', NULL, NULL, 0,
+                    '{originalShiftId}', {(shift.CuttingAfterMidnight ? "true" : "false")}, '{shift.Name} mit {shift.Employees} Mitarbeiter(n)', '00000000-0000-0000-0000-000000000000', '{uniqueName}', NULL, NULL, 2,
+                    '00:00:00', '00:00:00', '{shift.End}', '{baseDate:yyyy-MM-dd}', '{shift.Start}', NULL,
+                    true, false, true, false, false, true, true, true,
+                    false, false, false, 1, '00:00:00', '00:00:00',
+                    {shift.WorkTime}, 0, '{currentTime.AddMinutes(7):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
+                    NULL, false, '{currentTime.AddMinutes(8):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbr}', '00:00:00', NULL,
+                    '00:00:00', {shift.Employees}, 0, NULL, NULL
+                );");
+
+                shiftIds.Add(originalShiftId);
+                TrackShiftGroups(originalShiftId, assignedGroups); // ✅ GLEICHE Groups!
+            }
+
+            // 2. Create 40 Morgenschichten (6 Stunden) - Workflow: OriginalOrder → SealedOrder → OriginalShift
+            // VERDOPPELT: 20 → 40, Root Groups zugewiesen
+            script.AppendLine("\n-- 2. Morning Shifts (Workflow: OriginalOrder → SealedOrder → OriginalShift) - VERDOPPELT mit Root Groups");
+            for (int i = 1; i <= 40; i++)
+            {
+                var orderId = Guid.NewGuid();
+                var originalShiftId = Guid.NewGuid();
+                var startHour = random.Next(5, 8);
+                var endHour = startHour + 6;
+                var employees = (i <= 3) ? 2 : 1;
+                var uniqueNameMorning = GetUniqueName("Morgenschicht", i);
+                var uniqueAbbrMorning = GetUniqueAbbreviation("MOR", i);
+                var assignedGroups = GetRandomRootGroups(random.Next(1, 3)); // 1-2 random ROOT GROUPS
+
+                // Step 1: OriginalOrder (Status = 0)
+                script.AppendLine($@"
+-- OriginalOrder (Status = 0)
+INSERT INTO public.shift (
+                    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+                    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+                    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+                    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+                    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+                ) VALUES (
+                    '{orderId}', false, '6-Stunden Morgenschicht - {employees} Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameMorning}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
                     true, false, true, false, false, true, true, true,
                     false, false, false, 1, '00:00:00', '00:00:00',
@@ -130,21 +183,22 @@ namespace Klacks.Api.Data.Seed
                     '00:00:00', {employees}, 0, NULL, NULL
                 );");
 
-                shiftIds.Add(morningShiftId);
-                TrackShiftGroups(morningShiftId, assignedGroups);
-            }
+                shiftIds.Add(orderId);
+                TrackShiftGroups(orderId, assignedGroups);
 
-            // 3. Create 30 Tagschichten Mo-Fr 08:00-17:00 - OriginalOrder (Status = 0)
-            script.AppendLine("\n-- 3. Day Shifts Mo-Fr - OriginalOrder (Status = 0)");
-            for (int i = 1; i <= 30; i++)
-            {
-                var dayShiftId = Guid.NewGuid();
-                var employees = (i <= 5) ? 2 : 1;
-                var uniqueNameDay = GetUniqueName("Tagschicht", i);
-                var uniqueAbbrDay = GetUniqueAbbreviation("TAG", i + 100);
-                var assignedGroups = GetRandomCantons(random.Next(1, 3)); // 1-2 random groups
+                // Step 2: Update to SealedOrder (Status 0 → 1)
+                script.AppendLine($@"
+-- Update to SealedOrder (Status = 1)
+UPDATE public.shift
+SET status = 1,
+    update_time = '{currentTime.AddMinutes(11):yyyy-MM-dd HH:mm:ss.ffffff}',
+    current_user_updated = '{user}'
+WHERE id = '{orderId}';");
 
-                script.AppendLine($@"INSERT INTO public.shift (
+                // Step 3: OriginalShift (Status = 2) mit GLEICHEN Groups
+                script.AppendLine($@"
+-- OriginalShift (Status = 2) - Verplanbare Kopie mit GLEICHEN Groups
+INSERT INTO public.shift (
                     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
                     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
                     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
@@ -153,7 +207,44 @@ namespace Klacks.Api.Data.Seed
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{dayShiftId}', false, 'Tagschicht Mo-Fr mit 1h Mittagspause - {employees} Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameDay}', NULL, NULL, 0,
+                    '{originalShiftId}', false, '6-Stunden Morgenschicht - {employees} Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameMorning}', NULL, NULL, 2,
+                    '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
+                    true, false, true, false, false, true, true, true,
+                    false, false, false, 1, '00:00:00', '00:00:00',
+                    6, 0, '{currentTime.AddMinutes(12):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
+                    NULL, false, '{currentTime.AddMinutes(13):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbrMorning}', '00:00:00', NULL,
+                    '00:00:00', {employees}, 0, NULL, NULL
+                );");
+
+                shiftIds.Add(originalShiftId);
+                TrackShiftGroups(originalShiftId, assignedGroups); // ✅ GLEICHE Groups!
+            }
+
+            // 3. Create 60 Tagschichten Mo-Fr 08:00-17:00 - Workflow: OriginalOrder → SealedOrder → OriginalShift
+            // VERDOPPELT: 30 → 60, Root Groups zugewiesen
+            script.AppendLine("\n-- 3. Day Shifts Mo-Fr (Workflow: OriginalOrder → SealedOrder → OriginalShift) - VERDOPPELT mit Root Groups");
+            for (int i = 1; i <= 60; i++)
+            {
+                var orderId = Guid.NewGuid();
+                var originalShiftId = Guid.NewGuid();
+                var employees = (i <= 5) ? 2 : 1;
+                var uniqueNameDay = GetUniqueName("Tagschicht", i);
+                var uniqueAbbrDay = GetUniqueAbbreviation("TAG", i + 100);
+                var assignedGroups = GetRandomRootGroups(random.Next(1, 3)); // 1-2 random ROOT GROUPS
+
+                // Step 1: OriginalOrder (Status = 0)
+                script.AppendLine($@"
+-- OriginalOrder (Status = 0)
+INSERT INTO public.shift (
+                    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+                    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+                    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+                    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+                    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+                ) VALUES (
+                    '{orderId}', false, 'Tagschicht Mo-Fr mit 1h Mittagspause - {employees} Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameDay}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '17:00:00', '{baseDate:yyyy-MM-dd}', '08:00:00', NULL,
                     true, false, true, false, false, true, true, true,
                     true, false, false, 1, '00:00:00', '00:00:00',
@@ -162,20 +253,22 @@ namespace Klacks.Api.Data.Seed
                     '00:00:00', {employees}, 0, NULL, NULL
                 );");
 
-                shiftIds.Add(dayShiftId);
-                TrackShiftGroups(dayShiftId, assignedGroups);
-            }
+                shiftIds.Add(orderId);
+                TrackShiftGroups(orderId, assignedGroups);
 
-            // 4. Create 20 Nachtdienste Mo-Fr 23:00-07:00 - OriginalOrder (Status = 0)
-            script.AppendLine("\n-- 4. Night Shifts Mo-Fr - OriginalOrder (Status = 0)");
-            for (int i = 1; i <= 20; i++)
-            {
-                var nightShiftId = Guid.NewGuid();
-                var uniqueNameNightMF = GetUniqueName("Nachtdienst Mo-Fr", i);
-                var uniqueAbbrNightMF = GetUniqueAbbreviation("NMF", i);
-                var assignedGroups = GetRandomCantons(random.Next(1, 3)); // 1-2 random groups
+                // Step 2: Update to SealedOrder (Status 0 → 1)
+                script.AppendLine($@"
+-- Update to SealedOrder (Status = 1)
+UPDATE public.shift
+SET status = 1,
+    update_time = '{currentTime.AddMinutes(16):yyyy-MM-dd HH:mm:ss.ffffff}',
+    current_user_updated = '{user}'
+WHERE id = '{orderId}';");
 
-                script.AppendLine($@"INSERT INTO public.shift (
+                // Step 3: OriginalShift (Status = 2) mit GLEICHEN Groups
+                script.AppendLine($@"
+-- OriginalShift (Status = 2) - Verplanbare Kopie mit GLEICHEN Groups
+INSERT INTO public.shift (
                     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
                     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
                     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
@@ -184,7 +277,43 @@ namespace Klacks.Api.Data.Seed
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{nightShiftId}', true, 'Nachtdienst Mo-Fr - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightMF}', NULL, NULL, 0,
+                    '{originalShiftId}', false, 'Tagschicht Mo-Fr mit 1h Mittagspause - {employees} Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameDay}', NULL, NULL, 2,
+                    '00:00:00', '00:00:00', '17:00:00', '{baseDate:yyyy-MM-dd}', '08:00:00', NULL,
+                    true, false, true, false, false, true, true, true,
+                    true, false, false, 1, '00:00:00', '00:00:00',
+                    8, 0, '{currentTime.AddMinutes(17):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
+                    NULL, false, '{currentTime.AddMinutes(18):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbrDay}', '00:00:00', NULL,
+                    '00:00:00', {employees}, 0, NULL, NULL
+                );");
+
+                shiftIds.Add(originalShiftId);
+                TrackShiftGroups(originalShiftId, assignedGroups); // ✅ GLEICHE Groups!
+            }
+
+            // 4. Create 40 Nachtdienste Mo-Fr 23:00-07:00 - Workflow: OriginalOrder → SealedOrder → OriginalShift
+            // VERDOPPELT: 20 → 40, Root Groups zugewiesen
+            script.AppendLine("\n-- 4. Night Shifts Mo-Fr (Workflow: OriginalOrder → SealedOrder → OriginalShift) - VERDOPPELT mit Root Groups");
+            for (int i = 1; i <= 40; i++)
+            {
+                var orderId = Guid.NewGuid();
+                var originalShiftId = Guid.NewGuid();
+                var uniqueNameNightMF = GetUniqueName("Nachtdienst Mo-Fr", i);
+                var uniqueAbbrNightMF = GetUniqueAbbreviation("NMF", i);
+                var assignedGroups = GetRandomRootGroups(random.Next(1, 3)); // 1-2 random ROOT GROUPS
+
+                // Step 1: OriginalOrder (Status = 0)
+                script.AppendLine($@"
+-- OriginalOrder (Status = 0)
+INSERT INTO public.shift (
+                    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+                    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+                    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+                    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+                    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+                ) VALUES (
+                    '{orderId}', true, 'Nachtdienst Mo-Fr - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightMF}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     true, false, true, false, false, true, true, false,
                     true, false, false, 1, '00:00:00', '00:00:00',
@@ -193,20 +322,22 @@ namespace Klacks.Api.Data.Seed
                     '00:00:00', 1, 0, NULL, NULL
                 );");
 
-                shiftIds.Add(nightShiftId);
-                TrackShiftGroups(nightShiftId, assignedGroups);
-            }
+                shiftIds.Add(orderId);
+                TrackShiftGroups(orderId, assignedGroups);
 
-            // 5. Create 20 Nachtdienste Sa-So 23:00-07:00 - OriginalOrder (Status = 0)
-            script.AppendLine("\n-- 5. Night Shifts Sa-So - OriginalOrder (Status = 0)");
-            for (int i = 1; i <= 20; i++)
-            {
-                var weekendNightId = Guid.NewGuid();
-                var uniqueNameNightSS = GetUniqueName("Nachtdienst Sa-So", i);
-                var uniqueAbbrNightSS = GetUniqueAbbreviation("NSS", i);
-                var assignedGroups = GetRandomCantons(random.Next(1, 3)); // 1-2 random groups
+                // Step 2: Update to SealedOrder (Status 0 → 1)
+                script.AppendLine($@"
+-- Update to SealedOrder (Status = 1)
+UPDATE public.shift
+SET status = 1,
+    update_time = '{currentTime.AddMinutes(21):yyyy-MM-dd HH:mm:ss.ffffff}',
+    current_user_updated = '{user}'
+WHERE id = '{orderId}';");
 
-                script.AppendLine($@"INSERT INTO public.shift (
+                // Step 3: OriginalShift (Status = 2) mit GLEICHEN Groups
+                script.AppendLine($@"
+-- OriginalShift (Status = 2) - Verplanbare Kopie mit GLEICHEN Groups
+INSERT INTO public.shift (
                     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
                     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
                     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
@@ -215,7 +346,43 @@ namespace Klacks.Api.Data.Seed
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{weekendNightId}', true, 'Nachtdienst Sa-So - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightSS}', NULL, NULL, 0,
+                    '{originalShiftId}', true, 'Nachtdienst Mo-Fr - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightMF}', NULL, NULL, 2,
+                    '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
+                    true, false, true, false, false, true, true, false,
+                    true, false, false, 1, '00:00:00', '00:00:00',
+                    8, 0, '{currentTime.AddMinutes(22):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
+                    NULL, false, '{currentTime.AddMinutes(23):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbrNightMF}', '00:00:00', NULL,
+                    '00:00:00', 1, 0, NULL, NULL
+                );");
+
+                shiftIds.Add(originalShiftId);
+                TrackShiftGroups(originalShiftId, assignedGroups); // ✅ GLEICHE Groups!
+            }
+
+            // 5. Create 40 Nachtdienste Sa-So 23:00-07:00 - Workflow: OriginalOrder → SealedOrder → OriginalShift
+            // VERDOPPELT: 20 → 40, Root Groups zugewiesen
+            script.AppendLine("\n-- 5. Night Shifts Sa-So (Workflow: OriginalOrder → SealedOrder → OriginalShift) - VERDOPPELT mit Root Groups");
+            for (int i = 1; i <= 40; i++)
+            {
+                var orderId = Guid.NewGuid();
+                var originalShiftId = Guid.NewGuid();
+                var uniqueNameNightSS = GetUniqueName("Nachtdienst Sa-So", i);
+                var uniqueAbbrNightSS = GetUniqueAbbreviation("NSS", i);
+                var assignedGroups = GetRandomRootGroups(random.Next(1, 3)); // 1-2 random ROOT GROUPS
+
+                // Step 1: OriginalOrder (Status = 0)
+                script.AppendLine($@"
+-- OriginalOrder (Status = 0)
+INSERT INTO public.shift (
+                    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+                    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+                    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+                    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+                    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+                ) VALUES (
+                    '{orderId}', true, 'Nachtdienst Sa-So - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightSS}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     false, false, false, true, true, false, false, false,
                     false, false, false, 1, '00:00:00', '00:00:00',
@@ -224,15 +391,49 @@ namespace Klacks.Api.Data.Seed
                     '00:00:00', 1, 0, NULL, NULL
                 );");
 
-                shiftIds.Add(weekendNightId);
-                TrackShiftGroups(weekendNightId, assignedGroups);
+                shiftIds.Add(orderId);
+                TrackShiftGroups(orderId, assignedGroups);
+
+                // Step 2: Update to SealedOrder (Status 0 → 1)
+                script.AppendLine($@"
+-- Update to SealedOrder (Status = 1)
+UPDATE public.shift
+SET status = 1,
+    update_time = '{currentTime.AddMinutes(26):yyyy-MM-dd HH:mm:ss.ffffff}',
+    current_user_updated = '{user}'
+WHERE id = '{orderId}';");
+
+                // Step 3: OriginalShift (Status = 2) mit GLEICHEN Groups
+                script.AppendLine($@"
+-- OriginalShift (Status = 2) - Verplanbare Kopie mit GLEICHEN Groups
+INSERT INTO public.shift (
+                    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+                    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+                    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+                    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+                    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+                ) VALUES (
+                    '{originalShiftId}', true, 'Nachtdienst Sa-So - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightSS}', NULL, NULL, 2,
+                    '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
+                    false, false, false, true, true, false, false, false,
+                    false, false, false, 1, '00:00:00', '00:00:00',
+                    8, 0, '{currentTime.AddMinutes(27):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
+                    NULL, false, '{currentTime.AddMinutes(28):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbrNightSS}', '00:00:00', NULL,
+                    '00:00:00', 1, 0, NULL, NULL
+                );");
+
+                shiftIds.Add(originalShiftId);
+                TrackShiftGroups(originalShiftId, assignedGroups); // ✅ GLEICHE Groups!
             }
 
-            // 6. Create 10 sealed shifts with splits to demonstrate the complete workflow
-            script.AppendLine("\n-- 6. Example Sealed Shifts with Splits (Status 0 -> 1 -> 3 Children) - SEEDING VERSION");
+            // 6. Create 20 sealed shifts with splits to demonstrate the complete workflow
+            // VERDOPPELT: 10 → 20, Root Groups zugewiesen
+            script.AppendLine("\n-- 6. Example Sealed Shifts with Splits (Status 0 -> 1 -> 3 Children) - SEEDING VERSION - VERDOPPELT mit Root Groups");
             script.AppendLine("-- WICHTIG: Beim Seeding werden KEINE ROOT SplitShifts erstellt!");
             script.AppendLine("-- Stattdessen: 3 eigenständige SplitShifts als Geschwister (parent_id=NULL, root_id=SealedOrder, lft=1, rgt=2)");
-            for (int i = 1; i <= 10; i++)
+            for (int i = 1; i <= 20; i++)
             {
                 var orderId = Guid.NewGuid(); // EINE ID für Order (wird von Status 0 -> 1 updated)
                 var employees = (i <= 2) ? 2 : 1;
@@ -240,8 +441,8 @@ namespace Klacks.Api.Data.Seed
                 var uniqueName24h = GetUniqueName("24h-Schichtdienst", i);
                 var uniqueAbbr24h = GetUniqueAbbreviation("24H", i);
 
-                // WICHTIG: ALLE Shifts in diesem Workflow bekommen die GLEICHEN Groups!
-                var workflowGroups = GetRandomCantons(random.Next(1, 2)); // 1 group for workflow consistency
+                // WICHTIG: ALLE Shifts in diesem Workflow bekommen die GLEICHEN Root Groups!
+                var workflowGroups = GetRandomRootGroups(random.Next(1, 2)); // 1 ROOT GROUP for workflow consistency
 
                 // Step 1: Create OriginalOrder (Status = 0)
                 script.AppendLine($@"
