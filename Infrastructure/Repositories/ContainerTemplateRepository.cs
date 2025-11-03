@@ -120,4 +120,19 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
             .ThenBy(t => t.IsHoliday)
             .AsNoTracking();
     }
+
+    public async Task<List<Guid>> GetUsedShiftIds(Guid? excludeContainerId = null, CancellationToken cancellationToken = default)
+    {
+        var query = context.ContainerTemplateItem.AsQueryable();
+
+        if (excludeContainerId.HasValue)
+        {
+            query = query.Where(cti => cti.ContainerTemplate.ContainerId != excludeContainerId.Value);
+        }
+
+        return await query
+            .Select(cti => cti.ShiftId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+    }
 }

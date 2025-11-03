@@ -5,7 +5,7 @@ namespace Klacks.Api.Application.Queries.ContainerTemplates;
 
 public record GetAvailableTasksQuery(
     Guid ContainerId,
-    int[] Weekdays,
+    int Weekday,
     TimeOnly FromTime,
     TimeOnly UntilTime,
     string? SearchString = null,

@@ -22,7 +22,10 @@ namespace Klacks.Api.Data.Seed
                 var scriptForGroups = GroupsSeed.GenerateInsertScriptForGroups();
                 var scriptForGroupItems = SeedGenerator.GenerateInsertScriptForGroupItems(results.Clients, results.Addresses);
                 var (scriptForShifts, shiftIds) = ShiftSeed.GenerateInsertScriptForShifts();
-                var scriptForShiftGroupItems = ShiftSeed.GenerateInsertScriptForShiftGroupItems(shiftIds);
+                var (scriptForContainers, containerIds) = ShiftSeed.GenerateInsertScriptForContainers();
+
+                var allShiftIds = shiftIds.Concat(containerIds).ToList();
+                var scriptForShiftGroupItems = ShiftSeed.GenerateInsertScriptForShiftGroupItems(allShiftIds);
 
                 migrationBuilder.Sql(scriptForClients);
                 migrationBuilder.Sql(scriptForAddresses);
@@ -34,6 +37,7 @@ namespace Klacks.Api.Data.Seed
                 migrationBuilder.Sql(scriptForGroups);
                 migrationBuilder.Sql(scriptForGroupItems);
                 migrationBuilder.Sql(scriptForShifts);
+                migrationBuilder.Sql(scriptForContainers);
                 migrationBuilder.Sql(scriptForShiftGroupItems);
             }
         }

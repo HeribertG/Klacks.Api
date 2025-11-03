@@ -9,4 +9,6 @@ public interface IContainerTemplateRepository : IBaseRepository<ContainerTemplat
     Task<List<ContainerTemplate>> GetTemplatesForContainer(Guid containerId);
 
     IQueryable<ContainerTemplate> GetQuery();
+
+    Task<List<Guid>> GetUsedShiftIds(Guid? excludeContainerId = null, CancellationToken cancellationToken = default);
 }

@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Services.Absences;
 using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Domain.Services.CalendarSelections;
 using Klacks.Api.Domain.Services.Clients;
+using Klacks.Api.Domain.Services.ContainerTemplates;
 using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Domain.Services.Holidays;
 using Klacks.Api.Domain.Services.Settings;
@@ -78,6 +79,9 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IShiftGroupManagementService, ShiftGroupManagementService>();
         services.AddScoped<IShiftTreeService, ShiftTreeService>();
         services.AddScoped<IShiftResetService, ShiftResetService>();
+
+        // ContainerTemplate Domain Services
+        services.AddScoped<ContainerAvailableTasksService>();
 
         // Employee Domain Services
         services.AddScoped<IClientFilterService, ClientFilterService>();

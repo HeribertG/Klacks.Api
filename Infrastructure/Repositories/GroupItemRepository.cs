@@ -20,4 +20,27 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
         return await context.GroupItem
             .FirstOrDefaultAsync(gi => gi.ClientId == clientId && gi.GroupId == groupId);
     }
+
+    public IQueryable<GroupItem> GetQuery()
+    {
+        return context.GroupItem.AsQueryable();
+    }
+
+    public async Task<List<Guid>> GetGroupIdsByShiftId(Guid shiftId, CancellationToken cancellationToken = default)
+    {
+        return await context.GroupItem
+            .Where(gi => gi.ShiftId == shiftId)
+            .Select(gi => gi.GroupId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<Guid>> GetShiftIdsByGroupIds(List<Guid> groupIds, CancellationToken cancellationToken = default)
+    {
+        return await context.GroupItem
+            .Where(gi => groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
+            .Select(gi => gi.ShiftId!.Value)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+    }
 }

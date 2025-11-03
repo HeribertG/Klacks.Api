@@ -8,23 +8,48 @@ namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
 
 public class ContainersController : InputBaseController<ContainerTemplateResource>
 {
+    private readonly ILogger<ContainersController> _logger;
+
     public ContainersController(IMediator Mediator, ILogger<ContainersController> logger)
           : base(Mediator, logger)
     {
+        _logger = logger;
     }
 
     [HttpGet("available-tasks")]
     public async Task<ActionResult<IEnumerable<ShiftResource>>> GetAvailableTasks(
         [FromQuery] Guid containerId,
-        [FromQuery] int[] weekdays,
-        [FromQuery] TimeOnly fromTime,
-        [FromQuery] TimeOnly untilTime,
+        [FromQuery] int weekday,
+        [FromQuery] string fromTime,
+        [FromQuery] string untilTime,
         [FromQuery] string? searchString = null,
         [FromQuery] Guid? excludeContainerId = null,
         [FromQuery] bool? isHoliday = null,
         [FromQuery] bool? isWeekdayOrHoliday = null)
     {
-        var tasks = await Mediator.Send(new GetAvailableTasksQuery(containerId, weekdays, fromTime, untilTime, searchString, excludeContainerId, isHoliday, isWeekdayOrHoliday));
+        _logger.LogInformation(
+            "GetAvailableTasks called: containerId={ContainerId}, weekday={Weekday}, fromTime={FromTime}, untilTime={UntilTime}, isHoliday={IsHoliday}, isWeekdayOrHoliday={IsWeekdayOrHoliday}",
+            containerId, weekday, fromTime, untilTime, isHoliday, isWeekdayOrHoliday);
+
+        if (!TimeOnly.TryParse(fromTime, out var parsedFromTime))
+        {
+            return BadRequest($"Invalid fromTime format: {fromTime}. Expected format: HH:mm:ss or HH:mm");
+        }
+
+        if (!TimeOnly.TryParse(untilTime, out var parsedUntilTime))
+        {
+            return BadRequest($"Invalid untilTime format: {untilTime}. Expected format: HH:mm:ss or HH:mm");
+        }
+
+        var tasks = await Mediator.Send(new GetAvailableTasksQuery(
+            containerId,
+            weekday,
+            parsedFromTime,
+            parsedUntilTime,
+            searchString,
+            excludeContainerId,
+            isHoliday,
+            isWeekdayOrHoliday));
         return Ok(tasks);
     }
 

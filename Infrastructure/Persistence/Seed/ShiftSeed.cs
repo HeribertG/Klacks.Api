@@ -562,6 +562,92 @@ INSERT INTO public.shift (
             return (script.ToString(), shiftIds);
         }
 
+        public static (string script, List<Guid> containerIds) GenerateInsertScriptForContainers()
+        {
+            StringBuilder script = new StringBuilder();
+            var containerIds = new List<Guid>();
+            var random = Random.Shared;
+            var currentTime = DateTime.Now;
+            var baseDate = new DateOnly(2025, 1, 1);
+
+            script.AppendLine("\n-- Container Seed Data (ShiftType = IsContainer)");
+            script.AppendLine("-- Containers with Root Groups for Container Templates");
+
+            var availableRootGroups = new[] {
+                "Westschweiz",
+                "Deutschweiz Zürich",
+                "Deutschweiz Mitte",
+                "Deutschweiz Ost"
+            };
+
+            List<string> GetRandomRootGroups(int count)
+            {
+                return availableRootGroups.OrderBy(x => random.Next()).Take(count).ToList();
+            }
+
+            void TrackContainerGroups(Guid containerId, List<string> groupNames)
+            {
+                ShiftGroupMappings[containerId] = groupNames;
+            }
+
+            var containers = new[]
+            {
+                new { Name = "Morgen Mo-Fr", Abbr = "MO-MF", Start = "06:00:00", End = "14:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "Morgen Sa-So", Abbr = "MO-SS", Start = "06:00:00", End = "14:00:00", Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "Mittag Mo-Fr", Abbr = "MI-MF", Start = "10:00:00", End = "18:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "Mittag Sa-So", Abbr = "MI-SS", Start = "10:00:00", End = "18:00:00", Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "Abend Mo-Fr", Abbr = "AB-MF", Start = "14:00:00", End = "22:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "Abend Sa-So", Abbr = "AB-SS", Start = "14:00:00", End = "22:00:00", Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "Nacht Mo-Fr", Abbr = "NA-MF", Start = "22:00:00", End = "06:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "Nacht Sa-So", Abbr = "NA-SS", Start = "22:00:00", End = "06:00:00", Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "Ganztag Mo-Fr", Abbr = "GZ-MF", Start = "00:00:00", End = "00:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "Ganztag Sa-So", Abbr = "GZ-SS", Start = "00:00:00", End = "00:00:00", Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "Früh Mo-Fr", Abbr = "FR-MF", Start = "07:00:00", End = "15:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "Früh Sa-So", Abbr = "FR-SS", Start = "07:00:00", End = "15:00:00", Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "Spät Mo-Fr", Abbr = "SP-MF", Start = "15:00:00", End = "23:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "Spät Sa-So", Abbr = "SP-SS", Start = "15:00:00", End = "23:00:00", Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "Vormittag täglich", Abbr = "VM-TG", Start = "08:00:00", End = "12:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = true, Sun = true },
+                new { Name = "Nachmittag täglich", Abbr = "NM-TG", Start = "12:00:00", End = "17:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = true, Sun = true },
+                new { Name = "Bürozeiten Mo-Fr", Abbr = "BZ-MF", Start = "08:00:00", End = "17:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "Wochenende", Abbr = "WE", Start = "00:00:00", End = "00:00:00", Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "Montag-Mittwoch", Abbr = "MO-MI", Start = "08:00:00", End = "16:00:00", Mon = true, Tue = true, Wed = true, Thu = false, Fri = false, Sat = false, Sun = false },
+                new { Name = "Donnerstag-Freitag", Abbr = "DO-FR", Start = "08:00:00", End = "16:00:00", Mon = false, Tue = false, Wed = false, Thu = true, Fri = true, Sat = false, Sun = false }
+            };
+
+            foreach (var container in containers)
+            {
+                var containerId = Guid.NewGuid();
+                var assignedGroups = GetRandomRootGroups(random.Next(1, 4));
+
+                var cuttingAfterMidnight = (container.Start == "22:00:00" || container.Start == "23:00:00");
+
+                script.AppendLine($@"
+-- Container: {container.Name}
+INSERT INTO public.shift (
+    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+) VALUES (
+    '{containerId}', {(cuttingAfterMidnight ? "true" : "false")}, 'Container für {container.Name}', '00000000-0000-0000-0000-000000000000', '{container.Name}', NULL, NULL, 2,
+    '00:00:00', '00:00:00', '{container.End}', '{baseDate:yyyy-MM-dd}', '{container.Start}', NULL,
+    {(container.Fri ? "true" : "false")}, false, {(container.Mon ? "true" : "false")}, {(container.Sat ? "true" : "false")}, {(container.Sun ? "true" : "false")}, {(container.Thu ? "true" : "false")}, {(container.Tue ? "true" : "false")}, {(container.Wed ? "true" : "false")},
+    false, false, false, 1, '00:00:00', '00:00:00',
+    8, 1, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
+    NULL, false, '{currentTime.AddMinutes(1):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{container.Abbr}', '00:00:00', NULL,
+    '00:00:00', 0, 0, NULL, NULL
+);");
+
+                containerIds.Add(containerId);
+                TrackContainerGroups(containerId, assignedGroups);
+            }
+
+            return (script.ToString(), containerIds);
+        }
+
         public static string GenerateInsertScriptForShiftGroupItems(List<Guid> shiftIds)
         {
             StringBuilder script = new StringBuilder();
