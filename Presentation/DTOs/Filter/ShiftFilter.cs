@@ -17,4 +17,6 @@ public class ShiftFilter : BaseFilter
     public bool IncludeClientName { get; set; }
 
     public bool IsSealedOrder { get; set; }
+
+    public Guid? SelectedGroup { get; set; }
 }

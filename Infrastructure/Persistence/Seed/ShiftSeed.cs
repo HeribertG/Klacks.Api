@@ -562,7 +562,7 @@ INSERT INTO public.shift (
             return (script.ToString(), shiftIds);
         }
 
-        public static (string script, List<Guid> containerIds) GenerateInsertScriptForContainers()
+        public static (string script, List<Guid> containerIds) GenerateContainerTemplates()
         {
             StringBuilder script = new StringBuilder();
             var containerIds = new List<Guid>();
@@ -638,7 +638,7 @@ INSERT INTO public.shift (
     false, false, false, 1, '00:00:00', '00:00:00',
     8, 1, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
     NULL, false, '{currentTime.AddMinutes(1):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{container.Abbr}', '00:00:00', NULL,
-    '00:00:00', 0, 0, NULL, NULL
+    '00:00:00', 1, 0, NULL, NULL
 );");
 
                 containerIds.Add(containerId);
@@ -677,6 +677,207 @@ INSERT INTO public.shift (
             }
 
             return script.ToString();
+        }
+
+        public static (string script, List<Guid> containerIds) GenerateContainers()
+        {
+            StringBuilder script = new StringBuilder();
+            var containerIds = new List<Guid>();
+            var random = Random.Shared;
+            var currentTime = DateTime.Now;
+            var baseDate = new DateOnly(2025, 1, 1);
+
+            script.AppendLine("\n-- Container (Tag, Abend, Nacht) - 20 pro RootGroup = 240 total");
+            script.AppendLine("-- shift_type = 1 (IsContainer), status = 2 (OriginalShift)");
+
+            var availableRootGroups = new[] {
+                "Westschweiz",
+                "Deutschweiz Zürich",
+                "Deutschweiz Mitte",
+                "Deutschweiz Ost"
+            };
+
+            var containerTypes = new[]
+            {
+                new { Name = "Tag", Start = "06:00:00", End = "18:00:00", CuttingAfterMidnight = false },
+                new { Name = "Abend", Start = "14:00:00", End = "22:00:00", CuttingAfterMidnight = false },
+                new { Name = "Nacht", Start = "22:00:00", End = "06:00:00", CuttingAfterMidnight = true }
+            };
+
+            var containersPerGroupPerType = 20;
+            int globalCounter = 1;
+
+            foreach (var rootGroup in availableRootGroups)
+            {
+                foreach (var containerType in containerTypes)
+                {
+                    script.AppendLine($"\n-- {containersPerGroupPerType} {containerType.Name}-Container für RootGroup: {rootGroup}");
+
+                    for (int i = 1; i <= containersPerGroupPerType; i++)
+                    {
+                        var containerId = Guid.NewGuid();
+                        var name = $"Container {containerType.Name} {globalCounter}";
+                        var abbr = $"C{containerType.Name[0]}{globalCounter}";
+
+                        script.AppendLine($@"
+-- Container #{globalCounter}: {name} ({containerType.Start}-{containerType.End})
+INSERT INTO public.shift (
+    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+) VALUES (
+    '{containerId}', {(containerType.CuttingAfterMidnight ? "true" : "false")}, 'Container {containerType.Name} für {rootGroup}',
+    '00000000-0000-0000-0000-000000000000', '{name}', NULL, NULL, 2,
+    '00:00:00', '00:00:00', '{containerType.End}', '{baseDate:yyyy-MM-dd}', '{containerType.Start}', NULL,
+    true, false, true, false, false, true, true, true,
+    false, false, false, 1, '00:00:00', '00:00:00',
+    8, 1, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
+    NULL, false, '{currentTime.AddMinutes(1):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{abbr}', '00:00:00', NULL,
+    '00:00:00', 1, 0, NULL, NULL
+);");
+
+                        containerIds.Add(containerId);
+                        ShiftGroupMappings[containerId] = new List<string> { rootGroup };
+                        globalCounter++;
+                    }
+                }
+            }
+
+            return (script.ToString(), containerIds);
+        }
+
+        public static (string script, List<Guid> shiftIds) GenerateTimeRangeShiftsWithClients()
+        {
+            StringBuilder script = new StringBuilder();
+            var shiftIds = new List<Guid>();
+            ShiftGroupMappings.Clear();
+            var random = Random.Shared;
+            var currentTime = DateTime.Now;
+            var baseDate = new DateOnly(2025, 1, 1);
+
+            script.AppendLine("\n-- TimeRange Shifts with Clients (100 Shifts PRO RootGroup = 400 total, 10-30 min WorkTime, 6-8h TimeRange)");
+            script.AppendLine("-- WICHTIG: is_time_range=true, client_id wird per Subquery aus group_item geholt");
+            script.AppendLine("-- Workflow: OriginalOrder (Status 0) -> SealedOrder (Status 1) -> OriginalShift (Status 2)");
+
+            var availableRootGroups = new[] {
+                "Westschweiz",
+                "Deutschweiz Zürich",
+                "Deutschweiz Mitte",
+                "Deutschweiz Ost"
+            };
+
+            var shiftsPerGroup = 100;
+
+            for (int groupIndex = 0; groupIndex < availableRootGroups.Length; groupIndex++)
+            {
+                var rootGroup = availableRootGroups[groupIndex];
+
+                script.AppendLine($"\n-- {shiftsPerGroup} TimeRange Shifts für RootGroup: {rootGroup}");
+
+                for (int i = 1; i <= shiftsPerGroup; i++)
+                {
+                    var orderId = Guid.NewGuid();
+                    var originalShiftId = Guid.NewGuid();
+
+                    var workTimeMinutes = random.Next(10, 31);
+                    var workTimeDecimal = Math.Round(workTimeMinutes / 60.0, 4);
+
+                    var timeRangeHours = random.Next(6, 9);
+
+                    // 50% der Shifts gehen über Mitternacht
+                    bool crossesMidnight = random.Next(100) < 50;
+                    int startHour, endHour;
+                    bool cuttingAfterMidnight;
+
+                    if (crossesMidnight)
+                    {
+                        // Mitternachtsüberschreitung: Start zwischen 18:00 und 23:00
+                        startHour = random.Next(18, 24);
+                        endHour = (startHour + timeRangeHours) % 24;
+                        // Wenn endHour kleiner als startHour ist, dann geht es über Mitternacht
+                        cuttingAfterMidnight = endHour < startHour;
+                    }
+                    else
+                    {
+                        // Normale Shifts: Start zwischen 06:00 und (19 - timeRangeHours)
+                        startHour = random.Next(6, Math.Max(7, 19 - timeRangeHours));
+                        endHour = startHour + timeRangeHours;
+                        cuttingAfterMidnight = false;
+                    }
+
+                    var shiftNumber = (groupIndex * shiftsPerGroup) + i;
+                    var name = $"TimeRange-Shift {shiftNumber}";
+                    var abbr = $"TR{shiftNumber}";
+
+                    script.AppendLine($@"
+-- TimeRange Shift #{shiftNumber} (WorkTime: {workTimeMinutes} min = {workTimeDecimal} h, Range: {timeRangeHours}h, {(cuttingAfterMidnight ? "Mitternacht!" : "Tagsüber")})
+-- Step 1: Create OriginalOrder (Status = 0) with client_id from group_item
+INSERT INTO public.shift (
+    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+) VALUES (
+    '{orderId}', {(cuttingAfterMidnight ? "true" : "false")}, 'TimeRange Shift {workTimeMinutes} Minuten Arbeitszeit in {timeRangeHours}h Zeitfenster{(cuttingAfterMidnight ? " (über Mitternacht)" : "")}',
+    '00000000-0000-0000-0000-000000000000', '{name}', NULL, NULL, 0,
+    '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
+    true, false, true, false, false, true, true, true,
+    false, false, true, 1, '00:00:00', '00:00:00',
+    {workTimeDecimal.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
+    NULL, false, '{currentTime.AddMinutes(1):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{abbr}', '00:00:00',
+    (SELECT gi.client_id FROM public.group_item gi
+     JOIN public.""group"" g ON gi.group_id = g.id
+     WHERE g.name = '{rootGroup}' AND gi.client_id IS NOT NULL AND gi.is_deleted = false
+     ORDER BY random() LIMIT 1),
+    '00:00:00', 1, 0, NULL, NULL
+);");
+
+                    shiftIds.Add(orderId);
+                    ShiftGroupMappings[orderId] = new List<string> { rootGroup };
+
+                    script.AppendLine($@"
+-- Step 2: Update to SealedOrder (Status 0 -> 1)
+UPDATE public.shift
+SET status = 1,
+    update_time = '{currentTime.AddMinutes(2):yyyy-MM-dd HH:mm:ss.ffffff}',
+    current_user_updated = '{user}'
+WHERE id = '{orderId}';");
+
+                    script.AppendLine($@"
+-- Step 3: Create OriginalShift (Status = 2) - 1:1 Kopie mit GLEICHEN Groups und client_id!
+INSERT INTO public.shift (
+    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+) VALUES (
+    '{originalShiftId}', {(cuttingAfterMidnight ? "true" : "false")}, 'TimeRange Shift {workTimeMinutes} Minuten Arbeitszeit in {timeRangeHours}h Zeitfenster{(cuttingAfterMidnight ? " (über Mitternacht)" : "")}',
+    '00000000-0000-0000-0000-000000000000', '{name}', NULL, NULL, 2,
+    '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
+    true, false, true, false, false, true, true, true,
+    false, false, true, 1, '00:00:00', '00:00:00',
+    {workTimeDecimal.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 0, '{currentTime.AddMinutes(3):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
+    NULL, false, '{currentTime.AddMinutes(4):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{abbr}', '00:00:00',
+    (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
+    '00:00:00', 1, 0, NULL, NULL
+);");
+
+                    shiftIds.Add(originalShiftId);
+                    ShiftGroupMappings[originalShiftId] = new List<string> { rootGroup };
+                }
+            }
+
+            return (script.ToString(), shiftIds);
         }
     }
 }

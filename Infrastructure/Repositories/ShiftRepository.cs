@@ -53,7 +53,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             groupItem.ShiftId = shift.Id;
         }
 
-        context.Shift.Add(shift);
+        await context.Shift.AddAsync(shift);
         Logger.LogInformation("Shift added: {ShiftId}, GroupItems count: {Count}", shift.Id, shift.GroupItems.Count);
     }
 
@@ -187,7 +187,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     public IQueryable<Shift> FilterShifts(ShiftFilter filter)
     {
         Logger.LogInformation("Applying filters to shifts query");
-        
+
         var baseQuery = filter.IncludeClientName
             ? GetQueryWithClient()
             : GetQuery();
@@ -195,6 +195,15 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         var query = _statusFilterService.ApplyStatusFilter(baseQuery, filter.FilterType, filter.IsSealedOrder);
         query = _dateRangeFilterService.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange);
         query = _searchService.ApplySearchFilter(query, filter.SearchString, filter.IncludeClientName);
+
+        bool shouldApplyGroupFilter = !(filter.FilterType == ShiftFilterType.Original && filter.IsSealedOrder == false);
+        if (shouldApplyGroupFilter && filter.SelectedGroup.HasValue)
+        {
+            Logger.LogInformation("Applying group filter for group: {GroupId}", filter.SelectedGroup.Value);
+            query = query.Include(s => s.GroupItems)
+                         .Where(s => s.GroupItems.Any(gi => gi.GroupId == filter.SelectedGroup.Value));
+        }
+
         query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder);
 
         Logger.LogInformation("Filters applied to shifts query");

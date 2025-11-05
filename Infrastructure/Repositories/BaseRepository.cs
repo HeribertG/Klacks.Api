@@ -19,7 +19,7 @@ namespace Klacks.Api.Infrastructure.Repositories
 
         public virtual async Task Add(TEntity model)
         {
-            this.context.Set<TEntity>().Add(model);
+            await this.context.Set<TEntity>().AddAsync(model);
         }
 
         public async virtual Task<TEntity?> Delete(Guid id)
@@ -44,10 +44,10 @@ namespace Klacks.Api.Infrastructure.Repositories
             return await this.context.Set<TEntity>().ToListAsync();
         }
 
-        public virtual async Task<TEntity?> Put(TEntity model)
+        public virtual Task<TEntity?> Put(TEntity model)
         {
             this.context.Set<TEntity>().Update(model);
-            return model;
+            return Task.FromResult<TEntity?>(model);
         }
 
         public void Remove(TEntity model)
