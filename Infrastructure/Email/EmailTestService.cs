@@ -67,10 +67,6 @@ public class EmailTestService : IEmailTestService
                 client.EnableSsl = request.EnableSSL;
             }
 
-            System.Net.ServicePointManager.SecurityProtocol =
-                System.Net.SecurityProtocolType.Tls12 |
-                System.Net.SecurityProtocolType.Tls13;
-
             if (request.AuthenticationType == "<None>" || string.IsNullOrWhiteSpace(request.AuthenticationType))
             {
                 if (request.Server.Contains("outlook.com") || request.Server.Contains("hotmail.com") ||

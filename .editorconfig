@@ -17,3 +17,21 @@ dotnet_diagnostic.SA1600.severity = none
 
 # Default severity for analyzer diagnostics with category 'StyleCop.CSharp.NamingRules'
 dotnet_analyzer_diagnostic.category-StyleCop.CSharp.NamingRules.severity = none
+
+# Default severity for analyzer diagnostics with category 'StyleCop.CSharp.LayoutRules'
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.LayoutRules.severity = silent
+
+# Default severity for analyzer diagnostics with category 'StyleCop.CSharp.MaintainabilityRules'
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.MaintainabilityRules.severity = silent
+
+# SA0001: XML comment analysis disabled
+dotnet_diagnostic.SA0001.severity = none
+
+# SA1516: Elements should be separated by blank line
+dotnet_diagnostic.SA1516.severity = none
+
+# AD0001: Analyzer exceptions
+dotnet_diagnostic.AD0001.severity = none
+
+# ASP0014: UseEndpoints suggestion
+dotnet_diagnostic.ASP0014.severity = none

@@ -1,0 +1,27 @@
+  Wiederherzustellende Projekte werden ermittelt...
+  Alle Projekte sind für die Wiederherstellung auf dem neuesten Stand.
+  E2ETest -> C:\SourceCode\E2ETest\bin\Debug\net9.0\E2ETest.dll
+  Klacks.Blazor -> C:\SourceCode\Klacks.Blazor\bin\Debug\net9.0\Klacks.Blazor.dll
+CSC : warning SA1516: Elements should be separated by blank line (https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1516.md) [C:\SourceCode\Klacks.Api\Klacks.Api.csproj]
+C:\SourceCode\Klacks.Api\Program.cs(214,5): warning ASP0014: Suggest using top level route registrations instead of UseEndpoints (https://aka.ms/aspnet/analyzers) [C:\SourceCode\Klacks.Api\Klacks.Api.csproj]
+CSC : warning SA0001: XML comment analysis is disabled due to project configuration (https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA0001.md) [C:\SourceCode\Klacks.Api\Klacks.Api.csproj]
+CSC : warning AD0001: Die Analyse "StyleCop.Analyzers.DocumentationRules.SA1649FileNameMustMatchTypeName" hat eine Ausnahme vom Typ "System.ArgumentException" mit der Meldung "Unhandled declaration kind: RecordDeclaration" ausgelöst. [C:\SourceCode\Klacks.Api\Klacks.Api.csproj]
+CSC : warning AD0001: Die Analyse "StyleCop.Analyzers.DocumentationRules.SA1649FileNameMustMatchTypeName" hat eine Ausnahme vom Typ "System.ArgumentException" mit der Meldung "Unhandled declaration kind: RecordDeclaration" ausgelöst. [C:\SourceCode\Klacks.Api\Klacks.Api.csproj]
+CSC : warning AD0001: Die Analyse "StyleCop.Analyzers.DocumentationRules.SA1649FileNameMustMatchTypeName" hat eine Ausnahme vom Typ "System.ArgumentException" mit der Meldung "Unhandled declaration kind: RecordDeclaration" ausgelöst. [C:\SourceCode\Klacks.Api\Klacks.Api.csproj]
+CSC : warning AD0001: Die Analyse "StyleCop.Analyzers.DocumentationRules.SA1649FileNameMustMatchTypeName" hat eine Ausnahme vom Typ "System.ArgumentException" mit der Meldung "Unhandled declaration kind: RecordDeclaration" ausgelöst. [C:\SourceCode\Klacks.Api\Klacks.Api.csproj]
+  Klacks.Api -> C:\SourceCode\Klacks.Api\bin\Debug\net9.0\Klacks.Api.dll
+  UnitTest -> C:\SourceCode\UnitTest\bin\Debug\net9.0\UnitTest.dll
+
+Der Buildvorgang wurde erfolgreich ausgeführt.
+
+CSC : warning SA1516: Elements should be separated by blank line (https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1516.md) [C:\SourceCode\Klacks.Api\Klacks.Api.csproj]
+C:\SourceCode\Klacks.Api\Program.cs(214,5): warning ASP0014: Suggest using top level route registrations instead of UseEndpoints (https://aka.ms/aspnet/analyzers) [C:\SourceCode\Klacks.Api\Klacks.Api.csproj]
+CSC : warning SA0001: XML comment analysis is disabled due to project configuration (https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA0001.md) [C:\SourceCode\Klacks.Api\Klacks.Api.csproj]
+CSC : warning AD0001: Die Analyse "StyleCop.Analyzers.DocumentationRules.SA1649FileNameMustMatchTypeName" hat eine Ausnahme vom Typ "System.ArgumentException" mit der Meldung "Unhandled declaration kind: RecordDeclaration" ausgelöst. [C:\SourceCode\Klacks.Api\Klacks.Api.csproj]
+CSC : warning AD0001: Die Analyse "StyleCop.Analyzers.DocumentationRules.SA1649FileNameMustMatchTypeName" hat eine Ausnahme vom Typ "System.ArgumentException" mit der Meldung "Unhandled declaration kind: RecordDeclaration" ausgelöst. [C:\SourceCode\Klacks.Api\Klacks.Api.csproj]
+CSC : warning AD0001: Die Analyse "StyleCop.Analyzers.DocumentationRules.SA1649FileNameMustMatchTypeName" hat eine Ausnahme vom Typ "System.ArgumentException" mit der Meldung "Unhandled declaration kind: RecordDeclaration" ausgelöst. [C:\SourceCode\Klacks.Api\Klacks.Api.csproj]
+CSC : warning AD0001: Die Analyse "StyleCop.Analyzers.DocumentationRules.SA1649FileNameMustMatchTypeName" hat eine Ausnahme vom Typ "System.ArgumentException" mit der Meldung "Unhandled declaration kind: RecordDeclaration" ausgelöst. [C:\SourceCode\Klacks.Api\Klacks.Api.csproj]
+    7 Warnung(en)
+    0 Fehler
+
+Verstrichene Zeit 00:00:12.41
