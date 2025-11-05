@@ -93,8 +93,8 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         Logger.LogInformation("Fetching shift with ID: {ShiftId}", id);
         var shift = await context.Shift
             .Where(x => x.Id == id)
-            .Include(x => x.Client)
-                .ThenInclude(x => x.Addresses)
+            .Include(x => x.Client!)
+                .ThenInclude(x => x.Addresses!)
             .Include(x => x.GroupItems)
                 .ThenInclude(gi => gi.Group)
             .AsSplitQuery()
@@ -139,7 +139,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     public IQueryable<Shift> GetQueryWithClient()
     {
         return context.Shift
-            .Include(x => x.Client)
+            .Include(x => x.Client!)
             .ThenInclude(x => x.Addresses!.Where(a => a != null))
             .OrderBy(x => x.OriginalId)
             .ThenBy(x => x.FromDate)

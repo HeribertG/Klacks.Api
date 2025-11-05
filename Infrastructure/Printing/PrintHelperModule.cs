@@ -152,7 +152,7 @@ public static class PrintHelperModule
     {
         var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         var path = configuration["CurrentPaths:Documents"];
-        var docuDirectory = Path.Combine(baseDirectory!, path);
+        var docuDirectory = Path.Combine(baseDirectory!, path!);
 
         if (!Directory.Exists(docuDirectory)) { Directory.CreateDirectory(docuDirectory); }
 
@@ -163,7 +163,7 @@ public static class PrintHelperModule
     {
         var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         var path = configuration["CurrentPaths:Exports"];
-        var docuDirectory = Path.Combine(baseDirectory!, path);
+        var docuDirectory = Path.Combine(baseDirectory!, path!);
 
         if (!Directory.Exists(docuDirectory)) { Directory.CreateDirectory(docuDirectory); }
 
@@ -280,7 +280,7 @@ public static class PrintHelperModule
         ClearEnvironment(configuration);
         var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         var path = configuration["CurrentPaths:Temp"];
-        var docuDirectory = Path.Combine(baseDirectory!, path);
+        var docuDirectory = Path.Combine(baseDirectory!, path!);
 
         if (!Directory.Exists(docuDirectory)) { Directory.CreateDirectory(docuDirectory); }
 
@@ -295,7 +295,7 @@ public static class PrintHelperModule
     {
         var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         var path = configuration["CurrentPaths:Temp"];
-        var docuDirectory = Path.Combine(baseDirectory!, path);
+        var docuDirectory = Path.Combine(baseDirectory!, path!);
         if (Directory.Exists(docuDirectory))
         {
             EmptyFolder(new DirectoryInfo(docuDirectory));

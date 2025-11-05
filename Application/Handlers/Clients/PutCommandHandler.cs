@@ -73,7 +73,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientR
             var updatedClient = await _clientRepository.Put(client);
 
             _logger.LogInformation("🔍 [BACKEND SAVE] Updated Client from DB with {ContractCount} contracts",
-                updatedClient.ClientContracts?.Count ?? 0);
+                updatedClient?.ClientContracts?.Count ?? 0);
 
             await _unitOfWork.CompleteAsync();
 

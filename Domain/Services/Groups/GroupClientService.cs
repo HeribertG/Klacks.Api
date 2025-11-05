@@ -144,7 +144,7 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
         return await _context.GroupItem
             .AsNoTracking()
             .Where(gi => gi.ClientId.HasValue && groupIds.Contains(gi.GroupId))
-            .Select(gi => gi.ClientId.Value)
+            .Select(gi => gi.ClientId!.Value)
             .Distinct()
             .ToListAsync();
     }

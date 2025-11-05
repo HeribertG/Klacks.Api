@@ -73,37 +73,37 @@ public class LLMFunctionExecutor
         };
     }
 
-    private async Task<string> ExecuteCreateClientAsync(Dictionary<string, object> parameters)
+    private Task<string> ExecuteCreateClientAsync(Dictionary<string, object> parameters)
     {
         var firstName = parameters.GetValueOrDefault("firstName")?.ToString() ?? "";
         var lastName = parameters.GetValueOrDefault("lastName")?.ToString() ?? "";
         var canton = parameters.GetValueOrDefault("canton")?.ToString() ?? "";
 
-        return $"✅ Mitarbeiter {firstName} {lastName}" +
+        return Task.FromResult($"✅ Mitarbeiter {firstName} {lastName}" +
                (string.IsNullOrEmpty(canton) ? "" : $" aus {canton}") +
-               " wurde erfolgreich erstellt.";
+               " wurde erfolgreich erstellt.");
     }
 
-    private async Task<string> ExecuteSearchClientsAsync(Dictionary<string, object> parameters)
+    private Task<string> ExecuteSearchClientsAsync(Dictionary<string, object> parameters)
     {
         var searchTerm = parameters.GetValueOrDefault("searchTerm")?.ToString() ?? "";
         var canton = parameters.GetValueOrDefault("canton")?.ToString() ?? "";
 
-        return $"🔍 Gefunden: 3 Mitarbeiter mit Suchbegriff '{searchTerm}'" +
-               (string.IsNullOrEmpty(canton) ? "" : $" in Kanton {canton}");
+        return Task.FromResult($"🔍 Gefunden: 3 Mitarbeiter mit Suchbegriff '{searchTerm}'" +
+               (string.IsNullOrEmpty(canton) ? "" : $" in Kanton {canton}"));
     }
 
-    private async Task<string> ExecuteCreateContractAsync(Dictionary<string, object> parameters)
+    private Task<string> ExecuteCreateContractAsync(Dictionary<string, object> parameters)
     {
         var clientId = parameters.GetValueOrDefault("clientId")?.ToString() ?? "";
         var contractType = parameters.GetValueOrDefault("contractType")?.ToString() ?? "";
         var canton = parameters.GetValueOrDefault("canton")?.ToString() ?? "";
 
-        return $"📄 Vertrag '{contractType}' für Mitarbeiter {clientId} in {canton} wurde erstellt.";
+        return Task.FromResult($"📄 Vertrag '{contractType}' für Mitarbeiter {clientId} in {canton} wurde erstellt.");
     }
 
-    private async Task<string> ExecuteGetSystemInfoAsync()
+    private Task<string> ExecuteGetSystemInfoAsync()
     {
-        return "ℹ️ Klacks Planning System v1.0.0 - Status: Aktiv";
+        return Task.FromResult("ℹ️ Klacks Planning System v1.0.0 - Status: Aktiv");
     }
 }

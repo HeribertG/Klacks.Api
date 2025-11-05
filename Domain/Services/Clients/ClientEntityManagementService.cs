@@ -28,7 +28,7 @@ public class ClientEntityManagementService : IClientEntityManagementService
             entitiesToRemove = fetchEntities(clientId)
                 .AsEnumerable()
                 .Where(e => !existingEntityIds.Contains(
-                    (Guid)e.GetType().GetProperty("Id").GetValue(e)));
+                    (Guid)e.GetType().GetProperty("Id")!.GetValue(e)!));
         }
 
         foreach (var entity in entitiesToRemove)

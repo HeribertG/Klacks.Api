@@ -45,7 +45,7 @@ public class JwtValidator
 
             return principal;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             throw new SecurityTokenException("Token validation failed.");
         }

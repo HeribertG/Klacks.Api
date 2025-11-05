@@ -13,7 +13,7 @@ namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
     [Migration("20251031141123_init")]
-    partial class init
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

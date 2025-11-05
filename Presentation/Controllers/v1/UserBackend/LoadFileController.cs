@@ -77,7 +77,7 @@ public class LoadFileController : BaseController
         {
             var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
             var path = configuration["CurrentPaths:Images"];
-            var docuDirectory = Path.Combine(baseDirectory, path);
+            var docuDirectory = Path.Combine(baseDirectory, path!);
 
             if (Directory.Exists(docuDirectory))
             {
@@ -103,7 +103,7 @@ public class LoadFileController : BaseController
         {
             var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
             var path = configuration["CurrentPaths:Images"];
-            var docuDirectory = Path.Combine(baseDirectory, path);
+            var docuDirectory = Path.Combine(baseDirectory, path!);
 
             if (Directory.Exists(docuDirectory))
             {
@@ -114,7 +114,7 @@ public class LoadFileController : BaseController
         {
             var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
             var path = configuration["CurrentPaths:Images"];
-            var docuDirectory = Path.Combine(baseDirectory, path);
+            var docuDirectory = Path.Combine(baseDirectory, path!);
 
             if (Directory.Exists(docuDirectory))
             {

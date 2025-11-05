@@ -63,10 +63,10 @@ public class MacroManagementService : IMacroManagementService
         return await _context.Macro.AnyAsync(e => e.Id == id);
     }
 
-    public async Task<Macro> UpdateMacroAsync(Macro macro)
+    public Task<Macro> UpdateMacroAsync(Macro macro)
     {
         _logger.LogInformation("Updating macro with ID: {MacroId}", macro.Id);
         _context.Macro.Update(macro);
-        return macro;
+        return Task.FromResult(macro);
     }
 }

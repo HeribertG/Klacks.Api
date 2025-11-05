@@ -197,8 +197,8 @@ public class DataBaseContext : IdentityDbContext
             entity.HasQueryFilter(p => !p.IsDeleted);
             entity.Property(e => e.Settings)
                   .HasConversion(
-                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions)null),
-                      v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(v, (System.Text.Json.JsonSerializerOptions)null))
+                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                      v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(v, (System.Text.Json.JsonSerializerOptions?)null))
                   .HasColumnType("jsonb");
         });
         modelBuilder.Entity<LLMModel>().HasQueryFilter(p => !p.IsDeleted);

@@ -62,7 +62,7 @@ public class AccountRegistrationService : IAccountRegistrationService
         try
         {
             _logger.LogInformation("Generating password reset token for new user: {Email}", user.Email);
-            var tokenGenerated = await _accountPasswordService.GeneratePasswordResetTokenAsync(user.Email);
+            var tokenGenerated = await _accountPasswordService.GeneratePasswordResetTokenAsync(user.Email!);
             
             if (tokenGenerated)
             {

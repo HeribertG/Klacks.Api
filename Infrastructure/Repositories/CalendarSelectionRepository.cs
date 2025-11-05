@@ -22,7 +22,7 @@ public class CalendarSelectionRepository : BaseRepository<CalendarSelection>, IC
         _updateService = updateService;
     }
 
-    public async Task<CalendarSelection> GetWithSelectedCalendars(Guid id)
+    public async Task<CalendarSelection?> GetWithSelectedCalendars(Guid id)
     {
         return await _updateService.GetWithSelectedCalendarsAsync(id);
     }

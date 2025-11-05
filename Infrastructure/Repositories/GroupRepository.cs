@@ -107,7 +107,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         return groupServices.SearchService.ApplyFilters(baseQuery, filter);
     }
 
-    public new async Task<Group> Get(Guid id)
+    public new async Task<Group?> Get(Guid id)
     {
         Logger.LogInformation("Fetching group with ID: {GroupId}", id);
         var group = await context.Group.Where(x => x.Id == id)
@@ -190,7 +190,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         }
     }
 
-    public override async Task<Group> Put(Group model)
+    public override async Task<Group?> Put(Group model)
     {
         Logger.LogInformation("Updating group with ID: {GroupId}", model.Id);
         try

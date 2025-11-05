@@ -18,7 +18,7 @@ public class DateOnlyJsonConverter : JsonConverter<DateOnly>
             return DateOnly.FromDateTime(dateTime);
         }
 
-        return DateOnly.ParseExact(s, Format, null);
+        return DateOnly.ParseExact(s!, Format, null);
     }
 
     public override void Write(

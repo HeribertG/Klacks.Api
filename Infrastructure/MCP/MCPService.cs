@@ -70,13 +70,13 @@ public class MCPService : IMCPService, IDisposable
         return await _client!.ReadResourceAsync(uri);
     }
 
-    public async Task DisconnectAsync()
+    public Task DisconnectAsync()
     {
         lock (_lock)
         {
             if (!_isConnected)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             _client?.Dispose();
@@ -85,6 +85,7 @@ public class MCPService : IMCPService, IDisposable
         }
 
         _logger.LogInformation("MCP Service disconnected");
+        return Task.CompletedTask;
     }
 
     private async Task EnsureConnectedAsync()

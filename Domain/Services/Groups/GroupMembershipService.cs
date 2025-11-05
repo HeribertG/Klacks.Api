@@ -27,7 +27,7 @@ public class GroupMembershipService : IGroupMembershipService
 
         var existingIds = await _context.GroupItem
             .Where(x => x.GroupId == groupId && x.ClientId.HasValue)
-            .Select(x => x.ClientId.Value)
+            .Select(x => x.ClientId!.Value)
             .ToHashSetAsync();
 
         var newIds = newClientIds.ToHashSet();
@@ -188,8 +188,8 @@ public class GroupMembershipService : IGroupMembershipService
         
         // Get existing memberships to avoid duplicates
         var existingIds = await _context.GroupItem
-            .Where(gi => gi.GroupId == groupId && gi.ClientId.HasValue && clientIdsList.Contains(gi.ClientId.Value))
-            .Select(gi => gi.ClientId.Value)
+            .Where(gi => gi.GroupId == groupId && gi.ClientId.HasValue && clientIdsList.Contains(gi.ClientId!.Value))
+            .Select(gi => gi.ClientId!.Value)
             .ToHashSetAsync();
 
         var newIds = clientIdsList.Except(existingIds);

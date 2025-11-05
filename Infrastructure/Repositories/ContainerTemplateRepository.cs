@@ -28,7 +28,7 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
             item.ContainerTemplateId = template.Id;
         }
 
-        context.ContainerTemplate.Add(template);
+        await context.ContainerTemplate.AddAsync(template);
         Logger.LogInformation("ContainerTemplate added: {TemplateId}, Items count: {Count}",
             template.Id, template.Items.Count);
     }

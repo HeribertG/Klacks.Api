@@ -63,10 +63,10 @@ public class MacroTypeManagementService : IMacroTypeManagementService
         return await _context.MacroType.AnyAsync(e => e.Id == id);
     }
 
-    public async Task<MacroType> UpdateMacroTypeAsync(MacroType macroType)
+    public Task<MacroType> UpdateMacroTypeAsync(MacroType macroType)
     {
         _logger.LogInformation("Updating macro type with ID: {MacroTypeId}", macroType.Id);
         _context.MacroType.Update(macroType);
-        return macroType;
+        return Task.FromResult(macroType);
     }
 }

@@ -51,7 +51,7 @@ public class ClientRepository : IClientRepository
             client.ClientImage.CreateTime = DateTime.UtcNow;
         }
 
-        this.context.Client.Add(client);
+        await this.context.Client.AddAsync(client);
     }
 
     public int Count()
@@ -130,7 +130,7 @@ public class ClientRepository : IClientRepository
                                         .ToListAsync();
     }
 
-    public async Task<Client> Put(Client client)
+    public async Task<Client?> Put(Client client)
     {
         var existingClient = await this.context.Client
             .Include(c => c.Membership)

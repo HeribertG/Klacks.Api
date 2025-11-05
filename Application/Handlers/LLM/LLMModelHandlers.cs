@@ -20,9 +20,14 @@ public class GetLLMModelQueryHandler : BaseHandler, IRequestHandler<GetQuery<LLM
 
     public async Task<LLMModel> Handle(GetQuery<LLMModel> request, CancellationToken cancellationToken)
     {
-        return await ExecuteAsync(() =>
+        return await ExecuteAsync(async () =>
         {
-            return _repository.Get(request.Id);
+            var model = await _repository.Get(request.Id);
+            if (model == null)
+            {
+                throw new KeyNotFoundException($"LLM Model with ID {request.Id} not found");
+            }
+            return model;
         }, "GetLLMModel", request.Id);
     }
 }
