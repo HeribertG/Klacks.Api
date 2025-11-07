@@ -5,5 +5,5 @@ namespace Klacks.Api.Domain.Interfaces;
 
 public interface IShiftStatusFilterService
 {
-    IQueryable<Shift> ApplyStatusFilter(IQueryable<Shift> query, ShiftFilterType filterType, bool isSealedOrder = false);
+    IQueryable<Shift> ApplyStatusFilter(IQueryable<Shift> query, ShiftFilterType filterType, bool isSealedOrder = false, bool isTimeRange = true, bool isSporadic = true);
 }

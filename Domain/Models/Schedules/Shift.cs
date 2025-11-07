@@ -114,7 +114,7 @@ public class Shift : BaseEntity
 
     #region Groups
 
-    public List<GroupItem> GroupItems { get; set; } = new List<GroupItem>();
+    public List<GroupItem> GroupItems { get; set; } = [];
 
     #endregion Groups
 }

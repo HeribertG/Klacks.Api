@@ -6,7 +6,7 @@ namespace Klacks.Api.Domain.Services.Shifts;
 
 public class ShiftStatusFilterService : IShiftStatusFilterService
 {
-    public IQueryable<Shift> ApplyStatusFilter(IQueryable<Shift> query, ShiftFilterType filterType, bool isSealedOrder = false)
+    public IQueryable<Shift> ApplyStatusFilter(IQueryable<Shift> query, ShiftFilterType filterType, bool isSealedOrder = false, bool isTimeRange = true, bool isSporadic = true)
     {
         return filterType switch
         {
@@ -14,7 +14,7 @@ public class ShiftStatusFilterService : IShiftStatusFilterService
                 ? query.Where(shift => shift.Status == ShiftStatus.SealedOrder)
                 : query.Where(shift => shift.ShiftType == ShiftType.IsTask && shift.Status == ShiftStatus.OriginalOrder),
 
-            ShiftFilterType.Shift => query.Where(shift => shift.Status >= ShiftStatus.OriginalShift && shift.ShiftType == ShiftType.IsTask),
+            ShiftFilterType.Shift => ApplyShiftTypeFilter(query, isTimeRange, isSporadic),
 
             ShiftFilterType.Container => query.Where(shift => shift.Status == ShiftStatus.OriginalShift && shift.ShiftType == ShiftType.IsContainer),
 
@@ -22,5 +22,27 @@ public class ShiftStatusFilterService : IShiftStatusFilterService
 
             _ => query
         };
+    }
+
+    private IQueryable<Shift> ApplyShiftTypeFilter(IQueryable<Shift> query, bool isTimeRange, bool isSporadic)
+    {
+        var baseQuery = query.Where(shift => shift.Status >= ShiftStatus.OriginalShift && shift.ShiftType == ShiftType.IsTask);
+
+        if (isTimeRange && isSporadic)
+        {
+            return baseQuery;
+        }
+        else if (isTimeRange)
+        {
+            return baseQuery.Where(shift => shift.IsTimeRange);
+        }
+        else if (isSporadic)
+        {
+            return baseQuery.Where(shift => shift.IsSporadic);
+        }
+        else
+        {
+            return baseQuery.Where(shift => !shift.IsTimeRange && !shift.IsSporadic);
+        }
     }
 }

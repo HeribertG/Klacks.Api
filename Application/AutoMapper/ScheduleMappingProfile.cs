@@ -103,7 +103,8 @@ public class ScheduleMappingProfile : Profile
             .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
 
         CreateMap<ContainerTemplateItem, ContainerTemplateItemResource>()
-            .ForMember(dest => dest.Shift, opt => opt.MapFrom(src => src.Shift));
+            .ForMember(dest => dest.Shift, opt => opt.MapFrom(src => src.Shift))
+            .ForMember(dest => dest.Weekday, opt => opt.Ignore());
 
         CreateMap<ContainerTemplateItemResource, ContainerTemplateItem>()
             .IgnoreAuditFields()

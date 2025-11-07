@@ -16,5 +16,9 @@ public class ShiftFilter
 
     public bool IsSealedOrder { get; set; }
 
+    public bool IsTimeRange { get; set; }
+
+    public bool IsSporadic { get; set; }
+
     public Guid? SelectedGroup { get; set; }
 }
