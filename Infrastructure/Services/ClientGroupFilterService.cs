@@ -24,7 +24,7 @@ public class ClientGroupFilterService : IClientGroupFilterService
         {
             var groupIds = await _groupClient.GetAllGroupIdsIncludingSubgroups(selectedGroupId.Value);
             query = from client in query
-                    where client.GroupItems.Any(gi => groupIds.Contains(gi.GroupId))
+                    where !client.GroupItems.Any() || client.GroupItems.Any(gi => groupIds.Contains(gi.GroupId))
                     select client;
         }
         else
@@ -36,7 +36,7 @@ public class ClientGroupFilterService : IClientGroupFilterService
                 {
                     var groupIds = await _groupClient.GetAllGroupIdsIncludingSubgroupsFromList(rootlist);
                     query = from client in query
-                            where client.GroupItems.Any(gi => groupIds.Contains(gi.GroupId))
+                            where !client.GroupItems.Any() || client.GroupItems.Any(gi => groupIds.Contains(gi.GroupId))
                             select client;
                 }
             }

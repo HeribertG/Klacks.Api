@@ -754,7 +754,6 @@ INSERT INTO public.shift (
         {
             StringBuilder script = new StringBuilder();
             var shiftIds = new List<Guid>();
-            ShiftGroupMappings.Clear();
             var random = Random.Shared;
             var currentTime = DateTime.Now;
             var baseDate = new DateOnly(2025, 1, 1);

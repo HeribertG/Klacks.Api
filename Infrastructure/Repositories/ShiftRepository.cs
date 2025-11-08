@@ -192,16 +192,23 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             ? GetQueryWithClient()
             : GetQuery();
 
+        bool shouldApplyGroupFilter = !(filter.FilterType == ShiftFilterType.Original && filter.IsSealedOrder == false);
+        if (shouldApplyGroupFilter && filter.SelectedGroup.HasValue)
+        {
+            Logger.LogInformation("Including GroupItems for group filter: {GroupId}", filter.SelectedGroup.Value);
+            baseQuery = baseQuery.Include(s => s.GroupItems);
+        }
+
         var query = _statusFilterService.ApplyStatusFilter(baseQuery, filter.FilterType, filter.IsSealedOrder, filter.IsTimeRange, filter.IsSporadic);
         query = _dateRangeFilterService.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange);
         query = _searchService.ApplySearchFilter(query, filter.SearchString, filter.IncludeClientName);
 
-        bool shouldApplyGroupFilter = !(filter.FilterType == ShiftFilterType.Original && filter.IsSealedOrder == false);
         if (shouldApplyGroupFilter && filter.SelectedGroup.HasValue)
         {
             Logger.LogInformation("Applying group filter for group: {GroupId}", filter.SelectedGroup.Value);
-            query = query.Include(s => s.GroupItems)
-                         .Where(s => s.GroupItems.Any(gi => gi.GroupId == filter.SelectedGroup.Value));
+            query = query.Where(s =>
+                !s.GroupItems.Any() ||
+                s.GroupItems.Any(gi => gi.GroupId == filter.SelectedGroup.Value));
         }
 
         query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder);
