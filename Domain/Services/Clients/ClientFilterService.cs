@@ -52,7 +52,7 @@ public class ClientFilterService : IClientFilterService
         if (stateTokens?.Any() == true || countries?.Any() == true)
         {
             var selectedTokens = stateTokens?.Where(x => x.Select).ToList() ?? new List<StateCountryFilter>();
-            
+
             var selectedCountries = new List<string>();
             if (countries?.Any() == true)
             {
@@ -66,8 +66,10 @@ public class ClientFilterService : IClientFilterService
             if (selectedTokens.Any())
             {
                 System.Console.WriteLine("StateFilter - Applying state+country pairs filter");
-                
+
                 var validStateCountryKeys = new List<string>();
+                var validCountriesFromTokens = new HashSet<string>();
+
                 foreach (var token in selectedTokens)
                 {
                     if (selectedCountries.Any())
@@ -75,29 +77,30 @@ public class ClientFilterService : IClientFilterService
                         if (selectedCountries.Contains(token.Country.ToLower()))
                         {
                             validStateCountryKeys.Add((token.State + "|" + token.Country).ToLower());
+                            validCountriesFromTokens.Add(token.Country.ToLower());
                         }
                     }
                     else
                     {
                         validStateCountryKeys.Add((token.State + "|" + token.Country).ToLower());
+                        validCountriesFromTokens.Add(token.Country.ToLower());
                     }
                 }
-                
+
                 System.Console.WriteLine($"StateFilter - Valid state+country combinations: [{string.Join(", ", validStateCountryKeys)}]");
-                
+                System.Console.WriteLine($"StateFilter - Valid countries from tokens: [{string.Join(", ", validCountriesFromTokens)}]");
+
                 if (validStateCountryKeys.Any())
                 {
-                    return query.Where(co => co.Addresses.Any(ad => 
-                        validStateCountryKeys.Contains((ad.State + "|" + ad.Country).ToLower())));
-                }
-                else
-                {
-                    return query.Where(co => false);
+                    return query.Where(co => co.Addresses.Any(ad =>
+                        validStateCountryKeys.Contains((ad.State + "|" + ad.Country).ToLower()) ||
+                        (string.IsNullOrEmpty(ad.State) && validCountriesFromTokens.Contains(ad.Country.ToLower()))));
                 }
             }
-            else if (selectedCountries.Any())
+
+            if (selectedCountries.Any())
             {
-                System.Console.WriteLine("StateFilter - Applying country-only filter");
+                System.Console.WriteLine("StateFilter - Applying country-only filter (fallback or primary)");
                 return query.Where(co => co.Addresses.Any(ad => selectedCountries.Contains(ad.Country.ToLower())));
             }
         }

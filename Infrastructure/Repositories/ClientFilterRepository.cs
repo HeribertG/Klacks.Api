@@ -93,6 +93,7 @@ public class ClientFilterRepository : IClientFilterRepository
                                 .Include(cu => cu.Communications)
                                 .Include(cu => cu.Annotations)
                                 .Include(cu => cu.Breaks)
+                                .Include(cu => cu.GroupItems)
                                 .Include(cu => cu.ClientContracts)
                                     .ThenInclude(cc => cc.Contract)
                                 .AsSplitQuery()
@@ -100,7 +101,7 @@ public class ClientFilterRepository : IClientFilterRepository
                                 .AsQueryable();
         }
 
-        query = await _groupFilterService.FilterClientsByGroupId(filter.SelectedGroup, query);
+       query = await _groupFilterService.FilterClientsByGroupId(filter.SelectedGroup, query);
 
         if (_searchService.IsNumericSearch(filter.SearchString))
         {
