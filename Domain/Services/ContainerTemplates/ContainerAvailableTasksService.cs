@@ -96,11 +96,26 @@ public class ContainerAvailableTasksService
         bool? isHoliday,
         bool? isWeekdayOrHoliday)
     {
+        var timeframeCrossesMidnight = fromTime > untilTime;
+
         var query = _shiftRepository.GetQuery()
             .Where(s => s.ShiftType == ShiftType.IsTask)
             .Where(s => s.Status >= ShiftStatus.OriginalShift)
-            .Where(s => s.StartShift < untilTime && s.EndShift > fromTime)
-            .Where(s => !usedShiftIds.Contains(s.Id));
+            .Where(s => !usedShiftIds.Contains(s.Id))
+            .Where(s => !s.IsSporadic);
+
+        if (timeframeCrossesMidnight)
+        {
+            query = query.Where(s =>
+                (s.IsTimeRange && (s.StartShift < untilTime || s.EndShift > fromTime)) ||
+                (!s.IsTimeRange && s.StartShift < s.EndShift && (s.StartShift >= fromTime || s.EndShift <= untilTime)));
+        }
+        else
+        {
+            query = query.Where(s =>
+                (s.IsTimeRange && s.StartShift < untilTime && s.EndShift > fromTime) ||
+                (!s.IsTimeRange && s.StartShift >= fromTime && s.EndShift <= untilTime && s.StartShift < s.EndShift));
+        }
 
         if (shiftsInSameGroups != null && shiftsInSameGroups.Count > 0)
         {
