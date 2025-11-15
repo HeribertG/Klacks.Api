@@ -130,6 +130,11 @@ builder.Services.AddControllersWithViews();
 // Add Domain Services
 builder.Services.AddScoped<Klacks.Api.Domain.Interfaces.IPasswordGeneratorService, Klacks.Api.Domain.Services.Accounts.PasswordGeneratorService>();
 
+// Add Geocoding Service
+builder.Services.AddHttpClient("Nominatim");
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<Klacks.Api.Infrastructure.Services.IGeocodingService, Klacks.Api.Infrastructure.Services.GeocodingService>();
+
 builder.Services
     .AddControllers()
     .AddJsonOptions(opts =>

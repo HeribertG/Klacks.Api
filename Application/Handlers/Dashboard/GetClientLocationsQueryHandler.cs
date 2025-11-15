@@ -1,5 +1,6 @@
 using Klacks.Api.Application.Queries.Dashboard;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Presentation.DTOs.Dashboard;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -10,13 +11,16 @@ namespace Klacks.Api.Application.Handlers.Dashboard;
 public class GetClientLocationsQueryHandler : IRequestHandler<GetClientLocationsQuery, IEnumerable<ClientLocationResource>>
 {
     private readonly DataBaseContext _context;
+    private readonly IGeocodingService _geocodingService;
     private readonly ILogger<GetClientLocationsQueryHandler> _logger;
 
     public GetClientLocationsQueryHandler(
         DataBaseContext context,
+        IGeocodingService geocodingService,
         ILogger<GetClientLocationsQueryHandler> logger)
     {
         _context = context;
+        _geocodingService = geocodingService;
         _logger = logger;
     }
 
@@ -32,27 +36,49 @@ public class GetClientLocationsQueryHandler : IRequestHandler<GetClientLocations
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
-            var result = clients.Select(client =>
-            {
-                var currentAddress = client.Addresses
-                    .Where(a => a.ValidFrom.HasValue && a.ValidFrom.Value <= DateTime.Now)
-                    .OrderByDescending(a => a.ValidFrom)
-                    .FirstOrDefault();
-
-                return new ClientLocationResource
+            var clientsWithAddresses = clients
+                .Select(client =>
                 {
-                    Id = client.Id.ToString(),
-                    Type = (int)client.Type,
-                    CurrentAddress = currentAddress != null ? new AddressInfo
-                    {
-                        City = currentAddress.City ?? string.Empty,
-                        Country = currentAddress.Country ?? string.Empty,
-                        Zip = currentAddress.Zip ?? string.Empty
-                    } : null
-                };
-            }).Where(c => c.CurrentAddress != null);
+                    var currentAddress = client.Addresses
+                        .Where(a => a.ValidFrom.HasValue && a.ValidFrom.Value <= DateTime.Now)
+                        .OrderByDescending(a => a.ValidFrom)
+                        .FirstOrDefault();
 
-            _logger.LogInformation($"Retrieved {result.Count()} client locations");
+                    return new
+                    {
+                        Client = client,
+                        Address = currentAddress
+                    };
+                })
+                .Where(x => x.Address != null)
+                .ToList();
+
+            var result = new List<ClientLocationResource>();
+
+            foreach (var item in clientsWithAddresses)
+            {
+                var address = item.Address!;
+                var (latitude, longitude) = await _geocodingService.GeocodeAsync(
+                    address.City ?? string.Empty,
+                    address.Country ?? string.Empty
+                );
+
+                result.Add(new ClientLocationResource
+                {
+                    Id = item.Client.Id.ToString(),
+                    Type = (int)item.Client.Type,
+                    CurrentAddress = new AddressInfo
+                    {
+                        City = address.City ?? string.Empty,
+                        Country = address.Country ?? string.Empty,
+                        Zip = address.Zip ?? string.Empty,
+                        Latitude = latitude,
+                        Longitude = longitude
+                    }
+                });
+            }
+
+            _logger.LogInformation($"Retrieved {result.Count} client locations");
 
             return result;
         }
