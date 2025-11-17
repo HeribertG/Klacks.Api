@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20251116104816_AddSporadicShiftTimes")]
+    partial class AddSporadicShiftTimes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1584,9 +1587,17 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("shift_type");
 
+                    b.Property<TimeOnly?>("SporadicEndShift")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("sporadic_end_shift");
+
                     b.Property<int>("SporadicScope")
                         .HasColumnType("integer")
                         .HasColumnName("sporadic_scope");
+
+                    b.Property<TimeOnly?>("SporadicStartShift")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("sporadic_start_shift");
 
                     b.Property<TimeOnly>("StartShift")
                         .HasColumnType("time without time zone")
@@ -1599,14 +1610,6 @@ namespace Klacks.Api.Migrations
                     b.Property<int>("SumEmployees")
                         .HasColumnType("integer")
                         .HasColumnName("sum_employees");
-
-                    b.Property<TimeOnly?>("TimeRangeEndShift")
-                        .HasColumnType("time without time zone")
-                        .HasColumnName("time_range_end_shift");
-
-                    b.Property<TimeOnly?>("TimeRangeStartShift")
-                        .HasColumnType("time without time zone")
-                        .HasColumnName("time_range_start_shift");
 
                     b.Property<TimeOnly>("TravelTimeAfter")
                         .HasColumnType("time without time zone")

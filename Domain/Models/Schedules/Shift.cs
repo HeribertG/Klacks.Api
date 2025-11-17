@@ -42,6 +42,11 @@ public class Shift : BaseEntity
 
     public TimeOnly TravelTimeBefore { get; set; }
 
+    public TimeOnly? TimeRangeStartShift { get; set; }
+
+    public TimeOnly? TimeRangeEndShift { get; set; }
+
+
     #endregion Date and Time
 
     #region WeekDay
@@ -68,7 +73,7 @@ public class Shift : BaseEntity
 
     #endregion WeekDay
 
-    #region Time
+    #region Time settings
 
     public bool IsSporadic { get; set; }
 
@@ -81,8 +86,8 @@ public class Shift : BaseEntity
     public int SumEmployees { get; set; }
 
     public decimal WorkTime { get; set; }
-    
-    #endregion Time
+
+    #endregion Time settings
 
     #region Type
 
