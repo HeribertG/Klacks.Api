@@ -107,7 +107,8 @@ INSERT INTO public.shift (
                     true, false, true, false, false, true, true, true,
                     false, false, false, 1, '00:00:00', '00:00:00',
                     {shift.WorkTime}, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(5):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbr}', '00:00:00', NULL,
+                    NULL, false, '{currentTime.AddMinutes(5):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbr}', '00:00:00',
+                    (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
                     '00:00:00', {shift.Employees}, 0, NULL, NULL
                 );");
 
@@ -140,7 +141,8 @@ INSERT INTO public.shift (
                     true, false, true, false, false, true, true, true,
                     false, false, false, 1, '00:00:00', '00:00:00',
                     {shift.WorkTime}, 0, '{currentTime.AddMinutes(7):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(8):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbr}', '00:00:00', NULL,
+                    NULL, false, '{currentTime.AddMinutes(8):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbr}', '00:00:00',
+                    (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
                     '00:00:00', {shift.Employees}, 0, NULL, NULL
                 );");
 
@@ -179,7 +181,8 @@ INSERT INTO public.shift (
                     true, false, true, false, false, true, true, true,
                     false, false, false, 1, '00:00:00', '00:00:00',
                     6, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(10):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbrMorning}', '00:00:00', NULL,
+                    NULL, false, '{currentTime.AddMinutes(10):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbrMorning}', '00:00:00',
+                    (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
                     '00:00:00', {employees}, 0, NULL, NULL
                 );");
 
@@ -212,7 +215,8 @@ INSERT INTO public.shift (
                     true, false, true, false, false, true, true, true,
                     false, false, false, 1, '00:00:00', '00:00:00',
                     6, 0, '{currentTime.AddMinutes(12):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(13):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbrMorning}', '00:00:00', NULL,
+                    NULL, false, '{currentTime.AddMinutes(13):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbrMorning}', '00:00:00',
+                    (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
                     '00:00:00', {employees}, 0, NULL, NULL
                 );");
 
@@ -249,7 +253,8 @@ INSERT INTO public.shift (
                     true, false, true, false, false, true, true, true,
                     true, false, false, 1, '00:00:00', '00:00:00',
                     8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(15):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbrDay}', '00:00:00', NULL,
+                    NULL, false, '{currentTime.AddMinutes(15):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbrDay}', '00:00:00',
+                    (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
                     '00:00:00', {employees}, 0, NULL, NULL
                 );");
 
@@ -282,7 +287,8 @@ INSERT INTO public.shift (
                     true, false, true, false, false, true, true, true,
                     true, false, false, 1, '00:00:00', '00:00:00',
                     8, 0, '{currentTime.AddMinutes(17):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(18):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbrDay}', '00:00:00', NULL,
+                    NULL, false, '{currentTime.AddMinutes(18):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbrDay}', '00:00:00',
+                    (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
                     '00:00:00', {employees}, 0, NULL, NULL
                 );");
 
@@ -318,7 +324,8 @@ INSERT INTO public.shift (
                     true, false, true, false, false, true, true, false,
                     true, false, false, 1, '00:00:00', '00:00:00',
                     8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(20):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbrNightMF}', '00:00:00', NULL,
+                    NULL, false, '{currentTime.AddMinutes(20):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbrNightMF}', '00:00:00',
+                    (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
                     '00:00:00', 1, 0, NULL, NULL
                 );");
 
@@ -351,7 +358,8 @@ INSERT INTO public.shift (
                     true, false, true, false, false, true, true, false,
                     true, false, false, 1, '00:00:00', '00:00:00',
                     8, 0, '{currentTime.AddMinutes(22):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(23):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbrNightMF}', '00:00:00', NULL,
+                    NULL, false, '{currentTime.AddMinutes(23):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbrNightMF}', '00:00:00',
+                    (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
                     '00:00:00', 1, 0, NULL, NULL
                 );");
 
@@ -387,7 +395,8 @@ INSERT INTO public.shift (
                     false, false, false, true, true, false, false, false,
                     false, false, false, 1, '00:00:00', '00:00:00',
                     8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(25):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbrNightSS}', '00:00:00', NULL,
+                    NULL, false, '{currentTime.AddMinutes(25):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbrNightSS}', '00:00:00',
+                    (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
                     '00:00:00', 1, 0, NULL, NULL
                 );");
 
@@ -420,7 +429,8 @@ INSERT INTO public.shift (
                     false, false, false, true, true, false, false, false,
                     false, false, false, 1, '00:00:00', '00:00:00',
                     8, 0, '{currentTime.AddMinutes(27):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(28):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbrNightSS}', '00:00:00', NULL,
+                    NULL, false, '{currentTime.AddMinutes(28):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbrNightSS}', '00:00:00',
+                    (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
                     '00:00:00', 1, 0, NULL, NULL
                 );");
 
@@ -461,7 +471,8 @@ INSERT INTO public.shift (
     true, true, true, true, true, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
     24, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-    NULL, false, '{currentTime.AddMinutes(5):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbr24h}', '00:00:00', NULL,
+    NULL, false, '{currentTime.AddMinutes(5):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbr24h}', '00:00:00',
+    (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
     '00:00:00', {employees}, 0, NULL, NULL
 );");
 
@@ -500,7 +511,8 @@ INSERT INTO public.shift (
     true, true, true, true, true, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
     8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, NULL,
-    NULL, false, NULL, '{orderId}', '{uniqueAbbrFrüh}', '00:00:00', NULL,
+    NULL, false, NULL, '{orderId}', '{uniqueAbbrFrüh}', '00:00:00',
+    (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
     '00:00:00', {employees}, 0, 1, 2
 );");
 
@@ -526,7 +538,8 @@ INSERT INTO public.shift (
     true, true, true, true, true, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
     8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, NULL,
-    NULL, false, NULL, '{orderId}', '{uniqueAbbrSpät}', '00:00:00', NULL,
+    NULL, false, NULL, '{orderId}', '{uniqueAbbrSpät}', '00:00:00',
+    (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
     '00:00:00', {employees}, 0, 1, 2
 );");
 
@@ -552,7 +565,8 @@ INSERT INTO public.shift (
     true, true, true, true, true, true, true, true,
     false, true, false, 1, '00:00:00', '00:00:00',
     8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, NULL,
-    NULL, false, NULL, '{orderId}', '{uniqueAbbrNacht}', '00:00:00', NULL,
+    NULL, false, NULL, '{orderId}', '{uniqueAbbrNacht}', '00:00:00',
+    (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
     '00:00:00', {employees}, 0, 1, 2
 );");
 
@@ -637,7 +651,8 @@ INSERT INTO public.shift (
     {(container.Fri ? "true" : "false")}, false, {(container.Mon ? "true" : "false")}, {(container.Sat ? "true" : "false")}, {(container.Sun ? "true" : "false")}, {(container.Thu ? "true" : "false")}, {(container.Tue ? "true" : "false")}, {(container.Wed ? "true" : "false")},
     false, false, false, 1, '00:00:00', '00:00:00',
     8, 1, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-    NULL, false, '{currentTime.AddMinutes(1):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{container.Abbr}', '00:00:00', NULL,
+    NULL, false, '{currentTime.AddMinutes(1):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{container.Abbr}', '00:00:00',
+    (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
     '00:00:00', 1, 0, NULL, NULL
 );");
 
@@ -736,7 +751,8 @@ INSERT INTO public.shift (
     true, false, true, false, false, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
     8, 1, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-    NULL, false, '{currentTime.AddMinutes(1):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{abbr}', '00:00:00', NULL,
+    NULL, false, '{currentTime.AddMinutes(1):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{abbr}', '00:00:00',
+    (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
     '00:00:00', 1, 0, NULL, NULL
 );");
 
