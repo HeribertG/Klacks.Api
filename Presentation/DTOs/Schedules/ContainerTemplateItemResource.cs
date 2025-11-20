@@ -10,5 +10,17 @@ public class ContainerTemplateItemResource
 
     public int Weekday { get; set; }
 
+    public TimeOnly BriefingTime { get; set; }
+
+    public TimeOnly DebriefingTime { get; set; }
+
+    public TimeOnly TravelTimeAfter { get; set; }
+
+    public TimeOnly TravelTimeBefore { get; set; }
+
+    public TimeOnly? TimeRangeStartShift { get; set; }
+
+    public TimeOnly? TimeRangeEndShift { get; set; }
+
     public ShiftResource? Shift { get; set; }
 }

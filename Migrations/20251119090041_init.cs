@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -856,6 +856,8 @@ namespace Klacks.Api.Migrations
                     debriefing_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     travel_time_after = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     travel_time_before = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    time_range_start_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
+                    time_range_end_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
                     is_friday = table.Column<bool>(type: "boolean", nullable: false),
                     is_holiday = table.Column<bool>(type: "boolean", nullable: false),
                     is_monday = table.Column<bool>(type: "boolean", nullable: false),

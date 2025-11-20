@@ -42,11 +42,6 @@ public class Shift : BaseEntity
 
     public TimeOnly TravelTimeBefore { get; set; }
 
-    public TimeOnly? TimeRangeStartShift { get; set; }
-
-    public TimeOnly? TimeRangeEndShift { get; set; }
-
-
     #endregion Date and Time
 
     #region WeekDay

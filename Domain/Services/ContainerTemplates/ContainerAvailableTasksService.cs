@@ -76,6 +76,7 @@ public class ContainerAvailableTasksService
 
         var availableTasks = await query
             .Include(s => s.Client)
+                .ThenInclude(c => c.Addresses)
             .AsNoTracking()
             .OrderBy(s => s.StartShift)
             .ThenBy(s => s.Client!.Name)

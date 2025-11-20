@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20251117072306_RenameTimeRangeShiftFields")]
-    partial class RenameTimeRangeShiftFields
+    [Migration("20251119090041_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

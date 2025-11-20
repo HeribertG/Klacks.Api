@@ -99,6 +99,8 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
             .Include(t => t.Shift)
             .Include(t => t.Items)
                 .ThenInclude(i => i.Shift)
+                    .ThenInclude(s => s.Client)
+                        .ThenInclude(c => c.Addresses)
             .AsSplitQuery()
             .AsNoTracking()
             .OrderBy(t => t.Weekday)

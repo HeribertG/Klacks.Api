@@ -11,6 +11,18 @@ public class ContainerTemplateItem : BaseEntity
     [ForeignKey("Shift")]
     public Guid ShiftId { get; set; }
 
+    public TimeOnly BriefingTime { get; set; }
+
+    public TimeOnly DebriefingTime { get; set; }
+
+    public TimeOnly TravelTimeAfter { get; set; }
+
+    public TimeOnly TravelTimeBefore { get; set; }
+
+    public TimeOnly? TimeRangeStartShift { get; set; }
+
+    public TimeOnly? TimeRangeEndShift { get; set; }
+
     public virtual ContainerTemplate ContainerTemplate { get; set; } = null!;
 
     public virtual Shift Shift { get; set; } = null!;

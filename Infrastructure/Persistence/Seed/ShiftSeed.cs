@@ -775,7 +775,7 @@ INSERT INTO public.shift (
             var baseDate = new DateOnly(2025, 1, 1);
 
             script.AppendLine("\n-- TimeRange Shifts with Clients (100 Shifts PRO RootGroup = 400 total, 10-30 min WorkTime, 6-8h TimeRange)");
-            script.AppendLine("-- WICHTIG: is_time_range=true, client_id wird per Subquery aus group_item geholt");
+            script.AppendLine("-- WICHTIG: is_time_range=true, client_id wird per Subquery von Customer-Clients (type=2) geholt");
             script.AppendLine("-- Workflow: OriginalOrder (Status 0) -> SealedOrder (Status 1) -> OriginalShift (Status 2)");
 
             var availableRootGroups = new[] {
@@ -830,7 +830,7 @@ INSERT INTO public.shift (
 
                     script.AppendLine($@"
 -- TimeRange Shift #{shiftNumber} (WorkTime: {workTimeMinutes} min = {workTimeDecimal} h, Range: {timeRangeHours}h, {(cuttingAfterMidnight ? "Mitternacht!" : "Tagsüber")})
--- Step 1: Create OriginalOrder (Status = 0) with client_id from group_item
+-- Step 1: Create OriginalOrder (Status = 0) with random Customer client
 INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
@@ -847,10 +847,7 @@ INSERT INTO public.shift (
     false, false, true, 1, '00:00:00', '00:00:00',
     {workTimeDecimal.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
     NULL, false, '{currentTime.AddMinutes(1):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{abbr}', '00:00:00',
-    (SELECT gi.client_id FROM public.group_item gi
-     JOIN public.""group"" g ON gi.group_id = g.id
-     WHERE g.name = '{rootGroup}' AND gi.client_id IS NOT NULL AND gi.is_deleted = false
-     ORDER BY random() LIMIT 1),
+    (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
     '00:00:00', 1, 0, NULL, NULL
 );");
 
