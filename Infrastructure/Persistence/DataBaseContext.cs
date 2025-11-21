@@ -309,7 +309,7 @@ public class DataBaseContext : IdentityDbContext
 
         modelBuilder.Entity<ContainerTemplateItem>()
         .HasOne(cti => cti.ContainerTemplate)
-        .WithMany(ct => ct.Items)
+        .WithMany(ct => ct.ContainerTemplateItems)
         .HasForeignKey(cti => cti.ContainerTemplateId)
         .OnDelete(DeleteBehavior.Cascade);
 

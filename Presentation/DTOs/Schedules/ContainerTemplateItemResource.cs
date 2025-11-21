@@ -10,6 +10,10 @@ public class ContainerTemplateItemResource
 
     public int Weekday { get; set; }
 
+    public TimeOnly? StartShift { get; set; }
+
+    public TimeOnly? EndShift { get; set; }
+
     public TimeOnly BriefingTime { get; set; }
 
     public TimeOnly DebriefingTime { get; set; }

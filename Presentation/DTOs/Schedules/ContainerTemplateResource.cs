@@ -18,5 +18,5 @@ public class ContainerTemplateResource
 
     public ShiftResource? Shift { get; set; }
 
-    public List<ContainerTemplateItemResource> Items { get; set; } = new List<ContainerTemplateItemResource>();
+    public List<ContainerTemplateItemResource> ContainerTemplateItems { get; set; } = new List<ContainerTemplateItemResource>();
 }

@@ -20,5 +20,5 @@ public class ContainerTemplate : BaseEntity
 
     public virtual Shift Shift { get; set; } = null!;
 
-    public List<ContainerTemplateItem> Items { get; set; } = new List<ContainerTemplateItem>();
+    public List<ContainerTemplateItem> ContainerTemplateItems { get; set; } = new List<ContainerTemplateItem>();
 }

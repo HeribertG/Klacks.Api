@@ -38,6 +38,11 @@ public class PostContainerTemplatesCommandHandler : IRequestHandler<PostContaine
             resource.ContainerId = request.ContainerId;
             var template = _mapper.Map<ContainerTemplate>(resource);
 
+            foreach (var item in template.ContainerTemplateItems)
+            {
+                item.Shift = null;
+            }
+
             await _repository.Add(template);
             createdTemplates.Add(template);
         }

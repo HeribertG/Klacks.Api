@@ -129,6 +129,7 @@ builder.Services.AddControllersWithViews();
 
 // Add Domain Services
 builder.Services.AddScoped<Klacks.Api.Domain.Interfaces.IPasswordGeneratorService, Klacks.Api.Domain.Services.Accounts.PasswordGeneratorService>();
+builder.Services.AddScoped<Klacks.Api.Domain.Services.ContainerTemplates.ContainerTemplateService>();
 
 // Add Geocoding Service
 builder.Services.AddHttpClient("Nominatim");

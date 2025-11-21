@@ -11,6 +11,10 @@ public class ContainerTemplateItem : BaseEntity
     [ForeignKey("Shift")]
     public Guid ShiftId { get; set; }
 
+    public TimeOnly? StartShift { get; set; }
+
+    public TimeOnly? EndShift { get; set; }
+
     public TimeOnly BriefingTime { get; set; }
 
     public TimeOnly DebriefingTime { get; set; }

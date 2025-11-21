@@ -30,31 +30,86 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
     {
         _logger.LogInformation("Updating ContainerTemplates for Container: {ContainerId}", request.ContainerId);
 
-        var existingTemplates = await _repository.GetTemplatesForContainer(request.ContainerId);
+        var existingTemplates = await _repository.GetTemplatesForContainerWithTracking(request.ContainerId);
+        var resultTemplates = new List<ContainerTemplate>();
 
-        _logger.LogInformation("Deleting {Count} existing ContainerTemplates", existingTemplates.Count);
-        foreach (var template in existingTemplates)
-        {
-            await _repository.Delete(template.Id);
-        }
-
-        var updatedTemplates = new List<ContainerTemplate>();
-
-        _logger.LogInformation("Creating {Count} new ContainerTemplates", request.Resources.Count);
         foreach (var resource in request.Resources)
         {
-            resource.ContainerId = request.ContainerId;
-            var template = _mapper.Map<ContainerTemplate>(resource);
+            if (resource.ContainerId == Guid.Empty)
+            {
+                _logger.LogError("ContainerTemplate has no ContainerId set");
+                throw new InvalidOperationException("ContainerTemplate has no ContainerId set");
+            }
 
-            await _repository.Add(template);
-            updatedTemplates.Add(template);
+            if (resource.ContainerId != request.ContainerId)
+            {
+                _logger.LogError("ContainerTemplate has wrong ContainerId. Expected: {Expected}, Got: {Actual}",
+                    request.ContainerId, resource.ContainerId);
+                throw new InvalidOperationException($"ContainerTemplate has wrong ContainerId. Expected: {request.ContainerId}, Got: {resource.ContainerId}");
+            }
+
+            var existingTemplate = existingTemplates.FirstOrDefault(t =>
+                t.Weekday == resource.Weekday &&
+                t.IsHoliday == resource.IsHoliday &&
+                t.IsWeekdayOrHoliday == resource.IsWeekdayOrHoliday);
+
+            if (existingTemplate != null)
+            {
+                _logger.LogInformation("Updating template: {TemplateId}", existingTemplate.Id);
+
+                var updateResult = await _repository.PutWithItems(
+                    existingTemplate.Id,
+                    resource.ContainerTemplateItems);
+
+                // TODO: SignalR Events
+                foreach (var deletedItem in updateResult.DeletedItems)
+                {
+                    // TODO: SignalR Event für DELETE
+                    _logger.LogInformation("Item deleted (SignalR pending): {ItemId}", deletedItem.Id);
+                }
+
+                resultTemplates.Add(existingTemplate);
+            }
+            else
+            {
+                _logger.LogInformation("Creating new template for Weekday: {Weekday}", resource.Weekday);
+
+                resource.Id = Guid.Empty;
+                foreach (var itemResource in resource.ContainerTemplateItems)
+                {
+                    itemResource.Id = Guid.Empty;
+                }
+
+                var newTemplate = _mapper.Map<ContainerTemplate>(resource);
+
+                foreach (var item in newTemplate.ContainerTemplateItems)
+                {
+                    item.Shift = null;
+                }
+
+                await _repository.Add(newTemplate);
+                resultTemplates.Add(newTemplate);
+            }
+        }
+
+        var templatesToDelete = existingTemplates.Where(et =>
+            !request.Resources.Any(r =>
+                et.Weekday == r.Weekday &&
+                et.IsHoliday == r.IsHoliday &&
+                et.IsWeekdayOrHoliday == r.IsWeekdayOrHoliday)).ToList();
+
+        foreach (var templateToDelete in templatesToDelete)
+        {
+            _logger.LogInformation("Deleting ContainerTemplate: {TemplateId}", templateToDelete.Id);
+            await _repository.Delete(templateToDelete.Id);
+            // TODO: SignalR Event für DELETE
         }
 
         await _unitOfWork.CompleteAsync();
 
         _logger.LogInformation("Successfully updated ContainerTemplates for Container: {ContainerId}", request.ContainerId);
 
-        var result = _mapper.Map<List<ContainerTemplateResource>>(updatedTemplates);
+        var result = _mapper.Map<List<ContainerTemplateResource>>(resultTemplates);
         return result;
     }
 }
