@@ -47,6 +47,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IBreakRepository, BreakRepository>();
         services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IStateRepository, StateRepository>();
+        services.AddScoped<IBranchRepository, BranchRepository>();
         services.AddScoped<ICalendarSelectionRepository, CalendarSelectionRepository>();
         services.AddScoped<ISelectedCalendarRepository, SelectedCalendarRepository>();
         services.AddScoped<IWorkRepository, WorkRepository>();

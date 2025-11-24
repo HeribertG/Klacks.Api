@@ -66,7 +66,9 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<SelectedCalendar> SelectedCalendar { get; set; }  
 
-    public DbSet<Settings> Settings { get; set; }  
+    public DbSet<Settings> Settings { get; set; }
+
+    public DbSet<Branch> Branch { get; set; }
 
     public DbSet<Shift> Shift { get; set; }
 
