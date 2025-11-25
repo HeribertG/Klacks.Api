@@ -98,6 +98,28 @@ namespace Klacks.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "branch",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    address = table.Column<string>(type: "text", nullable: false),
+                    phone = table.Column<string>(type: "text", nullable: false),
+                    email = table.Column<string>(type: "text", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_branch", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "break_reason",
                 columns: table => new
                 {
@@ -856,8 +878,6 @@ namespace Klacks.Api.Migrations
                     debriefing_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     travel_time_after = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     travel_time_before = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
-                    time_range_start_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
-                    time_range_end_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
                     is_friday = table.Column<bool>(type: "boolean", nullable: false),
                     is_holiday = table.Column<bool>(type: "boolean", nullable: false),
                     is_monday = table.Column<bool>(type: "boolean", nullable: false),
@@ -1077,6 +1097,8 @@ namespace Klacks.Api.Migrations
                     weekday = table.Column<int>(type: "integer", nullable: false),
                     is_weekday_or_holiday = table.Column<bool>(type: "boolean", nullable: false),
                     is_holiday = table.Column<bool>(type: "boolean", nullable: false),
+                    start_base = table.Column<string>(type: "text", nullable: true),
+                    end_base = table.Column<string>(type: "text", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -1222,6 +1244,14 @@ namespace Klacks.Api.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     container_template_id = table.Column<Guid>(type: "uuid", nullable: false),
                     shift_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    start_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
+                    end_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
+                    briefing_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    debriefing_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    travel_time_after = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    travel_time_before = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    time_range_start_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
+                    time_range_end_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -1573,6 +1603,9 @@ namespace Klacks.Api.Migrations
 
             migrationBuilder.DropTable(
                 name: "assigned_group");
+
+            migrationBuilder.DropTable(
+                name: "branch");
 
             migrationBuilder.DropTable(
                 name: "break");

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20251124094610_AddStartBaseEndBaseToContainerTemplate")]
-    partial class AddStartBaseEndBaseToContainerTemplate
+    [Migration("20251125222659_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
