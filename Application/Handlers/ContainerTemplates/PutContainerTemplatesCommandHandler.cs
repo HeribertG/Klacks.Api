@@ -57,6 +57,11 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
             {
                 _logger.LogInformation("Updating template: {TemplateId}", existingTemplate.Id);
 
+                existingTemplate.FromTime = resource.FromTime;
+                existingTemplate.UntilTime = resource.UntilTime;
+                existingTemplate.StartBase = resource.StartBase;
+                existingTemplate.EndBase = resource.EndBase;
+
                 var updateResult = await _repository.PutWithItems(
                     existingTemplate.Id,
                     resource.ContainerTemplateItems);

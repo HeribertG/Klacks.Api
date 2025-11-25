@@ -95,12 +95,16 @@ public class ScheduleMappingProfile : Profile
 
         CreateMap<ContainerTemplate, ContainerTemplateResource>()
             .ForMember(dest => dest.Shift, opt => opt.MapFrom(src => src.Shift))
-            .ForMember(dest => dest.ContainerTemplateItems, opt => opt.MapFrom(src => src.ContainerTemplateItems));
+            .ForMember(dest => dest.ContainerTemplateItems, opt => opt.MapFrom(src => src.ContainerTemplateItems))
+            .ForMember(dest => dest.StartBase, opt => opt.MapFrom(src => src.StartBase))
+            .ForMember(dest => dest.EndBase, opt => opt.MapFrom(src => src.EndBase));
 
         CreateMap<ContainerTemplateResource, ContainerTemplate>()
             .IgnoreAuditFields()
             .ForMember(dest => dest.Shift, opt => opt.Ignore())
-            .ForMember(dest => dest.ContainerTemplateItems, opt => opt.MapFrom(src => src.ContainerTemplateItems));
+            .ForMember(dest => dest.ContainerTemplateItems, opt => opt.MapFrom(src => src.ContainerTemplateItems))
+            .ForMember(dest => dest.StartBase, opt => opt.MapFrom(src => src.StartBase))
+            .ForMember(dest => dest.EndBase, opt => opt.MapFrom(src => src.EndBase));
 
         CreateMap<ContainerTemplateItem, ContainerTemplateItemResource>()
             .ForMember(dest => dest.Shift, opt => opt.MapFrom(src => src.Shift))

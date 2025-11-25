@@ -18,6 +18,10 @@ public class ContainerTemplate : BaseEntity
 
     public bool IsHoliday { get; set; }
 
+    public string? StartBase { get; set; }
+
+    public string? EndBase { get; set; }
+
     public virtual Shift Shift { get; set; } = null!;
 
     public List<ContainerTemplateItem> ContainerTemplateItems { get; set; } = new List<ContainerTemplateItem>();

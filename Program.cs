@@ -136,6 +136,9 @@ builder.Services.AddHttpClient("Nominatim");
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<Klacks.Api.Infrastructure.Services.IGeocodingService, Klacks.Api.Infrastructure.Services.GeocodingService>();
 
+// Add Route Optimization Service
+builder.Services.AddScoped<Klacks.Api.Domain.Services.RouteOptimization.IRouteOptimizationService, Klacks.Api.Domain.Services.RouteOptimization.RouteOptimizationService>();
+
 builder.Services
     .AddControllers()
     .AddJsonOptions(opts =>

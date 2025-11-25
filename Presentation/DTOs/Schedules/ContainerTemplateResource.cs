@@ -16,6 +16,10 @@ public class ContainerTemplateResource
 
     public bool IsHoliday { get; set; }
 
+    public string? StartBase { get; set; }
+
+    public string? EndBase { get; set; }
+
     public ShiftResource? Shift { get; set; }
 
     public List<ContainerTemplateItemResource> ContainerTemplateItems { get; set; } = new List<ContainerTemplateItemResource>();
