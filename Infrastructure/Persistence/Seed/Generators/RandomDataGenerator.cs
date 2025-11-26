@@ -186,7 +186,8 @@ public static class RandomDataGenerator
 
         var street = streets[rand.Next(streets.Length)];
         var houseNumber = rand.Next(1, 150);
+        var escapedStreet = street.Replace("'", "''");
 
-        return $"{street} {houseNumber}";
+        return $"{escapedStreet} {houseNumber}";
     }
 }
