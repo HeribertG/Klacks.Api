@@ -1,3 +1,5 @@
+using Klacks.Api.Domain.Enums;
+
 namespace Klacks.Api.Presentation.DTOs.Schedules;
 
 public class ContainerTemplateItemResource
@@ -25,6 +27,8 @@ public class ContainerTemplateItemResource
     public TimeOnly? TimeRangeStartShift { get; set; }
 
     public TimeOnly? TimeRangeEndShift { get; set; }
+
+    public TransportMode TransportMode { get; set; } = TransportMode.ByCar;
 
     public ShiftResource? Shift { get; set; }
 }

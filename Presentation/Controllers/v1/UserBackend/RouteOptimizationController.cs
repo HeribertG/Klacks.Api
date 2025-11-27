@@ -1,3 +1,4 @@
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Services.RouteOptimization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,16 +23,17 @@ public class RouteOptimizationController : ControllerBase
     public async Task<ActionResult<DistanceMatrixResponse>> GetDistanceMatrix(
         [FromQuery] Guid containerId,
         [FromQuery] int weekday,
-        [FromQuery] bool isHoliday = false)
+        [FromQuery] bool isHoliday = false,
+        [FromQuery] ContainerTransportMode transportMode = ContainerTransportMode.ByCar)
     {
         _logger.LogInformation(
-            "Getting distance matrix for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}",
-            containerId, weekday, isHoliday);
+            "Getting distance matrix for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}, TransportMode: {TransportMode}",
+            containerId, weekday, isHoliday, transportMode);
 
         try
         {
             var result = await _routeOptimizationService.CalculateDistanceMatrixAsync(
-                containerId, weekday, isHoliday);
+                containerId, weekday, isHoliday, transportMode);
 
             var response = new DistanceMatrixResponse
             {
@@ -41,7 +43,8 @@ public class RouteOptimizationController : ControllerBase
                     Address = l.Address,
                     Latitude = l.Latitude,
                     Longitude = l.Longitude,
-                    ShiftId = l.ShiftId
+                    ShiftId = l.ShiftId,
+                    TransportMode = l.TransportMode
                 }).ToList(),
                 Matrix = ConvertMatrixToJaggedArray(result.Matrix, result.Locations.Count)
             };
@@ -61,16 +64,17 @@ public class RouteOptimizationController : ControllerBase
         [FromQuery] int weekday,
         [FromQuery] bool isHoliday = false,
         [FromQuery] string? startBase = null,
-        [FromQuery] string? endBase = null)
+        [FromQuery] string? endBase = null,
+        [FromQuery] ContainerTransportMode transportMode = ContainerTransportMode.ByCar)
     {
         _logger.LogInformation(
-            "Optimizing route for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}, StartBase: {StartBase}, EndBase: {EndBase}",
-            containerId, weekday, isHoliday, startBase, endBase);
+            "Optimizing route for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}, StartBase: {StartBase}, EndBase: {EndBase}, TransportMode: {TransportMode}",
+            containerId, weekday, isHoliday, startBase, endBase, transportMode);
 
         try
         {
             var result = await _routeOptimizationService.OptimizeRouteAsync(
-                containerId, weekday, isHoliday, startBase, endBase);
+                containerId, weekday, isHoliday, startBase, endBase, transportMode);
 
             var routeSteps = new List<RouteStepDto>();
 
@@ -85,7 +89,9 @@ public class RouteOptimizationController : ControllerBase
                     var currentIndex = result.RouteIndices[i];
                     var nextIndex = result.RouteIndices[i + 1];
                     distanceToNext = result.DistanceMatrix[currentIndex, nextIndex];
-                    travelTimeToNext = EstimateTravelTime(distanceToNext);
+
+                    var nextLocation = result.OptimizedRoute[i + 1];
+                    travelTimeToNext = GetSegmentTravelTime(result, currentIndex, nextIndex, nextLocation.TransportMode);
                 }
 
                 routeSteps.Add(new RouteStepDto
@@ -96,6 +102,7 @@ public class RouteOptimizationController : ControllerBase
                     Latitude = location.Latitude,
                     Longitude = location.Longitude,
                     ShiftId = location.ShiftId,
+                    TransportMode = location.TransportMode,
                     DistanceToNextKm = distanceToNext,
                     TravelTimeToNext = travelTimeToNext
                 });
@@ -135,11 +142,27 @@ public class RouteOptimizationController : ControllerBase
         return result;
     }
 
-    private TimeSpan EstimateTravelTime(double distanceKm)
+    private TimeSpan GetSegmentTravelTime(RouteOptimizationResult result, int fromIndex, int toIndex, TransportMode segmentTransportMode)
     {
-        const double AVERAGE_SPEED_KMH = 50.0;
-        var hours = distanceKm / AVERAGE_SPEED_KMH;
-        return TimeSpan.FromHours(hours);
+        if (result.TransportMode != ContainerTransportMode.Mix || result.DurationMatricesByProfile == null)
+        {
+            return TimeSpan.FromSeconds(result.DurationMatrix[fromIndex, toIndex]);
+        }
+
+        var profile = segmentTransportMode switch
+        {
+            TransportMode.ByCar => "driving",
+            TransportMode.ByBicycle => "cycling",
+            TransportMode.ByFoot => "foot",
+            _ => "driving"
+        };
+
+        if (result.DurationMatricesByProfile.TryGetValue(profile, out var durationMatrix))
+        {
+            return TimeSpan.FromSeconds(durationMatrix[fromIndex, toIndex]);
+        }
+
+        return TimeSpan.FromSeconds(result.DurationMatrix[fromIndex, toIndex]);
     }
 }
 
@@ -167,6 +190,7 @@ public class LocationDto
     public double Latitude { get; set; }
     public double Longitude { get; set; }
     public Guid ShiftId { get; set; }
+    public TransportMode TransportMode { get; set; } = TransportMode.ByCar;
 }
 
 public class RouteStepDto : LocationDto

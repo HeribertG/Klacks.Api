@@ -1,4 +1,5 @@
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Klacks.Api.Domain.Models.Schedules;
@@ -24,6 +25,8 @@ public class ContainerTemplate : BaseEntity
 
     [Column(TypeName = "jsonb")]
     public RouteInfo? RouteInfo { get; set; }
+
+    public ContainerTransportMode TransportMode { get; set; } = ContainerTransportMode.ByCar;
 
     public virtual Shift Shift { get; set; } = null!;
 

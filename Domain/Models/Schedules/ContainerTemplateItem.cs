@@ -1,4 +1,5 @@
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Klacks.Api.Domain.Models.Schedules;
@@ -26,6 +27,8 @@ public class ContainerTemplateItem : BaseEntity
     public TimeOnly? TimeRangeStartShift { get; set; }
 
     public TimeOnly? TimeRangeEndShift { get; set; }
+
+    public TransportMode TransportMode { get; set; } = TransportMode.ByCar;
 
     public virtual ContainerTemplate ContainerTemplate { get; set; } = null!;
 

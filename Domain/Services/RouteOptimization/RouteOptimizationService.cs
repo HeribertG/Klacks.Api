@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Services;
 using Microsoft.Extensions.Caching.Memory;
@@ -8,8 +9,8 @@ namespace Klacks.Api.Domain.Services.RouteOptimization;
 
 public interface IRouteOptimizationService
 {
-    Task<DistanceMatrix> CalculateDistanceMatrixAsync(Guid containerId, int weekday, bool isHoliday);
-    Task<RouteOptimizationResult> OptimizeRouteAsync(Guid containerId, int weekday, bool isHoliday, string? startBase = null, string? endBase = null);
+    Task<DistanceMatrix> CalculateDistanceMatrixAsync(Guid containerId, int weekday, bool isHoliday, ContainerTransportMode transportMode = ContainerTransportMode.ByCar);
+    Task<RouteOptimizationResult> OptimizeRouteAsync(Guid containerId, int weekday, bool isHoliday, string? startBase = null, string? endBase = null, ContainerTransportMode transportMode = ContainerTransportMode.ByCar);
 }
 
 public class RouteOptimizationService : IRouteOptimizationService
@@ -39,11 +40,15 @@ public class RouteOptimizationService : IRouteOptimizationService
         _httpClient = httpClientFactory.CreateClient();
     }
 
-    public async Task<DistanceMatrix> CalculateDistanceMatrixAsync(Guid containerId, int weekday, bool isHoliday)
+    public async Task<DistanceMatrix> CalculateDistanceMatrixAsync(
+        Guid containerId,
+        int weekday,
+        bool isHoliday,
+        ContainerTransportMode transportMode = ContainerTransportMode.ByCar)
     {
         _logger.LogInformation(
-            "Calculating distance matrix for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}",
-            containerId, weekday, isHoliday);
+            "Calculating distance matrix for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}, TransportMode: {TransportMode}",
+            containerId, weekday, isHoliday, transportMode);
 
         var templates = await _containerRepository.GetTemplatesForContainer(containerId);
         var template = templates.FirstOrDefault(t => t.Weekday == weekday && t.IsHoliday == isHoliday);
@@ -51,7 +56,7 @@ public class RouteOptimizationService : IRouteOptimizationService
         if (template == null)
         {
             _logger.LogWarning("No template found for given criteria");
-            return new DistanceMatrix(new List<Location>(), new double[0, 0]);
+            return new DistanceMatrix(new List<Location>(), new double[0, 0], new double[0, 0]);
         }
 
         var locations = await ExtractLocationsFromTemplateAsync(template);
@@ -59,13 +64,13 @@ public class RouteOptimizationService : IRouteOptimizationService
         if (locations.Count < 2)
         {
             _logger.LogWarning("Not enough locations found ({Count}). Need at least 2.", locations.Count);
-            return new DistanceMatrix(locations, new double[0, 0]);
+            return new DistanceMatrix(locations, new double[0, 0], new double[0, 0]);
         }
 
-        var matrix = await BuildDistanceMatrixAsync(locations);
+        var (distanceMatrix, durationMatrix, durationMatricesByProfile) = await BuildDistanceMatrixAsync(locations, transportMode);
 
         _logger.LogInformation("Distance matrix calculated: {Size}x{Size}", locations.Count, locations.Count);
-        return new DistanceMatrix(locations, matrix);
+        return new DistanceMatrix(locations, distanceMatrix, durationMatrix, durationMatricesByProfile);
     }
 
     public async Task<RouteOptimizationResult> OptimizeRouteAsync(
@@ -73,16 +78,17 @@ public class RouteOptimizationService : IRouteOptimizationService
         int weekday,
         bool isHoliday,
         string? startBase = null,
-        string? endBase = null)
+        string? endBase = null,
+        ContainerTransportMode transportMode = ContainerTransportMode.ByCar)
     {
         _logger.LogInformation(
-            "OptimizeRouteAsync called with containerId={ContainerId}, weekday={Weekday}, isHoliday={IsHoliday}, startBase={StartBase}, endBase={EndBase}",
-            containerId, weekday, isHoliday, startBase, endBase);
+            "OptimizeRouteAsync called with containerId={ContainerId}, weekday={Weekday}, isHoliday={IsHoliday}, startBase={StartBase}, endBase={EndBase}, transportMode={TransportMode}",
+            containerId, weekday, isHoliday, startBase, endBase, transportMode);
 
-        var distanceMatrix = await CalculateDistanceMatrixAsync(containerId, weekday, isHoliday);
+        var distanceMatrix = await CalculateDistanceMatrixAsync(containerId, weekday, isHoliday, transportMode);
         _logger.LogInformation("After CalculateDistanceMatrixAsync: {Count} locations", distanceMatrix.Locations.Count);
 
-        distanceMatrix = await AddBranchesToDistanceMatrixAsync(distanceMatrix, startBase, endBase);
+        distanceMatrix = await AddBranchesToDistanceMatrixAsync(distanceMatrix, startBase, endBase, transportMode);
         _logger.LogInformation("After AddBranchesToDistanceMatrixAsync: {Count} locations", distanceMatrix.Locations.Count);
 
         _logger.LogInformation("=== ALL LOCATIONS IN DISTANCE MATRIX ===");
@@ -112,7 +118,7 @@ public class RouteOptimizationService : IRouteOptimizationService
         if (distanceMatrix.Locations.Count < 2)
         {
             _logger.LogWarning("Cannot optimize route with less than 2 locations (after adding branches)");
-            return new RouteOptimizationResult(new List<Location>(), 0.0, TimeSpan.Zero, new double[0, 0], TimeSpan.Zero, new List<int>(), 0.0, 0.0, TimeSpan.Zero);
+            return new RouteOptimizationResult(new List<Location>(), 0.0, TimeSpan.Zero, new double[0, 0], new double[0, 0], TimeSpan.Zero, new List<int>(), 0.0, 0.0, TimeSpan.Zero);
         }
 
         var optimizer = new AntColonyOptimizer(distanceMatrix, _logger);
@@ -211,7 +217,7 @@ public class RouteOptimizationService : IRouteOptimizationService
 
         _logger.LogInformation("Total calculated distance (including start and return): {Distance:F2} km", totalDistance);
 
-        var estimatedTime = EstimateTravelTime(totalDistance);
+        var estimatedTime = CalculateMixedTravelTime(route, distanceMatrix, transportMode);
 
         var fullRoute = new List<Location>();
 
@@ -228,37 +234,43 @@ public class RouteOptimizationService : IRouteOptimizationService
         }
 
         TimeSpan travelTimeFromStartBase = TimeSpan.Zero;
-        if (distanceFromStartBase > 0)
+        if (distanceFromStartBase > 0 && startIndex.HasValue && route.Count > 0)
         {
-            travelTimeFromStartBase = EstimateTravelTime(distanceFromStartBase);
+            travelTimeFromStartBase = GetMixedTravelTimeForSegment(startIndex.Value, route[0], distanceMatrix, transportMode);
             _logger.LogInformation(
-                "Travel from StartBase to first location: {Distance:F2} km, {Time}",
+                "Travel from StartBase to first location: {Distance:F2} km, {Time} (from OSRM)",
                 distanceFromStartBase, travelTimeFromStartBase);
         }
 
         TimeSpan travelTimeToEndBase = TimeSpan.Zero;
-        if (distanceToEndBase > 0)
+        if (distanceToEndBase > 0 && endIndex.HasValue && route.Count > 0)
         {
-            travelTimeToEndBase = EstimateTravelTime(distanceToEndBase);
+            var lastRouteIndex = route.Last() != endIndex.Value ? route.Last() : (route.Count >= 2 ? route[route.Count - 2] : route[0]);
+            travelTimeToEndBase = GetMixedTravelTimeForSegment(lastRouteIndex, endIndex.Value, distanceMatrix, transportMode);
             _logger.LogInformation(
-                "Travel from last location to EndBase: {Distance:F2} km, {Time}",
+                "Travel from last location to EndBase: {Distance:F2} km, {Time} (from OSRM)",
                 distanceToEndBase, travelTimeToEndBase);
         }
 
+        var totalTravelTime = estimatedTime + travelTimeFromStartBase + travelTimeToEndBase;
+
         _logger.LogInformation(
-            "Route optimized: {LocationCount} locations (full route), {Distance:F2} km, {Time}",
-            fullRoute.Count, totalDistance, estimatedTime);
+            "Route optimized: {LocationCount} locations (full route), {Distance:F2} km, {Time} (real travel time from OSRM)",
+            fullRoute.Count, totalDistance, totalTravelTime);
 
         return new RouteOptimizationResult(
             fullRoute,
             totalDistance,
-            estimatedTime,
+            totalTravelTime,
             distanceMatrix.Matrix,
+            distanceMatrix.DurationMatrix,
             travelTimeFromStartBase,
             route,
             distanceFromStartBase,
             distanceToEndBase,
-            travelTimeToEndBase);
+            travelTimeToEndBase,
+            distanceMatrix.DurationMatricesByProfile,
+            transportMode);
     }
 
     private async Task<List<Location>> ExtractLocationsFromTemplateAsync(ContainerTemplate template)
@@ -318,12 +330,13 @@ public class RouteOptimizationService : IRouteOptimizationService
                     Address = fullAddress,
                     Latitude = coords.Latitude.Value,
                     Longitude = coords.Longitude.Value,
-                    ShiftId = item.ShiftId
+                    ShiftId = item.ShiftId,
+                    TransportMode = item.TransportMode
                 });
 
                 uniqueAddresses.Add(addressKey);
-                _logger.LogInformation("Location added: {Name} at ({Lat}, {Lon})",
-                    item.Shift.Client.Name, coords.Latitude.Value, coords.Longitude.Value);
+                _logger.LogInformation("Location added: {Name} at ({Lat}, {Lon}), TransportMode: {TransportMode}",
+                    item.Shift.Client.Name, coords.Latitude.Value, coords.Longitude.Value, item.TransportMode);
             }
             else
             {
@@ -336,43 +349,172 @@ public class RouteOptimizationService : IRouteOptimizationService
         return locations;
     }
 
-    private async Task<double[,]> BuildDistanceMatrixAsync(List<Location> locations)
+    private async Task<(double[,] distanceMatrix, double[,] durationMatrix, Dictionary<string, double[,]>? durationMatricesByProfile)> BuildDistanceMatrixAsync(
+        List<Location> locations,
+        ContainerTransportMode transportMode)
     {
         var size = locations.Count;
-        var matrix = new double[size, size];
+        var distanceMatrix = new double[size, size];
+        var durationMatrix = new double[size, size];
 
-        var cacheKey = $"osrm_matrix_{string.Join("_", locations.Select(l => $"{l.Latitude:F6}_{l.Longitude:F6}"))}";
-
-        if (_cache.TryGetValue(cacheKey, out double[,]? cachedMatrix) && cachedMatrix != null)
+        if (transportMode == ContainerTransportMode.Mix)
         {
-            _logger.LogInformation("Using cached OSRM distance matrix");
-            return cachedMatrix;
+            return await BuildMixedDistanceMatrixAsync(locations);
+        }
+
+        var profile = GetOsrmProfile(transportMode);
+        var cacheKey = $"osrm_matrix_{profile}_{string.Join("_", locations.Select(l => $"{l.Latitude:F6}_{l.Longitude:F6}"))}";
+
+        if (_cache.TryGetValue(cacheKey, out (double[,] dist, double[,] dur)? cached) && cached != null)
+        {
+            _logger.LogInformation("Using cached OSRM distance/duration matrix for profile '{Profile}'", profile);
+            return (cached.Value.dist, cached.Value.dur, null);
         }
 
         try
         {
-            matrix = await GetOsrmDistanceMatrixAsync(locations);
-            _cache.Set(cacheKey, matrix, TimeSpan.FromDays(7));
-            _logger.LogInformation("Successfully retrieved OSRM distance matrix with real road distances");
+            var result = await GetOsrmDistanceMatrixAsync(locations, transportMode);
+            _cache.Set(cacheKey, result, TimeSpan.FromDays(7));
+            _logger.LogInformation("Successfully retrieved OSRM distance/duration matrix with real road data");
+            return (result.distanceMatrix, result.durationMatrix, null);
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to get OSRM distance matrix, falling back to Haversine distances");
-            matrix = BuildHaversineDistanceMatrix(locations);
+            _logger.LogWarning(ex, "Failed to get OSRM matrix, falling back to Haversine distances with estimated times");
+            distanceMatrix = BuildHaversineDistanceMatrix(locations);
+            durationMatrix = BuildEstimatedDurationMatrix(distanceMatrix, transportMode);
+            return (distanceMatrix, durationMatrix, null);
         }
-
-        return matrix;
     }
 
-    private async Task<double[,]> GetOsrmDistanceMatrixAsync(List<Location> locations)
+    private async Task<(double[,] distanceMatrix, double[,] durationMatrix, Dictionary<string, double[,]> durationMatricesByProfile)> BuildMixedDistanceMatrixAsync(
+        List<Location> locations)
     {
         var size = locations.Count;
-        var matrix = new double[size, size];
+        var profiles = new[] { "driving", "cycling", "foot" };
+        var durationMatricesByProfile = new Dictionary<string, double[,]>();
+        double[,] distanceMatrix = new double[size, size];
+        double[,] defaultDurationMatrix = new double[size, size];
 
+        _logger.LogInformation("Building mixed transport matrices - fetching all profiles (driving, cycling, foot)");
+
+        foreach (var profile in profiles)
+        {
+            var cacheKey = $"osrm_matrix_{profile}_{string.Join("_", locations.Select(l => $"{l.Latitude:F6}_{l.Longitude:F6}"))}";
+
+            if (_cache.TryGetValue(cacheKey, out (double[,] dist, double[,] dur)? cached) && cached != null)
+            {
+                _logger.LogInformation("Using cached OSRM matrix for profile '{Profile}'", profile);
+                durationMatricesByProfile[profile] = cached.Value.dur;
+                if (profile == "driving")
+                {
+                    distanceMatrix = cached.Value.dist;
+                    defaultDurationMatrix = cached.Value.dur;
+                }
+                continue;
+            }
+
+            try
+            {
+                var transportMode = profile switch
+                {
+                    "driving" => ContainerTransportMode.ByCar,
+                    "cycling" => ContainerTransportMode.ByBicycle,
+                    "foot" => ContainerTransportMode.ByFoot,
+                    _ => ContainerTransportMode.ByCar
+                };
+
+                var result = await GetOsrmDistanceMatrixAsync(locations, transportMode);
+                _cache.Set(cacheKey, result, TimeSpan.FromDays(7));
+
+                durationMatricesByProfile[profile] = result.durationMatrix;
+
+                if (profile == "driving")
+                {
+                    distanceMatrix = result.distanceMatrix;
+                    defaultDurationMatrix = result.durationMatrix;
+                }
+
+                _logger.LogInformation("Retrieved OSRM matrix for profile '{Profile}'", profile);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to get OSRM matrix for profile '{Profile}', using fallback", profile);
+
+                var haversineMatrix = BuildHaversineDistanceMatrix(locations);
+                var transportMode = profile switch
+                {
+                    "driving" => ContainerTransportMode.ByCar,
+                    "cycling" => ContainerTransportMode.ByBicycle,
+                    "foot" => ContainerTransportMode.ByFoot,
+                    _ => ContainerTransportMode.ByCar
+                };
+                var fallbackDuration = BuildEstimatedDurationMatrix(haversineMatrix, transportMode);
+                durationMatricesByProfile[profile] = fallbackDuration;
+
+                if (profile == "driving")
+                {
+                    distanceMatrix = haversineMatrix;
+                    defaultDurationMatrix = fallbackDuration;
+                }
+            }
+        }
+
+        return (distanceMatrix, defaultDurationMatrix, durationMatricesByProfile);
+    }
+
+    private double[,] BuildEstimatedDurationMatrix(double[,] distanceMatrix, ContainerTransportMode transportMode)
+    {
+        var size = distanceMatrix.GetLength(0);
+        var durationMatrix = new double[size, size];
+
+        double speedKmh = transportMode switch
+        {
+            ContainerTransportMode.ByCar => 50.0,
+            ContainerTransportMode.ByBicycle => 15.0,
+            ContainerTransportMode.ByFoot => 5.0,
+            ContainerTransportMode.Mix => 30.0,
+            _ => 50.0
+        };
+
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                var distanceKm = distanceMatrix[i, j];
+                var hours = distanceKm / speedKmh;
+                durationMatrix[i, j] = hours * 3600;
+            }
+        }
+
+        return durationMatrix;
+    }
+
+    private string GetOsrmProfile(ContainerTransportMode transportMode)
+    {
+        return transportMode switch
+        {
+            ContainerTransportMode.ByCar => "driving",
+            ContainerTransportMode.ByBicycle => "cycling",
+            ContainerTransportMode.ByFoot => "foot",
+            ContainerTransportMode.Mix => "driving",
+            _ => "driving"
+        };
+    }
+
+    private async Task<(double[,] distanceMatrix, double[,] durationMatrix)> GetOsrmDistanceMatrixAsync(
+        List<Location> locations,
+        ContainerTransportMode transportMode)
+    {
+        var size = locations.Count;
+        var distanceMatrix = new double[size, size];
+        var durationMatrix = new double[size, size];
+
+        var profile = GetOsrmProfile(transportMode);
         var coordinates = string.Join(";", locations.Select(l => $"{l.Longitude:F6},{l.Latitude:F6}"));
-        var url = $"{OSRM_BASE_URL}/table/v1/driving/{coordinates}?annotations=distance";
+        var url = $"{OSRM_BASE_URL}/table/v1/{profile}/{coordinates}?annotations=distance,duration";
 
-        _logger.LogInformation("Requesting OSRM table API: {Url}", url);
+        _logger.LogInformation("Requesting OSRM table API with profile '{Profile}': {Url}", profile, url);
 
         var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
@@ -387,18 +529,27 @@ public class RouteOptimizationService : IRouteOptimizationService
         }
 
         var distances = root.GetProperty("distances");
+        var durations = root.GetProperty("durations");
 
         for (int i = 0; i < size; i++)
         {
-            var row = distances[i];
+            var distanceRow = distances[i];
+            var durationRow = durations[i];
             for (int j = 0; j < size; j++)
             {
-                var distanceMeters = row[j].GetDouble();
-                matrix[i, j] = distanceMeters / 1000.0;
+                var distanceMeters = distanceRow[j].GetDouble();
+                distanceMatrix[i, j] = distanceMeters / 1000.0;
+
+                var durationSeconds = durationRow[j].GetDouble();
+                durationMatrix[i, j] = durationSeconds;
             }
         }
 
-        return matrix;
+        _logger.LogInformation(
+            "OSRM returned real travel times for profile '{Profile}' (considers road types, speed limits, etc.)",
+            profile);
+
+        return (distanceMatrix, durationMatrix);
     }
 
     private double[,] BuildHaversineDistanceMatrix(List<Location> locations)
@@ -465,7 +616,8 @@ public class RouteOptimizationService : IRouteOptimizationService
     private async Task<DistanceMatrix> AddBranchesToDistanceMatrixAsync(
         DistanceMatrix existingMatrix,
         string? startBaseAddress,
-        string? endBaseAddress)
+        string? endBaseAddress,
+        ContainerTransportMode transportMode)
     {
         var addressesToAdd = new List<string>();
         if (!string.IsNullOrEmpty(startBaseAddress) && !existingMatrix.Locations.Any(l => l.Address == startBaseAddress))
@@ -511,8 +663,94 @@ public class RouteOptimizationService : IRouteOptimizationService
             }
         }
 
-        var newMatrix = await BuildDistanceMatrixAsync(newLocations);
-        return new DistanceMatrix(newLocations, newMatrix);
+        var (distanceMatrix, durationMatrix, durationMatricesByProfile) = await BuildDistanceMatrixAsync(newLocations, transportMode);
+        return new DistanceMatrix(newLocations, distanceMatrix, durationMatrix, durationMatricesByProfile);
+    }
+
+    private TimeSpan GetTravelTimeFromDuration(double[,] durationMatrix, int fromIndex, int toIndex)
+    {
+        var durationSeconds = durationMatrix[fromIndex, toIndex];
+        return TimeSpan.FromSeconds(durationSeconds);
+    }
+
+    private TimeSpan CalculateTotalTravelTime(List<int> route, double[,] durationMatrix)
+    {
+        double totalSeconds = 0.0;
+        for (int i = 0; i < route.Count - 1; i++)
+        {
+            totalSeconds += durationMatrix[route[i], route[i + 1]];
+        }
+        return TimeSpan.FromSeconds(totalSeconds);
+    }
+
+    private TimeSpan CalculateMixedTravelTime(
+        List<int> route,
+        DistanceMatrix distanceMatrix,
+        ContainerTransportMode containerTransportMode)
+    {
+        if (containerTransportMode != ContainerTransportMode.Mix || distanceMatrix.DurationMatricesByProfile == null)
+        {
+            return CalculateTotalTravelTime(route, distanceMatrix.DurationMatrix);
+        }
+
+        double totalSeconds = 0.0;
+        for (int i = 0; i < route.Count - 1; i++)
+        {
+            var fromIndex = route[i];
+            var toIndex = route[i + 1];
+            var toLocation = distanceMatrix.Locations[toIndex];
+            var profile = GetOsrmProfileFromTransportMode(toLocation.TransportMode);
+
+            if (distanceMatrix.DurationMatricesByProfile.TryGetValue(profile, out var durationMatrix))
+            {
+                var segmentDuration = durationMatrix[fromIndex, toIndex];
+                totalSeconds += segmentDuration;
+                _logger.LogDebug("Segment {From} -> {To}: using profile '{Profile}', duration {Duration}s",
+                    distanceMatrix.Locations[fromIndex].Name,
+                    toLocation.Name,
+                    profile,
+                    segmentDuration);
+            }
+            else
+            {
+                totalSeconds += distanceMatrix.DurationMatrix[fromIndex, toIndex];
+            }
+        }
+
+        return TimeSpan.FromSeconds(totalSeconds);
+    }
+
+    private TimeSpan GetMixedTravelTimeForSegment(
+        int fromIndex,
+        int toIndex,
+        DistanceMatrix distanceMatrix,
+        ContainerTransportMode containerTransportMode)
+    {
+        if (containerTransportMode != ContainerTransportMode.Mix || distanceMatrix.DurationMatricesByProfile == null)
+        {
+            return GetTravelTimeFromDuration(distanceMatrix.DurationMatrix, fromIndex, toIndex);
+        }
+
+        var toLocation = distanceMatrix.Locations[toIndex];
+        var profile = GetOsrmProfileFromTransportMode(toLocation.TransportMode);
+
+        if (distanceMatrix.DurationMatricesByProfile.TryGetValue(profile, out var durationMatrix))
+        {
+            return TimeSpan.FromSeconds(durationMatrix[fromIndex, toIndex]);
+        }
+
+        return GetTravelTimeFromDuration(distanceMatrix.DurationMatrix, fromIndex, toIndex);
+    }
+
+    private string GetOsrmProfileFromTransportMode(TransportMode transportMode)
+    {
+        return transportMode switch
+        {
+            TransportMode.ByCar => "driving",
+            TransportMode.ByBicycle => "cycling",
+            TransportMode.ByFoot => "foot",
+            _ => "driving"
+        };
     }
 }
 
@@ -523,17 +761,25 @@ public record Location
     public double Latitude { get; init; }
     public double Longitude { get; init; }
     public Guid ShiftId { get; init; }
+    public TransportMode TransportMode { get; init; } = TransportMode.ByCar;
 }
 
-public record DistanceMatrix(List<Location> Locations, double[,] Matrix);
+public record DistanceMatrix(
+    List<Location> Locations,
+    double[,] Matrix,
+    double[,] DurationMatrix,
+    Dictionary<string, double[,]>? DurationMatricesByProfile = null);
 
 public record RouteOptimizationResult(
     List<Location> OptimizedRoute,
     double TotalDistanceKm,
     TimeSpan EstimatedTravelTime,
     double[,] DistanceMatrix,
+    double[,] DurationMatrix,
     TimeSpan TravelTimeFromStartBase,
     List<int> RouteIndices,
     double DistanceFromStartBaseKm,
     double DistanceToEndBaseKm,
-    TimeSpan TravelTimeToEndBase);
+    TimeSpan TravelTimeToEndBase,
+    Dictionary<string, double[,]>? DurationMatricesByProfile = null,
+    ContainerTransportMode TransportMode = ContainerTransportMode.ByCar);

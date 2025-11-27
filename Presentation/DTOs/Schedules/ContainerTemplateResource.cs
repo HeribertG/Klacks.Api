@@ -1,3 +1,5 @@
+using Klacks.Api.Domain.Enums;
+
 namespace Klacks.Api.Presentation.DTOs.Schedules;
 
 public class ContainerTemplateResource
@@ -21,6 +23,8 @@ public class ContainerTemplateResource
     public string? EndBase { get; set; }
 
     public RouteInfoResource? RouteInfo { get; set; }
+
+    public ContainerTransportMode TransportMode { get; set; } = ContainerTransportMode.ByCar;
 
     public ShiftResource? Shift { get; set; }
 
