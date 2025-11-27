@@ -22,6 +22,9 @@ public class ContainerTemplate : BaseEntity
 
     public string? EndBase { get; set; }
 
+    [Column(TypeName = "jsonb")]
+    public RouteInfo? RouteInfo { get; set; }
+
     public virtual Shift Shift { get; set; } = null!;
 
     public List<ContainerTemplateItem> ContainerTemplateItems { get; set; } = new List<ContainerTemplateItem>();

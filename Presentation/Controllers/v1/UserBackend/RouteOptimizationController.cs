@@ -80,9 +80,11 @@ public class RouteOptimizationController : ControllerBase
                 double distanceToNext = 0;
                 TimeSpan travelTimeToNext = TimeSpan.Zero;
 
-                if (i < result.OptimizedRoute.Count - 1)
+                if (i < result.OptimizedRoute.Count - 1 && result.RouteIndices.Count > i + 1)
                 {
-                    distanceToNext = result.DistanceMatrix[i, i + 1];
+                    var currentIndex = result.RouteIndices[i];
+                    var nextIndex = result.RouteIndices[i + 1];
+                    distanceToNext = result.DistanceMatrix[currentIndex, nextIndex];
                     travelTimeToNext = EstimateTravelTime(distanceToNext);
                 }
 
@@ -104,7 +106,10 @@ public class RouteOptimizationController : ControllerBase
                 OptimizedRoute = routeSteps,
                 TotalDistanceKm = result.TotalDistanceKm,
                 EstimatedTravelTime = result.EstimatedTravelTime,
-                TravelTimeFromStartBase = result.TravelTimeFromStartBase
+                TravelTimeFromStartBase = result.TravelTimeFromStartBase,
+                DistanceFromStartBaseKm = result.DistanceFromStartBaseKm,
+                DistanceToEndBaseKm = result.DistanceToEndBaseKm,
+                TravelTimeToEndBase = result.TravelTimeToEndBase
             };
 
             return Ok(response);
@@ -150,6 +155,9 @@ public class RouteOptimizationResponse
     public double TotalDistanceKm { get; set; }
     public TimeSpan EstimatedTravelTime { get; set; }
     public TimeSpan TravelTimeFromStartBase { get; set; }
+    public double DistanceFromStartBaseKm { get; set; }
+    public double DistanceToEndBaseKm { get; set; }
+    public TimeSpan TravelTimeToEndBase { get; set; }
 }
 
 public class LocationDto

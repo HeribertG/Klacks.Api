@@ -157,10 +157,14 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options => options.SignIn.Re
 
 // Registering Database
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+var dataSourceBuilder = new Npgsql.NpgsqlDataSourceBuilder(connectionString);
+dataSourceBuilder.EnableDynamicJson();
+var dataSource = dataSourceBuilder.Build();
+
 builder.Services.AddDbContext<DataBaseContext>(options =>
 {
-    options.UseNpgsql(connectionString);
-    options.ConfigureWarnings(warnings => 
+    options.UseNpgsql(dataSource);
+    options.ConfigureWarnings(warnings =>
         warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
 });
 

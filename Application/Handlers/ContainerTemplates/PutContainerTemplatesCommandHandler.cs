@@ -61,6 +61,7 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
                 existingTemplate.UntilTime = resource.UntilTime;
                 existingTemplate.StartBase = resource.StartBase;
                 existingTemplate.EndBase = resource.EndBase;
+                existingTemplate.RouteInfo = _mapper.Map<RouteInfo>(resource.RouteInfo);
 
                 var updateResult = await _repository.PutWithItems(
                     existingTemplate.Id,

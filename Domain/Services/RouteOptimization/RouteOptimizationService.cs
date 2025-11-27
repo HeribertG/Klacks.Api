@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Services;
@@ -18,20 +19,24 @@ public class RouteOptimizationService : IRouteOptimizationService
     private readonly IGeocodingService _geocodingService;
     private readonly IMemoryCache _cache;
     private readonly ILogger<RouteOptimizationService> _logger;
+    private readonly HttpClient _httpClient;
     private const double EARTH_RADIUS_KM = 6371.0;
+    private const string OSRM_BASE_URL = "https://router.project-osrm.org";
 
     public RouteOptimizationService(
         IContainerTemplateRepository containerRepository,
         IBranchRepository branchRepository,
         IGeocodingService geocodingService,
         IMemoryCache cache,
-        ILogger<RouteOptimizationService> logger)
+        ILogger<RouteOptimizationService> logger,
+        IHttpClientFactory httpClientFactory)
     {
         _containerRepository = containerRepository;
         _branchRepository = branchRepository;
         _geocodingService = geocodingService;
         _cache = cache;
         _logger = logger;
+        _httpClient = httpClientFactory.CreateClient();
     }
 
     public async Task<DistanceMatrix> CalculateDistanceMatrixAsync(Guid containerId, int weekday, bool isHoliday)
@@ -70,15 +75,45 @@ public class RouteOptimizationService : IRouteOptimizationService
         string? startBase = null,
         string? endBase = null)
     {
+        _logger.LogInformation(
+            "OptimizeRouteAsync called with containerId={ContainerId}, weekday={Weekday}, isHoliday={IsHoliday}, startBase={StartBase}, endBase={EndBase}",
+            containerId, weekday, isHoliday, startBase, endBase);
+
         var distanceMatrix = await CalculateDistanceMatrixAsync(containerId, weekday, isHoliday);
+        _logger.LogInformation("After CalculateDistanceMatrixAsync: {Count} locations", distanceMatrix.Locations.Count);
+
+        distanceMatrix = await AddBranchesToDistanceMatrixAsync(distanceMatrix, startBase, endBase);
+        _logger.LogInformation("After AddBranchesToDistanceMatrixAsync: {Count} locations", distanceMatrix.Locations.Count);
+
+        _logger.LogInformation("=== ALL LOCATIONS IN DISTANCE MATRIX ===");
+        for (int i = 0; i < distanceMatrix.Locations.Count; i++)
+        {
+            var loc = distanceMatrix.Locations[i];
+            _logger.LogInformation("  [{Index}] Name={Name}, Address={Address}, Lat={Lat}, Lon={Lon}, ShiftId={ShiftId}",
+                i, loc.Name, loc.Address, loc.Latitude, loc.Longitude, loc.ShiftId);
+        }
+
+        _logger.LogInformation("=== DISTANCE MATRIX VALUES ===");
+        for (int i = 0; i < distanceMatrix.Locations.Count; i++)
+        {
+            for (int j = 0; j < distanceMatrix.Locations.Count; j++)
+            {
+                if (i != j)
+                {
+                    _logger.LogInformation("  Distance[{I}][{J}] ({FromName} -> {ToName}) = {Distance:F2} km",
+                        i, j,
+                        distanceMatrix.Locations[i].Name,
+                        distanceMatrix.Locations[j].Name,
+                        distanceMatrix.Matrix[i, j]);
+                }
+            }
+        }
 
         if (distanceMatrix.Locations.Count < 2)
         {
-            _logger.LogWarning("Cannot optimize route with less than 2 locations");
-            return new RouteOptimizationResult(new List<Location>(), 0.0, TimeSpan.Zero, new double[0, 0], TimeSpan.Zero);
+            _logger.LogWarning("Cannot optimize route with less than 2 locations (after adding branches)");
+            return new RouteOptimizationResult(new List<Location>(), 0.0, TimeSpan.Zero, new double[0, 0], TimeSpan.Zero, new List<int>(), 0.0, 0.0, TimeSpan.Zero);
         }
-
-        distanceMatrix = await AddBranchesToDistanceMatrixAsync(distanceMatrix, startBase, endBase);
 
         var optimizer = new AntColonyOptimizer(distanceMatrix, _logger);
 
@@ -87,52 +122,143 @@ public class RouteOptimizationService : IRouteOptimizationService
 
         if (!string.IsNullOrEmpty(startBase))
         {
-            startIndex = distanceMatrix.Locations.FindIndex(l => l.Address == startBase);
+            startIndex = distanceMatrix.Locations.FindIndex(l =>
+                l.Address == startBase ||
+                l.Address.Equals(startBase, StringComparison.OrdinalIgnoreCase) ||
+                l.Address.Contains(startBase, StringComparison.OrdinalIgnoreCase) ||
+                startBase.Contains(l.Address, StringComparison.OrdinalIgnoreCase));
+            _logger.LogInformation("Looking for startBase '{StartBase}' in locations, found index: {Index}", startBase, startIndex);
             if (startIndex == -1)
             {
-                _logger.LogWarning("StartBase {StartBase} not found in locations", startBase);
+                _logger.LogWarning("StartBase {StartBase} not found in locations. Available addresses: [{Addresses}]",
+                    startBase,
+                    string.Join(", ", distanceMatrix.Locations.Select(l => l.Address)));
                 startIndex = null;
             }
         }
 
         if (!string.IsNullOrEmpty(endBase))
         {
-            endIndex = distanceMatrix.Locations.FindIndex(l => l.Address == endBase);
+            endIndex = distanceMatrix.Locations.FindIndex(l =>
+                l.Address == endBase ||
+                l.Address.Equals(endBase, StringComparison.OrdinalIgnoreCase) ||
+                l.Address.Contains(endBase, StringComparison.OrdinalIgnoreCase) ||
+                endBase.Contains(l.Address, StringComparison.OrdinalIgnoreCase));
+            _logger.LogInformation("Looking for endBase '{EndBase}' in locations, found index: {Index}", endBase, endIndex);
             if (endIndex == -1)
             {
-                _logger.LogWarning("EndBase {EndBase} not found in locations", endBase);
+                _logger.LogWarning("EndBase {EndBase} not found in locations. Available addresses: [{Addresses}]",
+                    endBase,
+                    string.Join(", ", distanceMatrix.Locations.Select(l => l.Address)));
                 endIndex = null;
             }
         }
 
         var route = optimizer.FindOptimalRoute(startIndex, endIndex);
 
+        _logger.LogInformation("=== OPTIMIZED ROUTE (indices) ===");
+        _logger.LogInformation("Route indices: [{Indices}]", string.Join(", ", route));
+
         var totalDistance = CalculateTotalDistance(route, distanceMatrix.Matrix);
+
+        _logger.LogInformation("=== ROUTE DISTANCE CALCULATION ===");
+
+        double distanceFromStartBase = 0;
+        if (startIndex.HasValue && route.Count > 0 && route[0] != startIndex.Value)
+        {
+            distanceFromStartBase = distanceMatrix.Matrix[startIndex.Value, route[0]];
+            _logger.LogInformation("  Start: [{FromIdx}]{FromName} -> [{ToIdx}]{ToName} = {Distance:F2} km",
+                startIndex.Value, distanceMatrix.Locations[startIndex.Value].Name,
+                route[0], distanceMatrix.Locations[route[0]].Name,
+                distanceFromStartBase);
+            totalDistance += distanceFromStartBase;
+        }
+
+        for (int i = 0; i < route.Count - 1; i++)
+        {
+            var fromIdx = route[i];
+            var toIdx = route[i + 1];
+            var segmentDistance = distanceMatrix.Matrix[fromIdx, toIdx];
+            _logger.LogInformation("  Segment {I}: [{FromIdx}]{FromName} -> [{ToIdx}]{ToName} = {Distance:F2} km",
+                i, fromIdx, distanceMatrix.Locations[fromIdx].Name,
+                toIdx, distanceMatrix.Locations[toIdx].Name,
+                segmentDistance);
+        }
+
+        double distanceToEndBase = 0;
+        if (endIndex.HasValue && route.Count > 0)
+        {
+            if (route.Last() != endIndex.Value)
+            {
+                var lastStopIndex = route.Last();
+                distanceToEndBase = distanceMatrix.Matrix[lastStopIndex, endIndex.Value];
+                totalDistance += distanceToEndBase;
+                _logger.LogInformation("  Return: [{FromIdx}]{FromName} -> [{ToIdx}]{ToName} = {Distance:F2} km",
+                    lastStopIndex, distanceMatrix.Locations[lastStopIndex].Name,
+                    endIndex.Value, distanceMatrix.Locations[endIndex.Value].Name,
+                    distanceToEndBase);
+            }
+            else if (route.Count >= 2)
+            {
+                var secondToLastIndex = route[route.Count - 2];
+                distanceToEndBase = distanceMatrix.Matrix[secondToLastIndex, endIndex.Value];
+                _logger.LogInformation("  Return (last segment): [{FromIdx}]{FromName} -> [{ToIdx}]{ToName} = {Distance:F2} km",
+                    secondToLastIndex, distanceMatrix.Locations[secondToLastIndex].Name,
+                    endIndex.Value, distanceMatrix.Locations[endIndex.Value].Name,
+                    distanceToEndBase);
+            }
+        }
+
+        _logger.LogInformation("Total calculated distance (including start and return): {Distance:F2} km", totalDistance);
+
         var estimatedTime = EstimateTravelTime(totalDistance);
 
-        var orderedLocations = route.Select(index => distanceMatrix.Locations[index]).ToList();
+        var fullRoute = new List<Location>();
+
+        if (startIndex.HasValue && route.Count > 0 && route[0] != startIndex.Value)
+        {
+            fullRoute.Add(distanceMatrix.Locations[startIndex.Value]);
+        }
+
+        fullRoute.AddRange(route.Select(index => distanceMatrix.Locations[index]));
+
+        if (endIndex.HasValue && route.Count > 0 && route.Last() != endIndex.Value)
+        {
+            fullRoute.Add(distanceMatrix.Locations[endIndex.Value]);
+        }
 
         TimeSpan travelTimeFromStartBase = TimeSpan.Zero;
-        if (startIndex.HasValue && route.Count > 0)
+        if (distanceFromStartBase > 0)
         {
-            _logger.LogInformation(
-                "StartBase index: {StartIndex}, First route index: {FirstRoute}, StartBase address: {StartAddress}, First location name: {FirstName}",
-                startIndex.Value, route[0],
-                distanceMatrix.Locations[startIndex.Value].Address,
-                distanceMatrix.Locations[route[0]].Name);
-
-            var distanceFromStart = distanceMatrix.Matrix[startIndex.Value, route[0]];
-            travelTimeFromStartBase = EstimateTravelTime(distanceFromStart);
+            travelTimeFromStartBase = EstimateTravelTime(distanceFromStartBase);
             _logger.LogInformation(
                 "Travel from StartBase to first location: {Distance:F2} km, {Time}",
-                distanceFromStart, travelTimeFromStartBase);
+                distanceFromStartBase, travelTimeFromStartBase);
+        }
+
+        TimeSpan travelTimeToEndBase = TimeSpan.Zero;
+        if (distanceToEndBase > 0)
+        {
+            travelTimeToEndBase = EstimateTravelTime(distanceToEndBase);
+            _logger.LogInformation(
+                "Travel from last location to EndBase: {Distance:F2} km, {Time}",
+                distanceToEndBase, travelTimeToEndBase);
         }
 
         _logger.LogInformation(
-            "Route optimized: {LocationCount} locations, {Distance:F2} km, {Time}",
-            orderedLocations.Count, totalDistance, estimatedTime);
+            "Route optimized: {LocationCount} locations (full route), {Distance:F2} km, {Time}",
+            fullRoute.Count, totalDistance, estimatedTime);
 
-        return new RouteOptimizationResult(orderedLocations, totalDistance, estimatedTime, distanceMatrix.Matrix, travelTimeFromStartBase);
+        return new RouteOptimizationResult(
+            fullRoute,
+            totalDistance,
+            estimatedTime,
+            distanceMatrix.Matrix,
+            travelTimeFromStartBase,
+            route,
+            distanceFromStartBase,
+            distanceToEndBase,
+            travelTimeToEndBase);
     }
 
     private async Task<List<Location>> ExtractLocationsFromTemplateAsync(ContainerTemplate template)
@@ -177,10 +303,11 @@ public class RouteOptimizationService : IRouteOptimizationService
                 continue;
             }
 
-            _logger.LogInformation("Geocoding address: {City}, {Country}", address.City, address.Country ?? "Switzerland");
+            var fullAddress = $"{address.Street}, {address.Zip} {address.City}";
+            _logger.LogInformation("Geocoding full address: {FullAddress}, Country: {Country}", fullAddress, address.Country ?? "Switzerland");
 
-            var coords = await _geocodingService.GeocodeAsync(
-                address.City,
+            var coords = await _geocodingService.GeocodeAddressAsync(
+                fullAddress,
                 address.Country ?? "Switzerland");
 
             if (coords.Latitude.HasValue && coords.Longitude.HasValue)
@@ -188,7 +315,7 @@ public class RouteOptimizationService : IRouteOptimizationService
                 locations.Add(new Location
                 {
                     Name = item.Shift.Client.Name ?? "Unknown",
-                    Address = $"{address.Street}, {address.Zip} {address.City}",
+                    Address = fullAddress,
                     Latitude = coords.Latitude.Value,
                     Longitude = coords.Longitude.Value,
                     ShiftId = item.ShiftId
@@ -214,6 +341,71 @@ public class RouteOptimizationService : IRouteOptimizationService
         var size = locations.Count;
         var matrix = new double[size, size];
 
+        var cacheKey = $"osrm_matrix_{string.Join("_", locations.Select(l => $"{l.Latitude:F6}_{l.Longitude:F6}"))}";
+
+        if (_cache.TryGetValue(cacheKey, out double[,]? cachedMatrix) && cachedMatrix != null)
+        {
+            _logger.LogInformation("Using cached OSRM distance matrix");
+            return cachedMatrix;
+        }
+
+        try
+        {
+            matrix = await GetOsrmDistanceMatrixAsync(locations);
+            _cache.Set(cacheKey, matrix, TimeSpan.FromDays(7));
+            _logger.LogInformation("Successfully retrieved OSRM distance matrix with real road distances");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to get OSRM distance matrix, falling back to Haversine distances");
+            matrix = BuildHaversineDistanceMatrix(locations);
+        }
+
+        return matrix;
+    }
+
+    private async Task<double[,]> GetOsrmDistanceMatrixAsync(List<Location> locations)
+    {
+        var size = locations.Count;
+        var matrix = new double[size, size];
+
+        var coordinates = string.Join(";", locations.Select(l => $"{l.Longitude:F6},{l.Latitude:F6}"));
+        var url = $"{OSRM_BASE_URL}/table/v1/driving/{coordinates}?annotations=distance";
+
+        _logger.LogInformation("Requesting OSRM table API: {Url}", url);
+
+        var response = await _httpClient.GetAsync(url);
+        response.EnsureSuccessStatusCode();
+
+        var json = await response.Content.ReadAsStringAsync();
+        using var document = JsonDocument.Parse(json);
+        var root = document.RootElement;
+
+        if (root.GetProperty("code").GetString() != "Ok")
+        {
+            throw new Exception($"OSRM API returned error: {root.GetProperty("code").GetString()}");
+        }
+
+        var distances = root.GetProperty("distances");
+
+        for (int i = 0; i < size; i++)
+        {
+            var row = distances[i];
+            for (int j = 0; j < size; j++)
+            {
+                var distanceMeters = row[j].GetDouble();
+                matrix[i, j] = distanceMeters / 1000.0;
+            }
+        }
+
+        return matrix;
+    }
+
+    private double[,] BuildHaversineDistanceMatrix(List<Location> locations)
+    {
+        var size = locations.Count;
+        var matrix = new double[size, size];
+
         for (int i = 0; i < size; i++)
         {
             for (int j = 0; j < size; j++)
@@ -224,18 +416,9 @@ public class RouteOptimizationService : IRouteOptimizationService
                 }
                 else
                 {
-                    var cacheKey = $"distance_{locations[i].Latitude}_{locations[i].Longitude}_{locations[j].Latitude}_{locations[j].Longitude}";
-
-                    if (!_cache.TryGetValue(cacheKey, out double distance))
-                    {
-                        distance = CalculateHaversineDistance(
-                            locations[i].Latitude, locations[i].Longitude,
-                            locations[j].Latitude, locations[j].Longitude);
-
-                        _cache.Set(cacheKey, distance, TimeSpan.FromDays(30));
-                    }
-
-                    matrix[i, j] = distance;
+                    matrix[i, j] = CalculateHaversineDistance(
+                        locations[i].Latitude, locations[i].Longitude,
+                        locations[j].Latitude, locations[j].Longitude);
                 }
             }
         }
@@ -304,12 +487,9 @@ public class RouteOptimizationService : IRouteOptimizationService
 
         foreach (var address in addressesToAdd)
         {
-            var addressParts = address.Split(',');
-            var city = addressParts.Length > 1 ? addressParts[addressParts.Length - 1].Trim() : address;
+            _logger.LogInformation("Geocoding base address: {Address}", address);
 
-            _logger.LogInformation("Geocoding base address: {Address}, City: {City}", address, city);
-
-            var coords = await _geocodingService.GeocodeAsync(city, "Switzerland");
+            var coords = await _geocodingService.GeocodeAddressAsync(address, "Switzerland");
 
             if (coords.Latitude.HasValue && coords.Longitude.HasValue)
             {
@@ -352,4 +532,8 @@ public record RouteOptimizationResult(
     double TotalDistanceKm,
     TimeSpan EstimatedTravelTime,
     double[,] DistanceMatrix,
-    TimeSpan TravelTimeFromStartBase);
+    TimeSpan TravelTimeFromStartBase,
+    List<int> RouteIndices,
+    double DistanceFromStartBaseKm,
+    double DistanceToEndBaseKm,
+    TimeSpan TravelTimeToEndBase);

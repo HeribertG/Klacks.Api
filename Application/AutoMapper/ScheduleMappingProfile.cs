@@ -97,14 +97,22 @@ public class ScheduleMappingProfile : Profile
             .ForMember(dest => dest.Shift, opt => opt.MapFrom(src => src.Shift))
             .ForMember(dest => dest.ContainerTemplateItems, opt => opt.MapFrom(src => src.ContainerTemplateItems))
             .ForMember(dest => dest.StartBase, opt => opt.MapFrom(src => src.StartBase))
-            .ForMember(dest => dest.EndBase, opt => opt.MapFrom(src => src.EndBase));
+            .ForMember(dest => dest.EndBase, opt => opt.MapFrom(src => src.EndBase))
+            .ForMember(dest => dest.RouteInfo, opt => opt.MapFrom(src => src.RouteInfo));
 
         CreateMap<ContainerTemplateResource, ContainerTemplate>()
             .IgnoreAuditFields()
             .ForMember(dest => dest.Shift, opt => opt.Ignore())
             .ForMember(dest => dest.ContainerTemplateItems, opt => opt.MapFrom(src => src.ContainerTemplateItems))
             .ForMember(dest => dest.StartBase, opt => opt.MapFrom(src => src.StartBase))
-            .ForMember(dest => dest.EndBase, opt => opt.MapFrom(src => src.EndBase));
+            .ForMember(dest => dest.EndBase, opt => opt.MapFrom(src => src.EndBase))
+            .ForMember(dest => dest.RouteInfo, opt => opt.MapFrom(src => src.RouteInfo));
+
+        CreateMap<RouteInfo, RouteInfoResource>();
+        CreateMap<RouteInfoResource, RouteInfo>();
+
+        CreateMap<RouteLocation, RouteLocationResource>();
+        CreateMap<RouteLocationResource, RouteLocation>();
 
         CreateMap<ContainerTemplateItem, ContainerTemplateItemResource>()
             .ForMember(dest => dest.Shift, opt => opt.MapFrom(src => src.Shift))

@@ -20,6 +20,8 @@ public class ContainerTemplateResource
 
     public string? EndBase { get; set; }
 
+    public RouteInfoResource? RouteInfo { get; set; }
+
     public ShiftResource? Shift { get; set; }
 
     public List<ContainerTemplateItemResource> ContainerTemplateItems { get; set; } = new List<ContainerTemplateItemResource>();
