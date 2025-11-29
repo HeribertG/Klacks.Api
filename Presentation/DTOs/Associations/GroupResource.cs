@@ -31,4 +31,8 @@ public class GroupResource : SimpleGroupResource
             return GroupItems?.Count ?? 0;
         }
     }
+
+    public int ShiftsCount { get; set; }
+
+    public int CustomersCount { get; set; }
 }

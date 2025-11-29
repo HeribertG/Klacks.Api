@@ -157,4 +157,5 @@ public class GeminiProvider : BaseHttpProvider
 
         return functionCalls;
     }
+
 }

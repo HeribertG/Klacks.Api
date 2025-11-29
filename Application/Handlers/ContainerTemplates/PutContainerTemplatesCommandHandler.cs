@@ -35,6 +35,9 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
 
         foreach (var resource in request.Resources)
         {
+            _logger.LogInformation("Received resource - Weekday: {Weekday}, TransportMode: {TransportMode}",
+                resource.Weekday, resource.TransportMode);
+
             if (resource.ContainerId == Guid.Empty)
             {
                 _logger.LogError("ContainerTemplate has no ContainerId set");
@@ -62,6 +65,7 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
                 existingTemplate.StartBase = resource.StartBase;
                 existingTemplate.EndBase = resource.EndBase;
                 existingTemplate.RouteInfo = _mapper.Map<RouteInfo>(resource.RouteInfo);
+                existingTemplate.TransportMode = resource.TransportMode;
 
                 var updateResult = await _repository.PutWithItems(
                     existingTemplate.Id,
