@@ -85,4 +85,28 @@ public static class LLMFunctions
         },
         RequiredParameters = new List<string> { "page" }
     };
+
+    public static LLMFunction SearchAndNavigate => new()
+    {
+        Name = "searchAndNavigate",
+        Description = "Sucht nach einer Entität (Mitarbeiter, Kunde, Gruppe, Dienst) anhand des Namens und navigiert direkt dorthin. Verwende diese Funktion wenn der Benutzer eine Person oder Entität öffnen/bearbeiten möchte (z.B. 'Öffne den Kunden Max Müller', 'Zeige mir Heribert Gasparoli'). Bei mehreren Treffern werden alle angezeigt.",
+        Parameters = new Dictionary<string, object>
+        {
+            ["entityType"] = new Dictionary<string, object> {
+                ["type"] = "string",
+                ["enum"] = new[] { "client", "shift", "group" },
+                ["description"] = "Typ der zu suchenden Entität: client (Mitarbeiter/Kunden), shift (Dienste), group (Gruppen)"
+            },
+            ["searchQuery"] = new Dictionary<string, object> {
+                ["type"] = "string",
+                ["description"] = "Name oder Suchbegriff um die Entität zu finden"
+            },
+            ["action"] = new Dictionary<string, object> {
+                ["type"] = "string",
+                ["enum"] = new[] { "view", "edit" },
+                ["description"] = "Aktion nach dem Finden: view (anzeigen) oder edit (bearbeiten). Standard ist edit."
+            }
+        },
+        RequiredParameters = new List<string> { "entityType", "searchQuery" }
+    };
 }

@@ -43,25 +43,26 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     private List<LLMFunction> GetAvailableFunctions(List<string> userRights)
     {
         var functions = new List<LLMFunction>();
-        
+
         functions.Add(LLMFunctions.GetSystemInfo);
         functions.Add(LLMFunctions.NavigateToPage);
-        
+
         if (userRights.Contains("CanViewClients") || userRights.Contains("Admin"))
         {
             functions.Add(LLMFunctions.SearchClients);
+            functions.Add(LLMFunctions.SearchAndNavigate);
         }
-        
+
         if (userRights.Contains("CanCreateClients") || userRights.Contains("Admin"))
         {
             functions.Add(LLMFunctions.CreateClient);
         }
-        
+
         if (userRights.Contains("CanCreateContracts") || userRights.Contains("Admin"))
         {
             functions.Add(LLMFunctions.CreateContract);
         }
-        
+
         return functions;
     }
 }

@@ -38,7 +38,15 @@ public class GeminiProvider : BaseHttpProvider
         try
         {
             var modelName = request.ModelId;
-            var endpoint = $"models/{modelName}:generateContent?key={_apiKey}";
+            var hasTools = request.AvailableFunctions.Any();
+            var hasSystemPrompt = !string.IsNullOrEmpty(request.SystemPrompt);
+            var useV1Beta = hasTools || hasSystemPrompt;
+
+            var baseUrl = useV1Beta
+                ? "https://generativelanguage.googleapis.com/v1beta/"
+                : _httpClient.BaseAddress?.ToString() ?? "https://generativelanguage.googleapis.com/v1/";
+
+            var endpoint = $"{baseUrl}models/{modelName}:generateContent?key={_apiKey}";
 
             var geminiRequest = new GeminiRequest
             {
@@ -47,7 +55,9 @@ public class GeminiProvider : BaseHttpProvider
                 {
                     Temperature = request.Temperature,
                     MaxOutputTokens = request.MaxTokens
-                }
+                },
+                Tools = BuildTools(request.AvailableFunctions),
+                SystemInstruction = BuildSystemInstruction(request.SystemPrompt)
             };
 
             var geminiResponse = await PostJsonAsync<GeminiRequest, GeminiResponse>(endpoint, geminiRequest);
@@ -158,4 +168,41 @@ public class GeminiProvider : BaseHttpProvider
         return functionCalls;
     }
 
+    private List<GeminiTool>? BuildTools(List<LLMFunction> availableFunctions)
+    {
+        if (availableFunctions == null || !availableFunctions.Any())
+        {
+            return null;
+        }
+
+        var functionDeclarations = availableFunctions.Select(func => new GeminiFunctionDeclaration
+        {
+            Name = func.Name,
+            Description = func.Description,
+            Parameters = new GeminiFunctionParameters
+            {
+                Type = "object",
+                Properties = func.Parameters,
+                Required = func.RequiredParameters.Any() ? func.RequiredParameters : null
+            }
+        }).ToList();
+
+        return new List<GeminiTool>
+        {
+            new GeminiTool { FunctionDeclarations = functionDeclarations }
+        };
+    }
+
+    private GeminiContent? BuildSystemInstruction(string? systemPrompt)
+    {
+        if (string.IsNullOrEmpty(systemPrompt))
+        {
+            return null;
+        }
+
+        return new GeminiContent
+        {
+            Parts = new[] { new GeminiPart { Text = systemPrompt } }
+        };
+    }
 }
