@@ -1,4 +1,5 @@
 ﻿using System;
+using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -660,6 +661,8 @@ namespace Klacks.Api.Migrations
                     city = table.Column<string>(type: "text", nullable: false),
                     state = table.Column<string>(type: "text", nullable: false),
                     country = table.Column<string>(type: "text", nullable: false),
+                    latitude = table.Column<double>(type: "double precision", nullable: true),
+                    longitude = table.Column<double>(type: "double precision", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -1099,6 +1102,8 @@ namespace Klacks.Api.Migrations
                     is_holiday = table.Column<bool>(type: "boolean", nullable: false),
                     start_base = table.Column<string>(type: "text", nullable: true),
                     end_base = table.Column<string>(type: "text", nullable: true),
+                    route_info = table.Column<RouteInfo>(type: "jsonb", nullable: true),
+                    transport_mode = table.Column<int>(type: "integer", nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -1252,6 +1257,7 @@ namespace Klacks.Api.Migrations
                     travel_time_before = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     time_range_start_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
                     time_range_end_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
+                    transport_mode = table.Column<int>(type: "integer", nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
