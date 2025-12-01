@@ -14,7 +14,7 @@ public class LLMProvider : BaseEntity
     [MaxLength(100)]
     public string ProviderName { get; set; } = string.Empty;
     
-    [MaxLength(500)]
+    [MaxLength(2000)]
     public string? ApiKey { get; set; } 
     
     public bool IsEnabled { get; set; }

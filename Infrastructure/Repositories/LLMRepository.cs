@@ -29,10 +29,11 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
         return await _context.Set<LLMProvider>()
             .Where(p => !p.IsDeleted && p.ProviderId == providerId)
             .Include(p => p.Models)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(); chrome://settings/search 
+                        
     }
 
-    public async Task<LLMProvider> CreateProviderAsync(LLMProvider provider)
+     public async Task<LLMProvider> CreateProviderAsync(LLMProvider provider)
     {
         _context.Set<LLMProvider>().Add(provider);
         await _context.SaveChangesAsync();

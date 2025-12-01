@@ -89,10 +89,15 @@ public class GeminiProvider : BaseHttpProvider
 
             return result;
         }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "HTTP error processing Gemini request: {Message}", ex.Message);
+            return CreateErrorResponse($"Gemini API error: {ex.Message}");
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error processing Gemini request");
-            return CreateErrorResponse("Internal error processing request");
+            _logger.LogError(ex, "Error processing Gemini request: {Message}", ex.Message);
+            return CreateErrorResponse($"Internal error: {ex.Message}");
         }
     }
 

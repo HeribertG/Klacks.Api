@@ -7,15 +7,32 @@ public static class LLMFunctions
     public static LLMFunction CreateClient => new()
     {
         Name = "create_client",
-        Description = "Erstellt einen neuen Mitarbeiter oder Kunden im System",
+        Description = "Erstellt einen neuen Mitarbeiter oder Kunden im System mit allen Daten (Name, Adresse, Geburtsdatum, Vertrag, Gruppe). Wichtig: Für Schweizer Adressen erkenne den Kanton automatisch aus der PLZ (z.B. 3097 Liebefeld → Kanton BE/Bern). Setze immer das Land korrekt.",
         Parameters = new Dictionary<string, object>
         {
             ["firstName"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "Vorname des Mitarbeiters" },
             ["lastName"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "Nachname des Mitarbeiters" },
-            ["gender"] = new Dictionary<string, object> { 
-                ["type"] = "string", 
+            ["gender"] = new Dictionary<string, object> {
+                ["type"] = "string",
                 ["enum"] = new[] { "Male", "Female", "Intersexuality", "LegalEntity" },
                 ["description"] = "Geschlecht - LegalEntity für Firmen verwenden"
+            },
+            ["birthdate"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "Geburtsdatum im Format YYYY-MM-DD (z.B. 1959-10-25)" },
+            ["street"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "Strasse und Hausnummer" },
+            ["postalCode"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "Postleitzahl (z.B. 3097)" },
+            ["city"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "Stadt/Ort (z.B. Liebefeld)" },
+            ["canton"] = new Dictionary<string, object> {
+                ["type"] = "string",
+                ["description"] = "Schweizer Kanton - erkenne aus PLZ: 1xxx=VD/GE, 2xxx=NE/JU, 3xxx=BE, 4xxx=BS/BL/SO, 5xxx=AG, 6xxx=LU/ZG/SZ/NW/OW/UR, 7xxx=GR, 8xxx=ZH/TG/SH, 9xxx=SG/AR/AI"
+            },
+            ["country"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "Land - IMMER setzen (z.B. Schweiz, Deutschland, Österreich)" },
+            ["contractType"] = new Dictionary<string, object> {
+                ["type"] = "string",
+                ["description"] = "Vertragstyp falls gewünscht (z.B. 'BE 180 Std', 'ZH 160 Std')"
+            },
+            ["groupPath"] = new Dictionary<string, object> {
+                ["type"] = "string",
+                ["description"] = "Gruppenpfad falls gewünscht (z.B. 'Deutschweiz Mitte -> BERN -> Bern')"
             }
         },
         RequiredParameters = new List<string> { "firstName", "lastName", "gender" }

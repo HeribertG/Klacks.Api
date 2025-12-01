@@ -60,6 +60,27 @@ public class ChatController : ControllerBase
         return Ok(functions);
     }
 
+    [HttpPost("execute-function")]
+    public async Task<ActionResult<LLMFunctionResult>> ExecuteFunction([FromBody] LLMFunctionExecuteRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.FunctionName))
+        {
+            return BadRequest("Function name cannot be empty");
+        }
+
+        var userId = GetCurrentUserId();
+        _logger.LogInformation("Executing function {FunctionName} for user {UserId}", request.FunctionName, userId);
+
+        var response = await _mediator.Send(new ExecuteLLMFunctionCommand
+        {
+            FunctionName = request.FunctionName,
+            Parameters = request.Parameters,
+            UserId = userId
+        });
+
+        return Ok(response);
+    }
+
     [HttpGet("help")]
     public ActionResult<object> GetHelp()
     {
