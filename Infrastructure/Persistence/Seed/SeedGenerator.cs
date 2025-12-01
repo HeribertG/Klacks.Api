@@ -81,7 +81,6 @@ namespace Klacks.Api.Data.Seed
 
                     var membership = GenerateMembershipForClient(client, year);
                     memberships.Add(membership);
-                    client.MembershipId = membership.Id; // Set the MembershipId on the client
 
                     var clientCommunications = GenerateCommunications(client.Id);
                     communications.AddRange(clientCommunications);
@@ -94,10 +93,8 @@ namespace Klacks.Api.Data.Seed
                 }
                 else
                 {
-                    // Create a default membership even when withIncludes is false
                     var membership = GenerateMembershipForClient(client, year);
                     memberships.Add(membership);
-                    client.MembershipId = membership.Id;
                 }
             }
 
@@ -375,8 +372,8 @@ namespace Klacks.Api.Data.Seed
             StringBuilder script = new StringBuilder();
             foreach (var client in clients)
             {
-                script.AppendLine($@"INSERT INTO public.client (id, name, first_name, second_name, birthdate, gender, legal_entity, company, membership_id, type, is_deleted, create_time, current_user_created) 
-                    VALUES ('{client.Id}', '{client.Name}', '{client.FirstName}', '{client.SecondName}', '{client.Birthdate:yyyy-MM-dd}', {(int)client.Gender}, {client.LegalEntity.ToString().ToLower()}, '{client.Company}', '{client.MembershipId}', {(int)client.Type}, {client.IsDeleted.ToString().ToLower()}, '{client.CreateTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{client.CurrentUserCreated}');");
+                script.AppendLine($@"INSERT INTO public.client (id, name, first_name, second_name, birthdate, gender, legal_entity, company, type, is_deleted, create_time, current_user_created)
+                    VALUES ('{client.Id}', '{client.Name}', '{client.FirstName}', '{client.SecondName}', '{client.Birthdate:yyyy-MM-dd}', {(int)client.Gender}, {client.LegalEntity.ToString().ToLower()}, '{client.Company}', {(int)client.Type}, {client.IsDeleted.ToString().ToLower()}, '{client.CreateTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{client.CurrentUserCreated}');");
             }
 
             return script.ToString();

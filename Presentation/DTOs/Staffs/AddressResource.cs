@@ -29,4 +29,8 @@ public class AddressResource
     public DateTime? ValidFrom { get; set; }
 
     public string? Zip { get; set; } = string.Empty;
+
+    public double? Latitude { get; set; }
+
+    public double? Longitude { get; set; }
 }

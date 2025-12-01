@@ -59,8 +59,6 @@ public class Client : BaseEntity
 
     public Membership? Membership { get; set; }
 
-    public Guid MembershipId { get; set; }
-
     [StringLength(100)]
     public string Name { get; set; } = string.Empty;
 

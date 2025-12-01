@@ -29,8 +29,7 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
         return await _context.Set<LLMProvider>()
             .Where(p => !p.IsDeleted && p.ProviderId == providerId)
             .Include(p => p.Models)
-            .FirstOrDefaultAsync(); chrome://settings/search 
-                        
+            .FirstOrDefaultAsync();
     }
 
      public async Task<LLMProvider> CreateProviderAsync(LLMProvider provider)

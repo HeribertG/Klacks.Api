@@ -1,5 +1,4 @@
 ﻿using System;
-using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -202,7 +201,6 @@ namespace Klacks.Api.Migrations
                     id_number = table.Column<int>(type: "integer", nullable: false, defaultValueSql: "nextval('public.client_idnumber_seq')"),
                     legal_entity = table.Column<bool>(type: "boolean", nullable: false),
                     maiden_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    membership_id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     passwort_reset_token = table.Column<string>(type: "text", nullable: true),
                     second_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
@@ -309,7 +307,7 @@ namespace Klacks.Api.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     provider_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     provider_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    api_key = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    api_key = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
                     is_enabled = table.Column<bool>(type: "boolean", nullable: false),
                     base_url = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     api_version = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
@@ -1102,7 +1100,7 @@ namespace Klacks.Api.Migrations
                     is_holiday = table.Column<bool>(type: "boolean", nullable: false),
                     start_base = table.Column<string>(type: "text", nullable: true),
                     end_base = table.Column<string>(type: "text", nullable: true),
-                    route_info = table.Column<RouteInfo>(type: "jsonb", nullable: true),
+                    route_info = table.Column<string>(type: "jsonb", nullable: true),
                     transport_mode = table.Column<int>(type: "integer", nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),

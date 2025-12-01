@@ -30,8 +30,6 @@ public class ClientBreakResource
 
     public MembershipResource? Membership { get; set; }
 
-    public Guid MembershipId { get; set; }
-
     public string? Name { get; set; } = string.Empty;
 
     public string? SecondName { get; set; } = string.Empty;

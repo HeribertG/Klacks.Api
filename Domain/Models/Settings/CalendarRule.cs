@@ -7,7 +7,7 @@ public class CalendarRule
 {
     public string Country { get; set; } = string.Empty;
 
-    public MultiLanguage? Description { get; set; } = null!;
+    public MultiLanguage Description { get; set; } = new();
 
     [Key]
     public Guid Id { get; set; }
@@ -16,7 +16,7 @@ public class CalendarRule
 
     public bool IsPaid { get; set; }
 
-    public MultiLanguage? Name { get; set; } = null!;
+    public MultiLanguage Name { get; set; } = new();
 
     public string Rule { get; set; } = string.Empty;
 

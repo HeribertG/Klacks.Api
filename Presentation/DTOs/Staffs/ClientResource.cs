@@ -48,8 +48,6 @@ public class ClientResource
 
     public MembershipResource? Membership { get; set; }
 
-    public Guid MembershipId { get; set; }
-
     public string? Name { get; set; } = string.Empty;
 
     public string? PasswortResetToken { get; set; } = string.Empty;

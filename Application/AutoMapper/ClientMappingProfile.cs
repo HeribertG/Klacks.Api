@@ -87,7 +87,6 @@ public class ClientMappingProfile : Profile
             .ForMember(dest => dest.LegalEntity, opt => opt.MapFrom(src => src.Gender == GenderEnum.LegalEntity))
             .ForMember(dest => dest.MaidenName, opt => opt.Ignore())
             .ForMember(dest => dest.Membership, opt => opt.Ignore())
-            .ForMember(dest => dest.MembershipId, opt => opt.MapFrom(src => Guid.Empty))
             .ForMember(dest => dest.PasswortResetToken, opt => opt.Ignore())
             .ForMember(dest => dest.SecondName, opt => opt.Ignore())
             .ForMember(dest => dest.Title, opt => opt.Ignore())

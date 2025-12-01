@@ -31,6 +31,8 @@ public class GroupMappingProfile : Profile
         CreateMap<Group, GroupResource>()
             .ForMember(dest => dest.Children, opt => opt.Ignore())
             .ForMember(dest => dest.Depth, opt => opt.Ignore())
+            .ForMember(dest => dest.ShiftsCount, opt => opt.Ignore())
+            .ForMember(dest => dest.CustomersCount, opt => opt.Ignore())
             .ForMember(dest => dest.GroupItems, opt => opt.MapFrom(src => src.GroupItems));
 
         CreateMap<GroupResource, Group>()
@@ -101,7 +103,10 @@ public class GroupMappingProfile : Profile
             .ForMember(dest => dest.Parent, opt => opt.MapFrom(src => src.ParentId.HasValue ? Guid.NewGuid() : (Guid?)null))
             .ForMember(dest => dest.Root, opt => opt.Ignore())
             .ForMember(dest => dest.Lft, opt => opt.MapFrom(src => src.LeftValue))
-            .ForMember(dest => dest.Rgt, opt => opt.MapFrom(src => src.RightValue));
+            .ForMember(dest => dest.Rgt, opt => opt.MapFrom(src => src.RightValue))
+            .ForMember(dest => dest.Depth, opt => opt.Ignore())
+            .ForMember(dest => dest.ShiftsCount, opt => opt.Ignore())
+            .ForMember(dest => dest.CustomersCount, opt => opt.Ignore());
 
         CreateMap<GroupSummary, Group>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()))
