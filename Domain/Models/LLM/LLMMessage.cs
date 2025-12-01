@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Domain.Models.LLM;
@@ -25,6 +26,7 @@ public class LLMMessage : BaseEntity
     public string? FunctionCalls { get; set; } // JSON
     
     // Navigation
+    [JsonIgnore]
     [ForeignKey("ConversationId")]
     public virtual LLMConversation Conversation { get; set; } = null!;
 }

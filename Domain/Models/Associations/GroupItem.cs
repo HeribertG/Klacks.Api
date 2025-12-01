@@ -3,6 +3,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Klacks.Api.Domain.Models.Associations;
 
@@ -24,9 +25,12 @@ public class GroupItem : BaseEntity
     [DataType(DataType.Date)]
     public DateTime? ValidUntil { get; set; }
 
+    [JsonIgnore]
     public virtual Client? Client { get; set; } = null!;
 
+    [JsonIgnore]
     public virtual Shift? Shift { get; set; } = null!;
 
+    [JsonIgnore]
     public virtual Group? Group { get; set; }
 }

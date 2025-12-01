@@ -1,6 +1,7 @@
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Klacks.Api.Domain.Models.Schedules;
 
@@ -30,7 +31,9 @@ public class ContainerTemplateItem : BaseEntity
 
     public TransportMode TransportMode { get; set; } = TransportMode.ByCar;
 
+    [JsonIgnore]
     public virtual ContainerTemplate ContainerTemplate { get; set; } = null!;
 
+    [JsonIgnore]
     public virtual Shift Shift { get; set; } = null!;
 }
