@@ -10,20 +10,20 @@ namespace Klacks.Api.Data.Seed
         public static void SeedData(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql(
-                @"INSERT INTO ""AspNetRoles"" (id, concurrency_stamp, name, normalized_name) VALUES 
+                @"INSERT INTO ""AspNetRoles"" (id, concurrency_stamp, name, normalized_name) VALUES
                 ('9c05bb10-5855-4201-a755-1d92ed9df000', 'd94790da-0103-4ade-b715-29526b2b1fc7', 'Authorised', 'AUTHORISED'),
                 ('e32d7319-6861-4c9a-b096-08a77088cadd', '402b8312-92a7-43f4-be73-b3400ccc2a7b', 'Admin', 'ADMIN')
                 ON CONFLICT (id) DO NOTHING;"
             );
 
             migrationBuilder.Sql(
-                @"INSERT INTO ""AspNetUsers"" (id, access_failed_count, concurrency_stamp, discriminator, email, email_confirmed, first_name, last_name, lockout_enabled, lockout_end, normalized_email, normalized_user_name, password_hash, phone_number, phone_number_confirmed, security_stamp, two_factor_enabled, user_name) VALUES 
+                @"INSERT INTO ""AspNetUsers"" (id, access_failed_count, concurrency_stamp, discriminator, email, email_confirmed, first_name, last_name, lockout_enabled, lockout_end, normalized_email, normalized_user_name, password_hash, phone_number, phone_number_confirmed, security_stamp, two_factor_enabled, user_name) VALUES
                 ('672f77e8-e479-4422-8781-84d218377fb3', 0, '217b0216-5440-4e51-a6e4-ea79d0da9155', 'AppUser', 'admin@test.com', true, 'admin', 'admin', false, null, 'ADMIN@TEST.COM', 'ADMIN', 'AQAAAAEAACcQAAAAEM4rFqzwCkNDdqC7P5XDITL1ub4TLm1MPZMru7BlKyFLNSRfaamO4BUl/fAV4aNNlA==', '123456789', false, 'a04e4667-082e-43df-b82a-3ff914fc7db7', false, 'admin')
                 ON CONFLICT (id) DO NOTHING;"
             );
 
             migrationBuilder.Sql(
-                @"INSERT INTO communication_type (id, category, default_index, name, type) VALUES 
+                @"INSERT INTO communication_type (id, category, default_index, name, type) VALUES
                 (1, 0, 0, 'Festnetz P', 0),
                 (2, 0, 1, 'Mobil P', 1),
                 (3, 0, 0, 'Festnetz G', 2),

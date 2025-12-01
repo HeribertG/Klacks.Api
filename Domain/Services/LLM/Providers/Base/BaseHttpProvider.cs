@@ -1,8 +1,7 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Net;
-using Klacks.Api.Presentation.DTOs.LLM;
 
 namespace Klacks.Api.Domain.Services.LLM.Providers.Base;
 
