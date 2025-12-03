@@ -1,5 +1,7 @@
-using System.Net.Mail;
 using Klacks.Api.Presentation.DTOs.Settings;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
 
 namespace Klacks.Api.Infrastructure.Email;
 
@@ -26,6 +28,10 @@ public class EmailTestService : IEmailTestService
             _logger.LogInformation("Testing email configuration for server: {Server}:{Port} with username: {Username}",
                 request.Server, request.Port, request.Username);
 
+            var pwd = request.Password ?? "";
+            _logger.LogInformation("Password analysis: Length={Length}, StartsWithENC={StartsWithEnc}",
+                pwd.Length, pwd.StartsWith("ENC:"));
+
             if (string.IsNullOrWhiteSpace(request.Server) ||
                 string.IsNullOrWhiteSpace(request.Port) ||
                 string.IsNullOrWhiteSpace(request.Username) ||
@@ -47,26 +53,6 @@ public class EmailTestService : IEmailTestService
                 };
             }
 
-            using var client = new SmtpClient(request.Server, port);
-
-            client.DeliveryMethod = SmtpDeliveryMethod.Network;
-            client.Timeout = Math.Max(request.Timeout, 30000);
-
-            if (port == 465)
-            {
-                client.EnableSsl = true;
-                _logger.LogInformation("Using implicit SSL for port 465");
-            }
-            else if (port == 587)
-            {
-                client.EnableSsl = request.EnableSSL;
-                _logger.LogInformation("Using explicit SSL (STARTTLS) for port 587: {EnableSSL}", request.EnableSSL);
-            }
-            else
-            {
-                client.EnableSsl = request.EnableSSL;
-            }
-
             if (request.AuthenticationType == "<None>" || string.IsNullOrWhiteSpace(request.AuthenticationType))
             {
                 if (request.Server.Contains("outlook.com") || request.Server.Contains("hotmail.com") ||
@@ -81,79 +67,69 @@ public class EmailTestService : IEmailTestService
                         ErrorDetails = "Most email providers require authentication"
                     };
                 }
-
-                client.UseDefaultCredentials = true;
-            }
-            else
-            {
-                client.UseDefaultCredentials = false;
-
-                var networkCredential = new System.Net.NetworkCredential(request.Username, request.Password);
-                client.Credentials = networkCredential;
-
-                _logger.LogInformation("Configuring authentication - Username: {Username}, Server: {Server}, Port: {Port}, SSL: {SSL}, AuthType: {AuthType}",
-                    request.Username, request.Server, port, request.EnableSSL, request.AuthenticationType);
-
-                if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
-                {
-                    _logger.LogWarning("Username or password is empty!");
-                    return new EmailTestResult
-                    {
-                        Success = false,
-                        Message = "Username and password are required for authentication.",
-                        ErrorDetails = "Missing credentials"
-                    };
-                }
             }
 
-            _logger.LogInformation("SMTP Client configured: Server={Server}, Port={Port}, SSL={SSL}, Timeout={Timeout}ms",
-                request.Server, port, request.EnableSSL, client.Timeout);
-
-            var testMessage = new MailMessage
+            var secureSocketOptions = SecureSocketOptions.Auto;
+            if (port == 465)
             {
-                From = new MailAddress(request.Username),
-                Subject = "Klacks Email Configuration Test",
-                Body = @"
+                secureSocketOptions = SecureSocketOptions.SslOnConnect;
+            }
+            else if (port == 587 || request.EnableSSL)
+            {
+                secureSocketOptions = SecureSocketOptions.StartTls;
+            }
+
+            _logger.LogInformation("SSL Configuration: Port={Port}, RequestEnableSSL={RequestSSL}, SecureSocketOptions={Options}",
+                port, request.EnableSSL, secureSocketOptions);
+
+            using var client = new SmtpClient();
+
+            var timeout = Math.Max(request.Timeout, 30000);
+            client.Timeout = timeout;
+
+            _logger.LogInformation("Connecting to SMTP server {Server}:{Port} with {Options}...",
+                request.Server, port, secureSocketOptions);
+
+            await client.ConnectAsync(request.Server, port, secureSocketOptions);
+
+            _logger.LogInformation("Connected successfully. Authenticating as {Username}...", request.Username);
+
+            await client.AuthenticateAsync(request.Username, request.Password);
+
+            _logger.LogInformation("Authentication successful. Sending test email...");
+
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(request.Username, request.Username));
+            message.To.Add(new MailboxAddress(request.Username, request.Username));
+            message.Subject = "Klacks Email Configuration Test";
+
+            var bodyBuilder = new BodyBuilder
+            {
+                HtmlBody = $@"
 <html>
 <body>
 <h2>Email Configuration Test Successful!</h2>
 <p>This is a test email from your Klacks application to verify that your email configuration is working correctly.</p>
 <p><strong>Test Details:</strong></p>
 <ul>
-<li>SMTP Server: " + request.Server + @"</li>
-<li>Port: " + request.Port + @"</li>
-<li>SSL Enabled: " + request.EnableSSL + @"</li>
-<li>Authentication: " + request.AuthenticationType + @"</li>
-<li>Test Date: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + @"</li>
+<li>SMTP Server: {request.Server}</li>
+<li>Port: {request.Port}</li>
+<li>SSL/TLS: {secureSocketOptions}</li>
+<li>Authentication: {request.AuthenticationType}</li>
+<li>Test Date: {DateTime.Now:yyyy-MM-dd HH:mm:ss}</li>
 </ul>
 <p>If you receive this email, your email configuration is working properly.</p>
 <p><em>This is an automated test message from Klacks.</em></p>
 </body>
-</html>",
-                IsBodyHtml = true
+</html>"
             };
-            testMessage.To.Add(request.Username);
+            message.Body = bodyBuilder.ToMessageBody();
 
-            _logger.LogInformation("Attempting authentication with UseDefaultCredentials: {UseDefault}, Credentials null: {CredsNull}",
-    client.UseDefaultCredentials, client.Credentials == null);
+            await client.SendAsync(message);
 
-            try
-            {
-                await Task.Run(() =>
-                {
-                    _logger.LogInformation("Attempting to send test email to {Username} via {Server}:{Port}",
-                        request.Username, request.Server, port);
-                    client.Send(testMessage);
-                    _logger.LogInformation("Test email sent successfully to {Username}", request.Username);
-                });
-            }
-            catch (Exception sendEx)
-            {
-                _logger.LogError(sendEx, "Failed to send test email");
-                throw;
-            }
+            _logger.LogInformation("Test email sent successfully to {Username}", request.Username);
 
-            _logger.LogInformation("Email configuration test successful for {Server}:{Port}", request.Server, port);
+            await client.DisconnectAsync(true);
 
             return new EmailTestResult
             {
@@ -161,93 +137,59 @@ public class EmailTestService : IEmailTestService
                 Message = $"Test email sent successfully to {request.Username}! Please check your inbox to confirm delivery."
             };
         }
-        catch (SmtpException smtpEx)
+        catch (AuthenticationException authEx)
         {
-            _logger.LogWarning("SMTP error occurred: {Message}", smtpEx.Message);
+            _logger.LogWarning("SMTP Authentication failed: {Message}", authEx.Message);
 
-            if (smtpEx.Message.Contains("timed out") || smtpEx.Message.Contains("timeout"))
+            string authMessage = "Authentication failed. Please check your username and password.";
+
+            if (request.Server.Contains("gmx."))
             {
-                return new EmailTestResult
-                {
-                    Success = false,
-                    Message = "Connection timeout. Please check server address, port, and network connectivity. For Outlook/Hotmail use: smtp-mail.outlook.com:587 with SSL.",
-                    ErrorDetails = smtpEx.Message
-                };
+                authMessage = "GMX Authentication failed. Please verify:\n" +
+                            "1. Use your full email address as username\n" +
+                            "2. Use your GMX password\n" +
+                            "3. Ensure SMTP/IMAP is enabled in your GMX account settings";
             }
-
-
-            if (smtpEx.Message.Contains("authentication") ||
-                smtpEx.Message.Contains("Authentication") ||
-                smtpEx.Message.Contains("5.7.8") ||
-                smtpEx.Message.Contains("5.7.3") ||
-                smtpEx.Message.Contains("535") ||
-                smtpEx.Message.Contains("Login failed") ||
-                smtpEx.Message.Contains("Invalid credentials") ||
-                smtpEx.Message.Contains("Username and Password not accepted") ||
-                smtpEx.Message.Contains("secure connection") ||
-                smtpEx.Message.Contains("client was not authenticated"))
+            else if (request.Server.Contains("outlook.com") || request.Server.Contains("hotmail.com"))
             {
-                string authMessage = "Authentication failed. Please check your username and password.";
-
-                if (request.Server.Contains("gmx."))
-                {
-                    authMessage = "GMX Authentication failed. Please verify:\n" +
-                                "1. Use your full email address as username\n" +
-                                "2. Use your GMX password (not an app password)\n" +
-                                "3. Ensure SMTP/IMAP is enabled in your GMX account settings\n" +
-                                "4. Try using port 587 with SSL enabled";
-                }
-                else if (request.Server.Contains("outlook.com") || request.Server.Contains("hotmail.com"))
-                {
-                    authMessage = "Authentication failed. For Microsoft accounts, use an App Password instead of your regular password.";
-                }
-
-                return new EmailTestResult
-                {
-                    Success = false,
-                    Message = authMessage,
-                    ErrorDetails = smtpEx.Message
-                };
-            }
-
-            if (smtpEx.Message.Contains("connection") ||
-                smtpEx.Message.Contains("refused") ||
-                smtpEx.Message.Contains("Failure sending mail") ||
-                smtpEx.Message.Contains("Unable to read data"))
-            {
-                string connectionMessage = "Failed to connect to SMTP server. Please check server address, port, and SSL settings.";
-
-                if (request.Server.Contains("gmx.") && port == 465)
-                {
-                    connectionMessage = "GMX Connection failed with port 465. Please try:\n" +
-                                      "1. Use port 587 instead of 465\n" +
-                                      "2. Ensure SSL is enabled\n" +
-                                      "3. Check that external applications are allowed in GMX settings";
-                }
-
-                return new EmailTestResult
-                {
-                    Success = false,
-                    Message = connectionMessage,
-                    ErrorDetails = smtpEx.Message
-                };
+                authMessage = "Authentication failed. For Microsoft accounts, use an App Password instead of your regular password.";
             }
 
             return new EmailTestResult
             {
                 Success = false,
-                Message = "SMTP error occurred: " + smtpEx.Message,
-                ErrorDetails = smtpEx.Message
+                Message = authMessage,
+                ErrorDetails = authEx.Message
             };
         }
-        catch (System.Security.Authentication.AuthenticationException authEx)
+        catch (SslHandshakeException sslEx)
         {
-            _logger.LogWarning("Authentication error: {Message}", authEx.Message);
+            _logger.LogWarning("SSL/TLS handshake failed: {Message}", sslEx.Message);
             return new EmailTestResult
             {
                 Success = false,
-                Message = "SSL/TLS authentication failed. Please check your SSL settings.",
-                ErrorDetails = authEx.Message
+                Message = "SSL/TLS handshake failed. Please check your SSL settings and try a different port (587 or 465).",
+                ErrorDetails = sslEx.Message
+            };
+        }
+        catch (SmtpCommandException smtpEx)
+        {
+            _logger.LogWarning("SMTP command error: {StatusCode} - {Message}", smtpEx.StatusCode, smtpEx.Message);
+            return new EmailTestResult
+            {
+                Success = false,
+                Message = $"SMTP error: {smtpEx.Message}",
+                ErrorDetails = $"Status: {smtpEx.StatusCode}"
+            };
+        }
+        catch (SmtpProtocolException protocolEx)
+        {
+            _logger.LogWarning("SMTP protocol error: {Message}", protocolEx.Message);
+            return new EmailTestResult
+            {
+                Success = false,
+                Message = "SMTP protocol error occurred. Please check your server settings.",
+                ErrorDetails = protocolEx.Message
             };
         }
         catch (System.Net.Sockets.SocketException socketEx)
@@ -258,6 +200,16 @@ public class EmailTestService : IEmailTestService
                 Success = false,
                 Message = "Network connection failed. Please check server address and port.",
                 ErrorDetails = socketEx.Message
+            };
+        }
+        catch (TimeoutException timeoutEx)
+        {
+            _logger.LogWarning("Connection timeout: {Message}", timeoutEx.Message);
+            return new EmailTestResult
+            {
+                Success = false,
+                Message = "Connection timeout. Please check server address, port, and network connectivity.",
+                ErrorDetails = timeoutEx.Message
             };
         }
         catch (Exception ex)

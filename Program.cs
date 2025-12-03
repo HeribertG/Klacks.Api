@@ -37,6 +37,10 @@ var jwtSettings = new JwtSettings();
 builder.Configuration.Bind(nameof(jwtSettings), jwtSettings);
 builder.Services.AddSingleton(jwtSettings);
 
+var openRouteServiceSettings = new Klacks.Api.Domain.Models.Settings.OpenRouteServiceSettings();
+builder.Configuration.Bind("OpenRouteService", openRouteServiceSettings);
+builder.Services.AddSingleton(openRouteServiceSettings);
+
 builder.Services.AddOpenApi("v1", options =>
 {
     options.AddDocumentTransformer((document, context, cancellationToken) =>
@@ -106,6 +110,10 @@ builder.Services.AddSingleton<Klacks.Api.Infrastructure.Services.IGeocodingServi
 
 // Add Route Optimization Service
 builder.Services.AddScoped<Klacks.Api.Domain.Services.RouteOptimization.IRouteOptimizationService, Klacks.Api.Domain.Services.RouteOptimization.RouteOptimizationService>();
+
+// Add Data Protection for encrypting sensitive settings
+builder.Services.AddDataProtection();
+builder.Services.AddSingleton<Klacks.Api.Domain.Services.Settings.ISettingsEncryptionService, Klacks.Api.Domain.Services.Settings.SettingsEncryptionService>();
 
 builder.Services
     .AddControllers()
