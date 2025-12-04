@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Staffs;
@@ -10,18 +10,18 @@ namespace Klacks.Api.Application.Handlers.AssignedGroups;
 public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<AssignedGroupResource>, AssignedGroupResource?>
 {
     private readonly IAssignedGroupRepository _assignedGroupRepository;
-    private readonly IMapper _mapper;
+    private readonly GroupMapper _groupMapper;
     private readonly IUnitOfWork _unitOfWork;
     
     public PostCommandHandler(
         IAssignedGroupRepository assignedGroupRepository,
-        IMapper mapper,
+        GroupMapper groupMapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _assignedGroupRepository = assignedGroupRepository;
-        _mapper = mapper;
+        _groupMapper = groupMapper;
         _unitOfWork = unitOfWork;
         }
 
@@ -29,10 +29,10 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Assig
     {
         return await ExecuteAsync(async () =>
         {
-            var assignedGroup = _mapper.Map<AssignedGroup>(request.Resource);
+            var assignedGroup = _groupMapper.ToAssignedGroupEntity(request.Resource);
             await _assignedGroupRepository.Add(assignedGroup);
             await _unitOfWork.CompleteAsync();
-            return _mapper.Map<AssignedGroupResource>(assignedGroup);
+            return _groupMapper.ToAssignedGroupResource(assignedGroup);
         }, 
         "creating group", 
         new { });

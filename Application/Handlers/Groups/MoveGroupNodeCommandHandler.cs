@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Associations;
@@ -9,18 +9,18 @@ namespace Klacks.Api.Application.Handlers.Groups;
 public class MoveGroupNodeCommandHandler : IRequestHandler<MoveGroupNodeCommand, GroupResource>
 {
     private readonly IGroupRepository _groupRepository;
-    private readonly IMapper _mapper;
+    private readonly GroupMapper _groupMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<MoveGroupNodeCommandHandler> _logger;
 
     public MoveGroupNodeCommandHandler(
         IGroupRepository groupRepository,
-        IMapper mapper,
+        GroupMapper groupMapper,
         IUnitOfWork unitOfWork,
         ILogger<MoveGroupNodeCommandHandler> logger)
     {
         _groupRepository = groupRepository;
-        _mapper = mapper;
+        _groupMapper = groupMapper;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -41,7 +41,7 @@ public class MoveGroupNodeCommandHandler : IRequestHandler<MoveGroupNodeCommand,
             }
             
             var depth = await _groupRepository.GetNodeDepth(request.NodeId);
-            var result = _mapper.Map<GroupResource>(movedGroup);
+            var result = _groupMapper.ToGroupResource(movedGroup);
             result.Depth = depth;
             
             await _unitOfWork.CompleteAsync();

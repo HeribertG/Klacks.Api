@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.GroupVisibilities;
 public class GetQueryHandler : IRequestHandler<GetQuery<GroupVisibilityResource>, GroupVisibilityResource>
 {
     private readonly IGroupVisibilityRepository _groupVisibilityRepository;
-    private readonly IMapper _mapper;
+    private readonly GroupMapper _groupMapper;
     private readonly ILogger<GetQueryHandler> _logger;
 
-    public GetQueryHandler(IGroupVisibilityRepository groupVisibilityRepository, IMapper mapper, ILogger<GetQueryHandler> logger)
+    public GetQueryHandler(IGroupVisibilityRepository groupVisibilityRepository, GroupMapper groupMapper, ILogger<GetQueryHandler> logger)
     {
         _groupVisibilityRepository = groupVisibilityRepository;
-        _mapper = mapper;
+        _groupMapper = groupMapper;
         _logger = logger;
     }
 
@@ -34,7 +34,7 @@ public class GetQueryHandler : IRequestHandler<GetQuery<GroupVisibilityResource>
                 throw new KeyNotFoundException($"Group visibility with ID {request.Id} not found");
             }
             
-            var result = _mapper.Map<GroupVisibilityResource>(groupVisibility);
+            var result = _groupMapper.ToGroupVisibilityResource(groupVisibility);
             _logger.LogInformation("Successfully retrieved group visibility with ID: {Id}", request.Id);
             return result;
         }

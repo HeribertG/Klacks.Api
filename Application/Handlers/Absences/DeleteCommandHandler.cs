@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -8,18 +8,18 @@ namespace Klacks.Api.Application.Handlers.Absences;
 
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<AbsenceResource>, AbsenceResource?>
 {
-    private readonly IMapper _mapper;
+    private readonly SettingsMapper _settingsMapper;
     private readonly IAbsenceRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
 
     public DeleteCommandHandler(
-        IMapper mapper,
+        SettingsMapper settingsMapper,
         IAbsenceRepository repository,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
-        _mapper = mapper;
+        _settingsMapper = settingsMapper;
         _repository = repository;
         _unitOfWork = unitOfWork;
     }
@@ -34,7 +34,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<A
                 throw new KeyNotFoundException($"Absence with ID {request.Id} not found.");
             }
 
-            var absenceResource = _mapper.Map<AbsenceResource>(absence);
+            var absenceResource = _settingsMapper.ToAbsenceResource(absence);
             await _repository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
             return absenceResource;

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Shifts;
 using Klacks.Api.Domain.Exceptions;
@@ -10,13 +10,13 @@ namespace Klacks.Api.Application.Handlers.Shifts;
 public class GetTruncatedListQueryHandler : IRequestHandler<GetTruncatedListQuery, TruncatedShiftResource>
 {
     private readonly IShiftRepository _shiftRepository;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly ILogger<GetTruncatedListQueryHandler> _logger;
 
-    public GetTruncatedListQueryHandler(IShiftRepository shiftRepository, IMapper mapper, ILogger<GetTruncatedListQueryHandler> logger)
+    public GetTruncatedListQueryHandler(IShiftRepository shiftRepository, ScheduleMapper scheduleMapper, ILogger<GetTruncatedListQueryHandler> logger)
     {
         _shiftRepository = shiftRepository;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         _logger = logger;
     }
 
@@ -30,7 +30,7 @@ public class GetTruncatedListQueryHandler : IRequestHandler<GetTruncatedListQuer
             
             _logger.LogInformation($"Retrieved truncated shift list with {truncatedShift.Shifts?.Count() ?? 0} shifts");
             
-            return _mapper.Map<TruncatedShiftResource>(truncatedShift);
+            return _scheduleMapper.ToTruncatedShiftResource(truncatedShift);
         }
         catch (Exception ex)
         {

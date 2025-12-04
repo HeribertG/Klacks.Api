@@ -1,0 +1,225 @@
+using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.CalendarSelections;
+using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Models.Settings;
+using Klacks.Api.Presentation.DTOs.Associations;
+using Klacks.Api.Presentation.DTOs.Filter;
+using Klacks.Api.Presentation.DTOs.Schedules;
+using Klacks.Api.Presentation.DTOs.Settings;
+using Riok.Mapperly.Abstractions;
+
+namespace Klacks.Api.Application.Mappers;
+
+[Mapper]
+public partial class ScheduleMapper
+{
+    public partial ContractResource ToContractResource(Contract contract);
+
+    [MapperIgnoreTarget(nameof(Contract.CreateTime))]
+    [MapperIgnoreTarget(nameof(Contract.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(Contract.UpdateTime))]
+    [MapperIgnoreTarget(nameof(Contract.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(Contract.DeletedTime))]
+    [MapperIgnoreTarget(nameof(Contract.IsDeleted))]
+    [MapperIgnoreTarget(nameof(Contract.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(Contract.CalendarSelection))]
+    public partial Contract ToContractEntity(ContractResource resource);
+
+    public partial MembershipResource ToMembershipResource(Membership membership);
+
+    [MapperIgnoreTarget(nameof(Membership.CreateTime))]
+    [MapperIgnoreTarget(nameof(Membership.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(Membership.UpdateTime))]
+    [MapperIgnoreTarget(nameof(Membership.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(Membership.DeletedTime))]
+    [MapperIgnoreTarget(nameof(Membership.IsDeleted))]
+    [MapperIgnoreTarget(nameof(Membership.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(Membership.Client))]
+    public partial Membership ToMembershipEntity(MembershipResource resource);
+
+    public partial BreakResource ToBreakResource(Break @break);
+
+    [MapperIgnoreTarget(nameof(Break.CreateTime))]
+    [MapperIgnoreTarget(nameof(Break.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(Break.UpdateTime))]
+    [MapperIgnoreTarget(nameof(Break.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(Break.DeletedTime))]
+    [MapperIgnoreTarget(nameof(Break.IsDeleted))]
+    [MapperIgnoreTarget(nameof(Break.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(Break.Absence))]
+    [MapperIgnoreTarget(nameof(Break.Client))]
+    [MapperIgnoreTarget(nameof(Break.BreakReasonId))]
+    [MapperIgnoreTarget(nameof(Break.BreakReason))]
+    public partial Break ToBreakEntity(BreakResource resource);
+
+    public partial CalendarRuleResource ToCalendarRuleResource(CalendarRule rule);
+    public partial CalendarRule ToCalendarRuleEntity(CalendarRuleResource resource);
+
+    public partial CalendarSelectionResource ToCalendarSelectionResource(CalendarSelection selection);
+
+    [MapperIgnoreTarget(nameof(CalendarSelection.CreateTime))]
+    [MapperIgnoreTarget(nameof(CalendarSelection.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(CalendarSelection.UpdateTime))]
+    [MapperIgnoreTarget(nameof(CalendarSelection.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(CalendarSelection.DeletedTime))]
+    [MapperIgnoreTarget(nameof(CalendarSelection.IsDeleted))]
+    [MapperIgnoreTarget(nameof(CalendarSelection.CurrentUserDeleted))]
+    public partial CalendarSelection ToCalendarSelectionEntity(CalendarSelectionResource resource);
+
+    public partial SelectedCalendarResource ToSelectedCalendarResource(SelectedCalendar calendar);
+
+    [MapperIgnoreTarget(nameof(SelectedCalendar.CreateTime))]
+    [MapperIgnoreTarget(nameof(SelectedCalendar.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(SelectedCalendar.UpdateTime))]
+    [MapperIgnoreTarget(nameof(SelectedCalendar.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(SelectedCalendar.DeletedTime))]
+    [MapperIgnoreTarget(nameof(SelectedCalendar.IsDeleted))]
+    [MapperIgnoreTarget(nameof(SelectedCalendar.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(SelectedCalendar.CalendarSelection))]
+    public partial SelectedCalendar ToSelectedCalendarEntity(SelectedCalendarResource resource);
+
+    public partial WorkResource ToWorkResource(Work work);
+
+    [MapperIgnoreTarget(nameof(Work.CreateTime))]
+    [MapperIgnoreTarget(nameof(Work.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(Work.UpdateTime))]
+    [MapperIgnoreTarget(nameof(Work.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(Work.DeletedTime))]
+    [MapperIgnoreTarget(nameof(Work.IsDeleted))]
+    [MapperIgnoreTarget(nameof(Work.CurrentUserDeleted))]
+    public partial Work ToWorkEntity(WorkResource resource);
+
+    public ShiftResource ToShiftResource(Shift shift)
+    {
+        var resource = ToShiftResourceBase(shift);
+        resource.Groups = shift.GroupItems?.Select(gi => new SimpleGroupResource
+        {
+            Id = gi.Group?.Id ?? gi.GroupId,
+            Name = gi.Group?.Name ?? string.Empty,
+            Description = gi.Group?.Description ?? string.Empty,
+            ValidFrom = gi.ValidFrom ?? DateTime.MinValue,
+            ValidUntil = gi.ValidUntil
+        }).ToList() ?? new List<SimpleGroupResource>();
+        return resource;
+    }
+
+    [MapperIgnoreTarget(nameof(ShiftResource.Groups))]
+    private partial ShiftResource ToShiftResourceBase(Shift shift);
+
+    [MapperIgnoreTarget(nameof(Shift.CreateTime))]
+    [MapperIgnoreTarget(nameof(Shift.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(Shift.UpdateTime))]
+    [MapperIgnoreTarget(nameof(Shift.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(Shift.DeletedTime))]
+    [MapperIgnoreTarget(nameof(Shift.IsDeleted))]
+    [MapperIgnoreTarget(nameof(Shift.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(Shift.Client))]
+    [MapperIgnoreTarget(nameof(Shift.GroupItems))]
+    private partial Shift ToShiftEntityBase(ShiftResource resource);
+
+    public Shift ToShiftEntity(ShiftResource resource)
+    {
+        var entity = ToShiftEntityBase(resource);
+        entity.GroupItems = resource.Groups?.Select(g => new GroupItem
+        {
+            GroupId = g.Id,
+            ValidFrom = g.ValidFrom,
+            ValidUntil = g.ValidUntil
+        }).ToList() ?? new List<GroupItem>();
+        return entity;
+    }
+
+    public partial TruncatedShiftResource ToTruncatedShiftResource(TruncatedShift truncatedShift);
+
+    public Shift CloneShift(Shift source)
+    {
+        return new Shift
+        {
+            Id = Guid.Empty,
+            CuttingAfterMidnight = source.CuttingAfterMidnight,
+            Abbreviation = source.Abbreviation,
+            Description = source.Description,
+            MacroId = source.MacroId,
+            Name = source.Name,
+            Status = source.Status,
+            AfterShift = source.AfterShift,
+            BeforeShift = source.BeforeShift,
+            EndShift = source.EndShift,
+            FromDate = source.FromDate,
+            StartShift = source.StartShift,
+            UntilDate = source.UntilDate,
+            BriefingTime = source.BriefingTime,
+            DebriefingTime = source.DebriefingTime,
+            TravelTimeAfter = source.TravelTimeAfter,
+            TravelTimeBefore = source.TravelTimeBefore,
+            IsFriday = source.IsFriday,
+            IsHoliday = source.IsHoliday,
+            IsMonday = source.IsMonday,
+            IsSaturday = source.IsSaturday,
+            IsSunday = source.IsSunday,
+            IsThursday = source.IsThursday,
+            IsTuesday = source.IsTuesday,
+            IsWednesday = source.IsWednesday,
+            IsWeekdayOrHoliday = source.IsWeekdayOrHoliday,
+            IsSporadic = source.IsSporadic,
+            SporadicScope = source.SporadicScope,
+            IsTimeRange = source.IsTimeRange,
+            Quantity = source.Quantity,
+            SumEmployees = source.SumEmployees,
+            WorkTime = source.WorkTime,
+            ShiftType = source.ShiftType,
+            OriginalId = source.OriginalId,
+            ParentId = source.ParentId,
+            RootId = source.RootId,
+            Lft = source.Lft,
+            Rgt = source.Rgt,
+            ClientId = source.ClientId,
+            GroupItems = source.GroupItems.Select(gi => new GroupItem
+            {
+                Id = Guid.Empty,
+                GroupId = gi.GroupId,
+                ValidFrom = gi.ValidFrom,
+                ValidUntil = gi.ValidUntil,
+                ShiftId = Guid.Empty
+            }).ToList()
+        };
+    }
+
+    public partial ContainerTemplateResource ToContainerTemplateResource(ContainerTemplate template);
+
+    [MapperIgnoreTarget(nameof(ContainerTemplate.CreateTime))]
+    [MapperIgnoreTarget(nameof(ContainerTemplate.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(ContainerTemplate.UpdateTime))]
+    [MapperIgnoreTarget(nameof(ContainerTemplate.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(ContainerTemplate.DeletedTime))]
+    [MapperIgnoreTarget(nameof(ContainerTemplate.IsDeleted))]
+    [MapperIgnoreTarget(nameof(ContainerTemplate.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(ContainerTemplate.Shift))]
+    public partial ContainerTemplate ToContainerTemplateEntity(ContainerTemplateResource resource);
+
+    public partial RouteInfoResource ToRouteInfoResource(RouteInfo routeInfo);
+    public partial RouteInfo ToRouteInfoEntity(RouteInfoResource resource);
+
+    public partial RouteLocationResource ToRouteLocationResource(RouteLocation location);
+    public partial RouteLocation ToRouteLocationEntity(RouteLocationResource resource);
+
+    public partial RouteSegmentDirectionsResource ToRouteSegmentDirectionsResource(RouteSegmentDirections directions);
+    public partial RouteSegmentDirections ToRouteSegmentDirectionsEntity(RouteSegmentDirectionsResource resource);
+
+    public partial DirectionStepResource ToDirectionStepResource(DirectionStep step);
+    public partial DirectionStep ToDirectionStepEntity(DirectionStepResource resource);
+
+    [MapperIgnoreTarget(nameof(ContainerTemplateItemResource.Weekday))]
+    public partial ContainerTemplateItemResource ToContainerTemplateItemResource(ContainerTemplateItem item);
+
+    [MapperIgnoreTarget(nameof(ContainerTemplateItem.CreateTime))]
+    [MapperIgnoreTarget(nameof(ContainerTemplateItem.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(ContainerTemplateItem.UpdateTime))]
+    [MapperIgnoreTarget(nameof(ContainerTemplateItem.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(ContainerTemplateItem.DeletedTime))]
+    [MapperIgnoreTarget(nameof(ContainerTemplateItem.IsDeleted))]
+    [MapperIgnoreTarget(nameof(ContainerTemplateItem.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(ContainerTemplateItem.Shift))]
+    [MapperIgnoreTarget(nameof(ContainerTemplateItem.ContainerTemplate))]
+    public partial ContainerTemplateItem ToContainerTemplateItemEntity(ContainerTemplateItemResource resource);
+}

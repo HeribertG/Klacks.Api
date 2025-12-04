@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Staffs;
@@ -9,18 +9,18 @@ namespace Klacks.Api.Application.Handlers.Addresses;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<AddressResource>, AddressResource?>
 {
     private readonly IAddressRepository _addressRepository;
-    private readonly IMapper _mapper;
+    private readonly AddressCommunicationMapper _addressCommunicationMapper;
     private readonly IUnitOfWork _unitOfWork;
     
     public PutCommandHandler(
         IAddressRepository addressRepository,
-        IMapper mapper,
+        AddressCommunicationMapper addressCommunicationMapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _addressRepository = addressRepository;
-        _mapper = mapper;
+        _addressCommunicationMapper = addressCommunicationMapper;
         _unitOfWork = unitOfWork;
         }
 
@@ -34,10 +34,13 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Address
                 throw new KeyNotFoundException($"Address with ID {request.Resource.Id} not found.");
             }
 
-            _mapper.Map(request.Resource, existingAddress);
+            var updatedAddress = _addressCommunicationMapper.ToAddressEntity(request.Resource);
+            updatedAddress.CreateTime = existingAddress.CreateTime;
+            updatedAddress.CurrentUserCreated = existingAddress.CurrentUserCreated;
+            existingAddress = updatedAddress;
             await _addressRepository.Put(existingAddress);
             await _unitOfWork.CompleteAsync();
-            return _mapper.Map<AddressResource>(existingAddress);
+            return _addressCommunicationMapper.ToAddressResource(existingAddress);
         }, 
         "updating address", 
         new { AddressId = request.Resource.Id });

@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Groups;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Groups
     public class GetTruncatedListQueryHandler : IRequestHandler<GetTruncatedListQuery, TruncatedGroupResource>
     {
         private readonly IGroupRepository _groupRepository;
-        private readonly IMapper _mapper;
+        private readonly GroupMapper _groupMapper;
         private readonly ILogger<GetTruncatedListQueryHandler> _logger;
 
-        public GetTruncatedListQueryHandler(IGroupRepository groupRepository, IMapper mapper, ILogger<GetTruncatedListQueryHandler> logger)
+        public GetTruncatedListQueryHandler(IGroupRepository groupRepository, GroupMapper groupMapper, ILogger<GetTruncatedListQueryHandler> logger)
         {
             _groupRepository = groupRepository;
-            _mapper = mapper;
+            _groupMapper = groupMapper;
             _logger = logger;
         }
 
@@ -37,7 +37,7 @@ namespace Klacks.Api.Application.Handlers.Groups
                 
                 var truncatedGroupResource = new TruncatedGroupResource
                 {
-                    Groups = _mapper.Map<List<Klacks.Api.Presentation.DTOs.Associations.GroupResource>>(truncatedResult.Groups),
+                    Groups = _groupMapper.ToGroupResources(truncatedResult.Groups.ToList()),
                     MaxItems = truncatedResult.MaxItems,
                     MaxPages = truncatedResult.MaxPages,
                     CurrentPage = truncatedResult.CurrentPage,

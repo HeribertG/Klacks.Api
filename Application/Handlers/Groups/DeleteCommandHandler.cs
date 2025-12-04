@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Associations;
@@ -9,18 +9,18 @@ namespace Klacks.Api.Application.Handlers.Groups;
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<GroupResource>, GroupResource?>
 {
     private readonly IGroupRepository _groupRepository;
-    private readonly IMapper _mapper;
+    private readonly GroupMapper _groupMapper;
     private readonly IUnitOfWork _unitOfWork;
     
     public DeleteCommandHandler(
         IGroupRepository groupRepository,
-        IMapper mapper,
+        GroupMapper groupMapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _groupRepository = groupRepository;
-        _mapper = mapper;
+        _groupMapper = groupMapper;
         _unitOfWork = unitOfWork;
         }
 
@@ -34,7 +34,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<G
                 throw new KeyNotFoundException($"Group with ID {request.Id} not found.");
             }
 
-            var groupToDelete = _mapper.Map<GroupResource>(group);
+            var groupToDelete = _groupMapper.ToGroupResource(group);
             await _groupRepository.Delete(request.Id);
 
             await _unitOfWork.CompleteAsync();

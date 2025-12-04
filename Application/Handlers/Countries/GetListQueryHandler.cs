@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Countries
     public class GetListQueryHandler : IRequestHandler<ListQuery<CountryResource>, IEnumerable<CountryResource>>
     {
         private readonly ICountryRepository _countryRepository;
-        private readonly IMapper _mapper;
+        private readonly SettingsMapper _settingsMapper;
         private readonly ILogger<GetListQueryHandler> _logger;
 
-        public GetListQueryHandler(ICountryRepository countryRepository, IMapper mapper, ILogger<GetListQueryHandler> logger)
+        public GetListQueryHandler(ICountryRepository countryRepository, SettingsMapper settingsMapper, ILogger<GetListQueryHandler> logger)
         {
             _countryRepository = countryRepository;
-            _mapper = mapper;
+            _settingsMapper = settingsMapper;
             _logger = logger;
         }
 
@@ -32,7 +32,7 @@ namespace Klacks.Api.Application.Handlers.Countries
                 
                 _logger.LogInformation($"Retrieved {countriesList.Count} countries");
                 
-                return _mapper.Map<IEnumerable<CountryResource>>(countriesList);
+                return _settingsMapper.ToCountryResources(countriesList.ToList());
             }
             catch (Exception ex)
             {

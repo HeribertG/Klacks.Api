@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.Shifts;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
@@ -14,14 +14,14 @@ public class PostBatchCutsCommandHandler : BaseHandler, IRequestHandler<PostBatc
     private readonly IShiftRepository _shiftRepository;
     private readonly IShiftTreeService _shiftTreeService;
     private readonly IShiftValidator _shiftValidator;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public PostBatchCutsCommandHandler(
         IShiftRepository shiftRepository,
         IShiftTreeService shiftTreeService,
         IShiftValidator shiftValidator,
-        IMapper mapper,
+        ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ILogger<PostBatchCutsCommandHandler> logger)
         : base(logger)
@@ -29,7 +29,7 @@ public class PostBatchCutsCommandHandler : BaseHandler, IRequestHandler<PostBatc
         _shiftRepository = shiftRepository;
         _shiftTreeService = shiftTreeService;
         _shiftValidator = shiftValidator;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
     }
 
@@ -124,7 +124,7 @@ public class PostBatchCutsCommandHandler : BaseHandler, IRequestHandler<PostBatc
         _logger.LogInformation("Existing shift loaded: ID={Id}, Status={Status}",
             existingShift.Id, existingShift.Status);
 
-        var shift = _mapper.Map<Shift>(op.Data);
+        var shift = _scheduleMapper.ToShiftEntity(op.Data);
         shift.Id = op.Data.Id;
 
         if (shift.Status == ShiftStatus.SplitShift &&
@@ -147,7 +147,7 @@ public class PostBatchCutsCommandHandler : BaseHandler, IRequestHandler<PostBatc
             _logger.LogInformation("Shift updated: ID={Id}, ParentId={ParentId}, RootId={RootId}",
                 updatedShift.Id, updatedShift.ParentId, updatedShift.RootId);
 
-            return _mapper.Map<ShiftResource>(updatedShift);
+            return _scheduleMapper.ToShiftResource(updatedShift);
         }
 
         throw new InvalidOperationException($"Failed to update shift {op.Data.Id}");
@@ -176,7 +176,7 @@ public class PostBatchCutsCommandHandler : BaseHandler, IRequestHandler<PostBatc
         _logger.LogInformation("Parent shift loaded: ID={Id}, Status={Status}",
             parentShift.Id, parentShift.Status);
 
-        var shift = _mapper.Map<Shift>(op.Data);
+        var shift = _scheduleMapper.ToShiftEntity(op.Data);
         shift.Id = op.Data.Id;
         shift.Status = ShiftStatus.SplitShift;
 
@@ -201,7 +201,7 @@ public class PostBatchCutsCommandHandler : BaseHandler, IRequestHandler<PostBatc
 
         processedShifts.Add(shift);
 
-        var mappedResource = _mapper.Map<ShiftResource>(shift);
+        var mappedResource = _scheduleMapper.ToShiftResource(shift);
         _logger.LogInformation("Created shift: ID={Id}, ParentId={ParentId}, RootId={RootId}",
             shift.Id, mappedResource.ParentId, mappedResource.RootId);
 

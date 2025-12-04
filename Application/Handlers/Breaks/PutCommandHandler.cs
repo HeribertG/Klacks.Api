@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Schedules;
@@ -10,18 +10,18 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakResource>, BreakResource?>
 {
     private readonly IBreakRepository _breakRepository;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     
     public PutCommandHandler(
         IBreakRepository breakRepository,
-        IMapper mapper,
+        ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _breakRepository = breakRepository;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         }
 
@@ -35,10 +35,13 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
                 throw new KeyNotFoundException($"Break with ID {request.Resource.Id} not found.");
             }
 
-            _mapper.Map(request.Resource, existingBreak);
+            var updatedBreak = _scheduleMapper.ToBreakEntity(request.Resource);
+            updatedBreak.CreateTime = existingBreak.CreateTime;
+            updatedBreak.CurrentUserCreated = existingBreak.CurrentUserCreated;
+            existingBreak = updatedBreak;
             await _breakRepository.Put(existingBreak);
             await _unitOfWork.CompleteAsync();
-            return _mapper.Map<BreakResource>(existingBreak);
+            return _scheduleMapper.ToBreakResource(existingBreak);
         }, 
         "updating break", 
         new { BreakId = request.Resource.Id });

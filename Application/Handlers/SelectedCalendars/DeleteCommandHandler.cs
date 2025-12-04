@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Schedules;
@@ -9,18 +9,18 @@ namespace Klacks.Api.Application.Handlers.SelectedCalendars;
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<SelectedCalendarResource>, SelectedCalendarResource?>
 {
     private readonly ISelectedCalendarRepository _selectedCalendarRepository;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public DeleteCommandHandler(
         ISelectedCalendarRepository selectedCalendarRepository,
-        IMapper mapper,
+        ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _selectedCalendarRepository = selectedCalendarRepository;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
     }
 
@@ -32,7 +32,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<S
             return null;
         }
 
-        var selectedCalendarResource = _mapper.Map<SelectedCalendarResource>(existingSelectedCalendar);
+        var selectedCalendarResource = _scheduleMapper.ToSelectedCalendarResource(existingSelectedCalendar);
         await _selectedCalendarRepository.Delete(request.Id);
         await _unitOfWork.CompleteAsync();
         return selectedCalendarResource;

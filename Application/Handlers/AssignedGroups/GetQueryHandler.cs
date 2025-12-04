@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.AssignedGroups;
 public class GetQueryHandler : IRequestHandler<GetQuery<AssignedGroupResource>, AssignedGroupResource>
 {
     private readonly IAssignedGroupRepository _assignedGroupRepository;
-    private readonly IMapper _mapper;
+    private readonly GroupMapper _groupMapper;
     private readonly ILogger<GetQueryHandler> _logger;
 
-    public GetQueryHandler(IAssignedGroupRepository assignedGroupRepository, IMapper mapper, ILogger<GetQueryHandler> logger)
+    public GetQueryHandler(IAssignedGroupRepository assignedGroupRepository, GroupMapper groupMapper, ILogger<GetQueryHandler> logger)
     {
         _assignedGroupRepository = assignedGroupRepository;
-        _mapper = mapper;
+        _groupMapper = groupMapper;
         _logger = logger;
     }
 
@@ -34,7 +34,7 @@ public class GetQueryHandler : IRequestHandler<GetQuery<AssignedGroupResource>, 
                 throw new KeyNotFoundException($"Assigned group with ID {request.Id} not found");
             }
             
-            var result = _mapper.Map<AssignedGroupResource>(assignedGroup);
+            var result = _groupMapper.ToAssignedGroupResource(assignedGroup);
             _logger.LogInformation("Successfully retrieved assigned group with ID: {Id}", request.Id);
             return result;
         }

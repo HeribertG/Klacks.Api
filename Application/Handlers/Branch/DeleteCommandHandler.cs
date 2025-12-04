@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.Settings.Branch;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;

@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Contracts
     public class GetQueryHandler : IRequestHandler<GetQuery<ContractResource>, ContractResource>
     {
         private readonly IContractRepository _contractRepository;
-        private readonly IMapper _mapper;
+        private readonly ScheduleMapper _scheduleMapper;
         private readonly ILogger<GetQueryHandler> _logger;
 
-        public GetQueryHandler(IContractRepository contractRepository, IMapper mapper, ILogger<GetQueryHandler> logger)
+        public GetQueryHandler(IContractRepository contractRepository, ScheduleMapper scheduleMapper, ILogger<GetQueryHandler> logger)
         {
             _contractRepository = contractRepository;
-            _mapper = mapper;
+            _scheduleMapper = scheduleMapper;
             _logger = logger;
         }
 
@@ -34,7 +34,7 @@ namespace Klacks.Api.Application.Handlers.Contracts
                     throw new KeyNotFoundException($"Contract with ID {request.Id} not found");
                 }
                 
-                var result = _mapper.Map<ContractResource>(contract);
+                var result = _scheduleMapper.ToContractResource(contract);
                 _logger.LogInformation("Successfully retrieved contract with ID: {Id}", request.Id);
                 return result;
             }

@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Clients;
 using Klacks.Api.Domain.Exceptions;
@@ -13,18 +13,21 @@ namespace Klacks.Api.Application.Handlers.Clients
     {
         private readonly IClientFilterRepository _clientFilterRepository;
         private readonly IClientRepository _clientRepository;
-        private readonly IMapper _mapper;
+        private readonly ClientMapper _clientMapper;
+        private readonly FilterMapper _filterMapper;
         private readonly ILogger<GetTruncatedListQueryHandler> _logger;
 
         public GetTruncatedListQueryHandler(
             IClientFilterRepository clientFilterRepository,
             IClientRepository clientRepository,
-            IMapper mapper,
+            ClientMapper clientMapper,
+            FilterMapper filterMapper,
             ILogger<GetTruncatedListQueryHandler> logger)
         {
             _clientFilterRepository = clientFilterRepository;
             _clientRepository = clientRepository;
-            _mapper = mapper;
+            _clientMapper = clientMapper;
+            _filterMapper = filterMapper;
             _logger = logger;
         }
 
@@ -40,19 +43,19 @@ namespace Klacks.Api.Application.Handlers.Clients
 
             try
             {
-                var clientFilter = _mapper.Map<ClientFilter>(request.Filter);
-                var pagination = _mapper.Map<PaginationParams>(request.Filter);
+                var clientFilter = _filterMapper.ToClientFilter(request.Filter);
+                var pagination = _filterMapper.ToPaginationParams(request.Filter);
 
                 var pagedResult = await _clientFilterRepository.GetFilteredClients(clientFilter, pagination);
                 var lastChangeMetaData = await _clientRepository.LastChangeMetaData();
                 
-                var truncatedClients = _mapper.Map<TruncatedClient>(pagedResult);
+                var truncatedClients = _clientMapper.ToTruncatedClient(pagedResult);
                 truncatedClients.Editor = lastChangeMetaData.Author;
                 truncatedClients.LastChange = lastChangeMetaData.LastChangesDate;
                 
                 _logger.LogInformation($"Retrieved truncated client list with {pagedResult.Items.Count()} clients");
                 
-                return _mapper.Map<TruncatedClientResource>(truncatedClients);
+                return _clientMapper.ToTruncatedResource(truncatedClients);
             }
             catch (Exception ex)
             {

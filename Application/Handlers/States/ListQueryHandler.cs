@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Presentation.DTOs.Settings;
@@ -9,17 +9,17 @@ namespace Klacks.Api.Application.Handlers.States;
 public class ListQueryHandler : IRequestHandler<ListQuery<StateResource>, IEnumerable<StateResource>>
 {
     private readonly IStateRepository _stateRepository;
-    private readonly IMapper _mapper;
+    private readonly SettingsMapper _settingsMapper;
 
-    public ListQueryHandler(IStateRepository stateRepository, IMapper mapper)
+    public ListQueryHandler(IStateRepository stateRepository, SettingsMapper settingsMapper)
     {
         _stateRepository = stateRepository;
-        _mapper = mapper;
+        _settingsMapper = settingsMapper;
     }
 
     public async Task<IEnumerable<StateResource>> Handle(ListQuery<StateResource> request, CancellationToken cancellationToken)
     {
         var states = await _stateRepository.List();
-        return _mapper.Map<IEnumerable<StateResource>>(states);
+        return _settingsMapper.ToStateResources(states.ToList());
     }
 }

@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
@@ -11,18 +11,18 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<BreakResource>, BreakResource?>
 {
     private readonly IBreakRepository _breakRepository;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     
     public PostCommandHandler(
         IBreakRepository breakRepository,
-        IMapper mapper,
+        ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _breakRepository = breakRepository;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         }
 
@@ -30,10 +30,10 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
     {
         return await ExecuteAsync(async () =>
         {
-            var breakEntity = _mapper.Map<Break>(request.Resource);
+            var breakEntity = _scheduleMapper.ToBreakEntity(request.Resource);
             await _breakRepository.Add(breakEntity);
             await _unitOfWork.CompleteAsync();
-            return _mapper.Map<BreakResource>(breakEntity);
+            return _scheduleMapper.ToBreakResource(breakEntity);
         }, 
         "creating break", 
         new { });

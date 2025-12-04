@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Shifts;
 public class GetQueryHandler : IRequestHandler<GetQuery<ShiftResource>, ShiftResource>
 {
     private readonly IShiftRepository _shiftRepository;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly ILogger<GetQueryHandler> _logger;
 
-    public GetQueryHandler(IShiftRepository shiftRepository, IMapper mapper, ILogger<GetQueryHandler> logger)
+    public GetQueryHandler(IShiftRepository shiftRepository, ScheduleMapper scheduleMapper, ILogger<GetQueryHandler> logger)
     {
         _shiftRepository = shiftRepository;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         _logger = logger;
     }
 
@@ -34,7 +34,7 @@ public class GetQueryHandler : IRequestHandler<GetQuery<ShiftResource>, ShiftRes
                 throw new KeyNotFoundException($"Shift with ID {request.Id} not found");
             }
             
-            var result = _mapper.Map<ShiftResource>(shift);
+            var result = _scheduleMapper.ToShiftResource(shift);
             _logger.LogInformation("Successfully retrieved shift with ID: {Id}", request.Id);
             return result;
         }

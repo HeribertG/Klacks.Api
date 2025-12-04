@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Staffs;
@@ -11,18 +11,18 @@ namespace Klacks.Api.Application.Handlers.Communications;
 public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<CommunicationResource>, CommunicationResource?>
 {
     private readonly ICommunicationRepository _communicationRepository;
-    private readonly IMapper _mapper;
+    private readonly AddressCommunicationMapper _addressCommunicationMapper;
     private readonly IUnitOfWork _unitOfWork;
     
     public PostCommandHandler(
         ICommunicationRepository communicationRepository,
-        IMapper mapper,
+        AddressCommunicationMapper addressCommunicationMapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _communicationRepository = communicationRepository;
-        _mapper = mapper;
+        _addressCommunicationMapper = addressCommunicationMapper;
         _unitOfWork = unitOfWork;
         }
 
@@ -30,10 +30,10 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Commu
     {
         return await ExecuteAsync(async () =>
         {
-            var communication = _mapper.Map<Communication>(request.Resource);
+            var communication = _addressCommunicationMapper.ToCommunicationEntity(request.Resource);
             await _communicationRepository.Add(communication);
             await _unitOfWork.CompleteAsync();
-            return _mapper.Map<CommunicationResource>(communication);
+            return _addressCommunicationMapper.ToCommunicationResource(communication);
         }, 
         "creating communication", 
         new { ResourceId = request.Resource?.Id });

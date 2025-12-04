@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Addresses;
 public class GetQueryHandler : IRequestHandler<GetQuery<AddressResource>, AddressResource>
 {
     private readonly IAddressRepository _addressRepository;
-    private readonly IMapper _mapper;
+    private readonly AddressCommunicationMapper _addressCommunicationMapper;
     private readonly ILogger<GetQueryHandler> _logger;
 
-    public GetQueryHandler(IAddressRepository addressRepository, IMapper mapper, ILogger<GetQueryHandler> logger)
+    public GetQueryHandler(IAddressRepository addressRepository, AddressCommunicationMapper addressCommunicationMapper, ILogger<GetQueryHandler> logger)
     {
         _addressRepository = addressRepository;
-        _mapper = mapper;
+        _addressCommunicationMapper = addressCommunicationMapper;
         _logger = logger;
     }
 
@@ -34,7 +34,7 @@ public class GetQueryHandler : IRequestHandler<GetQuery<AddressResource>, Addres
                 throw new KeyNotFoundException($"Address with ID {request.Id} not found");
             }
             
-            var result = _mapper.Map<AddressResource>(address);
+            var result = _addressCommunicationMapper.ToAddressResource(address);
             _logger.LogInformation("Successfully retrieved address with ID: {Id}", request.Id);
             return result;
         }

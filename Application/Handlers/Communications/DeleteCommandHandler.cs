@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Settings;
@@ -10,18 +10,18 @@ namespace Klacks.Api.Application.Handlers.Communications;
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<CommunicationResource>, CommunicationResource?>
 {
     private readonly ICommunicationRepository _communicationRepository;
-    private readonly IMapper _mapper;
+    private readonly AddressCommunicationMapper _addressCommunicationMapper;
     private readonly IUnitOfWork _unitOfWork;
     
     public DeleteCommandHandler(
         ICommunicationRepository communicationRepository,
-        IMapper mapper,
+        AddressCommunicationMapper addressCommunicationMapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _communicationRepository = communicationRepository;
-        _mapper = mapper;
+        _addressCommunicationMapper = addressCommunicationMapper;
         _unitOfWork = unitOfWork;
         }
 
@@ -35,7 +35,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<C
                 throw new KeyNotFoundException($"Communication with ID {request.Id} not found.");
             }
 
-            var communicationResource = _mapper.Map<CommunicationResource>(existingCommunication);
+            var communicationResource = _addressCommunicationMapper.ToCommunicationResource(existingCommunication);
             await _communicationRepository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
 

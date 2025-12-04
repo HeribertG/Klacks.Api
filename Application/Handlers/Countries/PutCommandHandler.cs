@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Settings;
@@ -9,18 +9,18 @@ namespace Klacks.Api.Application.Handlers.Countries;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<CountryResource>, CountryResource?>
 {
     private readonly ICountryRepository _countryRepository;
-    private readonly IMapper _mapper;
+    private readonly SettingsMapper _settingsMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public PutCommandHandler(
         ICountryRepository countryRepository,
-        IMapper mapper,
+        SettingsMapper settingsMapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _countryRepository = countryRepository;
-        _mapper = mapper;
+        _settingsMapper = settingsMapper;
         _unitOfWork = unitOfWork;
     }
 
@@ -32,9 +32,12 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Country
             return null;
         }
 
-        _mapper.Map(request.Resource, existingCountry);
+        var updatedCountry = _settingsMapper.ToCountryEntity(request.Resource);
+        updatedCountry.CreateTime = existingCountry.CreateTime;
+        updatedCountry.CurrentUserCreated = existingCountry.CurrentUserCreated;
+        existingCountry = updatedCountry;
         await _countryRepository.Put(existingCountry);
         await _unitOfWork.CompleteAsync();
-        return _mapper.Map<CountryResource>(existingCountry);
+        return _settingsMapper.ToCountryResource(existingCountry);
     }
 }

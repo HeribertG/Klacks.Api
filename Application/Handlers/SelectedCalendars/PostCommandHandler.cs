@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.CalendarSelections;
@@ -10,26 +10,26 @@ namespace Klacks.Api.Application.Handlers.SelectedCalendars;
 public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<SelectedCalendarResource>, SelectedCalendarResource?>
 {
     private readonly ISelectedCalendarRepository _selectedCalendarRepository;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public PostCommandHandler(
         ISelectedCalendarRepository selectedCalendarRepository,
-        IMapper mapper,
+        ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _selectedCalendarRepository = selectedCalendarRepository;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<SelectedCalendarResource?> Handle(PostCommand<SelectedCalendarResource> request, CancellationToken cancellationToken)
     {
-        var selectedCalendar = _mapper.Map<SelectedCalendar>(request.Resource);
+        var selectedCalendar = _scheduleMapper.ToSelectedCalendarEntity(request.Resource);
         await _selectedCalendarRepository.Add(selectedCalendar);
         await _unitOfWork.CompleteAsync();
-        return _mapper.Map<SelectedCalendarResource>(selectedCalendar);
+        return _scheduleMapper.ToSelectedCalendarResource(selectedCalendar);
     }
 }

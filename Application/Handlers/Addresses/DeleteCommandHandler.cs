@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Staffs;
@@ -9,18 +9,18 @@ namespace Klacks.Api.Application.Handlers.Addresses;
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<AddressResource>, AddressResource?>
 {
     private readonly IAddressRepository _addressRepository;
-    private readonly IMapper _mapper;
+    private readonly AddressCommunicationMapper _addressCommunicationMapper;
     private readonly IUnitOfWork _unitOfWork;
     
     public DeleteCommandHandler(
         IAddressRepository addressRepository,
-        IMapper mapper,
+        AddressCommunicationMapper addressCommunicationMapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _addressRepository = addressRepository;
-        _mapper = mapper;
+        _addressCommunicationMapper = addressCommunicationMapper;
         _unitOfWork = unitOfWork;
         }
 
@@ -34,7 +34,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<A
                 throw new KeyNotFoundException($"Address with ID {request.Id} not found.");
             }
 
-            var addressResource = _mapper.Map<AddressResource>(existingAddress);
+            var addressResource = _addressCommunicationMapper.ToAddressResource(existingAddress);
             await _addressRepository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
 

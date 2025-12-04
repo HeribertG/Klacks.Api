@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Groups;
 using Klacks.Api.Presentation.DTOs.Associations;
@@ -9,12 +9,12 @@ namespace Klacks.Api.Application.Handlers.Groups;
 public class GetPathToNodeQueryHandler : IRequestHandler<GetPathToNodeQuery, List<GroupResource>>
 {
     private readonly IGroupRepository _groupRepository;
-    private readonly IMapper _mapper;
+    private readonly GroupMapper _groupMapper;
 
-    public GetPathToNodeQueryHandler(IGroupRepository groupRepository, IMapper mapper)
+    public GetPathToNodeQueryHandler(IGroupRepository groupRepository, GroupMapper groupMapper)
     {
         _groupRepository = groupRepository;
-        _mapper = mapper;
+        _groupMapper = groupMapper;
     }
 
     public async Task<List<GroupResource>> Handle(GetPathToNodeQuery request, CancellationToken cancellationToken)
@@ -25,7 +25,7 @@ public class GetPathToNodeQueryHandler : IRequestHandler<GetPathToNodeQuery, Lis
         
         for (int i = 0; i < pathList.Count; i++)
         {
-            var groupResource = _mapper.Map<GroupResource>(pathList[i]);
+            var groupResource = _groupMapper.ToGroupResource(pathList[i]);
             groupResource.Depth = i;
             result.Add(groupResource);
         }

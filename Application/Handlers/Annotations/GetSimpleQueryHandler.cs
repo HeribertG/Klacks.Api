@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Annotation;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Annotations
     public class GetSimpleQueryHandler : IRequestHandler<GetSimpleListQuery, IEnumerable<AnnotationResource>>
     {
         private readonly IAnnotationRepository _annotationRepository;
-        private readonly IMapper _mapper;
+        private readonly SettingsMapper _settingsMapper;
         private readonly ILogger<GetSimpleQueryHandler> _logger;
 
-        public GetSimpleQueryHandler(IAnnotationRepository annotationRepository, IMapper mapper, ILogger<GetSimpleQueryHandler> logger)
+        public GetSimpleQueryHandler(IAnnotationRepository annotationRepository, SettingsMapper settingsMapper, ILogger<GetSimpleQueryHandler> logger)
         {
             _annotationRepository = annotationRepository;
-            _mapper = mapper;
+            _settingsMapper = settingsMapper;
             _logger = logger;
         }
 
@@ -36,7 +36,7 @@ namespace Klacks.Api.Application.Handlers.Annotations
                 var annotations = await _annotationRepository.SimpleList(request.Id);
                 
                 _logger.LogInformation($"Retrieved {annotations.Count} simple annotations for ID: {request.Id}");
-                return _mapper.Map<IEnumerable<AnnotationResource>>(annotations);
+                return _settingsMapper.ToAnnotationResources(annotations.ToList());
             }
             catch (InvalidRequestException)
             {

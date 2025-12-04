@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Presentation.DTOs.Schedules;
@@ -9,18 +9,18 @@ namespace Klacks.Api.Application.Handlers.SelectedCalendars
     public class GetListQueryHandler : IRequestHandler<ListQuery<SelectedCalendarResource>, IEnumerable<SelectedCalendarResource>>
     {
         private readonly ISelectedCalendarRepository _selectedCalendarRepository;
-        private readonly IMapper _mapper;
+        private readonly ScheduleMapper _scheduleMapper;
 
-        public GetListQueryHandler(ISelectedCalendarRepository selectedCalendarRepository, IMapper mapper)
+        public GetListQueryHandler(ISelectedCalendarRepository selectedCalendarRepository, ScheduleMapper scheduleMapper)
         {
             _selectedCalendarRepository = selectedCalendarRepository;
-            _mapper = mapper;
+            _scheduleMapper = scheduleMapper;
         }
 
         public async Task<IEnumerable<SelectedCalendarResource>> Handle(ListQuery<SelectedCalendarResource> request, CancellationToken cancellationToken)
         {
             var selectedCalendars = await _selectedCalendarRepository.List();
-            return _mapper.Map<IEnumerable<SelectedCalendarResource>>(selectedCalendars);
+            return selectedCalendars.Select(s => _scheduleMapper.ToSelectedCalendarResource(s)).ToList();
         }
     }
 }

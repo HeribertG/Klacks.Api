@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Schedules;
@@ -9,18 +9,18 @@ namespace Klacks.Api.Application.Handlers.SelectedCalendars;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<SelectedCalendarResource>, SelectedCalendarResource?>
 {
     private readonly ISelectedCalendarRepository _selectedCalendarRepository;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public PutCommandHandler(
         ISelectedCalendarRepository selectedCalendarRepository,
-        IMapper mapper,
+        ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _selectedCalendarRepository = selectedCalendarRepository;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
     }
 
@@ -32,9 +32,12 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Selecte
             return null;
         }
 
-        _mapper.Map(request.Resource, existingSelectedCalendar);
+        var updatedSelectedCalendar = _scheduleMapper.ToSelectedCalendarEntity(request.Resource);
+        updatedSelectedCalendar.CreateTime = existingSelectedCalendar.CreateTime;
+        updatedSelectedCalendar.CurrentUserCreated = existingSelectedCalendar.CurrentUserCreated;
+        existingSelectedCalendar = updatedSelectedCalendar;
         await _selectedCalendarRepository.Put(existingSelectedCalendar);
         await _unitOfWork.CompleteAsync();
-        return _mapper.Map<SelectedCalendarResource>(existingSelectedCalendar);
+        return _scheduleMapper.ToSelectedCalendarResource(existingSelectedCalendar);
     }
 }

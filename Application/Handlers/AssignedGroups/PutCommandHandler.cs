@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Staffs;
@@ -10,18 +10,18 @@ namespace Klacks.Api.Application.Handlers.AssignedGroups
     public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<AssignedGroupResource>, AssignedGroupResource?>
     {
         private readonly IAssignedGroupRepository _assignedGroupRepository;
-        private readonly IMapper _mapper;
+        private readonly GroupMapper _groupMapper;
         private readonly IUnitOfWork _unitOfWork;
         
         public PutCommandHandler(
             IAssignedGroupRepository assignedGroupRepository,
-            IMapper mapper,
+            GroupMapper groupMapper,
             IUnitOfWork unitOfWork,
             ILogger<PutCommandHandler> logger)
         : base(logger)
         {
             _assignedGroupRepository = assignedGroupRepository;
-            _mapper = mapper;
+            _groupMapper = groupMapper;
             _unitOfWork = unitOfWork;
             }
 
@@ -35,10 +35,13 @@ namespace Klacks.Api.Application.Handlers.AssignedGroups
                 throw new KeyNotFoundException($"Group with ID {request.Resource.Id} not found.");
             }
 
-                _mapper.Map(request.Resource, existingAssignedGroup);
+                var updatedAssignedGroup = _groupMapper.ToAssignedGroupEntity(request.Resource);
+                updatedAssignedGroup.CreateTime = existingAssignedGroup.CreateTime;
+                updatedAssignedGroup.CurrentUserCreated = existingAssignedGroup.CurrentUserCreated;
+                existingAssignedGroup = updatedAssignedGroup;
                 await _assignedGroupRepository.Put(existingAssignedGroup);
                 await _unitOfWork.CompleteAsync();
-                return _mapper.Map<AssignedGroupResource>(existingAssignedGroup);
+                return _groupMapper.ToAssignedGroupResource(existingAssignedGroup);
         }, 
         "updating group", 
         new { GroupId = request.Resource.Id });

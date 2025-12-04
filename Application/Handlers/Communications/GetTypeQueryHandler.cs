@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Communications;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Communications
     public class GetTypeQueryHandler : IRequestHandler<GetTypeQuery, IEnumerable<CommunicationTypeResource>>
     {
         private readonly ICommunicationRepository _communicationRepository;
-        private readonly IMapper _mapper;
+        private readonly AddressCommunicationMapper _addressCommunicationMapper;
         private readonly ILogger<GetTypeQueryHandler> _logger;
 
-        public GetTypeQueryHandler(ICommunicationRepository communicationRepository, IMapper mapper, ILogger<GetTypeQueryHandler> logger)
+        public GetTypeQueryHandler(ICommunicationRepository communicationRepository, AddressCommunicationMapper addressCommunicationMapper, ILogger<GetTypeQueryHandler> logger)
         {
             _communicationRepository = communicationRepository;
-            _mapper = mapper;
+            _addressCommunicationMapper = addressCommunicationMapper;
             _logger = logger;
         }
 
@@ -32,7 +32,7 @@ namespace Klacks.Api.Application.Handlers.Communications
                 
                 _logger.LogInformation($"Retrieved {typesList.Count} communication types");
                 
-                return _mapper.Map<IEnumerable<CommunicationTypeResource>>(typesList);
+                return _addressCommunicationMapper.ToCommunicationTypeResources(typesList.ToList());
             }
             catch (Exception ex)
             {

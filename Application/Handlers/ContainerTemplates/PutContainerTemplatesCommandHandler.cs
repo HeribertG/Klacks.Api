@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.ContainerTemplates;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
@@ -11,18 +11,18 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
 {
     private readonly IContainerTemplateRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly ILogger<PutContainerTemplatesCommandHandler> _logger;
 
     public PutContainerTemplatesCommandHandler(
         IContainerTemplateRepository repository,
         IUnitOfWork unitOfWork,
-        IMapper mapper,
+        ScheduleMapper scheduleMapper,
         ILogger<PutContainerTemplatesCommandHandler> logger)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         _logger = logger;
     }
 
@@ -64,7 +64,7 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
                 existingTemplate.UntilTime = resource.UntilTime;
                 existingTemplate.StartBase = resource.StartBase;
                 existingTemplate.EndBase = resource.EndBase;
-                existingTemplate.RouteInfo = _mapper.Map<RouteInfo>(resource.RouteInfo);
+                existingTemplate.RouteInfo = _scheduleMapper.ToRouteInfoEntity(resource.RouteInfo);
                 existingTemplate.TransportMode = resource.TransportMode;
 
                 var updateResult = await _repository.PutWithItems(
@@ -90,7 +90,7 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
                     itemResource.Id = Guid.Empty;
                 }
 
-                var newTemplate = _mapper.Map<ContainerTemplate>(resource);
+                var newTemplate = _scheduleMapper.ToContainerTemplateEntity(resource);
 
                 foreach (var item in newTemplate.ContainerTemplateItems)
                 {
@@ -119,7 +119,7 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
 
         _logger.LogInformation("Successfully updated ContainerTemplates for Container: {ContainerId}", request.ContainerId);
 
-        var result = _mapper.Map<List<ContainerTemplateResource>>(resultTemplates);
+        var result = resultTemplates.Select(t => _scheduleMapper.ToContainerTemplateResource(t)).ToList();
         return result;
     }
 }

@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
@@ -10,18 +10,18 @@ namespace Klacks.Api.Application.Handlers.GroupItems;
 public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<GroupItemResource>, GroupItemResource?>
 {
     private readonly IGroupItemRepository _groupItemRepository;
-    private readonly IMapper _mapper;
+    private readonly GroupMapper _groupMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public PostCommandHandler(
         IGroupItemRepository groupItemRepository,
-        IMapper mapper,
+        GroupMapper groupMapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _groupItemRepository = groupItemRepository;
-        _mapper = mapper;
+        _groupMapper = groupMapper;
         _unitOfWork = unitOfWork;
     }
 
@@ -29,10 +29,10 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Group
     {
         return await ExecuteAsync(async () =>
         {
-            var groupItem = _mapper.Map<GroupItem>(request.Resource);
+            var groupItem = _groupMapper.ToGroupItemEntity(request.Resource);
             await _groupItemRepository.Add(groupItem);
             await _unitOfWork.CompleteAsync();
-            return _mapper.Map<GroupItemResource>(groupItem);
+            return _groupMapper.ToGroupItemResource(groupItem);
         },
         "creating group item",
         new { });

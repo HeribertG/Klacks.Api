@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Exceptions;
@@ -12,20 +12,20 @@ namespace Klacks.Api.Application.Handlers.Clients;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientResource>, ClientResource?>
 {
     private readonly IClientRepository _clientRepository;
-    private readonly IMapper _mapper;
+    private readonly ClientMapper _clientMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IGroupVisibilityService _groupVisibilityService;
 
     public PutCommandHandler(
         IClientRepository clientRepository,
-        IMapper mapper,
+        ClientMapper clientMapper,
         IUnitOfWork unitOfWork,
         IGroupVisibilityService groupVisibilityService,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _clientRepository = clientRepository;
-        _mapper = mapper;
+        _clientMapper = clientMapper;
         _unitOfWork = unitOfWork;
         _groupVisibilityService = groupVisibilityService;
         }
@@ -65,7 +65,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientR
                 }
             }
 
-            var client = _mapper.Map<Domain.Models.Staffs.Client>(request.Resource);
+            var client = _clientMapper.ToEntity(request.Resource);
 
             _logger.LogInformation("🔍 [BACKEND SAVE] Mapped Domain Client with {ContractCount} contracts",
                 client.ClientContracts?.Count ?? 0);
@@ -77,7 +77,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientR
 
             await _unitOfWork.CompleteAsync();
 
-            var result = _mapper.Map<ClientResource>(updatedClient);
+            var result = _clientMapper.ToResource(updatedClient);
 
             _logger.LogInformation("🔍 [BACKEND SAVE] Final ClientResource has {ContractCount} contracts",
                 result.ClientContracts?.Count ?? 0);

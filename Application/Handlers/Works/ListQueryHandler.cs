@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Works;
 using Klacks.Api.Domain.Models.Filters;
@@ -10,21 +10,27 @@ namespace Klacks.Api.Application.Handlers.Works;
 public class ListQueryHandler : IRequestHandler<ListQuery, IEnumerable<ClientWorkResource>>
 {
     private readonly IClientWorkRepository _clientWorkRepository;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
+    private readonly FilterMapper _filterMapper;
+    private readonly ClientMapper _clientMapper;
 
     public ListQueryHandler(
-        IClientWorkRepository clientWorkRepository, 
-        IMapper mapper)
+        IClientWorkRepository clientWorkRepository,
+        ScheduleMapper scheduleMapper,
+        FilterMapper filterMapper,
+        ClientMapper clientMapper)
     {
         _clientWorkRepository = clientWorkRepository;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
+        _filterMapper = filterMapper;
+        _clientMapper = clientMapper;
     }
 
     public async Task<IEnumerable<ClientWorkResource>> Handle(ListQuery request, CancellationToken cancellationToken)
     {
-        var workFilter = _mapper.Map<WorkFilter>(request.Filter);
-        
+        var workFilter = _filterMapper.ToWorkFilter(request.Filter);
+
         var clients = await _clientWorkRepository.WorkList(workFilter);
-        return _mapper.Map<IEnumerable<ClientWorkResource>>(clients);
+        return clients.Select(c => _clientMapper.ToWorkResource(c)).ToList();
     }
 }

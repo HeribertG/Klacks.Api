@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Settings.Macros;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Settings.Macro
     public class GetQueryHandler : IRequestHandler<GetQuery, MacroResource?>
     {
         private readonly ISettingsRepository _settingsRepository;
-        private readonly IMapper _mapper;
+        private readonly SettingsMapper _settingsMapper;
         private readonly ILogger<GetQueryHandler> _logger;
 
-        public GetQueryHandler(ISettingsRepository settingsRepository, IMapper mapper, ILogger<GetQueryHandler> logger)
+        public GetQueryHandler(ISettingsRepository settingsRepository, SettingsMapper settingsMapper, ILogger<GetQueryHandler> logger)
         {
             _settingsRepository = settingsRepository;
-            _mapper = mapper;
+            _settingsMapper = settingsMapper;
             _logger = logger;
         }
 
@@ -31,7 +31,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Macro
                 
                 _logger.LogInformation($"Successfully retrieved macro with ID: {request.Id}");
                 
-                return _mapper.Map<MacroResource>(macro);
+                return _settingsMapper.ToMacroResource(macro);
             }
             catch (Exception ex)
             {

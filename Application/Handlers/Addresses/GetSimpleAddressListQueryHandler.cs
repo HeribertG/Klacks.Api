@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Addresses;
 using Klacks.Api.Domain.Exceptions;
@@ -12,13 +12,13 @@ namespace Klacks.Api.Application.Handlers.Addresses
     public class GetSimpleAddressListQueryHandler : IRequestHandler<GetSimpleAddressListQuery, IEnumerable<AddressResource>>
     {
         private readonly IAddressRepository _addressRepository;
-        private readonly IMapper _mapper;
+        private readonly AddressCommunicationMapper _addressCommunicationMapper;
         private readonly ILogger<GetSimpleAddressListQueryHandler> _logger;
 
-        public GetSimpleAddressListQueryHandler(IAddressRepository addressRepository, IMapper mapper, ILogger<GetSimpleAddressListQueryHandler> logger)
+        public GetSimpleAddressListQueryHandler(IAddressRepository addressRepository, AddressCommunicationMapper addressCommunicationMapper, ILogger<GetSimpleAddressListQueryHandler> logger)
         {
             _addressRepository = addressRepository;
-            _mapper = mapper;
+            _addressCommunicationMapper = addressCommunicationMapper;
             _logger = logger;
         }
 
@@ -37,7 +37,7 @@ namespace Klacks.Api.Application.Handlers.Addresses
                 var addresses = await _addressRepository.SimpleList(request.Id);
                 
                 _logger.LogInformation($"Retrieved {addresses.Count()} simple addresses for ID: {request.Id}");
-                return _mapper.Map<IEnumerable<AddressResource>>(addresses);
+                return _addressCommunicationMapper.ToAddressResources(addresses.ToList());
             }
             catch (ValidationException ex)
             {

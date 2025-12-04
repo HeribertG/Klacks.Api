@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
@@ -11,18 +11,18 @@ namespace Klacks.Api.Application.Handlers.Countries;
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<CountryResource>, CountryResource?>
 {
     private readonly ICountryRepository _countryRepository;
-    private readonly IMapper _mapper;
+    private readonly SettingsMapper _settingsMapper;
     private readonly DataBaseContext _context;
 
     public DeleteCommandHandler(
         ICountryRepository countryRepository,
-        IMapper mapper,
+        SettingsMapper settingsMapper,
         DataBaseContext context,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _countryRepository = countryRepository;
-        _mapper = mapper;
+        _settingsMapper = settingsMapper;
         _context = context;
     }
 
@@ -34,7 +34,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<C
             return null;
         }
 
-        var countryResource = _mapper.Map<CountryResource>(existingCountry);
+        var countryResource = _settingsMapper.ToCountryResource(existingCountry);
 
         await _context.Countries.Where(c => c.Id == request.Id).ExecuteDeleteAsync(cancellationToken);
 

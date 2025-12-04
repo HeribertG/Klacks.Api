@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Settings;
@@ -9,26 +9,26 @@ namespace Klacks.Api.Application.Handlers.Countries;
 public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<CountryResource>, CountryResource?>
 {
     private readonly ICountryRepository _countryRepository;
-    private readonly IMapper _mapper;
+    private readonly SettingsMapper _settingsMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public PostCommandHandler(
         ICountryRepository countryRepository,
-        IMapper mapper,
+        SettingsMapper settingsMapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _countryRepository = countryRepository;
-        _mapper = mapper;
+        _settingsMapper = settingsMapper;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<CountryResource?> Handle(PostCommand<CountryResource> request, CancellationToken cancellationToken)
     {
-        var country = _mapper.Map<Klacks.Api.Domain.Models.Settings.Countries>(request.Resource);
+        var country = _settingsMapper.ToCountryEntity(request.Resource);
         await _countryRepository.Add(country);
         await _unitOfWork.CompleteAsync();
-        return _mapper.Map<CountryResource>(country);
+        return _settingsMapper.ToCountryResource(country);
     }
 }

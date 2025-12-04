@@ -1,6 +1,6 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Presentation.DTOs.Schedules;
@@ -11,17 +11,17 @@ namespace Klacks.Api.Application.Handlers.Absences;
 public class PostCommandHandler : BaseTransactionHandler, IRequestHandler<PostCommand<AbsenceResource>, AbsenceResource?>
 {
     private readonly IAbsenceRepository _absenceRepository;
-    private readonly IMapper _mapper;
+    private readonly SettingsMapper _settingsMapper;
 
     public PostCommandHandler(
         IAbsenceRepository absenceRepository,
-        IMapper mapper,
+        SettingsMapper settingsMapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
         : base(unitOfWork, logger)
     {
         _absenceRepository = absenceRepository;
-        _mapper = mapper;
+        _settingsMapper = settingsMapper;
     }
 
     public async Task<AbsenceResource?> Handle(PostCommand<AbsenceResource> request, CancellationToken cancellationToken)
@@ -30,12 +30,12 @@ public class PostCommandHandler : BaseTransactionHandler, IRequestHandler<PostCo
 
         return await ExecuteWithTransactionAsync(async () =>
         {
-            var absence = _mapper.Map<Absence>(request.Resource);
+            var absence = _settingsMapper.ToAbsenceEntity(request.Resource);
             await _absenceRepository.Add(absence);
             await _unitOfWork.CompleteAsync();
-            return _mapper.Map<AbsenceResource>(absence);
-        }, 
-        "creating absence", 
+            return _settingsMapper.ToAbsenceResource(absence);
+        },
+        "creating absence",
         new { AbsenceId = request.Resource?.Id });
     }
 

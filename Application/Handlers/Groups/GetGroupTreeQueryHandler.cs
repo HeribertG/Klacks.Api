@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Groups;
 using Klacks.Api.Domain.Enums;
@@ -12,18 +12,18 @@ namespace Klacks.Api.Application.Handlers.Groups
     public class GetGroupTreeQueryHandler : IRequestHandler<GetGroupTreeQuery, GroupTreeResource>
     {
         private readonly IGroupRepository _groupRepository;
-        private readonly IMapper _mapper;
+        private readonly GroupMapper _groupMapper;
         private readonly ILogger<GetGroupTreeQueryHandler> _logger;
         private readonly DataBaseContext _context;
 
         public GetGroupTreeQueryHandler(
             IGroupRepository groupRepository,
-            IMapper mapper,
+            GroupMapper groupMapper,
             ILogger<GetGroupTreeQueryHandler> logger,
             DataBaseContext context)
         {
             _groupRepository = groupRepository;
-            _mapper = mapper;
+            _groupMapper = groupMapper;
             _logger = logger;
             _context = context;
         }
@@ -35,7 +35,7 @@ namespace Klacks.Api.Application.Handlers.Groups
                 _logger.LogInformation($"Processing GetGroupTreeQuery with rootId: {request.RootId}");
 
                 var flatNodes = await _groupRepository.GetTree(request.RootId);
-                var nodeDict = flatNodes.ToDictionary(g => g.Id, g => _mapper.Map<GroupResource>(g));
+                var nodeDict = flatNodes.ToDictionary(g => g.Id, g => _groupMapper.ToGroupResource(g));
                 var rootNodes = new List<GroupResource>();
 
                 var shiftCounts = await GetShiftCountsPerGroup(cancellationToken);

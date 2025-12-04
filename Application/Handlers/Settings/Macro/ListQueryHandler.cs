@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Settings.Macros;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Settings.Macros;
 public class ListQueryHandler : IRequestHandler<ListQuery, IEnumerable<MacroResource>>
 {
     private readonly ISettingsRepository _settingsRepository;
-    private readonly IMapper _mapper;
+    private readonly SettingsMapper _settingsMapper;
     private readonly ILogger<ListQueryHandler> _logger;
 
-    public ListQueryHandler(ISettingsRepository settingsRepository, IMapper mapper, ILogger<ListQueryHandler> logger)
+    public ListQueryHandler(ISettingsRepository settingsRepository, SettingsMapper settingsMapper, ILogger<ListQueryHandler> logger)
     {
         _settingsRepository = settingsRepository;
-        _mapper = mapper;
+        _settingsMapper = settingsMapper;
         _logger = logger;
     }
 
@@ -32,7 +32,7 @@ public class ListQueryHandler : IRequestHandler<ListQuery, IEnumerable<MacroReso
             
             _logger.LogInformation($"Successfully retrieved {macrosList.Count} macros");
             
-            return _mapper.Map<IEnumerable<MacroResource>>(macrosList);
+            return _settingsMapper.ToMacroResources(macrosList.ToList());
         }
         catch (Exception ex)
         {

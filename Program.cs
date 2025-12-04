@@ -8,6 +8,7 @@ using Klacks.Api.Infrastructure.Exceptions;
 using Klacks.Api.Infrastructure.Extensions;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Application.Mappers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -144,8 +145,8 @@ builder.Services.AddDbContext<DataBaseContext>(options =>
         warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
 });
 
-// Registering Automapper
-builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+// Registering Mappers (Mapperly)
+builder.Services.AddMappers();
 
 // Registering Mediator
 builder.Services.AddMediator(Assembly.GetExecutingAssembly());

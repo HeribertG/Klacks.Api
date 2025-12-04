@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Countries
     public class GetQueryHandler : IRequestHandler<GetQuery<CountryResource>, CountryResource>
     {
         private readonly ICountryRepository _countryRepository;
-        private readonly IMapper _mapper;
+        private readonly SettingsMapper _settingsMapper;
         private readonly ILogger<GetQueryHandler> _logger;
 
-        public GetQueryHandler(ICountryRepository countryRepository, IMapper mapper, ILogger<GetQueryHandler> logger)
+        public GetQueryHandler(ICountryRepository countryRepository, SettingsMapper settingsMapper, ILogger<GetQueryHandler> logger)
         {
             _countryRepository = countryRepository;
-            _mapper = mapper;
+            _settingsMapper = settingsMapper;
             _logger = logger;
         }
 
@@ -34,7 +34,7 @@ namespace Klacks.Api.Application.Handlers.Countries
                     throw new KeyNotFoundException($"Country with ID {request.Id} not found");
                 }
                 
-                var result = _mapper.Map<CountryResource>(country);
+                var result = _settingsMapper.ToCountryResource(country);
                 _logger.LogInformation("Successfully retrieved country with ID: {Id}", request.Id);
                 return result;
             }

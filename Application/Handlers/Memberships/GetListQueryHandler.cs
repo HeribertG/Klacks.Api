@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Memberships
     public class GetListQueryHandler : IRequestHandler<ListQuery<MembershipResource>, IEnumerable<MembershipResource>>
     {
         private readonly IMembershipRepository _membershipRepository;
-        private readonly IMapper _mapper;
+        private readonly ScheduleMapper _scheduleMapper;
         private readonly ILogger<GetListQueryHandler> _logger;
 
-        public GetListQueryHandler(IMembershipRepository membershipRepository, IMapper mapper, ILogger<GetListQueryHandler> logger)
+        public GetListQueryHandler(IMembershipRepository membershipRepository, ScheduleMapper scheduleMapper, ILogger<GetListQueryHandler> logger)
         {
             _membershipRepository = membershipRepository;
-            _mapper = mapper;
+            _scheduleMapper = scheduleMapper;
             _logger = logger;
         }
 
@@ -29,10 +29,10 @@ namespace Klacks.Api.Application.Handlers.Memberships
             {
                 var memberships = await _membershipRepository.List();
                 var membershipsList = memberships.ToList();
-                
+
                 _logger.LogInformation($"Retrieved {membershipsList.Count} memberships");
-                
-                return _mapper.Map<IEnumerable<MembershipResource>>(membershipsList);
+
+                return membershipsList.Select(m => _scheduleMapper.ToMembershipResource(m)).ToList();
             }
             catch (Exception ex)
             {

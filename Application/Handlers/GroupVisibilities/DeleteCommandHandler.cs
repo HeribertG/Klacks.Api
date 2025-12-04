@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Associations;
@@ -9,18 +9,18 @@ namespace Klacks.Api.Application.Handlers.GroupVisibilities;
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<GroupVisibilityResource>, GroupVisibilityResource?>
 {
     private readonly IGroupVisibilityRepository _groupVisibilityRepository;
-    private readonly IMapper _mapper;
+    private readonly GroupMapper _groupMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public DeleteCommandHandler(
         IGroupVisibilityRepository groupVisibilityRepository,
-        IMapper mapper,
+        GroupMapper groupMapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _groupVisibilityRepository = groupVisibilityRepository;
-        _mapper = mapper;
+        _groupMapper = groupMapper;
         _unitOfWork = unitOfWork;
     }
 
@@ -32,7 +32,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<G
             return null;
         }
 
-        var groupVisibilityResource = _mapper.Map<GroupVisibilityResource>(existingGroupVisibility);
+        var groupVisibilityResource = _groupMapper.ToGroupVisibilityResource(existingGroupVisibility);
         await _groupVisibilityRepository.Delete(request.Id);
         await _unitOfWork.CompleteAsync();
         return groupVisibilityResource;

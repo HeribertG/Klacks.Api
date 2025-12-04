@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Breaks
     public class GetQueryHandler : IRequestHandler<GetQuery<BreakResource>, BreakResource>
     {
         private readonly IBreakRepository _breakRepository;
-        private readonly IMapper _mapper;
+        private readonly ScheduleMapper _scheduleMapper;
         private readonly ILogger<GetQueryHandler> _logger;
 
-        public GetQueryHandler(IBreakRepository breakRepository, IMapper mapper, ILogger<GetQueryHandler> logger)
+        public GetQueryHandler(IBreakRepository breakRepository, ScheduleMapper scheduleMapper, ILogger<GetQueryHandler> logger)
         {
             _breakRepository = breakRepository;
-            _mapper = mapper;
+            _scheduleMapper = scheduleMapper;
             _logger = logger;
         }
 
@@ -34,7 +34,7 @@ namespace Klacks.Api.Application.Handlers.Breaks
                     throw new KeyNotFoundException($"Break with ID {request.Id} not found");
                 }
                 
-                var result = _mapper.Map<BreakResource>(breakEntity);
+                var result = _scheduleMapper.ToBreakResource(breakEntity);
                 _logger.LogInformation("Successfully retrieved break with ID: {Id}", request.Id);
                 return result;
             }

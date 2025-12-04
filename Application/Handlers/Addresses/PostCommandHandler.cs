@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Staffs;
@@ -9,18 +9,18 @@ namespace Klacks.Api.Application.Handlers.Addresses;
 public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<AddressResource>, AddressResource?>
 {
     private readonly IAddressRepository _addressRepository;
-    private readonly IMapper _mapper;
+    private readonly AddressCommunicationMapper _addressCommunicationMapper;
     private readonly IUnitOfWork _unitOfWork;
     
     public PostCommandHandler(
         IAddressRepository addressRepository,
-        IMapper mapper,
+        AddressCommunicationMapper addressCommunicationMapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _addressRepository = addressRepository;
-        _mapper = mapper;
+        _addressCommunicationMapper = addressCommunicationMapper;
         _unitOfWork = unitOfWork;
         }
 
@@ -28,10 +28,10 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Addre
     {
         return await ExecuteAsync(async () =>
         {
-            var address = _mapper.Map<Klacks.Api.Domain.Models.Staffs.Address>(request.Resource);
+            var address = _addressCommunicationMapper.ToAddressEntity(request.Resource);
             await _addressRepository.Add(address);
             await _unitOfWork.CompleteAsync();
-            return _mapper.Map<AddressResource>(address);
+            return _addressCommunicationMapper.ToAddressResource(address);
         }, 
         "creating address", 
         new { AddressId = request.Resource?.Id });

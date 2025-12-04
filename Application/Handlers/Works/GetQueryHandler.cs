@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Works;
 public class GetQueryHandler : IRequestHandler<GetQuery<WorkResource>, WorkResource>
 {
     private readonly IWorkRepository _workRepository;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly ILogger<GetQueryHandler> _logger;
 
-    public GetQueryHandler(IWorkRepository workRepository, IMapper mapper, ILogger<GetQueryHandler> logger)
+    public GetQueryHandler(IWorkRepository workRepository, ScheduleMapper scheduleMapper, ILogger<GetQueryHandler> logger)
     {
         _workRepository = workRepository;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         this._logger = logger;
     }
 
@@ -34,7 +34,7 @@ public class GetQueryHandler : IRequestHandler<GetQuery<WorkResource>, WorkResou
                 throw new KeyNotFoundException($"Work with ID {request.Id} not found");
             }
             
-            var result = _mapper.Map<WorkResource>(work);
+            var result = _scheduleMapper.ToWorkResource(work);
             _logger.LogInformation("Successfully retrieved work with ID: {Id}", request.Id);
             return result;
         }

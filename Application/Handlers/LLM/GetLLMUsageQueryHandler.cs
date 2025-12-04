@@ -1,5 +1,5 @@
 using Klacks.Api.Infrastructure.Mediator;
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.Queries.LLM;
 
@@ -8,12 +8,12 @@ namespace Klacks.Api.Application.Handlers.LLM;
 public class GetLLMUsageQueryHandler : IRequestHandler<GetLLMUsageQuery, LLMUsageResponse>
 {
     private readonly ILLMRepository _repository;
-    private readonly IMapper _mapper;
+    private readonly LLMMapper _lLMMapper;
 
-    public GetLLMUsageQueryHandler(ILLMRepository repository, IMapper mapper)
+    public GetLLMUsageQueryHandler(ILLMRepository repository, LLMMapper lLMMapper)
     {
         _repository = repository;
-        _mapper = mapper;
+        _lLMMapper = lLMMapper;
     }
 
     public async Task<LLMUsageResponse> Handle(GetLLMUsageQuery request, CancellationToken cancellationToken)
@@ -34,6 +34,6 @@ public class GetLLMUsageQueryHandler : IRequestHandler<GetLLMUsageQuery, LLMUsag
             EndDate = endDate
         };
 
-        return _mapper.Map<LLMUsageResponse>(rawData);
+        return _lLMMapper.ToUsageResponse(rawData);
     }
 }

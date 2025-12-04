@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.ContainerTemplates;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
@@ -11,18 +11,18 @@ public class PostContainerTemplatesCommandHandler : IRequestHandler<PostContaine
 {
     private readonly IContainerTemplateRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly ILogger<PostContainerTemplatesCommandHandler> _logger;
 
     public PostContainerTemplatesCommandHandler(
         IContainerTemplateRepository repository,
         IUnitOfWork unitOfWork,
-        IMapper mapper,
+        ScheduleMapper scheduleMapper,
         ILogger<PostContainerTemplatesCommandHandler> logger)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         _logger = logger;
     }
 
@@ -36,7 +36,7 @@ public class PostContainerTemplatesCommandHandler : IRequestHandler<PostContaine
         foreach (var resource in request.Resources)
         {
             resource.ContainerId = request.ContainerId;
-            var template = _mapper.Map<ContainerTemplate>(resource);
+            var template = _scheduleMapper.ToContainerTemplateEntity(resource);
 
             foreach (var item in template.ContainerTemplateItems)
             {
@@ -52,7 +52,7 @@ public class PostContainerTemplatesCommandHandler : IRequestHandler<PostContaine
         _logger.LogInformation("Successfully created {Count} ContainerTemplates for Container: {ContainerId}",
             createdTemplates.Count, request.ContainerId);
 
-        var result = _mapper.Map<List<ContainerTemplateResource>>(createdTemplates);
+        var result = createdTemplates.Select(t => _scheduleMapper.ToContainerTemplateResource(t)).ToList();
         return result;
     }
 }

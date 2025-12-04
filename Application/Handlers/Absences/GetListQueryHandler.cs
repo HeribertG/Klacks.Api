@@ -1,5 +1,5 @@
-using AutoMapper;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -10,16 +10,16 @@ namespace Klacks.Api.Application.Handlers.Absences;
 public class GetListQueryHandler : IRequestHandler<ListQuery<AbsenceResource>, IEnumerable<AbsenceResource>>
 {
     private readonly IAbsenceRepository _absenceRepository;
-    private readonly IMapper _mapper;
+    private readonly SettingsMapper _settingsMapper;
     private readonly ILogger<GetListQueryHandler> _logger;
 
     public GetListQueryHandler(
         IAbsenceRepository absenceRepository,
-        IMapper mapper,
+        SettingsMapper settingsMapper,
         ILogger<GetListQueryHandler> logger)
     {
         _absenceRepository = absenceRepository;
-        _mapper = mapper;
+        _settingsMapper = settingsMapper;
         _logger = logger;
     }
 
@@ -28,10 +28,10 @@ public class GetListQueryHandler : IRequestHandler<ListQuery<AbsenceResource>, I
         try
         {
             _logger.LogInformation("Processing get all absences query");
-            
+
             var absences = await _absenceRepository.List();
-            var result = _mapper.Map<IEnumerable<AbsenceResource>>(absences);
-            
+            var result = _settingsMapper.ToAbsenceResources(absences.ToList());
+
             _logger.LogInformation("All absences retrieved successfully");
             return result;
         }

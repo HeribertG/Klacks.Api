@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Associations;
@@ -9,18 +9,18 @@ namespace Klacks.Api.Application.Handlers.GroupVisibilities;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<GroupVisibilityResource>, GroupVisibilityResource?>
 {
     private readonly IGroupVisibilityRepository _groupVisibilityRepository;
-    private readonly IMapper _mapper;
+    private readonly GroupMapper _groupMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public PutCommandHandler(
         IGroupVisibilityRepository groupVisibilityRepository,
-        IMapper mapper,
+        GroupMapper groupMapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _groupVisibilityRepository = groupVisibilityRepository;
-        _mapper = mapper;
+        _groupMapper = groupMapper;
         _unitOfWork = unitOfWork;
     }
 
@@ -32,9 +32,12 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<GroupVi
             return null;
         }
 
-        _mapper.Map(request.Resource, existingGroupVisibility);
+        var updatedGroupVisibility = _groupMapper.ToGroupVisibilityEntity(request.Resource);
+        updatedGroupVisibility.CreateTime = existingGroupVisibility.CreateTime;
+        updatedGroupVisibility.CurrentUserCreated = existingGroupVisibility.CurrentUserCreated;
+        existingGroupVisibility = updatedGroupVisibility;
         await _groupVisibilityRepository.Put(existingGroupVisibility);
         await _unitOfWork.CompleteAsync();
-        return _mapper.Map<GroupVisibilityResource>(existingGroupVisibility);
+        return _groupMapper.ToGroupVisibilityResource(existingGroupVisibility);
     }
 }

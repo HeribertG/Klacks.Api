@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries.ContainerTemplates;
 using Klacks.Api.Domain.Services.ContainerTemplates;
 using Klacks.Api.Presentation.DTOs.Schedules;
@@ -9,14 +9,14 @@ namespace Klacks.Api.Application.Handlers.ContainerTemplates;
 public class GetAvailableTasksQueryHandler : IRequestHandler<GetAvailableTasksQuery, List<ShiftResource>>
 {
     private readonly ContainerAvailableTasksService _availableTasksService;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
 
     public GetAvailableTasksQueryHandler(
         ContainerAvailableTasksService availableTasksService,
-        IMapper mapper)
+        ScheduleMapper scheduleMapper)
     {
         _availableTasksService = availableTasksService;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
     }
 
     public async Task<List<ShiftResource>> Handle(GetAvailableTasksQuery request, CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ public class GetAvailableTasksQueryHandler : IRequestHandler<GetAvailableTasksQu
             request.IsWeekdayOrHoliday,
             cancellationToken);
 
-        var resources = _mapper.Map<List<ShiftResource>>(availableTasks);
+        var resources = availableTasks.Select(s => _scheduleMapper.ToShiftResource(s)).ToList();
         return resources;
     }
 }

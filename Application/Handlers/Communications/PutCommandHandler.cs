@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Settings;
@@ -10,18 +10,18 @@ namespace Klacks.Api.Application.Handlers.Communications;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<CommunicationResource>, CommunicationResource?>
 {
     private readonly ICommunicationRepository _communicationRepository;
-    private readonly IMapper _mapper;
+    private readonly AddressCommunicationMapper _addressCommunicationMapper;
     private readonly IUnitOfWork _unitOfWork;
     
     public PutCommandHandler(
         ICommunicationRepository communicationRepository,
-        IMapper mapper,
+        AddressCommunicationMapper addressCommunicationMapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _communicationRepository = communicationRepository;
-        _mapper = mapper;
+        _addressCommunicationMapper = addressCommunicationMapper;
         _unitOfWork = unitOfWork;
         }
 
@@ -35,10 +35,13 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Communi
                 throw new KeyNotFoundException($"Communication with ID {request.Resource.Id} not found.");
             }
 
-            _mapper.Map(request.Resource, existingCommunication);
+            var updatedCommunication = _addressCommunicationMapper.ToCommunicationEntity(request.Resource);
+            updatedCommunication.CreateTime = existingCommunication.CreateTime;
+            updatedCommunication.CurrentUserCreated = existingCommunication.CurrentUserCreated;
+            existingCommunication = updatedCommunication;
             await _communicationRepository.Put(existingCommunication);
             await _unitOfWork.CompleteAsync();
-            return _mapper.Map<CommunicationResource>(existingCommunication);
+            return _addressCommunicationMapper.ToCommunicationResource(existingCommunication);
         }, 
         "updating communication", 
         new { CommunicationId = request.Resource.Id });

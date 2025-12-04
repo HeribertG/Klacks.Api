@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Staffs;
@@ -9,18 +9,18 @@ namespace Klacks.Api.Application.Handlers.Annotations;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<AnnotationResource>, AnnotationResource?>
 {
     private readonly IAnnotationRepository _annotationRepository;
-    private readonly IMapper _mapper;
+    private readonly SettingsMapper _settingsMapper;
     private readonly IUnitOfWork _unitOfWork;
     
     public PutCommandHandler(
         IAnnotationRepository annotationRepository,
-        IMapper mapper,
+        SettingsMapper settingsMapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _annotationRepository = annotationRepository;
-        _mapper = mapper;
+        _settingsMapper = settingsMapper;
         _unitOfWork = unitOfWork;
         }
 
@@ -34,10 +34,13 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Annotat
                 throw new KeyNotFoundException($"Annotation with ID {request.Resource.Id} not found.");
             }
 
-            _mapper.Map(request.Resource, existingAnnotation);
+            var updatedAnnotation = _settingsMapper.ToAnnotationEntity(request.Resource);
+            updatedAnnotation.CreateTime = existingAnnotation.CreateTime;
+            updatedAnnotation.CurrentUserCreated = existingAnnotation.CurrentUserCreated;
+            existingAnnotation = updatedAnnotation;
             await _annotationRepository.Put(existingAnnotation);
             await _unitOfWork.CompleteAsync();
-            return _mapper.Map<AnnotationResource>(existingAnnotation);
+            return _settingsMapper.ToAnnotationResource(existingAnnotation);
         }, 
         "updating annotation", 
         new { AnnotationId = request.Resource.Id });

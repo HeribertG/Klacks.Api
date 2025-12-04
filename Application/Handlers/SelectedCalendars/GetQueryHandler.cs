@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.SelectedCalendars
     public class GetQueryHandler : IRequestHandler<GetQuery<SelectedCalendarResource>, SelectedCalendarResource>
     {
         private readonly ISelectedCalendarRepository _selectedCalendarRepository;
-        private readonly IMapper _mapper;
+        private readonly ScheduleMapper _scheduleMapper;
         private readonly ILogger<GetQueryHandler> _logger;
 
-        public GetQueryHandler(ISelectedCalendarRepository selectedCalendarRepository, IMapper mapper, ILogger<GetQueryHandler> logger)
+        public GetQueryHandler(ISelectedCalendarRepository selectedCalendarRepository, ScheduleMapper scheduleMapper, ILogger<GetQueryHandler> logger)
         {
             _selectedCalendarRepository = selectedCalendarRepository;
-            _mapper = mapper;
+            _scheduleMapper = scheduleMapper;
             _logger = logger;
         }
 
@@ -34,7 +34,7 @@ namespace Klacks.Api.Application.Handlers.SelectedCalendars
                     throw new KeyNotFoundException($"Selected calendar with ID {request.Id} not found");
                 }
                 
-                var result = _mapper.Map<SelectedCalendarResource>(selectedCalendar);
+                var result = _scheduleMapper.ToSelectedCalendarResource(selectedCalendar);
                 _logger.LogInformation("Successfully retrieved selected calendar with ID: {Id}", request.Id);
                 return result;
             }

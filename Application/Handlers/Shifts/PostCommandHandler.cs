@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
@@ -13,20 +13,20 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
 {
     private readonly IShiftRepository _shiftRepository;
     private readonly ICreateShiftFromOrderService _createShiftFromOrderService;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public PostCommandHandler(
         IShiftRepository shiftRepository,
         ICreateShiftFromOrderService createShiftFromOrderService,
-        IMapper mapper,
+        ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _shiftRepository = shiftRepository;
         _createShiftFromOrderService = createShiftFromOrderService;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
     }
 
@@ -35,7 +35,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
         _logger.LogInformation("Creating new shift: Name={Name}, MacroId={MacroId}, ClientId={ClientId}, GroupCount={GroupCount}",
             request.Resource.Name, request.Resource.MacroId, request.Resource.ClientId, request.Resource.Groups?.Count ?? 0);
 
-        var shift = _mapper.Map<Shift>(request.Resource);
+        var shift = _scheduleMapper.ToShiftEntity(request.Resource);
 
         if (shift.Status == ShiftStatus.SealedOrder)
         {
@@ -56,6 +56,6 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
         _logger.LogInformation("Shift created successfully: Id={ShiftId}, Name={Name}, Status={Status}",
             resultShift.Id, resultShift.Name, resultShift.Status);
 
-        return _mapper.Map<ShiftResource>(resultShift);
+        return _scheduleMapper.ToShiftResource(resultShift);
     }
 }

@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.CalendarSelections
     public class GetListQueryHandler : IRequestHandler<ListQuery<CalendarSelectionResource>, IEnumerable<CalendarSelectionResource>>
     {
         private readonly ICalendarSelectionRepository _calendarSelectionRepository;
-        private readonly IMapper _mapper;
+        private readonly ScheduleMapper _scheduleMapper;
         private readonly ILogger<GetListQueryHandler> _logger;
 
-        public GetListQueryHandler(ICalendarSelectionRepository calendarSelectionRepository, IMapper mapper, ILogger<GetListQueryHandler> logger)
+        public GetListQueryHandler(ICalendarSelectionRepository calendarSelectionRepository, ScheduleMapper scheduleMapper, ILogger<GetListQueryHandler> logger)
         {
             _calendarSelectionRepository = calendarSelectionRepository;
-            _mapper = mapper;
+            _scheduleMapper = scheduleMapper;
             _logger = logger;
         }
 
@@ -29,10 +29,10 @@ namespace Klacks.Api.Application.Handlers.CalendarSelections
                 
                 var calendarSelections = await _calendarSelectionRepository.List();
                 var selectionsList = calendarSelections.ToList();
-                
+
                 _logger.LogInformation($"Retrieved {selectionsList.Count} calendar selections");
-                
-                return _mapper.Map<IEnumerable<CalendarSelectionResource>>(selectionsList);
+
+                return selectionsList.Select(c => _scheduleMapper.ToCalendarSelectionResource(c)).ToList();
             }
             catch (Exception ex)
             {

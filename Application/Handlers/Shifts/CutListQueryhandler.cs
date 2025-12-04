@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Shifts;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Shifts;
 public class CutListQueryhandler : IRequestHandler<CutListQuery, IEnumerable<ShiftResource>>
 {
     private readonly IShiftRepository _shiftRepository;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly ILogger<CutListQueryhandler> _logger;
 
-    public CutListQueryhandler(IShiftRepository shiftRepository, IMapper mapper, ILogger<CutListQueryhandler> logger)
+    public CutListQueryhandler(IShiftRepository shiftRepository, ScheduleMapper scheduleMapper, ILogger<CutListQueryhandler> logger)
     {
         _shiftRepository = shiftRepository;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         _logger = logger;
     }
 
@@ -29,10 +29,10 @@ public class CutListQueryhandler : IRequestHandler<CutListQuery, IEnumerable<Shi
         {
             var cuts = await _shiftRepository.CutList(request.Id);
             var cutsList = cuts.ToList();
-            
+
             _logger.LogInformation($"Retrieved {cutsList.Count} cut shifts for ID: {request.Id}");
-            
-            return _mapper.Map<IEnumerable<ShiftResource>>(cutsList);
+
+            return cutsList.Select(s => _scheduleMapper.ToShiftResource(s)).ToList();
         }
         catch (Exception ex)
         {

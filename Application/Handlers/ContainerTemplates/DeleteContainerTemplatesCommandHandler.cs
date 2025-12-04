@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.ContainerTemplates;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Schedules;
@@ -10,18 +10,18 @@ public class DeleteContainerTemplatesCommandHandler : IRequestHandler<DeleteCont
 {
     private readonly IContainerTemplateRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly ILogger<DeleteContainerTemplatesCommandHandler> _logger;
 
     public DeleteContainerTemplatesCommandHandler(
         IContainerTemplateRepository repository,
         IUnitOfWork unitOfWork,
-        IMapper mapper,
+        ScheduleMapper scheduleMapper,
         ILogger<DeleteContainerTemplatesCommandHandler> logger)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         _logger = logger;
     }
 
@@ -31,7 +31,7 @@ public class DeleteContainerTemplatesCommandHandler : IRequestHandler<DeleteCont
 
         var templates = await _repository.GetTemplatesForContainer(request.ContainerId);
 
-        var deletedTemplates = _mapper.Map<List<ContainerTemplateResource>>(templates);
+        var deletedTemplates = templates.Select(t => _scheduleMapper.ToContainerTemplateResource(t)).ToList();
 
         foreach (var template in templates)
         {

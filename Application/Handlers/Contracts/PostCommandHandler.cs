@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Exceptions;
@@ -11,18 +11,18 @@ namespace Klacks.Api.Application.Handlers.Contracts;
 public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<ContractResource>, ContractResource?>
 {
     private readonly IContractRepository _contractRepository;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public PostCommandHandler(
         IContractRepository contractRepository,
-        IMapper mapper,
+        ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _contractRepository = contractRepository;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
     }
 
@@ -32,10 +32,10 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Contr
 
         return await ExecuteAsync(async () =>
         {
-            var contract = _mapper.Map<Contract>(request.Resource);
+            var contract = _scheduleMapper.ToContractEntity(request.Resource);
             await _contractRepository.Add(contract);
             await _unitOfWork.CompleteAsync();
-            return _mapper.Map<ContractResource>(contract);
+            return _scheduleMapper.ToContractResource(contract);
         }, 
         "creating contract", 
         new { ContractName = request.Resource?.Name });

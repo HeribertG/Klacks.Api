@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.AssignedGroups;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.AssignedGroups
     public class GetListQueryHandler : IRequestHandler<AssignedGroupListQuery, IEnumerable<GroupResource>>
     {
         private readonly IAssignedGroupRepository _assignedGroupRepository;
-        private readonly IMapper _mapper;
+        private readonly GroupMapper _groupMapper;
         private readonly ILogger<GetListQueryHandler> _logger;
 
-        public GetListQueryHandler(IAssignedGroupRepository assignedGroupRepository, IMapper mapper, ILogger<GetListQueryHandler> logger)
+        public GetListQueryHandler(IAssignedGroupRepository assignedGroupRepository, GroupMapper groupMapper, ILogger<GetListQueryHandler> logger)
         {
             _assignedGroupRepository = assignedGroupRepository;
-            _mapper = mapper;
+            _groupMapper = groupMapper;
             _logger = logger;
         }
 
@@ -32,7 +32,7 @@ namespace Klacks.Api.Application.Handlers.AssignedGroups
                 
                 _logger.LogInformation($"Retrieved {groupsList.Count} assigned groups for ID: {request.Id}");
                 
-                return _mapper.Map<IEnumerable<GroupResource>>(groupsList);
+                return _groupMapper.ToGroupResources(groupsList.ToList());
             }
             catch (Exception ex)
             {

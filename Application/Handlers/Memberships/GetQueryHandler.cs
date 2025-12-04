@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Memberships
     public class GetQueryHandler : IRequestHandler<GetQuery<MembershipResource>, MembershipResource>
     {
         private readonly IMembershipRepository _membershipRepository;
-        private readonly IMapper _mapper;
+        private readonly ScheduleMapper _scheduleMapper;
         private readonly ILogger<GetQueryHandler> _logger;
 
-        public GetQueryHandler(IMembershipRepository membershipRepository, IMapper mapper, ILogger<GetQueryHandler> logger)
+        public GetQueryHandler(IMembershipRepository membershipRepository, ScheduleMapper scheduleMapper, ILogger<GetQueryHandler> logger)
         {
             _membershipRepository = membershipRepository;
-            _mapper = mapper;
+            _scheduleMapper = scheduleMapper;
             _logger = logger;
         }
 
@@ -34,7 +34,7 @@ namespace Klacks.Api.Application.Handlers.Memberships
                     throw new KeyNotFoundException($"Membership with ID {request.Id} not found");
                 }
                 
-                var result = _mapper.Map<MembershipResource>(membership);
+                var result = _scheduleMapper.ToMembershipResource(membership);
                 _logger.LogInformation("Successfully retrieved membership with ID: {Id}", request.Id);
                 return result;
             }

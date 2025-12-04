@@ -1,5 +1,5 @@
 using Klacks.Api.Infrastructure.Mediator;
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.Commands.LLM;
 using Klacks.Api.Domain.Models.LLM;
@@ -9,17 +9,17 @@ namespace Klacks.Api.Application.Handlers.LLM;
 public class CreateProviderCommandHandler : IRequestHandler<CreateProviderCommand, LLMProvider>
 {
     private readonly ILLMRepository _repository;
-    private readonly IMapper _mapper;
+    private readonly LLMMapper _lLMMapper;
 
-    public CreateProviderCommandHandler(ILLMRepository repository, IMapper mapper)
+    public CreateProviderCommandHandler(ILLMRepository repository, LLMMapper lLMMapper)
     {
         _repository = repository;
-        _mapper = mapper;
+        _lLMMapper = lLMMapper;
     }
 
     public async Task<LLMProvider> Handle(CreateProviderCommand request, CancellationToken cancellationToken)
     {
-        var provider = _mapper.Map<LLMProvider>(request);
+        var provider = _lLMMapper.ToProviderFromCreate(request);
         return await _repository.CreateProviderAsync(provider);
     }
 }

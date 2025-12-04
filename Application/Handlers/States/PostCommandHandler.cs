@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Settings;
@@ -10,26 +10,26 @@ namespace Klacks.Api.Application.Handlers.States;
 public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<StateResource>, StateResource?>
 {
     private readonly IStateRepository _stateRepository;
-    private readonly IMapper _mapper;
+    private readonly SettingsMapper _settingsMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public PostCommandHandler(
         IStateRepository stateRepository,
-        IMapper mapper,
+        SettingsMapper settingsMapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _stateRepository = stateRepository;
-        _mapper = mapper;
+        _settingsMapper = settingsMapper;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<StateResource?> Handle(PostCommand<StateResource> request, CancellationToken cancellationToken)
     {
-        var state = _mapper.Map<State>(request.Resource);
+        var state = _settingsMapper.ToStateEntity(request.Resource);
         await _stateRepository.Add(state);
         await _unitOfWork.CompleteAsync();
-        return _mapper.Map<StateResource>(state);
+        return _settingsMapper.ToStateResource(state);
     }
 }

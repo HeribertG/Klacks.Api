@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Communications
     public class GetQueryHandler : IRequestHandler<GetQuery<CommunicationResource>, CommunicationResource>
     {
         private readonly ICommunicationRepository _communicationRepository;
-        private readonly IMapper _mapper;
+        private readonly AddressCommunicationMapper _addressCommunicationMapper;
         private readonly ILogger<GetQueryHandler> _logger;
 
-        public GetQueryHandler(ICommunicationRepository communicationRepository, IMapper mapper, ILogger<GetQueryHandler> logger)
+        public GetQueryHandler(ICommunicationRepository communicationRepository, AddressCommunicationMapper addressCommunicationMapper, ILogger<GetQueryHandler> logger)
         {
             _communicationRepository = communicationRepository;
-            _mapper = mapper;
+            _addressCommunicationMapper = addressCommunicationMapper;
             _logger = logger;
         }
 
@@ -34,7 +34,7 @@ namespace Klacks.Api.Application.Handlers.Communications
                     throw new KeyNotFoundException($"Communication with ID {request.Id} not found");
                 }
                 
-                var result = _mapper.Map<CommunicationResource>(communication);
+                var result = _addressCommunicationMapper.ToCommunicationResource(communication);
                 _logger.LogInformation("Successfully retrieved communication with ID: {Id}", request.Id);
                 return result;
             }

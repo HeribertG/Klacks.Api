@@ -1,25 +1,25 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Absences;
 
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<AbsenceResource>, AbsenceResource?>
-{    
-    private readonly IMapper _mapper;
+{
+    private readonly SettingsMapper _settingsMapper;
     private readonly IAbsenceRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
 
     public PutCommandHandler(
-                              IMapper mapper,
+                              SettingsMapper settingsMapper,
                               IAbsenceRepository repository,
                               IUnitOfWork unitOfWork,
                               ILogger<PutCommandHandler> logger)
         : base(logger)
     {
-        _mapper = mapper;
+        _settingsMapper = settingsMapper;
         _repository = repository;
         _unitOfWork = unitOfWork;
     }
@@ -34,13 +34,15 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Absence
                 throw new KeyNotFoundException($"Absence with ID {request.Resource.Id} not found.");
             }
 
-            var updatedAbsence = _mapper.Map(request.Resource, dbAbsence);
+            var updatedAbsence = _settingsMapper.ToAbsenceEntity(request.Resource);
+            updatedAbsence.CreateTime = dbAbsence.CreateTime;
+            updatedAbsence.CurrentUserCreated = dbAbsence.CurrentUserCreated;
             updatedAbsence = await _repository.Put(updatedAbsence);
             await _unitOfWork.CompleteAsync();
 
-            return _mapper.Map<AbsenceResource>(updatedAbsence);
-        }, 
-        "updating absence", 
+            return _settingsMapper.ToAbsenceResource(updatedAbsence);
+        },
+        "updating absence",
         new { AbsenceId = request.Resource.Id });
     }
 }

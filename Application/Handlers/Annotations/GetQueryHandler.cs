@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Annotations
     public class GetQueryHandler : IRequestHandler<GetQuery<AnnotationResource>, AnnotationResource>
     {
         private readonly IAnnotationRepository _annotationRepository;
-        private readonly IMapper _mapper;
+        private readonly SettingsMapper _settingsMapper;
         private readonly ILogger<GetQueryHandler> _logger;
 
-        public GetQueryHandler(IAnnotationRepository annotationRepository, IMapper mapper, ILogger<GetQueryHandler> logger)
+        public GetQueryHandler(IAnnotationRepository annotationRepository, SettingsMapper settingsMapper, ILogger<GetQueryHandler> logger)
         {
             _annotationRepository = annotationRepository;
-            _mapper = mapper;
+            _settingsMapper = settingsMapper;
             _logger = logger;
         }
 
@@ -34,7 +34,7 @@ namespace Klacks.Api.Application.Handlers.Annotations
                     throw new KeyNotFoundException($"Annotation with ID {request.Id} not found");
                 }
                 
-                var result = _mapper.Map<AnnotationResource>(annotation);
+                var result = _settingsMapper.ToAnnotationResource(annotation);
                 _logger.LogInformation("Successfully retrieved annotation with ID: {Id}", request.Id);
                 return result;
             }

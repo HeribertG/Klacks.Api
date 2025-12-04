@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.Shifts;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
@@ -13,20 +13,20 @@ public class PostResetCutsCommandHandler : BaseHandler, IRequestHandler<PostRese
 {
     private readonly IShiftRepository _shiftRepository;
     private readonly IShiftResetService _shiftResetService;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public PostResetCutsCommandHandler(
         IShiftRepository shiftRepository,
         IShiftResetService shiftResetService,
-        IMapper mapper,
+        ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ILogger<PostResetCutsCommandHandler> logger)
         : base(logger)
     {
         _shiftRepository = shiftRepository;
         _shiftResetService = shiftResetService;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
     }
 
@@ -64,7 +64,7 @@ public class PostResetCutsCommandHandler : BaseHandler, IRequestHandler<PostRese
         await _unitOfWork.CompleteAsync();
 
         var updatedShifts = await _shiftRepository.CutList(request.OriginalId);
-        var result = updatedShifts.Select(s => _mapper.Map<ShiftResource>(s)).ToList();
+        var result = updatedShifts.Select(s => _scheduleMapper.ToShiftResource(s)).ToList();
 
         _logger.LogInformation("=== PostResetCutsCommand END - Returned {Count} shifts ===", result.Count);
         return result;

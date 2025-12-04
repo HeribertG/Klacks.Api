@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Clients
     public class GetQueryHandler : IRequestHandler<GetQuery<ClientResource>, ClientResource>
     {
         private readonly IClientRepository _clientRepository;
-        private readonly IMapper _mapper;
+        private readonly ClientMapper _clientMapper;
         private readonly ILogger<GetQueryHandler> _logger;
 
-        public GetQueryHandler(IClientRepository clientRepository, IMapper mapper, ILogger<GetQueryHandler> logger)
+        public GetQueryHandler(IClientRepository clientRepository, ClientMapper clientMapper, ILogger<GetQueryHandler> logger)
         {
             _clientRepository = clientRepository;
-            _mapper = mapper;
+            _clientMapper = clientMapper;
             _logger = logger;
         }
 
@@ -34,7 +34,7 @@ namespace Klacks.Api.Application.Handlers.Clients
                     throw new KeyNotFoundException($"Client with ID {request.Id} not found");
                 }
                 
-                var result = _mapper.Map<ClientResource>(client);
+                var result = _clientMapper.ToResource(client);
                 _logger.LogInformation("Successfully retrieved client with ID: {Id}", request.Id);
                 return result;
             }

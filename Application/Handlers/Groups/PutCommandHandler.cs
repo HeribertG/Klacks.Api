@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Associations;
@@ -9,18 +9,18 @@ namespace Klacks.Api.Application.Handlers.Groups;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<GroupResource>, GroupResource?>
 {
     private readonly IGroupRepository _groupRepository;
-    private readonly IMapper _mapper;
+    private readonly GroupMapper _groupMapper;
     private readonly IUnitOfWork _unitOfWork;
     
     public PutCommandHandler(
         IGroupRepository groupRepository,
-        IMapper mapper,
+        GroupMapper groupMapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _groupRepository = groupRepository;
-        _mapper = mapper;
+        _groupMapper = groupMapper;
         _unitOfWork = unitOfWork;
         }
 
@@ -28,9 +28,9 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<GroupRe
     {
         return await ExecuteAsync(async () =>
         {
-            var group = _mapper.Map<Klacks.Api.Domain.Models.Associations.Group>(request.Resource);
+            var group = _groupMapper.ToGroupEntity(request.Resource);
             var updatedGroup = await _groupRepository.Put(group);
-            var result = _mapper.Map<GroupResource>(updatedGroup);
+            var result = _groupMapper.ToGroupResource(updatedGroup);
 
             await _unitOfWork.CompleteAsync();
 

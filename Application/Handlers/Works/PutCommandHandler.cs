@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Schedules;
@@ -9,21 +9,21 @@ namespace Klacks.Api.Application.Handlers.Works;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkResource>, WorkResource?>
 {
     private readonly IWorkRepository _workRepository;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
 
     public PutCommandHandler(
-        IWorkRepository workRepository, IMapper mapper,
+        IWorkRepository workRepository, ScheduleMapper scheduleMapper,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _workRepository = workRepository;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
     }
 
     public async Task<WorkResource?> Handle(PutCommand<WorkResource> request, CancellationToken cancellationToken)
     {
-        var work = _mapper.Map<Domain.Models.Schedules.Work>(request.Resource);
+        var work = _scheduleMapper.ToWorkEntity(request.Resource);
         var updatedWork = await _workRepository.Put(work);
-        return updatedWork != null ? _mapper.Map<WorkResource>(updatedWork) : null;
+        return updatedWork != null ? _scheduleMapper.ToWorkResource(updatedWork) : null;
     }
 }

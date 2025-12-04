@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Staffs;
@@ -9,18 +9,18 @@ namespace Klacks.Api.Application.Handlers.Annotations;
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<AnnotationResource>, AnnotationResource?>
 {
     private readonly IAnnotationRepository _annotationRepository;
-    private readonly IMapper _mapper;
+    private readonly SettingsMapper _settingsMapper;
     private readonly IUnitOfWork _unitOfWork;
     
     public DeleteCommandHandler(
         IAnnotationRepository annotationRepository,
-        IMapper mapper,
+        SettingsMapper settingsMapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _annotationRepository = annotationRepository;
-        _mapper = mapper;
+        _settingsMapper = settingsMapper;
         _unitOfWork = unitOfWork;
         }
 
@@ -34,7 +34,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<A
                 throw new KeyNotFoundException($"Annotation with ID {request.Id} not found.");
             }
 
-            var annotationResource = _mapper.Map<AnnotationResource>(existingAnnotation);
+            var annotationResource = _settingsMapper.ToAnnotationResource(existingAnnotation);
             await _annotationRepository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
 

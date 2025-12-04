@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Breaks;
 using Klacks.Api.Domain.Exceptions;
@@ -12,16 +12,22 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 public class GetListQueryHandler : IRequestHandler<ListQuery, (IEnumerable<ClientBreakResource> Clients, int TotalCount)>
 {
     private readonly IClientBreakRepository _clientBreakRepository;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
+    private readonly FilterMapper _filterMapper;
+    private readonly ClientMapper _clientMapper;
     private readonly ILogger<GetListQueryHandler> _logger;
 
     public GetListQueryHandler(
         IClientBreakRepository clientBreakRepository,
-        IMapper mapper,
+        ScheduleMapper scheduleMapper,
+        FilterMapper filterMapper,
+        ClientMapper clientMapper,
         ILogger<GetListQueryHandler> logger)
     {
         _clientBreakRepository = clientBreakRepository;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
+        _filterMapper = filterMapper;
+        _clientMapper = clientMapper;
         _logger = logger;
     }
 
@@ -37,14 +43,14 @@ public class GetListQueryHandler : IRequestHandler<ListQuery, (IEnumerable<Clien
                 throw new InvalidRequestException("Filter parameter is required for break list query");
             }
 
-            var breakFilter = _mapper.Map<BreakFilter>(request.Filter);
+            var breakFilter = _filterMapper.ToBreakFilter(request.Filter);
 
             var (clients, totalCount) = await _clientBreakRepository.BreakList(breakFilter);
             var clientList = clients.ToList();
 
             _logger.LogInformation($"Retrieved {clientList.Count} clients with break data (Total: {totalCount})");
 
-            var mappedClients = _mapper.Map<IEnumerable<ClientBreakResource>>(clientList);
+            var mappedClients = clientList.Select(c => _clientMapper.ToBreakResource(c)).ToList();
             return (mappedClients, totalCount);
         }
         catch (InvalidRequestException)

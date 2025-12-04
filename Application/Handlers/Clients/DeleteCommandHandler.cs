@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Staffs;
@@ -10,18 +10,18 @@ namespace Klacks.Api.Application.Handlers.Clients;
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<ClientResource>, ClientResource?>
 {
     private readonly IClientRepository _clientRepository;
-    private readonly IMapper _mapper;
+    private readonly ClientMapper _clientMapper;
     private readonly IUnitOfWork _unitOfWork;
     
     public DeleteCommandHandler(
         IClientRepository clientRepository,
-        IMapper mapper,
+        ClientMapper clientMapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _clientRepository = clientRepository;
-        _mapper = mapper;
+        _clientMapper = clientMapper;
         _unitOfWork = unitOfWork;
         }
 
@@ -35,7 +35,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<C
                 throw new KeyNotFoundException($"Client with ID {request.Id} not found.");
             }
 
-            var clientResource = _mapper.Map<ClientResource>(client);
+            var clientResource = _clientMapper.ToResource(client);
             await _clientRepository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
             return clientResource;

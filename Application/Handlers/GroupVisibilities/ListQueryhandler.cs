@@ -1,5 +1,5 @@
-﻿using AutoMapper;
-using Klacks.Api.Application.Interfaces;
+﻿using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Presentation.DTOs.Associations;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.GroupVisibilities;
 public class ListQueryhandler : IRequestHandler<ListQuery<GroupVisibilityResource>, IEnumerable<GroupVisibilityResource>>
 {
     private readonly IGroupVisibilityRepository _groupVisibilityRepository;
-    private readonly IMapper _mapper;
+    private readonly GroupMapper _groupMapper;
     private readonly ILogger<ListQueryhandler> _logger;
 
-    public ListQueryhandler(IGroupVisibilityRepository groupVisibilityRepository, IMapper mapper, ILogger<ListQueryhandler> logger)
+    public ListQueryhandler(IGroupVisibilityRepository groupVisibilityRepository, GroupMapper groupMapper, ILogger<ListQueryhandler> logger)
     {
         _groupVisibilityRepository = groupVisibilityRepository;
-        _mapper = mapper;
+        _groupMapper = groupMapper;
         _logger = logger;
     }
 
@@ -32,7 +32,7 @@ public class ListQueryhandler : IRequestHandler<ListQuery<GroupVisibilityResourc
             
             _logger.LogInformation($"Retrieved {visibilitiesList.Count} group visibilities");
             
-            return _mapper.Map<IEnumerable<GroupVisibilityResource>>(visibilitiesList);
+            return _groupMapper.ToGroupVisibilityResources(visibilitiesList.ToList());
         }
         catch (Exception ex)
         {

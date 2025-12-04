@@ -1,5 +1,5 @@
-using AutoMapper;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Presentation.DTOs.Schedules;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Absences
     public class GetQueryHandler : IRequestHandler<GetQuery<AbsenceResource>, AbsenceResource>
     {
         private readonly IAbsenceRepository _absenceRepository;
-        private readonly IMapper _mapper;
+        private readonly SettingsMapper _settingsMapper;
         private readonly ILogger<GetQueryHandler> _logger;
 
-        public GetQueryHandler(IAbsenceRepository absenceRepository, IMapper mapper, ILogger<GetQueryHandler> logger)
+        public GetQueryHandler(IAbsenceRepository absenceRepository, SettingsMapper settingsMapper, ILogger<GetQueryHandler> logger)
         {
             _absenceRepository = absenceRepository;
-            _mapper = mapper;
+            _settingsMapper = settingsMapper;
             _logger = logger;
         }
 
@@ -26,15 +26,15 @@ namespace Klacks.Api.Application.Handlers.Absences
             try
             {
                 _logger.LogInformation("Getting absence with ID: {Id}", request.Id);
-                
+
                 var absence = await _absenceRepository.Get(request.Id);
-                
+
                 if (absence == null)
                 {
                     throw new KeyNotFoundException($"Absence with ID {request.Id} not found");
                 }
-                
-                var result = _mapper.Map<AbsenceResource>(absence)!;
+
+                var result = _settingsMapper.ToAbsenceResource(absence);
                 _logger.LogInformation("Successfully retrieved absence with ID: {Id}", request.Id);
                 return result;
             }

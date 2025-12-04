@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Annotation;
 using Klacks.Api.Presentation.DTOs.Staffs;
@@ -9,18 +9,18 @@ namespace Klacks.Api.Application.Handlers.Annotations
     public class GetListQueryHandler : IRequestHandler<GetSimpleListQuery, IEnumerable<AnnotationResource>>
     {
         private readonly IAnnotationRepository _annotationRepository;
-        private readonly IMapper _mapper;
+        private readonly SettingsMapper _settingsMapper;
 
-        public GetListQueryHandler(IAnnotationRepository annotationRepository, IMapper mapper)
+        public GetListQueryHandler(IAnnotationRepository annotationRepository, SettingsMapper settingsMapper)
         {
             _annotationRepository = annotationRepository;
-            _mapper = mapper;
+            _settingsMapper = settingsMapper;
         }
 
         public async Task<IEnumerable<AnnotationResource>> Handle(GetSimpleListQuery request, CancellationToken cancellationToken)
         {
             var annotations = await _annotationRepository.List();
-            return _mapper.Map<IEnumerable<AnnotationResource>>(annotations);
+            return _settingsMapper.ToAnnotationResources(annotations.ToList());
         }
     }
 }

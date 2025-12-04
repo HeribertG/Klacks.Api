@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Exceptions;
@@ -10,18 +10,18 @@ namespace Klacks.Api.Application.Handlers.Contracts;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ContractResource>, ContractResource?>
 {
     private readonly IContractRepository _contractRepository;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public PutCommandHandler(
         IContractRepository contractRepository,
-        IMapper mapper,
+        ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _contractRepository = contractRepository;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
     }
 
@@ -37,10 +37,13 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Contrac
                 throw new KeyNotFoundException($"Contract with ID {request.Resource.Id} not found.");
             }
 
-            _mapper.Map(request.Resource, existingContract);
+            var updatedContract = _scheduleMapper.ToContractEntity(request.Resource);
+            updatedContract.CreateTime = existingContract.CreateTime;
+            updatedContract.CurrentUserCreated = existingContract.CurrentUserCreated;
+            existingContract = updatedContract;
             await _contractRepository.Put(existingContract);
             await _unitOfWork.CompleteAsync();
-            return _mapper.Map<ContractResource>(existingContract);
+            return _scheduleMapper.ToContractResource(existingContract);
         }, 
         "updating contract", 
         new { ContractId = request.Resource.Id, ContractName = request.Resource?.Name });

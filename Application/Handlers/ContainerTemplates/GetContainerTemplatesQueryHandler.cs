@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ContainerTemplates;
 using Klacks.Api.Presentation.DTOs.Schedules;
@@ -9,16 +9,16 @@ namespace Klacks.Api.Application.Handlers.ContainerTemplates;
 public class GetContainerTemplatesQueryHandler : IRequestHandler<GetContainerTemplatesQuery, List<ContainerTemplateResource>>
 {
     private readonly IContainerTemplateRepository _repository;
-    private readonly IMapper _mapper;
+    private readonly ScheduleMapper _scheduleMapper;
     private readonly ILogger<GetContainerTemplatesQueryHandler> _logger;
 
     public GetContainerTemplatesQueryHandler(
         IContainerTemplateRepository repository,
-        IMapper mapper,
+        ScheduleMapper scheduleMapper,
         ILogger<GetContainerTemplatesQueryHandler> logger)
     {
         _repository = repository;
-        _mapper = mapper;
+        _scheduleMapper = scheduleMapper;
         _logger = logger;
     }
 
@@ -27,7 +27,7 @@ public class GetContainerTemplatesQueryHandler : IRequestHandler<GetContainerTem
         _logger.LogInformation("Getting all ContainerTemplates for Container: {ContainerId}", request.ContainerId);
 
         var templates = await _repository.GetTemplatesForContainer(request.ContainerId);
-        var resources = _mapper.Map<List<ContainerTemplateResource>>(templates);
+        var resources = templates.Select(t => _scheduleMapper.ToContainerTemplateResource(t)).ToList();
 
         _logger.LogInformation("Found {Count} ContainerTemplates for Container: {ContainerId}", resources.Count, request.ContainerId);
 

@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Staffs;
@@ -9,18 +9,18 @@ namespace Klacks.Api.Application.Handlers.Clients;
 public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<ClientResource>, ClientResource?>
 {
     private readonly IClientRepository _clientRepository;
-    private readonly IMapper _mapper;
+    private readonly ClientMapper _clientMapper;
     private readonly IUnitOfWork _unitOfWork;
     
     public PostCommandHandler(
         IClientRepository clientRepository,
-        IMapper mapper,
+        ClientMapper clientMapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _clientRepository = clientRepository;
-        _mapper = mapper;
+        _clientMapper = clientMapper;
         _unitOfWork = unitOfWork;
         }
 
@@ -50,7 +50,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Clien
                     contract.ClientId, contract.ContractId, contract.IsActive, contract.FromDate, contract.UntilDate);
             }
 
-            var client = _mapper.Map<Domain.Models.Staffs.Client>(request.Resource);
+            var client = _clientMapper.ToEntity(request.Resource);
 
             if (client.ClientImage != null)
             {
@@ -80,7 +80,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Clien
                     client.ClientImage.Id, client.ClientImage.ClientId);
             }
 
-            var result = _mapper.Map<ClientResource>(client);
+            var result = _clientMapper.ToResource(client);
 
             _logger.LogInformation("🔍 [BACKEND CREATE] Final ClientResource has {ContractCount} contracts",
                 result.ClientContracts?.Count ?? 0);

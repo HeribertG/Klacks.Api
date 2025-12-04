@@ -1,7 +1,7 @@
-using AutoMapper;
 using Klacks.Api.Application.Commands.Accounts;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
@@ -11,30 +11,30 @@ namespace Klacks.Api.Application.Handlers.Accounts;
 public class RegisterUserCommandHandler : BaseHandler, IRequestHandler<RegisterUserCommand, AuthenticatedResult>
 {
     private readonly IAccountRegistrationService _accountRegistrationService;
-    private readonly IMapper _mapper;
+    private readonly AuthMapper _authMapper;
     private readonly IUnitOfWork _unitOfWork;
-    
+
     public RegisterUserCommandHandler(
         IAccountRegistrationService accountRegistrationService,
-        IMapper mapper,
+        AuthMapper authMapper,
         IUnitOfWork unitOfWork,
         ILogger<RegisterUserCommandHandler> logger)
         : base(logger)
     {
         _accountRegistrationService = accountRegistrationService;
-        _mapper = mapper;
+        _authMapper = authMapper;
         _unitOfWork = unitOfWork;
         }
 
     public async Task<AuthenticatedResult> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
         using var transaction = await _unitOfWork.BeginTransactionAsync();
-        
+
         try
         {
             _logger.LogInformation("Processing user registration for: {Email}", request.Registration.Email);
-            
-            var userIdentity = _mapper.Map<AppUser>(request.Registration);
+
+            var userIdentity = _authMapper.ToAppUser(request.Registration);
             var result = await _accountRegistrationService.RegisterUserAsync(userIdentity, request.Registration.Password);
             
             if (result != null && result.Success)

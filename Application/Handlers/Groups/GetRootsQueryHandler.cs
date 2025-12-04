@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Groups;
 using Klacks.Api.Presentation.DTOs.Associations;
@@ -9,17 +9,17 @@ namespace Klacks.Api.Application.Handlers.Groups;
 public class GetRootsQueryHandler : IRequestHandler<GetRootsQuery, IEnumerable<GroupResource>>
 {
     private readonly IGroupRepository _groupRepository;
-    private readonly IMapper _mapper;
+    private readonly GroupMapper _groupMapper;
 
-    public GetRootsQueryHandler(IGroupRepository groupRepository, IMapper mapper)
+    public GetRootsQueryHandler(IGroupRepository groupRepository, GroupMapper groupMapper)
     {
         _groupRepository = groupRepository;
-        _mapper = mapper;
+        _groupMapper = groupMapper;
     }
     
     public async Task<IEnumerable<GroupResource>> Handle(GetRootsQuery request, CancellationToken cancellationToken)
     {
         var roots = await _groupRepository.GetRoots();
-        return roots.Select(g => _mapper.Map<GroupResource>(g));
+        return roots.Select(g => _groupMapper.ToGroupResource(g));
     }
 }

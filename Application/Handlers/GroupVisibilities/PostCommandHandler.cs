@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
@@ -9,26 +9,26 @@ namespace Klacks.Api.Application.Handlers.GroupVisibilities;
 public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<GroupVisibilityResource>, GroupVisibilityResource?>
 {
     private readonly IGroupVisibilityRepository _groupVisibilityRepository;
-    private readonly IMapper _mapper;
+    private readonly GroupMapper _groupMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public PostCommandHandler(
         IGroupVisibilityRepository groupVisibilityRepository,
-        IMapper mapper,
+        GroupMapper groupMapper,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _groupVisibilityRepository = groupVisibilityRepository;
-        _mapper = mapper;
+        _groupMapper = groupMapper;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<GroupVisibilityResource?> Handle(PostCommand<GroupVisibilityResource> request, CancellationToken cancellationToken)
     {
-        var groupVisibility = _mapper.Map<GroupVisibility>(request.Resource);
+        var groupVisibility = _groupMapper.ToGroupVisibilityEntity(request.Resource);
         await _groupVisibilityRepository.Add(groupVisibility);
         await _unitOfWork.CompleteAsync();
-        return _mapper.Map<GroupVisibilityResource>(groupVisibility);
+        return _groupMapper.ToGroupVisibilityResource(groupVisibility);
     }
 }

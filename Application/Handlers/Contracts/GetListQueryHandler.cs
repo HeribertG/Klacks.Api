@@ -1,4 +1,4 @@
-using AutoMapper;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
@@ -11,13 +11,13 @@ namespace Klacks.Api.Application.Handlers.Contracts
     public class GetListQueryHandler : IRequestHandler<ListQuery<ContractResource>, IEnumerable<ContractResource>>
     {
         private readonly IContractRepository _contractRepository;
-        private readonly IMapper _mapper;
+        private readonly ScheduleMapper _scheduleMapper;
         private readonly ILogger<GetListQueryHandler> _logger;
 
-        public GetListQueryHandler(IContractRepository contractRepository, IMapper mapper, ILogger<GetListQueryHandler> logger)
+        public GetListQueryHandler(IContractRepository contractRepository, ScheduleMapper scheduleMapper, ILogger<GetListQueryHandler> logger)
         {
             _contractRepository = contractRepository;
-            _mapper = mapper;
+            _scheduleMapper = scheduleMapper;
             _logger = logger;
         }
 
@@ -29,10 +29,10 @@ namespace Klacks.Api.Application.Handlers.Contracts
             {
                 var contracts = await _contractRepository.List();
                 var contractsList = contracts.ToList();
-                
+
                 _logger.LogInformation($"Retrieved {contractsList.Count} contracts");
-                
-                return _mapper.Map<IEnumerable<ContractResource>>(contractsList);
+
+                return contractsList.Select(c => _scheduleMapper.ToContractResource(c)).ToList();
             }
             catch (Exception ex)
             {
