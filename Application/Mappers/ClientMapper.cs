@@ -63,12 +63,12 @@ public partial class ClientMapper
             PasswortResetToken = client.PasswortResetToken,
             IsDeleted = client.IsDeleted,
             Type = (int)client.Type,
-            Addresses = client.Addresses?.Select(ToAddressResource).ToList() ?? new List<AddressResource>(),
-            Communications = client.Communications?.Select(ToCommunicationResource).ToList() ?? new List<CommunicationResource>(),
-            Annotations = client.Annotations?.OrderByDescending(a => a.CreateTime).Select(ToAnnotationResource).ToList() ?? new List<AnnotationResource>(),
-            Works = client.Works?.Select(ToWorkResource).ToList() ?? new List<WorkResource>(),
-            ClientContracts = client.ClientContracts?.Select(ToContractResource).ToList() ?? new List<ClientContractResource>(),
-            GroupItems = client.GroupItems?.Select(ToGroupItemResource).ToList() ?? new List<ClientGroupItemResource>(),
+            Addresses = client.Addresses?.Select(ToAddressResource).ToList() ?? [],
+            Communications = client.Communications?.Select(ToCommunicationResource).ToList() ?? [],
+            Annotations = client.Annotations?.OrderByDescending(a => a.CreateTime).Select(ToAnnotationResource).ToList() ?? [],
+            Works = client.Works?.Select(ToWorkResource).ToList() ?? [],
+            ClientContracts = client.ClientContracts?.Select(ToContractResource).ToList() ?? [],
+            GroupItems = client.GroupItems?.Select(ToGroupItemResource).ToList() ?? [],
             Membership = client.Membership != null ? ToMembershipResource(client.Membership) : null,
             ClientImage = client.ClientImage != null ? ToImageResource(client.ClientImage) : null
         };
@@ -171,7 +171,7 @@ public partial class ClientMapper
             MaxItems = pagedResult.TotalCount,
             MaxPages = pagedResult.TotalPages,
             CurrentPage = pagedResult.PageNumber,
-            FirstItemOnPage = pagedResult.Items.Any() ? pagedResult.PageNumber * pagedResult.PageSize : -1
+            FirstItemOnPage = pagedResult.Items.Count > 0 ? pagedResult.PageNumber * pagedResult.PageSize : -1
         };
     }
 

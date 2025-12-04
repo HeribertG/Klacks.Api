@@ -101,7 +101,7 @@ public partial class FilterMapper
             SelectedGroup = filter.SelectedGroup,
             StartRow = filter.StartRow,
             RowCount = filter.RowCount,
-            AbsenceIds = filter.Absences?.Where(a => a.Checked).Select(a => a.Id).ToList() ?? new List<Guid>()
+            AbsenceIds = filter.Absences?.Where(a => a.Checked).Select(a => a.Id).ToList() ?? []
         };
     }
 

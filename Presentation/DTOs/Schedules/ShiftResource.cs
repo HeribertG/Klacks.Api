@@ -14,7 +14,7 @@ public class ShiftResource
 
     public Guid Id { get; set; }
 
-    public Guid MacroId { get; set; }
+    public Guid? MacroId { get; set; }
 
     public string Name { get; set; } = string.Empty;
 

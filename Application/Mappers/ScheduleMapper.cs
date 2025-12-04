@@ -99,7 +99,7 @@ public partial class ScheduleMapper
             Description = gi.Group?.Description ?? string.Empty,
             ValidFrom = gi.ValidFrom ?? DateTime.MinValue,
             ValidUntil = gi.ValidUntil
-        }).ToList() ?? new List<SimpleGroupResource>();
+        }).ToList() ?? [];
         return resource;
     }
 
@@ -125,7 +125,7 @@ public partial class ScheduleMapper
             GroupId = g.Id,
             ValidFrom = g.ValidFrom,
             ValidUntil = g.ValidUntil
-        }).ToList() ?? new List<GroupItem>();
+        }).ToList() ?? [];
         return entity;
     }
 
