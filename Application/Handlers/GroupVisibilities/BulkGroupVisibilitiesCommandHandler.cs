@@ -2,7 +2,7 @@ using AutoMapper;
 using Klacks.Api.Application.Commands.GroupVisibilities;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.GroupVisibilities;
 
@@ -24,7 +24,7 @@ public class BulkGroupVisibilitiesCommandHandler : BaseHandler, IRequestHandler<
         _unitOfWork = unitOfWork;
     }
 
-    public async Task Handle(BulkGroupVisibilitiesCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(BulkGroupVisibilitiesCommand request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Starting bulk update of GroupVisibility list with {Count} items.", request.List.Count);
 
@@ -33,8 +33,10 @@ public class BulkGroupVisibilitiesCommandHandler : BaseHandler, IRequestHandler<
             var groupVisibilities = _mapper.Map<List<GroupVisibility>>(request.List);
             await _groupVisibilityRepository.SetGroupVisibilityList(groupVisibilities);
             await _unitOfWork.CompleteAsync();
-        }, 
-        "operation", 
+        },
+        "operation",
         new { });
+
+        return Unit.Value;
     }
 }

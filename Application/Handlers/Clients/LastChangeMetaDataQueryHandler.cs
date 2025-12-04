@@ -2,7 +2,7 @@ using AutoMapper;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Clients;
 using Klacks.Api.Presentation.DTOs.Filter;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Clients
 {

@@ -2,7 +2,7 @@ using Klacks.Api.Application.Queries.Dashboard;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Presentation.DTOs.Dashboard;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 

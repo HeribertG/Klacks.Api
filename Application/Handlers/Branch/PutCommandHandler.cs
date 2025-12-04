@@ -1,7 +1,7 @@
 using AutoMapper;
 using Klacks.Api.Application.Commands.Settings.Branch;
 using Klacks.Api.Application.Interfaces;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Branch
 {

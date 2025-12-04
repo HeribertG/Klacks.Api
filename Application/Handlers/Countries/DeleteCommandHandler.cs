@@ -3,7 +3,7 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Presentation.DTOs.Settings;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Countries;

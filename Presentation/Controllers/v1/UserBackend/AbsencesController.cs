@@ -2,7 +2,7 @@ using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.Absences;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Schedules;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 

@@ -2,7 +2,7 @@ using AutoMapper;
 using Klacks.Api.Application.Commands.Settings.Settings;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Services.Settings;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Settings.Setting
 {

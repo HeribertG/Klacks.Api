@@ -3,7 +3,7 @@ using Klacks.Api.Application.Queries.Shifts;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Schedules;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

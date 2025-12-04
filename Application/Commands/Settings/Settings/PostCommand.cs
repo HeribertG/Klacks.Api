@@ -1,4 +1,4 @@
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using S = Klacks.Api.Domain.Models.Settings;
 
 namespace Klacks.Api.Application.Commands.Settings.Settings;

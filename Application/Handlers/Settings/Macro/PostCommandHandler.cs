@@ -2,7 +2,7 @@ using AutoMapper;
 using Klacks.Api.Application.Commands.Settings.Macros;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Settings;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Settings.Macro
 {

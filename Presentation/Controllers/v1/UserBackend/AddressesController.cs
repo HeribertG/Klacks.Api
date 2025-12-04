@@ -1,6 +1,6 @@
 using Klacks.Api.Application.Queries.Addresses;
 using Klacks.Api.Presentation.DTOs.Staffs;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;

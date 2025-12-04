@@ -3,7 +3,7 @@ using Klacks.Api.Application.Commands.LLM;
 using Klacks.Api.Application.Queries.LLM;
 using Klacks.Api.Domain.Models.LLM;
 using Klacks.Api.Domain.Services.LLM;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

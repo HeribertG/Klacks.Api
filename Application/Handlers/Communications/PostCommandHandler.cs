@@ -3,7 +3,7 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Presentation.DTOs.Settings;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Exceptions;
 
 namespace Klacks.Api.Application.Handlers.Communications;

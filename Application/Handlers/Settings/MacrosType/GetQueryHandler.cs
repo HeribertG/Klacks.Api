@@ -2,7 +2,7 @@ using AutoMapper;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Settings.MacrosTypes;
 using Klacks.Api.Domain.Exceptions;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Settings.MacrosTypes;

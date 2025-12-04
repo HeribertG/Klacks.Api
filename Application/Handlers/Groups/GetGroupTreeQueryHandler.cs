@@ -4,7 +4,7 @@ using Klacks.Api.Application.Queries.Groups;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Presentation.DTOs.Associations;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Groups

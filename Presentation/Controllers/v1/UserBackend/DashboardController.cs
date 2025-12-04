@@ -1,6 +1,6 @@
 using Klacks.Api.Application.Queries.Dashboard;
 using Klacks.Api.Presentation.DTOs.Dashboard;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;

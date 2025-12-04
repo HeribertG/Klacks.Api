@@ -2,7 +2,7 @@
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Presentation.DTOs.Staffs;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Exceptions;
 
 namespace Klacks.Api.Application.Handlers.AssignedGroups

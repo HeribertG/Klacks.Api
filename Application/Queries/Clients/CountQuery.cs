@@ -1,4 +1,4 @@
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Queries.Clients;
 

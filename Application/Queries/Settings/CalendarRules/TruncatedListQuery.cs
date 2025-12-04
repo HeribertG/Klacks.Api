@@ -1,5 +1,5 @@
 using Klacks.Api.Presentation.DTOs.Filter;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Queries.Settings.CalendarRules;
 

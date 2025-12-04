@@ -4,7 +4,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Presentation.DTOs;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Accounts;
 

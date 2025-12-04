@@ -1,4 +1,4 @@
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;

@@ -2,7 +2,7 @@ using Klacks.Api.Application.Commands.Accounts;
 using Klacks.Api.Application.Queries.Accounts;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Presentation.DTOs.Registrations;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;

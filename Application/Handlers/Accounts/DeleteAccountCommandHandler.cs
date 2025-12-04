@@ -2,7 +2,7 @@ using Klacks.Api.Application.Commands.Accounts;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Presentation.DTOs;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using System.Collections.Generic;
 
 namespace Klacks.Api.Application.Handlers.Accounts;

@@ -1,4 +1,4 @@
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Models.Staffs;
 
 namespace Klacks.Api.Application.Queries.Clients;

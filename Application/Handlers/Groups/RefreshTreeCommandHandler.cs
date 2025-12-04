@@ -1,6 +1,6 @@
 using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.Interfaces;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Groups
 {
@@ -19,12 +19,14 @@ namespace Klacks.Api.Application.Handlers.Groups
             _unitOfWork = unitOfWork;
             }
         
-        public async Task Handle(RefreshTreeCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(RefreshTreeCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Refresh the group tree");
-            
+
             await _groupRepository.RepairNestedSetValues();
             await _unitOfWork.CompleteAsync();
+
+            return Unit.Value;
         }
     }
 }

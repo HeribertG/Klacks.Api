@@ -4,7 +4,7 @@ using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Presentation.DTOs.Registrations;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Accounts;
 

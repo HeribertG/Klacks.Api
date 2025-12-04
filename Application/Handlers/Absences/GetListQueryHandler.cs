@@ -2,7 +2,7 @@ using AutoMapper;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Presentation.DTOs.Schedules;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Absences;

@@ -1,7 +1,7 @@
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Constants;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

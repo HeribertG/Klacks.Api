@@ -3,7 +3,7 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Presentation.DTOs.Schedules;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Exceptions;
 
 namespace Klacks.Api.Application.Handlers.CalendarSelections;

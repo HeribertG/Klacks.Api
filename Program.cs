@@ -7,7 +7,7 @@ using Klacks.Api.Infrastructure.Converters;
 using Klacks.Api.Infrastructure.Exceptions;
 using Klacks.Api.Infrastructure.Extensions;
 using Klacks.Api.Infrastructure.Persistence;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -88,7 +88,7 @@ builder.Services.AddApplicationServices();
 
 builder.Services.AddMemoryCache();
 
-builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+builder.Services.AddPipelineBehavior(typeof(ValidationBehavior<,>));
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
@@ -148,7 +148,7 @@ builder.Services.AddDbContext<DataBaseContext>(options =>
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 // Registering Mediator
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+builder.Services.AddMediator(Assembly.GetExecutingAssembly());
 
 // Registering Database Initializer
 builder.Services.AddDatabaseInitializer();

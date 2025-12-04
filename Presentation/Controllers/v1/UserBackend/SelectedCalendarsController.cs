@@ -1,5 +1,5 @@
 using Klacks.Api.Presentation.DTOs.Schedules;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
     public class SelectedCalendarsController : InputBaseController<SelectedCalendarResource>

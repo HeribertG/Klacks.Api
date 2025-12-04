@@ -3,7 +3,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Works;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Presentation.DTOs.Schedules;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Works;
 

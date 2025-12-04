@@ -1,4 +1,4 @@
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using AutoMapper;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.Queries.LLM;

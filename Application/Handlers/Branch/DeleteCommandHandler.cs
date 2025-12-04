@@ -2,7 +2,7 @@ using AutoMapper;
 using Klacks.Api.Application.Commands.Settings.Branch;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Branch;
@@ -22,8 +22,9 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand>
         _context = context;
     }
 
-    public async Task Handle(DeleteCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(DeleteCommand request, CancellationToken cancellationToken)
     {
         await _context.Branch.Where(b => b.Id == request.id).ExecuteDeleteAsync(cancellationToken);
+        return Unit.Value;
     }
 }

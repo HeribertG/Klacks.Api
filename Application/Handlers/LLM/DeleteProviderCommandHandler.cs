@@ -1,4 +1,4 @@
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.Commands.LLM;

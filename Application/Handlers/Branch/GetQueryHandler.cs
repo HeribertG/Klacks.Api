@@ -1,7 +1,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Settings.Branch;
 using Klacks.Api.Domain.Exceptions;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Branch
 {

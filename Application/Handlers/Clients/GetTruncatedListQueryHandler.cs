@@ -4,7 +4,7 @@ using Klacks.Api.Application.Queries.Clients;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Presentation.DTOs.Filter;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Clients

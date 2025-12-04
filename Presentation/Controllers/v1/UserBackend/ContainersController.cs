@@ -1,7 +1,7 @@
 using Klacks.Api.Application.Commands.ContainerTemplates;
 using Klacks.Api.Application.Queries.ContainerTemplates;
 using Klacks.Api.Presentation.DTOs.Schedules;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;

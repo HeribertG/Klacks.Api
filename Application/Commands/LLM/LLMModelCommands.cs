@@ -1,4 +1,4 @@
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Models.LLM;
 using Klacks.Api.Domain.Interfaces;
 

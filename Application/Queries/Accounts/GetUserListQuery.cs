@@ -1,5 +1,5 @@
 using Klacks.Api.Presentation.DTOs.Registrations;
-using MediatR;
+using Klacks.Api.Infrastructure.Mediator;
 using System.Collections.Generic;
 
 namespace Klacks.Api.Application.Queries.Accounts;
