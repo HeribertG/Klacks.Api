@@ -6,8 +6,8 @@ public class AntColonyOptimizer
     private readonly ILogger _logger;
     private readonly Random _random = new();
 
-    private const int ANT_COUNT = 50;
-    private const int MAX_ITERATIONS = 100;
+    private const int ANT_COUNT = 100;
+    private const int MAX_ITERATIONS = 200;
     private const double ALPHA = 1.0;
     private const double BETA = 5.0;
     private const double EVAPORATION_RATE = 0.5;
@@ -28,9 +28,11 @@ public class AntColonyOptimizer
 
     public List<int> FindOptimalRoute(int? fixedStart = null, int? fixedEnd = null)
     {
+        bool isRoundTrip = fixedStart.HasValue && fixedEnd.HasValue && fixedStart.Value == fixedEnd.Value;
+
         _logger.LogInformation(
-            "Starting ACO optimization with {AntCount} ants, {Iterations} iterations",
-            ANT_COUNT, MAX_ITERATIONS);
+            "Starting ACO optimization with {AntCount} ants, {Iterations} iterations, isRoundTrip={IsRoundTrip}",
+            ANT_COUNT, MAX_ITERATIONS, isRoundTrip);
 
         List<int>? bestRoute = null;
         double bestDistance = double.MaxValue;
@@ -45,7 +47,7 @@ public class AntColonyOptimizer
                 ant.ConstructSolution(_distanceMatrix.Matrix, _pheromones, ALPHA, BETA);
                 ants.Add(ant);
 
-                var distance = CalculateTourDistance(ant.Route);
+                var distance = CalculateTourDistance(ant.Route, isRoundTrip);
                 if (distance < bestDistance)
                 {
                     bestDistance = distance;
@@ -56,12 +58,75 @@ public class AntColonyOptimizer
                 }
             }
 
-            UpdatePheromones(ants);
+            UpdatePheromones(ants, isRoundTrip);
         }
 
         _logger.LogInformation("ACO completed. Best distance: {Distance:F2} km", bestDistance);
 
+        if (bestRoute != null)
+        {
+            bestRoute = Apply2Opt(bestRoute, fixedStart, fixedEnd, isRoundTrip);
+            var improvedDistance = CalculateTourDistance(bestRoute, isRoundTrip);
+            _logger.LogInformation("After 2-opt optimization: {Distance:F2} km", improvedDistance);
+        }
+
         return bestRoute ?? Enumerable.Range(0, _cityCount).ToList();
+    }
+
+    private List<int> Apply2Opt(List<int> route, int? fixedStart, int? fixedEnd, bool isRoundTrip)
+    {
+        var improved = true;
+        var bestRoute = new List<int>(route);
+        var bestDistance = CalculateTourDistance(bestRoute, isRoundTrip);
+
+        int startIndex = fixedStart.HasValue ? 1 : 0;
+        int endIndex = bestRoute.Count - 1;
+
+        while (improved)
+        {
+            improved = false;
+
+            for (int i = startIndex; i < endIndex - 1; i++)
+            {
+                for (int j = i + 1; j <= endIndex; j++)
+                {
+                    var newRoute = TwoOptSwap(bestRoute, i, j);
+                    var newDistance = CalculateTourDistance(newRoute, isRoundTrip);
+
+                    if (newDistance < bestDistance - 0.001)
+                    {
+                        bestRoute = newRoute;
+                        bestDistance = newDistance;
+                        improved = true;
+                        _logger.LogDebug("2-opt improvement: swapped {I}-{J}, new distance: {Distance:F2} km", i, j, newDistance);
+                    }
+                }
+            }
+        }
+
+        return bestRoute;
+    }
+
+    private List<int> TwoOptSwap(List<int> route, int i, int j)
+    {
+        var newRoute = new List<int>();
+
+        for (int k = 0; k < i; k++)
+        {
+            newRoute.Add(route[k]);
+        }
+
+        for (int k = j; k >= i; k--)
+        {
+            newRoute.Add(route[k]);
+        }
+
+        for (int k = j + 1; k < route.Count; k++)
+        {
+            newRoute.Add(route[k]);
+        }
+
+        return newRoute;
     }
 
     private void InitializePheromones()
@@ -75,7 +140,7 @@ public class AntColonyOptimizer
         }
     }
 
-    private void UpdatePheromones(List<Ant> ants)
+    private void UpdatePheromones(List<Ant> ants, bool isRoundTrip)
     {
         for (int i = 0; i < _cityCount; i++)
         {
@@ -87,7 +152,7 @@ public class AntColonyOptimizer
 
         foreach (var ant in ants)
         {
-            var tourDistance = CalculateTourDistance(ant.Route);
+            var tourDistance = CalculateTourDistance(ant.Route, isRoundTrip);
             var pheromoneDeposit = PHEROMONE_CONSTANT / tourDistance;
 
             for (int i = 0; i < ant.Route.Count - 1; i++)
@@ -97,16 +162,30 @@ public class AntColonyOptimizer
                 _pheromones[from, to] += pheromoneDeposit;
                 _pheromones[to, from] += pheromoneDeposit;
             }
+
+            if (isRoundTrip && ant.Route.Count > 0)
+            {
+                var lastCity = ant.Route.Last();
+                var firstCity = ant.Route.First();
+                _pheromones[lastCity, firstCity] += pheromoneDeposit;
+                _pheromones[firstCity, lastCity] += pheromoneDeposit;
+            }
         }
     }
 
-    private double CalculateTourDistance(List<int> route)
+    private double CalculateTourDistance(List<int> route, bool isRoundTrip = false)
     {
         double total = 0.0;
         for (int i = 0; i < route.Count - 1; i++)
         {
             total += _distanceMatrix.Matrix[route[i], route[i + 1]];
         }
+
+        if (isRoundTrip && route.Count > 0)
+        {
+            total += _distanceMatrix.Matrix[route.Last(), route.First()];
+        }
+
         return total;
     }
 
@@ -132,6 +211,7 @@ public class AntColonyOptimizer
         public void ConstructSolution(double[,] distances, double[,] pheromones, double alpha, double beta)
         {
             int currentCity;
+            bool isRoundTrip = _fixedStart.HasValue && _fixedEnd.HasValue && _fixedStart.Value == _fixedEnd.Value;
 
             if (_fixedStart.HasValue)
             {
@@ -153,7 +233,7 @@ public class AntColonyOptimizer
                 currentCity = nextCity;
             }
 
-            if (_fixedEnd.HasValue && Route.Last() != _fixedEnd.Value)
+            if (_fixedEnd.HasValue && !isRoundTrip && Route.Last() != _fixedEnd.Value)
             {
                 var endIndex = Route.IndexOf(_fixedEnd.Value);
                 if (endIndex >= 0 && endIndex < Route.Count - 1)

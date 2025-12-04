@@ -108,6 +108,23 @@ public class RouteOptimizationController : ControllerBase
                 });
             }
 
+            var segmentDirections = result.SegmentDirections?.Select(s => new RouteSegmentDirectionsDto
+            {
+                FromName = s.FromName,
+                ToName = s.ToName,
+                TransportMode = s.TransportMode,
+                DistanceKm = s.DistanceKm,
+                Duration = s.Duration,
+                Steps = s.Steps.Select(step => new DirectionStepDto
+                {
+                    Instruction = step.Instruction,
+                    StreetName = step.StreetName,
+                    DistanceMeters = step.DistanceMeters,
+                    DurationSeconds = step.DurationSeconds,
+                    ManeuverType = step.ManeuverType
+                }).ToList()
+            }).ToList();
+
             var response = new RouteOptimizationResponse
             {
                 OptimizedRoute = routeSteps,
@@ -116,7 +133,8 @@ public class RouteOptimizationController : ControllerBase
                 TravelTimeFromStartBase = result.TravelTimeFromStartBase,
                 DistanceFromStartBaseKm = result.DistanceFromStartBaseKm,
                 DistanceToEndBaseKm = result.DistanceToEndBaseKm,
-                TravelTimeToEndBase = result.TravelTimeToEndBase
+                TravelTimeToEndBase = result.TravelTimeToEndBase,
+                SegmentDirections = segmentDirections
             };
 
             return Ok(response);
@@ -181,6 +199,26 @@ public class RouteOptimizationResponse
     public double DistanceFromStartBaseKm { get; set; }
     public double DistanceToEndBaseKm { get; set; }
     public TimeSpan TravelTimeToEndBase { get; set; }
+    public List<RouteSegmentDirectionsDto>? SegmentDirections { get; set; }
+}
+
+public class RouteSegmentDirectionsDto
+{
+    public string FromName { get; set; } = string.Empty;
+    public string ToName { get; set; } = string.Empty;
+    public string TransportMode { get; set; } = string.Empty;
+    public double DistanceKm { get; set; }
+    public TimeSpan Duration { get; set; }
+    public List<DirectionStepDto> Steps { get; set; } = new();
+}
+
+public class DirectionStepDto
+{
+    public string Instruction { get; set; } = string.Empty;
+    public string StreetName { get; set; } = string.Empty;
+    public double DistanceMeters { get; set; }
+    public int DurationSeconds { get; set; }
+    public string ManeuverType { get; set; } = string.Empty;
 }
 
 public class LocationDto

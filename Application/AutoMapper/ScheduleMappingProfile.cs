@@ -114,6 +114,12 @@ public class ScheduleMappingProfile : Profile
         CreateMap<RouteLocation, RouteLocationResource>();
         CreateMap<RouteLocationResource, RouteLocation>();
 
+        CreateMap<RouteSegmentDirections, RouteSegmentDirectionsResource>();
+        CreateMap<RouteSegmentDirectionsResource, RouteSegmentDirections>();
+
+        CreateMap<DirectionStep, DirectionStepResource>();
+        CreateMap<DirectionStepResource, DirectionStep>();
+
         CreateMap<ContainerTemplateItem, ContainerTemplateItemResource>()
             .ForMember(dest => dest.Shift, opt => opt.MapFrom(src => src.Shift))
             .ForMember(dest => dest.Weekday, opt => opt.Ignore());

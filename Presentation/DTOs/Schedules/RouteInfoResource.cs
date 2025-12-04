@@ -19,4 +19,6 @@ public class RouteInfoResource
     public string TravelTimeToEndBase { get; set; } = string.Empty;
 
     public List<RouteLocationResource> OptimizedRoute { get; set; } = new List<RouteLocationResource>();
+
+    public List<RouteSegmentDirectionsResource>? SegmentDirections { get; set; }
 }
