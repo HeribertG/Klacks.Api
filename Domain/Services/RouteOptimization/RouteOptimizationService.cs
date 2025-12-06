@@ -139,7 +139,7 @@ public class RouteOptimizationService : IRouteOptimizationService
         if (distanceMatrix.Locations.Count < 2)
         {
             _logger.LogWarning("Cannot optimize route with less than 2 locations (after adding branches)");
-            return new RouteOptimizationResult(new List<Location>(), 0.0, TimeSpan.Zero, new double[0, 0], new double[0, 0], TimeSpan.Zero, new List<int>(), 0.0, 0.0, TimeSpan.Zero);
+            return new RouteOptimizationResult(new List<Location>(), 0.0, TimeSpan.Zero, new double[0, 0], new double[0, 0], TimeSpan.Zero, new List<int>(), 0.0, 0.0, TimeSpan.Zero, new List<int>());
         }
 
         var optimizer = new AntColonyOptimizer(distanceMatrix, _logger);
@@ -241,17 +241,21 @@ public class RouteOptimizationService : IRouteOptimizationService
         var estimatedTime = CalculateMixedTravelTime(route, distanceMatrix, transportMode);
 
         var fullRoute = new List<Location>();
+        var fullRouteIndices = new List<int>();
 
         if (startIndex.HasValue && route.Count > 0 && route[0] != startIndex.Value)
         {
             fullRoute.Add(distanceMatrix.Locations[startIndex.Value]);
+            fullRouteIndices.Add(startIndex.Value);
         }
 
         fullRoute.AddRange(route.Select(index => distanceMatrix.Locations[index]));
+        fullRouteIndices.AddRange(route);
 
         if (endIndex.HasValue && route.Count > 0 && route.Last() != endIndex.Value)
         {
             fullRoute.Add(distanceMatrix.Locations[endIndex.Value]);
+            fullRouteIndices.Add(endIndex.Value);
         }
 
         TimeSpan travelTimeFromStartBase = TimeSpan.Zero;
@@ -282,10 +286,16 @@ public class RouteOptimizationService : IRouteOptimizationService
         var segmentDirections = await GetRouteDirectionsAsync(fullRoute, distanceMatrix, transportMode);
         _logger.LogInformation("Retrieved directions for {Count} segments", segmentDirections.Count);
 
+        var totalBriefingDebriefingTime = CalculateTotalBriefingDebriefingTime(fullRoute);
+        _logger.LogInformation("Total on-site time (briefing + work + debriefing): {Time}", totalBriefingDebriefingTime);
+
+        var totalTimeWithBriefing = totalTravelTime + totalBriefingDebriefingTime;
+        _logger.LogInformation("Total time (travel + on-site): {Time}", totalTimeWithBriefing);
+
         return new RouteOptimizationResult(
             fullRoute,
             totalDistance,
-            totalTravelTime,
+            totalTimeWithBriefing,
             distanceMatrix.Matrix,
             distanceMatrix.DurationMatrix,
             travelTimeFromStartBase,
@@ -293,9 +303,11 @@ public class RouteOptimizationService : IRouteOptimizationService
             distanceFromStartBase,
             distanceToEndBase,
             travelTimeToEndBase,
+            fullRouteIndices,
             distanceMatrix.DurationMatricesByProfile,
             transportMode,
-            segmentDirections);
+            segmentDirections,
+            totalBriefingDebriefingTime);
     }
 
     private async Task<List<Location>> ExtractLocationsFromTemplateAsync(ContainerTemplate template)
@@ -349,6 +361,10 @@ public class RouteOptimizationService : IRouteOptimizationService
 
             if (coords.Latitude.HasValue && coords.Longitude.HasValue)
             {
+                var briefingTime = item.BriefingTime.ToTimeSpan();
+                var debriefingTime = item.DebriefingTime.ToTimeSpan();
+                var workTime = TimeSpan.FromHours((double)item.Shift.WorkTime);
+
                 locations.Add(new Location
                 {
                     Name = item.Shift.Client.Name ?? "Unknown",
@@ -356,12 +372,16 @@ public class RouteOptimizationService : IRouteOptimizationService
                     Latitude = coords.Latitude.Value,
                     Longitude = coords.Longitude.Value,
                     ShiftId = item.ShiftId,
-                    TransportMode = item.TransportMode
+                    TransportMode = item.TransportMode,
+                    BriefingTime = briefingTime,
+                    DebriefingTime = debriefingTime,
+                    WorkTime = workTime
                 });
 
                 uniqueAddresses.Add(addressKey);
-                _logger.LogInformation("Location added: {Name} at ({Lat}, {Lon}), TransportMode: {TransportMode}",
-                    item.Shift.Client.Name, coords.Latitude.Value, coords.Longitude.Value, item.TransportMode);
+                _logger.LogInformation("Location added: {Name} at ({Lat}, {Lon}), TransportMode: {TransportMode}, TotalOnSiteTime: {TotalOnSiteTime} (Briefing: {BriefingTime}, Work: {WorkTime}, Debriefing: {DebriefingTime})",
+                    item.Shift.Client.Name, coords.Latitude.Value, coords.Longitude.Value, item.TransportMode,
+                    briefingTime + workTime + debriefingTime, briefingTime, workTime, debriefingTime);
             }
             else
             {
@@ -929,6 +949,23 @@ public class RouteOptimizationService : IRouteOptimizationService
         return TimeSpan.FromHours(hours);
     }
 
+    private TimeSpan CalculateTotalBriefingDebriefingTime(List<Location> locations)
+    {
+        var totalTime = TimeSpan.Zero;
+        foreach (var location in locations)
+        {
+            if (location.ShiftId != Guid.Empty)
+            {
+                _logger.LogInformation(
+                    "Location {Name}: TotalOnSiteTime={TotalOnSiteTime} (Briefing={BriefingTime}, Work={WorkTime}, Debriefing={DebriefingTime})",
+                    location.Name, location.TotalOnSiteTime, location.BriefingTime, location.WorkTime, location.DebriefingTime);
+                totalTime += location.TotalOnSiteTime;
+            }
+        }
+        _logger.LogInformation("Total on-site time (briefing + work + debriefing) calculated: {TotalTime}", totalTime);
+        return totalTime;
+    }
+
     private async Task<DistanceMatrix> AddBranchesToDistanceMatrixAsync(
         DistanceMatrix existingMatrix,
         string? startBaseAddress,
@@ -1078,6 +1115,10 @@ public record Location
     public double Longitude { get; init; }
     public Guid ShiftId { get; init; }
     public TransportMode TransportMode { get; init; } = TransportMode.ByCar;
+    public TimeSpan BriefingTime { get; init; } = TimeSpan.Zero;
+    public TimeSpan DebriefingTime { get; init; } = TimeSpan.Zero;
+    public TimeSpan WorkTime { get; init; } = TimeSpan.Zero;
+    public TimeSpan TotalOnSiteTime => BriefingTime + WorkTime + DebriefingTime;
 }
 
 public record DistanceMatrix(
@@ -1097,9 +1138,11 @@ public record RouteOptimizationResult(
     double DistanceFromStartBaseKm,
     double DistanceToEndBaseKm,
     TimeSpan TravelTimeToEndBase,
+    List<int> FullRouteIndices,
     Dictionary<string, double[,]>? DurationMatricesByProfile = null,
     ContainerTransportMode TransportMode = ContainerTransportMode.ByCar,
-    List<RouteSegmentDirections>? SegmentDirections = null);
+    List<RouteSegmentDirections>? SegmentDirections = null,
+    TimeSpan TotalBriefingDebriefingTime = default);
 
 public record RouteSegmentDirections(
     string FromName,

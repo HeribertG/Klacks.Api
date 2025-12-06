@@ -2,10 +2,12 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
+using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Presentation.DTOs.Associations;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Presentation.DTOs.Settings;
+using Staffs = Klacks.Api.Presentation.DTOs.Staffs;
 using Riok.Mapperly.Abstractions;
 
 namespace Klacks.Api.Application.Mappers;
@@ -100,10 +102,61 @@ public partial class ScheduleMapper
             ValidFrom = gi.ValidFrom ?? DateTime.MinValue,
             ValidUntil = gi.ValidUntil
         }).ToList() ?? [];
+
+        if (shift.Client != null)
+        {
+            resource.Client = ToShiftClientResource(shift.Client);
+        }
+
         return resource;
     }
 
+    private static Staffs.ClientResource ToShiftClientResource(Client client)
+    {
+        return new Staffs.ClientResource
+        {
+            Id = client.Id,
+            Name = client.Name,
+            FirstName = client.FirstName,
+            SecondName = client.SecondName,
+            MaidenName = client.MaidenName,
+            Title = client.Title,
+            Company = client.Company,
+            Gender = client.Gender,
+            IdNumber = client.IdNumber,
+            LegalEntity = client.LegalEntity,
+            Birthdate = client.Birthdate,
+            IsDeleted = client.IsDeleted,
+            Type = (int)client.Type,
+            Addresses = client.Addresses?.Select(ToShiftAddressResource).ToList()
+                ?? []
+        };
+    }
+
+    private static Staffs.AddressResource ToShiftAddressResource(Address address)
+    {
+        return new Staffs.AddressResource
+        {
+            Id = address.Id,
+            ClientId = address.ClientId,
+            ValidFrom = address.ValidFrom,
+            Type = address.Type,
+            AddressLine1 = address.AddressLine1,
+            AddressLine2 = address.AddressLine2,
+            Street = address.Street,
+            Street2 = address.Street2,
+            Street3 = address.Street3,
+            Zip = address.Zip,
+            City = address.City,
+            State = address.State,
+            Country = address.Country,
+            Latitude = address.Latitude,
+            Longitude = address.Longitude
+        };
+    }
+
     [MapperIgnoreTarget(nameof(ShiftResource.Groups))]
+    [MapperIgnoreSource(nameof(Shift.Client))]
     private partial ShiftResource ToShiftResourceBase(Shift shift);
 
     [MapperIgnoreTarget(nameof(Shift.CreateTime))]

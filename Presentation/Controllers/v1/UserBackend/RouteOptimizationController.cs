@@ -84,13 +84,13 @@ public class RouteOptimizationController : ControllerBase
                 double distanceToNext = 0;
                 TimeSpan travelTimeToNext = TimeSpan.Zero;
 
-                if (i < result.OptimizedRoute.Count - 1 && result.RouteIndices.Count > i + 1)
+                if (i < result.OptimizedRoute.Count - 1 && i < result.FullRouteIndices.Count && i + 1 < result.FullRouteIndices.Count)
                 {
-                    var currentIndex = result.RouteIndices[i];
-                    var nextIndex = result.RouteIndices[i + 1];
-                    distanceToNext = result.DistanceMatrix[currentIndex, nextIndex];
-
+                    var currentIndex = result.FullRouteIndices[i];
+                    var nextIndex = result.FullRouteIndices[i + 1];
                     var nextLocation = result.OptimizedRoute[i + 1];
+
+                    distanceToNext = result.DistanceMatrix[currentIndex, nextIndex];
                     travelTimeToNext = GetSegmentTravelTime(result, currentIndex, nextIndex, nextLocation.TransportMode);
                 }
 
