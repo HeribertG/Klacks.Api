@@ -67,6 +67,16 @@ public partial class SettingsMapper
     [MapperIgnoreTarget(nameof(Absence.CurrentUserDeleted))]
     public partial Absence ToAbsenceEntity(AbsenceResource resource);
 
+    [MapperIgnoreTarget(nameof(Absence.Id))]
+    [MapperIgnoreTarget(nameof(Absence.CreateTime))]
+    [MapperIgnoreTarget(nameof(Absence.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(Absence.UpdateTime))]
+    [MapperIgnoreTarget(nameof(Absence.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(Absence.DeletedTime))]
+    [MapperIgnoreTarget(nameof(Absence.IsDeleted))]
+    [MapperIgnoreTarget(nameof(Absence.CurrentUserDeleted))]
+    public partial void UpdateAbsenceEntity(AbsenceResource resource, Absence target);
+
     public partial StateResource ToStateResource(State state);
     public partial List<StateResource> ToStateResources(List<State> states);
 

@@ -34,13 +34,10 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Absence
                 throw new KeyNotFoundException($"Absence with ID {request.Resource.Id} not found.");
             }
 
-            var updatedAbsence = _settingsMapper.ToAbsenceEntity(request.Resource);
-            updatedAbsence.CreateTime = dbAbsence.CreateTime;
-            updatedAbsence.CurrentUserCreated = dbAbsence.CurrentUserCreated;
-            updatedAbsence = await _repository.Put(updatedAbsence);
+            _settingsMapper.UpdateAbsenceEntity(request.Resource, dbAbsence);
             await _unitOfWork.CompleteAsync();
 
-            return _settingsMapper.ToAbsenceResource(updatedAbsence);
+            return _settingsMapper.ToAbsenceResource(dbAbsence);
         },
         "updating absence",
         new { AbsenceId = request.Resource.Id });
