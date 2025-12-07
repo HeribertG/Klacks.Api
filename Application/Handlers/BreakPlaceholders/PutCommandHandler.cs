@@ -40,6 +40,6 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
             return _scheduleMapper.ToBreakResource(existingBreak);
         },
         "updating break",
-        new { BreakId = request.Resource.Id });
+        new { BreakPlaceholderId = request.Resource.Id });
     }
 }

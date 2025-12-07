@@ -41,7 +41,7 @@ public class PutCommandValidator : AbstractValidator<PutCommand<BreakResource>>
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error checking if break {BreakId} exists", id);
+                    _logger.LogError(ex, "Error checking if break {BreakPlaceholderId} exists", id);
                     return false;
                 }
             })

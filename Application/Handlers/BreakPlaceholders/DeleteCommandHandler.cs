@@ -42,6 +42,6 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<B
             return breakResource;
         },
         "deleting break",
-        new { BreakId = request.Id });
+        new { BreakPlaceholderId = request.Id });
     }
 }
