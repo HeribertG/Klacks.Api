@@ -5,22 +5,22 @@ using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Exceptions;
 
-namespace Klacks.Api.Application.Handlers.Breaks;
+namespace Klacks.Api.Application.Handlers.BreakPlaceholders;
 
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<BreakResource>, BreakResource?>
 {
-    private readonly IBreakRepository _breakRepository;
+    private readonly IBreakPlaceholderRepository _breakPlaceholderRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
-    
+
     public DeleteCommandHandler(
-        IBreakRepository breakRepository,
+        IBreakPlaceholderRepository breakPlaceholderRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
-        _breakRepository = breakRepository;
+        _breakPlaceholderRepository = breakPlaceholderRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         }
@@ -29,19 +29,19 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<B
     {
         return await ExecuteAsync(async () =>
         {
-            var existingBreak = await _breakRepository.Get(request.Id);
+            var existingBreak = await _breakPlaceholderRepository.Get(request.Id);
             if (existingBreak == null)
             {
                 throw new KeyNotFoundException($"Break with ID {request.Id} not found.");
             }
 
             var breakResource = _scheduleMapper.ToBreakResource(existingBreak);
-            await _breakRepository.Delete(request.Id);
+            await _breakPlaceholderRepository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
 
             return breakResource;
-        }, 
-        "deleting break", 
+        },
+        "deleting break",
         new { BreakId = request.Id });
     }
 }

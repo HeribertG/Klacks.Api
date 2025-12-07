@@ -1,8 +1,8 @@
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.Absences;
+using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Schedules;
-using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 
@@ -35,6 +35,13 @@ public class AbsencesController : InputBaseController<AbsenceResource>
     public async Task<ActionResult<IEnumerable<AbsenceResource>>> GetAbsence()
     {
         var absences = await Mediator.Send(new ListQuery<AbsenceResource>());
+        return Ok(absences);
+    }
+
+    [HttpGet("visible")]
+    public async Task<ActionResult<IEnumerable<AbsenceResource>>> GetVisibleAbsences()
+    {
+        var absences = await Mediator.Send(new VisibleAbsencesQuery());
         return Ok(absences);
     }
 

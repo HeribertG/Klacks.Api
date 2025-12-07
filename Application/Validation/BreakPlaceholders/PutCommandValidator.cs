@@ -4,7 +4,7 @@ using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Application.Validation.Breaks;
+namespace Klacks.Api.Application.Validation.BreakPlaceholders;
 
 public class PutCommandValidator : AbstractValidator<PutCommand<BreakResource>>
 {
@@ -33,11 +33,11 @@ public class PutCommandValidator : AbstractValidator<PutCommand<BreakResource>>
             .GreaterThanOrEqualTo(x => x.Resource.From).WithMessage("Until date must be on or after From date");
 
         RuleFor(x => x.Resource.Id)
-            .MustAsync(async (id, cancellation) => 
+            .MustAsync(async (id, cancellation) =>
             {
                 try
                 {
-                    return await _context.Break.AnyAsync(b => b.Id == id, cancellation);
+                    return await _context.BreakPlaceholder.AnyAsync(b => b.Id == id, cancellation);
                 }
                 catch (Exception ex)
                 {
@@ -48,7 +48,7 @@ public class PutCommandValidator : AbstractValidator<PutCommand<BreakResource>>
             .WithMessage("Break not found");
 
         RuleFor(x => x.Resource)
-            .MustAsync(async (breakResource, cancellation) => 
+            .MustAsync(async (breakResource, cancellation) =>
             {
                 try
                 {
@@ -73,7 +73,7 @@ public class PutCommandValidator : AbstractValidator<PutCommand<BreakResource>>
                         return false;
                     }
 
-                    if (client.Membership.ValidUntil.HasValue && 
+                    if (client.Membership.ValidUntil.HasValue &&
                         breakResource.Until > client.Membership.ValidUntil.Value)
                     {
                         return false;
@@ -90,7 +90,7 @@ public class PutCommandValidator : AbstractValidator<PutCommand<BreakResource>>
             .WithMessage("Break must be within the client's membership validity period (ValidFrom to ValidUntil)");
 
         RuleFor(x => x.Resource.AbsenceId)
-            .MustAsync(async (absenceId, cancellation) => 
+            .MustAsync(async (absenceId, cancellation) =>
             {
                 try
                 {

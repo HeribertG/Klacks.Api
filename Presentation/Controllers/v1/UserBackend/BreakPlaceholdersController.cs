@@ -1,6 +1,6 @@
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Queries;
-using Klacks.Api.Application.Queries.Breaks;
+using Klacks.Api.Application.Queries.BreakPlaceholders;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -10,15 +10,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
 
-public class BreaksController : InputBaseController<BreakResource>
+public class BreakPlaceholdersController : InputBaseController<BreakResource>
 {
-    public BreaksController(IMediator Mediator, ILogger<BreaksController> logger)
+    public BreakPlaceholdersController(IMediator Mediator, ILogger<BreakPlaceholdersController> logger)
       : base(Mediator, logger)
     {
     }
 
     [HttpPost("GetClientList")]
-    public async Task<ActionResult<IEnumerable<ClientBreakResource>>> GetClientList([FromBody] BreakFilter filter)
+    public async Task<ActionResult<IEnumerable<ClientBreakPlaceholderResource>>> GetClientList([FromBody] BreakFilter filter)
     {
         var (clientList, totalCount) = await Mediator.Send(new ListQuery(filter));
 

@@ -16,7 +16,7 @@ public class Client : BaseEntity
         Addresses = new Collection<Address>();
         Communications = new Collection<Communication>();
         Annotations = new Collection<Annotation>();
-        Breaks = new Collection<Break>();
+        BreakPlaceholders = new Collection<BreakPlaceholder>();
         Works = new Collection<Work>();
         GroupItems = new Collection<GroupItem>();
         ClientContracts = new Collection<ClientContract>();
@@ -32,7 +32,7 @@ public class Client : BaseEntity
     public DateTime? Birthdate { get; set; }
 
     [JsonIgnore]
-    public ICollection<Break> Breaks { get; set; }
+    public ICollection<BreakPlaceholder> BreakPlaceholders { get; set; }
 
     public ICollection<ClientContract> ClientContracts { get; set; }
 

@@ -215,6 +215,7 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
         existingItem.TravelTimeBefore = itemResource.TravelTimeBefore;
         existingItem.TimeRangeStartShift = itemResource.TimeRangeStartShift;
         existingItem.TimeRangeEndShift = itemResource.TimeRangeEndShift;
+        existingItem.TransportMode = itemResource.TransportMode;
 
         context.Entry(existingItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 
@@ -236,7 +237,8 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
             TravelTimeAfter = itemResource.TravelTimeAfter,
             TravelTimeBefore = itemResource.TravelTimeBefore,
             TimeRangeStartShift = itemResource.TimeRangeStartShift,
-            TimeRangeEndShift = itemResource.TimeRangeEndShift
+            TimeRangeEndShift = itemResource.TimeRangeEndShift,
+            TransportMode = itemResource.TransportMode
         };
 
         await context.ContainerTemplateItem.AddAsync(newItem);

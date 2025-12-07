@@ -6,17 +6,17 @@ using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Logging;
 
-namespace Klacks.Api.Application.Handlers.Breaks
+namespace Klacks.Api.Application.Handlers.BreakPlaceholders
 {
     public class GetQueryHandler : IRequestHandler<GetQuery<BreakResource>, BreakResource>
     {
-        private readonly IBreakRepository _breakRepository;
+        private readonly IBreakPlaceholderRepository _breakPlaceholderRepository;
         private readonly ScheduleMapper _scheduleMapper;
         private readonly ILogger<GetQueryHandler> _logger;
 
-        public GetQueryHandler(IBreakRepository breakRepository, ScheduleMapper scheduleMapper, ILogger<GetQueryHandler> logger)
+        public GetQueryHandler(IBreakPlaceholderRepository breakPlaceholderRepository, ScheduleMapper scheduleMapper, ILogger<GetQueryHandler> logger)
         {
-            _breakRepository = breakRepository;
+            _breakPlaceholderRepository = breakPlaceholderRepository;
             _scheduleMapper = scheduleMapper;
             _logger = logger;
         }
@@ -26,14 +26,14 @@ namespace Klacks.Api.Application.Handlers.Breaks
             try
             {
                 _logger.LogInformation("Getting break with ID: {Id}", request.Id);
-                
-                var breakEntity = await _breakRepository.Get(request.Id);
-                
+
+                var breakEntity = await _breakPlaceholderRepository.Get(request.Id);
+
                 if (breakEntity == null)
                 {
                     throw new KeyNotFoundException($"Break with ID {request.Id} not found");
                 }
-                
+
                 var result = _scheduleMapper.ToBreakResource(breakEntity);
                 _logger.LogInformation("Successfully retrieved break with ID: {Id}", request.Id);
                 return result;

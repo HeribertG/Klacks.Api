@@ -5,14 +5,14 @@ using System.Collections.ObjectModel;
 
 namespace Klacks.Api.Presentation.DTOs.Schedules;
 
-public class ClientBreakResource
+public class ClientBreakPlaceholderResource
 {
-    public ClientBreakResource()
+    public ClientBreakPlaceholderResource()
     {
-        Breaks = new Collection<Break>();
+        BreakPlaceholders = new Collection<BreakPlaceholder>();
     }
 
-    public ICollection<Break> Breaks { get; set; }
+    public ICollection<BreakPlaceholder> BreakPlaceholders { get; set; }
 
     public string? Company { get; set; } = string.Empty;
 

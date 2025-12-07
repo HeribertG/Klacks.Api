@@ -95,7 +95,7 @@ public class ClientRepository : IClientRepository
                                       .Include(cu => cu.Addresses)
                                       .Include(cu => cu.Communications)
                                       .Include(cu => cu.Annotations)
-                                      .Include(cu => cu.Breaks)
+                                      .Include(cu => cu.BreakPlaceholders)
                                       .Include(cu => cu.ClientContracts)
                                           .ThenInclude(cc => cc.Contract)
                                       .Include(cu => cu.GroupItems)
@@ -125,7 +125,7 @@ public class ClientRepository : IClientRepository
                                         .Include(cu => cu.Addresses)
                                         .Include(cu => cu.Communications)
                                         .Include(cu => cu.Annotations)
-                                        .Include(cu => cu.Breaks)
+                                        .Include(cu => cu.BreakPlaceholders)
                                         .AsSplitQuery()
                                         .ToListAsync();
     }
@@ -137,7 +137,7 @@ public class ClientRepository : IClientRepository
             .Include(c => c.Addresses)
             .Include(c => c.Communications)
             .Include(c => c.Annotations)
-            .Include(c => c.Breaks)
+            .Include(c => c.BreakPlaceholders)
             .Include(c => c.ClientContracts)
                 .ThenInclude(cc => cc.Contract)
             .Include(c => c.GroupItems)

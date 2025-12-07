@@ -30,7 +30,7 @@ public class DataBaseContext : IdentityDbContext
 
     public virtual DbSet<AppUser> AppUser { get; set; }  
 
-    public DbSet<Break> Break { get; set; }  
+    public DbSet<BreakPlaceholder> BreakPlaceholder { get; set; }  
 
     public DbSet<BreakReason> BreakReason { get; set; }  
 
@@ -178,7 +178,7 @@ public class DataBaseContext : IdentityDbContext
                 nav.Property(ml => ml.It).HasColumnName("description_it");
             });
         });
-        modelBuilder.Entity<Break>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<BreakPlaceholder>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<BreakReason>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Countries>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<State>().HasQueryFilter(p => !p.IsDeleted);
@@ -229,8 +229,8 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<History>().HasIndex(p => new { p.IsDeleted });
         modelBuilder.Entity<Macro>().HasIndex(p => new { p.IsDeleted, p.Name });
         modelBuilder.Entity<Absence>().HasIndex(p => new { p.IsDeleted });
-        modelBuilder.Entity<Break>().HasIndex(p => new { p.IsDeleted, p.AbsenceId, p.ClientId });
-        modelBuilder.Entity<Break>().HasIndex(p => new { p.IsDeleted, p.ClientId, p.From, p.Until });
+        modelBuilder.Entity<BreakPlaceholder>().HasIndex(p => new { p.IsDeleted, p.AbsenceId, p.ClientId });
+        modelBuilder.Entity<BreakPlaceholder>().HasIndex(p => new { p.IsDeleted, p.ClientId, p.From, p.Until });
         modelBuilder.Entity<BreakReason>().HasIndex(p => new { p.IsDeleted, p.Name });
         modelBuilder.Entity<CalendarRule>().HasIndex(p => new { p.State, p.Country });
         modelBuilder.Entity<CalendarRule>().OwnsOne(c => c.Name, n => n.Property(p => p.De).IsRequired(false));

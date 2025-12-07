@@ -25,14 +25,14 @@ namespace Klacks.Api.Data.Seed
 
         #region Data Generation Methods
 
-        public static (List<Client> Clients, List<Address> Addresses, List<Membership> Memberships, List<Communication> Communications, List<Annotation> Annotations, List<Break> Breaks) GenerateClientsData(int count, int year, bool withIncludes)
+        public static (List<Client> Clients, List<Address> Addresses, List<Membership> Memberships, List<Communication> Communications, List<Annotation> Annotations, List<BreakPlaceholder> BreakPlaceholders) GenerateClientsData(int count, int year, bool withIncludes)
         {
             var clients = new List<Client>();
             var addresses = new List<Address>();
             var memberships = new List<Membership>();
             var communications = new List<Communication>();
             var annotations = new List<Annotation>();
-            var breaks = new List<Break>();
+            var breakPlaceholders = new List<BreakPlaceholder>();
             var rand = new Random();
 
             var postcodes = GenerateComprehensiveSwissPostcodes();
@@ -88,8 +88,8 @@ namespace Klacks.Api.Data.Seed
                     var clientAnnotations = GenerateAnnotations(client.Id);
                     annotations.AddRange(clientAnnotations);
 
-                    var clientBreaks = GenerateBreaks(client.Id, year, membership);
-                    breaks.AddRange(clientBreaks);
+                    var clientBreakPlaceholders = GenerateBreakPlaceholders(client.Id, year, membership);
+                    breakPlaceholders.AddRange(clientBreakPlaceholders);
                 }
                 else
                 {
@@ -98,7 +98,7 @@ namespace Klacks.Api.Data.Seed
                 }
             }
 
-            return (clients, addresses, memberships, communications, annotations, breaks);
+            return (clients, addresses, memberships, communications, annotations, breakPlaceholders);
         }
 
         public static string GenerateCompanyName(Random rand) => RandomDataGenerator.GenerateCompanyName(rand);
@@ -165,19 +165,16 @@ namespace Klacks.Api.Data.Seed
             return annotations;
         }
 
-        private static ICollection<Break> GenerateBreaks(Guid clientId, int year, Membership membership)
+        private static ICollection<BreakPlaceholder> GenerateBreakPlaceholders(Guid clientId, int year, Membership membership)
         {
-            var breaks = new List<Break>();
+            var breakPlaceholders = new List<BreakPlaceholder>();
             Random rand = new Random();
-            var maxBreaks = int.TryParse(FakeSettings.MaxBreaksPerClientPerYear, out int max) ? max : 30;
-            var sum = rand.Next(1, maxBreaks + 1); // Generate between 1 and maxBreaks inclusive
+            var maxBreakPlaceholders = int.TryParse(FakeSettings.MaxBreaksPerClientPerYear, out int max) ? max : 30;
+            var sum = rand.Next(1, maxBreakPlaceholders + 1);
 
-            // Determine the valid range for breaks based on membership
             DateTime membershipStart = membership.ValidFrom;
             DateTime membershipEnd = membership.ValidUntil ?? DateTime.Now.AddYears(1);
 
-            // Generate breaks for previous year, current year, and next year
-            // MaxBreaksPerClient applies per year, not total
             var yearsToGenerate = new[] { year - 1, year, year + 1 };
 
             foreach (var targetYear in yearsToGenerate)
@@ -185,47 +182,40 @@ namespace Klacks.Api.Data.Seed
                 DateTime yearStart = new DateTime(targetYear, 1, 1);
                 DateTime yearEnd = new DateTime(targetYear, 12, 31);
 
-                // Constrain to membership period
                 DateTime breakPeriodStart = membershipStart > yearStart ? membershipStart : yearStart;
                 DateTime breakPeriodEnd = membershipEnd < yearEnd ? membershipEnd : yearEnd;
 
-                // Skip this year if no valid period exists
                 if (breakPeriodStart > breakPeriodEnd)
                 {
                     continue;
                 }
 
-                // Calculate days available for breaks in this year
                 int totalDays = (int)(breakPeriodEnd - breakPeriodStart).TotalDays + 1;
                 if (totalDays <= 0)
                 {
                     continue;
                 }
 
-                // Generate breaks for this specific year
                 for (int i = 0; i < sum; i++)
                 {
-                    var duration = Random.Shared.Next(1, 15); // 1-14 days for each break
-                    var absenceId = AbsenceIds[Random.Shared.Next(AbsenceIds.Length)]; // Use random fixed Absence GUID
+                    var duration = Random.Shared.Next(1, 15);
+                    var absenceId = AbsenceIds[Random.Shared.Next(AbsenceIds.Length)];
 
-                    // Ensure we don't go beyond the valid period for this year
                     if (duration > totalDays)
                     {
                         continue;
                     }
 
-                    // Random start date within the valid period for this year
                     int maxStartDay = Math.Max(0, totalDays - duration);
                     DateTime start = breakPeriodStart.AddDays(rand.Next(maxStartDay + 1));
                     DateTime end = start.AddDays(duration);
 
-                    // Double-check the end date is within bounds for this year
                     if (end > breakPeriodEnd)
                     {
                         end = breakPeriodEnd;
                     }
 
-                    var item = new Break()
+                    var item = new BreakPlaceholder()
                     {
                         Id = Guid.NewGuid(),
                         ClientId = clientId,
@@ -238,11 +228,11 @@ namespace Klacks.Api.Data.Seed
                         CurrentUserCreated = user
                     };
 
-                    breaks.Add(item);
+                    breakPlaceholders.Add(item);
                 }
             }
 
-            return breaks;
+            return breakPlaceholders;
         }
 
         public static ICollection<Communication> GenerateCommunications(Guid clientId)
@@ -355,13 +345,13 @@ namespace Klacks.Api.Data.Seed
             return script.ToString();
         }
 
-        public static string GenerateInsertScriptForBreaks(List<Break> breaks)
+        public static string GenerateInsertScriptForBreakPlaceholders(List<BreakPlaceholder> breakPlaceholders)
         {
             StringBuilder script = new StringBuilder();
-            foreach (var breakItem in breaks)
+            foreach (var breakPlaceholderItem in breakPlaceholders)
             {
-                script.AppendLine($@"INSERT INTO public.break (id, client_id, absence_id, ""from"", ""until"", information, break_reason_id, is_deleted, create_time, current_user_created) 
-                    VALUES ('{breakItem.Id}', '{breakItem.ClientId}', '{breakItem.AbsenceId}', '{breakItem.From:yyyy-MM-dd HH:mm:ss.ffffff}', '{breakItem.Until:yyyy-MM-dd HH:mm:ss.ffffff}', '{breakItem.Information}', {(breakItem.BreakReasonId.HasValue ? $"'{breakItem.BreakReasonId}'" : "NULL")}, {breakItem.IsDeleted.ToString().ToLower()}, '{breakItem.CreateTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{breakItem.CurrentUserCreated}');");
+                script.AppendLine($@"INSERT INTO public.break_placeholder (id, client_id, absence_id, ""from"", ""until"", information, break_reason_id, is_deleted, create_time, current_user_created)
+                    VALUES ('{breakPlaceholderItem.Id}', '{breakPlaceholderItem.ClientId}', '{breakPlaceholderItem.AbsenceId}', '{breakPlaceholderItem.From:yyyy-MM-dd HH:mm:ss.ffffff}', '{breakPlaceholderItem.Until:yyyy-MM-dd HH:mm:ss.ffffff}', '{breakPlaceholderItem.Information}', {(breakPlaceholderItem.BreakReasonId.HasValue ? $"'{breakPlaceholderItem.BreakReasonId}'" : "NULL")}, {breakPlaceholderItem.IsDeleted.ToString().ToLower()}, '{breakPlaceholderItem.CreateTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{breakPlaceholderItem.CurrentUserCreated}');");
             }
 
             return script.ToString();

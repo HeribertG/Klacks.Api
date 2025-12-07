@@ -40,7 +40,7 @@ public partial class ClientMapper
     [MapperIgnoreTarget(nameof(Client.DeletedTime))]
     [MapperIgnoreTarget(nameof(Client.IsDeleted))]
     [MapperIgnoreTarget(nameof(Client.CurrentUserDeleted))]
-    [MapperIgnoreTarget(nameof(Client.Breaks))]
+    [MapperIgnoreTarget(nameof(Client.BreakPlaceholders))]
     public partial Client ToEntity(ClientResource resource);
 
     public ClientResource ToResource(Client client)
@@ -125,7 +125,7 @@ public partial class ClientMapper
     [MapperIgnoreTarget(nameof(ClientContract.Contract))]
     public partial ClientContract ToContractEntity(ClientContractResource resource);
 
-    public partial ClientBreakResource ToBreakResource(Client client);
+    public partial ClientBreakPlaceholderResource ToBreakPlaceholderResource(Client client);
 
     [MapperIgnoreTarget(nameof(ClientWorkResource.Membership))]
     [MapperIgnoreTarget(nameof(ClientWorkResource.NeededRows))]

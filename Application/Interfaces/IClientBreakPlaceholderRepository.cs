@@ -3,7 +3,7 @@ using Klacks.Api.Domain.Models.Filters;
 
 namespace Klacks.Api.Application.Interfaces;
 
-public interface IClientBreakRepository
+public interface IClientBreakPlaceholderRepository
 {
     Task<(List<Client> Clients, int TotalCount)> BreakList(BreakFilter filter);
 }

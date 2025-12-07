@@ -5,6 +5,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<NoWarn>AD0001</NoWarn>
+		<UserSecretsId>29f16e3f-7df9-4276-b7fa-281e84ee989e</UserSecretsId>
 	</PropertyGroup>
 
 

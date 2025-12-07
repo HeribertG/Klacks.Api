@@ -10,13 +10,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Repositories;
 
-public class ClientBreakRepository : IClientBreakRepository
+public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepository
 {
     private readonly DataBaseContext context;
     private readonly IClientGroupFilterService _groupFilterService;
     private readonly IClientSearchFilterService _searchFilterService;
 
-    public ClientBreakRepository(
+    public ClientBreakPlaceholderRepository(
         DataBaseContext context,
         IClientGroupFilterService groupFilterService,
         IClientSearchFilterService searchFilterService)
@@ -61,7 +61,7 @@ public class ClientBreakRepository : IClientBreakRepository
 
         if (filter.AbsenceIds?.Any() == true)
         {
-            query = query.Include(c => c.Breaks
+            query = query.Include(c => c.BreakPlaceholders
                 .Where(b => filter.AbsenceIds.Contains(b.AbsenceId) &&
                            b.From >= startOfYear &&
                            b.From <= endOfYear)

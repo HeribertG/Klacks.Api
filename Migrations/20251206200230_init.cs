@@ -707,7 +707,7 @@ namespace Klacks.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "break",
+                name: "break_placeholder",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -727,20 +727,20 @@ namespace Klacks.Api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_break", x => x.id);
+                    table.PrimaryKey("pk_break_placeholder", x => x.id);
                     table.ForeignKey(
-                        name: "fk_break_absence_absence_id",
+                        name: "fk_break_placeholder_absence_absence_id",
                         column: x => x.absence_id,
                         principalTable: "absence",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_break_break_reason_break_reason_id",
+                        name: "fk_break_placeholder_break_reason_break_reason_id",
                         column: x => x.break_reason_id,
                         principalTable: "break_reason",
                         principalColumn: "id");
                     table.ForeignKey(
-                        name: "fk_break_client_client_id",
+                        name: "fk_break_placeholder_client_client_id",
                         column: x => x.client_id,
                         principalTable: "client",
                         principalColumn: "id",
@@ -1349,28 +1349,28 @@ namespace Klacks.Api.Migrations
                 column: "group_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_break_absence_id",
-                table: "break",
+                name: "ix_break_placeholder_absence_id",
+                table: "break_placeholder",
                 column: "absence_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_break_break_reason_id",
-                table: "break",
+                name: "ix_break_placeholder_break_reason_id",
+                table: "break_placeholder",
                 column: "break_reason_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_break_client_id",
-                table: "break",
+                name: "ix_break_placeholder_client_id",
+                table: "break_placeholder",
                 column: "client_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_break_is_deleted_absence_id_client_id",
-                table: "break",
+                name: "ix_break_placeholder_is_deleted_absence_id_client_id",
+                table: "break_placeholder",
                 columns: new[] { "is_deleted", "absence_id", "client_id" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_break_is_deleted_client_id_from_until",
-                table: "break",
+                name: "ix_break_placeholder_is_deleted_client_id_from_until",
+                table: "break_placeholder",
                 columns: new[] { "is_deleted", "client_id", "from", "until" });
 
             migrationBuilder.CreateIndex(
@@ -1612,7 +1612,7 @@ namespace Klacks.Api.Migrations
                 name: "branch");
 
             migrationBuilder.DropTable(
-                name: "break");
+                name: "break_placeholder");
 
             migrationBuilder.DropTable(
                 name: "calendar_rule");

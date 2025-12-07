@@ -4,9 +4,9 @@ using Klacks.Api.Infrastructure.Persistence;
 
 namespace Klacks.Api.Infrastructure.Repositories
 {
-    public class BreakRepository : BaseRepository<Break>, IBreakRepository
+    public class BreakPlaceholderRepository : BaseRepository<BreakPlaceholder>, IBreakPlaceholderRepository
     {
-        public BreakRepository(DataBaseContext context, ILogger<Break> logger)
+        public BreakPlaceholderRepository(DataBaseContext context, ILogger<BreakPlaceholder> logger)
           : base(context, logger)
         {
         }

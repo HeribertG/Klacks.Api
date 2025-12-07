@@ -17,7 +17,7 @@ namespace Klacks.Api.Data.Seed
                 var scriptForMemberships = SeedGenerator.GenerateInsertScriptForMemberships(results.Memberships);
                 var scriptForCommunications = SeedGenerator.GenerateInsertScriptForCommunications(results.Communications);
                 var scriptForAnnotations = SeedGenerator.GenerateInsertScriptForAnnotations(results.Annotations);
-                var scriptForBreaks = SeedGenerator.GenerateInsertScriptForBreaks(results.Breaks);
+                var scriptForBreakPlaceholders = SeedGenerator.GenerateInsertScriptForBreakPlaceholders(results.BreakPlaceholders);
                 var scriptForSettings = SeedGenerator.GenerateInsertScriptForSettings();
                 var scriptForGroups = GroupsSeed.GenerateInsertScriptForGroups();
                 var scriptForGroupItems = SeedGenerator.GenerateInsertScriptForGroupItems(results.Clients, results.Addresses);
@@ -34,7 +34,7 @@ namespace Klacks.Api.Data.Seed
                 migrationBuilder.Sql(scriptForMemberships);
                 migrationBuilder.Sql(scriptForCommunications);
                 migrationBuilder.Sql(scriptForAnnotations);
-                migrationBuilder.Sql(scriptForBreaks);
+                migrationBuilder.Sql(scriptForBreakPlaceholders);
                 migrationBuilder.Sql(scriptForSettings);
                 migrationBuilder.Sql(scriptForGroups);
                 migrationBuilder.Sql(scriptForGroupItems);

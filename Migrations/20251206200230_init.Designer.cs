@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20251201192622_init")]
+    [Migration("20251206200230_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -1116,7 +1116,7 @@ namespace Klacks.Api.Migrations
                     b.ToTable("absence", (string)null);
                 });
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Break", b =>
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.BreakPlaceholder", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1176,24 +1176,24 @@ namespace Klacks.Api.Migrations
                         .HasColumnName("update_time");
 
                     b.HasKey("Id")
-                        .HasName("pk_break");
+                        .HasName("pk_break_placeholder");
 
                     b.HasIndex("AbsenceId")
-                        .HasDatabaseName("ix_break_absence_id");
+                        .HasDatabaseName("ix_break_placeholder_absence_id");
 
                     b.HasIndex("BreakReasonId")
-                        .HasDatabaseName("ix_break_break_reason_id");
+                        .HasDatabaseName("ix_break_placeholder_break_reason_id");
 
                     b.HasIndex("ClientId")
-                        .HasDatabaseName("ix_break_client_id");
+                        .HasDatabaseName("ix_break_placeholder_client_id");
 
                     b.HasIndex("IsDeleted", "AbsenceId", "ClientId")
-                        .HasDatabaseName("ix_break_is_deleted_absence_id_client_id");
+                        .HasDatabaseName("ix_break_placeholder_is_deleted_absence_id_client_id");
 
                     b.HasIndex("IsDeleted", "ClientId", "From", "Until")
-                        .HasDatabaseName("ix_break_is_deleted_client_id_from_until");
+                        .HasDatabaseName("ix_break_placeholder_is_deleted_client_id_from_until");
 
-                    b.ToTable("break", (string)null);
+                    b.ToTable("break_placeholder", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.BreakReason", b =>
@@ -3179,26 +3179,26 @@ namespace Klacks.Api.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Break", b =>
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.BreakPlaceholder", b =>
                 {
                     b.HasOne("Klacks.Api.Domain.Models.Schedules.Absence", "Absence")
                         .WithMany()
                         .HasForeignKey("AbsenceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_break_absence_absence_id");
+                        .HasConstraintName("fk_break_placeholder_absence_absence_id");
 
                     b.HasOne("Klacks.Api.Domain.Models.Schedules.BreakReason", "BreakReason")
                         .WithMany()
                         .HasForeignKey("BreakReasonId")
-                        .HasConstraintName("fk_break_break_reason_break_reason_id");
+                        .HasConstraintName("fk_break_placeholder_break_reason_break_reason_id");
 
                     b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "Client")
-                        .WithMany("Breaks")
+                        .WithMany("BreakPlaceholders")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_break_client_client_id");
+                        .HasConstraintName("fk_break_placeholder_client_client_id");
 
                     b.Navigation("Absence");
 
@@ -3641,7 +3641,7 @@ namespace Klacks.Api.Migrations
 
                     b.Navigation("Annotations");
 
-                    b.Navigation("Breaks");
+                    b.Navigation("BreakPlaceholders");
 
                     b.Navigation("ClientContracts");
 

@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Klacks.Api.Domain.Models.Schedules;
 
-public class Break : BaseEntity
+public class BreakPlaceholder : BaseEntity
 {
     public Guid AbsenceId { get; set; }
 

@@ -33,7 +33,7 @@ public static  class ServiceCollectionExtensions
 
         services.AddScoped<IClientRepository, ClientRepository>();
         services.AddScoped<IClientFilterRepository, ClientFilterRepository>();
-        services.AddScoped<IClientBreakRepository, ClientBreakRepository>();
+        services.AddScoped<IClientBreakPlaceholderRepository, ClientBreakPlaceholderRepository>();
         services.AddScoped<IClientWorkRepository, ClientWorkRepository>();
         services.AddScoped<IClientSearchRepository, ClientSearchRepository>();
         services.AddScoped<IClientGroupFilterService, ClientGroupFilterService>();
@@ -44,7 +44,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IMembershipRepository, MembershipRepository>();
         services.AddScoped<ISettingsRepository, SettingsRepository>();
         services.AddScoped<IAbsenceRepository, AbsenceRepository>();
-        services.AddScoped<IBreakRepository, BreakRepository>();
+        services.AddScoped<IBreakPlaceholderRepository, BreakPlaceholderRepository>();
         services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IStateRepository, StateRepository>();
         services.AddScoped<IBranchRepository, BranchRepository>();

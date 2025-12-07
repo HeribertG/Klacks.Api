@@ -39,20 +39,34 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Membership.Client))]
     public partial Membership ToMembershipEntity(MembershipResource resource);
 
-    public partial BreakResource ToBreakResource(Break @break);
+    public partial BreakResource ToBreakResource(BreakPlaceholder @break);
 
-    [MapperIgnoreTarget(nameof(Break.CreateTime))]
-    [MapperIgnoreTarget(nameof(Break.CurrentUserCreated))]
-    [MapperIgnoreTarget(nameof(Break.UpdateTime))]
-    [MapperIgnoreTarget(nameof(Break.CurrentUserUpdated))]
-    [MapperIgnoreTarget(nameof(Break.DeletedTime))]
-    [MapperIgnoreTarget(nameof(Break.IsDeleted))]
-    [MapperIgnoreTarget(nameof(Break.CurrentUserDeleted))]
-    [MapperIgnoreTarget(nameof(Break.Absence))]
-    [MapperIgnoreTarget(nameof(Break.Client))]
-    [MapperIgnoreTarget(nameof(Break.BreakReasonId))]
-    [MapperIgnoreTarget(nameof(Break.BreakReason))]
-    public partial Break ToBreakEntity(BreakResource resource);
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.CreateTime))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.UpdateTime))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.DeletedTime))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.IsDeleted))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.Absence))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.Client))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.BreakReasonId))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.BreakReason))]
+    public partial BreakPlaceholder ToBreakEntity(BreakResource resource);
+
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.Id))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.CreateTime))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.UpdateTime))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.DeletedTime))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.IsDeleted))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.Absence))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.Client))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.BreakReasonId))]
+    [MapperIgnoreTarget(nameof(BreakPlaceholder.BreakReason))]
+    public partial void UpdateBreakEntity(BreakResource resource, BreakPlaceholder target);
 
     public partial CalendarRuleResource ToCalendarRuleResource(CalendarRule rule);
     public partial CalendarRule ToCalendarRuleEntity(CalendarRuleResource resource);
@@ -238,7 +252,22 @@ public partial class ScheduleMapper
         };
     }
 
-    public partial ContainerTemplateResource ToContainerTemplateResource(ContainerTemplate template);
+    [MapperIgnoreSource(nameof(ContainerTemplate.Shift))]
+    [MapperIgnoreSource(nameof(ContainerTemplate.ContainerTemplateItems))]
+    private partial ContainerTemplateResource ToContainerTemplateResourceBase(ContainerTemplate template);
+
+    public ContainerTemplateResource ToContainerTemplateResource(ContainerTemplate template)
+    {
+        var resource = ToContainerTemplateResourceBase(template);
+        if (template.Shift != null)
+        {
+            resource.Shift = ToShiftResource(template.Shift);
+        }
+        resource.ContainerTemplateItems = template.ContainerTemplateItems
+            .Select(ToContainerTemplateItemResource)
+            .ToList();
+        return resource;
+    }
 
     [MapperIgnoreTarget(nameof(ContainerTemplate.CreateTime))]
     [MapperIgnoreTarget(nameof(ContainerTemplate.CurrentUserCreated))]
@@ -263,7 +292,18 @@ public partial class ScheduleMapper
     public partial DirectionStep ToDirectionStepEntity(DirectionStepResource resource);
 
     [MapperIgnoreTarget(nameof(ContainerTemplateItemResource.Weekday))]
-    public partial ContainerTemplateItemResource ToContainerTemplateItemResource(ContainerTemplateItem item);
+    [MapperIgnoreSource(nameof(ContainerTemplateItem.Shift))]
+    private partial ContainerTemplateItemResource ToContainerTemplateItemResourceBase(ContainerTemplateItem item);
+
+    public ContainerTemplateItemResource ToContainerTemplateItemResource(ContainerTemplateItem item)
+    {
+        var resource = ToContainerTemplateItemResourceBase(item);
+        if (item.Shift != null)
+        {
+            resource.Shift = ToShiftResource(item.Shift);
+        }
+        return resource;
+    }
 
     [MapperIgnoreTarget(nameof(ContainerTemplateItem.CreateTime))]
     [MapperIgnoreTarget(nameof(ContainerTemplateItem.CurrentUserCreated))]

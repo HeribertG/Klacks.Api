@@ -5,22 +5,22 @@ using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Exceptions;
 
-namespace Klacks.Api.Application.Handlers.Breaks;
+namespace Klacks.Api.Application.Handlers.BreakPlaceholders;
 
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakResource>, BreakResource?>
 {
-    private readonly IBreakRepository _breakRepository;
+    private readonly IBreakPlaceholderRepository _breakPlaceholderRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
-    
+
     public PutCommandHandler(
-        IBreakRepository breakRepository,
+        IBreakPlaceholderRepository breakPlaceholderRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
-        _breakRepository = breakRepository;
+        _breakPlaceholderRepository = breakPlaceholderRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         }
@@ -29,21 +29,17 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
     {
         return await ExecuteAsync(async () =>
         {
-            var existingBreak = await _breakRepository.Get(request.Resource.Id);
+            var existingBreak = await _breakPlaceholderRepository.Get(request.Resource.Id);
             if (existingBreak == null)
             {
                 throw new KeyNotFoundException($"Break with ID {request.Resource.Id} not found.");
             }
 
-            var updatedBreak = _scheduleMapper.ToBreakEntity(request.Resource);
-            updatedBreak.CreateTime = existingBreak.CreateTime;
-            updatedBreak.CurrentUserCreated = existingBreak.CurrentUserCreated;
-            existingBreak = updatedBreak;
-            await _breakRepository.Put(existingBreak);
+            _scheduleMapper.UpdateBreakEntity(request.Resource, existingBreak);
             await _unitOfWork.CompleteAsync();
             return _scheduleMapper.ToBreakResource(existingBreak);
-        }, 
-        "updating break", 
+        },
+        "updating break",
         new { BreakId = request.Resource.Id });
     }
 }
