@@ -54,7 +54,7 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
             var existingTemplate = existingTemplates.FirstOrDefault(t =>
                 t.Weekday == resource.Weekday &&
                 t.IsHoliday == resource.IsHoliday &&
-                t.IsWeekdayOrHoliday == resource.IsWeekdayOrHoliday);
+                t.IsWeekdayAndHoliday == resource.IsWeekdayAndHoliday);
 
             if (existingTemplate != null)
             {
@@ -108,7 +108,7 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
             !request.Resources.Any(r =>
                 et.Weekday == r.Weekday &&
                 et.IsHoliday == r.IsHoliday &&
-                et.IsWeekdayOrHoliday == r.IsWeekdayOrHoliday)).ToList();
+                et.IsWeekdayAndHoliday == r.IsWeekdayAndHoliday)).ToList();
 
         foreach (var templateToDelete in templatesToDelete)
         {

@@ -74,8 +74,8 @@ public class ShiftResource
 
     public bool IsWednesday { get; set; }
 
-    // Holiday on a selected weekday..
-    public bool IsWeekdayOrHoliday { get; set; }
+    // Weekdays (Mon-Fri) AND also on holidays.
+    public bool IsWeekdayAndHoliday { get; set; }
 
     #endregion WeekDay
 

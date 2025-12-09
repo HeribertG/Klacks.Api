@@ -63,8 +63,8 @@ public class Shift : BaseEntity
 
     public bool IsWednesday { get; set; }
 
-    // True if the shift day is any weekday or a holiday.
-    public bool IsWeekdayOrHoliday { get; set; }
+    // True if the shift day is any weekday (Mon-Fri) AND also on holidays.
+    public bool IsWeekdayAndHoliday { get; set; }
 
     #endregion WeekDay
 

@@ -99,10 +99,10 @@ BEGIN
             )
             OR
             -- =====================================================
-            -- IS_WEEKDAY_OR_HOLIDAY: On weekdays (Mon-Fri) OR holidays
+            -- IS_WEEKDAY_AND_HOLIDAY: On weekdays (Mon-Fri) AND on holidays
             -- =====================================================
             (
-                s.is_weekday_or_holiday = true
+                s.is_weekday_and_holiday = true
                 AND (
                     -- Weekdays Mon-Fri (and not a holiday)
                     (

@@ -97,7 +97,7 @@ INSERT INTO public.shift (
                     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
                     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
                     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
                     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
@@ -131,7 +131,7 @@ INSERT INTO public.shift (
                     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
                     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
                     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
                     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
@@ -171,7 +171,7 @@ INSERT INTO public.shift (
                     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
                     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
                     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
                     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
@@ -205,7 +205,7 @@ INSERT INTO public.shift (
                     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
                     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
                     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
                     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
@@ -243,7 +243,7 @@ INSERT INTO public.shift (
                     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
                     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
                     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
                     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
@@ -277,7 +277,7 @@ INSERT INTO public.shift (
                     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
                     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
                     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
                     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
@@ -314,7 +314,7 @@ INSERT INTO public.shift (
                     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
                     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
                     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
                     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
@@ -348,7 +348,7 @@ INSERT INTO public.shift (
                     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
                     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
                     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
                     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
@@ -385,7 +385,7 @@ INSERT INTO public.shift (
                     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
                     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
                     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
                     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
@@ -419,7 +419,7 @@ INSERT INTO public.shift (
                     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
                     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
                     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-                    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+                    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
                     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
@@ -461,7 +461,7 @@ INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
@@ -501,7 +501,7 @@ INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
@@ -528,7 +528,7 @@ INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
@@ -555,7 +555,7 @@ INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
@@ -641,7 +641,7 @@ INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
@@ -740,7 +740,7 @@ INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
@@ -835,7 +835,7 @@ INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
@@ -868,7 +868,7 @@ INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
     is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
-    is_weekday_or_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
     work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt

@@ -25,11 +25,11 @@ public class ContainersController : InputBaseController<ContainerTemplateResourc
         [FromQuery] string? searchString = null,
         [FromQuery] Guid? excludeContainerId = null,
         [FromQuery] bool? isHoliday = null,
-        [FromQuery] bool? isWeekdayOrHoliday = null)
+        [FromQuery] bool? isWeekdayAndHoliday = null)
     {
         _logger.LogInformation(
-            "GetAvailableTasks called: containerId={ContainerId}, weekday={Weekday}, fromTime={FromTime}, untilTime={UntilTime}, isHoliday={IsHoliday}, isWeekdayOrHoliday={IsWeekdayOrHoliday}",
-            containerId, weekday, fromTime, untilTime, isHoliday, isWeekdayOrHoliday);
+            "GetAvailableTasks called: containerId={ContainerId}, weekday={Weekday}, fromTime={FromTime}, untilTime={UntilTime}, isHoliday={IsHoliday}, isWeekdayAndHoliday={IsWeekdayAndHoliday}",
+            containerId, weekday, fromTime, untilTime, isHoliday, isWeekdayAndHoliday);
 
         if (!TimeOnly.TryParse(fromTime, out var parsedFromTime))
         {
@@ -49,7 +49,7 @@ public class ContainersController : InputBaseController<ContainerTemplateResourc
             searchString,
             excludeContainerId,
             isHoliday,
-            isWeekdayOrHoliday));
+            isWeekdayAndHoliday));
         return Ok(tasks);
     }
 

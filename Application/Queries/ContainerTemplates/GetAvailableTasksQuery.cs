@@ -11,5 +11,5 @@ public record GetAvailableTasksQuery(
     string? SearchString = null,
     Guid? ExcludeContainerId = null,
     bool? IsHoliday = null,
-    bool? IsWeekdayOrHoliday = null
+    bool? IsWeekdayAndHoliday = null
 ) : IRequest<List<ShiftResource>>;

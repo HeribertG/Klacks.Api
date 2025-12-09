@@ -91,7 +91,7 @@ public class ShiftSealingService : IShiftSealingService
             IsSaturday = sealedShift.IsSaturday,
             IsSunday = sealedShift.IsSunday,
             IsHoliday = sealedShift.IsHoliday,
-            IsWeekdayOrHoliday = sealedShift.IsWeekdayOrHoliday,
+            IsWeekdayAndHoliday = sealedShift.IsWeekdayAndHoliday,
 
             IsSporadic = sealedShift.IsSporadic,
             SporadicScope = sealedShift.SporadicScope,

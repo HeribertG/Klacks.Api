@@ -32,7 +32,7 @@ public class ContainerAvailableTasksService
         string? searchString = null,
         Guid? excludeContainerId = null,
         bool? isHoliday = null,
-        bool? isWeekdayOrHoliday = null,
+        bool? isWeekdayAndHoliday = null,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation(
@@ -72,7 +72,7 @@ public class ContainerAvailableTasksService
             shiftsInSameGroups,
             searchString,
             isHoliday,
-            isWeekdayOrHoliday);
+            isWeekdayAndHoliday);
 
         var availableTasks = await query
             .Include(s => s.Client)
@@ -95,7 +95,7 @@ public class ContainerAvailableTasksService
         List<Guid>? shiftsInSameGroups,
         string? searchString,
         bool? isHoliday,
-        bool? isWeekdayOrHoliday)
+        bool? isWeekdayAndHoliday)
     {
         var timeframeCrossesMidnight = fromTime > untilTime;
 
@@ -143,9 +143,9 @@ public class ContainerAvailableTasksService
             query = query.Where(s => s.IsHoliday == isHoliday.Value);
         }
 
-        if (isWeekdayOrHoliday.HasValue)
+        if (isWeekdayAndHoliday.HasValue)
         {
-            query = query.Where(s => s.IsWeekdayOrHoliday == isWeekdayOrHoliday.Value);
+            query = query.Where(s => s.IsWeekdayAndHoliday == isWeekdayAndHoliday.Value);
         }
 
         return query;

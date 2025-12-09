@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.11.35303.130
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11222.15 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Klacks.Api", "Klacks.Api.csproj", "{9C285B05-D02E-4F5B-8FB3-AC5DE92B1900}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "E2ETest", "..\E2ETest\E2ETest.csproj", "{1AF0B151-5882-4F26-B8AA-88689D19AEED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klacks.Blazor", "..\Klacks.Blazor\Klacks.Blazor.csproj", "{235EDC1C-C4AF-F5FB-2EB6-334AEF7BAC7A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTest", "..\IntegrationTest\IntegrationTest.csproj", "{4BD34E49-FAB6-5030-C657-DD817B4B907E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{235EDC1C-C4AF-F5FB-2EB6-334AEF7BAC7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{235EDC1C-C4AF-F5FB-2EB6-334AEF7BAC7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{235EDC1C-C4AF-F5FB-2EB6-334AEF7BAC7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BD34E49-FAB6-5030-C657-DD817B4B907E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BD34E49-FAB6-5030-C657-DD817B4B907E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BD34E49-FAB6-5030-C657-DD817B4B907E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BD34E49-FAB6-5030-C657-DD817B4B907E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

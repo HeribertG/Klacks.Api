@@ -14,7 +14,7 @@ public class ContainerTemplateResource
 
     public int Weekday { get; set; }
 
-    public bool IsWeekdayOrHoliday { get; set; }
+    public bool IsWeekdayAndHoliday { get; set; }
 
     public bool IsHoliday { get; set; }
 

@@ -76,7 +76,7 @@ public class ShiftCuttingService : IShiftCuttingService
             IsSaturday = parent.IsSaturday,
             IsSunday = parent.IsSunday,
             IsHoliday = parent.IsHoliday,
-            IsWeekdayOrHoliday = parent.IsWeekdayOrHoliday,
+            IsWeekdayAndHoliday = parent.IsWeekdayAndHoliday,
 
             IsSporadic = parent.IsSporadic,
             SporadicScope = parent.SporadicScope,

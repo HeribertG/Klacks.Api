@@ -29,7 +29,7 @@ public class GetAvailableTasksQueryHandler : IRequestHandler<GetAvailableTasksQu
             request.SearchString,
             request.ExcludeContainerId,
             request.IsHoliday,
-            request.IsWeekdayOrHoliday,
+            request.IsWeekdayAndHoliday,
             cancellationToken);
 
         var resources = availableTasks.Select(s => _scheduleMapper.ToShiftResource(s)).ToList();

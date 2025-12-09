@@ -227,7 +227,7 @@ public partial class ScheduleMapper
             IsThursday = source.IsThursday,
             IsTuesday = source.IsTuesday,
             IsWednesday = source.IsWednesday,
-            IsWeekdayOrHoliday = source.IsWeekdayOrHoliday,
+            IsWeekdayAndHoliday = source.IsWeekdayAndHoliday,
             IsSporadic = source.IsSporadic,
             SporadicScope = source.SporadicScope,
             IsTimeRange = source.IsTimeRange,
