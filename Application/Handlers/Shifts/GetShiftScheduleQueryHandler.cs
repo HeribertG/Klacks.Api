@@ -41,10 +41,14 @@ public class GetShiftScheduleQueryHandler : IRequestHandler<GetShiftScheduleQuer
             request.Filter.CurrentMonth,
             daysInMonth).AddDays(request.Filter.DayVisibleAfterMonth);
 
+        var holidayDates = request.Filter.HolidayDates?
+            .Select(d => DateOnly.FromDateTime(d))
+            .ToList();
+
         var shiftDayAssignments = await _shiftScheduleService.GetShiftScheduleAsync(
             startDate,
             endDate,
-            null,
+            holidayDates,
             cancellationToken);
 
         var result = shiftDayAssignments.Select(s => new ShiftScheduleResource
@@ -52,7 +56,10 @@ public class GetShiftScheduleQueryHandler : IRequestHandler<GetShiftScheduleQuer
             ShiftId = s.ShiftId,
             Date = s.Date,
             DayOfWeek = s.DayOfWeek,
-            ShiftName = s.ShiftName
+            ShiftName = s.ShiftName,
+            IsSporadic = s.IsSporadic,
+            IsTimeRange = s.IsTimeRange,
+            ShiftType = s.ShiftType
         }).ToList();
 
         _logger.LogInformation("Retrieved {Count} shift schedule entries", result.Count);

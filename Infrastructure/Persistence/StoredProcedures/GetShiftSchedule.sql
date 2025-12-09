@@ -1,9 +1,11 @@
--- GetShiftSchedule: Generiert einen Dienstplan basierend auf Shift-Wochentagen und Feiertagen
--- Parameter:
---   start_date: Beginn des Zeitraums
---   end_date: Ende des Zeitraums
---   holiday_dates: Array von Feiertagen (DATE[])
--- Rückgabe: ShiftId, Date, DayOfWeek (ISO: 1=Mo, 7=So), ShiftName
+-- GetShiftSchedule: Generates a shift schedule based on shift weekdays and holidays
+-- Parameters:
+--   start_date: Start of the period
+--   end_date: End of the period
+--   holiday_dates: Array of holidays (DATE[])
+-- Returns: shift_id, date, day_of_week (ISO: 1=Mon, 7=Sun), shift_name, is_sporadic, is_time_range
+
+DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[]);
 
 CREATE OR REPLACE FUNCTION get_shift_schedule(
     start_date DATE,
@@ -11,94 +13,100 @@ CREATE OR REPLACE FUNCTION get_shift_schedule(
     holiday_dates DATE[] DEFAULT ARRAY[]::DATE[]
 )
 RETURNS TABLE (
-    "ShiftId" UUID,
-    "Date" DATE,
-    "DayOfWeek" INTEGER,
-    "ShiftName" TEXT
+    shift_id UUID,
+    date DATE,
+    day_of_week INTEGER,
+    shift_name TEXT,
+    is_sporadic BOOLEAN,
+    is_time_range BOOLEAN,
+    shift_type INTEGER
 ) AS $$
 BEGIN
     RETURN QUERY
     SELECT
-        s."Id" AS "ShiftId",
-        d.schedule_date::DATE AS "Date",
-        EXTRACT(isodow FROM d.schedule_date)::INTEGER AS "DayOfWeek",
-        s."Name" AS "ShiftName"
-    FROM "Shift" s
+        s.id AS shift_id,
+        d.schedule_date::DATE AS date,
+        EXTRACT(isodow FROM d.schedule_date)::INTEGER AS day_of_week,
+        s.name AS shift_name,
+        s.is_sporadic AS is_sporadic,
+        s.is_time_range AS is_time_range,
+        s.shift_type AS shift_type
+    FROM shift s
     CROSS JOIN generate_series(start_date, end_date, '1 day'::interval) d(schedule_date)
     WHERE
-        -- Shift muss im Gültigkeitszeitraum liegen
-        s."FromDate" <= d.schedule_date::DATE
-        AND (s."UntilDate" IS NULL OR s."UntilDate" >= d.schedule_date::DATE)
-        -- Shift darf nicht gelöscht sein
-        AND s."IsDeleted" = false
+        -- Shift must be within validity period
+        s.from_date <= d.schedule_date::DATE
+        AND (s.until_date IS NULL OR s.until_date >= d.schedule_date::DATE)
+        -- Shift must not be deleted
+        AND s.is_deleted = false
         AND (
             -- =====================================================
-            -- REGULÄRE WOCHENTAGE (nur wenn KEIN Feiertag)
+            -- REGULAR WEEKDAYS (only when NOT a holiday)
             -- =====================================================
             (
                 d.schedule_date::DATE != ALL(holiday_dates)
-                AND s."CuttingAfterMidnight" = false
+                AND s.cutting_after_midnight = false
                 AND (
-                    (EXTRACT(isodow FROM d.schedule_date) = 1 AND s."IsMonday" = true) OR
-                    (EXTRACT(isodow FROM d.schedule_date) = 2 AND s."IsTuesday" = true) OR
-                    (EXTRACT(isodow FROM d.schedule_date) = 3 AND s."IsWednesday" = true) OR
-                    (EXTRACT(isodow FROM d.schedule_date) = 4 AND s."IsThursday" = true) OR
-                    (EXTRACT(isodow FROM d.schedule_date) = 5 AND s."IsFriday" = true) OR
-                    (EXTRACT(isodow FROM d.schedule_date) = 6 AND s."IsSaturday" = true) OR
-                    (EXTRACT(isodow FROM d.schedule_date) = 7 AND s."IsSunday" = true)
+                    (EXTRACT(isodow FROM d.schedule_date) = 1 AND s.is_monday = true) OR
+                    (EXTRACT(isodow FROM d.schedule_date) = 2 AND s.is_tuesday = true) OR
+                    (EXTRACT(isodow FROM d.schedule_date) = 3 AND s.is_wednesday = true) OR
+                    (EXTRACT(isodow FROM d.schedule_date) = 4 AND s.is_thursday = true) OR
+                    (EXTRACT(isodow FROM d.schedule_date) = 5 AND s.is_friday = true) OR
+                    (EXTRACT(isodow FROM d.schedule_date) = 6 AND s.is_saturday = true) OR
+                    (EXTRACT(isodow FROM d.schedule_date) = 7 AND s.is_sunday = true)
                 )
             )
             OR
             -- =====================================================
-            -- CUTTING AFTER MIDNIGHT (Shift beginnt am Vortag)
-            -- Nur wenn KEIN Feiertag
+            -- CUTTING AFTER MIDNIGHT (shift starts on previous day)
+            -- Only when NOT a holiday
             -- =====================================================
             (
                 d.schedule_date::DATE != ALL(holiday_dates)
-                AND s."CuttingAfterMidnight" = true
+                AND s.cutting_after_midnight = true
                 AND (
-                    -- Montag zeigt Shifts die am Sonntag beginnen
-                    (EXTRACT(isodow FROM d.schedule_date) = 1 AND s."IsSunday" = true) OR
-                    -- Dienstag zeigt Shifts die am Montag beginnen
-                    (EXTRACT(isodow FROM d.schedule_date) = 2 AND s."IsMonday" = true) OR
-                    -- Mittwoch zeigt Shifts die am Dienstag beginnen
-                    (EXTRACT(isodow FROM d.schedule_date) = 3 AND s."IsTuesday" = true) OR
-                    -- Donnerstag zeigt Shifts die am Mittwoch beginnen
-                    (EXTRACT(isodow FROM d.schedule_date) = 4 AND s."IsWednesday" = true) OR
-                    -- Freitag zeigt Shifts die am Donnerstag beginnen
-                    (EXTRACT(isodow FROM d.schedule_date) = 5 AND s."IsThursday" = true) OR
-                    -- Samstag zeigt Shifts die am Freitag beginnen
-                    (EXTRACT(isodow FROM d.schedule_date) = 6 AND s."IsFriday" = true) OR
-                    -- Sonntag zeigt Shifts die am Samstag beginnen
-                    (EXTRACT(isodow FROM d.schedule_date) = 7 AND s."IsSaturday" = true)
+                    -- Monday shows shifts that start on Sunday
+                    (EXTRACT(isodow FROM d.schedule_date) = 1 AND s.is_sunday = true) OR
+                    -- Tuesday shows shifts that start on Monday
+                    (EXTRACT(isodow FROM d.schedule_date) = 2 AND s.is_monday = true) OR
+                    -- Wednesday shows shifts that start on Tuesday
+                    (EXTRACT(isodow FROM d.schedule_date) = 3 AND s.is_tuesday = true) OR
+                    -- Thursday shows shifts that start on Wednesday
+                    (EXTRACT(isodow FROM d.schedule_date) = 4 AND s.is_wednesday = true) OR
+                    -- Friday shows shifts that start on Thursday
+                    (EXTRACT(isodow FROM d.schedule_date) = 5 AND s.is_thursday = true) OR
+                    -- Saturday shows shifts that start on Friday
+                    (EXTRACT(isodow FROM d.schedule_date) = 6 AND s.is_friday = true) OR
+                    -- Sunday shows shifts that start on Saturday
+                    (EXTRACT(isodow FROM d.schedule_date) = 7 AND s.is_saturday = true)
                 )
             )
             OR
             -- =====================================================
-            -- IS_HOLIDAY: NUR an echten Feiertagen anzeigen
+            -- IS_HOLIDAY: Show ONLY on actual holidays
             -- =====================================================
             (
-                s."IsHoliday" = true
+                s.is_holiday = true
                 AND d.schedule_date::DATE = ANY(holiday_dates)
             )
             OR
             -- =====================================================
-            -- IS_WEEKDAY_OR_HOLIDAY: An Wochentagen (Mo-Fr) ODER Feiertagen
+            -- IS_WEEKDAY_OR_HOLIDAY: On weekdays (Mon-Fri) OR holidays
             -- =====================================================
             (
-                s."IsWeekdayOrHoliday" = true
+                s.is_weekday_or_holiday = true
                 AND (
-                    -- Wochentage Mo-Fr (und kein Feiertag)
+                    -- Weekdays Mon-Fri (and not a holiday)
                     (
                         EXTRACT(isodow FROM d.schedule_date) BETWEEN 1 AND 5
                         AND d.schedule_date::DATE != ALL(holiday_dates)
                     )
                     OR
-                    -- Oder an Feiertagen
+                    -- Or on holidays
                     d.schedule_date::DATE = ANY(holiday_dates)
                 )
             )
         )
-    ORDER BY d.schedule_date, s."Name";
+    ORDER BY d.schedule_date, s.name;
 END;
 $$ LANGUAGE plpgsql;

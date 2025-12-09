@@ -9,4 +9,6 @@ public class ShiftScheduleFilter
     public int CurrentMonth { get; set; }
 
     public int CurrentYear { get; set; }
+
+    public List<DateTime>? HolidayDates { get; set; }
 }

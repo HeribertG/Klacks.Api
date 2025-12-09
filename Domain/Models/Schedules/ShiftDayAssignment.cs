@@ -9,4 +9,10 @@ public class ShiftDayAssignment
     public int DayOfWeek { get; set; }
 
     public string ShiftName { get; set; } = string.Empty;
+
+    public bool IsSporadic { get; set; }
+
+    public bool IsTimeRange { get; set; }
+
+    public int ShiftType { get; set; }
 }
