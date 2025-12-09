@@ -112,6 +112,9 @@ builder.Services.AddSingleton<Klacks.Api.Infrastructure.Services.IGeocodingServi
 // Add Route Optimization Service
 builder.Services.AddScoped<Klacks.Api.Domain.Services.RouteOptimization.IRouteOptimizationService, Klacks.Api.Domain.Services.RouteOptimization.RouteOptimizationService>();
 
+// Add Shift Schedule Service
+builder.Services.AddScoped<Klacks.Api.Domain.Services.ShiftSchedule.IShiftScheduleService, Klacks.Api.Domain.Services.ShiftSchedule.ShiftScheduleService>();
+
 // Add Data Protection for encrypting sensitive settings
 builder.Services.AddDataProtection();
 builder.Services.AddSingleton<Klacks.Api.Domain.Services.Settings.ISettingsEncryptionService, Klacks.Api.Domain.Services.Settings.SettingsEncryptionService>();

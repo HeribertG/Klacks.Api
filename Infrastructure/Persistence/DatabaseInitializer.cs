@@ -1,4 +1,5 @@
 using Klacks.Api.Data.Seed;
+using Klacks.Api.Infrastructure.Persistence.StoredProcedures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -17,12 +18,18 @@ public class DatabaseInitializer : IDatabaseInitializer
     private readonly DataBaseContext _context;
     private readonly ILogger<DatabaseInitializer> _logger;
     private readonly IConfiguration _configuration;
+    private readonly IStoredProcedureInitializer _storedProcedureInitializer;
 
-    public DatabaseInitializer(DataBaseContext context, ILogger<DatabaseInitializer> logger, IConfiguration configuration)
+    public DatabaseInitializer(
+        DataBaseContext context,
+        ILogger<DatabaseInitializer> logger,
+        IConfiguration configuration,
+        IStoredProcedureInitializer storedProcedureInitializer)
     {
         _context = context;
-        this._logger = logger;
+        _logger = logger;
         _configuration = configuration;
+        _storedProcedureInitializer = storedProcedureInitializer;
     }
 
     public async Task InitializeAsync()
@@ -76,6 +83,8 @@ public class DatabaseInitializer : IDatabaseInitializer
                     await _context.Database.MigrateAsync();
                 }
             }
+
+            await _storedProcedureInitializer.InitializeAsync();
 
             await SeedDataAsync();
 
@@ -138,6 +147,7 @@ public static class DatabaseInitializerExtensions
 {
     public static IServiceCollection AddDatabaseInitializer(this IServiceCollection services)
     {
+        services.AddStoredProcedureInitializer();
         services.AddScoped<IDatabaseInitializer, DatabaseInitializer>();
         return services;
     }
