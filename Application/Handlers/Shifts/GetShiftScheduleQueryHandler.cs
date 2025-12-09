@@ -57,6 +57,10 @@ public class GetShiftScheduleQueryHandler : IRequestHandler<GetShiftScheduleQuer
             Date = s.Date,
             DayOfWeek = s.DayOfWeek,
             ShiftName = s.ShiftName,
+            Abbreviation = s.Abbreviation,
+            StartShift = s.StartShift,
+            EndShift = s.EndShift,
+            WorkTime = s.WorkTime,
             IsSporadic = s.IsSporadic,
             IsTimeRange = s.IsTimeRange,
             ShiftType = s.ShiftType

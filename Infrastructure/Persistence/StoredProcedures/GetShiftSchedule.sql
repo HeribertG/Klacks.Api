@@ -3,7 +3,7 @@
 --   start_date: Start of the period
 --   end_date: End of the period
 --   holiday_dates: Array of holidays (DATE[])
--- Returns: shift_id, date, day_of_week (ISO: 1=Mon, 7=Sun), shift_name, is_sporadic, is_time_range
+-- Returns: shift_id, date, day_of_week (ISO: 1=Mon, 7=Sun), shift_name, abbreviation, start_shift, end_shift, work_time, is_sporadic, is_time_range
 
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[]);
 
@@ -17,6 +17,10 @@ RETURNS TABLE (
     date DATE,
     day_of_week INTEGER,
     shift_name TEXT,
+    abbreviation TEXT,
+    start_shift TIME,
+    end_shift TIME,
+    work_time NUMERIC,
     is_sporadic BOOLEAN,
     is_time_range BOOLEAN,
     shift_type INTEGER
@@ -28,6 +32,10 @@ BEGIN
         d.schedule_date::DATE AS date,
         EXTRACT(isodow FROM d.schedule_date)::INTEGER AS day_of_week,
         s.name AS shift_name,
+        s.abbreviation AS abbreviation,
+        s.start_shift AS start_shift,
+        s.end_shift AS end_shift,
+        s.work_time AS work_time,
         s.is_sporadic AS is_sporadic,
         s.is_time_range AS is_time_range,
         s.shift_type AS shift_type

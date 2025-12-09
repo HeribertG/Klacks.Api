@@ -10,6 +10,14 @@ public class ShiftDayAssignment
 
     public string ShiftName { get; set; } = string.Empty;
 
+    public string Abbreviation { get; set; } = string.Empty;
+
+    public TimeOnly StartShift { get; set; }
+
+    public TimeOnly EndShift { get; set; }
+
+    public decimal WorkTime { get; set; }
+
     public bool IsSporadic { get; set; }
 
     public bool IsTimeRange { get; set; }
