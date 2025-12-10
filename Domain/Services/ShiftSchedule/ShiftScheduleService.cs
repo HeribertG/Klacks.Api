@@ -39,13 +39,18 @@ public class ShiftScheduleService : IShiftScheduleService
             holidayDates?.Count ?? 0);
 
         var holidays = holidayDates ?? [];
-        var holidayArray = holidays.Select(h => h.ToDateTime(TimeOnly.MinValue)).ToArray();
+        var holidayArray = holidays
+            .Select(h => DateTime.SpecifyKind(h.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc))
+            .ToArray();
+
+        var startDateTime = DateTime.SpecifyKind(startDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
+        var endDateTime = DateTime.SpecifyKind(endDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
 
         var result = await _context.ShiftDayAssignments
             .FromSqlInterpolated($@"
                 SELECT * FROM get_shift_schedule(
-                    {startDate.ToDateTime(TimeOnly.MinValue)}::DATE,
-                    {endDate.ToDateTime(TimeOnly.MinValue)}::DATE,
+                    {startDateTime}::DATE,
+                    {endDateTime}::DATE,
                     {holidayArray}::DATE[]
                 )")
             .ToListAsync(cancellationToken);
