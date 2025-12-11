@@ -11,6 +11,7 @@ public interface IShiftScheduleService
         DateOnly endDate,
         List<DateOnly>? holidayDates = null,
         Guid? selectedGroupId = null,
+        List<Guid>? visibleGroupIds = null,
         CancellationToken cancellationToken = default);
 }
 
@@ -32,14 +33,16 @@ public class ShiftScheduleService : IShiftScheduleService
         DateOnly endDate,
         List<DateOnly>? holidayDates = null,
         Guid? selectedGroupId = null,
+        List<Guid>? visibleGroupIds = null,
         CancellationToken cancellationToken = default)
     {
         _logger.LogDebug(
-            "Getting shift schedule from {StartDate} to {EndDate} with {HolidayCount} holidays, GroupId: {GroupId}",
+            "Getting shift schedule from {StartDate} to {EndDate} with {HolidayCount} holidays, GroupId: {GroupId}, VisibleGroups: {VisibleGroupCount}",
             startDate,
             endDate,
             holidayDates?.Count ?? 0,
-            selectedGroupId);
+            selectedGroupId,
+            visibleGroupIds?.Count ?? 0);
 
         var holidays = holidayDates ?? [];
         var holidayArray = holidays
@@ -49,13 +52,16 @@ public class ShiftScheduleService : IShiftScheduleService
         var startDateTime = DateTime.SpecifyKind(startDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
         var endDateTime = DateTime.SpecifyKind(endDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
 
+        var visibleGroupArray = visibleGroupIds?.ToArray() ?? [];
+
         var result = await _context.ShiftDayAssignments
             .FromSqlInterpolated($@"
                 SELECT * FROM get_shift_schedule(
                     {startDateTime}::DATE,
                     {endDateTime}::DATE,
                     {holidayArray}::DATE[],
-                    {selectedGroupId}::UUID
+                    {selectedGroupId}::UUID,
+                    {visibleGroupArray}::UUID[]
                 )")
             .ToListAsync(cancellationToken);
 
@@ -70,6 +76,7 @@ public static class ShiftScheduleServiceExtensions
     public static IServiceCollection AddShiftScheduleService(this IServiceCollection services)
     {
         services.AddScoped<IShiftScheduleService, ShiftScheduleService>();
+        services.AddScoped<IShiftGroupFilterService, ShiftGroupFilterService>();
         return services;
     }
 }

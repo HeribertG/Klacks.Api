@@ -8,13 +8,16 @@ namespace Klacks.Api.Application.Handlers.Shifts;
 public class GetShiftScheduleQueryHandler : IRequestHandler<GetShiftScheduleQuery, List<ShiftScheduleResource>>
 {
     private readonly IShiftScheduleService _shiftScheduleService;
+    private readonly IShiftGroupFilterService _shiftGroupFilterService;
     private readonly ILogger<GetShiftScheduleQueryHandler> _logger;
 
     public GetShiftScheduleQueryHandler(
         IShiftScheduleService shiftScheduleService,
+        IShiftGroupFilterService shiftGroupFilterService,
         ILogger<GetShiftScheduleQueryHandler> logger)
     {
         _shiftScheduleService = shiftScheduleService;
+        _shiftGroupFilterService = shiftGroupFilterService;
         _logger = logger;
     }
 
@@ -45,11 +48,14 @@ public class GetShiftScheduleQueryHandler : IRequestHandler<GetShiftScheduleQuer
             .Select(d => DateOnly.FromDateTime(d))
             .ToList();
 
+        var visibleGroupIds = await _shiftGroupFilterService.GetVisibleGroupIdsAsync(request.Filter.SelectedGroup);
+
         var shiftDayAssignments = await _shiftScheduleService.GetShiftScheduleAsync(
             startDate,
             endDate,
             holidayDates,
             request.Filter.SelectedGroup,
+            visibleGroupIds,
             cancellationToken);
 
         var result = shiftDayAssignments.Select(s => new ShiftScheduleResource
