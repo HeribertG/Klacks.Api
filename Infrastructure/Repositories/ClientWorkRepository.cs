@@ -1,4 +1,5 @@
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
@@ -30,8 +31,15 @@ public class ClientWorkRepository : IClientWorkRepository
             return new List<Client>();
         }
 
+        var startOfYear = new DateTime(filter.CurrentYear, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var endOfYear = new DateTime(filter.CurrentYear, 12, 31, 23, 59, 59, DateTimeKind.Utc);
+
         var query = this.context.Client
+            .Where(c => c.Type != EntityTypeEnum.Customer)
             .Include(c => c.Membership)
+            .Where(c => c.Membership != null &&
+                        c.Membership.ValidFrom <= endOfYear &&
+                        (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startOfYear))
             .AsQueryable();
 
         var startDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1)

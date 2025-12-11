@@ -80,6 +80,18 @@ public partial class ClientMapper
     public partial WorkResource ToWorkResource(Work work);
     public partial MembershipResource ToMembershipResource(Membership membership);
 
+    public Membership ToMembershipEntity(MembershipResource resource)
+    {
+        return new Membership
+        {
+            Id = resource.Id,
+            ClientId = resource.ClientId,
+            Type = resource.Type,
+            ValidFrom = resource.ValidFrom,
+            ValidUntil = resource.ValidUntil
+        };
+    }
+
     public ClientImageResource ToImageResource(ClientImage image)
     {
         return new ClientImageResource
