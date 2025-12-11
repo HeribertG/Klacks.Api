@@ -1,3 +1,4 @@
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -6,13 +7,12 @@ namespace Klacks.Api.Domain.Services.ShiftSchedule;
 
 public interface IShiftScheduleService
 {
-    Task<List<ShiftDayAssignment>> GetShiftScheduleAsync(
+    IQueryable<ShiftDayAssignment> GetShiftScheduleQuery(
         DateOnly startDate,
         DateOnly endDate,
         List<DateOnly>? holidayDates = null,
         Guid? selectedGroupId = null,
-        List<Guid>? visibleGroupIds = null,
-        CancellationToken cancellationToken = default);
+        List<Guid>? visibleGroupIds = null);
 }
 
 public class ShiftScheduleService : IShiftScheduleService
@@ -28,16 +28,15 @@ public class ShiftScheduleService : IShiftScheduleService
         _logger = logger;
     }
 
-    public async Task<List<ShiftDayAssignment>> GetShiftScheduleAsync(
+    public IQueryable<ShiftDayAssignment> GetShiftScheduleQuery(
         DateOnly startDate,
         DateOnly endDate,
         List<DateOnly>? holidayDates = null,
         Guid? selectedGroupId = null,
-        List<Guid>? visibleGroupIds = null,
-        CancellationToken cancellationToken = default)
+        List<Guid>? visibleGroupIds = null)
     {
         _logger.LogDebug(
-            "Getting shift schedule from {StartDate} to {EndDate} with {HolidayCount} holidays, GroupId: {GroupId}, VisibleGroups: {VisibleGroupCount}",
+            "Building shift schedule query from {StartDate} to {EndDate} with {HolidayCount} holidays, GroupId: {GroupId}, VisibleGroups: {VisibleGroupCount}",
             startDate,
             endDate,
             holidayDates?.Count ?? 0,
@@ -54,7 +53,7 @@ public class ShiftScheduleService : IShiftScheduleService
 
         var visibleGroupArray = visibleGroupIds?.ToArray() ?? [];
 
-        var result = await _context.ShiftDayAssignments
+        return _context.ShiftDayAssignments
             .FromSqlInterpolated($@"
                 SELECT * FROM get_shift_schedule(
                     {startDateTime}::DATE,
@@ -62,12 +61,7 @@ public class ShiftScheduleService : IShiftScheduleService
                     {holidayArray}::DATE[],
                     {selectedGroupId}::UUID,
                     {visibleGroupArray}::UUID[]
-                )")
-            .ToListAsync(cancellationToken);
-
-        _logger.LogDebug("Found {Count} shift day assignments", result.Count);
-
-        return result;
+                )");
     }
 }
 
@@ -77,6 +71,10 @@ public static class ShiftScheduleServiceExtensions
     {
         services.AddScoped<IShiftScheduleService, ShiftScheduleService>();
         services.AddScoped<IShiftGroupFilterService, ShiftGroupFilterService>();
+        services.AddScoped<IShiftScheduleSearchService, ShiftScheduleSearchService>();
+        services.AddScoped<IShiftScheduleSortingService, ShiftScheduleSortingService>();
+        services.AddScoped<IShiftScheduleTypeFilterService, ShiftScheduleTypeFilterService>();
+        services.AddScoped<IShiftScheduleFilterService, ShiftScheduleFilterService>();
         return services;
     }
 }

@@ -1,7 +1,9 @@
 using Klacks.Api.Application.Queries.Shifts;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Presentation.DTOs.Schedules;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Shifts;
 
@@ -9,15 +11,18 @@ public class GetShiftScheduleQueryHandler : IRequestHandler<GetShiftScheduleQuer
 {
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IShiftGroupFilterService _shiftGroupFilterService;
+    private readonly IShiftScheduleFilterService _shiftScheduleFilterService;
     private readonly ILogger<GetShiftScheduleQueryHandler> _logger;
 
     public GetShiftScheduleQueryHandler(
         IShiftScheduleService shiftScheduleService,
         IShiftGroupFilterService shiftGroupFilterService,
+        IShiftScheduleFilterService shiftScheduleFilterService,
         ILogger<GetShiftScheduleQueryHandler> logger)
     {
         _shiftScheduleService = shiftScheduleService;
         _shiftGroupFilterService = shiftGroupFilterService;
+        _shiftScheduleFilterService = shiftScheduleFilterService;
         _logger = logger;
     }
 
@@ -50,13 +55,16 @@ public class GetShiftScheduleQueryHandler : IRequestHandler<GetShiftScheduleQuer
 
         var visibleGroupIds = await _shiftGroupFilterService.GetVisibleGroupIdsAsync(request.Filter.SelectedGroup);
 
-        var shiftDayAssignments = await _shiftScheduleService.GetShiftScheduleAsync(
+        var query = _shiftScheduleService.GetShiftScheduleQuery(
             startDate,
             endDate,
             holidayDates,
             request.Filter.SelectedGroup,
-            visibleGroupIds,
-            cancellationToken);
+            visibleGroupIds);
+
+        query = _shiftScheduleFilterService.ApplyAllFilters(query, request.Filter);
+
+        var shiftDayAssignments = await query.ToListAsync(cancellationToken);
 
         var result = shiftDayAssignments.Select(s => new ShiftScheduleResource
         {
