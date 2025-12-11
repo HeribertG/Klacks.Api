@@ -3,14 +3,17 @@
 --   start_date: Start of the period
 --   end_date: End of the period
 --   holiday_dates: Array of holidays (DATE[])
+--   selected_group_id: Optional group filter (includes subgroups)
 -- Returns: shift_id, date, day_of_week (ISO: 1=Mon, 7=Sun), shift_name, abbreviation, start_shift, end_shift, work_time, is_sporadic, is_time_range
 
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[]);
+DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[], UUID);
 
 CREATE OR REPLACE FUNCTION get_shift_schedule(
     start_date DATE,
     end_date DATE,
-    holiday_dates DATE[] DEFAULT ARRAY[]::DATE[]
+    holiday_dates DATE[] DEFAULT ARRAY[]::DATE[],
+    selected_group_id UUID DEFAULT NULL
 )
 RETURNS TABLE (
     shift_id UUID,
@@ -27,6 +30,24 @@ RETURNS TABLE (
 ) AS $$
 BEGIN
     RETURN QUERY
+    WITH RECURSIVE group_hierarchy AS (
+        -- Base case: selected group (if provided)
+        SELECT g.id FROM "group" g WHERE g.id = selected_group_id
+        UNION ALL
+        -- Recursive case: all child groups
+        SELECT g.id FROM "group" g
+        INNER JOIN group_hierarchy gh ON g.parent = gh.id
+    ),
+    filtered_shift_ids AS (
+        -- If no group selected, return all shifts
+        -- If group selected, return shifts with no groups OR shifts in the group hierarchy
+        SELECT DISTINCT s.id
+        FROM shift s
+        LEFT JOIN group_item gi ON gi.shift_id = s.id
+        WHERE selected_group_id IS NULL
+           OR gi.shift_id IS NULL  -- Shift has no groups
+           OR gi.group_id IN (SELECT id FROM group_hierarchy)
+    )
     SELECT
         s.id AS shift_id,
         d.schedule_date::DATE AS date,
@@ -42,6 +63,9 @@ BEGIN
     FROM shift s
     CROSS JOIN generate_series(start_date, end_date, '1 day'::interval) d(schedule_date)
     WHERE
+        -- Group filter
+        s.id IN (SELECT id FROM filtered_shift_ids)
+        AND
         -- Shift must be within validity period
         s.from_date <= d.schedule_date::DATE
         AND (s.until_date IS NULL OR s.until_date >= d.schedule_date::DATE)

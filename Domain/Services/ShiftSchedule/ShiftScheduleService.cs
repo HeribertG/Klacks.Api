@@ -10,6 +10,7 @@ public interface IShiftScheduleService
         DateOnly startDate,
         DateOnly endDate,
         List<DateOnly>? holidayDates = null,
+        Guid? selectedGroupId = null,
         CancellationToken cancellationToken = default);
 }
 
@@ -30,13 +31,15 @@ public class ShiftScheduleService : IShiftScheduleService
         DateOnly startDate,
         DateOnly endDate,
         List<DateOnly>? holidayDates = null,
+        Guid? selectedGroupId = null,
         CancellationToken cancellationToken = default)
     {
         _logger.LogDebug(
-            "Getting shift schedule from {StartDate} to {EndDate} with {HolidayCount} holidays",
+            "Getting shift schedule from {StartDate} to {EndDate} with {HolidayCount} holidays, GroupId: {GroupId}",
             startDate,
             endDate,
-            holidayDates?.Count ?? 0);
+            holidayDates?.Count ?? 0,
+            selectedGroupId);
 
         var holidays = holidayDates ?? [];
         var holidayArray = holidays
@@ -51,7 +54,8 @@ public class ShiftScheduleService : IShiftScheduleService
                 SELECT * FROM get_shift_schedule(
                     {startDateTime}::DATE,
                     {endDateTime}::DATE,
-                    {holidayArray}::DATE[]
+                    {holidayArray}::DATE[],
+                    {selectedGroupId}::UUID
                 )")
             .ToListAsync(cancellationToken);
 

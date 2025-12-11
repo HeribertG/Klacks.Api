@@ -49,6 +49,7 @@ public class GetShiftScheduleQueryHandler : IRequestHandler<GetShiftScheduleQuer
             startDate,
             endDate,
             holidayDates,
+            request.Filter.SelectedGroup,
             cancellationToken);
 
         var result = shiftDayAssignments.Select(s => new ShiftScheduleResource

@@ -11,4 +11,6 @@ public class ShiftScheduleFilter
     public int CurrentYear { get; set; }
 
     public List<DateTime>? HolidayDates { get; set; }
+
+    public Guid? SelectedGroup { get; set; }
 }
