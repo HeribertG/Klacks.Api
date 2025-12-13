@@ -35,6 +35,51 @@ public class MyQueryHandler : IRequestHandler<MyQuery, MyResponse>
 }
 ```
 
+### Handler → Repository → DataBaseContext Pattern
+
+Handlers should **never** directly access `DataBaseContext`. Instead, they must use repositories which internally access the database context.
+
+```
+┌─────────────┐     ┌──────────────┐     ┌─────────────────┐
+│   Handler   │ ──▶ │  Repository  │ ──▶ │  DataBaseContext │
+└─────────────┘     └──────────────┘     └─────────────────┘
+```
+
+**Correct:**
+```csharp
+public class GetDataQueryHandler : IRequestHandler<GetDataQuery, DataResource>
+{
+    private readonly IDataRepository _repository;
+    private readonly DataMapper _mapper;
+
+    public async Task<DataResource> Handle(GetDataQuery request, CancellationToken ct)
+    {
+        var data = await _repository.GetAsync(request.Id, ct);
+        return _mapper.ToResource(data);
+    }
+}
+```
+
+**Incorrect:**
+```csharp
+public class GetDataQueryHandler : IRequestHandler<GetDataQuery, DataResource>
+{
+    private readonly DataBaseContext _context; // ❌ Direct DB access
+
+    public async Task<DataResource> Handle(GetDataQuery request, CancellationToken ct)
+    {
+        var data = await _context.Data.FindAsync(request.Id); // ❌
+        return new DataResource { ... }; // ❌ Manual mapping
+    }
+}
+```
+
+**Rules:**
+1. Handlers inject `IRepository` interfaces, not `DataBaseContext`
+2. Complex operations use Facades (e.g., `IShiftCutFacade`)
+3. Mapping is done via Mapperly mappers, not manually in handlers
+4. Domain services are coordinated by repositories/facades, not handlers
+
 ### Object Mapping with Mapperly
 
 The API uses **Riok.Mapperly** for compile-time source-generated object mapping.

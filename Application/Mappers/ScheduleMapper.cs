@@ -315,4 +315,8 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(ContainerTemplateItem.Shift))]
     [MapperIgnoreTarget(nameof(ContainerTemplateItem.ContainerTemplate))]
     public partial ContainerTemplateItem ToContainerTemplateItemEntity(ContainerTemplateItemResource resource);
+
+    public partial ShiftScheduleResource ToShiftScheduleResource(ShiftDayAssignment assignment);
+
+    public partial List<ShiftScheduleResource> ToShiftScheduleResourceList(List<ShiftDayAssignment> assignments);
 }

@@ -1,7 +1,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Settings.Settings;
 using Klacks.Api.Domain.Exceptions;
-using Klacks.Api.Domain.Services.Settings;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Logging;
 

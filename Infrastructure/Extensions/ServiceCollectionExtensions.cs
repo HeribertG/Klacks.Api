@@ -10,7 +10,9 @@ using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Domain.Services.Holidays;
 using Klacks.Api.Domain.Services.Settings;
 using Klacks.Api.Domain.Services.Shifts;
+using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Domain.Services.LLM;
+using Klacks.Api.Domain.Services.RouteOptimization;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Email;
 using Klacks.Api.Infrastructure.FileHandling;
@@ -73,16 +75,28 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IShiftSortingService, ShiftSortingService>();
         services.AddScoped<IScheduleDateRangeService, ScheduleDateRangeService>();
         services.AddScoped<IShiftStatusFilterService, ShiftStatusFilterService>();
-        services.AddScoped<ICreateShiftFromOrderService, CreateShiftFromOrderService>();
         services.AddScoped<IShiftFilterService, ShiftFilterService>();
         services.AddScoped<IShiftPaginationService, ShiftPaginationService>();
         services.AddScoped<IShiftValidator, ShiftValidator>();
         services.AddScoped<IShiftGroupManagementService, ShiftGroupManagementService>();
         services.AddScoped<IShiftTreeService, ShiftTreeService>();
         services.AddScoped<IShiftResetService, ShiftResetService>();
+        services.AddScoped<IShiftCutFacade, ShiftCutFacade>();
+
+        // Shift Schedule Repository and Services
+        services.AddScoped<IShiftScheduleRepository, ShiftScheduleRepository>();
+        services.AddScoped<IShiftScheduleService, ShiftScheduleService>();
+        services.AddScoped<IShiftGroupFilterService, ShiftGroupFilterService>();
+        services.AddScoped<IShiftScheduleFilterService, ShiftScheduleFilterService>();
+        services.AddScoped<IShiftScheduleSearchService, ShiftScheduleSearchService>();
+        services.AddScoped<IShiftScheduleSortingService, ShiftScheduleSortingService>();
+        services.AddScoped<IShiftScheduleTypeFilterService, ShiftScheduleTypeFilterService>();
 
         // ContainerTemplate Domain Services
-        services.AddScoped<ContainerAvailableTasksService>();
+        services.AddScoped<IContainerAvailableTasksService, ContainerAvailableTasksService>();
+
+        // Route Optimization Service
+        services.AddScoped<IRouteOptimizationService, RouteOptimizationService>();
 
         // Employee Domain Services
         services.AddScoped<IClientFilterService, ClientFilterService>();
@@ -118,6 +132,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IAbsenceExportService, AbsenceExportService>();
 
         // Settings Domain Services
+        services.AddSingleton<ISettingsEncryptionService, SettingsEncryptionService>();
         services.AddScoped<ICalendarRuleFilterService, CalendarRuleFilterService>();
         services.AddScoped<ICalendarRuleSortingService, CalendarRuleSortingService>();
         services.AddScoped<ICalendarRulePaginationService, CalendarRulePaginationService>();
@@ -143,9 +158,6 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IAccountRegistrationService, AccountRegistrationService>();
         services.AddScoped<IAccountManagementService, AccountManagementService>();
         services.AddScoped<IAccountNotificationService, AccountNotificationService>();
-
-        // Generic Services
-        services.AddScoped(typeof(IGenericPaginationService<>), typeof(Domain.Services.Common.GenericPaginationService<>));
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -191,6 +203,14 @@ public static  class ServiceCollectionExtensions
         services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.Mistral.MistralProvider>();
         services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.Cohere.CohereProvider>();
         services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.DeepSeek.DeepSeekProvider>();
+
+        // Geocoding Service
+        services.AddHttpClient("Nominatim");
+        services.AddMemoryCache();
+        services.AddSingleton<IGeocodingService, GeocodingService>();
+
+        // ContainerTemplate Service
+        services.AddScoped<ContainerTemplateService>();
 
         return services;
     }

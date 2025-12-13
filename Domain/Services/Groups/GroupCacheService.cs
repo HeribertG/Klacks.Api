@@ -1,12 +1,7 @@
+using Klacks.Api.Domain.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Klacks.Api.Domain.Services.Groups;
-
-public interface IGroupCacheService
-{
-    void InvalidateGroupHierarchyCache();
-    void InvalidateGroupCache(Guid groupId);
-}
 
 public class GroupCacheService : IGroupCacheService
 {

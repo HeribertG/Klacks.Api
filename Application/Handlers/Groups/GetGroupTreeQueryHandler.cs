@@ -1,31 +1,28 @@
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Groups;
-using Klacks.Api.Domain.Enums;
-using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Presentation.DTOs.Associations;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Groups
 {
     public class GetGroupTreeQueryHandler : IRequestHandler<GetGroupTreeQuery, GroupTreeResource>
     {
         private readonly IGroupRepository _groupRepository;
+        private readonly IGroupItemRepository _groupItemRepository;
         private readonly GroupMapper _groupMapper;
         private readonly ILogger<GetGroupTreeQueryHandler> _logger;
-        private readonly DataBaseContext _context;
 
         public GetGroupTreeQueryHandler(
             IGroupRepository groupRepository,
+            IGroupItemRepository groupItemRepository,
             GroupMapper groupMapper,
-            ILogger<GetGroupTreeQueryHandler> logger,
-            DataBaseContext context)
+            ILogger<GetGroupTreeQueryHandler> logger)
         {
             _groupRepository = groupRepository;
+            _groupItemRepository = groupItemRepository;
             _groupMapper = groupMapper;
             _logger = logger;
-            _context = context;
         }
 
         public async Task<GroupTreeResource> Handle(GetGroupTreeQuery request, CancellationToken cancellationToken)
@@ -38,8 +35,8 @@ namespace Klacks.Api.Application.Handlers.Groups
                 var nodeDict = flatNodes.ToDictionary(g => g.Id, g => _groupMapper.ToGroupResource(g));
                 var rootNodes = new List<GroupResource>();
 
-                var shiftCounts = await GetShiftCountsPerGroup(cancellationToken);
-                var customerCounts = await GetCustomerCountsPerGroup(cancellationToken);
+                var shiftCounts = await _groupItemRepository.GetShiftCountsPerGroupAsync(cancellationToken);
+                var customerCounts = await _groupItemRepository.GetCustomerCountsPerGroupAsync(cancellationToken);
 
                 foreach (var node in nodeDict.Values)
                 {
@@ -93,24 +90,6 @@ namespace Klacks.Api.Application.Handlers.Groups
             }
     }
 
-        private async Task<Dictionary<Guid, int>> GetShiftCountsPerGroup(CancellationToken cancellationToken)
-        {
-            return await _context.GroupItem
-                .Where(gi => gi.ShiftId.HasValue)
-                .GroupBy(gi => gi.GroupId)
-                .Select(g => new { GroupId = g.Key, Count = g.Count() })
-                .ToDictionaryAsync(x => x.GroupId, x => x.Count, cancellationToken);
-        }
-
-        private async Task<Dictionary<Guid, int>> GetCustomerCountsPerGroup(CancellationToken cancellationToken)
-        {
-            return await _context.GroupItem
-                .Where(gi => gi.ClientId.HasValue && gi.Client != null && gi.Client.Type == EntityTypeEnum.Customer)
-                .GroupBy(gi => gi.GroupId)
-                .Select(g => new { GroupId = g.Key, Count = g.Count() })
-                .ToDictionaryAsync(x => x.GroupId, x => x.Count, cancellationToken);
-        }
-        
         private void CalculateDepthRecursive(GroupResource node, int depth)
         {
             node.Depth = depth;

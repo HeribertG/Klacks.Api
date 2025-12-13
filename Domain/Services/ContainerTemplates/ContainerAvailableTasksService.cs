@@ -1,11 +1,12 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Domain.Services.ContainerTemplates;
 
-public class ContainerAvailableTasksService
+public class ContainerAvailableTasksService : IContainerAvailableTasksService
 {
     private readonly IShiftRepository _shiftRepository;
     private readonly IGroupItemRepository _groupItemRepository;

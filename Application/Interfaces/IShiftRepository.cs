@@ -27,4 +27,8 @@ public interface IShiftRepository : IBaseRepository<Shift>
     Task<Shift?> GetSealedOrder(Guid originalId);
 
     Task<TruncatedShift> GetPaginatedShifts(IQueryable<Shift> filteredQuery, ShiftFilter filter);
+
+    Task<Shift> AddWithSealedOrderHandling(Shift shift);
+
+    Task<Shift?> PutWithSealedOrderHandling(Shift shift);
 }

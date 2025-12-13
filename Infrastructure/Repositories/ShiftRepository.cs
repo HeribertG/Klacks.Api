@@ -1,4 +1,5 @@
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
@@ -21,6 +22,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     private readonly IShiftGroupManagementService _groupManagementService;
     private readonly EntityCollectionUpdateService _collectionUpdateService;
     private readonly IShiftValidator _shiftValidator;
+    private readonly ScheduleMapper _scheduleMapper;
 
     public ShiftRepository(DataBaseContext context, ILogger<Shift> logger,
         IDateRangeFilterService dateRangeFilterService,
@@ -30,7 +32,8 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         IShiftPaginationService paginationService,
         IShiftGroupManagementService groupManagementService,
         EntityCollectionUpdateService collectionUpdateService,
-        IShiftValidator shiftValidator)
+        IShiftValidator shiftValidator,
+        ScheduleMapper scheduleMapper)
         : base(context, logger)
     {
         this.context = context;
@@ -42,6 +45,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         _groupManagementService = groupManagementService;
         _collectionUpdateService = collectionUpdateService;
         _shiftValidator = shiftValidator;
+        _scheduleMapper = scheduleMapper;
     }
 
     public new async Task Add(Shift shift)
@@ -238,5 +242,66 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     public async Task<List<Group>> GetGroupsForShift(Guid shiftId)
     {
         return await _groupManagementService.GetGroupsForShiftAsync(shiftId);
+    }
+
+    public async Task<Shift> AddWithSealedOrderHandling(Shift shift)
+    {
+        await Add(shift);
+
+        if (shift.Status != ShiftStatus.SealedOrder)
+        {
+            return shift;
+        }
+
+        Logger.LogInformation(
+            "Creating OriginalShift from SealedOrder: SealedOrderId={SealedOrderId}",
+            shift.Id);
+
+        await _shiftValidator.EnsureNoOriginalShiftCopyExists(shift.Id, this);
+
+        var originalShift = _scheduleMapper.CloneShift(shift);
+        originalShift.Status = ShiftStatus.OriginalShift;
+        originalShift.OriginalId = shift.Id;
+
+        await Add(originalShift);
+
+        Logger.LogInformation(
+            "Created OriginalShift: NewShiftId={NewShiftId}, OriginalId={OriginalId}, Status={Status}",
+            originalShift.Id, originalShift.OriginalId, originalShift.Status);
+
+        return originalShift;
+    }
+
+    public async Task<Shift?> PutWithSealedOrderHandling(Shift shift)
+    {
+        var updatedShift = await Put(shift);
+
+        if (updatedShift == null)
+        {
+            return null;
+        }
+
+        if (updatedShift.Status != ShiftStatus.SealedOrder)
+        {
+            return updatedShift;
+        }
+
+        Logger.LogInformation(
+            "Creating OriginalShift from SealedOrder after update: SealedOrderId={SealedOrderId}",
+            updatedShift.Id);
+
+        await _shiftValidator.EnsureNoOriginalShiftCopyExists(updatedShift.Id, this);
+
+        var originalShift = _scheduleMapper.CloneShift(updatedShift);
+        originalShift.Status = ShiftStatus.OriginalShift;
+        originalShift.OriginalId = updatedShift.Id;
+
+        await Add(originalShift);
+
+        Logger.LogInformation(
+            "Created OriginalShift: NewShiftId={NewShiftId}, OriginalId={OriginalId}, Status={Status}",
+            originalShift.Id, originalShift.OriginalId, originalShift.Status);
+
+        return originalShift;
     }
 }

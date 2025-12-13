@@ -2,18 +2,12 @@ using System.Text;
 using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
-using Klacks.Api.Domain.Services.Settings;
 using Klacks.Api.Infrastructure.Services;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Klacks.Api.Domain.Services.RouteOptimization;
-
-public interface IRouteOptimizationService
-{
-    Task<DistanceMatrix> CalculateDistanceMatrixAsync(Guid containerId, int weekday, bool isHoliday, ContainerTransportMode transportMode = ContainerTransportMode.ByCar);
-    Task<RouteOptimizationResult> OptimizeRouteAsync(Guid containerId, int weekday, bool isHoliday, string? startBase = null, string? endBase = null, ContainerTransportMode transportMode = ContainerTransportMode.ByCar);
-}
 
 public class RouteOptimizationService : IRouteOptimizationService
 {

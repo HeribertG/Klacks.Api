@@ -1,25 +1,24 @@
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Dashboard;
-using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Presentation.DTOs.Dashboard;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Dashboard;
 
 public class GetClientLocationsQueryHandler : IRequestHandler<GetClientLocationsQuery, IEnumerable<ClientLocationResource>>
 {
-    private readonly DataBaseContext _context;
+    private readonly IClientRepository _clientRepository;
     private readonly IGeocodingService _geocodingService;
     private readonly ILogger<GetClientLocationsQueryHandler> _logger;
 
     public GetClientLocationsQueryHandler(
-        DataBaseContext context,
+        IClientRepository clientRepository,
         IGeocodingService geocodingService,
         ILogger<GetClientLocationsQueryHandler> logger)
     {
-        _context = context;
+        _clientRepository = clientRepository;
         _geocodingService = geocodingService;
         _logger = logger;
     }
@@ -30,11 +29,7 @@ public class GetClientLocationsQueryHandler : IRequestHandler<GetClientLocations
 
         try
         {
-            var clients = await _context.Client
-                .Include(c => c.Addresses)
-                .Where(c => !c.IsDeleted)
-                .AsNoTracking()
-                .ToListAsync(cancellationToken);
+            var clients = await _clientRepository.GetActiveClientsWithAddressesAsync(cancellationToken);
 
             var clientsWithAddresses = clients
                 .Select(client =>

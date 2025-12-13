@@ -7,15 +7,11 @@ public class ShiftScheduleTypeFilterService : IShiftScheduleTypeFilterService
 {
     public IQueryable<ShiftDayAssignment> ApplyTypeFilter(
         IQueryable<ShiftDayAssignment> query,
-        int? shiftType,
         bool? isSporadic,
-        bool? isTimeRange)
+        bool? isTimeRange,
+        bool? container,
+        bool? isStandartShift)
     {
-        if (shiftType.HasValue)
-        {
-            query = query.Where(s => s.ShiftType == shiftType.Value);
-        }
-
         if (isSporadic.HasValue)
         {
             query = query.Where(s => s.IsSporadic == isSporadic.Value);
@@ -25,6 +21,17 @@ public class ShiftScheduleTypeFilterService : IShiftScheduleTypeFilterService
         {
             query = query.Where(s => s.IsTimeRange == isTimeRange.Value);
         }
+
+        // TODO: container und isStandartShift Filter aktivieren wenn SQL-Funktion angepasst
+        // if (container.HasValue)
+        // {
+        //     query = query.Where(s => s.Container == container.Value);
+        // }
+        //
+        // if (isStandartShift.HasValue)
+        // {
+        //     query = query.Where(s => s.IsStandartShift == isStandartShift.Value);
+        // }
 
         return query;
     }

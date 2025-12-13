@@ -100,24 +100,8 @@ builder.Services.AddServerSideBlazor();
 // Add MVC Views
 builder.Services.AddControllersWithViews();
 
-// Add Domain Services
-builder.Services.AddScoped<Klacks.Api.Domain.Interfaces.IPasswordGeneratorService, Klacks.Api.Domain.Services.Accounts.PasswordGeneratorService>();
-builder.Services.AddScoped<Klacks.Api.Domain.Services.ContainerTemplates.ContainerTemplateService>();
-
-// Add Geocoding Service
-builder.Services.AddHttpClient("Nominatim");
-builder.Services.AddMemoryCache();
-builder.Services.AddSingleton<Klacks.Api.Infrastructure.Services.IGeocodingService, Klacks.Api.Infrastructure.Services.GeocodingService>();
-
-// Add Route Optimization Service
-builder.Services.AddScoped<Klacks.Api.Domain.Services.RouteOptimization.IRouteOptimizationService, Klacks.Api.Domain.Services.RouteOptimization.RouteOptimizationService>();
-
-// Add Shift Schedule Service
-builder.Services.AddScoped<Klacks.Api.Domain.Services.ShiftSchedule.IShiftScheduleService, Klacks.Api.Domain.Services.ShiftSchedule.ShiftScheduleService>();
-
 // Add Data Protection for encrypting sensitive settings
 builder.Services.AddDataProtection();
-builder.Services.AddSingleton<Klacks.Api.Domain.Services.Settings.ISettingsEncryptionService, Klacks.Api.Domain.Services.Settings.SettingsEncryptionService>();
 
 builder.Services
     .AddControllers()

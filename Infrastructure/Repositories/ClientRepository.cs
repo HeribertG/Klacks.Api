@@ -245,4 +245,13 @@ public class ClientRepository : IClientRepository
     {
         this.context.Client.Remove(client);
     }
+
+    public async Task<List<Client>> GetActiveClientsWithAddressesAsync(CancellationToken cancellationToken = default)
+    {
+        return await context.Client
+            .Include(c => c.Addresses)
+            .Where(c => !c.IsDeleted)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
 }

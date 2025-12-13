@@ -1,6 +1,6 @@
 using Klacks.Api.Application.Commands.Settings.Settings;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Services.Settings;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Settings.Setting

@@ -24,9 +24,10 @@ public class ShiftScheduleFilterService : IShiftScheduleFilterService
     {
         query = _typeFilterService.ApplyTypeFilter(
             query,
-            filter.ShiftType,
             filter.IsSporadic,
-            filter.IsTimeRange);
+            filter.IsTimeRange,
+            filter.Container,
+            filter.IsStandartShift);
 
         query = _searchService.ApplySearchFilter(query, filter.SearchString);
 

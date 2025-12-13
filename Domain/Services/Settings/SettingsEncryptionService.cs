@@ -1,15 +1,7 @@
+using Klacks.Api.Domain.Interfaces;
 using Microsoft.AspNetCore.DataProtection;
 
 namespace Klacks.Api.Domain.Services.Settings;
-
-public interface ISettingsEncryptionService
-{
-    string Encrypt(string value);
-    string Decrypt(string encryptedValue);
-    bool IsSensitiveSettingType(string type);
-    string ProcessForStorage(string type, string value);
-    string ProcessForReading(string type, string value);
-}
 
 public class SettingsEncryptionService : ISettingsEncryptionService
 {

@@ -5,16 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Domain.Services.ShiftSchedule;
 
-public interface IShiftScheduleService
-{
-    IQueryable<ShiftDayAssignment> GetShiftScheduleQuery(
-        DateOnly startDate,
-        DateOnly endDate,
-        List<DateOnly>? holidayDates = null,
-        Guid? selectedGroupId = null,
-        List<Guid>? visibleGroupIds = null);
-}
-
 public class ShiftScheduleService : IShiftScheduleService
 {
     private readonly DataBaseContext _context;
@@ -62,19 +52,5 @@ public class ShiftScheduleService : IShiftScheduleService
                     {selectedGroupId}::UUID,
                     {visibleGroupArray}::UUID[]
                 )");
-    }
-}
-
-public static class ShiftScheduleServiceExtensions
-{
-    public static IServiceCollection AddShiftScheduleService(this IServiceCollection services)
-    {
-        services.AddScoped<IShiftScheduleService, ShiftScheduleService>();
-        services.AddScoped<IShiftGroupFilterService, ShiftGroupFilterService>();
-        services.AddScoped<IShiftScheduleSearchService, ShiftScheduleSearchService>();
-        services.AddScoped<IShiftScheduleSortingService, ShiftScheduleSortingService>();
-        services.AddScoped<IShiftScheduleTypeFilterService, ShiftScheduleTypeFilterService>();
-        services.AddScoped<IShiftScheduleFilterService, ShiftScheduleFilterService>();
-        return services;
     }
 }

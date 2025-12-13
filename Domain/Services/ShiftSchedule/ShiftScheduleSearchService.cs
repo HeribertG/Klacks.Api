@@ -1,7 +1,6 @@
 using Klacks.Api.Domain.Helpers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
-using System.Linq.Expressions;
 
 namespace Klacks.Api.Domain.Services.ShiftSchedule;
 
@@ -14,59 +13,74 @@ public class ShiftScheduleSearchService : IShiftScheduleSearchService
             return query;
         }
 
-        var keywordList = ParseSearchString(searchString);
-
-        if (keywordList.Length == 1 && keywordList[0].Length == 1)
+        if (searchString.Contains('+'))
         {
-            return ApplyFirstSymbolSearch(query, keywordList[0]);
+            var keywordList = searchString.ToLower().Split('+');
+            return ApplyExactSearch(query, keywordList);
         }
 
-        return ApplyKeywordSearch(query, keywordList);
+        var keywords = ParseSearchString(searchString);
+
+        if (keywords.Length == 1)
+        {
+            if (keywords[0].Length == 1)
+            {
+                return ApplyFirstSymbolSearch(query, keywords[0]);
+            }
+
+            return ApplyExactSearch(query, keywords);
+        }
+
+        return ApplyStandardSearch(query, keywords);
     }
 
-    private IQueryable<ShiftDayAssignment> ApplyKeywordSearch(IQueryable<ShiftDayAssignment> query, string[] keywords)
+    private static IQueryable<ShiftDayAssignment> ApplyExactSearch(IQueryable<ShiftDayAssignment> query, string[] keywords)
     {
-        var normalizedKeywords = NormalizeKeywords(keywords);
-
-        if (normalizedKeywords.Length == 0)
-        {
-            return query;
-        }
-
         var predicate = PredicateBuilder.False<ShiftDayAssignment>();
 
-        foreach (var keyword in normalizedKeywords)
+        foreach (var keyword in keywords.Where(k => !string.IsNullOrWhiteSpace(k)))
         {
-            predicate = predicate.Or(CreateSearchPredicate(keyword));
+            var cleanKeyword = keyword.Trim().ToLower();
+
+            predicate = predicate.Or(s =>
+                (s.ShiftName ?? "").ToLower().Contains(cleanKeyword) ||
+                (s.Abbreviation ?? "").ToLower().Contains(cleanKeyword));
         }
 
         return query.Where(predicate);
     }
 
-    private IQueryable<ShiftDayAssignment> ApplyFirstSymbolSearch(IQueryable<ShiftDayAssignment> query, string symbol)
+    private static IQueryable<ShiftDayAssignment> ApplyStandardSearch(IQueryable<ShiftDayAssignment> query, string[] keywords)
     {
-        var normalizedSymbol = symbol.ToLower();
-        return query.Where(s => (s.ShiftName ?? "").ToLower().StartsWith(normalizedSymbol));
+        var predicate = PredicateBuilder.True<ShiftDayAssignment>();
+
+        foreach (var keyword in keywords.Where(k => !string.IsNullOrWhiteSpace(k)))
+        {
+            var cleanKeyword = keyword.Trim().ToLower();
+
+            var keywordPredicate = PredicateBuilder.False<ShiftDayAssignment>();
+
+            keywordPredicate = keywordPredicate.Or(s =>
+                (s.ShiftName ?? "").ToLower().Contains(cleanKeyword) ||
+                (s.Abbreviation ?? "").ToLower().Contains(cleanKeyword));
+
+            predicate = predicate.And(keywordPredicate);
+        }
+
+        return query.Where(predicate);
+    }
+
+    private static IQueryable<ShiftDayAssignment> ApplyFirstSymbolSearch(IQueryable<ShiftDayAssignment> query, string symbol)
+    {
+        var cleanSymbol = symbol.ToLower();
+        return query.Where(s =>
+            (s.ShiftName ?? "").ToLower().StartsWith(cleanSymbol) ||
+            (s.Abbreviation ?? "").ToLower().StartsWith(cleanSymbol));
     }
 
     private static string[] ParseSearchString(string searchString)
     {
-        return searchString.Trim().ToLower().Split(' ');
-    }
-
-    private static string[] NormalizeKeywords(string[] keywords)
-    {
-        return keywords
-            .Where(k => !string.IsNullOrWhiteSpace(k))
-            .Select(k => k.Trim().ToLower())
-            .Distinct()
-            .ToArray();
-    }
-
-    private static Expression<Func<ShiftDayAssignment, bool>> CreateSearchPredicate(string keyword)
-    {
-        return s =>
-            (s.ShiftName ?? "").ToLower().Contains(keyword) ||
-            (s.Abbreviation ?? "").ToLower().Contains(keyword);
+        return searchString.Trim().ToLower()
+            .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
     }
 }

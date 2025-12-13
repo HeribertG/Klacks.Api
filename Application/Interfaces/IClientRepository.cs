@@ -8,4 +8,5 @@ public interface IClientRepository : IBaseRepository<Client>
 {
     int Count();
     Task<LastChangeMetaData> LastChangeMetaData();
+    Task<List<Client>> GetActiveClientsWithAddressesAsync(CancellationToken cancellationToken = default);
 }

@@ -1,6 +1,6 @@
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries.ContainerTemplates;
-using Klacks.Api.Domain.Services.ContainerTemplates;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -8,11 +8,11 @@ namespace Klacks.Api.Application.Handlers.ContainerTemplates;
 
 public class GetAvailableTasksQueryHandler : IRequestHandler<GetAvailableTasksQuery, List<ShiftResource>>
 {
-    private readonly ContainerAvailableTasksService _availableTasksService;
+    private readonly IContainerAvailableTasksService _availableTasksService;
     private readonly ScheduleMapper _scheduleMapper;
 
     public GetAvailableTasksQueryHandler(
-        ContainerAvailableTasksService availableTasksService,
+        IContainerAvailableTasksService availableTasksService,
         ScheduleMapper scheduleMapper)
     {
         _availableTasksService = availableTasksService;

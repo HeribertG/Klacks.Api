@@ -1,30 +1,32 @@
-using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.Settings.Branch;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Branch;
 
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand>
 {
     private readonly IBranchRepository _branchRepository;
-    private readonly DataBaseContext _context;
+    private readonly IUnitOfWork _unitOfWork;
 
     public DeleteCommandHandler(
         IBranchRepository branchRepository,
-        DataBaseContext context,
+        IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _branchRepository = branchRepository;
-        _context = context;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Unit> Handle(DeleteCommand request, CancellationToken cancellationToken)
     {
-        await _context.Branch.Where(b => b.Id == request.id).ExecuteDeleteAsync(cancellationToken);
+        _logger.LogInformation("Deleting branch with ID: {BranchId}", request.id);
+
+        await _branchRepository.Delete(request.id);
+        await _unitOfWork.CompleteAsync();
+
+        _logger.LogInformation("Branch deleted successfully: {BranchId}", request.id);
         return Unit.Value;
     }
 }
