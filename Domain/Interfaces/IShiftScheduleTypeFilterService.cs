@@ -6,8 +6,8 @@ public interface IShiftScheduleTypeFilterService
 {
     IQueryable<ShiftDayAssignment> ApplyTypeFilter(
         IQueryable<ShiftDayAssignment> query,
-        bool? isSporadic,
-        bool? isTimeRange,
-        bool? container,
-        bool? isStandartShift);
+        bool isSporadic,
+        bool isTimeRange,
+        bool container,
+        bool isStandartShift);
 }

@@ -20,11 +20,11 @@ public class ShiftScheduleFilter
 
     public string? SortOrder { get; set; }
 
-    public bool? IsSporadic { get; set; }
+    public bool IsSporadic { get; set; } = true;
 
-    public bool? IsTimeRange { get; set; }
+    public bool IsTimeRange { get; set; } = true;
 
-    public bool? Container { get; set; }
+    public bool Container { get; set; } = true;
 
-    public bool? IsStandartShift { get; set; }
+    public bool IsStandartShift { get; set; } = true;
 }

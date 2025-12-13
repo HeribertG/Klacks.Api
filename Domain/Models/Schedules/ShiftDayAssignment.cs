@@ -23,4 +23,6 @@ public class ShiftDayAssignment
     public bool IsTimeRange { get; set; }
 
     public int ShiftType { get; set; }
+
+    public int Status { get; set; }
 }

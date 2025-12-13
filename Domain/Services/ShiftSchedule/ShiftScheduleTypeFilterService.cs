@@ -1,3 +1,4 @@
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 
@@ -7,32 +8,22 @@ public class ShiftScheduleTypeFilterService : IShiftScheduleTypeFilterService
 {
     public IQueryable<ShiftDayAssignment> ApplyTypeFilter(
         IQueryable<ShiftDayAssignment> query,
-        bool? isSporadic,
-        bool? isTimeRange,
-        bool? container,
-        bool? isStandartShift)
+        bool isSporadic,
+        bool isTimeRange,
+        bool container,
+        bool isStandartShift)
     {
-        if (isSporadic.HasValue)
+        if (!isSporadic && !isTimeRange && !container && !isStandartShift)
         {
-            query = query.Where(s => s.IsSporadic == isSporadic.Value);
+            return query.Where(s => false);
         }
 
-        if (isTimeRange.HasValue)
-        {
-            query = query.Where(s => s.IsTimeRange == isTimeRange.Value);
-        }
-
-        // TODO: container und isStandartShift Filter aktivieren wenn SQL-Funktion angepasst
-        // if (container.HasValue)
-        // {
-        //     query = query.Where(s => s.Container == container.Value);
-        // }
-        //
-        // if (isStandartShift.HasValue)
-        // {
-        //     query = query.Where(s => s.IsStandartShift == isStandartShift.Value);
-        // }
-
-        return query;
+        return query.Where(s =>
+            (isSporadic && s.IsSporadic) ||
+            (isTimeRange && s.IsTimeRange) ||
+            (container && s.ShiftType == (int)ShiftType.IsContainer) ||
+            (isStandartShift &&
+             s.ShiftType == (int)ShiftType.IsTask &&
+             (s.Status == (int)ShiftStatus.OriginalShift || s.Status == (int)ShiftStatus.SplitShift)));
     }
 }

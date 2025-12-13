@@ -5,7 +5,7 @@
 --   holiday_dates: Array of holidays (DATE[])
 --   selected_group_id: Optional group filter (includes subgroups)
 --   visible_group_ids: Optional array of visible group IDs for non-admin users (includes subgroups)
--- Returns: shift_id, date, day_of_week (ISO: 1=Mon, 7=Sun), shift_name, abbreviation, start_shift, end_shift, work_time, is_sporadic, is_time_range
+-- Returns: shift_id, date, day_of_week (ISO: 1=Mon, 7=Sun), shift_name, abbreviation, start_shift, end_shift, work_time, is_sporadic, is_time_range, shift_type, status
 
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[]);
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[], UUID);
@@ -29,7 +29,8 @@ RETURNS TABLE (
     work_time NUMERIC,
     is_sporadic BOOLEAN,
     is_time_range BOOLEAN,
-    shift_type INTEGER
+    shift_type INTEGER,
+    status INTEGER
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -66,7 +67,8 @@ BEGIN
         s.work_time AS work_time,
         s.is_sporadic AS is_sporadic,
         s.is_time_range AS is_time_range,
-        s.shift_type AS shift_type
+        s.shift_type AS shift_type,
+        s.status AS status
     FROM shift s
     CROSS JOIN generate_series(start_date, end_date, '1 day'::interval) d(schedule_date)
     WHERE
