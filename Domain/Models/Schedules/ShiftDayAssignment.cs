@@ -33,4 +33,6 @@ public class ShiftDayAssignment
     public int Quantity { get; set; }
 
     public int SporadicScope { get; set; }
+
+    public int Engaged { get; set; }
 }

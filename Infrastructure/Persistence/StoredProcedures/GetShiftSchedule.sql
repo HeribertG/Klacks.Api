@@ -34,7 +34,8 @@ RETURNS TABLE (
     is_in_template_container BOOLEAN,
     sum_employees INTEGER,
     quantity INTEGER,
-    sporadic_scope INTEGER
+    sporadic_scope INTEGER,
+    engaged INTEGER
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -95,7 +96,15 @@ BEGIN
         ) AS is_in_template_container,
         s.sum_employees AS sum_employees,
         s.quantity AS quantity,
-        s.sporadic_scope AS sporadic_scope
+        s.sporadic_scope AS sporadic_scope,
+        (
+            SELECT COUNT(*)::INTEGER
+            FROM work w
+            WHERE w.shift_id = s.id
+            AND w.is_deleted = false
+            AND d.schedule_date::DATE >= w."from"::DATE
+            AND d.schedule_date::DATE <= w.until::DATE
+        ) AS engaged
     FROM shift s
     CROSS JOIN generate_series(start_date, end_date, '1 day'::interval) d(schedule_date)
     WHERE
