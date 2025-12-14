@@ -25,4 +25,10 @@ public class ShiftScheduleResource
     public int ShiftType { get; set; }
 
     public bool IsInTemplateContainer { get; set; }
+
+    public int SumEmployees { get; set; }
+
+    public int Quantity { get; set; }
+
+    public int SporadicScope { get; set; }
 }

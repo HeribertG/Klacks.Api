@@ -27,4 +27,10 @@ public class ShiftDayAssignment
     public int Status { get; set; }
 
     public bool IsInTemplateContainer { get; set; }
+
+    public int SumEmployees { get; set; }
+
+    public int Quantity { get; set; }
+
+    public int SporadicScope { get; set; }
 }

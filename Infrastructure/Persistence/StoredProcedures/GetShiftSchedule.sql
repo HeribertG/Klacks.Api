@@ -31,7 +31,10 @@ RETURNS TABLE (
     is_time_range BOOLEAN,
     shift_type INTEGER,
     status INTEGER,
-    is_in_template_container BOOLEAN
+    is_in_template_container BOOLEAN,
+    sum_employees INTEGER,
+    quantity INTEGER,
+    sporadic_scope INTEGER
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -89,7 +92,10 @@ BEGIN
                     OR d.schedule_date::DATE = ANY(holiday_dates)
                 ))
             )
-        ) AS is_in_template_container
+        ) AS is_in_template_container,
+        s.sum_employees AS sum_employees,
+        s.quantity AS quantity,
+        s.sporadic_scope AS sporadic_scope
     FROM shift s
     CROSS JOIN generate_series(start_date, end_date, '1 day'::interval) d(schedule_date)
     WHERE
