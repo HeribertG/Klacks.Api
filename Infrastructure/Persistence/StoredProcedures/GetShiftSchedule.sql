@@ -40,150 +40,138 @@ RETURNS TABLE (
 BEGIN
     RETURN QUERY
     WITH RECURSIVE group_hierarchy AS (
-        -- Case 1: selected_group_id is provided - use it as starting point
         SELECT g.id FROM "group" g WHERE g.id = selected_group_id AND selected_group_id IS NOT NULL
         UNION ALL
-        -- Case 2: visible_group_ids are provided (non-admin user without selection)
         SELECT g.id FROM "group" g WHERE g.id = ANY(visible_group_ids) AND selected_group_id IS NULL AND array_length(visible_group_ids, 1) > 0
         UNION ALL
-        -- Recursive case: all child groups
         SELECT g.id FROM "group" g
         INNER JOIN group_hierarchy gh ON g.parent = gh.id
     ),
-    filtered_shift_ids AS (
+    filtered_shift_ids AS MATERIALIZED (
         SELECT DISTINCT s.id
         FROM shift s
         LEFT JOIN group_item gi ON gi.shift_id = s.id
         WHERE
-            -- Case 1: No filter at all (admin with no selection) - return all shifts
             (selected_group_id IS NULL AND (visible_group_ids IS NULL OR array_length(visible_group_ids, 1) IS NULL))
-            -- Case 2: Filter is active - return shifts with no groups OR shifts in the group hierarchy
-            OR gi.shift_id IS NULL  -- Shift has no groups (always visible)
+            OR gi.shift_id IS NULL
             OR gi.group_id IN (SELECT id FROM group_hierarchy)
-    )
-    SELECT
-        s.id AS shift_id,
-        d.schedule_date::DATE AS date,
-        EXTRACT(isodow FROM d.schedule_date)::INTEGER AS day_of_week,
-        s.name AS shift_name,
-        s.abbreviation AS abbreviation,
-        s.start_shift AS start_shift,
-        s.end_shift AS end_shift,
-        s.work_time AS work_time,
-        s.is_sporadic AS is_sporadic,
-        s.is_time_range AS is_time_range,
-        s.shift_type AS shift_type,
-        s.status AS status,
-        EXISTS (
-            SELECT 1 FROM container_template_item cti
-            JOIN container_template ct ON ct.id = cti.container_template_id
-            JOIN shift container ON container.id = ct.container_id
-            WHERE cti.shift_id = s.id
-            AND container.is_deleted = false
-            AND container.from_date <= d.schedule_date::DATE
-            AND (container.until_date IS NULL OR container.until_date >= d.schedule_date::DATE)
+    ),
+    holidays AS MATERIALIZED (
+        SELECT unnest(holiday_dates) AS holiday_date
+    ),
+    date_series AS MATERIALIZED (
+        SELECT
+            d::DATE AS schedule_date,
+            EXTRACT(isodow FROM d)::INTEGER AS dow,
+            EXISTS (SELECT 1 FROM holidays h WHERE h.holiday_date = d::DATE) AS is_holiday
+        FROM generate_series(start_date, end_date, '1 day'::interval) d
+    ),
+    valid_shifts AS MATERIALIZED (
+        SELECT s.*
+        FROM shift s
+        WHERE s.id IN (SELECT id FROM filtered_shift_ids)
+        AND s.is_deleted = false
+        AND s.from_date <= end_date
+        AND (s.until_date IS NULL OR s.until_date >= start_date)
+    ),
+    shift_dates AS (
+        SELECT
+            s.id AS shift_id,
+            d.schedule_date,
+            d.dow,
+            d.is_holiday,
+            s.name AS shift_name,
+            s.abbreviation,
+            s.start_shift,
+            s.end_shift,
+            s.work_time,
+            s.is_sporadic,
+            s.is_time_range,
+            s.shift_type,
+            s.status,
+            s.sum_employees,
+            s.quantity,
+            s.sporadic_scope
+        FROM valid_shifts s
+        CROSS JOIN date_series d
+        WHERE
+            s.from_date <= d.schedule_date
+            AND (s.until_date IS NULL OR s.until_date >= d.schedule_date)
             AND (
-                (ct.weekday = EXTRACT(isodow FROM d.schedule_date)::INTEGER
-                 AND ct.is_holiday = false
-                 AND d.schedule_date::DATE != ALL(holiday_dates))
-                OR (ct.is_holiday = true AND d.schedule_date::DATE = ANY(holiday_dates))
-                OR (ct.is_weekday_and_holiday = true AND (
-                    (EXTRACT(isodow FROM d.schedule_date) BETWEEN 1 AND 5
-                     AND d.schedule_date::DATE != ALL(holiday_dates))
-                    OR d.schedule_date::DATE = ANY(holiday_dates)
+                (NOT d.is_holiday AND s.cutting_after_midnight = false AND (
+                    (d.dow = 1 AND s.is_monday) OR
+                    (d.dow = 2 AND s.is_tuesday) OR
+                    (d.dow = 3 AND s.is_wednesday) OR
+                    (d.dow = 4 AND s.is_thursday) OR
+                    (d.dow = 5 AND s.is_friday) OR
+                    (d.dow = 6 AND s.is_saturday) OR
+                    (d.dow = 7 AND s.is_sunday)
+                ))
+                OR (NOT d.is_holiday AND s.cutting_after_midnight = true AND (
+                    (d.dow = 1 AND s.is_sunday) OR
+                    (d.dow = 2 AND s.is_monday) OR
+                    (d.dow = 3 AND s.is_tuesday) OR
+                    (d.dow = 4 AND s.is_wednesday) OR
+                    (d.dow = 5 AND s.is_thursday) OR
+                    (d.dow = 6 AND s.is_friday) OR
+                    (d.dow = 7 AND s.is_saturday)
+                ))
+                OR (s.is_holiday AND d.is_holiday)
+                OR (s.is_weekday_and_holiday AND (
+                    (d.dow BETWEEN 1 AND 5 AND NOT d.is_holiday) OR d.is_holiday
                 ))
             )
-        ) AS is_in_template_container,
-        s.sum_employees AS sum_employees,
-        s.quantity AS quantity,
-        s.sporadic_scope AS sporadic_scope,
-        (
-            SELECT COUNT(*)::INTEGER
-            FROM work w
-            WHERE w.shift_id = s.id
-            AND w.is_deleted = false
-            AND d.schedule_date::DATE >= w."from"::DATE
-            AND d.schedule_date::DATE <= w.until::DATE
-        ) AS engaged
-    FROM shift s
-    CROSS JOIN generate_series(start_date, end_date, '1 day'::interval) d(schedule_date)
-    WHERE
-        -- Group filter
-        s.id IN (SELECT id FROM filtered_shift_ids)
-        AND
-        -- Shift must be within validity period
-        s.from_date <= d.schedule_date::DATE
-        AND (s.until_date IS NULL OR s.until_date >= d.schedule_date::DATE)
-        -- Shift must not be deleted
-        AND s.is_deleted = false
+    ),
+    container_lookup AS MATERIALIZED (
+        SELECT DISTINCT
+            cti.shift_id,
+            d.schedule_date
+        FROM container_template_item cti
+        JOIN container_template ct ON ct.id = cti.container_template_id
+        JOIN shift container ON container.id = ct.container_id
+        CROSS JOIN date_series d
+        WHERE container.is_deleted = false
+        AND container.from_date <= d.schedule_date
+        AND (container.until_date IS NULL OR container.until_date >= d.schedule_date)
         AND (
-            -- =====================================================
-            -- REGULAR WEEKDAYS (only when NOT a holiday)
-            -- =====================================================
-            (
-                d.schedule_date::DATE != ALL(holiday_dates)
-                AND s.cutting_after_midnight = false
-                AND (
-                    (EXTRACT(isodow FROM d.schedule_date) = 1 AND s.is_monday = true) OR
-                    (EXTRACT(isodow FROM d.schedule_date) = 2 AND s.is_tuesday = true) OR
-                    (EXTRACT(isodow FROM d.schedule_date) = 3 AND s.is_wednesday = true) OR
-                    (EXTRACT(isodow FROM d.schedule_date) = 4 AND s.is_thursday = true) OR
-                    (EXTRACT(isodow FROM d.schedule_date) = 5 AND s.is_friday = true) OR
-                    (EXTRACT(isodow FROM d.schedule_date) = 6 AND s.is_saturday = true) OR
-                    (EXTRACT(isodow FROM d.schedule_date) = 7 AND s.is_sunday = true)
-                )
-            )
-            OR
-            -- =====================================================
-            -- CUTTING AFTER MIDNIGHT (shift starts on previous day)
-            -- Only when NOT a holiday
-            -- =====================================================
-            (
-                d.schedule_date::DATE != ALL(holiday_dates)
-                AND s.cutting_after_midnight = true
-                AND (
-                    -- Monday shows shifts that start on Sunday
-                    (EXTRACT(isodow FROM d.schedule_date) = 1 AND s.is_sunday = true) OR
-                    -- Tuesday shows shifts that start on Monday
-                    (EXTRACT(isodow FROM d.schedule_date) = 2 AND s.is_monday = true) OR
-                    -- Wednesday shows shifts that start on Tuesday
-                    (EXTRACT(isodow FROM d.schedule_date) = 3 AND s.is_tuesday = true) OR
-                    -- Thursday shows shifts that start on Wednesday
-                    (EXTRACT(isodow FROM d.schedule_date) = 4 AND s.is_wednesday = true) OR
-                    -- Friday shows shifts that start on Thursday
-                    (EXTRACT(isodow FROM d.schedule_date) = 5 AND s.is_thursday = true) OR
-                    -- Saturday shows shifts that start on Friday
-                    (EXTRACT(isodow FROM d.schedule_date) = 6 AND s.is_friday = true) OR
-                    -- Sunday shows shifts that start on Saturday
-                    (EXTRACT(isodow FROM d.schedule_date) = 7 AND s.is_saturday = true)
-                )
-            )
-            OR
-            -- =====================================================
-            -- IS_HOLIDAY: Show ONLY on actual holidays
-            -- =====================================================
-            (
-                s.is_holiday = true
-                AND d.schedule_date::DATE = ANY(holiday_dates)
-            )
-            OR
-            -- =====================================================
-            -- IS_WEEKDAY_AND_HOLIDAY: On weekdays (Mon-Fri) AND on holidays
-            -- =====================================================
-            (
-                s.is_weekday_and_holiday = true
-                AND (
-                    -- Weekdays Mon-Fri (and not a holiday)
-                    (
-                        EXTRACT(isodow FROM d.schedule_date) BETWEEN 1 AND 5
-                        AND d.schedule_date::DATE != ALL(holiday_dates)
-                    )
-                    OR
-                    -- Or on holidays
-                    d.schedule_date::DATE = ANY(holiday_dates)
-                )
-            )
+            (ct.weekday = d.dow AND ct.is_holiday = false AND NOT d.is_holiday)
+            OR (ct.is_holiday = true AND d.is_holiday)
+            OR (ct.is_weekday_and_holiday = true AND (
+                (d.dow BETWEEN 1 AND 5 AND NOT d.is_holiday) OR d.is_holiday
+            ))
         )
-    ORDER BY d.schedule_date, s.name;
+    ),
+    work_counts AS MATERIALIZED (
+        SELECT
+            w.shift_id,
+            d.schedule_date,
+            COUNT(*)::INTEGER AS engaged_count
+        FROM work w
+        JOIN date_series d ON d.schedule_date >= w."from"::DATE AND d.schedule_date <= w.until::DATE
+        WHERE w.is_deleted = false
+        GROUP BY w.shift_id, d.schedule_date
+    )
+    SELECT
+        sd.shift_id,
+        sd.schedule_date AS date,
+        sd.dow AS day_of_week,
+        sd.shift_name,
+        sd.abbreviation,
+        sd.start_shift,
+        sd.end_shift,
+        sd.work_time,
+        sd.is_sporadic,
+        sd.is_time_range,
+        sd.shift_type,
+        sd.status,
+        (cl.shift_id IS NOT NULL) AS is_in_template_container,
+        sd.sum_employees,
+        sd.quantity,
+        sd.sporadic_scope,
+        COALESCE(wc.engaged_count, 0) AS engaged
+    FROM shift_dates sd
+    LEFT JOIN container_lookup cl ON cl.shift_id = sd.shift_id AND cl.schedule_date = sd.schedule_date
+    LEFT JOIN work_counts wc ON wc.shift_id = sd.shift_id AND wc.schedule_date = sd.schedule_date
+    ORDER BY sd.schedule_date, sd.shift_name;
 END;
 $$ LANGUAGE plpgsql;
