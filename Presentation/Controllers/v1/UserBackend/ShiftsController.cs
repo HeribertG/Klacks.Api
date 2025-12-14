@@ -55,7 +55,7 @@ public class ShiftsController : InputBaseController<ShiftResource>
     }
 
     [HttpPost("Schedule")]
-    public async Task<ActionResult<List<ShiftScheduleResource>>> GetShiftSchedule([FromBody] ShiftScheduleFilter filter)
+    public async Task<ActionResult<ShiftScheduleResponse>> GetShiftSchedule([FromBody] ShiftScheduleFilter filter)
     {
         var result = await Mediator.Send(new GetShiftScheduleQuery(filter));
         return Ok(result);

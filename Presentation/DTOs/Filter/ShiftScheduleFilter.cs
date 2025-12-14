@@ -27,4 +27,8 @@ public class ShiftScheduleFilter
     public bool Container { get; set; } = true;
 
     public bool IsStandartShift { get; set; } = true;
+
+    public int StartRow { get; set; } = 0;
+
+    public int RowCount { get; set; } = 100;
 }

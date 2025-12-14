@@ -30,7 +30,8 @@ RETURNS TABLE (
     is_sporadic BOOLEAN,
     is_time_range BOOLEAN,
     shift_type INTEGER,
-    status INTEGER
+    status INTEGER,
+    is_in_template_container BOOLEAN
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -68,7 +69,27 @@ BEGIN
         s.is_sporadic AS is_sporadic,
         s.is_time_range AS is_time_range,
         s.shift_type AS shift_type,
-        s.status AS status
+        s.status AS status,
+        EXISTS (
+            SELECT 1 FROM container_template_item cti
+            JOIN container_template ct ON ct.id = cti.container_template_id
+            JOIN shift container ON container.id = ct.container_id
+            WHERE cti.shift_id = s.id
+            AND container.is_deleted = false
+            AND container.from_date <= d.schedule_date::DATE
+            AND (container.until_date IS NULL OR container.until_date >= d.schedule_date::DATE)
+            AND (
+                (ct.weekday = EXTRACT(isodow FROM d.schedule_date)::INTEGER
+                 AND ct.is_holiday = false
+                 AND d.schedule_date::DATE != ALL(holiday_dates))
+                OR (ct.is_holiday = true AND d.schedule_date::DATE = ANY(holiday_dates))
+                OR (ct.is_weekday_and_holiday = true AND (
+                    (EXTRACT(isodow FROM d.schedule_date) BETWEEN 1 AND 5
+                     AND d.schedule_date::DATE != ALL(holiday_dates))
+                    OR d.schedule_date::DATE = ANY(holiday_dates)
+                ))
+            )
+        ) AS is_in_template_container
     FROM shift s
     CROSS JOIN generate_series(start_date, end_date, '1 day'::interval) d(schedule_date)
     WHERE

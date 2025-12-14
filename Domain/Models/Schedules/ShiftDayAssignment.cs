@@ -25,4 +25,6 @@ public class ShiftDayAssignment
     public int ShiftType { get; set; }
 
     public int Status { get; set; }
+
+    public bool IsInTemplateContainer { get; set; }
 }

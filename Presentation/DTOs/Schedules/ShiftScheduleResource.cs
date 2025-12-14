@@ -23,4 +23,6 @@ public class ShiftScheduleResource
     public bool IsTimeRange { get; set; }
 
     public int ShiftType { get; set; }
+
+    public bool IsInTemplateContainer { get; set; }
 }

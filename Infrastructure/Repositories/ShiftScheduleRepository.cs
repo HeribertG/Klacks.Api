@@ -26,7 +26,7 @@ public class ShiftScheduleRepository : IShiftScheduleRepository
         _logger = logger;
     }
 
-    public async Task<List<ShiftDayAssignment>> GetShiftScheduleAsync(
+    public async Task<(List<ShiftDayAssignment> Shifts, int TotalCount)> GetShiftScheduleAsync(
         ShiftScheduleFilter filter,
         CancellationToken cancellationToken)
     {
@@ -64,10 +64,30 @@ public class ShiftScheduleRepository : IShiftScheduleRepository
 
         query = _shiftScheduleFilterService.ApplyAllFilters(query, filter);
 
-        var result = await query.ToListAsync(cancellationToken);
+        var uniqueShiftIds = await query
+            .GroupBy(s => s.ShiftId)
+            .Select(g => new { ShiftId = g.Key, ShiftName = g.First().ShiftName })
+            .OrderBy(x => x.ShiftName)
+            .Select(x => x.ShiftId)
+            .ToListAsync(cancellationToken);
 
-        _logger.LogInformation("Retrieved {Count} shift schedule entries", result.Count);
+        var totalCount = uniqueShiftIds.Count;
 
-        return result;
+        var paginatedShiftIds = uniqueShiftIds
+            .Skip(filter.StartRow)
+            .Take(filter.RowCount)
+            .ToHashSet();
+
+        var result = await query
+            .Where(s => paginatedShiftIds.Contains(s.ShiftId))
+            .ToListAsync(cancellationToken);
+
+        _logger.LogInformation(
+            "Retrieved {Count} shift schedule entries for {ShiftCount} of {TotalCount} shifts",
+            result.Count,
+            paginatedShiftIds.Count,
+            totalCount);
+
+        return (result, totalCount);
     }
 }

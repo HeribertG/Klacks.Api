@@ -5,7 +5,7 @@ namespace Klacks.Api.Application.Interfaces;
 
 public interface IShiftScheduleRepository
 {
-    Task<List<ShiftDayAssignment>> GetShiftScheduleAsync(
+    Task<(List<ShiftDayAssignment> Shifts, int TotalCount)> GetShiftScheduleAsync(
         ShiftScheduleFilter filter,
         CancellationToken cancellationToken);
 }

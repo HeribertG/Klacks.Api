@@ -6,7 +6,7 @@ using Klacks.Api.Presentation.DTOs.Schedules;
 
 namespace Klacks.Api.Application.Handlers.Shifts;
 
-public class GetShiftScheduleQueryHandler : IRequestHandler<GetShiftScheduleQuery, List<ShiftScheduleResource>>
+public class GetShiftScheduleQueryHandler : IRequestHandler<GetShiftScheduleQuery, ShiftScheduleResponse>
 {
     private readonly IShiftScheduleRepository _shiftScheduleRepository;
     private readonly ScheduleMapper _scheduleMapper;
@@ -22,7 +22,7 @@ public class GetShiftScheduleQueryHandler : IRequestHandler<GetShiftScheduleQuer
         _logger = logger;
     }
 
-    public async Task<List<ShiftScheduleResource>> Handle(
+    public async Task<ShiftScheduleResponse> Handle(
         GetShiftScheduleQuery request,
         CancellationToken cancellationToken)
     {
@@ -31,14 +31,18 @@ public class GetShiftScheduleQueryHandler : IRequestHandler<GetShiftScheduleQuer
             request.Filter.CurrentMonth,
             request.Filter.CurrentYear);
 
-        var shiftDayAssignments = await _shiftScheduleRepository.GetShiftScheduleAsync(
+        var (shiftDayAssignments, totalCount) = await _shiftScheduleRepository.GetShiftScheduleAsync(
             request.Filter,
             cancellationToken);
 
-        var result = _scheduleMapper.ToShiftScheduleResourceList(shiftDayAssignments);
+        var shifts = _scheduleMapper.ToShiftScheduleResourceList(shiftDayAssignments);
 
-        _logger.LogInformation("Returned {Count} shift schedule resources", result.Count);
+        _logger.LogInformation("Returned {Count} of {Total} shift schedule resources", shifts.Count, totalCount);
 
-        return result;
+        return new ShiftScheduleResponse
+        {
+            Shifts = shifts,
+            TotalCount = totalCount
+        };
     }
 }

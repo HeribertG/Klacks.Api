@@ -1,8 +1,6 @@
 using Klacks.Api.Domain.Helpers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
-using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace Klacks.Api.Domain.Services.Shifts;
 
@@ -15,35 +13,78 @@ public class ShiftSearchService : IShiftSearchService
             return query;
         }
 
-        var keywordList = ParseSearchString(searchString);
-
-        if (keywordList.Length == 1 && keywordList[0].Length == 1)
+        if (searchString.Contains('+'))
         {
-            return ApplyFirstSymbolSearch(query, keywordList[0]);
+            var keywordList = searchString.ToLower().Split('+');
+            return ApplyExactSearch(query, keywordList, includeClient);
         }
 
-        return ApplyKeywordSearch(query, keywordList, includeClient);
+        var keywords = ParseSearchString(searchString);
+
+        if (keywords.Length == 1)
+        {
+            if (keywords[0].Length == 1)
+            {
+                return ApplyFirstSymbolSearch(query, keywords[0]);
+            }
+
+            return ApplyExactSearch(query, keywords, includeClient);
+        }
+
+        return ApplyStandardSearch(query, keywords, includeClient);
     }
 
-    public IQueryable<Shift> ApplyKeywordSearch(IQueryable<Shift> query, string[] keywords, bool includeClient)
+    public IQueryable<Shift> ApplyExactSearch(IQueryable<Shift> query, string[] keywords, bool includeClient)
     {
-        var normalizedKeywords = NormalizeKeywords(keywords);
-
-        if (normalizedKeywords.Length == 0)
-        {
-            return query;
-        }
-
         var predicate = PredicateBuilder.False<Shift>();
 
-        foreach (var keyword in normalizedKeywords)
+        foreach (var keyword in keywords.Where(k => !string.IsNullOrWhiteSpace(k)))
         {
-            predicate = predicate.Or(CreateShiftSearchPredicate(keyword));
+            var cleanKeyword = keyword.Trim().ToLower();
+
+            predicate = predicate.Or(s =>
+                (s.Name ?? "").ToLower().Contains(cleanKeyword) ||
+                (s.Abbreviation ?? "").ToLower().Contains(cleanKeyword));
 
             if (includeClient)
             {
-                predicate = predicate.Or(CreateClientSearchPredicate(keyword));
+                predicate = predicate.Or(s => s.Client != null && (
+                    (s.Client.FirstName ?? "").ToLower().Contains(cleanKeyword) ||
+                    (s.Client.SecondName ?? "").ToLower().Contains(cleanKeyword) ||
+                    (s.Client.Name ?? "").ToLower().Contains(cleanKeyword) ||
+                    (s.Client.MaidenName ?? "").ToLower().Contains(cleanKeyword) ||
+                    (s.Client.Company ?? "").ToLower().Contains(cleanKeyword)));
             }
+        }
+
+        return query.Where(predicate);
+    }
+
+    public IQueryable<Shift> ApplyStandardSearch(IQueryable<Shift> query, string[] keywords, bool includeClient)
+    {
+        var predicate = PredicateBuilder.True<Shift>();
+
+        foreach (var keyword in keywords.Where(k => !string.IsNullOrWhiteSpace(k)))
+        {
+            var cleanKeyword = keyword.Trim().ToLower();
+
+            var keywordPredicate = PredicateBuilder.False<Shift>();
+
+            keywordPredicate = keywordPredicate.Or(s =>
+                (s.Name ?? "").ToLower().Contains(cleanKeyword) ||
+                (s.Abbreviation ?? "").ToLower().Contains(cleanKeyword));
+
+            if (includeClient)
+            {
+                keywordPredicate = keywordPredicate.Or(s => s.Client != null && (
+                    (s.Client.FirstName ?? "").ToLower().Contains(cleanKeyword) ||
+                    (s.Client.SecondName ?? "").ToLower().Contains(cleanKeyword) ||
+                    (s.Client.Name ?? "").ToLower().Contains(cleanKeyword) ||
+                    (s.Client.MaidenName ?? "").ToLower().Contains(cleanKeyword) ||
+                    (s.Client.Company ?? "").ToLower().Contains(cleanKeyword)));
+            }
+
+            predicate = predicate.And(keywordPredicate);
         }
 
         return query.Where(predicate);
@@ -51,39 +92,15 @@ public class ShiftSearchService : IShiftSearchService
 
     public IQueryable<Shift> ApplyFirstSymbolSearch(IQueryable<Shift> query, string symbol)
     {
-        var normalizedSymbol = symbol.ToLower();
-        return query.Where(shift => (shift.Name ?? "").ToLower().StartsWith(normalizedSymbol));
+        var cleanSymbol = symbol.ToLower();
+        return query.Where(s =>
+            (s.Name ?? "").ToLower().StartsWith(cleanSymbol) ||
+            (s.Abbreviation ?? "").ToLower().StartsWith(cleanSymbol));
     }
 
-    private string[] ParseSearchString(string searchString)
+    private static string[] ParseSearchString(string searchString)
     {
-        return searchString.TrimEnd().TrimStart().ToLower().Split(' ');
-    }
-
-    private string[] NormalizeKeywords(string[] keywords)
-    {
-        return keywords
-            .Where(k => !string.IsNullOrWhiteSpace(k))
-            .Select(k => k.Trim().ToLower())
-            .Distinct()
-            .ToArray();
-    }
-
-    private static Expression<Func<Shift, bool>> CreateShiftSearchPredicate(string keyword)
-    {
-        return shift =>
-            (shift.Name ?? "").ToLower().Contains(keyword) ||
-            (shift.Abbreviation ?? "").ToLower().Contains(keyword);
-    }
-
-    private static Expression<Func<Shift, bool>> CreateClientSearchPredicate(string keyword)
-    {
-        return shift => shift.Client != null && (
-            (shift.Client.FirstName ?? "").ToLower().Contains(keyword) ||
-            (shift.Client.SecondName ?? "").ToLower().Contains(keyword) ||
-            (shift.Client.Name ?? "").ToLower().Contains(keyword) ||
-            (shift.Client.MaidenName ?? "").ToLower().Contains(keyword) ||
-            (shift.Client.Company ?? "").ToLower().Contains(keyword)
-        );
+        return searchString.Trim().ToLower()
+            .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
     }
 }
