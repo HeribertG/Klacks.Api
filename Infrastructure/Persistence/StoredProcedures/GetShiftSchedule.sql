@@ -6,6 +6,7 @@
 --   selected_group_id: Optional group filter (includes subgroups)
 --   visible_group_ids: Optional array of visible group IDs for non-admin users (includes subgroups)
 -- Returns: shift_id, date, day_of_week (ISO: 1=Mon, 7=Sun), shift_name, abbreviation, start_shift, end_shift, work_time, is_sporadic, is_time_range, shift_type, status
+-- Note: Only returns shifts with status >= 2 (OriginalShift or SplitShift)
 
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[]);
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[], UUID);
@@ -71,6 +72,7 @@ BEGIN
         FROM shift s
         WHERE s.id IN (SELECT id FROM filtered_shift_ids)
         AND s.is_deleted = false
+        AND s.status >= 2  -- Only OriginalShift (2) or SplitShift (3)
         AND s.from_date <= end_date
         AND (s.until_date IS NULL OR s.until_date >= start_date)
     ),
