@@ -69,16 +69,16 @@ namespace Klacks.Api.Data.Seed
             // VERDOPPELT: 5 → 10, Root Groups zugewiesen
             var simpleShifts = new[]
             {
-                new { Name = "Frühschicht", Abbr = "FS", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1, CuttingAfterMidnight = false },
-                new { Name = "Spätschicht", Abbr = "SS", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2, CuttingAfterMidnight = false },
-                new { Name = "Nachtschicht", Abbr = "NS", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1, CuttingAfterMidnight = true },
-                new { Name = "Tagdienst", Abbr = "TAG", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1, CuttingAfterMidnight = false },
-                new { Name = "Bereitschaft", Abbr = "BD", Start = "00:00:00", End = "00:00:00", WorkTime = 24, Employees = 1, CuttingAfterMidnight = false },
-                new { Name = "Frühschicht", Abbr = "FS", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1, CuttingAfterMidnight = false },
-                new { Name = "Spätschicht", Abbr = "SS", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2, CuttingAfterMidnight = false },
-                new { Name = "Nachtschicht", Abbr = "NS", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1, CuttingAfterMidnight = true },
-                new { Name = "Tagdienst", Abbr = "TAG", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1, CuttingAfterMidnight = false },
-                new { Name = "Bereitschaft", Abbr = "BD", Start = "00:00:00", End = "00:00:00", WorkTime = 24, Employees = 1, CuttingAfterMidnight = false }
+                new { Name = "Frühschicht", Abbr = "FS", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1 },
+                new { Name = "Spätschicht", Abbr = "SS", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2 },
+                new { Name = "Nachtschicht", Abbr = "NS", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1 },
+                new { Name = "Tagdienst", Abbr = "TAG", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1 },
+                new { Name = "Bereitschaft", Abbr = "BD", Start = "00:00:00", End = "00:00:00", WorkTime = 24, Employees = 1 },
+                new { Name = "Frühschicht", Abbr = "FS", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1 },
+                new { Name = "Spätschicht", Abbr = "SS", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2 },
+                new { Name = "Nachtschicht", Abbr = "NS", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1 },
+                new { Name = "Tagdienst", Abbr = "TAG", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1 },
+                new { Name = "Bereitschaft", Abbr = "BD", Start = "00:00:00", End = "00:00:00", WorkTime = 24, Employees = 1 }
             };
 
             script.AppendLine("\n-- 1. Simple Shifts (Workflow: OriginalOrder → SealedOrder → OriginalShift) - VERDOPPELT mit Root Groups");
@@ -102,7 +102,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', {(shift.CuttingAfterMidnight ? "true" : "false")}, '{shift.Name} mit {shift.Employees} Mitarbeiter(n)', '00000000-0000-0000-0000-000000000000', '{uniqueName}', NULL, NULL, 0,
+                    '{orderId}', false, '{shift.Name} mit {shift.Employees} Mitarbeiter(n)', '00000000-0000-0000-0000-000000000000', '{uniqueName}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '{shift.End}', '{baseDate:yyyy-MM-dd}', '{shift.Start}', NULL,
                     true, false, true, false, false, true, true, true,
                     false, false, false, 1, '00:00:00', '00:00:00',
@@ -136,7 +136,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', {(shift.CuttingAfterMidnight ? "true" : "false")}, '{shift.Name} mit {shift.Employees} Mitarbeiter(n)', '00000000-0000-0000-0000-000000000000', '{uniqueName}', NULL, NULL, 2,
+                    '{originalShiftId}', false, '{shift.Name} mit {shift.Employees} Mitarbeiter(n)', '00000000-0000-0000-0000-000000000000', '{uniqueName}', NULL, NULL, 2,
                     '00:00:00', '00:00:00', '{shift.End}', '{baseDate:yyyy-MM-dd}', '{shift.Start}', NULL,
                     true, false, true, false, false, true, true, true,
                     false, false, false, 1, '00:00:00', '00:00:00',
@@ -319,7 +319,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', true, 'Nachtdienst Mo-Fr - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightMF}', NULL, NULL, 0,
+                    '{orderId}', false, 'Nachtdienst Mo-Fr - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightMF}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     true, false, true, false, false, true, true, false,
                     true, false, false, 1, '00:00:00', '00:00:00',
@@ -353,7 +353,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', true, 'Nachtdienst Mo-Fr - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightMF}', NULL, NULL, 2,
+                    '{originalShiftId}', false, 'Nachtdienst Mo-Fr - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightMF}', NULL, NULL, 2,
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     true, false, true, false, false, true, true, false,
                     true, false, false, 1, '00:00:00', '00:00:00',
@@ -390,7 +390,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', true, 'Nachtdienst Sa-So - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightSS}', NULL, NULL, 0,
+                    '{orderId}', false, 'Nachtdienst Sa-So - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightSS}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     false, false, false, true, true, false, false, false,
                     false, false, false, 1, '00:00:00', '00:00:00',
@@ -424,7 +424,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', true, 'Nachtdienst Sa-So - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightSS}', NULL, NULL, 2,
+                    '{originalShiftId}', false, 'Nachtdienst Sa-So - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightSS}', NULL, NULL, 2,
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     false, false, false, true, true, false, false, false,
                     false, false, false, 1, '00:00:00', '00:00:00',
@@ -466,7 +466,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{orderId}', true, '24-Stunden Schichtdienst - {employees} Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueName24h}', NULL, NULL, 0,
+    '{orderId}', false, '24-Stunden Schichtdienst - {employees} Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueName24h}', NULL, NULL, 0,
     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '07:00:00', NULL,
     true, true, true, true, true, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -551,6 +551,7 @@ INSERT INTO public.shift (
 
                 script.AppendLine($@"
 -- SplitShift 3 (Status = 3) - Nachtschicht 23:00-07:00 - Eigenständig, KEIN Parent!
+-- CuttingAfterMidnight = false weil StartShift (23:00) VOR Mitternacht liegt
 INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
@@ -560,7 +561,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{split3Id}', true, 'Nachtschicht - {employees} Mitarbeiter', '00000000-0000-0000-0000-000000000000', '{uniqueNameNacht}', NULL, '{orderId}', 3,
+    '{split3Id}', false, 'Nachtschicht - {employees} Mitarbeiter', '00000000-0000-0000-0000-000000000000', '{uniqueNameNacht}', NULL, '{orderId}', 3,
     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
     true, true, true, true, true, true, true, true,
     false, true, false, 1, '00:00:00', '00:00:00',
@@ -571,6 +572,113 @@ INSERT INTO public.shift (
 );");
 
                 TrackShiftGroups(split3Id, workflowGroups);
+            }
+
+            // 7. Create 10 Nachtschichten mit ECHTEN nach-Mitternacht-Teilungen
+            // Beispiel: Shift 22:00-06:00 geteilt bei 02:00
+            // Teil 1: 22:00-02:00 → CuttingAfterMidnight = false (StartShift VOR Mitternacht)
+            // Teil 2: 02:00-06:00 → CuttingAfterMidnight = true (StartShift NACH Mitternacht)
+            script.AppendLine("\n-- 7. Nachtschichten mit ECHTEN nach-Mitternacht-Teilungen");
+            script.AppendLine("-- WICHTIG: CuttingAfterMidnight = true NUR wenn StartShift NACH Mitternacht liegt!");
+            for (int i = 1; i <= 10; i++)
+            {
+                var orderId = Guid.NewGuid();
+                var uniqueNameNightCut = GetUniqueName("Nachtschicht-Teilung", i);
+                var uniqueAbbrNightCut = GetUniqueAbbreviation("NCT", i);
+                var workflowGroups = GetRandomRootGroups(random.Next(1, 2));
+
+                // Step 1: Create OriginalOrder (Status = 0) - Nachtschicht 22:00-06:00
+                script.AppendLine($@"
+-- OriginalOrder (Status = 0) - Nachtschicht 22:00-06:00
+INSERT INTO public.shift (
+    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+) VALUES (
+    '{orderId}', false, 'Nachtschicht 22:00-06:00 mit Teilung bei 02:00', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightCut}', NULL, NULL, 0,
+    '00:00:00', '00:00:00', '06:00:00', '{baseDate:yyyy-MM-dd}', '22:00:00', NULL,
+    true, false, true, false, false, true, true, true,
+    false, false, false, 1, '00:00:00', '00:00:00',
+    8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
+    NULL, false, '{currentTime.AddMinutes(30):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbrNightCut}', '00:00:00',
+    (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
+    '00:00:00', 1, 0, NULL, NULL
+);");
+
+                shiftIds.Add(orderId);
+                TrackShiftGroups(orderId, workflowGroups);
+
+                // Step 2: Update to SealedOrder (Status 0 → 1)
+                script.AppendLine($@"
+-- Update to SealedOrder (Status = 1)
+UPDATE public.shift
+SET status = 1,
+    update_time = '{currentTime.AddMinutes(31):yyyy-MM-dd HH:mm:ss.ffffff}',
+    current_user_updated = '{user}'
+WHERE id = '{orderId}';");
+
+                // Step 3: Create 2 SplitShifts - Teilung bei 02:00 (NACH Mitternacht!)
+                var split1Id = Guid.NewGuid();
+                var uniqueNamePre = GetUniqueName("Vor-Mitternacht-Teil", i);
+                var uniqueAbbrPre = GetUniqueAbbreviation("VM", i);
+
+                script.AppendLine($@"
+-- SplitShift 1 (Status = 3) - VOR Mitternacht: 22:00-02:00
+-- CuttingAfterMidnight = false weil StartShift (22:00) VOR Mitternacht liegt
+INSERT INTO public.shift (
+    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+) VALUES (
+    '{split1Id}', false, 'Teil VOR Mitternacht (22:00-02:00)', '00000000-0000-0000-0000-000000000000', '{uniqueNamePre}', NULL, '{orderId}', 3,
+    '00:00:00', '00:00:00', '02:00:00', '{baseDate:yyyy-MM-dd}', '22:00:00', NULL,
+    true, false, true, false, false, true, true, true,
+    false, false, false, 1, '00:00:00', '00:00:00',
+    4, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, NULL,
+    NULL, false, NULL, '{orderId}', '{uniqueAbbrPre}', '00:00:00',
+    (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
+    '00:00:00', 1, 0, 1, 2
+);");
+
+                shiftIds.Add(split1Id);
+                TrackShiftGroups(split1Id, workflowGroups);
+
+                var split2Id = Guid.NewGuid();
+                var uniqueNamePost = GetUniqueName("Nach-Mitternacht-Teil", i);
+                var uniqueAbbrPost = GetUniqueAbbreviation("NM", i);
+
+                script.AppendLine($@"
+-- SplitShift 2 (Status = 3) - NACH Mitternacht: 02:00-06:00
+-- CuttingAfterMidnight = TRUE weil StartShift (02:00) NACH Mitternacht liegt!
+INSERT INTO public.shift (
+    id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
+    after_shift, before_shift, end_shift, from_date, start_shift, until_date,
+    is_friday, is_holiday, is_monday, is_saturday, is_sunday, is_thursday, is_tuesday, is_wednesday,
+    is_weekday_and_holiday, is_sporadic, is_time_range, quantity, travel_time_after, travel_time_before,
+    work_time, shift_type, create_time, current_user_created, current_user_deleted, current_user_updated,
+    deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
+    debriefing_time, sum_employees, sporadic_scope, lft, rgt
+) VALUES (
+    '{split2Id}', true, 'Teil NACH Mitternacht (02:00-06:00)', '00000000-0000-0000-0000-000000000000', '{uniqueNamePost}', NULL, '{orderId}', 3,
+    '00:00:00', '00:00:00', '06:00:00', '{baseDate:yyyy-MM-dd}', '02:00:00', NULL,
+    true, false, true, false, false, true, true, true,
+    false, false, false, 1, '00:00:00', '00:00:00',
+    4, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, NULL,
+    NULL, false, NULL, '{orderId}', '{uniqueAbbrPost}', '00:00:00',
+    (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
+    '00:00:00', 1, 0, 1, 2
+);");
+
+                shiftIds.Add(split2Id);
+                TrackShiftGroups(split2Id, workflowGroups);
             }
 
             return (script.ToString(), shiftIds);
@@ -633,10 +741,9 @@ INSERT INTO public.shift (
                 var containerId = Guid.NewGuid();
                 var assignedGroups = GetRandomRootGroups(random.Next(1, 4));
 
-                var cuttingAfterMidnight = (container.Start == "22:00:00" || container.Start == "23:00:00");
-
                 script.AppendLine($@"
 -- Container: {container.Name}
+-- CuttingAfterMidnight = false weil Container keine SplitShifts sind
 INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
@@ -646,7 +753,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{containerId}', {(cuttingAfterMidnight ? "true" : "false")}, 'Container für {container.Name}', '00000000-0000-0000-0000-000000000000', '{container.Name}', NULL, NULL, 2,
+    '{containerId}', false, 'Container für {container.Name}', '00000000-0000-0000-0000-000000000000', '{container.Name}', NULL, NULL, 2,
     '00:00:00', '00:00:00', '{container.End}', '{baseDate:yyyy-MM-dd}', '{container.Start}', NULL,
     {(container.Fri ? "true" : "false")}, false, {(container.Mon ? "true" : "false")}, {(container.Sat ? "true" : "false")}, {(container.Sun ? "true" : "false")}, {(container.Thu ? "true" : "false")}, {(container.Tue ? "true" : "false")}, {(container.Wed ? "true" : "false")},
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -714,9 +821,9 @@ INSERT INTO public.shift (
 
             var containerTypes = new[]
             {
-                new { Name = "Tag", Start = "06:00:00", End = "18:00:00", CuttingAfterMidnight = false },
-                new { Name = "Abend", Start = "14:00:00", End = "22:00:00", CuttingAfterMidnight = false },
-                new { Name = "Nacht", Start = "22:00:00", End = "06:00:00", CuttingAfterMidnight = true }
+                new { Name = "Tag", Start = "06:00:00", End = "18:00:00" },
+                new { Name = "Abend", Start = "14:00:00", End = "22:00:00" },
+                new { Name = "Nacht", Start = "22:00:00", End = "06:00:00" }
             };
 
             var containersPerGroupPerType = 20;
@@ -736,6 +843,7 @@ INSERT INTO public.shift (
 
                         script.AppendLine($@"
 -- Container #{globalCounter}: {name} ({containerType.Start}-{containerType.End})
+-- CuttingAfterMidnight = false weil Container keine SplitShifts sind
 INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
@@ -745,7 +853,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{containerId}', {(containerType.CuttingAfterMidnight ? "true" : "false")}, 'Container {containerType.Name} für {rootGroup}',
+    '{containerId}', false, 'Container {containerType.Name} für {rootGroup}',
     '00000000-0000-0000-0000-000000000000', '{name}', NULL, NULL, 2,
     '00:00:00', '00:00:00', '{containerType.End}', '{baseDate:yyyy-MM-dd}', '{containerType.Start}', NULL,
     true, false, true, false, false, true, true, true,
@@ -806,22 +914,18 @@ INSERT INTO public.shift (
                     // 50% der Shifts gehen über Mitternacht
                     bool crossesMidnight = random.Next(100) < 50;
                     int startHour, endHour;
-                    bool cuttingAfterMidnight;
 
                     if (crossesMidnight)
                     {
                         // Mitternachtsüberschreitung: Start zwischen 18:00 und 23:00
                         startHour = random.Next(18, 24);
                         endHour = (startHour + timeRangeHours) % 24;
-                        // Wenn endHour kleiner als startHour ist, dann geht es über Mitternacht
-                        cuttingAfterMidnight = endHour < startHour;
                     }
                     else
                     {
                         // Normale Shifts: Start zwischen 06:00 und (19 - timeRangeHours)
                         startHour = random.Next(6, Math.Max(7, 19 - timeRangeHours));
                         endHour = startHour + timeRangeHours;
-                        cuttingAfterMidnight = false;
                     }
 
                     var shiftNumber = (groupIndex * shiftsPerGroup) + i;
@@ -829,8 +933,9 @@ INSERT INTO public.shift (
                     var abbr = $"TR{shiftNumber}";
 
                     script.AppendLine($@"
--- TimeRange Shift #{shiftNumber} (WorkTime: {workTimeMinutes} min = {workTimeDecimal} h, Range: {timeRangeHours}h, {(cuttingAfterMidnight ? "Mitternacht!" : "Tagsüber")})
+-- TimeRange Shift #{shiftNumber} (WorkTime: {workTimeMinutes} min = {workTimeDecimal} h, Range: {timeRangeHours}h, {(crossesMidnight ? "Mitternacht!" : "Tagsüber")})
 -- Step 1: Create OriginalOrder (Status = 0) with random Customer client
+-- CuttingAfterMidnight = false weil OriginalOrder kein SplitShift ist
 INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
@@ -840,7 +945,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{orderId}', {(cuttingAfterMidnight ? "true" : "false")}, 'TimeRange Shift {workTimeMinutes} Minuten Arbeitszeit in {timeRangeHours}h Zeitfenster{(cuttingAfterMidnight ? " (über Mitternacht)" : "")}',
+    '{orderId}', false, 'TimeRange Shift {workTimeMinutes} Minuten Arbeitszeit in {timeRangeHours}h Zeitfenster{(crossesMidnight ? " (über Mitternacht)" : "")}',
     '00000000-0000-0000-0000-000000000000', '{name}', NULL, NULL, 0,
     '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
     true, false, true, false, false, true, true, true,
@@ -864,6 +969,7 @@ WHERE id = '{orderId}';");
 
                     script.AppendLine($@"
 -- Step 3: Create OriginalShift (Status = 2) - 1:1 Kopie mit GLEICHEN Groups und client_id!
+-- CuttingAfterMidnight = false weil OriginalShift kein SplitShift ist
 INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
@@ -873,7 +979,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{originalShiftId}', {(cuttingAfterMidnight ? "true" : "false")}, 'TimeRange Shift {workTimeMinutes} Minuten Arbeitszeit in {timeRangeHours}h Zeitfenster{(cuttingAfterMidnight ? " (über Mitternacht)" : "")}',
+    '{originalShiftId}', false, 'TimeRange Shift {workTimeMinutes} Minuten Arbeitszeit in {timeRangeHours}h Zeitfenster{(crossesMidnight ? " (über Mitternacht)" : "")}',
     '00000000-0000-0000-0000-000000000000', '{name}', NULL, NULL, 2,
     '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
     true, false, true, false, false, true, true, true,
