@@ -550,8 +550,8 @@ INSERT INTO public.shift (
                 var uniqueAbbrNacht = GetUniqueAbbreviation("N", i);
 
                 script.AppendLine($@"
--- SplitShift 3 (Status = 3) - Nachtschicht 23:00-07:00 - Eigenständig, KEIN Parent!
--- CuttingAfterMidnight = false weil StartShift (23:00) VOR Mitternacht liegt
+-- SplitShift 3 (Status = 3) - Night shift 23:00-07:00 - Independent, NO Parent!
+-- CuttingAfterMidnight = false because StartShift (23:00) is BEFORE midnight
 INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
@@ -574,12 +574,12 @@ INSERT INTO public.shift (
                 TrackShiftGroups(split3Id, workflowGroups);
             }
 
-            // 7. Create 10 Nachtschichten mit ECHTEN nach-Mitternacht-Teilungen
-            // Beispiel: Shift 22:00-06:00 geteilt bei 02:00
-            // Teil 1: 22:00-02:00 → CuttingAfterMidnight = false (StartShift VOR Mitternacht)
-            // Teil 2: 02:00-06:00 → CuttingAfterMidnight = true (StartShift NACH Mitternacht)
-            script.AppendLine("\n-- 7. Nachtschichten mit ECHTEN nach-Mitternacht-Teilungen");
-            script.AppendLine("-- WICHTIG: CuttingAfterMidnight = true NUR wenn StartShift NACH Mitternacht liegt!");
+            // 7. Create 10 night shifts with REAL after-midnight splits
+            // Example: Shift 22:00-06:00 split at 02:00
+            // Part 1: 22:00-02:00 → CuttingAfterMidnight = false (StartShift BEFORE midnight)
+            // Part 2: 02:00-06:00 → CuttingAfterMidnight = true (StartShift AFTER midnight)
+            script.AppendLine("\n-- 7. Night shifts with REAL after-midnight splits");
+            script.AppendLine("-- IMPORTANT: CuttingAfterMidnight = true ONLY when StartShift is AFTER midnight!");
             for (int i = 1; i <= 10; i++)
             {
                 var orderId = Guid.NewGuid();
@@ -621,14 +621,14 @@ SET status = 1,
     current_user_updated = '{user}'
 WHERE id = '{orderId}';");
 
-                // Step 3: Create 2 SplitShifts - Teilung bei 02:00 (NACH Mitternacht!)
+                // Step 3: Create 2 SplitShifts - Split at 02:00 (AFTER midnight!)
                 var split1Id = Guid.NewGuid();
                 var uniqueNamePre = GetUniqueName("Vor-Mitternacht-Teil", i);
                 var uniqueAbbrPre = GetUniqueAbbreviation("VM", i);
 
                 script.AppendLine($@"
--- SplitShift 1 (Status = 3) - VOR Mitternacht: 22:00-02:00
--- CuttingAfterMidnight = false weil StartShift (22:00) VOR Mitternacht liegt
+-- SplitShift 1 (Status = 3) - BEFORE midnight: 22:00-02:00
+-- CuttingAfterMidnight = false because StartShift (22:00) is BEFORE midnight
 INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
@@ -654,10 +654,12 @@ INSERT INTO public.shift (
                 var split2Id = Guid.NewGuid();
                 var uniqueNamePost = GetUniqueName("Nach-Mitternacht-Teil", i);
                 var uniqueAbbrPost = GetUniqueAbbreviation("NM", i);
+                var nextDay = baseDate.AddDays(1);
 
                 script.AppendLine($@"
--- SplitShift 2 (Status = 3) - NACH Mitternacht: 02:00-06:00
--- CuttingAfterMidnight = TRUE weil StartShift (02:00) NACH Mitternacht liegt!
+-- SplitShift 2 (Status = 3) - AFTER midnight: 02:00-06:00
+-- CuttingAfterMidnight = TRUE because StartShift (02:00) is AFTER midnight!
+-- IMPORTANT: from_date is +1 day because this part occurs on the next calendar day!
 INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
@@ -668,7 +670,7 @@ INSERT INTO public.shift (
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
     '{split2Id}', true, 'Teil NACH Mitternacht (02:00-06:00)', '00000000-0000-0000-0000-000000000000', '{uniqueNamePost}', NULL, '{orderId}', 3,
-    '00:00:00', '00:00:00', '06:00:00', '{baseDate:yyyy-MM-dd}', '02:00:00', NULL,
+    '00:00:00', '00:00:00', '06:00:00', '{nextDay:yyyy-MM-dd}', '02:00:00', NULL,
     true, false, true, false, false, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
     4, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, NULL,
@@ -743,7 +745,7 @@ INSERT INTO public.shift (
 
                 script.AppendLine($@"
 -- Container: {container.Name}
--- CuttingAfterMidnight = false weil Container keine SplitShifts sind
+-- CuttingAfterMidnight = false because Containers are not SplitShifts
 INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
@@ -843,7 +845,7 @@ INSERT INTO public.shift (
 
                         script.AppendLine($@"
 -- Container #{globalCounter}: {name} ({containerType.Start}-{containerType.End})
--- CuttingAfterMidnight = false weil Container keine SplitShifts sind
+-- CuttingAfterMidnight = false because Containers are not SplitShifts
 INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
@@ -933,9 +935,9 @@ INSERT INTO public.shift (
                     var abbr = $"TR{shiftNumber}";
 
                     script.AppendLine($@"
--- TimeRange Shift #{shiftNumber} (WorkTime: {workTimeMinutes} min = {workTimeDecimal} h, Range: {timeRangeHours}h, {(crossesMidnight ? "Mitternacht!" : "Tagsüber")})
+-- TimeRange Shift #{shiftNumber} (WorkTime: {workTimeMinutes} min = {workTimeDecimal} h, Range: {timeRangeHours}h, {(crossesMidnight ? "crosses midnight" : "daytime")})
 -- Step 1: Create OriginalOrder (Status = 0) with random Customer client
--- CuttingAfterMidnight = false weil OriginalOrder kein SplitShift ist
+-- CuttingAfterMidnight = false because OriginalOrder is not a SplitShift
 INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
@@ -968,8 +970,8 @@ SET status = 1,
 WHERE id = '{orderId}';");
 
                     script.AppendLine($@"
--- Step 3: Create OriginalShift (Status = 2) - 1:1 Kopie mit GLEICHEN Groups und client_id!
--- CuttingAfterMidnight = false weil OriginalShift kein SplitShift ist
+-- Step 3: Create OriginalShift (Status = 2) - 1:1 copy with SAME Groups and client_id!
+-- CuttingAfterMidnight = false because OriginalShift is not a SplitShift
 INSERT INTO public.shift (
     id, cutting_after_midnight, description, macro_id, name, parent_id, root_id, status,
     after_shift, before_shift, end_shift, from_date, start_shift, until_date,
