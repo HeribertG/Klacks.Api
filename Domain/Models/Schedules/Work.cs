@@ -23,4 +23,6 @@ public class Work : BaseEntity
     public Guid ShiftId { get; set; }
 
     public DateTime Until { get; set; }
+
+    public decimal WorkTime { get; set; }
 }

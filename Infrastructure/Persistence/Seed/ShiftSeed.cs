@@ -69,16 +69,16 @@ namespace Klacks.Api.Data.Seed
             // VERDOPPELT: 5 → 10, Root Groups zugewiesen
             var simpleShifts = new[]
             {
-                new { Name = "Frühschicht", Abbr = "FS", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1 },
-                new { Name = "Spätschicht", Abbr = "SS", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2 },
-                new { Name = "Nachtschicht", Abbr = "NS", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1 },
-                new { Name = "Tagdienst", Abbr = "TAG", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1 },
-                new { Name = "Bereitschaft", Abbr = "BD", Start = "00:00:00", End = "00:00:00", WorkTime = 24, Employees = 1 },
-                new { Name = "Frühschicht", Abbr = "FS", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1 },
-                new { Name = "Spätschicht", Abbr = "SS", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2 },
-                new { Name = "Nachtschicht", Abbr = "NS", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1 },
-                new { Name = "Tagdienst", Abbr = "TAG", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1 },
-                new { Name = "Bereitschaft", Abbr = "BD", Start = "00:00:00", End = "00:00:00", WorkTime = 24, Employees = 1 }
+                new { Name = "Frühschicht", Abbr = "FS", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
+                new { Name = "Spätschicht", Abbr = "SS", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2, IsTimeRange = false },
+                new { Name = "Nachtschicht", Abbr = "NS", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
+                new { Name = "Tagdienst", Abbr = "TAG", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
+                new { Name = "Bereitschaft", Abbr = "BD", Start = "00:00:00", End = "00:00:00", WorkTime = 8, Employees = 1, IsTimeRange = true },
+                new { Name = "Frühschicht", Abbr = "FS", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
+                new { Name = "Spätschicht", Abbr = "SS", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2, IsTimeRange = false },
+                new { Name = "Nachtschicht", Abbr = "NS", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
+                new { Name = "Tagdienst", Abbr = "TAG", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
+                new { Name = "Bereitschaft", Abbr = "BD", Start = "00:00:00", End = "00:00:00", WorkTime = 8, Employees = 1, IsTimeRange = true }
             };
 
             script.AppendLine("\n-- 1. Simple Shifts (Workflow: OriginalOrder → SealedOrder → OriginalShift) - VERDOPPELT mit Root Groups");
@@ -105,7 +105,7 @@ INSERT INTO public.shift (
                     '{orderId}', false, '{shift.Name} mit {shift.Employees} Mitarbeiter(n)', '00000000-0000-0000-0000-000000000000', '{uniqueName}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '{shift.End}', '{baseDate:yyyy-MM-dd}', '{shift.Start}', NULL,
                     true, false, true, false, false, true, true, true,
-                    false, false, false, 1, '00:00:00', '00:00:00',
+                    false, false, {(shift.IsTimeRange ? "true" : "false")}, 1, '00:00:00', '00:00:00',
                     {shift.WorkTime}, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
                     NULL, false, '{currentTime.AddMinutes(5):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbr}', '00:00:00',
                     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
@@ -139,7 +139,7 @@ INSERT INTO public.shift (
                     '{originalShiftId}', false, '{shift.Name} mit {shift.Employees} Mitarbeiter(n)', '00000000-0000-0000-0000-000000000000', '{uniqueName}', NULL, NULL, 2,
                     '00:00:00', '00:00:00', '{shift.End}', '{baseDate:yyyy-MM-dd}', '{shift.Start}', NULL,
                     true, false, true, false, false, true, true, true,
-                    false, false, false, 1, '00:00:00', '00:00:00',
+                    false, false, {(shift.IsTimeRange ? "true" : "false")}, 1, '00:00:00', '00:00:00',
                     {shift.WorkTime}, 0, '{currentTime.AddMinutes(7):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
                     NULL, false, '{currentTime.AddMinutes(8):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbr}', '00:00:00',
                     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
@@ -716,26 +716,26 @@ INSERT INTO public.shift (
 
             var containers = new[]
             {
-                new { Name = "Morgen Mo-Fr", Abbr = "MO-MF", Start = "06:00:00", End = "14:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
-                new { Name = "Morgen Sa-So", Abbr = "MO-SS", Start = "06:00:00", End = "14:00:00", Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
-                new { Name = "Mittag Mo-Fr", Abbr = "MI-MF", Start = "10:00:00", End = "18:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
-                new { Name = "Mittag Sa-So", Abbr = "MI-SS", Start = "10:00:00", End = "18:00:00", Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
-                new { Name = "Abend Mo-Fr", Abbr = "AB-MF", Start = "14:00:00", End = "22:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
-                new { Name = "Abend Sa-So", Abbr = "AB-SS", Start = "14:00:00", End = "22:00:00", Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
-                new { Name = "Nacht Mo-Fr", Abbr = "NA-MF", Start = "22:00:00", End = "06:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
-                new { Name = "Nacht Sa-So", Abbr = "NA-SS", Start = "22:00:00", End = "06:00:00", Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
-                new { Name = "Ganztag Mo-Fr", Abbr = "GZ-MF", Start = "00:00:00", End = "00:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
-                new { Name = "Ganztag Sa-So", Abbr = "GZ-SS", Start = "00:00:00", End = "00:00:00", Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
-                new { Name = "Früh Mo-Fr", Abbr = "FR-MF", Start = "07:00:00", End = "15:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
-                new { Name = "Früh Sa-So", Abbr = "FR-SS", Start = "07:00:00", End = "15:00:00", Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
-                new { Name = "Spät Mo-Fr", Abbr = "SP-MF", Start = "15:00:00", End = "23:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
-                new { Name = "Spät Sa-So", Abbr = "SP-SS", Start = "15:00:00", End = "23:00:00", Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
-                new { Name = "Vormittag täglich", Abbr = "VM-TG", Start = "08:00:00", End = "12:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = true, Sun = true },
-                new { Name = "Nachmittag täglich", Abbr = "NM-TG", Start = "12:00:00", End = "17:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = true, Sun = true },
-                new { Name = "Bürozeiten Mo-Fr", Abbr = "BZ-MF", Start = "08:00:00", End = "17:00:00", Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
-                new { Name = "Wochenende", Abbr = "WE", Start = "00:00:00", End = "00:00:00", Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
-                new { Name = "Montag-Mittwoch", Abbr = "MO-MI", Start = "08:00:00", End = "16:00:00", Mon = true, Tue = true, Wed = true, Thu = false, Fri = false, Sat = false, Sun = false },
-                new { Name = "Donnerstag-Freitag", Abbr = "DO-FR", Start = "08:00:00", End = "16:00:00", Mon = false, Tue = false, Wed = false, Thu = true, Fri = true, Sat = false, Sun = false }
+                new { Name = "Morgen Mo-Fr", Abbr = "MO-MF", Start = "06:00:00", End = "14:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "Morgen Sa-So", Abbr = "MO-SS", Start = "06:00:00", End = "14:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "Mittag Mo-Fr", Abbr = "MI-MF", Start = "10:00:00", End = "18:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "Mittag Sa-So", Abbr = "MI-SS", Start = "10:00:00", End = "18:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "Abend Mo-Fr", Abbr = "AB-MF", Start = "14:00:00", End = "22:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "Abend Sa-So", Abbr = "AB-SS", Start = "14:00:00", End = "22:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "Nacht Mo-Fr", Abbr = "NA-MF", Start = "22:00:00", End = "06:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "Nacht Sa-So", Abbr = "NA-SS", Start = "22:00:00", End = "06:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "Ganztag Mo-Fr", Abbr = "GZ-MF", Start = "06:00:00", End = "22:00:00", WorkTime = 16, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "Ganztag Sa-So", Abbr = "GZ-SS", Start = "06:00:00", End = "22:00:00", WorkTime = 16, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "Früh Mo-Fr", Abbr = "FR-MF", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "Früh Sa-So", Abbr = "FR-SS", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "Spät Mo-Fr", Abbr = "SP-MF", Start = "15:00:00", End = "23:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "Spät Sa-So", Abbr = "SP-SS", Start = "15:00:00", End = "23:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "Vormittag täglich", Abbr = "VM-TG", Start = "08:00:00", End = "12:00:00", WorkTime = 4, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = true, Sun = true },
+                new { Name = "Nachmittag täglich", Abbr = "NM-TG", Start = "12:00:00", End = "17:00:00", WorkTime = 5, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = true, Sun = true },
+                new { Name = "Bürozeiten Mo-Fr", Abbr = "BZ-MF", Start = "08:00:00", End = "17:00:00", WorkTime = 9, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "Wochenende", Abbr = "WE", Start = "06:00:00", End = "22:00:00", WorkTime = 16, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "Montag-Mittwoch", Abbr = "MO-MI", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = false, Fri = false, Sat = false, Sun = false },
+                new { Name = "Donnerstag-Freitag", Abbr = "DO-FR", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = true, Fri = true, Sat = false, Sun = false }
             };
 
             foreach (var container in containers)
@@ -759,7 +759,7 @@ INSERT INTO public.shift (
     '00:00:00', '00:00:00', '{container.End}', '{baseDate:yyyy-MM-dd}', '{container.Start}', NULL,
     {(container.Fri ? "true" : "false")}, false, {(container.Mon ? "true" : "false")}, {(container.Sat ? "true" : "false")}, {(container.Sun ? "true" : "false")}, {(container.Thu ? "true" : "false")}, {(container.Tue ? "true" : "false")}, {(container.Wed ? "true" : "false")},
     false, false, false, 1, '00:00:00', '00:00:00',
-    8, 1, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
+    {container.WorkTime}, 1, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
     NULL, false, '{currentTime.AddMinutes(1):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{container.Abbr}', '00:00:00',
     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
     '00:00:00', 1, 0, NULL, NULL

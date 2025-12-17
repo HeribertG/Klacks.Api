@@ -414,7 +414,20 @@ namespace Klacks.Api.Migrations
                     shift_id = table.Column<Guid>(type: "uuid", nullable: false),
                     date = table.Column<DateOnly>(type: "date", nullable: false),
                     day_of_week = table.Column<int>(type: "integer", nullable: false),
-                    shift_name = table.Column<string>(type: "text", nullable: false)
+                    shift_name = table.Column<string>(type: "text", nullable: false),
+                    abbreviation = table.Column<string>(type: "text", nullable: false),
+                    start_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    end_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    work_time = table.Column<decimal>(type: "numeric", nullable: false),
+                    is_sporadic = table.Column<bool>(type: "boolean", nullable: false),
+                    is_time_range = table.Column<bool>(type: "boolean", nullable: false),
+                    shift_type = table.Column<int>(type: "integer", nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false),
+                    is_in_template_container = table.Column<bool>(type: "boolean", nullable: false),
+                    sum_employees = table.Column<int>(type: "integer", nullable: false),
+                    quantity = table.Column<int>(type: "integer", nullable: false),
+                    sporadic_scope = table.Column<int>(type: "integer", nullable: false),
+                    engaged = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -887,7 +900,7 @@ namespace Klacks.Api.Migrations
                     is_thursday = table.Column<bool>(type: "boolean", nullable: false),
                     is_tuesday = table.Column<bool>(type: "boolean", nullable: false),
                     is_wednesday = table.Column<bool>(type: "boolean", nullable: false),
-                    is_weekday_or_holiday = table.Column<bool>(type: "boolean", nullable: false),
+                    is_weekday_and_holiday = table.Column<bool>(type: "boolean", nullable: false),
                     is_sporadic = table.Column<bool>(type: "boolean", nullable: false),
                     sporadic_scope = table.Column<int>(type: "integer", nullable: false),
                     is_time_range = table.Column<bool>(type: "boolean", nullable: false),
@@ -1096,7 +1109,7 @@ namespace Klacks.Api.Migrations
                     from_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     until_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     weekday = table.Column<int>(type: "integer", nullable: false),
-                    is_weekday_or_holiday = table.Column<bool>(type: "boolean", nullable: false),
+                    is_weekday_and_holiday = table.Column<bool>(type: "boolean", nullable: false),
                     is_holiday = table.Column<bool>(type: "boolean", nullable: false),
                     start_base = table.Column<string>(type: "text", nullable: true),
                     end_base = table.Column<string>(type: "text", nullable: true),
@@ -1445,9 +1458,9 @@ namespace Klacks.Api.Migrations
                 column: "container_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_container_template_id_container_id_weekday_is_weekday_or_ho",
+                name: "ix_container_template_id_container_id_weekday_is_weekday_and_h",
                 table: "container_template",
-                columns: new[] { "id", "container_id", "weekday", "is_weekday_or_holiday", "is_holiday" });
+                columns: new[] { "id", "container_id", "weekday", "is_weekday_and_holiday", "is_holiday" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_container_template_item_container_template_id",

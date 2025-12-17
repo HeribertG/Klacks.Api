@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20251209171429_RenameIsWeekdayOrHolidayToIsWeekdayAndHoliday")]
-    partial class RenameIsWeekdayOrHolidayToIsWeekdayAndHoliday
+    [Migration("20251216195410_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1706,6 +1706,14 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("time without time zone")
                         .HasColumnName("end_shift");
 
+                    b.Property<int>("Engaged")
+                        .HasColumnType("integer")
+                        .HasColumnName("engaged");
+
+                    b.Property<bool>("IsInTemplateContainer")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_in_template_container");
+
                     b.Property<bool>("IsSporadic")
                         .HasColumnType("boolean")
                         .HasColumnName("is_sporadic");
@@ -1713,6 +1721,10 @@ namespace Klacks.Api.Migrations
                     b.Property<bool>("IsTimeRange")
                         .HasColumnType("boolean")
                         .HasColumnName("is_time_range");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("quantity");
 
                     b.Property<Guid>("ShiftId")
                         .HasColumnType("uuid")
@@ -1727,9 +1739,21 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("shift_type");
 
+                    b.Property<int>("SporadicScope")
+                        .HasColumnType("integer")
+                        .HasColumnName("sporadic_scope");
+
                     b.Property<TimeOnly>("StartShift")
                         .HasColumnType("time without time zone")
                         .HasColumnName("start_shift");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<int>("SumEmployees")
+                        .HasColumnType("integer")
+                        .HasColumnName("sum_employees");
 
                     b.Property<decimal>("WorkTime")
                         .HasColumnType("numeric")

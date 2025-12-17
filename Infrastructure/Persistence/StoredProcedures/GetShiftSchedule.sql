@@ -100,7 +100,7 @@ BEGIN
             s.from_date <= d.schedule_date
             AND (s.until_date IS NULL OR s.until_date >= d.schedule_date)
             AND (
-                (NOT d.is_holiday AND s.cutting_after_midnight = false AND (
+                (NOT d.is_holiday AND (
                     (d.dow = 1 AND s.is_monday) OR
                     (d.dow = 2 AND s.is_tuesday) OR
                     (d.dow = 3 AND s.is_wednesday) OR
@@ -108,15 +108,6 @@ BEGIN
                     (d.dow = 5 AND s.is_friday) OR
                     (d.dow = 6 AND s.is_saturday) OR
                     (d.dow = 7 AND s.is_sunday)
-                ))
-                OR (NOT d.is_holiday AND s.cutting_after_midnight = true AND (
-                    (d.dow = 1 AND s.is_sunday) OR
-                    (d.dow = 2 AND s.is_monday) OR
-                    (d.dow = 3 AND s.is_tuesday) OR
-                    (d.dow = 4 AND s.is_wednesday) OR
-                    (d.dow = 5 AND s.is_thursday) OR
-                    (d.dow = 6 AND s.is_friday) OR
-                    (d.dow = 7 AND s.is_saturday)
                 ))
                 OR (s.is_holiday AND d.is_holiday)
                 OR (s.is_weekday_and_holiday AND (
