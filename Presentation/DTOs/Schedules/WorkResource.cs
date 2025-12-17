@@ -9,7 +9,7 @@ public class WorkResource
 
     public Guid ClientId { get; set; }
 
-    public DateTime From { get; set; }
+    public DateTime CurrentDate { get; set; }
 
     public Guid Id { get; set; }
 
@@ -20,6 +20,4 @@ public class WorkResource
     public ShiftResource? Shift { get; set; }
 
     public Guid ShiftId { get; set; }
-
-    public DateTime Until { get; set; }
 }

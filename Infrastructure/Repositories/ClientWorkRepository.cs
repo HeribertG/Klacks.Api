@@ -47,9 +47,7 @@ public class ClientWorkRepository : IClientWorkRepository
         var endDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, DateTime.DaysInMonth(filter.CurrentYear, filter.CurrentMonth))
             .AddDays(filter.DayVisibleAfterMonth);
 
-        query = query.Include(c => c.Works.Where(w => (w.From >= startDate && w.From <= endDate) ||
-                                                     (w.Until >= startDate && w.Until <= endDate) ||
-                                                     (w.From <= startDate && w.Until >= endDate)));
+        query = query.Include(c => c.Works.Where(w => w.CurrentDate >= startDate && w.CurrentDate <= endDate));
 
         query = await _groupFilterService.FilterClientsByGroupId(filter.SelectedGroup, query);
 

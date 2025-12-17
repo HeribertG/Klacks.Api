@@ -35,10 +35,8 @@ public class ClientWorkFilterService : IClientWorkFilterService
 
         // Get works for these clients
         var works = context.Work.Where(b => clientIds.Contains(b.ClientId) &&
-                                      ((b.From.Date >= startDate && b.From.Date <= endDate) ||
-                                      (b.Until.Date >= startDate && b.Until.Date <= endDate) ||
-                                      (b.From.Date <= startDate && b.Until.Date >= endDate)))
-                                .OrderBy(b => b.From).ThenBy(b => b.Until)
+                                      b.CurrentDate.Date >= startDate && b.CurrentDate.Date <= endDate)
+                                .OrderBy(b => b.CurrentDate)
                                 .ToList();
 
         var worksByClientId = works.ToLookup(w => w.ClientId);

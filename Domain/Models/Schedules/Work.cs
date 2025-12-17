@@ -11,7 +11,7 @@ public class Work : BaseEntity
 
     public Guid ClientId { get; set; }
 
-    public DateTime From { get; set; }
+    public DateTime CurrentDate { get; set; }
 
     public string? Information { get; set; }
 
@@ -21,8 +21,6 @@ public class Work : BaseEntity
     public virtual Shift? Shift { get; set; } = null!;
 
     public Guid ShiftId { get; set; }
-
-    public DateTime Until { get; set; }
 
     public decimal WorkTime { get; set; }
 }
