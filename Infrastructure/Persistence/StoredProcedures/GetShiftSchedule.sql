@@ -3,20 +3,19 @@
 --   start_date: Start of the period
 --   end_date: End of the period
 --   holiday_dates: Array of holidays (DATE[])
---   selected_group_id: Optional group filter (includes subgroups)
---   visible_group_ids: Optional array of visible group IDs for non-admin users (includes subgroups)
+--   visible_group_ids: Optional array of visible group IDs (includes subgroups)
 -- Returns: shift_id, date, day_of_week (ISO: 1=Mon, 7=Sun), shift_name, abbreviation, start_shift, end_shift, work_time, is_sporadic, is_time_range, shift_type, status
 -- Note: Only returns shifts with status >= 2 (OriginalShift or SplitShift)
 
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[]);
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[], UUID);
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[], UUID, UUID[]);
+DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[], UUID[]);
 
 CREATE OR REPLACE FUNCTION get_shift_schedule(
     start_date DATE,
     end_date DATE,
     holiday_dates DATE[] DEFAULT ARRAY[]::DATE[],
-    selected_group_id UUID DEFAULT NULL,
     visible_group_ids UUID[] DEFAULT ARRAY[]::UUID[]
 )
 RETURNS TABLE (
@@ -41,9 +40,7 @@ RETURNS TABLE (
 BEGIN
     RETURN QUERY
     WITH RECURSIVE group_hierarchy AS (
-        SELECT g.id FROM "group" g WHERE g.id = selected_group_id AND selected_group_id IS NOT NULL
-        UNION ALL
-        SELECT g.id FROM "group" g WHERE g.id = ANY(visible_group_ids) AND selected_group_id IS NULL AND array_length(visible_group_ids, 1) > 0
+        SELECT g.id FROM "group" g WHERE g.id = ANY(visible_group_ids) AND array_length(visible_group_ids, 1) > 0
         UNION ALL
         SELECT g.id FROM "group" g
         INNER JOIN group_hierarchy gh ON g.parent = gh.id
@@ -53,7 +50,7 @@ BEGIN
         FROM shift s
         LEFT JOIN group_item gi ON gi.shift_id = s.id
         WHERE
-            (selected_group_id IS NULL AND (visible_group_ids IS NULL OR array_length(visible_group_ids, 1) IS NULL))
+            (visible_group_ids IS NULL OR array_length(visible_group_ids, 1) IS NULL)
             OR gi.shift_id IS NULL
             OR gi.group_id IN (SELECT id FROM group_hierarchy)
     ),
@@ -140,7 +137,7 @@ BEGIN
             d.schedule_date,
             COUNT(*)::INTEGER AS engaged_count
         FROM work w
-        JOIN date_series d ON d.schedule_date >= w."from"::DATE AND d.schedule_date <= w.until::DATE
+        JOIN date_series d ON d.schedule_date = w."current_date"::DATE
         WHERE w.is_deleted = false
         GROUP BY w.shift_id, d.schedule_date
     )

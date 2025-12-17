@@ -8,6 +8,5 @@ public interface IShiftScheduleService
         DateOnly startDate,
         DateOnly endDate,
         List<DateOnly>? holidayDates = null,
-        Guid? selectedGroupId = null,
         List<Guid>? visibleGroupIds = null);
 }

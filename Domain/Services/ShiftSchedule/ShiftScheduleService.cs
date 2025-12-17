@@ -22,15 +22,13 @@ public class ShiftScheduleService : IShiftScheduleService
         DateOnly startDate,
         DateOnly endDate,
         List<DateOnly>? holidayDates = null,
-        Guid? selectedGroupId = null,
         List<Guid>? visibleGroupIds = null)
     {
         _logger.LogDebug(
-            "Building shift schedule query from {StartDate} to {EndDate} with {HolidayCount} holidays, GroupId: {GroupId}, VisibleGroups: {VisibleGroupCount}",
+            "Building shift schedule query from {StartDate} to {EndDate} with {HolidayCount} holidays, VisibleGroups: {VisibleGroupCount}",
             startDate,
             endDate,
             holidayDates?.Count ?? 0,
-            selectedGroupId,
             visibleGroupIds?.Count ?? 0);
 
         var holidays = holidayDates ?? [];
@@ -49,7 +47,6 @@ public class ShiftScheduleService : IShiftScheduleService
                     {startDateTime}::DATE,
                     {endDateTime}::DATE,
                     {holidayArray}::DATE[],
-                    {selectedGroupId}::UUID,
                     {visibleGroupArray}::UUID[]
                 )");
     }
