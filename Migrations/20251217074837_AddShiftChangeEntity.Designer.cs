@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20251217074837_AddShiftChangeEntity")]
+    partial class AddShiftChangeEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1480,67 +1483,6 @@ namespace Klacks.Api.Migrations
                         .HasDatabaseName("ix_container_template_item_shift_id");
 
                     b.ToTable("container_template_item", (string)null);
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Expenses", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("numeric")
-                        .HasColumnName("amount");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_time");
-
-                    b.Property<string>("CurrentUserCreated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_created");
-
-                    b.Property<string>("CurrentUserDeleted")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_deleted");
-
-                    b.Property<string>("CurrentUserUpdated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_updated");
-
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_time");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("description");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<bool>("Taxabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("taxabled");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_time");
-
-                    b.Property<Guid>("WorkId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("work_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_expenses");
-
-                    b.HasIndex("WorkId")
-                        .HasDatabaseName("ix_expenses_work_id");
-
-                    b.ToTable("expenses", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Shift", b =>
@@ -3421,18 +3363,6 @@ namespace Klacks.Api.Migrations
                     b.Navigation("ContainerTemplate");
 
                     b.Navigation("Shift");
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Expenses", b =>
-                {
-                    b.HasOne("Klacks.Api.Domain.Models.Schedules.Work", "Work")
-                        .WithMany()
-                        .HasForeignKey("WorkId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_expenses_work_work_id");
-
-                    b.Navigation("Work");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Shift", b =>

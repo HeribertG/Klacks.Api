@@ -319,4 +319,33 @@ public partial class ScheduleMapper
     public partial ShiftScheduleResource ToShiftScheduleResource(ShiftDayAssignment assignment);
 
     public partial List<ShiftScheduleResource> ToShiftScheduleResourceList(List<ShiftDayAssignment> assignments);
+
+    public partial ShiftChangeResource ToShiftChangeResource(ShiftChange shiftChange);
+
+    public partial List<ShiftChangeResource> ToShiftChangeResourceList(List<ShiftChange> shiftChanges);
+
+    [MapperIgnoreTarget(nameof(ShiftChange.CreateTime))]
+    [MapperIgnoreTarget(nameof(ShiftChange.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(ShiftChange.UpdateTime))]
+    [MapperIgnoreTarget(nameof(ShiftChange.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(ShiftChange.DeletedTime))]
+    [MapperIgnoreTarget(nameof(ShiftChange.IsDeleted))]
+    [MapperIgnoreTarget(nameof(ShiftChange.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(ShiftChange.Work))]
+    [MapperIgnoreTarget(nameof(ShiftChange.ReplaceClient))]
+    public partial ShiftChange ToShiftChangeEntity(ShiftChangeResource resource);
+
+    public partial ExpensesResource ToExpensesResource(Expenses expenses);
+
+    public partial List<ExpensesResource> ToExpensesResourceList(List<Expenses> expenses);
+
+    [MapperIgnoreTarget(nameof(Expenses.CreateTime))]
+    [MapperIgnoreTarget(nameof(Expenses.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(Expenses.UpdateTime))]
+    [MapperIgnoreTarget(nameof(Expenses.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(Expenses.DeletedTime))]
+    [MapperIgnoreTarget(nameof(Expenses.IsDeleted))]
+    [MapperIgnoreTarget(nameof(Expenses.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(Expenses.Work))]
+    public partial Expenses ToExpensesEntity(ExpensesResource resource);
 }

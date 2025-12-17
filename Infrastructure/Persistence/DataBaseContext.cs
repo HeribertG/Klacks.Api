@@ -80,7 +80,11 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<State> State { get; set; }
 
-    public DbSet<Work> Work { get; set; }  
+    public DbSet<Work> Work { get; set; }
+
+    public DbSet<ShiftChange> ShiftChange { get; set; }
+
+    public DbSet<Expenses> Expenses { get; set; }
 
     public DbSet<AssignedGroup> AssignedGroup { get; set; }  
 
@@ -198,6 +202,8 @@ public class DataBaseContext : IdentityDbContext
         });
         modelBuilder.Entity<ContainerTemplateItem>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Work>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<ShiftChange>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<Expenses>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<AssignedGroup>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<GroupVisibility>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Contract>().HasQueryFilter(p => !p.IsDeleted);
@@ -347,6 +353,24 @@ public class DataBaseContext : IdentityDbContext
 
         modelBuilder.Entity<Work>()
             .HasOne(p => p.Shift);
+
+        modelBuilder.Entity<ShiftChange>()
+            .HasOne(sc => sc.Work)
+            .WithMany()
+            .HasForeignKey(sc => sc.WorkId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ShiftChange>()
+            .HasOne(sc => sc.ReplaceClient)
+            .WithMany()
+            .HasForeignKey(sc => sc.ReplaceClientId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Expenses>()
+            .HasOne(e => e.Work)
+            .WithMany()
+            .HasForeignKey(e => e.WorkId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<GroupVisibility>(entity =>
         {
