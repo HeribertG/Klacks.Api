@@ -15,7 +15,7 @@ public class ShiftGroupFilterService : IShiftGroupFilterService
     {
         if (selectedGroupId.HasValue)
         {
-            return [];
+            return [selectedGroupId.Value];
         }
 
         if (await _groupVisibility.IsAdmin())
