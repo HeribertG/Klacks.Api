@@ -20,4 +20,6 @@ public class WorkResource
     public ShiftResource? Shift { get; set; }
 
     public Guid ShiftId { get; set; }
+
+    public decimal WorkTime { get; set; }
 }
