@@ -82,7 +82,7 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<Work> Work { get; set; }
 
-    public DbSet<ShiftChange> ShiftChange { get; set; }
+    public DbSet<WorkChange> WorkChange { get; set; }
 
     public DbSet<Expenses> Expenses { get; set; }
 
@@ -202,7 +202,7 @@ public class DataBaseContext : IdentityDbContext
         });
         modelBuilder.Entity<ContainerTemplateItem>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Work>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<ShiftChange>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<WorkChange>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Expenses>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<AssignedGroup>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<GroupVisibility>().HasQueryFilter(p => !p.IsDeleted);
@@ -354,13 +354,13 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Work>()
             .HasOne(p => p.Shift);
 
-        modelBuilder.Entity<ShiftChange>()
+        modelBuilder.Entity<WorkChange>()
             .HasOne(sc => sc.Work)
             .WithMany()
             .HasForeignKey(sc => sc.WorkId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<ShiftChange>()
+        modelBuilder.Entity<WorkChange>()
             .HasOne(sc => sc.ReplaceClient)
             .WithMany()
             .HasForeignKey(sc => sc.ReplaceClientId)

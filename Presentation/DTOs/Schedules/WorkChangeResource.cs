@@ -3,7 +3,7 @@ using Klacks.Api.Presentation.DTOs.Staffs;
 
 namespace Klacks.Api.Presentation.DTOs.Schedules;
 
-public class ShiftChangeResource
+public class WorkChangeResource
 {
     public Guid Id { get; set; }
 
@@ -13,7 +13,7 @@ public class ShiftChangeResource
 
     public decimal ChangeTime { get; set; }
 
-    public ShiftChangeType Type { get; set; }
+    public WorkChangeType Type { get; set; }
 
     public Guid? ReplaceClientId { get; set; }
 

@@ -1,6 +1,6 @@
 namespace Klacks.Api.Domain.Enums;
 
-public enum ShiftChangeType
+public enum WorkChangeType
 {
     CorrectionEnd = 0,
     CorrectionStart = 1,

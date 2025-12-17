@@ -4,7 +4,7 @@ using Klacks.Api.Domain.Models.Staffs;
 
 namespace Klacks.Api.Domain.Models.Schedules;
 
-public class ShiftChange : BaseEntity
+public class WorkChange : BaseEntity
 {
     public Guid WorkId { get; set; }
 
@@ -12,7 +12,7 @@ public class ShiftChange : BaseEntity
 
     public decimal ChangeTime { get; set; }
 
-    public ShiftChangeType Type { get; set; }
+    public WorkChangeType Type { get; set; }
 
     public Guid? ReplaceClientId { get; set; }
 

@@ -4,9 +4,9 @@ using Klacks.Api.Infrastructure.Persistence;
 
 namespace Klacks.Api.Infrastructure.Repositories;
 
-public class ShiftChangeRepository : BaseRepository<ShiftChange>, IShiftChangeRepository
+public class WorkChangeRepository : BaseRepository<WorkChange>, IWorkChangeRepository
 {
-    public ShiftChangeRepository(DataBaseContext context, ILogger<ShiftChange> logger)
+    public WorkChangeRepository(DataBaseContext context, ILogger<WorkChange> logger)
         : base(context, logger)
     {
     }
