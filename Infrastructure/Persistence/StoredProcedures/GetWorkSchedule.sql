@@ -26,7 +26,7 @@ RETURNS TABLE (
     description TEXT,
     amount NUMERIC,
     to_invoice BOOLEAN,
-    taxabled BOOLEAN,
+    taxable BOOLEAN,
     shift_id UUID,
     shift_name TEXT,
     replace_client_id UUID,
@@ -72,7 +72,7 @@ BEGIN
             w.information AS description,
             NULL::NUMERIC AS amount,
             NULL::BOOLEAN AS to_invoice,
-            NULL::BOOLEAN AS taxabled,
+            NULL::BOOLEAN AS taxable,
             w.shift_id,
             s.name AS shift_name,
             NULL::UUID AS replace_client_id,
@@ -98,7 +98,7 @@ BEGIN
             wc.description,
             NULL::NUMERIC AS amount,
             wc.to_invoice,
-            NULL::BOOLEAN AS taxabled,
+            NULL::BOOLEAN AS taxable,
             w.shift_id,
             s.name AS shift_name,
             wc.replace_client_id,
@@ -123,7 +123,7 @@ BEGIN
             wc.description,
             NULL::NUMERIC AS amount,
             wc.to_invoice,
-            NULL::BOOLEAN AS taxabled,
+            NULL::BOOLEAN AS taxable,
             w.shift_id,
             s.name AS shift_name,
             wc.replace_client_id,
@@ -148,7 +148,7 @@ BEGIN
             wc.description,
             NULL::NUMERIC AS amount,
             wc.to_invoice,
-            NULL::BOOLEAN AS taxabled,
+            NULL::BOOLEAN AS taxable,
             w.shift_id,
             s.name AS shift_name,
             wc.replace_client_id,
@@ -173,7 +173,7 @@ BEGIN
             wc.description,
             NULL::NUMERIC AS amount,
             wc.to_invoice,
-            NULL::BOOLEAN AS taxabled,
+            NULL::BOOLEAN AS taxable,
             w.shift_id,
             s.name AS shift_name,
             w.client_id AS replace_client_id,
@@ -201,7 +201,7 @@ BEGIN
             wc.description,
             NULL::NUMERIC AS amount,
             wc.to_invoice,
-            NULL::BOOLEAN AS taxabled,
+            NULL::BOOLEAN AS taxable,
             w.shift_id,
             s.name AS shift_name,
             wc.replace_client_id,
@@ -229,7 +229,7 @@ BEGIN
             wc.description,
             NULL::NUMERIC AS amount,
             wc.to_invoice,
-            NULL::BOOLEAN AS taxabled,
+            NULL::BOOLEAN AS taxable,
             w.shift_id,
             s.name AS shift_name,
             w.client_id AS replace_client_id,
@@ -257,7 +257,7 @@ BEGIN
             e.description,
             e.amount,
             NULL::BOOLEAN AS to_invoice,
-            e.taxabled,
+            e.taxable,
             w.shift_id,
             s.name AS shift_name,
             NULL::UUID AS replace_client_id,
@@ -283,6 +283,6 @@ BEGIN
     SELECT * FROM replacement_end_replacement
     UNION ALL
     SELECT * FROM expense_entries
-    ORDER BY entry_date, start_shift, entry_type;
+    ORDER BY client_id, entry_date, start_shift, entry_type;
 END;
 $$ LANGUAGE plpgsql;

@@ -12,5 +12,5 @@ public class ExpensesResource
 
     public string Description { get; set; } = string.Empty;
 
-    public bool Taxabled { get; set; }
+    public bool Taxable { get; set; }
 }

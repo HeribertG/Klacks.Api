@@ -320,6 +320,10 @@ public partial class ScheduleMapper
 
     public partial List<ShiftScheduleResource> ToShiftScheduleResourceList(List<ShiftDayAssignment> assignments);
 
+    public partial WorkScheduleResource ToWorkScheduleResource(WorkScheduleEntry entry);
+
+    public partial List<WorkScheduleResource> ToWorkScheduleResourceList(List<WorkScheduleEntry> entries);
+
     public partial WorkChangeResource ToWorkChangeResource(WorkChange workChange);
 
     public partial List<WorkChangeResource> ToWorkChangeResourceList(List<WorkChange> workChanges);

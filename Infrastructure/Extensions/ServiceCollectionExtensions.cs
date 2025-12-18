@@ -11,6 +11,7 @@ using Klacks.Api.Domain.Services.Holidays;
 using Klacks.Api.Domain.Services.Settings;
 using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Domain.Services.ShiftSchedule;
+using Klacks.Api.Domain.Services.WorkSchedule;
 using Klacks.Api.Domain.Services.LLM;
 using Klacks.Api.Domain.Services.RouteOptimization;
 using Klacks.Api.Domain.Services.Common;
@@ -93,6 +94,9 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IShiftScheduleSearchService, ShiftScheduleSearchService>();
         services.AddScoped<IShiftScheduleSortingService, ShiftScheduleSortingService>();
         services.AddScoped<IShiftScheduleTypeFilterService, ShiftScheduleTypeFilterService>();
+
+        // Work Schedule Service
+        services.AddScoped<IWorkScheduleService, WorkScheduleService>();
 
         // ContainerTemplate Domain Services
         services.AddScoped<IContainerAvailableTasksService, ContainerAvailableTasksService>();
