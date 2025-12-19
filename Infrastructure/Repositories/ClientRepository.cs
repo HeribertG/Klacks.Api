@@ -254,4 +254,14 @@ public class ClientRepository : IClientRepository
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<List<Client>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
+    {
+        var idList = ids.ToList();
+        return await context.Client
+            .Include(c => c.Membership)
+            .Where(c => idList.Contains(c.Id))
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
 }

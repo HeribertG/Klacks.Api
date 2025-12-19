@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20251216195410_init")]
+    [Migration("20251218092623_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -1485,6 +1485,67 @@ namespace Klacks.Api.Migrations
                     b.ToTable("container_template_item", (string)null);
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Expenses", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("Taxable")
+                        .HasColumnType("boolean")
+                        .HasColumnName("taxable");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<Guid>("WorkId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("work_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_expenses");
+
+                    b.HasIndex("WorkId")
+                        .HasDatabaseName("ix_expenses_work_id");
+
+                    b.ToTable("expenses", (string)null);
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Shift", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1777,6 +1838,10 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("create_time");
 
+                    b.Property<DateTime>("CurrentDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("current_date");
+
                     b.Property<string>("CurrentUserCreated")
                         .HasColumnType("text")
                         .HasColumnName("current_user_created");
@@ -1792,10 +1857,6 @@ namespace Klacks.Api.Migrations
                     b.Property<DateTime?>("DeletedTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_time");
-
-                    b.Property<DateTime>("From")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("from");
 
                     b.Property<string>("Information")
                         .HasColumnType("text")
@@ -1813,13 +1874,13 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("shift_id");
 
-                    b.Property<DateTime>("Until")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("until");
-
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
+
+                    b.Property<decimal>("WorkTime")
+                        .HasColumnType("numeric")
+                        .HasColumnName("work_time");
 
                     b.HasKey("Id")
                         .HasName("pk_work");
@@ -1831,6 +1892,151 @@ namespace Klacks.Api.Migrations
                         .HasDatabaseName("ix_work_client_id_shift_id");
 
                     b.ToTable("work", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.WorkChange", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("ChangeTime")
+                        .HasColumnType("numeric")
+                        .HasColumnName("change_time");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid?>("ReplaceClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("replace_client_id");
+
+                    b.Property<bool>("ToInvoice")
+                        .HasColumnType("boolean")
+                        .HasColumnName("to_invoice");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<Guid>("WorkId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("work_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_work_change");
+
+                    b.HasIndex("ReplaceClientId")
+                        .HasDatabaseName("ix_work_change_replace_client_id");
+
+                    b.HasIndex("WorkId")
+                        .HasDatabaseName("ix_work_change_work_id");
+
+                    b.ToTable("work_change", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.WorkScheduleEntry", b =>
+                {
+                    b.Property<decimal?>("Amount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("amount");
+
+                    b.Property<decimal?>("ChangeTime")
+                        .HasColumnType("numeric")
+                        .HasColumnName("change_time");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("client_id");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<TimeSpan>("EndShift")
+                        .HasColumnType("interval")
+                        .HasColumnName("end_shift");
+
+                    b.Property<DateTime>("EntryDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("entry_date");
+
+                    b.Property<int>("EntryType")
+                        .HasColumnType("integer")
+                        .HasColumnName("entry_type");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("IsReplacementEntry")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_replacement_entry");
+
+                    b.Property<Guid?>("ReplaceClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("replace_client_id");
+
+                    b.Property<Guid>("ShiftId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("shift_id");
+
+                    b.Property<string>("ShiftName")
+                        .HasColumnType("text")
+                        .HasColumnName("shift_name");
+
+                    b.Property<TimeSpan>("StartShift")
+                        .HasColumnType("interval")
+                        .HasColumnName("start_shift");
+
+                    b.Property<bool?>("Taxable")
+                        .HasColumnType("boolean")
+                        .HasColumnName("taxable");
+
+                    b.Property<bool?>("ToInvoice")
+                        .HasColumnType("boolean")
+                        .HasColumnName("to_invoice");
+
+                    b.Property<int?>("WorkChangeType")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_change_type");
+
+                    b.Property<Guid>("WorkId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("work_id");
+
+                    b.ToTable("work_schedule_entries", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Settings.Branch", b =>
@@ -3293,6 +3499,18 @@ namespace Klacks.Api.Migrations
                     b.Navigation("Shift");
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Expenses", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Schedules.Work", "Work")
+                        .WithMany()
+                        .HasForeignKey("WorkId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_expenses_work_work_id");
+
+                    b.Navigation("Work");
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Shift", b =>
                 {
                     b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "Client")
@@ -3323,6 +3541,26 @@ namespace Klacks.Api.Migrations
                     b.Navigation("Client");
 
                     b.Navigation("Shift");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.WorkChange", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "ReplaceClient")
+                        .WithMany()
+                        .HasForeignKey("ReplaceClientId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_work_change_client_replace_client_id");
+
+                    b.HasOne("Klacks.Api.Domain.Models.Schedules.Work", "Work")
+                        .WithMany()
+                        .HasForeignKey("WorkId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_work_change_work_work_id");
+
+                    b.Navigation("ReplaceClient");
+
+                    b.Navigation("Work");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Settings.CalendarRule", b =>

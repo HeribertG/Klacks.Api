@@ -324,6 +324,10 @@ public partial class ScheduleMapper
 
     public partial List<WorkScheduleResource> ToWorkScheduleResourceList(List<WorkScheduleEntry> entries);
 
+    public partial WorkScheduleClientResource ToWorkScheduleClientResource(Client client);
+
+    public partial List<WorkScheduleClientResource> ToWorkScheduleClientResourceList(List<Client> clients);
+
     public partial WorkChangeResource ToWorkChangeResource(WorkChange workChange);
 
     public partial List<WorkChangeResource> ToWorkChangeResourceList(List<WorkChange> workChanges);

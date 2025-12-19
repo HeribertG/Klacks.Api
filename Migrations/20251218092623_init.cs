@@ -458,6 +458,32 @@ namespace Klacks.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "work_schedule_entries",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    entry_type = table.Column<int>(type: "integer", nullable: false),
+                    work_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    entry_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    start_shift = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    end_shift = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    change_time = table.Column<decimal>(type: "numeric", nullable: true),
+                    work_change_type = table.Column<int>(type: "integer", nullable: true),
+                    description = table.Column<string>(type: "text", nullable: true),
+                    amount = table.Column<decimal>(type: "numeric", nullable: true),
+                    to_invoice = table.Column<bool>(type: "boolean", nullable: true),
+                    taxable = table.Column<bool>(type: "boolean", nullable: true),
+                    shift_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    shift_name = table.Column<string>(type: "text", nullable: true),
+                    replace_client_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    is_replacement_entry = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -1181,11 +1207,11 @@ namespace Klacks.Api.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     client_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    from = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    current_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     information = table.Column<string>(type: "text", nullable: true),
                     is_sealed = table.Column<bool>(type: "boolean", nullable: false),
                     shift_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    until = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    work_time = table.Column<decimal>(type: "numeric", nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -1290,6 +1316,70 @@ namespace Klacks.Api.Migrations
                         name: "fk_container_template_item_shift_shift_id",
                         column: x => x.shift_id,
                         principalTable: "shift",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "expenses",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    work_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    amount = table.Column<decimal>(type: "numeric", nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    taxable = table.Column<bool>(type: "boolean", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_expenses", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_expenses_work_work_id",
+                        column: x => x.work_id,
+                        principalTable: "work",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "work_change",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    work_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    change_time = table.Column<decimal>(type: "numeric", nullable: false),
+                    type = table.Column<int>(type: "integer", nullable: false),
+                    replace_client_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    to_invoice = table.Column<bool>(type: "boolean", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_work_change", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_work_change_client_replace_client_id",
+                        column: x => x.replace_client_id,
+                        principalTable: "client",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "fk_work_change_work_work_id",
+                        column: x => x.work_id,
+                        principalTable: "work",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1483,6 +1573,11 @@ namespace Klacks.Api.Migrations
                 columns: new[] { "name", "valid_from", "valid_until" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_expenses_work_id",
+                table: "expenses",
+                column: "work_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_group_name",
                 table: "group",
                 column: "name");
@@ -1592,6 +1687,16 @@ namespace Klacks.Api.Migrations
                 name: "ix_work_shift_id",
                 table: "work",
                 column: "shift_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_work_change_replace_client_id",
+                table: "work_change",
+                column: "replace_client_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_work_change_work_id",
+                table: "work_change",
+                column: "work_id");
         }
 
         /// <inheritdoc />
@@ -1652,6 +1757,9 @@ namespace Klacks.Api.Migrations
                 name: "countries");
 
             migrationBuilder.DropTable(
+                name: "expenses");
+
+            migrationBuilder.DropTable(
                 name: "group_item");
 
             migrationBuilder.DropTable(
@@ -1694,7 +1802,10 @@ namespace Klacks.Api.Migrations
                 name: "state");
 
             migrationBuilder.DropTable(
-                name: "work");
+                name: "work_change");
+
+            migrationBuilder.DropTable(
+                name: "work_schedule_entries");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -1721,16 +1832,19 @@ namespace Klacks.Api.Migrations
                 name: "llm_models");
 
             migrationBuilder.DropTable(
-                name: "calendar_selection");
+                name: "work");
 
             migrationBuilder.DropTable(
-                name: "shift");
+                name: "calendar_selection");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "llm_providers");
+
+            migrationBuilder.DropTable(
+                name: "shift");
 
             migrationBuilder.DropTable(
                 name: "client");
