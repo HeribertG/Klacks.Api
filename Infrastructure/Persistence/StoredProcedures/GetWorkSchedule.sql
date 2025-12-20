@@ -29,6 +29,7 @@ RETURNS TABLE (
     taxable BOOLEAN,
     shift_id UUID,
     shift_name TEXT,
+    abbreviation TEXT,
     replace_client_id UUID,
     is_replacement_entry BOOLEAN
 ) AS $$
@@ -75,6 +76,7 @@ BEGIN
             NULL::BOOLEAN AS taxable,
             w.shift_id,
             s.name AS shift_name,
+            s.abbreviation,
             NULL::UUID AS replace_client_id,
             false AS is_replacement_entry
         FROM valid_works w
@@ -101,6 +103,7 @@ BEGIN
             NULL::BOOLEAN AS taxable,
             w.shift_id,
             s.name AS shift_name,
+            s.abbreviation,
             wc.replace_client_id,
             false AS is_replacement_entry
         FROM work_change wc
@@ -126,6 +129,7 @@ BEGIN
             NULL::BOOLEAN AS taxable,
             w.shift_id,
             s.name AS shift_name,
+            s.abbreviation,
             wc.replace_client_id,
             false AS is_replacement_entry
         FROM work_change wc
@@ -151,6 +155,7 @@ BEGIN
             NULL::BOOLEAN AS taxable,
             w.shift_id,
             s.name AS shift_name,
+            s.abbreviation,
             wc.replace_client_id,
             false AS is_replacement_entry
         FROM work_change wc
@@ -176,6 +181,7 @@ BEGIN
             NULL::BOOLEAN AS taxable,
             w.shift_id,
             s.name AS shift_name,
+            s.abbreviation,
             w.client_id AS replace_client_id,
             true AS is_replacement_entry
         FROM work_change wc
@@ -204,6 +210,7 @@ BEGIN
             NULL::BOOLEAN AS taxable,
             w.shift_id,
             s.name AS shift_name,
+            s.abbreviation,
             wc.replace_client_id,
             false AS is_replacement_entry
         FROM work_change wc
@@ -232,6 +239,7 @@ BEGIN
             NULL::BOOLEAN AS taxable,
             w.shift_id,
             s.name AS shift_name,
+            s.abbreviation,
             w.client_id AS replace_client_id,
             true AS is_replacement_entry
         FROM work_change wc
@@ -260,6 +268,7 @@ BEGIN
             e.taxable,
             w.shift_id,
             s.name AS shift_name,
+            s.abbreviation,
             NULL::UUID AS replace_client_id,
             false AS is_replacement_entry
         FROM expenses e

@@ -17,6 +17,7 @@ public class WorkScheduleEntry
     public bool? Taxable { get; set; }
     public Guid ShiftId { get; set; }
     public string? ShiftName { get; set; }
+    public string? Abbreviation { get; set; }
     public Guid? ReplaceClientId { get; set; }
     public bool IsReplacementEntry { get; set; }
 }
