@@ -7,7 +7,7 @@ namespace Klacks.Api.Domain.Models.Schedules;
 public class Work : BaseEntity
 {
     [JsonIgnore]
-    public virtual Client Client { get; set; } = null!;
+    public virtual Client? Client { get; set; }
 
     public Guid ClientId { get; set; }
 
