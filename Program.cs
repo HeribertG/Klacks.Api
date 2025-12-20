@@ -6,6 +6,7 @@ using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Infrastructure.Converters;
 using Klacks.Api.Infrastructure.Exceptions;
 using Klacks.Api.Infrastructure.Extensions;
+using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Mappers;
@@ -65,6 +66,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidAudience = jwtSettings.ValidAudience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
     };
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddAuthorization();
@@ -86,6 +100,10 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddApplicationServices();
+
+builder.Services.AddSignalR();
+builder.Services.AddScoped<IWorkNotificationService, WorkNotificationService>();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddMemoryCache();
 
@@ -187,6 +205,7 @@ app.UseEndpoints(endpoints =>
         endpoints.MapRazorPages();
         endpoints.MapBlazorHub();
         endpoints.MapControllers();
+        endpoints.MapHub<WorkNotificationHub>("/hubs/work-notifications");
     }
 );
 

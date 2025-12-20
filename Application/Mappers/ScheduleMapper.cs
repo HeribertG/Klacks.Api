@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Presentation.DTOs.Associations;
 using Klacks.Api.Presentation.DTOs.Filter;
+using Klacks.Api.Presentation.DTOs.Notifications;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Presentation.DTOs.Settings;
 using Staffs = Klacks.Api.Presentation.DTOs.Staffs;
@@ -356,4 +357,17 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Expenses.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(Expenses.Work))]
     public partial Expenses ToExpensesEntity(ExpensesResource resource);
+
+    public WorkNotificationDto ToWorkNotificationDto(Work work, string operationType, string sourceConnectionId)
+    {
+        return new WorkNotificationDto
+        {
+            WorkId = work.Id,
+            ClientId = work.ClientId,
+            ShiftId = work.ShiftId,
+            CurrentDate = work.CurrentDate,
+            OperationType = operationType,
+            SourceConnectionId = sourceConnectionId
+        };
+    }
 }
