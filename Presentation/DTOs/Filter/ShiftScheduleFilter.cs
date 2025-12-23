@@ -31,4 +31,8 @@ public class ShiftScheduleFilter
     public int StartRow { get; set; } = 0;
 
     public int RowCount { get; set; } = 100;
+
+    public DateTime? SpecificDate { get; set; }
+
+    public Guid? ShiftId { get; set; }
 }

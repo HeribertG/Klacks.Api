@@ -165,3 +165,114 @@ BEGIN
     ORDER BY sd.schedule_date, sd.shift_name;
 END;
 $$ LANGUAGE plpgsql;
+
+
+-- GetShiftSchedulePartial: Returns shift schedule data for specific shift/date pairs
+-- Used for partial refresh after Work CRUD operations
+-- Parameters:
+--   shift_date_pairs: Array of composite type (shift_id UUID, date DATE)
+-- Returns: Same columns as get_shift_schedule
+
+DROP TYPE IF EXISTS shift_date_pair CASCADE;
+CREATE TYPE shift_date_pair AS (
+    shift_id UUID,
+    schedule_date DATE
+);
+
+DROP FUNCTION IF EXISTS get_shift_schedule_partial(shift_date_pair[]);
+
+CREATE OR REPLACE FUNCTION get_shift_schedule_partial(
+    shift_date_pairs shift_date_pair[]
+)
+RETURNS TABLE (
+    shift_id UUID,
+    date DATE,
+    day_of_week INTEGER,
+    shift_name TEXT,
+    abbreviation TEXT,
+    start_shift TIME,
+    end_shift TIME,
+    work_time NUMERIC,
+    is_sporadic BOOLEAN,
+    is_time_range BOOLEAN,
+    shift_type INTEGER,
+    status INTEGER,
+    is_in_template_container BOOLEAN,
+    sum_employees INTEGER,
+    quantity INTEGER,
+    sporadic_scope INTEGER,
+    engaged INTEGER
+) AS $$
+BEGIN
+    RETURN QUERY
+    WITH input_pairs AS (
+        SELECT (unnest(shift_date_pairs)).*
+    ),
+    shift_data AS (
+        SELECT
+            s.id AS shift_id,
+            ip.schedule_date,
+            EXTRACT(isodow FROM ip.schedule_date)::INTEGER AS dow,
+            s.name AS shift_name,
+            s.abbreviation,
+            s.start_shift,
+            s.end_shift,
+            s.work_time,
+            s.is_sporadic,
+            s.is_time_range,
+            s.shift_type,
+            s.status,
+            s.sum_employees,
+            s.quantity,
+            s.sporadic_scope
+        FROM input_pairs ip
+        JOIN shift s ON s.id = ip.shift_id
+        WHERE s.is_deleted = false
+        AND s.status >= 2
+    ),
+    container_lookup AS (
+        SELECT DISTINCT
+            cti.shift_id,
+            ip.schedule_date
+        FROM container_template_item cti
+        JOIN container_template ct ON ct.id = cti.container_template_id
+        JOIN shift container ON container.id = ct.container_id
+        JOIN input_pairs ip ON ip.shift_id = cti.shift_id
+        WHERE container.is_deleted = false
+        AND container.from_date <= ip.schedule_date
+        AND (container.until_date IS NULL OR container.until_date >= ip.schedule_date)
+    ),
+    work_counts AS (
+        SELECT
+            w.shift_id,
+            w."current_date"::DATE AS schedule_date,
+            COUNT(*)::INTEGER AS engaged_count
+        FROM work w
+        JOIN input_pairs ip ON ip.shift_id = w.shift_id AND ip.schedule_date = w."current_date"::DATE
+        WHERE w.is_deleted = false
+        GROUP BY w.shift_id, w."current_date"::DATE
+    )
+    SELECT
+        sd.shift_id,
+        sd.schedule_date AS date,
+        sd.dow AS day_of_week,
+        sd.shift_name,
+        sd.abbreviation,
+        sd.start_shift,
+        sd.end_shift,
+        sd.work_time,
+        sd.is_sporadic,
+        sd.is_time_range,
+        sd.shift_type,
+        sd.status,
+        (cl.shift_id IS NOT NULL) AS is_in_template_container,
+        sd.sum_employees,
+        sd.quantity,
+        sd.sporadic_scope,
+        COALESCE(wc.engaged_count, 0) AS engaged
+    FROM shift_data sd
+    LEFT JOIN container_lookup cl ON cl.shift_id = sd.shift_id AND cl.schedule_date = sd.schedule_date
+    LEFT JOIN work_counts wc ON wc.shift_id = sd.shift_id AND wc.schedule_date = sd.schedule_date
+    ORDER BY sd.schedule_date, sd.shift_name;
+END;
+$$ LANGUAGE plpgsql;

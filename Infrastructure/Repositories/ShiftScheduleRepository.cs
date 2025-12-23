@@ -89,4 +89,26 @@ public class ShiftScheduleRepository : IShiftScheduleRepository
 
         return (result, totalCount);
     }
+
+    public async Task<List<ShiftDayAssignment>> GetShiftSchedulePartialAsync(
+        ShiftSchedulePartialFilter filter,
+        CancellationToken cancellationToken)
+    {
+        if (filter.ShiftDatePairs.Count == 0)
+        {
+            return [];
+        }
+
+        _logger.LogInformation(
+            "Fetching partial shift schedule for {Count} shift/date pairs",
+            filter.ShiftDatePairs.Count);
+
+        var shiftDatePairs = filter.ShiftDatePairs
+            .Select(p => (p.ShiftId, DateOnly.FromDateTime(p.Date)))
+            .ToList();
+
+        return await _shiftScheduleService.GetShiftSchedulePartialAsync(
+            shiftDatePairs,
+            cancellationToken);
+    }
 }

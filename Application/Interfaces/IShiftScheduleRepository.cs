@@ -8,4 +8,8 @@ public interface IShiftScheduleRepository
     Task<(List<ShiftDayAssignment> Shifts, int TotalCount)> GetShiftScheduleAsync(
         ShiftScheduleFilter filter,
         CancellationToken cancellationToken);
+
+    Task<List<ShiftDayAssignment>> GetShiftSchedulePartialAsync(
+        ShiftSchedulePartialFilter filter,
+        CancellationToken cancellationToken);
 }

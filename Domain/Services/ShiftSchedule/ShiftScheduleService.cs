@@ -2,6 +2,8 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using NpgsqlTypes;
 
 namespace Klacks.Api.Domain.Services.ShiftSchedule;
 
@@ -49,5 +51,31 @@ public class ShiftScheduleService : IShiftScheduleService
                     {holidayArray}::DATE[],
                     {visibleGroupArray}::UUID[]
                 )");
+    }
+
+    public async Task<List<ShiftDayAssignment>> GetShiftSchedulePartialAsync(
+        List<(Guid ShiftId, DateOnly Date)> shiftDatePairs,
+        CancellationToken cancellationToken = default)
+    {
+        if (shiftDatePairs.Count == 0)
+        {
+            return [];
+        }
+
+        _logger.LogDebug(
+            "Fetching partial shift schedule for {Count} shift/date pairs",
+            shiftDatePairs.Count);
+
+        var pairsArrayString = string.Join(",", shiftDatePairs.Select(p =>
+            $"('{p.ShiftId}'::UUID, '{p.Date:yyyy-MM-dd}'::DATE)"));
+
+        var sql = $@"
+            SELECT * FROM get_shift_schedule_partial(
+                ARRAY[{pairsArrayString}]::shift_date_pair[]
+            )";
+
+        return await _context.ShiftDayAssignments
+            .FromSqlRaw(sql)
+            .ToListAsync(cancellationToken);
     }
 }

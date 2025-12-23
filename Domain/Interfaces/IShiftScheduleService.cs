@@ -9,4 +9,8 @@ public interface IShiftScheduleService
         DateOnly endDate,
         List<DateOnly>? holidayDates = null,
         List<Guid>? visibleGroupIds = null);
+
+    Task<List<ShiftDayAssignment>> GetShiftSchedulePartialAsync(
+        List<(Guid ShiftId, DateOnly Date)> shiftDatePairs,
+        CancellationToken cancellationToken = default);
 }
