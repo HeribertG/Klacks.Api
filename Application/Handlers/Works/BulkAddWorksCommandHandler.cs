@@ -1,6 +1,7 @@
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Mediator;
@@ -14,6 +15,8 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkNotificationService _notificationService;
+    private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
+    private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public BulkAddWorksCommandHandler(
@@ -21,6 +24,8 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IWorkNotificationService notificationService,
+        IShiftStatsNotificationService shiftStatsNotificationService,
+        IShiftScheduleService shiftScheduleService,
         IHttpContextAccessor httpContextAccessor,
         ILogger<BulkAddWorksCommandHandler> logger)
         : base(logger)
@@ -29,6 +34,8 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _notificationService = notificationService;
+        _shiftStatsNotificationService = shiftStatsNotificationService;
+        _shiftScheduleService = shiftScheduleService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -80,6 +87,8 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                 var notification = _scheduleMapper.ToWorkNotificationDto(work, "created", connectionId);
                 await _notificationService.NotifyWorkCreated(notification);
             }
+
+            await SendShiftStatsNotificationsAsync(affectedShifts, connectionId, cancellationToken);
         }
 
         response.AffectedShifts = affectedShifts
@@ -87,5 +96,23 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
             .ToList();
 
         return response;
+    }
+
+    private async Task SendShiftStatsNotificationsAsync(
+        HashSet<(Guid ShiftId, DateTime Date)> affectedShifts,
+        string connectionId,
+        CancellationToken cancellationToken)
+    {
+        var shiftDatePairs = affectedShifts
+            .Select(x => (x.ShiftId, DateOnly.FromDateTime(x.Date)))
+            .ToList();
+
+        var shiftStats = await _shiftScheduleService.GetShiftSchedulePartialAsync(shiftDatePairs, cancellationToken);
+
+        foreach (var shiftData in shiftStats)
+        {
+            var shiftNotification = _scheduleMapper.ToShiftStatsNotificationDto(shiftData, connectionId);
+            await _shiftStatsNotificationService.NotifyShiftStatsUpdated(shiftNotification);
+        }
     }
 }

@@ -14,6 +14,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkNotificationService _notificationService;
+    private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
+    private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public PostCommandHandler(
@@ -21,6 +23,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IWorkNotificationService notificationService,
+        IShiftStatsNotificationService shiftStatsNotificationService,
+        IShiftScheduleService shiftScheduleService,
         IHttpContextAccessor httpContextAccessor,
         ILogger<PostCommandHandler> logger)
         : base(logger)
@@ -29,6 +33,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _notificationService = notificationService;
+        _shiftStatsNotificationService = shiftStatsNotificationService;
+        _shiftScheduleService = shiftScheduleService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -44,6 +50,29 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         var notification = _scheduleMapper.ToWorkNotificationDto(work, "created", connectionId);
         await _notificationService.NotifyWorkCreated(notification);
 
+        await SendShiftStatsNotificationAsync(work.ShiftId, work.CurrentDate, connectionId, cancellationToken);
+
         return _scheduleMapper.ToWorkResource(work);
+    }
+
+    private async Task SendShiftStatsNotificationAsync(
+        Guid shiftId,
+        DateTime date,
+        string connectionId,
+        CancellationToken cancellationToken)
+    {
+        var shiftDatePairs = new List<(Guid ShiftId, DateOnly Date)>
+        {
+            (shiftId, DateOnly.FromDateTime(date))
+        };
+
+        var shiftStats = await _shiftScheduleService.GetShiftSchedulePartialAsync(shiftDatePairs, cancellationToken);
+        var shiftData = shiftStats.FirstOrDefault();
+
+        if (shiftData != null)
+        {
+            var shiftNotification = _scheduleMapper.ToShiftStatsNotificationDto(shiftData, connectionId);
+            await _shiftStatsNotificationService.NotifyShiftStatsUpdated(shiftNotification);
+        }
     }
 }

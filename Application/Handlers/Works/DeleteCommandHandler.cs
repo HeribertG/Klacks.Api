@@ -1,6 +1,7 @@
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Hubs;
@@ -13,6 +14,8 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkNotificationService _notificationService;
+    private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
+    private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public DeleteCommandHandler(
@@ -20,6 +23,8 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IWorkNotificationService notificationService,
+        IShiftStatsNotificationService shiftStatsNotificationService,
+        IShiftScheduleService shiftScheduleService,
         IHttpContextAccessor httpContextAccessor,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
@@ -28,6 +33,8 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _notificationService = notificationService;
+        _shiftStatsNotificationService = shiftStatsNotificationService;
+        _shiftScheduleService = shiftScheduleService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -41,6 +48,9 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
                 throw new KeyNotFoundException($"Work with ID {request.Id} not found.");
             }
 
+            var shiftId = work.ShiftId;
+            var workDate = work.CurrentDate;
+
             var workResource = _scheduleMapper.ToWorkResource(work);
             await _workRepository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
@@ -51,9 +61,32 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
             var notification = _scheduleMapper.ToWorkNotificationDto(work, "deleted", connectionId);
             await _notificationService.NotifyWorkDeleted(notification);
 
+            await SendShiftStatsNotificationAsync(shiftId, workDate, connectionId, cancellationToken);
+
             return workResource;
         },
         "deleting work",
         new { WorkId = request.Id });
+    }
+
+    private async Task SendShiftStatsNotificationAsync(
+        Guid shiftId,
+        DateTime date,
+        string connectionId,
+        CancellationToken cancellationToken)
+    {
+        var shiftDatePairs = new List<(Guid ShiftId, DateOnly Date)>
+        {
+            (shiftId, DateOnly.FromDateTime(date))
+        };
+
+        var shiftStats = await _shiftScheduleService.GetShiftSchedulePartialAsync(shiftDatePairs, cancellationToken);
+        var shiftData = shiftStats.FirstOrDefault();
+
+        if (shiftData != null)
+        {
+            var shiftNotification = _scheduleMapper.ToShiftStatsNotificationDto(shiftData, connectionId);
+            await _shiftStatsNotificationService.NotifyShiftStatsUpdated(shiftNotification);
+        }
     }
 }

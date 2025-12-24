@@ -37,7 +37,6 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IClientRepository, ClientRepository>();
         services.AddScoped<IClientFilterRepository, ClientFilterRepository>();
         services.AddScoped<IClientBreakPlaceholderRepository, ClientBreakPlaceholderRepository>();
-        services.AddScoped<IClientWorkRepository, ClientWorkRepository>();
         services.AddScoped<IClientSearchRepository, ClientSearchRepository>();
         services.AddScoped<IClientGroupFilterService, ClientGroupFilterService>();
         services.AddScoped<IClientSearchFilterService, ClientSearchFilterService>();

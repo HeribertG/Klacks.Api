@@ -1,32 +1,127 @@
 using Klacks.Api.Application.Commands;
-using Klacks.Api.Domain.Constants;
+using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Queries.WorkSchedule;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Schedules;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.v1.UserBackend;
 
-public class WorksController : InputBaseController<WorkResource>
+public class WorksController : BaseController
 {
-    public WorksController(IMediator mediator, ILogger<WorksController> logger)
-            : base(mediator, logger)
+    private readonly IMediator _mediator;
+
+    public WorksController(IMediator mediator)
     {
+        _mediator = mediator;
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<WorkResource>> Get([FromRoute] Guid id)
+    {
+        var model = await _mediator.Send(new GetQuery<WorkResource>(id));
+        if (model == null)
+        {
+            return NotFound();
+        }
+        return Ok(model);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<WorkResource>> Post([FromBody] WorkResource resource)
+    {
+        var model = await _mediator.Send(new PostCommand<WorkResource>(resource));
+        return Ok(model);
+    }
+
+    [HttpPut]
+    public async Task<ActionResult<WorkResource>> Put([FromBody] WorkResource resource)
+    {
+        var model = await _mediator.Send(new PutCommand<WorkResource>(resource));
+        if (model == null)
+        {
+            return NotFound();
+        }
+        return Ok(model);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<WorkResource>> Delete(Guid id)
+    {
+        var model = await _mediator.Send(new DeleteCommand<WorkResource>(id));
+        if (model == null)
+        {
+            return NotFound();
+        }
+        return Ok(model);
     }
 
     [HttpPost("Bulk")]
-    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
     public async Task<ActionResult<BulkWorksResponse>> BulkAdd([FromBody] BulkAddWorksRequest request)
     {
-        var response = await Mediator.Send(new BulkAddWorksCommand(request));
+        var response = await _mediator.Send(new BulkAddWorksCommand(request));
         return Ok(response);
     }
 
     [HttpDelete("Bulk")]
-    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
     public async Task<ActionResult<BulkWorksResponse>> BulkDelete([FromBody] BulkDeleteWorksRequest request)
     {
-        var response = await Mediator.Send(new BulkDeleteWorksCommand(request));
+        var response = await _mediator.Send(new BulkDeleteWorksCommand(request));
         return Ok(response);
+    }
+
+    [HttpPost("Schedule")]
+    public async Task<ActionResult<WorkScheduleResponse>> GetWorkSchedule([FromBody] WorkScheduleFilter filter)
+    {
+        var result = await _mediator.Send(new GetWorkScheduleQuery(filter));
+        return Ok(result);
+    }
+
+    [HttpGet("Changes")]
+    public async Task<ActionResult<IEnumerable<WorkChangeResource>>> GetChangesList()
+    {
+        var result = await _mediator.Send(new ListQuery<WorkChangeResource>());
+        return Ok(result);
+    }
+
+    [HttpGet("Changes/{id}")]
+    public async Task<ActionResult<WorkChangeResource>> GetChange([FromRoute] Guid id)
+    {
+        var model = await _mediator.Send(new GetQuery<WorkChangeResource>(id));
+        if (model == null)
+        {
+            return NotFound();
+        }
+        return Ok(model);
+    }
+
+    [HttpPost("Changes")]
+    public async Task<ActionResult<WorkChangeResource>> PostChange([FromBody] WorkChangeResource resource)
+    {
+        var model = await _mediator.Send(new PostCommand<WorkChangeResource>(resource));
+        return Ok(model);
+    }
+
+    [HttpPut("Changes")]
+    public async Task<ActionResult<WorkChangeResource>> PutChange([FromBody] WorkChangeResource resource)
+    {
+        var model = await _mediator.Send(new PutCommand<WorkChangeResource>(resource));
+        if (model == null)
+        {
+            return NotFound();
+        }
+        return Ok(model);
+    }
+
+    [HttpDelete("Changes/{id}")]
+    public async Task<ActionResult<WorkChangeResource>> DeleteChange(Guid id)
+    {
+        var model = await _mediator.Send(new DeleteCommand<WorkChangeResource>(id));
+        if (model == null)
+        {
+            return NotFound();
+        }
+        return Ok(model);
     }
 }

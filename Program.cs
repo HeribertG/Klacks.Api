@@ -58,7 +58,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 {
     options.TokenValidationParameters = new TokenValidationParameters()
     {
-        ValidateActor = true,
+        ValidateActor = false,
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
@@ -103,6 +103,7 @@ builder.Services.AddApplicationServices();
 
 builder.Services.AddSignalR();
 builder.Services.AddScoped<IWorkNotificationService, WorkNotificationService>();
+builder.Services.AddScoped<IShiftStatsNotificationService, ShiftStatsNotificationService>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddMemoryCache();

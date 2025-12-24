@@ -14,20 +14,20 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
 {
     private readonly IWorkScheduleService _workScheduleService;
     private readonly IShiftGroupFilterService _groupFilterService;
-    private readonly IClientWorkRepository _clientWorkRepository;
+    private readonly IWorkRepository _workRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly ILogger<GetWorkScheduleQueryHandler> _logger;
 
     public GetWorkScheduleQueryHandler(
         IWorkScheduleService workScheduleService,
         IShiftGroupFilterService groupFilterService,
-        IClientWorkRepository clientWorkRepository,
+        IWorkRepository workRepository,
         ScheduleMapper scheduleMapper,
         ILogger<GetWorkScheduleQueryHandler> logger)
     {
         _workScheduleService = workScheduleService;
         _groupFilterService = groupFilterService;
-        _clientWorkRepository = clientWorkRepository;
+        _workRepository = workRepository;
         _scheduleMapper = scheduleMapper;
         _logger = logger;
     }
@@ -53,7 +53,7 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         var resources = _scheduleMapper.ToWorkScheduleResourceList(entries);
 
         var workFilter = CreateWorkFilter(request.Filter.StartDate, request.Filter.EndDate, request.Filter.SelectedGroup);
-        var clients = await _clientWorkRepository.WorkList(workFilter);
+        var clients = await _workRepository.WorkList(workFilter);
         var clientResources = _scheduleMapper.ToWorkScheduleClientResourceList(clients);
 
         _logger.LogInformation(

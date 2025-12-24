@@ -370,4 +370,15 @@ public partial class ScheduleMapper
             SourceConnectionId = sourceConnectionId
         };
     }
+
+    public ShiftStatsNotificationDto ToShiftStatsNotificationDto(ShiftDayAssignment shiftData, string sourceConnectionId)
+    {
+        return new ShiftStatsNotificationDto
+        {
+            ShiftId = shiftData.ShiftId,
+            Date = shiftData.Date.ToDateTime(TimeOnly.MinValue),
+            Engaged = shiftData.Engaged,
+            SourceConnectionId = sourceConnectionId
+        };
+    }
 }
