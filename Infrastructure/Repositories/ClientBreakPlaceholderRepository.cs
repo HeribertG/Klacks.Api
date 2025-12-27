@@ -52,7 +52,8 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
 
         query = ApplyTypeFilter(query, filter.ShowEmployees, filter.ShowExtern);
 
-        query = ApplySorting(query, filter.OrderBy, filter.SortOrder);
+        var refDate = new DateOnly(filter.CurrentYear, 1, 1);
+        query = ApplySorting(query, filter.OrderBy, filter.SortOrder, refDate);
 
         var totalCount = await query.CountAsync();
 
@@ -96,7 +97,7 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
         return query.Where(c => c.Type == EntityTypeEnum.ExternEmp);
     }
 
-    private IQueryable<Client> ApplySorting(IQueryable<Client> query, string orderBy, string sortOrder)
+    private static IQueryable<Client> ApplySorting(IQueryable<Client> query, string orderBy, string sortOrder, DateOnly refDate)
     {
         var isDescending = sortOrder?.ToLower() == "desc";
 
@@ -109,6 +110,18 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
             "company" => isDescending
                 ? query.OrderByDescending(c => c.Company).ThenByDescending(c => c.Name)
                 : query.OrderBy(c => c.Company).ThenBy(c => c.Name),
+
+            "hours" => isDescending
+                ? query.OrderByDescending(c => c.ClientContracts
+                    .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
+                    .OrderByDescending(cc => cc.FromDate)
+                    .Select(cc => cc.Contract.GuaranteedHoursPerMonth)
+                    .FirstOrDefault())
+                : query.OrderBy(c => c.ClientContracts
+                    .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
+                    .OrderByDescending(cc => cc.FromDate)
+                    .Select(cc => cc.Contract.GuaranteedHoursPerMonth)
+                    .FirstOrDefault()),
 
             "name" or _ => isDescending
                 ? query.OrderByDescending(c => c.Name).ThenByDescending(c => c.FirstName)

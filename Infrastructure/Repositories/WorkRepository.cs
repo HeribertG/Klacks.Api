@@ -60,7 +60,8 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
         query = ApplyTypeFilter(query, filter.ShowEmployees, filter.ShowExtern);
 
-        query = ApplySorting(query, filter.OrderBy, filter.SortOrder);
+        var refDate = new DateOnly(filter.CurrentYear, filter.CurrentMonth, 1);
+        query = ApplySorting(query, filter.OrderBy, filter.SortOrder, refDate);
 
         return await query.ToListAsync();
     }
@@ -85,7 +86,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         return query.Where(c => c.Type == EntityTypeEnum.ExternEmp);
     }
 
-    private static IQueryable<Client> ApplySorting(IQueryable<Client> query, string orderBy, string sortOrder)
+    private static IQueryable<Client> ApplySorting(IQueryable<Client> query, string orderBy, string sortOrder, DateOnly refDate)
     {
         var isDescending = sortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
 
@@ -100,6 +101,17 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             "type" => isDescending
                 ? query.OrderByDescending(c => c.Type)
                 : query.OrderBy(c => c.Type),
+            "hours" => isDescending
+                ? query.OrderByDescending(c => c.ClientContracts
+                    .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
+                    .OrderByDescending(cc => cc.FromDate)
+                    .Select(cc => cc.Contract.GuaranteedHoursPerMonth)
+                    .FirstOrDefault())
+                : query.OrderBy(c => c.ClientContracts
+                    .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
+                    .OrderByDescending(cc => cc.FromDate)
+                    .Select(cc => cc.Contract.GuaranteedHoursPerMonth)
+                    .FirstOrDefault()),
             _ => isDescending
                 ? query.OrderByDescending(c => c.Name)
                 : query.OrderBy(c => c.Name)
