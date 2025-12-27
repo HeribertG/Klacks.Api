@@ -56,6 +56,12 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         var clients = await _workRepository.WorkList(workFilter);
         var clientResources = _scheduleMapper.ToWorkScheduleClientResourceList(clients);
 
+        var clientIds = clients.Select(c => c.Id).ToList();
+        var monthlyHours = await _workRepository.GetMonthlyHoursForClients(
+            clientIds,
+            request.Filter.StartDate.Year,
+            request.Filter.StartDate.Month);
+
         _logger.LogInformation(
             "Returned {EntryCount} work schedule entries and {ClientCount} clients",
             resources.Count,
@@ -64,7 +70,8 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         return new WorkScheduleResponse
         {
             Entries = resources,
-            Clients = clientResources
+            Clients = clientResources,
+            MonthlyHours = monthlyHours
         };
     }
 

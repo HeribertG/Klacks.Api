@@ -6,6 +6,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Presentation.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Repositories;
@@ -58,5 +59,74 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         query = _searchFilterService.ApplySearchFilter(query, filter.SearchString, false);
 
         return await query.ToListAsync();
+    }
+
+    public async Task<Dictionary<Guid, MonthlyHoursResource>> GetMonthlyHoursForClients(List<Guid> clientIds, int year, int month)
+    {
+        if (clientIds.Count == 0)
+        {
+            return new Dictionary<Guid, MonthlyHoursResource>();
+        }
+
+        var result = new Dictionary<Guid, MonthlyHoursResource>();
+
+        var monthlyHours = await _context.MonthlyClientHours
+            .Where(m => clientIds.Contains(m.ClientId) && m.Year == year && m.Month == month)
+            .ToListAsync();
+
+        var clientIdsWithMonthlyHours = monthlyHours.Select(m => m.ClientId).ToHashSet();
+        var clientIdsWithoutMonthlyHours = clientIds.Where(id => !clientIdsWithMonthlyHours.Contains(id)).ToList();
+
+        var startOfMonth = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc);
+        var endOfMonth = new DateTime(year, month, DateTime.DaysInMonth(year, month), 23, 59, 59, DateTimeKind.Utc);
+
+        var worksHours = await _context.Work
+            .Where(w => clientIdsWithoutMonthlyHours.Contains(w.ClientId) && w.CurrentDate >= startOfMonth && w.CurrentDate <= endOfMonth)
+            .GroupBy(w => w.ClientId)
+            .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime) })
+            .ToListAsync();
+
+        var worksHoursDict = worksHours.ToDictionary(x => x.ClientId, x => x.TotalHours);
+
+        var refDate = new DateOnly(year, month, 1);
+        var contractData = await _context.ClientContract
+            .Where(cc => clientIds.Contains(cc.ClientId) && cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
+            .Include(cc => cc.Contract)
+            .ToListAsync();
+
+        var contractByClient = contractData
+            .GroupBy(cc => cc.ClientId)
+            .ToDictionary(g => g.Key, g => g.OrderByDescending(cc => cc.FromDate).First().Contract);
+
+        foreach (var mh in monthlyHours)
+        {
+            var guaranteedHours = contractByClient.TryGetValue(mh.ClientId, out var contract)
+                ? contract.GuaranteedHoursPerMonth
+                : 0m;
+
+            result[mh.ClientId] = new MonthlyHoursResource
+            {
+                Hours = mh.Hours,
+                Surcharges = mh.Surcharges,
+                GuaranteedHoursPerMonth = guaranteedHours
+            };
+        }
+
+        foreach (var clientId in clientIdsWithoutMonthlyHours)
+        {
+            var hours = worksHoursDict.TryGetValue(clientId, out var h) ? h : 0m;
+            var guaranteedHours = contractByClient.TryGetValue(clientId, out var contract)
+                ? contract.GuaranteedHoursPerMonth
+                : 0m;
+
+            result[clientId] = new MonthlyHoursResource
+            {
+                Hours = hours,
+                Surcharges = 0m,
+                GuaranteedHoursPerMonth = guaranteedHours
+            };
+        }
+
+        return result;
     }
 }

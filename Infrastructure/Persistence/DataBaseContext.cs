@@ -88,6 +88,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<Expenses> Expenses { get; set; }
 
+    public DbSet<MonthlyClientHours> MonthlyClientHours { get; set; }
+
     public DbSet<AssignedGroup> AssignedGroup { get; set; }  
 
     public DbSet<GroupVisibility> GroupVisibility { get; set; }
@@ -258,6 +260,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<GroupVisibility>().HasIndex(p => new { p.AppUserId, p.GroupId });
         modelBuilder.Entity<Contract>().HasIndex(p => new { p.Name, p.ValidFrom, p.ValidUntil });
         modelBuilder.Entity<ClientContract>().HasIndex(p => new { p.ClientId, p.ContractId, p.FromDate, p.UntilDate });
+        modelBuilder.Entity<MonthlyClientHours>().HasIndex(p => new { p.ClientId, p.Year, p.Month }).IsUnique();
 
         modelBuilder.Entity<Membership>()
        .HasOne(m => m.Client)
