@@ -13,4 +13,8 @@ public class WorkFilter
     public int DayVisibleAfterMonth { get; set; }
 
     public Guid? SelectedGroup { get; set; }
+
+    public string OrderBy { get; set; } = "name";
+
+    public string SortOrder { get; set; } = "asc";
 }

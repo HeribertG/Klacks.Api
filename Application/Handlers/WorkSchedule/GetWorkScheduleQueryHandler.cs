@@ -52,7 +52,12 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
 
         var resources = _scheduleMapper.ToWorkScheduleResourceList(entries);
 
-        var workFilter = CreateWorkFilter(request.Filter.StartDate, request.Filter.EndDate, request.Filter.SelectedGroup);
+        var workFilter = CreateWorkFilter(
+            request.Filter.StartDate,
+            request.Filter.EndDate,
+            request.Filter.SelectedGroup,
+            request.Filter.OrderBy,
+            request.Filter.SortOrder);
         var clients = await _workRepository.WorkList(workFilter);
         var clientResources = _scheduleMapper.ToWorkScheduleClientResourceList(clients);
 
@@ -75,7 +80,12 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         };
     }
 
-    private static WorkFilter CreateWorkFilter(DateOnly startDate, DateOnly endDate, Guid? selectedGroup)
+    private static WorkFilter CreateWorkFilter(
+        DateOnly startDate,
+        DateOnly endDate,
+        Guid? selectedGroup,
+        string orderBy,
+        string sortOrder)
     {
         var firstDayOfMonth = new DateOnly(startDate.Year, startDate.Month, 1);
         var lastDayOfMonth = new DateOnly(endDate.Year, endDate.Month, DateTime.DaysInMonth(endDate.Year, endDate.Month));
@@ -87,7 +97,9 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
             DayVisibleBeforeMonth = (firstDayOfMonth.ToDateTime(TimeOnly.MinValue) - startDate.ToDateTime(TimeOnly.MinValue)).Days,
             DayVisibleAfterMonth = (endDate.ToDateTime(TimeOnly.MinValue) - lastDayOfMonth.ToDateTime(TimeOnly.MinValue)).Days,
             SelectedGroup = selectedGroup,
-            SearchString = string.Empty
+            SearchString = string.Empty,
+            OrderBy = orderBy,
+            SortOrder = sortOrder
         };
     }
 }

@@ -58,7 +58,27 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
         query = _searchFilterService.ApplySearchFilter(query, filter.SearchString, false);
 
+        query = ApplySorting(query, filter.OrderBy, filter.SortOrder);
+
         return await query.ToListAsync();
+    }
+
+    private static IQueryable<Client> ApplySorting(IQueryable<Client> query, string orderBy, string sortOrder)
+    {
+        var isDescending = sortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
+
+        return orderBy.ToLowerInvariant() switch
+        {
+            "firstname" => isDescending
+                ? query.OrderByDescending(c => c.FirstName)
+                : query.OrderBy(c => c.FirstName),
+            "company" => isDescending
+                ? query.OrderByDescending(c => c.Company)
+                : query.OrderBy(c => c.Company),
+            _ => isDescending
+                ? query.OrderByDescending(c => c.Name)
+                : query.OrderBy(c => c.Name)
+        };
     }
 
     public async Task<Dictionary<Guid, MonthlyHoursResource>> GetMonthlyHoursForClients(List<Guid> clientIds, int year, int month)
