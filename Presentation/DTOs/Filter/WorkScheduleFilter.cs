@@ -7,4 +7,6 @@ public class WorkScheduleFilter
     public Guid? SelectedGroup { get; set; }
     public string OrderBy { get; set; } = "name";
     public string SortOrder { get; set; } = "asc";
+    public bool ShowEmployees { get; set; } = true;
+    public bool ShowExtern { get; set; } = true;
 }

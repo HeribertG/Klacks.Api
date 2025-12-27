@@ -17,4 +17,8 @@ public class BreakFilter
     public int? StartRow { get; set; }
 
     public int? RowCount { get; set; }
+
+    public bool ShowEmployees { get; set; } = true;
+
+    public bool ShowExtern { get; set; } = true;
 }

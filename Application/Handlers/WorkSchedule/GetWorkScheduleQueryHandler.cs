@@ -57,7 +57,9 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
             request.Filter.EndDate,
             request.Filter.SelectedGroup,
             request.Filter.OrderBy,
-            request.Filter.SortOrder);
+            request.Filter.SortOrder,
+            request.Filter.ShowEmployees,
+            request.Filter.ShowExtern);
         var clients = await _workRepository.WorkList(workFilter);
         var clientResources = _scheduleMapper.ToWorkScheduleClientResourceList(clients);
 
@@ -85,7 +87,9 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         DateOnly endDate,
         Guid? selectedGroup,
         string orderBy,
-        string sortOrder)
+        string sortOrder,
+        bool showEmployees,
+        bool showExtern)
     {
         var firstDayOfMonth = new DateOnly(startDate.Year, startDate.Month, 1);
         var lastDayOfMonth = new DateOnly(endDate.Year, endDate.Month, DateTime.DaysInMonth(endDate.Year, endDate.Month));
@@ -99,7 +103,9 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
             SelectedGroup = selectedGroup,
             SearchString = string.Empty,
             OrderBy = orderBy,
-            SortOrder = sortOrder
+            SortOrder = sortOrder,
+            ShowEmployees = showEmployees,
+            ShowExtern = showExtern
         };
     }
 }

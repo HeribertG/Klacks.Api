@@ -58,9 +58,31 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
         query = _searchFilterService.ApplySearchFilter(query, filter.SearchString, false);
 
+        query = ApplyTypeFilter(query, filter.ShowEmployees, filter.ShowExtern);
+
         query = ApplySorting(query, filter.OrderBy, filter.SortOrder);
 
         return await query.ToListAsync();
+    }
+
+    private static IQueryable<Client> ApplyTypeFilter(IQueryable<Client> query, bool showEmployees, bool showExtern)
+    {
+        if (showEmployees && showExtern)
+        {
+            return query;
+        }
+
+        if (!showEmployees && !showExtern)
+        {
+            return query.Where(c => false);
+        }
+
+        if (showEmployees && !showExtern)
+        {
+            return query.Where(c => c.Type == EntityTypeEnum.Employee);
+        }
+
+        return query.Where(c => c.Type == EntityTypeEnum.ExternEmp);
     }
 
     private static IQueryable<Client> ApplySorting(IQueryable<Client> query, string orderBy, string sortOrder)
@@ -75,6 +97,9 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             "company" => isDescending
                 ? query.OrderByDescending(c => c.Company)
                 : query.OrderBy(c => c.Company),
+            "type" => isDescending
+                ? query.OrderByDescending(c => c.Type)
+                : query.OrderBy(c => c.Type),
             _ => isDescending
                 ? query.OrderByDescending(c => c.Name)
                 : query.OrderBy(c => c.Name)

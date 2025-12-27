@@ -50,6 +50,8 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
             c.Membership!.ValidFrom <= endOfYear &&
             (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startOfYear));
 
+        query = ApplyTypeFilter(query, filter.ShowEmployees, filter.ShowExtern);
+
         query = ApplySorting(query, filter.OrderBy, filter.SortOrder);
 
         var totalCount = await query.CountAsync();
@@ -72,6 +74,26 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
         var clients = await query.AsSingleQuery().ToListAsync();
 
         return (clients, totalCount);
+    }
+
+    private static IQueryable<Client> ApplyTypeFilter(IQueryable<Client> query, bool showEmployees, bool showExtern)
+    {
+        if (showEmployees && showExtern)
+        {
+            return query;
+        }
+
+        if (!showEmployees && !showExtern)
+        {
+            return query.Where(c => false);
+        }
+
+        if (showEmployees && !showExtern)
+        {
+            return query.Where(c => c.Type == EntityTypeEnum.Employee);
+        }
+
+        return query.Where(c => c.Type == EntityTypeEnum.ExternEmp);
     }
 
     private IQueryable<Client> ApplySorting(IQueryable<Client> query, string orderBy, string sortOrder)
