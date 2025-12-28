@@ -107,6 +107,7 @@ builder.Services.AddScoped<IShiftStatsNotificationService, ShiftStatsNotificatio
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddMemoryCache();
+builder.Services.AddHealthChecks();
 
 builder.Services.AddPipelineBehavior(typeof(ValidationBehavior<,>));
 
@@ -207,6 +208,7 @@ app.UseEndpoints(endpoints =>
         endpoints.MapBlazorHub();
         endpoints.MapControllers();
         endpoints.MapHub<WorkNotificationHub>("/hubs/work-notifications");
+        endpoints.MapHealthChecks("/health");
     }
 );
 
