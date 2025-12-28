@@ -39,7 +39,7 @@ namespace Klacks.Api.BasicScriptInterpreter
             errorObject = null;
         }
 
-        public Code Parse(Code.IInputStream source, Code code, bool optionExplicit = true, bool allowExternal = true)
+        public Code Parse(IInputStream source, Code code, bool optionExplicit = true, bool allowExternal = true)
         {
             lex.Connect(source, code.ErrorObject!);
 
@@ -80,7 +80,7 @@ namespace Klacks.Api.BasicScriptInterpreter
             {
                 // statt eines Parameters sind wir nur auf ein "," oder das Statement-Ende gestossen
                 // wir nehmen daher den default-Wert an
-                code!.Add(Code.Opcodes.opPushValue, default_Renamed);
+                code!.Add(Opcodes.PushValue, default_Renamed);
             }
             else
             {
@@ -151,11 +151,11 @@ namespace Klacks.Api.BasicScriptInterpreter
                                                    //ActualOptionalParameter(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width / (double)5);  // xPos
                                                    //ActualOptionalParameter(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height / (double)5);  // yPos
 
-            code!.Add(Code.Opcodes.opInputbox);
+            code!.Add(Opcodes.Inputbox);
 
             if (dropReturnValue)
             {
-                code.Add(Code.Opcodes.opPop);
+                code.Add(Opcodes.Pop);
             }
         }
 
@@ -164,11 +164,11 @@ namespace Klacks.Api.BasicScriptInterpreter
             ActualOptionalParameter(0);
             ActualOptionalParameter(string.Empty);
 
-            code!.Add(Code.Opcodes.opMessage);
+            code!.Add(Opcodes.Message);
 
             if (dropReturnValue)
             {
-                code.Add(Code.Opcodes.opPop);
+                code.Add(Opcodes.Pop);
             }
         }
 
@@ -178,11 +178,11 @@ namespace Klacks.Api.BasicScriptInterpreter
             ActualOptionalParameter(0);
             ActualOptionalParameter(string.Empty);
 
-            code!.Add(Code.Opcodes.opMsgbox);
+            code!.Add(Opcodes.Msgbox);
 
             if (dropReturnValue)
             {
-                code.Add(Code.Opcodes.opPop);
+                code.Add(Opcodes.Pop);
             }
         }
 
@@ -212,7 +212,7 @@ namespace Klacks.Api.BasicScriptInterpreter
             // --- Function-Scope vorbereiten
 
             // Neuen Scope für die Funktion öffnen
-            code!.Add(Code.Opcodes.opPushScope);
+            code!.Add(Opcodes.PushScope);
 
             // --- Parameter verarbeiten
             int n = 0;
@@ -243,8 +243,8 @@ namespace Klacks.Api.BasicScriptInterpreter
             // (in umgekehrter Reihenfolge, weil die Werte so auf dem Stack liegen)
             for (i = definition.FormalParameters.Count - 1; i >= 0; i += -1)
             {
-                code.Add(Code.Opcodes.OpAllocVar, definition.FormalParameters[i]);
-                code.Add(Code.Opcodes.opAssign, definition.FormalParameters[i]);
+                code.Add(Opcodes.AllocVar, definition.FormalParameters[i]);
+                code.Add(Opcodes.Assign, definition.FormalParameters[i]);
             }
 
             if (requireRightParent)
@@ -256,10 +256,10 @@ namespace Klacks.Api.BasicScriptInterpreter
             }
 
             // --- Funktion rufen
-            code.Add(Code.Opcodes.opCall, definition.Address);
+            code.Add(Opcodes.Call, definition.Address);
 
             // --- Scopes aufräumen
-            code.Add(Code.Opcodes.opPopScope);
+            code.Add(Opcodes.PopScope);
         }
 
         // ( "SIN" | "COS" | "TAN" | "ATAN" ) "(" Condition ")"
@@ -280,25 +280,25 @@ namespace Klacks.Api.BasicScriptInterpreter
                     {
                         case Symbol.Tokens.tokSin:
                             {
-                                code!.Add(Code.Opcodes.opSin);
+                                code!.Add(Opcodes.Sin);
                                 break;
                             }
 
                         case Symbol.Tokens.tokCos:
                             {
-                                code!.Add(Code.Opcodes.opCos);
+                                code!.Add(Opcodes.Cos);
                                 break;
                             }
 
                         case Symbol.Tokens.tokTan:
                             {
-                                code!.Add(Code.Opcodes.opTan);
+                                code!.Add(Opcodes.Tan);
                                 break;
                             }
 
                         case Symbol.Tokens.tokATan:
                             {
-                                code!.Add(Code.Opcodes.opATan);
+                                code!.Add(Opcodes.ATan);
                                 break;
                             }
                     }
@@ -323,7 +323,7 @@ namespace Klacks.Api.BasicScriptInterpreter
                 GetNextSymbol();
                 ConditionalTerm();
 
-                code!.Add(Code.Opcodes.opOr);
+                code!.Add(Opcodes.Or);
             }
         }
 
@@ -346,37 +346,37 @@ namespace Klacks.Api.BasicScriptInterpreter
                 {
                     case Symbol.Tokens.tokEq:
                         {
-                            code!.Add(Code.Opcodes.opEq);
+                            code!.Add(Opcodes.Eq);
                             break;
                         }
 
                     case Symbol.Tokens.tokNotEq:
                         {
-                            code!.Add(Code.Opcodes.opNotEq);
+                            code!.Add(Opcodes.NotEq);
                             break;
                         }
 
                     case Symbol.Tokens.tokLEq:
                         {
-                            code!.Add(Code.Opcodes.opLEq);
+                            code!.Add(Opcodes.LEq);
                             break;
                         }
 
                     case Symbol.Tokens.tokLt:
                         {
-                            code!.Add(Code.Opcodes.oplt);
+                            code!.Add(Opcodes.Lt);
                             break;
                         }
 
                     case Symbol.Tokens.tokGEq:
                         {
-                            code!.Add(Code.Opcodes.opGEq);
+                            code!.Add(Opcodes.GEq);
                             break;
                         }
 
                     case Symbol.Tokens.tokGt:
                         {
-                            code!.Add(Code.Opcodes.opGt);
+                            code!.Add(Opcodes.Gt);
                             break;
                         }
                 }
@@ -393,7 +393,7 @@ namespace Klacks.Api.BasicScriptInterpreter
 
             while (InSymbolSet(sym.Token, Symbol.Tokens.tokAnd))
             {
-                operandPCs.Add(code!.Add(Code.Opcodes.opJumpFalse));
+                operandPCs.Add(code!.Add(Opcodes.JumpFalse));
 
                 GetNextSymbol();
                 ConditionalFactor();
@@ -402,11 +402,11 @@ namespace Klacks.Api.BasicScriptInterpreter
             int thenPC;
             if (operandPCs.Count() > 0)
             {
-                operandPCs.Add(code!.Add(Code.Opcodes.opJumpFalse));
+                operandPCs.Add(code!.Add(Opcodes.JumpFalse));
 
                 // wenn wir hier ankommen, dann sind alle AND-Operanden TRUE
-                code.Add(Code.Opcodes.opPushValue, true); // also dieses Ergebnis auch auf den Stack legen
-                thenPC = code.Add(Code.Opcodes.opJump); // und zum Code springen, der mit dem Ergebnis weiterarbeitet
+                code.Add(Opcodes.PushValue, true); // also dieses Ergebnis auch auf den Stack legen
+                thenPC = code.Add(Opcodes.Jump); // und zum Code springen, der mit dem Ergebnis weiterarbeitet
 
                 // wenn wir hier ankommen, dann war mindestens ein
                 // AND-Operand FALSE
@@ -414,7 +414,7 @@ namespace Klacks.Api.BasicScriptInterpreter
                 // sie ja FALSE ergeben haben
                 for (int i = 0; i < operandPCs.Count(); i++)
                     code.FixUp(Convert.ToInt32(operandPCs[i]) - 1, code.EndOfCodePc);
-                code.Add(Code.Opcodes.opPushValue, false); // also dieses Ergebnis auch auf den Stack legen
+                code.Add(Opcodes.PushValue, false); // also dieses Ergebnis auch auf den Stack legen
 
                 code.FixUp(thenPC - 1, code.EndOfCodePc);
             }
@@ -440,7 +440,7 @@ namespace Klacks.Api.BasicScriptInterpreter
                     if (sym.Token == Symbol.Tokens.tokNumber | sym.Token == Symbol.Tokens.tokString)
                     {
                         symboltable.Allocate(ident, sym.Value, Identifier.IdentifierTypes.IdConst);
-                        code!.Add(Code.Opcodes.OpAllocConst, ident, sym.Value!);
+                        code!.Add(Opcodes.AllocConst, ident, sym.Value!);
 
                         GetNextSymbol();
                     }
@@ -465,7 +465,7 @@ namespace Klacks.Api.BasicScriptInterpreter
 
             // EXIT-Adresse auf den Stack legen
 
-            pushExitAddrPC = code!.Add(Code.Opcodes.opPushValue);
+            pushExitAddrPC = code!.Add(Opcodes.PushValue);
 
             doPC = code.EndOfCodePc;
 
@@ -477,7 +477,7 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                 Condition();
 
-                conditionPC = code.Add(Code.Opcodes.opJumpFalse);
+                conditionPC = code.Add(Opcodes.JumpFalse);
             }
 
             thisDOisSingleLineOnly = !(sym.Token == Symbol.Tokens.tokStatementDelimiter & sym.Text == "\n");
@@ -507,10 +507,10 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                             Condition();
 
-                            code.Add(loopWhile == true ? Code.Opcodes.opJumpTrue : Code.Opcodes.opJumpFalse, doPC);
+                            code.Add(loopWhile == true ? Opcodes.JumpTrue : Opcodes.JumpFalse, doPC);
                             // Sprung zum Schleifenanf. wenn Bed. entsprechenden Wert hat
 
-                            code.Add(Code.Opcodes.opPop); // Exit-Adresse vom Stack entfernen
+                            code.Add(Opcodes.Pop); // Exit-Adresse vom Stack entfernen
 
                             code.FixUp(pushExitAddrPC - 1, code.EndOfCodePc); // Adresse setzen, zu der EXIT springen soll
                             break;
@@ -526,10 +526,10 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                             Condition();
 
-                            code.Add(loopWhile == true ? Code.Opcodes.opJumpTrue : Code.Opcodes.opJumpFalse, doPC);
+                            code.Add(loopWhile == true ? Opcodes.JumpTrue : Opcodes.JumpFalse, doPC);
                             // Sprung zum Schleifenanf. wenn Bed. entsprechenden Wert hat
 
-                            code.Add(Code.Opcodes.opPop); // Exit-Adresse vom Stack entfernen
+                            code.Add(Opcodes.Pop); // Exit-Adresse vom Stack entfernen
 
                             code.FixUp(pushExitAddrPC - 1, code.EndOfCodePc); // Adresse setzen, zu der EXIT springen soll
                             break;
@@ -537,11 +537,11 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                     default:
                         {
-                            code.Add(Code.Opcodes.opJump, doPC);
+                            code.Add(Opcodes.Jump, doPC);
                             if (doWhile == true)
                                 code.FixUp(conditionPC - 1, code.EndOfCodePc);
 
-                            code.Add(Code.Opcodes.opPop); // Exit-Adresse vom Stack entfernen, sie wurde ja nicht benutzt
+                            code.Add(Opcodes.Pop); // Exit-Adresse vom Stack entfernen, sie wurde ja nicht benutzt
 
                             code.FixUp(pushExitAddrPC - 1, code.EndOfCodePc); // Adresse setzen, zu der EXIT springen soll
                             break;
@@ -570,25 +570,25 @@ namespace Klacks.Api.BasicScriptInterpreter
                 {
                     case Symbol.Tokens.tokPlus:
                         {
-                            code!.Add(Code.Opcodes.opAdd);
+                            code!.Add(Opcodes.Add);
                             break;
                         }
 
                     case Symbol.Tokens.tokMinus:
                         {
-                            code!.Add(Code.Opcodes.opSub);
+                            code!.Add(Opcodes.Sub);
                             break;
                         }
 
                     case Symbol.Tokens.tokMod:
                         {
-                            code!.Add(Code.Opcodes.opMod);
+                            code!.Add(Opcodes.Mod);
                             break;
                         }
 
                     case Symbol.Tokens.tokStringConcat:
                         {
-                            code!.Add(Code.Opcodes.opStringConcat);
+                            code!.Add(Opcodes.StringConcat);
                             break;
                         }
                 }
@@ -606,7 +606,7 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                 Factorial();
 
-                code!.Add(Code.Opcodes.opPower);
+                code!.Add(Opcodes.Power);
             }
         }
 
@@ -618,7 +618,7 @@ namespace Klacks.Api.BasicScriptInterpreter
 
             if (sym.Token == Symbol.Tokens.tokFactorial)
             {
-                code!.Add(Code.Opcodes.opFactorial);
+                code!.Add(Opcodes.Factorial);
 
                 GetNextSymbol();
             }
@@ -651,7 +651,7 @@ namespace Klacks.Api.BasicScriptInterpreter
                     Condition(); // Startwert der FOR-Schleife
 
                     // Startwert (auf dem Stack) der Zählervariablen zuweisen
-                    code!.Add(Code.Opcodes.opAssign, counterVariable);
+                    code!.Add(Opcodes.Assign, counterVariable);
 
                     if (sym.Token == Symbol.Tokens.tokTo)
                     {
@@ -667,11 +667,11 @@ namespace Klacks.Api.BasicScriptInterpreter
                         }
                         else
                             // keine explizite Schrittweite, also default auf 1
-                            code.Add(Code.Opcodes.opPushValue, 1);
+                            code.Add(Opcodes.PushValue, 1);
 
                         // EXIT-Adresse auf Stack legen. Es ist wichtig, dass sie zuoberst liegt!
                         // Nur so kommen wir jederzeit an sie mit EXIT heran.
-                        pushExitAddrPC = code.Add(Code.Opcodes.opPushValue);
+                        pushExitAddrPC = code.Add(Opcodes.PushValue);
 
                         // hier gehen endlich die Statements innerhalb der Schleife los
                         forPC = code.EndOfCodePc;
@@ -694,22 +694,22 @@ namespace Klacks.Api.BasicScriptInterpreter
                         // geprüft, ob eine weitere Runde gedreht werden soll
 
                         // Wert der counter variablen um die Schrittweite erhöhen
-                        code.Add(Code.Opcodes.opPopWithIndex, 1); // Schrittweite
-                        code.Add(Code.Opcodes.opPushVariable, counterVariable); // aktuellen Zählervariableninhalt holen
-                        code.Add(Code.Opcodes.opAdd); // aktuellen Zähler + Schrittweite
-                        code.Add(Code.Opcodes.opAssign, counterVariable); // Zählervariable ist jetzt auf dem neuesten Stand
+                        code.Add(Opcodes.PopWithIndex, 1); // Schrittweite
+                        code.Add(Opcodes.PushVariable, counterVariable); // aktuellen Zählervariableninhalt holen
+                        code.Add(Opcodes.Add); // aktuellen Zähler + Schrittweite
+                        code.Add(Opcodes.Assign, counterVariable); // Zählervariable ist jetzt auf dem neuesten Stand
 
                         // Prüfen, ob Endwert schon überschritten
-                        code.Add(Code.Opcodes.opPopWithIndex, 2); // Endwert
-                        code.Add(Code.Opcodes.opPushVariable, counterVariable); // aktuellen Zählervariableninhalt holen (ja, den hatten wir gerade schon mal)
-                        code.Add(Code.Opcodes.opGEq); // wenn Endwert >= Zählervariable, dann weitermachen
-                        code.Add(Code.Opcodes.opJumpTrue, forPC);
+                        code.Add(Opcodes.PopWithIndex, 2); // Endwert
+                        code.Add(Opcodes.PushVariable, counterVariable); // aktuellen Zählervariableninhalt holen (ja, den hatten wir gerade schon mal)
+                        code.Add(Opcodes.GEq); // wenn Endwert >= Zählervariable, dann weitermachen
+                        code.Add(Opcodes.JumpTrue, forPC);
 
                         // Stack bereinigen von allen durch FOR darauf zwischengespeicherten Werten
-                        code.Add(Code.Opcodes.opPop); // Exit-Adresse vom Stack entfernen
+                        code.Add(Opcodes.Pop); // Exit-Adresse vom Stack entfernen
                         code.FixUp(pushExitAddrPC - 1, code.EndOfCodePc); // Adresse setzen, zu der EXIT springen soll
-                        code.Add(Code.Opcodes.opPop); // Schrittweite
-                        code.Add(Code.Opcodes.opPop); // Endwert
+                        code.Add(Opcodes.Pop); // Schrittweite
+                        code.Add(Opcodes.Pop); // Endwert
                     }
                     else
                         errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.FORStatement", "Expected: 'TO' after start Value of FOR-statement", sym.Line, sym.Col, sym.Index, sym.Text);
@@ -723,113 +723,98 @@ namespace Klacks.Api.BasicScriptInterpreter
 
         private void FunctionDefinition()
         {
-            string ident;
             List<object> formalParameters = new();
-            int skipFunctionPC;
-            bool isSub;
+            int skipFunctionPC = 0;
+            bool isSub = sym.Token == Symbol.Tokens.tokSub;
 
-            isSub = Convert.ToBoolean(sym.Token == Symbol.Tokens.tokSub);
+            void GenerateEndFunctionCode()
+            {
+                symboltable!.PopScopes(-1);
+                code!.Add(Opcodes.Return);
+                code.FixUp(skipFunctionPC - 1, code.EndOfCodePc);
+            }
 
             GetNextSymbol();
 
-            Identifier definition;
-            if (sym.Token == Symbol.Tokens.tokIdentifier)
+            if (sym.Token != Symbol.Tokens.tokIdentifier)
             {
-                ident = sym.Text; // Der Funktionsname ist immer an Position 1 in der collection
+                errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.FunctionDefinition", "Function/Sub Name is missing in definition", sym.Line, sym.Col, sym.Index, sym.Text);
+                return;
+            }
 
+            string ident = sym.Text;
+            GetNextSymbol();
+
+            if (sym.Token == Symbol.Tokens.tokLeftParent)
+            {
                 GetNextSymbol();
 
-                if (sym.Token == Symbol.Tokens.tokLeftParent)
+                while (sym.Token == Symbol.Tokens.tokIdentifier)
                 {
-                    // Liste der formalen Parameter abarbeiten
+                    formalParameters.Add(sym.Text);
                     GetNextSymbol();
 
-                    while (sym.Token == Symbol.Tokens.tokIdentifier)
-                    {
-                        formalParameters.Add(sym.Text);
-
-                        GetNextSymbol();
-
-                        if (sym.Token != Symbol.Tokens.tokComma)
-                            break;
-                        GetNextSymbol();
-                    }
-
-                    if (sym.Token == Symbol.Tokens.tokRightParent)
-                        GetNextSymbol();
-                    else
-                        errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.FunctionDefinition", "Expected: ',' or ')' or identifier", sym.Line, sym.Col, sym.Index, sym.Text);
-                }
-
-                // Funktion im aktuellen Scope definieren
-                definition = symboltable!.Allocate(ident, null, isSub ? Identifier.IdentifierTypes.IdSub : Identifier.IdentifierTypes.IdFunction);
-                code!.Add(Code.Opcodes.OpAllocVar, ident); // Funktionsvariable anlegen
-
-                // in der sequentiellen Codeausführung die Funktion überspringen
-                skipFunctionPC = code!.Add(Code.Opcodes.opJump);
-                definition.Address = code.EndOfCodePc;
-
-                // Neuen Scope für die Funktion öffnen
-                symboltable.PushScope();
-
-                // Formale Parameter als lokale Variablen der Funktion definieren
-                definition.FormalParameters = formalParameters;
-                for (int i = 0; i <= formalParameters.Count() - 1; i++)
-                    symboltable.Allocate(formalParameters[i].ToString()!, null);
-
-                // Funktionsrumpf übersetzen
-                // (er darf auch wieder Funktionsdefinitionen enthalten!)
-                StatementList(false, true, isSub != true ? (int)Exits.ExitFunction : (int)Exits.ExitSub, Symbol.Tokens.tokEof, Symbol.Tokens.tokEnd, Symbol.Tokens.tokEndfunction, Symbol.Tokens.tokEndsub); // geschachtelte Funktionsdefinitionen erlaubt
-
-                // Ist die Funktion korrekt abgeschlossen worden?
-                // (etwas unelegant, aber irgendwie nicht zu umgehen, wenn man
-                // mehrwortige Endsymbole und Alternativen erlauben will)
-                if (sym.Token == Symbol.Tokens.tokEndfunction | sym.Token == Symbol.Tokens.tokEndsub)
-                {
-                    if (isSub & sym.Token != Symbol.Tokens.tokEndsub)
-                        errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.FunctionDefinition", "Expected: 'END SUB' or 'ENDSUB' at end of sub body", sym.Line, sym.Col, sym.Index, sym.Text);
-
+                    if (sym.Token != Symbol.Tokens.tokComma)
+                        break;
                     GetNextSymbol();
-
-                    goto GenerateEndFunctionCode;
                 }
-                else if (sym.Token == Symbol.Tokens.tokEnd)
-                {
+
+                if (sym.Token == Symbol.Tokens.tokRightParent)
                     GetNextSymbol();
-
-                    if (isSub)
-                    {
-                        if (sym.Token == Symbol.Tokens.tokSub)
-                        {
-                            GetNextSymbol();
-                            goto GenerateEndFunctionCode;
-                        }
-                        else
-                            errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.FunctionDefinition", "Expected: 'END SUB' or 'ENDSUB' at end of sub body", sym.Line, sym.Col, sym.Index, sym.Text);
-                    }
-                    else if (sym.Token == Symbol.Tokens.tokFunction)
-                    {
-                        GetNextSymbol();
-                        goto GenerateEndFunctionCode;
-                    }
-                    else
-                        errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.FunctionDefinition", "Expected: 'END FUNCTION' or 'ENDFUNCTION' at end of function body", sym.Line, sym.Col, sym.Index, sym.Text);
-                }
                 else
-                    errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.FunctionDefinition", "Expected: 'END FUNCTION'/'ENDFUNCTION', 'END SUB'/'ENDSUB' at end of function body", sym.Line, sym.Col, sym.Index, sym.Text);
+                    errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.FunctionDefinition", "Expected: ',' or ')' or identifier", sym.Line, sym.Col, sym.Index, sym.Text);
             }
-            else
-                errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.FunctionDefinition", "Function/Sub Name is missing in definition", sym.Line, sym.Col, sym.Index, sym.Text);
 
-            return;
+            var definition = symboltable!.Allocate(ident, null, isSub ? Identifier.IdentifierTypes.IdSub : Identifier.IdentifierTypes.IdFunction);
+            code!.Add(Opcodes.AllocVar, ident);
 
-        GenerateEndFunctionCode:
+            skipFunctionPC = code!.Add(Opcodes.Jump);
+            definition.Address = code.EndOfCodePc;
 
-            symboltable.PopScopes(-1); // lokalen Gültigkeitsbereich wieder verwerfen
+            symboltable.PushScope();
 
-            code.Add(Code.Opcodes.opReturn);
+            definition.FormalParameters = formalParameters;
+            for (int i = 0; i < formalParameters.Count; i++)
+                symboltable.Allocate(formalParameters[i].ToString()!, null);
 
-            code.FixUp(skipFunctionPC - 1, code.EndOfCodePc);
+            StatementList(false, true, isSub ? (int)Exits.ExitSub : (int)Exits.ExitFunction, Symbol.Tokens.tokEof, Symbol.Tokens.tokEnd, Symbol.Tokens.tokEndfunction, Symbol.Tokens.tokEndsub);
+
+            if (sym.Token == Symbol.Tokens.tokEndfunction || sym.Token == Symbol.Tokens.tokEndsub)
+            {
+                if (isSub && sym.Token != Symbol.Tokens.tokEndsub)
+                    errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.FunctionDefinition", "Expected: 'END SUB' or 'ENDSUB' at end of sub body", sym.Line, sym.Col, sym.Index, sym.Text);
+
+                GetNextSymbol();
+                GenerateEndFunctionCode();
+                return;
+            }
+
+            if (sym.Token == Symbol.Tokens.tokEnd)
+            {
+                GetNextSymbol();
+
+                if (isSub && sym.Token == Symbol.Tokens.tokSub)
+                {
+                    GetNextSymbol();
+                    GenerateEndFunctionCode();
+                    return;
+                }
+
+                if (!isSub && sym.Token == Symbol.Tokens.tokFunction)
+                {
+                    GetNextSymbol();
+                    GenerateEndFunctionCode();
+                    return;
+                }
+
+                if (isSub)
+                    errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.FunctionDefinition", "Expected: 'END SUB' or 'ENDSUB' at end of sub body", sym.Line, sym.Col, sym.Index, sym.Text);
+                else
+                    errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.FunctionDefinition", "Expected: 'END FUNCTION' or 'ENDFUNCTION' at end of function body", sym.Line, sym.Col, sym.Index, sym.Text);
+                return;
+            }
+
+            errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.FunctionDefinition", "Expected: 'END FUNCTION'/'ENDFUNCTION', 'END SUB'/'ENDSUB' at end of function body", sym.Line, sym.Col, sym.Index, sym.Text);
         }
 
         private Symbol GetNextSymbol()
@@ -857,14 +842,14 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                 singleLineOnly = singleLineOnly || thisIFisSingleLineOnly;
 
-                thenPC = code!.Add(Code.Opcodes.opJumpFalse);
+                thenPC = code!.Add(Opcodes.JumpFalse);
                 // Spring zum ELSE-Teil oder ans Ende
 
                 StatementList(singleLineOnly, false, exitsAllowed, Symbol.Tokens.tokEof, Symbol.Tokens.tokElse, Symbol.Tokens.tokEnd, Symbol.Tokens.tokEndif);
 
                 if (sym.Token == Symbol.Tokens.tokElse)
                 {
-                    elsePC = code.Add(Code.Opcodes.opJump); // Spring ans Ende
+                    elsePC = code.Add(Opcodes.Jump); // Spring ans Ende
                     code.FixUp(thenPC - 1, elsePC);
 
                     GetNextSymbol();
@@ -1002,7 +987,7 @@ namespace Klacks.Api.BasicScriptInterpreter
                                 {
                                     if (exitsAllowed + Exits.ExitDo == Exits.ExitDo)
 
-                                        code!.Add(Code.Opcodes.opJumpPop); // Exit-Adresse liegt auf dem Stack
+                                        code!.Add(Opcodes.JumpPop); // Exit-Adresse liegt auf dem Stack
                                     else
                                         errorObject!.Raise((int)InterpreterError.ParsErrors.errUnexpectedSymbol, "SyntaxAnalyser.Statement", "'EXIT DO' not allowed at this point", sym.Line, sym.Col, sym.Index, sym.Text);
                                     break;
@@ -1012,7 +997,7 @@ namespace Klacks.Api.BasicScriptInterpreter
                                 {
                                     if ((Convert.ToByte(exitsAllowed) & Convert.ToByte(Exits.ExitFor)) == Convert.ToByte(Exits.ExitFor))
 
-                                        code!.Add(Code.Opcodes.opJumpPop); // Exit-Adresse liegt auf dem Stack
+                                        code!.Add(Opcodes.JumpPop); // Exit-Adresse liegt auf dem Stack
                                     else
                                         errorObject!.Raise((int)InterpreterError.ParsErrors.errUnexpectedSymbol, "SyntaxAnalyser.Statement", "'EXIT FOR' not allowed at this point", sym.Line, sym.Col, sym.Index, sym.Text);
                                     break;
@@ -1023,7 +1008,7 @@ namespace Klacks.Api.BasicScriptInterpreter
                                     if ((Convert.ToByte(exitsAllowed) & Convert.ToByte(Exits.ExitSub)) == Convert.ToByte(Exits.ExitSub))
 
                                         // zum Ende der aktuellen Funktion spring
-                                        code!.Add(Code.Opcodes.opReturn);
+                                        code!.Add(Opcodes.Return);
                                     else if ((Convert.ToByte(exitsAllowed) & Convert.ToByte(Exits.ExitFunction)) == Convert.ToByte(Exits.ExitFunction))
                                         errorObject!.Raise((int)InterpreterError.ParsErrors.errUnexpectedSymbol, "SyntaxAnalyser.Statement", "Expected: 'EXIT FUNCTION' in function", sym.Line, sym.Col, sym.Index, sym.Text);
                                     else
@@ -1035,7 +1020,7 @@ namespace Klacks.Api.BasicScriptInterpreter
                                 {
                                     if ((Convert.ToByte(exitsAllowed) & Convert.ToByte(Exits.ExitFunction)) == Convert.ToByte(Exits.ExitFunction))
 
-                                        code!.Add(Code.Opcodes.opReturn);
+                                        code!.Add(Opcodes.Return);
                                     else if ((Convert.ToByte(exitsAllowed) & +Convert.ToByte(Exits.ExitSub)) == Convert.ToByte(Exits.ExitSub))
                                         errorObject!.Raise((int)InterpreterError.ParsErrors.errUnexpectedSymbol, "SyntaxAnalyser.Statement", "Expected: 'EXIT SUB' in sub", sym.Line, sym.Col, sym.Index, sym.Text);
                                     else
@@ -1061,7 +1046,7 @@ namespace Klacks.Api.BasicScriptInterpreter
                         if (errorObject!.Number == 0)
                         {
                             ActualOptionalParameter("");
-                            code!.Add(Code.Opcodes.opDebugPrint);
+                            code!.Add(Opcodes.DebugPrint);
                         }
 
                         break;
@@ -1069,7 +1054,7 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                 case Symbol.Tokens.tokDebugClear:
                     {
-                        code!.Add(Code.Opcodes.opDebugClear);
+                        code!.Add(Opcodes.DebugClear);
 
                         GetNextSymbol();
                         break;
@@ -1077,7 +1062,7 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                 case Symbol.Tokens.tokDebugShow:
                     {
-                        code!.Add(Code.Opcodes.opDebugShow);
+                        code!.Add(Opcodes.DebugShow);
 
                         GetNextSymbol();
                         break;
@@ -1085,7 +1070,7 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                 case Symbol.Tokens.tokDebugHide:
                     {
-                        code!.Add(Code.Opcodes.opDebugHide);
+                        code!.Add(Opcodes.DebugHide);
 
                         GetNextSymbol();
                         break;
@@ -1109,7 +1094,7 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                 case Symbol.Tokens.tokDoEvents:
                     {
-                        code!.Add(Code.Opcodes.opDoEvents);
+                        code!.Add(Opcodes.DoEvents);
 
                         GetNextSymbol();
                         break;
@@ -1203,7 +1188,7 @@ namespace Klacks.Api.BasicScriptInterpreter
 
             if (op != Symbol.Tokens.tokEq)
             {
-                this.code!.Add(Code.Opcodes.opPushVariable, Ident);
+                this.code!.Add(Opcodes.PushVariable, Ident);
             }
 
             GetNextSymbol();
@@ -1212,35 +1197,35 @@ namespace Klacks.Api.BasicScriptInterpreter
             switch (op)
             {
                 case Symbol.Tokens.tokPlusEq:
-                    code!.Add(Code.Opcodes.opAdd);
+                    code!.Add(Opcodes.Add);
                     break;
 
                 case Symbol.Tokens.tokMinusEq:
-                    code!.Add(Code.Opcodes.opSub);
+                    code!.Add(Opcodes.Sub);
                     break;
 
                 case Symbol.Tokens.tokMultiplicationEq:
-                    code!.Add(Code.Opcodes.opMultiplication);
+                    code!.Add(Opcodes.Multiplication);
                     break;
 
                 case Symbol.Tokens.tokDivisionEq:
-                    code!.Add(Code.Opcodes.opDivision);
+                    code!.Add(Opcodes.Division);
                     break;
 
                 case Symbol.Tokens.tokStringConcatEq:
-                    code!.Add(Code.Opcodes.opStringConcat);
+                    code!.Add(Opcodes.StringConcat);
                     break;
 
                 case Symbol.Tokens.tokDivEq:
-                    code!.Add(Code.Opcodes.opDiv);
+                    code!.Add(Opcodes.Div);
                     break;
 
                 case Symbol.Tokens.tokModEq:
-                    code!.Add(Code.Opcodes.opMod);
+                    code!.Add(Opcodes.Mod);
                     break;
             }
 
-            code!.Add(Code.Opcodes.opAssign, Ident);
+            code!.Add(Opcodes.Assign, Ident);
         }
 
         private void StatementList(bool singleLineOnly, bool allowFunctionDeclarations, int exitsAllowed, params Symbol.Tokens[] endSymbols)
@@ -1283,19 +1268,19 @@ namespace Klacks.Api.BasicScriptInterpreter
                 {
                     case Symbol.Tokens.tokMultiplication:
                         {
-                            code!.Add(Code.Opcodes.opMultiplication);
+                            code!.Add(Opcodes.Multiplication);
                             break;
                         }
 
                     case Symbol.Tokens.tokDivision:
                         {
-                            code!.Add(Code.Opcodes.opDivision);
+                            code!.Add(Opcodes.Division);
                             break;
                         }
 
                     case Symbol.Tokens.tokDiv:
                         {
-                            code!.Add(Code.Opcodes.opDiv);
+                            code!.Add(Opcodes.Div);
                             break;
                         }
                 }
@@ -1316,7 +1301,7 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                         Terminal();
 
-                        code!.Add(Code.Opcodes.opNegate);
+                        code!.Add(Opcodes.Negate);
                         break;
                     }
 
@@ -1327,20 +1312,20 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                         Terminal();
 
-                        code!.Add(Code.Opcodes.opNot);
+                        code!.Add(Opcodes.Not);
                         break;
                     }
 
                 case Symbol.Tokens.tokNumber:
                     {
-                        code!.Add(Code.Opcodes.opPushValue, sym.Value!);
+                        code!.Add(Opcodes.PushValue, sym.Value!);
 
                         GetNextSymbol();
                         break;
                     }
                 case Symbol.Tokens.tokString:
                     {
-                        code!.Add(Code.Opcodes.opPushValue, sym.Value!);
+                        code!.Add(Opcodes.PushValue, sym.Value!);
 
                         GetNextSymbol();
                         break;
@@ -1364,7 +1349,7 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                             CallUserdefinedFunction(ident);
 
-                            code!.Add(Code.Opcodes.opPushVariable, ident); // Funktionsresultat auf den Stack
+                            code!.Add(Opcodes.PushVariable, ident); // Funktionsresultat auf den Stack
                         }
                         else if (symboltable.Exists(sym.Text, null, Identifier.IdentifierTypes.IdSub))
                             errorObject!.Raise((int)InterpreterError.ParsErrors.errCannotCallSubInExpression, "SyntaxAnalyser.Terminal", "Cannot call sub '" + sym.Text + "' in expression", sym.Line, sym.Col, sym.Index);
@@ -1372,7 +1357,7 @@ namespace Klacks.Api.BasicScriptInterpreter
                         {
                             // Wert einer Variablen bzw. Konstante auf den Stack legen
 
-                            code!.Add(Code.Opcodes.opPushVariable, sym.Text);
+                            code!.Add(Opcodes.PushVariable, sym.Text);
                             GetNextSymbol();
                         }
 
@@ -1381,49 +1366,49 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                 case Symbol.Tokens.tokTrue:
                     {
-                        code!.Add(Code.Opcodes.opPushValue, true);
+                        code!.Add(Opcodes.PushValue, true);
                         GetNextSymbol();
                         break;
                     }
 
                 case Symbol.Tokens.tokFalse:
                     {
-                        code!.Add(Code.Opcodes.opPushValue, false);
+                        code!.Add(Opcodes.PushValue, false);
                         GetNextSymbol();
                         break;
                     }
 
                 case Symbol.Tokens.tokPi:
                     {
-                        code!.Add(Code.Opcodes.opPushValue, 3.141592654);
+                        code!.Add(Opcodes.PushValue, 3.141592654);
                         GetNextSymbol();
                         break;
                     }
 
                 case Symbol.Tokens.tokCrlf:
                     {
-                        code!.Add(Code.Opcodes.opPushValue, "\r\n");
+                        code!.Add(Opcodes.PushValue, "\r\n");
                         GetNextSymbol();
                         break;
                     }
 
                 case Symbol.Tokens.tokTab:
                     {
-                        code!.Add(Code.Opcodes.opPushValue, "\t");
+                        code!.Add(Opcodes.PushValue, "\t");
                         GetNextSymbol();
                         break;
                     }
 
                 case Symbol.Tokens.tokCr:
                     {
-                        code!.Add(Code.Opcodes.opPushValue, "\r");
+                        code!.Add(Opcodes.PushValue, "\r");
                         GetNextSymbol();
                         break;
                     }
 
                 case Symbol.Tokens.tokLf:
                     {
-                        code!.Add(Code.Opcodes.opPushValue, "\n");
+                        code!.Add(Opcodes.PushValue, "\n");
                         GetNextSymbol();
                         break;
                     }
@@ -1468,7 +1453,7 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                             Condition();
 
-                            thenPC = code!.Add(Code.Opcodes.opJumpFalse);
+                            thenPC = code!.Add(Opcodes.JumpFalse);
 
                             if (sym.Token == Symbol.Tokens.tokComma)
                             {
@@ -1476,7 +1461,7 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                                 Condition(); // true Value
 
-                                elsePC = code.Add(Code.Opcodes.opJump);
+                                elsePC = code.Add(Opcodes.Jump);
                                 code.FixUp(thenPC - 1, code.EndOfCodePc);
 
                                 if (sym.Token == Symbol.Tokens.tokComma)
@@ -1544,7 +1529,7 @@ namespace Klacks.Api.BasicScriptInterpreter
                     else
                     {
                         symboltable.Allocate(sym.Text);
-                        code!.Add(Code.Opcodes.OpAllocVar, sym.Text);
+                        code!.Add(Opcodes.AllocVar, sym.Text);
                     }
 
                     GetNextSymbol();

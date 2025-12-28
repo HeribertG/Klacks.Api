@@ -1,33 +1,33 @@
+using System.Globalization;
+
 namespace Klacks.Api.BasicScriptInterpreter
 {
     public static class Formathelper
     {
         public static double FormatDoubleNumber(string value)
         {
-            double number = 0;
-
-            try
+            if (string.IsNullOrWhiteSpace(value))
             {
-                number = Convert.ToDouble(value);
-            }
-            catch (Exception ex)
-            {
-                if (ex.HResult == -2146233033)
-                {
-                    if (value.Contains('.'))
-                    {
-                        value = value.Replace(".", ",");
-                        number = Convert.ToDouble(value);
-                    }
-                    else if (value.Contains(','))
-                    {
-                        value = value.Replace(",", ".");
-                        number = Convert.ToDouble(value);
-                    }
-                }
+                return 0;
             }
 
-            return number;
+            if (double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out double result))
+            {
+                return result;
+            }
+
+            if (double.TryParse(value, NumberStyles.Float, CultureInfo.CurrentCulture, out result))
+            {
+                return result;
+            }
+
+            var normalizedValue = value.Replace(',', '.');
+            if (double.TryParse(normalizedValue, NumberStyles.Float, CultureInfo.InvariantCulture, out result))
+            {
+                return result;
+            }
+
+            return 0;
         }
     }
 }

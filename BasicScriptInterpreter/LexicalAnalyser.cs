@@ -11,14 +11,14 @@ namespace Klacks.Api.BasicScriptInterpreter
     {
         private const string COMMENT_CHAR = "'"; // Anfangszeichen für Kommentare
 
-        private Code.IInputStream? source; // Quelltext-Datenstrom
+        private IInputStream? source; // Quelltext-Datenstrom
         private readonly Dictionary<string, int> predefinedIdentifiers;
         private InterpreterError? errorObject;
 
 
 
 
-        public LexicalAnalyser Connect(Code.IInputStream source, InterpreterError errorObject)
+        public LexicalAnalyser Connect(IInputStream source, InterpreterError errorObject)
         {
             this.source = source;
             this.errorObject = errorObject;

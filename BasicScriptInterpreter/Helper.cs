@@ -6,26 +6,52 @@ namespace Klacks.Api.BasicScriptInterpreter
     {
         public static bool IsNumericDouble(object value)
         {
-            if (double.TryParse(value.ToString(), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out _))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return double.TryParse(value.ToString(), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out _);
         }
 
         public static bool IsNumericInt(object value)
         {
-            if (int.TryParse(value.ToString(), out _))
+            return int.TryParse(value.ToString(), out _);
+        }
+
+        public static double ExtractDouble(object value)
+        {
+            if (value is Identifier identifier)
             {
-                return true;
+                return Convert.ToDouble(identifier.Value, CultureInfo.InvariantCulture);
             }
-            else
+
+            if (IsNumericDouble(value))
             {
-                return false;
+                return Convert.ToDouble(value, CultureInfo.InvariantCulture);
             }
+
+            return 0.0;
+        }
+
+        public static int ExtractInt(object value)
+        {
+            if (value is Identifier identifier)
+            {
+                return Convert.ToInt32(identifier.Value);
+            }
+
+            if (IsNumericInt(value))
+            {
+                return Convert.ToInt32(value);
+            }
+
+            return 0;
+        }
+
+        public static string ExtractString(object value)
+        {
+            if (value is Identifier identifier)
+            {
+                return Convert.ToString(identifier.Value) ?? string.Empty;
+            }
+
+            return Convert.ToString(value) ?? string.Empty;
         }
     }
 }

@@ -1,4 +1,3 @@
-using Klacks.Api.BasicScriptInterpreter.Macro.Process;
 using System.Collections.ObjectModel;
 using System.Globalization;
 
@@ -51,101 +50,6 @@ namespace Klacks.Api.BasicScriptInterpreter
         ~Code()
         {
             Dispose();
-        }
-
-        /// <summary>
-        /// Befehlscodes der Virtuellen Maschine (VM)
-        /// Die VM ist im wesentlichen eine Stack-Maschine. Die meisten
-        /// für die Operationen relevanten Parameter befinden sich
-        /// jeweils auf dem Stack, wenn der Befehl zur Ausführung kommt.
-        /// </summary>
-        public enum Opcodes
-        {
-            OpAllocConst = 0,
-            OpAllocVar = 1,
-            opPushValue = 2,
-
-            opPushVariable,
-            opPop,
-            opPopWithIndex,
-
-            // 6
-            opAssign,
-
-            // 7
-            opAdd,
-
-            opSub,
-            opMultiplication,
-            opDivision,
-            opDiv,
-            opMod,
-            opPower,
-            opStringConcat,
-            opOr,
-            opAnd,
-            opEq,
-            opNotEq,
-            oplt,
-            opLEq,
-            opGt,
-            opGEq,
-
-            // 23
-            opNegate,
-
-            opNot,
-            opFactorial,
-            opSin,
-            opCos,
-            opTan,
-            opATan,
-
-            // 30
-            opDebugPrint,
-
-            opDebugClear,
-            opDebugShow,
-            opDebugHide,
-            opMsgbox,
-            opDoEvents,
-            opInputbox,
-
-            // 37
-            opJump,
-
-            opJumpTrue,
-            opJumpFalse,
-            opJumpPop,
-
-            // 41
-            opPushScope,
-
-            opPopScope,
-            opCall,
-            opReturn,
-            opMessage
-        }
-
-        public interface IInputStream
-        {
-            int Col { get; }   // aktuelle Spalte im Code
-
-            bool Eof { get; } // Ist das Code-Ende erreicht?
-
-            InterpreterError ErrorObject { get; set; } //  Wenn diese Funktion für eine bestimmte Quelle nicht realisierbar ist, muss ein Fehler erzeugt werden: errGoBackPastStartOfSource oder errGoBackNotImplemented
-
-            int Index { get; } // aktuelle Index im Code
-
-            int Line { get; } // aktuelle Zeilennummer im Code
-
-            IInputStream Connect(string connectString); // Objekt an Script-Code anbinden
-
-            string GetNextChar(); // Nächstes Zeichen aus Code herauslesen
-
-            void GoBack(); // Um 1 Zeichen im Code zurückgehen
-
-            void SkipComment(); // Kommentar im Code überspringe
         }
 
         public bool AllowUi { get; set; }
@@ -304,362 +208,71 @@ namespace Klacks.Api.BasicScriptInterpreter
             register = scopes!.PopScopes();
             accumulator = scopes.PopScopes();
 
-            if (register != null && accumulator != null)
+            if (register == null || accumulator == null)
             {
-                try
+                return;
+            }
+
+            try
+            {
+                var opcode = (Opcodes)operation.GetValue(0)!;
+
+                switch (opcode)
                 {
-                    switch ((Opcodes)operation.GetValue(0)!)
-                    {
-                        case Opcodes.opAdd:
-                            {
-                                double tmpAk = 0.0D;
-                                if (accumulator.GetType() == typeof(Identifier))
-                                {
-                                    tmpAk = Convert.ToDouble(((Identifier)accumulator).Value, CultureInfo.InvariantCulture);
-                                }
-                                else if (Helper.IsNumericDouble(accumulator))
-                                {
-                                    tmpAk = Convert.ToDouble(accumulator, CultureInfo.InvariantCulture);
-                                }
-
-                                double tmpReg = 0.0D;
-                                if (register.GetType() == typeof(Identifier))
-                                {
-                                    tmpReg = Convert.ToDouble(((Identifier)register).Value, CultureInfo.InvariantCulture);
-                                }
-                                else if (Helper.IsNumericDouble(register))
-                                {
-                                    tmpReg = Convert.ToDouble(register, CultureInfo.InvariantCulture);
-                                }
-
-                                scopes.Push(tmpAk + tmpReg);
-                                break;
-                            }
-
-                        case Opcodes.opSub:
-                            {
-                                var tmpAk = 0.0D;
-                                if (accumulator.GetType() == typeof(Identifier))
-                                {
-                                    tmpAk = Convert.ToDouble(((Identifier)accumulator).Value, CultureInfo.InvariantCulture);
-                                }
-                                else if (Helper.IsNumericDouble(accumulator))
-                                {
-                                    tmpAk = Convert.ToDouble(accumulator, CultureInfo.InvariantCulture);
-                                }
-
-                                double tmpReg = 0.0D;
-                                if (register.GetType() == typeof(Identifier))
-                                {
-                                    tmpReg = Convert.ToDouble(((Identifier)register).Value, CultureInfo.InvariantCulture);
-                                }
-                                else if (Helper.IsNumericDouble(register))
-                                {
-                                    tmpReg = Convert.ToDouble(register, CultureInfo.InvariantCulture);
-                                }
-
-                                scopes.Push(tmpAk - tmpReg);
-                                break;
-                            }
-
-                        case Opcodes.opMultiplication:
-                            {
-                                double tmpAk = 0.0D;
-                                if (accumulator.GetType() == typeof(Identifier))
-                                {
-                                    tmpAk = Convert.ToDouble(((Identifier)accumulator).Value, CultureInfo.InvariantCulture);
-                                }
-                                else if (Helper.IsNumericDouble(accumulator))
-                                {
-                                    tmpAk = Convert.ToDouble(accumulator, CultureInfo.InvariantCulture);
-                                }
-
-                                double tmpReg = 0.0D;
-                                if (register.GetType() == typeof(Identifier))
-                                {
-                                    tmpReg = Convert.ToDouble(((Identifier)register).Value, CultureInfo.InvariantCulture);
-                                }
-                                else if (Helper.IsNumericDouble(register))
-                                {
-                                    tmpReg = Convert.ToDouble(register, CultureInfo.InvariantCulture);
-                                }
-
-                                scopes.Push(Convert.ToDouble(tmpAk, CultureInfo.InvariantCulture) * Convert.ToDouble(tmpReg, CultureInfo.InvariantCulture));
-                                break;
-                            }
-
-                        case Opcodes.opDivision:
-                            {
-                                double tmpAk = 0.0D;
-                                if (accumulator.GetType() == typeof(Identifier))
-                                {
-                                    tmpAk = Convert.ToDouble(((Identifier)accumulator).Value, CultureInfo.InvariantCulture);
-                                }
-                                else if (Helper.IsNumericDouble(accumulator))
-                                {
-                                    tmpAk = Convert.ToDouble(accumulator, CultureInfo.InvariantCulture);
-                                }
-
-                                double tmpReg = 0.0D;
-                                if (register.GetType() == typeof(Identifier))
-                                {
-                                    tmpReg = Convert.ToDouble(((Identifier)register).Value, CultureInfo.InvariantCulture);
-                                }
-                                else if (Helper.IsNumericDouble(register))
-                                {
-                                    tmpReg = Convert.ToDouble(register, CultureInfo.InvariantCulture);
-                                }
-
-                                scopes.Push(Convert.ToDouble(tmpAk, CultureInfo.InvariantCulture) / Convert.ToDouble(tmpReg, CultureInfo.InvariantCulture));
-                                break;
-                            }
-
-                        case Opcodes.opDiv:
-                            {
-                                double tmpAk = 0.0D;
-                                if (accumulator.GetType() == typeof(Identifier))
-                                {
-                                    tmpAk = Convert.ToDouble(((Identifier)accumulator).Value, CultureInfo.InvariantCulture);
-                                }
-                                else if (Helper.IsNumericDouble(accumulator))
-                                {
-                                    tmpAk = Convert.ToDouble(accumulator, CultureInfo.InvariantCulture);
-                                }
-
-                                double tmpReg = 0.0D;
-                                if (register.GetType() == typeof(Identifier))
-                                {
-                                    tmpReg = Convert.ToDouble(((Identifier)register).Value, CultureInfo.InvariantCulture);
-                                }
-                                else if (Helper.IsNumericDouble(register))
-                                {
-                                    tmpReg = Convert.ToDouble(register, CultureInfo.InvariantCulture);
-                                }
-
-                                scopes.Push(Convert.ToInt32(tmpAk, CultureInfo.InvariantCulture) / Convert.ToInt32(tmpReg, CultureInfo.InvariantCulture));
-                                break;
-                            }
-
-                        case Opcodes.opMod:
-                            {
-                                double tmpAk = 0.0D;
-                                if (accumulator.GetType() == typeof(Identifier))
-                                {
-                                    tmpAk = Convert.ToDouble(((Identifier)accumulator).Value, CultureInfo.InvariantCulture);
-                                }
-                                else if (Helper.IsNumericDouble(accumulator))
-                                {
-                                    tmpAk = Convert.ToDouble(accumulator, CultureInfo.InvariantCulture);
-                                }
-
-                                double tmpReg = 0.0D;
-                                if (register.GetType() == typeof(Identifier))
-                                {
-                                    tmpReg = Convert.ToDouble(((Identifier)register).Value, CultureInfo.InvariantCulture);
-                                }
-                                else if (Helper.IsNumericDouble(register))
-                                {
-                                    tmpReg = Convert.ToDouble(register, CultureInfo.InvariantCulture);
-                                }
-
-                                scopes.Push(Convert.ToDouble(tmpAk, CultureInfo.InvariantCulture) % Convert.ToDouble(tmpReg, CultureInfo.InvariantCulture));
-                                break;
-                            }
-
-                        case Opcodes.opPower:
-                            {
-                                double tmpAk = 0.0D;
-                                if (accumulator.GetType() == typeof(Identifier))
-                                {
-                                    tmpAk = Convert.ToDouble(((Identifier)accumulator).Value, CultureInfo.InvariantCulture);
-                                }
-                                else if (Helper.IsNumericDouble(accumulator))
-                                {
-                                    tmpAk = Convert.ToDouble(accumulator, CultureInfo.InvariantCulture);
-                                }
-
-                                double tmpReg = 0.0D;
-                                if (register.GetType() == typeof(Identifier))
-                                {
-                                    tmpReg = Convert.ToDouble(((Identifier)register).Value, CultureInfo.InvariantCulture);
-                                }
-                                else if (Helper.IsNumericDouble(register))
-                                {
-                                    tmpReg = Convert.ToDouble(register, CultureInfo.InvariantCulture);
-                                }
-
-                                scopes.Push(Math.Pow(Convert.ToDouble(tmpAk, CultureInfo.InvariantCulture), Convert.ToDouble(tmpReg, CultureInfo.InvariantCulture)));
-                                break;
-                            }
-
-                        case Opcodes.opStringConcat:
-                            {
-                                string tmpAk;
-                                if (accumulator.GetType() == typeof(Identifier))
-                                {
-                                    tmpAk = Convert.ToString(((Identifier)accumulator).Value)!;
-                                }
-                                else
-                                {
-                                    tmpAk = Convert.ToString(accumulator)!;
-                                }
-
-                                string tmpReg;
-                                if (register.GetType() == typeof(Identifier))
-                                {
-                                    tmpReg = Convert.ToString(((Identifier)register).Value)!;
-                                }
-                                else
-                                {
-                                    tmpReg = Convert.ToString(register)!;
-                                }
-
-                                scopes.Push(tmpAk + tmpReg);
-                                break;
-                            }
-
-                        case Opcodes.opOr:
-                            {
-                                int tmpAk = 0;
-                                if (accumulator.GetType() == typeof(Identifier))
-                                {
-                                    tmpAk = Convert.ToInt32(((Identifier)accumulator).Value);
-                                }
-                                else if (Helper.IsNumericInt(accumulator))
-                                    tmpAk = Convert.ToInt32(accumulator);
-                                int tmpReg = 0;
-                                if (register.GetType() == typeof(Identifier))
-                                    tmpReg = Convert.ToInt32(((Identifier)register).Value);
-                                else if (Helper.IsNumericInt(register))
-                                    tmpReg = Convert.ToInt32(register);
-                                scopes.Push(tmpAk | tmpReg);
-                                break;
-                            }
-
-                        case Opcodes.opAnd:
-                            {
-                                int tmpAk = 0;
-                                if (accumulator.GetType() == typeof(Identifier))
-                                    tmpAk = Convert.ToInt32(((Identifier)accumulator).Value);
-                                else if (Helper.IsNumericInt(accumulator))
-                                    tmpAk = Convert.ToInt32(accumulator);
-                                int tmpReg = 0;
-                                if (register.GetType() == typeof(Identifier))
-                                    tmpReg = Convert.ToInt32(((Identifier)register).Value);
-                                else if (Helper.IsNumericInt(register))
-                                    tmpReg = Convert.ToInt32(register);
-                                scopes.Push(tmpAk & tmpReg);
-                                break;
-                            }
-
-                        case Opcodes.opEq // =
-                 :
-                            {
-                                string tmpAk;
-                                if (accumulator.GetType() == typeof(Identifier))
-                                    tmpAk = Convert.ToString(((Identifier)accumulator!).Value)!;
-                                else
-                                    tmpAk = Convert.ToString(accumulator)!;
-                                string tmpReg;
-                                if (register.GetType() == typeof(Identifier))
-                                    tmpReg = Convert.ToString(((Identifier)register).Value)!;
-                                else
-                                    tmpReg = Convert.ToString(register)!;
-                                scopes.Push(tmpAk!.Equals(tmpReg));
-                                break;
-                            }
-
-                        case Opcodes.opNotEq // <>
-                 :
-                            {
-                                string tmpAk;
-                                if (accumulator.GetType() == typeof(Identifier))
-                                    tmpAk = Convert.ToString(((Identifier)accumulator).Value)!;
-                                else
-                                    tmpAk = Convert.ToString(accumulator)!;
-                                string tmpReg = string.Empty;
-                                if (register.GetType() == typeof(Identifier))
-                                    tmpReg = Convert.ToString(((Identifier)register).Value)!;
-                                else if (!Helper.IsNumericInt(register))
-                                    tmpReg = Convert.ToString(register)!;
-                                scopes.Push(!tmpAk!.Equals(tmpReg));
-                                break;
-                            }
-
-                        case Opcodes.oplt // <
-                 :
-                            {
-                                double tmpAk = 0.0D;
-                                if (accumulator.GetType() == typeof(Identifier))
-                                    tmpAk = Convert.ToInt32(((Identifier)accumulator).Value);
-                                else if (Helper.IsNumericInt(accumulator))
-                                    tmpAk = Convert.ToInt32(accumulator);
-                                double tmpReg = 0.0D;
-                                if (register.GetType() == typeof(Identifier))
-                                    tmpReg = Convert.ToInt32(((Identifier)register).Value);
-                                else if (Helper.IsNumericInt(register))
-                                    tmpReg = Convert.ToInt32(register);
-                                scopes.Push(tmpAk < tmpReg);
-                                break;
-                            }
-
-                        case Opcodes.opLEq // <=
-                 :
-                            {
-                                double tmpAk = 0.0D;
-                                if (accumulator.GetType() == typeof(Identifier))
-                                    tmpAk = Convert.ToInt32(((Identifier)accumulator).Value);
-                                else if (Helper.IsNumericInt(accumulator))
-                                    tmpAk = Convert.ToInt32(accumulator);
-                                double tmpReg = 0.0D;
-                                if (register.GetType() == typeof(Identifier))
-                                    tmpReg = Convert.ToInt32(((Identifier)register).Value);
-                                else if (Helper.IsNumericInt(register))
-                                    tmpReg = Convert.ToInt32(register);
-                                scopes.Push(tmpAk <= tmpReg);
-                                break;
-                            }
-
-                        case Opcodes.opGt // >
-                 :
-                            {
-                                double tmpAk = 0.0D;
-                                if (accumulator.GetType() == typeof(Identifier))
-                                    tmpAk = Convert.ToInt32(((Identifier)accumulator).Value);
-                                else if (Helper.IsNumericInt(accumulator))
-                                    tmpAk = Convert.ToInt32(accumulator);
-                                double tmpReg = 0;
-                                if (register.GetType() == typeof(Identifier))
-                                    tmpReg = Convert.ToInt32(((Identifier)register).Value);
-                                else if (Helper.IsNumericInt(register))
-                                    tmpReg = Convert.ToInt32(register);
-                                scopes.Push(tmpAk > tmpReg);
-                                break;
-                            }
-
-                        case Opcodes.opGEq // >=
-                 :
-                            {
-                                double tmpAk = 0.0D;
-                                if (accumulator.GetType() == typeof(Identifier))
-                                    tmpAk = Convert.ToInt32(((Identifier)accumulator).Value);
-                                else if (Helper.IsNumericInt(accumulator))
-                                    tmpAk = Convert.ToInt32(accumulator);
-                                double tmpReg = 0.0D;
-                                if (register.GetType() == typeof(Identifier))
-                                    tmpReg = Convert.ToInt32(((Identifier)register).Value);
-                                else if (Helper.IsNumericInt(register))
-                                    tmpReg = Convert.ToInt32(register);
-                                scopes.Push(tmpAk >= tmpReg);
-                                break;
-                            }
-                    }
+                    case Opcodes.Add:
+                        scopes.Push(Helper.ExtractDouble(accumulator) + Helper.ExtractDouble(register));
+                        break;
+                    case Opcodes.Sub:
+                        scopes.Push(Helper.ExtractDouble(accumulator) - Helper.ExtractDouble(register));
+                        break;
+                    case Opcodes.Multiplication:
+                        scopes.Push(Helper.ExtractDouble(accumulator) * Helper.ExtractDouble(register));
+                        break;
+                    case Opcodes.Division:
+                        scopes.Push(Helper.ExtractDouble(accumulator) / Helper.ExtractDouble(register));
+                        break;
+                    case Opcodes.Div:
+                        scopes.Push((int)Helper.ExtractDouble(accumulator) / (int)Helper.ExtractDouble(register));
+                        break;
+                    case Opcodes.Mod:
+                        scopes.Push(Helper.ExtractDouble(accumulator) % Helper.ExtractDouble(register));
+                        break;
+                    case Opcodes.Power:
+                        scopes.Push(Math.Pow(Helper.ExtractDouble(accumulator), Helper.ExtractDouble(register)));
+                        break;
+                    case Opcodes.StringConcat:
+                        scopes.Push(Helper.ExtractString(accumulator) + Helper.ExtractString(register));
+                        break;
+                    case Opcodes.Or:
+                        scopes.Push(Helper.ExtractInt(accumulator) | Helper.ExtractInt(register));
+                        break;
+                    case Opcodes.And:
+                        scopes.Push(Helper.ExtractInt(accumulator) & Helper.ExtractInt(register));
+                        break;
+                    case Opcodes.Eq:
+                        scopes.Push(Helper.ExtractString(accumulator).Equals(Helper.ExtractString(register)));
+                        break;
+                    case Opcodes.NotEq:
+                        scopes.Push(!Helper.ExtractString(accumulator).Equals(Helper.ExtractString(register)));
+                        break;
+                    case Opcodes.Lt:
+                        scopes.Push(Helper.ExtractDouble(accumulator) < Helper.ExtractDouble(register));
+                        break;
+                    case Opcodes.LEq:
+                        scopes.Push(Helper.ExtractDouble(accumulator) <= Helper.ExtractDouble(register));
+                        break;
+                    case Opcodes.Gt:
+                        scopes.Push(Helper.ExtractDouble(accumulator) > Helper.ExtractDouble(register));
+                        break;
+                    case Opcodes.GEq:
+                        scopes.Push(Helper.ExtractDouble(accumulator) >= Helper.ExtractDouble(register));
+                        break;
                 }
-                catch (Exception ex)
-                {
-                    running = false;
-                    ErrorObject!.Raise((int)InterpreterError.RunErrors.errMath, "Code.Run", "Error during calculation (binary op " + operation!.GetValue(0)!.ToString() + "): " + ex.HResult + "(" + ex.Message + ")", 0, 0, 0);
-                }
+            }
+            catch (Exception ex)
+            {
+                running = false;
+                ErrorObject!.Raise((int)InterpreterError.RunErrors.errMath, "Code.Run", "Error during calculation (binary op " + operation!.GetValue(0)!.ToString() + "): " + ex.HResult + "(" + ex.Message + ")", 0, 0, 0);
             }
         }
 
@@ -703,30 +316,28 @@ namespace Klacks.Api.BasicScriptInterpreter
 #pragma warning restore SA1121 // UseBuiltInTypeAlias
                 switch ((Opcodes)operation.GetValue(0)!)
                 {
-                    case Opcodes.OpAllocConst: // Konstante allozieren
+                    case Opcodes.AllocConst:
                         {
                             // Parameter:    Name der Konstanten; Wert
                             scopes.Allocate(operation.GetValue(1)!.ToString()!, operation.GetValue(2)!.ToString(), Identifier.IdentifierTypes.IdConst);
                             break;
                         }
 
-                    case Opcodes.OpAllocVar: // Variable allozieren
+                    case Opcodes.AllocVar:
                         {
-                            // Parameter:    Name der Variablen
                             scopes.Allocate(operation.GetValue(1)!.ToString()!);
                             break;
                         }
 
-                    case Opcodes.opPushValue: // Wert auf den Stack schieben
+                    case Opcodes.PushValue:
                         {
                             // Parameter:    Wert
                             scopes.Push(operation.GetValue(1)!);
                             break;
                         }
 
-                    case Opcodes.opPushVariable: // Wert einer Variablen auf den Stack schieben
+                    case Opcodes.PushVariable:
                         {
-                            // Parameter:    Variablenname
                             string? name;
                             try
                             {
@@ -777,15 +388,14 @@ namespace Klacks.Api.BasicScriptInterpreter
                             break;
                         }
 
-                    case Opcodes.opPop: // entfernt obersten Wert vom Stack
+                    case Opcodes.Pop:
                         {
                             scopes.PopScopes();
                             break;
                         }
 
-                    case Opcodes.opPopWithIndex: // legt den n-ten Stackwert zuoberst auf den Stack
+                    case Opcodes.PopWithIndex:
                         {
-                            // Parameter:    Index in den Stack (von oben an gezählt: 0..n)
                             object result;
                             register = scopes.Pop(Convert.ToInt32(operation.GetValue(1)));
                             if (register is Identifier)
@@ -801,10 +411,8 @@ namespace Klacks.Api.BasicScriptInterpreter
                             break;
                         }
 
-                    case Opcodes.opAssign: // Wert auf dem Stack einer Variablen zuweisen
+                    case Opcodes.Assign:
                         {
-                            // Parameter:    Variablenname
-                            // Stack:        der zuzuweisende Wert
                             object result;
                             register = scopes.Pop();
                             if (register is Identifier)
@@ -833,36 +441,36 @@ namespace Klacks.Api.BasicScriptInterpreter
                             break;
                         }
 
-                    case Opcodes.opAdd:
-                    case Opcodes.opSub:
-                    case Opcodes.opMultiplication:
-                    case Opcodes.opDivision:
-                    case Opcodes.opDiv:
-                    case Opcodes.opMod:
-                    case Opcodes.opPower:
-                    case Opcodes.opStringConcat:
-                    case Opcodes.opOr:
-                    case Opcodes.opAnd:
-                    case Opcodes.opEq:
-                    case Opcodes.opNotEq:
-                    case Opcodes.oplt:
-                    case Opcodes.opLEq:
-                    case Opcodes.opGt:
-                    case Opcodes.opGEq:
+                    case Opcodes.Add:
+                    case Opcodes.Sub:
+                    case Opcodes.Multiplication:
+                    case Opcodes.Division:
+                    case Opcodes.Div:
+                    case Opcodes.Mod:
+                    case Opcodes.Power:
+                    case Opcodes.StringConcat:
+                    case Opcodes.Or:
+                    case Opcodes.And:
+                    case Opcodes.Eq:
+                    case Opcodes.NotEq:
+                    case Opcodes.Lt:
+                    case Opcodes.LEq:
+                    case Opcodes.Gt:
+                    case Opcodes.GEq:
                         BinaryMathOperators(operation!, akkumulator!, register!);
                         break;
 
-                    case Opcodes.opNegate:
-                    case Opcodes.opNot:
-                    case Opcodes.opFactorial:
-                    case Opcodes.opSin:
-                    case Opcodes.opCos:
-                    case Opcodes.opTan:
-                    case Opcodes.opATan:
+                    case Opcodes.Negate:
+                    case Opcodes.Not:
+                    case Opcodes.Factorial:
+                    case Opcodes.Sin:
+                    case Opcodes.Cos:
+                    case Opcodes.Tan:
+                    case Opcodes.ATan:
                         UnaryMathOperators(operation!);
                         break;
 
-                    case Opcodes.opDebugPrint:
+                    case Opcodes.DebugPrint:
                         {
                             string msg = string.Empty;
 
@@ -877,25 +485,25 @@ namespace Klacks.Api.BasicScriptInterpreter
                             break;
                         }
 
-                    case Opcodes.opDebugClear:
+                    case Opcodes.DebugClear:
                         {
                             DebugClear?.Invoke();
                             break;
                         }
 
-                    case Opcodes.opDebugShow:
+                    case Opcodes.DebugShow:
                         {
                             DebugShow?.Invoke();
                             break;
                         }
 
-                    case Opcodes.opDebugHide:
+                    case Opcodes.DebugHide:
                         {
                             DebugHide?.Invoke();
                             break;
                         }
 
-                    case Opcodes.opMessage:
+                    case Opcodes.Message:
                         {
                             try
                             {
@@ -934,7 +542,7 @@ namespace Klacks.Api.BasicScriptInterpreter
                             break;
                         }
 
-                    case Opcodes.opMsgbox:
+                    case Opcodes.Msgbox:
                         {
                             if (!AllowUi)
                             {
@@ -958,12 +566,12 @@ namespace Klacks.Api.BasicScriptInterpreter
                             break;
                         }
 
-                    case Opcodes.opDoEvents:
+                    case Opcodes.DoEvents:
                         {
                             break;
                         }
 
-                    case Opcodes.opInputbox:
+                    case Opcodes.Inputbox:
                         {
                             if (!AllowUi)
                             {
@@ -992,14 +600,14 @@ namespace Klacks.Api.BasicScriptInterpreter
                             break;
                         }
 
-                    case Opcodes.opJump:
+                    case Opcodes.Jump:
                         {
                             pc = Convert.ToInt32(operation.GetValue(1)) - 1;
                             break;
                         }
 
-                    case Opcodes.opJumpTrue:
-                    case Opcodes.opJumpFalse:
+                    case Opcodes.JumpTrue:
+                    case Opcodes.JumpFalse:
                         {
                             akkumulator = scopes.PopScopes().Value;
                             if (!Convert.ToBoolean(akkumulator))
@@ -1010,32 +618,32 @@ namespace Klacks.Api.BasicScriptInterpreter
                             break;
                         }
 
-                    case Opcodes.opJumpPop:
+                    case Opcodes.JumpPop:
                         {
                             pc = Convert.ToInt32(scopes.PopScopes().Value) - 1;
                             break;
                         }
 
-                    case Opcodes.opPushScope:
+                    case Opcodes.PushScope:
                         {
                             scopes.PushScope();
                             break;
                         }
 
-                    case Opcodes.opPopScope:
+                    case Opcodes.PopScope:
                         {
                             scopes.PopScopes();
                             break;
                         }
 
-                    case Opcodes.opCall:
+                    case Opcodes.Call:
                         {
                             scopes.Allocate("~RETURNADDR", (pc + 1).ToString(), Identifier.IdentifierTypes.IdConst);
                             pc = Convert.ToInt32(operation.GetValue(1)) - 1;
                             break;
                         }
 
-                    case Opcodes.opReturn:
+                    case Opcodes.Return:
                         {
                             pc = Convert.ToInt32(Convert.ToDouble(scopes.Retrieve("~RETURNADDR")!.Value, CultureInfo.InvariantCulture) - 1);
                             break;
@@ -1065,65 +673,45 @@ namespace Klacks.Api.BasicScriptInterpreter
         {
             var akkumulator = scopes!.PopScopes().Value;
 
+            if (akkumulator == null)
+            {
+                return;
+            }
+
             try
             {
-                switch ((Opcodes)operation.GetValue(0)!)
+                var opcode = (Opcodes)operation.GetValue(0)!;
+                double number = Helper.ExtractDouble(akkumulator);
+
+                switch (opcode)
                 {
-                    case Opcodes.opNegate:
-                        {
-                            double number = Formathelper.FormatDoubleNumber(akkumulator!.ToString()!);
-                            scopes.Push(number * -1);
-                            break;
-                        }
-
-                    case Opcodes.opNot:
-                        {
-                            var tmp = Convert.ToBoolean(akkumulator);
-                            scopes.Push(!tmp);
-                            break;
-                        }
-
-                    case Opcodes.opFactorial:
-                        {
-                            scopes.Push(Factorial(Convert.ToInt32(akkumulator)));
-                            break;
-                        }
-
-                    case Opcodes.opSin:
-                        {
-                            double number = Formathelper.FormatDoubleNumber(akkumulator!.ToString()!);
-                            scopes.Push(Math.Sin(number));
-                            break;
-                        }
-
-                    case Opcodes.opCos:
-                        {
-                            double number = Formathelper.FormatDoubleNumber(akkumulator!.ToString()!);
-                            scopes.Push(Math.Cos(number));
-                            break;
-                        }
-
-                    case Opcodes.opTan:
-                        {
-                            double number = Formathelper.FormatDoubleNumber(akkumulator!.ToString()!);
-                            scopes.Push(Math.Tan(number));
-                            break;
-                        }
-
-                    case Opcodes.opATan:
-                        {
-                            double number = Formathelper.FormatDoubleNumber(akkumulator!.ToString()!);
-                            scopes.Push(Math.Atan(number));
-                            break;
-                        }
+                    case Opcodes.Negate:
+                        scopes.Push(-number);
+                        break;
+                    case Opcodes.Not:
+                        scopes.Push(!Convert.ToBoolean(akkumulator));
+                        break;
+                    case Opcodes.Factorial:
+                        scopes.Push(Factorial((int)number));
+                        break;
+                    case Opcodes.Sin:
+                        scopes.Push(Math.Sin(number));
+                        break;
+                    case Opcodes.Cos:
+                        scopes.Push(Math.Cos(number));
+                        break;
+                    case Opcodes.Tan:
+                        scopes.Push(Math.Tan(number));
+                        break;
+                    case Opcodes.ATan:
+                        scopes.Push(Math.Atan(number));
+                        break;
                 }
             }
             catch (Exception ex)
             {
                 running = false;
-#pragma warning disable CS8602 // Dereferenzierung eines möglichen Nullverweises.
-                ErrorObject.Raise((int)InterpreterError.RunErrors.errMath, "Code.Run", "Error during calculation (unary op " + operation.GetValue(0).ToString() + "): " + ex.HResult + " (" + ex.Message + ")", 0, 0, 0);
-#pragma warning restore CS8602 // Dereferenzierung eines möglichen Nullverweises.
+                ErrorObject?.Raise((int)InterpreterError.RunErrors.errMath, "Code.Run", "Error during calculation (unary op " + operation.GetValue(0)?.ToString() + "): " + ex.HResult + " (" + ex.Message + ")", 0, 0, 0);
             }
         }
     }
