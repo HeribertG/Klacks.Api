@@ -22,4 +22,10 @@ public class WorkResource
     public Guid ShiftId { get; set; }
 
     public decimal WorkTime { get; set; }
+
+    public decimal Surcharges { get; set; }
+
+    public TimeOnly StartShift { get; set; }
+
+    public TimeOnly EndShift { get; set; }
 }

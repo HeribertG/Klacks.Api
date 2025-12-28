@@ -10,6 +10,11 @@ namespace Klacks.Api.Infrastructure.Converters
         {
             var s = reader.GetString();
 
+            if (string.IsNullOrEmpty(s))
+            {
+                return TimeOnly.MinValue;
+            }
+
             string[] formats = { "HH:mm:ss", "HH:mm", "H:mm:ss", "H:mm" };
 
             foreach (var format in formats)

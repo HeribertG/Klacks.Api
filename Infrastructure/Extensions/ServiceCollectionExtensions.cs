@@ -15,6 +15,7 @@ using Klacks.Api.Domain.Services.WorkSchedule;
 using Klacks.Api.Domain.Services.LLM;
 using Klacks.Api.Domain.Services.RouteOptimization;
 using Klacks.Api.Domain.Services.Common;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Email;
 using Klacks.Api.Infrastructure.FileHandling;
 using Klacks.Api.Infrastructure.Interfaces;
@@ -143,6 +144,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<ICalendarRulePaginationService, CalendarRulePaginationService>();
         services.AddScoped<IMacroManagementService, MacroManagementService>();
         services.AddScoped<IMacroTypeManagementService, MacroTypeManagementService>();
+        services.AddScoped<IWorkMacroService, WorkMacroService>();
         services.AddScoped<ISettingsTokenService, SettingsTokenService>();
         
         // Email Services  

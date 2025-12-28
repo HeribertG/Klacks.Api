@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20251228140439_AddSurchargesToWork")]
+    partial class AddSurchargesToWork
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1920,10 +1923,6 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_time");
 
-                    b.Property<TimeOnly>("EndShift")
-                        .HasColumnType("time without time zone")
-                        .HasColumnName("end_shift");
-
                     b.Property<string>("Information")
                         .HasColumnType("text")
                         .HasColumnName("information");
@@ -1939,10 +1938,6 @@ namespace Klacks.Api.Migrations
                     b.Property<Guid>("ShiftId")
                         .HasColumnType("uuid")
                         .HasColumnName("shift_id");
-
-                    b.Property<TimeOnly>("StartShift")
-                        .HasColumnType("time without time zone")
-                        .HasColumnName("start_shift");
 
                     b.Property<decimal>("Surcharges")
                         .HasColumnType("numeric")

@@ -1,6 +1,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
@@ -16,17 +17,32 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
     private readonly DataBaseContext _context;
     private readonly IClientGroupFilterService _groupFilterService;
     private readonly IClientSearchFilterService _searchFilterService;
+    private readonly IWorkMacroService _workMacroService;
 
     public WorkRepository(
         DataBaseContext context,
         ILogger<Work> logger,
         IClientGroupFilterService groupFilterService,
-        IClientSearchFilterService searchFilterService)
+        IClientSearchFilterService searchFilterService,
+        IWorkMacroService workMacroService)
         : base(context, logger)
     {
         _context = context;
         _groupFilterService = groupFilterService;
         _searchFilterService = searchFilterService;
+        _workMacroService = workMacroService;
+    }
+
+    public override async Task Add(Work work)
+    {
+        await _workMacroService.ProcessWorkMacroAsync(work);
+        await base.Add(work);
+    }
+
+    public override async Task<Work?> Put(Work work)
+    {
+        await _workMacroService.ProcessWorkMacroAsync(work);
+        return await base.Put(work);
     }
 
     public async Task<List<Client>> WorkList(WorkFilter filter)
