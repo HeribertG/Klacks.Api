@@ -9,9 +9,9 @@ namespace Klacks.Api.BasicScriptInterpreter
 
     public class LexicalAnalyser
     {
-        private const string COMMENT_CHAR = "'"; // Anfangszeichen für Kommentare
+        private const string COMMENT_CHAR = "'";
 
-        private IInputStream? source; // Quelltext-Datenstrom
+        private IInputStream? source;
         private readonly Dictionary<string, int> predefinedIdentifiers;
         private InterpreterError? errorObject;
 
@@ -54,8 +54,6 @@ namespace Klacks.Api.BasicScriptInterpreter
             string symbolText = string.Empty;
             bool returnNumberSymbol = false;
 
-            // führende Leerzeichen und Tab und Kommentare
-            // vor nächstem Symbol überspringen
             if (!source!.Eof)
             {
                 do
@@ -70,13 +68,10 @@ namespace Klacks.Api.BasicScriptInterpreter
                 while (c == " " & !source.Eof);
             }
 
-            // Zeile/Spalte des aktuellen Symbols vermerken
             nextSymbol.Position(source.Line, source.Col, source.Index);
-
 
             if (!source.Eof)
             {
-                // Zeichenweise das nächste Symbol zusammensetzen
                 switch (c.ToUpper())
                 {
                     case "+":
@@ -131,8 +126,7 @@ namespace Klacks.Api.BasicScriptInterpreter
                             break;
                         }
 
-                    case "<" // "<", "<=", "<>"
-             :
+                    case "<":
                         {
                             c = source.GetNextChar();
                             switch (c)
@@ -254,8 +248,7 @@ namespace Klacks.Api.BasicScriptInterpreter
                                         nextSymbol.Init(Symbol.Tokens.tokString, symbolText, symbolText);
                                     }
                                     break;
-                                case "\n": // keinen Zeilenwechsel im String zulassen
-
+                                case "\n":
                                     errorObject!.Raise((int)LexErrors.errUnexpectedEOL,
                                       "LexAnalyser.nextSymbol", "String not closed; unexpected end of line encountered",
                                       source.Line, source.Col, source.Index);
@@ -312,9 +305,6 @@ namespace Klacks.Api.BasicScriptInterpreter
 
         public LexicalAnalyser()
         {
-
-            // Initialisieren der Tabelle mit den vordefinierten
-            // Namenssymbolen.
             predefinedIdentifiers = new System.Collections.Generic.Dictionary<string, int>();
 
             predefinedIdentifiers.Add("DIV", (int)Symbol.Tokens.tokDiv);

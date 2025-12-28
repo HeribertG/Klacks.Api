@@ -41,7 +41,7 @@ namespace Klacks.Api.BasicScriptInterpreter
 
         private Scope external = new();
 
-        private int pc; // Program Counter = zeigt auf aktuelle Anweisung in code
+        private int pc;
 
         private bool running;
 
@@ -66,9 +66,6 @@ namespace Klacks.Api.BasicScriptInterpreter
             }
         }
 
-        /// <summary>
-        /// Gets fehlerobjekt lesenetzen oder Fehlerobjekt s.
-        /// </summary>
         public InterpreterError? ErrorObject { get; private set; }
 
         public bool Running { get; private set; }
@@ -129,7 +126,7 @@ namespace Klacks.Api.BasicScriptInterpreter
             return external.Allocate(name, value, idType);
         }
 
-        public void ImportClear() // Globalen Gültigkeitsbereich löschen
+        public void ImportClear()
         {
             external = new Scope();
         }
@@ -276,7 +273,6 @@ namespace Klacks.Api.BasicScriptInterpreter
             }
         }
 
-        // Hilfsfunktion zur Fakultätsberechnung
         private int Factorial(int n)
         {
             if (n == 0)
@@ -318,7 +314,6 @@ namespace Klacks.Api.BasicScriptInterpreter
                 {
                     case Opcodes.AllocConst:
                         {
-                            // Parameter:    Name der Konstanten; Wert
                             scopes.Allocate(operation.GetValue(1)!.ToString()!, operation.GetValue(2)!.ToString(), Identifier.IdentifierTypes.IdConst);
                             break;
                         }
@@ -331,7 +326,6 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                     case Opcodes.PushValue:
                         {
-                            // Parameter:    Wert
                             scopes.Push(operation.GetValue(1)!);
                             break;
                         }
@@ -355,14 +349,10 @@ namespace Klacks.Api.BasicScriptInterpreter
                             }
                             catch (Exception)
                             {
-                                // Variable nicht alloziert, also bei Host nachfragen
                                 accepted = false;
                                 Retrieve?.Invoke(operation.GetValue(1)!.ToString()!, register!.ToString()!, accepted);
                                 if (!accepted)
                                 {
-                                    // der Host weiss nichts von der Var. Implizit anlegen tun wir
-                                    // sie aber nicht, da sie hier auf sie sofort lesend zugegriffen
-                                    // würde
                                     running = false;
                                     ErrorObject!.Raise((int)InterpreterError.RunErrors.errUnknownVar, "Code.Run", "Unknown variable '" + operation.GetValue(1) + "'", 0, 0, 0);
                                 }
@@ -426,14 +416,11 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                             if (!scopes.Assign(operation.GetValue(1)!.ToString()!, result))
                             {
-                                // Variable nicht alloziert, also Host anbieten
                                 accepted = false;
 
                                 Assign?.Invoke(operation.GetValue(1)!.ToString()!, result!.ToString()!, ref accepted);
                                 if (!accepted)
                                 {
-                                    // Host hat nicht mit Var am Hut, dann legen wir
-                                    // sie eben selbst an
                                     scopes.Allocate(operation.GetValue(1)!.ToString()!, result.ToString());
                                 }
                             }
@@ -650,16 +637,16 @@ namespace Klacks.Api.BasicScriptInterpreter
                         }
                 }
 
-                pc++; // zum nächsten Befehl
+                pc++;
 
-                if (Cancel) // wurde Interpretation unterbrochen?
+                if (Cancel)
                 {
                     running = false;
                     ErrorObject!.Raise((int)InterpreterError.RunErrors.errCancelled, "Code.Run", "Code execution aborted", 0, 0, 0);
                 }
 
                 var tickPassed = Environment.TickCount - startTime;
-                if (CodeTimeout > 0 && tickPassed >= CodeTimeout) // Timeout erreicht?
+                if (CodeTimeout > 0 && tickPassed >= CodeTimeout)
                 {
                     running = false;
                     ErrorObject!.Raise((int)InterpreterError.RunErrors.errTimedOut, "Code.Run", "Timeout reached: code execution has been aborted", 0, 0, 0);

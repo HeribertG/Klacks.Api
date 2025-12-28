@@ -1,19 +1,15 @@
 namespace Klacks.Api.BasicScriptInterpreter
 {
-    /// <summary>
-    /// SyntaxAnalyser: Führt die Syntaxanalyser durch, erzeugt
-    /// aber auch den Code. Der Parser steuert den ganzen Übersetzungsprozess.
-    /// </summary>
     public class SyntaxAnalyser
     {
-        private bool allowExternal; // sollen EXTERNAL-Definitionen von Variablen erlaubt sein?
+        private bool allowExternal;
         private Code? code;
         private InterpreterError? errorObject;
         private LexicalAnalyser lex = new LexicalAnalyser();
-        private bool optionExplicit; // müssen alle Identifier vor Benutzung explizit deklariert werden?
-        private Symbol sym = new();  // das jeweils aktuelle Symbol
+        private bool optionExplicit;
+        private Symbol sym = new();
 
-        private Scopes? symboltable;  // Symboltabelle während der Übersetzungszeit. Sie vermerkt, welche Identifier mit welchem Typ usw. bereits definiert sind und simuliert
+        private Scopes? symboltable;
 
         public SyntaxAnalyser(InterpreterError interpreterError)
         {
@@ -43,7 +39,7 @@ namespace Klacks.Api.BasicScriptInterpreter
         {
             lex.Connect(source, code.ErrorObject!);
 
-            symboltable = new Scopes();  // globalen und ersten Gültigkeitsbereich anlegen
+            symboltable = new Scopes();
             symboltable.PushScope();
 
             errorObject = code.ErrorObject!;
@@ -51,10 +47,8 @@ namespace Klacks.Api.BasicScriptInterpreter
             this.optionExplicit = optionExplicit;
             this.allowExternal = allowExternal;
 
-            // --- Erstes Symbol lesen
             GetNextSymbol();
 
-            // --- Wurzelregel der Grammatik aufrufen und Syntaxanalyse starten
             StatementList(false, true, (int)Exits.ExitNone, Symbol.Tokens.tokEof);
 
             if (errorObject.Number != 0)
@@ -62,10 +56,6 @@ namespace Klacks.Api.BasicScriptInterpreter
                 return this.code;
             }
 
-            // Wenn wir hier ankommen, dann muss der komplette Code korrekt erkannt
-            // worden sein, d.h. es sind alle Symbole gelesen. Falls also nicht
-            // das Eof-Symbol aktuell ist, ist ein Symbol nicht erkannt worden und
-            // ein Fehler liegt vor.
             if (!sym.Token.Equals(Symbol.Tokens.tokEof))
             {
                 errorObject.Raise((int)InterpreterError.ParsErrors.errUnexpectedSymbol, "SyntaxAnalyser.Parse", "Expected: end of statement", sym.Line, sym.Col, sym.Index, sym.Text);
@@ -78,13 +68,10 @@ namespace Klacks.Api.BasicScriptInterpreter
         {
             if (sym.Token == Symbol.Tokens.tokComma | sym.Token == Symbol.Tokens.tokStatementDelimiter | sym.Token == Symbol.Tokens.tokEof | sym.Token == Symbol.Tokens.tokRightParent)
             {
-                // statt eines Parameters sind wir nur auf ein "," oder das Statement-Ende gestossen
-                // wir nehmen daher den default-Wert an
                 code!.Add(Opcodes.PushValue, default_Renamed);
             }
             else
             {
-                // Parameterwert bestimmen
                 Condition();
             }
 
@@ -140,16 +127,11 @@ namespace Klacks.Api.BasicScriptInterpreter
             return operator_Renamed;
         }
 
-        /// <summary>
-        /// Inputbox aufrufen
-        /// </summary>
         private void CallInputbox(bool dropReturnValue)
         {
-            ActualOptionalParameter(string.Empty); // Prompt
-            ActualOptionalParameter(string.Empty); // Title
-            ActualOptionalParameter(string.Empty); // Default
-                                                   //ActualOptionalParameter(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width / (double)5);  // xPos
-                                                   //ActualOptionalParameter(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height / (double)5);  // yPos
+            ActualOptionalParameter(string.Empty);
+            ActualOptionalParameter(string.Empty);
+            ActualOptionalParameter(string.Empty);
 
             code!.Add(Opcodes.Inputbox);
 
@@ -186,14 +168,10 @@ namespace Klacks.Api.BasicScriptInterpreter
             }
         }
 
-        /// <summary>
-        /// Benutzerdefinierte Funktion aufrufen: feststellen, ob für alle formalen Parameter ein aktueller Param. angegeben ist.
-        /// </summary>
         private void CallUserdefinedFunction(string ident)
         {
             bool requireRightParent = false;
 
-            // Identifier überhaupt als Funktion definiert?
             if (!symboltable!.Exists(ident, null, Identifier.IdentifierTypes.IdSubOfFunction))
             {
                 errorObject!.Raise((int)InterpreterError.ParsErrors.errIdentifierAlreadyExists, "Statement", "Function/Sub '" + ident + "' not declared", sym.Line, sym.Col, sym.Index, ident);
@@ -205,24 +183,17 @@ namespace Klacks.Api.BasicScriptInterpreter
                 GetNextSymbol();
             }
 
-            // Funktionsdefinition laden (Parameterzahl, Adresse)
             Identifier definition;
             definition = symboltable.Retrieve(ident)!;
 
-            // --- Function-Scope vorbereiten
-
-            // Neuen Scope für die Funktion öffnen
             code!.Add(Opcodes.PushScope);
 
-            // --- Parameter verarbeiten
             int n = 0;
             int i = 0;
 
             if (sym.Token == Symbol.Tokens.tokStatementDelimiter | sym.Token == Symbol.Tokens.tokEof)
-                // Aufruf ohne Parameter
                 n = 0;
             else
-                // Funktion mit Parametern: Parameter { "," Parameter }
                 do
                 {
                     if (n > definition.FormalParameters!.Count - 1) { break; }
@@ -232,15 +203,11 @@ namespace Klacks.Api.BasicScriptInterpreter
 
                     n++;
                 }
-                // wir standen noch auf dem "," nach dem vorhergehenden Parameter // Wert des n-ten Parameters auf den Stack legen
                 while (sym.Token == Symbol.Tokens.tokComma);
 
-            // Wurde die richtige Anzahl Parameter übergeben?
             if (definition.FormalParameters!.Count != n)
                 errorObject!.Raise((int)InterpreterError.ParsErrors.errWrongNumberOfParams, "SyntaxAnalyser.Statement", "Wrong number of parameters in call to function '" + ident + "' (" + definition.FormalParameters.Count + " expected but " + n + " found)", sym.Line, sym.Col, sym.Index, sym.Text);
 
-            // Formale Parameter als lokale Variablen der Funktion definieren und zuweisen
-            // (in umgekehrter Reihenfolge, weil die Werte so auf dem Stack liegen)
             for (i = definition.FormalParameters.Count - 1; i >= 0; i += -1)
             {
                 code.Add(Opcodes.AllocVar, definition.FormalParameters[i]);
@@ -255,10 +222,8 @@ namespace Klacks.Api.BasicScriptInterpreter
                     errorObject!.Raise((int)InterpreterError.ParsErrors.errUnexpectedSymbol, "SyntaxAnalyser.Statement", "Expected: ')' after function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
             }
 
-            // --- Funktion rufen
             code.Add(Opcodes.Call, definition.Address);
 
-            // --- Scopes aufräumen
             code.Add(Opcodes.PopScope);
         }
 
@@ -312,10 +277,9 @@ namespace Klacks.Api.BasicScriptInterpreter
             return operator_Renamed;
         }
 
-        // Einstieg für die Auswertung math. Ausdrücke (s.a. Expression())
+        // ConditionalTerm { "OR" ConditionalTerm }
         private void Condition()
         {
-            // ConditionalTerm { "OR" ConditionalTerm }
             ConditionalTerm();
 
             while (InSymbolSet(sym.Token, Symbol.Tokens.tokOr))
@@ -327,9 +291,9 @@ namespace Klacks.Api.BasicScriptInterpreter
             }
         }
 
+        // Expression { ( "=" | "<>" | "<=" | "<" | ">=" | ">" ) Expression }
         private void ConditionalFactor()
         {
-            // Expression { ( "=" | "<>" | "<=" | "<" | ">=" | ">" ) Expression }
             Symbol.Tokens operator_Renamed;
 
             Expression();
@@ -383,8 +347,7 @@ namespace Klacks.Api.BasicScriptInterpreter
             }
         }
 
-        // Bei AND-Verknüpfungen werden nur soviele Operanden tatsächlich berechnet, bis einer FALSE ergibt! In diesem Fall wird das
-        // Ergebnis aller AND-Verknüpfungen sofort auch auf FALSE gesetzt und die restlichen Prüfungen/Kalkulationen nicht mehr durchgeführt.
+        // ConditionalFactor { "AND" ConditionalFactor }
         private void ConditionalTerm()
         {
             var operandPCs = new List<object>();
@@ -404,17 +367,12 @@ namespace Klacks.Api.BasicScriptInterpreter
             {
                 operandPCs.Add(code!.Add(Opcodes.JumpFalse));
 
-                // wenn wir hier ankommen, dann sind alle AND-Operanden TRUE
-                code.Add(Opcodes.PushValue, true); // also dieses Ergebnis auch auf den Stack legen
-                thenPC = code.Add(Opcodes.Jump); // und zum Code springen, der mit dem Ergebnis weiterarbeitet
+                code.Add(Opcodes.PushValue, true);
+                thenPC = code.Add(Opcodes.Jump);
 
-                // wenn wir hier ankommen, dann war mindestens ein
-                // AND-Operand FALSE
-                // Alle Sprünge von Operandentests hierher umleiten, da
-                // sie ja FALSE ergeben haben
                 for (int i = 0; i < operandPCs.Count(); i++)
                     code.FixUp(Convert.ToInt32(operandPCs[i]) - 1, code.EndOfCodePc);
-                code.Add(Opcodes.PushValue, false); // also dieses Ergebnis auch auf den Stack legen
+                code.Add(Opcodes.PushValue, false);
 
                 code.FixUp(thenPC - 1, code.EndOfCodePc);
             }
@@ -425,7 +383,6 @@ namespace Klacks.Api.BasicScriptInterpreter
             string ident;
             if (sym.Token == Symbol.Tokens.tokIdentifier)
             {
-                // Wurde Identifier schon für etwas anderes in diesem Scope benutzt?
                 if (symboltable!.Exists(sym.Text, true))
                     errorObject!.Raise((int)InterpreterError.ParsErrors.errIdentifierAlreadyExists, "ConstDeclaration", "Constant identifier '" + sym.Text + "' is already declared", sym.Line, sym.Col, sym.Index, sym.Text);
 
@@ -552,9 +509,9 @@ namespace Klacks.Api.BasicScriptInterpreter
                 errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.DoStatement", "'LOOP' is missing at end of DO-statement", sym.Line, sym.Col, sym.Index);
         }
 
+        // Term { ("+" | "-" | "%" | "MOD" | "&") Term }
         private void Expression()
         {
-            // Term { ("+" | "-" | "%" | "MOD" | "&") Term }
             Symbol.Tokens operator_Renamed;
 
             Term();
@@ -595,9 +552,9 @@ namespace Klacks.Api.BasicScriptInterpreter
             }
         }
 
+        // Factorial [ "^" Factorial ]
         private void Factor()
         {
-            // Factorial [ "^" Factorial ]
             Factorial();
 
             if (sym.Token == Symbol.Tokens.tokPower)
@@ -610,10 +567,9 @@ namespace Klacks.Api.BasicScriptInterpreter
             }
         }
 
-        // Fakultät
+        // Terminal [ "!" ]
         private void Factorial()
         {
-            // Terminal [ "!" ]
             Terminal();
 
             if (sym.Token == Symbol.Tokens.tokFactorial)
@@ -883,17 +839,7 @@ namespace Klacks.Api.BasicScriptInterpreter
 
         private bool InSymbolSet(Symbol.Tokens token, params Symbol.Tokens[] tokenSet)
         {
-            //for (int i = 0; i <= tokenSet.Length - 1; i++)
-            //{
-            //    if (Token.Equals(tokenSet[i]))
-            //    {
-            //        return true;
-
-            //    }
-            //}
-
             return tokenSet.Contains(token);
-            //return false;
         }
 
         private void Statement(bool singleLineOnly, bool allowFunctionDeclarations, int exitsAllowed)

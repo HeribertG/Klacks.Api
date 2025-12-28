@@ -13,7 +13,6 @@ namespace Klacks.Api.BasicScriptInterpreter
 
         public MacroEngine()
         {
-            //Imports = new Imports();
             code = new Code();
             importList = new List<string>();
             codeCollection = new Dictionary<Guid, ScriptCode>();
@@ -42,34 +41,11 @@ namespace Klacks.Api.BasicScriptInterpreter
         }
         public void PrepareMacro(Guid id, string script)
         {
-
-
-            //if (codeCollection.ContainsKey(id))
-            //{
-
-            //  PrepareImports(Script);
-            //  var sc = codeCollection[id];
-
-            //  code = sc.CurrentCode.Clone();
-            //  ImportList = sc.ImportList;
-            //}
-            //else
-            //{
-
-
             PrepareImports(script);
 
             code.Compile(script);
             ErrorNumber = code.ErrorObject!.Number;
             ErrorCode += code.ErrorObject.Description + "\n";
-
-            //  ScriptCode sc = new ScriptCode();
-            //  sc.CurrentCode = code;
-            //  sc.ImportList = ImportList;
-            //  sc.Script = Script;
-
-            //  codeCollection.Add(id, sc);
-            //}
         }
         public List<ResultMessage> Run()
         {
