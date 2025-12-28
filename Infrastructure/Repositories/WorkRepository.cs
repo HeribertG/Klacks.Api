@@ -47,9 +47,9 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
                         (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startOfYear))
             .AsQueryable();
 
-        var startDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1)
+        var startDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1, 0, 0, 0, DateTimeKind.Utc)
             .AddDays(-filter.DayVisibleBeforeMonth);
-        var endDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, DateTime.DaysInMonth(filter.CurrentYear, filter.CurrentMonth))
+        var endDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, DateTime.DaysInMonth(filter.CurrentYear, filter.CurrentMonth), 23, 59, 59, DateTimeKind.Utc)
             .AddDays(filter.DayVisibleAfterMonth);
 
         query = query.Include(c => c.Works.Where(w => w.CurrentDate >= startDate && w.CurrentDate <= endDate));
@@ -61,7 +61,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         query = ApplyTypeFilter(query, filter.ShowEmployees, filter.ShowExtern);
 
         var refDate = new DateOnly(filter.CurrentYear, filter.CurrentMonth, 1);
-        query = ApplySorting(query, filter.OrderBy, filter.SortOrder, refDate);
+        query = ApplySorting(query, filter.OrderBy, filter.SortOrder, filter.HoursSortOrder, refDate);
 
         return await query.ToListAsync();
     }
@@ -86,11 +86,11 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         return query.Where(c => c.Type == EntityTypeEnum.ExternEmp);
     }
 
-    private static IQueryable<Client> ApplySorting(IQueryable<Client> query, string orderBy, string sortOrder, DateOnly refDate)
+    private static IQueryable<Client> ApplySorting(IQueryable<Client> query, string orderBy, string sortOrder, string? hoursSortOrder, DateOnly refDate)
     {
         var isDescending = sortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
 
-        return orderBy.ToLowerInvariant() switch
+        var orderedQuery = orderBy.ToLowerInvariant() switch
         {
             "firstname" => isDescending
                 ? query.OrderByDescending(c => c.FirstName)
@@ -101,21 +101,28 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             "type" => isDescending
                 ? query.OrderByDescending(c => c.Type)
                 : query.OrderBy(c => c.Type),
-            "hours" => isDescending
-                ? query.OrderByDescending(c => c.ClientContracts
-                    .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
-                    .OrderByDescending(cc => cc.FromDate)
-                    .Select(cc => cc.Contract.GuaranteedHoursPerMonth)
-                    .FirstOrDefault())
-                : query.OrderBy(c => c.ClientContracts
-                    .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
-                    .OrderByDescending(cc => cc.FromDate)
-                    .Select(cc => cc.Contract.GuaranteedHoursPerMonth)
-                    .FirstOrDefault()),
             _ => isDescending
                 ? query.OrderByDescending(c => c.Name)
                 : query.OrderBy(c => c.Name)
         };
+
+        if (string.IsNullOrEmpty(hoursSortOrder))
+        {
+            return orderedQuery;
+        }
+
+        var hoursDescending = hoursSortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
+        return hoursDescending
+            ? orderedQuery.ThenByDescending(c => c.ClientContracts
+                .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
+                .OrderByDescending(cc => cc.FromDate)
+                .Select(cc => cc.Contract.GuaranteedHoursPerMonth)
+                .FirstOrDefault())
+            : orderedQuery.ThenBy(c => c.ClientContracts
+                .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
+                .OrderByDescending(cc => cc.FromDate)
+                .Select(cc => cc.Contract.GuaranteedHoursPerMonth)
+                .FirstOrDefault());
     }
 
     public async Task<Dictionary<Guid, MonthlyHoursResource>> GetMonthlyHoursForClients(List<Guid> clientIds, int year, int month)

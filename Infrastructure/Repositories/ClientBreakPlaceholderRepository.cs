@@ -53,7 +53,7 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
         query = ApplyTypeFilter(query, filter.ShowEmployees, filter.ShowExtern);
 
         var refDate = new DateOnly(filter.CurrentYear, 1, 1);
-        query = ApplySorting(query, filter.OrderBy, filter.SortOrder, refDate);
+        query = ApplySorting(query, filter.OrderBy, filter.SortOrder, filter.HoursSortOrder, refDate);
 
         var totalCount = await query.CountAsync();
 
@@ -97,11 +97,11 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
         return query.Where(c => c.Type == EntityTypeEnum.ExternEmp);
     }
 
-    private static IQueryable<Client> ApplySorting(IQueryable<Client> query, string orderBy, string sortOrder, DateOnly refDate)
+    private static IQueryable<Client> ApplySorting(IQueryable<Client> query, string orderBy, string sortOrder, string? hoursSortOrder, DateOnly refDate)
     {
         var isDescending = sortOrder?.ToLower() == "desc";
 
-        return (orderBy?.ToLower()) switch
+        var orderedQuery = (orderBy?.ToLower()) switch
         {
             "firstname" => isDescending
                 ? query.OrderByDescending(c => c.FirstName).ThenByDescending(c => c.Name)
@@ -111,21 +111,27 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
                 ? query.OrderByDescending(c => c.Company).ThenByDescending(c => c.Name)
                 : query.OrderBy(c => c.Company).ThenBy(c => c.Name),
 
-            "hours" => isDescending
-                ? query.OrderByDescending(c => c.ClientContracts
-                    .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
-                    .OrderByDescending(cc => cc.FromDate)
-                    .Select(cc => cc.Contract.GuaranteedHoursPerMonth)
-                    .FirstOrDefault())
-                : query.OrderBy(c => c.ClientContracts
-                    .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
-                    .OrderByDescending(cc => cc.FromDate)
-                    .Select(cc => cc.Contract.GuaranteedHoursPerMonth)
-                    .FirstOrDefault()),
-
             "name" or _ => isDescending
                 ? query.OrderByDescending(c => c.Name).ThenByDescending(c => c.FirstName)
                 : query.OrderBy(c => c.Name).ThenBy(c => c.FirstName)
         };
+
+        if (string.IsNullOrEmpty(hoursSortOrder))
+        {
+            return orderedQuery;
+        }
+
+        var hoursDescending = hoursSortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
+        return hoursDescending
+            ? orderedQuery.ThenByDescending(c => c.ClientContracts
+                .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
+                .OrderByDescending(cc => cc.FromDate)
+                .Select(cc => cc.Contract.GuaranteedHoursPerMonth)
+                .FirstOrDefault())
+            : orderedQuery.ThenBy(c => c.ClientContracts
+                .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
+                .OrderByDescending(cc => cc.FromDate)
+                .Select(cc => cc.Contract.GuaranteedHoursPerMonth)
+                .FirstOrDefault());
     }
 }

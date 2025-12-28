@@ -103,7 +103,8 @@ public partial class FilterMapper
             RowCount = filter.RowCount,
             AbsenceIds = filter.Absences?.Where(a => a.Checked).Select(a => a.Id).ToList() ?? [],
             ShowEmployees = filter.ShowEmployees,
-            ShowExtern = filter.ShowExtern
+            ShowExtern = filter.ShowExtern,
+            HoursSortOrder = filter.HoursSortOrder
         };
     }
 

@@ -21,4 +21,6 @@ public class WorkFilter
     public bool ShowEmployees { get; set; } = true;
 
     public bool ShowExtern { get; set; } = true;
+
+    public string? HoursSortOrder { get; set; }
 }
