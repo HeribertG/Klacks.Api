@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Klacks.Api.BasicScriptInterpreter
+namespace Klacks.Api.Infrastructure.Scripting
 {
     /// <summary>
     /// Das jeweils zuoberst liegende Scope-Objekt dient dabei als

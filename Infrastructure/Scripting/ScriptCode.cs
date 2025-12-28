@@ -1,4 +1,4 @@
-namespace Klacks.Api.BasicScriptInterpreter
+namespace Klacks.Api.Infrastructure.Scripting
 {
     /// <summary>
     /// Wird gebraucht, um compilierte Code immer wieder zu gebrauchen ohne erneute Compilierung

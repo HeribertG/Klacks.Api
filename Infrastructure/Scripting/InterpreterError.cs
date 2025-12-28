@@ -1,5 +1,5 @@
 
-namespace Klacks.Api.BasicScriptInterpreter
+namespace Klacks.Api.Infrastructure.Scripting
 {
     // InterpreterError: Fehler-Objekt für alle Klasse der myScript-Engine
     // Über Raise() werden die Fehlerparameter gesetzt und ein VB-Fehler

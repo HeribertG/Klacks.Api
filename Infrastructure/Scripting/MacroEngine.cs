@@ -2,7 +2,7 @@
 using Klacks.Api.Infrastructure.Interfaces;
 
 
-namespace Klacks.Api.BasicScriptInterpreter
+namespace Klacks.Api.Infrastructure.Scripting
 {
     public class MacroEngine : IDisposable, IMacroEngine
     {

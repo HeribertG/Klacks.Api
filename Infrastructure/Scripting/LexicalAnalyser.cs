@@ -1,8 +1,8 @@
 
 using System.Diagnostics;
-using static Klacks.Api.BasicScriptInterpreter.InterpreterError;
+using static Klacks.Api.Infrastructure.Scripting.InterpreterError;
 
-namespace Klacks.Api.BasicScriptInterpreter
+namespace Klacks.Api.Infrastructure.Scripting
 {
 
 

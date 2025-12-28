@@ -1,4 +1,4 @@
-namespace Klacks.Api.BasicScriptInterpreter
+namespace Klacks.Api.Infrastructure.Scripting
 {
     public enum Opcodes
     {

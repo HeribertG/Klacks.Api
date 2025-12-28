@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace Klacks.Api.BasicScriptInterpreter
+namespace Klacks.Api.Infrastructure.Scripting
 {
     public static class Formathelper
     {
