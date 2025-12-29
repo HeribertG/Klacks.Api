@@ -58,8 +58,8 @@ public class WorkMacroService : IWorkMacroService
 
     private static void CalculateWorkTime(Work work)
     {
-        var start = work.StartShift.ToTimeSpan();
-        var end = work.EndShift.ToTimeSpan();
+        var start = work.StartTime.ToTimeSpan();
+        var end = work.EndTime.ToTimeSpan();
 
         TimeSpan duration;
         if (end >= start)

@@ -25,7 +25,7 @@ public class WorkResource
 
     public decimal Surcharges { get; set; }
 
-    public TimeOnly StartShift { get; set; }
+    public TimeOnly StartTime { get; set; }
 
-    public TimeOnly EndShift { get; set; }
+    public TimeOnly EndTime { get; set; }
 }

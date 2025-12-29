@@ -7,8 +7,8 @@ public class WorkScheduleResource
     public Guid WorkId { get; set; }
     public Guid ClientId { get; set; }
     public DateTime EntryDate { get; set; }
-    public TimeSpan StartShift { get; set; }
-    public TimeSpan EndShift { get; set; }
+    public TimeSpan StartTime { get; set; }
+    public TimeSpan EndTime { get; set; }
     public decimal? ChangeTime { get; set; }
     public int? WorkChangeType { get; set; }
     public string? Description { get; set; }

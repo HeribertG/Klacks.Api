@@ -19,8 +19,8 @@ RETURNS TABLE (
     work_id UUID,
     client_id UUID,
     entry_date DATE,
-    start_shift TIME,
-    end_shift TIME,
+    start_time TIME,
+    end_time TIME,
     change_time NUMERIC,
     work_change_type INTEGER,
     description TEXT,
@@ -66,8 +66,8 @@ BEGIN
             w.id AS work_id,
             w.client_id,
             w."current_date"::DATE AS entry_date,
-            w.start_shift,
-            w.end_shift,
+            w.start_time,
+            w.end_time,
             w.work_time AS change_time,
             NULL::INTEGER AS work_change_type,
             w.information AS description,
@@ -93,8 +93,8 @@ BEGIN
                 WHEN s.end_shift < s.start_shift THEN (w."current_date" + INTERVAL '1 day')::DATE
                 ELSE w."current_date"::DATE
             END AS entry_date,
-            s.end_shift AS start_shift,
-            (s.end_shift + (wc.change_time * INTERVAL '1 minute'))::TIME AS end_shift,
+            s.end_shift AS start_time,
+            (s.end_shift + (wc.change_time * INTERVAL '1 minute'))::TIME AS end_time,
             wc.change_time,
             wc.type AS work_change_type,
             wc.description,
@@ -119,8 +119,8 @@ BEGIN
             wc.work_id,
             w.client_id,
             w."current_date"::DATE AS entry_date,
-            (s.start_shift - (wc.change_time * INTERVAL '1 minute'))::TIME AS start_shift,
-            s.start_shift AS end_shift,
+            (s.start_shift - (wc.change_time * INTERVAL '1 minute'))::TIME AS start_time,
+            s.start_shift AS end_time,
             wc.change_time,
             wc.type AS work_change_type,
             wc.description,
@@ -145,8 +145,8 @@ BEGIN
             wc.work_id,
             w.client_id,
             w."current_date"::DATE AS entry_date,
-            (s.start_shift + (wc.change_time * INTERVAL '1 minute'))::TIME AS start_shift,
-            s.end_shift AS end_shift,
+            (s.start_shift + (wc.change_time * INTERVAL '1 minute'))::TIME AS start_time,
+            s.end_shift AS end_time,
             wc.change_time * -1 AS change_time,
             wc.type AS work_change_type,
             wc.description,
@@ -171,8 +171,8 @@ BEGIN
             wc.work_id,
             wc.replace_client_id AS client_id,
             w."current_date"::DATE AS entry_date,
-            s.start_shift AS start_shift,
-            (s.start_shift + (wc.change_time * INTERVAL '1 minute'))::TIME AS end_shift,
+            s.start_shift AS start_time,
+            (s.start_shift + (wc.change_time * INTERVAL '1 minute'))::TIME AS end_time,
             wc.change_time,
             wc.type AS work_change_type,
             wc.description,
@@ -200,8 +200,8 @@ BEGIN
                 WHEN s.end_shift < s.start_shift THEN (w."current_date" + INTERVAL '1 day')::DATE
                 ELSE w."current_date"::DATE
             END AS entry_date,
-            s.start_shift AS start_shift,
-            (s.end_shift - (wc.change_time * INTERVAL '1 minute'))::TIME AS end_shift,
+            s.start_shift AS start_time,
+            (s.end_shift - (wc.change_time * INTERVAL '1 minute'))::TIME AS end_time,
             wc.change_time * -1 AS change_time,
             wc.type AS work_change_type,
             wc.description,
@@ -229,8 +229,8 @@ BEGIN
                 WHEN s.end_shift < s.start_shift THEN (w."current_date" + INTERVAL '1 day')::DATE
                 ELSE w."current_date"::DATE
             END AS entry_date,
-            (s.end_shift - (wc.change_time * INTERVAL '1 minute'))::TIME AS start_shift,
-            s.end_shift AS end_shift,
+            (s.end_shift - (wc.change_time * INTERVAL '1 minute'))::TIME AS start_time,
+            s.end_shift AS end_time,
             wc.change_time,
             wc.type AS work_change_type,
             wc.description,
@@ -258,8 +258,8 @@ BEGIN
                 WHEN s.end_shift < s.start_shift THEN (w."current_date" + INTERVAL '1 day')::DATE
                 ELSE w."current_date"::DATE
             END AS entry_date,
-            s.end_shift AS start_shift,
-            (s.end_shift + INTERVAL '1 minute')::TIME AS end_shift,
+            s.end_shift AS start_time,
+            (s.end_shift + INTERVAL '1 minute')::TIME AS end_time,
             NULL::NUMERIC AS change_time,
             NULL::INTEGER AS work_change_type,
             e.description,
@@ -292,6 +292,6 @@ BEGIN
     SELECT * FROM replacement_end_replacement
     UNION ALL
     SELECT * FROM expense_entries
-    ORDER BY client_id, entry_date, start_shift, entry_type;
+    ORDER BY client_id, entry_date, start_time, entry_type;
 END;
 $$ LANGUAGE plpgsql;
