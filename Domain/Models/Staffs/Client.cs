@@ -18,6 +18,7 @@ public class Client : BaseEntity
         Annotations = new Collection<Annotation>();
         BreakPlaceholders = new Collection<BreakPlaceholder>();
         Works = new Collection<Work>();
+        Breaks = new Collection<Break>();
         GroupItems = new Collection<GroupItem>();
         ClientContracts = new Collection<ClientContract>();
     }
@@ -74,4 +75,6 @@ public class Client : BaseEntity
     public EntityTypeEnum Type { get; set; }
 
     public ICollection<Work> Works { get; set; }
+
+    public ICollection<Break> Breaks { get; set; }
 }

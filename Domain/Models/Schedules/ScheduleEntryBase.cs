@@ -1,18 +1,15 @@
-using Klacks.Api.Presentation.DTOs.Staffs;
+using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Models.Staffs;
+using System.Text.Json.Serialization;
 
-namespace Klacks.Api.Presentation.DTOs.Schedules;
+namespace Klacks.Api.Domain.Models.Schedules;
 
-public class BreakResource
+public abstract class ScheduleEntryBase : BaseEntity
 {
-    public Guid Id { get; set; }
-
-    public ClientResource? Client { get; set; }
+    [JsonIgnore]
+    public virtual Client? Client { get; set; }
 
     public Guid ClientId { get; set; }
-
-    public BreakReasonResource? BreakReason { get; set; }
-
-    public Guid BreakReasonId { get; set; }
 
     public DateTime CurrentDate { get; set; }
 

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.BreakPlaceholders
 {
-    public class GetQueryHandler : IRequestHandler<GetQuery<BreakResource>, BreakResource>
+    public class GetQueryHandler : IRequestHandler<GetQuery<BreakPlaceholderResource>, BreakPlaceholderResource>
     {
         private readonly IBreakPlaceholderRepository _breakPlaceholderRepository;
         private readonly ScheduleMapper _scheduleMapper;
@@ -21,7 +21,7 @@ namespace Klacks.Api.Application.Handlers.BreakPlaceholders
             _logger = logger;
         }
 
-        public async Task<BreakResource> Handle(GetQuery<BreakResource> request, CancellationToken cancellationToken)
+        public async Task<BreakPlaceholderResource> Handle(GetQuery<BreakPlaceholderResource> request, CancellationToken cancellationToken)
         {
             try
             {
@@ -34,7 +34,7 @@ namespace Klacks.Api.Application.Handlers.BreakPlaceholders
                     throw new KeyNotFoundException($"Break with ID {request.Id} not found");
                 }
 
-                var result = _scheduleMapper.ToBreakResource(breakEntity);
+                var result = _scheduleMapper.ToBreakPlaceholderResource(breakEntity);
                 _logger.LogInformation("Successfully retrieved break with ID: {Id}", request.Id);
                 return result;
             }

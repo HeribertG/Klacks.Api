@@ -84,6 +84,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<Work> Work { get; set; }
 
+    public DbSet<Break> Break { get; set; }
+
     public DbSet<WorkChange> WorkChange { get; set; }
 
     public DbSet<Expenses> Expenses { get; set; }
@@ -207,6 +209,7 @@ public class DataBaseContext : IdentityDbContext
         });
         modelBuilder.Entity<ContainerTemplateItem>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Work>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<Break>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<WorkChange>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Expenses>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<AssignedGroup>().HasQueryFilter(p => !p.IsDeleted);
@@ -253,6 +256,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.GroupId, p.ClientId, p.IsDeleted });
         modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.ClientId, p.GroupId, p.ShiftId });
         modelBuilder.Entity<Work>().HasIndex(p => new { p.ClientId, p.ShiftId });
+        modelBuilder.Entity<Break>().HasIndex(p => new { p.ClientId, p.BreakReasonId });
         modelBuilder.Entity<Shift>().HasIndex(p => new { p.MacroId, p.ClientId, p.Status , p.FromDate, p.UntilDate });
         modelBuilder.Entity<ContainerTemplate>().HasIndex(p => new { p.Id, p.ContainerId, p.Weekday, p.IsWeekdayAndHoliday, p.IsHoliday });
         modelBuilder.Entity<ClientScheduleDetail>().HasIndex(p => new { p.ClientId, p.CurrentYear, p.CurrentMonth });
@@ -359,6 +363,14 @@ public class DataBaseContext : IdentityDbContext
 
         modelBuilder.Entity<Work>()
             .HasOne(p => p.Shift);
+
+        modelBuilder.Entity<Break>()
+               .HasOne(p => p.Client)
+               .WithMany(b => b.Breaks)
+               .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Break>()
+            .HasOne(p => p.BreakReason);
 
         modelBuilder.Entity<WorkChange>()
             .HasOne(sc => sc.Work)

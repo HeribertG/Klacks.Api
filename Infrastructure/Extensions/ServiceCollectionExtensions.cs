@@ -54,6 +54,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<ICalendarSelectionRepository, CalendarSelectionRepository>();
         services.AddScoped<ISelectedCalendarRepository, SelectedCalendarRepository>();
         services.AddScoped<IWorkRepository, WorkRepository>();
+        services.AddScoped<IBreakRepository, BreakRepository>();
         services.AddScoped<IWorkChangeRepository, WorkChangeRepository>();
         services.AddScoped<IExpensesRepository, ExpensesRepository>();
         services.AddScoped<IShiftRepository, ShiftRepository>();

@@ -7,7 +7,7 @@ using Klacks.Api.Domain.Exceptions;
 
 namespace Klacks.Api.Application.Handlers.BreakPlaceholders;
 
-public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakResource>, BreakResource?>
+public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakPlaceholderResource>, BreakPlaceholderResource?>
 {
     private readonly IBreakPlaceholderRepository _breakPlaceholderRepository;
     private readonly ScheduleMapper _scheduleMapper;
@@ -25,7 +25,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
         _unitOfWork = unitOfWork;
         }
 
-    public async Task<BreakResource?> Handle(PutCommand<BreakResource> request, CancellationToken cancellationToken)
+    public async Task<BreakPlaceholderResource?> Handle(PutCommand<BreakPlaceholderResource> request, CancellationToken cancellationToken)
     {
         return await ExecuteAsync(async () =>
         {
@@ -37,7 +37,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
 
             _scheduleMapper.UpdateBreakEntity(request.Resource, existingBreak);
             await _unitOfWork.CompleteAsync();
-            return _scheduleMapper.ToBreakResource(existingBreak);
+            return _scheduleMapper.ToBreakPlaceholderResource(existingBreak);
         },
         "updating break",
         new { BreakPlaceholderId = request.Resource.Id });

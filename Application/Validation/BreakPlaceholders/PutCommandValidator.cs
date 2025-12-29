@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Validation.BreakPlaceholders;
 
-public class PutCommandValidator : AbstractValidator<PutCommand<BreakResource>>
+public class PutCommandValidator : AbstractValidator<PutCommand<BreakPlaceholderResource>>
 {
     private readonly DataBaseContext _context;
     private readonly ILogger<PutCommandValidator> _logger;

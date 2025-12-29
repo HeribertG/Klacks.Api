@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend;
 
-public class BreakPlaceholdersController : InputBaseController<BreakResource>
+public class BreakPlaceholdersController : InputBaseController<BreakPlaceholderResource>
 {
     public BreakPlaceholdersController(IMediator Mediator, ILogger<BreakPlaceholdersController> logger)
       : base(Mediator, logger)
@@ -30,17 +30,17 @@ public class BreakPlaceholdersController : InputBaseController<BreakResource>
 
     [HttpPost]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public override async Task<ActionResult<BreakResource>> Post([FromBody] BreakResource resource)
+    public override async Task<ActionResult<BreakPlaceholderResource>> Post([FromBody] BreakPlaceholderResource resource)
     {
-        var model = await Mediator.Send(new PostCommand<BreakResource>(resource));
+        var model = await Mediator.Send(new PostCommand<BreakPlaceholderResource>(resource));
         return Ok(model);
     }
 
     [HttpPut]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public override async Task<ActionResult<BreakResource>> Put([FromBody] BreakResource resource)
+    public override async Task<ActionResult<BreakPlaceholderResource>> Put([FromBody] BreakPlaceholderResource resource)
     {
-        var model = await Mediator.Send(new PutCommand<BreakResource>(resource));
+        var model = await Mediator.Send(new PutCommand<BreakPlaceholderResource>(resource));
 
         if (model == null)
         {
@@ -52,9 +52,9 @@ public class BreakPlaceholdersController : InputBaseController<BreakResource>
 
     [HttpDelete("{id}")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public override async Task<ActionResult<BreakResource>> Delete(Guid id)
+    public override async Task<ActionResult<BreakPlaceholderResource>> Delete(Guid id)
     {
-        var model = await Mediator.Send(new DeleteCommand<BreakResource>(id));
+        var model = await Mediator.Send(new DeleteCommand<BreakPlaceholderResource>(id));
         if (model == null)
         {
             return NotFound();

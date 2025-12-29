@@ -7,7 +7,7 @@ using Klacks.Api.Domain.Exceptions;
 
 namespace Klacks.Api.Application.Handlers.BreakPlaceholders;
 
-public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<BreakResource>, BreakResource?>
+public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<BreakPlaceholderResource>, BreakPlaceholderResource?>
 {
     private readonly IBreakPlaceholderRepository _breakPlaceholderRepository;
     private readonly ScheduleMapper _scheduleMapper;
@@ -25,7 +25,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<B
         _unitOfWork = unitOfWork;
         }
 
-    public async Task<BreakResource?> Handle(DeleteCommand<BreakResource> request, CancellationToken cancellationToken)
+    public async Task<BreakPlaceholderResource?> Handle(DeleteCommand<BreakPlaceholderResource> request, CancellationToken cancellationToken)
     {
         return await ExecuteAsync(async () =>
         {
@@ -35,7 +35,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<B
                 throw new KeyNotFoundException($"Break with ID {request.Id} not found.");
             }
 
-            var breakResource = _scheduleMapper.ToBreakResource(existingBreak);
+            var breakResource = _scheduleMapper.ToBreakPlaceholderResource(existingBreak);
             await _breakPlaceholderRepository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
 
