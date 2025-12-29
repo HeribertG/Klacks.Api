@@ -4,7 +4,7 @@ namespace Klacks.Api.Domain.Interfaces;
 
 public interface IWorkScheduleService
 {
-    IQueryable<WorkScheduleEntry> GetWorkScheduleQuery(
+    IQueryable<ScheduleCell> GetWorkScheduleQuery(
         DateOnly startDate,
         DateOnly endDate,
         List<Guid>? visibleGroupIds = null);

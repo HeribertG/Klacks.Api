@@ -74,7 +74,7 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<ShiftDayAssignment> ShiftDayAssignments { get; set; }
 
-    public DbSet<WorkScheduleEntry> WorkScheduleEntries { get; set; }
+    public DbSet<ScheduleCell> ScheduleCells { get; set; }
 
     public DbSet<ContainerTemplate> ContainerTemplate { get; set; }
 
@@ -145,7 +145,7 @@ public class DataBaseContext : IdentityDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ShiftDayAssignment>().HasNoKey();
-        modelBuilder.Entity<WorkScheduleEntry>().HasNoKey();
+        modelBuilder.Entity<ScheduleCell>().HasNoKey();
 
         base.OnModelCreating(modelBuilder);
 

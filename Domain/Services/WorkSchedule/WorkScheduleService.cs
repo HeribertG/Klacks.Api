@@ -18,7 +18,7 @@ public class WorkScheduleService : IWorkScheduleService
         _logger = logger;
     }
 
-    public IQueryable<WorkScheduleEntry> GetWorkScheduleQuery(
+    public IQueryable<ScheduleCell> GetWorkScheduleQuery(
         DateOnly startDate,
         DateOnly endDate,
         List<Guid>? visibleGroupIds = null)
@@ -34,7 +34,7 @@ public class WorkScheduleService : IWorkScheduleService
 
         var visibleGroupArray = visibleGroupIds?.ToArray() ?? [];
 
-        return _context.WorkScheduleEntries
+        return _context.ScheduleCells
             .FromSqlInterpolated($@"
                 SELECT * FROM get_work_schedule(
                     {startDateTime}::DATE,

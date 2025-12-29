@@ -1,6 +1,6 @@
 namespace Klacks.Api.Domain.Models.Schedules;
 
-public class WorkScheduleEntry
+public class ScheduleCell
 {
     public Guid Id { get; set; }
     public int EntryType { get; set; }

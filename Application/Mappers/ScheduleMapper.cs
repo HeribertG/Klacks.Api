@@ -334,9 +334,9 @@ public partial class ScheduleMapper
 
     public partial List<ShiftScheduleResource> ToShiftScheduleResourceList(List<ShiftDayAssignment> assignments);
 
-    public partial WorkScheduleResource ToWorkScheduleResource(WorkScheduleEntry entry);
+    public partial WorkScheduleResource ToWorkScheduleResource(ScheduleCell entry);
 
-    public partial List<WorkScheduleResource> ToWorkScheduleResourceList(List<WorkScheduleEntry> entries);
+    public partial List<WorkScheduleResource> ToWorkScheduleResourceList(List<ScheduleCell> entries);
 
     public partial WorkScheduleClientResource ToWorkScheduleClientResource(Client client);
 
