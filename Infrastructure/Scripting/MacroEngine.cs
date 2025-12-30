@@ -19,9 +19,7 @@ namespace Klacks.Api.Infrastructure.Scripting
             result = new List<ResultMessage>();
             AddEvent();
         }
-#pragma warning disable CS8766 // Die NULL-Zulässigkeit von Verweistypen im Rückgabetyp entspricht (möglicherweise aufgrund von Attributen für die NULL-Zulässigkeit) nicht dem implizit implementierten Member.
         public dynamic? Imports { get; set; }
-#pragma warning restore CS8766 // Die NULL-Zulässigkeit von Verweistypen im Rückgabetyp entspricht (möglicherweise aufgrund von Attributen für die NULL-Zulässigkeit) nicht dem implizit implementierten Member.
         public bool IsIde { get; set; }
         public string ErrorCode { get; set; } = string.Empty;
         public int ErrorNumber { get; set; }
@@ -47,13 +45,13 @@ namespace Klacks.Api.Infrastructure.Scripting
             ErrorNumber = code.ErrorObject!.Number;
             ErrorCode += code.ErrorObject.Description + "\n";
         }
-        public List<ResultMessage> Run()
+        public List<ResultMessage> Run(CancellationToken cancellationToken = default)
         {
             result.Clear();
             code.ErrorObject!.Clear();
             ErrorNumber = 0;
             ErrorCode = "";
-            code.Run();
+            code.Run(cancellationToken);
 
             ErrorCode += code.ErrorObject.Description + "\n";
 
@@ -226,11 +224,6 @@ namespace Klacks.Api.Infrastructure.Scripting
         public void Dispose()
         {
             RemoveEvent();
-        }
-
-        ~MacroEngine()
-        {
-            Dispose();
         }
     }
 

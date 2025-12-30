@@ -1,26 +1,8 @@
-using System.Collections.ObjectModel;
-
-
-
 namespace Klacks.Api.Infrastructure.Scripting
 {
-
-    ///  Scope: Stackähnliche Datenstruktur, in der benannte Werte
-    /// (Variablen, Konstanten) und unbenannte Werte geführt werden.
-    ///
-    ///  Die benannten Werte werden immer am unteren Ende des Stacks
-    ///  zusammengefasst. Der Zugriff erfolgt über die Namen.
-    ///
-    ///  Unbenannt Werte liegen in LIFO-Manier oben auf dem Stack.
-    ///  Der Zugriff erfolgt per Pop/Push .
-    ///
-    ///  Jedes Scope-Objekt realisiert einen eigenen Stack und
-    ///  einen eigenen Namensraum, in welchem alle benannten Werte
-    ///  unterschiedliche Namen haben müssen. Werte in unterschiedlichen
-    ///  Scope-Objekten können gleich sein.
     public class Scope
     {
-        private Collection<Identifier> Variables = new Collection<Identifier>();
+        private List<Identifier> Variables = new();
 
 
         public Identifier Allocate(string name, object? value = null, Identifier.IdentifierTypes idType = Identifier.IdentifierTypes.IdVariable)
@@ -91,15 +73,13 @@ namespace Klacks.Api.Infrastructure.Scripting
             // Variablen kommen nur noch echte Stackwerte
 
             Identifier c;
-            if (value is Identifier)
+            if (value is Identifier existingId)
             {
-                c = (Identifier)value;
+                c = existingId;
             }
             else
             {
-                c = new Identifier();
-                c.Name = name;
-                c.Value = value;
+                c = new Identifier { Name = name, Value = value };
             }
 
             if (Variables.Count == 0) { Variables.Add(c); }
@@ -126,27 +106,23 @@ namespace Klacks.Api.Infrastructure.Scripting
                 // Den obersten Stackwert vom Stack nehmen und zurückliefern
                 // Die Stackwerte fangen nach der letzten benannten Variablen im Scope an
 
-                if (Variables.Count() > 0)
+                if (Variables.Count > 0)
                 {
-
-                    pop = Variables[Variables.Count() - 1];
+                    pop = Variables[Variables.Count - 1];
                     Variables.Remove(pop);
                 }
-
-
             }
             else
-                // Eine Stackwert vom Stacktop aus gezählt (0..n) zurückliefern, der Stack
-                // bleibt aber wie er ist
-
-                pop = Variables[Variables.Count() - 1 - index];
+            {
+                pop = Variables[Variables.Count - 1 - index];
+            }
 
             return pop!;
         }
 
         internal int CloneCount()
         {
-            return Variables.Count();
+            return Variables.Count;
         }
 
         public object CloneItem(int index)

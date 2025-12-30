@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using System.Globalization;
 
 namespace Klacks.Api.Infrastructure.Scripting
@@ -37,20 +36,19 @@ namespace Klacks.Api.Infrastructure.Scripting
 
         #endregion Events
 
-        private Collection<object> code = new();
+        private const int MaxRecursionDepth = 1000;
+
+        private List<object> code = new();
 
         private Scope external = new();
 
         private int pc;
 
+        private int recursionDepth;
+
         private bool running;
 
         private Scopes? scopes;
-
-        ~Code()
-        {
-            Dispose();
-        }
 
         public bool AllowUi { get; set; }
 
@@ -104,7 +102,7 @@ namespace Klacks.Api.Infrastructure.Scripting
 
             var parser = new SyntaxAnalyser(ErrorObject);
 
-            code = new Collection<object>();
+            code = new List<object>();
 
             parser.Parse(sourceStream.Connect(source), this, optionExplicit, allowExternal);
 
@@ -141,12 +139,12 @@ namespace Klacks.Api.Infrastructure.Scripting
             return external.Retrieve(name);
         }
 
-        public bool Run()
+        public bool Run(CancellationToken cancellationToken = default)
         {
             if (ErrorObject?.Number == 0)
             {
-                Interpret();
-                return Convert.ToBoolean(ErrorObject.Number == 0);
+                Interpret(cancellationToken);
+                return ErrorObject.Number == 0;
             }
 
             return false;
@@ -170,6 +168,11 @@ namespace Klacks.Api.Infrastructure.Scripting
         internal void CloneAdd(object value)
         {
             code.Add(value);
+        }
+
+        internal object GetInstruction(int index)
+        {
+            return code[index];
         }
 
         internal Scope External()
@@ -281,7 +284,7 @@ namespace Klacks.Api.Infrastructure.Scripting
                 return n * Factorial(n - 1);
         }
 
-        private void Interpret()
+        private void Interpret(CancellationToken cancellationToken)
         {
             object?[] operation;
             object? akkumulator;
@@ -291,9 +294,9 @@ namespace Klacks.Api.Infrastructure.Scripting
             scopes.PushScope(external);
             scopes.PushScope();
 
-            int startTime = Environment.TickCount;
             Cancel = false;
             running = true;
+            recursionDepth = 0;
 
             pc = 0;
 
@@ -307,9 +310,7 @@ namespace Klacks.Api.Infrastructure.Scripting
                 akkumulator = null;
                 register = null;
 
-#pragma warning disable SA1121 // UseBuiltInTypeAlias
-                operation = (Object[])code[pc];
-#pragma warning restore SA1121 // UseBuiltInTypeAlias
+                operation = (object[])code[pc];
                 switch ((Opcodes)operation.GetValue(0)!)
                 {
                     case Opcodes.AllocConst:
@@ -336,15 +337,7 @@ namespace Klacks.Api.Infrastructure.Scripting
                             try
                             {
                                 var tmp = operation.GetValue(1)!;
-                                if (tmp.GetType() == typeof(Identifier))
-                                {
-                                    name = ((Identifier)tmp).Value!.ToString();
-                                }
-                                else
-                                {
-                                    name = tmp.ToString();
-                                }
-
+                                name = tmp is Identifier id ? id.Value?.ToString() : tmp.ToString();
                                 register = scopes.Retrieve(name!);
                             }
                             catch (Exception)
@@ -365,14 +358,7 @@ namespace Klacks.Api.Infrastructure.Scripting
                             }
                             else
                             {
-                                if (register.GetType() == typeof(Identifier))
-                                {
-                                    scopes.Push(((Identifier)register!).Value!);
-                                }
-                                else
-                                {
-                                    scopes.Push(register!.ToString()!);
-                                }
+                                scopes.Push(register is Identifier regId ? regId.Value! : register!.ToString()!);
                             }
 
                             break;
@@ -386,33 +372,16 @@ namespace Klacks.Api.Infrastructure.Scripting
 
                     case Opcodes.PopWithIndex:
                         {
-                            object result;
                             register = scopes.Pop(Convert.ToInt32(operation.GetValue(1)));
-                            if (register is Identifier)
-                            {
-                                result = ((Identifier)register).Value!;
-                            }
-                            else
-                            {
-                                result = register!;
-                            }
-
-                            scopes.Push(result!);
+                            var result = register is Identifier popId ? popId.Value! : register!;
+                            scopes.Push(result);
                             break;
                         }
 
                     case Opcodes.Assign:
                         {
-                            object result;
                             register = scopes.Pop();
-                            if (register is Identifier)
-                            {
-                                result = ((Identifier)register).Value!;
-                            }
-                            else
-                            {
-                                result = register!;
-                            }
+                            var result = register is Identifier assignId ? assignId.Value! : register!;
 
                             if (!scopes.Assign(operation.GetValue(1)!.ToString()!, result))
                             {
@@ -494,30 +463,11 @@ namespace Klacks.Api.Infrastructure.Scripting
                         {
                             try
                             {
-                                string msg = string.Empty;
-                                int type = 0;
-                                register = scopes.PopScopes(); // Message
-                                akkumulator = scopes.PopScopes().Value; // Type
-                                if (register is Identifier)
-                                {
-                                    if (register != null)
-                                    {
-                                        if (register.GetType() == typeof(Identifier)) { msg = ((Identifier)register).Value!.ToString()!; }
-                                        else
-                                        {
-                                            msg = register.ToString()!;
-                                        }
-                                    }
-                                }
+                                register = scopes.PopScopes();
+                                akkumulator = scopes.PopScopes().Value;
 
-                                if (akkumulator != null)
-                                {
-                                    if (akkumulator.GetType() == typeof(Identifier)) { type = Convert.ToInt32(((Identifier)akkumulator).Value); }
-                                    else
-                                    {
-                                        type = Convert.ToInt32(akkumulator);
-                                    }
-                                }
+                                var msg = register is Identifier msgId ? msgId.Value?.ToString() ?? string.Empty : register?.ToString() ?? string.Empty;
+                                var type = akkumulator is Identifier typeId ? Convert.ToInt32(typeId.Value) : Convert.ToInt32(akkumulator ?? 0);
 
                                 Message?.Invoke(type, msg);
                             }
@@ -625,6 +575,11 @@ namespace Klacks.Api.Infrastructure.Scripting
 
                     case Opcodes.Call:
                         {
+                            if (++recursionDepth > MaxRecursionDepth)
+                            {
+                                running = false;
+                                throw new ScriptTooComplexException($"Maximum recursion depth ({MaxRecursionDepth}) exceeded");
+                            }
                             scopes.Allocate("~RETURNADDR", (pc + 1).ToString(), Identifier.IdentifierTypes.IdConst);
                             pc = Convert.ToInt32(operation.GetValue(1)) - 1;
                             break;
@@ -632,6 +587,7 @@ namespace Klacks.Api.Infrastructure.Scripting
 
                     case Opcodes.Return:
                         {
+                            recursionDepth--;
                             pc = Convert.ToInt32(Convert.ToDouble(scopes.Retrieve("~RETURNADDR")!.Value, CultureInfo.InvariantCulture) - 1);
                             break;
                         }
@@ -639,17 +595,10 @@ namespace Klacks.Api.Infrastructure.Scripting
 
                 pc++;
 
-                if (Cancel)
+                if (Cancel || cancellationToken.IsCancellationRequested)
                 {
                     running = false;
                     ErrorObject!.Raise((int)InterpreterError.RunErrors.errCancelled, "Code.Run", "Code execution aborted", 0, 0, 0);
-                }
-
-                var tickPassed = Environment.TickCount - startTime;
-                if (CodeTimeout > 0 && tickPassed >= CodeTimeout)
-                {
-                    running = false;
-                    ErrorObject!.Raise((int)InterpreterError.RunErrors.errTimedOut, "Code.Run", "Timeout reached: code execution has been aborted", 0, 0, 0);
                 }
             }
 

@@ -13,14 +13,9 @@ namespace Klacks.Api.Infrastructure.Scripting
     {
         private List<Scope> _scopes = new List<Scope>();
 
-        ~Scopes()
-        {
-            _scopes.Clear();
-        }
-
         public Identifier Allocate(string name, object? value = null, Identifier.IdentifierTypes idType = Identifier.IdentifierTypes.IdVariable)
         {
-            return _scopes[_scopes.Count() - 1].Allocate(name, value, idType);
+            return _scopes[_scopes.Count - 1].Allocate(name, value, idType);
         }
 
         /// <summary>
@@ -47,9 +42,9 @@ namespace Klacks.Api.Infrastructure.Scripting
             Scope s;
             var result = false;
 
-            n = inCurrentScopeOnly == true ? this._scopes.Count() - 1 : 0;
+            n = inCurrentScopeOnly == true ? this._scopes.Count - 1 : 0;
 
-            for (i = _scopes.Count() - 1; i >= n; i += -1)
+            for (i = _scopes.Count - 1; i >= n; i += -1)
             {
                 s = _scopes[i];
                 renamed = (Identifier)s.GetVariable(name)!;
@@ -142,7 +137,7 @@ namespace Klacks.Api.Infrastructure.Scripting
                 ind = index.Value;
             }
 
-            var scope = _scopes[_scopes.Count() - 1];
+            var scope = _scopes[_scopes.Count - 1];
             var result = scope.Pop(ind);
 
             return result;
@@ -152,7 +147,7 @@ namespace Klacks.Api.Infrastructure.Scripting
         {
             if (value != null)
             {
-                Scope s = _scopes[_scopes.Count() - 1];
+                Scope s = _scopes[_scopes.Count - 1];
                 var c = new Identifier();
                 c.Value = value;
                 s.Push(c);

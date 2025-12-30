@@ -15,11 +15,6 @@ namespace Klacks.Api.Infrastructure.Scripting
             errorObject = interpreterError;
         }
 
-        ~SyntaxAnalyser()
-        {
-            Dispose();
-        }
-
         private enum Exits
         {
             ExitNone = 0,
@@ -27,11 +22,6 @@ namespace Klacks.Api.Infrastructure.Scripting
             ExitFor = 2,
             ExitFunction = 4,
             ExitSub = 8,
-        }
-
-        public void Dispose()
-        {
-            errorObject = null;
         }
 
         public Code Parse(IInputStream source, Code code, bool optionExplicit = true, bool allowExternal = true)
