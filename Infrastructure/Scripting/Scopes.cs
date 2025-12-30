@@ -88,6 +88,14 @@ public class Scopes
         _scopes.Add(s ?? new Scope());
     }
 
+    public void PopScope()
+    {
+        if (_scopes.Count > 1)
+        {
+            _scopes.RemoveAt(_scopes.Count - 1);
+        }
+    }
+
     public Identifier? Retrieve(string name)
     {
         return GetVariable(name);

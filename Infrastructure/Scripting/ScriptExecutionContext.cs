@@ -2,6 +2,14 @@ namespace Klacks.Api.Infrastructure.Scripting;
 
 public sealed class ScriptExecutionContext
 {
+    public delegate void AssignEventHandler(string name, string value, ref bool accepted);
+    public delegate void DebugClearEventHandler();
+    public delegate void DebugHideEventHandler();
+    public delegate void DebugPrintEventHandler(string msg);
+    public delegate void DebugShowEventHandler();
+    public delegate void MessageEventHandler(int type, string message);
+    public delegate void RetrieveEventHandler(string name, string value, bool accepted);
+
     private const int MaxRecursionDepth = 1000;
 
     private readonly CompiledScript script;
@@ -13,11 +21,11 @@ public sealed class ScriptExecutionContext
     private bool running;
     private InterpreterError? errorObject;
 
-    public event Code.MessageEventHandler? Message;
-    public event Code.DebugPrintEventHandler? DebugPrint;
-    public event Code.DebugClearEventHandler? DebugClear;
-    public event Code.DebugShowEventHandler? DebugShow;
-    public event Code.DebugHideEventHandler? DebugHide;
+    public event MessageEventHandler? Message;
+    public event DebugPrintEventHandler? DebugPrint;
+    public event DebugClearEventHandler? DebugClear;
+    public event DebugShowEventHandler? DebugShow;
+    public event DebugHideEventHandler? DebugHide;
 
     public bool AllowUi { get; set; }
 
@@ -226,7 +234,7 @@ public sealed class ScriptExecutionContext
                 break;
 
             case Opcodes.PopScope:
-                scopes!.PopScopes();
+                scopes!.PopScope();
                 break;
 
             case Opcodes.Call:

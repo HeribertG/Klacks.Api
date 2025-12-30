@@ -12,26 +12,48 @@ Die Backend Scripting Macro Engine ist ein vollständiger BASIC-ähnlicher Inter
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                           MacroEngine                                    │
 │                    (IMacroEngine Implementation)                         │
+│                                                                          │
+│   Intern verwendet:                                                      │
+│   ┌─────────────────┐     ┌──────────────────────┐                      │
+│   │ CompiledScript  │────▶│ ScriptExecutionContext│                      │
+│   │   (Immutable)   │     │   (Pro Ausführung)    │                      │
+│   └─────────────────┘     └──────────────────────┘                      │
 └─────────────────────────────────────────────────────────────────────────┘
                                     │
                     ┌───────────────┼───────────────┐
                     ▼               ▼               ▼
           ┌─────────────┐  ┌──────────────┐  ┌──────────────┐
-          │   Lexer     │  │    Parser    │  │   Executor   │
-          │ (Tokenizer) │  │  (Compiler)  │  │ (Interpreter)│
+          │   Lexer     │  │    Parser    │  │  ScriptValue │
+          │ (Tokenizer) │  │  (Compiler)  │  │ (Value Type) │
           └─────────────┘  └──────────────┘  └──────────────┘
-                │                  │                │
-                ▼                  ▼                ▼
-          StringInputStream   SyntaxAnalyser       Code
-                             (Partial Classes)  (Bytecode)
-                                                    │
-                                    ┌───────────────┼───────────────┐
-                                    ▼               ▼               ▼
-                            CompiledScript  ScriptExecution   ScriptValue
-                            (Immutable)       Context         (Value Type)
+                │                  │
+                ▼                  ▼
+          StringInputStream   SyntaxAnalyser
+                             (Partial Classes)
 ```
 
-### Erweiterte Architektur (Thread-Safe Ausführung)
+### Interne Architektur von MacroEngine
+
+```
+MacroEngine.PrepareMacro(script)
+    │
+    ├── ExtractImportKeys(script)     ← Import-Variablen aus Script extrahieren
+    │
+    ├── CompiledScript.Compile()      ← Einmal kompilieren (immutable)
+    │
+    └── SetImportValues()             ← Werte aus Imports-Dictionary setzen
+
+
+MacroEngine.Run(cancellationToken)
+    │
+    ├── new ScriptExecutionContext(compiledScript)   ← Neuer Kontext pro Run
+    │
+    ├── context.Execute(cancellationToken)            ← Ausführen
+    │
+    └── return ScriptResult.Messages                  ← Ergebnisse zurückgeben
+```
+
+### Direkte Nutzung (ohne MacroEngine)
 
 Für thread-safe Mehrfachausführung eines kompilierten Skripts:
 
@@ -119,30 +141,15 @@ public interface IMacroEngine
 
 ### 3. Code-Klasse (`Code.cs`)
 
-Verwaltet Kompilierung, Bytecode und Ausführung.
+Interne Hilfsklasse für die Kompilierung. Wird von `CompiledScript.Compile()` verwendet.
 
 ```csharp
 public class Code : IDisposable
 {
-    // Events für I/O
-    public event MessageEventHandler? Message;
-    public event DebugPrintEventHandler? DebugPrint;
-    public event DebugClearEventHandler? DebugClear;
-    public event DebugShowEventHandler? DebugShow;
-    public event DebugHideEventHandler? DebugHide;
-    public event AssignEventHandler? Assign;
-    public event RetrieveEventHandler? Retrieve;
-
-    // Eigenschaften
-    public bool AllowUi { get; set; }
-    public bool Cancel { get; set; }
-    public int CodeTimeout { get; set; } = 120000;  // 2 Minuten
+    public int Count { get; }
     public InterpreterError? ErrorObject { get; }
-    public bool Running { get; }
 
-    // Methoden
     public bool Compile(string source, bool optionExplicit = true, bool allowExternal = true);
-    public bool Run(CancellationToken cancellationToken = default);
     public Code Clone();
     public Identifier ImportAdd(string name, ScriptValue value = default, IdentifierTypes idType = IdVariable);
     public void ImportItem(string name, ScriptValue value);
@@ -151,10 +158,7 @@ public class Code : IDisposable
 }
 ```
 
-**Sicherheitsfeatures:**
-- **Rekursionsschutz:** Maximale Rekursionstiefe von 1000 Aufrufen
-- **CancellationToken:** Kooperative Abbrüche während der Ausführung
-- **ScriptTooComplexException:** Wird bei Überschreitung der Rekursionstiefe geworfen
+**Hinweis:** Für die Skript-Ausführung verwenden Sie `CompiledScript` + `ScriptExecutionContext`
 
 ### 4. Syntax Analyse (Parser)
 
@@ -328,14 +332,23 @@ Führt ein CompiledScript aus (für thread-safe Mehrfachausführung):
 ```csharp
 public sealed class ScriptExecutionContext
 {
-    public event Code.MessageEventHandler? Message;
-    public event Code.DebugPrintEventHandler? DebugPrint;
+    public event MessageEventHandler? Message;
+    public event DebugPrintEventHandler? DebugPrint;
+    public event DebugClearEventHandler? DebugClear;
+    public event DebugShowEventHandler? DebugShow;
+    public event DebugHideEventHandler? DebugHide;
+
     public bool AllowUi { get; set; }
 
     public ScriptExecutionContext(CompiledScript script);
     public ScriptResult Execute(CancellationToken cancellationToken = default);
 }
 ```
+
+**Sicherheitsfeatures:**
+- **Rekursionsschutz:** Maximale Rekursionstiefe von 1000 Aufrufen
+- **CancellationToken:** Kooperative Abbrüche während der Ausführung
+- **ScriptTooComplexException:** Wird bei Überschreitung der Rekursionstiefe geworfen
 
 ### 10. ScriptResult und ScriptError
 
@@ -561,30 +574,23 @@ if (engine.ErrorNumber != 0)
 
 ## Events
 
-Die Code-Klasse bietet Events für I/O-Operationen:
+Die `ScriptExecutionContext`-Klasse bietet Events für I/O-Operationen:
 
 ```csharp
-var code = new Code();
+var script = CompiledScript.Compile(source);
+var context = new ScriptExecutionContext(script);
 
-code.Message += (type, message) =>
+context.Message += (type, message) =>
 {
     Console.WriteLine($"[Type {type}] {message}");
 };
 
-code.DebugPrint += (msg) =>
+context.DebugPrint += (msg) =>
 {
     Debug.WriteLine($"DEBUG: {msg}");
 };
 
-code.Assign += (name, value, ref accepted) =>
-{
-    // Externe Zuweisung behandeln
-    if (externalVariables.ContainsKey(name))
-    {
-        externalVariables[name] = value;
-        accepted = true;
-    }
-};
+var result = context.Execute();
 ```
 
 ## Konfiguration
@@ -593,8 +599,7 @@ code.Assign += (name, value, ref accepted) =>
 |--------|--------------|----------|
 | `optionExplicit` | Variablen müssen mit DIM deklariert werden | `true` |
 | `allowExternal` | IMPORT-Statement erlaubt | `true` |
-| `AllowUi` | MsgBox/InputBox erlaubt | `false` |
-| `CodeTimeout` | Timeout in Millisekunden | `120000` (2 Min) |
+| `AllowUi` | MsgBox/InputBox erlaubt (ScriptExecutionContext) | `false` |
 
 ## Dateistruktur
 
@@ -602,7 +607,11 @@ code.Assign += (name, value, ref accepted) =>
 Infrastructure/Scripting/
 ├── MacroEngine.cs                 # Haupt-Engine (IMacroEngine)
 ├── IMacroEngine.cs                # Interface
-├── Code.cs                        # Bytecode & Executor
+├── CompiledScript.cs              # Immutable kompiliertes Skript
+├── ScriptExecutionContext.cs      # Ausführungskontext
+├── ScriptResult.cs                # Ergebnis-Record
+├── ScriptError.cs                 # Fehler-Record
+├── Code.cs                        # Kompilierungs-Hilfsklasse (intern)
 ├── Opcodes.cs                     # Opcode-Enum
 ├── LexicalAnalyser.cs             # Tokenizer
 ├── StringInputStream.cs           # Eingabe-Stream
@@ -614,15 +623,10 @@ Infrastructure/Scripting/
 ├── SyntaxAnalyser.ControlFlow.cs  # IF, FOR, DO
 ├── SyntaxAnalyser.BuiltIns.cs     # Built-in Funktionen
 ├── Identifier.cs                  # Identifier-Typen
-├── ScriptValue.cs                 # Boxing-freier Werttyp (NEU)
+├── ScriptValue.cs                 # Boxing-freier Werttyp
 ├── Scope.cs                       # Einzelner Scope
 ├── Scopes.cs                      # Scope-Stack
-├── CompiledScript.cs              # Immutable kompiliertes Skript (NEU)
-├── ScriptExecutionContext.cs      # Ausführungskontext (NEU)
-├── ScriptResult.cs                # Ergebnis-Record (NEU)
-├── ScriptError.cs                 # Fehler-Record (NEU)
-├── ScriptTooComplexException.cs   # Rekursions-Exception (NEU)
-├── ImportCache.cs                 # Reflection-Cache für Imports (NEU)
+├── ScriptTooComplexException.cs   # Rekursions-Exception
 ├── InterpreterError.cs            # Fehlerbehandlung
 ├── Helper.cs                      # Hilfs-Methoden
 ├── Formathelper.cs                # Format-Konvertierung
