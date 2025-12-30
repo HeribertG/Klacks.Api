@@ -24,6 +24,30 @@ Die Backend Scripting Macro Engine ist ein vollständiger BASIC-ähnlicher Inter
                 ▼                  ▼                ▼
           StringInputStream   SyntaxAnalyser       Code
                              (Partial Classes)  (Bytecode)
+                                                    │
+                                    ┌───────────────┼───────────────┐
+                                    ▼               ▼               ▼
+                            CompiledScript  ScriptExecution   ScriptValue
+                            (Immutable)       Context         (Value Type)
+```
+
+### Erweiterte Architektur (Thread-Safe Ausführung)
+
+Für thread-safe Mehrfachausführung eines kompilierten Skripts:
+
+```
+┌──────────────┐        ┌───────────────────┐        ┌─────────────────┐
+│    Source    │───────▶│  CompiledScript   │───────▶│ ScriptExecution │
+│   (String)   │        │   (Immutable)     │        │    Context      │
+└──────────────┘        └───────────────────┘        └─────────────────┘
+                               │                             │
+                               │   Einmal kompilieren        │   Pro Ausführung
+                               │                             │
+                               ▼                             ▼
+                        ┌──────────────┐              ┌──────────────┐
+                        │ Instructions │              │ ScriptResult │
+                        │ External Vars│              │ (Success/Err)│
+                        └──────────────┘              └──────────────┘
 ```
 
 ## Komponenten
@@ -82,14 +106,16 @@ public interface IMacroEngine
 {
     void PrepareMacro(Guid id, string script);
     void ResetImports();
-    List<ResultMessage> Run();
-    dynamic Imports { get; set; }
+    List<ResultMessage> Run(CancellationToken cancellationToken = default);
+    dynamic? Imports { get; set; }
     void ImportItem(string key, object value);
     bool IsIde { get; set; }
     string ErrorCode { get; set; }
     int ErrorNumber { get; set; }
 }
 ```
+
+**CancellationToken-Unterstützung:** Die `Run()`-Methode unterstützt kooperative Abbrüche via CancellationToken.
 
 ### 3. Code-Klasse (`Code.cs`)
 
@@ -116,14 +142,19 @@ public class Code : IDisposable
 
     // Methoden
     public bool Compile(string source, bool optionExplicit = true, bool allowExternal = true);
-    public bool Run();
+    public bool Run(CancellationToken cancellationToken = default);
     public Code Clone();
-    public Identifier ImportAdd(string name, object? value = null, IdentifierTypes idType = IdVariable);
-    public void ImportItem(string name, object? value = null);
-    public object ImportRead(string name);
+    public Identifier ImportAdd(string name, ScriptValue value = default, IdentifierTypes idType = IdVariable);
+    public void ImportItem(string name, ScriptValue value);
+    public ScriptValue ImportRead(string name);
     public void ImportClear();
 }
 ```
+
+**Sicherheitsfeatures:**
+- **Rekursionsschutz:** Maximale Rekursionstiefe von 1000 Aufrufen
+- **CancellationToken:** Kooperative Abbrüche während der Ausführung
+- **ScriptTooComplexException:** Wird bei Überschreitung der Rekursionstiefe geworfen
 
 ### 4. Syntax Analyse (Parser)
 
@@ -204,11 +235,122 @@ public class Identifier
     }
 
     public string? Name { get; set; }
-    public object? Value { get; set; }
+    public ScriptValue Value { get; set; }  // Boxing-freier Werttyp
     public IdentifierTypes IdType { get; set; }
     public int Address { get; set; }
     public List<object>? FormalParameters { get; set; }
 }
+```
+
+### 7. ScriptValue (`ScriptValue.cs`)
+
+Ein struct zur Boxing-freien Speicherung von Skript-Werten:
+
+```csharp
+public enum ScriptValueType : byte
+{
+    Null = 0,
+    Number = 1,
+    Boolean = 2,
+    String = 3,
+    Object = 4
+}
+
+public readonly struct ScriptValue : IEquatable<ScriptValue>
+{
+    // Factory-Methoden
+    public static ScriptValue Null { get; }
+    public static ScriptValue FromNumber(double value);
+    public static ScriptValue FromInt(int value);
+    public static ScriptValue FromBoolean(bool value);
+    public static ScriptValue FromString(string? value);
+    public static ScriptValue FromObject(object? value);
+
+    // Typ-Prüfung
+    public ScriptValueType Type { get; }
+    public bool IsNull { get; }
+    public bool IsNumber { get; }
+    public bool IsBoolean { get; }
+    public bool IsString { get; }
+    public bool IsObject { get; }
+
+    // Wert-Extraktion
+    public double AsDouble();
+    public int AsInt();
+    public bool AsBoolean();
+    public string AsString();  // Infinity wird als ∞/-∞ formatiert
+    public object? AsObject();
+
+    // Implizite Konvertierungen
+    public static implicit operator ScriptValue(double value);
+    public static implicit operator ScriptValue(int value);
+    public static implicit operator ScriptValue(bool value);
+    public static implicit operator ScriptValue(string? value);
+
+    // Operatoren
+    public static ScriptValue operator +(ScriptValue left, ScriptValue right);
+    public static ScriptValue operator -(ScriptValue left, ScriptValue right);
+    public static ScriptValue operator *(ScriptValue left, ScriptValue right);
+    public static ScriptValue operator /(ScriptValue left, ScriptValue right);
+    public static ScriptValue operator %(ScriptValue left, ScriptValue right);
+    public static ScriptValue operator -(ScriptValue value);
+    public static ScriptValue operator !(ScriptValue value);
+}
+```
+
+**Vorteile:**
+- Primitive Typen (double, int, bool) werden ohne Heap-Allokation gespeichert
+- Keine Boxing/Unboxing-Kosten bei Berechnungen
+- Type-safe Wertverarbeitung
+- Infinity-Formatierung eingebaut (∞/-∞)
+
+### 8. CompiledScript (`CompiledScript.cs`)
+
+Repräsentiert ein einmal kompiliertes, unveränderliches Skript:
+
+```csharp
+public sealed class CompiledScript
+{
+    public IReadOnlyList<object[]> Instructions { get; }
+    public IReadOnlyDictionary<string, Identifier> ExternalSymbols { get; }
+    public bool HasError { get; }
+    public ScriptError? Error { get; }
+
+    public static CompiledScript Compile(string source, bool optionExplicit = true);
+    public void SetExternalValue(string name, object? value);
+}
+```
+
+### 9. ScriptExecutionContext (`ScriptExecutionContext.cs`)
+
+Führt ein CompiledScript aus (für thread-safe Mehrfachausführung):
+
+```csharp
+public sealed class ScriptExecutionContext
+{
+    public event Code.MessageEventHandler? Message;
+    public event Code.DebugPrintEventHandler? DebugPrint;
+    public bool AllowUi { get; set; }
+
+    public ScriptExecutionContext(CompiledScript script);
+    public ScriptResult Execute(CancellationToken cancellationToken = default);
+}
+```
+
+### 10. ScriptResult und ScriptError
+
+```csharp
+public sealed record ScriptResult
+{
+    public bool Success { get; init; }
+    public List<ResultMessage> Messages { get; init; }
+    public ScriptError? Error { get; init; }
+
+    public static ScriptResult Ok(List<ResultMessage>? messages = null);
+    public static ScriptResult Fail(ScriptError error, List<ResultMessage>? messages = null);
+}
+
+public sealed record ScriptError(int Code, string Description, int Line, int Column);
 ```
 
 ## Sprachsyntax
@@ -459,6 +601,7 @@ code.Assign += (name, value, ref accepted) =>
 ```
 Infrastructure/Scripting/
 ├── MacroEngine.cs                 # Haupt-Engine (IMacroEngine)
+├── IMacroEngine.cs                # Interface
 ├── Code.cs                        # Bytecode & Executor
 ├── Opcodes.cs                     # Opcode-Enum
 ├── LexicalAnalyser.cs             # Tokenizer
@@ -471,8 +614,15 @@ Infrastructure/Scripting/
 ├── SyntaxAnalyser.ControlFlow.cs  # IF, FOR, DO
 ├── SyntaxAnalyser.BuiltIns.cs     # Built-in Funktionen
 ├── Identifier.cs                  # Identifier-Typen
+├── ScriptValue.cs                 # Boxing-freier Werttyp (NEU)
 ├── Scope.cs                       # Einzelner Scope
 ├── Scopes.cs                      # Scope-Stack
+├── CompiledScript.cs              # Immutable kompiliertes Skript (NEU)
+├── ScriptExecutionContext.cs      # Ausführungskontext (NEU)
+├── ScriptResult.cs                # Ergebnis-Record (NEU)
+├── ScriptError.cs                 # Fehler-Record (NEU)
+├── ScriptTooComplexException.cs   # Rekursions-Exception (NEU)
+├── ImportCache.cs                 # Reflection-Cache für Imports (NEU)
 ├── InterpreterError.cs            # Fehlerbehandlung
 ├── Helper.cs                      # Hilfs-Methoden
 ├── Formathelper.cs                # Format-Konvertierung
@@ -573,4 +723,88 @@ FOR i = 1 TO anzahlMonate
 NEXT
 
 MESSAGE 1, "Endwert: " & summe
+```
+
+## Erweiterte Nutzung
+
+### Thread-Safe Mehrfachausführung mit CompiledScript
+
+```csharp
+// Einmal kompilieren
+var script = CompiledScript.Compile(@"
+    IMPORT betrag
+    IMPORT rabatt
+    DIM ergebnis
+    ergebnis = betrag * (1 - rabatt / 100)
+    MESSAGE 1, ergebnis
+");
+
+if (script.HasError)
+{
+    throw new Exception(script.Error!.Description);
+}
+
+// Mehrfach ausführen (thread-safe)
+async Task<ScriptResult> ExecuteAsync(double betrag, double rabatt, CancellationToken ct)
+{
+    script.SetExternalValue("betrag", betrag);
+    script.SetExternalValue("rabatt", rabatt);
+
+    var context = new ScriptExecutionContext(script);
+    context.Message += (type, msg) => Console.WriteLine($"[{type}] {msg}");
+
+    return context.Execute(ct);
+}
+
+// Parallel ausführen
+var tasks = new[]
+{
+    ExecuteAsync(100, 10, CancellationToken.None),
+    ExecuteAsync(200, 15, CancellationToken.None),
+    ExecuteAsync(300, 20, CancellationToken.None)
+};
+
+var results = await Task.WhenAll(tasks);
+```
+
+### Mit CancellationToken abbrechen
+
+```csharp
+using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+
+try
+{
+    var result = engine.Run(cts.Token);
+}
+catch (OperationCanceledException)
+{
+    Console.WriteLine("Skript wurde abgebrochen");
+}
+```
+
+### ScriptValue direkt verwenden
+
+```csharp
+// Werte erstellen
+var number = ScriptValue.FromNumber(42.5);
+var text = ScriptValue.FromString("Hallo");
+var flag = ScriptValue.FromBoolean(true);
+
+// Implizite Konvertierung
+ScriptValue value = 100;        // FromInt
+ScriptValue name = "Test";      // FromString
+ScriptValue active = true;      // FromBoolean
+
+// Werte auslesen
+double d = value.AsDouble();    // 100.0
+string s = name.AsString();     // "Test"
+bool b = active.AsBoolean();    // true
+
+// Arithmetik mit Operatoren
+var sum = ScriptValue.FromNumber(10) + ScriptValue.FromNumber(5);  // 15
+var neg = -ScriptValue.FromNumber(42);                              // -42
+
+// Infinity-Handling
+var inf = ScriptValue.FromNumber(1.0 / 0.0);
+Console.WriteLine(inf.AsString());  // "∞"
 ```
