@@ -35,7 +35,7 @@ namespace Klacks.Api.Infrastructure.Scripting
 
         public void ImportItem(string key, object value)
         {
-            code.ImportItem(key, value);
+            code.ImportItem(key, ScriptValue.FromObject(value));
         }
         public void PrepareMacro(Guid id, string script)
         {
@@ -204,11 +204,11 @@ namespace Klacks.Api.Infrastructure.Scripting
             {
                 var res = ReadImports(key);
 
-                code.ImportAdd(key, res);
+                code.ImportAdd(key, ScriptValue.FromObject(res));
             }
             catch (Exception)
             {
-                code.ImportAdd(key, 0);
+                code.ImportAdd(key, ScriptValue.FromInt(0));
             }
 
         }

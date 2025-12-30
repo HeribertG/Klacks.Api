@@ -1,199 +1,117 @@
 using System.Diagnostics;
 
-namespace Klacks.Api.Infrastructure.Scripting
+namespace Klacks.Api.Infrastructure.Scripting;
+
+public class Scopes
 {
-    /// <summary>
-    /// Das jeweils zuoberst liegende Scope-Objekt dient dabei als
-    /// normaler Programm-Stack.
-    ///
-    /// Variablen symboltable (SyntaxAnalyser.cls) und scopes (Code.cls)
-    /// sind Scopes-Objekte.
-    /// </summary>
-    public class Scopes
+    private readonly List<Scope> _scopes = new();
+
+    public Identifier Allocate(string name, ScriptValue value = default, Identifier.IdentifierTypes idType = Identifier.IdentifierTypes.IdVariable)
     {
-        private List<Scope> _scopes = new List<Scope>();
+        return _scopes[^1].Allocate(name, value, idType);
+    }
 
-        public Identifier Allocate(string name, object? value = null, Identifier.IdentifierTypes idType = Identifier.IdentifierTypes.IdVariable)
+    public bool Assign(string name, ScriptValue value)
+    {
+        var variable = GetVariable(name);
+        if (variable != null)
         {
-            return _scopes[_scopes.Count - 1].Allocate(name, value, idType);
+            variable.Value = value;
+            return true;
         }
+        return false;
+    }
 
-        /// <summary>
-        /// Von oben nach unten alle Scopes durchgehen und dem
-        /// ersten benannten Wert mit dem übergebenen Namen den
-        /// Wert zuweisen.
-        /// </summary>
-        public bool Assign(string name, object value)
+    public bool Exists(string name, bool? inCurrentScopeOnly = false, Identifier.IdentifierTypes? idType = Identifier.IdentifierTypes.IdNone)
+    {
+        var n = inCurrentScopeOnly == true ? _scopes.Count - 1 : 0;
+
+        for (var i = _scopes.Count - 1; i >= n; i--)
         {
-            var variable = GetVariable(name);
-            if (variable != null)
+            var s = _scopes[i];
+            var renamed = s.GetVariable(name);
+
+            if (renamed != null && renamed.Name == name)
             {
-                variable.Value = value;
-                return true;
+                if (idType == Identifier.IdentifierTypes.IdNone)
+                    return true;
+
+                if (idType == Identifier.IdentifierTypes.IdIsVariableOfFunction)
+                    return renamed.IdType is Identifier.IdentifierTypes.IdVariable or Identifier.IdentifierTypes.IdFunction;
+
+                if (idType == Identifier.IdentifierTypes.IdSubOfFunction)
+                    return renamed.IdType is Identifier.IdentifierTypes.IdSub or Identifier.IdentifierTypes.IdFunction;
+
+                if (idType == Identifier.IdentifierTypes.IdFunction)
+                    return renamed.IdType is Identifier.IdentifierTypes.IdSub or Identifier.IdentifierTypes.IdFunction;
+
+                if (idType == Identifier.IdentifierTypes.IdSub)
+                    return renamed.IdType == Identifier.IdentifierTypes.IdSub;
+
+                if (idType == Identifier.IdentifierTypes.IdVariable)
+                    return renamed.IdType == Identifier.IdentifierTypes.IdVariable;
             }
-
-            return false;
         }
 
-        public bool Exists(string name, bool? inCurrentScopeOnly = false, Identifier.IdentifierTypes? idType = Identifier.IdentifierTypes.IdNone)
+        return false;
+    }
+
+    public Identifier? Pop(int index = -1)
+    {
+        for (var i = _scopes.Count - 1; i >= 0; i--)
         {
-            int i, n;
-            Identifier renamed;
-            Scope s;
-            var result = false;
-
-            n = inCurrentScopeOnly == true ? this._scopes.Count - 1 : 0;
-
-            for (i = _scopes.Count - 1; i >= n; i += -1)
+            var s = _scopes[i];
+            var x = s.Pop(index);
+            if (x != null)
             {
-                s = _scopes[i];
-                renamed = (Identifier)s.GetVariable(name)!;
-
-                if (renamed != null)
-                {
-                    if (renamed.Name == name)
-                    {
-                        // Prüfen, ob gefundener Wert vom gewünschten Typ ist
-                        if (idType == Identifier.IdentifierTypes.IdNone)
-                        {
-                            result = true;
-                        }
-                        else
-                        {
-                            if (idType == Identifier.IdentifierTypes.IdIsVariableOfFunction)
-                            {
-                                if (renamed.IdType == Identifier.IdentifierTypes.IdVariable || renamed.IdType == Identifier.IdentifierTypes.IdFunction)
-                                {
-                                    result = true;
-                                }
-                            }
-                            else if (idType == Identifier.IdentifierTypes.IdSubOfFunction)
-                            {
-                                if (renamed.IdType == Identifier.IdentifierTypes.IdSub || renamed.IdType == Identifier.IdentifierTypes.IdFunction)
-                                {
-                                    result = true;
-                                }
-                            }
-                            else if (idType == Identifier.IdentifierTypes.IdFunction)
-                            {
-                                if (renamed.IdType == Identifier.IdentifierTypes.IdSub || renamed.IdType == Identifier.IdentifierTypes.IdFunction)
-                                {
-                                    result = true;
-                                }
-                            }
-                            else if (idType == Identifier.IdentifierTypes.IdFunction)
-                            {
-                                if (renamed.IdType == Identifier.IdentifierTypes.IdFunction)
-                                {
-                                    result = true;
-                                }
-                            }
-                            else if (idType == Identifier.IdentifierTypes.IdSub)
-                            {
-                                if (renamed.IdType == Identifier.IdentifierTypes.IdSub)
-                                {
-                                    result = true;
-                                }
-                            }
-                            else if (idType == Identifier.IdentifierTypes.IdVariable)
-                            {
-                                if (renamed.IdType == Identifier.IdentifierTypes.IdVariable)
-                                {
-                                    result = true;
-                                }
-                            }
-                        }
-                    }
-
-                    return result;
-                }
+                return x;
             }
-
-            return result;
         }
+        return null;
+    }
 
-        public object? Pop(int index = -1)
+    public Identifier PopScopes(int? index = null)
+    {
+        var ind = index ?? -1;
+        var scope = _scopes[^1];
+        return scope.Pop(ind);
+    }
+
+    public void Push(ScriptValue value)
+    {
+        var s = _scopes[^1];
+        s.Push(value);
+    }
+
+    public void PushScope(Scope? s = null)
+    {
+        _scopes.Add(s ?? new Scope());
+    }
+
+    public Identifier? Retrieve(string name)
+    {
+        return GetVariable(name);
+    }
+
+    private Identifier? GetVariable(string name)
+    {
+        try
         {
-            Scope s;
-            object x;
-            for (int i = _scopes.Count - 1; i >= 0; i += -1)
+            for (var i = _scopes.Count - 1; i >= 0; i--)
             {
-                s = _scopes[i];
-                x = s.Pop(index);
+                var s = _scopes[i];
+                var x = s.GetVariable(name);
                 if (x != null)
                 {
                     return x;
                 }
             }
-
-            return null;
         }
-
-        public Identifier PopScopes(int? index = null)
+        catch (Exception ex)
         {
-            var ind = -1;
-            if (index.HasValue)
-            {
-                ind = index.Value;
-            }
-
-            var scope = _scopes[_scopes.Count - 1];
-            var result = scope.Pop(ind);
-
-            return result;
+            Debug.Print("Scopes.GetVariable: " + ex.Message);
         }
 
-        public void Push(object value)
-        {
-            if (value != null)
-            {
-                Scope s = _scopes[_scopes.Count - 1];
-                var c = new Identifier();
-                c.Value = value;
-                s.Push(c);
-            }
-        }
-
-        public void PushScope(Scope? s = null)
-        {
-            if (s == null)
-            {
-                _scopes.Add(new Scope());
-            }
-            else
-            {
-                _scopes.Add(s);
-            }
-        }
-
-        // dito, jedoch Wert zurückliefern (als kompletten Identifier)
-        public Identifier? Retrieve(string name)
-        {
-            return GetVariable(name);
-        }
-
-        private Identifier? GetVariable(string name)
-        {
-            Scope s;
-            Identifier x;
-            try
-            {
-                for (int i = _scopes.Count - 1; i >= 0; i += -1)
-                {
-                    s = _scopes[i];
-                    x = (Identifier)s.GetVariable(name)!;
-                    if (x != null)
-                    {
-                        return x;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.Print("Scope.zVariable: " + ex.Message);
-            }
-
-            return null;
-        }
+        return null;
     }
 }

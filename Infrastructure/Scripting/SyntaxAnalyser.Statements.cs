@@ -274,7 +274,7 @@ namespace Klacks.Api.Infrastructure.Scripting
 
                     if (sym.Token == Symbol.Tokens.tokNumber | sym.Token == Symbol.Tokens.tokString)
                     {
-                        symboltable.Allocate(ident, sym.Value, Identifier.IdentifierTypes.IdConst);
+                        symboltable.Allocate(ident, ScriptValue.FromObject(sym.Value), Identifier.IdentifierTypes.IdConst);
                         code!.Add(Opcodes.AllocConst, ident, sym.Value!);
                         GetNextSymbol();
                     }

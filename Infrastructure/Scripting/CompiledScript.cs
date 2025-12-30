@@ -61,11 +61,11 @@ public sealed class CompiledScript
     {
         if (externalSymbols.TryGetValue(name, out var identifier))
         {
-            identifier.Value = value;
+            identifier.Value = ScriptValue.FromObject(value);
         }
         else
         {
-            externalSymbols[name] = new Identifier { Name = name, Value = value, IdType = Identifier.IdentifierTypes.IdVariable };
+            externalSymbols[name] = new Identifier { Name = name, Value = ScriptValue.FromObject(value), IdType = Identifier.IdentifierTypes.IdVariable };
         }
     }
 }

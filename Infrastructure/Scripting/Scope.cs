@@ -1,134 +1,107 @@
-namespace Klacks.Api.Infrastructure.Scripting
+namespace Klacks.Api.Infrastructure.Scripting;
+
+public class Scope
 {
-    public class Scope
+    private readonly List<Identifier> _variables = new();
+
+    public Identifier Allocate(string name, ScriptValue value = default, Identifier.IdentifierTypes idType = Identifier.IdentifierTypes.IdVariable)
     {
-        private List<Identifier> Variables = new();
-
-
-        public Identifier Allocate(string name, object? value = null, Identifier.IdentifierTypes idType = Identifier.IdentifierTypes.IdVariable)
+        var id = new Identifier
         {
-            Identifier id = new Identifier()
-            {
-                Name = name,
-                Value = value,
-                IdType = idType
-            };
+            Name = name,
+            Value = value,
+            IdType = idType
+        };
 
+        SetVariable(id, name);
+        return id;
+    }
 
-            SetVariable(id, name);
+    public void Assign(string name, ScriptValue value)
+    {
+        SetVariable(value, name);
+    }
 
-            return id;
+    public Identifier? Retrieve(string name)
+    {
+        return GetVariable(name);
+    }
+
+    public bool Exists(string name)
+    {
+        return GetVariable(name) != null;
+    }
+
+    public Identifier? GetVariable(string name)
+    {
+        return _variables.FirstOrDefault(x => x.Name == name);
+    }
+
+    public void SetVariable(ScriptValue value, string name)
+    {
+        var existing = _variables.FirstOrDefault(x => x.Name == name);
+        if (existing != null)
+        {
+            existing.Value = value;
+            return;
         }
 
-
-        public void Assign(string name, object value)
+        var c = new Identifier { Name = name, Value = value };
+        if (_variables.Count == 0)
         {
-            SetVariable(value, name);
+            _variables.Add(c);
         }
-
-
-        public object Retrieve(string name)
+        else
         {
-            return GetVariable(name)!;
-        }
-
-
-        public bool Exists(string name)
-        {
-            return GetVariable(name) != null;
-        }
-
-
-        public object? GetVariable(string name)
-        {
-            try
-            {
-                if (Variables != null)
-                {
-                    return Variables.Where(x => x.Name == name).FirstOrDefault()!;
-                }
-                else
-                {
-                    return null;
-                }
-
-
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        public void SetVariable(object value, string name)
-        {
-            // Benannten Wert löschen , damit es ersetzt wird
-            if (Variables.Count > 0)
-            {
-                var tmp = Variables.Where(x => x != null && x.Name == name).FirstOrDefault();
-                if (tmp != null) { Variables.Remove(tmp); }
-            }
-
-            // Variablen immer am Anfang des Scopes zusammenhalten. Nach der letzten
-            // Variablen kommen nur noch echte Stackwerte
-
-            Identifier c;
-            if (value is Identifier existingId)
-            {
-                c = existingId;
-            }
-            else
-            {
-                c = new Identifier { Name = name, Value = value };
-            }
-
-            if (Variables.Count == 0) { Variables.Add(c); }
-            else { Variables.Insert(0, c); }
-
-        }
-
-
-        public void Push(Identifier value)
-        {
-            Variables.Add(value);
-        }
-
-
-        ///  Holt den obersten unbenannten Wert vom Stack.
-        ///  Wenn eine index übergeben wird, kann auch auf Stackwerte
-        ///  direkt zugegriffen werden. In dem Fall werden sie nicht
-        ///  gelöscht! Index: 0..n; 0=oberster Stackwert, 1=darunterliegender usw.
-        public Identifier Pop(int index = -1)
-        {
-            Identifier? pop = null;
-            if (index < 0)
-            {
-                // Den obersten Stackwert vom Stack nehmen und zurückliefern
-                // Die Stackwerte fangen nach der letzten benannten Variablen im Scope an
-
-                if (Variables.Count > 0)
-                {
-                    pop = Variables[Variables.Count - 1];
-                    Variables.Remove(pop);
-                }
-            }
-            else
-            {
-                pop = Variables[Variables.Count - 1 - index];
-            }
-
-            return pop!;
-        }
-
-        internal int CloneCount()
-        {
-            return Variables.Count;
-        }
-
-        public object CloneItem(int index)
-        {
-            return Variables[index];
+            _variables.Insert(0, c);
         }
     }
 
+    public void SetVariable(Identifier id, string name)
+    {
+        var existing = _variables.FirstOrDefault(x => x.Name == name);
+        if (existing != null)
+        {
+            _variables.Remove(existing);
+        }
+
+        if (_variables.Count == 0)
+        {
+            _variables.Add(id);
+        }
+        else
+        {
+            _variables.Insert(0, id);
+        }
+    }
+
+    public void Push(Identifier value)
+    {
+        _variables.Add(value);
+    }
+
+    public void Push(ScriptValue value)
+    {
+        _variables.Add(new Identifier { Value = value });
+    }
+
+    public Identifier Pop(int index = -1)
+    {
+        if (index < 0)
+        {
+            if (_variables.Count > 0)
+            {
+                var pop = _variables[^1];
+                _variables.RemoveAt(_variables.Count - 1);
+                return pop;
+            }
+            return new Identifier();
+        }
+
+        return _variables[^(1 + index)];
+    }
+
+    internal int CloneCount() => _variables.Count;
+
+    public Identifier CloneItem(int index) => _variables[index];
 }

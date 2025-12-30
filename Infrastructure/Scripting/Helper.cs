@@ -1,57 +1,53 @@
-using System.Globalization;
+namespace Klacks.Api.Infrastructure.Scripting;
 
-namespace Klacks.Api.Infrastructure.Scripting
+public static class Helper
 {
-    public static class Helper
+    public static double ExtractDouble(Identifier? value)
     {
-        public static bool IsNumericDouble(object value)
-        {
-            return double.TryParse(value.ToString(), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out _);
-        }
+        if (value == null) return 0.0;
+        return value.Value.AsDouble();
+    }
 
-        public static bool IsNumericInt(object value)
-        {
-            return int.TryParse(value.ToString(), out _);
-        }
+    public static double ExtractDouble(ScriptValue value)
+    {
+        return value.AsDouble();
+    }
 
-        public static double ExtractDouble(object value)
-        {
-            if (value is Identifier identifier)
-            {
-                return Convert.ToDouble(identifier.Value, CultureInfo.InvariantCulture);
-            }
+    public static int ExtractInt(Identifier? value)
+    {
+        if (value == null) return 0;
+        return value.Value.AsInt();
+    }
 
-            if (IsNumericDouble(value))
-            {
-                return Convert.ToDouble(value, CultureInfo.InvariantCulture);
-            }
+    public static int ExtractInt(ScriptValue value)
+    {
+        return value.AsInt();
+    }
 
-            return 0.0;
-        }
+    public static string ExtractString(Identifier? value)
+    {
+        if (value == null) return string.Empty;
+        return value.Value.AsString();
+    }
 
-        public static int ExtractInt(object value)
-        {
-            if (value is Identifier identifier)
-            {
-                return Convert.ToInt32(identifier.Value);
-            }
+    public static string ExtractString(ScriptValue value)
+    {
+        return value.AsString();
+    }
 
-            if (IsNumericInt(value))
-            {
-                return Convert.ToInt32(value);
-            }
+    public static bool ExtractBoolean(Identifier? value)
+    {
+        if (value == null) return false;
+        return value.Value.AsBoolean();
+    }
 
-            return 0;
-        }
+    public static bool ExtractBoolean(ScriptValue value)
+    {
+        return value.AsBoolean();
+    }
 
-        public static string ExtractString(object value)
-        {
-            if (value is Identifier identifier)
-            {
-                return Convert.ToString(identifier.Value) ?? string.Empty;
-            }
-
-            return Convert.ToString(value) ?? string.Empty;
-        }
+    public static bool IsNumericInt(string? c)
+    {
+        return int.TryParse(c, out _);
     }
 }

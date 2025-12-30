@@ -1,5 +1,3 @@
-using System.Globalization;
-
 namespace Klacks.Api.Infrastructure.Scripting;
 
 public sealed class ScriptExecutionContext
@@ -105,7 +103,7 @@ public sealed class ScriptExecutionContext
         switch (opcode)
         {
             case Opcodes.AllocConst:
-                scopes!.Allocate(operation[1]!.ToString()!, operation[2]?.ToString(), Identifier.IdentifierTypes.IdConst);
+                scopes!.Allocate(operation[1]!.ToString()!, ScriptValue.FromObject(operation[2]), Identifier.IdentifierTypes.IdConst);
                 break;
 
             case Opcodes.AllocVar:
@@ -113,7 +111,7 @@ public sealed class ScriptExecutionContext
                 break;
 
             case Opcodes.PushValue:
-                scopes!.Push(operation[1]!);
+                scopes!.Push(ScriptValue.FromObject(operation[1]));
                 break;
 
             case Opcodes.PushVariable:
@@ -127,8 +125,7 @@ public sealed class ScriptExecutionContext
             case Opcodes.PopWithIndex:
                 {
                     var register = scopes!.Pop(Convert.ToInt32(operation[1]));
-                    var result = register is Identifier popId ? popId.Value! : register!;
-                    scopes.Push(result);
+                    scopes.Push(register?.Value ?? ScriptValue.Null);
                 }
                 break;
 
@@ -168,8 +165,7 @@ public sealed class ScriptExecutionContext
             case Opcodes.DebugPrint:
                 {
                     var register = scopes!.PopScopes();
-                    var msg = register is Identifier id ? id.Value?.ToString() ?? string.Empty : string.Empty;
-                    DebugPrint?.Invoke(msg);
+                    DebugPrint?.Invoke(register.Value.AsString());
                 }
                 break;
 
@@ -214,7 +210,7 @@ public sealed class ScriptExecutionContext
             case Opcodes.JumpFalse:
                 {
                     var value = scopes!.PopScopes().Value;
-                    if (!Convert.ToBoolean(value))
+                    if (!value.AsBoolean())
                     {
                         pc = Convert.ToInt32(operation[1]) - 1;
                     }
@@ -222,7 +218,7 @@ public sealed class ScriptExecutionContext
                 break;
 
             case Opcodes.JumpPop:
-                pc = Convert.ToInt32(scopes!.PopScopes().Value) - 1;
+                pc = scopes!.PopScopes().Value.AsInt() - 1;
                 break;
 
             case Opcodes.PushScope:
@@ -239,13 +235,13 @@ public sealed class ScriptExecutionContext
                     running = false;
                     throw new ScriptTooComplexException($"Maximum recursion depth ({MaxRecursionDepth}) exceeded");
                 }
-                scopes!.Allocate("~RETURNADDR", (pc + 1).ToString(), Identifier.IdentifierTypes.IdConst);
+                scopes!.Allocate("~RETURNADDR", ScriptValue.FromInt(pc + 1), Identifier.IdentifierTypes.IdConst);
                 pc = Convert.ToInt32(operation[1]) - 1;
                 break;
 
             case Opcodes.Return:
                 recursionDepth--;
-                pc = Convert.ToInt32(Convert.ToDouble(scopes!.Retrieve("~RETURNADDR")!.Value, CultureInfo.InvariantCulture) - 1);
+                pc = scopes!.Retrieve("~RETURNADDR")!.Value.AsInt() - 1;
                 break;
         }
     }
@@ -255,7 +251,7 @@ public sealed class ScriptExecutionContext
         try
         {
             var tmp = operation[1]!;
-            var name = tmp is Identifier id ? id.Value?.ToString() : tmp.ToString();
+            var name = tmp is Identifier id ? id.Value.AsString() : tmp.ToString();
             var register = scopes!.Retrieve(name!);
 
             if (register == null)
@@ -270,7 +266,7 @@ public sealed class ScriptExecutionContext
                 return;
             }
 
-            scopes.Push(register is Identifier regId ? regId.Value! : register.ToString()!);
+            scopes.Push(register.Value);
         }
         catch
         {
@@ -287,11 +283,11 @@ public sealed class ScriptExecutionContext
     private void ExecuteAssign(object[] operation)
     {
         var register = scopes!.Pop();
-        var result = register is Identifier assignId ? assignId.Value! : register!;
+        var value = register?.Value ?? ScriptValue.Null;
 
-        if (!scopes.Assign(operation[1]!.ToString()!, result))
+        if (!scopes.Assign(operation[1]!.ToString()!, value))
         {
-            scopes.Allocate(operation[1]!.ToString()!, result.ToString());
+            scopes.Allocate(operation[1]!.ToString()!, value);
         }
     }
 
@@ -300,10 +296,10 @@ public sealed class ScriptExecutionContext
         try
         {
             var register = scopes!.PopScopes();
-            var akkumulator = scopes.PopScopes().Value;
+            var akkumulator = scopes.PopScopes();
 
-            var msg = register is Identifier msgId ? msgId.Value?.ToString() ?? string.Empty : register?.ToString() ?? string.Empty;
-            var type = akkumulator is Identifier typeId ? Convert.ToInt32(typeId.Value) : Convert.ToInt32(akkumulator ?? 0);
+            var msg = register.Value.AsString();
+            var type = akkumulator.Value.AsInt();
 
             Message?.Invoke(type, msg);
 
@@ -323,17 +319,15 @@ public sealed class ScriptExecutionContext
         var register = scopes!.PopScopes();
         var accumulator = scopes.PopScopes();
 
-        if (register == null || accumulator == null) return;
-
         try
         {
-            object result = opcode switch
+            ScriptValue result = opcode switch
             {
                 Opcodes.Add => Helper.ExtractDouble(accumulator) + Helper.ExtractDouble(register),
                 Opcodes.Sub => Helper.ExtractDouble(accumulator) - Helper.ExtractDouble(register),
                 Opcodes.Multiplication => Helper.ExtractDouble(accumulator) * Helper.ExtractDouble(register),
                 Opcodes.Division => Helper.ExtractDouble(accumulator) / Helper.ExtractDouble(register),
-                Opcodes.Div => (int)Helper.ExtractDouble(accumulator) / (int)Helper.ExtractDouble(register),
+                Opcodes.Div => Helper.ExtractInt(accumulator) / Helper.ExtractInt(register),
                 Opcodes.Mod => Helper.ExtractDouble(accumulator) % Helper.ExtractDouble(register),
                 Opcodes.Power => Math.Pow(Helper.ExtractDouble(accumulator), Helper.ExtractDouble(register)),
                 Opcodes.StringConcat => Helper.ExtractString(accumulator) + Helper.ExtractString(register),
@@ -345,7 +339,7 @@ public sealed class ScriptExecutionContext
                 Opcodes.LEq => Helper.ExtractDouble(accumulator) <= Helper.ExtractDouble(register),
                 Opcodes.Gt => Helper.ExtractDouble(accumulator) > Helper.ExtractDouble(register),
                 Opcodes.GEq => Helper.ExtractDouble(accumulator) >= Helper.ExtractDouble(register),
-                _ => 0
+                _ => ScriptValue.Null
             };
 
             scopes.Push(result);
@@ -365,22 +359,21 @@ public sealed class ScriptExecutionContext
     private void ExecuteUnaryOp(Opcodes opcode)
     {
         var akkumulator = scopes!.PopScopes().Value;
-        if (akkumulator == null) return;
 
         try
         {
-            double number = Helper.ExtractDouble(akkumulator);
+            var number = akkumulator.AsDouble();
 
-            object result = opcode switch
+            ScriptValue result = opcode switch
             {
                 Opcodes.Negate => -number,
-                Opcodes.Not => !Convert.ToBoolean(akkumulator),
+                Opcodes.Not => !akkumulator.AsBoolean(),
                 Opcodes.Factorial => Factorial((int)number),
                 Opcodes.Sin => Math.Sin(number),
                 Opcodes.Cos => Math.Cos(number),
                 Opcodes.Tan => Math.Tan(number),
                 Opcodes.ATan => Math.Atan(number),
-                _ => 0
+                _ => ScriptValue.Null
             };
 
             scopes.Push(result);
