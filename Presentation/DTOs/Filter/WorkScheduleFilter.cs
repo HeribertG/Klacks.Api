@@ -10,4 +10,6 @@ public class WorkScheduleFilter
     public bool ShowEmployees { get; set; } = true;
     public bool ShowExtern { get; set; } = true;
     public string? HoursSortOrder { get; set; }
+    public int StartRow { get; set; } = 0;
+    public int RowCount { get; set; } = 200;
 }

@@ -7,6 +7,6 @@ namespace Klacks.Api.Application.Interfaces;
 
 public interface IWorkRepository : IBaseRepository<Work>
 {
-    Task<List<Client>> WorkList(WorkFilter filter);
+    Task<(List<Client> Clients, int TotalCount)> WorkList(WorkFilter filter);
     Task<Dictionary<Guid, MonthlyHoursResource>> GetMonthlyHoursForClients(List<Guid> clientIds, int year, int month);
 }

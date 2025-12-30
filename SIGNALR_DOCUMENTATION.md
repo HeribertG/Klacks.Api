@@ -79,7 +79,7 @@ connection.on('ShiftStatsUpdated', (stats: ShiftStatsResource) => {
 const connectionId = connection.connectionId;
 
 // Bei API-Calls mitsenden
-this.http.post('/api/v1/backend/Works', workData, {
+this.http.post('/api/backend/Works', workData, {
   headers: { 'X-SignalR-ConnectionId': connectionId }
 });
 ```

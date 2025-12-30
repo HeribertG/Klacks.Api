@@ -45,11 +45,11 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         return await base.Put(work);
     }
 
-    public async Task<List<Client>> WorkList(WorkFilter filter)
+    public async Task<(List<Client> Clients, int TotalCount)> WorkList(WorkFilter filter)
     {
         if (filter.CurrentYear <= 0 || filter.CurrentMonth <= 0)
         {
-            return new List<Client>();
+            return (new List<Client>(), 0);
         }
 
         var startOfYear = new DateTime(filter.CurrentYear, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -79,7 +79,14 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         var refDate = new DateOnly(filter.CurrentYear, filter.CurrentMonth, 1);
         query = ApplySorting(query, filter.OrderBy, filter.SortOrder, filter.HoursSortOrder, refDate);
 
-        return await query.ToListAsync();
+        var totalCount = await query.CountAsync();
+
+        var clients = await query
+            .Skip(filter.StartRow)
+            .Take(filter.RowCount)
+            .ToListAsync();
+
+        return (clients, totalCount);
     }
 
     private static IQueryable<Client> ApplyTypeFilter(IQueryable<Client> query, bool showEmployees, bool showExtern)

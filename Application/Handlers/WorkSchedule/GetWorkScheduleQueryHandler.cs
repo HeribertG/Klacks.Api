@@ -37,20 +37,11 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         CancellationToken cancellationToken)
     {
         _logger.LogInformation(
-            "Handling GetWorkScheduleQuery from {StartDate} to {EndDate}",
-            request.Filter.StartDate,
-            request.Filter.EndDate);
-
-        var visibleGroupIds = await _groupFilterService.GetVisibleGroupIdsAsync(
-            request.Filter.SelectedGroup);
-
-        var entries = await _workScheduleService.GetWorkScheduleQuery(
+            "Handling GetWorkScheduleQuery from {StartDate} to {EndDate}, StartRow: {StartRow}, RowCount: {RowCount}",
             request.Filter.StartDate,
             request.Filter.EndDate,
-            visibleGroupIds.Count > 0 ? visibleGroupIds : null)
-            .ToListAsync(cancellationToken);
-
-        var resources = _scheduleMapper.ToWorkScheduleResourceList(entries);
+            request.Filter.StartRow,
+            request.Filter.RowCount);
 
         var workFilter = CreateWorkFilter(
             request.Filter.StartDate,
@@ -60,26 +51,44 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
             request.Filter.SortOrder,
             request.Filter.ShowEmployees,
             request.Filter.ShowExtern,
-            request.Filter.HoursSortOrder);
-        var clients = await _workRepository.WorkList(workFilter);
+            request.Filter.HoursSortOrder,
+            request.Filter.StartRow,
+            request.Filter.RowCount);
+
+        var (clients, totalClientCount) = await _workRepository.WorkList(workFilter);
         var clientResources = _scheduleMapper.ToWorkScheduleClientResourceList(clients);
 
         var clientIds = clients.Select(c => c.Id).ToList();
+
+        var visibleGroupIds = await _groupFilterService.GetVisibleGroupIdsAsync(
+            request.Filter.SelectedGroup);
+
+        var entries = await _workScheduleService.GetWorkScheduleQuery(
+            request.Filter.StartDate,
+            request.Filter.EndDate,
+            visibleGroupIds.Count > 0 ? visibleGroupIds : null)
+            .Where(e => clientIds.Contains(e.ClientId))
+            .ToListAsync(cancellationToken);
+
+        var resources = _scheduleMapper.ToWorkScheduleResourceList(entries);
+
         var monthlyHours = await _workRepository.GetMonthlyHoursForClients(
             clientIds,
             request.Filter.StartDate.Year,
             request.Filter.StartDate.Month);
 
         _logger.LogInformation(
-            "Returned {EntryCount} work schedule entries and {ClientCount} clients",
+            "Returned {EntryCount} work schedule entries and {ClientCount} clients (total: {TotalCount})",
             resources.Count,
-            clientResources.Count);
+            clientResources.Count,
+            totalClientCount);
 
         return new WorkScheduleResponse
         {
             Entries = resources,
             Clients = clientResources,
-            MonthlyHours = monthlyHours
+            MonthlyHours = monthlyHours,
+            TotalClientCount = totalClientCount
         };
     }
 
@@ -91,7 +100,9 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         string sortOrder,
         bool showEmployees,
         bool showExtern,
-        string? hoursSortOrder)
+        string? hoursSortOrder,
+        int startRow,
+        int rowCount)
     {
         var firstDayOfMonth = new DateOnly(startDate.Year, startDate.Month, 1);
         var lastDayOfMonth = new DateOnly(endDate.Year, endDate.Month, DateTime.DaysInMonth(endDate.Year, endDate.Month));
@@ -108,7 +119,9 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
             SortOrder = sortOrder,
             ShowEmployees = showEmployees,
             ShowExtern = showExtern,
-            HoursSortOrder = hoursSortOrder
+            HoursSortOrder = hoursSortOrder,
+            StartRow = startRow,
+            RowCount = rowCount
         };
     }
 }
