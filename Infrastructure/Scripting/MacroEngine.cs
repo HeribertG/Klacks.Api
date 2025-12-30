@@ -1,235 +1,226 @@
-
 using Klacks.Api.Infrastructure.Interfaces;
 
+namespace Klacks.Api.Infrastructure.Scripting;
 
-namespace Klacks.Api.Infrastructure.Scripting
+public class MacroEngine : IDisposable, IMacroEngine
 {
-    public class MacroEngine : IDisposable, IMacroEngine
+    private CompiledScript? compiledScript;
+    private ScriptExecutionContext? context;
+    private List<string> importList = new();
+    private readonly List<ResultMessage> result = new();
+
+    public dynamic? Imports { get; set; }
+    public bool IsIde { get; set; }
+    public string ErrorCode { get; set; } = string.Empty;
+    public int ErrorNumber { get; set; }
+
+    public void PrepareMacro(Guid id, string script)
     {
-        private Code code;
-        private List<string> importList;
-        private readonly Dictionary<Guid, ScriptCode> codeCollection;
-        private readonly List<ResultMessage> result;
+        ExtractImportKeys(script);
 
-        public MacroEngine()
+        compiledScript = CompiledScript.Compile(script);
+
+        if (compiledScript.HasError)
         {
-            code = new Code();
-            importList = new List<string>();
-            codeCollection = new Dictionary<Guid, ScriptCode>();
-            result = new List<ResultMessage>();
-            AddEvent();
+            ErrorNumber = compiledScript.Error!.Code;
+            ErrorCode = compiledScript.Error.Description + "\n";
         }
-        public dynamic? Imports { get; set; }
-        public bool IsIde { get; set; }
-        public string ErrorCode { get; set; } = string.Empty;
-        public int ErrorNumber { get; set; }
-
-        public void ResetImports()
+        else
         {
-
-            foreach (var item in importList)
-            {
-                SetImports(item);
-            }
-        }
-
-        public void ImportItem(string key, object value)
-        {
-            code.ImportItem(key, ScriptValue.FromObject(value));
-        }
-        public void PrepareMacro(Guid id, string script)
-        {
-            PrepareImports(script);
-
-            code.Compile(script);
-            ErrorNumber = code.ErrorObject!.Number;
-            ErrorCode += code.ErrorObject.Description + "\n";
-        }
-        public List<ResultMessage> Run(CancellationToken cancellationToken = default)
-        {
-            result.Clear();
-            code.ErrorObject!.Clear();
             ErrorNumber = 0;
-            ErrorCode = "";
-            code.Run(cancellationToken);
+            ErrorCode = string.Empty;
+            SetImportValues();
+        }
+    }
 
-            ErrorCode += code.ErrorObject.Description + "\n";
+    public List<ResultMessage> Run(CancellationToken cancellationToken = default)
+    {
+        result.Clear();
+        ErrorNumber = 0;
+        ErrorCode = string.Empty;
 
+        if (compiledScript == null || compiledScript.HasError)
+        {
             return result;
         }
 
-        #region code_events
+        context = new ScriptExecutionContext(compiledScript);
+        context.AllowUi = IsIde;
 
-        private void AddEvent()
+        context.Message += Context_Message;
+        context.DebugPrint += Context_DebugPrint;
+        context.DebugClear += Context_DebugClear;
+        context.DebugShow += Context_DebugShow;
+        context.DebugHide += Context_DebugHide;
+
+        try
         {
-            code.Message += Code_Message;
-            code.DebugClear += Code_DebugClear;
-            code.DebugHide += Code_DebugHide;
-            code.DebugShow += Code_DebugShow;
-            code.DebugPrint += Code_DebugPrint;
-        }
+            var runResult = context.Execute(cancellationToken);
 
-        private void RemoveEvent()
-        {
-            code.Message -= Code_Message;
-            code.DebugClear -= Code_DebugClear;
-            code.DebugHide -= Code_DebugHide;
-            code.DebugShow -= Code_DebugShow;
-            code.DebugPrint -= Code_DebugPrint;
-
-        }
-
-        private void Code_Message(int type, string message)
-        {
-
-            if (!string.IsNullOrEmpty(message))
+            if (!runResult.Success && runResult.Error != null)
             {
-                if (type > 0)
-                {
-                    var c = new ResultMessage()
-                    {
-                        Type = type,
-                        Message = message
-                    };
-
-                    result.Add(c);
-                }
-
+                ErrorNumber = runResult.Error.Code;
+                ErrorCode = runResult.Error.Description + "\n";
             }
 
-        }
-
-
-        private void Code_DebugClear()
-        {
-            ErrorCode = "";
-        }
-
-        private void Code_DebugHide()
-        {
-
-        }
-
-        private void Code_DebugShow()
-        {
-
-        }
-
-        private void Code_DebugPrint(string msg)
-        {
-            ErrorCode += msg + "\n";
-        }
-
-        #endregion code_events
-
-        private void PrepareImports(string script)
-        {
-            var i = 1;
-            int endposition;
-            code.ImportClear();
-            importList.Clear();
-
-            script = RemoveDescription(script);
-
-            while (!(i == -1))
+            foreach (var msg in runResult.Messages)
             {
-                i = script.IndexOf("Import");
-                if (i < 0) { break; }
-
-
-                if (!string.IsNullOrEmpty(script))
+                if (!result.Contains(msg))
                 {
-                    endposition = script.IndexOf("\r\n", i + 1, StringComparison.Ordinal);
-                    if (endposition == -1)
-                        endposition = script.IndexOf("\r", i + 1, StringComparison.Ordinal);
-                    if (endposition == -1)
-                        endposition = script.IndexOf("\n", i + 1, StringComparison.Ordinal);
-
-                    if (endposition < i)
-                        break;
-
-                    string tmpstr = script.Substring(i, endposition - i + 1);
-                    script = script.Remove(i, endposition - i + 1);
-
-                    tmpstr = tmpstr.Replace("\r\n", string.Empty);
-                    tmpstr = tmpstr.Replace("\r", string.Empty);
-                    tmpstr = tmpstr.Replace("\n", string.Empty);
-                    tmpstr = tmpstr.Replace("Import", string.Empty);
-                    tmpstr = tmpstr.Trim();
-                    i = 0;
-
-                    SetImports(tmpstr);
+                    result.Add(msg);
                 }
             }
-
-
+        }
+        finally
+        {
+            context.Message -= Context_Message;
+            context.DebugPrint -= Context_DebugPrint;
+            context.DebugClear -= Context_DebugClear;
+            context.DebugShow -= Context_DebugShow;
+            context.DebugHide -= Context_DebugHide;
         }
 
-        private string RemoveDescription(string script)
+        return result;
+    }
+
+    public void ResetImports()
+    {
+        SetImportValues();
+    }
+
+    public void ImportItem(string key, object value)
+    {
+        compiledScript?.SetExternalValue(key, value);
+    }
+
+    public void Dispose()
+    {
+    }
+
+    #region Events
+
+    private void Context_Message(int type, string message)
+    {
+        if (!string.IsNullOrEmpty(message) && type > 0)
         {
-            int endposition;
-            var i = 1;
-            while (i != -1)
+            result.Add(new ResultMessage { Type = type, Message = message });
+        }
+    }
+
+    private void Context_DebugClear()
+    {
+        ErrorCode = string.Empty;
+    }
+
+    private void Context_DebugHide()
+    {
+    }
+
+    private void Context_DebugShow()
+    {
+    }
+
+    private void Context_DebugPrint(string msg)
+    {
+        ErrorCode += msg + "\n";
+    }
+
+    #endregion Events
+
+    #region Import Handling
+
+    private void ExtractImportKeys(string script)
+    {
+        importList.Clear();
+        script = RemoveComments(script);
+
+        int i = 0;
+        while (i != -1)
+        {
+            i = script.IndexOf("Import", StringComparison.OrdinalIgnoreCase);
+            if (i < 0) break;
+
+            int endposition = FindLineEnd(script, i + 1);
+            if (endposition < i) break;
+
+            string line = script.Substring(i, endposition - i + 1);
+            script = script.Remove(i, endposition - i + 1);
+
+            string key = line
+                .Replace("\r\n", string.Empty)
+                .Replace("\r", string.Empty)
+                .Replace("\n", string.Empty)
+                .Replace("Import", string.Empty, StringComparison.OrdinalIgnoreCase)
+                .Trim();
+
+            if (!string.IsNullOrEmpty(key))
             {
-                i = script.IndexOf("'");
-                if (i < 0) { break; }
-
-
-                if (!string.IsNullOrEmpty(script))
-                {
-                    endposition = script.IndexOf("\r\n", i + 1, StringComparison.Ordinal);
-                    if (endposition == -1)
-                        endposition = script.IndexOf("\r", i + 1, StringComparison.Ordinal);
-                    if (endposition == -1)
-                        endposition = script.IndexOf("\n", i + 1, StringComparison.Ordinal);
-
-                    if (endposition < i) { break; }
-
-
-                    script = script.Remove(i, endposition - i + 1);
-
-
-                    i = 0;
-
-                }
+                importList.Add(key);
             }
 
-
-            return script;
-
+            i = 0;
         }
-        private void SetImports(string key)
+    }
+
+    private static string RemoveComments(string script)
+    {
+        int i = 0;
+        while (i != -1)
+        {
+            i = script.IndexOf('\'');
+            if (i < 0) break;
+
+            int endposition = FindLineEnd(script, i + 1);
+            if (endposition < i) break;
+
+            script = script.Remove(i, endposition - i + 1);
+            i = 0;
+        }
+
+        return script;
+    }
+
+    private static int FindLineEnd(string script, int startIndex)
+    {
+        int endposition = script.IndexOf("\r\n", startIndex, StringComparison.Ordinal);
+        if (endposition == -1)
+            endposition = script.IndexOf('\r', startIndex);
+        if (endposition == -1)
+            endposition = script.IndexOf('\n', startIndex);
+        return endposition;
+    }
+
+    private void SetImportValues()
+    {
+        if (compiledScript == null || Imports == null) return;
+
+        IDictionary<string, object> propertyValues = (IDictionary<string, object>)Imports;
+
+        foreach (var key in importList)
         {
             try
             {
-                var res = ReadImports(key);
-
-                code.ImportAdd(key, ScriptValue.FromObject(res));
+                if (propertyValues.TryGetValue(key, out var value))
+                {
+                    compiledScript.SetExternalValue(key, value);
+                }
+                else
+                {
+                    compiledScript.SetExternalValue(key, 0);
+                }
             }
-            catch (Exception)
+            catch
             {
-                code.ImportAdd(key, ScriptValue.FromInt(0));
+                compiledScript.SetExternalValue(key, 0);
             }
-
-        }
-
-        private object ReadImports(string key)
-        {
-            IDictionary<string, object> propertyValues = (IDictionary<string, object>)Imports!;
-            var info = propertyValues![key];
-
-            return info;
-        }
-
-        public void Dispose()
-        {
-            RemoveEvent();
         }
     }
 
-    public class ResultMessage
-    {
-        public int Type { get; set; }
-        public string Message { get; set; } = string.Empty;
-    }
+    #endregion Import Handling
+}
+
+public class ResultMessage
+{
+    public int Type { get; set; }
+    public string Message { get; set; } = string.Empty;
 }

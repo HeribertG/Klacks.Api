@@ -2,9 +2,14 @@ using System.Globalization;
 
 namespace Klacks.Api.Infrastructure.Scripting;
 
+/// <summary>
+/// Legacy class for script compilation and execution.
+/// For new code, use <see cref="CompiledScript"/> for compilation and
+/// <see cref="ScriptExecutionContext"/> for execution.
+/// </summary>
 public class Code : IDisposable
 {
-    #region Events
+    #region Events (Legacy - use ScriptExecutionContext instead)
 
     public delegate void AssignEventHandler(string name, string value, ref bool accepted);
     public delegate void DebugClearEventHandler();
@@ -14,12 +19,19 @@ public class Code : IDisposable
     public delegate void MessageEventHandler(int type, string message);
     public delegate void RetrieveEventHandler(string name, string value, bool accepted);
 
+    [Obsolete("Use ScriptExecutionContext instead")]
     public event AssignEventHandler? Assign;
+    [Obsolete("Use ScriptExecutionContext.DebugClear instead")]
     public event DebugClearEventHandler? DebugClear;
+    [Obsolete("Use ScriptExecutionContext.DebugHide instead")]
     public event DebugHideEventHandler? DebugHide;
+    [Obsolete("Use ScriptExecutionContext.DebugPrint instead")]
     public event DebugPrintEventHandler? DebugPrint;
+    [Obsolete("Use ScriptExecutionContext.DebugShow instead")]
     public event DebugShowEventHandler? DebugShow;
+    [Obsolete("Use ScriptExecutionContext.Message instead")]
     public event MessageEventHandler? Message;
+    [Obsolete("Use ScriptExecutionContext instead")]
     public event RetrieveEventHandler? Retrieve;
 
     #endregion Events
@@ -33,11 +45,15 @@ public class Code : IDisposable
     private bool running;
     private Scopes? scopes;
 
+    [Obsolete("Use ScriptExecutionContext.AllowUi instead")]
     public bool AllowUi { get; set; }
+    [Obsolete("Use CancellationToken instead")]
     public bool Cancel { get; set; }
+    [Obsolete("Use CancellationToken with timeout instead")]
     public int CodeTimeout { get; set; } = 120000;
     public int Count => code.Count;
-    public InterpreterError? ErrorObject { get; private set; }
+    public InterpreterError? ErrorObject { get; private set; } = new();
+    [Obsolete("Use ScriptExecutionContext instead")]
     public bool Running { get; private set; }
     internal int EndOfCodePc => code.Count;
 
@@ -93,6 +109,7 @@ public class Code : IDisposable
         return external.Retrieve(name)?.Value ?? ScriptValue.Null;
     }
 
+    [Obsolete("Use CompiledScript.Compile() + ScriptExecutionContext.Execute() instead")]
     public bool Run(CancellationToken cancellationToken = default)
     {
         if (ErrorObject?.Number == 0)
