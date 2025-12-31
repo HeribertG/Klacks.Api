@@ -215,6 +215,15 @@ public sealed class ScriptExecutionContext
                 break;
 
             case Opcodes.JumpTrue:
+                {
+                    var value = scopes!.PopScopes().Value;
+                    if (value.AsBoolean())
+                    {
+                        pc = Convert.ToInt32(operation[1]) - 1;
+                    }
+                }
+                break;
+
             case Opcodes.JumpFalse:
                 {
                     var value = scopes!.PopScopes().Value;

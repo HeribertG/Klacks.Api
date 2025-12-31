@@ -312,6 +312,8 @@ namespace Klacks.Api.Infrastructure.Scripting
             predefinedIdentifiers.Add("AND", (int)Symbol.Tokens.tokAnd);
             predefinedIdentifiers.Add("OR", (int)Symbol.Tokens.tokOr);
             predefinedIdentifiers.Add("NOT", (int)Symbol.Tokens.tokNot);
+            predefinedIdentifiers.Add("ANDALSO", (int)Symbol.Tokens.tokAndAlso);
+            predefinedIdentifiers.Add("ORELSE", (int)Symbol.Tokens.tokOrElse);
             predefinedIdentifiers.Add("SIN", (int)Symbol.Tokens.tokSin);
             predefinedIdentifiers.Add("COS", (int)Symbol.Tokens.tokCos);
             predefinedIdentifiers.Add("TAN", (int)Symbol.Tokens.tokTan);

@@ -2,49 +2,74 @@ namespace Klacks.Api.Infrastructure.Scripting
 {
     public partial class SyntaxAnalyser
     {
-        // ConditionalTerm { "OR" ConditionalTerm }
+        // OrElseTerm { "OR" OrElseTerm } | OrElseTerm { "ORELSE" OrElseTerm }
         private void Condition()
         {
-            ConditionalTerm();
+            OrElseTerm();
 
-            while (InSymbolSet(sym.Token, Symbol.Tokens.tokOr))
+            while (InSymbolSet(sym.Token, Symbol.Tokens.tokOr, Symbol.Tokens.tokOrElse))
             {
+                var isOrElse = sym.Token == Symbol.Tokens.tokOrElse;
                 GetNextSymbol();
-                ConditionalTerm();
 
-                code!.Add(Opcodes.Or);
+                if (isOrElse)
+                {
+                    // OrElse: Short-Circuit - result is True if any operand is truthy
+                    var skipPC = code!.Add(Opcodes.JumpTrue);
+                    OrElseTerm();
+                    var secondTruePC = code.Add(Opcodes.JumpTrue);
+                    code.Add(Opcodes.PushValue, false);
+                    var endPC = code.Add(Opcodes.Jump);
+                    code.FixUp(skipPC - 1, code.EndOfCodePc);
+                    code.FixUp(secondTruePC - 1, code.EndOfCodePc);
+                    code.Add(Opcodes.PushValue, true);
+                    code.FixUp(endPC - 1, code.EndOfCodePc);
+                }
+                else
+                {
+                    // Or: Bitwise
+                    OrElseTerm();
+                    code!.Add(Opcodes.Or);
+                }
             }
         }
 
-        // ConditionalFactor { "AND" ConditionalFactor }
-        private void ConditionalTerm()
+        // AndAlsoFactor { "AND" AndAlsoFactor } | AndAlsoFactor { "ANDALSO" AndAlsoFactor }
+        private void OrElseTerm()
         {
-            var operandPCs = new List<object>();
+            AndAlsoFactor();
 
-            ConditionalFactor();
-
-            while (InSymbolSet(sym.Token, Symbol.Tokens.tokAnd))
+            while (InSymbolSet(sym.Token, Symbol.Tokens.tokAnd, Symbol.Tokens.tokAndAlso))
             {
-                operandPCs.Add(code!.Add(Opcodes.JumpFalse));
-
+                var isAndAlso = sym.Token == Symbol.Tokens.tokAndAlso;
                 GetNextSymbol();
-                ConditionalFactor();
+
+                if (isAndAlso)
+                {
+                    // AndAlso: Short-Circuit - result is True only if both operands are truthy
+                    var skipPC = code!.Add(Opcodes.JumpFalse);
+                    AndAlsoFactor();
+                    var secondFalsePC = code.Add(Opcodes.JumpFalse);
+                    code.Add(Opcodes.PushValue, true);
+                    var endPC = code.Add(Opcodes.Jump);
+                    code.FixUp(skipPC - 1, code.EndOfCodePc);
+                    code.FixUp(secondFalsePC - 1, code.EndOfCodePc);
+                    code.Add(Opcodes.PushValue, false);
+                    code.FixUp(endPC - 1, code.EndOfCodePc);
+                }
+                else
+                {
+                    // And: Bitwise
+                    AndAlsoFactor();
+                    code!.Add(Opcodes.And);
+                }
             }
+        }
 
-            int thenPC;
-            if (operandPCs.Count() > 0)
-            {
-                operandPCs.Add(code!.Add(Opcodes.JumpFalse));
-
-                code.Add(Opcodes.PushValue, true);
-                thenPC = code.Add(Opcodes.Jump);
-
-                for (int i = 0; i < operandPCs.Count(); i++)
-                    code.FixUp(Convert.ToInt32(operandPCs[i]) - 1, code.EndOfCodePc);
-                code.Add(Opcodes.PushValue, false);
-
-                code.FixUp(thenPC - 1, code.EndOfCodePc);
-            }
+        // ConditionalFactor (renamed from ConditionalTerm)
+        private void AndAlsoFactor()
+        {
+            ConditionalFactor();
         }
 
         // Expression { ( "=" | "<>" | "<=" | "<" | ">=" | ">" ) Expression }
