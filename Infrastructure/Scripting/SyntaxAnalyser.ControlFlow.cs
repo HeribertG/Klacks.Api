@@ -223,5 +223,106 @@ namespace Klacks.Api.Infrastructure.Scripting
             else if (!(doWhile & thisDOisSingleLineOnly))
                 errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.DoStatement", "'LOOP' is missing at end of DO-statement", sym.Line, sym.Col, sym.Index);
         }
+        // SelectCaseStatement ::= "SELECT" "CASE" Expression { "CASE" ( CaseList | "ELSE" ) StatementList } "END" "SELECT"
+        private void SelectCaseStatement(bool singleLineOnly, int exitsAllowed)
+        {
+            if (sym.Token != Symbol.Tokens.tokCase)
+            {
+                errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.SelectCaseStatement", "Expected 'CASE' after 'SELECT'", sym.Line, sym.Col, sym.Index, sym.Text);
+                return;
+            }
+
+            GetNextSymbol();
+
+            Condition();
+
+            if (sym.Token == Symbol.Tokens.tokStatementDelimiter)
+                GetNextSymbol();
+
+            var endJumps = new List<int>();
+            bool hadCaseElse = false;
+
+            while (sym.Token == Symbol.Tokens.tokCase && errorObject!.Number == 0)
+            {
+                GetNextSymbol();
+
+                if (sym.Token == Symbol.Tokens.tokElse)
+                {
+                    hadCaseElse = true;
+                    GetNextSymbol();
+
+                    if (sym.Token == Symbol.Tokens.tokStatementDelimiter)
+                        GetNextSymbol();
+
+                    StatementList(singleLineOnly, false, exitsAllowed, Symbol.Tokens.tokEof, Symbol.Tokens.tokEnd, Symbol.Tokens.tokCase);
+                }
+                else
+                {
+                    int nextCaseJump = -1;
+                    bool firstValue = true;
+                    int matchJump = -1;
+
+                    do
+                    {
+                        if (!firstValue)
+                            GetNextSymbol();
+                        firstValue = false;
+
+                        code!.Add(Opcodes.PopWithIndex, 0);
+
+                        Condition();
+
+                        code.Add(Opcodes.Eq);
+
+                        if (sym.Token == Symbol.Tokens.tokComma)
+                        {
+                            int tempJump = code.Add(Opcodes.JumpTrue);
+                            if (matchJump == -1)
+                                matchJump = tempJump;
+                            else
+                            {
+                                code.FixUp(matchJump - 1, code.EndOfCodePc);
+                                matchJump = tempJump;
+                            }
+                        }
+                    }
+                    while (sym.Token == Symbol.Tokens.tokComma && errorObject!.Number == 0);
+
+                    nextCaseJump = code!.Add(Opcodes.JumpFalse);
+
+                    if (matchJump != -1)
+                        code.FixUp(matchJump - 1, code.EndOfCodePc);
+
+                    if (sym.Token == Symbol.Tokens.tokStatementDelimiter)
+                        GetNextSymbol();
+
+                    StatementList(singleLineOnly, false, exitsAllowed, Symbol.Tokens.tokEof, Symbol.Tokens.tokEnd, Symbol.Tokens.tokCase);
+
+                    endJumps.Add(code.Add(Opcodes.Jump));
+
+                    code.FixUp(nextCaseJump - 1, code.EndOfCodePc);
+                }
+            }
+
+            if (sym.Token == Symbol.Tokens.tokEnd)
+            {
+                GetNextSymbol();
+                if (sym.Token == Symbol.Tokens.tokSelect)
+                    GetNextSymbol();
+                else
+                    errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.SelectCaseStatement", "Expected 'SELECT' after 'END'", sym.Line, sym.Col, sym.Index, sym.Text);
+            }
+            else
+            {
+                errorObject!.Raise((int)InterpreterError.ParsErrors.errSyntaxViolation, "SyntaxAnalyser.SelectCaseStatement", "Expected 'END SELECT' to close SELECT CASE statement", sym.Line, sym.Col, sym.Index, sym.Text);
+            }
+
+            foreach (var jumpPc in endJumps)
+            {
+                code!.FixUp(jumpPc - 1, code.EndOfCodePc);
+            }
+
+            code!.Add(Opcodes.Pop);
+        }
     }
 }

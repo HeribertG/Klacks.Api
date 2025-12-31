@@ -74,6 +74,11 @@ namespace Klacks.Api.Infrastructure.Scripting
                     DoStatement(singleLineOnly, exitsAllowed);
                     break;
 
+                case Symbol.Tokens.tokSelect:
+                    GetNextSymbol();
+                    SelectCaseStatement(singleLineOnly, exitsAllowed);
+                    break;
+
                 case Symbol.Tokens.tokExit:
                     GetNextSymbol();
                     HandleExitStatement(exitsAllowed);
