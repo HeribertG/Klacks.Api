@@ -176,6 +176,14 @@ public sealed class ScriptExecutionContext
                 ExecuteUnaryOp(opcode);
                 break;
 
+            // Time Functions
+            case Opcodes.TimeToHours:
+                ExecuteTimeToHours();
+                break;
+            case Opcodes.TimeOverlap:
+                ExecuteTimeOverlap();
+                break;
+
             // String Functions
             case Opcodes.Len:
                 ExecuteLen();
@@ -537,5 +545,88 @@ public sealed class ScriptExecutionContext
         var decimals = scopes!.PopScopes().Value.AsInt();
         var number = scopes.PopScopes().Value.AsDouble();
         scopes.Push(ScriptValue.FromNumber(Math.Round(number, decimals)));
+    }
+
+    private void ExecuteTimeToHours()
+    {
+        var timeStr = scopes!.PopScopes().Value.AsString();
+        var parts = timeStr.Split(':');
+        if (parts.Length >= 2 && int.TryParse(parts[0], out var hours) && int.TryParse(parts[1], out var minutes))
+        {
+            var decimalHours = hours + (minutes / 60.0);
+            scopes.Push(ScriptValue.FromNumber(decimalHours));
+        }
+        else
+        {
+            scopes.Push(ScriptValue.FromNumber(0));
+        }
+    }
+
+    private void ExecuteTimeOverlap()
+    {
+        var inputEndStr = scopes!.PopScopes().Value.AsString();
+        var inputStartStr = scopes.PopScopes().Value.AsString();
+        var segmentEndStr = scopes.PopScopes().Value.AsString();
+        var segmentStartStr = scopes.PopScopes().Value.AsString();
+
+        var segmentStart = ParseTimeToMinutes(segmentStartStr);
+        var segmentEnd = ParseTimeToMinutes(segmentEndStr);
+        var inputStart = ParseTimeToMinutes(inputStartStr);
+        var inputEnd = ParseTimeToMinutes(inputEndStr);
+
+        if (segmentStart < 0 || segmentEnd < 0 || inputStart < 0 || inputEnd < 0)
+        {
+            scopes.Push(ScriptValue.FromNumber(0));
+            return;
+        }
+
+        var overlapMinutes = CalculateOverlapMinutes(segmentStart, segmentEnd, inputStart, inputEnd);
+        scopes.Push(ScriptValue.FromNumber(overlapMinutes / 60.0));
+    }
+
+    private static int ParseTimeToMinutes(string timeStr)
+    {
+        var parts = timeStr.Split(':');
+        if (parts.Length >= 2 && int.TryParse(parts[0], out var hours) && int.TryParse(parts[1], out var minutes))
+        {
+            return hours * 60 + minutes;
+        }
+        return -1;
+    }
+
+    private static int CalculateOverlapMinutes(int segStart, int segEnd, int inStart, int inEnd)
+    {
+        const int dayMinutes = 24 * 60;
+        var segCrossesMidnight = segEnd <= segStart;
+        var inCrossesMidnight = inEnd <= inStart;
+
+        if (segCrossesMidnight)
+        {
+            segEnd += dayMinutes;
+        }
+        if (inCrossesMidnight)
+        {
+            inEnd += dayMinutes;
+        }
+
+        var overlap = CalculateSimpleOverlap(segStart, segEnd, inStart, inEnd);
+
+        if (segCrossesMidnight && !inCrossesMidnight)
+        {
+            overlap += CalculateSimpleOverlap(segStart - dayMinutes, segEnd - dayMinutes, inStart, inEnd);
+        }
+        if (inCrossesMidnight && !segCrossesMidnight)
+        {
+            overlap += CalculateSimpleOverlap(segStart, segEnd, inStart - dayMinutes, inEnd - dayMinutes);
+        }
+
+        return overlap;
+    }
+
+    private static int CalculateSimpleOverlap(int start1, int end1, int start2, int end2)
+    {
+        var overlapStart = Math.Max(start1, start2);
+        var overlapEnd = Math.Min(end1, end2);
+        return Math.Max(0, overlapEnd - overlapStart);
     }
 }

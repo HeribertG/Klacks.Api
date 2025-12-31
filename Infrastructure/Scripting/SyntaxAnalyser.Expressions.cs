@@ -375,6 +375,12 @@ namespace Klacks.Api.Infrastructure.Scripting
                 case Symbol.Tokens.tokSgn:
                     CallUnaryFunction(Opcodes.Sgn);
                     break;
+                case Symbol.Tokens.tokTimeToHours:
+                    CallUnaryFunction(Opcodes.TimeToHours);
+                    break;
+                case Symbol.Tokens.tokTimeOverlap:
+                    CallQuaternaryFunction(Opcodes.TimeOverlap);
+                    break;
 
                 case Symbol.Tokens.tokIif:
                     GetNextSymbol();

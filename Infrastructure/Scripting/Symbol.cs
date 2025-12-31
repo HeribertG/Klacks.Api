@@ -144,7 +144,9 @@ namespace Klacks.Api.Infrastructure.Scripting
             tokLog,
             tokExp,
             tokSgn,
-            // 92 - Control Structures
+            tokTimeToHours,
+            tokTimeOverlap,
+            // 94 - Control Structures
             tokSelect,
             tokCase
         }

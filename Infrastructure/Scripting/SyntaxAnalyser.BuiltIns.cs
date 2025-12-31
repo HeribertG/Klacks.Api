@@ -203,6 +203,46 @@ namespace Klacks.Api.Infrastructure.Scripting
                 errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function name", sym.Line, sym.Col, sym.Index, sym.Text);
         }
 
+        private void CallQuaternaryFunction(Opcodes opcode)
+        {
+            GetNextSymbol();
+            if (sym.Token == Symbol.Tokens.tokLeftParent)
+            {
+                GetNextSymbol();
+                Condition();
+                if (sym.Token == Symbol.Tokens.tokComma)
+                {
+                    GetNextSymbol();
+                    Condition();
+                    if (sym.Token == Symbol.Tokens.tokComma)
+                    {
+                        GetNextSymbol();
+                        Condition();
+                        if (sym.Token == Symbol.Tokens.tokComma)
+                        {
+                            GetNextSymbol();
+                            Condition();
+                            if (sym.Token == Symbol.Tokens.tokRightParent)
+                            {
+                                GetNextSymbol();
+                                code!.Add(opcode);
+                            }
+                            else
+                                errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                        }
+                        else
+                            errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                    }
+                    else
+                        errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                }
+                else
+                    errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+            }
+            else
+                errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function name", sym.Line, sym.Col, sym.Index, sym.Text);
+        }
+
         private void CallRnd()
         {
             GetNextSymbol();

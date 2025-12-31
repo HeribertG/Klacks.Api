@@ -373,6 +373,8 @@ namespace Klacks.Api.Infrastructure.Scripting
             predefinedIdentifiers.Add("LOG", (int)Symbol.Tokens.tokLog);
             predefinedIdentifiers.Add("EXP", (int)Symbol.Tokens.tokExp);
             predefinedIdentifiers.Add("SGN", (int)Symbol.Tokens.tokSgn);
+            predefinedIdentifiers.Add("TIMETOHOURS", (int)Symbol.Tokens.tokTimeToHours);
+            predefinedIdentifiers.Add("TIMEOVERLAP", (int)Symbol.Tokens.tokTimeOverlap);
             // Control Structures
             predefinedIdentifiers.Add("SELECT", (int)Symbol.Tokens.tokSelect);
             predefinedIdentifiers.Add("CASE", (int)Symbol.Tokens.tokCase);

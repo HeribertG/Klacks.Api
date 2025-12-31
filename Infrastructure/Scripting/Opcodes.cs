@@ -65,6 +65,9 @@ namespace Klacks.Api.Infrastructure.Scripting
         Rnd = 58,
         Log = 59,
         Exp = 60,
-        Sgn = 61
+        Sgn = 61,
+        // Time Functions
+        TimeToHours = 62,
+        TimeOverlap = 63
     }
 }
