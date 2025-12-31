@@ -47,6 +47,24 @@ namespace Klacks.Api.Infrastructure.Scripting
         PopScope = 42,
         Call = 43,
         Return = 44,
-        Message = 45
+        Message = 45,
+        // String Functions
+        Len = 46,
+        Left = 47,
+        Right = 48,
+        Mid = 49,
+        InStr = 50,
+        Replace = 51,
+        Trim = 52,
+        UCase = 53,
+        LCase = 54,
+        // Math Functions
+        Abs = 55,
+        Round = 56,
+        Sqr = 57,
+        Rnd = 58,
+        Log = 59,
+        Exp = 60,
+        Sgn = 61
     }
 }

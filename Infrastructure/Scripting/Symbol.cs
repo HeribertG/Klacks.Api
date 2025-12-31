@@ -125,7 +125,28 @@ namespace Klacks.Api.Infrastructure.Scripting
             tokEof,
             // 74 - VB.NET Short-Circuit Operators
             tokAndAlso,
-            tokOrElse
+            tokOrElse,
+            // 76 - String Functions
+            tokLen,
+            tokLeft,
+            tokRight,
+            tokMid,
+            tokInStr,
+            tokReplace,
+            tokTrim,
+            tokUCase,
+            tokLCase,
+            // 85 - Math Functions
+            tokAbs,
+            tokRound,
+            tokSqr,
+            tokRnd,
+            tokLog,
+            tokExp,
+            tokSgn,
+            // 92 - Control Structures
+            tokSelect,
+            tokCase
         }
 
         internal void Position(int line, int col, int index)

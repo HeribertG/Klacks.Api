@@ -124,5 +124,129 @@ namespace Klacks.Api.Infrastructure.Scripting
 
             return operator_Renamed;
         }
+
+        private void CallUnaryFunction(Opcodes opcode)
+        {
+            GetNextSymbol();
+            if (sym.Token == Symbol.Tokens.tokLeftParent)
+            {
+                GetNextSymbol();
+                Condition();
+                if (sym.Token == Symbol.Tokens.tokRightParent)
+                {
+                    GetNextSymbol();
+                    code!.Add(opcode);
+                }
+                else
+                    errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameter", sym.Line, sym.Col, sym.Index, sym.Text);
+            }
+            else
+                errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function name", sym.Line, sym.Col, sym.Index, sym.Text);
+        }
+
+        private void CallBinaryFunction(Opcodes opcode)
+        {
+            GetNextSymbol();
+            if (sym.Token == Symbol.Tokens.tokLeftParent)
+            {
+                GetNextSymbol();
+                Condition();
+                if (sym.Token == Symbol.Tokens.tokComma)
+                {
+                    GetNextSymbol();
+                    Condition();
+                    if (sym.Token == Symbol.Tokens.tokRightParent)
+                    {
+                        GetNextSymbol();
+                        code!.Add(opcode);
+                    }
+                    else
+                        errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                }
+                else
+                    errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+            }
+            else
+                errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function name", sym.Line, sym.Col, sym.Index, sym.Text);
+        }
+
+        private void CallTernaryFunction(Opcodes opcode)
+        {
+            GetNextSymbol();
+            if (sym.Token == Symbol.Tokens.tokLeftParent)
+            {
+                GetNextSymbol();
+                Condition();
+                if (sym.Token == Symbol.Tokens.tokComma)
+                {
+                    GetNextSymbol();
+                    Condition();
+                    if (sym.Token == Symbol.Tokens.tokComma)
+                    {
+                        GetNextSymbol();
+                        Condition();
+                        if (sym.Token == Symbol.Tokens.tokRightParent)
+                        {
+                            GetNextSymbol();
+                            code!.Add(opcode);
+                        }
+                        else
+                            errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                    }
+                    else
+                        errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                }
+                else
+                    errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+            }
+            else
+                errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function name", sym.Line, sym.Col, sym.Index, sym.Text);
+        }
+
+        private void CallRnd()
+        {
+            GetNextSymbol();
+            if (sym.Token == Symbol.Tokens.tokLeftParent)
+            {
+                GetNextSymbol();
+                if (sym.Token == Symbol.Tokens.tokRightParent)
+                {
+                    GetNextSymbol();
+                    code!.Add(Opcodes.Rnd);
+                }
+                else
+                    errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' - Rnd() takes no parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+            }
+            else
+                errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after Rnd", sym.Line, sym.Col, sym.Index, sym.Text);
+        }
+
+        private void CallRoundFunction()
+        {
+            GetNextSymbol();
+            if (sym.Token == Symbol.Tokens.tokLeftParent)
+            {
+                GetNextSymbol();
+                Condition();
+                if (sym.Token == Symbol.Tokens.tokComma)
+                {
+                    GetNextSymbol();
+                    Condition();
+                }
+                else
+                {
+                    code!.Add(Opcodes.PushValue, 0);
+                }
+                if (sym.Token == Symbol.Tokens.tokRightParent)
+                {
+                    GetNextSymbol();
+                    code!.Add(Opcodes.Round);
+                }
+                else
+                    errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+            }
+            else
+                errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function name", sym.Line, sym.Col, sym.Index, sym.Text);
+        }
     }
 }

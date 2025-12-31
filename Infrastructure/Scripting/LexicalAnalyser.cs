@@ -355,8 +355,27 @@ namespace Klacks.Api.Infrastructure.Scripting
             predefinedIdentifiers.Add("VBCR", (int)Symbol.Tokens.tokCr);
             predefinedIdentifiers.Add("VBLF", (int)Symbol.Tokens.tokLf);
             predefinedIdentifiers.Add("IMPORT", (int)Symbol.Tokens.tokExternal);
-
-
+            // String Functions
+            predefinedIdentifiers.Add("LEN", (int)Symbol.Tokens.tokLen);
+            predefinedIdentifiers.Add("LEFT", (int)Symbol.Tokens.tokLeft);
+            predefinedIdentifiers.Add("RIGHT", (int)Symbol.Tokens.tokRight);
+            predefinedIdentifiers.Add("MID", (int)Symbol.Tokens.tokMid);
+            predefinedIdentifiers.Add("INSTR", (int)Symbol.Tokens.tokInStr);
+            predefinedIdentifiers.Add("REPLACE", (int)Symbol.Tokens.tokReplace);
+            predefinedIdentifiers.Add("TRIM", (int)Symbol.Tokens.tokTrim);
+            predefinedIdentifiers.Add("UCASE", (int)Symbol.Tokens.tokUCase);
+            predefinedIdentifiers.Add("LCASE", (int)Symbol.Tokens.tokLCase);
+            // Math Functions
+            predefinedIdentifiers.Add("ABS", (int)Symbol.Tokens.tokAbs);
+            predefinedIdentifiers.Add("ROUND", (int)Symbol.Tokens.tokRound);
+            predefinedIdentifiers.Add("SQR", (int)Symbol.Tokens.tokSqr);
+            predefinedIdentifiers.Add("RND", (int)Symbol.Tokens.tokRnd);
+            predefinedIdentifiers.Add("LOG", (int)Symbol.Tokens.tokLog);
+            predefinedIdentifiers.Add("EXP", (int)Symbol.Tokens.tokExp);
+            predefinedIdentifiers.Add("SGN", (int)Symbol.Tokens.tokSgn);
+            // Control Structures
+            predefinedIdentifiers.Add("SELECT", (int)Symbol.Tokens.tokSelect);
+            predefinedIdentifiers.Add("CASE", (int)Symbol.Tokens.tokCase);
         }
 
         private void MathOperatorOrAssignments(Symbol nextSymbol, string c)

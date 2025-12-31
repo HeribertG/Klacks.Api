@@ -324,6 +324,58 @@ namespace Klacks.Api.Infrastructure.Scripting
                     operator_Renamed = ComplexGeometry(sym.Token);
                     break;
 
+                // String Functions
+                case Symbol.Tokens.tokLen:
+                    CallUnaryFunction(Opcodes.Len);
+                    break;
+                case Symbol.Tokens.tokLeft:
+                    CallBinaryFunction(Opcodes.Left);
+                    break;
+                case Symbol.Tokens.tokRight:
+                    CallBinaryFunction(Opcodes.Right);
+                    break;
+                case Symbol.Tokens.tokMid:
+                    CallTernaryFunction(Opcodes.Mid);
+                    break;
+                case Symbol.Tokens.tokInStr:
+                    CallBinaryFunction(Opcodes.InStr);
+                    break;
+                case Symbol.Tokens.tokReplace:
+                    CallTernaryFunction(Opcodes.Replace);
+                    break;
+                case Symbol.Tokens.tokTrim:
+                    CallUnaryFunction(Opcodes.Trim);
+                    break;
+                case Symbol.Tokens.tokUCase:
+                    CallUnaryFunction(Opcodes.UCase);
+                    break;
+                case Symbol.Tokens.tokLCase:
+                    CallUnaryFunction(Opcodes.LCase);
+                    break;
+
+                // Math Functions
+                case Symbol.Tokens.tokAbs:
+                    CallUnaryFunction(Opcodes.Abs);
+                    break;
+                case Symbol.Tokens.tokRound:
+                    CallRoundFunction();
+                    break;
+                case Symbol.Tokens.tokSqr:
+                    CallUnaryFunction(Opcodes.Sqr);
+                    break;
+                case Symbol.Tokens.tokRnd:
+                    CallRnd();
+                    break;
+                case Symbol.Tokens.tokLog:
+                    CallUnaryFunction(Opcodes.Log);
+                    break;
+                case Symbol.Tokens.tokExp:
+                    CallUnaryFunction(Opcodes.Exp);
+                    break;
+                case Symbol.Tokens.tokSgn:
+                    CallUnaryFunction(Opcodes.Sgn);
+                    break;
+
                 case Symbol.Tokens.tokIif:
                     GetNextSymbol();
                     if (sym.Token == Symbol.Tokens.tokLeftParent)

@@ -14,6 +14,7 @@ public sealed class ScriptExecutionContext
 
     private readonly CompiledScript script;
     private readonly List<ResultMessage> messages = new();
+    private readonly Random _random = new();
 
     private Scopes? scopes;
     private int pc;
@@ -167,7 +168,49 @@ public sealed class ScriptExecutionContext
             case Opcodes.Cos:
             case Opcodes.Tan:
             case Opcodes.ATan:
+            case Opcodes.Abs:
+            case Opcodes.Sqr:
+            case Opcodes.Log:
+            case Opcodes.Exp:
+            case Opcodes.Sgn:
                 ExecuteUnaryOp(opcode);
+                break;
+
+            // String Functions
+            case Opcodes.Len:
+                ExecuteLen();
+                break;
+            case Opcodes.Left:
+                ExecuteLeft();
+                break;
+            case Opcodes.Right:
+                ExecuteRight();
+                break;
+            case Opcodes.Mid:
+                ExecuteMid();
+                break;
+            case Opcodes.InStr:
+                ExecuteInStr();
+                break;
+            case Opcodes.Replace:
+                ExecuteReplace();
+                break;
+            case Opcodes.Trim:
+                ExecuteTrim();
+                break;
+            case Opcodes.UCase:
+                ExecuteUCase();
+                break;
+            case Opcodes.LCase:
+                ExecuteLCase();
+                break;
+
+            // Math Functions
+            case Opcodes.Rnd:
+                scopes!.Push(ScriptValue.FromNumber(_random.NextDouble()));
+                break;
+            case Opcodes.Round:
+                ExecuteRound();
                 break;
 
             case Opcodes.DebugPrint:
@@ -390,6 +433,11 @@ public sealed class ScriptExecutionContext
                 Opcodes.Cos => Math.Cos(number),
                 Opcodes.Tan => Math.Tan(number),
                 Opcodes.ATan => Math.Atan(number),
+                Opcodes.Abs => Math.Abs(number),
+                Opcodes.Sqr => Math.Sqrt(number),
+                Opcodes.Log => Math.Log(number),
+                Opcodes.Exp => Math.Exp(number),
+                Opcodes.Sgn => Math.Sign(number),
                 _ => ScriptValue.Null
             };
 
@@ -411,5 +459,83 @@ public sealed class ScriptExecutionContext
     {
         if (n <= 1) return 1;
         return n * Factorial(n - 1);
+    }
+
+    private void ExecuteLen()
+    {
+        var str = scopes!.PopScopes().Value.AsString();
+        scopes.Push(ScriptValue.FromInt(str.Length));
+    }
+
+    private void ExecuteLeft()
+    {
+        var length = scopes!.PopScopes().Value.AsInt();
+        var str = scopes.PopScopes().Value.AsString();
+        var result = length >= str.Length ? str : str[..length];
+        scopes.Push(ScriptValue.FromString(result));
+    }
+
+    private void ExecuteRight()
+    {
+        var length = scopes!.PopScopes().Value.AsInt();
+        var str = scopes.PopScopes().Value.AsString();
+        var result = length >= str.Length ? str : str[^length..];
+        scopes.Push(ScriptValue.FromString(result));
+    }
+
+    private void ExecuteMid()
+    {
+        var length = scopes!.PopScopes().Value.AsInt();
+        var start = scopes.PopScopes().Value.AsInt() - 1;
+        var str = scopes.PopScopes().Value.AsString();
+        if (start < 0) start = 0;
+        if (start >= str.Length)
+        {
+            scopes.Push(ScriptValue.FromString(string.Empty));
+            return;
+        }
+        var actualLength = Math.Min(length, str.Length - start);
+        scopes.Push(ScriptValue.FromString(str.Substring(start, actualLength)));
+    }
+
+    private void ExecuteInStr()
+    {
+        var search = scopes!.PopScopes().Value.AsString();
+        var str = scopes.PopScopes().Value.AsString();
+        var index = str.IndexOf(search, StringComparison.Ordinal);
+        scopes.Push(ScriptValue.FromInt(index + 1));
+    }
+
+    private void ExecuteReplace()
+    {
+        var replacement = scopes!.PopScopes().Value.AsString();
+        var search = scopes.PopScopes().Value.AsString();
+        var str = scopes.PopScopes().Value.AsString();
+        scopes.Push(ScriptValue.FromString(str.Replace(search, replacement)));
+    }
+
+    private void ExecuteTrim()
+    {
+        var str = scopes!.PopScopes().Value.AsString();
+        scopes.Push(ScriptValue.FromString(str.Trim()));
+    }
+
+    private void ExecuteUCase()
+    {
+        var str = scopes!.PopScopes().Value.AsString();
+        scopes.Push(ScriptValue.FromString(str.ToUpperInvariant()));
+    }
+
+    private void ExecuteLCase()
+    {
+        var str = scopes!.PopScopes().Value.AsString();
+        scopes.Push(ScriptValue.FromString(str.ToLowerInvariant()));
+    }
+
+    private void ExecuteRound()
+    {
+        var decimals = scopes!.PopScopes().Value.AsInt();
+        var number = scopes.PopScopes().Value.AsDouble();
+        scopes.Push(ScriptValue.FromNumber(Math.Round(number, decimals)));
     }
 }
