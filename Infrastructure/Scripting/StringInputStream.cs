@@ -100,7 +100,7 @@ namespace Klacks.Api.Infrastructure.Scripting
             }
 
             Col--;
-            string c = sourcetext?.Substring(Index, 1) ?? string.Empty;
+            string c = sourcetext?.Substring(Index - 1, 1) ?? string.Empty;
 
             if (c is "\r\n" or "\n" or "\r")
             {
