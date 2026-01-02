@@ -332,6 +332,7 @@ namespace Klacks.Api.Infrastructure.Scripting
                 symboltable!.PopScopes(-1);
                 code!.Add(Opcodes.Return);
                 code.FixUp(skipFunctionPC - 1, code.EndOfCodePc);
+                currentFunctionName = null;
             }
 
             GetNextSymbol();
@@ -376,6 +377,8 @@ namespace Klacks.Api.Infrastructure.Scripting
             definition.FormalParameters = formalParameters;
             for (int i = 0; i < formalParameters.Count; i++)
                 symboltable.Allocate(formalParameters[i].ToString()!, null);
+
+            currentFunctionName = isSub ? null : ident;
 
             StatementList(false, true, isSub ? (int)Exits.ExitSub : (int)Exits.ExitFunction, Symbol.Tokens.tokEof, Symbol.Tokens.tokEnd, Symbol.Tokens.tokEndfunction, Symbol.Tokens.tokEndsub);
 

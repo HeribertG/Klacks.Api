@@ -9,6 +9,7 @@ namespace Klacks.Api.Infrastructure.Scripting
         private bool optionExplicit;
         private Symbol sym = new();
         private Scopes? symboltable;
+        private string? currentFunctionName;
 
         public SyntaxAnalyser(InterpreterError interpreterError)
         {

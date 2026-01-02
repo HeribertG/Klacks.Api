@@ -244,12 +244,23 @@ namespace Klacks.Api.Infrastructure.Scripting
                     if (optionExplicit & !symboltable!.Exists(sym.Text))
                         errorObject!.Raise((int)InterpreterError.ParsErrors.errIdentifierAlreadyExists, "SyntaxAnalyser.Terminal", "Identifier '" + sym.Text + "' has not be declared", sym.Line, sym.Col, sym.Index, sym.Text);
 
+                    bool isCurrentFunction = currentFunctionName != null &&
+                        string.Equals(sym.Text, currentFunctionName, StringComparison.OrdinalIgnoreCase);
+
                     if (symboltable.Exists(sym.Text, null, Identifier.IdentifierTypes.IdFunction))
                     {
                         ident = sym.Text;
                         GetNextSymbol();
-                        CallUserdefinedFunction(ident);
-                        code!.Add(Opcodes.PushVariable, ident);
+
+                        if (isCurrentFunction && sym.Token != Symbol.Tokens.tokLeftParent)
+                        {
+                            code!.Add(Opcodes.PushVariable, ident);
+                        }
+                        else
+                        {
+                            CallUserdefinedFunction(ident);
+                            code!.Add(Opcodes.PushVariable, ident);
+                        }
                     }
                     else if (symboltable.Exists(sym.Text, null, Identifier.IdentifierTypes.IdSub))
                         errorObject!.Raise((int)InterpreterError.ParsErrors.errCannotCallSubInExpression, "SyntaxAnalyser.Terminal", "Cannot call sub '" + sym.Text + "' in expression", sym.Line, sym.Col, sym.Index);
