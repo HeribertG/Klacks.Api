@@ -553,7 +553,7 @@ public sealed class ScriptExecutionContext
     {
         var decimals = scopes!.PopScopes().Value.AsInt();
         var number = scopes.PopScopes().Value.AsDouble();
-        scopes.Push(ScriptValue.FromNumber(Math.Round(number, decimals)));
+        scopes.Push(ScriptValue.FromNumber(Math.Round(number, decimals, MidpointRounding.AwayFromZero)));
     }
 
     private void ExecuteTimeToHours()
