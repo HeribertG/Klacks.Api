@@ -109,7 +109,7 @@ namespace Klacks.Api.Infrastructure.Scripting
                     GetNextSymbol();
                     break;
 
-                case Symbol.Tokens.tokMessage:
+                case Symbol.Tokens.tokOutput:
                     GetNextSymbol();
                     CallMsg(true);
                     break;

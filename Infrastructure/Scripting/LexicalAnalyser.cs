@@ -344,7 +344,7 @@ namespace Klacks.Api.Infrastructure.Scripting
             predefinedIdentifiers.Add("DEBUGSHOW", (int)Symbol.Tokens.tokDebugShow);
             predefinedIdentifiers.Add("DEBUGHIDE", (int)Symbol.Tokens.tokDebugHide);
             predefinedIdentifiers.Add("MSGBOX", (int)Symbol.Tokens.tokMsgbox);
-            predefinedIdentifiers.Add("MESSAGE", (int)Symbol.Tokens.tokMessage);
+            predefinedIdentifiers.Add("OUTPUT", (int)Symbol.Tokens.tokOutput);
             predefinedIdentifiers.Add("DOEVENTS", (int)Symbol.Tokens.tokDoEvents);
             predefinedIdentifiers.Add("INPUTBOX", (int)Symbol.Tokens.tokInputbox);
             predefinedIdentifiers.Add("TRUE", (int)Symbol.Tokens.tokTrue);

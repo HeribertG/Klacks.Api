@@ -304,7 +304,7 @@ namespace Klacks.Api.Infrastructure.Scripting
                     GetNextSymbol();
                     break;
 
-                case Symbol.Tokens.tokMessage:
+                case Symbol.Tokens.tokOutput:
                     operator_Renamed = Boxes(sym.Token);
                     break;
 

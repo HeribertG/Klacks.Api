@@ -20,7 +20,7 @@ namespace Klacks.Api.Infrastructure.Scripting
                         CallInputbox(false);
                         break;
 
-                    case Symbol.Tokens.tokMessage:
+                    case Symbol.Tokens.tokOutput:
                         CallMsg(false);
                         break;
                 }

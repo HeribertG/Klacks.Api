@@ -112,7 +112,7 @@ namespace Klacks.Api.Infrastructure.Scripting
             tokMsgbox,
             tokDoEvents,
             tokInputbox,
-            tokMessage,
+            tokOutput,
             // 66
             tokTrue,
             tokFalse,

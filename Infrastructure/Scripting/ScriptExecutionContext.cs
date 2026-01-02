@@ -11,6 +11,7 @@ public sealed class ScriptExecutionContext
     public delegate void RetrieveEventHandler(string name, string value, bool accepted);
 
     private const int MaxRecursionDepth = 1000;
+    private const int MaxInstructions = 1_000_000;
 
     private readonly CompiledScript script;
     private readonly List<ResultMessage> messages = new();
@@ -82,6 +83,7 @@ public sealed class ScriptExecutionContext
         pc = 0;
 
         var instructions = script.Instructions;
+        var instructionCount = 0;
 
         while (pc < instructions.Count && running)
         {
@@ -89,6 +91,13 @@ public sealed class ScriptExecutionContext
             ExecuteInstruction(operation);
 
             pc++;
+            instructionCount++;
+
+            if (instructionCount > MaxInstructions)
+            {
+                running = false;
+                throw new ScriptTooComplexException($"Maximum instruction count ({MaxInstructions}) exceeded");
+            }
 
             if (cancellationToken.IsCancellationRequested)
             {
