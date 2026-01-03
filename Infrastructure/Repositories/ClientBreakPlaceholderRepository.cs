@@ -126,12 +126,12 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
             ? orderedQuery.ThenByDescending(c => c.ClientContracts
                 .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
                 .OrderByDescending(cc => cc.FromDate)
-                .Select(cc => cc.Contract.GuaranteedHoursPerMonth)
+                .Select(cc => cc.Contract.GuaranteedHours)
                 .FirstOrDefault())
             : orderedQuery.ThenBy(c => c.ClientContracts
                 .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
                 .OrderByDescending(cc => cc.FromDate)
-                .Select(cc => cc.Contract.GuaranteedHoursPerMonth)
+                .Select(cc => cc.Contract.GuaranteedHours)
                 .FirstOrDefault());
     }
 }

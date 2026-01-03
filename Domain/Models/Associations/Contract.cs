@@ -1,4 +1,5 @@
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,11 +11,21 @@ public class Contract : BaseEntity
 {
     public string Name { get; set; } = string.Empty;
 
-    public decimal GuaranteedHoursPerMonth { get; set; }
+    public decimal GuaranteedHours { get; set; }
 
-    public decimal MaximumHoursPerMonth { get; set; }
+    public decimal MaximumHours { get; set; }
 
-    public decimal MinimumHoursPerMonth { get; set; }
+    public decimal MinimumHours { get; set; }
+
+    public decimal FullTime { get; set; }
+
+    public decimal NightRate { get; set; }
+
+    public decimal HolidayRate { get; set; }
+
+    public decimal WeekendRate { get; set; }
+
+    public PaymentInterval PaymentInterval { get; set; } = PaymentInterval.Monthly;
 
     [Required]
     public DateTime ValidFrom { get; set; }
@@ -23,7 +34,7 @@ public class Contract : BaseEntity
 
     [ForeignKey("CalendarSelection")]
     public Guid? CalendarSelectionId { get; set; }
-    
+
     [JsonIgnore]
     public CalendarSelection? CalendarSelection { get; set; }
 }

@@ -1,3 +1,4 @@
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Presentation.DTOs.Schedules;
 
 namespace Klacks.Api.Presentation.DTOs.Associations;
@@ -5,14 +6,24 @@ namespace Klacks.Api.Presentation.DTOs.Associations;
 public class ContractResource
 {
     public Guid Id { get; set; }
-    
+
     public string Name { get; set; } = string.Empty;
 
-    public decimal GuaranteedHoursPerMonth { get; set; }
+    public decimal GuaranteedHours { get; set; }
 
-    public decimal MaximumHoursPerMonth { get; set; }
+    public decimal MaximumHours { get; set; }
 
-    public decimal MinimumHoursPerMonth { get; set; }
+    public decimal MinimumHours { get; set; }
+
+    public decimal FullTime { get; set; }
+
+    public decimal NightRate { get; set; }
+
+    public decimal HolidayRate { get; set; }
+
+    public decimal WeekendRate { get; set; }
+
+    public PaymentInterval PaymentInterval { get; set; }
 
     public DateTime ValidFrom { get; set; }
 

@@ -72,7 +72,7 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
 
         var resources = _scheduleMapper.ToWorkScheduleResourceList(entries);
 
-        var monthlyHours = await _workRepository.GetMonthlyHoursForClients(
+        var periodHours = await _workRepository.GetPeriodHoursForClients(
             clientIds,
             request.Filter.StartDate.Year,
             request.Filter.StartDate.Month);
@@ -87,7 +87,7 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         {
             Entries = resources,
             Clients = clientResources,
-            MonthlyHours = monthlyHours,
+            PeriodHours = periodHours,
             TotalClientCount = totalClientCount
         };
     }

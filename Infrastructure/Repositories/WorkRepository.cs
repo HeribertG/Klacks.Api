@@ -139,36 +139,36 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             ? orderedQuery.ThenByDescending(c => c.ClientContracts
                 .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
                 .OrderByDescending(cc => cc.FromDate)
-                .Select(cc => cc.Contract.GuaranteedHoursPerMonth)
+                .Select(cc => cc.Contract.GuaranteedHours)
                 .FirstOrDefault())
             : orderedQuery.ThenBy(c => c.ClientContracts
                 .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
                 .OrderByDescending(cc => cc.FromDate)
-                .Select(cc => cc.Contract.GuaranteedHoursPerMonth)
+                .Select(cc => cc.Contract.GuaranteedHours)
                 .FirstOrDefault());
     }
 
-    public async Task<Dictionary<Guid, MonthlyHoursResource>> GetMonthlyHoursForClients(List<Guid> clientIds, int year, int month)
+    public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursForClients(List<Guid> clientIds, int year, int month)
     {
         if (clientIds.Count == 0)
         {
-            return new Dictionary<Guid, MonthlyHoursResource>();
+            return new Dictionary<Guid, PeriodHoursResource>();
         }
 
-        var result = new Dictionary<Guid, MonthlyHoursResource>();
+        var result = new Dictionary<Guid, PeriodHoursResource>();
 
-        var monthlyHours = await _context.MonthlyClientHours
+        var periodHours = await _context.MonthlyClientHours
             .Where(m => clientIds.Contains(m.ClientId) && m.Year == year && m.Month == month)
             .ToListAsync();
 
-        var clientIdsWithMonthlyHours = monthlyHours.Select(m => m.ClientId).ToHashSet();
-        var clientIdsWithoutMonthlyHours = clientIds.Where(id => !clientIdsWithMonthlyHours.Contains(id)).ToList();
+        var clientIdsWithPeriodHours = periodHours.Select(m => m.ClientId).ToHashSet();
+        var clientIdsWithoutPeriodHours = clientIds.Where(id => !clientIdsWithPeriodHours.Contains(id)).ToList();
 
         var startOfMonth = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc);
         var endOfMonth = new DateTime(year, month, DateTime.DaysInMonth(year, month), 23, 59, 59, DateTimeKind.Utc);
 
         var worksHours = await _context.Work
-            .Where(w => clientIdsWithoutMonthlyHours.Contains(w.ClientId) && w.CurrentDate >= startOfMonth && w.CurrentDate <= endOfMonth)
+            .Where(w => clientIdsWithoutPeriodHours.Contains(w.ClientId) && w.CurrentDate >= startOfMonth && w.CurrentDate <= endOfMonth)
             .GroupBy(w => w.ClientId)
             .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime) })
             .ToListAsync();
@@ -185,32 +185,32 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             .GroupBy(cc => cc.ClientId)
             .ToDictionary(g => g.Key, g => g.OrderByDescending(cc => cc.FromDate).First().Contract);
 
-        foreach (var mh in monthlyHours)
+        foreach (var ph in periodHours)
         {
-            var guaranteedHours = contractByClient.TryGetValue(mh.ClientId, out var contract)
-                ? contract.GuaranteedHoursPerMonth
+            var guaranteedHours = contractByClient.TryGetValue(ph.ClientId, out var contract)
+                ? contract.GuaranteedHours
                 : 0m;
 
-            result[mh.ClientId] = new MonthlyHoursResource
+            result[ph.ClientId] = new PeriodHoursResource
             {
-                Hours = mh.Hours,
-                Surcharges = mh.Surcharges,
-                GuaranteedHoursPerMonth = guaranteedHours
+                Hours = ph.Hours,
+                Surcharges = ph.Surcharges,
+                GuaranteedHours = guaranteedHours
             };
         }
 
-        foreach (var clientId in clientIdsWithoutMonthlyHours)
+        foreach (var clientId in clientIdsWithoutPeriodHours)
         {
             var hours = worksHoursDict.TryGetValue(clientId, out var h) ? h : 0m;
             var guaranteedHours = contractByClient.TryGetValue(clientId, out var contract)
-                ? contract.GuaranteedHoursPerMonth
+                ? contract.GuaranteedHours
                 : 0m;
 
-            result[clientId] = new MonthlyHoursResource
+            result[clientId] = new PeriodHoursResource
             {
                 Hours = hours,
                 Surcharges = 0m,
-                GuaranteedHoursPerMonth = guaranteedHours
+                GuaranteedHours = guaranteedHours
             };
         }
 
