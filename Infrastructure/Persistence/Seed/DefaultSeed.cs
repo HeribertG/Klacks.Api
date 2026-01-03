@@ -50,7 +50,20 @@ namespace Klacks.Api.Data.Seed
                     { new Guid("e16842eb-24ff-47c2-ad1b-5a3d6a2d20cd"), "outgoingserverTimeout", "100" },
                     { new Guid("e3e61605-c1e9-48b9-b5c7-9e66c41889fe"), "readReceipt" , "false"},
                     { new Guid("d3f33e97-c4c4-4c05-93d9-68ff87b02c5e"), "outgoingserverUsername", "hgasparoli@gmx.ch"},
-                    { new Guid("e3e61605-c1e9-48b9-b5c7-9e66c41889fe"), "outgoingserverPassword", ""}
+                    { new Guid("e3e61605-c1e9-48b9-b5c7-9e66c41889fe"), "outgoingserverPassword", ""},
+                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d"), "defaultWorkingHours", "8.5" },
+                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5e"), "overtimeThreshold", "42" },
+                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5f"), "vacationDaysPerYear", "25" },
+                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c60"), "probationPeriod", "3" },
+                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c61"), "noticePeriod", "30" },
+                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c62"), "paymentInterval", "2" },
+                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c63"), "guaranteedHours", "170" },
+                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c64"), "maximumHours", "200" },
+                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c65"), "minimumHours", "160" },
+                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c66"), "fullTime", "180" },
+                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c67"), "nightRate", "0.1" },
+                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c68"), "saRate", "0.1" },
+                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c69"), "soRate", "0.1" }
                 });
 
             migrationBuilder.Sql(
