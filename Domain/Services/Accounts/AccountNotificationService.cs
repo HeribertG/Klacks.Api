@@ -7,14 +7,17 @@ namespace Klacks.Api.Domain.Services.Accounts;
 public class AccountNotificationService : IAccountNotificationService
 {
     private readonly DataBaseContext _appDbContext;
+    private readonly ISettingsEncryptionService _encryptionService;
     private readonly ILogger<AccountNotificationService> _logger;
 
     public AccountNotificationService(
         DataBaseContext appDbContext,
+        ISettingsEncryptionService encryptionService,
         ILogger<AccountNotificationService> logger)
     {
         _appDbContext = appDbContext;
-        this._logger = logger;
+        _encryptionService = encryptionService;
+        _logger = logger;
     }
 
     public async Task<string> SendEmailAsync(string title, string email, string message)
@@ -40,7 +43,7 @@ public class AccountNotificationService : IAccountNotificationService
                 return "Database connection not available";
             }
 
-            var mail = new MsgEMail(_appDbContext);
+            var mail = new MsgEMail(_appDbContext, _encryptionService);
             var result = mail.SendMail(email, title, message);
             
             _logger.LogInformation("Email sent successfully to {Email}", email);
