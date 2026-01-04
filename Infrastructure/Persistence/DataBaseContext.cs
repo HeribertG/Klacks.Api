@@ -90,7 +90,11 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<Expenses> Expenses { get; set; }
 
-    public DbSet<MonthlyClientHours> MonthlyClientHours { get; set; }
+    public DbSet<ClientPeriodHours> ClientPeriodHours { get; set; }
+
+    public DbSet<IndividualPeriod> IndividualPeriod { get; set; }
+
+    public DbSet<Period> Period { get; set; }
 
     public DbSet<AssignedGroup> AssignedGroup { get; set; }  
 
@@ -264,7 +268,22 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<GroupVisibility>().HasIndex(p => new { p.AppUserId, p.GroupId });
         modelBuilder.Entity<Contract>().HasIndex(p => new { p.Name, p.ValidFrom, p.ValidUntil });
         modelBuilder.Entity<ClientContract>().HasIndex(p => new { p.ClientId, p.ContractId, p.FromDate, p.UntilDate });
-        modelBuilder.Entity<MonthlyClientHours>().HasIndex(p => new { p.ClientId, p.Year, p.Month }).IsUnique();
+        modelBuilder.Entity<ClientPeriodHours>()
+            .HasIndex(p => new { p.ClientId, p.Year, p.Month })
+            .HasFilter("payment_interval = 2")
+            .IsUnique();
+
+        modelBuilder.Entity<ClientPeriodHours>()
+            .HasIndex(p => new { p.ClientId, p.Year, p.WeekNumber })
+            .HasFilter("payment_interval IN (0, 1)")
+            .IsUnique();
+
+        modelBuilder.Entity<ClientPeriodHours>()
+            .HasIndex(p => new { p.ClientId, p.IndividualPeriodId })
+            .HasFilter("payment_interval = 3")
+            .IsUnique();
+
+        modelBuilder.Entity<ClientPeriodHours>().HasQueryFilter(p => !p.Client!.IsDeleted);
 
         modelBuilder.Entity<Membership>()
        .HasOne(m => m.Client)

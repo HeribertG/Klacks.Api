@@ -37,11 +37,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Contrac
                 throw new KeyNotFoundException($"Contract with ID {request.Resource.Id} not found.");
             }
 
-            var updatedContract = _scheduleMapper.ToContractEntity(request.Resource);
-            updatedContract.CreateTime = existingContract.CreateTime;
-            updatedContract.CurrentUserCreated = existingContract.CurrentUserCreated;
-            existingContract = updatedContract;
-            await _contractRepository.Put(existingContract);
+            _scheduleMapper.UpdateContractEntity(existingContract, request.Resource);
             await _unitOfWork.CompleteAsync();
             return _scheduleMapper.ToContractResource(existingContract);
         }, 

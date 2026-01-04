@@ -157,8 +157,8 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
         var result = new Dictionary<Guid, PeriodHoursResource>();
 
-        var periodHours = await _context.MonthlyClientHours
-            .Where(m => clientIds.Contains(m.ClientId) && m.Year == year && m.Month == month)
+        var periodHours = await _context.ClientPeriodHours
+            .Where(m => clientIds.Contains(m.ClientId) && m.Year == year && m.Month == month && m.PaymentInterval == Domain.Enums.PaymentInterval.Monthly)
             .ToListAsync();
 
         var clientIdsWithPeriodHours = periodHours.Select(m => m.ClientId).ToHashSet();

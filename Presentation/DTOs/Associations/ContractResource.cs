@@ -21,7 +21,9 @@ public class ContractResource
 
     public decimal HolidayRate { get; set; }
 
-    public decimal WeekendRate { get; set; }
+    public decimal SaRate { get; set; }
+
+    public decimal SoRate { get; set; }
 
     public PaymentInterval PaymentInterval { get; set; }
 

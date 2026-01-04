@@ -28,6 +28,17 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Contract.CalendarSelection))]
     public partial Contract ToContractEntity(ContractResource resource);
 
+    [MapperIgnoreTarget(nameof(Contract.Id))]
+    [MapperIgnoreTarget(nameof(Contract.CreateTime))]
+    [MapperIgnoreTarget(nameof(Contract.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(Contract.UpdateTime))]
+    [MapperIgnoreTarget(nameof(Contract.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(Contract.DeletedTime))]
+    [MapperIgnoreTarget(nameof(Contract.IsDeleted))]
+    [MapperIgnoreTarget(nameof(Contract.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(Contract.CalendarSelection))]
+    public partial void UpdateContractEntity(Contract target, ContractResource source);
+
     public partial MembershipResource ToMembershipResource(Membership membership);
 
     [MapperIgnoreTarget(nameof(Membership.CreateTime))]

@@ -6,4 +6,5 @@ public interface ICalendarSelectionRepository : IBaseRepository<CalendarSelectio
 {
     Task Update(CalendarSelection model);
     Task<CalendarSelection?> GetWithSelectedCalendars(Guid id);
+    Task<List<Guid>> GetUsedByContractsAsync();
 }

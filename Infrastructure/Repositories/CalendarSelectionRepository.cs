@@ -34,7 +34,7 @@ public class CalendarSelectionRepository : BaseRepository<CalendarSelection>, IC
             var existingCalendarSelection = await context.CalendarSelection
                 .Include(cu => cu.SelectedCalendars)
                 .SingleOrDefaultAsync(c => c.Id == model.Id);
-                
+
             if (existingCalendarSelection == null)
             {
                 Logger.LogWarning("Update: CalendarSelection with ID: {CalendarSelectionId} not found.", model.Id);
@@ -53,5 +53,14 @@ public class CalendarSelectionRepository : BaseRepository<CalendarSelection>, IC
             Logger.LogError(ex, "An unexpected error occurred while updating CalendarSelection with ID: {CalendarSelectionId}.", model.Id);
             throw;
         }
+    }
+
+    public async Task<List<Guid>> GetUsedByContractsAsync()
+    {
+        return await context.Contract
+            .Where(c => c.CalendarSelectionId != null && !c.IsDeleted)
+            .Select(c => c.CalendarSelectionId!.Value)
+            .Distinct()
+            .ToListAsync();
     }
 }
