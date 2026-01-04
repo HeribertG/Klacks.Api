@@ -34,15 +34,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Annotat
                 throw new KeyNotFoundException($"Annotation with ID {request.Resource.Id} not found.");
             }
 
-            var updatedAnnotation = _settingsMapper.ToAnnotationEntity(request.Resource);
-            updatedAnnotation.CreateTime = existingAnnotation.CreateTime;
-            updatedAnnotation.CurrentUserCreated = existingAnnotation.CurrentUserCreated;
-            existingAnnotation = updatedAnnotation;
-            await _annotationRepository.Put(existingAnnotation);
+            _settingsMapper.UpdateAnnotationEntity(request.Resource, existingAnnotation);
             await _unitOfWork.CompleteAsync();
             return _settingsMapper.ToAnnotationResource(existingAnnotation);
-        }, 
-        "updating annotation", 
+        },
+        "updating annotation",
         new { AnnotationId = request.Resource.Id });
     }
 }

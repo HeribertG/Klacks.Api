@@ -32,11 +32,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<StateRe
             return null;
         }
 
-        var updatedState = _settingsMapper.ToStateEntity(request.Resource);
-        updatedState.CreateTime = existingState.CreateTime;
-        updatedState.CurrentUserCreated = existingState.CurrentUserCreated;
-        existingState = updatedState;
-        await _stateRepository.Put(existingState);
+        _settingsMapper.UpdateStateEntity(request.Resource, existingState);
         await _unitOfWork.CompleteAsync();
         return _settingsMapper.ToStateResource(existingState);
     }

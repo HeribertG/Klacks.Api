@@ -32,11 +32,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Country
             return null;
         }
 
-        var updatedCountry = _settingsMapper.ToCountryEntity(request.Resource);
-        updatedCountry.CreateTime = existingCountry.CreateTime;
-        updatedCountry.CurrentUserCreated = existingCountry.CurrentUserCreated;
-        existingCountry = updatedCountry;
-        await _countryRepository.Put(existingCountry);
+        _settingsMapper.UpdateCountryEntity(request.Resource, existingCountry);
         await _unitOfWork.CompleteAsync();
         return _settingsMapper.ToCountryResource(existingCountry);
     }

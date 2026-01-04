@@ -28,6 +28,17 @@ public partial class SettingsMapper
     [MapperIgnoreTarget(nameof(Annotation.Client))]
     public partial Annotation ToAnnotationEntity(AnnotationResource resource);
 
+    [MapperIgnoreTarget(nameof(Annotation.Id))]
+    [MapperIgnoreTarget(nameof(Annotation.CreateTime))]
+    [MapperIgnoreTarget(nameof(Annotation.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(Annotation.UpdateTime))]
+    [MapperIgnoreTarget(nameof(Annotation.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(Annotation.DeletedTime))]
+    [MapperIgnoreTarget(nameof(Annotation.IsDeleted))]
+    [MapperIgnoreTarget(nameof(Annotation.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(Annotation.Client))]
+    public partial void UpdateAnnotationEntity(AnnotationResource resource, Annotation target);
+
     [MapperIgnoreTarget(nameof(CountryResource.Select))]
     public partial CountryResource ToCountryResource(Countries country);
     public partial List<CountryResource> ToCountryResources(List<Countries> countries);
@@ -40,6 +51,16 @@ public partial class SettingsMapper
     [MapperIgnoreTarget(nameof(Countries.IsDeleted))]
     [MapperIgnoreTarget(nameof(Countries.CurrentUserDeleted))]
     public partial Countries ToCountryEntity(CountryResource resource);
+
+    [MapperIgnoreTarget(nameof(Countries.Id))]
+    [MapperIgnoreTarget(nameof(Countries.CreateTime))]
+    [MapperIgnoreTarget(nameof(Countries.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(Countries.UpdateTime))]
+    [MapperIgnoreTarget(nameof(Countries.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(Countries.DeletedTime))]
+    [MapperIgnoreTarget(nameof(Countries.IsDeleted))]
+    [MapperIgnoreTarget(nameof(Countries.CurrentUserDeleted))]
+    public partial void UpdateCountryEntity(CountryResource resource, Countries target);
 
     public partial MacroResource ToMacroResource(Macro macro);
     public partial List<MacroResource> ToMacroResources(List<Macro> macros);
@@ -88,6 +109,16 @@ public partial class SettingsMapper
     [MapperIgnoreTarget(nameof(State.IsDeleted))]
     [MapperIgnoreTarget(nameof(State.CurrentUserDeleted))]
     public partial State ToStateEntity(StateResource resource);
+
+    [MapperIgnoreTarget(nameof(State.Id))]
+    [MapperIgnoreTarget(nameof(State.CreateTime))]
+    [MapperIgnoreTarget(nameof(State.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(State.UpdateTime))]
+    [MapperIgnoreTarget(nameof(State.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(State.DeletedTime))]
+    [MapperIgnoreTarget(nameof(State.IsDeleted))]
+    [MapperIgnoreTarget(nameof(State.CurrentUserDeleted))]
+    public partial void UpdateStateEntity(StateResource resource, State target);
 
     public partial BreakReasonResource ToBreakReasonResource(BreakReason reason);
     public partial List<BreakReasonResource> ToBreakReasonResources(List<BreakReason> reasons);
