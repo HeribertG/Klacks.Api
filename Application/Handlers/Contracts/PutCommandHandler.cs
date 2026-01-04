@@ -39,9 +39,10 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Contrac
 
             _scheduleMapper.UpdateContractEntity(existingContract, request.Resource);
             await _unitOfWork.CompleteAsync();
+
             return _scheduleMapper.ToContractResource(existingContract);
-        }, 
-        "updating contract", 
+        },
+        "updating contract",
         new { ContractId = request.Resource.Id, ContractName = request.Resource?.Name });
     }
 

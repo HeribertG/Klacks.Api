@@ -28,16 +28,22 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Contract.CalendarSelection))]
     public partial Contract ToContractEntity(ContractResource resource);
 
-    [MapperIgnoreTarget(nameof(Contract.Id))]
-    [MapperIgnoreTarget(nameof(Contract.CreateTime))]
-    [MapperIgnoreTarget(nameof(Contract.CurrentUserCreated))]
-    [MapperIgnoreTarget(nameof(Contract.UpdateTime))]
-    [MapperIgnoreTarget(nameof(Contract.CurrentUserUpdated))]
-    [MapperIgnoreTarget(nameof(Contract.DeletedTime))]
-    [MapperIgnoreTarget(nameof(Contract.IsDeleted))]
-    [MapperIgnoreTarget(nameof(Contract.CurrentUserDeleted))]
-    [MapperIgnoreTarget(nameof(Contract.CalendarSelection))]
-    public partial void UpdateContractEntity(Contract target, ContractResource source);
+    public void UpdateContractEntity(Contract target, ContractResource source)
+    {
+        target.Name = source.Name;
+        target.GuaranteedHours = source.GuaranteedHours;
+        target.MaximumHours = source.MaximumHours;
+        target.MinimumHours = source.MinimumHours;
+        target.FullTime = source.FullTime;
+        target.NightRate = source.NightRate;
+        target.HolidayRate = source.HolidayRate;
+        target.SaRate = source.SaRate;
+        target.SoRate = source.SoRate;
+        target.PaymentInterval = source.PaymentInterval;
+        target.ValidFrom = source.ValidFrom;
+        target.ValidUntil = source.ValidUntil;
+        target.CalendarSelectionId = source.CalendarSelectionId;
+    }
 
     public partial MembershipResource ToMembershipResource(Membership membership);
 
