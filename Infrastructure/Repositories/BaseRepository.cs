@@ -36,12 +36,12 @@ namespace Klacks.Api.Infrastructure.Repositories
 
         public virtual async Task<TEntity?> Get(Guid id)
         {
-            return await this.context.Set<TEntity>().FirstOrDefaultAsync(add => add.Id == id);
+            return await this.context.Set<TEntity>().FirstOrDefaultAsync(e => e.Id == id);
         }
 
         public virtual async Task<List<TEntity>> List()
         {
-            return await this.context.Set<TEntity>().Where(e => !e.IsDeleted).ToListAsync();
+            return await this.context.Set<TEntity>().ToListAsync();
         }
 
         public virtual Task<TEntity?> Put(TEntity model)

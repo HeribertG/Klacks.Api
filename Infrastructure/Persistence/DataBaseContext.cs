@@ -195,6 +195,7 @@ public class DataBaseContext : IdentityDbContext
         });
         modelBuilder.Entity<BreakPlaceholder>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<BreakReason>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<Branch>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Countries>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<State>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<SelectedCalendar>().HasQueryFilter(p => !p.IsDeleted);
