@@ -23,10 +23,19 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand>
     {
         _logger.LogInformation("Deleting branch with ID: {BranchId}", request.id);
 
-        await _branchRepository.Delete(request.id);
-        await _unitOfWork.CompleteAsync();
+        var deleted = await _branchRepository.Delete(request.id);
+        if (deleted == null)
+        {
+            _logger.LogWarning("Branch not found: {BranchId}", request.id);
+        }
+        else
+        {
+            _logger.LogInformation("Branch entity marked for deletion: {BranchName}", deleted.Name);
+        }
 
-        _logger.LogInformation("Branch deleted successfully: {BranchId}", request.id);
+        await _unitOfWork.CompleteAsync();
+        _logger.LogInformation("SaveChanges completed for branch deletion: {BranchId}", request.id);
+
         return Unit.Value;
     }
 }

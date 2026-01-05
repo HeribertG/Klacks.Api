@@ -41,7 +41,7 @@ namespace Klacks.Api.Infrastructure.Repositories
 
         public virtual async Task<List<TEntity>> List()
         {
-            return await this.context.Set<TEntity>().ToListAsync();
+            return await this.context.Set<TEntity>().Where(e => !e.IsDeleted).ToListAsync();
         }
 
         public virtual Task<TEntity?> Put(TEntity model)

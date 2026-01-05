@@ -8,10 +8,12 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend;
 public class BranchController : BaseController
 {
     private readonly IMediator mediator;
+    private readonly ILogger<BranchController> _logger;
 
     public BranchController(IMediator mediator, ILogger<BranchController> logger)
     {
         this.mediator = mediator;
+        this._logger = logger;
     }
 
     [HttpPost("AddBranch")]
@@ -50,7 +52,9 @@ public class BranchController : BaseController
     [HttpDelete("DeleteBranch/{id}")]
     public async Task<ActionResult> DeleteBranch(Guid id)
     {
+        _logger.LogInformation("DeleteBranch called with ID: {Id}", id);
         await mediator.Send(new DeleteCommand(id));
+        _logger.LogInformation("DeleteBranch completed for ID: {Id}", id);
         return NoContent();
     }
 }
