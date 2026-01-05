@@ -25,10 +25,40 @@ public class UpdateProviderCommandHandler : IRequestHandler<UpdateProviderComman
             return null;
         }
 
-        var updatedProvider = _lLMMapper.ToProviderFromUpdate(request);
-        provider.ApiKey = updatedProvider.ApiKey;
-        provider.BaseUrl = updatedProvider.BaseUrl;
+        var isEnabledChanged = provider.IsEnabled != request.IsEnabled;
 
-        return await _repository.UpdateProviderAsync(provider);
+        if (!string.IsNullOrEmpty(request.ProviderName))
+        {
+            provider.ProviderName = request.ProviderName;
+        }
+        if (!string.IsNullOrEmpty(request.ApiKey))
+        {
+            provider.ApiKey = request.ApiKey;
+        }
+        if (!string.IsNullOrEmpty(request.BaseUrl))
+        {
+            provider.BaseUrl = request.BaseUrl;
+        }
+        if (!string.IsNullOrEmpty(request.ApiVersion))
+        {
+            provider.ApiVersion = request.ApiVersion;
+        }
+        provider.IsEnabled = request.IsEnabled;
+        provider.Priority = request.Priority;
+
+        var updatedProvider = await _repository.UpdateProviderAsync(provider);
+
+        if (isEnabledChanged)
+        {
+            var models = await _repository.GetModelsAsync(onlyEnabled: false);
+            var providerModels = models.Where(m => m.ProviderId == provider.ProviderId).ToList();
+            foreach (var model in providerModels)
+            {
+                model.IsEnabled = request.IsEnabled;
+                await _repository.UpdateModelAsync(model);
+            }
+        }
+
+        return updatedProvider;
     }
 }
