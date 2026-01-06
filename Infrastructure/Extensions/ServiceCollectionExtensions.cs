@@ -166,6 +166,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IAccountRegistrationService, AccountRegistrationService>();
         services.AddScoped<IAccountManagementService, AccountManagementService>();
         services.AddScoped<IAccountNotificationService, AccountNotificationService>();
+        services.AddScoped<IUsernameGeneratorService, UsernameGeneratorService>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

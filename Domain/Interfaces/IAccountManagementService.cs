@@ -11,4 +11,6 @@ public interface IAccountManagementService
     Task<HttpResultResource> DeleteAccountUserAsync(Guid id);
 
     Task<List<UserResource>> GetUserListAsync();
+
+    Task<HttpResultResource> UpdateAccountAsync(UpdateAccountResource updateAccount);
 }

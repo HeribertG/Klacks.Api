@@ -25,3 +25,6 @@ public record RequestPasswordResetCommand(string Email) : IRequest<HttpResultRes
 
 // Reset Password Command
 public record ResetPasswordCommand(ResetPasswordResource ResetPassword) : IRequest<AuthenticatedResult>;
+
+// Update Account Command
+public record UpdateAccountCommand(UpdateAccountResource UpdateAccount) : IRequest<HttpResultResource>;

@@ -1,6 +1,7 @@
 using Klacks.Api.Application.Commands.Accounts;
 using Klacks.Api.Application.Queries.Accounts;
 using Klacks.Api.Domain.Models.Authentification;
+using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Presentation.DTOs.Registrations;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -13,11 +14,16 @@ public class AccountsController : BaseController
 {
     private readonly ILogger<AccountsController> _logger;
     private readonly IMediator mediator;
+    private readonly IUsernameGeneratorService _usernameGeneratorService;
 
-    public AccountsController(IMediator mediator, ILogger<AccountsController> logger)
+    public AccountsController(
+        IMediator mediator,
+        ILogger<AccountsController> logger,
+        IUsernameGeneratorService usernameGeneratorService)
     {
         this.mediator = mediator;
         this._logger = logger;
+        this._usernameGeneratorService = usernameGeneratorService;
     }
 
     [Authorize]
@@ -58,6 +64,24 @@ public class AccountsController : BaseController
         this._logger.LogInformation($"DeleteAccountUser request received for user: {id}");
         var result = await mediator.Send(new DeleteAccountCommand(id));
         return Ok(result);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPut]
+    public async Task<ActionResult> UpdateAccount([FromBody] UpdateAccountResource model)
+    {
+        this._logger.LogInformation("UpdateAccount request received for user: {UserId}", model.Id);
+        var result = await mediator.Send(new UpdateAccountCommand(model));
+        return Ok(result);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("GenerateUsername")]
+    public async Task<ActionResult<string>> GenerateUsername([FromQuery] string firstName, [FromQuery] string lastName)
+    {
+        this._logger.LogInformation("GenerateUsername request for {FirstName} {LastName}", firstName, lastName);
+        var username = await _usernameGeneratorService.GenerateUniqueUsernameAsync(firstName, lastName);
+        return Ok(username);
     }
 
     [HttpGet]
