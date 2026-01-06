@@ -65,6 +65,8 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IContractRepository, ContractRepository>();
         services.AddScoped<IClientImageRepository, ClientImageRepository>();
         services.AddScoped<IContainerTemplateRepository, ContainerTemplateRepository>();
+        services.AddScoped<IIdentityProviderRepository, IdentityProviderRepository>();
+        services.AddScoped<IIdentityProviderSyncLogRepository, IdentityProviderSyncLogRepository>();
 
         services.AddSingleton<IMacroEngine, MacroEngine>();
         services.AddScoped<UploadFile>();
@@ -167,6 +169,10 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IAccountManagementService, AccountManagementService>();
         services.AddScoped<IAccountNotificationService, AccountNotificationService>();
         services.AddScoped<IUsernameGeneratorService, UsernameGeneratorService>();
+
+        // Identity Provider Services
+        services.AddScoped<ILdapService, Services.Identity.LdapService>();
+        services.AddScoped<IClientSyncService, Services.Identity.ClientSyncService>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

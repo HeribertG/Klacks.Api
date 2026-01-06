@@ -117,6 +117,11 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<LLMMessage> LLMMessages { get; set; }
 
+    // Identity Provider DbSets
+    public DbSet<IdentityProvider> IdentityProviders { get; set; }
+
+    public DbSet<IdentityProviderSyncLog> IdentityProviderSyncLogs { get; set; }
+
     public override int SaveChanges()
     {
         OnBeforeSaving();
@@ -240,6 +245,40 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<LLMUsage>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<LLMConversation>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<LLMMessage>().HasQueryFilter(p => !p.IsDeleted);
+
+        // Identity Provider Query Filters and Configuration
+        modelBuilder.Entity<IdentityProvider>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.Property(e => e.AttributeMapping)
+                  .HasConversion(
+                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                      v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(v, (System.Text.Json.JsonSerializerOptions?)null))
+                  .HasColumnType("jsonb")
+                  .Metadata.SetValueComparer(new ValueComparer<Dictionary<string, string>?>(
+                      (c1, c2) => System.Text.Json.JsonSerializer.Serialize(c1, (System.Text.Json.JsonSerializerOptions?)null) == System.Text.Json.JsonSerializer.Serialize(c2, (System.Text.Json.JsonSerializerOptions?)null),
+                      c => c == null ? 0 : System.Text.Json.JsonSerializer.Serialize(c, (System.Text.Json.JsonSerializerOptions?)null).GetHashCode(),
+                      c => c == null ? null : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(System.Text.Json.JsonSerializer.Serialize(c, (System.Text.Json.JsonSerializerOptions?)null), (System.Text.Json.JsonSerializerOptions?)null)));
+            entity.HasIndex(p => new { p.IsDeleted, p.IsEnabled, p.SortOrder });
+        });
+        modelBuilder.Entity<IdentityProviderSyncLog>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.IdentityProviderId, p.ExternalId });
+            entity.HasIndex(p => new { p.ClientId, p.IdentityProviderId });
+        });
+
+        modelBuilder.Entity<IdentityProviderSyncLog>()
+            .HasOne(s => s.IdentityProvider)
+            .WithMany()
+            .HasForeignKey(s => s.IdentityProviderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<IdentityProviderSyncLog>()
+            .HasOne(s => s.Client)
+            .WithMany()
+            .HasForeignKey(s => s.ClientId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Address>().HasIndex(p => new { p.ClientId, p.Street, p.Street2, p.Street3, p.City, p.IsDeleted });
         modelBuilder.Entity<Communication>().HasIndex(p => new { p.Value, p.IsDeleted });
