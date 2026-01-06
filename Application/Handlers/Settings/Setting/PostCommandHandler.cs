@@ -26,6 +26,16 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
         public async Task<Domain.Models.Settings.Settings?> Handle(PostCommand request, CancellationToken cancellationToken)
         {
             request.model.Value = _encryptionService.ProcessForStorage(request.model.Type, request.model.Value);
+
+            var existingSetting = await _settingsRepository.GetSetting(request.model.Type);
+            if (existingSetting != null)
+            {
+                existingSetting.Value = request.model.Value;
+                await _settingsRepository.PutSetting(existingSetting);
+                await _unitOfWork.CompleteAsync();
+                return existingSetting;
+            }
+
             var res = await _settingsRepository.AddSetting(request.model);
             await _unitOfWork.CompleteAsync();
             return res;
