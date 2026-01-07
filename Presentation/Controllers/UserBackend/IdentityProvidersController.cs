@@ -19,14 +19,14 @@ public class IdentityProvidersController : BaseController
         _logger = logger;
     }
 
-    [HttpGet("IdentityProviders")]
+    [HttpGet]
     public async Task<IEnumerable<IdentityProviderListResource>> GetIdentityProviders()
     {
         _logger.LogInformation("[IDENTITY-PROVIDER-API] GET IdentityProviders");
         return await _mediator.Send(new ListQuery());
     }
 
-    [HttpGet("IdentityProviders/{id}")]
+    [HttpGet("{id}")]
     public async Task<ActionResult<IdentityProviderResource>> GetIdentityProvider(Guid id)
     {
         _logger.LogInformation("[IDENTITY-PROVIDER-API] GET IdentityProviders/{Id}", id);
@@ -40,7 +40,7 @@ public class IdentityProvidersController : BaseController
         return result;
     }
 
-    [HttpPost("IdentityProviders")]
+    [HttpPost]
     public async Task<ActionResult<IdentityProviderResource>> PostIdentityProvider([FromBody] IdentityProviderResource resource)
     {
         _logger.LogInformation("[IDENTITY-PROVIDER-API] POST IdentityProviders - Name: {Name}", resource.Name);
@@ -48,10 +48,11 @@ public class IdentityProvidersController : BaseController
         return result!;
     }
 
-    [HttpPut("IdentityProviders")]
-    public async Task<ActionResult<IdentityProviderResource>> PutIdentityProvider([FromBody] IdentityProviderResource resource)
+    [HttpPut("{id}")]
+    public async Task<ActionResult<IdentityProviderResource>> PutIdentityProvider(Guid id, [FromBody] IdentityProviderResource resource)
     {
-        _logger.LogInformation("[IDENTITY-PROVIDER-API] PUT IdentityProviders - Id: {Id}, Name: {Name}", resource.Id, resource.Name);
+        _logger.LogInformation("[IDENTITY-PROVIDER-API] PUT IdentityProviders - Id: {Id}, Name: {Name}", id, resource.Name);
+        resource.Id = id;
         var result = await _mediator.Send(new PutCommand(resource));
 
         if (result == null)
@@ -62,7 +63,7 @@ public class IdentityProvidersController : BaseController
         return result;
     }
 
-    [HttpDelete("IdentityProviders/{id}")]
+    [HttpDelete("{id}")]
     public async Task<ActionResult<IdentityProviderResource>> DeleteIdentityProvider(Guid id)
     {
         _logger.LogInformation("[IDENTITY-PROVIDER-API] DELETE IdentityProviders/{Id}", id);
@@ -76,7 +77,7 @@ public class IdentityProvidersController : BaseController
         return result;
     }
 
-    [HttpPost("IdentityProviders/{id}/TestConnection")]
+    [HttpPost("{id}/TestConnection")]
     public async Task<ActionResult<TestConnectionResultResource>> TestConnection(Guid id)
     {
         _logger.LogInformation("[IDENTITY-PROVIDER-API] POST IdentityProviders/{Id}/TestConnection", id);
@@ -84,7 +85,7 @@ public class IdentityProvidersController : BaseController
         return result;
     }
 
-    [HttpPost("IdentityProviders/{id}/SyncClients")]
+    [HttpPost("{id}/SyncClients")]
     public async Task<ActionResult<IdentityProviderSyncResultResource>> SyncClients(Guid id)
     {
         _logger.LogInformation("[IDENTITY-PROVIDER-API] POST IdentityProviders/{Id}/SyncClients", id);
