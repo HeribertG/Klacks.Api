@@ -11,24 +11,29 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend;
 [Route("api/backend/[controller]")]
 public class OAuth2Controller : ControllerBase
 {
+    private const string E2ETestCode = "E2E_TEST_CODE_FOR_OAUTH2";
+
     private readonly IIdentityProviderRepository _providerRepository;
     private readonly IOAuth2Service _oauth2Service;
     private readonly IAccountAuthenticationService _authService;
     private readonly UserManager<AppUser> _userManager;
     private readonly ILogger<OAuth2Controller> _logger;
+    private readonly IWebHostEnvironment _environment;
 
     public OAuth2Controller(
         IIdentityProviderRepository providerRepository,
         IOAuth2Service oauth2Service,
         IAccountAuthenticationService authService,
         UserManager<AppUser> userManager,
-        ILogger<OAuth2Controller> logger)
+        ILogger<OAuth2Controller> logger,
+        IWebHostEnvironment environment)
     {
         _providerRepository = providerRepository;
         _oauth2Service = oauth2Service;
         _authService = authService;
         _userManager = userManager;
         _logger = logger;
+        _environment = environment;
     }
 
     [AllowAnonymous]
@@ -95,6 +100,11 @@ public class OAuth2Controller : ControllerBase
             return NotFound("Provider not found");
         }
 
+        if (request.Code == E2ETestCode && _environment.IsDevelopment())
+        {
+            return await HandleE2ETestCallback(request, provider);
+        }
+
         var tokenResponse = await _oauth2Service.ExchangeCodeForTokenAsync(provider, request.Code, request.RedirectUri);
         if (tokenResponse == null)
         {
@@ -115,6 +125,41 @@ public class OAuth2Controller : ControllerBase
         if (user == null)
         {
             return Unauthorized("Failed to create or find user");
+        }
+
+        var result = await _authService.GenerateAuthenticationAsync(user);
+
+        return Ok(new
+        {
+            result.Token,
+            result.RefreshToken,
+            result.Expires,
+            result.UserName,
+            result.FirstName,
+            result.Name,
+            result.Id,
+            result.IsAdmin,
+            result.IsAuthorised
+        });
+    }
+
+    private async Task<IActionResult> HandleE2ETestCallback(OAuth2CallbackRequest request, IdentityProvider provider)
+    {
+        _logger.LogInformation("[OAUTH2] E2E Test callback for provider {Provider}", provider.Name);
+
+        var testUserInfo = new OAuth2UserInfo
+        {
+            Id = "e2e-test-user",
+            Email = "e2e-oauth2-test@klacks.local",
+            Name = "E2E OAuth2 Test User",
+            GivenName = "E2E",
+            FamilyName = "TestUser"
+        };
+
+        var user = await GetOrCreateOAuth2UserAsync(testUserInfo, provider);
+        if (user == null)
+        {
+            return Unauthorized("Failed to create E2E test user");
         }
 
         var result = await _authService.GenerateAuthenticationAsync(user);
