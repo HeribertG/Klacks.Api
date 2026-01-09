@@ -4,8 +4,7 @@ namespace Klacks.Api.Presentation.DTOs.Registrations;
 
 public class LogInResource
 {
-    [Required(ErrorMessage = "The e-mail address is required.")]
-    [EmailAddress(ErrorMessage = "The e-mail address is invalid.")]
+    [Required(ErrorMessage = "Email or username is required.")]
     public string Email { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "The password is required.")]

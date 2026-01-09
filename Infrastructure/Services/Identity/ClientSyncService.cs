@@ -15,7 +15,7 @@ public class ClientSyncService : IClientSyncService
     private readonly IMembershipRepository _membershipRepository;
     private readonly IAddressRepository _addressRepository;
     private readonly IIdentityProviderSyncLogRepository _syncLogRepository;
-    private readonly IIdentityProviderRepository _providerRepository;
+    private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ClientSyncService> _logger;
 
@@ -25,7 +25,7 @@ public class ClientSyncService : IClientSyncService
         IMembershipRepository membershipRepository,
         IAddressRepository addressRepository,
         IIdentityProviderSyncLogRepository syncLogRepository,
-        IIdentityProviderRepository providerRepository,
+        ISettingsRepository settingsRepository,
         IUnitOfWork unitOfWork,
         ILogger<ClientSyncService> logger)
     {
@@ -34,7 +34,7 @@ public class ClientSyncService : IClientSyncService
         _membershipRepository = membershipRepository;
         _addressRepository = addressRepository;
         _syncLogRepository = syncLogRepository;
-        _providerRepository = providerRepository;
+        _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -70,8 +70,18 @@ public class ClientSyncService : IClientSyncService
                 }
                 else
                 {
-                    await CreateNewClient(provider, ldapUser);
-                    result.NewClients++;
+                    var existingClient = await _clientRepository.GetByLdapExternalIdAsync(externalId);
+                    if (existingClient != null)
+                    {
+                        await LinkExistingClientToProvider(provider, ldapUser, existingClient.Id);
+                        result.UpdatedClients++;
+                        _logger.LogInformation("Linked existing client {ClientId} to provider {Provider} (found by LdapExternalId)", existingClient.Id, provider.Name);
+                    }
+                    else
+                    {
+                        await CreateNewClient(provider, ldapUser);
+                        result.NewClients++;
+                    }
                 }
 
                 result.TotalProcessed++;
@@ -112,6 +122,8 @@ public class ClientSyncService : IClientSyncService
 
     private async Task CreateNewClient(IdentityProvider provider, LdapUserEntry ldapUser)
     {
+        var externalId = ldapUser.ObjectGuid ?? ldapUser.DistinguishedName;
+
         var client = new Client
         {
             Id = Guid.NewGuid(),
@@ -120,7 +132,9 @@ public class ClientSyncService : IClientSyncService
             Title = ldapUser.Title,
             Company = ldapUser.Company,
             Type = EntityTypeEnum.Employee,
-            Gender = GenderEnum.Intersexuality
+            Gender = GenderEnum.Intersexuality,
+            IdentityProviderId = provider.Id,
+            LdapExternalId = externalId
         };
 
         await _clientRepository.Add(client);
@@ -136,9 +150,10 @@ public class ClientSyncService : IClientSyncService
 
         await _membershipRepository.Add(membership);
 
+        Address address;
         if (HasAddressData(ldapUser))
         {
-            var address = new Address
+            address = new Address
             {
                 Id = Guid.NewGuid(),
                 ClientId = client.Id,
@@ -154,9 +169,13 @@ public class ClientSyncService : IClientSyncService
                 Street2 = string.Empty,
                 Street3 = string.Empty
             };
-
-            await _addressRepository.Add(address);
         }
+        else
+        {
+            address = await CreateAddressFromOwnerSettings(client.Id);
+        }
+
+        await _addressRepository.Add(address);
 
         var syncLog = new IdentityProviderSyncLog
         {
@@ -229,10 +248,54 @@ public class ClientSyncService : IClientSyncService
         syncLog.LastSyncTime = DateTime.UtcNow;
     }
 
+    private async Task LinkExistingClientToProvider(IdentityProvider provider, LdapUserEntry ldapUser, Guid clientId)
+    {
+        var externalId = ldapUser.ObjectGuid ?? ldapUser.DistinguishedName;
+
+        var syncLog = new IdentityProviderSyncLog
+        {
+            Id = Guid.NewGuid(),
+            IdentityProviderId = provider.Id,
+            ClientId = clientId,
+            ExternalId = externalId,
+            ExternalDn = ldapUser.DistinguishedName,
+            LastSyncTime = DateTime.UtcNow,
+            IsActiveInSource = ldapUser.IsEnabled
+        };
+
+        await _syncLogRepository.Add(syncLog);
+    }
+
     private static bool HasAddressData(LdapUserEntry ldapUser)
     {
         return !string.IsNullOrEmpty(ldapUser.StreetAddress) ||
                !string.IsNullOrEmpty(ldapUser.PostalCode) ||
                !string.IsNullOrEmpty(ldapUser.City);
+    }
+
+    private async Task<Address> CreateAddressFromOwnerSettings(Guid clientId)
+    {
+        var streetSetting = await _settingsRepository.GetSetting("APP_ADDRESS_ADDRESS");
+        var zipSetting = await _settingsRepository.GetSetting("APP_ADDRESS_ZIP");
+        var placeSetting = await _settingsRepository.GetSetting("APP_ADDRESS_PLACE");
+        var stateSetting = await _settingsRepository.GetSetting("APP_ADDRESS_STATE");
+        var countrySetting = await _settingsRepository.GetSetting("APP_ADDRESS_COUNTRY");
+
+        return new Address
+        {
+            Id = Guid.NewGuid(),
+            ClientId = clientId,
+            Type = AddressTypeEnum.Employee,
+            Street = streetSetting?.Value ?? string.Empty,
+            Zip = zipSetting?.Value ?? string.Empty,
+            City = placeSetting?.Value ?? string.Empty,
+            State = stateSetting?.Value ?? string.Empty,
+            Country = countrySetting?.Value ?? "CH",
+            ValidFrom = DateTime.UtcNow,
+            AddressLine1 = string.Empty,
+            AddressLine2 = string.Empty,
+            Street2 = string.Empty,
+            Street3 = string.Empty
+        };
     }
 }

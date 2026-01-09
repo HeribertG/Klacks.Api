@@ -1,6 +1,7 @@
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Models.Schedules;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -77,4 +78,12 @@ public class Client : BaseEntity
     public ICollection<Work> Works { get; set; }
 
     public ICollection<Break> Breaks { get; set; }
+
+    public Guid? IdentityProviderId { get; set; }
+
+    [JsonIgnore]
+    public IdentityProvider? IdentityProvider { get; set; }
+
+    [StringLength(500)]
+    public string? LdapExternalId { get; set; }
 }

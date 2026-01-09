@@ -172,6 +172,7 @@ public static  class ServiceCollectionExtensions
 
         // Identity Provider Services
         services.AddScoped<ILdapService, Services.Identity.LdapService>();
+        services.AddScoped<IOAuth2Service, Services.Identity.OAuth2Service>();
         services.AddScoped<IClientSyncService, Services.Identity.ClientSyncService>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();

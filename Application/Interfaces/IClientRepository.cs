@@ -10,4 +10,5 @@ public interface IClientRepository : IBaseRepository<Client>
     Task<LastChangeMetaData> LastChangeMetaData();
     Task<List<Client>> GetActiveClientsWithAddressesAsync(CancellationToken cancellationToken = default);
     Task<List<Client>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default);
+    Task<Client?> GetByLdapExternalIdAsync(string ldapExternalId);
 }

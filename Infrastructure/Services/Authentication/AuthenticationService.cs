@@ -1,3 +1,4 @@
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Presentation.DTOs;
@@ -12,27 +13,118 @@ public class AuthenticationService : IAuthenticationService
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly JwtValidator _jwtValidator;
+    private readonly IIdentityProviderRepository _identityProviderRepository;
+    private readonly ILdapService _ldapService;
+    private readonly ILogger<AuthenticationService> _logger;
 
-    public AuthenticationService(UserManager<AppUser> userManager, JwtValidator jwtValidator)
+    public AuthenticationService(
+        UserManager<AppUser> userManager,
+        JwtValidator jwtValidator,
+        IIdentityProviderRepository identityProviderRepository,
+        ILdapService ldapService,
+        ILogger<AuthenticationService> logger)
     {
         _userManager = userManager;
         _jwtValidator = jwtValidator;
+        _identityProviderRepository = identityProviderRepository;
+        _ldapService = ldapService;
+        _logger = logger;
     }
 
     public async Task<(bool IsValid, AppUser? User)> ValidateCredentialsAsync(string email, string password)
     {
+        _logger.LogInformation("ValidateCredentialsAsync called for: {Email}", email);
+
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
+            _logger.LogWarning("Empty email or password");
             return (false, null);
         }
 
         var user = await _userManager.FindByEmailAsync(email);
         if (user != null && await _userManager.CheckPasswordAsync(user, password))
         {
+            _logger.LogInformation("Local authentication successful for: {Email}", email);
             return (true, user);
         }
 
+        _logger.LogInformation("Local authentication failed, trying LDAP for: {Email}", email);
+        var ldapResult = await ValidateLdapCredentialsAsync(email, password);
+        if (ldapResult.IsValid)
+        {
+            _logger.LogInformation("LDAP authentication successful for: {Email}", email);
+            return ldapResult;
+        }
+
+        _logger.LogWarning("All authentication methods failed for: {Email}", email);
         return (false, null);
+    }
+
+    private async Task<(bool IsValid, AppUser? User)> ValidateLdapCredentialsAsync(string username, string password)
+    {
+        var providers = await _identityProviderRepository.GetAuthenticationProviders();
+        _logger.LogInformation("Found {Count} LDAP authentication providers", providers.Count);
+
+        foreach (var provider in providers)
+        {
+            _logger.LogInformation("Trying LDAP provider: {Provider} ({Host}:{Port})", provider.Name, provider.Host, provider.Port);
+            try
+            {
+                var isValid = await _ldapService.ValidateCredentialsAsync(provider, username, password);
+                _logger.LogInformation("LDAP validation result for {Provider}: {IsValid}", provider.Name, isValid);
+
+                if (isValid)
+                {
+                    _logger.LogInformation("LDAP authentication successful for user {Username} via provider {Provider}", username, provider.Name);
+
+                    var user = await GetOrCreateLdapUserAsync(username, provider);
+                    if (user != null)
+                    {
+                        return (true, user);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "LDAP authentication failed for provider {Provider}", provider.Name);
+            }
+        }
+
+        return (false, null);
+    }
+
+    private async Task<AppUser?> GetOrCreateLdapUserAsync(string username, IdentityProvider provider)
+    {
+        var user = await _userManager.FindByNameAsync(username);
+        if (user != null)
+        {
+            return user;
+        }
+
+        user = await _userManager.FindByEmailAsync(username);
+        if (user != null)
+        {
+            return user;
+        }
+
+        var newUser = new AppUser
+        {
+            UserName = username,
+            Email = username.Contains('@') ? username : $"{username}@ldap.local",
+            EmailConfirmed = true,
+            FirstName = username,
+            LastName = string.Empty
+        };
+
+        var result = await _userManager.CreateAsync(newUser);
+        if (result.Succeeded)
+        {
+            _logger.LogInformation("Created new LDAP user {Username} for provider {Provider}", username, provider.Name);
+            return newUser;
+        }
+
+        _logger.LogError("Failed to create LDAP user {Username}: {Errors}", username, string.Join(", ", result.Errors.Select(e => e.Description)));
+        return null;
     }
 
     public async Task<(bool Success, IdentityResult? Result)> ChangePasswordAsync(AppUser user, string oldPassword, string newPassword)

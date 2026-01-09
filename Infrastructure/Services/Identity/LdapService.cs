@@ -26,7 +26,7 @@ public class LdapService : ILdapService
                 using var connection = CreateConnection(provider);
                 connection.Bind();
 
-                var users = SearchUsers(connection, provider, 5);
+                var users = SearchUsers(connection, provider, 10);
 
                 return new TestConnectionResultResource
                 {
@@ -74,12 +74,17 @@ public class LdapService : ILdapService
             {
                 var host = provider.Host ?? throw new InvalidOperationException("LDAP host not configured");
                 var port = provider.Port ?? (provider.UseSsl ? 636 : 389);
+                var baseDn = provider.BaseDn ?? string.Empty;
+
+                var bindDn = BuildUserDn(username, baseDn);
+                _logger.LogDebug("Attempting LDAP bind for user DN: {BindDn}", bindDn);
 
                 var identifier = new LdapDirectoryIdentifier(host, port);
-                var credential = new NetworkCredential(username, password);
+                var credential = new NetworkCredential(bindDn, password);
 
                 using var connection = new LdapConnection(identifier, credential);
                 connection.SessionOptions.ProtocolVersion = 3;
+                connection.AuthType = AuthType.Basic;
 
                 if (provider.UseSsl)
                 {
@@ -87,6 +92,7 @@ public class LdapService : ILdapService
                 }
 
                 connection.Bind();
+                _logger.LogInformation("LDAP authentication successful for user: {Username}", username);
                 return true;
             }
             catch (LdapException ex)
@@ -100,6 +106,22 @@ public class LdapService : ILdapService
                 return false;
             }
         });
+    }
+
+    private static string BuildUserDn(string username, string baseDn)
+    {
+        if (username.Contains('=') && username.Contains(','))
+        {
+            return username;
+        }
+
+        if (username.Contains('@'))
+        {
+            var parts = username.Split('@');
+            return $"uid={parts[0]},{baseDn}";
+        }
+
+        return $"uid={username},{baseDn}";
     }
 
     private LdapConnection CreateConnection(IdentityProvider provider)
@@ -132,6 +154,10 @@ public class LdapService : ILdapService
         {
             connection.AuthType = AuthType.Negotiate;
         }
+        else
+        {
+            connection.AuthType = AuthType.Basic;
+        }
 
         return connection;
     }
@@ -155,17 +181,26 @@ public class LdapService : ILdapService
             SearchScope.Subtree,
             attributes);
 
-        if (limit.HasValue)
-        {
-            searchRequest.SizeLimit = limit.Value;
-        }
+        searchRequest.SizeLimit = limit ?? 500;
 
-        var response = (SearchResponse)connection.SendRequest(searchRequest);
         var users = new List<LdapUserEntry>();
 
-        foreach (SearchResultEntry entry in response.Entries)
+        try
         {
-            users.Add(MapToLdapUserEntry(entry));
+            var response = (SearchResponse)connection.SendRequest(searchRequest);
+
+            foreach (SearchResultEntry entry in response.Entries)
+            {
+                users.Add(MapToLdapUserEntry(entry));
+            }
+        }
+        catch (DirectoryOperationException ex) when (ex.Response is SearchResponse partialResponse)
+        {
+            _logger.LogWarning("LDAP search returned partial results due to size limit");
+            foreach (SearchResultEntry entry in partialResponse.Entries)
+            {
+                users.Add(MapToLdapUserEntry(entry));
+            }
         }
 
         return users;

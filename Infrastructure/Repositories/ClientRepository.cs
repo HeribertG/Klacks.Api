@@ -264,4 +264,10 @@ public class ClientRepository : IClientRepository
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<Client?> GetByLdapExternalIdAsync(string ldapExternalId)
+    {
+        return await context.Client
+            .FirstOrDefaultAsync(c => c.LdapExternalId == ldapExternalId);
+    }
 }

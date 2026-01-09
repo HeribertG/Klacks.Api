@@ -21,6 +21,12 @@ public class IdentityProviderSyncLogRepository : BaseRepository<IdentityProvider
             .FirstOrDefaultAsync(s => s.IdentityProviderId == providerId && s.ExternalId == externalId);
     }
 
+    public async Task<IdentityProviderSyncLog?> GetByExternalIdGlobal(string externalId)
+    {
+        return await context.IdentityProviderSyncLogs
+            .FirstOrDefaultAsync(s => s.ExternalId == externalId);
+    }
+
     public async Task<List<IdentityProviderSyncLog>> GetByProviderId(Guid providerId)
     {
         return await context.IdentityProviderSyncLogs

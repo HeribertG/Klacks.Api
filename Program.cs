@@ -31,6 +31,7 @@ builder.Logging.AddConsole();
 
 var corsHost = builder.Configuration["Cors:Host"];
 var corsHome = builder.Configuration["Cors:Home"];
+var corsAdditional = builder.Configuration["Cors:Additional"];
 FakeSettings.WithFake = builder.Configuration["Fake:WithFake"] ?? string.Empty;
 FakeSettings.ClientsNumber = builder.Configuration["Fake:ClientNumber"] ?? string.Empty;
 FakeSettings.MaxBreaksPerClientPerYear = builder.Configuration["Fake:MaxBreaksPerClientPerYear"] ?? "30";
@@ -91,7 +92,12 @@ builder.Services.AddCors(options =>
                       name: myAllowSpecificOrigins,
                       cors =>
                       {
-                          cors.WithOrigins(corsHost!, corsHome!)
+                          var origins = new List<string> { corsHost!, corsHome! };
+                          if (!string.IsNullOrEmpty(corsAdditional))
+                          {
+                              origins.Add(corsAdditional);
+                          }
+                          cors.WithOrigins(origins.ToArray())
                             .AllowAnyHeader()
                             .AllowAnyMethod()
                             .WithExposedHeaders(headers)
