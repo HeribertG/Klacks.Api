@@ -117,15 +117,22 @@ public class OAuth2Service : IOAuth2Service
 
             var userInfo = JsonSerializer.Deserialize<JsonElement>(content);
 
-            return new OAuth2UserInfo
+            _logger.LogInformation("[OAUTH2] Raw UserInfo response: {Content}", content);
+
+            var result = new OAuth2UserInfo
             {
                 Id = GetStringProperty(userInfo, "sub", "id"),
                 Email = GetStringProperty(userInfo, "email"),
                 Name = GetStringProperty(userInfo, "name"),
                 GivenName = GetStringProperty(userInfo, "given_name", "first_name"),
-                FamilyName = GetStringProperty(userInfo, "family_name", "last_name"),
+                FamilyName = GetStringProperty(userInfo, "family_name", "last_name", "username", "sub"),
                 Picture = GetStringProperty(userInfo, "picture", "avatar_url")
             };
+
+            _logger.LogInformation("[OAUTH2] Parsed UserInfo - Email: {Email}, Name: {Name}, GivenName: {GivenName}, FamilyName: {FamilyName}",
+                result.Email, result.Name, result.GivenName, result.FamilyName);
+
+            return result;
         }
         catch (Exception ex)
         {

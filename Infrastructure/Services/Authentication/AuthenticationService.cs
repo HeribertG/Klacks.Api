@@ -1,6 +1,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
+using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Presentation.DTOs;
 using Klacks.Api.Application.Validation.Accounts;
 using Microsoft.AspNetCore.Identity;
@@ -15,6 +16,7 @@ public class AuthenticationService : IAuthenticationService
     private readonly JwtValidator _jwtValidator;
     private readonly IIdentityProviderRepository _identityProviderRepository;
     private readonly ILdapService _ldapService;
+    private readonly IUsernameGeneratorService _usernameGenerator;
     private readonly ILogger<AuthenticationService> _logger;
 
     public AuthenticationService(
@@ -22,12 +24,14 @@ public class AuthenticationService : IAuthenticationService
         JwtValidator jwtValidator,
         IIdentityProviderRepository identityProviderRepository,
         ILdapService ldapService,
+        IUsernameGeneratorService usernameGenerator,
         ILogger<AuthenticationService> logger)
     {
         _userManager = userManager;
         _jwtValidator = jwtValidator;
         _identityProviderRepository = identityProviderRepository;
         _ldapService = ldapService;
+        _usernameGenerator = usernameGenerator;
         _logger = logger;
     }
 
@@ -93,37 +97,38 @@ public class AuthenticationService : IAuthenticationService
         return (false, null);
     }
 
-    private async Task<AppUser?> GetOrCreateLdapUserAsync(string username, IdentityProvider provider)
+    private async Task<AppUser?> GetOrCreateLdapUserAsync(string ldapUsername, IdentityProvider provider)
     {
-        var user = await _userManager.FindByNameAsync(username);
+        var email = ldapUsername.Contains('@') ? ldapUsername : $"{ldapUsername}@ldap.local";
+
+        var user = await _userManager.FindByEmailAsync(email);
         if (user != null)
         {
             return user;
         }
 
-        user = await _userManager.FindByEmailAsync(username);
-        if (user != null)
-        {
-            return user;
-        }
+        var firstName = provider.Name ?? string.Empty;
+        var lastName = ldapUsername;
+        var generatedUsername = await _usernameGenerator.GenerateUniqueUsernameAsync(firstName, lastName);
 
         var newUser = new AppUser
         {
-            UserName = username,
-            Email = username.Contains('@') ? username : $"{username}@ldap.local",
+            UserName = generatedUsername,
+            Email = email,
             EmailConfirmed = true,
-            FirstName = username,
-            LastName = string.Empty
+            FirstName = firstName,
+            LastName = lastName
         };
 
         var result = await _userManager.CreateAsync(newUser);
         if (result.Succeeded)
         {
-            _logger.LogInformation("Created new LDAP user {Username} for provider {Provider}", username, provider.Name);
+            _logger.LogInformation("Created new LDAP user {Username} (FirstName: {FirstName}, LastName: {LastName}) for provider {Provider}",
+                generatedUsername, firstName, lastName, provider.Name);
             return newUser;
         }
 
-        _logger.LogError("Failed to create LDAP user {Username}: {Errors}", username, string.Join(", ", result.Errors.Select(e => e.Description)));
+        _logger.LogError("Failed to create LDAP user {Username}: {Errors}", generatedUsername, string.Join(", ", result.Errors.Select(e => e.Description)));
         return null;
     }
 

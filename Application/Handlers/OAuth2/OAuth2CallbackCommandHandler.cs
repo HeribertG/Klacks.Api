@@ -3,6 +3,7 @@ using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
+using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Presentation.DTOs.Registrations;
 using Microsoft.AspNetCore.Identity;
@@ -17,6 +18,7 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
     private readonly IOAuth2Service _oauth2Service;
     private readonly IAccountAuthenticationService _authService;
     private readonly UserManager<AppUser> _userManager;
+    private readonly IUsernameGeneratorService _usernameGenerator;
     private readonly ILogger<OAuth2CallbackCommandHandler> _logger;
     private readonly IWebHostEnvironment _environment;
 
@@ -25,6 +27,7 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
         IOAuth2Service oauth2Service,
         IAccountAuthenticationService authService,
         UserManager<AppUser> userManager,
+        IUsernameGeneratorService usernameGenerator,
         ILogger<OAuth2CallbackCommandHandler> logger,
         IWebHostEnvironment environment)
     {
@@ -32,6 +35,7 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
         _oauth2Service = oauth2Service;
         _authService = authService;
         _userManager = userManager;
+        _usernameGenerator = usernameGenerator;
         _logger = logger;
         _environment = environment;
     }
@@ -154,13 +158,17 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
             return user;
         }
 
+        var firstName = userInfo.GivenName ?? userInfo.Name ?? provider.Name ?? string.Empty;
+        var lastName = userInfo.FamilyName ?? string.Empty;
+        var generatedUsername = await _usernameGenerator.GenerateUniqueUsernameAsync(firstName, lastName);
+
         var newUser = new AppUser
         {
-            UserName = userInfo.Email,
+            UserName = generatedUsername,
             Email = userInfo.Email,
             EmailConfirmed = true,
-            FirstName = userInfo.GivenName ?? userInfo.Name ?? string.Empty,
-            LastName = userInfo.FamilyName ?? string.Empty
+            FirstName = firstName,
+            LastName = lastName
         };
 
         var createResult = await _userManager.CreateAsync(newUser);
