@@ -55,6 +55,66 @@ public class OAuth2Controller : ControllerBase
     }
 
     [AllowAnonymous]
+    [HttpGet("logout-url/{providerId}")]
+    public async Task<IActionResult> GetLogoutUrl(Guid providerId, [FromQuery] string? postLogoutRedirectUri)
+    {
+        var provider = await _providerRepository.Get(providerId);
+        if (provider == null)
+        {
+            return NotFound("Provider not found");
+        }
+
+        var logoutUrl = GenerateLogoutUrl(provider, postLogoutRedirectUri);
+        if (string.IsNullOrEmpty(logoutUrl))
+        {
+            return Ok(new { logoutUrl = (string?)null, supportsLogout = false });
+        }
+
+        return Ok(new { logoutUrl, supportsLogout = true });
+    }
+
+    private string? GenerateLogoutUrl(IdentityProvider provider, string? postLogoutRedirectUri)
+    {
+        if (string.IsNullOrEmpty(provider.Host))
+        {
+            return null;
+        }
+
+        var protocol = provider.UseSsl ? "https" : "http";
+        var port = provider.Port.HasValue && provider.Port.Value != 443 && provider.Port.Value != 80
+            ? $":{provider.Port.Value}"
+            : "";
+
+        if (provider.Type == Domain.Enums.IdentityProviderType.OpenIdConnect &&
+            (provider.AuthorizationUrl?.Contains("SSOOauth", StringComparison.OrdinalIgnoreCase) == true ||
+             provider.AuthorizationUrl?.Contains("/sso/webman/", StringComparison.OrdinalIgnoreCase) == true))
+        {
+            _logger.LogInformation("[OAUTH2] Synology SSO does not support external logout");
+            return null;
+        }
+
+        string logoutUrl;
+
+        if (provider.Type == Domain.Enums.IdentityProviderType.OpenIdConnect)
+        {
+            var baseUrl = provider.AuthorizationUrl?.Replace("/authorize", "").TrimEnd('/');
+            logoutUrl = $"{baseUrl}/logout";
+        }
+        else
+        {
+            return null;
+        }
+
+        if (!string.IsNullOrEmpty(postLogoutRedirectUri))
+        {
+            logoutUrl += $"?redirect_uri={Uri.EscapeDataString(postLogoutRedirectUri)}";
+        }
+
+        _logger.LogInformation("[OAUTH2] Generated logout URL: {LogoutUrl}", logoutUrl);
+        return logoutUrl;
+    }
+
+    [AllowAnonymous]
     [HttpGet("authorize/{providerId}")]
     public async Task<IActionResult> Authorize(Guid providerId, [FromQuery] string redirectUri)
     {
