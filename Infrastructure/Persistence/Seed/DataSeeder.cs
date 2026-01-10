@@ -1,3 +1,4 @@
+using Klacks.Api.Data.Seed.IdentityProviders;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Klacks.Api.Data.Seed
@@ -10,6 +11,7 @@ namespace Klacks.Api.Data.Seed
             LLMSeed.SeedData(migrationBuilder);
             SwissZipSeed.SeedData(migrationBuilder);
             MacrosSeed.SeedData(migrationBuilder);
+            IdentityProvidersSeed.SeedData(migrationBuilder);
 
             if (withFake)
             {
