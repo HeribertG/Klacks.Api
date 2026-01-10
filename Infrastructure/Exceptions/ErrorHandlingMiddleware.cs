@@ -117,6 +117,36 @@ public class ErrorHandlingMiddleware
 
             await context.Response.WriteAsJsonAsync(problem);
         }
+        catch (NotFoundException ex)
+        {
+            _logger.LogWarning(ex, "NotFoundException caught by middleware: {Message}", ex.Message);
+            context.Response.StatusCode = StatusCodes.Status404NotFound;
+            context.Response.ContentType = "application/problem+json";
+
+            var problem = new ProblemDetails
+            {
+                Title = "Not Found",
+                Status = StatusCodes.Status404NotFound,
+                Detail = ex.Message
+            };
+
+            await context.Response.WriteAsJsonAsync(problem);
+        }
+        catch (BadRequestException ex)
+        {
+            _logger.LogWarning(ex, "BadRequestException caught by middleware: {Message}", ex.Message);
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            context.Response.ContentType = "application/problem+json";
+
+            var problem = new ProblemDetails
+            {
+                Title = "Bad Request",
+                Status = StatusCodes.Status400BadRequest,
+                Detail = ex.Message
+            };
+
+            await context.Response.WriteAsJsonAsync(problem);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An unhandled exception occurred: {Message}", ex.Message);
