@@ -1,6 +1,6 @@
 # Identity Provider Implementation Status
 
-## Stand: 2026-01-09
+## Stand: 2026-01-10
 
 ---
 
@@ -13,6 +13,8 @@
 | LDAP Authentifizierung | ✅ Abgeschlossen | ✅ Ja |
 | OAuth2 Authentifizierung | ✅ Abgeschlossen | ✅ Ja |
 | OpenID Connect | ✅ Abgeschlossen | ✅ Ja |
+| SSO Logout | ✅ Abgeschlossen | ✅ Ja |
+| OAuth2 CQRS Refactoring | ✅ Abgeschlossen | ✅ Ja |
 | Active Directory | ⏳ Ausstehend | - |
 
 ---
@@ -127,13 +129,46 @@ public interface IOAuth2Service
 | `/api/backend/OAuth2/providers` | GET | Listet alle OAuth2/OIDC Provider |
 | `/api/backend/OAuth2/authorize/{providerId}` | GET | Generiert Authorization URL |
 | `/api/backend/OAuth2/callback` | POST | Verarbeitet Callback, tauscht Code gegen Token |
+| `/api/backend/OAuth2/logout-url/{providerId}` | GET | Generiert Logout URL (falls unterstützt) |
+
+### 2.3 CQRS-Struktur (Clean Architecture)
+
+Der OAuth2Controller folgt dem Handler → Repository → DbContext Pattern:
+
+**Queries** (`Application/Queries/OAuth2/`):
+| Query | Beschreibung |
+|-------|--------------|
+| `GetOAuth2ProvidersQuery` | Lädt alle OAuth2/OIDC Provider |
+| `GetOAuth2AuthorizeQuery` | Generiert Authorization URL für Provider |
+| `GetOAuth2LogoutUrlQuery` | Generiert Logout URL für Provider |
+
+**Commands** (`Application/Commands/OAuth2/`):
+| Command | Beschreibung |
+|---------|--------------|
+| `OAuth2CallbackCommand` | Verarbeitet OAuth2 Callback, tauscht Code gegen Token |
+
+**Handlers** (`Application/Handlers/OAuth2/`):
+| Handler | Beschreibung |
+|---------|--------------|
+| `GetOAuth2ProvidersQueryHandler` | Lädt Provider via Repository |
+| `GetOAuth2AuthorizeQueryHandler` | Generiert Auth URL via OAuth2Service |
+| `GetOAuth2LogoutUrlQueryHandler` | Generiert Logout URL via OAuth2Service |
+| `OAuth2CallbackCommandHandler` | Token-Exchange und User-Erstellung |
+
+**DTOs** (`Presentation/DTOs/OAuth2/`):
+| DTO | Beschreibung |
+|-----|--------------|
+| `OAuth2ProviderResource` | Provider-Info für Frontend |
+| `OAuth2AuthorizeResponse` | Authorization URL + State |
+| `OAuth2LogoutUrlResponse` | Logout URL + SupportsLogout Flag |
+| `OAuth2CallbackRequest` | Code, State, RedirectUri vom Frontend |
 
 **DI-Registration**: `Infrastructure/Extensions/ServiceCollectionExtensions.cs`
 ```csharp
 services.AddScoped<IOAuth2Service, Services.Identity.OAuth2Service>();
 ```
 
-### 2.3 State-Parameter Handling
+### 2.4 State-Parameter Handling
 
 Der State-Parameter codiert die Provider-ID für stateless Betrieb:
 ```
@@ -142,7 +177,7 @@ state = "{providerId}_{randomGuid}"
 
 Beim Callback wird die Provider-ID extrahiert um den richtigen Provider zu laden.
 
-### 2.4 Provider-Typen
+### 2.5 Provider-Typen
 
 | Type | Enum | Beschreibung |
 |------|------|--------------|
@@ -151,11 +186,24 @@ Beim Callback wird die Provider-ID extrahiert um den richtigen Provider zu laden
 | 2 | OAuth2 | OAuth 2.0 |
 | 3 | OpenIdConnect | OIDC (OAuth2 + ID Token) |
 
-### 2.5 Getestete Szenarien
+### 2.6 Synology SSO (Development)
+
+| Einstellung | Wert |
+|-------------|------|
+| Synology IP | 192.168.1.163:5001 |
+| App Name | KlacksHTTPS |
+| Redirect URI | https://127.0.0.1:4200/oauth2/callback |
+| Frontend starten | `npm run start:ssl` (HTTPS erforderlich) |
+
+**Einschränkung**: Synology SSO unterstützt kein externes Logout (kein `end_session_endpoint` in OIDC Discovery). Der Logout-Endpoint gibt `supportsLogout: false` zurück.
+
+### 2.7 Getestete Szenarien
 
 - ✅ Provider-Liste abrufen (Type 2 und 3 werden gelistet)
 - ✅ Authorization URL generieren (alle OAuth2-Parameter korrekt)
 - ✅ Callback-Verarbeitung (State parsing, Provider-Lookup, Token-Exchange)
+- ✅ Synology SSO Login (HTTPS mit selbstsigniertem Zertifikat)
+- ✅ Logout-URL Generierung (mit Provider-spezifischer Unterstützung)
 - ✅ Fehlerbehandlung bei ungültigen Credentials (401 von Google erwartet)
 
 ---
