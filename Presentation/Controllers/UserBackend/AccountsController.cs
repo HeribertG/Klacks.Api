@@ -84,6 +84,12 @@ public class AccountsController : BaseController
         return Ok(username);
     }
 
+    [HttpGet("ValidateToken")]
+    public IActionResult ValidateToken()
+    {
+        return Ok();
+    }
+
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserResource>>> GetUserList()
     {
