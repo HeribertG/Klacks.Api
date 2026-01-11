@@ -1,6 +1,6 @@
 # Identity Provider Implementation Status
 
-## Stand: 2026-01-10
+## Stand: 2026-01-11
 
 ---
 
@@ -15,7 +15,7 @@
 | OpenID Connect | ✅ Abgeschlossen | ✅ Ja |
 | SSO Logout | ✅ Abgeschlossen | ✅ Ja |
 | OAuth2 CQRS Refactoring | ✅ Abgeschlossen | ✅ Ja |
-| Active Directory | ⏳ Ausstehend | - |
+| Active Directory | ✅ Abgeschlossen | ✅ Ja |
 
 ---
 
@@ -208,16 +208,54 @@ Beim Callback wird die Provider-ID extrahiert um den richtigen Provider zu laden
 
 ---
 
-## 3. Offene Arbeiten
+## 3. Active Directory Implementation
 
-### 3.1 Active Directory
+### 3.1 Synology OpenLDAP (AD-Test)
 
-**Status**: Ausstehend (erfordert Azure AD Free Tier für Tests)
+**Status**: Abgeschlossen und getestet
 
-**Geplante Features**:
-- Integration mit Azure AD / Entra ID
-- LDAP-ähnliche Authentifizierung über AD
-- Gruppenimport aus AD
+**Test-Umgebung**: OpenLDAP Docker Container auf Synology NAS
+- Host: 192.168.1.163
+- Port: 3890
+- Base DN: dc=klacks,dc=local
+- Bind DN: cn=admin,dc=klacks,dc=local
+- User Filter: (objectClass=inetOrgPerson)
+
+**Test-User**:
+| Username | Password |
+|----------|----------|
+| max.mustermann | Test1234! |
+| anna.schmidt | Test1234! |
+| peter.weber | Test1234! |
+
+### 3.2 Implementierte Anpassungen
+
+**BuildUserDn für AD**: `LdapService.cs:110-125`
+- LDAP verwendet `uid=username,baseDn`
+- Active Directory verwendet `cn=username,baseDn`
+
+```csharp
+if (providerType == IdentityProviderType.ActiveDirectory)
+{
+    return $"cn={usernameOnly},{baseDn}";
+}
+return $"uid={usernameOnly},{baseDn}";
+```
+
+**Provider-Filter**: `AuthenticationService.cs:70-72`
+- GetAuthenticationProviders filtert nun nur LDAP/AD Provider
+- OAuth2 Provider werden bei LDAP-Auth nicht mehr berücksichtigt
+
+**LdapConnection für Windows**: `LdapService.cs:85`
+- AuthType muss im Constructor übergeben werden (nicht als Property)
+- `new LdapConnection(identifier, credential, AuthType.Basic)`
+
+### 3.3 Getestete Szenarien
+
+- ✅ AD-Authentifizierung (Login mit max.mustermann/Test1234!)
+- ✅ Automatische User-Erstellung bei erstem Login
+- ✅ Fallback: Lokale Auth -> LDAP -> AD
+- ✅ Client-Import konfiguriert (use_for_client_import=true)
 
 ---
 
@@ -236,7 +274,21 @@ User Filter: (objectClass=person)
 
 **Test-User**: `einstein`, `newton`, `tesla` (Password: `password`)
 
-### 4.2 Zflexldap (offline)
+### 4.2 Synology OpenLDAP (AD-Test)
+
+```
+Host: 192.168.1.163
+Port: 3890
+Base DN: dc=klacks,dc=local
+Bind DN: cn=admin,dc=klacks,dc=local
+Bind Password: Test1234!
+User Filter: (objectClass=inetOrgPerson)
+Provider Type: ActiveDirectory (1)
+```
+
+**Test-User**: `max.mustermann`, `anna.schmidt`, `peter.weber` (Password: `Test1234!`)
+
+### 4.3 Zflexldap (offline)
 
 Server ist offline - Tests als `[Ignore]` markiert.
 
@@ -246,7 +298,6 @@ Server ist offline - Tests als `[Ignore]` markiert.
 
 1. **Build bei laufendem Backend**: Backend muss vor dem Build gestoppt werden (Datei-Lock)
 2. **OAuth2 ohne echte Credentials**: Vollständiger Flow nur mit registrierter OAuth2-App testbar
-3. **AD ohne Azure**: Active Directory Tests erfordern Azure AD Free Tier
 
 ---
 

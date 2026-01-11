@@ -76,15 +76,14 @@ public class LdapService : ILdapService
                 var port = provider.Port ?? (provider.UseSsl ? 636 : 389);
                 var baseDn = provider.BaseDn ?? string.Empty;
 
-                var bindDn = BuildUserDn(username, baseDn);
-                _logger.LogDebug("Attempting LDAP bind for user DN: {BindDn}", bindDn);
+                var bindDn = BuildUserDn(username, baseDn, provider.Type);
+                _logger.LogDebug("LDAP auth attempt for {Username} via {Provider} ({Host}:{Port})", username, provider.Name, host, port);
 
                 var identifier = new LdapDirectoryIdentifier(host, port);
                 var credential = new NetworkCredential(bindDn, password);
 
-                using var connection = new LdapConnection(identifier, credential);
+                using var connection = new LdapConnection(identifier, credential, AuthType.Basic);
                 connection.SessionOptions.ProtocolVersion = 3;
-                connection.AuthType = AuthType.Basic;
 
                 if (provider.UseSsl)
                 {
@@ -92,36 +91,37 @@ public class LdapService : ILdapService
                 }
 
                 connection.Bind();
-                _logger.LogInformation("LDAP authentication successful for user: {Username}", username);
+                _logger.LogInformation("LDAP authentication successful for user {Username} via {Provider}", username, provider.Name);
                 return true;
             }
             catch (LdapException ex)
             {
-                _logger.LogWarning("LDAP authentication failed for user {Username}: {Message}", username, ex.Message);
+                _logger.LogDebug("LDAP authentication failed for user {Username}: {Message}", username, ex.Message);
                 return false;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during LDAP authentication for user {Username}", username);
+                _logger.LogWarning(ex, "LDAP authentication error for user {Username}", username);
                 return false;
             }
         });
     }
 
-    private static string BuildUserDn(string username, string baseDn)
+    private static string BuildUserDn(string username, string baseDn, IdentityProviderType providerType)
     {
         if (username.Contains('=') && username.Contains(','))
         {
             return username;
         }
 
-        if (username.Contains('@'))
+        var usernameOnly = username.Contains('@') ? username.Split('@')[0] : username;
+
+        if (providerType == IdentityProviderType.ActiveDirectory)
         {
-            var parts = username.Split('@');
-            return $"uid={parts[0]},{baseDn}";
+            return $"cn={usernameOnly},{baseDn}";
         }
 
-        return $"uid={username},{baseDn}";
+        return $"uid={usernameOnly},{baseDn}";
     }
 
     private LdapConnection CreateConnection(IdentityProvider provider)

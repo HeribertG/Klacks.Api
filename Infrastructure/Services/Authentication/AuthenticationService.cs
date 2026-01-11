@@ -66,8 +66,11 @@ public class AuthenticationService : IAuthenticationService
 
     private async Task<(bool IsValid, AppUser? User)> ValidateLdapCredentialsAsync(string username, string password)
     {
-        var providers = await _identityProviderRepository.GetAuthenticationProviders();
-        _logger.LogInformation("Found {Count} LDAP authentication providers", providers.Count);
+        var allProviders = await _identityProviderRepository.GetAuthenticationProviders();
+        var providers = allProviders.Where(p =>
+            p.Type == Domain.Enums.IdentityProviderType.Ldap ||
+            p.Type == Domain.Enums.IdentityProviderType.ActiveDirectory).ToList();
+        _logger.LogInformation("Found {Count} LDAP/AD authentication providers (of {Total} total)", providers.Count, allProviders.Count);
 
         foreach (var provider in providers)
         {
