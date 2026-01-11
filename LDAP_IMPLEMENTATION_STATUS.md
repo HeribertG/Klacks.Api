@@ -281,12 +281,19 @@ Host: 192.168.1.163
 Port: 3890
 Base DN: dc=klacks,dc=local
 Bind DN: cn=admin,dc=klacks,dc=local
-Bind Password: Test1234!
+Bind Password: KlacksAdmin2026
 User Filter: (objectClass=inetOrgPerson)
 Provider Type: ActiveDirectory (1)
 ```
 
 **Test-User**: `max.mustermann`, `anna.schmidt`, `peter.weber` (Password: `Test1234!`)
+
+**Adressen**:
+| User | Strasse | PLZ | Ort | Kanton | Land |
+|------|---------|-----|-----|--------|------|
+| max.mustermann | Bahnhofstrasse 10 | 8001 | Zuerich | ZH | CH |
+| anna.schmidt | Bundesplatz 3 | 3005 | Bern | BE | CH |
+| peter.weber | Rue du Rhone 42 | 1204 | Geneve | GE | CH |
 
 ### 4.3 Zflexldap (offline)
 
