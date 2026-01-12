@@ -59,6 +59,27 @@ public static class IdentityProvidersSeed
                 '{now:yyyy-MM-dd HH:mm:ss}',
                 '{now:yyyy-MM-dd HH:mm:ss}',
                 false
+            ),
+            -- Synology OpenLDAP (AD-Test) - Docker container on Synology NAS
+            (
+                'a8d4e6f2-3b1c-4a5d-9e8f-1c2d3e4f5a6b',
+                'Synology OpenLDAP (AD-Test)',
+                1, -- ActiveDirectory
+                true,
+                20,
+                true,
+                true,
+                '192.168.1.163',
+                3890,
+                false,
+                'dc=klacks,dc=local',
+                'cn=admin,dc=klacks,dc=local',
+                'KlacksAdmin2026',
+                '(objectClass=inetOrgPerson)',
+                NULL, NULL, NULL, NULL, NULL, NULL,
+                '{now:yyyy-MM-dd HH:mm:ss}',
+                '{now:yyyy-MM-dd HH:mm:ss}',
+                false
             )
             ON CONFLICT (id) DO NOTHING;
         ");
