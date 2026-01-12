@@ -24,7 +24,7 @@ public class LdapService : ILdapService
             try
             {
                 using var connection = CreateConnection(provider);
-                connection.Bind();
+                BindWithFallback(connection, provider);
 
                 var users = SearchUsers(connection, provider, 10);
 
@@ -54,7 +54,7 @@ public class LdapService : ILdapService
             try
             {
                 using var connection = CreateConnection(provider);
-                connection.Bind();
+                BindWithFallback(connection, provider);
 
                 return SearchUsers(connection, provider);
             }
@@ -124,7 +124,7 @@ public class LdapService : ILdapService
         return $"uid={usernameOnly},{baseDn}";
     }
 
-    private LdapConnection CreateConnection(IdentityProvider provider)
+    private LdapConnection CreateConnection(IdentityProvider provider, AuthType? authTypeOverride = null)
     {
         var host = provider.Host ?? throw new InvalidOperationException("LDAP host not configured");
         var port = provider.Port ?? (provider.UseSsl ? 636 : 389);
@@ -150,7 +150,11 @@ public class LdapService : ILdapService
             connection.SessionOptions.SecureSocketLayer = true;
         }
 
-        if (provider.Type == IdentityProviderType.ActiveDirectory)
+        if (authTypeOverride.HasValue)
+        {
+            connection.AuthType = authTypeOverride.Value;
+        }
+        else if (provider.Type == IdentityProviderType.ActiveDirectory)
         {
             connection.AuthType = AuthType.Negotiate;
         }
@@ -162,6 +166,21 @@ public class LdapService : ILdapService
         return connection;
     }
 
+    private void BindWithFallback(LdapConnection connection, IdentityProvider provider)
+    {
+        try
+        {
+            connection.Bind();
+        }
+        catch (Exception ex) when (provider.Type == IdentityProviderType.ActiveDirectory &&
+            (ex is LdapException || ex is DirectoryOperationException))
+        {
+            _logger.LogDebug("Negotiate auth failed for {Provider}, falling back to Basic auth: {Message}", provider.Name, ex.Message);
+            connection.AuthType = AuthType.Basic;
+            connection.Bind();
+        }
+    }
+
     private List<LdapUserEntry> SearchUsers(LdapConnection connection, IdentityProvider provider, int? limit = null)
     {
         var baseDn = provider.BaseDn ?? throw new InvalidOperationException("LDAP Base DN not configured");
@@ -171,7 +190,7 @@ public class LdapService : ILdapService
         {
             "distinguishedName", "objectGUID", "sAMAccountName", "userPrincipalName",
             "givenName", "sn", "displayName", "mail", "telephoneNumber", "mobile",
-            "title", "department", "company", "streetAddress", "postalCode",
+            "title", "department", "company", "personalTitle", "street", "streetAddress", "postalCode",
             "l", "st", "c", "whenCreated", "whenChanged", "userAccountControl"
         };
 
@@ -223,7 +242,8 @@ public class LdapService : ILdapService
             Title = GetStringAttribute(entry, "title"),
             Department = GetStringAttribute(entry, "department"),
             Company = GetStringAttribute(entry, "company"),
-            StreetAddress = GetStringAttribute(entry, "streetAddress"),
+            PersonalTitle = GetStringAttribute(entry, "personalTitle"),
+            StreetAddress = GetStringAttribute(entry, "streetAddress") ?? GetStringAttribute(entry, "street"),
             PostalCode = GetStringAttribute(entry, "postalCode"),
             City = GetStringAttribute(entry, "l"),
             State = GetStringAttribute(entry, "st"),

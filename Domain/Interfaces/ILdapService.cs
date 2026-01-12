@@ -25,6 +25,7 @@ public class LdapUserEntry
     public string? Title { get; set; }
     public string? Department { get; set; }
     public string? Company { get; set; }
+    public string? PersonalTitle { get; set; }
     public string? StreetAddress { get; set; }
     public string? PostalCode { get; set; }
     public string? City { get; set; }

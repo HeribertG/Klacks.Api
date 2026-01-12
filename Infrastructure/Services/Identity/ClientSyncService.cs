@@ -132,7 +132,7 @@ public class ClientSyncService : IClientSyncService
             Title = ldapUser.Title,
             Company = ldapUser.Company,
             Type = EntityTypeEnum.Employee,
-            Gender = GenderEnum.Intersexuality,
+            Gender = DetermineGenderFromPersonalTitle(ldapUser.PersonalTitle),
             IdentityProviderId = provider.Id,
             LdapExternalId = externalId
         };
@@ -150,30 +150,39 @@ public class ClientSyncService : IClientSyncService
 
         await _membershipRepository.Add(membership);
 
-        Address address;
-        if (HasAddressData(ldapUser))
+        var streetSetting = await _settingsRepository.GetSetting("APP_ADDRESS_ADDRESS");
+        var zipSetting = await _settingsRepository.GetSetting("APP_ADDRESS_ZIP");
+        var placeSetting = await _settingsRepository.GetSetting("APP_ADDRESS_PLACE");
+        var stateSetting = await _settingsRepository.GetSetting("APP_ADDRESS_STATE");
+        var countrySetting = await _settingsRepository.GetSetting("APP_ADDRESS_COUNTRY");
+
+        var street = ldapUser.StreetAddress ?? streetSetting?.Value ?? "Unbekannt";
+        var zip = ldapUser.PostalCode ?? zipSetting?.Value ?? "0000";
+        var city = ldapUser.City ?? placeSetting?.Value ?? "Unbekannt";
+        var state = ldapUser.State ?? stateSetting?.Value ?? "ZH";
+        var country = ldapUser.Country ?? countrySetting?.Value ?? "CH";
+
+        _logger.LogInformation("Creating address for {Name}: Street={Street}, Zip={Zip}, City={City}, State={State}, Country={Country}",
+            client.Name, street, zip, city, state, country);
+        _logger.LogInformation("LDAP values: Street={Street}, Zip={Zip}, City={City}, State={State}, Country={Country}",
+            ldapUser.StreetAddress ?? "(null)", ldapUser.PostalCode ?? "(null)", ldapUser.City ?? "(null)",
+            ldapUser.State ?? "(null)", ldapUser.Country ?? "(null)");
+
+        var address = new Address
         {
-            address = new Address
-            {
-                Id = Guid.NewGuid(),
-                ClientId = client.Id,
-                Type = AddressTypeEnum.Employee,
-                Street = ldapUser.StreetAddress ?? string.Empty,
-                Zip = ldapUser.PostalCode ?? string.Empty,
-                City = ldapUser.City ?? string.Empty,
-                State = ldapUser.State ?? string.Empty,
-                Country = ldapUser.Country ?? string.Empty,
-                ValidFrom = DateTime.UtcNow,
-                AddressLine1 = string.Empty,
-                AddressLine2 = string.Empty,
-                Street2 = string.Empty,
-                Street3 = string.Empty
-            };
-        }
-        else
-        {
-            address = await CreateAddressFromOwnerSettings(client.Id);
-        }
+            ClientId = client.Id,
+            Type = AddressTypeEnum.Employee,
+            Street = street,
+            Zip = zip,
+            City = city,
+            State = state,
+            Country = country,
+            ValidFrom = DateTime.UtcNow,
+            AddressLine1 = string.Empty,
+            AddressLine2 = string.Empty,
+            Street2 = string.Empty,
+            Street3 = string.Empty
+        };
 
         await _addressRepository.Add(address);
 
@@ -207,6 +216,8 @@ public class ClientSyncService : IClientSyncService
         client.Title = ldapUser.Title ?? client.Title;
         client.Company = ldapUser.Company ?? client.Company;
 
+        await UpdateClientAddress(client.Id, ldapUser);
+
         var wasInactive = !syncLog.IsActiveInSource;
         var isNowActive = ldapUser.IsEnabled;
 
@@ -226,6 +237,63 @@ public class ClientSyncService : IClientSyncService
         syncLog.ExternalDn = ldapUser.DistinguishedName;
 
         _logger.LogDebug("Updated client {Name} from LDAP user {DN}", client.Name, ldapUser.DistinguishedName);
+    }
+
+    private async Task UpdateClientAddress(Guid clientId, LdapUserEntry ldapUser)
+    {
+        if (!HasAddressData(ldapUser))
+        {
+            return;
+        }
+
+        var streetSetting = await _settingsRepository.GetSetting("APP_ADDRESS_ADDRESS");
+        var zipSetting = await _settingsRepository.GetSetting("APP_ADDRESS_ZIP");
+        var placeSetting = await _settingsRepository.GetSetting("APP_ADDRESS_PLACE");
+        var stateSetting = await _settingsRepository.GetSetting("APP_ADDRESS_STATE");
+        var countrySetting = await _settingsRepository.GetSetting("APP_ADDRESS_COUNTRY");
+
+        var street = ldapUser.StreetAddress ?? streetSetting?.Value ?? "Unbekannt";
+        var zip = ldapUser.PostalCode ?? zipSetting?.Value ?? "0000";
+        var city = ldapUser.City ?? placeSetting?.Value ?? "Unbekannt";
+        var state = ldapUser.State ?? stateSetting?.Value ?? "ZH";
+        var country = ldapUser.Country ?? countrySetting?.Value ?? "CH";
+
+        var addresses = await _addressRepository.ClienList(clientId);
+        var currentAddress = addresses
+            .Where(a => a.Type == AddressTypeEnum.Employee)
+            .OrderByDescending(a => a.ValidFrom)
+            .FirstOrDefault();
+
+        if (currentAddress != null && !AddressHasChanged(currentAddress, street, zip, city, state, country))
+        {
+            return;
+        }
+
+        var newAddress = new Address
+        {
+            ClientId = clientId,
+            Type = AddressTypeEnum.Employee,
+            Street = street,
+            Zip = zip,
+            City = city,
+            State = state,
+            Country = country,
+            ValidFrom = DateTime.UtcNow,
+            AddressLine1 = string.Empty,
+            AddressLine2 = string.Empty,
+            Street2 = string.Empty,
+            Street3 = string.Empty
+        };
+        await _addressRepository.Add(newAddress);
+    }
+
+    private static bool AddressHasChanged(Address current, string street, string zip, string city, string state, string country)
+    {
+        return current.Street != street ||
+               current.Zip != zip ||
+               current.City != city ||
+               current.State != state ||
+               current.Country != country;
     }
 
     private async Task DeactivateClient(IdentityProviderSyncLog syncLog)
@@ -271,6 +339,28 @@ public class ClientSyncService : IClientSyncService
         return !string.IsNullOrEmpty(ldapUser.StreetAddress) ||
                !string.IsNullOrEmpty(ldapUser.PostalCode) ||
                !string.IsNullOrEmpty(ldapUser.City);
+    }
+
+    private static GenderEnum DetermineGenderFromPersonalTitle(string? personalTitle)
+    {
+        if (string.IsNullOrEmpty(personalTitle))
+        {
+            return GenderEnum.Intersexuality;
+        }
+
+        var title = personalTitle.ToLowerInvariant().Trim();
+
+        if (title is "herr" or "mr" or "mr." or "monsieur" or "m." or "signor")
+        {
+            return GenderEnum.Male;
+        }
+
+        if (title is "frau" or "mrs" or "mrs." or "ms" or "ms." or "madame" or "mme" or "mme." or "signora")
+        {
+            return GenderEnum.Female;
+        }
+
+        return GenderEnum.Intersexuality;
     }
 
     private async Task<Address> CreateAddressFromOwnerSettings(Guid clientId)
