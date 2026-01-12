@@ -72,4 +72,14 @@ public class CalendarRulesController : BaseController
         await mediator.Send(new Application.Commands.Settings.CalendarRules.PutCommand(calendarRule));
         return calendarRule;
     }
+
+    [HttpPost("ValidateCalendarRule")]
+    public async Task<ActionResult<ValidateCalendarRuleResponse>> ValidateCalendarRule([FromBody] ValidateCalendarRuleRequest request)
+    {
+        var result = await mediator.Send(new Application.Queries.Settings.CalendarRules.ValidateRuleQuery(
+            request.Rule,
+            request.SubRule,
+            request.Year));
+        return Ok(result);
+    }
 }

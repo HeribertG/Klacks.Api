@@ -14,12 +14,18 @@ public class CalendarRuleFilterService : ICalendarRuleFilterService
 
     public IQueryable<CalendarRule> ApplyStateCountryFilter(IQueryable<CalendarRule> query, List<StateCountryToken> stateCountryTokens)
     {
-        var filteredStateList = stateCountryTokens.Where(x => x.Select == true).Select(x => x.State).ToList();
-        var filteredCountryList = stateCountryTokens.Where(x => x.Select == true).Select(x => x.Country).Distinct().ToList();
-        filteredStateList.AddRange(filteredCountryList.ToArray());
+        var selectedTokens = stateCountryTokens.Where(x => x.Select == true).ToList();
 
-        query = query.Where(st => filteredStateList.Contains(st.State));
-        query = query.Where(co => filteredCountryList.Contains(co.Country));
+        if (!selectedTokens.Any())
+        {
+            return query;
+        }
+
+        var selectedCombinations = selectedTokens
+            .Select(t => t.Country + "|" + t.State)
+            .ToList();
+
+        query = query.Where(cr => selectedCombinations.Contains(cr.Country + "|" + cr.State));
 
         return query;
     }
