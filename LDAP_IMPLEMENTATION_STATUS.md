@@ -1,6 +1,6 @@
 # Identity Provider Implementation Status
 
-## Stand: 2026-01-11
+## Stand: 2026-01-12
 
 ---
 
@@ -16,6 +16,8 @@
 | SSO Logout | ✅ Abgeschlossen | ✅ Ja |
 | OAuth2 CQRS Refactoring | ✅ Abgeschlossen | ✅ Ja |
 | Active Directory | ✅ Abgeschlossen | ✅ Ja |
+| LDAP Adress-Import | ✅ Abgeschlossen | ✅ Ja |
+| Gender via personalTitle | ✅ Abgeschlossen | ⏳ Vorbereitet (für echtes AD) |
 
 ---
 
@@ -257,6 +259,56 @@ return $"uid={usernameOnly},{baseDn}";
 - ✅ Fallback: Lokale Auth -> LDAP -> AD
 - ✅ Client-Import konfiguriert (use_for_client_import=true)
 
+### 3.4 Adress-Import (2026-01-12)
+
+**Problem**: OpenLDAP verwendet `street` statt `streetAddress`.
+
+**Lösung**: `LdapService.cs` liest beide Attribute mit Fallback:
+```csharp
+StreetAddress = GetStringAttribute(entry, "streetAddress") ?? GetStringAttribute(entry, "street"),
+```
+
+**Attribut-Unterschiede**:
+| Attribut | Active Directory | OpenLDAP (inetOrgPerson) |
+|----------|------------------|--------------------------|
+| `streetAddress` | ✅ | ❌ |
+| `street` | ✅ | ✅ |
+| `c` (country) | ✅ | ❌ |
+| `personalTitle` | ✅ | ❌ |
+
+**Adress-Update bei Sync**: `UpdateClientAddress()` in `ClientSyncService.cs`
+- Prüft ob LDAP-Adresse sich geändert hat
+- Erstellt neue Adresse mit `ValidFrom = DateTime.UtcNow` (Historisierung)
+- Fallback-Kette: LDAP-Wert → Settings → Hardcoded Default
+
+### 3.5 Gender-Erkennung via personalTitle
+
+**Für echtes AD vorbereitet** - OpenLDAP unterstützt `personalTitle` nicht.
+
+**Implementierung**: `DetermineGenderFromPersonalTitle()` in `ClientSyncService.cs`
+
+| personalTitle | Gender |
+|---------------|--------|
+| Herr, Mr, Mr., Monsieur, M., Signor | Male |
+| Frau, Mrs, Mrs., Ms, Ms., Madame, Mme, Mme., Signora | Female |
+| Leer oder unbekannt | Intersexuality (Neutral) |
+
+**Bei OpenLDAP**: Gender bleibt Neutral, kann manuell in der App korrigiert werden.
+
+### 3.6 Auth-Fallback Negotiate → Basic
+
+**Problem**: OpenLDAP unterstützt kein Negotiate (Kerberos).
+
+**Lösung**: `BindWithFallback()` in `LdapService.cs`
+```csharp
+catch (Exception ex) when (provider.Type == IdentityProviderType.ActiveDirectory &&
+    (ex is LdapException || ex is DirectoryOperationException))
+{
+    connection.AuthType = AuthType.Basic;
+    connection.Bind();
+}
+```
+
 ---
 
 ## 4. Test-Server
@@ -333,3 +385,12 @@ Server ist offline - Tests als `[Ignore]` markiert.
 
 ### Migrations
 - `20260109071126_AddLdapFieldsToClient.cs`
+
+### Seed
+- `Infrastructure/Persistence/Seed/IdentityProviders/IdentityProvidersSeed.cs`
+  - Forumsys LDAP Test
+  - Synology SSO (OIDC)
+  - Synology OpenLDAP (AD-Test)
+
+### Tools
+- `Tools/LdapModify/` - Hilfsprogramm zum Setzen von LDAP-Attributen (street, postalCode, l, st)
