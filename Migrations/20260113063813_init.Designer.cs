@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20260106175535_AddIdentityProvider")]
-    partial class AddIdentityProvider
+    [Migration("20260113063813_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -3244,9 +3244,18 @@ namespace Klacks.Api.Migrations
                         .HasColumnName("id_number")
                         .HasDefaultValueSql("nextval('public.client_idnumber_seq')");
 
+                    b.Property<Guid?>("IdentityProviderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("identity_provider_id");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
+
+                    b.Property<string>("LdapExternalId")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("ldap_external_id");
 
                     b.Property<bool>("LegalEntity")
                         .HasColumnType("boolean")
@@ -3287,6 +3296,9 @@ namespace Klacks.Api.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_client");
+
+                    b.HasIndex("IdentityProviderId")
+                        .HasDatabaseName("ix_client_identity_provider_id");
 
                     b.HasIndex("IsDeleted", "IdNumber")
                         .HasDatabaseName("ix_client_is_deleted_id_number");
@@ -4415,6 +4427,16 @@ namespace Klacks.Api.Migrations
                     b.Navigation("Client");
 
                     b.Navigation("Group");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.Client", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Authentification.IdentityProvider", "IdentityProvider")
+                        .WithMany()
+                        .HasForeignKey("IdentityProviderId")
+                        .HasConstraintName("fk_client_identity_providers_identity_provider_id");
+
+                    b.Navigation("IdentityProvider");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.ClientContract", b =>
