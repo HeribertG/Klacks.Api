@@ -350,8 +350,8 @@ namespace Klacks.Api.Data.Seed
             StringBuilder script = new StringBuilder();
             foreach (var breakPlaceholderItem in breakPlaceholders)
             {
-                script.AppendLine($@"INSERT INTO public.break_placeholder (id, client_id, absence_id, ""from"", ""until"", information, break_reason_id, is_deleted, create_time, current_user_created)
-                    VALUES ('{breakPlaceholderItem.Id}', '{breakPlaceholderItem.ClientId}', '{breakPlaceholderItem.AbsenceId}', '{breakPlaceholderItem.From:yyyy-MM-dd HH:mm:ss.ffffff}', '{breakPlaceholderItem.Until:yyyy-MM-dd HH:mm:ss.ffffff}', '{breakPlaceholderItem.Information}', {(breakPlaceholderItem.BreakReasonId.HasValue ? $"'{breakPlaceholderItem.BreakReasonId}'" : "NULL")}, {breakPlaceholderItem.IsDeleted.ToString().ToLower()}, '{breakPlaceholderItem.CreateTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{breakPlaceholderItem.CurrentUserCreated}');");
+                script.AppendLine($@"INSERT INTO public.break_placeholder (id, client_id, absence_id, ""from"", ""until"", information, is_deleted, create_time, current_user_created)
+                    VALUES ('{breakPlaceholderItem.Id}', '{breakPlaceholderItem.ClientId}', '{breakPlaceholderItem.AbsenceId}', '{breakPlaceholderItem.From:yyyy-MM-dd HH:mm:ss.ffffff}', '{breakPlaceholderItem.Until:yyyy-MM-dd HH:mm:ss.ffffff}', '{breakPlaceholderItem.Information}', {breakPlaceholderItem.IsDeleted.ToString().ToLower()}, '{breakPlaceholderItem.CreateTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{breakPlaceholderItem.CurrentUserCreated}');");
             }
 
             return script.ToString();

@@ -1,10 +1,10 @@
-using Klacks.Api.Domain.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Presentation.DTOs;
 using Klacks.Api.Presentation.DTOs.Filter;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Repositories;
 
@@ -26,7 +26,28 @@ public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
         _paginationService = paginationService;
         _exportService = exportService;
     }
-    
+
+    public override async Task<Absence?> Delete(Guid id)
+    {
+        var absence = await context.Absence.FirstOrDefaultAsync(a => a.Id == id);
+        if (absence == null)
+        {
+            return null;
+        }
+
+        var breakContexts = await context.BreakContext
+            .Where(bc => bc.AbsenceId == id && !bc.IsDeleted)
+            .ToListAsync();
+
+        foreach (var breakContext in breakContexts)
+        {
+            context.Remove(breakContext);
+        }
+
+        context.Remove(absence);
+        return absence;
+    }
+
     public async Task<TruncatedAbsence> Truncated(AbsenceFilter filter)
     {
         Logger.LogInformation("Getting truncated absences with filter");

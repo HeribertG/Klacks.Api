@@ -20,8 +20,4 @@ public class BreakPlaceholder : BaseEntity
     public string? Information { get; set; }
 
     public DateTime Until { get; set; }
-
-    public Guid? BreakReasonId { get; set; }
-
-    public BreakReason? BreakReason { get; set; }
 }

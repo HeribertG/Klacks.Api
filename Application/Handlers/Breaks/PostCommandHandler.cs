@@ -34,6 +34,6 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
             await _unitOfWork.CompleteAsync();
 
             return _scheduleMapper.ToBreakResource(entity);
-        }, "CreateBreak", new { request.Resource.ClientId, request.Resource.BreakReasonId });
+        }, "CreateBreak", new { request.Resource.ClientId });
     }
 }

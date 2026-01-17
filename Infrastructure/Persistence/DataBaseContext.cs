@@ -32,7 +32,7 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<BreakPlaceholder> BreakPlaceholder { get; set; }  
 
-    public DbSet<BreakReason> BreakReason { get; set; }  
+    public DbSet<BreakContext> BreakContext { get; set; }  
 
     public DbSet<CalendarRule> CalendarRule { get; set; }  
 
@@ -89,6 +89,8 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<WorkChange> WorkChange { get; set; }
 
     public DbSet<Expenses> Expenses { get; set; }
+
+    public DbSet<ShiftExpenses> ShiftExpenses { get; set; }
 
     public DbSet<ClientPeriodHours> ClientPeriodHours { get; set; }
 
@@ -199,7 +201,17 @@ public class DataBaseContext : IdentityDbContext
             });
         });
         modelBuilder.Entity<BreakPlaceholder>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<BreakReason>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<BreakContext>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.OwnsOne(a => a.DetailName, nav =>
+            {
+                nav.Property(ml => ml.De).HasColumnName("detail_name_de");
+                nav.Property(ml => ml.En).HasColumnName("detail_name_en");
+                nav.Property(ml => ml.Fr).HasColumnName("detail_name_fr");
+                nav.Property(ml => ml.It).HasColumnName("detail_name_it");
+            });
+        });
         modelBuilder.Entity<Branch>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Countries>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<State>().HasQueryFilter(p => !p.IsDeleted);
@@ -222,6 +234,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Break>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<WorkChange>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Expenses>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<ShiftExpenses>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<AssignedGroup>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<GroupVisibility>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Contract>().HasQueryFilter(p => !p.IsDeleted);
@@ -289,7 +302,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Absence>().HasIndex(p => new { p.IsDeleted });
         modelBuilder.Entity<BreakPlaceholder>().HasIndex(p => new { p.IsDeleted, p.AbsenceId, p.ClientId });
         modelBuilder.Entity<BreakPlaceholder>().HasIndex(p => new { p.IsDeleted, p.ClientId, p.From, p.Until });
-        modelBuilder.Entity<BreakReason>().HasIndex(p => new { p.IsDeleted, p.Name });
+        modelBuilder.Entity<BreakContext>().HasIndex(p => new { p.IsDeleted, p.AbsenceId });
         modelBuilder.Entity<CalendarRule>().HasIndex(p => new { p.State, p.Country });
         modelBuilder.Entity<CalendarRule>().OwnsOne(c => c.Name, n => n.Property(p => p.De).IsRequired(false));
         modelBuilder.Entity<CalendarRule>().OwnsOne(c => c.Description, d => d.Property(p => p.De).IsRequired(false));
@@ -300,7 +313,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.GroupId, p.ClientId, p.IsDeleted });
         modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.ClientId, p.GroupId, p.ShiftId });
         modelBuilder.Entity<Work>().HasIndex(p => new { p.ClientId, p.ShiftId });
-        modelBuilder.Entity<Break>().HasIndex(p => new { p.ClientId, p.BreakReasonId });
+        modelBuilder.Entity<Break>().HasIndex(p => new { p.ClientId });
         modelBuilder.Entity<Shift>().HasIndex(p => new { p.MacroId, p.ClientId, p.Status , p.FromDate, p.UntilDate });
         modelBuilder.Entity<ContainerTemplate>().HasIndex(p => new { p.Id, p.ContainerId, p.Weekday, p.IsWeekdayAndHoliday, p.IsHoliday });
         modelBuilder.Entity<ClientScheduleDetail>().HasIndex(p => new { p.ClientId, p.CurrentYear, p.CurrentMonth });
@@ -428,8 +441,11 @@ public class DataBaseContext : IdentityDbContext
                .WithMany(b => b.Breaks)
                .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Break>()
-            .HasOne(p => p.BreakReason);
+        modelBuilder.Entity<BreakContext>()
+            .HasOne(p => p.Absence)
+            .WithMany()
+            .HasForeignKey(p => p.AbsenceId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<WorkChange>()
             .HasOne(sc => sc.Work)
@@ -447,6 +463,12 @@ public class DataBaseContext : IdentityDbContext
             .HasOne(e => e.Work)
             .WithMany()
             .HasForeignKey(e => e.WorkId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ShiftExpenses>()
+            .HasOne(e => e.Shift)
+            .WithMany()
+            .HasForeignKey(e => e.ShiftId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<GroupVisibility>(entity =>

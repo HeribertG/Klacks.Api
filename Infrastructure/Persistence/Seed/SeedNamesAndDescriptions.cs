@@ -146,17 +146,6 @@ namespace Klacks.Api.Data.Seed
 
         #endregion
 
-        #region Break-Gründe
-
-        public static List<string> BreakReasons { get; } = new()
-        {
-            "Ferien", "Krankheit", "Weiterbildung", "Persönlicher Urlaub", "Mutterschaftsurlaub",
-            "Vaterschaftsurlaub", "Militärdienst", "Zivildienst", "Unfall", "Arzttermin",
-            "Familienangelegenheit", "Umzug", "Hochzeit", "Trauerfall", "Sabbatical"
-        };
-
-        #endregion
-
         #region Kommunikations-Beschreibungen
 
         public static List<string> CommunicationDescriptions { get; } = new()

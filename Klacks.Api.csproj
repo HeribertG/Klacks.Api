@@ -49,7 +49,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Domain\" />
 		<Folder Include="Domain\Exceptions\" />
 		<Folder Include="Infrastructure\" />
 	</ItemGroup>

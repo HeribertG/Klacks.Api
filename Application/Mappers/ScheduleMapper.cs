@@ -68,8 +68,6 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(BreakPlaceholder.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(BreakPlaceholder.Absence))]
     [MapperIgnoreTarget(nameof(BreakPlaceholder.Client))]
-    [MapperIgnoreTarget(nameof(BreakPlaceholder.BreakReasonId))]
-    [MapperIgnoreTarget(nameof(BreakPlaceholder.BreakReason))]
     public partial BreakPlaceholder ToBreakPlaceholderEntity(BreakPlaceholderResource resource);
 
     [MapperIgnoreTarget(nameof(BreakPlaceholder.Id))]
@@ -82,8 +80,6 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(BreakPlaceholder.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(BreakPlaceholder.Absence))]
     [MapperIgnoreTarget(nameof(BreakPlaceholder.Client))]
-    [MapperIgnoreTarget(nameof(BreakPlaceholder.BreakReasonId))]
-    [MapperIgnoreTarget(nameof(BreakPlaceholder.BreakReason))]
     public partial void UpdateBreakEntity(BreakPlaceholderResource resource, BreakPlaceholder target);
 
     public partial CalendarRuleResource ToCalendarRuleResource(CalendarRule rule);
@@ -133,7 +129,6 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Break.IsDeleted))]
     [MapperIgnoreTarget(nameof(Break.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(Break.Client))]
-    [MapperIgnoreTarget(nameof(Break.BreakReason))]
     public partial Break ToBreakEntity(BreakResource resource);
 
     public ShiftResource ToShiftResource(Shift shift)

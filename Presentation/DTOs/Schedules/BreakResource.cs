@@ -10,10 +10,6 @@ public class BreakResource
 
     public Guid ClientId { get; set; }
 
-    public BreakReasonResource? BreakReason { get; set; }
-
-    public Guid BreakReasonId { get; set; }
-
     public DateTime CurrentDate { get; set; }
 
     public string? Information { get; set; }
