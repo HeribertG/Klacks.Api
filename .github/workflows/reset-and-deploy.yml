@@ -1,0 +1,263 @@
+# .github/workflows/reset-and-deploy.yml
+# Manueller Workflow: DB löschen + alle Apps neu deployen
+name: Reset Database & Full Redeploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_reset:
+        description: 'Type "RESET" to confirm database deletion'
+        required: true
+        type: string
+      skip_db_reset:
+        description: 'Skip database reset (only redeploy all apps)'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: reset-and-deploy
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate confirmation
+        if: ${{ !inputs.skip_db_reset && inputs.confirm_reset != 'RESET' }}
+        run: |
+          echo "❌ Invalid confirmation. You must type 'RESET' to confirm database deletion."
+          echo "   Received: '${{ inputs.confirm_reset }}'"
+          exit 1
+
+  reset-and-deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Reset Database & Deploy All Services
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SSH_PORT || 22 }}
+        command_timeout: 25m
+        script: |
+          set -e
+
+          echo "=============================================="
+          echo "🚀 KLACKS FULL RESET & REDEPLOY"
+          echo "=============================================="
+          echo "Skip DB Reset: ${{ inputs.skip_db_reset }}"
+          echo ""
+
+          cd /root/apps
+
+          # Detect Docker Compose command
+          if command -v docker-compose &> /dev/null; then
+            COMPOSE_CMD="docker-compose"
+          else
+            COMPOSE_CMD="docker compose"
+          fi
+          echo "Using: $COMPOSE_CMD"
+          echo ""
+
+          # ==========================================
+          # STEP 1: Stop all containers
+          # ==========================================
+          echo "=============================================="
+          echo "📦 STEP 1: Stopping all containers..."
+          echo "=============================================="
+          $COMPOSE_CMD down
+          echo "✅ All containers stopped"
+          echo ""
+
+          # ==========================================
+          # STEP 2: Delete database volumes (if not skipped)
+          # ==========================================
+          if [ "${{ inputs.skip_db_reset }}" != "true" ]; then
+            echo "=============================================="
+            echo "🗑️  STEP 2: Deleting database volumes..."
+            echo "=============================================="
+
+            # Find and remove postgres volumes
+            POSTGRES_VOLUMES=$(docker volume ls -q | grep -E "postgres|klacks.*data" || true)
+            if [ -n "$POSTGRES_VOLUMES" ]; then
+              echo "Found volumes to delete:"
+              echo "$POSTGRES_VOLUMES"
+              for vol in $POSTGRES_VOLUMES; do
+                echo "Removing volume: $vol"
+                docker volume rm "$vol" || echo "Warning: Could not remove $vol"
+              done
+              echo "✅ Database volumes deleted"
+            else
+              echo "⚠️  No postgres volumes found"
+            fi
+
+            # Also remove pgadmin volume for clean slate
+            PGADMIN_VOLUMES=$(docker volume ls -q | grep -i pgadmin || true)
+            if [ -n "$PGADMIN_VOLUMES" ]; then
+              for vol in $PGADMIN_VOLUMES; do
+                echo "Removing pgadmin volume: $vol"
+                docker volume rm "$vol" || echo "Warning: Could not remove $vol"
+              done
+            fi
+          else
+            echo "=============================================="
+            echo "⏭️  STEP 2: Skipping database reset"
+            echo "=============================================="
+          fi
+          echo ""
+
+          # ==========================================
+          # STEP 3: Update all repositories
+          # ==========================================
+          echo "=============================================="
+          echo "📥 STEP 3: Updating all repositories..."
+          echo "=============================================="
+
+          # Update Klacks.Api
+          if [ -d "Klacks.Api" ]; then
+            echo "📦 Updating Klacks.Api..."
+            cd Klacks.Api
+            git fetch origin
+            git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)
+            cd ..
+          else
+            echo "📦 Cloning Klacks.Api..."
+            git clone https://github.com/HeribertG/Klacks.Api.git
+          fi
+
+          # Update Klacks.Ui
+          if [ -d "Klacks.Ui" ]; then
+            echo "📦 Updating Klacks.Ui..."
+            cd Klacks.Ui
+            git fetch origin
+            git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)
+            cd ..
+          else
+            echo "📦 Cloning Klacks.Ui..."
+            git clone https://github.com/HeribertG/Klacks.Ui.git
+          fi
+
+          # Update Klacks.Blazor
+          if [ -d "Klacks.Blazor" ]; then
+            echo "📦 Updating Klacks.Blazor..."
+            cd Klacks.Blazor
+            git fetch origin
+            git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)
+            cd ..
+          else
+            echo "📦 Cloning Klacks.Blazor..."
+            git clone https://github.com/HeribertG/Klacks.Blazor.git
+          fi
+
+          echo "✅ All repositories updated"
+          echo ""
+
+          # ==========================================
+          # STEP 4: Build all images
+          # ==========================================
+          echo "=============================================="
+          echo "🔨 STEP 4: Building all Docker images..."
+          echo "=============================================="
+
+          echo "Building klacks-api..."
+          $COMPOSE_CMD build klacks-api --no-cache
+
+          echo "Building klacks-ui..."
+          $COMPOSE_CMD build klacks-ui --no-cache
+
+          echo "Building klacks-blazor..."
+          $COMPOSE_CMD build klacks-blazor --no-cache
+
+          echo "✅ All images built"
+          echo ""
+
+          # ==========================================
+          # STEP 5: Start all containers
+          # ==========================================
+          echo "=============================================="
+          echo "🚀 STEP 5: Starting all containers..."
+          echo "=============================================="
+          $COMPOSE_CMD up -d
+          echo "✅ All containers started"
+          echo ""
+
+          # ==========================================
+          # STEP 6: Health Checks
+          # ==========================================
+          echo "=============================================="
+          echo "🏥 STEP 6: Running health checks..."
+          echo "=============================================="
+
+          # Wait for services to initialize
+          echo "Waiting 30 seconds for services to initialize..."
+          sleep 30
+
+          # Check container status
+          echo ""
+          echo "📊 Container Status:"
+          $COMPOSE_CMD ps
+          echo ""
+
+          # Check if all containers are running
+          FAILED=0
+
+          for service in postgres klacks-api klacks-ui klacks-blazor; do
+            if $COMPOSE_CMD ps $service 2>/dev/null | grep -q "Up"; then
+              echo "✅ $service is running"
+            else
+              echo "❌ $service is NOT running"
+              FAILED=1
+            fi
+          done
+
+          if [ $FAILED -eq 1 ]; then
+            echo ""
+            echo "❌ Some services failed to start. Showing logs..."
+            $COMPOSE_CMD logs --tail=30
+            exit 1
+          fi
+
+          # HTTP Health Checks
+          echo ""
+          echo "🌐 HTTP Health Checks:"
+
+          # Check API
+          if curl -f -s -o /dev/null -w "%{http_code}" http://localhost:5000/swagger 2>/dev/null | grep -qE "200|301|302"; then
+            echo "✅ Klacks.Api is responding (port 5000)"
+          else
+            echo "⚠️  Klacks.Api may still be initializing"
+          fi
+
+          # Check UI
+          if curl -f -s -o /dev/null http://localhost:3000 2>/dev/null; then
+            echo "✅ Klacks.Ui is responding (port 3000)"
+          else
+            echo "⚠️  Klacks.Ui may still be initializing"
+          fi
+
+          # Check Blazor
+          if curl -f -s -o /dev/null http://localhost:7002 2>/dev/null; then
+            echo "✅ Klacks.Blazor is responding (port 7002)"
+          else
+            echo "⚠️  Klacks.Blazor may still be initializing"
+          fi
+
+          echo ""
+          echo "=============================================="
+          echo "✅ KLACKS FULL RESET & REDEPLOY COMPLETED!"
+          echo "=============================================="
+          echo ""
+          echo "🌐 Access URLs:"
+          echo "   - Klacks UI:     http://157.180.42.127:3000"
+          echo "   - Klacks API:    http://157.180.42.127:5000"
+          echo "   - Klacks Blazor: http://157.180.42.127:7002"
+          echo "   - pgAdmin:       http://157.180.42.127:5050"
+          echo ""
