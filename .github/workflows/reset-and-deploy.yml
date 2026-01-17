@@ -157,6 +157,18 @@ jobs:
             git clone https://github.com/HeribertG/Klacks.Blazor.git
           fi
 
+          # Update Klacks.Docs (required by Klacks.Api)
+          if [ -d "Klacks.Docs" ]; then
+            echo "📦 Updating Klacks.Docs..."
+            cd Klacks.Docs
+            git fetch origin
+            git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)
+            cd ..
+          else
+            echo "📦 Cloning Klacks.Docs..."
+            git clone https://github.com/HeribertG/Klacks.Docs.git
+          fi
+
           echo "✅ All repositories updated"
           echo ""
 

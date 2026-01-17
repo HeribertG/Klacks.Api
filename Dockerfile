@@ -2,13 +2,19 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy csproj and restore dependencies
-COPY Klacks.Api.csproj .
-RUN dotnet restore Klacks.Api.csproj
+# Copy csproj files for restore
+COPY Klacks.Api/Klacks.Api.csproj Klacks.Api/
+COPY Klacks.Docs/Klacks.Docs.csproj Klacks.Docs/
 
-# Copy everything else and build
-COPY . .
-RUN dotnet publish Klacks.Api.csproj -c Release -o /app/publish
+# Restore dependencies
+RUN dotnet restore Klacks.Api/Klacks.Api.csproj
+
+# Copy everything else
+COPY Klacks.Api/ Klacks.Api/
+COPY Klacks.Docs/ Klacks.Docs/
+
+# Build and publish
+RUN dotnet publish Klacks.Api/Klacks.Api.csproj -c Release -o /app/publish
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
