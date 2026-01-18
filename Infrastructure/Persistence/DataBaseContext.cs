@@ -32,7 +32,7 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<BreakPlaceholder> BreakPlaceholder { get; set; }  
 
-    public DbSet<BreakContext> BreakContext { get; set; }  
+    public DbSet<AbsenceDetail> AbsenceDetail { get; set; }  
 
     public DbSet<CalendarRule> CalendarRule { get; set; }  
 
@@ -201,7 +201,7 @@ public class DataBaseContext : IdentityDbContext
             });
         });
         modelBuilder.Entity<BreakPlaceholder>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<BreakContext>(entity =>
+        modelBuilder.Entity<AbsenceDetail>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
             entity.OwnsOne(a => a.DetailName, nav =>
@@ -302,7 +302,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Absence>().HasIndex(p => new { p.IsDeleted });
         modelBuilder.Entity<BreakPlaceholder>().HasIndex(p => new { p.IsDeleted, p.AbsenceId, p.ClientId });
         modelBuilder.Entity<BreakPlaceholder>().HasIndex(p => new { p.IsDeleted, p.ClientId, p.From, p.Until });
-        modelBuilder.Entity<BreakContext>().HasIndex(p => new { p.IsDeleted, p.AbsenceId });
+        modelBuilder.Entity<AbsenceDetail>().HasIndex(p => new { p.IsDeleted, p.AbsenceId });
         modelBuilder.Entity<CalendarRule>().HasIndex(p => new { p.State, p.Country });
         modelBuilder.Entity<CalendarRule>().OwnsOne(c => c.Name, n => n.Property(p => p.De).IsRequired(false));
         modelBuilder.Entity<CalendarRule>().OwnsOne(c => c.Description, d => d.Property(p => p.De).IsRequired(false));
@@ -441,7 +441,7 @@ public class DataBaseContext : IdentityDbContext
                .WithMany(b => b.Breaks)
                .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<BreakContext>()
+        modelBuilder.Entity<AbsenceDetail>()
             .HasOne(p => p.Absence)
             .WithMany()
             .HasForeignKey(p => p.AbsenceId)

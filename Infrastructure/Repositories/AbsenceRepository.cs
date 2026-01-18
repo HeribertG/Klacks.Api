@@ -35,13 +35,13 @@ public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
             return null;
         }
 
-        var breakContexts = await context.BreakContext
-            .Where(bc => bc.AbsenceId == id && !bc.IsDeleted)
+        var absenceDetails = await context.AbsenceDetail
+            .Where(ad => ad.AbsenceId == id && !ad.IsDeleted)
             .ToListAsync();
 
-        foreach (var breakContext in breakContexts)
+        foreach (var absenceDetail in absenceDetails)
         {
-            context.Remove(breakContext);
+            context.Remove(absenceDetail);
         }
 
         context.Remove(absence);

@@ -120,29 +120,29 @@ public partial class SettingsMapper
     [MapperIgnoreTarget(nameof(State.CurrentUserDeleted))]
     public partial void UpdateStateEntity(StateResource resource, State target);
 
-    public partial BreakContextResource ToBreakContextResource(BreakContext breakContext);
-    public partial List<BreakContextResource> ToBreakContextResources(List<BreakContext> breakContexts);
+    public partial AbsenceDetailResource ToAbsenceDetailResource(AbsenceDetail absenceDetail);
+    public partial List<AbsenceDetailResource> ToAbsenceDetailResources(List<AbsenceDetail> absenceDetails);
 
-    [MapperIgnoreTarget(nameof(BreakContext.CreateTime))]
-    [MapperIgnoreTarget(nameof(BreakContext.CurrentUserCreated))]
-    [MapperIgnoreTarget(nameof(BreakContext.UpdateTime))]
-    [MapperIgnoreTarget(nameof(BreakContext.CurrentUserUpdated))]
-    [MapperIgnoreTarget(nameof(BreakContext.DeletedTime))]
-    [MapperIgnoreTarget(nameof(BreakContext.IsDeleted))]
-    [MapperIgnoreTarget(nameof(BreakContext.CurrentUserDeleted))]
-    [MapperIgnoreTarget(nameof(BreakContext.Absence))]
-    public partial BreakContext ToBreakContextEntity(BreakContextResource resource);
+    [MapperIgnoreTarget(nameof(AbsenceDetail.CreateTime))]
+    [MapperIgnoreTarget(nameof(AbsenceDetail.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(AbsenceDetail.UpdateTime))]
+    [MapperIgnoreTarget(nameof(AbsenceDetail.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(AbsenceDetail.DeletedTime))]
+    [MapperIgnoreTarget(nameof(AbsenceDetail.IsDeleted))]
+    [MapperIgnoreTarget(nameof(AbsenceDetail.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(AbsenceDetail.Absence))]
+    public partial AbsenceDetail ToAbsenceDetailEntity(AbsenceDetailResource resource);
 
-    [MapperIgnoreTarget(nameof(BreakContext.Id))]
-    [MapperIgnoreTarget(nameof(BreakContext.CreateTime))]
-    [MapperIgnoreTarget(nameof(BreakContext.CurrentUserCreated))]
-    [MapperIgnoreTarget(nameof(BreakContext.UpdateTime))]
-    [MapperIgnoreTarget(nameof(BreakContext.CurrentUserUpdated))]
-    [MapperIgnoreTarget(nameof(BreakContext.DeletedTime))]
-    [MapperIgnoreTarget(nameof(BreakContext.IsDeleted))]
-    [MapperIgnoreTarget(nameof(BreakContext.CurrentUserDeleted))]
-    [MapperIgnoreTarget(nameof(BreakContext.Absence))]
-    public partial void UpdateBreakContextEntity(BreakContextResource resource, BreakContext target);
+    [MapperIgnoreTarget(nameof(AbsenceDetail.Id))]
+    [MapperIgnoreTarget(nameof(AbsenceDetail.CreateTime))]
+    [MapperIgnoreTarget(nameof(AbsenceDetail.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(AbsenceDetail.UpdateTime))]
+    [MapperIgnoreTarget(nameof(AbsenceDetail.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(AbsenceDetail.DeletedTime))]
+    [MapperIgnoreTarget(nameof(AbsenceDetail.IsDeleted))]
+    [MapperIgnoreTarget(nameof(AbsenceDetail.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(AbsenceDetail.Absence))]
+    public partial void UpdateAbsenceDetailEntity(AbsenceDetailResource resource, AbsenceDetail target);
 
     public partial HistoryResource ToHistoryResource(History history);
     public partial List<HistoryResource> ToHistoryResources(List<History> histories);

@@ -48,7 +48,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<ISettingsRepository, SettingsRepository>();
         services.AddScoped<IAbsenceRepository, AbsenceRepository>();
         services.AddScoped<IBreakPlaceholderRepository, BreakPlaceholderRepository>();
-        services.AddScoped<IBreakContextRepository, BreakContextRepository>();
+        services.AddScoped<IAbsenceDetailRepository, AbsenceDetailRepository>();
         services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IStateRepository, StateRepository>();
         services.AddScoped<IBranchRepository, BranchRepository>();
