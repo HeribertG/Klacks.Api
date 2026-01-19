@@ -4,13 +4,9 @@ public class WorkFilter
 {
     public string SearchString { get; set; } = string.Empty;
 
-    public int CurrentMonth { get; set; }
+    public DateOnly StartDate { get; set; }
 
-    public int CurrentYear { get; set; }
-
-    public int DayVisibleBeforeMonth { get; set; }
-
-    public int DayVisibleAfterMonth { get; set; }
+    public DateOnly EndDate { get; set; }
 
     public Guid? SelectedGroup { get; set; }
 

@@ -15,7 +15,6 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
     private readonly IWorkScheduleService _workScheduleService;
     private readonly IShiftGroupFilterService _groupFilterService;
     private readonly IWorkRepository _workRepository;
-    private readonly ISettingsRepository _settingsRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly ILogger<GetWorkScheduleQueryHandler> _logger;
 
@@ -23,14 +22,12 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         IWorkScheduleService workScheduleService,
         IShiftGroupFilterService groupFilterService,
         IWorkRepository workRepository,
-        ISettingsRepository settingsRepository,
         ScheduleMapper scheduleMapper,
         ILogger<GetWorkScheduleQueryHandler> logger)
     {
         _workScheduleService = workScheduleService;
         _groupFilterService = groupFilterService;
         _workRepository = workRepository;
-        _settingsRepository = settingsRepository;
         _scheduleMapper = scheduleMapper;
         _logger = logger;
     }
@@ -39,37 +36,19 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         GetWorkScheduleQuery request,
         CancellationToken cancellationToken)
     {
-        _logger.LogInformation(
-            "Received filter - PeriodStartDate: {PeriodStartDate}, PeriodEndDate: {PeriodEndDate}",
-            request.Filter.PeriodStartDate,
-            request.Filter.PeriodEndDate);
+        var startDate = request.Filter.StartDate;
+        var endDate = request.Filter.EndDate;
 
-        var dayVisibleBefore = await GetSettingAsInt("dayVisibleBeforeMonth", 10);
-        var dayVisibleAfter = await GetSettingAsInt("dayVisibleAfterMonth", 10);
-
-        _logger.LogInformation(
-            "Settings - dayVisibleBefore: {DayVisibleBefore}, dayVisibleAfter: {DayVisibleAfter}",
-            dayVisibleBefore,
-            dayVisibleAfter);
-
-        var periodStartDate = request.Filter.PeriodStartDate;
-        var periodEndDate = request.Filter.PeriodEndDate;
-
-        if (periodStartDate == DateOnly.MinValue || periodEndDate == DateOnly.MinValue)
+        if (startDate == DateOnly.MinValue || endDate == DateOnly.MinValue)
         {
-            _logger.LogError("Invalid period dates received - using current month as fallback");
+            _logger.LogError("Invalid dates received - using current month as fallback");
             var now = DateTime.UtcNow;
-            periodStartDate = new DateOnly(now.Year, now.Month, 1);
-            periodEndDate = new DateOnly(now.Year, now.Month, DateTime.DaysInMonth(now.Year, now.Month));
+            startDate = new DateOnly(now.Year, now.Month, 1).AddDays(-10);
+            endDate = new DateOnly(now.Year, now.Month, DateTime.DaysInMonth(now.Year, now.Month)).AddDays(10);
         }
 
-        var startDate = periodStartDate.AddDays(-dayVisibleBefore);
-        var endDate = periodEndDate.AddDays(dayVisibleAfter);
-
         _logger.LogInformation(
-            "Handling GetWorkScheduleQuery Period: {PeriodStart} to {PeriodEnd}, Visible: {StartDate} to {EndDate}, StartRow: {StartRow}, RowCount: {RowCount}",
-            periodStartDate,
-            periodEndDate,
+            "Handling GetWorkScheduleQuery - StartDate: {StartDate}, EndDate: {EndDate}, StartRow: {StartRow}, RowCount: {RowCount}",
             startDate,
             endDate,
             request.Filter.StartRow,
@@ -78,9 +57,6 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         var workFilter = CreateWorkFilter(
             startDate,
             endDate,
-            periodStartDate,
-            dayVisibleBefore,
-            dayVisibleAfter,
             request.Filter.SelectedGroup,
             request.Filter.OrderBy,
             request.Filter.SortOrder,
@@ -109,8 +85,8 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
 
         var periodHours = await _workRepository.GetPeriodHoursForClients(
             clientIds,
-            periodStartDate,
-            periodEndDate);
+            startDate,
+            endDate);
 
         _logger.LogInformation(
             "Returned {EntryCount} work schedule entries and {ClientCount} clients (total: {TotalCount})",
@@ -129,22 +105,9 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         };
     }
 
-    private async Task<int> GetSettingAsInt(string key, int defaultValue)
-    {
-        var setting = await _settingsRepository.GetSetting(key);
-        if (setting != null && int.TryParse(setting.Value, out var value))
-        {
-            return value;
-        }
-        return defaultValue;
-    }
-
     private static WorkFilter CreateWorkFilter(
         DateOnly startDate,
         DateOnly endDate,
-        DateOnly periodStartDate,
-        int dayVisibleBefore,
-        int dayVisibleAfter,
         Guid? selectedGroup,
         string orderBy,
         string sortOrder,
@@ -156,10 +119,8 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
     {
         return new WorkFilter
         {
-            CurrentYear = periodStartDate.Year,
-            CurrentMonth = periodStartDate.Month,
-            DayVisibleBeforeMonth = dayVisibleBefore,
-            DayVisibleAfterMonth = dayVisibleAfter,
+            StartDate = startDate,
+            EndDate = endDate,
             SelectedGroup = selectedGroup,
             SearchString = string.Empty,
             OrderBy = orderBy,

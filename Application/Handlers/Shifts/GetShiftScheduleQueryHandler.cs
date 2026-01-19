@@ -27,9 +27,9 @@ public class GetShiftScheduleQueryHandler : IRequestHandler<GetShiftScheduleQuer
         CancellationToken cancellationToken)
     {
         _logger.LogInformation(
-            "Handling GetShiftScheduleQuery for {Month}/{Year}",
-            request.Filter.CurrentMonth,
-            request.Filter.CurrentYear);
+            "Handling GetShiftScheduleQuery for {StartDate} to {EndDate}",
+            request.Filter.StartDate,
+            request.Filter.EndDate);
 
         var (shiftDayAssignments, totalCount) = await _shiftScheduleRepository.GetShiftScheduleAsync(
             request.Filter,

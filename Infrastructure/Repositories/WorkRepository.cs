@@ -47,13 +47,13 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
     public async Task<(List<Client> Clients, int TotalCount)> WorkList(WorkFilter filter)
     {
-        if (filter.CurrentYear <= 0 || filter.CurrentMonth <= 0)
+        if (filter.StartDate == DateOnly.MinValue || filter.EndDate == DateOnly.MinValue)
         {
             return (new List<Client>(), 0);
         }
 
-        var startOfYear = new DateTime(filter.CurrentYear, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        var endOfYear = new DateTime(filter.CurrentYear, 12, 31, 23, 59, 59, DateTimeKind.Utc);
+        var startOfYear = new DateTime(filter.StartDate.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var endOfYear = new DateTime(filter.EndDate.Year, 12, 31, 23, 59, 59, DateTimeKind.Utc);
 
         var query = _context.Client
             .Where(c => c.Type != EntityTypeEnum.Customer)
@@ -63,12 +63,10 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
                         (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startOfYear))
             .AsQueryable();
 
-        var startDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1, 0, 0, 0, DateTimeKind.Utc)
-            .AddDays(-filter.DayVisibleBeforeMonth);
-        var endDate = new DateTime(filter.CurrentYear, filter.CurrentMonth, DateTime.DaysInMonth(filter.CurrentYear, filter.CurrentMonth), 23, 59, 59, DateTimeKind.Utc)
-            .AddDays(filter.DayVisibleAfterMonth);
+        var startDateTime = filter.StartDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        var endDateTime = filter.EndDate.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc);
 
-        query = query.Include(c => c.Works.Where(w => w.CurrentDate >= startDate && w.CurrentDate <= endDate));
+        query = query.Include(c => c.Works.Where(w => w.CurrentDate >= startDateTime && w.CurrentDate <= endDateTime));
 
         query = await _groupFilterService.FilterClientsByGroupId(filter.SelectedGroup, query);
 
@@ -76,8 +74,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
         query = ApplyTypeFilter(query, filter.ShowEmployees, filter.ShowExtern);
 
-        var refDate = new DateOnly(filter.CurrentYear, filter.CurrentMonth, 1);
-        query = ApplySorting(query, filter.OrderBy, filter.SortOrder, filter.HoursSortOrder, refDate);
+        query = ApplySorting(query, filter.OrderBy, filter.SortOrder, filter.HoursSortOrder, filter.StartDate);
 
         var totalCount = await query.CountAsync();
 

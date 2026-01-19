@@ -8,14 +8,7 @@ public class ScheduleDateRangeService : IScheduleDateRangeService
 {
     public (DateOnly startDate, DateOnly endDate) CalculateScheduleDateRange(ShiftScheduleFilter filter)
     {
-        var startDateTime = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1)
-            .AddDays(filter.DayVisibleAfterMonth * -1);
-            
-        var endDateTime = new DateTime(filter.CurrentYear, filter.CurrentMonth, 1)
-            .AddMonths(1).AddDays(-1)
-            .AddDays(filter.DayVisibleAfterMonth);
-
-        return (DateOnly.FromDateTime(startDateTime), DateOnly.FromDateTime(endDateTime));
+        return (filter.StartDate, filter.EndDate);
     }
 
     public IQueryable<Shift> ApplyScheduleDateFilter(IQueryable<Shift> query, DateOnly startDate, DateOnly endDate)

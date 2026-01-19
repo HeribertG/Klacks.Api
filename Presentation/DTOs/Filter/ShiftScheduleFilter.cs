@@ -2,13 +2,9 @@
 
 public class ShiftScheduleFilter
 {
-    public int DayVisibleBeforeMonth { get; set; }
+    public DateOnly StartDate { get; set; }
 
-    public int DayVisibleAfterMonth { get; set; }
-
-    public int CurrentMonth { get; set; }
-
-    public int CurrentYear { get; set; }
+    public DateOnly EndDate { get; set; }
 
     public List<DateTime>? HolidayDates { get; set; }
 

@@ -30,24 +30,21 @@ public class ShiftScheduleRepository : IShiftScheduleRepository
         ShiftScheduleFilter filter,
         CancellationToken cancellationToken)
     {
+        var startDate = filter.StartDate;
+        var endDate = filter.EndDate;
+
+        if (startDate == DateOnly.MinValue || endDate == DateOnly.MinValue)
+        {
+            _logger.LogWarning("Invalid dates received - using current month as fallback");
+            var now = DateTime.UtcNow;
+            startDate = new DateOnly(now.Year, now.Month, 1).AddDays(-10);
+            endDate = new DateOnly(now.Year, now.Month, DateTime.DaysInMonth(now.Year, now.Month)).AddDays(10);
+        }
+
         _logger.LogInformation(
-            "Fetching shift schedule for {Month}/{Year}",
-            filter.CurrentMonth,
-            filter.CurrentYear);
-
-        var startDate = new DateOnly(
-            filter.CurrentYear,
-            filter.CurrentMonth,
-            1).AddDays(-filter.DayVisibleBeforeMonth);
-
-        var daysInMonth = DateTime.DaysInMonth(
-            filter.CurrentYear,
-            filter.CurrentMonth);
-
-        var endDate = new DateOnly(
-            filter.CurrentYear,
-            filter.CurrentMonth,
-            daysInMonth).AddDays(filter.DayVisibleAfterMonth);
+            "Fetching shift schedule for {StartDate} to {EndDate}",
+            startDate,
+            endDate);
 
         var holidayDates = filter.HolidayDates?
             .Select(d => DateOnly.FromDateTime(d))

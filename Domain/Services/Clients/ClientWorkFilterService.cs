@@ -23,17 +23,12 @@ public class ClientWorkFilterService : IClientWorkFilterService
 
     public IQueryable<Client> FilterByWorkSchedule(IQueryable<Client> query, WorkFilter filter, DataBaseContext context)
     {
-        var (startDate, endDate) = DateRangeUtility.GetExtendedMonthRange(
-            filter.CurrentYear, 
-            filter.CurrentMonth, 
-            filter.DayVisibleAfterMonth, 
-            filter.DayVisibleAfterMonth);
+        var startDate = filter.StartDate.ToDateTime(TimeOnly.MinValue);
+        var endDate = filter.EndDate.ToDateTime(TimeOnly.MaxValue);
 
-        // First materialize the clients
         var clients = query.ToList();
         var clientIds = clients.Select(c => c.Id).ToList();
 
-        // Get works for these clients
         var works = context.Work.Where(b => clientIds.Contains(b.ClientId) &&
                                       b.CurrentDate.Date >= startDate && b.CurrentDate.Date <= endDate)
                                 .OrderBy(b => b.CurrentDate)
@@ -41,7 +36,6 @@ public class ClientWorkFilterService : IClientWorkFilterService
 
         var worksByClientId = works.ToLookup(w => w.ClientId);
 
-        // Assign works to clients
         foreach (var client in clients)
         {
             client.Works = worksByClientId.Contains(client.Id) ? worksByClientId[client.Id].ToList() : new List<Work>();

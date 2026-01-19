@@ -4,13 +4,9 @@ namespace Klacks.Api.Presentation.DTOs.Filter;
 
 public class WorkFilter
 {
-    public int DayVisibleBeforeMonth { get; set; }
+    public DateOnly StartDate { get; set; }
 
-    public int DayVisibleAfterMonth { get; set; }
-
-    public int CurrentMonth { get; set; }
-
-    public int CurrentYear { get; set; }
+    public DateOnly EndDate { get; set; }
 
     public string OrderBy { get; set; } = string.Empty;
 
