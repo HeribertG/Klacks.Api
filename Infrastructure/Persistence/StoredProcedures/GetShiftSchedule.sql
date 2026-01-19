@@ -4,9 +4,10 @@
 --   end_date: End of the period
 --   holiday_dates: Array of holidays (DATE[])
 --   visible_group_ids: Optional array of visible group IDs (includes subgroups)
---   show_ungrouped_shifts: If TRUE, include shifts not assigned to any group (default FALSE)
+--   show_ungrouped_shifts: Deprecated, kept for backward compatibility (shifts without group are always included)
 -- Returns: shift_id, date, day_of_week (ISO: 1=Mon, 7=Sun), shift_name, abbreviation, start_shift, end_shift, work_time, is_sporadic, is_time_range, shift_type, status
 -- Note: Only returns shifts with status >= 2 (OriginalShift or SplitShift)
+-- Note: Shifts not assigned to any group are always visible regardless of group filter
 
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[]);
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[], UUID);
@@ -54,7 +55,7 @@ BEGIN
         LEFT JOIN group_item gi ON gi.shift_id = s.id
         WHERE
             (visible_group_ids IS NULL OR array_length(visible_group_ids, 1) IS NULL)
-            OR (gi.shift_id IS NULL AND show_ungrouped_shifts)
+            OR gi.shift_id IS NULL
             OR gi.group_id IN (SELECT id FROM group_hierarchy)
     ),
     holidays AS MATERIALIZED (
