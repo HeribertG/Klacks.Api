@@ -15,6 +15,7 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
     private readonly IWorkScheduleService _workScheduleService;
     private readonly IShiftGroupFilterService _groupFilterService;
     private readonly IWorkRepository _workRepository;
+    private readonly ISettingsRepository _settingsRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly ILogger<GetWorkScheduleQueryHandler> _logger;
 
@@ -22,12 +23,14 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         IWorkScheduleService workScheduleService,
         IShiftGroupFilterService groupFilterService,
         IWorkRepository workRepository,
+        ISettingsRepository settingsRepository,
         ScheduleMapper scheduleMapper,
         ILogger<GetWorkScheduleQueryHandler> logger)
     {
         _workScheduleService = workScheduleService;
         _groupFilterService = groupFilterService;
         _workRepository = workRepository;
+        _settingsRepository = settingsRepository;
         _scheduleMapper = scheduleMapper;
         _logger = logger;
     }
@@ -37,15 +40,47 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         CancellationToken cancellationToken)
     {
         _logger.LogInformation(
-            "Handling GetWorkScheduleQuery from {StartDate} to {EndDate}, StartRow: {StartRow}, RowCount: {RowCount}",
-            request.Filter.StartDate,
-            request.Filter.EndDate,
+            "Received filter - PeriodStartDate: {PeriodStartDate}, PeriodEndDate: {PeriodEndDate}",
+            request.Filter.PeriodStartDate,
+            request.Filter.PeriodEndDate);
+
+        var dayVisibleBefore = await GetSettingAsInt("dayVisibleBeforeMonth", 10);
+        var dayVisibleAfter = await GetSettingAsInt("dayVisibleAfterMonth", 10);
+
+        _logger.LogInformation(
+            "Settings - dayVisibleBefore: {DayVisibleBefore}, dayVisibleAfter: {DayVisibleAfter}",
+            dayVisibleBefore,
+            dayVisibleAfter);
+
+        var periodStartDate = request.Filter.PeriodStartDate;
+        var periodEndDate = request.Filter.PeriodEndDate;
+
+        if (periodStartDate == DateOnly.MinValue || periodEndDate == DateOnly.MinValue)
+        {
+            _logger.LogError("Invalid period dates received - using current month as fallback");
+            var now = DateTime.UtcNow;
+            periodStartDate = new DateOnly(now.Year, now.Month, 1);
+            periodEndDate = new DateOnly(now.Year, now.Month, DateTime.DaysInMonth(now.Year, now.Month));
+        }
+
+        var startDate = periodStartDate.AddDays(-dayVisibleBefore);
+        var endDate = periodEndDate.AddDays(dayVisibleAfter);
+
+        _logger.LogInformation(
+            "Handling GetWorkScheduleQuery Period: {PeriodStart} to {PeriodEnd}, Visible: {StartDate} to {EndDate}, StartRow: {StartRow}, RowCount: {RowCount}",
+            periodStartDate,
+            periodEndDate,
+            startDate,
+            endDate,
             request.Filter.StartRow,
             request.Filter.RowCount);
 
         var workFilter = CreateWorkFilter(
-            request.Filter.StartDate,
-            request.Filter.EndDate,
+            startDate,
+            endDate,
+            periodStartDate,
+            dayVisibleBefore,
+            dayVisibleAfter,
             request.Filter.SelectedGroup,
             request.Filter.OrderBy,
             request.Filter.SortOrder,
@@ -64,8 +99,8 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
             request.Filter.SelectedGroup);
 
         var entries = await _workScheduleService.GetWorkScheduleQuery(
-            request.Filter.StartDate,
-            request.Filter.EndDate,
+            startDate,
+            endDate,
             visibleGroupIds.Count > 0 ? visibleGroupIds : null)
             .Where(e => clientIds.Contains(e.ClientId))
             .ToListAsync(cancellationToken);
@@ -74,8 +109,8 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
 
         var periodHours = await _workRepository.GetPeriodHoursForClients(
             clientIds,
-            request.Filter.StartDate.Year,
-            request.Filter.StartDate.Month);
+            periodStartDate,
+            periodEndDate);
 
         _logger.LogInformation(
             "Returned {EntryCount} work schedule entries and {ClientCount} clients (total: {TotalCount})",
@@ -88,13 +123,28 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
             Entries = resources,
             Clients = clientResources,
             PeriodHours = periodHours,
-            TotalClientCount = totalClientCount
+            TotalClientCount = totalClientCount,
+            StartDate = startDate,
+            EndDate = endDate
         };
+    }
+
+    private async Task<int> GetSettingAsInt(string key, int defaultValue)
+    {
+        var setting = await _settingsRepository.GetSetting(key);
+        if (setting != null && int.TryParse(setting.Value, out var value))
+        {
+            return value;
+        }
+        return defaultValue;
     }
 
     private static WorkFilter CreateWorkFilter(
         DateOnly startDate,
         DateOnly endDate,
+        DateOnly periodStartDate,
+        int dayVisibleBefore,
+        int dayVisibleAfter,
         Guid? selectedGroup,
         string orderBy,
         string sortOrder,
@@ -104,15 +154,12 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         int startRow,
         int rowCount)
     {
-        var firstDayOfMonth = new DateOnly(startDate.Year, startDate.Month, 1);
-        var lastDayOfMonth = new DateOnly(endDate.Year, endDate.Month, DateTime.DaysInMonth(endDate.Year, endDate.Month));
-
         return new WorkFilter
         {
-            CurrentYear = startDate.Year,
-            CurrentMonth = startDate.Month,
-            DayVisibleBeforeMonth = (firstDayOfMonth.ToDateTime(TimeOnly.MinValue) - startDate.ToDateTime(TimeOnly.MinValue)).Days,
-            DayVisibleAfterMonth = (endDate.ToDateTime(TimeOnly.MinValue) - lastDayOfMonth.ToDateTime(TimeOnly.MinValue)).Days,
+            CurrentYear = periodStartDate.Year,
+            CurrentMonth = periodStartDate.Month,
+            DayVisibleBeforeMonth = dayVisibleBefore,
+            DayVisibleAfterMonth = dayVisibleAfter,
             SelectedGroup = selectedGroup,
             SearchString = string.Empty,
             OrderBy = orderBy,

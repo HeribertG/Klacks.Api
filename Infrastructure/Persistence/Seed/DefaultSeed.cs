@@ -64,7 +64,9 @@ namespace Klacks.Api.Data.Seed
                     { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c67"), "nightRate", "0.1" },
                     { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c6a"), "holidayRate", "0.1" },
                     { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c68"), "saRate", "0.1" },
-                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c69"), "soRate", "0.1" }
+                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c69"), "soRate", "0.1" },
+                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c70"), "dayVisibleBeforeMonth", "10" },
+                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c71"), "dayVisibleAfterMonth", "10" }
                 });
 
             migrationBuilder.Sql(

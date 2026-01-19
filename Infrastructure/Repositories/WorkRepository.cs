@@ -148,7 +148,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
                 .FirstOrDefault());
     }
 
-    public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursForClients(List<Guid> clientIds, int year, int month)
+    public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursForClients(List<Guid> clientIds, DateOnly startDate, DateOnly endDate)
     {
         if (clientIds.Count == 0)
         {
@@ -156,28 +156,33 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         }
 
         var result = new Dictionary<Guid, PeriodHoursResource>();
+        var year = startDate.Year;
+        var month = startDate.Month;
+        var weekNumber = GetIso8601WeekNumber(startDate);
 
         var periodHours = await _context.ClientPeriodHours
-            .Where(m => clientIds.Contains(m.ClientId) && m.Year == year && m.Month == month && m.PaymentInterval == Domain.Enums.PaymentInterval.Monthly)
+            .Where(m => clientIds.Contains(m.ClientId) && m.Year == year &&
+                ((m.PaymentInterval == Domain.Enums.PaymentInterval.Monthly && m.Month == month) ||
+                 (m.PaymentInterval == Domain.Enums.PaymentInterval.Weekly && m.WeekNumber == weekNumber) ||
+                 (m.PaymentInterval == Domain.Enums.PaymentInterval.Biweekly && m.WeekNumber == weekNumber)))
             .ToListAsync();
 
         var clientIdsWithPeriodHours = periodHours.Select(m => m.ClientId).ToHashSet();
         var clientIdsWithoutPeriodHours = clientIds.Where(id => !clientIdsWithPeriodHours.Contains(id)).ToList();
 
-        var startOfMonth = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc);
-        var endOfMonth = new DateTime(year, month, DateTime.DaysInMonth(year, month), 23, 59, 59, DateTimeKind.Utc);
+        var startDateTime = startDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        var endDateTime = endDate.ToDateTime(new TimeOnly(23, 59, 59), DateTimeKind.Utc);
 
         var worksHours = await _context.Work
-            .Where(w => clientIdsWithoutPeriodHours.Contains(w.ClientId) && w.CurrentDate >= startOfMonth && w.CurrentDate <= endOfMonth)
+            .Where(w => clientIdsWithoutPeriodHours.Contains(w.ClientId) && w.CurrentDate >= startDateTime && w.CurrentDate <= endDateTime)
             .GroupBy(w => w.ClientId)
             .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime) })
             .ToListAsync();
 
         var worksHoursDict = worksHours.ToDictionary(x => x.ClientId, x => x.TotalHours);
 
-        var refDate = new DateOnly(year, month, 1);
         var contractData = await _context.ClientContract
-            .Where(cc => clientIds.Contains(cc.ClientId) && cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
+            .Where(cc => clientIds.Contains(cc.ClientId) && cc.FromDate <= startDate && (cc.UntilDate == null || cc.UntilDate >= startDate))
             .Include(cc => cc.Contract)
             .ToListAsync();
 
@@ -215,5 +220,13 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         }
 
         return result;
+    }
+
+    private static int GetIso8601WeekNumber(DateOnly inputDate)
+    {
+        var date = inputDate.ToDateTime(TimeOnly.MinValue);
+        var thursday = date.AddDays(4 - ((int)date.DayOfWeek == 0 ? 7 : (int)date.DayOfWeek));
+        var jan1 = new DateTime(thursday.Year, 1, 1);
+        return (int)Math.Ceiling((thursday - jan1).TotalDays / 7.0);
     }
 }

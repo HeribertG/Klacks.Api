@@ -8,5 +8,5 @@ namespace Klacks.Api.Application.Interfaces;
 public interface IWorkRepository : IBaseRepository<Work>
 {
     Task<(List<Client> Clients, int TotalCount)> WorkList(WorkFilter filter);
-    Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursForClients(List<Guid> clientIds, int year, int month);
+    Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursForClients(List<Guid> clientIds, DateOnly startDate, DateOnly endDate);
 }

@@ -446,7 +446,9 @@ namespace Klacks.Api.Data.Seed
                 ("1234567a-1234-1234-1234-123456789022", "vacationDaysPerYear", "25"),
                 ("1234567a-1234-1234-1234-123456789023", "probationPeriod", "3"),
                 ("1234567a-1234-1234-1234-123456789024", "noticePeriod", "30"),
-                
+                ("1234567a-1234-1234-1234-123456789031", "dayVisibleBeforeMonth", "10"),
+                ("1234567a-1234-1234-1234-123456789032", "dayVisibleAfterMonth", "10"),
+
                 // System Settings
                 ("1234567a-1234-1234-1234-123456789025", "backupFrequency", "daily"),
                 ("1234567a-1234-1234-1234-123456789026", "logLevel", "Information"),
