@@ -23,6 +23,8 @@ public class ShiftScheduleTypeFilterService : IShiftScheduleTypeFilterService
             (isTimeRange && s.IsTimeRange) ||
             (container && s.ShiftType == (int)ShiftType.IsContainer) ||
             (isStandartShift &&
+             !s.IsSporadic &&
+             !s.IsTimeRange &&
              s.ShiftType == (int)ShiftType.IsTask &&
              (s.Status == (int)ShiftStatus.OriginalShift || s.Status == (int)ShiftStatus.SplitShift)));
     }
