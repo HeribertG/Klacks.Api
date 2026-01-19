@@ -59,7 +59,8 @@ public class ShiftScheduleRepository : IShiftScheduleRepository
             startDate,
             endDate,
             holidayDates,
-            visibleGroupIds);
+            visibleGroupIds,
+            filter.ShowUngroupedShifts);
 
         query = _shiftScheduleFilterService.ApplyAllFilters(query, filter);
 

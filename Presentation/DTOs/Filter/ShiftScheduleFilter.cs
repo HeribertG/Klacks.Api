@@ -28,6 +28,8 @@ public class ShiftScheduleFilter
 
     public bool IsStandartShift { get; set; } = true;
 
+    public bool ShowUngroupedShifts { get; set; } = false;
+
     public int StartRow { get; set; } = 0;
 
     public int RowCount { get; set; } = 100;

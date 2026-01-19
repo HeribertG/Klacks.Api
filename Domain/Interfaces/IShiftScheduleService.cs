@@ -8,7 +8,8 @@ public interface IShiftScheduleService
         DateOnly startDate,
         DateOnly endDate,
         List<DateOnly>? holidayDates = null,
-        List<Guid>? visibleGroupIds = null);
+        List<Guid>? visibleGroupIds = null,
+        bool showUngroupedShifts = false);
 
     Task<List<ShiftDayAssignment>> GetShiftSchedulePartialAsync(
         List<(Guid ShiftId, DateOnly Date)> shiftDatePairs,
