@@ -76,47 +76,51 @@ Message 1, Hour
  
  
  ',0,'','2022-07-10 07:08:53.029','admin',NULL,'',NULL,false,'' ),
-	 ('a3edd3f5-c31c-4746-a9a0-c613d14ffd23','AllShift','DIM Addhour
-Addhour=0
- 
-IF ShiftType = 3 THEN
-	Addhour = Nighthour * NighthourAdditionalPercent
-	
-	IF WeekdayNumber  = 1 THEN
-		Addhour += Hour_befor_Night * NighthourAdditionalPercent
-	END IF
- 	IF  WeekdayNumber  = 7 AND IsNextDayHolyday = FALSE THEN 
- 		Addhour += Hour_after_Night * HolydayhourAdditionalPercent
-	END IF
- 
- 	IF IsNextDayHolyday THEN
-		IF  WeekdayNumber  = 1 THEN
-			Addhour += Hour_after_Night * HolydayhourAdditionalPercent
-		END IF
-		IF  WeekdayNumber  <> 1 THEN
-			Addhour += Hour_befor_Night * HolydayhourAdditionalPercent
-		END IF
- 
-	END IF
- 
-	IF IsHolyday AND WeekdayNumber  <> 1 THEN
- 		Addhour += Hour_befor_Night * HolydayhourAdditionalPercent
-	END IF
-Else
-	IF  IsHolyday THEN
-		Addhour= HourExact * HolydayhourAdditionalPercent
-	END IF
-	IF WeekdayNumber  = 1 THEN
-		Addhour = HourExact * HolydayhourAdditionalPercent
-	END IF
-END IF
- 
-Hour += Addhour 
-Message 1, hour  
- 
- 
- 
- ',0,'','2022-07-10 07:08:53.043','admin',NULL,'',NULL,false,'' ),
+	 ('a3edd3f5-c31c-4746-a9a0-c613d14ffd23','AllShift','IMPORT Hour, FromHour, UntilHour
+IMPORT Weekday, Holiday, HolidayNextDay
+IMPORT NightRate, HolidayRate, SaRate, SoRate
+
+FUNCTION CalcSegment(StartTime, EndTime, HolidayFlag, WeekdayNum)
+    DIM SegmentHours, NightHours, NonNightHours
+    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
+    IF SegmentHours < 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    NightHours = TimeOverlap(""23:00"", ""06:00"", StartTime, EndTime)
+    NonNightHours = SegmentHours - NightHours
+
+    HasHoliday = HolidayFlag = 1
+    IsSaturday = WeekdayNum = 6
+    IsSunday = WeekdayNum = 7
+
+    NRate = 0
+    IF NightHours > 0 THEN NRate = NightRate ENDIF
+    IF HasHoliday AndAlso HolidayRate > NRate THEN NRate = HolidayRate ENDIF
+    IF IsSaturday AndAlso SaRate > NRate THEN NRate = SaRate ENDIF
+    IF IsSunday AndAlso SoRate > NRate THEN NRate = SoRate ENDIF
+
+    DRate = 0
+    IF HasHoliday AndAlso HolidayRate > DRate THEN DRate = HolidayRate ENDIF
+    IF IsSaturday AndAlso SaRate > DRate THEN DRate = SaRate ENDIF
+    IF IsSunday AndAlso SoRate > DRate THEN DRate = SoRate ENDIF
+
+    CalcSegment = NightHours * NRate + NonNightHours * DRate
+ENDFUNCTION
+
+DIM TotalBonus, WeekdayNextDay
+
+WeekdayNextDay = (Weekday MOD 7) + 1
+
+IF TimeToHours(UntilHour) <= TimeToHours(FromHour) THEN
+    TotalBonus = CalcSegment(FromHour, ""00:00"", Holiday, Weekday)
+    TotalBonus = TotalBonus + CalcSegment(""00:00"", UntilHour, HolidayNextDay, WeekdayNextDay)
+ELSE
+    TotalBonus = CalcSegment(FromHour, UntilHour, Holiday, Weekday)
+ENDIF
+
+OUTPUT 1, Round(TotalBonus, 2)
+',0,'','2022-07-10 07:08:53.043','admin',NULL,'',NULL,false,'' ),
 	 ('f7704df2-bb51-40c8-9ecd-ad57c1064490','Null Hour','Dim Hour
 Message 1, 0 
  
