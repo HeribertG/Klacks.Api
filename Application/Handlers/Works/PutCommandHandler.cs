@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Hubs;
+using Klacks.Api.Infrastructure.Services;
 
 namespace Klacks.Api.Application.Handlers.Works;
 
@@ -16,6 +17,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly PeriodHoursBackgroundService _periodHoursBackgroundService;
 
     public PutCommandHandler(
         IWorkRepository workRepository,
@@ -24,6 +26,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         IShiftStatsNotificationService shiftStatsNotificationService,
         IShiftScheduleService shiftScheduleService,
         IHttpContextAccessor httpContextAccessor,
+        PeriodHoursBackgroundService periodHoursBackgroundService,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -33,6 +36,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         _shiftStatsNotificationService = shiftStatsNotificationService;
         _shiftScheduleService = shiftScheduleService;
         _httpContextAccessor = httpContextAccessor;
+        _periodHoursBackgroundService = periodHoursBackgroundService;
     }
 
     public async Task<WorkResource?> Handle(PutCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -64,6 +68,10 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         }
 
         await SendShiftStatsNotificationsAsync(affectedShifts, connectionId, cancellationToken);
+
+        _periodHoursBackgroundService.QueueRecalculation(
+            updatedWork.ClientId,
+            DateOnly.FromDateTime(updatedWork.CurrentDate));
 
         return _scheduleMapper.ToWorkResource(updatedWork);
     }

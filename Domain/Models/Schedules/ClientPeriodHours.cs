@@ -9,19 +9,19 @@ public class ClientPeriodHours : BaseEntity
 {
     public Guid ClientId { get; set; }
 
-    public int Year { get; set; }
+    public DateOnly StartDate { get; set; }
 
-    public int? Month { get; set; }
-
-    public int? WeekNumber { get; set; }
-
-    public Guid? IndividualPeriodId { get; set; }
+    public DateOnly EndDate { get; set; }
 
     public decimal Hours { get; set; }
 
     public decimal Surcharges { get; set; }
 
     public PaymentInterval PaymentInterval { get; set; } = PaymentInterval.Monthly;
+
+    public Guid? IndividualPeriodId { get; set; }
+
+    public DateTime CalculatedAt { get; set; }
 
     [JsonIgnore]
     public virtual Client? Client { get; set; }

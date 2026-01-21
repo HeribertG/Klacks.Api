@@ -7,6 +7,7 @@ using Klacks.Api.Infrastructure.Converters;
 using Klacks.Api.Infrastructure.Exceptions;
 using Klacks.Api.Infrastructure.Extensions;
 using Klacks.Api.Infrastructure.Hubs;
+using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Mappers;
@@ -110,6 +111,9 @@ builder.Services.AddApplicationServices();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<IWorkNotificationService, WorkNotificationService>();
 builder.Services.AddScoped<IShiftStatsNotificationService, ShiftStatsNotificationService>();
+builder.Services.AddScoped<IPeriodHoursNotificationService, PeriodHoursNotificationService>();
+builder.Services.AddSingleton<PeriodHoursBackgroundService>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<PeriodHoursBackgroundService>());
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddMemoryCache();
@@ -214,6 +218,7 @@ app.UseEndpoints(endpoints =>
         endpoints.MapBlazorHub();
         endpoints.MapControllers();
         endpoints.MapHub<WorkNotificationHub>("/hubs/work-notifications");
+        endpoints.MapHub<PeriodHoursHub>("/hubs/period-hours");
         endpoints.MapHealthChecks("/health");
     }
 );

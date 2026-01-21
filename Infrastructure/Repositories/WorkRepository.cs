@@ -153,15 +153,11 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         }
 
         var result = new Dictionary<Guid, PeriodHoursResource>();
-        var year = startDate.Year;
-        var month = startDate.Month;
-        var weekNumber = GetIso8601WeekNumber(startDate);
 
         var periodHours = await _context.ClientPeriodHours
-            .Where(m => clientIds.Contains(m.ClientId) && m.Year == year &&
-                ((m.PaymentInterval == Domain.Enums.PaymentInterval.Monthly && m.Month == month) ||
-                 (m.PaymentInterval == Domain.Enums.PaymentInterval.Weekly && m.WeekNumber == weekNumber) ||
-                 (m.PaymentInterval == Domain.Enums.PaymentInterval.Biweekly && m.WeekNumber == weekNumber)))
+            .Where(m => clientIds.Contains(m.ClientId)
+                && m.StartDate == startDate
+                && m.EndDate == endDate)
             .ToListAsync();
 
         var clientIdsWithPeriodHours = periodHours.Select(m => m.ClientId).ToHashSet();
@@ -176,7 +172,27 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime) })
             .ToListAsync();
 
+        var breaksHours = await _context.Break
+            .Where(b => clientIdsWithoutPeriodHours.Contains(b.ClientId) && b.CurrentDate >= startDateTime && b.CurrentDate <= endDateTime)
+            .GroupBy(b => b.ClientId)
+            .Select(g => new { ClientId = g.Key, TotalBreaks = g.Sum(b => b.WorkTime) })
+            .ToListAsync();
+
+        var workChanges = await _context.WorkChange
+            .Where(wc => clientIdsWithoutPeriodHours.Contains(wc.Work!.ClientId) && wc.Work.CurrentDate >= startDateTime && wc.Work.CurrentDate <= endDateTime)
+            .Select(wc => new
+            {
+                wc.Work!.ClientId,
+                wc.ChangeTime,
+                wc.Type,
+                wc.ToInvoice,
+                wc.ReplaceClientId,
+                OriginalClientId = wc.Work.ClientId
+            })
+            .ToListAsync();
+
         var worksHoursDict = worksHours.ToDictionary(x => x.ClientId, x => x.TotalHours);
+        var breaksHoursDict = breaksHours.ToDictionary(x => x.ClientId, x => x.TotalBreaks);
 
         var contractData = await _context.ClientContract
             .Where(cc => clientIds.Contains(cc.ClientId) && cc.FromDate <= startDate && (cc.UntilDate == null || cc.UntilDate >= startDate))
@@ -204,26 +220,44 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         foreach (var clientId in clientIdsWithoutPeriodHours)
         {
             var hours = worksHoursDict.TryGetValue(clientId, out var h) ? h : 0m;
+            var breaks = breaksHoursDict.TryGetValue(clientId, out var b) ? b : 0m;
+
+            var workChangeHours = 0m;
+            var surcharges = 0m;
+
+            foreach (var wc in workChanges)
+            {
+                if (wc.ToInvoice == true)
+                {
+                    surcharges += wc.ChangeTime;
+                }
+
+                var isOriginalClient = wc.OriginalClientId == clientId;
+                var isReplacementClient = wc.ReplaceClientId == clientId;
+
+                if (wc.Type == WorkChangeType.CorrectionEnd || wc.Type == WorkChangeType.CorrectionStart)
+                {
+                    if (isOriginalClient) workChangeHours += wc.ChangeTime;
+                }
+                else if (wc.Type == WorkChangeType.ReplacementStart || wc.Type == WorkChangeType.ReplacementEnd)
+                {
+                    if (isOriginalClient) workChangeHours -= wc.ChangeTime;
+                    if (isReplacementClient) workChangeHours += wc.ChangeTime;
+                }
+            }
+
             var guaranteedHours = contractByClient.TryGetValue(clientId, out var contract)
                 ? contract.GuaranteedHours
                 : 0m;
 
             result[clientId] = new PeriodHoursResource
             {
-                Hours = hours,
-                Surcharges = 0m,
+                Hours = hours + breaks + workChangeHours,
+                Surcharges = surcharges,
                 GuaranteedHours = guaranteedHours
             };
         }
 
         return result;
-    }
-
-    private static int GetIso8601WeekNumber(DateOnly inputDate)
-    {
-        var date = inputDate.ToDateTime(TimeOnly.MinValue);
-        var thursday = date.AddDays(4 - ((int)date.DayOfWeek == 0 ? 7 : (int)date.DayOfWeek));
-        var jan1 = new DateTime(thursday.Year, 1, 1);
-        return (int)Math.Ceiling((thursday - jan1).TotalDays / 7.0);
     }
 }

@@ -322,18 +322,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Contract>().HasIndex(p => new { p.Name, p.ValidFrom, p.ValidUntil });
         modelBuilder.Entity<ClientContract>().HasIndex(p => new { p.ClientId, p.ContractId, p.FromDate, p.UntilDate });
         modelBuilder.Entity<ClientPeriodHours>()
-            .HasIndex(p => new { p.ClientId, p.Year, p.Month })
-            .HasFilter("payment_interval = 2")
-            .IsUnique();
-
-        modelBuilder.Entity<ClientPeriodHours>()
-            .HasIndex(p => new { p.ClientId, p.Year, p.WeekNumber })
-            .HasFilter("payment_interval IN (0, 1)")
-            .IsUnique();
-
-        modelBuilder.Entity<ClientPeriodHours>()
-            .HasIndex(p => new { p.ClientId, p.IndividualPeriodId })
-            .HasFilter("payment_interval = 3")
+            .HasIndex(p => new { p.ClientId, p.StartDate, p.EndDate })
             .IsUnique();
 
         modelBuilder.Entity<ClientPeriodHours>().HasQueryFilter(p => !p.Client!.IsDeleted);

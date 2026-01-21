@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Hubs;
+using Klacks.Api.Infrastructure.Services;
 
 namespace Klacks.Api.Application.Handlers.Works;
 
@@ -17,6 +18,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly PeriodHoursBackgroundService _periodHoursBackgroundService;
 
     public PostCommandHandler(
         IWorkRepository workRepository,
@@ -26,6 +28,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         IShiftStatsNotificationService shiftStatsNotificationService,
         IShiftScheduleService shiftScheduleService,
         IHttpContextAccessor httpContextAccessor,
+        PeriodHoursBackgroundService periodHoursBackgroundService,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -36,6 +39,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         _shiftStatsNotificationService = shiftStatsNotificationService;
         _shiftScheduleService = shiftScheduleService;
         _httpContextAccessor = httpContextAccessor;
+        _periodHoursBackgroundService = periodHoursBackgroundService;
     }
 
     public async Task<WorkResource?> Handle(PostCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -51,6 +55,10 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         await _notificationService.NotifyWorkCreated(notification);
 
         await SendShiftStatsNotificationAsync(work.ShiftId, work.CurrentDate, connectionId, cancellationToken);
+
+        _periodHoursBackgroundService.QueueRecalculation(
+            work.ClientId,
+            DateOnly.FromDateTime(work.CurrentDate));
 
         return _scheduleMapper.ToWorkResource(work);
     }
