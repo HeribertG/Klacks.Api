@@ -1,4 +1,5 @@
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.WorkSchedule;
 using Klacks.Api.Infrastructure.Mediator;
@@ -47,9 +48,12 @@ public class WorksController : BaseController
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult<WorkResource>> Delete(Guid id)
+    public async Task<ActionResult<WorkResource>> Delete(
+        [FromRoute] Guid id,
+        [FromQuery] DateOnly periodStart,
+        [FromQuery] DateOnly periodEnd)
     {
-        var model = await _mediator.Send(new DeleteCommand<WorkResource>(id));
+        var model = await _mediator.Send(new DeleteWorkCommand(id, periodStart, periodEnd));
         if (model == null)
         {
             return NotFound();

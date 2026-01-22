@@ -383,7 +383,12 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Expenses.Work))]
     public partial Expenses ToExpensesEntity(ExpensesResource resource);
 
-    public WorkNotificationDto ToWorkNotificationDto(Work work, string operationType, string sourceConnectionId)
+    public WorkNotificationDto ToWorkNotificationDto(
+        Work work,
+        string operationType,
+        string sourceConnectionId,
+        DateOnly periodStartDate,
+        DateOnly periodEndDate)
     {
         return new WorkNotificationDto
         {
@@ -391,6 +396,8 @@ public partial class ScheduleMapper
             ClientId = work.ClientId,
             ShiftId = work.ShiftId,
             CurrentDate = work.CurrentDate,
+            PeriodStartDate = periodStartDate,
+            PeriodEndDate = periodEndDate,
             OperationType = operationType,
             SourceConnectionId = sourceConnectionId
         };

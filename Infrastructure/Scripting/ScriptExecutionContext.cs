@@ -271,6 +271,12 @@ public sealed class ScriptExecutionContext
                 break;
 
             case Opcodes.Jump:
+                if (operation.Length < 2)
+                {
+                    errorObject!.Raise(999, "ScriptExecutionContext", $"Malformed Jump instruction at PC {pc}: missing target address", 0, 0, 0);
+                    running = false;
+                    return;
+                }
                 pc = Convert.ToInt32(operation[1]) - 1;
                 break;
 
@@ -279,6 +285,12 @@ public sealed class ScriptExecutionContext
                     var value = scopes!.PopScopes().Value;
                     if (value.AsBoolean())
                     {
+                        if (operation.Length < 2)
+                        {
+                            errorObject!.Raise(999, "ScriptExecutionContext", $"Malformed JumpTrue instruction at PC {pc}: missing target address", 0, 0, 0);
+                            running = false;
+                            return;
+                        }
                         pc = Convert.ToInt32(operation[1]) - 1;
                     }
                 }
@@ -289,6 +301,12 @@ public sealed class ScriptExecutionContext
                     var value = scopes!.PopScopes().Value;
                     if (!value.AsBoolean())
                     {
+                        if (operation.Length < 2)
+                        {
+                            errorObject!.Raise(999, "ScriptExecutionContext", $"Malformed JumpFalse instruction at PC {pc}: missing target address", 0, 0, 0);
+                            running = false;
+                            return;
+                        }
                         pc = Convert.ToInt32(operation[1]) - 1;
                     }
                 }

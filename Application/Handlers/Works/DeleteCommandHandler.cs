@@ -1,15 +1,14 @@
 using Klacks.Api.Application.Mappers;
-using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Hubs;
-using Klacks.Api.Infrastructure.Services;
 
 namespace Klacks.Api.Application.Handlers.Works;
 
-public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<WorkResource>, WorkResource?>
+public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkCommand, WorkResource?>
 {
     private readonly IWorkRepository _workRepository;
     private readonly ScheduleMapper _scheduleMapper;
@@ -18,7 +17,6 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly PeriodHoursBackgroundService _periodHoursBackgroundService;
 
     public DeleteCommandHandler(
         IWorkRepository workRepository,
@@ -28,7 +26,6 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
         IShiftStatsNotificationService shiftStatsNotificationService,
         IShiftScheduleService shiftScheduleService,
         IHttpContextAccessor httpContextAccessor,
-        PeriodHoursBackgroundService periodHoursBackgroundService,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
@@ -39,10 +36,9 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
         _shiftStatsNotificationService = shiftStatsNotificationService;
         _shiftScheduleService = shiftScheduleService;
         _httpContextAccessor = httpContextAccessor;
-        _periodHoursBackgroundService = periodHoursBackgroundService;
     }
 
-    public async Task<WorkResource?> Handle(DeleteCommand<WorkResource> request, CancellationToken cancellationToken)
+    public async Task<WorkResource?> Handle(DeleteWorkCommand request, CancellationToken cancellationToken)
     {
         return await ExecuteAsync(async () =>
         {
@@ -54,23 +50,20 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
 
             var shiftId = work.ShiftId;
             var workDate = work.CurrentDate;
-            var clientId = work.ClientId;
 
-            var workResource = _scheduleMapper.ToWorkResource(work);
-            await _workRepository.Delete(request.Id);
+            var (deletedWork, periodHours) = await _workRepository.DeleteWithPeriodHours(request.Id, request.PeriodStart, request.PeriodEnd);
             await _unitOfWork.CompleteAsync();
 
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
 
-            var notification = _scheduleMapper.ToWorkNotificationDto(work, "deleted", connectionId);
+            var notification = _scheduleMapper.ToWorkNotificationDto(work, "deleted", connectionId, request.PeriodStart, request.PeriodEnd);
             await _notificationService.NotifyWorkDeleted(notification);
 
             await SendShiftStatsNotificationAsync(shiftId, workDate, connectionId, cancellationToken);
 
-            _periodHoursBackgroundService.QueueRecalculation(
-                clientId,
-                DateOnly.FromDateTime(workDate));
+            var workResource = _scheduleMapper.ToWorkResource(work);
+            workResource.PeriodHours = periodHours;
 
             return workResource;
         },

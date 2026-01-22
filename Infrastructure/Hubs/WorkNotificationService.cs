@@ -31,26 +31,72 @@ public class WorkNotificationService : IWorkNotificationService
         await SendNotification("WorkDeleted", notification);
     }
 
+    public async Task NotifyPeriodHoursUpdated(PeriodHoursNotificationDto notification)
+    {
+        try
+        {
+            var groupName = WorkNotificationHub.GetScheduleGroupName(notification.StartDate, notification.EndDate);
+            var clients = GetGroupClientsExcluding(groupName, notification.SourceConnectionId);
+
+            await clients.SendAsync("PeriodHoursUpdated", notification);
+
+            _logger.LogDebug(
+                "Sent PeriodHoursUpdated to group {GroupName} for Client {ClientId}",
+                groupName,
+                notification.ClientId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending PeriodHoursUpdated notification");
+        }
+    }
+
+    public async Task NotifyPeriodHoursRecalculated(DateOnly startDate, DateOnly endDate)
+    {
+        try
+        {
+            var groupName = WorkNotificationHub.GetScheduleGroupName(startDate, endDate);
+
+            await _hubContext.Clients.Group(groupName).SendAsync("PeriodHoursRecalculated", new
+            {
+                StartDate = startDate,
+                EndDate = endDate
+            });
+
+            _logger.LogDebug(
+                "Sent PeriodHoursRecalculated to group {GroupName}",
+                groupName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending PeriodHoursRecalculated notification");
+        }
+    }
+
     private async Task SendNotification(string method, WorkNotificationDto notification)
     {
         try
         {
-            if (string.IsNullOrEmpty(notification.SourceConnectionId))
-            {
-                await _hubContext.Clients.All.SendAsync(method, notification);
-            }
-            else
-            {
-                await _hubContext.Clients
-                    .AllExcept(notification.SourceConnectionId)
-                    .SendAsync(method, notification);
-            }
+            var groupName = WorkNotificationHub.GetScheduleGroupName(notification.PeriodStartDate, notification.PeriodEndDate);
+            var clients = GetGroupClientsExcluding(groupName, notification.SourceConnectionId);
 
-            _logger.LogDebug("Sent {Method} notification for Work {WorkId}", method, notification.WorkId);
+            await clients.SendAsync(method, notification);
+
+            _logger.LogDebug("Sent {Method} to group {GroupName} for Work {WorkId}", method, groupName, notification.WorkId);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error sending {Method} notification", method);
         }
+    }
+
+    private IClientProxy GetGroupClientsExcluding(string groupName, string? excludeConnectionId)
+    {
+        if (string.IsNullOrEmpty(excludeConnectionId))
+        {
+            return _hubContext.Clients.Group(groupName);
+        }
+
+        return _hubContext.Clients.GroupExcept(groupName, excludeConnectionId);
     }
 }

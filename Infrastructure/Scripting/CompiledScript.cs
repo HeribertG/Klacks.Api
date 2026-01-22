@@ -43,7 +43,7 @@ public sealed class CompiledScript
             instructions.Add((object[])code.GetInstruction(i));
         }
 
-        var externalSymbols = new Dictionary<string, Identifier>();
+        var externalSymbols = new Dictionary<string, Identifier>(StringComparer.OrdinalIgnoreCase);
         var external = code.External();
         for (int i = 0; i < external.CloneCount(); i++)
         {

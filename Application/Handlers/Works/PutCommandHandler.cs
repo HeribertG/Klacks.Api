@@ -5,7 +5,6 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Hubs;
-using Klacks.Api.Infrastructure.Services;
 
 namespace Klacks.Api.Application.Handlers.Works;
 
@@ -16,8 +15,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
     private readonly IWorkNotificationService _notificationService;
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
     private readonly IShiftScheduleService _shiftScheduleService;
+    private readonly IPeriodHoursService _periodHoursService;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly PeriodHoursBackgroundService _periodHoursBackgroundService;
 
     public PutCommandHandler(
         IWorkRepository workRepository,
@@ -25,8 +24,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         IWorkNotificationService notificationService,
         IShiftStatsNotificationService shiftStatsNotificationService,
         IShiftScheduleService shiftScheduleService,
+        IPeriodHoursService periodHoursService,
         IHttpContextAccessor httpContextAccessor,
-        PeriodHoursBackgroundService periodHoursBackgroundService,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -35,8 +34,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         _notificationService = notificationService;
         _shiftStatsNotificationService = shiftStatsNotificationService;
         _shiftScheduleService = shiftScheduleService;
+        _periodHoursService = periodHoursService;
         _httpContextAccessor = httpContextAccessor;
-        _periodHoursBackgroundService = periodHoursBackgroundService;
     }
 
     public async Task<WorkResource?> Handle(PutCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -46,14 +45,27 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         var oldDate = existingWork?.CurrentDate;
 
         var work = _scheduleMapper.ToWorkEntity(request.Resource);
-        var updatedWork = await _workRepository.Put(work);
+
+        DateOnly periodStart;
+        DateOnly periodEnd;
+
+        if (request.Resource.PeriodStart.HasValue && request.Resource.PeriodEnd.HasValue)
+        {
+            periodStart = request.Resource.PeriodStart.Value;
+            periodEnd = request.Resource.PeriodEnd.Value;
+        }
+        else
+        {
+            (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(work.CurrentDate));
+        }
+
+        var (updatedWork, periodHours) = await _workRepository.PutWithPeriodHours(work, periodStart, periodEnd);
 
         if (updatedWork == null) return null;
 
         var connectionId = _httpContextAccessor.HttpContext?.Request
             .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
-
-        var notification = _scheduleMapper.ToWorkNotificationDto(updatedWork, "updated", connectionId);
+        var notification = _scheduleMapper.ToWorkNotificationDto(updatedWork, "updated", connectionId, periodStart, periodEnd);
         await _notificationService.NotifyWorkUpdated(notification);
 
         var affectedShifts = new HashSet<(Guid ShiftId, DateTime Date)>
@@ -69,11 +81,10 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
 
         await SendShiftStatsNotificationsAsync(affectedShifts, connectionId, cancellationToken);
 
-        _periodHoursBackgroundService.QueueRecalculation(
-            updatedWork.ClientId,
-            DateOnly.FromDateTime(updatedWork.CurrentDate));
+        var workResource = _scheduleMapper.ToWorkResource(updatedWork);
+        workResource.PeriodHours = periodHours;
 
-        return _scheduleMapper.ToWorkResource(updatedWork);
+        return workResource;
     }
 
     private async Task SendShiftStatsNotificationsAsync(

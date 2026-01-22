@@ -16,6 +16,7 @@ using Klacks.Api.Domain.Services.PeriodHours;
 using Klacks.Api.Domain.Services.LLM;
 using Klacks.Api.Domain.Services.RouteOptimization;
 using Klacks.Api.Domain.Services.Common;
+using Klacks.Api.Domain.Services.Macros;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Email;
 using Klacks.Api.Infrastructure.FileHandling;
@@ -71,6 +72,9 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IIdentityProviderSyncLogRepository, IdentityProviderSyncLogRepository>();
 
         services.AddSingleton<IMacroEngine, MacroEngine>();
+        services.AddSingleton<IMacroCache, MacroCache>();
+        services.AddSingleton<IHolidayCalculatorCache, HolidayCalculatorCache>();
+        services.AddScoped<IMacroDataProvider, MacroDataProvider>();
         services.AddScoped<UploadFile>();
 
         services.AddScoped<IGetAllClientIdsFromGroupAndSubgroups, GroupClientService>();

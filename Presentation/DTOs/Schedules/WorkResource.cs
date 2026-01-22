@@ -28,4 +28,10 @@ public class WorkResource
     public TimeOnly StartTime { get; set; }
 
     public TimeOnly EndTime { get; set; }
+
+    public PeriodHoursResource? PeriodHours { get; set; }
+
+    public DateOnly? PeriodStart { get; set; }
+
+    public DateOnly? PeriodEnd { get; set; }
 }

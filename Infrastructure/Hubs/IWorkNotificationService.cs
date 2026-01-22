@@ -7,4 +7,6 @@ public interface IWorkNotificationService
     Task NotifyWorkCreated(WorkNotificationDto notification);
     Task NotifyWorkUpdated(WorkNotificationDto notification);
     Task NotifyWorkDeleted(WorkNotificationDto notification);
+    Task NotifyPeriodHoursUpdated(PeriodHoursNotificationDto notification);
+    Task NotifyPeriodHoursRecalculated(DateOnly startDate, DateOnly endDate);
 }

@@ -31,7 +31,7 @@ public class Scopes
             var s = _scopes[i];
             var renamed = s.GetVariable(name);
 
-            if (renamed != null && renamed.Name == name)
+            if (renamed != null && string.Equals(renamed.Name, name, StringComparison.OrdinalIgnoreCase))
             {
                 if (idType == Identifier.IdentifierTypes.IdNone)
                     return true;

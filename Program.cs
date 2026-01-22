@@ -111,7 +111,6 @@ builder.Services.AddApplicationServices();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<IWorkNotificationService, WorkNotificationService>();
 builder.Services.AddScoped<IShiftStatsNotificationService, ShiftStatsNotificationService>();
-builder.Services.AddScoped<IPeriodHoursNotificationService, PeriodHoursNotificationService>();
 builder.Services.AddSingleton<PeriodHoursBackgroundService>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<PeriodHoursBackgroundService>());
 builder.Services.AddHttpContextAccessor();
@@ -139,6 +138,7 @@ builder.Services
     {
         opts.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         opts.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+        opts.JsonSerializerOptions.Converters.Add(new DateOnlyNullableJsonConverter());
         opts.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
         opts.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         opts.JsonSerializerOptions.WriteIndented = true;
@@ -218,7 +218,6 @@ app.UseEndpoints(endpoints =>
         endpoints.MapBlazorHub();
         endpoints.MapControllers();
         endpoints.MapHub<WorkNotificationHub>("/hubs/work-notifications");
-        endpoints.MapHub<PeriodHoursHub>("/hubs/period-hours");
         endpoints.MapHealthChecks("/health");
     }
 );

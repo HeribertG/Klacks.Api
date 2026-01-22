@@ -34,12 +34,14 @@ public class Scope
 
     public Identifier? GetVariable(string name)
     {
-        return _variables.FirstOrDefault(x => x.Name == name);
+        return _variables.FirstOrDefault(x =>
+            string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
     }
 
     public void SetVariable(ScriptValue value, string name)
     {
-        var existing = _variables.FirstOrDefault(x => x.Name == name);
+        var existing = _variables.FirstOrDefault(x =>
+            string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
         if (existing != null)
         {
             existing.Value = value;
@@ -59,7 +61,8 @@ public class Scope
 
     public void SetVariable(Identifier id, string name)
     {
-        var existing = _variables.FirstOrDefault(x => x.Name == name);
+        var existing = _variables.FirstOrDefault(x =>
+            string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
         if (existing != null)
         {
             _variables.Remove(existing);

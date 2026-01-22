@@ -29,4 +29,28 @@ public class WorkNotificationHub : Hub
     {
         return Context.ConnectionId;
     }
+
+    public async Task JoinScheduleGroup(string startDate, string endDate)
+    {
+        var groupName = GetScheduleGroupName(startDate, endDate);
+        await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+        _logger.LogDebug("Client {ConnectionId} joined group {GroupName}", Context.ConnectionId, groupName);
+    }
+
+    public async Task LeaveScheduleGroup(string startDate, string endDate)
+    {
+        var groupName = GetScheduleGroupName(startDate, endDate);
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+        _logger.LogDebug("Client {ConnectionId} left group {GroupName}", Context.ConnectionId, groupName);
+    }
+
+    public static string GetScheduleGroupName(string startDate, string endDate)
+    {
+        return $"schedule_{startDate}_{endDate}";
+    }
+
+    public static string GetScheduleGroupName(DateOnly startDate, DateOnly endDate)
+    {
+        return $"schedule_{startDate:yyyy-MM-dd}_{endDate:yyyy-MM-dd}";
+    }
 }

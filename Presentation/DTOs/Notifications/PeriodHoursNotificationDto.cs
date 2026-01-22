@@ -7,5 +7,6 @@ public record PeriodHoursNotificationDto
     public DateOnly EndDate { get; init; }
     public decimal Hours { get; init; }
     public decimal Surcharges { get; init; }
+    public decimal GuaranteedHours { get; init; }
     public string SourceConnectionId { get; init; } = string.Empty;
 }

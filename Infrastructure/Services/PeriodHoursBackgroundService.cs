@@ -8,7 +8,7 @@ public class PeriodHoursBackgroundService : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<PeriodHoursBackgroundService> _logger;
-    private readonly Channel<PeriodHoursRecalculationRequest> _channel;
+    private readonly Channel<PeriodHoursFullRecalculationRequest> _channel;
 
     public PeriodHoursBackgroundService(
         IServiceProvider serviceProvider,
@@ -16,33 +16,16 @@ public class PeriodHoursBackgroundService : BackgroundService
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
-        _channel = Channel.CreateUnbounded<PeriodHoursRecalculationRequest>(new UnboundedChannelOptions
+        _channel = Channel.CreateUnbounded<PeriodHoursFullRecalculationRequest>(new UnboundedChannelOptions
         {
             SingleReader = true
         });
     }
 
-    public void QueueRecalculation(Guid clientId, DateOnly date)
-    {
-        var request = new PeriodHoursRecalculationRequest
-        {
-            ClientId = clientId,
-            Date = date
-        };
-
-        if (!_channel.Writer.TryWrite(request))
-        {
-            _logger.LogWarning(
-                "Failed to queue period hours recalculation for client {ClientId}",
-                clientId);
-        }
-    }
-
     public void QueueFullRecalculation(DateOnly startDate, DateOnly endDate)
     {
-        var request = new PeriodHoursRecalculationRequest
+        var request = new PeriodHoursFullRecalculationRequest
         {
-            IsFullRecalculation = true,
             StartDate = startDate,
             EndDate = endDate
         };
@@ -66,36 +49,24 @@ public class PeriodHoursBackgroundService : BackgroundService
             {
                 using var scope = _serviceProvider.CreateScope();
                 var periodHoursService = scope.ServiceProvider.GetRequiredService<IPeriodHoursService>();
-                var notificationService = scope.ServiceProvider.GetRequiredService<IPeriodHoursNotificationService>();
+                var notificationService = scope.ServiceProvider.GetRequiredService<IWorkNotificationService>();
 
-                if (request.IsFullRecalculation)
-                {
-                    _logger.LogInformation(
-                        "Processing full recalculation for {StartDate} to {EndDate}",
-                        request.StartDate,
-                        request.EndDate);
+                _logger.LogInformation(
+                    "Processing full recalculation for {StartDate} to {EndDate}",
+                    request.StartDate,
+                    request.EndDate);
 
-                    await periodHoursService.RecalculateAllClientsAsync(
-                        request.StartDate,
-                        request.EndDate);
+                await periodHoursService.RecalculateAllClientsAsync(
+                    request.StartDate,
+                    request.EndDate);
 
-                    await notificationService.NotifyPeriodHoursRecalculated(
-                        request.StartDate,
-                        request.EndDate);
-                }
-                else
-                {
-                    _logger.LogDebug(
-                        "Processing recalculation for client {ClientId} at {Date}",
-                        request.ClientId,
-                        request.Date);
-
-                    await periodHoursService.InvalidateCacheAsync(request.ClientId, request.Date);
-                }
+                await notificationService.NotifyPeriodHoursRecalculated(
+                    request.StartDate,
+                    request.EndDate);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing period hours recalculation request");
+                _logger.LogError(ex, "Error processing full period hours recalculation request");
             }
         }
 
@@ -103,11 +74,8 @@ public class PeriodHoursBackgroundService : BackgroundService
     }
 }
 
-public class PeriodHoursRecalculationRequest
+public class PeriodHoursFullRecalculationRequest
 {
-    public Guid ClientId { get; init; }
-    public DateOnly Date { get; init; }
-    public bool IsFullRecalculation { get; init; }
     public DateOnly StartDate { get; init; }
     public DateOnly EndDate { get; init; }
 }

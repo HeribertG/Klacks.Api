@@ -1,7 +1,9 @@
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Presentation.DTOs.Notifications;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,13 +13,16 @@ public class PeriodHoursService : IPeriodHoursService
 {
     private readonly DataBaseContext _context;
     private readonly ILogger<PeriodHoursService> _logger;
+    private readonly IWorkNotificationService _notificationService;
 
     public PeriodHoursService(
         DataBaseContext context,
-        ILogger<PeriodHoursService> logger)
+        ILogger<PeriodHoursService> logger,
+        IWorkNotificationService notificationService)
     {
         _context = context;
         _logger = logger;
+        _notificationService = notificationService;
     }
 
     public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursAsync(
@@ -336,5 +341,119 @@ public class PeriodHoursService : IPeriodHoursService
             .ToDictionary(
                 g => g.Key,
                 g => g.OrderByDescending(cc => cc.FromDate).First().Contract);
+    }
+
+    public (DateOnly StartDate, DateOnly EndDate) GetPeriodBoundaries(DateOnly date)
+    {
+        var startDate = new DateOnly(date.Year, date.Month, 1);
+        var endDate = startDate.AddMonths(1).AddDays(-1);
+        return (startDate, endDate);
+    }
+
+    public async Task<(DateOnly StartDate, DateOnly EndDate)> GetPeriodBoundariesAsync(DateOnly date)
+    {
+        var paymentInterval = await GetGlobalPaymentIntervalAsync();
+        return CalculatePeriodBoundaries(date, paymentInterval);
+    }
+
+    private async Task<PaymentInterval> GetGlobalPaymentIntervalAsync()
+    {
+        var setting = await _context.Settings
+            .FirstOrDefaultAsync(s => s.Type == "paymentInterval");
+
+        if (setting != null && int.TryParse(setting.Value, out var value))
+        {
+            return (PaymentInterval)value;
+        }
+
+        return PaymentInterval.Monthly;
+    }
+
+    private (DateOnly StartDate, DateOnly EndDate) CalculatePeriodBoundaries(
+        DateOnly date,
+        PaymentInterval paymentInterval)
+    {
+        switch (paymentInterval)
+        {
+            case PaymentInterval.Weekly:
+                var weekStart = date.AddDays(-(int)date.DayOfWeek + (int)DayOfWeek.Monday);
+                if (date.DayOfWeek == DayOfWeek.Sunday)
+                    weekStart = weekStart.AddDays(-7);
+                return (weekStart, weekStart.AddDays(6));
+
+            case PaymentInterval.Biweekly:
+                var biweekStart = date.AddDays(-(int)date.DayOfWeek + (int)DayOfWeek.Monday);
+                if (date.DayOfWeek == DayOfWeek.Sunday)
+                    biweekStart = biweekStart.AddDays(-7);
+                var weekNumber = System.Globalization.ISOWeek.GetWeekOfYear(date.ToDateTime(TimeOnly.MinValue));
+                if (weekNumber % 2 == 0)
+                    biweekStart = biweekStart.AddDays(-7);
+                return (biweekStart, biweekStart.AddDays(13));
+
+            case PaymentInterval.Monthly:
+            default:
+                var monthStart = new DateOnly(date.Year, date.Month, 1);
+                var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+                return (monthStart, monthEnd);
+        }
+    }
+
+    public async Task<PeriodHoursResource> RecalculateAndNotifyAsync(
+        Guid clientId,
+        DateOnly startDate,
+        DateOnly endDate,
+        string? excludeConnectionId = null)
+    {
+        _logger.LogDebug(
+            "Recalculating period hours for client {ClientId} for period {StartDate} to {EndDate}",
+            clientId,
+            startDate,
+            endDate);
+
+        var calculated = await CalculatePeriodHoursAsync(clientId, startDate, endDate);
+
+        var existing = await _context.ClientPeriodHours
+            .FirstOrDefaultAsync(p =>
+                p.ClientId == clientId
+                && p.StartDate == startDate
+                && p.EndDate == endDate);
+
+        if (existing != null)
+        {
+            existing.Hours = calculated.Hours;
+            existing.Surcharges = calculated.Surcharges;
+            existing.CalculatedAt = DateTime.UtcNow;
+        }
+        else
+        {
+            var newEntry = new ClientPeriodHours
+            {
+                Id = Guid.NewGuid(),
+                ClientId = clientId,
+                StartDate = startDate,
+                EndDate = endDate,
+                Hours = calculated.Hours,
+                Surcharges = calculated.Surcharges,
+                CalculatedAt = DateTime.UtcNow
+            };
+            _context.ClientPeriodHours.Add(newEntry);
+        }
+
+        await _context.SaveChangesAsync();
+
+        var notification = new PeriodHoursNotificationDto
+        {
+            ClientId = clientId,
+            StartDate = startDate,
+            EndDate = endDate,
+            Hours = calculated.Hours,
+            Surcharges = calculated.Surcharges,
+            GuaranteedHours = calculated.GuaranteedHours,
+            SourceConnectionId = excludeConnectionId ?? string.Empty
+        };
+
+        await _notificationService.NotifyPeriodHoursUpdated(notification);
+
+        return calculated;
     }
 }

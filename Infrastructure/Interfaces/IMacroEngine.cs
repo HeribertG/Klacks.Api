@@ -7,6 +7,7 @@ public interface IMacroEngine
     void PrepareMacro(Guid id, string script);
     void ResetImports();
     List<ResultMessage> Run(CancellationToken cancellationToken = default);
+    List<ResultMessage> RunWithScript(CompiledScript script, CancellationToken cancellationToken = default);
     dynamic? Imports { get; set; }
     void ImportItem(string key, object value);
     bool IsIde { get; set; }

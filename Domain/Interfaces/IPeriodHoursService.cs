@@ -27,4 +27,14 @@ public interface IPeriodHoursService
     Task InvalidateCacheAsync(
         Guid clientId,
         DateOnly date);
+
+    Task<PeriodHoursResource> RecalculateAndNotifyAsync(
+        Guid clientId,
+        DateOnly startDate,
+        DateOnly endDate,
+        string? excludeConnectionId = null);
+
+    (DateOnly StartDate, DateOnly EndDate) GetPeriodBoundaries(DateOnly date);
+
+    Task<(DateOnly StartDate, DateOnly EndDate)> GetPeriodBoundariesAsync(DateOnly date);
 }

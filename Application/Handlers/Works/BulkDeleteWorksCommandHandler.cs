@@ -5,7 +5,6 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Presentation.DTOs.Schedules;
 
 namespace Klacks.Api.Application.Handlers.Works;
@@ -18,8 +17,8 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
     private readonly IWorkNotificationService _notificationService;
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
     private readonly IShiftScheduleService _shiftScheduleService;
+    private readonly IPeriodHoursService _periodHoursService;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly PeriodHoursBackgroundService _periodHoursBackgroundService;
 
     public BulkDeleteWorksCommandHandler(
         IWorkRepository workRepository,
@@ -28,8 +27,8 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         IWorkNotificationService notificationService,
         IShiftStatsNotificationService shiftStatsNotificationService,
         IShiftScheduleService shiftScheduleService,
+        IPeriodHoursService periodHoursService,
         IHttpContextAccessor httpContextAccessor,
-        PeriodHoursBackgroundService periodHoursBackgroundService,
         ILogger<BulkDeleteWorksCommandHandler> logger)
         : base(logger)
     {
@@ -39,8 +38,8 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         _notificationService = notificationService;
         _shiftStatsNotificationService = shiftStatsNotificationService;
         _shiftScheduleService = shiftScheduleService;
+        _periodHoursService = periodHoursService;
         _httpContextAccessor = httpContextAccessor;
-        _periodHoursBackgroundService = periodHoursBackgroundService;
     }
 
     public async Task<BulkWorksResponse> Handle(BulkDeleteWorksCommand command, CancellationToken cancellationToken)
@@ -84,18 +83,12 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
 
             foreach (var work in deletedWorks)
             {
-                var notification = _scheduleMapper.ToWorkNotificationDto(work, "deleted", connectionId);
+                var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(work.CurrentDate));
+                var notification = _scheduleMapper.ToWorkNotificationDto(work, "deleted", connectionId, periodStart, periodEnd);
                 await _notificationService.NotifyWorkDeleted(notification);
             }
 
             await SendShiftStatsNotificationsAsync(affectedShifts, connectionId, cancellationToken);
-
-            foreach (var work in deletedWorks)
-            {
-                _periodHoursBackgroundService.QueueRecalculation(
-                    work.ClientId,
-                    DateOnly.FromDateTime(work.CurrentDate));
-            }
         }
 
         response.AffectedShifts = affectedShifts

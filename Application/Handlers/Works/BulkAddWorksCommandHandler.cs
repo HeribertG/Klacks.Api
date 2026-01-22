@@ -5,7 +5,6 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Presentation.DTOs.Schedules;
 
 namespace Klacks.Api.Application.Handlers.Works;
@@ -18,8 +17,8 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
     private readonly IWorkNotificationService _notificationService;
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
     private readonly IShiftScheduleService _shiftScheduleService;
+    private readonly IPeriodHoursService _periodHoursService;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly PeriodHoursBackgroundService _periodHoursBackgroundService;
 
     public BulkAddWorksCommandHandler(
         IWorkRepository workRepository,
@@ -28,8 +27,8 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         IWorkNotificationService notificationService,
         IShiftStatsNotificationService shiftStatsNotificationService,
         IShiftScheduleService shiftScheduleService,
+        IPeriodHoursService periodHoursService,
         IHttpContextAccessor httpContextAccessor,
-        PeriodHoursBackgroundService periodHoursBackgroundService,
         ILogger<BulkAddWorksCommandHandler> logger)
         : base(logger)
     {
@@ -39,8 +38,8 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         _notificationService = notificationService;
         _shiftStatsNotificationService = shiftStatsNotificationService;
         _shiftScheduleService = shiftScheduleService;
+        _periodHoursService = periodHoursService;
         _httpContextAccessor = httpContextAccessor;
-        _periodHoursBackgroundService = periodHoursBackgroundService;
     }
 
     public async Task<BulkWorksResponse> Handle(BulkAddWorksCommand command, CancellationToken cancellationToken)
@@ -88,18 +87,12 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
 
             foreach (var work in createdWorks)
             {
-                var notification = _scheduleMapper.ToWorkNotificationDto(work, "created", connectionId);
+                var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(work.CurrentDate));
+                var notification = _scheduleMapper.ToWorkNotificationDto(work, "created", connectionId, periodStart, periodEnd);
                 await _notificationService.NotifyWorkCreated(notification);
             }
 
             await SendShiftStatsNotificationsAsync(affectedShifts, connectionId, cancellationToken);
-
-            foreach (var work in createdWorks)
-            {
-                _periodHoursBackgroundService.QueueRecalculation(
-                    work.ClientId,
-                    DateOnly.FromDateTime(work.CurrentDate));
-            }
         }
 
         response.AffectedShifts = affectedShifts

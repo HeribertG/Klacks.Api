@@ -35,16 +35,27 @@ public class MacroEngine : IDisposable, IMacroEngine
 
     public List<ResultMessage> Run(CancellationToken cancellationToken = default)
     {
+        if (compiledScript == null || compiledScript.HasError)
+        {
+            result.Clear();
+            return result;
+        }
+
+        return RunWithScript(compiledScript, cancellationToken);
+    }
+
+    public List<ResultMessage> RunWithScript(CompiledScript script, CancellationToken cancellationToken = default)
+    {
         result.Clear();
         ErrorNumber = 0;
         ErrorCode = string.Empty;
 
-        if (compiledScript == null || compiledScript.HasError)
+        if (script == null || script.HasError)
         {
             return result;
         }
 
-        context = new ScriptExecutionContext(compiledScript);
+        context = new ScriptExecutionContext(script);
         context.AllowUi = IsIde;
 
         context.Message += Context_Message;

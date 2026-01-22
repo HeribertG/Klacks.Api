@@ -435,8 +435,12 @@ namespace Klacks.Api.Infrastructure.Scripting
                 GetNextSymbol();
             }
 
-            Identifier definition;
-            definition = symboltable.Retrieve(ident)!;
+            Identifier? definition;
+            definition = symboltable.Retrieve(ident);
+            if (definition == null)
+            {
+                return;
+            }
 
             code!.Add(Opcodes.PushScope);
 

@@ -13,13 +13,30 @@ Bei mehreren anwendbaren Zuschlägen gilt der **höchste** Satz.
 
 | Variable | Typ | Beschreibung | Beispiel |
 |----------|-----|--------------|----------|
-| `Weekday` | Integer | Wochentag des Dienstbeginns (1=Mo, 2=Di, ..., 6=Sa, 7=So) | `7` |
-| `FromHour` | String | Startzeit im Format "HH:MM" | `"22:00"` |
-| `UntilHour` | String | Endzeit im Format "HH:MM" | `"07:00"` |
-| `Hour` | Decimal | Gesamte Arbeitsstunden | `9.0` |
-| `Holiday` | Integer | Feiertagsstatus (0=kein, 1=Feiertag, -1=Vortag, -2=Nachtag) | `1` |
-| `WeekdayNextDay` | Integer | Wochentag des Folgetags (für Nachtschichten) | `1` |
-| `HolidayNextDay` | Integer | Feiertagsstatus des Folgetags | `0` |
+| `hour` | Decimal | Gesamte Arbeitsstunden | `9.0` |
+| `fromhour` | Decimal | Startzeit als Dezimalstunden | `22.5` (= 22:30) |
+| `untilhour` | Decimal | Endzeit als Dezimalstunden | `7.0` (= 07:00) |
+| `weekday` | Integer | Wochentag ISO-8601 (1=Mo, 2=Di, 3=Mi, 4=Do, 5=Fr, 6=Sa, 7=So) | `1` (Montag) |
+| `holiday` | Boolean | Ist aktueller Tag ein offizieller Feiertag | `true` |
+| `holidaynextday` | Boolean | Ist Folgetag ein offizieller Feiertag | `false` |
+| `nightrate` | Decimal | Nachtzuschlag-Satz aus Contract | `0.10` |
+| `holidayrate` | Decimal | Feiertagszuschlag-Satz aus Contract | `0.15` |
+| `sarate` | Decimal | Samstagszuschlag-Satz aus Contract | `0.10` |
+| `sorate` | Decimal | Sonntagszuschlag-Satz aus Contract | `0.10` |
+| `guaranteedhours` | Decimal | Garantierte Monatsstunden aus Contract | `168.0` |
+| `fulltime` | Decimal | Vollzeit-Stunden aus Contract | `100.0` |
+
+### Weekday-Werte (ISO-8601)
+
+| Wert | Tag |
+|------|-----|
+| 1 | Montag (Monday) |
+| 2 | Dienstag (Tuesday) |
+| 3 | Mittwoch (Wednesday) |
+| 4 | Donnerstag (Thursday) |
+| 5 | Freitag (Friday) |
+| 6 | Samstag (Saturday) |
+| 7 | Sonntag (Sunday) |
 
 ## Macro-Code
 
@@ -105,8 +122,8 @@ Für jede Stundengruppe wird der höchste anwendbare Satz ermittelt:
 | Zuschlag | Satz | Bedingung |
 |----------|------|-----------|
 | Nacht | 10% | Stunden innerhalb 23:00-06:00 |
-| Feiertag | 15% | `Holiday = 1` |
-| Wochenende | 10% | `Weekday = 6` (Sa) oder `Weekday = 7` (So) |
+| Feiertag | 15% | `holiday = true` |
+| Wochenende | 10% | `weekday = 6` (Sa) oder `weekday = 7` (So) |
 
 ## Verwendete Scripting-Funktionen
 
@@ -122,11 +139,11 @@ Für jede Stundengruppe wird der höchste anwendbare Satz ermittelt:
 ### Beispiel 1: Normale Tagesschicht
 **Eingabe:** Mo 08:00-16:00, kein Feiertag
 ```
-Weekday = 1
-FromHour = "08:00"
-UntilHour = "16:00"
-Hour = 8
-Holiday = 0
+weekday = 1          ' Montag (ISO-8601)
+fromhour = 8.0       ' 08:00 als Dezimal
+untilhour = 16.0     ' 16:00 als Dezimal
+hour = 8
+holiday = false
 ```
 **Berechnung:**
 - Keine Nachtschicht (16:00 > 08:00)
@@ -141,11 +158,11 @@ Holiday = 0
 ### Beispiel 2: Sonntagsschicht
 **Eingabe:** So 08:00-16:00
 ```
-Weekday = 7
-FromHour = "08:00"
-UntilHour = "16:00"
-Hour = 8
-Holiday = 0
+weekday = 7          ' Sonntag (ISO-8601)
+fromhour = 8.0
+untilhour = 16.0
+hour = 8
+holiday = false
 ```
 **Berechnung:**
 - Keine Nachtschicht
@@ -161,11 +178,11 @@ Holiday = 0
 ### Beispiel 3: Feiertagsschicht
 **Eingabe:** Mo 08:00-16:00, Feiertag
 ```
-Weekday = 1
-FromHour = "08:00"
-UntilHour = "16:00"
-Hour = 8
-Holiday = 1
+weekday = 1          ' Montag (ISO-8601)
+fromhour = 8.0
+untilhour = 16.0
+hour = 8
+holiday = true
 ```
 **Berechnung:**
 - Keine Nachtschicht
@@ -181,17 +198,16 @@ Holiday = 1
 ### Beispiel 4: Nachtschicht über Mitternacht
 **Eingabe:** So 22:00 - Mo 07:00, Sonntag ist Feiertag
 ```
-Weekday = 7
-FromHour = "22:00"
-UntilHour = "07:00"
-Hour = 9
-Holiday = 1
-WeekdayNextDay = 1
-HolidayNextDay = 0
+weekday = 7          ' Sonntag (ISO-8601)
+fromhour = 22.0
+untilhour = 7.0
+hour = 9
+holiday = true
+holidaynextday = false
 ```
 **Berechnung:**
 
-**Segment 1: So 22:00-00:00** (Holiday=1, Weekday=7)
+**Segment 1: So 22:00-00:00** (holiday=true, weekday=7)
 | Stunden | Typ | Anwendbar | Rate |
 |---------|-----|-----------|------|
 | 22:00-23:00 | Nicht-Nacht | Feiertag 15%, Wochenende 10% | 15% |
@@ -199,7 +215,7 @@ HolidayNextDay = 0
 
 Segment 1 Bonus: 1 × 0.15 + 1 × 0.15 = **0.30 Std**
 
-**Segment 2: Mo 00:00-07:00** (Holiday=0, Weekday=1)
+**Segment 2: Mo 00:00-07:00** (holidaynextday=false, weekday=1)
 | Stunden | Typ | Anwendbar | Rate |
 |---------|-----|-----------|------|
 | 00:00-06:00 | Nacht | Nacht 10% | 10% |
@@ -214,13 +230,12 @@ Segment 2 Bonus: 6 × 0.10 + 1 × 0.00 = **0.60 Std**
 ### Beispiel 5: Nachtschicht ohne Feiertag
 **Eingabe:** Mo 22:00 - Di 06:00
 ```
-Weekday = 1
-FromHour = "22:00"
-UntilHour = "06:00"
-Hour = 8
-Holiday = 0
-WeekdayNextDay = 2
-HolidayNextDay = 0
+weekday = 1          ' Montag (ISO-8601)
+fromhour = 22.0
+untilhour = 6.0
+hour = 8
+holiday = false
+holidaynextday = false
 ```
 **Berechnung:**
 
