@@ -2,6 +2,7 @@ using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Settings;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend;
@@ -9,10 +10,12 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend;
 public class CalendarRulesController : BaseController
 {
     private readonly IMediator mediator;
+    private readonly IHolidayCalculatorCache _holidayCache;
 
-    public CalendarRulesController(IMediator mediator, ILogger<CalendarRulesController> logger)
+    public CalendarRulesController(IMediator mediator, IHolidayCalculatorCache holidayCache, ILogger<CalendarRulesController> logger)
     {
         this.mediator = mediator;
+        _holidayCache = holidayCache;
     }
 
     [HttpDelete("CalendarRule/{id}")]
@@ -81,5 +84,19 @@ public class CalendarRulesController : BaseController
             request.SubRule,
             request.Year));
         return Ok(result);
+    }
+
+    [HttpDelete("InvalidateHolidayCache/{calendarSelectionId}")]
+    public ActionResult InvalidateHolidayCache(Guid calendarSelectionId)
+    {
+        _holidayCache.Invalidate(calendarSelectionId);
+        return Ok(new { message = $"Holiday cache invalidated for CalendarSelectionId: {calendarSelectionId}" });
+    }
+
+    [HttpDelete("InvalidateAllHolidayCache")]
+    public ActionResult InvalidateAllHolidayCache()
+    {
+        _holidayCache.InvalidateAll();
+        return Ok(new { message = "All holiday caches invalidated" });
     }
 }

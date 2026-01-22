@@ -47,7 +47,11 @@ public class MacroDataProvider : IMacroDataProvider
         {
             var calculator = await GetHolidayCalculatorAsync(contract.CalendarSelectionId.Value, workDate.Year);
             macroData.Holiday = calculator.IsHoliday(workDate) == HolidayStatus.OfficialHoliday;
-            macroData.HolidayNextDay = calculator.IsHoliday(workDateNextDay) == HolidayStatus.OfficialHoliday;
+
+            var calculatorNextDay = workDateNextDay.Year != workDate.Year
+                ? await GetHolidayCalculatorAsync(contract.CalendarSelectionId.Value, workDateNextDay.Year)
+                : calculator;
+            macroData.HolidayNextDay = calculatorNextDay.IsHoliday(workDateNextDay) == HolidayStatus.OfficialHoliday;
         }
 
         return macroData;
