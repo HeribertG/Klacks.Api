@@ -123,6 +123,16 @@ public class PeriodHoursService : IPeriodHoursService
 
         var calculated = await CalculatePeriodHoursAsync(clientId, startDate, endDate);
 
+        var otherCacheEntries = await _context.ClientPeriodHours
+            .Where(p => p.ClientId == clientId
+                && (p.StartDate != startDate || p.EndDate != endDate))
+            .ToListAsync();
+
+        if (otherCacheEntries.Count > 0)
+        {
+            _context.ClientPeriodHours.RemoveRange(otherCacheEntries);
+        }
+
         var existing = await _context.ClientPeriodHours
             .FirstOrDefaultAsync(p =>
                 p.ClientId == clientId
@@ -256,7 +266,7 @@ public class PeriodHoursService : IPeriodHoursService
                 && w.CurrentDate >= startDateTime
                 && w.CurrentDate <= endDateTime)
             .GroupBy(w => w.ClientId)
-            .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime) })
+            .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime), TotalSurcharges = g.Sum(w => w.Surcharges) })
             .ToListAsync();
 
         var breaksHours = await _context.Break
@@ -282,22 +292,22 @@ public class PeriodHoursService : IPeriodHoursService
             })
             .ToListAsync();
 
-        var worksHoursDict = worksHours.ToDictionary(x => x.ClientId, x => x.TotalHours);
+        var worksHoursDict = worksHours.ToDictionary(x => x.ClientId, x => (Hours: x.TotalHours, Surcharges: x.TotalSurcharges));
         var breaksHoursDict = breaksHours.ToDictionary(x => x.ClientId, x => x.TotalBreaks);
 
         foreach (var clientId in clientIds)
         {
-            var hours = worksHoursDict.TryGetValue(clientId, out var h) ? h : 0m;
+            var workData = worksHoursDict.TryGetValue(clientId, out var wd) ? wd : (Hours: 0m, Surcharges: 0m);
             var breaks = breaksHoursDict.TryGetValue(clientId, out var b) ? b : 0m;
 
             var workChangeHours = 0m;
-            var surcharges = 0m;
+            var workChangeSurcharges = 0m;
 
             foreach (var wc in workChanges)
             {
-                if (wc.ToInvoice)
+                if (wc.ToInvoice && wc.OriginalClientId == clientId)
                 {
-                    surcharges += wc.ChangeTime;
+                    workChangeSurcharges += wc.ChangeTime;
                 }
 
                 var isOriginalClient = wc.OriginalClientId == clientId;
@@ -316,8 +326,8 @@ public class PeriodHoursService : IPeriodHoursService
 
             result[clientId] = new PeriodHoursResource
             {
-                Hours = hours + breaks + workChangeHours,
-                Surcharges = surcharges,
+                Hours = workData.Hours + breaks + workChangeHours,
+                Surcharges = workData.Surcharges + workChangeSurcharges,
                 GuaranteedHours = 0m
             };
         }
@@ -411,6 +421,16 @@ public class PeriodHoursService : IPeriodHoursService
             endDate);
 
         var calculated = await CalculatePeriodHoursAsync(clientId, startDate, endDate);
+
+        var otherCacheEntries = await _context.ClientPeriodHours
+            .Where(p => p.ClientId == clientId
+                && (p.StartDate != startDate || p.EndDate != endDate))
+            .ToListAsync();
+
+        if (otherCacheEntries.Count > 0)
+        {
+            _context.ClientPeriodHours.RemoveRange(otherCacheEntries);
+        }
 
         var existing = await _context.ClientPeriodHours
             .FirstOrDefaultAsync(p =>

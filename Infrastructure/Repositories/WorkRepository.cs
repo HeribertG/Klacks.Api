@@ -248,7 +248,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         var worksHours = await _context.Work
             .Where(w => clientIdsWithoutPeriodHours.Contains(w.ClientId) && w.CurrentDate >= startDateTime && w.CurrentDate <= endDateTime)
             .GroupBy(w => w.ClientId)
-            .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime) })
+            .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime), TotalSurcharges = g.Sum(w => w.Surcharges) })
             .ToListAsync();
 
         var breaksHours = await _context.Break
@@ -270,7 +270,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             })
             .ToListAsync();
 
-        var worksHoursDict = worksHours.ToDictionary(x => x.ClientId, x => x.TotalHours);
+        var worksHoursDict = worksHours.ToDictionary(x => x.ClientId, x => (Hours: x.TotalHours, Surcharges: x.TotalSurcharges));
         var breaksHoursDict = breaksHours.ToDictionary(x => x.ClientId, x => x.TotalBreaks);
 
         var contractData = await _context.ClientContract
@@ -298,17 +298,17 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
         foreach (var clientId in clientIdsWithoutPeriodHours)
         {
-            var hours = worksHoursDict.TryGetValue(clientId, out var h) ? h : 0m;
+            var workData = worksHoursDict.TryGetValue(clientId, out var wd) ? wd : (Hours: 0m, Surcharges: 0m);
             var breaks = breaksHoursDict.TryGetValue(clientId, out var b) ? b : 0m;
 
             var workChangeHours = 0m;
-            var surcharges = 0m;
+            var workChangeSurcharges = 0m;
 
             foreach (var wc in workChanges)
             {
-                if (wc.ToInvoice == true)
+                if (wc.ToInvoice == true && wc.OriginalClientId == clientId)
                 {
-                    surcharges += wc.ChangeTime;
+                    workChangeSurcharges += wc.ChangeTime;
                 }
 
                 var isOriginalClient = wc.OriginalClientId == clientId;
@@ -331,8 +331,8 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
             result[clientId] = new PeriodHoursResource
             {
-                Hours = hours + breaks + workChangeHours,
-                Surcharges = surcharges,
+                Hours = workData.Hours + breaks + workChangeHours,
+                Surcharges = workData.Surcharges + workChangeSurcharges,
                 GuaranteedHours = guaranteedHours
             };
         }
