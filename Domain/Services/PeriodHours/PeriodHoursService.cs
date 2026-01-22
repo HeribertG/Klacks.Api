@@ -51,7 +51,7 @@ public class PeriodHoursService : IPeriodHoursService
         foreach (var ph in cachedPeriodHours)
         {
             var guaranteedHours = contractByClient.TryGetValue(ph.ClientId, out var contract)
-                ? contract.GuaranteedHours
+                ? contract.GuaranteedHours ?? 0m
                 : 0m;
 
             result[ph.ClientId] = new PeriodHoursResource
@@ -72,7 +72,7 @@ public class PeriodHoursService : IPeriodHoursService
             foreach (var (clientId, hours) in calculatedHours)
             {
                 var guaranteedHours = contractByClient.TryGetValue(clientId, out var contract)
-                    ? contract.GuaranteedHours
+                    ? contract.GuaranteedHours ?? 0m
                     : 0m;
 
                 result[clientId] = new PeriodHoursResource

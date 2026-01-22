@@ -1,3 +1,4 @@
+using System.Globalization;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Macros;
@@ -26,6 +27,7 @@ public class MacroDataProvider : IMacroDataProvider
         var workDateNextDay = workDate.AddDays(1);
 
         var contract = await GetActiveContractAsync(work.ClientId, workDate);
+        var defaultSettings = await GetDefaultSettingsAsync();
 
         var macroData = new MacroData
         {
@@ -33,12 +35,12 @@ public class MacroDataProvider : IMacroDataProvider
             FromHour = work.StartTime.ToString("HH:mm"),
             UntilHour = work.EndTime.ToString("HH:mm"),
             Weekday = ConvertToIsoWeekday(work.CurrentDate.DayOfWeek),
-            NightRate = contract?.NightRate ?? 0,
-            HolidayRate = contract?.HolidayRate ?? 0,
-            SaRate = contract?.SaRate ?? 0,
-            SoRate = contract?.SoRate ?? 0,
-            GuaranteedHours = contract?.GuaranteedHours ?? 0,
-            FullTime = contract?.FullTime ?? 0
+            NightRate = contract?.NightRate ?? defaultSettings.NightRate,
+            HolidayRate = contract?.HolidayRate ?? defaultSettings.HolidayRate,
+            SaRate = contract?.SaRate ?? defaultSettings.SaRate,
+            SoRate = contract?.SoRate ?? defaultSettings.SoRate,
+            GuaranteedHours = contract?.GuaranteedHours ?? defaultSettings.GuaranteedHours,
+            FullTime = contract?.FullTime ?? defaultSettings.FullTime
         };
 
         if (contract?.CalendarSelectionId != null)
@@ -49,6 +51,43 @@ public class MacroDataProvider : IMacroDataProvider
         }
 
         return macroData;
+    }
+
+    private async Task<DefaultMacroSettings> GetDefaultSettingsAsync()
+    {
+        var settingTypes = new[] { "nightRate", "holidayRate", "saRate", "soRate", "guaranteedHours", "fullTime" };
+
+        var settings = await _context.Settings
+            .Where(s => settingTypes.Contains(s.Type))
+            .ToDictionaryAsync(s => s.Type, s => s.Value);
+
+        return new DefaultMacroSettings
+        {
+            NightRate = ParseDecimal(settings.GetValueOrDefault("nightRate")),
+            HolidayRate = ParseDecimal(settings.GetValueOrDefault("holidayRate")),
+            SaRate = ParseDecimal(settings.GetValueOrDefault("saRate")),
+            SoRate = ParseDecimal(settings.GetValueOrDefault("soRate")),
+            GuaranteedHours = ParseDecimal(settings.GetValueOrDefault("guaranteedHours")),
+            FullTime = ParseDecimal(settings.GetValueOrDefault("fullTime"))
+        };
+    }
+
+    private static decimal ParseDecimal(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return 0;
+
+        return decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) ? result : 0;
+    }
+
+    private record DefaultMacroSettings
+    {
+        public decimal NightRate { get; init; }
+        public decimal HolidayRate { get; init; }
+        public decimal SaRate { get; init; }
+        public decimal SoRate { get; init; }
+        public decimal GuaranteedHours { get; init; }
+        public decimal FullTime { get; init; }
     }
 
     private async Task<Domain.Models.Associations.Contract?> GetActiveContractAsync(Guid clientId, DateOnly date)

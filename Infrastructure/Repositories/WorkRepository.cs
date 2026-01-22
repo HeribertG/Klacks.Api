@@ -292,7 +292,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             {
                 Hours = ph.Hours,
                 Surcharges = ph.Surcharges,
-                GuaranteedHours = guaranteedHours
+                GuaranteedHours = guaranteedHours ?? 0m
             };
         }
 
@@ -326,7 +326,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             }
 
             var guaranteedHours = contractByClient.TryGetValue(clientId, out var contract)
-                ? contract.GuaranteedHours
+                ? contract.GuaranteedHours ?? 0m
                 : 0m;
 
             result[clientId] = new PeriodHoursResource
