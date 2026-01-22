@@ -276,3 +276,61 @@ Passe die TimeOverlap-Parameter an:
 ' Statt 23:00-06:00:
 NightHours = TimeOverlap("22:00", "05:00", StartTime, EndTime)
 ```
+
+---
+
+## Speicherung und Verwendung
+
+### Work.Surcharges
+
+Das Ergebnis des Macros wird in `Work.Surcharges` gespeichert:
+
+```csharp
+// WorkMacroService.cs - ProcessWorkMacroAsync()
+work.Surcharges = macroResult;  // Ergebnis des Zuschlag-Macros
+```
+
+### PeriodHours Berechnung
+
+Die `Work.Surcharges`-Werte werden in der PeriodHours-Berechnung summiert:
+
+```csharp
+// PeriodHoursService.cs UND WorkRepository.cs
+TotalSurcharges = g.Sum(w => w.Surcharges)  // Summe aller Work.Surcharges im Zeitraum
+
+// Kombiniert mit manuellen WorkChange-Korrekturen
+Surcharges = workData.Surcharges + workChangeSurcharges
+```
+
+### Frontend Anzeige
+
+Die berechneten Surcharges werden im Schedule Row-Header (Slot 3) angezeigt:
+
+| Slot | Inhalt | Quelle |
+|------|--------|--------|
+| Slot 1 | Soll-Stunden | `Contract.GuaranteedHours` |
+| Slot 2 | Ist-Stunden | `Σ Work.WorkTime` |
+| Slot 3 | Zuschläge | `Σ Work.Surcharges + Σ WorkChange.ChangeTime` |
+
+---
+
+## Changelog
+
+### 22.01.2026 - Surcharges Berechnung Fix
+
+**Problem:** `Work.Surcharges` (Macro-Ergebnis) wurde nicht in der PeriodHours-Berechnung berücksichtigt.
+
+**Fix:** Beide Berechnungs-Pfade (`PeriodHoursService` und `WorkRepository`) summieren jetzt `Work.Surcharges`:
+
+```csharp
+// Vorher: Nur WorkChange.ChangeTime
+Surcharges = workChangeSurcharges
+
+// Nachher: Work.Surcharges + WorkChange.ChangeTime
+TotalSurcharges = g.Sum(w => w.Surcharges)
+Surcharges = workData.Surcharges + workChangeSurcharges
+```
+
+**Betroffene Dateien:**
+- `PeriodHoursService.cs` - `CalculatePeriodHoursForClientsAsync()`
+- `WorkRepository.cs` - `GetPeriodHoursForClients()`
