@@ -11,6 +11,8 @@ public class BulkWorksResponse
     public List<Guid> DeletedIds { get; set; } = [];
 
     public List<ShiftDatePair> AffectedShifts { get; set; } = [];
+
+    public Dictionary<Guid, PeriodHoursResource>? PeriodHours { get; set; }
 }
 
 public class ShiftDatePair

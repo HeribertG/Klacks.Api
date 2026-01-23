@@ -261,13 +261,34 @@ public class PeriodHoursService : IPeriodHoursService
         var startDateTime = startDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
         var endDateTime = endDate.ToDateTime(new TimeOnly(23, 59, 59), DateTimeKind.Utc);
 
-        var worksHours = await _context.Work
+        var allWorks = await _context.Work
             .Where(w => clientIds.Contains(w.ClientId)
                 && w.CurrentDate >= startDateTime
                 && w.CurrentDate <= endDateTime)
+            .Select(w => new { w.ClientId, w.WorkTime, w.Surcharges, w.CurrentDate })
+            .ToListAsync();
+
+        _logger.LogInformation(
+            "CalculatePeriodHours for clients {ClientIds} from {Start} to {End}: Found {Count} works",
+            string.Join(", ", clientIds),
+            startDate,
+            endDate,
+            allWorks.Count);
+
+        foreach (var work in allWorks)
+        {
+            _logger.LogInformation(
+                "  Work: Client={ClientId}, Date={Date}, Hours={Hours}, Surcharges={Surcharges}",
+                work.ClientId,
+                work.CurrentDate,
+                work.WorkTime,
+                work.Surcharges);
+        }
+
+        var worksHours = allWorks
             .GroupBy(w => w.ClientId)
             .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime), TotalSurcharges = g.Sum(w => w.Surcharges) })
-            .ToListAsync();
+            .ToList();
 
         var breaksHours = await _context.Break
             .Where(b => clientIds.Contains(b.ClientId)

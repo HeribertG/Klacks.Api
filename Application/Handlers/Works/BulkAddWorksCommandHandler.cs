@@ -12,6 +12,7 @@ namespace Klacks.Api.Application.Handlers.Works;
 public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWorksCommand, BulkWorksResponse>
 {
     private readonly IWorkRepository _workRepository;
+    private readonly IShiftRepository _shiftRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkNotificationService _notificationService;
@@ -22,6 +23,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
 
     public BulkAddWorksCommandHandler(
         IWorkRepository workRepository,
+        IShiftRepository shiftRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IWorkNotificationService notificationService,
@@ -33,6 +35,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         : base(logger)
     {
         _workRepository = workRepository;
+        _shiftRepository = shiftRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _notificationService = notificationService;
@@ -48,6 +51,14 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         var createdWorks = new List<Work>();
         var affectedShifts = new HashSet<(Guid ShiftId, DateTime Date)>();
 
+        var shift = await _shiftRepository.Get(command.Request.ShiftId);
+        if (shift == null)
+        {
+            _logger.LogError("Shift with ID {ShiftId} not found", command.Request.ShiftId);
+            response.FailedCount = command.Request.Entries.Count;
+            return response;
+        }
+
         foreach (var entry in command.Request.Entries)
         {
             try
@@ -59,6 +70,8 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                     ClientId = entry.ClientId,
                     CurrentDate = entry.CurrentDate,
                     WorkTime = command.Request.WorkTime,
+                    StartTime = shift.StartShift,
+                    EndTime = shift.EndShift,
                     IsSealed = false,
                     IsDeleted = false
                 };
@@ -85,11 +98,47 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
 
+            var affectedClients = new HashSet<Guid>();
+            var clientPeriods = new Dictionary<Guid, (DateOnly Start, DateOnly End)>();
+
             foreach (var work in createdWorks)
             {
-                var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(work.CurrentDate));
-                var notification = _scheduleMapper.ToWorkNotificationDto(work, "created", connectionId, periodStart, periodEnd);
+                affectedClients.Add(work.ClientId);
+
+                var (start, end) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(work.CurrentDate));
+
+                if (!clientPeriods.ContainsKey(work.ClientId))
+                {
+                    clientPeriods[work.ClientId] = (start, end);
+                }
+                else
+                {
+                    var existing = clientPeriods[work.ClientId];
+                    clientPeriods[work.ClientId] = (
+                        start < existing.Start ? start : existing.Start,
+                        end > existing.End ? end : existing.End
+                    );
+                }
+
+                var notification = _scheduleMapper.ToWorkNotificationDto(work, "created", connectionId, start, end);
                 await _notificationService.NotifyWorkCreated(notification);
+            }
+
+            if (affectedClients.Count > 0)
+            {
+                response.PeriodHours = new Dictionary<Guid, PeriodHoursResource>();
+
+                foreach (var clientId in affectedClients)
+                {
+                    if (clientPeriods.TryGetValue(clientId, out var period))
+                    {
+                        var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(
+                            clientId,
+                            period.Start,
+                            period.End);
+                        response.PeriodHours[clientId] = periodHours;
+                    }
+                }
             }
 
             await SendShiftStatsNotificationsAsync(affectedShifts, connectionId, cancellationToken);

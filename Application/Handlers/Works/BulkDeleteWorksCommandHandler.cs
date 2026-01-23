@@ -47,6 +47,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         var response = new BulkWorksResponse();
         var deletedWorks = new List<Work>();
         var affectedShifts = new HashSet<(Guid ShiftId, DateTime Date)>();
+        var affectedClients = new HashSet<Guid>();
 
         foreach (var workId in command.Request.WorkIds)
         {
@@ -61,6 +62,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
                 }
 
                 affectedShifts.Add((work.ShiftId, work.CurrentDate.Date));
+                affectedClients.Add(work.ClientId);
                 deletedWorks.Add(work);
 
                 await _workRepository.Delete(workId);
@@ -81,11 +83,44 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
 
+            var clientPeriods = new Dictionary<Guid, (DateOnly Start, DateOnly End)>();
+
             foreach (var work in deletedWorks)
             {
-                var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(work.CurrentDate));
-                var notification = _scheduleMapper.ToWorkNotificationDto(work, "deleted", connectionId, periodStart, periodEnd);
+                var (start, end) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(work.CurrentDate));
+
+                if (!clientPeriods.ContainsKey(work.ClientId))
+                {
+                    clientPeriods[work.ClientId] = (start, end);
+                }
+                else
+                {
+                    var existing = clientPeriods[work.ClientId];
+                    clientPeriods[work.ClientId] = (
+                        start < existing.Start ? start : existing.Start,
+                        end > existing.End ? end : existing.End
+                    );
+                }
+
+                var notification = _scheduleMapper.ToWorkNotificationDto(work, "deleted", connectionId, start, end);
                 await _notificationService.NotifyWorkDeleted(notification);
+            }
+
+            if (affectedClients.Count > 0)
+            {
+                response.PeriodHours = new Dictionary<Guid, PeriodHoursResource>();
+
+                foreach (var clientId in affectedClients)
+                {
+                    if (clientPeriods.TryGetValue(clientId, out var period))
+                    {
+                        var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(
+                            clientId,
+                            period.Start,
+                            period.End);
+                        response.PeriodHours[clientId] = periodHours;
+                    }
+                }
             }
 
             await SendShiftStatsNotificationsAsync(affectedShifts, connectionId, cancellationToken);
