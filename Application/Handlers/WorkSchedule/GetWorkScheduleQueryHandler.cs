@@ -64,10 +64,12 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
             request.Filter.ShowExtern,
             request.Filter.HoursSortOrder,
             request.Filter.StartRow,
-            request.Filter.RowCount);
+            request.Filter.RowCount,
+            request.Filter.PaymentInterval);
 
         var (clients, totalClientCount) = await _workRepository.WorkList(workFilter);
         var clientResources = _scheduleMapper.ToWorkScheduleClientResourceList(clients);
+        EnrichWithContractInfo(clientResources, clients, startDate, endDate, request.Filter.PaymentInterval);
 
         var clientIds = clients.Select(c => c.Id).ToList();
 
@@ -115,7 +117,8 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         bool showExtern,
         string? hoursSortOrder,
         int startRow,
-        int rowCount)
+        int rowCount,
+        int paymentInterval)
     {
         return new WorkFilter
         {
@@ -129,7 +132,35 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
             ShowExtern = showExtern,
             HoursSortOrder = hoursSortOrder,
             StartRow = startRow,
-            RowCount = rowCount
+            RowCount = rowCount,
+            PaymentInterval = paymentInterval
         };
+    }
+
+    private static void EnrichWithContractInfo(
+        List<WorkScheduleClientResource> clientResources,
+        List<Domain.Models.Staffs.Client> clients,
+        DateOnly startDate,
+        DateOnly endDate,
+        int paymentInterval)
+    {
+        foreach (var resource in clientResources)
+        {
+            var client = clients.FirstOrDefault(c => c.Id == resource.Id);
+            if (client?.ClientContracts == null || !client.ClientContracts.Any())
+            {
+                resource.HasContract = false;
+                continue;
+            }
+
+            var activeContract = client.ClientContracts
+                .Where(cc => cc.IsActive && !cc.IsDeleted)
+                .Where(cc => cc.FromDate <= endDate && (!cc.UntilDate.HasValue || cc.UntilDate >= startDate))
+                .Where(cc => cc.Contract != null && (int)cc.Contract.PaymentInterval == paymentInterval)
+                .OrderByDescending(cc => cc.FromDate)
+                .FirstOrDefault();
+
+            resource.HasContract = activeContract != null;
+        }
     }
 }

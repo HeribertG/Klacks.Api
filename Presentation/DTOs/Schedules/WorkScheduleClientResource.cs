@@ -15,4 +15,5 @@ public class WorkScheduleClientResource
     public int IdNumber { get; set; }
     public bool LegalEntity { get; set; }
     public int Type { get; set; }
+    public bool HasContract { get; set; }
 }

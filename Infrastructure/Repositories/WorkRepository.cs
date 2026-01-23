@@ -146,6 +146,8 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         var endDateTime = filter.EndDate.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc);
 
         query = query.Include(c => c.Works.Where(w => w.CurrentDate >= startDateTime && w.CurrentDate <= endDateTime));
+        query = query.Include(c => c.ClientContracts.Where(cc => !cc.IsDeleted && cc.IsActive))
+            .ThenInclude(cc => cc.Contract);
 
         query = await _groupFilterService.FilterClientsByGroupId(filter.SelectedGroup, query);
 
