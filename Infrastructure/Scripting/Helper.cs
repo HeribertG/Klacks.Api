@@ -50,4 +50,24 @@ public static class Helper
     {
         return int.TryParse(c, out _);
     }
+
+    public static bool AreEqual(Identifier? left, Identifier? right)
+    {
+        var leftValue = left?.Value ?? ScriptValue.Null;
+        var rightValue = right?.Value ?? ScriptValue.Null;
+        return AreEqual(leftValue, rightValue);
+    }
+
+    public static bool AreEqual(ScriptValue left, ScriptValue right)
+    {
+        var leftIsNumeric = left.IsNumber || left.IsBoolean;
+        var rightIsNumeric = right.IsNumber || right.IsBoolean;
+
+        if (leftIsNumeric && rightIsNumeric)
+        {
+            return left.AsDouble() == right.AsDouble();
+        }
+
+        return left.AsString().Equals(right.AsString());
+    }
 }

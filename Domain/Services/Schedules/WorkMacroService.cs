@@ -117,8 +117,8 @@ public class WorkMacroService : IWorkMacroService
         compiledScript.SetExternalValue("fromhour", data.FromHour);
         compiledScript.SetExternalValue("untilhour", data.UntilHour);
         compiledScript.SetExternalValue("weekday", data.Weekday);
-        compiledScript.SetExternalValue("holiday", data.Holiday);
-        compiledScript.SetExternalValue("holidaynextday", data.HolidayNextDay);
+        compiledScript.SetExternalValue("holiday", data.Holiday ? 1 : 0);
+        compiledScript.SetExternalValue("holidaynextday", data.HolidayNextDay ? 1 : 0);
         compiledScript.SetExternalValue("nightrate", data.NightRate);
         compiledScript.SetExternalValue("holidayrate", data.HolidayRate);
         compiledScript.SetExternalValue("sarate", data.SaRate);

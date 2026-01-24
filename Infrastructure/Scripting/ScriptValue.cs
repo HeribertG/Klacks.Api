@@ -103,16 +103,26 @@ public readonly struct ScriptValue : IEquatable<ScriptValue>
 
     public bool Equals(ScriptValue other)
     {
-        if (_type != other._type) return false;
-        return _type switch
+        if (_type == other._type)
         {
-            ScriptValueType.Null => true,
-            ScriptValueType.Number => _numberValue == other._numberValue,
-            ScriptValueType.Boolean => _numberValue == other._numberValue,
-            ScriptValueType.String => string.Equals((string?)_objectValue, (string?)other._objectValue, StringComparison.Ordinal),
-            ScriptValueType.Object => Equals(_objectValue, other._objectValue),
-            _ => false
-        };
+            return _type switch
+            {
+                ScriptValueType.Null => true,
+                ScriptValueType.Number => _numberValue == other._numberValue,
+                ScriptValueType.Boolean => _numberValue == other._numberValue,
+                ScriptValueType.String => string.Equals((string?)_objectValue, (string?)other._objectValue, StringComparison.Ordinal),
+                ScriptValueType.Object => Equals(_objectValue, other._objectValue),
+                _ => false
+            };
+        }
+
+        if ((_type == ScriptValueType.Boolean && other._type == ScriptValueType.Number) ||
+            (_type == ScriptValueType.Number && other._type == ScriptValueType.Boolean))
+        {
+            return _numberValue == other._numberValue;
+        }
+
+        return false;
     }
 
     public override bool Equals(object? obj) => obj is ScriptValue other && Equals(other);
