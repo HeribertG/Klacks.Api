@@ -43,18 +43,78 @@ public class MacroDataProvider : IMacroDataProvider
             FullTime = contract?.FullTime ?? defaultSettings.FullTime
         };
 
+        IHolidaysListCalculator? calculator = null;
+        IHolidaysListCalculator? calculatorNextDay = null;
+
         if (contract?.CalendarSelectionId != null)
         {
-            var calculator = await GetHolidayCalculatorAsync(contract.CalendarSelectionId.Value, workDate.Year);
-            macroData.Holiday = calculator.IsHoliday(workDate) == HolidayStatus.OfficialHoliday;
-
-            var calculatorNextDay = workDateNextDay.Year != workDate.Year
+            calculator = await GetHolidayCalculatorAsync(contract.CalendarSelectionId.Value, workDate.Year);
+            calculatorNextDay = workDateNextDay.Year != workDate.Year
                 ? await GetHolidayCalculatorAsync(contract.CalendarSelectionId.Value, workDateNextDay.Year)
                 : calculator;
-            macroData.HolidayNextDay = calculatorNextDay.IsHoliday(workDateNextDay) == HolidayStatus.OfficialHoliday;
+        }
+        else
+        {
+            var globalSettings = await GetGlobalCalendarSettingsAsync();
+            if (globalSettings.CalendarSelectionId != null)
+            {
+                calculator = await GetHolidayCalculatorAsync(globalSettings.CalendarSelectionId.Value, workDate.Year);
+                calculatorNextDay = workDateNextDay.Year != workDate.Year
+                    ? await GetHolidayCalculatorAsync(globalSettings.CalendarSelectionId.Value, workDateNextDay.Year)
+                    : calculator;
+            }
+            else if (!string.IsNullOrEmpty(globalSettings.Country) && !string.IsNullOrEmpty(globalSettings.State))
+            {
+                calculator = await GetHolidayCalculatorByCountryStateAsync(globalSettings.Country, globalSettings.State, workDate.Year);
+                calculatorNextDay = workDateNextDay.Year != workDate.Year
+                    ? await GetHolidayCalculatorByCountryStateAsync(globalSettings.Country, globalSettings.State, workDateNextDay.Year)
+                    : calculator;
+            }
+        }
+
+        if (calculator != null)
+        {
+            macroData.Holiday = calculator.IsHoliday(workDate) == HolidayStatus.OfficialHoliday;
+            macroData.HolidayNextDay = calculatorNextDay?.IsHoliday(workDateNextDay) == HolidayStatus.OfficialHoliday;
         }
 
         return macroData;
+    }
+
+    private async Task<(string? Country, string? State, Guid? CalendarSelectionId)> GetGlobalCalendarSettingsAsync()
+    {
+        var settingTypes = new[] { "globalCalendarCountry", "globalCalendarState", "globalCalendarSelectionId" };
+        var settings = await _context.Settings
+            .Where(s => settingTypes.Contains(s.Type))
+            .ToListAsync();
+
+        var country = settings.FirstOrDefault(s => s.Type == "globalCalendarCountry")?.Value;
+        var state = settings.FirstOrDefault(s => s.Type == "globalCalendarState")?.Value;
+        var calendarSelectionIdStr = settings.FirstOrDefault(s => s.Type == "globalCalendarSelectionId")?.Value;
+
+        Guid? calendarSelectionId = null;
+        if (!string.IsNullOrEmpty(calendarSelectionIdStr) && Guid.TryParse(calendarSelectionIdStr, out var parsedGuid))
+        {
+            calendarSelectionId = parsedGuid;
+        }
+
+        return (country, state, calendarSelectionId);
+    }
+
+    private async Task<IHolidaysListCalculator> GetHolidayCalculatorByCountryStateAsync(string country, string state, int year)
+    {
+        var calculator = new HolidaysListCalculator { CurrentYear = year };
+        var rules = await LoadCalendarRulesByCountryState(country, state);
+        calculator.AddRange(rules);
+        calculator.ComputeHolidays();
+        return calculator;
+    }
+
+    private async Task<List<Domain.Models.Settings.CalendarRule>> LoadCalendarRulesByCountryState(string country, string state)
+    {
+        return await _context.CalendarRule
+            .Where(cr => cr.Country == country && cr.State == state)
+            .ToListAsync();
     }
 
     private async Task<DefaultMacroSettings> GetDefaultSettingsAsync()
@@ -132,11 +192,16 @@ public class MacroDataProvider : IMacroDataProvider
             return new List<Domain.Models.Settings.CalendarRule>();
         }
 
+        var countries = selectedCalendars.Select(sc => sc.Country).Distinct().ToList();
+        var states = selectedCalendars.Select(sc => sc.State).Distinct().ToList();
+
         var rules = await _context.CalendarRule
-            .Where(cr => selectedCalendars.Any(sc => sc.Country == cr.Country && sc.State == cr.State))
+            .Where(cr => countries.Contains(cr.Country) && states.Contains(cr.State))
             .ToListAsync();
 
-        return rules;
+        return rules
+            .Where(cr => selectedCalendars.Any(sc => sc.Country == cr.Country && sc.State == cr.State))
+            .ToList();
     }
 
     private static int ConvertToIsoWeekday(DayOfWeek dayOfWeek)
