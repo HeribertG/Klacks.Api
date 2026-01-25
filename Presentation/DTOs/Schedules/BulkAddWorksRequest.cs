@@ -2,16 +2,24 @@ namespace Klacks.Api.Presentation.DTOs.Schedules;
 
 public class BulkAddWorksRequest
 {
-    public Guid ShiftId { get; set; }
+    public List<BulkWorkItem> Works { get; set; } = [];
 
-    public decimal WorkTime { get; set; }
+    public DateOnly PeriodStart { get; set; }
 
-    public List<WorkEntry> Entries { get; set; } = [];
+    public DateOnly PeriodEnd { get; set; }
 }
 
-public class WorkEntry
+public class BulkWorkItem
 {
     public Guid ClientId { get; set; }
 
+    public Guid ShiftId { get; set; }
+
     public DateTime CurrentDate { get; set; }
+
+    public decimal WorkTime { get; set; }
+
+    public TimeOnly StartTime { get; set; }
+
+    public TimeOnly EndTime { get; set; }
 }

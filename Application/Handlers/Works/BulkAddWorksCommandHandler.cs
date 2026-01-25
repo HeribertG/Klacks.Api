@@ -12,7 +12,6 @@ namespace Klacks.Api.Application.Handlers.Works;
 public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWorksCommand, BulkWorksResponse>
 {
     private readonly IWorkRepository _workRepository;
-    private readonly IShiftRepository _shiftRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkNotificationService _notificationService;
@@ -23,7 +22,6 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
 
     public BulkAddWorksCommandHandler(
         IWorkRepository workRepository,
-        IShiftRepository shiftRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IWorkNotificationService notificationService,
@@ -35,7 +33,6 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         : base(logger)
     {
         _workRepository = workRepository;
-        _shiftRepository = shiftRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _notificationService = notificationService;
@@ -51,27 +48,19 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         var createdWorks = new List<Work>();
         var affectedShifts = new HashSet<(Guid ShiftId, DateTime Date)>();
 
-        var shift = await _shiftRepository.Get(command.Request.ShiftId);
-        if (shift == null)
-        {
-            _logger.LogError("Shift with ID {ShiftId} not found", command.Request.ShiftId);
-            response.FailedCount = command.Request.Entries.Count;
-            return response;
-        }
-
-        foreach (var entry in command.Request.Entries)
+        foreach (var item in command.Request.Works)
         {
             try
             {
                 var work = new Work
                 {
                     Id = Guid.NewGuid(),
-                    ShiftId = command.Request.ShiftId,
-                    ClientId = entry.ClientId,
-                    CurrentDate = entry.CurrentDate,
-                    WorkTime = command.Request.WorkTime,
-                    StartTime = shift.StartShift,
-                    EndTime = shift.EndShift,
+                    ShiftId = item.ShiftId,
+                    ClientId = item.ClientId,
+                    CurrentDate = item.CurrentDate,
+                    WorkTime = item.WorkTime,
+                    StartTime = item.StartTime,
+                    EndTime = item.EndTime,
                     IsSealed = false,
                     IsDeleted = false
                 };
@@ -81,12 +70,12 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                 response.CreatedIds.Add(work.Id);
                 response.SuccessCount++;
 
-                affectedShifts.Add((command.Request.ShiftId, entry.CurrentDate.Date));
+                affectedShifts.Add((item.ShiftId, item.CurrentDate.Date));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to create work for client {ClientId} on {Date}",
-                    entry.ClientId, entry.CurrentDate);
+                    item.ClientId, item.CurrentDate);
                 response.FailedCount++;
             }
         }
@@ -98,29 +87,13 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
 
-            var affectedClients = new HashSet<Guid>();
-            var clientPeriods = new Dictionary<Guid, (DateOnly Start, DateOnly End)>();
+            var affectedClients = createdWorks.Select(w => w.ClientId).Distinct().ToList();
+            var periodStart = command.Request.PeriodStart;
+            var periodEnd = command.Request.PeriodEnd;
 
             foreach (var work in createdWorks)
             {
-                affectedClients.Add(work.ClientId);
-
-                var (start, end) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(work.CurrentDate));
-
-                if (!clientPeriods.ContainsKey(work.ClientId))
-                {
-                    clientPeriods[work.ClientId] = (start, end);
-                }
-                else
-                {
-                    var existing = clientPeriods[work.ClientId];
-                    clientPeriods[work.ClientId] = (
-                        start < existing.Start ? start : existing.Start,
-                        end > existing.End ? end : existing.End
-                    );
-                }
-
-                var notification = _scheduleMapper.ToWorkNotificationDto(work, "created", connectionId, start, end);
+                var notification = _scheduleMapper.ToWorkNotificationDto(work, "created", connectionId, periodStart, periodEnd);
                 await _notificationService.NotifyWorkCreated(notification);
             }
 
@@ -130,14 +103,11 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
 
                 foreach (var clientId in affectedClients)
                 {
-                    if (clientPeriods.TryGetValue(clientId, out var period))
-                    {
-                        var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(
-                            clientId,
-                            period.Start,
-                            period.End);
-                        response.PeriodHours[clientId] = periodHours;
-                    }
+                    var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(
+                        clientId,
+                        periodStart,
+                        periodEnd);
+                    response.PeriodHours[clientId] = periodHours;
                 }
             }
 
