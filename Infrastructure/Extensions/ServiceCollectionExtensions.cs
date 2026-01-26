@@ -238,6 +238,10 @@ public static  class ServiceCollectionExtensions
         // ContainerTemplate Service
         services.AddScoped<ContainerTemplateService>();
 
+        // Translation Service
+        services.AddHttpClient<ITranslationService, Services.Translation.DeepLTranslationService>();
+        services.AddScoped<IMultiLanguageTranslationService, Services.Translation.MultiLanguageTranslationService>();
+
         return services;
     }
 }

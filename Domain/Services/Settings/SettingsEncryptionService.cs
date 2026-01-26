@@ -11,7 +11,8 @@ public class SettingsEncryptionService : ISettingsEncryptionService
     private static readonly HashSet<string> SensitiveSettingTypes = new(StringComparer.OrdinalIgnoreCase)
     {
         "outgoingserverPassword",
-        "OPENROUTESERVICE_API_KEY"
+        "OPENROUTESERVICE_API_KEY",
+        "DEEPL_API_KEY"
     };
 
     private const string EncryptedPrefix = "ENC:";

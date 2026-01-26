@@ -6,6 +6,7 @@ using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Infrastructure.Converters;
 using Klacks.Api.Infrastructure.Exceptions;
 using Klacks.Api.Infrastructure.Extensions;
+using Microsoft.AspNetCore.DataProtection;
 using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Infrastructure.Persistence;
@@ -130,7 +131,14 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddControllersWithViews();
 
 // Add Data Protection for encrypting sensitive settings
-builder.Services.AddDataProtection();
+var dataProtectionKeysPath = Path.Combine(
+    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+    "Klacks", "DataProtection-Keys");
+Directory.CreateDirectory(dataProtectionKeysPath);
+
+builder.Services.AddDataProtection()
+    .SetApplicationName("Klacks")
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
 
 builder.Services
     .AddControllers()

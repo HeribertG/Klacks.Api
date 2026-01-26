@@ -1,6 +1,7 @@
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -11,21 +12,26 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Absence
     private readonly SettingsMapper _settingsMapper;
     private readonly IAbsenceRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMultiLanguageTranslationService _translationService;
 
     public PutCommandHandler(
                               SettingsMapper settingsMapper,
                               IAbsenceRepository repository,
+                              IMultiLanguageTranslationService translationService,
                               IUnitOfWork unitOfWork,
                               ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _settingsMapper = settingsMapper;
         _repository = repository;
+        _translationService = translationService;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<AbsenceResource?> Handle(PutCommand<AbsenceResource> request, CancellationToken cancellationToken)
     {
+        await TranslateMultiLanguageFieldsAsync(request.Resource);
+
         return await ExecuteAsync(async () =>
         {
             var dbAbsence = await _repository.Get(request.Resource.Id);
@@ -41,5 +47,17 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Absence
         },
         "updating absence",
         new { AbsenceId = request.Resource.Id });
+    }
+
+    private async Task TranslateMultiLanguageFieldsAsync(AbsenceResource resource)
+    {
+        if (!_translationService.IsConfigured)
+        {
+            return;
+        }
+
+        resource.Name = await _translationService.TranslateEmptyFieldsAsync(resource.Name);
+        resource.Abbreviation = await _translationService.TranslateEmptyFieldsAsync(resource.Abbreviation);
+        resource.Description = await _translationService.TranslateEmptyFieldsAsync(resource.Description);
     }
 }

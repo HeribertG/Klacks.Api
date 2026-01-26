@@ -3,6 +3,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -12,21 +13,25 @@ public class PostCommandHandler : BaseTransactionHandler, IRequestHandler<PostCo
 {
     private readonly IAbsenceRepository _absenceRepository;
     private readonly SettingsMapper _settingsMapper;
+    private readonly IMultiLanguageTranslationService _translationService;
 
     public PostCommandHandler(
         IAbsenceRepository absenceRepository,
         SettingsMapper settingsMapper,
+        IMultiLanguageTranslationService translationService,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
         : base(unitOfWork, logger)
     {
         _absenceRepository = absenceRepository;
         _settingsMapper = settingsMapper;
+        _translationService = translationService;
     }
 
     public async Task<AbsenceResource?> Handle(PostCommand<AbsenceResource> request, CancellationToken cancellationToken)
     {
         ValidateAbsenceRequest(request.Resource);
+        await TranslateMultiLanguageFieldsAsync(request.Resource!);
 
         return await ExecuteWithTransactionAsync(async () =>
         {
@@ -37,6 +42,18 @@ public class PostCommandHandler : BaseTransactionHandler, IRequestHandler<PostCo
         },
         "creating absence",
         new { AbsenceId = request.Resource?.Id });
+    }
+
+    private async Task TranslateMultiLanguageFieldsAsync(AbsenceResource resource)
+    {
+        if (!_translationService.IsConfigured)
+        {
+            return;
+        }
+
+        resource.Name = await _translationService.TranslateEmptyFieldsAsync(resource.Name);
+        resource.Abbreviation = await _translationService.TranslateEmptyFieldsAsync(resource.Abbreviation);
+        resource.Description = await _translationService.TranslateEmptyFieldsAsync(resource.Description);
     }
 
     private void ValidateAbsenceRequest(AbsenceResource? resource)
