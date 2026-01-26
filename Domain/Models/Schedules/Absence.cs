@@ -4,6 +4,8 @@ namespace Klacks.Api.Domain.Models.Schedules;
 
 public class Absence : BaseEntity
 {
+    public MultiLanguage Abbreviation { get; set; } = null!;
+
     public string Color { get; set; } = string.Empty;
 
     public int DefaultLength { get; set; } = 0;

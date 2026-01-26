@@ -1,4 +1,5 @@
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Presentation.DTOs.Schedules;
@@ -52,9 +53,12 @@ public class BreaksController : BaseController
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult<BreakResource>> Delete(Guid id)
+    public async Task<ActionResult<BreakResource>> Delete(
+        [FromRoute] Guid id,
+        [FromQuery] DateOnly periodStart,
+        [FromQuery] DateOnly periodEnd)
     {
-        var model = await _mediator.Send(new DeleteCommand<BreakResource>(id));
+        var model = await _mediator.Send(new DeleteBreakCommand(id, periodStart, periodEnd));
         if (model == null)
         {
             return NotFound();

@@ -5,6 +5,8 @@ namespace Klacks.Api.Presentation.DTOs.Schedules;
 
 public class AbsenceResource
 {
+    public MultiLanguage Abbreviation { get; set; } = null!;
+
     public string Color { get; set; } = string.Empty;
 
     public int DefaultLength { get; set; } = 0;

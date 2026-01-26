@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260126093326_AddAbsenceIdToBreak")]
+    partial class AddAbsenceIdToBreak
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3984,37 +3987,6 @@ namespace Klacks.Api.Migrations
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Absence", b =>
                 {
-                    b.OwnsOne("Klacks.Api.Domain.Common.MultiLanguage", "Abbreviation", b1 =>
-                        {
-                            b1.Property<Guid>("AbsenceId")
-                                .HasColumnType("uuid")
-                                .HasColumnName("id");
-
-                            b1.Property<string>("De")
-                                .HasColumnType("text")
-                                .HasColumnName("abbreviation_de");
-
-                            b1.Property<string>("En")
-                                .HasColumnType("text")
-                                .HasColumnName("abbreviation_en");
-
-                            b1.Property<string>("Fr")
-                                .HasColumnType("text")
-                                .HasColumnName("abbreviation_fr");
-
-                            b1.Property<string>("It")
-                                .HasColumnType("text")
-                                .HasColumnName("abbreviation_it");
-
-                            b1.HasKey("AbsenceId");
-
-                            b1.ToTable("absence");
-
-                            b1.WithOwner()
-                                .HasForeignKey("AbsenceId")
-                                .HasConstraintName("fk_absence_absence_id");
-                        });
-
                     b.OwnsOne("Klacks.Api.Domain.Common.MultiLanguage", "Description", b1 =>
                         {
                             b1.Property<Guid>("AbsenceId")
@@ -4076,9 +4048,6 @@ namespace Klacks.Api.Migrations
                                 .HasForeignKey("AbsenceId")
                                 .HasConstraintName("fk_absence_absence_id");
                         });
-
-                    b.Navigation("Abbreviation")
-                        .IsRequired();
 
                     b.Navigation("Description")
                         .IsRequired();

@@ -17,7 +17,7 @@ public class BreakPlaceholder : BaseEntity
 
     public DateTime From { get; set; }
 
-    public string? Information { get; set; }
-
     public DateTime Until { get; set; }
+
+    public string? Information { get; set; }
 }

@@ -157,6 +157,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IMacroManagementService, MacroManagementService>();
         services.AddScoped<IMacroTypeManagementService, MacroTypeManagementService>();
         services.AddScoped<IWorkMacroService, WorkMacroService>();
+        services.AddScoped<IBreakMacroService, BreakMacroService>();
         services.AddScoped<ISettingsTokenService, SettingsTokenService>();
         
         // Email Services  

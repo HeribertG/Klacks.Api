@@ -10,6 +10,8 @@ public class BreakResource
 
     public Guid ClientId { get; set; }
 
+    public Guid AbsenceId { get; set; }
+
     public DateTime CurrentDate { get; set; }
 
     public string? Information { get; set; }
@@ -23,4 +25,10 @@ public class BreakResource
     public TimeOnly StartTime { get; set; }
 
     public TimeOnly EndTime { get; set; }
+
+    public PeriodHoursResource? PeriodHours { get; set; }
+
+    public DateOnly? PeriodStart { get; set; }
+
+    public DateOnly? PeriodEnd { get; set; }
 }

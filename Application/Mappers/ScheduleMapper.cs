@@ -129,6 +129,7 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Break.IsDeleted))]
     [MapperIgnoreTarget(nameof(Break.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(Break.Client))]
+    [MapperIgnoreTarget(nameof(Break.Absence))]
     public partial Break ToBreakEntity(BreakResource resource);
 
     public ShiftResource ToShiftResource(Shift shift)
