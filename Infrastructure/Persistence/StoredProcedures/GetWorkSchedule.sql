@@ -1,22 +1,28 @@
--- GetWorkSchedule: Returns unified view of Work, WorkChange, and Expenses
+-- GetWorkSchedule: Returns unified view of Work, WorkChange, Expenses, and Break
 -- Parameters:
 --   start_date: Start of the period
 --   end_date: End of the period
 --   visible_group_ids: Optional array of visible group IDs for filtering (includes subgroups)
--- Returns: Combined entries from Work, WorkChange, and Expenses with calculated times
--- Entry Types: 0 = Work, 1 = WorkChange, 2 = Expenses
+--   current_language: The preferred language code for localized text
+--   fallback_order: Array of language codes for fallback (from MultiLanguage.SupportedLanguages)
+-- Returns: Combined entries from Work, WorkChange, Expenses, and Break with calculated times
+-- Entry Types: 0 = Work, 1 = WorkChange, 2 = Expenses, 3 = Break
 
 DROP FUNCTION IF EXISTS get_work_schedule(DATE, DATE, UUID[]);
+DROP FUNCTION IF EXISTS get_work_schedule(DATE, DATE, UUID[], TEXT);
+DROP FUNCTION IF EXISTS get_work_schedule(DATE, DATE, UUID[], TEXT, TEXT[]);
 
 CREATE OR REPLACE FUNCTION get_work_schedule(
     start_date DATE,
     end_date DATE,
-    visible_group_ids UUID[] DEFAULT ARRAY[]::UUID[]
+    visible_group_ids UUID[] DEFAULT ARRAY[]::UUID[],
+    current_language TEXT DEFAULT 'de',
+    fallback_order TEXT[] DEFAULT ARRAY['de', 'en', 'fr', 'it']
 )
 RETURNS TABLE (
     id UUID,
     entry_type INTEGER,
-    work_id UUID,
+    source_id UUID,
     client_id UUID,
     entry_date DATE,
     start_time TIME,
@@ -28,7 +34,7 @@ RETURNS TABLE (
     to_invoice BOOLEAN,
     taxable BOOLEAN,
     shift_id UUID,
-    shift_name TEXT,
+    entry_name TEXT,
     abbreviation TEXT,
     replace_client_id UUID,
     is_replacement_entry BOOLEAN
@@ -63,7 +69,7 @@ BEGIN
         SELECT
             w.id,
             0 AS entry_type,
-            w.id AS work_id,
+            w.id AS source_id,
             w.client_id,
             w."current_date"::DATE AS entry_date,
             w.start_time,
@@ -75,7 +81,7 @@ BEGIN
             NULL::BOOLEAN AS to_invoice,
             NULL::BOOLEAN AS taxable,
             w.shift_id,
-            s.name AS shift_name,
+            s.name AS entry_name,
             s.abbreviation,
             NULL::UUID AS replace_client_id,
             false AS is_replacement_entry
@@ -87,7 +93,7 @@ BEGIN
         SELECT
             wc.id,
             1 AS entry_type,
-            wc.work_id,
+            wc.work_id AS source_id,
             w.client_id,
             CASE
                 WHEN s.end_shift < s.start_shift THEN (w."current_date" + INTERVAL '1 day')::DATE
@@ -102,7 +108,7 @@ BEGIN
             wc.to_invoice,
             NULL::BOOLEAN AS taxable,
             w.shift_id,
-            s.name AS shift_name,
+            s.name AS entry_name,
             s.abbreviation,
             wc.replace_client_id,
             false AS is_replacement_entry
@@ -116,7 +122,7 @@ BEGIN
         SELECT
             wc.id,
             1 AS entry_type,
-            wc.work_id,
+            wc.work_id AS source_id,
             w.client_id,
             w."current_date"::DATE AS entry_date,
             (s.start_shift - (wc.change_time * INTERVAL '1 minute'))::TIME AS start_time,
@@ -128,7 +134,7 @@ BEGIN
             wc.to_invoice,
             NULL::BOOLEAN AS taxable,
             w.shift_id,
-            s.name AS shift_name,
+            s.name AS entry_name,
             s.abbreviation,
             wc.replace_client_id,
             false AS is_replacement_entry
@@ -142,7 +148,7 @@ BEGIN
         SELECT
             wc.id,
             1 AS entry_type,
-            wc.work_id,
+            wc.work_id AS source_id,
             w.client_id,
             w."current_date"::DATE AS entry_date,
             (s.start_shift + (wc.change_time * INTERVAL '1 minute'))::TIME AS start_time,
@@ -154,7 +160,7 @@ BEGIN
             wc.to_invoice,
             NULL::BOOLEAN AS taxable,
             w.shift_id,
-            s.name AS shift_name,
+            s.name AS entry_name,
             s.abbreviation,
             wc.replace_client_id,
             false AS is_replacement_entry
@@ -168,7 +174,7 @@ BEGIN
         SELECT
             wc.id,
             1 AS entry_type,
-            wc.work_id,
+            wc.work_id AS source_id,
             wc.replace_client_id AS client_id,
             w."current_date"::DATE AS entry_date,
             s.start_shift AS start_time,
@@ -180,7 +186,7 @@ BEGIN
             wc.to_invoice,
             NULL::BOOLEAN AS taxable,
             w.shift_id,
-            s.name AS shift_name,
+            s.name AS entry_name,
             s.abbreviation,
             w.client_id AS replace_client_id,
             true AS is_replacement_entry
@@ -194,7 +200,7 @@ BEGIN
         SELECT
             wc.id,
             1 AS entry_type,
-            wc.work_id,
+            wc.work_id AS source_id,
             w.client_id,
             CASE
                 WHEN s.end_shift < s.start_shift THEN (w."current_date" + INTERVAL '1 day')::DATE
@@ -209,7 +215,7 @@ BEGIN
             wc.to_invoice,
             NULL::BOOLEAN AS taxable,
             w.shift_id,
-            s.name AS shift_name,
+            s.name AS entry_name,
             s.abbreviation,
             wc.replace_client_id,
             false AS is_replacement_entry
@@ -223,7 +229,7 @@ BEGIN
         SELECT
             wc.id,
             1 AS entry_type,
-            wc.work_id,
+            wc.work_id AS source_id,
             wc.replace_client_id AS client_id,
             CASE
                 WHEN s.end_shift < s.start_shift THEN (w."current_date" + INTERVAL '1 day')::DATE
@@ -238,7 +244,7 @@ BEGIN
             wc.to_invoice,
             NULL::BOOLEAN AS taxable,
             w.shift_id,
-            s.name AS shift_name,
+            s.name AS entry_name,
             s.abbreviation,
             w.client_id AS replace_client_id,
             true AS is_replacement_entry
@@ -252,7 +258,7 @@ BEGIN
         SELECT
             e.id,
             2 AS entry_type,
-            e.work_id,
+            e.work_id AS source_id,
             w.client_id,
             CASE
                 WHEN s.end_shift < s.start_shift THEN (w."current_date" + INTERVAL '1 day')::DATE
@@ -267,7 +273,7 @@ BEGIN
             NULL::BOOLEAN AS to_invoice,
             e.taxable,
             w.shift_id,
-            s.name AS shift_name,
+            s.name AS entry_name,
             s.abbreviation,
             NULL::UUID AS replace_client_id,
             false AS is_replacement_entry
@@ -275,6 +281,41 @@ BEGIN
         JOIN valid_works w ON w.id = e.work_id
         JOIN shift s ON s.id = w.shift_id
         WHERE e.is_deleted = false
+    ),
+    -- Entry Type 3: Break entries
+    break_entries AS (
+        SELECT
+            b.id,
+            3 AS entry_type,
+            b.id AS source_id,
+            b.client_id,
+            b."current_date"::DATE AS entry_date,
+            b.start_time,
+            b.end_time,
+            b.work_time AS change_time,
+            NULL::INTEGER AS work_change_type,
+            b.information AS description,
+            NULL::NUMERIC AS amount,
+            NULL::BOOLEAN AS to_invoice,
+            NULL::BOOLEAN AS taxable,
+            b.absence_id AS shift_id,
+            get_localized_text(
+                jsonb_build_object('de', a.name_de, 'en', a.name_en, 'fr', a.name_fr, 'it', a.name_it),
+                current_language,
+                fallback_order
+            ) AS entry_name,
+            get_localized_text(
+                jsonb_build_object('de', a.abbreviation_de, 'en', a.abbreviation_en, 'fr', a.abbreviation_fr, 'it', a.abbreviation_it),
+                current_language,
+                fallback_order
+            ) AS abbreviation,
+            NULL::UUID AS replace_client_id,
+            false AS is_replacement_entry
+        FROM break b
+        JOIN absence a ON a.id = b.absence_id
+        WHERE b.is_deleted = false
+        AND b."current_date"::DATE >= start_date
+        AND b."current_date"::DATE <= end_date
     )
     -- Combine all entries
     SELECT * FROM work_entries
@@ -292,6 +333,8 @@ BEGIN
     SELECT * FROM replacement_end_replacement
     UNION ALL
     SELECT * FROM expense_entries
+    UNION ALL
+    SELECT * FROM break_entries
     ORDER BY client_id, entry_date, start_time, entry_type;
 END;
 $$ LANGUAGE plpgsql;

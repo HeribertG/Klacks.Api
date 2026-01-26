@@ -1,3 +1,4 @@
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
@@ -35,6 +36,7 @@ public class WorkScheduleService : IWorkScheduleService
         var endDateTime = DateTime.SpecifyKind(endDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
 
         var visibleGroupArray = visibleGroupIds?.ToArray() ?? [];
+        var fallbackOrder = MultiLanguage.SupportedLanguages;
 
         return _context.ScheduleCells
             .FromSqlInterpolated($@"
@@ -42,7 +44,8 @@ public class WorkScheduleService : IWorkScheduleService
                     {startDateTime}::DATE,
                     {endDateTime}::DATE,
                     {visibleGroupArray}::UUID[],
-                    {currentLanguage}::TEXT
+                    {currentLanguage}::TEXT,
+                    {fallbackOrder}::TEXT[]
                 )");
     }
 }
