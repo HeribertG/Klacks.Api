@@ -21,13 +21,15 @@ public class WorkScheduleService : IWorkScheduleService
     public IQueryable<ScheduleCell> GetWorkScheduleQuery(
         DateOnly startDate,
         DateOnly endDate,
-        List<Guid>? visibleGroupIds = null)
+        List<Guid>? visibleGroupIds = null,
+        string currentLanguage = "de")
     {
         _logger.LogDebug(
-            "Building work schedule query from {StartDate} to {EndDate}, VisibleGroups: {VisibleGroupCount}",
+            "Building work schedule query from {StartDate} to {EndDate}, VisibleGroups: {VisibleGroupCount}, Language: {Language}",
             startDate,
             endDate,
-            visibleGroupIds?.Count ?? 0);
+            visibleGroupIds?.Count ?? 0,
+            currentLanguage);
 
         var startDateTime = DateTime.SpecifyKind(startDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
         var endDateTime = DateTime.SpecifyKind(endDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
@@ -39,7 +41,8 @@ public class WorkScheduleService : IWorkScheduleService
                 SELECT * FROM get_work_schedule(
                     {startDateTime}::DATE,
                     {endDateTime}::DATE,
-                    {visibleGroupArray}::UUID[]
+                    {visibleGroupArray}::UUID[],
+                    {currentLanguage}::TEXT
                 )");
     }
 }

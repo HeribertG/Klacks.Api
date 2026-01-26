@@ -4,7 +4,7 @@ public class WorkScheduleResource
 {
     public Guid Id { get; set; }
     public int EntryType { get; set; }
-    public Guid WorkId { get; set; }
+    public Guid SourceId { get; set; }
     public Guid ClientId { get; set; }
     public DateTime EntryDate { get; set; }
     public TimeSpan StartTime { get; set; }
@@ -16,7 +16,7 @@ public class WorkScheduleResource
     public bool? ToInvoice { get; set; }
     public bool? Taxable { get; set; }
     public Guid ShiftId { get; set; }
-    public string? ShiftName { get; set; }
+    public string? EntryName { get; set; }
     public string? Abbreviation { get; set; }
     public Guid? ReplaceClientId { get; set; }
     public bool IsReplacementEntry { get; set; }
