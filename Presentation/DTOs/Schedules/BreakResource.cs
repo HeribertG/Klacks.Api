@@ -31,4 +31,6 @@ public class BreakResource
     public DateOnly? PeriodStart { get; set; }
 
     public DateOnly? PeriodEnd { get; set; }
+
+    public List<WorkScheduleResource> ScheduleEntries { get; set; } = [];
 }

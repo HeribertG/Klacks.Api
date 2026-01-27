@@ -66,6 +66,16 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
         return (breakEntry, periodHours);
     }
 
+    public async Task<(Break? Break, PeriodHoursResource? PeriodHours)> PutWithPeriodHours(Break breakEntry, DateOnly periodStart, DateOnly periodEnd)
+    {
+        await _breakMacroService.ProcessBreakMacroAsync(breakEntry);
+        var result = await base.Put(breakEntry);
+        if (result == null) return (null, null);
+        await _unitOfWork.CompleteAsync();
+        var periodHours = await RecalculateAndGetPeriodHoursAsync(breakEntry.ClientId, periodStart, periodEnd);
+        return (result, periodHours);
+    }
+
     public async Task<(Break? Break, PeriodHoursResource? PeriodHours)> DeleteWithPeriodHours(Guid id, DateOnly periodStart, DateOnly periodEnd)
     {
         var breakEntry = await base.Get(id);

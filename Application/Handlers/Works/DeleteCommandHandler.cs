@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Hubs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Works;
 
@@ -16,6 +17,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
     private readonly IWorkNotificationService _notificationService;
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
     private readonly IShiftScheduleService _shiftScheduleService;
+    private readonly IWorkScheduleService _workScheduleService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public DeleteCommandHandler(
@@ -25,6 +27,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         IWorkNotificationService notificationService,
         IShiftStatsNotificationService shiftStatsNotificationService,
         IShiftScheduleService shiftScheduleService,
+        IWorkScheduleService workScheduleService,
         IHttpContextAccessor httpContextAccessor,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
@@ -35,6 +38,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         _notificationService = notificationService;
         _shiftStatsNotificationService = shiftStatsNotificationService;
         _shiftScheduleService = shiftScheduleService;
+        _workScheduleService = workScheduleService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -62,8 +66,17 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
 
             await SendShiftStatsNotificationAsync(shiftId, workDate, connectionId, cancellationToken);
 
+            var currentDate = DateOnly.FromDateTime(work.CurrentDate);
+            var threeDayStart = currentDate.AddDays(-1);
+            var threeDayEnd = currentDate.AddDays(1);
+
+            var scheduleEntries = await _workScheduleService.GetWorkScheduleQuery(threeDayStart, threeDayEnd)
+                .Where(e => e.ClientId == work.ClientId)
+                .ToListAsync(cancellationToken);
+
             var workResource = _scheduleMapper.ToWorkResource(work);
             workResource.PeriodHours = periodHours;
+            workResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
 
             return workResource;
         },

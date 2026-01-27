@@ -4,6 +4,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Presentation.DTOs.Schedules;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Breaks;
 
@@ -13,14 +14,14 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IWorkScheduleService _workScheduleService;
 
     public PostCommandHandler(
         IBreakRepository breakRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
-        IHttpContextAccessor httpContextAccessor,
+        IWorkScheduleService workScheduleService,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -28,7 +29,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
-        _httpContextAccessor = httpContextAccessor;
+        _workScheduleService = workScheduleService;
     }
 
     public async Task<BreakResource?> Handle(PostCommand<BreakResource> request, CancellationToken cancellationToken)
@@ -51,8 +52,17 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
         var (createdBreak, periodHours) = await _breakRepository.AddWithPeriodHours(entity, periodStart, periodEnd);
         await _unitOfWork.CompleteAsync();
 
+        var currentDate = DateOnly.FromDateTime(entity.CurrentDate);
+        var threeDayStart = currentDate.AddDays(-1);
+        var threeDayEnd = currentDate.AddDays(1);
+
+        var scheduleEntries = await _workScheduleService.GetWorkScheduleQuery(threeDayStart, threeDayEnd)
+            .Where(e => e.ClientId == entity.ClientId)
+            .ToListAsync(cancellationToken);
+
         var breakResource = _scheduleMapper.ToBreakResource(createdBreak);
         breakResource.PeriodHours = periodHours;
+        breakResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
 
         return breakResource;
     }

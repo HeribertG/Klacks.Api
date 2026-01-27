@@ -4,6 +4,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Presentation.DTOs.Schedules;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Breaks;
 
@@ -12,17 +13,23 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
     private readonly IBreakRepository _breakRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPeriodHoursService _periodHoursService;
+    private readonly IWorkScheduleService _workScheduleService;
 
     public PutCommandHandler(
         IBreakRepository breakRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
+        IPeriodHoursService periodHoursService,
+        IWorkScheduleService workScheduleService,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _breakRepository = breakRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
+        _periodHoursService = periodHoursService;
+        _workScheduleService = workScheduleService;
     }
 
     public async Task<BreakResource?> Handle(PutCommand<BreakResource> request, CancellationToken cancellationToken)
@@ -30,7 +37,21 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
         return await ExecuteAsync(async () =>
         {
             var entity = _scheduleMapper.ToBreakEntity(request.Resource);
-            var updated = await _breakRepository.Put(entity);
+
+            DateOnly periodStart;
+            DateOnly periodEnd;
+
+            if (request.Resource.PeriodStart.HasValue && request.Resource.PeriodEnd.HasValue)
+            {
+                periodStart = request.Resource.PeriodStart.Value;
+                periodEnd = request.Resource.PeriodEnd.Value;
+            }
+            else
+            {
+                (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(entity.CurrentDate));
+            }
+
+            var (updated, periodHours) = await _breakRepository.PutWithPeriodHours(entity, periodStart, periodEnd);
 
             if (updated == null)
             {
@@ -39,7 +60,19 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
 
             await _unitOfWork.CompleteAsync();
 
-            return _scheduleMapper.ToBreakResource(updated);
+            var currentDate = DateOnly.FromDateTime(updated.CurrentDate);
+            var threeDayStart = currentDate.AddDays(-1);
+            var threeDayEnd = currentDate.AddDays(1);
+
+            var scheduleEntries = await _workScheduleService.GetWorkScheduleQuery(threeDayStart, threeDayEnd)
+                .Where(e => e.ClientId == updated.ClientId)
+                .ToListAsync(cancellationToken);
+
+            var breakResource = _scheduleMapper.ToBreakResource(updated);
+            breakResource.PeriodHours = periodHours;
+            breakResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
+
+            return breakResource;
         }, "UpdateBreak", new { request.Resource.Id });
     }
 }
