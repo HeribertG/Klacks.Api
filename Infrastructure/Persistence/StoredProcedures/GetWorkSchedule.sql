@@ -15,9 +15,7 @@ DROP FUNCTION IF EXISTS get_work_schedule(DATE, DATE, UUID[], TEXT, TEXT[]);
 CREATE OR REPLACE FUNCTION get_work_schedule(
     start_date DATE,
     end_date DATE,
-    visible_group_ids UUID[] DEFAULT ARRAY[]::UUID[],
-    current_language TEXT DEFAULT 'de',
-    fallback_order TEXT[] DEFAULT ARRAY['de', 'en', 'fr', 'it']
+    visible_group_ids UUID[] DEFAULT ARRAY[]::UUID[]
 )
 RETURNS TABLE (
     id UUID,
@@ -33,7 +31,7 @@ RETURNS TABLE (
     amount NUMERIC,
     to_invoice BOOLEAN,
     taxable BOOLEAN,
-    shift_id UUID,
+    entry_id UUID,
     entry_name TEXT,
     abbreviation TEXT,
     replace_client_id UUID,
@@ -80,7 +78,7 @@ BEGIN
             NULL::NUMERIC AS amount,
             NULL::BOOLEAN AS to_invoice,
             NULL::BOOLEAN AS taxable,
-            w.shift_id,
+            w.shift_id AS entry_id,
             s.name AS entry_name,
             s.abbreviation,
             NULL::UUID AS replace_client_id,
@@ -107,7 +105,7 @@ BEGIN
             NULL::NUMERIC AS amount,
             wc.to_invoice,
             NULL::BOOLEAN AS taxable,
-            w.shift_id,
+            w.shift_id AS entry_id,
             s.name AS entry_name,
             s.abbreviation,
             wc.replace_client_id,
@@ -133,7 +131,7 @@ BEGIN
             NULL::NUMERIC AS amount,
             wc.to_invoice,
             NULL::BOOLEAN AS taxable,
-            w.shift_id,
+            w.shift_id AS entry_id,
             s.name AS entry_name,
             s.abbreviation,
             wc.replace_client_id,
@@ -159,7 +157,7 @@ BEGIN
             NULL::NUMERIC AS amount,
             wc.to_invoice,
             NULL::BOOLEAN AS taxable,
-            w.shift_id,
+            w.shift_id AS entry_id,
             s.name AS entry_name,
             s.abbreviation,
             wc.replace_client_id,
@@ -185,7 +183,7 @@ BEGIN
             NULL::NUMERIC AS amount,
             wc.to_invoice,
             NULL::BOOLEAN AS taxable,
-            w.shift_id,
+            w.shift_id AS entry_id,
             s.name AS entry_name,
             s.abbreviation,
             w.client_id AS replace_client_id,
@@ -214,7 +212,7 @@ BEGIN
             NULL::NUMERIC AS amount,
             wc.to_invoice,
             NULL::BOOLEAN AS taxable,
-            w.shift_id,
+            w.shift_id AS entry_id,
             s.name AS entry_name,
             s.abbreviation,
             wc.replace_client_id,
@@ -243,7 +241,7 @@ BEGIN
             NULL::NUMERIC AS amount,
             wc.to_invoice,
             NULL::BOOLEAN AS taxable,
-            w.shift_id,
+            w.shift_id AS entry_id,
             s.name AS entry_name,
             s.abbreviation,
             w.client_id AS replace_client_id,
@@ -272,7 +270,7 @@ BEGIN
             e.amount,
             NULL::BOOLEAN AS to_invoice,
             e.taxable,
-            w.shift_id,
+            w.shift_id AS entry_id,
             s.name AS entry_name,
             s.abbreviation,
             NULL::UUID AS replace_client_id,
@@ -283,6 +281,7 @@ BEGIN
         WHERE e.is_deleted = false
     ),
     -- Entry Type 3: Break entries
+    -- Note: entry_name and abbreviation are NULL - frontend looks up absence by entry_id (=absence_id)
     break_entries AS (
         SELECT
             b.id,
@@ -298,21 +297,12 @@ BEGIN
             NULL::NUMERIC AS amount,
             NULL::BOOLEAN AS to_invoice,
             NULL::BOOLEAN AS taxable,
-            b.absence_id AS shift_id,
-            get_localized_text(
-                jsonb_build_object('de', a.name_de, 'en', a.name_en, 'fr', a.name_fr, 'it', a.name_it),
-                current_language,
-                fallback_order
-            ) AS entry_name,
-            get_localized_text(
-                jsonb_build_object('de', a.abbreviation_de, 'en', a.abbreviation_en, 'fr', a.abbreviation_fr, 'it', a.abbreviation_it),
-                current_language,
-                fallback_order
-            ) AS abbreviation,
+            b.absence_id AS entry_id,
+            NULL::TEXT AS entry_name,
+            NULL::TEXT AS abbreviation,
             NULL::UUID AS replace_client_id,
             false AS is_replacement_entry
         FROM break b
-        JOIN absence a ON a.id = b.absence_id
         WHERE b.is_deleted = false
         AND b."current_date"::DATE >= start_date
         AND b."current_date"::DATE <= end_date

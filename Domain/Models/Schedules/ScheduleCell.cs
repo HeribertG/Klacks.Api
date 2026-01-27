@@ -15,7 +15,7 @@ public class ScheduleCell
     public decimal? Amount { get; set; }
     public bool? ToInvoice { get; set; }
     public bool? Taxable { get; set; }
-    public Guid ShiftId { get; set; }
+    public Guid EntryId { get; set; }
     public string? EntryName { get; set; }
     public string? Abbreviation { get; set; }
     public Guid? ReplaceClientId { get; set; }

@@ -79,8 +79,7 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         var entries = await _workScheduleService.GetWorkScheduleQuery(
             startDate,
             endDate,
-            visibleGroupIds.Count > 0 ? visibleGroupIds : null,
-            request.Filter.CurrentLanguage)
+            visibleGroupIds.Count > 0 ? visibleGroupIds : null)
             .Where(e => clientIds.Contains(e.ClientId))
             .ToListAsync(cancellationToken);
 

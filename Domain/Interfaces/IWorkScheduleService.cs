@@ -7,6 +7,5 @@ public interface IWorkScheduleService
     IQueryable<ScheduleCell> GetWorkScheduleQuery(
         DateOnly startDate,
         DateOnly endDate,
-        List<Guid>? visibleGroupIds = null,
-        string currentLanguage = "de");
+        List<Guid>? visibleGroupIds = null);
 }

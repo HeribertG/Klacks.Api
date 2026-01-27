@@ -1,4 +1,3 @@
-using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
@@ -22,30 +21,25 @@ public class WorkScheduleService : IWorkScheduleService
     public IQueryable<ScheduleCell> GetWorkScheduleQuery(
         DateOnly startDate,
         DateOnly endDate,
-        List<Guid>? visibleGroupIds = null,
-        string currentLanguage = "de")
+        List<Guid>? visibleGroupIds = null)
     {
         _logger.LogDebug(
-            "Building work schedule query from {StartDate} to {EndDate}, VisibleGroups: {VisibleGroupCount}, Language: {Language}",
+            "Building work schedule query from {StartDate} to {EndDate}, VisibleGroups: {VisibleGroupCount}",
             startDate,
             endDate,
-            visibleGroupIds?.Count ?? 0,
-            currentLanguage);
+            visibleGroupIds?.Count ?? 0);
 
         var startDateTime = DateTime.SpecifyKind(startDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
         var endDateTime = DateTime.SpecifyKind(endDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
 
         var visibleGroupArray = visibleGroupIds?.ToArray() ?? [];
-        var fallbackOrder = MultiLanguage.SupportedLanguages;
 
         return _context.ScheduleCells
             .FromSqlInterpolated($@"
                 SELECT * FROM get_work_schedule(
                     {startDateTime}::DATE,
                     {endDateTime}::DATE,
-                    {visibleGroupArray}::UUID[],
-                    {currentLanguage}::TEXT,
-                    {fallbackOrder}::TEXT[]
+                    {visibleGroupArray}::UUID[]
                 )");
     }
 }
