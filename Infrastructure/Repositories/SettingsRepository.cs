@@ -14,21 +14,18 @@ public class SettingsRepository : ISettingsRepository
     private readonly ICalendarRuleSortingService _sortingService;
     private readonly ICalendarRulePaginationService _paginationService;
     private readonly IMacroManagementService _macroManagementService;
-    private readonly IMacroTypeManagementService _macroTypeManagementService;
 
     public SettingsRepository(DataBaseContext context,
         ICalendarRuleFilterService filterService,
         ICalendarRuleSortingService sortingService,
         ICalendarRulePaginationService paginationService,
-        IMacroManagementService macroManagementService,
-        IMacroTypeManagementService macroTypeManagementService)
+        IMacroManagementService macroManagementService)
     {
         this.context = context;
         _filterService = filterService;
         _sortingService = sortingService;
         _paginationService = paginationService;
         _macroManagementService = macroManagementService;
-        _macroTypeManagementService = macroTypeManagementService;
     }
 
     #region Setting
@@ -95,45 +92,6 @@ public class SettingsRepository : ISettingsRepository
     }
 
     #endregion Macro
-
-    #region MacroType
-
-    public MacroType AddMacroType(MacroType macroType)
-    {
-        return _macroTypeManagementService.AddMacroTypeAsync(macroType).Result;
-    }
-
-    public async Task<MacroType> DeleteMacroType(Guid id)
-    {
-        return await _macroTypeManagementService.DeleteMacroTypeAsync(id);
-    }
-
-    public async Task<MacroType> GetMacroType(Guid id)
-    {
-        return await _macroTypeManagementService.GetMacroTypeAsync(id);
-    }
-
-    public async Task<List<MacroType>> GetOriginalMacroTypeList()
-    {
-        return await _macroTypeManagementService.GetMacroTypeListAsync();
-    }
-
-    public bool MacroTypeExists(Guid id)
-    {
-        return _macroTypeManagementService.MacroTypeExistsAsync(id).Result;
-    }
-
-    public MacroType PutMacroType(MacroType macroType)
-    {
-        return _macroTypeManagementService.UpdateMacroTypeAsync(macroType).Result;
-    }
-
-    public void RemoveMacroType(MacroType macroType)
-    {
-        context.MacroType.Remove(macroType);
-    }
-
-    #endregion MacroType
 
     #region CalendarRule
 

@@ -54,9 +54,7 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<History> History { get; set; }  
 
-    public DbSet<Macro> Macro { get; set; }  
-
-    public DbSet<MacroType> MacroType { get; set; }  
+    public DbSet<Macro> Macro { get; set; }
 
     public DbSet<Membership> Membership { get; set; }  
 

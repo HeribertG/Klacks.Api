@@ -1,9 +1,9 @@
 using System.Globalization;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Infrastructure.Interfaces;
 
 namespace Klacks.Api.Domain.Services.Schedules;
@@ -98,7 +98,7 @@ public class WorkMacroService : IWorkMacroService
 
             foreach (var msg in results)
             {
-                if (msg.Type == (int)MacroTypeEnum.defaultResult &&
+                if (msg.Type == (int)MacroTypeEnum.DefaultResult &&
                     decimal.TryParse(msg.Message, NumberStyles.Any, CultureInfo.InvariantCulture, out var surcharges))
                 {
                     work.Surcharges = surcharges;

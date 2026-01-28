@@ -157,9 +157,6 @@ public partial class SettingsMapper
     [MapperIgnoreTarget(nameof(History.Client))]
     public partial History ToHistoryEntity(HistoryResource resource);
 
-    public partial MacroTypeResource ToMacroTypeResource(MacroType macroType);
-    public partial MacroType ToMacroTypeEntity(MacroTypeResource resource);
-
     public partial SettingsResource ToSettingsResource(Domain.Models.Settings.Settings settings);
     public partial Domain.Models.Settings.Settings ToSettingsEntity(SettingsResource resource);
 

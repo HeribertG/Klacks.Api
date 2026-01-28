@@ -155,7 +155,6 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<ICalendarRuleSortingService, CalendarRuleSortingService>();
         services.AddScoped<ICalendarRulePaginationService, CalendarRulePaginationService>();
         services.AddScoped<IMacroManagementService, MacroManagementService>();
-        services.AddScoped<IMacroTypeManagementService, MacroTypeManagementService>();
         services.AddScoped<IWorkMacroService, WorkMacroService>();
         services.AddScoped<IBreakMacroService, BreakMacroService>();
         services.AddScoped<ISettingsTokenService, SettingsTokenService>();

@@ -12,8 +12,6 @@ public interface ISettingsRepository
 
     Macro AddMacro(Macro macro);
 
-    MacroType AddMacroType(MacroType macroType);
-
     Task<Klacks.Api.Domain.Models.Settings.Settings> AddSetting(Klacks.Api.Domain.Models.Settings.Settings settings);
 
     bool CalendarRuleExists(Guid id);
@@ -21,8 +19,6 @@ public interface ISettingsRepository
     Task<CalendarRule> DeleteCalendarRule(Guid id);
 
     Task<Macro> DeleteMacro(Guid id);
-
-    Task<MacroType> DeleteMacroType(Guid id);
 
     Task<CalendarRule> GetCalendarRule(Guid id);
 
@@ -32,10 +28,6 @@ public interface ISettingsRepository
 
     Task<List<Macro>> GetMacroList();
 
-    Task<MacroType> GetMacroType(Guid id);
-
-    Task<List<MacroType>> GetOriginalMacroTypeList();
-
     Task<Klacks.Api.Domain.Models.Settings.Settings?> GetSetting(string type);
 
     Task<IEnumerable<Klacks.Api.Domain.Models.Settings.Settings>> GetSettingsList();
@@ -44,19 +36,13 @@ public interface ISettingsRepository
 
     bool MacroExists(Guid id);
 
-    bool MacroTypeExists(Guid id);
-
     CalendarRule PutCalendarRule(CalendarRule calendarRule);
 
     Macro PutMacro(Macro macro);
-
-    MacroType PutMacroType(MacroType macroType);
 
     Task<Klacks.Api.Domain.Models.Settings.Settings> PutSetting(Klacks.Api.Domain.Models.Settings.Settings settings);
 
     void RemoveCalendarRule(CalendarRule calendarRule);
 
     void RemoveMacro(Macro macro);
-
-    void RemoveMacroType(MacroType macroType);
 }
