@@ -2,9 +2,9 @@ using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Domain.Interfaces;
 
-public interface IWorkScheduleService
+public interface IScheduleEntriesService
 {
-    IQueryable<ScheduleCell> GetWorkScheduleQuery(
+    IQueryable<ScheduleCell> GetScheduleEntriesQuery(
         DateOnly startDate,
         DateOnly endDate,
         List<Guid>? visibleGroupIds = null);

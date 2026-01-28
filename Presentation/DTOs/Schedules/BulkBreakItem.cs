@@ -1,3 +1,5 @@
+using Klacks.Api.Domain.Common;
+
 namespace Klacks.Api.Presentation.DTOs.Schedules;
 
 public class BulkBreakItem
@@ -15,4 +17,6 @@ public class BulkBreakItem
     public TimeOnly EndTime { get; set; }
 
     public string? Information { get; set; }
+
+    public MultiLanguage? Description { get; set; }
 }

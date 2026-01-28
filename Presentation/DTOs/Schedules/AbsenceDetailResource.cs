@@ -18,4 +18,6 @@ public class AbsenceDetailResource
     public decimal Duration { get; set; }
 
     public MultiLanguage DetailName { get; set; } = null!;
+
+    public MultiLanguage? Description { get; set; }
 }

@@ -211,6 +211,13 @@ public class DataBaseContext : IdentityDbContext
                 nav.Property(ml => ml.Fr).HasColumnName("detail_name_fr");
                 nav.Property(ml => ml.It).HasColumnName("detail_name_it");
             });
+            entity.OwnsOne(a => a.Description, nav =>
+            {
+                nav.Property(ml => ml.De).HasColumnName("description_de");
+                nav.Property(ml => ml.En).HasColumnName("description_en");
+                nav.Property(ml => ml.Fr).HasColumnName("description_fr");
+                nav.Property(ml => ml.It).HasColumnName("description_it");
+            });
         });
         modelBuilder.Entity<Branch>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Countries>().HasQueryFilter(p => !p.IsDeleted);
@@ -231,7 +238,17 @@ public class DataBaseContext : IdentityDbContext
         });
         modelBuilder.Entity<ContainerTemplateItem>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Work>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<Break>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<Break>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.OwnsOne(b => b.Description, nav =>
+            {
+                nav.Property(ml => ml.De).HasColumnName("description_de");
+                nav.Property(ml => ml.En).HasColumnName("description_en");
+                nav.Property(ml => ml.Fr).HasColumnName("description_fr");
+                nav.Property(ml => ml.It).HasColumnName("description_it");
+            });
+        });
         modelBuilder.Entity<WorkChange>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Expenses>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<ShiftExpenses>().HasQueryFilter(p => !p.IsDeleted);

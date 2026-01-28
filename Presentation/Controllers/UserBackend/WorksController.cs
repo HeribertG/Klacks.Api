@@ -1,7 +1,7 @@
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Queries;
-using Klacks.Api.Application.Queries.WorkSchedule;
+using Klacks.Api.Application.Queries.ScheduleEntries;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Schedules;
@@ -78,7 +78,7 @@ public class WorksController : BaseController
     [HttpPost("Schedule")]
     public async Task<ActionResult<WorkScheduleResponse>> GetWorkSchedule([FromBody] WorkScheduleFilter filter)
     {
-        var result = await _mediator.Send(new GetWorkScheduleQuery(filter));
+        var result = await _mediator.Send(new GetScheduleEntriesQuery(filter));
         return Ok(result);
     }
 

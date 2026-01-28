@@ -17,7 +17,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IPeriodHoursService _periodHoursService;
-    private readonly IWorkScheduleService _workScheduleService;
+    private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public PutCommandHandler(
@@ -27,7 +27,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         IShiftStatsNotificationService shiftStatsNotificationService,
         IShiftScheduleService shiftScheduleService,
         IPeriodHoursService periodHoursService,
-        IWorkScheduleService workScheduleService,
+        IScheduleEntriesService scheduleEntriesService,
         IHttpContextAccessor httpContextAccessor,
         ILogger<PutCommandHandler> logger)
         : base(logger)
@@ -38,7 +38,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         _shiftStatsNotificationService = shiftStatsNotificationService;
         _shiftScheduleService = shiftScheduleService;
         _periodHoursService = periodHoursService;
-        _workScheduleService = workScheduleService;
+        _scheduleEntriesService = scheduleEntriesService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -89,7 +89,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         var threeDayStart = currentDate.AddDays(-1);
         var threeDayEnd = currentDate.AddDays(1);
 
-        var scheduleEntries = await _workScheduleService.GetWorkScheduleQuery(threeDayStart, threeDayEnd)
+        var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd)
             .Where(e => e.ClientId == updatedWork.ClientId)
             .ToListAsync(cancellationToken);
 

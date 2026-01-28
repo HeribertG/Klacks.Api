@@ -17,7 +17,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
     private readonly IWorkNotificationService _notificationService;
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
     private readonly IShiftScheduleService _shiftScheduleService;
-    private readonly IWorkScheduleService _workScheduleService;
+    private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public DeleteCommandHandler(
@@ -27,7 +27,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         IWorkNotificationService notificationService,
         IShiftStatsNotificationService shiftStatsNotificationService,
         IShiftScheduleService shiftScheduleService,
-        IWorkScheduleService workScheduleService,
+        IScheduleEntriesService scheduleEntriesService,
         IHttpContextAccessor httpContextAccessor,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
@@ -38,7 +38,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         _notificationService = notificationService;
         _shiftStatsNotificationService = shiftStatsNotificationService;
         _shiftScheduleService = shiftScheduleService;
-        _workScheduleService = workScheduleService;
+        _scheduleEntriesService = scheduleEntriesService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -70,7 +70,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
 
-            var scheduleEntries = await _workScheduleService.GetWorkScheduleQuery(threeDayStart, threeDayEnd)
+            var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd)
                 .Where(e => e.ClientId == work.ClientId)
                 .ToListAsync(cancellationToken);
 

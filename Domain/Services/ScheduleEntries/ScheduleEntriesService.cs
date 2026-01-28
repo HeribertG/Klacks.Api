@@ -3,28 +3,28 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.WorkSchedule;
+namespace Klacks.Api.Domain.Services.ScheduleEntries;
 
-public class WorkScheduleService : IWorkScheduleService
+public class ScheduleEntriesService : IScheduleEntriesService
 {
     private readonly DataBaseContext _context;
-    private readonly ILogger<WorkScheduleService> _logger;
+    private readonly ILogger<ScheduleEntriesService> _logger;
 
-    public WorkScheduleService(
+    public ScheduleEntriesService(
         DataBaseContext context,
-        ILogger<WorkScheduleService> logger)
+        ILogger<ScheduleEntriesService> logger)
     {
         _context = context;
         _logger = logger;
     }
 
-    public IQueryable<ScheduleCell> GetWorkScheduleQuery(
+    public IQueryable<ScheduleCell> GetScheduleEntriesQuery(
         DateOnly startDate,
         DateOnly endDate,
         List<Guid>? visibleGroupIds = null)
     {
         _logger.LogDebug(
-            "Building work schedule query from {StartDate} to {EndDate}, VisibleGroups: {VisibleGroupCount}",
+            "Building schedule entries query from {StartDate} to {EndDate}, VisibleGroups: {VisibleGroupCount}",
             startDate,
             endDate,
             visibleGroupIds?.Count ?? 0);
@@ -36,7 +36,7 @@ public class WorkScheduleService : IWorkScheduleService
 
         return _context.ScheduleCells
             .FromSqlInterpolated($@"
-                SELECT * FROM get_work_schedule(
+                SELECT * FROM get_schedule_entries(
                     {startDateTime}::DATE,
                     {endDateTime}::DATE,
                     {visibleGroupArray}::UUID[]

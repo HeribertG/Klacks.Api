@@ -14,14 +14,14 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
-    private readonly IWorkScheduleService _workScheduleService;
+    private readonly IScheduleEntriesService _scheduleEntriesService;
 
     public PutCommandHandler(
         IBreakRepository breakRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
-        IWorkScheduleService workScheduleService,
+        IScheduleEntriesService scheduleEntriesService,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -29,7 +29,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
-        _workScheduleService = workScheduleService;
+        _scheduleEntriesService = scheduleEntriesService;
     }
 
     public async Task<BreakResource?> Handle(PutCommand<BreakResource> request, CancellationToken cancellationToken)
@@ -64,7 +64,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
 
-            var scheduleEntries = await _workScheduleService.GetWorkScheduleQuery(threeDayStart, threeDayEnd)
+            var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd)
                 .Where(e => e.ClientId == updated.ClientId)
                 .ToListAsync(cancellationToken);
 

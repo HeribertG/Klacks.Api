@@ -14,14 +14,14 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
-    private readonly IWorkScheduleService _workScheduleService;
+    private readonly IScheduleEntriesService _scheduleEntriesService;
 
     public PostCommandHandler(
         IBreakRepository breakRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
-        IWorkScheduleService workScheduleService,
+        IScheduleEntriesService scheduleEntriesService,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -29,7 +29,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
-        _workScheduleService = workScheduleService;
+        _scheduleEntriesService = scheduleEntriesService;
     }
 
     public async Task<BreakResource?> Handle(PostCommand<BreakResource> request, CancellationToken cancellationToken)
@@ -56,7 +56,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
         var threeDayStart = currentDate.AddDays(-1);
         var threeDayEnd = currentDate.AddDays(1);
 
-        var scheduleEntries = await _workScheduleService.GetWorkScheduleQuery(threeDayStart, threeDayEnd)
+        var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd)
             .Where(e => e.ClientId == entity.ClientId)
             .ToListAsync(cancellationToken);
 

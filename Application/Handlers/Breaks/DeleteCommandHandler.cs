@@ -13,20 +13,20 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
     private readonly IBreakRepository _breakRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IWorkScheduleService _workScheduleService;
+    private readonly IScheduleEntriesService _scheduleEntriesService;
 
     public DeleteCommandHandler(
         IBreakRepository breakRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
-        IWorkScheduleService workScheduleService,
+        IScheduleEntriesService scheduleEntriesService,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _breakRepository = breakRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
-        _workScheduleService = workScheduleService;
+        _scheduleEntriesService = scheduleEntriesService;
     }
 
     public async Task<BreakResource?> Handle(DeleteBreakCommand request, CancellationToken cancellationToken)
@@ -46,7 +46,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
 
-            var scheduleEntries = await _workScheduleService.GetWorkScheduleQuery(threeDayStart, threeDayEnd)
+            var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd)
                 .Where(e => e.ClientId == breakEntry.ClientId)
                 .ToListAsync(cancellationToken);
 

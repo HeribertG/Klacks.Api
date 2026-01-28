@@ -1,6 +1,6 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
-using Klacks.Api.Application.Queries.WorkSchedule;
+using Klacks.Api.Application.Queries.ScheduleEntries;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Services.ShiftSchedule;
@@ -8,24 +8,24 @@ using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Application.Handlers.WorkSchedule;
+namespace Klacks.Api.Application.Handlers.ScheduleEntries;
 
-public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery, WorkScheduleResponse>
+public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntriesQuery, WorkScheduleResponse>
 {
-    private readonly IWorkScheduleService _workScheduleService;
+    private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IShiftGroupFilterService _groupFilterService;
     private readonly IWorkRepository _workRepository;
     private readonly ScheduleMapper _scheduleMapper;
-    private readonly ILogger<GetWorkScheduleQueryHandler> _logger;
+    private readonly ILogger<GetScheduleEntriesQueryHandler> _logger;
 
-    public GetWorkScheduleQueryHandler(
-        IWorkScheduleService workScheduleService,
+    public GetScheduleEntriesQueryHandler(
+        IScheduleEntriesService scheduleEntriesService,
         IShiftGroupFilterService groupFilterService,
         IWorkRepository workRepository,
         ScheduleMapper scheduleMapper,
-        ILogger<GetWorkScheduleQueryHandler> logger)
+        ILogger<GetScheduleEntriesQueryHandler> logger)
     {
-        _workScheduleService = workScheduleService;
+        _scheduleEntriesService = scheduleEntriesService;
         _groupFilterService = groupFilterService;
         _workRepository = workRepository;
         _scheduleMapper = scheduleMapper;
@@ -33,7 +33,7 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
     }
 
     public async Task<WorkScheduleResponse> Handle(
-        GetWorkScheduleQuery request,
+        GetScheduleEntriesQuery request,
         CancellationToken cancellationToken)
     {
         var startDate = request.Filter.StartDate;
@@ -48,7 +48,7 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         }
 
         _logger.LogInformation(
-            "Handling GetWorkScheduleQuery - StartDate: {StartDate}, EndDate: {EndDate}, StartRow: {StartRow}, RowCount: {RowCount}",
+            "Handling GetScheduleEntriesQuery - StartDate: {StartDate}, EndDate: {EndDate}, StartRow: {StartRow}, RowCount: {RowCount}",
             startDate,
             endDate,
             request.Filter.StartRow,
@@ -76,7 +76,7 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
         var visibleGroupIds = await _groupFilterService.GetVisibleGroupIdsAsync(
             request.Filter.SelectedGroup);
 
-        var entries = await _workScheduleService.GetWorkScheduleQuery(
+        var entries = await _scheduleEntriesService.GetScheduleEntriesQuery(
             startDate,
             endDate,
             visibleGroupIds.Count > 0 ? visibleGroupIds : null)
@@ -91,7 +91,7 @@ public class GetWorkScheduleQueryHandler : IRequestHandler<GetWorkScheduleQuery,
             endDate);
 
         _logger.LogInformation(
-            "Returned {EntryCount} work schedule entries and {ClientCount} clients (total: {TotalCount})",
+            "Returned {EntryCount} schedule entries and {ClientCount} clients (total: {TotalCount})",
             resources.Count,
             clientResources.Count,
             totalClientCount);

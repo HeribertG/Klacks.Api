@@ -11,7 +11,7 @@ using Klacks.Api.Domain.Services.Holidays;
 using Klacks.Api.Domain.Services.Settings;
 using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Domain.Services.ShiftSchedule;
-using Klacks.Api.Domain.Services.WorkSchedule;
+using Klacks.Api.Domain.Services.ScheduleEntries;
 using Klacks.Api.Domain.Services.PeriodHours;
 using Klacks.Api.Domain.Services.LLM;
 using Klacks.Api.Domain.Services.RouteOptimization;
@@ -104,8 +104,8 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IShiftScheduleSortingService, ShiftScheduleSortingService>();
         services.AddScoped<IShiftScheduleTypeFilterService, ShiftScheduleTypeFilterService>();
 
-        // Work Schedule Service
-        services.AddScoped<IWorkScheduleService, WorkScheduleService>();
+        // Schedule Entries Service
+        services.AddScoped<IScheduleEntriesService, ScheduleEntriesService>();
 
         // Period Hours Service
         services.AddScoped<IPeriodHoursService, PeriodHoursService>();

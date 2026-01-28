@@ -1,18 +1,17 @@
--- GetWorkSchedule: Returns unified view of Work, WorkChange, Expenses, and Break
+-- GetScheduleEntries: Returns unified view of Work, WorkChange, Expenses, and Break
 -- Parameters:
 --   start_date: Start of the period
 --   end_date: End of the period
 --   visible_group_ids: Optional array of visible group IDs for filtering (includes subgroups)
---   current_language: The preferred language code for localized text
---   fallback_order: Array of language codes for fallback (from MultiLanguage.SupportedLanguages)
 -- Returns: Combined entries from Work, WorkChange, Expenses, and Break with calculated times
 -- Entry Types: 0 = Work, 1 = WorkChange, 2 = Expenses, 3 = Break
 
 DROP FUNCTION IF EXISTS get_work_schedule(DATE, DATE, UUID[]);
 DROP FUNCTION IF EXISTS get_work_schedule(DATE, DATE, UUID[], TEXT);
 DROP FUNCTION IF EXISTS get_work_schedule(DATE, DATE, UUID[], TEXT, TEXT[]);
+DROP FUNCTION IF EXISTS get_schedule_entries(DATE, DATE, UUID[]);
 
-CREATE OR REPLACE FUNCTION get_work_schedule(
+CREATE OR REPLACE FUNCTION get_schedule_entries(
     start_date DATE,
     end_date DATE,
     visible_group_ids UUID[] DEFAULT ARRAY[]::UUID[]
