@@ -41,6 +41,13 @@ public class BreaksController : BaseController
         return Ok(model);
     }
 
+    [HttpPost("Bulk")]
+    public async Task<ActionResult<BulkBreaksResponse>> BulkAdd([FromBody] BulkAddBreaksRequest request)
+    {
+        var response = await _mediator.Send(new BulkAddBreaksCommand(request));
+        return Ok(response);
+    }
+
     [HttpPut]
     public async Task<ActionResult<BreakResource>> Put([FromBody] BreakResource resource)
     {
@@ -64,5 +71,12 @@ public class BreaksController : BaseController
             return NotFound();
         }
         return Ok(model);
+    }
+
+    [HttpDelete("Bulk")]
+    public async Task<ActionResult<BulkBreaksResponse>> BulkDelete([FromBody] BulkDeleteBreaksRequest request)
+    {
+        var response = await _mediator.Send(new BulkDeleteBreaksCommand(request));
+        return Ok(response);
     }
 }
