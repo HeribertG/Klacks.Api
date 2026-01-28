@@ -1,3 +1,4 @@
+using Klacks.Api.Application.Commands;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Presentation.DTOs.Filter;
 using Klacks.Api.Presentation.DTOs.Settings;
@@ -70,10 +71,14 @@ public class CalendarRulesController : BaseController
     }
 
     [HttpPut("CalendarRule")]
-    public async Task<ActionResult<CalendarRule>> PutCalendarRule([FromBody] CalendarRule calendarRule)
+    public async Task<ActionResult<CalendarRuleResource>> PutCalendarRule([FromBody] CalendarRuleResource calendarRuleResource)
     {
-        await mediator.Send(new Application.Commands.Settings.CalendarRules.PutCommand(calendarRule));
-        return calendarRule;
+        var result = await mediator.Send(new PutCommand<CalendarRuleResource>(calendarRuleResource));
+        if (result == null)
+        {
+            return NotFound();
+        }
+        return Ok(result);
     }
 
     [HttpPost("ValidateCalendarRule")]

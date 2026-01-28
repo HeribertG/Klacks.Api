@@ -85,6 +85,18 @@ public partial class ScheduleMapper
     public partial CalendarRuleResource ToCalendarRuleResource(CalendarRule rule);
     public partial CalendarRule ToCalendarRuleEntity(CalendarRuleResource resource);
 
+    public void UpdateCalendarRuleEntity(CalendarRuleResource source, CalendarRule target)
+    {
+        target.Country = source.Country;
+        target.Description = source.Description ?? new();
+        target.IsMandatory = source.IsMandatory;
+        target.IsPaid = source.IsPaid;
+        target.Name = source.Name ?? new();
+        target.Rule = source.Rule;
+        target.State = source.State;
+        target.SubRule = source.SubRule;
+    }
+
     public partial CalendarSelectionResource ToCalendarSelectionResource(CalendarSelection selection);
 
     [MapperIgnoreTarget(nameof(CalendarSelection.CreateTime))]
