@@ -1,3 +1,4 @@
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Schedules;
@@ -359,9 +360,23 @@ public partial class ScheduleMapper
 
     public partial List<ShiftScheduleResource> ToShiftScheduleResourceList(List<ShiftDayAssignment> assignments);
 
+    [MapProperty(nameof(ScheduleCell.Description), nameof(WorkScheduleResource.Description), Use = nameof(MapDescriptionJsonToMultiLanguage))]
     public partial WorkScheduleResource ToWorkScheduleResource(ScheduleCell entry);
 
     public partial List<WorkScheduleResource> ToWorkScheduleResourceList(List<ScheduleCell> entries);
+
+    private MultiLanguage? MapDescriptionJsonToMultiLanguage(string? json)
+    {
+        if (string.IsNullOrEmpty(json)) return null;
+        try
+        {
+            return System.Text.Json.JsonSerializer.Deserialize<MultiLanguage>(json);
+        }
+        catch
+        {
+            return null;
+        }
+    }
 
     public partial WorkScheduleClientResource ToWorkScheduleClientResource(Client client);
 

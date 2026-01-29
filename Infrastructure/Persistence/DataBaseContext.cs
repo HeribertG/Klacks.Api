@@ -239,12 +239,11 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Break>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
+            // Description is stored as JSONB instead of separate columns per language.
+            // See Break.Description property documentation for detailed explanation.
             entity.OwnsOne(b => b.Description, nav =>
             {
-                nav.Property(ml => ml.De).HasColumnName("description_de");
-                nav.Property(ml => ml.En).HasColumnName("description_en");
-                nav.Property(ml => ml.Fr).HasColumnName("description_fr");
-                nav.Property(ml => ml.It).HasColumnName("description_it");
+                nav.ToJson("description");
             });
         });
         modelBuilder.Entity<WorkChange>().HasQueryFilter(p => !p.IsDeleted);

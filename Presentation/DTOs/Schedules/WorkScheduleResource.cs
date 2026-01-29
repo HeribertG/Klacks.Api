@@ -1,3 +1,5 @@
+using Klacks.Api.Domain.Common;
+
 namespace Klacks.Api.Presentation.DTOs.Schedules;
 
 public class WorkScheduleResource
@@ -11,7 +13,8 @@ public class WorkScheduleResource
     public TimeSpan EndTime { get; set; }
     public decimal? ChangeTime { get; set; }
     public int? WorkChangeType { get; set; }
-    public string? Description { get; set; }
+    public MultiLanguage? Description { get; set; }
+    public string? Information { get; set; }
     public decimal? Amount { get; set; }
     public bool? ToInvoice { get; set; }
     public bool? Taxable { get; set; }
