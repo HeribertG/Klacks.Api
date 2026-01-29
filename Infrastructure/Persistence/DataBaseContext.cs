@@ -179,47 +179,36 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Membership>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Annotation>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<History>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<Macro>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<Macro>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.OwnsOne(m => m.Description, nav => nav.ToJson("description"));
+        });
         modelBuilder.Entity<Absence>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.OwnsOne(a => a.Name, nav =>
-            {
-                nav.Property(ml => ml.De).HasColumnName("name_de");
-                nav.Property(ml => ml.En).HasColumnName("name_en");
-                nav.Property(ml => ml.Fr).HasColumnName("name_fr");
-                nav.Property(ml => ml.It).HasColumnName("name_it");
-            });
-            entity.OwnsOne(a => a.Description, nav =>
-            {
-                nav.Property(ml => ml.De).HasColumnName("description_de");
-                nav.Property(ml => ml.En).HasColumnName("description_en");
-                nav.Property(ml => ml.Fr).HasColumnName("description_fr");
-                nav.Property(ml => ml.It).HasColumnName("description_it");
-            });
+            entity.OwnsOne(a => a.Name, nav => nav.ToJson("name"));
+            entity.OwnsOne(a => a.Description, nav => nav.ToJson("description"));
+            entity.OwnsOne(a => a.Abbreviation, nav => nav.ToJson("abbreviation"));
         });
         modelBuilder.Entity<BreakPlaceholder>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<AbsenceDetail>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.OwnsOne(a => a.DetailName, nav =>
-            {
-                nav.Property(ml => ml.De).HasColumnName("detail_name_de");
-                nav.Property(ml => ml.En).HasColumnName("detail_name_en");
-                nav.Property(ml => ml.Fr).HasColumnName("detail_name_fr");
-                nav.Property(ml => ml.It).HasColumnName("detail_name_it");
-            });
-            entity.OwnsOne(a => a.Description, nav =>
-            {
-                nav.Property(ml => ml.De).HasColumnName("description_de");
-                nav.Property(ml => ml.En).HasColumnName("description_en");
-                nav.Property(ml => ml.Fr).HasColumnName("description_fr");
-                nav.Property(ml => ml.It).HasColumnName("description_it");
-            });
+            entity.OwnsOne(a => a.DetailName, nav => nav.ToJson("detail_name"));
+            entity.OwnsOne(a => a.Description, nav => nav.ToJson("description"));
         });
         modelBuilder.Entity<Branch>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<Countries>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<State>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<Countries>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.OwnsOne(c => c.Name, nav => nav.ToJson("name"));
+        });
+        modelBuilder.Entity<State>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.OwnsOne(s => s.Name, nav => nav.ToJson("name"));
+        });
         modelBuilder.Entity<SelectedCalendar>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<CalendarSelection>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Group>().HasQueryFilter(p => !p.IsDeleted);
@@ -239,8 +228,6 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Break>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            // Description is stored as JSONB instead of separate columns per language.
-            // See Break.Description property documentation for detailed explanation.
             entity.OwnsOne(b => b.Description, nav =>
             {
                 nav.ToJson("description");
@@ -317,11 +304,14 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<BreakPlaceholder>().HasIndex(p => new { p.IsDeleted, p.AbsenceId, p.ClientId });
         modelBuilder.Entity<BreakPlaceholder>().HasIndex(p => new { p.IsDeleted, p.ClientId, p.From, p.Until });
         modelBuilder.Entity<AbsenceDetail>().HasIndex(p => new { p.IsDeleted, p.AbsenceId });
-        modelBuilder.Entity<CalendarRule>().HasIndex(p => new { p.State, p.Country });
-        modelBuilder.Entity<CalendarRule>().OwnsOne(c => c.Name, n => n.Property(p => p.De).IsRequired(false));
-        modelBuilder.Entity<CalendarRule>().OwnsOne(c => c.Description, d => d.Property(p => p.De).IsRequired(false));
-        modelBuilder.Entity<CalendarRule>().Navigation(c => c.Name).IsRequired();
-        modelBuilder.Entity<CalendarRule>().Navigation(c => c.Description).IsRequired();
+        modelBuilder.Entity<CalendarRule>(entity =>
+        {
+            entity.HasIndex(p => new { p.State, p.Country });
+            entity.OwnsOne(c => c.Name, nav => nav.ToJson("name"));
+            entity.OwnsOne(c => c.Description, nav => nav.ToJson("description"));
+            entity.Navigation(c => c.Name).IsRequired();
+            entity.Navigation(c => c.Description).IsRequired();
+        });
         modelBuilder.Entity<SelectedCalendar>().HasIndex(p => new { p.State, p.Country, p.CalendarSelectionId });
         modelBuilder.Entity<Group>().HasIndex(p => new { p.Name });
         modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.GroupId, p.ClientId, p.IsDeleted });

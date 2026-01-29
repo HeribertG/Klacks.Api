@@ -91,7 +91,7 @@ public class DeepLTranslationService : ITranslationService
     {
         var results = new Dictionary<string, string>();
 
-        foreach (var targetLang in MultiLanguage.SupportedLanguages)
+        foreach (var targetLang in LanguageConfig.SupportedLanguages)
         {
             if (targetLang.Equals(sourceLanguage, StringComparison.OrdinalIgnoreCase))
             {

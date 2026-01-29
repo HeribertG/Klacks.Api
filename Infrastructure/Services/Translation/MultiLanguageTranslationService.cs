@@ -40,7 +40,7 @@ public class MultiLanguageTranslationService : IMultiLanguageTranslationService
 
     private static (string? language, string? text) FindSourceLanguageAndText(MultiLanguage multiLanguage)
     {
-        foreach (var language in MultiLanguage.SupportedLanguages)
+        foreach (var language in LanguageConfig.SupportedLanguages)
         {
             var value = multiLanguage.GetValue(language);
             if (!string.IsNullOrWhiteSpace(value))
@@ -53,7 +53,7 @@ public class MultiLanguageTranslationService : IMultiLanguageTranslationService
 
     private static List<string> GetEmptyLanguages(MultiLanguage multiLanguage)
     {
-        return MultiLanguage.SupportedLanguages
+        return LanguageConfig.SupportedLanguages
             .Where(lang => string.IsNullOrWhiteSpace(multiLanguage.GetValue(lang)))
             .ToList();
     }
@@ -65,7 +65,7 @@ public class MultiLanguageTranslationService : IMultiLanguageTranslationService
     {
         var result = new MultiLanguage();
 
-        foreach (var language in MultiLanguage.SupportedLanguages)
+        foreach (var language in LanguageConfig.SupportedLanguages)
         {
             result.SetValue(language, original.GetValue(language));
         }
