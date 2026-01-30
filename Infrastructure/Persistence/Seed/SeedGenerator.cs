@@ -449,6 +449,10 @@ namespace Klacks.Api.Data.Seed
                 ("1234567a-1234-1234-1234-123456789031", "dayVisibleBeforeMonth", "10"),
                 ("1234567a-1234-1234-1234-123456789032", "dayVisibleAfterMonth", "10"),
 
+                // Grid Color Settings
+                ("1234567a-1234-1234-1234-123456789033", "WORK_CHANGE_COLOR_KEY", "#FFA500"),
+                ("1234567a-1234-1234-1234-123456789034", "SURCHARGE_COLOR_KEY", "#FFFF00"),
+
                 // System Settings
                 ("1234567a-1234-1234-1234-123456789025", "backupFrequency", "daily"),
                 ("1234567a-1234-1234-1234-123456789026", "logLevel", "Information"),

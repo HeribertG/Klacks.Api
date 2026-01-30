@@ -12,6 +12,7 @@ public class WorkScheduleResource
     public TimeSpan StartTime { get; set; }
     public TimeSpan EndTime { get; set; }
     public decimal? ChangeTime { get; set; }
+    public decimal? Surcharges { get; set; }
     public int? WorkChangeType { get; set; }
     public MultiLanguage? Description { get; set; }
     public string? Information { get; set; }

@@ -13,6 +13,12 @@ public class WorkChangeResource
 
     public decimal ChangeTime { get; set; }
 
+    public decimal Surcharges { get; set; }
+
+    public TimeOnly StartTime { get; set; }
+
+    public TimeOnly EndTime { get; set; }
+
     public WorkChangeType Type { get; set; }
 
     public Guid? ReplaceClientId { get; set; }
@@ -22,4 +28,10 @@ public class WorkChangeResource
     public string Description { get; set; } = string.Empty;
 
     public bool ToInvoice { get; set; }
+
+    public DateOnly? PeriodStart { get; set; }
+
+    public DateOnly? PeriodEnd { get; set; }
+
+    public List<WorkChangeClientResult> ClientResults { get; set; } = [];
 }

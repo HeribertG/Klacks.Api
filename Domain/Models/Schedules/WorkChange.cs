@@ -12,6 +12,12 @@ public class WorkChange : BaseEntity
 
     public decimal ChangeTime { get; set; }
 
+    public decimal Surcharges { get; set; }
+
+    public TimeOnly StartTime { get; set; }
+
+    public TimeOnly EndTime { get; set; }
+
     public WorkChangeType Type { get; set; }
 
     public Guid? ReplaceClientId { get; set; }
