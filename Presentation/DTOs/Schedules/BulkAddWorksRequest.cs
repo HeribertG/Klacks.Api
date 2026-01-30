@@ -15,7 +15,7 @@ public class BulkWorkItem
 
     public Guid ShiftId { get; set; }
 
-    public DateTime CurrentDate { get; set; }
+    public DateOnly CurrentDate { get; set; }
 
     public decimal WorkTime { get; set; }
 

@@ -32,7 +32,7 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
     {
         await _breakMacroService.ProcessBreakMacroAsync(entity);
         await base.Add(entity);
-        var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(entity.CurrentDate));
+        var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(entity.CurrentDate);
         await RecalculatePeriodHoursAsync(entity.ClientId, periodStart, periodEnd);
     }
 
@@ -40,7 +40,7 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
     {
         await _breakMacroService.ProcessBreakMacroAsync(entity);
         var result = await base.Put(entity);
-        var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(entity.CurrentDate));
+        var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(entity.CurrentDate);
         await RecalculatePeriodHoursAsync(entity.ClientId, periodStart, periodEnd);
         return result;
     }
@@ -51,7 +51,7 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
         var result = await base.Delete(id);
         if (entity != null)
         {
-            var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(entity.CurrentDate));
+            var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(entity.CurrentDate);
             await RecalculatePeriodHoursAsync(entity.ClientId, periodStart, periodEnd);
         }
         return result;

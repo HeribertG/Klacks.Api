@@ -46,13 +46,13 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
         }
         else
         {
-            (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(entity.CurrentDate));
+            (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(entity.CurrentDate);
         }
 
         var (createdBreak, periodHours) = await _breakRepository.AddWithPeriodHours(entity, periodStart, periodEnd);
         await _unitOfWork.CompleteAsync();
 
-        var currentDate = DateOnly.FromDateTime(entity.CurrentDate);
+        var currentDate = entity.CurrentDate;
         var threeDayStart = currentDate.AddDays(-1);
         var threeDayEnd = currentDate.AddDays(1);
 

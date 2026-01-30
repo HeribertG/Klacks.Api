@@ -23,7 +23,7 @@ public class MacroDataProvider : IMacroDataProvider
 
     public async Task<MacroData> GetMacroDataAsync(Work work)
     {
-        var workDate = DateOnly.FromDateTime(work.CurrentDate);
+        var workDate = work.CurrentDate;
         var workDateNextDay = workDate.AddDays(1);
 
         var contract = await GetActiveContractAsync(work.ClientId, workDate);

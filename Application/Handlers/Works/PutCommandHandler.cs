@@ -60,7 +60,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         }
         else
         {
-            (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(work.CurrentDate));
+            (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
         }
 
         var (updatedWork, periodHours) = await _workRepository.PutWithPeriodHours(work, periodStart, periodEnd);
@@ -72,20 +72,20 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         var notification = _scheduleMapper.ToWorkNotificationDto(updatedWork, "updated", connectionId, periodStart, periodEnd);
         await _notificationService.NotifyWorkUpdated(notification);
 
-        var affectedShifts = new HashSet<(Guid ShiftId, DateTime Date)>
+        var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>
         {
             (updatedWork.ShiftId, updatedWork.CurrentDate)
         };
 
         if (oldShiftId.HasValue && oldDate.HasValue &&
-            (oldShiftId.Value != updatedWork.ShiftId || oldDate.Value.Date != updatedWork.CurrentDate.Date))
+            (oldShiftId.Value != updatedWork.ShiftId || oldDate.Value != updatedWork.CurrentDate))
         {
             affectedShifts.Add((oldShiftId.Value, oldDate.Value));
         }
 
         await SendShiftStatsNotificationsAsync(affectedShifts, connectionId, cancellationToken);
 
-        var currentDate = DateOnly.FromDateTime(updatedWork.CurrentDate);
+        var currentDate = updatedWork.CurrentDate;
         var threeDayStart = currentDate.AddDays(-1);
         var threeDayEnd = currentDate.AddDays(1);
 
@@ -101,13 +101,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
     }
 
     private async Task SendShiftStatsNotificationsAsync(
-        HashSet<(Guid ShiftId, DateTime Date)> affectedShifts,
+        HashSet<(Guid ShiftId, DateOnly Date)> affectedShifts,
         string connectionId,
         CancellationToken cancellationToken)
     {
-        var shiftDatePairs = affectedShifts
-            .Select(x => (x.ShiftId, DateOnly.FromDateTime(x.Date)))
-            .ToList();
+        var shiftDatePairs = affectedShifts.ToList();
 
         var shiftStats = await _shiftScheduleService.GetShiftSchedulePartialAsync(shiftDatePairs, cancellationToken);
 

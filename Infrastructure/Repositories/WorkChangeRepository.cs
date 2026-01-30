@@ -56,7 +56,7 @@ public class WorkChangeRepository : BaseRepository<WorkChange>, IWorkChangeRepos
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers["X-SignalR-ConnectionId"].FirstOrDefault();
 
-            var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(work.CurrentDate));
+            var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
 
             await _periodHoursService.RecalculateAndNotifyAsync(
                 work.ClientId,

@@ -46,7 +46,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
     {
         var response = new BulkWorksResponse();
         var createdWorks = new List<Work>();
-        var affectedShifts = new HashSet<(Guid ShiftId, DateTime Date)>();
+        var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>();
 
         foreach (var item in command.Request.Works)
         {
@@ -70,7 +70,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                 response.CreatedIds.Add(work.Id);
                 response.SuccessCount++;
 
-                affectedShifts.Add((item.ShiftId, item.CurrentDate.Date));
+                affectedShifts.Add((item.ShiftId, item.CurrentDate));
             }
             catch (Exception ex)
             {
@@ -115,20 +115,18 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         }
 
         response.AffectedShifts = affectedShifts
-            .Select(x => new ShiftDatePair { ShiftId = x.ShiftId, Date = x.Date })
+            .Select(x => new ShiftDatePair { ShiftId = x.ShiftId, Date = x.Date.ToDateTime(TimeOnly.MinValue) })
             .ToList();
 
         return response;
     }
 
     private async Task SendShiftStatsNotificationsAsync(
-        HashSet<(Guid ShiftId, DateTime Date)> affectedShifts,
+        HashSet<(Guid ShiftId, DateOnly Date)> affectedShifts,
         string connectionId,
         CancellationToken cancellationToken)
     {
-        var shiftDatePairs = affectedShifts
-            .Select(x => (x.ShiftId, DateOnly.FromDateTime(x.Date)))
-            .ToList();
+        var shiftDatePairs = affectedShifts.ToList();
 
         var shiftStats = await _shiftScheduleService.GetShiftSchedulePartialAsync(shiftDatePairs, cancellationToken);
 

@@ -59,7 +59,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         }
         else
         {
-            (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(work.CurrentDate));
+            (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
         }
         var (createdWork, periodHours) = await _workRepository.AddWithPeriodHours(work, periodStart, periodEnd);
         await _unitOfWork.CompleteAsync();
@@ -71,7 +71,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
 
         await SendShiftStatsNotificationAsync(createdWork.ShiftId, createdWork.CurrentDate, connectionId, cancellationToken);
 
-        var currentDate = DateOnly.FromDateTime(createdWork.CurrentDate);
+        var currentDate = createdWork.CurrentDate;
         var threeDayStart = currentDate.AddDays(-1);
         var threeDayEnd = currentDate.AddDays(1);
 
@@ -88,13 +88,13 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
 
     private async Task SendShiftStatsNotificationAsync(
         Guid shiftId,
-        DateTime date,
+        DateOnly date,
         string connectionId,
         CancellationToken cancellationToken)
     {
         var shiftDatePairs = new List<(Guid ShiftId, DateOnly Date)>
         {
-            (shiftId, DateOnly.FromDateTime(date))
+            (shiftId, date)
         };
 
         var shiftStats = await _shiftScheduleService.GetShiftSchedulePartialAsync(shiftDatePairs, cancellationToken);

@@ -46,7 +46,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
     {
         await _workMacroService.ProcessWorkMacroAsync(work);
         await base.Add(work);
-        var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(work.CurrentDate));
+        var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
         await RecalculatePeriodHoursAsync(work.ClientId, periodStart, periodEnd);
     }
 
@@ -54,7 +54,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
     {
         await _workMacroService.ProcessWorkMacroAsync(work);
         var result = await base.Put(work);
-        var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(work.CurrentDate));
+        var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
         await RecalculatePeriodHoursAsync(work.ClientId, periodStart, periodEnd);
         return result;
     }
@@ -65,7 +65,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         var result = await base.Delete(id);
         if (work != null)
         {
-            var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(work.CurrentDate));
+            var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
             await RecalculatePeriodHoursAsync(work.ClientId, periodStart, periodEnd);
         }
         return result;
@@ -142,10 +142,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
                         (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startOfYear))
             .AsQueryable();
 
-        var startDateTime = filter.StartDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-        var endDateTime = filter.EndDate.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc);
-
-        query = query.Include(c => c.Works.Where(w => w.CurrentDate >= startDateTime && w.CurrentDate <= endDateTime));
+        query = query.Include(c => c.Works.Where(w => w.CurrentDate >= filter.StartDate && w.CurrentDate <= filter.EndDate));
         query = query.Include(c => c.ClientContracts.Where(cc => !cc.IsDeleted && cc.IsActive))
             .ThenInclude(cc => cc.Contract);
 
@@ -244,23 +241,20 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         var clientIdsWithPeriodHours = periodHours.Select(m => m.ClientId).ToHashSet();
         var clientIdsWithoutPeriodHours = clientIds.Where(id => !clientIdsWithPeriodHours.Contains(id)).ToList();
 
-        var startDateTime = startDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-        var endDateTime = endDate.ToDateTime(new TimeOnly(23, 59, 59), DateTimeKind.Utc);
-
         var worksHours = await _context.Work
-            .Where(w => clientIdsWithoutPeriodHours.Contains(w.ClientId) && w.CurrentDate >= startDateTime && w.CurrentDate <= endDateTime)
+            .Where(w => clientIdsWithoutPeriodHours.Contains(w.ClientId) && w.CurrentDate >= startDate && w.CurrentDate <= endDate)
             .GroupBy(w => w.ClientId)
             .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime), TotalSurcharges = g.Sum(w => w.Surcharges) })
             .ToListAsync();
 
         var breaksHours = await _context.Break
-            .Where(b => clientIdsWithoutPeriodHours.Contains(b.ClientId) && b.CurrentDate >= startDateTime && b.CurrentDate <= endDateTime)
+            .Where(b => clientIdsWithoutPeriodHours.Contains(b.ClientId) && b.CurrentDate >= startDate && b.CurrentDate <= endDate)
             .GroupBy(b => b.ClientId)
             .Select(g => new { ClientId = g.Key, TotalBreaks = g.Sum(b => b.WorkTime) })
             .ToListAsync();
 
         var workChanges = await _context.WorkChange
-            .Where(wc => clientIdsWithoutPeriodHours.Contains(wc.Work!.ClientId) && wc.Work.CurrentDate >= startDateTime && wc.Work.CurrentDate <= endDateTime)
+            .Where(wc => clientIdsWithoutPeriodHours.Contains(wc.Work!.ClientId) && wc.Work.CurrentDate >= startDate && wc.Work.CurrentDate <= endDate)
             .Select(wc => new
             {
                 wc.Work!.ClientId,

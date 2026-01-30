@@ -62,7 +62,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
             return _scheduleMapper.ToWorkChangeResource(updatedWorkChange);
         }
 
-        var currentDate = DateOnly.FromDateTime(work.CurrentDate);
+        var currentDate = work.CurrentDate;
         var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(currentDate);
         var threeDayStart = currentDate.AddDays(-1);
         var threeDayEnd = currentDate.AddDays(1);

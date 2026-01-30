@@ -42,7 +42,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
             var (deletedBreak, periodHours) = await _breakRepository.DeleteWithPeriodHours(request.Id, request.PeriodStart, request.PeriodEnd);
             await _unitOfWork.CompleteAsync();
 
-            var currentDate = DateOnly.FromDateTime(breakEntry.CurrentDate);
+            var currentDate = breakEntry.CurrentDate;
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
 

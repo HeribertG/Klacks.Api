@@ -11,7 +11,7 @@ public abstract class ScheduleEntryBase : BaseEntity
 
     public Guid ClientId { get; set; }
 
-    public DateTime CurrentDate { get; set; }
+    public DateOnly CurrentDate { get; set; }
 
     public string? Information { get; set; }
 

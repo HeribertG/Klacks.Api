@@ -46,7 +46,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
     {
         var response = new BulkWorksResponse();
         var deletedWorks = new List<Work>();
-        var affectedShifts = new HashSet<(Guid ShiftId, DateTime Date)>();
+        var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>();
         var affectedClients = new HashSet<Guid>();
 
         foreach (var workId in command.Request.WorkIds)
@@ -61,7 +61,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
                     continue;
                 }
 
-                affectedShifts.Add((work.ShiftId, work.CurrentDate.Date));
+                affectedShifts.Add((work.ShiftId, work.CurrentDate));
                 affectedClients.Add(work.ClientId);
                 deletedWorks.Add(work);
 
@@ -87,7 +87,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
 
             foreach (var work in deletedWorks)
             {
-                var (start, end) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(work.CurrentDate));
+                var (start, end) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
 
                 if (!clientPeriods.ContainsKey(work.ClientId))
                 {
@@ -127,20 +127,18 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         }
 
         response.AffectedShifts = affectedShifts
-            .Select(x => new ShiftDatePair { ShiftId = x.ShiftId, Date = x.Date })
+            .Select(x => new ShiftDatePair { ShiftId = x.ShiftId, Date = x.Date.ToDateTime(TimeOnly.MinValue) })
             .ToList();
 
         return response;
     }
 
     private async Task SendShiftStatsNotificationsAsync(
-        HashSet<(Guid ShiftId, DateTime Date)> affectedShifts,
+        HashSet<(Guid ShiftId, DateOnly Date)> affectedShifts,
         string connectionId,
         CancellationToken cancellationToken)
     {
-        var shiftDatePairs = affectedShifts
-            .Select(x => (x.ShiftId, DateOnly.FromDateTime(x.Date)))
-            .ToList();
+        var shiftDatePairs = affectedShifts.ToList();
 
         var shiftStats = await _shiftScheduleService.GetShiftSchedulePartialAsync(shiftDatePairs, cancellationToken);
 

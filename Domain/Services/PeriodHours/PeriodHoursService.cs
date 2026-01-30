@@ -258,13 +258,10 @@ public class PeriodHoursService : IPeriodHoursService
             return result;
         }
 
-        var startDateTime = startDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-        var endDateTime = endDate.ToDateTime(new TimeOnly(23, 59, 59), DateTimeKind.Utc);
-
         var allWorks = await _context.Work
             .Where(w => clientIds.Contains(w.ClientId)
-                && w.CurrentDate >= startDateTime
-                && w.CurrentDate <= endDateTime)
+                && w.CurrentDate >= startDate
+                && w.CurrentDate <= endDate)
             .Select(w => new { w.ClientId, w.WorkTime, w.Surcharges, w.CurrentDate })
             .ToListAsync();
 
@@ -292,16 +289,16 @@ public class PeriodHoursService : IPeriodHoursService
 
         var breaksHours = await _context.Break
             .Where(b => clientIds.Contains(b.ClientId)
-                && b.CurrentDate >= startDateTime
-                && b.CurrentDate <= endDateTime)
+                && b.CurrentDate >= startDate
+                && b.CurrentDate <= endDate)
             .GroupBy(b => b.ClientId)
             .Select(g => new { ClientId = g.Key, TotalBreaks = g.Sum(b => b.WorkTime) })
             .ToListAsync();
 
         var workChanges = await _context.WorkChange
             .Where(wc => clientIds.Contains(wc.Work!.ClientId)
-                && wc.Work.CurrentDate >= startDateTime
-                && wc.Work.CurrentDate <= endDateTime)
+                && wc.Work.CurrentDate >= startDate
+                && wc.Work.CurrentDate <= endDate)
             .Select(wc => new
             {
                 wc.Work!.ClientId,

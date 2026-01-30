@@ -66,7 +66,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
 
             await SendShiftStatsNotificationAsync(shiftId, workDate, connectionId, cancellationToken);
 
-            var currentDate = DateOnly.FromDateTime(work.CurrentDate);
+            var currentDate = work.CurrentDate;
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
 
@@ -86,13 +86,13 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
 
     private async Task SendShiftStatsNotificationAsync(
         Guid shiftId,
-        DateTime date,
+        DateOnly date,
         string connectionId,
         CancellationToken cancellationToken)
     {
         var shiftDatePairs = new List<(Guid ShiftId, DateOnly Date)>
         {
-            (shiftId, DateOnly.FromDateTime(date))
+            (shiftId, date)
         };
 
         var shiftStats = await _shiftScheduleService.GetShiftSchedulePartialAsync(shiftDatePairs, cancellationToken);

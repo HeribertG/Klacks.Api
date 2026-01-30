@@ -48,7 +48,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
             }
             else
             {
-                (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(DateOnly.FromDateTime(entity.CurrentDate));
+                (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(entity.CurrentDate);
             }
 
             var (updated, periodHours) = await _breakRepository.PutWithPeriodHours(entity, periodStart, periodEnd);
@@ -60,7 +60,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
 
             await _unitOfWork.CompleteAsync();
 
-            var currentDate = DateOnly.FromDateTime(updated.CurrentDate);
+            var currentDate = updated.CurrentDate;
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
 

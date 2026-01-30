@@ -8,7 +8,7 @@ public class BulkBreakItem
 
     public Guid AbsenceId { get; set; }
 
-    public DateTime CurrentDate { get; set; }
+    public DateOnly CurrentDate { get; set; }
 
     public decimal WorkTime { get; set; }
 

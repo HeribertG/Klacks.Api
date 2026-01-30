@@ -23,14 +23,11 @@ public class ClientWorkFilterService : IClientWorkFilterService
 
     public IQueryable<Client> FilterByWorkSchedule(IQueryable<Client> query, WorkFilter filter, DataBaseContext context)
     {
-        var startDate = filter.StartDate.ToDateTime(TimeOnly.MinValue);
-        var endDate = filter.EndDate.ToDateTime(TimeOnly.MaxValue);
-
         var clients = query.ToList();
         var clientIds = clients.Select(c => c.Id).ToList();
 
         var works = context.Work.Where(b => clientIds.Contains(b.ClientId) &&
-                                      b.CurrentDate.Date >= startDate && b.CurrentDate.Date <= endDate)
+                                      b.CurrentDate >= filter.StartDate && b.CurrentDate <= filter.EndDate)
                                 .OrderBy(b => b.CurrentDate)
                                 .ToList();
 
