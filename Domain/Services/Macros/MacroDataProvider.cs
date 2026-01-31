@@ -210,4 +210,83 @@ public class MacroDataProvider : IMacroDataProvider
         // ISO-8601/Frontend: Monday=1, Tuesday=2, ..., Sunday=7
         return dayOfWeek == DayOfWeek.Sunday ? 7 : (int)dayOfWeek;
     }
+
+    public async Task<MacroData> GetMacroDataForWorkChangeAsync(WorkChange workChange, Work work)
+    {
+        var shift = await _context.Shift.FirstOrDefaultAsync(s => s.Id == work.ShiftId);
+
+        var workChangeDate = GetWorkChangeDateWithMidnightRule(workChange, work, shift);
+        var workChangeDateNextDay = workChangeDate.AddDays(1);
+
+        var contract = await GetActiveContractAsync(work.ClientId, workChangeDate);
+        var defaultSettings = await GetDefaultSettingsAsync();
+
+        var macroData = new MacroData
+        {
+            Hour = workChange.ChangeTime,
+            FromHour = workChange.StartTime.ToString("HH:mm"),
+            UntilHour = workChange.EndTime.ToString("HH:mm"),
+            Weekday = ConvertToIsoWeekday(workChangeDate.DayOfWeek),
+            NightRate = contract?.NightRate ?? defaultSettings.NightRate,
+            HolidayRate = contract?.HolidayRate ?? defaultSettings.HolidayRate,
+            SaRate = contract?.SaRate ?? defaultSettings.SaRate,
+            SoRate = contract?.SoRate ?? defaultSettings.SoRate,
+            GuaranteedHours = contract?.GuaranteedHours ?? defaultSettings.GuaranteedHours,
+            FullTime = contract?.FullTime ?? defaultSettings.FullTime
+        };
+
+        IHolidaysListCalculator? calculator = null;
+        IHolidaysListCalculator? calculatorNextDay = null;
+
+        if (contract?.CalendarSelectionId != null)
+        {
+            calculator = await GetHolidayCalculatorAsync(contract.CalendarSelectionId.Value, workChangeDate.Year);
+            calculatorNextDay = workChangeDateNextDay.Year != workChangeDate.Year
+                ? await GetHolidayCalculatorAsync(contract.CalendarSelectionId.Value, workChangeDateNextDay.Year)
+                : calculator;
+        }
+        else
+        {
+            var globalSettings = await GetGlobalCalendarSettingsAsync();
+            if (globalSettings.CalendarSelectionId != null)
+            {
+                calculator = await GetHolidayCalculatorAsync(globalSettings.CalendarSelectionId.Value, workChangeDate.Year);
+                calculatorNextDay = workChangeDateNextDay.Year != workChangeDate.Year
+                    ? await GetHolidayCalculatorAsync(globalSettings.CalendarSelectionId.Value, workChangeDateNextDay.Year)
+                    : calculator;
+            }
+            else if (!string.IsNullOrEmpty(globalSettings.Country) && !string.IsNullOrEmpty(globalSettings.State))
+            {
+                calculator = await GetHolidayCalculatorByCountryStateAsync(globalSettings.Country, globalSettings.State, workChangeDate.Year);
+                calculatorNextDay = workChangeDateNextDay.Year != workChangeDate.Year
+                    ? await GetHolidayCalculatorByCountryStateAsync(globalSettings.Country, globalSettings.State, workChangeDateNextDay.Year)
+                    : calculator;
+            }
+        }
+
+        if (calculator != null)
+        {
+            macroData.Holiday = calculator.IsHoliday(workChangeDate) == HolidayStatus.OfficialHoliday;
+            macroData.HolidayNextDay = calculatorNextDay?.IsHoliday(workChangeDateNextDay) == HolidayStatus.OfficialHoliday;
+        }
+
+        return macroData;
+    }
+
+    private static DateOnly GetWorkChangeDateWithMidnightRule(WorkChange workChange, Work work, Shift? shift)
+    {
+        if (shift == null)
+        {
+            return work.CurrentDate;
+        }
+
+        var isMidnightShift = shift.EndShift < shift.StartShift;
+        if (!isMidnightShift)
+        {
+            return work.CurrentDate;
+        }
+
+        var isAfterMidnight = workChange.StartTime < shift.StartShift;
+        return isAfterMidnight ? work.CurrentDate.AddDays(1) : work.CurrentDate;
+    }
 }

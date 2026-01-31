@@ -296,13 +296,15 @@ public class PeriodHoursService : IPeriodHoursService
             .ToListAsync();
 
         var workChanges = await _context.WorkChange
-            .Where(wc => clientIds.Contains(wc.Work!.ClientId)
+            .Where(wc => (clientIds.Contains(wc.Work!.ClientId) ||
+                         (wc.ReplaceClientId.HasValue && clientIds.Contains(wc.ReplaceClientId.Value)))
                 && wc.Work.CurrentDate >= startDate
                 && wc.Work.CurrentDate <= endDate)
             .Select(wc => new
             {
                 wc.Work!.ClientId,
                 wc.ChangeTime,
+                wc.Surcharges,
                 wc.Type,
                 wc.ToInvoice,
                 wc.ReplaceClientId,
@@ -323,22 +325,29 @@ public class PeriodHoursService : IPeriodHoursService
 
             foreach (var wc in workChanges)
             {
-                if (wc.ToInvoice && wc.OriginalClientId == clientId)
-                {
-                    workChangeSurcharges += wc.ChangeTime;
-                }
-
                 var isOriginalClient = wc.OriginalClientId == clientId;
                 var isReplacementClient = wc.ReplaceClientId == clientId;
 
                 if (wc.Type == WorkChangeType.CorrectionEnd || wc.Type == WorkChangeType.CorrectionStart)
                 {
-                    if (isOriginalClient) workChangeHours += wc.ChangeTime;
+                    if (isOriginalClient)
+                    {
+                        workChangeHours += wc.ChangeTime;
+                        workChangeSurcharges += wc.Surcharges;
+                    }
                 }
                 else if (wc.Type == WorkChangeType.ReplacementStart || wc.Type == WorkChangeType.ReplacementEnd)
                 {
-                    if (isOriginalClient) workChangeHours -= wc.ChangeTime;
-                    if (isReplacementClient) workChangeHours += wc.ChangeTime;
+                    if (isOriginalClient)
+                    {
+                        workChangeHours -= wc.ChangeTime;
+                        workChangeSurcharges -= wc.Surcharges;
+                    }
+                    if (isReplacementClient)
+                    {
+                        workChangeHours += wc.ChangeTime;
+                        workChangeSurcharges += wc.Surcharges;
+                    }
                 }
             }
 

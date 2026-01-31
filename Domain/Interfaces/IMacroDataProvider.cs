@@ -6,4 +6,5 @@ namespace Klacks.Api.Domain.Interfaces;
 public interface IMacroDataProvider
 {
     Task<MacroData> GetMacroDataAsync(Work work);
+    Task<MacroData> GetMacroDataForWorkChangeAsync(WorkChange workChange, Work work);
 }

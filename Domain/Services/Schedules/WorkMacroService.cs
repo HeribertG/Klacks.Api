@@ -5,6 +5,8 @@ using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Infrastructure.Interfaces;
+using Klacks.Api.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Domain.Services.Schedules;
 
@@ -15,6 +17,7 @@ public class WorkMacroService : IWorkMacroService
     private readonly IMacroCache _macroCache;
     private readonly IMacroDataProvider _macroDataProvider;
     private readonly IMacroEngine _macroEngine;
+    private readonly DataBaseContext _context;
     private readonly ILogger<WorkMacroService> _logger;
 
     public WorkMacroService(
@@ -23,6 +26,7 @@ public class WorkMacroService : IWorkMacroService
         IMacroCache macroCache,
         IMacroDataProvider macroDataProvider,
         IMacroEngine macroEngine,
+        DataBaseContext context,
         ILogger<WorkMacroService> logger)
     {
         _shiftRepository = shiftRepository;
@@ -30,6 +34,7 @@ public class WorkMacroService : IWorkMacroService
         _macroCache = macroCache;
         _macroDataProvider = macroDataProvider;
         _macroEngine = macroEngine;
+        _context = context;
         _logger = logger;
     }
 
@@ -143,5 +148,103 @@ public class WorkMacroService : IWorkMacroService
         }
 
         work.WorkTime = (decimal)duration.TotalHours;
+    }
+
+    public async Task ProcessWorkChangeMacroAsync(WorkChange workChange)
+    {
+        try
+        {
+            CalculateChangeTime(workChange);
+
+            var work = await _context.Work.FirstOrDefaultAsync(w => w.Id == workChange.WorkId);
+
+            if (work == null)
+            {
+                _logger.LogWarning("Work with ID {WorkId} not found for WorkChange {WorkChangeId}", workChange.WorkId, workChange.Id);
+                return;
+            }
+
+            var shift = await _shiftRepository.Get(work.ShiftId);
+            if (shift == null)
+            {
+                _logger.LogWarning("Shift with ID {ShiftId} not found for WorkChange {WorkChangeId}", work.ShiftId, workChange.Id);
+                return;
+            }
+
+            if (!shift.MacroId.HasValue || shift.MacroId.Value == Guid.Empty)
+            {
+                return;
+            }
+
+            var macro = await _macroManagementService.GetMacroAsync(shift.MacroId.Value);
+            if (macro == null)
+            {
+                _logger.LogWarning("Macro with ID {MacroId} not found for Shift {ShiftId}", shift.MacroId.Value, shift.Id);
+                return;
+            }
+
+            var compiledScript = _macroCache.GetOrCompile(macro.Id, macro.Content);
+            if (compiledScript.HasError)
+            {
+                _logger.LogError(
+                    "Macro compilation failed for WorkChange {WorkChangeId}, Macro {MacroName}: {Error}",
+                    workChange.Id,
+                    macro.Name,
+                    compiledScript.Error?.Description);
+                return;
+            }
+
+            var macroData = await _macroDataProvider.GetMacroDataForWorkChangeAsync(workChange, work);
+
+            _logger.LogInformation(
+                "MacroData for WorkChange: Hour={Hour}, FromHour={FromHour}, UntilHour={UntilHour}, Weekday={Weekday}, Holiday={Holiday}",
+                macroData.Hour, macroData.FromHour, macroData.UntilHour, macroData.Weekday, macroData.Holiday);
+
+            SetImportsFromMacroData(compiledScript, macroData);
+
+            var results = _macroEngine.RunWithScript(compiledScript);
+
+            if (_macroEngine.ErrorNumber != 0)
+            {
+                _logger.LogError(
+                    "Macro execution failed for WorkChange {WorkChangeId}, Macro {MacroName}: ErrorNumber={ErrorNumber}, ErrorCode={ErrorCode}",
+                    workChange.Id,
+                    macro.Name,
+                    _macroEngine.ErrorNumber,
+                    _macroEngine.ErrorCode);
+                return;
+            }
+
+            foreach (var msg in results)
+            {
+                if (msg.Type == (int)MacroTypeEnum.DefaultResult &&
+                    decimal.TryParse(msg.Message, NumberStyles.Any, CultureInfo.InvariantCulture, out var surcharges))
+                {
+                    workChange.Surcharges = surcharges;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error processing macro for WorkChange {WorkChangeId}", workChange.Id);
+        }
+    }
+
+    private static void CalculateChangeTime(WorkChange workChange)
+    {
+        var start = workChange.StartTime.ToTimeSpan();
+        var end = workChange.EndTime.ToTimeSpan();
+
+        TimeSpan duration;
+        if (end >= start)
+        {
+            duration = end - start;
+        }
+        else
+        {
+            duration = TimeSpan.FromHours(24) - start + end;
+        }
+
+        workChange.ChangeTime = (decimal)duration.TotalHours;
     }
 }
