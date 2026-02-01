@@ -1,7 +1,9 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Presentation.DTOs.Staffs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Repositories;
@@ -9,10 +11,12 @@ namespace Klacks.Api.Infrastructure.Repositories;
 public class ClientSearchRepository : IClientSearchRepository
 {
     private readonly DataBaseContext context;
+    private readonly IClientGroupFilterService _groupFilterService;
 
-    public ClientSearchRepository(DataBaseContext context)
+    public ClientSearchRepository(DataBaseContext context, IClientGroupFilterService groupFilterService)
     {
         this.context = context;
+        _groupFilterService = groupFilterService;
     }
 
     public async Task<Client?> FindByMail(string mail)
@@ -61,5 +65,29 @@ public class ClientSearchRepository : IClientSearchRepository
         }
 
         return string.Empty;
+    }
+
+    public async Task<List<ClientForReplacementResource>> GetClientsForReplacement()
+    {
+        var query = this.context.Client
+            .Include(c => c.GroupItems)
+            .Where(c => c.Type != EntityTypeEnum.Customer)
+            .AsNoTracking()
+            .AsQueryable();
+
+        query = await _groupFilterService.FilterClientsByGroupId(null, query);
+
+        return await query
+            .OrderBy(c => c.IdNumber)
+            .Select(c => new ClientForReplacementResource
+            {
+                Id = c.Id,
+                Name = c.Name,
+                FirstName = c.FirstName,
+                Company = c.Company,
+                LegalEntity = c.LegalEntity,
+                IdNumber = c.IdNumber
+            })
+            .ToListAsync();
     }
 }

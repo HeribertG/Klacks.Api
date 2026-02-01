@@ -21,6 +21,13 @@ public class ClientsController : InputBaseController<ClientResource>
         return Ok(count);
     }
 
+    [HttpGet("ForReplacement")]
+    public async Task<ActionResult<IEnumerable<ClientForReplacementResource>>> GetClientsForReplacement()
+    {
+        var clients = await Mediator.Send(new GetClientsForReplacementQuery());
+        return Ok(clients);
+    }
+
     [HttpGet("FindClient/{company}/{Name}/{firstName}")]
     public async Task<ActionResult<IEnumerable<Client>>> FindClient(string? company = null, string? name = null, string? firstName = null)
     {

@@ -1,0 +1,11 @@
+namespace Klacks.Api.Presentation.DTOs.Staffs;
+
+public class ClientForReplacementResource
+{
+    public Guid Id { get; set; }
+    public string? Name { get; set; }
+    public string? FirstName { get; set; }
+    public string? Company { get; set; }
+    public bool LegalEntity { get; set; }
+    public int IdNumber { get; set; }
+}
