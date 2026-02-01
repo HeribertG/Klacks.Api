@@ -14,6 +14,8 @@ public interface IBaseRepository<TEntity>
 
     Task<TEntity?> Get(Guid id);
 
+    Task<TEntity?> GetNoTracking(Guid id);
+
     Task<List<TEntity>> List();
 
     Task<TEntity?> Put(TEntity model);

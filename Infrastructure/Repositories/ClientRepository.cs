@@ -108,6 +108,11 @@ public class ClientRepository : IClientRepository
         return res!;
     }
 
+    public async Task<Client?> GetNoTracking(Guid id)
+    {
+        return await Get(id);
+    }
+
     public async Task<LastChangeMetaData> LastChangeMetaData()
     {
         var result = await _changeTrackingService.GetLastChangeMetadataAsync();

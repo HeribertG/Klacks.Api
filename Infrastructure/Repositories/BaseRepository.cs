@@ -39,6 +39,11 @@ namespace Klacks.Api.Infrastructure.Repositories
             return await this.context.Set<TEntity>().FirstOrDefaultAsync(e => e.Id == id);
         }
 
+        public virtual async Task<TEntity?> GetNoTracking(Guid id)
+        {
+            return await this.context.Set<TEntity>().AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
+        }
+
         public virtual async Task<List<TEntity>> List()
         {
             return await this.context.Set<TEntity>().ToListAsync();

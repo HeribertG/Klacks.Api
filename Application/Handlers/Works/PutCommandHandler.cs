@@ -44,7 +44,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
 
     public async Task<WorkResource?> Handle(PutCommand<WorkResource> request, CancellationToken cancellationToken)
     {
-        var existingWork = await _workRepository.Get(request.Resource.Id);
+        var existingWork = await _workRepository.GetNoTracking(request.Resource.Id);
         var oldShiftId = existingWork?.ShiftId;
         var oldDate = existingWork?.CurrentDate;
 
