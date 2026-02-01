@@ -22,4 +22,6 @@ public class BulkWorkItem
     public TimeOnly StartTime { get; set; }
 
     public TimeOnly EndTime { get; set; }
+
+    public string? Information { get; set; }
 }
