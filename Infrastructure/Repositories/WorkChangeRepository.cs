@@ -53,6 +53,14 @@ public class WorkChangeRepository : BaseRepository<WorkChange>, IWorkChangeRepos
         return result;
     }
 
+    public override async Task<WorkChange?> Get(Guid id)
+    {
+        return await _context.WorkChange
+            .AsNoTracking()
+            .Include(wc => wc.Work)
+            .FirstOrDefaultAsync(wc => wc.Id == id);
+    }
+
     private async Task RecalculatePeriodHoursForWorkChangeAsync(Guid workId, Guid? replaceClientId)
     {
         var work = await _context.Work.FirstOrDefaultAsync(w => w.Id == workId);
