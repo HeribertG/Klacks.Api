@@ -1,4 +1,7 @@
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Mappers;
+using Klacks.Api.Application.Services;
+using Klacks.Api.Application.Skills;
 using Klacks.Api.Infrastructure.Scripting;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Services.Absences;
@@ -14,6 +17,7 @@ using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Domain.Services.ScheduleEntries;
 using Klacks.Api.Domain.Services.PeriodHours;
 using Klacks.Api.Domain.Services.LLM;
+using Klacks.Api.Domain.Services.Skills;
 using Klacks.Api.Domain.Services.RouteOptimization;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Domain.Services.Macros;
@@ -228,6 +232,34 @@ public static  class ServiceCollectionExtensions
         services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.Mistral.MistralProvider>();
         services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.Cohere.CohereProvider>();
         services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.DeepSeek.DeepSeekProvider>();
+
+        // Skills System Services
+        services.AddSingleton<Domain.Services.Skills.Adapters.ISkillAdapterFactory, Domain.Services.Skills.Adapters.SkillAdapterFactory>();
+        services.AddSingleton<ISkillRegistry, Domain.Services.Skills.SkillRegistry>();
+        services.AddScoped<ISkillExecutor, Domain.Services.Skills.SkillExecutorService>();
+        services.AddScoped<ISkillUsageRepository, SkillUsageRepository>();
+        services.AddScoped<ISkillUsageTracker, SkillUsageTrackerService>();
+
+        // Skill Mapper (Application Layer)
+        services.AddScoped<SkillMapper>();
+
+        // Skill Registration Service (in Infrastructure layer)
+        services.AddSingleton<Services.SkillRegistrationService>();
+
+        // LLM-Skill Bridge
+        services.AddScoped<Domain.Services.Skills.ILLMSkillBridge, Domain.Services.Skills.LLMSkillBridge>();
+
+        // Skill Implementations (Singleton - no dependencies, in Domain layer)
+        services.AddSingleton<Domain.Services.Skills.Implementations.GetSystemInfoSkill>();
+        services.AddSingleton<Domain.Services.Skills.Implementations.GetCurrentTimeSkill>();
+        services.AddSingleton<Domain.Services.Skills.Implementations.GetUserContextSkill>();
+        services.AddSingleton<Domain.Services.Skills.Implementations.NavigateToSkill>();
+
+        // Skill Implementations (Scoped - with database dependencies, in Application layer)
+        services.AddScoped<Application.Skills.CreateEmployeeSkill>();
+        services.AddScoped<Application.Skills.SearchEmployeesSkill>();
+        services.AddScoped<Application.Skills.CreateContractSkill>();
+        services.AddScoped<Application.Skills.SearchAndNavigateSkill>();
 
         // Geocoding Service
         services.AddHttpClient("Nominatim");

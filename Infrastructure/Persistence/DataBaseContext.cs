@@ -6,6 +6,7 @@ using Klacks.Api.Domain.Models.Histories;
 using Klacks.Api.Domain.Models.LLM;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
+using Klacks.Api.Domain.Models.Skills;
 using Klacks.Api.Domain.Models.Staffs;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -116,6 +117,9 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<LLMConversation> LLMConversations { get; set; }
 
     public DbSet<LLMMessage> LLMMessages { get; set; }
+
+    // Skill DbSets
+    public DbSet<SkillUsageRecord> SkillUsageRecords { get; set; }
 
     // Identity Provider DbSets
     public DbSet<IdentityProvider> IdentityProviders { get; set; }

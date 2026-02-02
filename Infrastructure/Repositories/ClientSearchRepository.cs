@@ -90,4 +90,72 @@ public class ClientSearchRepository : IClientSearchRepository
             })
             .ToListAsync();
     }
+
+    public async Task<ClientSearchResult> SearchAsync(
+        string? searchTerm = null,
+        string? canton = null,
+        EntityTypeEnum? entityType = null,
+        int limit = 10,
+        CancellationToken cancellationToken = default)
+    {
+        if (limit > 100) limit = 100;
+
+        var query = context.Client
+            .Include(c => c.Addresses)
+            .Where(c => !c.IsDeleted)
+            .AsNoTracking()
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var term = searchTerm.ToLower();
+            query = query.Where(c =>
+                (c.FirstName != null && c.FirstName.ToLower().Contains(term)) ||
+                (c.Name != null && c.Name.ToLower().Contains(term)) ||
+                (c.Company != null && c.Company.ToLower().Contains(term)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(canton))
+        {
+            query = query.Where(c =>
+                c.Addresses.Any(a => a.State != null && a.State.ToUpper() == canton.ToUpper()));
+        }
+
+        if (entityType.HasValue)
+        {
+            query = query.Where(c => c.Type == entityType.Value);
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .OrderBy(c => c.Name)
+            .ThenBy(c => c.FirstName)
+            .Take(limit)
+            .Select(c => new ClientSearchItem
+            {
+                Id = c.Id,
+                IdNumber = c.IdNumber,
+                FirstName = c.FirstName,
+                LastName = c.Name,
+                Company = c.Company,
+                Gender = c.Gender.ToString(),
+                EntityType = c.Type.ToString(),
+                Canton = c.Addresses
+                    .Where(a => a.Type == AddressTypeEnum.Employee)
+                    .Select(a => a.State)
+                    .FirstOrDefault(),
+                City = c.Addresses
+                    .Where(a => a.Type == AddressTypeEnum.Employee)
+                    .Select(a => a.City)
+                    .FirstOrDefault()
+            })
+            .ToListAsync(cancellationToken);
+
+        return new ClientSearchResult
+        {
+            Items = items,
+            TotalCount = totalCount
+        };
+    }
 }

@@ -241,4 +241,7 @@ if (builder.Configuration.GetValue<bool>("Database:InitializeOnStartup", false))
     }
 }
 
+// Initialize Skills System
+app.InitializeSkills();
+
 app.Run();
