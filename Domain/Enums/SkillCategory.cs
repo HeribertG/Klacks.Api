@@ -6,5 +6,6 @@ public enum SkillCategory
     Query,
     Action,
     UI,
-    System
+    System,
+    Validation
 }

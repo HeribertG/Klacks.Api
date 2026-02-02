@@ -63,7 +63,14 @@ public class SkillRegistrationService
             typeof(CreateEmployeeSkill),
             typeof(SearchEmployeesSkill),
             typeof(CreateContractSkill),
-            typeof(SearchAndNavigateSkill)
+            typeof(SearchAndNavigateSkill),
+            typeof(GetClientDetailsSkill),
+            typeof(AddClientToGroupSkill),
+            typeof(AssignContractToClientSkill),
+            typeof(ListContractsSkill),
+            typeof(ListGroupsSkill),
+            typeof(ValidateAddressSkill),
+            typeof(GetUserPermissionsSkill)
         };
 
         using var scope = _serviceProvider.CreateScope();

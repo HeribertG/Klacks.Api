@@ -260,6 +260,13 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.SearchEmployeesSkill>();
         services.AddScoped<Application.Skills.CreateContractSkill>();
         services.AddScoped<Application.Skills.SearchAndNavigateSkill>();
+        services.AddScoped<Application.Skills.GetClientDetailsSkill>();
+        services.AddScoped<Application.Skills.AddClientToGroupSkill>();
+        services.AddScoped<Application.Skills.AssignContractToClientSkill>();
+        services.AddScoped<Application.Skills.ListContractsSkill>();
+        services.AddScoped<Application.Skills.ListGroupsSkill>();
+        services.AddScoped<Application.Skills.ValidateAddressSkill>();
+        services.AddScoped<Application.Skills.GetUserPermissionsSkill>();
 
         // Geocoding Service
         services.AddHttpClient("Nominatim");
