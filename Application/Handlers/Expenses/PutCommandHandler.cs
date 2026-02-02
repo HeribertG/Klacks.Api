@@ -28,7 +28,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
     {
         _logger.LogInformation("Updating Expenses with ID: {Id}", request.Resource.Id);
 
-        var existingExpenses = await _expensesRepository.Get(request.Resource.Id);
+        var existingExpenses = await _expensesRepository.GetNoTracking(request.Resource.Id);
         if (existingExpenses == null)
         {
             _logger.LogWarning("Expenses not found: {Id}", request.Resource.Id);

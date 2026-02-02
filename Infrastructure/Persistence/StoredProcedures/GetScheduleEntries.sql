@@ -288,12 +288,9 @@ BEGIN
             2 AS entry_type,
             e.work_id AS source_id,
             w.client_id,
-            CASE
-                WHEN s.end_shift < s.start_shift THEN (w."current_date" + INTERVAL '1 day')::DATE
-                ELSE w."current_date"::DATE
-            END AS entry_date,
-            s.end_shift AS start_time,
-            (s.end_shift + INTERVAL '1 minute')::TIME AS end_time,
+            w."current_date"::DATE AS entry_date,
+            w.start_time AS start_time,
+            (w.start_time + INTERVAL '1 minute')::TIME AS end_time,
             NULL::NUMERIC AS change_time,
             NULL::NUMERIC AS surcharges,
             NULL::INTEGER AS work_change_type,
@@ -342,23 +339,31 @@ BEGIN
         AND b."current_date"::DATE <= end_date
     )
     -- Combine all entries
-    SELECT * FROM work_entries
-    UNION ALL
-    SELECT * FROM correction_end_entries
-    UNION ALL
-    SELECT * FROM correction_start_entries
-    UNION ALL
-    SELECT * FROM replacement_start_original
-    UNION ALL
-    SELECT * FROM replacement_start_replacement
-    UNION ALL
-    SELECT * FROM replacement_end_original
-    UNION ALL
-    SELECT * FROM replacement_end_replacement
-    UNION ALL
-    SELECT * FROM expense_entries
-    UNION ALL
-    SELECT * FROM break_entries
-    ORDER BY client_id, entry_date, start_time, entry_type;
+    SELECT * FROM (
+        SELECT * FROM work_entries
+        UNION ALL
+        SELECT * FROM correction_end_entries
+        UNION ALL
+        SELECT * FROM correction_start_entries
+        UNION ALL
+        SELECT * FROM replacement_start_original
+        UNION ALL
+        SELECT * FROM replacement_start_replacement
+        UNION ALL
+        SELECT * FROM replacement_end_original
+        UNION ALL
+        SELECT * FROM replacement_end_replacement
+        UNION ALL
+        SELECT * FROM expense_entries
+        UNION ALL
+        SELECT * FROM break_entries
+    ) AS combined
+    ORDER BY combined.client_id, combined.entry_date, combined.start_time,
+        CASE combined.entry_type
+            WHEN 0 THEN 0  -- Work first
+            WHEN 2 THEN 1  -- Expenses second
+            WHEN 1 THEN 2  -- WorkChange third
+            WHEN 3 THEN 3  -- Break last
+        END;
 END;
 $$ LANGUAGE plpgsql;
