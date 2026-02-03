@@ -5,13 +5,13 @@ VisualStudioVersion = 18.0.11222.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Klacks.Api", "Klacks.Api.csproj", "{9C285B05-D02E-4F5B-8FB3-AC5DE92B1900}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "..\UnitTest\UnitTest.csproj", "{AAB0C7A0-B3EC-438D-BEEE-F7C7CBE8D049}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klacks.UnitTest", "..\Klacks.UnitTest\Klacks.UnitTest.csproj", "{AAB0C7A0-B3EC-438D-BEEE-F7C7CBE8D049}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "E2ETest", "..\E2ETest\E2ETest.csproj", "{1AF0B151-5882-4F26-B8AA-88689D19AEED}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klacks.E2ETest", "..\Klacks.E2ETest\Klacks.E2ETest.csproj", "{1AF0B151-5882-4F26-B8AA-88689D19AEED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klacks.Blazor", "..\Klacks.Blazor\Klacks.Blazor.csproj", "{235EDC1C-C4AF-F5FB-2EB6-334AEF7BAC7A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTest", "..\IntegrationTest\IntegrationTest.csproj", "{4BD34E49-FAB6-5030-C657-DD817B4B907E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klacks.IntegrationTest", "..\Klacks.IntegrationTest\Klacks.IntegrationTest.csproj", "{4BD34E49-FAB6-5030-C657-DD817B4B907E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Klacks.MCP.Server", "..\Klacks.MCP.Server\Klacks.MCP.Server.csproj", "{B8E3A1C2-5D4F-4E6A-9B7C-8D1E2F3A4B5C}"
 EndProject
