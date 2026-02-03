@@ -2,6 +2,7 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
+    private readonly IWorkNotificationService _notificationService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public PutCommandHandler(
         IWorkChangeRepository workChangeRepository,
@@ -24,6 +27,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
+        IWorkNotificationService notificationService,
+        IHttpContextAccessor httpContextAccessor,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -33,6 +38,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
+        _notificationService = notificationService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<WorkChangeResource?> Handle(PutCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -78,6 +85,19 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         {
             var replaceClientResult = await GetClientResultAsync(updatedWorkChange.ReplaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken);
             resource.ClientResults.Add(replaceClientResult);
+        }
+
+        var connectionId = _httpContextAccessor.HttpContext?.Request
+            .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
+        var notification = _scheduleMapper.ToScheduleNotificationDto(
+            work.ClientId, work.CurrentDate, "updated", connectionId, periodStart, periodEnd);
+        await _notificationService.NotifyScheduleUpdated(notification);
+
+        if (updatedWorkChange.ReplaceClientId.HasValue)
+        {
+            var replaceNotification = _scheduleMapper.ToScheduleNotificationDto(
+                updatedWorkChange.ReplaceClientId.Value, work.CurrentDate, "updated", connectionId, periodStart, periodEnd);
+            await _notificationService.NotifyScheduleUpdated(replaceNotification);
         }
 
         _logger.LogInformation("WorkChange updated successfully: {Id}", request.Resource.Id);

@@ -31,6 +31,26 @@ public class WorkNotificationService : IWorkNotificationService
         await SendNotification("WorkDeleted", notification);
     }
 
+    public async Task NotifyScheduleUpdated(ScheduleNotificationDto notification)
+    {
+        try
+        {
+            var groupName = WorkNotificationHub.GetScheduleGroupName(notification.PeriodStartDate, notification.PeriodEndDate);
+            var clients = GetGroupClientsExcluding(groupName, notification.SourceConnectionId);
+
+            await clients.SendAsync("ScheduleUpdated", notification);
+
+            _logger.LogDebug(
+                "Sent ScheduleUpdated to group {GroupName} for Client {ClientId}",
+                groupName,
+                notification.ClientId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending ScheduleUpdated notification");
+        }
+    }
+
     public async Task NotifyPeriodHoursUpdated(PeriodHoursNotificationDto notification)
     {
         try

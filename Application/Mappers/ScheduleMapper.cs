@@ -441,4 +441,23 @@ public partial class ScheduleMapper
             SourceConnectionId = sourceConnectionId
         };
     }
+
+    public ScheduleNotificationDto ToScheduleNotificationDto(
+        Guid clientId,
+        DateOnly currentDate,
+        string operationType,
+        string sourceConnectionId,
+        DateOnly periodStartDate,
+        DateOnly periodEndDate)
+    {
+        return new ScheduleNotificationDto
+        {
+            ClientId = clientId,
+            CurrentDate = currentDate,
+            PeriodStartDate = periodStartDate,
+            PeriodEndDate = periodEndDate,
+            OperationType = operationType,
+            SourceConnectionId = sourceConnectionId
+        };
+    }
 }

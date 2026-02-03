@@ -2,6 +2,7 @@ using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -14,12 +15,16 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IScheduleEntriesService _scheduleEntriesService;
+    private readonly IWorkNotificationService _notificationService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public DeleteCommandHandler(
         IBreakRepository breakRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IScheduleEntriesService scheduleEntriesService,
+        IWorkNotificationService notificationService,
+        IHttpContextAccessor httpContextAccessor,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
@@ -27,6 +32,8 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _scheduleEntriesService = scheduleEntriesService;
+        _notificationService = notificationService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<BreakResource?> Handle(DeleteBreakCommand request, CancellationToken cancellationToken)
@@ -53,6 +60,12 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
             var breakResource = _scheduleMapper.ToBreakResource(breakEntry);
             breakResource.PeriodHours = periodHours;
             breakResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
+
+            var connectionId = _httpContextAccessor.HttpContext?.Request
+                .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
+            var notification = _scheduleMapper.ToScheduleNotificationDto(
+                breakEntry.ClientId, breakEntry.CurrentDate, "updated", connectionId, request.PeriodStart, request.PeriodEnd);
+            await _notificationService.NotifyScheduleUpdated(notification);
 
             return breakResource;
         },

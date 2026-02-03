@@ -2,6 +2,7 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Presentation.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
+    private readonly IWorkNotificationService _notificationService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public PutCommandHandler(
         IBreakRepository breakRepository,
@@ -22,6 +25,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
         IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
+        IWorkNotificationService notificationService,
+        IHttpContextAccessor httpContextAccessor,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -30,6 +35,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
         _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
+        _notificationService = notificationService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<BreakResource?> Handle(PutCommand<BreakResource> request, CancellationToken cancellationToken)
@@ -71,6 +78,12 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
             var breakResource = _scheduleMapper.ToBreakResource(updated);
             breakResource.PeriodHours = periodHours;
             breakResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
+
+            var connectionId = _httpContextAccessor.HttpContext?.Request
+                .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
+            var notification = _scheduleMapper.ToScheduleNotificationDto(
+                updated.ClientId, updated.CurrentDate, "updated", connectionId, periodStart, periodEnd);
+            await _notificationService.NotifyScheduleUpdated(notification);
 
             return breakResource;
         }, "UpdateBreak", new { request.Resource.Id });
