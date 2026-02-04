@@ -8,6 +8,7 @@ using Klacks.Api.Infrastructure.Exceptions;
 using Klacks.Api.Infrastructure.Extensions;
 using Microsoft.AspNetCore.DataProtection;
 using Klacks.Api.Infrastructure.Hubs;
+using Klacks.Api.Infrastructure.Middleware;
 using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Mediator;
@@ -73,12 +74,49 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     {
         OnMessageReceived = context =>
         {
-            var accessToken = context.Request.Query["access_token"];
             var path = context.HttpContext.Request.Path;
-            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+            var accessToken = context.Request.Query["access_token"];
+            var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+
+            // Always log for debugging
+            Console.WriteLine($"[JWT] OnMessageReceived: Path={path}, IsHubPath={path.StartsWithSegments("/hubs")}");
+            
+            if (path.StartsWithSegments("/hubs"))
             {
-                context.Token = accessToken;
+                // Check if SignalR middleware set the token in Items
+                if (context.HttpContext.Items.TryGetValue("SignalRToken", out var signalRToken) && signalRToken is string tokenFromItems)
+                {
+                    context.Token = tokenFromItems;
+                    Console.WriteLine($"[JWT-HUB] Token set from SignalR middleware (length: {context.Token?.Length})");
+                }
+                else if (!string.IsNullOrEmpty(accessToken))
+                {
+                    // URL-decode the token in case it was encoded by the client
+                    context.Token = Uri.UnescapeDataString(accessToken);
+                    Console.WriteLine($"[JWT-HUB] Token set from query string (length: {context.Token?.Length})");
+                }
+                else if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+                {
+                    context.Token = authHeader.Substring("Bearer ".Length).Trim();
+                    Console.WriteLine($"[JWT-HUB] Token set from Authorization header (length: {context.Token?.Length})");
+                }
+                else
+                {
+                    Console.WriteLine($"[JWT-HUB] No token found! QueryToken={!string.IsNullOrEmpty(accessToken)}, AuthHeader={!string.IsNullOrEmpty(authHeader)}");
+                }
             }
+            return Task.CompletedTask;
+        },
+        OnAuthenticationFailed = context =>
+        {
+            var path = context.HttpContext.Request.Path;
+            Console.WriteLine($"[JWT] Authentication failed: Path={path}, Error={context.Exception.Message}");
+            return Task.CompletedTask;
+        },
+        OnChallenge = context =>
+        {
+            var path = context.HttpContext.Request.Path;
+            Console.WriteLine($"[JWT] OnChallenge: Path={path}, Error={context.Error}, ErrorDescription={context.ErrorDescription}");
             return Task.CompletedTask;
         }
     };
@@ -97,7 +135,7 @@ builder.Services.AddCors(options =>
                           var origins = new List<string> { corsHost!, corsHome! };
                           if (!string.IsNullOrEmpty(corsAdditional))
                           {
-                              origins.Add(corsAdditional);
+                              origins.AddRange(corsAdditional.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
                           }
                           cors.WithOrigins(origins.ToArray())
                             .AllowAnyHeader()
@@ -110,6 +148,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddApplicationServices();
 
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<IConnectionDateRangeTracker, ConnectionDateRangeTracker>();
 builder.Services.AddScoped<IWorkNotificationService, WorkNotificationService>();
 builder.Services.AddScoped<IShiftStatsNotificationService, ShiftStatsNotificationService>();
 builder.Services.AddSingleton<PeriodHoursBackgroundService>();
@@ -211,6 +250,9 @@ app.UseCors(myAllowSpecificOrigins);
 app.UseHttpsRedirection();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
+
+// SignalR auth middleware must be before UseRouting and UseAuthentication
+app.UseMiddleware<SignalRQueryStringAuthMiddleware>();
 
 app.UseRouting();
 app.UseDefaultFiles();

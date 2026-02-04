@@ -6,13 +6,16 @@ namespace Klacks.Api.Infrastructure.Hubs;
 public class WorkNotificationService : IWorkNotificationService
 {
     private readonly IHubContext<WorkNotificationHub> _hubContext;
+    private readonly IConnectionDateRangeTracker _dateRangeTracker;
     private readonly ILogger<WorkNotificationService> _logger;
 
     public WorkNotificationService(
         IHubContext<WorkNotificationHub> hubContext,
+        IConnectionDateRangeTracker dateRangeTracker,
         ILogger<WorkNotificationService> logger)
     {
         _hubContext = hubContext;
+        _dateRangeTracker = dateRangeTracker;
         _logger = logger;
     }
 
@@ -35,15 +38,24 @@ public class WorkNotificationService : IWorkNotificationService
     {
         try
         {
-            var groupName = WorkNotificationHub.GetScheduleGroupName(notification.PeriodStartDate, notification.PeriodEndDate);
-            var clients = GetGroupClientsExcluding(groupName, notification.SourceConnectionId);
+            var targetDate = notification.CurrentDate;
+            var targetConnections = _dateRangeTracker
+                .GetConnectionsForDate(targetDate, notification.SourceConnectionId)
+                .ToList();
 
-            await clients.SendAsync("ScheduleUpdated", notification);
+            if (targetConnections.Count == 0)
+            {
+                _logger.LogDebug(
+                    "SignalR SKIP: ScheduleUpdated - no connections have DateRange containing {Date}",
+                    targetDate);
+                return;
+            }
+
+            await _hubContext.Clients.Clients(targetConnections).SendAsync("ScheduleUpdated", notification);
 
             _logger.LogDebug(
-                "Sent ScheduleUpdated to group {GroupName} for Client {ClientId}",
-                groupName,
-                notification.ClientId);
+                "Sent ScheduleUpdated to {Count} connections for Client {ClientId}, Date {Date}",
+                targetConnections.Count, notification.ClientId, targetDate);
         }
         catch (Exception ex)
         {
@@ -55,15 +67,25 @@ public class WorkNotificationService : IWorkNotificationService
     {
         try
         {
-            var groupName = WorkNotificationHub.GetScheduleGroupName(notification.StartDate, notification.EndDate);
-            var clients = GetGroupClientsExcluding(groupName, notification.SourceConnectionId);
+            var targetConnections = _dateRangeTracker
+                .GetConnectionsForDateRange(notification.StartDate, notification.EndDate, notification.SourceConnectionId)
+                .ToList();
 
-            await clients.SendAsync("PeriodHoursUpdated", notification);
+            if (targetConnections.Count == 0)
+            {
+                _logger.LogDebug(
+                    "SignalR SKIP: PeriodHoursUpdated - no connections have DateRange overlapping {Start} - {End}",
+                    notification.StartDate, notification.EndDate);
+                return;
+            }
+
+            Console.WriteLine($"[SignalR] SEND: PeriodHoursUpdated to {targetConnections.Count} connections");
+
+            await _hubContext.Clients.Clients(targetConnections).SendAsync("PeriodHoursUpdated", notification);
 
             _logger.LogDebug(
-                "Sent PeriodHoursUpdated to group {GroupName} for Client {ClientId}",
-                groupName,
-                notification.ClientId);
+                "Sent PeriodHoursUpdated to {Count} connections for Client {ClientId}",
+                targetConnections.Count, notification.ClientId);
         }
         catch (Exception ex)
         {
@@ -75,17 +97,27 @@ public class WorkNotificationService : IWorkNotificationService
     {
         try
         {
-            var groupName = WorkNotificationHub.GetScheduleGroupName(startDate, endDate);
+            var targetConnections = _dateRangeTracker
+                .GetConnectionsForDateRange(startDate, endDate)
+                .ToList();
 
-            await _hubContext.Clients.Group(groupName).SendAsync("PeriodHoursRecalculated", new
+            if (targetConnections.Count == 0)
+            {
+                _logger.LogDebug(
+                    "SignalR SKIP: PeriodHoursRecalculated - no connections have DateRange overlapping {Start} - {End}",
+                    startDate, endDate);
+                return;
+            }
+
+            await _hubContext.Clients.Clients(targetConnections).SendAsync("PeriodHoursRecalculated", new
             {
                 StartDate = startDate,
                 EndDate = endDate
             });
 
             _logger.LogDebug(
-                "Sent PeriodHoursRecalculated to group {GroupName}",
-                groupName);
+                "Sent PeriodHoursRecalculated to {Count} connections for range {Start} - {End}",
+                targetConnections.Count, startDate, endDate);
         }
         catch (Exception ex)
         {
@@ -97,26 +129,33 @@ public class WorkNotificationService : IWorkNotificationService
     {
         try
         {
-            var groupName = WorkNotificationHub.GetScheduleGroupName(notification.PeriodStartDate, notification.PeriodEndDate);
-            var clients = GetGroupClientsExcluding(groupName, notification.SourceConnectionId);
+            var targetDate = notification.CurrentDate;
+            var targetConnections = _dateRangeTracker
+                .GetConnectionsForDate(targetDate, notification.SourceConnectionId)
+                .ToList();
 
-            await clients.SendAsync(method, notification);
+            if (targetConnections.Count == 0)
+            {
+                _logger.LogDebug(
+                    "SignalR SKIP: {Method} - no connections have DateRange containing {Date}",
+                    method, targetDate);
+                return;
+            }
 
-            _logger.LogDebug("Sent {Method} to group {GroupName} for Work {WorkId}", method, groupName, notification.WorkId);
+            Console.WriteLine($"[SignalR] SEND: {method} to {targetConnections.Count} connections (DateRange contains {targetDate:yyyy-MM-dd})");
+
+            _logger.LogInformation(
+                "SignalR SEND: {Method} to {Count} connections for date {Date}, ClientId={ClientId}",
+                method, targetConnections.Count, targetDate, notification.ClientId);
+
+            await _hubContext.Clients.Clients(targetConnections).SendAsync(method, notification);
+
+            _logger.LogInformation("SignalR SENT: {Method} successfully to {Count} connections", method, targetConnections.Count);
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"[SignalR] ERROR sending {method}: {ex.Message}");
             _logger.LogError(ex, "Error sending {Method} notification", method);
         }
-    }
-
-    private IClientProxy GetGroupClientsExcluding(string groupName, string? excludeConnectionId)
-    {
-        if (string.IsNullOrEmpty(excludeConnectionId))
-        {
-            return _hubContext.Clients.Group(groupName);
-        }
-
-        return _hubContext.Clients.GroupExcept(groupName, excludeConnectionId);
     }
 }
