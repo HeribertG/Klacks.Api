@@ -1,6 +1,7 @@
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Queries.PeriodHours;
 using Klacks.Api.Application.Queries.ScheduleEntries;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Presentation.DTOs.Filter;
@@ -79,6 +80,13 @@ public class WorksController : BaseController
     public async Task<ActionResult<WorkScheduleResponse>> GetWorkSchedule([FromBody] WorkScheduleFilter filter)
     {
         var result = await _mediator.Send(new GetScheduleEntriesQuery(filter));
+        return Ok(result);
+    }
+
+    [HttpPost("PeriodHours")]
+    public async Task<ActionResult<Dictionary<Guid, PeriodHoursResource>>> GetPeriodHours([FromBody] PeriodHoursRequest request)
+    {
+        var result = await _mediator.Send(new GetPeriodHoursQuery(request));
         return Ok(result);
     }
 
