@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 namespace Klacks.Api.Infrastructure.Hubs;
 
 [Authorize]
-public class WorkNotificationHub : Hub
+public class WorkNotificationHub : Hub<IScheduleClient>
 {
     private readonly ILogger<WorkNotificationHub> _logger;
     private readonly IConnectionDateRangeTracker _dateRangeTracker;
@@ -121,22 +121,14 @@ public class WorkNotificationHub : Hub
     }
 
     public static string GetScheduleGroupName(string startDate, string endDate)
-    {
-        return $"schedule_{startDate}_{endDate}";
-    }
+        => SignalRConstants.Groups.Schedule(startDate, endDate);
 
     public static string GetScheduleGroupName(DateOnly startDate, DateOnly endDate)
-    {
-        return $"schedule_{startDate:yyyy-MM-dd}_{endDate:yyyy-MM-dd}";
-    }
+        => SignalRConstants.Groups.Schedule(startDate, endDate);
 
     public static string GetClientGroupName(string clientId)
-    {
-        return $"client_{clientId}";
-    }
+        => SignalRConstants.Groups.Client(clientId);
 
     public static string GetClientGroupName(Guid clientId)
-    {
-        return $"client_{clientId}";
-    }
+        => SignalRConstants.Groups.Client(clientId);
 }

@@ -5,12 +5,12 @@ namespace Klacks.Api.Infrastructure.Hubs;
 
 public class WorkNotificationService : IWorkNotificationService
 {
-    private readonly IHubContext<WorkNotificationHub> _hubContext;
+    private readonly IHubContext<WorkNotificationHub, IScheduleClient> _hubContext;
     private readonly IConnectionDateRangeTracker _dateRangeTracker;
     private readonly ILogger<WorkNotificationService> _logger;
 
     public WorkNotificationService(
-        IHubContext<WorkNotificationHub> hubContext,
+        IHubContext<WorkNotificationHub, IScheduleClient> hubContext,
         IConnectionDateRangeTracker dateRangeTracker,
         ILogger<WorkNotificationService> logger)
     {
@@ -21,17 +21,17 @@ public class WorkNotificationService : IWorkNotificationService
 
     public async Task NotifyWorkCreated(WorkNotificationDto notification)
     {
-        await SendNotification("WorkCreated", notification);
+        await SendWorkNotification(notification, (clients, n) => clients.WorkCreated(n), nameof(IScheduleClient.WorkCreated));
     }
 
     public async Task NotifyWorkUpdated(WorkNotificationDto notification)
     {
-        await SendNotification("WorkUpdated", notification);
+        await SendWorkNotification(notification, (clients, n) => clients.WorkUpdated(n), nameof(IScheduleClient.WorkUpdated));
     }
 
     public async Task NotifyWorkDeleted(WorkNotificationDto notification)
     {
-        await SendNotification("WorkDeleted", notification);
+        await SendWorkNotification(notification, (clients, n) => clients.WorkDeleted(n), nameof(IScheduleClient.WorkDeleted));
     }
 
     public async Task NotifyScheduleUpdated(ScheduleNotificationDto notification)
@@ -51,7 +51,7 @@ public class WorkNotificationService : IWorkNotificationService
                 return;
             }
 
-            await _hubContext.Clients.Clients(targetConnections).SendAsync("ScheduleUpdated", notification);
+            await _hubContext.Clients.Clients(targetConnections).ScheduleUpdated(notification);
 
             _logger.LogDebug(
                 "Sent ScheduleUpdated to {Count} connections for Client {ClientId}, Date {Date}",
@@ -81,7 +81,7 @@ public class WorkNotificationService : IWorkNotificationService
 
             Console.WriteLine($"[SignalR] SEND: PeriodHoursUpdated to {targetConnections.Count} connections");
 
-            await _hubContext.Clients.Clients(targetConnections).SendAsync("PeriodHoursUpdated", notification);
+            await _hubContext.Clients.Clients(targetConnections).PeriodHoursUpdated(notification);
 
             _logger.LogDebug(
                 "Sent PeriodHoursUpdated to {Count} connections for Client {ClientId}",
@@ -109,11 +109,12 @@ public class WorkNotificationService : IWorkNotificationService
                 return;
             }
 
-            await _hubContext.Clients.Clients(targetConnections).SendAsync("PeriodHoursRecalculated", new
+            var notification = new PeriodHoursRecalculatedDto
             {
                 StartDate = startDate,
                 EndDate = endDate
-            });
+            };
+            await _hubContext.Clients.Clients(targetConnections).PeriodHoursRecalculated(notification);
 
             _logger.LogDebug(
                 "Sent PeriodHoursRecalculated to {Count} connections for range {Start} - {End}",
@@ -125,7 +126,10 @@ public class WorkNotificationService : IWorkNotificationService
         }
     }
 
-    private async Task SendNotification(string method, WorkNotificationDto notification)
+    private async Task SendWorkNotification(
+        WorkNotificationDto notification,
+        Func<IScheduleClient, WorkNotificationDto, Task> sendAction,
+        string methodName)
     {
         try
         {
@@ -138,24 +142,25 @@ public class WorkNotificationService : IWorkNotificationService
             {
                 _logger.LogDebug(
                     "SignalR SKIP: {Method} - no connections have DateRange containing {Date}",
-                    method, targetDate);
+                    methodName, targetDate);
                 return;
             }
 
-            Console.WriteLine($"[SignalR] SEND: {method} to {targetConnections.Count} connections (DateRange contains {targetDate:yyyy-MM-dd})");
+            Console.WriteLine($"[SignalR] SEND: {methodName} to {targetConnections.Count} connections (DateRange contains {targetDate:yyyy-MM-dd})");
 
             _logger.LogInformation(
                 "SignalR SEND: {Method} to {Count} connections for date {Date}, ClientId={ClientId}",
-                method, targetConnections.Count, targetDate, notification.ClientId);
+                methodName, targetConnections.Count, targetDate, notification.ClientId);
 
-            await _hubContext.Clients.Clients(targetConnections).SendAsync(method, notification);
+            var clients = _hubContext.Clients.Clients(targetConnections);
+            await sendAction(clients, notification);
 
-            _logger.LogInformation("SignalR SENT: {Method} successfully to {Count} connections", method, targetConnections.Count);
+            _logger.LogInformation("SignalR SENT: {Method} successfully to {Count} connections", methodName, targetConnections.Count);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[SignalR] ERROR sending {method}: {ex.Message}");
-            _logger.LogError(ex, "Error sending {Method} notification", method);
+            Console.WriteLine($"[SignalR] ERROR sending {methodName}: {ex.Message}");
+            _logger.LogError(ex, "Error sending {Method} notification", methodName);
         }
     }
 }

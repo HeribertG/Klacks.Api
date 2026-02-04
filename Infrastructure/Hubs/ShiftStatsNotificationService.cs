@@ -5,11 +5,11 @@ namespace Klacks.Api.Infrastructure.Hubs;
 
 public class ShiftStatsNotificationService : IShiftStatsNotificationService
 {
-    private readonly IHubContext<WorkNotificationHub> _hubContext;
+    private readonly IHubContext<WorkNotificationHub, IScheduleClient> _hubContext;
     private readonly ILogger<ShiftStatsNotificationService> _logger;
 
     public ShiftStatsNotificationService(
-        IHubContext<WorkNotificationHub> hubContext,
+        IHubContext<WorkNotificationHub, IScheduleClient> hubContext,
         ILogger<ShiftStatsNotificationService> logger)
     {
         _hubContext = hubContext;
@@ -22,13 +22,13 @@ public class ShiftStatsNotificationService : IShiftStatsNotificationService
         {
             if (string.IsNullOrEmpty(notification.SourceConnectionId))
             {
-                await _hubContext.Clients.All.SendAsync("ShiftStatsUpdated", notification);
+                await _hubContext.Clients.All.ShiftStatsUpdated(notification);
             }
             else
             {
                 await _hubContext.Clients
                     .AllExcept(notification.SourceConnectionId)
-                    .SendAsync("ShiftStatsUpdated", notification);
+                    .ShiftStatsUpdated(notification);
             }
 
             _logger.LogDebug(
