@@ -72,6 +72,21 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         var notification = _scheduleMapper.ToWorkNotificationDto(updatedWork, "updated", connectionId, periodStart, periodEnd);
         await _notificationService.NotifyWorkUpdated(notification);
 
+        if (periodHours != null)
+        {
+            var periodHoursNotification = new Presentation.DTOs.Notifications.PeriodHoursNotificationDto
+            {
+                ClientId = updatedWork.ClientId,
+                StartDate = periodStart,
+                EndDate = periodEnd,
+                Hours = periodHours.Hours,
+                Surcharges = periodHours.Surcharges,
+                GuaranteedHours = periodHours.GuaranteedHours,
+                SourceConnectionId = connectionId
+            };
+            await _notificationService.NotifyPeriodHoursUpdated(periodHoursNotification);
+        }
+
         var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>
         {
             (updatedWork.ShiftId, updatedWork.CurrentDate)

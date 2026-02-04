@@ -119,6 +119,18 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
                             period.Start,
                             period.End);
                         response.PeriodHours[clientId] = periodHours;
+
+                        var periodHoursNotification = new Presentation.DTOs.Notifications.PeriodHoursNotificationDto
+                        {
+                            ClientId = clientId,
+                            StartDate = period.Start,
+                            EndDate = period.End,
+                            Hours = periodHours.Hours,
+                            Surcharges = periodHours.Surcharges,
+                            GuaranteedHours = periodHours.GuaranteedHours,
+                            SourceConnectionId = connectionId
+                        };
+                        await _notificationService.NotifyPeriodHoursUpdated(periodHoursNotification);
                     }
                 }
             }

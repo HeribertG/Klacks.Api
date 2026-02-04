@@ -109,6 +109,18 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                         periodStart,
                         periodEnd);
                     response.PeriodHours[clientId] = periodHours;
+
+                    var periodHoursNotification = new Presentation.DTOs.Notifications.PeriodHoursNotificationDto
+                    {
+                        ClientId = clientId,
+                        StartDate = periodStart,
+                        EndDate = periodEnd,
+                        Hours = periodHours.Hours,
+                        Surcharges = periodHours.Surcharges,
+                        GuaranteedHours = periodHours.GuaranteedHours,
+                        SourceConnectionId = connectionId
+                    };
+                    await _notificationService.NotifyPeriodHoursUpdated(periodHoursNotification);
                 }
             }
 

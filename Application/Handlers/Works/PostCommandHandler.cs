@@ -69,6 +69,21 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         var notification = _scheduleMapper.ToWorkNotificationDto(createdWork, "created", connectionId, periodStart, periodEnd);
         await _notificationService.NotifyWorkCreated(notification);
 
+        if (periodHours != null)
+        {
+            var periodHoursNotification = new Presentation.DTOs.Notifications.PeriodHoursNotificationDto
+            {
+                ClientId = createdWork.ClientId,
+                StartDate = periodStart,
+                EndDate = periodEnd,
+                Hours = periodHours.Hours,
+                Surcharges = periodHours.Surcharges,
+                GuaranteedHours = periodHours.GuaranteedHours,
+                SourceConnectionId = connectionId
+            };
+            await _notificationService.NotifyPeriodHoursUpdated(periodHoursNotification);
+        }
+
         await SendShiftStatsNotificationAsync(createdWork.ShiftId, createdWork.CurrentDate, connectionId, cancellationToken);
 
         var currentDate = createdWork.CurrentDate;

@@ -43,31 +43,38 @@ public class PeriodHoursBackgroundService : BackgroundService
     {
         _logger.LogInformation("PeriodHoursBackgroundService started");
 
-        await foreach (var request in _channel.Reader.ReadAllAsync(stoppingToken))
+        try
         {
-            try
+            await foreach (var request in _channel.Reader.ReadAllAsync(stoppingToken))
             {
-                using var scope = _serviceProvider.CreateScope();
-                var periodHoursService = scope.ServiceProvider.GetRequiredService<IPeriodHoursService>();
-                var notificationService = scope.ServiceProvider.GetRequiredService<IWorkNotificationService>();
+                try
+                {
+                    using var scope = _serviceProvider.CreateScope();
+                    var periodHoursService = scope.ServiceProvider.GetRequiredService<IPeriodHoursService>();
+                    var notificationService = scope.ServiceProvider.GetRequiredService<IWorkNotificationService>();
 
-                _logger.LogInformation(
-                    "Processing full recalculation for {StartDate} to {EndDate}",
-                    request.StartDate,
-                    request.EndDate);
+                    _logger.LogInformation(
+                        "Processing full recalculation for {StartDate} to {EndDate}",
+                        request.StartDate,
+                        request.EndDate);
 
-                await periodHoursService.RecalculateAllClientsAsync(
-                    request.StartDate,
-                    request.EndDate);
+                    await periodHoursService.RecalculateAllClientsAsync(
+                        request.StartDate,
+                        request.EndDate);
 
-                await notificationService.NotifyPeriodHoursRecalculated(
-                    request.StartDate,
-                    request.EndDate);
+                    await notificationService.NotifyPeriodHoursRecalculated(
+                        request.StartDate,
+                        request.EndDate);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error processing full period hours recalculation request");
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error processing full period hours recalculation request");
-            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Normal shutdown - ignore
         }
 
         _logger.LogInformation("PeriodHoursBackgroundService stopped");

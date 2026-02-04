@@ -64,6 +64,21 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
             var notification = _scheduleMapper.ToWorkNotificationDto(work, "deleted", connectionId, request.PeriodStart, request.PeriodEnd);
             await _notificationService.NotifyWorkDeleted(notification);
 
+            if (periodHours != null)
+            {
+                var periodHoursNotification = new Presentation.DTOs.Notifications.PeriodHoursNotificationDto
+                {
+                    ClientId = work.ClientId,
+                    StartDate = request.PeriodStart,
+                    EndDate = request.PeriodEnd,
+                    Hours = periodHours.Hours,
+                    Surcharges = periodHours.Surcharges,
+                    GuaranteedHours = periodHours.GuaranteedHours,
+                    SourceConnectionId = connectionId
+                };
+                await _notificationService.NotifyPeriodHoursUpdated(periodHoursNotification);
+            }
+
             await SendShiftStatsNotificationAsync(shiftId, workDate, connectionId, cancellationToken);
 
             var currentDate = work.CurrentDate;
