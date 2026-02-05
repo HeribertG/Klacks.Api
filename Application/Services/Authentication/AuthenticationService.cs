@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Security.Claims;
 
-namespace Klacks.Api.Infrastructure.Services.Authentication;
+namespace Klacks.Api.Application.Services.Authentication;
 
 public class AuthenticationService : IAuthenticationService
 {

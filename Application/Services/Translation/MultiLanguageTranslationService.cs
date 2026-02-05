@@ -1,7 +1,7 @@
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
 
-namespace Klacks.Api.Infrastructure.Services.Translation;
+namespace Klacks.Api.Application.Services.Translation;
 
 public class MultiLanguageTranslationService : IMultiLanguageTranslationService
 {

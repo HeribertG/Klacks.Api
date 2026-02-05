@@ -28,10 +28,13 @@ using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Repositories;
 using Klacks.Api.Infrastructure.Services;
-using Klacks.Api.Infrastructure.Services.Authentication;
+using Klacks.Api.Application.Services.Authentication;
 using Klacks.Api.Application.Services.Clients;
+using Klacks.Api.Application.Services.Common;
+using Klacks.Api.Application.Services.Identity;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Skills;
+using Klacks.Api.Application.Services.Translation;
 
 namespace Klacks.Api.Infrastructure.Extensions;
 
@@ -176,7 +179,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<Application.Validation.Accounts.JwtValidator>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IUserManagementService, UserManagementService>();
-        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+        services.AddScoped<IRefreshTokenService, Services.Authentication.RefreshTokenService>();
 
         // Account Domain Services
         services.AddScoped<IAccountAuthenticationService, AccountAuthenticationService>();
@@ -189,7 +192,7 @@ public static  class ServiceCollectionExtensions
         // Identity Provider Services
         services.AddScoped<ILdapService, Services.Identity.LdapService>();
         services.AddScoped<IOAuth2Service, Services.Identity.OAuth2Service>();
-        services.AddScoped<IClientSyncService, Services.Identity.ClientSyncService>();
+        services.AddScoped<IClientSyncService, ClientSyncService>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -281,7 +284,7 @@ public static  class ServiceCollectionExtensions
 
         // Translation Service
         services.AddHttpClient<ITranslationService, Services.Translation.DeepLTranslationService>();
-        services.AddScoped<IMultiLanguageTranslationService, Services.Translation.MultiLanguageTranslationService>();
+        services.AddScoped<IMultiLanguageTranslationService, MultiLanguageTranslationService>();
 
         // Report Services
         services.AddScoped<IReportGenerator, Services.Reports.ScheduleReportGenerator>();

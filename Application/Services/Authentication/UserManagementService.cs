@@ -9,7 +9,7 @@ using Klacks.Api.Application.DTOs.Registrations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Infrastructure.Services.Authentication;
+namespace Klacks.Api.Application.Services.Authentication;
 
 public class UserManagementService : IUserManagementService
 {
