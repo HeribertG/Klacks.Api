@@ -68,7 +68,7 @@ public class GetUserPermissionsSkill : BaseSkill
 
         if (permissions.Contains(Permissions.CanEditClients) ||
             permissions.Contains(Permissions.CanCreateClients))
-            return Roles.Supervisor;
+            return Roles.Authorised;
 
         return Roles.Authorised;
     }
