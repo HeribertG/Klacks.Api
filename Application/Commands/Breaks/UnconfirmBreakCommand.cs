@@ -1,0 +1,6 @@
+using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Application.DTOs.Schedules;
+
+namespace Klacks.Api.Application.Commands.Breaks;
+
+public record UnconfirmBreakCommand(Guid BreakId) : IRequest<BreakResource?>;

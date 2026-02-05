@@ -79,4 +79,26 @@ public class BreaksController : BaseController
         var response = await _mediator.Send(new BulkDeleteBreaksCommand(request));
         return Ok(response);
     }
+
+    [HttpPost("{id}/Confirm")]
+    public async Task<ActionResult<BreakResource>> Confirm([FromRoute] Guid id)
+    {
+        var model = await _mediator.Send(new ConfirmBreakCommand(id));
+        if (model == null)
+        {
+            return NotFound();
+        }
+        return Ok(model);
+    }
+
+    [HttpPost("{id}/Unconfirm")]
+    public async Task<ActionResult<BreakResource>> Unconfirm([FromRoute] Guid id)
+    {
+        var model = await _mediator.Send(new UnconfirmBreakCommand(id));
+        if (model == null)
+        {
+            return NotFound();
+        }
+        return Ok(model);
+    }
 }
