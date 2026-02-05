@@ -27,6 +27,15 @@ using Klacks.Api.Infrastructure.FileHandling;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Repositories;
+using Klacks.Api.Infrastructure.Repositories.Associations;
+using Klacks.Api.Infrastructure.Repositories.Authentification;
+using Klacks.Api.Infrastructure.Repositories.CalendarSelections;
+using Klacks.Api.Infrastructure.Repositories.LLM;
+using Klacks.Api.Infrastructure.Repositories.Reports;
+using Klacks.Api.Infrastructure.Repositories.Schedules;
+using Klacks.Api.Infrastructure.Repositories.Settings;
+using Klacks.Api.Infrastructure.Repositories.Skills;
+using Klacks.Api.Infrastructure.Repositories.Staffs;
 using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Application.Services.Authentication;
 using Klacks.Api.Application.Services.Clients;
@@ -287,8 +296,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IMultiLanguageTranslationService, MultiLanguageTranslationService>();
 
         // Report Services
-        services.AddScoped<IReportGenerator, Services.Reports.ScheduleReportGenerator>();
-        services.AddScoped<IReportTemplateRepository, Repositories.ReportTemplateRepository>();
+        services.AddScoped<IReportTemplateRepository, ReportTemplateRepository>();
         services.AddScoped<Application.Mappers.Reports.ReportTemplateMapper>();
 
         return services;
