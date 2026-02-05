@@ -1,7 +1,9 @@
+using Klacks.Api.Application.Commands.Reports;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Models.Reports;
 using Klacks.Api.Infrastructure.Mediator;
 
-namespace Klacks.Api.Application.Commands.Reports;
+namespace Klacks.Api.Application.Handlers.Reports;
 
 public class GenerateScheduleReportCommandHandler : IRequestHandler<GenerateScheduleReportCommand, byte[]>
 {
@@ -18,7 +20,7 @@ public class GenerateScheduleReportCommandHandler : IRequestHandler<GenerateSche
 
     public async Task<byte[]> Handle(GenerateScheduleReportCommand request, CancellationToken cancellationToken)
     {
-        Domain.Entities.Reports.ReportTemplate? template = null;
+        ReportTemplate? template = null;
 
         if (request.TemplateId.HasValue)
         {

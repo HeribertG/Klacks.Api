@@ -1,0 +1,7 @@
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Models.Reports;
+using Klacks.Api.Infrastructure.Mediator;
+
+namespace Klacks.Api.Application.Queries.Reports;
+
+public record GetReportTemplatesByTypeQuery(ReportType Type) : IRequest<IEnumerable<ReportTemplate>>;

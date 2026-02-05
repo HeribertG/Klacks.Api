@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Reports;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/backend/[controller]")]
 [Authorize(Roles = "Admin")]
 public class ReportsController : ControllerBase
 {

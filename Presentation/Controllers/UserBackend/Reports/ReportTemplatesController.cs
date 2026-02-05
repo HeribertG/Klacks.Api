@@ -1,27 +1,30 @@
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Commands.Reports;
+using Klacks.Api.Application.DTOs.Reports;
 using Klacks.Api.Application.Mappers.Reports;
+using Klacks.Api.Application.Queries.Reports;
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Presentation.DTOs.Reports;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Reports;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/backend/[controller]")]
 [Authorize(Roles = "Admin")]
 public class ReportTemplatesController : ControllerBase
 {
-    private readonly IReportTemplateRepository _templateRepository;
+    private readonly IMediator _mediator;
     private readonly ReportTemplateMapper _mapper;
     private readonly ILogger<ReportTemplatesController> _logger;
 
     public ReportTemplatesController(
-        IReportTemplateRepository templateRepository,
+        IMediator mediator,
+        ReportTemplateMapper mapper,
         ILogger<ReportTemplatesController> logger)
     {
-        _templateRepository = templateRepository;
-        _mapper = new ReportTemplateMapper();
+        _mediator = mediator;
+        _mapper = mapper;
         _logger = logger;
     }
 
@@ -29,7 +32,7 @@ public class ReportTemplatesController : ControllerBase
     public async Task<ActionResult<IEnumerable<ReportTemplateResource>>> GetAll(
         CancellationToken cancellationToken)
     {
-        var templates = await _templateRepository.GetAllAsync(cancellationToken);
+        var templates = await _mediator.Send(new GetAllReportTemplatesQuery(), cancellationToken);
         var resources = _mapper.ToResourceList(templates.ToList());
         return Ok(resources);
     }
@@ -39,7 +42,7 @@ public class ReportTemplatesController : ControllerBase
         ReportType type,
         CancellationToken cancellationToken)
     {
-        var templates = await _templateRepository.GetByTypeAsync(type, cancellationToken);
+        var templates = await _mediator.Send(new GetReportTemplatesByTypeQuery(type), cancellationToken);
         var resources = _mapper.ToResourceList(templates.ToList());
         return Ok(resources);
     }
@@ -49,7 +52,7 @@ public class ReportTemplatesController : ControllerBase
         Guid id,
         CancellationToken cancellationToken)
     {
-        var template = await _templateRepository.GetByIdAsync(id, cancellationToken);
+        var template = await _mediator.Send(new GetReportTemplateByIdQuery(id), cancellationToken);
         if (template == null)
         {
             return NotFound();
@@ -65,7 +68,7 @@ public class ReportTemplatesController : ControllerBase
         try
         {
             var template = _mapper.ToEntity(resource);
-            var created = await _templateRepository.CreateAsync(template, cancellationToken);
+            var created = await _mediator.Send(new CreateReportTemplateCommand(template), cancellationToken);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, _mapper.ToResource(created));
         }
         catch (Exception ex)
@@ -89,7 +92,7 @@ public class ReportTemplatesController : ControllerBase
         try
         {
             var template = _mapper.ToEntity(resource);
-            var updated = await _templateRepository.UpdateAsync(template, cancellationToken);
+            var updated = await _mediator.Send(new UpdateReportTemplateCommand(template), cancellationToken);
             return Ok(_mapper.ToResource(updated));
         }
         catch (ArgumentException ex)
@@ -110,7 +113,7 @@ public class ReportTemplatesController : ControllerBase
     {
         try
         {
-            await _templateRepository.DeleteAsync(id, cancellationToken);
+            await _mediator.Send(new DeleteReportTemplateCommand(id), cancellationToken);
             return NoContent();
         }
         catch (Exception ex)
