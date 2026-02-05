@@ -1,6 +1,6 @@
-﻿using Klacks.Api.Presentation.DTOs.Clients;
+﻿using Klacks.Api.Application.DTOs.Clients;
 
-namespace Klacks.Api.Presentation.DTOs.Filter;
+namespace Klacks.Api.Application.DTOs.Filter;
 
 public class TruncatedClientResource : BaseTruncatedResult
 {

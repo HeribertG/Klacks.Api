@@ -1,7 +1,7 @@
 using FluentValidation;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Presentation.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules;
 
 namespace Klacks.Api.Application.Validation.Schedules;
 

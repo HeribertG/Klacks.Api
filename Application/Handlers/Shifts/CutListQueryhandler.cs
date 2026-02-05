@@ -2,7 +2,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Shifts;
 using Klacks.Api.Domain.Exceptions;
-using Klacks.Api.Presentation.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Logging;
 

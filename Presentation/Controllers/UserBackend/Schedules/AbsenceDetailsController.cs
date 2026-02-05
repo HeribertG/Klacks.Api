@@ -1,6 +1,6 @@
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Presentation.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;

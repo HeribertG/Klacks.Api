@@ -1,5 +1,5 @@
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Presentation.DTOs.Translation;
+using Klacks.Api.Application.DTOs.Translation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend;

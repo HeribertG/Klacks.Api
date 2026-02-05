@@ -1,6 +1,6 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
-using Klacks.Api.Presentation.DTOs.Associations;
+using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
 

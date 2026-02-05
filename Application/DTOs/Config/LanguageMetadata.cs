@@ -1,4 +1,4 @@
-namespace Klacks.Api.Presentation.DTOs.Config;
+namespace Klacks.Api.Application.DTOs.Config;
 
 public class LanguageMetadata
 {

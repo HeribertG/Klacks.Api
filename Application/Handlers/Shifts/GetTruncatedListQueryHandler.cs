@@ -2,7 +2,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Shifts;
 using Klacks.Api.Domain.Exceptions;
-using Klacks.Api.Presentation.DTOs.Filter;
+using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Shifts;

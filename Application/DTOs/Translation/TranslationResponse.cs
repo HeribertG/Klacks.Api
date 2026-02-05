@@ -1,4 +1,4 @@
-namespace Klacks.Api.Presentation.DTOs.Translation;
+namespace Klacks.Api.Application.DTOs.Translation;
 
 public class TranslationResponse
 {

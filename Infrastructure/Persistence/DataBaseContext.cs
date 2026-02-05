@@ -7,7 +7,8 @@ using Klacks.Api.Domain.Models.LLM;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Skills;
-using Klacks.Api.Domain.Entities.Reports;
+using Klacks.Api.Domain.Models.Reports;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -309,12 +310,12 @@ public class DataBaseContext : IdentityDbContext
             entity.Property(e => e.PageSetup)
                   .HasConversion(
                       v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                      v => System.Text.Json.JsonSerializer.Deserialize<Domain.Entities.Reports.ReportPageSetup>(v, (System.Text.Json.JsonSerializerOptions?)null))
+                      v => System.Text.Json.JsonSerializer.Deserialize<Domain.Models.Reports.ReportPageSetup>(v, (System.Text.Json.JsonSerializerOptions?)null))
                   .HasColumnType("jsonb");
             entity.Property(e => e.Sections)
                   .HasConversion(
                       v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                      v => System.Text.Json.JsonSerializer.Deserialize<List<Domain.Entities.Reports.ReportSection>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new())
+                      v => System.Text.Json.JsonSerializer.Deserialize<List<Domain.Models.Reports.ReportSection>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new())
                   .HasColumnType("jsonb");
             entity.HasIndex(p => new { p.IsDeleted, p.Type, p.Name });
         });

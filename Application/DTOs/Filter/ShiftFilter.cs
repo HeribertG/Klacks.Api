@@ -1,6 +1,6 @@
 ﻿using Klacks.Api.Domain.Enums;
 
-namespace Klacks.Api.Presentation.DTOs.Filter;
+namespace Klacks.Api.Application.DTOs.Filter;
 
 public class ShiftFilter : BaseFilter
 {

@@ -1,7 +1,7 @@
 ﻿using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Presentation.DTOs.Associations;
+using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.GroupVisibilities;

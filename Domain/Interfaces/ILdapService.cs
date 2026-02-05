@@ -1,5 +1,5 @@
 using Klacks.Api.Domain.Models.Authentification;
-using Klacks.Api.Presentation.DTOs.IdentityProviders;
+using Klacks.Api.Application.DTOs.IdentityProviders;
 
 namespace Klacks.Api.Domain.Interfaces;
 

@@ -3,7 +3,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Presentation.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules;
 
 namespace Klacks.Api.Application.Handlers.Expenses;
 

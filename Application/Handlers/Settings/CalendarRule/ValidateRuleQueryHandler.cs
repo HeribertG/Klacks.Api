@@ -2,7 +2,7 @@ using Klacks.Api.Application.Queries.Settings.CalendarRules;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Presentation.DTOs.Settings;
+using Klacks.Api.Application.DTOs.Settings;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Settings.CalendarRule;

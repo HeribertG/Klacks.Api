@@ -1,6 +1,6 @@
 using Klacks.Api.Domain.Models.Staffs;
 
-namespace Klacks.Api.Presentation.DTOs.Filter;
+namespace Klacks.Api.Application.DTOs.Filter;
 
 public class TruncatedClient : BaseTruncatedResult
 {

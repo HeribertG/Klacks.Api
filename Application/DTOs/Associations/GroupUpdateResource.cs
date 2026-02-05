@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks.Api.Presentation.DTOs.Associations;
+namespace Klacks.Api.Application.DTOs.Associations;
 
 public class GroupUpdateResource
 {

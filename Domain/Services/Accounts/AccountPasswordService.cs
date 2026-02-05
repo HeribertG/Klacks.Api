@@ -1,6 +1,6 @@
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
-using Klacks.Api.Presentation.DTOs.Registrations;
+using Klacks.Api.Application.DTOs.Registrations;
 using System.Security.Cryptography;
 
 namespace Klacks.Api.Domain.Services.Accounts;

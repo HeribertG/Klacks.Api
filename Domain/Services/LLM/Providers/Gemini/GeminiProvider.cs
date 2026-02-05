@@ -1,5 +1,5 @@
 using Klacks.Api.Domain.Services.LLM.Providers.Base;
-using Klacks.Api.Presentation.DTOs.LLM;
+using Klacks.Api.Application.DTOs.LLM;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json;
 

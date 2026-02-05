@@ -2,8 +2,8 @@ using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
-using Klacks.Api.Presentation.DTOs;
-using Klacks.Api.Presentation.DTOs.Filter;
+using Klacks.Api.Application.DTOs;
+using Klacks.Api.Application.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Repositories;

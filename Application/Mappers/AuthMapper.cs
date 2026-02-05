@@ -1,5 +1,5 @@
 using Klacks.Api.Domain.Models.Authentification;
-using Klacks.Api.Presentation.DTOs.Registrations;
+using Klacks.Api.Application.DTOs.Registrations;
 using Riok.Mapperly.Abstractions;
 
 namespace Klacks.Api.Application.Mappers;

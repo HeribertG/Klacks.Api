@@ -4,12 +4,12 @@ using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
-using Klacks.Api.Presentation.DTOs.Associations;
-using Klacks.Api.Presentation.DTOs.Filter;
-using Klacks.Api.Presentation.DTOs.Notifications;
-using Klacks.Api.Presentation.DTOs.Schedules;
-using Klacks.Api.Presentation.DTOs.Settings;
-using Staffs = Klacks.Api.Presentation.DTOs.Staffs;
+using Klacks.Api.Application.DTOs.Associations;
+using Klacks.Api.Application.DTOs.Filter;
+using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Settings;
+using Staffs = Klacks.Api.Application.DTOs.Staffs;
 using Riok.Mapperly.Abstractions;
 
 namespace Klacks.Api.Application.Mappers;

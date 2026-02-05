@@ -1,6 +1,6 @@
 using Klacks.Api.Domain.Enums;
 
-namespace Klacks.Api.Presentation.DTOs.Skills;
+namespace Klacks.Api.Application.DTOs.Skills;
 
 public record SkillAnalyticsDto
 {

@@ -1,4 +1,4 @@
-namespace Klacks.Api.Presentation.DTOs.Histories;
+namespace Klacks.Api.Application.DTOs.Histories;
 
 public class HistoryResource
 {

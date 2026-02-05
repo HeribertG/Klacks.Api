@@ -1,7 +1,7 @@
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
 
-namespace Klacks.Api.Presentation.DTOs.Schedules;
+namespace Klacks.Api.Application.DTOs.Schedules;
 
 public class AbsenceDetailResource
 {

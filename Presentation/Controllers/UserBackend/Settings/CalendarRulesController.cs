@@ -1,7 +1,7 @@
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Domain.Models.Settings;
-using Klacks.Api.Presentation.DTOs.Filter;
-using Klacks.Api.Presentation.DTOs.Settings;
+using Klacks.Api.Application.DTOs.Filter;
+using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Mvc;

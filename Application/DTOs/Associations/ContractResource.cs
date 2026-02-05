@@ -1,7 +1,7 @@
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Presentation.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules;
 
-namespace Klacks.Api.Presentation.DTOs.Associations;
+namespace Klacks.Api.Application.DTOs.Associations;
 
 public class ContractResource
 {

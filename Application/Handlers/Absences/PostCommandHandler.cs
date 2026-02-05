@@ -4,7 +4,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Presentation.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Absences;

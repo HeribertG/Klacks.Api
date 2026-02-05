@@ -1,6 +1,6 @@
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
-using Klacks.Api.Presentation.DTOs.Filter;
+using Klacks.Api.Application.DTOs.Filter;
 
 namespace Klacks.Api.Application.Interfaces;
 

@@ -1,6 +1,6 @@
 using Klacks.Api.Domain.Common;
 
-namespace Klacks.Api.Presentation.DTOs.Settings;
+namespace Klacks.Api.Application.DTOs.Settings;
 
 public class CalendarRuleResource
 {

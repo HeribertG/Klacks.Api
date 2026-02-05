@@ -1,7 +1,7 @@
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
-using Klacks.Api.Presentation.DTOs.Settings;
-using Klacks.Api.Presentation.DTOs.Staffs;
+using Klacks.Api.Application.DTOs.Settings;
+using Klacks.Api.Application.DTOs.Staffs;
 using Riok.Mapperly.Abstractions;
 
 namespace Klacks.Api.Application.Mappers;

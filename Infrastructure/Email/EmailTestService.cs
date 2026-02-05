@@ -1,4 +1,4 @@
-using Klacks.Api.Presentation.DTOs.Settings;
+using Klacks.Api.Application.DTOs.Settings;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;

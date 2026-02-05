@@ -1,4 +1,4 @@
-namespace Klacks.Api.Presentation.DTOs.Clients;
+namespace Klacks.Api.Application.DTOs.Clients;
 
 public class ClientListItemResource
 {

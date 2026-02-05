@@ -1,5 +1,5 @@
 using FluentValidation;
-using Klacks.Api.Presentation.DTOs.LLM;
+using Klacks.Api.Application.DTOs.LLM;
 
 namespace Klacks.Api.Application.Validation.LLM;
 

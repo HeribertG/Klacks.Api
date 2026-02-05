@@ -1,12 +1,12 @@
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Presentation.DTOs.Associations;
-using Klacks.Api.Presentation.DTOs.Schedules;
-using Klacks.Api.Presentation.DTOs.Settings;
+using Klacks.Api.Application.DTOs.Associations;
+using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Settings;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks.Api.Presentation.DTOs.Staffs;
+namespace Klacks.Api.Application.DTOs.Staffs;
 
 public class ClientResource
 {

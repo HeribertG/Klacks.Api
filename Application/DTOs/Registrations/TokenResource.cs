@@ -1,4 +1,4 @@
-namespace Klacks.Api.Presentation.DTOs.Registrations;
+namespace Klacks.Api.Application.DTOs.Registrations;
 
 public class TokenResource
 {

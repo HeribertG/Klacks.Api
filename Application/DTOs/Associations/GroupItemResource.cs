@@ -1,8 +1,8 @@
-using Klacks.Api.Presentation.DTOs.Schedules;
-using Klacks.Api.Presentation.DTOs.Staffs;
+using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Staffs;
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks.Api.Presentation.DTOs.Associations;
+namespace Klacks.Api.Application.DTOs.Associations;
 
 public class GroupItemResource
 {

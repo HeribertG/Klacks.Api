@@ -283,8 +283,9 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IMultiLanguageTranslationService, Services.Translation.MultiLanguageTranslationService>();
 
         // Report Services
-        services.AddScoped<IReportGenerator, Reports.ScheduleReportGenerator>();
-        services.AddScoped<IReportTemplateRepository, Reports.ReportTemplateRepository>();
+        services.AddScoped<IReportGenerator, Services.Reports.ScheduleReportGenerator>();
+        services.AddScoped<IReportTemplateRepository, Repositories.ReportTemplateRepository>();
+        services.AddScoped<Application.Mappers.Reports.ReportTemplateMapper>();
 
         return services;
     }

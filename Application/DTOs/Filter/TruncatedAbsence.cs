@@ -1,6 +1,6 @@
 using Klacks.Api.Domain.Models.Schedules;
 
-namespace Klacks.Api.Presentation.DTOs.Filter;
+namespace Klacks.Api.Application.DTOs.Filter;
 
 public class TruncatedAbsence : BaseTruncatedResult
 {

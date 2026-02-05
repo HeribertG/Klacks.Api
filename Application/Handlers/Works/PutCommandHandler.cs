@@ -2,7 +2,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Presentation.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Hubs;
 using Microsoft.EntityFrameworkCore;
@@ -74,7 +74,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
 
         if (periodHours != null)
         {
-            var periodHoursNotification = new Presentation.DTOs.Notifications.PeriodHoursNotificationDto
+            var periodHoursNotification = new Application.DTOs.Notifications.PeriodHoursNotificationDto
             {
                 ClientId = updatedWork.ClientId,
                 StartDate = periodStart,

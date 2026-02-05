@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks.Api.Presentation.DTOs.LLM;
+namespace Klacks.Api.Application.DTOs.LLM;
 
 public class LLMFunctionExecuteRequest
 {

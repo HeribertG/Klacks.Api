@@ -2,7 +2,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.OAuth2;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Presentation.DTOs.OAuth2;
+using Klacks.Api.Application.DTOs.OAuth2;
 
 namespace Klacks.Api.Application.Handlers.OAuth2;
 

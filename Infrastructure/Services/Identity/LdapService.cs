@@ -4,7 +4,7 @@ using System.Text;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
-using Klacks.Api.Presentation.DTOs.IdentityProviders;
+using Klacks.Api.Application.DTOs.IdentityProviders;
 
 namespace Klacks.Api.Infrastructure.Services.Identity;
 

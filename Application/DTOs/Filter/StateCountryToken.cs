@@ -1,7 +1,7 @@
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Infrastructure.Persistence;
 
-namespace Klacks.Api.Presentation.DTOs.Filter;
+namespace Klacks.Api.Application.DTOs.Filter;
 
 public class StateCountryToken
 {

@@ -1,7 +1,7 @@
-using Klacks.Api.Presentation.DTOs.Associations;
+using Klacks.Api.Application.DTOs.Associations;
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks.Api.Presentation.DTOs.Staffs;
+namespace Klacks.Api.Application.DTOs.Staffs;
 
 public class ClientContractResource
 {

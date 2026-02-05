@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
-using Klacks.Api.Presentation.DTOs.LLM;
+using Klacks.Api.Application.DTOs.LLM;
 
 namespace Klacks.Api.Domain.Services.LLM.Providers.Anthropic;
 

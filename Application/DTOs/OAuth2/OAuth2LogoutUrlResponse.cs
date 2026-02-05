@@ -1,4 +1,4 @@
-namespace Klacks.Api.Presentation.DTOs.OAuth2;
+namespace Klacks.Api.Application.DTOs.OAuth2;
 
 public class OAuth2LogoutUrlResponse
 {

@@ -2,7 +2,7 @@ using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
-using Klacks.Api.Presentation.DTOs.LLM;
+using Klacks.Api.Application.DTOs.LLM;
 
 namespace Klacks.Api.Application.Commands.LLM;
 

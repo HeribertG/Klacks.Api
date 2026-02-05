@@ -1,7 +1,7 @@
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Infrastructure.Persistence;
 
-namespace Klacks.Api.Presentation.DTOs.Settings;
+namespace Klacks.Api.Application.DTOs.Settings;
 
 public class MacroResource
 {

@@ -1,4 +1,4 @@
-namespace Klacks.Api.Presentation.DTOs;
+namespace Klacks.Api.Application.DTOs;
 
 public class HttpResultResource
 {

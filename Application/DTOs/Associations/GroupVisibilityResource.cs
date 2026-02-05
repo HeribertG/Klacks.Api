@@ -1,4 +1,4 @@
-﻿namespace Klacks.Api.Presentation.DTOs.Associations;
+﻿namespace Klacks.Api.Application.DTOs.Associations;
 
 public class GroupVisibilityResource
 {

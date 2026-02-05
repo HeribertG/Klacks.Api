@@ -1,4 +1,4 @@
-namespace Klacks.Api.Presentation.DTOs.Skills;
+namespace Klacks.Api.Application.DTOs.Skills;
 
 public record SkillExecuteRequest
 {

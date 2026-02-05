@@ -1,6 +1,6 @@
 using Klacks.Api.Domain.Models.Authentification;
-using Klacks.Api.Presentation.DTOs;
-using Klacks.Api.Presentation.DTOs.Registrations;
+using Klacks.Api.Application.DTOs;
+using Klacks.Api.Application.DTOs.Registrations;
 using Microsoft.AspNetCore.Identity;
 
 namespace Klacks.Api.Domain.Interfaces;

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Klacks.Api.Domain.Services.LLM.Providers;
 using Klacks.Api.Infrastructure.MCP;
-using Klacks.Api.Presentation.DTOs.LLM;
+using Klacks.Api.Application.DTOs.LLM;
 
 namespace Klacks.Api.Domain.Services.LLM;
 

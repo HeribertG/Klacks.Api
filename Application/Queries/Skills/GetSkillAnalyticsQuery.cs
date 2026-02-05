@@ -1,5 +1,5 @@
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Presentation.DTOs.Skills;
+using Klacks.Api.Application.DTOs.Skills;
 
 namespace Klacks.Api.Application.Queries.Skills;
 

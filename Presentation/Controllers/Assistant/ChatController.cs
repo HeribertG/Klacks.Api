@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Commands.LLM;
-using Klacks.Api.Presentation.DTOs.LLM;
+using Klacks.Api.Application.DTOs.LLM;
 using Klacks.Api.Domain.Services.LLM;
 using System.Security.Claims;
 

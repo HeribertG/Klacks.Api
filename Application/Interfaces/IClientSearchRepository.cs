@@ -1,6 +1,6 @@
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
-using Klacks.Api.Presentation.DTOs.Staffs;
+using Klacks.Api.Application.DTOs.Staffs;
 
 namespace Klacks.Api.Application.Interfaces;
 

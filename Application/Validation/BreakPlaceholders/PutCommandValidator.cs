@@ -1,7 +1,7 @@
 using FluentValidation;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Infrastructure.Persistence;
-using Klacks.Api.Presentation.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Validation.BreakPlaceholders;

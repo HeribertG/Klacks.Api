@@ -5,7 +5,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Presentation.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules;
 
 namespace Klacks.Api.Application.Handlers.Works;
 
@@ -109,7 +109,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                         periodEnd);
                     response.PeriodHours[clientId] = periodHours;
 
-                    var periodHoursNotification = new Presentation.DTOs.Notifications.PeriodHoursNotificationDto
+                    var periodHoursNotification = new Application.DTOs.Notifications.PeriodHoursNotificationDto
                     {
                         ClientId = clientId,
                         StartDate = periodStart,

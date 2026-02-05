@@ -1,4 +1,4 @@
-namespace Klacks.Api.Presentation.DTOs.Dashboard;
+namespace Klacks.Api.Application.DTOs.Dashboard;
 
 public class ClientLocationResource
 {

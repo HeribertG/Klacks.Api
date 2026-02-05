@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks.Api.Presentation.DTOs.Staffs;
+namespace Klacks.Api.Application.DTOs.Staffs;
 
 public class ClientGroupItemResource
 {

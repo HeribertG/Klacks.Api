@@ -1,6 +1,6 @@
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.Annotation;
-using Klacks.Api.Presentation.DTOs.Staffs;
+using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
 

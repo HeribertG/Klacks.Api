@@ -1,4 +1,4 @@
-namespace Klacks.Api.Presentation.DTOs.IdentityProviders;
+namespace Klacks.Api.Application.DTOs.IdentityProviders;
 
 public class TestConnectionResultResource
 {

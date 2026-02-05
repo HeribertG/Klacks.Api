@@ -2,7 +2,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.AssignedGroups;
 using Klacks.Api.Domain.Exceptions;
-using Klacks.Api.Presentation.DTOs.Associations;
+using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Logging;
 

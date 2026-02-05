@@ -1,7 +1,7 @@
 ﻿using Klacks.Api.Application.Commands.GroupVisibilities;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.GroupVisibilities;
-using Klacks.Api.Presentation.DTOs.Associations;
+using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
 

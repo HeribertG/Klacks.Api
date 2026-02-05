@@ -1,4 +1,4 @@
-using Klacks.Api.Presentation.DTOs.Registrations;
+using Klacks.Api.Application.DTOs.Registrations;
 using Klacks.Api.Infrastructure.Mediator;
 using System.Collections.Generic;
 

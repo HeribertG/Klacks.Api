@@ -2,7 +2,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries.Skills;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Presentation.DTOs.Skills;
+using Klacks.Api.Application.DTOs.Skills;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Skills;

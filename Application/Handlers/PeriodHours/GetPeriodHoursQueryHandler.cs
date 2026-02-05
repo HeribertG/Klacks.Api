@@ -1,7 +1,7 @@
 using Klacks.Api.Application.Queries.PeriodHours;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Presentation.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules;
 
 namespace Klacks.Api.Application.Handlers.PeriodHours;
 

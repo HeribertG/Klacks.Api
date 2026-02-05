@@ -1,5 +1,5 @@
 using Klacks.Api.Domain.Models.Schedules;
-using Klacks.Api.Presentation.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules;
 
 namespace Klacks.Api.Domain.Interfaces;
 

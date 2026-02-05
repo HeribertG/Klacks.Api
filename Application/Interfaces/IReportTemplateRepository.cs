@@ -1,4 +1,5 @@
-using Klacks.Api.Domain.Entities.Reports;
+using Klacks.Api.Domain.Models.Reports;
+using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Application.Interfaces;
 

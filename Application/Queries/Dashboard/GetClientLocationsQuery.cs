@@ -1,4 +1,4 @@
-using Klacks.Api.Presentation.DTOs.Dashboard;
+using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Queries.Dashboard;

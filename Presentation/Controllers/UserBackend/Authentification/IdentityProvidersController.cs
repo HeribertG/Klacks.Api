@@ -1,7 +1,7 @@
 using Klacks.Api.Application.Commands.IdentityProviders;
 using Klacks.Api.Application.Queries.IdentityProviders;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Presentation.DTOs.IdentityProviders;
+using Klacks.Api.Application.DTOs.IdentityProviders;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

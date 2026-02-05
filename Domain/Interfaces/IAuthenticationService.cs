@@ -1,5 +1,5 @@
 using Klacks.Api.Domain.Models.Authentification;
-using Klacks.Api.Presentation.DTOs;
+using Klacks.Api.Application.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 

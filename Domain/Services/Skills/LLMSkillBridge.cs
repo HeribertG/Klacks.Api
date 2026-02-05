@@ -4,7 +4,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Skills;
 using Klacks.Api.Domain.Services.LLM.Providers;
 using Klacks.Api.Domain.Services.Skills.Adapters;
-using Klacks.Api.Presentation.DTOs.LLM;
+using Klacks.Api.Application.DTOs.LLM;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Domain.Services.Skills;

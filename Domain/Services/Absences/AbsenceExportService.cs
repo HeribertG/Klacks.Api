@@ -1,6 +1,6 @@
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Presentation.DTOs;
+using Klacks.Api.Application.DTOs;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Domain.Services.Absences;

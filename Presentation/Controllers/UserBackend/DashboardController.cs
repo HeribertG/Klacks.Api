@@ -1,5 +1,5 @@
 using Klacks.Api.Application.Queries.Dashboard;
-using Klacks.Api.Presentation.DTOs.Dashboard;
+using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
 

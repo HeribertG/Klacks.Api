@@ -1,7 +1,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Dashboard;
 using Klacks.Api.Infrastructure.Services;
-using Klacks.Api.Presentation.DTOs.Dashboard;
+using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Logging;
 

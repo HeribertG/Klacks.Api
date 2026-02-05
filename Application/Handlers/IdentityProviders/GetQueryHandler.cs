@@ -2,7 +2,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries.IdentityProviders;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Presentation.DTOs.IdentityProviders;
+using Klacks.Api.Application.DTOs.IdentityProviders;
 
 namespace Klacks.Api.Application.Handlers.IdentityProviders;
 

@@ -1,7 +1,7 @@
 using FluentValidation;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Clients;
-using Klacks.Api.Presentation.DTOs.Filter;
+using Klacks.Api.Application.DTOs.Filter;
 
 namespace Klacks.Api.Application.Validation.Clients
 {

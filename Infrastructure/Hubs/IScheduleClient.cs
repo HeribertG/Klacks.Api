@@ -1,4 +1,4 @@
-using Klacks.Api.Presentation.DTOs.Notifications;
+using Klacks.Api.Application.DTOs.Notifications;
 
 namespace Klacks.Api.Infrastructure.Hubs;
 

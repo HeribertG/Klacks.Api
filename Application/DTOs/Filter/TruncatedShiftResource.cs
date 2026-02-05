@@ -1,6 +1,6 @@
-﻿using Klacks.Api.Presentation.DTOs.Schedules;
+﻿using Klacks.Api.Application.DTOs.Schedules;
 
-namespace Klacks.Api.Presentation.DTOs.Filter;
+namespace Klacks.Api.Application.DTOs.Filter;
 
 public class TruncatedShiftResource : BaseTruncatedResult
 {

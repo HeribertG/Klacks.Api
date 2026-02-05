@@ -1,6 +1,6 @@
 using Klacks.Api.Domain.Common;
 
-namespace Klacks.Api.Presentation.DTOs.Schedules;
+namespace Klacks.Api.Application.DTOs.Schedules;
 
 public class BreakResource : ScheduleEntryResource
 {

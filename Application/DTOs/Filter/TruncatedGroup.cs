@@ -1,6 +1,6 @@
 using Klacks.Api.Domain.Models.Associations;
 
-namespace Klacks.Api.Presentation.DTOs.Filter;
+namespace Klacks.Api.Application.DTOs.Filter;
 
 public class TruncatedGroup : BaseTruncatedResult
 {

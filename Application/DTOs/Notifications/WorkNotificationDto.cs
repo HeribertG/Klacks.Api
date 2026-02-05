@@ -1,4 +1,4 @@
-namespace Klacks.Api.Presentation.DTOs.Notifications;
+namespace Klacks.Api.Application.DTOs.Notifications;
 
 public record WorkNotificationDto
 {

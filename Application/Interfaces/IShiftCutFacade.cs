@@ -1,6 +1,6 @@
 using Klacks.Api.Application.Commands.Shifts;
 using Klacks.Api.Domain.Models.Schedules;
-using Klacks.Api.Presentation.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules;
 
 namespace Klacks.Api.Application.Interfaces;
 

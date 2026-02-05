@@ -1,7 +1,7 @@
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Presentation.DTOs.Associations;
+using Klacks.Api.Application.DTOs.Associations;
 
-namespace Klacks.Api.Presentation.DTOs.Schedules;
+namespace Klacks.Api.Application.DTOs.Schedules;
 
 public class ShiftResource
 {

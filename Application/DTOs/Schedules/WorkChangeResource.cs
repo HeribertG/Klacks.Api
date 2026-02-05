@@ -1,7 +1,7 @@
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Presentation.DTOs.Staffs;
+using Klacks.Api.Application.DTOs.Staffs;
 
-namespace Klacks.Api.Presentation.DTOs.Schedules;
+namespace Klacks.Api.Application.DTOs.Schedules;
 
 public class WorkChangeResource
 {

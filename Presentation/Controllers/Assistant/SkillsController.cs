@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Klacks.Api.Application.Commands.Skills;
 using Klacks.Api.Application.Queries.Skills;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Presentation.DTOs.Skills;
+using Klacks.Api.Application.DTOs.Skills;
 using System.Security.Claims;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;
