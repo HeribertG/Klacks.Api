@@ -3,7 +3,7 @@ using Klacks.Api.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Klacks.Api.Presentation.Controllers;
+namespace Klacks.Api.Presentation.Controllers.UserBackend;
 
 [ApiController]
 [Route("api/[controller]")]
