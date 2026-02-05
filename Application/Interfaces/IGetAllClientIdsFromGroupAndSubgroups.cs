@@ -1,4 +1,4 @@
-﻿namespace Klacks.Api.Infrastructure.Interfaces
+﻿namespace Klacks.Api.Application.Interfaces
 {
     public interface IGetAllClientIdsFromGroupAndSubgroups
     {

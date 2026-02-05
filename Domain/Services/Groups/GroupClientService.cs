@@ -1,4 +1,4 @@
-﻿using Klacks.Api.Infrastructure.Interfaces;
+﻿using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
