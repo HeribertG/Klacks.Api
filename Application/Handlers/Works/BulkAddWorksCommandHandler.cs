@@ -62,7 +62,6 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                     StartTime = item.StartTime,
                     EndTime = item.EndTime,
                     Information = item.Information,
-                    IsSealed = false,
                     IsDeleted = false
                 };
 

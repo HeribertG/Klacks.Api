@@ -338,14 +338,12 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
     public async Task<List<Work>> GetByClientAndDateRangeAsync(Guid clientId, DateTime fromDate, DateTime toDate, CancellationToken cancellationToken = default)
     {
-        return await _context.Works
+        return await _context.Work
             .AsNoTracking()
             .Where(w => w.ClientId == clientId && !w.IsDeleted)
-            .Where(w => w.Date >= DateOnly.FromDateTime(fromDate) && w.Date <= DateOnly.FromDateTime(toDate))
-            .Include(w => w.Location)
-            .Include(w => w.Activity)
-            .OrderBy(w => w.Date)
-            .ThenBy(w => w.BeginTime)
+            .Where(w => w.CurrentDate >= DateOnly.FromDateTime(fromDate) && w.CurrentDate <= DateOnly.FromDateTime(toDate))
+            .OrderBy(w => w.CurrentDate)
+            .ThenBy(w => w.StartTime)
             .ToListAsync(cancellationToken);
     }
 }

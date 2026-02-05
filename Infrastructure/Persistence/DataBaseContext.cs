@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Models.LLM;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Skills;
+using Klacks.Api.Domain.Entities.Reports;
 using Klacks.Api.Domain.Models.Staffs;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -126,6 +127,14 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<IdentityProviderSyncLog> IdentityProviderSyncLogs { get; set; }
 
+    // WorkLockLevel DbSets
+    public DbSet<DayApproval> DayApprovals { get; set; }
+
+    public DbSet<PeriodClosure> PeriodClosures { get; set; }
+
+    // Report DbSets
+    public DbSet<ReportTemplate> ReportTemplates { get; set; }
+
     public override int SaveChanges()
     {
         OnBeforeSaving();
@@ -244,6 +253,8 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<GroupVisibility>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Contract>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<ClientContract>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<DayApproval>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<PeriodClosure>().HasQueryFilter(p => !p.IsDeleted);
 
         // LLM Query Filters
         modelBuilder.Entity<LLMProvider>(entity =>
@@ -298,6 +309,23 @@ public class DataBaseContext : IdentityDbContext
             .HasForeignKey(s => s.ClientId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Report Templates Configuration
+        modelBuilder.Entity<ReportTemplate>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.Property(e => e.PageSetup)
+                  .HasConversion(
+                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                      v => System.Text.Json.JsonSerializer.Deserialize<Domain.Entities.Reports.ReportPageSetup>(v, (System.Text.Json.JsonSerializerOptions?)null))
+                  .HasColumnType("jsonb");
+            entity.Property(e => e.Sections)
+                  .HasConversion(
+                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                      v => System.Text.Json.JsonSerializer.Deserialize<List<Domain.Entities.Reports.ReportSection>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new())
+                  .HasColumnType("jsonb");
+            entity.HasIndex(p => new { p.IsDeleted, p.Type, p.Name });
+        });
+
         modelBuilder.Entity<Address>().HasIndex(p => new { p.ClientId, p.Street, p.Street2, p.Street3, p.City, p.IsDeleted });
         modelBuilder.Entity<Communication>().HasIndex(p => new { p.Value, p.IsDeleted });
         modelBuilder.Entity<Annotation>().HasIndex(p => new { p.Note, p.IsDeleted });
@@ -329,6 +357,15 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<GroupVisibility>().HasIndex(p => new { p.AppUserId, p.GroupId });
         modelBuilder.Entity<Contract>().HasIndex(p => new { p.Name, p.ValidFrom, p.ValidUntil });
         modelBuilder.Entity<ClientContract>().HasIndex(p => new { p.ClientId, p.ContractId, p.FromDate, p.UntilDate });
+        modelBuilder.Entity<DayApproval>().HasIndex(p => new { p.ApprovalDate, p.GroupId });
+        modelBuilder.Entity<PeriodClosure>().HasIndex(p => new { p.StartDate, p.EndDate });
+
+        modelBuilder.Entity<DayApproval>()
+            .HasOne(da => da.Group)
+            .WithMany()
+            .HasForeignKey(da => da.GroupId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         modelBuilder.Entity<ClientPeriodHours>()
             .HasIndex(p => new { p.ClientId, p.StartDate, p.EndDate })
             .IsUnique();

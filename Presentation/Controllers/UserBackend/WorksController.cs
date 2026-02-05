@@ -136,4 +136,26 @@ public class WorksController : BaseController
         }
         return Ok(model);
     }
+
+    [HttpPost("{id}/Confirm")]
+    public async Task<ActionResult<WorkResource>> Confirm([FromRoute] Guid id)
+    {
+        var model = await _mediator.Send(new ConfirmWorkCommand(id));
+        if (model == null)
+        {
+            return NotFound();
+        }
+        return Ok(model);
+    }
+
+    [HttpPost("{id}/Unconfirm")]
+    public async Task<ActionResult<WorkResource>> Unconfirm([FromRoute] Guid id)
+    {
+        var model = await _mediator.Send(new UnconfirmWorkCommand(id));
+        if (model == null)
+        {
+            return NotFound();
+        }
+        return Ok(model);
+    }
 }

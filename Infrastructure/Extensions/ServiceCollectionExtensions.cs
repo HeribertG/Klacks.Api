@@ -74,6 +74,8 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IContainerTemplateRepository, ContainerTemplateRepository>();
         services.AddScoped<IIdentityProviderRepository, IdentityProviderRepository>();
         services.AddScoped<IIdentityProviderSyncLogRepository, IdentityProviderSyncLogRepository>();
+        services.AddScoped<IDayApprovalRepository, DayApprovalRepository>();
+        services.AddScoped<IPeriodClosureRepository, PeriodClosureRepository>();
 
         services.AddSingleton<IMacroEngine, MacroEngine>();
         services.AddSingleton<IMacroCache, MacroCache>();
@@ -110,6 +112,9 @@ public static  class ServiceCollectionExtensions
 
         // Schedule Entries Service
         services.AddScoped<IScheduleEntriesService, ScheduleEntriesService>();
+
+        // WorkLockLevel Service
+        services.AddScoped<IWorkLockLevelService, WorkLockLevelService>();
 
         // Period Hours Service
         services.AddScoped<IPeriodHoursService, PeriodHoursService>();

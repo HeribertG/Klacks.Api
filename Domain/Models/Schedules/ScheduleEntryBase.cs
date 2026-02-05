@@ -15,8 +15,6 @@ public abstract class ScheduleEntryBase : BaseEntity
 
     public string? Information { get; set; }
 
-    public bool IsSealed { get; set; }
-
     public decimal WorkTime { get; set; }
 
     public decimal Surcharges { get; set; }

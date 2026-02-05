@@ -24,4 +24,6 @@ public class WorkScheduleResource
     public string? Abbreviation { get; set; }
     public Guid? ReplaceClientId { get; set; }
     public bool IsReplacementEntry { get; set; }
+    public int LockLevel { get; set; }
+    public bool IsGroupRestricted { get; set; }
 }

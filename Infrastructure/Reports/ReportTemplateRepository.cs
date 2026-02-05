@@ -1,82 +1,67 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Entities.Reports;
+using Klacks.Api.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Reports;
 
 public class ReportTemplateRepository : IReportTemplateRepository
 {
-    // Temporary in-memory storage until Phase 2 (Database implementation)
-    private static readonly List<ReportTemplate> _templates = new();
-    private static readonly SemaphoreSlim _semaphore = new(1, 1);
+    private readonly DataBaseContext _context;
 
-    public Task<IEnumerable<ReportTemplate>> GetAllAsync(CancellationToken cancellationToken = default)
+    public ReportTemplateRepository(DataBaseContext context)
     {
-        return Task.FromResult(_templates.Where(t => !t.IsDeleted).AsEnumerable());
+        _context = context;
     }
 
-    public Task<IEnumerable<ReportTemplate>> GetByTypeAsync(ReportType type, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<ReportTemplate>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(_templates.Where(t => !t.IsDeleted && t.Type == type).AsEnumerable());
+        return await _context.ReportTemplates
+            .OrderBy(t => t.Name)
+            .ToListAsync(cancellationToken);
     }
 
-    public Task<ReportTemplate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<ReportTemplate>> GetByTypeAsync(ReportType type, CancellationToken cancellationToken = default)
     {
-        var template = _templates.FirstOrDefault(t => t.Id == id && !t.IsDeleted);
-        return Task.FromResult(template);
+        return await _context.ReportTemplates
+            .Where(t => t.Type == type)
+            .OrderBy(t => t.Name)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<ReportTemplate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _context.ReportTemplates
+            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 
     public async Task<ReportTemplate> CreateAsync(ReportTemplate template, CancellationToken cancellationToken = default)
     {
-        await _semaphore.WaitAsync(cancellationToken);
-        try
-        {
-            template.Id = Guid.NewGuid();
-            template.CreatedAt = DateTime.UtcNow;
-            _templates.Add(template);
-            return template;
-        }
-        finally
-        {
-            _semaphore.Release();
-        }
+        _context.ReportTemplates.Add(template);
+        await _context.SaveChangesAsync(cancellationToken);
+        return template;
     }
 
     public async Task<ReportTemplate> UpdateAsync(ReportTemplate template, CancellationToken cancellationToken = default)
     {
-        await _semaphore.WaitAsync(cancellationToken);
-        try
+        var existing = await _context.ReportTemplates.FindAsync(new object[] { template.Id }, cancellationToken);
+        if (existing == null)
         {
-            var existing = _templates.FirstOrDefault(t => t.Id == template.Id);
-            if (existing == null)
-            {
-                throw new ArgumentException($"Template with ID {template.Id} not found");
-            }
+            throw new ArgumentException($"Template with ID {template.Id} not found");
+        }
 
-            var index = _templates.IndexOf(existing);
-            template.UpdatedAt = DateTime.UtcNow;
-            _templates[index] = template;
-            return template;
-        }
-        finally
-        {
-            _semaphore.Release();
-        }
+        _context.Entry(existing).CurrentValues.SetValues(template);
+        await _context.SaveChangesAsync(cancellationToken);
+        return existing;
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        await _semaphore.WaitAsync(cancellationToken);
-        try
+        var template = await _context.ReportTemplates.FindAsync(new object[] { id }, cancellationToken);
+        if (template != null)
         {
-            var template = _templates.FirstOrDefault(t => t.Id == id);
-            if (template != null)
-            {
-                template.IsDeleted = true;
-            }
-        }
-        finally
-        {
-            _semaphore.Release();
+            _context.ReportTemplates.Remove(template);
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

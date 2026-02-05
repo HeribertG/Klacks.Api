@@ -2,7 +2,7 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Entities.Reports;
-using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Infrastructure.Reports;
 
@@ -26,8 +26,8 @@ public class ScheduleReportGenerator : IReportGenerator
         ReportTemplate? template = null,
         CancellationToken cancellationToken = default)
     {
-        var client = await _clientRepository.GetAsync(clientId, cancellationToken);
-        if (client == null)
+        var client = await _clientRepository.Get(clientId);
+        if (client is null)
         {
             throw new ArgumentException($"Client with ID {clientId} not found");
         }
@@ -91,7 +91,6 @@ public class ScheduleReportGenerator : IReportGenerator
 
         if (headerSection != null)
         {
-            // Use template fields
             foreach (var field in headerSection.Fields.OrderBy(f => f.SortOrder))
             {
                 var value = GetFieldValue(field, client, fromDate, toDate, null);
@@ -103,11 +102,11 @@ public class ScheduleReportGenerator : IReportGenerator
         }
         else
         {
-            // Default header
             var nameFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 14);
             var periodFont = FontFactory.GetFont(FontFactory.HELVETICA, 10);
 
-            document.Add(new Paragraph(client.FullName, nameFont));
+            var fullName = $"{client.FirstName} {client.Name}";
+            document.Add(new Paragraph(fullName, nameFont));
             document.Add(new Paragraph(
                 $"Period: {fromDate:dd.MM.yyyy} - {toDate:dd.MM.yyyy}",
                 periodFont));
@@ -115,59 +114,55 @@ public class ScheduleReportGenerator : IReportGenerator
         }
     }
 
-    private void AddScheduleTable(Document document, IEnumerable<Domain.Models.Staffs.Work> works, ReportTemplate? template)
+    private void AddScheduleTable(Document document, List<Work> works, ReportTemplate? template)
     {
         var detailSection = template?.Sections.FirstOrDefault(s => s.Type == ReportSectionType.Detail);
 
         if (detailSection != null && detailSection.Fields.Any())
         {
-            // Create custom table based on template fields
             AddCustomTable(document, works, detailSection);
         }
         else
         {
-            // Default table
             AddDefaultTable(document, works);
         }
     }
 
-    private static void AddDefaultTable(Document document, IEnumerable<Domain.Models.Staffs.Work> works)
+    private static void AddDefaultTable(Document document, List<Work> works)
     {
-        var table = new PdfPTable(5)
+        var table = new PdfPTable(4)
         {
             WidthPercentage = 100
         };
-        table.SetWidths([20f, 25f, 20f, 20f, 15f]);
+        table.SetWidths([25f, 30f, 30f, 15f]);
 
-        // Header row
         var headerFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 10);
         table.AddCell(CreateHeaderCell("Date", headerFont));
         table.AddCell(CreateHeaderCell("Time", headerFont));
-        table.AddCell(CreateHeaderCell("Location", headerFont));
-        table.AddCell(CreateHeaderCell("Activity", headerFont));
+        table.AddCell(CreateHeaderCell("Information", headerFont));
         table.AddCell(CreateHeaderCell("Hours", headerFont));
 
-        // Data rows
         var dataFont = FontFactory.GetFont(FontFactory.HELVETICA, 9);
         var totalHours = 0m;
 
-        foreach (var work in works.OrderBy(w => w.Date))
+        foreach (var work in works.OrderBy(w => w.CurrentDate))
         {
-            table.AddCell(CreateDataCell(work.Date.ToString("ddd, dd.MM.yyyy"), dataFont));
-            table.AddCell(CreateDataCell($"{work.BeginTime:hh\\:mm} - {work.EndTime:hh\\:mm}", dataFont));
-            table.AddCell(CreateDataCell(work.Location?.Name ?? "-", dataFont));
-            table.AddCell(CreateDataCell(work.Activity?.Name ?? "-", dataFont));
+            var dateStr = work.CurrentDate.ToString("ddd, dd.MM.yyyy");
+            var timeStr = $"{work.StartTime:HH:mm} - {work.EndTime:HH:mm}";
+            var info = work.Information ?? "-";
+            var hours = (decimal)(work.EndTime - work.StartTime).TotalHours;
 
-            var hours = (decimal)(work.EndTime - work.BeginTime).TotalHours;
+            table.AddCell(CreateDataCell(dateStr, dataFont));
+            table.AddCell(CreateDataCell(timeStr, dataFont));
+            table.AddCell(CreateDataCell(info, dataFont));
             table.AddCell(CreateDataCell(hours.ToString("0.00"), dataFont, Element.ALIGN_RIGHT));
             totalHours += hours;
         }
 
-        // Total row
         var totalFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 9);
         var totalCell = new PdfPCell(new Phrase("Total:", totalFont))
         {
-            Colspan = 4,
+            Colspan = 3,
             HorizontalAlignment = Element.ALIGN_RIGHT,
             Padding = 5,
             Border = Rectangle.TOP_BORDER
@@ -183,9 +178,9 @@ public class ScheduleReportGenerator : IReportGenerator
         document.Add(table);
     }
 
-    private static void AddCustomTable(Document document, IEnumerable<Domain.Models.Staffs.Work> works, ReportSection detailSection)
+    private static void AddCustomTable(Document document, List<Work> works, ReportSection detailSection)
     {
-        var fields = detailSection.Fields.Where(f => f.Visible).OrderBy(f => f.SortOrder).ToList();
+        var fields = detailSection.Fields.OrderBy(f => f.SortOrder).ToList();
         if (!fields.Any()) return;
 
         var table = new PdfPTable(fields.Count)
@@ -193,15 +188,13 @@ public class ScheduleReportGenerator : IReportGenerator
             WidthPercentage = 100
         };
 
-        // Header row
         var headerFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 10);
         foreach (var field in fields)
         {
             table.AddCell(CreateHeaderCell(field.Name, headerFont));
         }
 
-        // Data rows
-        foreach (var work in works.OrderBy(w => w.Date))
+        foreach (var work in works.OrderBy(w => w.CurrentDate))
         {
             foreach (var field in fields)
             {
@@ -232,7 +225,7 @@ public class ScheduleReportGenerator : IReportGenerator
         }
     }
 
-    private static string GetFieldValue(ReportField field, Domain.Models.Staffs.Client? client, DateTime fromDate, DateTime toDate, Domain.Models.Staffs.Work? work)
+    private static string GetFieldValue(ReportField field, Domain.Models.Staffs.Client? client, DateTime fromDate, DateTime toDate, Work? work)
     {
         if (string.IsNullOrEmpty(field.DataBinding))
         {
@@ -241,20 +234,18 @@ public class ScheduleReportGenerator : IReportGenerator
 
         return field.DataBinding.ToLowerInvariant() switch
         {
-            "client.fullname" => client?.FullName ?? string.Empty,
+            "client.fullname" => client != null ? $"{client.FirstName} {client.Name}" : string.Empty,
             "client.firstname" => client?.FirstName ?? string.Empty,
             "client.name" => client?.Name ?? string.Empty,
             "report.period" => $"{fromDate:dd.MM.yyyy} - {toDate:dd.MM.yyyy}",
             "report.date" => DateTime.Now.ToString("dd.MM.yyyy"),
-            "work.date" => work?.Date.ToString("dd.MM.yyyy") ?? string.Empty,
-            "work.day" => work?.Date.ToString("ddd") ?? string.Empty,
-            "work.begintime" => work?.BeginTime.ToString("hh\\:mm") ?? string.Empty,
-            "work.endtime" => work?.EndTime.ToString("hh\\:mm") ?? string.Empty,
-            "work.timerange" => work != null ? $"{work.BeginTime:hh\\:mm} - {work.EndTime:hh\\:mm}" : string.Empty,
-            "work.location" => work?.Location?.Name ?? string.Empty,
-            "work.activity" => work?.Activity?.Name ?? string.Empty,
-            "work.hours" => work != null ? ((decimal)(work.EndTime - work.BeginTime).TotalHours).ToString("0.00") : "0.00",
-            "work.notes" => work?.Notes ?? string.Empty,
+            "work.date" => work?.CurrentDate.ToString("dd.MM.yyyy") ?? string.Empty,
+            "work.day" => work?.CurrentDate.ToString("ddd") ?? string.Empty,
+            "work.starttime" => work?.StartTime.ToString("HH:mm") ?? string.Empty,
+            "work.endtime" => work?.EndTime.ToString("HH:mm") ?? string.Empty,
+            "work.timerange" => work != null ? $"{work.StartTime:HH:mm} - {work.EndTime:HH:mm}" : string.Empty,
+            "work.hours" => work != null ? ((decimal)(work.EndTime - work.StartTime).TotalHours).ToString("0.00") : "0.00",
+            "work.information" => work?.Information ?? string.Empty,
             _ => field.Formula ?? string.Empty
         };
     }

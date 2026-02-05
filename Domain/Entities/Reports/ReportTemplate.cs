@@ -1,17 +1,14 @@
+using Klacks.Api.Domain.Common;
+
 namespace Klacks.Api.Domain.Entities.Reports;
 
-public class ReportTemplate
+public class ReportTemplate : BaseEntity
 {
-    public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public ReportType Type { get; set; }
     public ReportPageSetup PageSetup { get; set; } = new();
     public List<ReportSection> Sections { get; set; } = [];
-    public bool IsDeleted { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
-    public string CreatedBy { get; set; } = string.Empty;
 }
 
 public enum ReportType

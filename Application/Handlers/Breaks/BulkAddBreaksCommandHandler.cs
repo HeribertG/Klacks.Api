@@ -49,7 +49,6 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
                     EndTime = item.EndTime,
                     Information = item.Information,
                     Description = item.Description,
-                    IsSealed = false,
                     IsDeleted = false
                 };
 
