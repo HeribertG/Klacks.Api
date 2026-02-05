@@ -4,7 +4,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Presentation.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules;
 using System.Security.Claims;
 
 namespace Klacks.Api.Application.Handlers.Works;
@@ -44,14 +44,9 @@ public class ConfirmWorkCommandHandler : BaseHandler, IRequestHandler<ConfirmWor
             var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole("Admin") == true;
             var isAuthorised = _httpContextAccessor.HttpContext?.User?.HasClaim("IsAuthorised", "true") == true;
 
-            if (!_lockLevelService.CanSeal(work.LockLevel, WorkLockLevel.Confirmed, isAdmin, isAuthorised))
-                throw new Domain.Exceptions.InvalidRequestException("Work entry cannot be confirmed in its current state.");
-
             var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
 
-            work.LockLevel = WorkLockLevel.Confirmed;
-            work.SealedAt = DateTime.UtcNow;
-            work.SealedBy = userName;
+            _lockLevelService.Seal(work, WorkLockLevel.Confirmed, userName, isAdmin, isAuthorised);
 
             await _workRepository.Put(work);
             await _unitOfWork.CompleteAsync();

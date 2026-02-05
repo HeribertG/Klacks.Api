@@ -1,5 +1,7 @@
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Domain.Services.Schedules;
 
@@ -35,5 +37,25 @@ public class WorkLockLevelService : IWorkLockLevelService
             WorkLockLevel.Closed => isAdmin,
             _ => false
         };
+    }
+
+    public void Seal(ScheduleEntryBase entity, WorkLockLevel targetLevel, string userName, bool isAdmin, bool isAuthorised)
+    {
+        if (!CanSeal(entity.LockLevel, targetLevel, isAdmin, isAuthorised))
+            throw new InvalidRequestException("Entry cannot be sealed to the requested level.");
+
+        entity.LockLevel = targetLevel;
+        entity.SealedAt = DateTime.UtcNow;
+        entity.SealedBy = userName;
+    }
+
+    public void Unseal(ScheduleEntryBase entity, bool isAdmin, bool isAuthorised)
+    {
+        if (!CanUnseal(entity.LockLevel, isAdmin, isAuthorised))
+            throw new InvalidRequestException("Entry cannot be unsealed in its current state.");
+
+        entity.LockLevel = WorkLockLevel.None;
+        entity.SealedAt = null;
+        entity.SealedBy = null;
     }
 }

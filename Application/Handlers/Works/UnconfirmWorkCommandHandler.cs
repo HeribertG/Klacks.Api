@@ -1,10 +1,9 @@
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Presentation.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules;
 
 namespace Klacks.Api.Application.Handlers.Works;
 
@@ -43,12 +42,7 @@ public class UnconfirmWorkCommandHandler : BaseHandler, IRequestHandler<Unconfir
             var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole("Admin") == true;
             var isAuthorised = _httpContextAccessor.HttpContext?.User?.HasClaim("IsAuthorised", "true") == true;
 
-            if (!_lockLevelService.CanUnseal(work.LockLevel, isAdmin, isAuthorised))
-                throw new Domain.Exceptions.InvalidRequestException("Work entry cannot be unsealed in its current state.");
-
-            work.LockLevel = WorkLockLevel.None;
-            work.SealedAt = null;
-            work.SealedBy = null;
+            _lockLevelService.Unseal(work, isAdmin, isAuthorised);
 
             await _workRepository.Put(work);
             await _unitOfWork.CompleteAsync();
