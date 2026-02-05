@@ -1,4 +1,4 @@
-using Klacks.Api.Infrastructure.Services;
+using Klacks.Api.Application.Services.Skills;
 
 namespace Klacks.Api.Infrastructure.Extensions;
 

@@ -4,7 +4,7 @@ using Klacks.Api.Domain.Services.Skills.Implementations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Klacks.Api.Infrastructure.Services;
+namespace Klacks.Api.Application.Services.Skills;
 
 public class SkillRegistrationService
 {

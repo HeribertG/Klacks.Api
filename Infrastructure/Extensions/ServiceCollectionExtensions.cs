@@ -29,8 +29,9 @@ using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Repositories;
 using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Infrastructure.Services.Authentication;
-using ClientGroupFilterService = Klacks.Api.Infrastructure.Services.ClientGroupFilterService;
-using ClientSearchFilterService = Klacks.Api.Infrastructure.Services.ClientSearchFilterService;
+using Klacks.Api.Application.Services.Clients;
+using Klacks.Api.Application.Services.Schedules;
+using Klacks.Api.Application.Services.Skills;
 
 namespace Klacks.Api.Infrastructure.Extensions;
 
@@ -245,8 +246,8 @@ public static  class ServiceCollectionExtensions
         // Skill Mapper (Application Layer)
         services.AddScoped<SkillMapper>();
 
-        // Skill Registration Service (in Infrastructure layer)
-        services.AddSingleton<Services.SkillRegistrationService>();
+        // Skill Registration Service (in Application layer)
+        services.AddSingleton<SkillRegistrationService>();
 
         // LLM-Skill Bridge
         services.AddScoped<Domain.Services.Skills.ILLMSkillBridge, Domain.Services.Skills.LLMSkillBridge>();

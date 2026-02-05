@@ -3,7 +3,7 @@ using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Interfaces;
 
-namespace Klacks.Api.Infrastructure.Services;
+namespace Klacks.Api.Application.Services.Clients;
 
 public class ClientGroupFilterService : IClientGroupFilterService
 {

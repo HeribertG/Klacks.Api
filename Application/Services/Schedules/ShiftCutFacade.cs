@@ -6,7 +6,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 
-namespace Klacks.Api.Infrastructure.Services;
+namespace Klacks.Api.Application.Services.Schedules;
 
 public class ShiftCutFacade : IShiftCutFacade
 {
