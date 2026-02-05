@@ -1,0 +1,122 @@
+using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Mappers.Reports;
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Presentation.DTOs.Reports;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Klacks.Api.Presentation.Controllers.UserBackend.Reports;
+
+[ApiController]
+[Route("api/[controller]")]
+[Authorize(Roles = "Admin")]
+public class ReportTemplatesController : ControllerBase
+{
+    private readonly IReportTemplateRepository _templateRepository;
+    private readonly ReportTemplateMapper _mapper;
+    private readonly ILogger<ReportTemplatesController> _logger;
+
+    public ReportTemplatesController(
+        IReportTemplateRepository templateRepository,
+        ILogger<ReportTemplatesController> logger)
+    {
+        _templateRepository = templateRepository;
+        _mapper = new ReportTemplateMapper();
+        _logger = logger;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<ReportTemplateResource>>> GetAll(
+        CancellationToken cancellationToken)
+    {
+        var templates = await _templateRepository.GetAllAsync(cancellationToken);
+        var resources = _mapper.ToResourceList(templates.ToList());
+        return Ok(resources);
+    }
+
+    [HttpGet("by-type/{type}")]
+    public async Task<ActionResult<IEnumerable<ReportTemplateResource>>> GetByType(
+        ReportType type,
+        CancellationToken cancellationToken)
+    {
+        var templates = await _templateRepository.GetByTypeAsync(type, cancellationToken);
+        var resources = _mapper.ToResourceList(templates.ToList());
+        return Ok(resources);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<ReportTemplateResource>> GetById(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var template = await _templateRepository.GetByIdAsync(id, cancellationToken);
+        if (template == null)
+        {
+            return NotFound();
+        }
+        return Ok(_mapper.ToResource(template));
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<ReportTemplateResource>> Create(
+        [FromBody] ReportTemplateResource resource,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var template = _mapper.ToEntity(resource);
+            var created = await _templateRepository.CreateAsync(template, cancellationToken);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, _mapper.ToResource(created));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating report template");
+            return StatusCode(500, "An error occurred while creating the template");
+        }
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<ReportTemplateResource>> Update(
+        Guid id,
+        [FromBody] ReportTemplateResource resource,
+        CancellationToken cancellationToken)
+    {
+        if (id != resource.Id)
+        {
+            return BadRequest("ID mismatch");
+        }
+
+        try
+        {
+            var template = _mapper.ToEntity(resource);
+            var updated = await _templateRepository.UpdateAsync(template, cancellationToken);
+            return Ok(_mapper.ToResource(updated));
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating report template");
+            return StatusCode(500, "An error occurred while updating the template");
+        }
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _templateRepository.DeleteAsync(id, cancellationToken);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting report template");
+            return StatusCode(500, "An error occurred while deleting the template");
+        }
+    }
+}
