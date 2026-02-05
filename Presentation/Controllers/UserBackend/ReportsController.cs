@@ -7,7 +7,7 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin,Manager")]
+[Authorize(Roles = "Admin")]
 public class ReportsController : ControllerBase
 {
     private readonly IMediator _mediator;

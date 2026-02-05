@@ -74,9 +74,6 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IContainerTemplateRepository, ContainerTemplateRepository>();
         services.AddScoped<IIdentityProviderRepository, IdentityProviderRepository>();
         services.AddScoped<IIdentityProviderSyncLogRepository, IdentityProviderSyncLogRepository>();
-        services.AddScoped<IDayApprovalRepository, DayApprovalRepository>();
-        services.AddScoped<IPeriodClosureRepository, PeriodClosureRepository>();
-
         services.AddSingleton<IMacroEngine, MacroEngine>();
         services.AddSingleton<IMacroCache, MacroCache>();
         services.AddSingleton<IHolidayCalculatorCache, HolidayCalculatorCache>();

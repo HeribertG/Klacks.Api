@@ -8,8 +8,4 @@ public class Work : ScheduleEntryBase
     public virtual Shift? Shift { get; set; } = null!;
 
     public Guid ShiftId { get; set; }
-
-    public DateTime? ConfirmedAt { get; set; }
-
-    public string? ConfirmedBy { get; set; }
 }

@@ -1,4 +1,5 @@
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
 using System.Text.Json.Serialization;
 
@@ -22,4 +23,10 @@ public abstract class ScheduleEntryBase : BaseEntity
     public TimeOnly StartTime { get; set; }
 
     public TimeOnly EndTime { get; set; }
+
+    public WorkLockLevel LockLevel { get; set; } = WorkLockLevel.None;
+
+    public DateTime? SealedAt { get; set; }
+
+    public string? SealedBy { get; set; }
 }

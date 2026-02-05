@@ -73,23 +73,9 @@ BEGIN
         AND w."current_date"::DATE >= start_date
         AND w."current_date"::DATE <= end_date
     ),
-    work_lock_levels AS MATERIALIZED (
+    work_group_restricted AS MATERIALIZED (
         SELECT
             w.id AS work_id,
-            CASE
-                WHEN EXISTS (SELECT 1 FROM period_closure pc
-                             WHERE pc.is_deleted = false
-                             AND w."current_date"::DATE >= pc.start_date AND w."current_date"::DATE <= pc.end_date)
-                THEN 3
-                WHEN EXISTS (SELECT 1 FROM day_approval da
-                             JOIN group_item gi ON gi.shift_id = w.shift_id AND gi.is_deleted = false
-                             WHERE da.is_deleted = false
-                             AND da.approval_date = w."current_date"::DATE AND da.group_id = gi.group_id)
-                THEN 2
-                WHEN w.confirmed_at IS NOT NULL
-                THEN 1
-                ELSE 0
-            END AS lock_level,
             CASE
                 WHEN (visible_group_ids IS NOT NULL AND array_length(visible_group_ids, 1) IS NOT NULL)
                     AND EXISTS (SELECT 1 FROM group_item gi2 WHERE gi2.shift_id = w.shift_id AND gi2.is_deleted = false)
@@ -124,11 +110,11 @@ BEGIN
             s.abbreviation,
             NULL::UUID AS replace_client_id,
             false AS is_replacement_entry,
-            wll.lock_level,
-            wll.is_group_restricted
+            w.lock_level,
+            wgr.is_group_restricted
         FROM valid_works w
         JOIN shift s ON s.id = w.shift_id
-        JOIN work_lock_levels wll ON wll.work_id = w.id
+        JOIN work_group_restricted wgr ON wgr.work_id = w.id
     ),
     -- Entry Type 1: WorkChange - CorrectionEnd (Type = 0)
     correction_end_entries AS (
@@ -157,12 +143,12 @@ BEGIN
             s.abbreviation,
             wc.replace_client_id,
             false AS is_replacement_entry,
-            wll.lock_level,
-            wll.is_group_restricted
+            w.lock_level,
+            wgr.is_group_restricted
         FROM work_change wc
         JOIN valid_works w ON w.id = wc.work_id
         JOIN shift s ON s.id = w.shift_id
-        JOIN work_lock_levels wll ON wll.work_id = w.id
+        JOIN work_group_restricted wgr ON wgr.work_id = w.id
         WHERE wc.is_deleted = false AND wc.type = 0
     ),
     -- Entry Type 1: WorkChange - CorrectionStart (Type = 1)
@@ -192,12 +178,12 @@ BEGIN
             s.abbreviation,
             wc.replace_client_id,
             false AS is_replacement_entry,
-            wll.lock_level,
-            wll.is_group_restricted
+            w.lock_level,
+            wgr.is_group_restricted
         FROM work_change wc
         JOIN valid_works w ON w.id = wc.work_id
         JOIN shift s ON s.id = w.shift_id
-        JOIN work_lock_levels wll ON wll.work_id = w.id
+        JOIN work_group_restricted wgr ON wgr.work_id = w.id
         WHERE wc.is_deleted = false AND wc.type = 1
     ),
     -- Entry Type 1: WorkChange - ReplacementStart (Type = 2) - Original Client (loses time at start)
@@ -227,12 +213,12 @@ BEGIN
             s.abbreviation,
             wc.replace_client_id,
             false AS is_replacement_entry,
-            wll.lock_level,
-            wll.is_group_restricted
+            w.lock_level,
+            wgr.is_group_restricted
         FROM work_change wc
         JOIN valid_works w ON w.id = wc.work_id
         JOIN shift s ON s.id = w.shift_id
-        JOIN work_lock_levels wll ON wll.work_id = w.id
+        JOIN work_group_restricted wgr ON wgr.work_id = w.id
         WHERE wc.is_deleted = false AND wc.type = 2
     ),
     -- Entry Type 1: WorkChange - ReplacementStart (Type = 2) - Replacement Client (gains time at start)
@@ -262,12 +248,12 @@ BEGIN
             s.abbreviation,
             w.client_id AS replace_client_id,
             true AS is_replacement_entry,
-            wll.lock_level,
-            wll.is_group_restricted
+            w.lock_level,
+            wgr.is_group_restricted
         FROM work_change wc
         JOIN valid_works w ON w.id = wc.work_id
         JOIN shift s ON s.id = w.shift_id
-        JOIN work_lock_levels wll ON wll.work_id = w.id
+        JOIN work_group_restricted wgr ON wgr.work_id = w.id
         WHERE wc.is_deleted = false AND wc.type = 2 AND wc.replace_client_id IS NOT NULL
     ),
     -- Entry Type 1: WorkChange - ReplacementEnd (Type = 3) - Original Client (loses time at end)
@@ -297,12 +283,12 @@ BEGIN
             s.abbreviation,
             wc.replace_client_id,
             false AS is_replacement_entry,
-            wll.lock_level,
-            wll.is_group_restricted
+            w.lock_level,
+            wgr.is_group_restricted
         FROM work_change wc
         JOIN valid_works w ON w.id = wc.work_id
         JOIN shift s ON s.id = w.shift_id
-        JOIN work_lock_levels wll ON wll.work_id = w.id
+        JOIN work_group_restricted wgr ON wgr.work_id = w.id
         WHERE wc.is_deleted = false AND wc.type = 3
     ),
     -- Entry Type 1: WorkChange - ReplacementEnd (Type = 3) - Replacement Client (gains time at end)
@@ -332,12 +318,12 @@ BEGIN
             s.abbreviation,
             w.client_id AS replace_client_id,
             true AS is_replacement_entry,
-            wll.lock_level,
-            wll.is_group_restricted
+            w.lock_level,
+            wgr.is_group_restricted
         FROM work_change wc
         JOIN valid_works w ON w.id = wc.work_id
         JOIN shift s ON s.id = w.shift_id
-        JOIN work_lock_levels wll ON wll.work_id = w.id
+        JOIN work_group_restricted wgr ON wgr.work_id = w.id
         WHERE wc.is_deleted = false AND wc.type = 3 AND wc.replace_client_id IS NOT NULL
     ),
     -- Entry Type 2: Expenses entries
@@ -363,12 +349,12 @@ BEGIN
             s.abbreviation,
             NULL::UUID AS replace_client_id,
             false AS is_replacement_entry,
-            wll.lock_level,
-            wll.is_group_restricted
+            w.lock_level,
+            wgr.is_group_restricted
         FROM expenses e
         JOIN valid_works w ON w.id = e.work_id
         JOIN shift s ON s.id = w.shift_id
-        JOIN work_lock_levels wll ON wll.work_id = w.id
+        JOIN work_group_restricted wgr ON wgr.work_id = w.id
         WHERE e.is_deleted = false
     ),
     -- Entry Type 3: Break entries
@@ -395,7 +381,7 @@ BEGIN
             NULL::TEXT AS abbreviation,
             NULL::UUID AS replace_client_id,
             false AS is_replacement_entry,
-            0 AS lock_level,
+            b.lock_level,
             false AS is_group_restricted
         FROM break b
         WHERE b.is_deleted = false

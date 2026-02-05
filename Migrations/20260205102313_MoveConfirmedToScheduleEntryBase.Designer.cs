@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260205102313_MoveConfirmedToScheduleEntryBase")]
+    partial class MoveConfirmedToScheduleEntryBase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1521,6 +1524,14 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("client_id");
 
+                    b.Property<DateTime?>("ConfirmedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("confirmed_at");
+
+                    b.Property<string>("ConfirmedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("confirmed_by");
+
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("create_time");
@@ -1556,18 +1567,6 @@ namespace Klacks.Api.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
-
-                    b.Property<int>("LockLevel")
-                        .HasColumnType("integer")
-                        .HasColumnName("lock_level");
-
-                    b.Property<DateTime?>("SealedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("sealed_at");
-
-                    b.Property<string>("SealedBy")
-                        .HasColumnType("text")
-                        .HasColumnName("sealed_by");
 
                     b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time without time zone")
@@ -1960,6 +1959,70 @@ namespace Klacks.Api.Migrations
                     b.ToTable("container_template_item", (string)null);
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.DayApproval", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateOnly>("ApprovalDate")
+                        .HasColumnType("date")
+                        .HasColumnName("approval_date");
+
+                    b.Property<DateTime>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("approved_at");
+
+                    b.Property<string>("ApprovedBy")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("approved_by");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("group_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_day_approvals");
+
+                    b.HasIndex("GroupId")
+                        .HasDatabaseName("ix_day_approvals_group_id");
+
+                    b.HasIndex("ApprovalDate", "GroupId")
+                        .HasDatabaseName("ix_day_approvals_approval_date_group_id");
+
+                    b.ToTable("day_approvals", (string)null);
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Expenses", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2125,6 +2188,67 @@ namespace Klacks.Api.Migrations
                         .HasDatabaseName("ix_period_individual_period_id");
 
                     b.ToTable("period", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.PeriodClosure", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("ClosedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("closed_at");
+
+                    b.Property<string>("ClosedBy")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("closed_by");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_period_closures");
+
+                    b.HasIndex("StartDate", "EndDate")
+                        .HasDatabaseName("ix_period_closures_start_date_end_date");
+
+                    b.ToTable("period_closures", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.ScheduleCell", b =>
@@ -2569,6 +2693,14 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("client_id");
 
+                    b.Property<DateTime?>("ConfirmedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("confirmed_at");
+
+                    b.Property<string>("ConfirmedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("confirmed_by");
+
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("create_time");
@@ -2604,18 +2736,6 @@ namespace Klacks.Api.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
-
-                    b.Property<int>("LockLevel")
-                        .HasColumnType("integer")
-                        .HasColumnName("lock_level");
-
-                    b.Property<DateTime?>("SealedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("sealed_at");
-
-                    b.Property<string>("SealedBy")
-                        .HasColumnType("text")
-                        .HasColumnName("sealed_by");
 
                     b.Property<Guid>("ShiftId")
                         .HasColumnType("uuid")
@@ -4439,6 +4559,18 @@ namespace Klacks.Api.Migrations
                     b.Navigation("ContainerTemplate");
 
                     b.Navigation("Shift");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.DayApproval", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Associations.Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_day_approvals_group_group_id");
+
+                    b.Navigation("Group");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Expenses", b =>

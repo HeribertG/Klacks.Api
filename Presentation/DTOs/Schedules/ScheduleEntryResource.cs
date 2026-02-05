@@ -1,3 +1,4 @@
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Presentation.DTOs.Staffs;
 
 namespace Klacks.Api.Presentation.DTOs.Schedules;
@@ -21,6 +22,12 @@ public class ScheduleEntryResource
     public TimeOnly StartTime { get; set; }
 
     public TimeOnly EndTime { get; set; }
+
+    public WorkLockLevel LockLevel { get; set; }
+
+    public DateTime? SealedAt { get; set; }
+
+    public string? SealedBy { get; set; }
 
     public PeriodHoursResource? PeriodHours { get; set; }
 

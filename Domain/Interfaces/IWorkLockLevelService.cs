@@ -4,11 +4,7 @@ namespace Klacks.Api.Domain.Interfaces;
 
 public interface IWorkLockLevelService
 {
-    bool CanModifyWork(WorkLockLevel effectiveLevel, bool isAdmin);
-    bool CanConfirm(WorkLockLevel effectiveLevel);
-    bool CanUnconfirm(WorkLockLevel effectiveLevel, bool isAdmin);
-    bool CanApprove(WorkLockLevel effectiveLevel, bool isAuthorised);
-    bool CanRevokeApproval(WorkLockLevel effectiveLevel, bool isAdmin);
-    bool CanClosePeriod(bool isAdmin);
-    bool CanReopenPeriod(bool isAdmin);
+    bool CanModifyWork(WorkLockLevel level, bool isAdmin);
+    bool CanSeal(WorkLockLevel currentLevel, WorkLockLevel targetLevel, bool isAdmin, bool isAuthorised);
+    bool CanUnseal(WorkLockLevel currentLevel, bool isAdmin, bool isAuthorised);
 }

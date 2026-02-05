@@ -41,14 +41,17 @@ public class ConfirmWorkCommandHandler : BaseHandler, IRequestHandler<ConfirmWor
             if (work == null)
                 throw new KeyNotFoundException($"Work with ID {request.WorkId} not found.");
 
-            var currentLevel = work.ConfirmedAt != null ? WorkLockLevel.Confirmed : WorkLockLevel.None;
-            if (!_lockLevelService.CanConfirm(currentLevel))
+            var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole("Admin") == true;
+            var isAuthorised = _httpContextAccessor.HttpContext?.User?.HasClaim("IsAuthorised", "true") == true;
+
+            if (!_lockLevelService.CanSeal(work.LockLevel, WorkLockLevel.Confirmed, isAdmin, isAuthorised))
                 throw new Domain.Exceptions.InvalidRequestException("Work entry cannot be confirmed in its current state.");
 
             var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
 
-            work.ConfirmedAt = DateTime.UtcNow;
-            work.ConfirmedBy = userName;
+            work.LockLevel = WorkLockLevel.Confirmed;
+            work.SealedAt = DateTime.UtcNow;
+            work.SealedBy = userName;
 
             await _workRepository.Put(work);
             await _unitOfWork.CompleteAsync();

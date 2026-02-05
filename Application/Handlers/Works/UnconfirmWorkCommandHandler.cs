@@ -5,7 +5,6 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Presentation.DTOs.Schedules;
-using System.Security.Claims;
 
 namespace Klacks.Api.Application.Handlers.Works;
 
@@ -41,14 +40,15 @@ public class UnconfirmWorkCommandHandler : BaseHandler, IRequestHandler<Unconfir
             if (work == null)
                 throw new KeyNotFoundException($"Work with ID {request.WorkId} not found.");
 
-            var currentLevel = work.ConfirmedAt != null ? WorkLockLevel.Confirmed : WorkLockLevel.None;
             var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole("Admin") == true;
+            var isAuthorised = _httpContextAccessor.HttpContext?.User?.HasClaim("IsAuthorised", "true") == true;
 
-            if (!_lockLevelService.CanUnconfirm(currentLevel, isAdmin))
-                throw new Domain.Exceptions.InvalidRequestException("Work entry confirmation cannot be revoked in its current state.");
+            if (!_lockLevelService.CanUnseal(work.LockLevel, isAdmin, isAuthorised))
+                throw new Domain.Exceptions.InvalidRequestException("Work entry cannot be unsealed in its current state.");
 
-            work.ConfirmedAt = null;
-            work.ConfirmedBy = null;
+            work.LockLevel = WorkLockLevel.None;
+            work.SealedAt = null;
+            work.SealedBy = null;
 
             await _workRepository.Put(work);
             await _unitOfWork.CompleteAsync();

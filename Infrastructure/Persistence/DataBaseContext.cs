@@ -127,11 +127,6 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<IdentityProviderSyncLog> IdentityProviderSyncLogs { get; set; }
 
-    // WorkLockLevel DbSets
-    public DbSet<DayApproval> DayApprovals { get; set; }
-
-    public DbSet<PeriodClosure> PeriodClosures { get; set; }
-
     // Report DbSets
     public DbSet<ReportTemplate> ReportTemplates { get; set; }
 
@@ -253,8 +248,6 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<GroupVisibility>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Contract>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<ClientContract>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<DayApproval>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<PeriodClosure>().HasQueryFilter(p => !p.IsDeleted);
 
         // LLM Query Filters
         modelBuilder.Entity<LLMProvider>(entity =>
@@ -357,15 +350,6 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<GroupVisibility>().HasIndex(p => new { p.AppUserId, p.GroupId });
         modelBuilder.Entity<Contract>().HasIndex(p => new { p.Name, p.ValidFrom, p.ValidUntil });
         modelBuilder.Entity<ClientContract>().HasIndex(p => new { p.ClientId, p.ContractId, p.FromDate, p.UntilDate });
-        modelBuilder.Entity<DayApproval>().HasIndex(p => new { p.ApprovalDate, p.GroupId });
-        modelBuilder.Entity<PeriodClosure>().HasIndex(p => new { p.StartDate, p.EndDate });
-
-        modelBuilder.Entity<DayApproval>()
-            .HasOne(da => da.Group)
-            .WithMany()
-            .HasForeignKey(da => da.GroupId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         modelBuilder.Entity<ClientPeriodHours>()
             .HasIndex(p => new { p.ClientId, p.StartDate, p.EndDate })
             .IsUnique();

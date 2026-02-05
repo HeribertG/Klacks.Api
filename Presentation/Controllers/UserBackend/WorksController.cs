@@ -158,4 +158,32 @@ public class WorksController : BaseController
         }
         return Ok(model);
     }
+
+    [HttpPost("ApproveDay")]
+    public async Task<ActionResult<int>> ApproveDay([FromBody] ApproveDayCommand command)
+    {
+        var count = await _mediator.Send(command);
+        return Ok(count);
+    }
+
+    [HttpPost("RevokeDayApproval")]
+    public async Task<ActionResult<int>> RevokeDayApproval([FromBody] RevokeDayApprovalCommand command)
+    {
+        var count = await _mediator.Send(command);
+        return Ok(count);
+    }
+
+    [HttpPost("ClosePeriod")]
+    public async Task<ActionResult<int>> ClosePeriod([FromBody] ClosePeriodCommand command)
+    {
+        var count = await _mediator.Send(command);
+        return Ok(count);
+    }
+
+    [HttpPost("ReopenPeriod")]
+    public async Task<ActionResult<int>> ReopenPeriod([FromBody] ReopenPeriodCommand command)
+    {
+        var count = await _mediator.Send(command);
+        return Ok(count);
+    }
 }

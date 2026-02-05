@@ -5,40 +5,35 @@ namespace Klacks.Api.Domain.Services.Schedules;
 
 public class WorkLockLevelService : IWorkLockLevelService
 {
-    public bool CanModifyWork(WorkLockLevel effectiveLevel, bool isAdmin)
+    public bool CanModifyWork(WorkLockLevel level, bool isAdmin)
     {
         if (isAdmin) return true;
-        return effectiveLevel == WorkLockLevel.None;
+        return level == WorkLockLevel.None;
     }
 
-    public bool CanConfirm(WorkLockLevel effectiveLevel)
+    public bool CanSeal(WorkLockLevel currentLevel, WorkLockLevel targetLevel, bool isAdmin, bool isAuthorised)
     {
-        return effectiveLevel == WorkLockLevel.None;
+        if (targetLevel <= currentLevel) return false;
+
+        return targetLevel switch
+        {
+            WorkLockLevel.Confirmed => true,
+            WorkLockLevel.Approved => isAuthorised || isAdmin,
+            WorkLockLevel.Closed => isAdmin,
+            _ => false
+        };
     }
 
-    public bool CanUnconfirm(WorkLockLevel effectiveLevel, bool isAdmin)
+    public bool CanUnseal(WorkLockLevel currentLevel, bool isAdmin, bool isAuthorised)
     {
-        if (isAdmin) return effectiveLevel <= WorkLockLevel.Confirmed;
-        return effectiveLevel == WorkLockLevel.Confirmed;
-    }
+        if (currentLevel == WorkLockLevel.None) return false;
 
-    public bool CanApprove(WorkLockLevel effectiveLevel, bool isAuthorised)
-    {
-        return isAuthorised && effectiveLevel <= WorkLockLevel.Confirmed;
-    }
-
-    public bool CanRevokeApproval(WorkLockLevel effectiveLevel, bool isAdmin)
-    {
-        return isAdmin && effectiveLevel == WorkLockLevel.Approved;
-    }
-
-    public bool CanClosePeriod(bool isAdmin)
-    {
-        return isAdmin;
-    }
-
-    public bool CanReopenPeriod(bool isAdmin)
-    {
-        return isAdmin;
+        return currentLevel switch
+        {
+            WorkLockLevel.Confirmed => true,
+            WorkLockLevel.Approved => isAuthorised || isAdmin,
+            WorkLockLevel.Closed => isAdmin,
+            _ => false
+        };
     }
 }

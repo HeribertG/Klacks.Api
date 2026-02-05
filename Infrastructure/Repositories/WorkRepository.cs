@@ -346,4 +346,46 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             .ThenBy(w => w.StartTime)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
+    {
+        return await _context.Work
+            .Where(w => !w.IsDeleted && w.CurrentDate == date && w.LockLevel < level)
+            .Where(w => _context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(w => w.LockLevel, level)
+                .SetProperty(w => w.SealedAt, DateTime.UtcNow)
+                .SetProperty(w => w.SealedBy, sealedBy), cancellationToken);
+    }
+
+    public async Task<int> UnsealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default)
+    {
+        return await _context.Work
+            .Where(w => !w.IsDeleted && w.CurrentDate == date && w.LockLevel == level)
+            .Where(w => _context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(w => w.LockLevel, WorkLockLevel.None)
+                .SetProperty(w => w.SealedAt, (DateTime?)null)
+                .SetProperty(w => w.SealedBy, (string?)null), cancellationToken);
+    }
+
+    public async Task<int> SealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
+    {
+        return await _context.Work
+            .Where(w => !w.IsDeleted && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.LockLevel < level)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(w => w.LockLevel, level)
+                .SetProperty(w => w.SealedAt, DateTime.UtcNow)
+                .SetProperty(w => w.SealedBy, sealedBy), cancellationToken);
+    }
+
+    public async Task<int> UnsealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, CancellationToken cancellationToken = default)
+    {
+        return await _context.Work
+            .Where(w => !w.IsDeleted && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.LockLevel == level)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(w => w.LockLevel, WorkLockLevel.None)
+                .SetProperty(w => w.SealedAt, (DateTime?)null)
+                .SetProperty(w => w.SealedBy, (string?)null), cancellationToken);
+    }
 }
