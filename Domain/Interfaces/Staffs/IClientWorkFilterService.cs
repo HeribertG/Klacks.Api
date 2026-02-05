@@ -1,0 +1,11 @@
+using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Application.DTOs.Filter;
+
+namespace Klacks.Api.Domain.Interfaces.Staffs;
+
+public interface IClientWorkFilterService
+{
+    IQueryable<Client> FilterByMembershipYearMonth(IQueryable<Client> query, int year, int month);
+    IQueryable<Client> FilterByWorkSchedule(IQueryable<Client> query, WorkFilter filter, DataBaseContext context);
+}
