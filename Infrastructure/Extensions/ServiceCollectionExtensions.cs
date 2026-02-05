@@ -280,6 +280,10 @@ public static  class ServiceCollectionExtensions
         services.AddHttpClient<ITranslationService, Services.Translation.DeepLTranslationService>();
         services.AddScoped<IMultiLanguageTranslationService, Services.Translation.MultiLanguageTranslationService>();
 
+        // Report Services
+        services.AddScoped<IReportGenerator, Reports.ScheduleReportGenerator>();
+        services.AddScoped<IReportTemplateRepository, Reports.ReportTemplateRepository>();
+
         return services;
     }
 }
