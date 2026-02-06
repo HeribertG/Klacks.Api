@@ -1,10 +1,12 @@
 using Klacks.Api.Application.Commands.Settings.Branch;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Settings;
 
+[Authorize(Roles = "Admin")]
 public class BranchController : BaseController
 {
     private readonly IMediator mediator;

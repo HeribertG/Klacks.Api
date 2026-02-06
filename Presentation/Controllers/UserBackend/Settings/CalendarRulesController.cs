@@ -4,10 +4,12 @@ using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Settings;
 
+[Authorize(Roles = "Admin")]
 public class CalendarRulesController : BaseController
 {
     private readonly IMediator mediator;

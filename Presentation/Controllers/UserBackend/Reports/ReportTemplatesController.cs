@@ -10,9 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Reports;
 
 [ApiController]
-[Route("api/backend/[controller]")]
 [Authorize(Roles = "Admin")]
-public class ReportTemplatesController : ControllerBase
+public class ReportTemplatesController : BaseController
 {
     private readonly IMediator _mediator;
     private readonly ReportTemplateMapper _mapper;

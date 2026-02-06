@@ -1,11 +1,13 @@
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Domain.Models.Settings;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Settings;
 
+[Authorize(Roles = "Admin")]
 public class PostcodeChController : BaseController
 {
     private readonly DataBaseContext context;

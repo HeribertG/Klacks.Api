@@ -2,10 +2,12 @@ using Klacks.Api.Application.Commands.Settings.Settings;
 using Klacks.Api.Infrastructure.Email;
 using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Settings;
 
+[Authorize(Roles = "Admin")]
 public class GeneralSettingsController : BaseController
 {
     private readonly IMediator mediator;
