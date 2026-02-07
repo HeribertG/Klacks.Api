@@ -16,4 +16,5 @@ public class ReportField
     public string? Format { get; set; }
     public string? Formula { get; set; }
     public int SortOrder { get; set; }
+    public string? ImageUrl { get; set; }
 }

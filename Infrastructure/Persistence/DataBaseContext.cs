@@ -317,6 +317,11 @@ public class DataBaseContext : IdentityDbContext
                       v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
                       v => System.Text.Json.JsonSerializer.Deserialize<List<Domain.Models.Reports.ReportSection>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new())
                   .HasColumnType("jsonb");
+            entity.Property(e => e.DataSetIds)
+                  .HasConversion(
+                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                      v => System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new())
+                  .HasColumnType("jsonb");
             entity.HasIndex(p => new { p.IsDeleted, p.Type, p.Name });
         });
 
