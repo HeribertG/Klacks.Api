@@ -70,7 +70,9 @@ public class SkillRegistrationService
             typeof(ListContractsSkill),
             typeof(ListGroupsSkill),
             typeof(ValidateAddressSkill),
-            typeof(GetUserPermissionsSkill)
+            typeof(GetUserPermissionsSkill),
+            typeof(GetGeneralSettingsSkill),
+            typeof(UpdateGeneralSettingsSkill)
         };
 
         using var scope = _serviceProvider.CreateScope();

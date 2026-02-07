@@ -24,7 +24,7 @@ public class LLMProviderOrchestrator
     {
         try
         {
-            var effectiveModelId = modelId ?? await GetDefaultModelIdAsync();
+            var effectiveModelId = string.IsNullOrWhiteSpace(modelId) ? await GetDefaultModelIdAsync() : modelId;
             var model = await _repository.GetModelByIdAsync(effectiveModelId);
 
             if (model == null || !model.IsEnabled)

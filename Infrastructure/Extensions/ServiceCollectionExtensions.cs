@@ -282,6 +282,8 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.ListGroupsSkill>();
         services.AddScoped<Application.Skills.ValidateAddressSkill>();
         services.AddScoped<Application.Skills.GetUserPermissionsSkill>();
+        services.AddScoped<Application.Skills.GetGeneralSettingsSkill>();
+        services.AddScoped<Application.Skills.UpdateGeneralSettingsSkill>();
 
         // Geocoding Service
         services.AddHttpClient("Nominatim");

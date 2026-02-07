@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Skills;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Domain.Services.Skills;
@@ -12,15 +13,18 @@ public class SkillExecutorService : ISkillExecutor
 {
     private readonly ISkillRegistry _registry;
     private readonly ISkillUsageTracker _usageTracker;
+    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<SkillExecutorService> _logger;
 
     public SkillExecutorService(
         ISkillRegistry registry,
         ISkillUsageTracker usageTracker,
+        IServiceProvider serviceProvider,
         ILogger<SkillExecutorService> logger)
     {
         _registry = registry;
         _usageTracker = usageTracker;
+        _serviceProvider = serviceProvider;
         _logger = logger;
     }
 
@@ -55,7 +59,8 @@ public class SkillExecutorService : ISkillExecutor
             _logger.LogInformation("Executing skill: {SkillName} for user {UserId}",
                 skill.Name, context.UserId);
 
-            var result = await skill.ExecuteAsync(context, invocation.Parameters, cancellationToken);
+            var executableSkill = ResolveFreshSkillInstance(skill);
+            var result = await executableSkill.ExecuteAsync(context, invocation.Parameters, cancellationToken);
 
             stopwatch.Stop();
 
@@ -134,8 +139,32 @@ public class SkillExecutorService : ISkillExecutor
         return results;
     }
 
+    private ISkill ResolveFreshSkillInstance(ISkill registeredSkill)
+    {
+        try
+        {
+            var freshSkill = _serviceProvider.GetService(registeredSkill.GetType()) as ISkill;
+            if (freshSkill != null)
+            {
+                return freshSkill;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Could not resolve fresh instance for {SkillType}, using registered instance",
+                registeredSkill.GetType().Name);
+        }
+
+        return registeredSkill;
+    }
+
     private static SkillResult ValidatePermissions(ISkill skill, SkillExecutionContext context)
     {
+        if (context.UserPermissions.Contains("Admin"))
+        {
+            return SkillResult.SuccessResult(null);
+        }
+
         var missingPermissions = skill.RequiredPermissions
             .Where(rp => !context.UserPermissions.Contains(rp))
             .ToList();

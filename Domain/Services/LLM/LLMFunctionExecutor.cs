@@ -1,5 +1,7 @@
 using System.Text.Json;
 using Klacks.Api.Domain.Services.LLM.Providers;
+using Klacks.Api.Domain.Services.Skills;
+using Klacks.Api.Domain.Models.Skills;
 using Klacks.Api.Infrastructure.MCP;
 using Klacks.Api.Application.DTOs.LLM;
 
@@ -9,13 +11,26 @@ public class LLMFunctionExecutor
 {
     private readonly ILogger<LLMFunctionExecutor> _logger;
     private readonly IMCPService? _mcpService;
+    private readonly ILLMSkillBridge? _skillBridge;
+
+    private static readonly HashSet<string> BuiltInFunctions = new()
+    {
+        "create_client", "search_clients", "create_contract", "get_system_info"
+    };
+
+    private static readonly HashSet<string> FrontendOnlyFunctions = new()
+    {
+        "get_general_settings", "update_general_settings"
+    };
 
     public LLMFunctionExecutor(
         ILogger<LLMFunctionExecutor> logger,
-        IMCPService? mcpService = null)
+        IMCPService? mcpService = null,
+        ILLMSkillBridge? skillBridge = null)
     {
         this._logger = logger;
         _mcpService = mcpService;
+        _skillBridge = skillBridge;
     }
 
     public async Task<string> ProcessFunctionCallsAsync(LLMContext context, List<LLMFunctionCall> functionCalls)
@@ -35,7 +50,7 @@ public class LLMFunctionExecutor
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error executing function {FunctionName}", call.FunctionName);
-                results.Add($"❌ Fehler beim Ausführen von {call.FunctionName}");
+                results.Add($"Error executing {call.FunctionName}: {ex.Message}");
             }
         }
 
@@ -47,12 +62,20 @@ public class LLMFunctionExecutor
         _logger.LogInformation("Executing function {FunctionName} with parameters {Parameters}",
             call.FunctionName, JsonSerializer.Serialize(call.Parameters));
 
-        if (_mcpService != null)
+        if (FrontendOnlyFunctions.Contains(call.FunctionName))
+        {
+            _logger.LogInformation("Executing {FunctionName} for LLM context (frontend handles UI)", call.FunctionName);
+            var skillResult = await ExecuteSkillAsync(context, call);
+            var firstLine = skillResult.Split('\n')[0];
+            return firstLine;
+        }
+
+        if (_mcpService != null && BuiltInFunctions.Contains(call.FunctionName))
         {
             try
             {
                 var mcpResult = await _mcpService.ExecuteToolAsync(call.FunctionName, call.Parameters);
-                if (!string.IsNullOrEmpty(mcpResult))
+                if (!string.IsNullOrEmpty(mcpResult) && !mcpResult.Contains("Error") && !mcpResult.Contains("not found"))
                 {
                     return mcpResult;
                 }
@@ -63,14 +86,52 @@ public class LLMFunctionExecutor
             }
         }
 
-        return call.FunctionName switch
+        if (BuiltInFunctions.Contains(call.FunctionName))
         {
-            "create_client" => await ExecuteCreateClientAsync(call.Parameters),
-            "search_clients" => await ExecuteSearchClientsAsync(call.Parameters),
-            "create_contract" => await ExecuteCreateContractAsync(call.Parameters),
-            "get_system_info" => await ExecuteGetSystemInfoAsync(),
-            _ => $"✅ Funktion '{call.FunctionName}' wurde ausgeführt."
+            return call.FunctionName switch
+            {
+                "create_client" => await ExecuteCreateClientAsync(call.Parameters),
+                "search_clients" => await ExecuteSearchClientsAsync(call.Parameters),
+                "create_contract" => await ExecuteCreateContractAsync(call.Parameters),
+                "get_system_info" => await ExecuteGetSystemInfoAsync(),
+                _ => ""
+            };
+        }
+
+        return await ExecuteSkillAsync(context, call);
+    }
+
+    private async Task<string> ExecuteSkillAsync(LLMContext context, LLMFunctionCall call)
+    {
+        if (_skillBridge == null)
+        {
+            _logger.LogWarning("No skill bridge available to execute {FunctionName}", call.FunctionName);
+            return $"Function '{call.FunctionName}' is not available.";
+        }
+
+        var skillContext = new SkillExecutionContext
+        {
+            UserId = Guid.TryParse(context.UserId, out var uid) ? uid : Guid.Empty,
+            TenantId = Guid.Empty,
+            UserName = context.UserId,
+            UserPermissions = context.UserRights
         };
+
+        var skillCall = new Providers.LLMFunctionCall
+        {
+            FunctionName = call.FunctionName,
+            Parameters = call.Parameters
+        };
+
+        var result = await _skillBridge.ExecuteSkillFromLLMCallAsync(skillCall, skillContext);
+
+        if (result.Success)
+        {
+            var data = result.Data != null ? JsonSerializer.Serialize(result.Data) : "";
+            return string.IsNullOrEmpty(data) ? result.Message : $"{result.Message}\n{data}";
+        }
+
+        return $"Error: {result.Message}";
     }
 
     private Task<string> ExecuteCreateClientAsync(Dictionary<string, object> parameters)

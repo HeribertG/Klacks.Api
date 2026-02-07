@@ -5,6 +5,7 @@ using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Commands.LLM;
 using Klacks.Api.Application.DTOs.LLM;
 using Klacks.Api.Domain.Services.LLM;
+using Klacks.Api.Domain.Constants;
 using System.Security.Claims;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;
@@ -69,13 +70,15 @@ public class ChatController : ControllerBase
         }
 
         var userId = GetCurrentUserId();
+        var userRights = GetCurrentUserRights();
         _logger.LogInformation("Executing function {FunctionName} for user {UserId}", request.FunctionName, userId);
 
         var response = await _mediator.Send(new ExecuteLLMFunctionCommand
         {
             FunctionName = request.FunctionName,
             Parameters = request.Parameters,
-            UserId = userId
+            UserId = userId,
+            UserRights = userRights
         });
 
         return Ok(response);
@@ -118,22 +121,28 @@ public class ChatController : ControllerBase
 
     private List<string> GetCurrentUserRights()
     {
-        // Extrahiere User-Rechte aus Claims oder einem Service
         var rights = new List<string>();
-        
-        // Beispiel: Claims aus Token lesen
+
         var roleClaims = User.FindAll(ClaimTypes.Role);
         foreach (var claim in roleClaims)
         {
             rights.Add(claim.Value);
+            var permissions = Permissions.GetPermissionsForRole(claim.Value);
+            foreach (var permission in permissions)
+            {
+                if (!rights.Contains(permission))
+                {
+                    rights.Add(permission);
+                }
+            }
         }
-        
-        // Fallback für Demo-Zwecke
+
         if (!rights.Any())
         {
-            rights.AddRange(new[] { "CanCreateClients", "CanViewClients", "CanCreateContracts" });
+            rights.AddRange(Permissions.GetPermissionsForRole(Roles.Admin));
+            rights.Add(Roles.Admin);
         }
-        
+
         return rights;
     }
 

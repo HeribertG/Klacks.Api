@@ -1,6 +1,7 @@
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Services.LLM;
+using Klacks.Api.Domain.Services.Skills;
 using Klacks.Api.Application.DTOs.LLM;
 
 namespace Klacks.Api.Application.Commands.LLM;
@@ -18,10 +19,12 @@ public class ProcessLLMMessageCommand : IRequest<LLMResponse>
 public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessageCommand, LLMResponse>
 {
     private readonly ILLMService _llmService;
+    private readonly ILLMSkillBridge _skillBridge;
 
-    public ProcessLLMMessageCommandHandler(ILLMService llmService)
+    public ProcessLLMMessageCommandHandler(ILLMService llmService, ILLMSkillBridge skillBridge)
     {
         _llmService = llmService;
+        _skillBridge = skillBridge;
     }
 
     public async Task<LLMResponse> Handle(ProcessLLMMessageCommand request, CancellationToken cancellationToken)
@@ -61,6 +64,16 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         if (userRights.Contains("CanCreateContracts") || userRights.Contains("Admin"))
         {
             functions.Add(LLMFunctions.CreateContract);
+        }
+
+        var skillFunctions = _skillBridge.GetSkillsAsLLMFunctions(userRights);
+        var existingNames = new HashSet<string>(functions.Select(f => f.Name));
+        foreach (var skillFunction in skillFunctions)
+        {
+            if (!existingNames.Contains(skillFunction.Name))
+            {
+                functions.Add(skillFunction);
+            }
         }
 
         return functions;

@@ -75,6 +75,11 @@ public class SkillRegistry : ISkillRegistry
 
     public IReadOnlyList<ISkill> GetSkillsForUser(IReadOnlyList<string> userPermissions)
     {
+        if (userPermissions.Contains("Admin"))
+        {
+            return _skills.Values.ToList();
+        }
+
         return _skills.Values
             .Where(s => s.RequiredPermissions.All(rp => userPermissions.Contains(rp)))
             .ToList();

@@ -3,6 +3,8 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Application.DTOs.LLM;
+using Klacks.Api.Domain.Models.Skills;
+using Klacks.Api.Domain.Services.LLM.Providers;
 
 namespace Klacks.Api.Application.Commands.LLM;
 
@@ -11,19 +13,23 @@ public class ExecuteLLMFunctionCommand : IRequest<LLMFunctionResult>
     public string FunctionName { get; set; } = string.Empty;
     public Dictionary<string, object>? Parameters { get; set; }
     public string UserId { get; set; } = string.Empty;
+    public List<string> UserRights { get; set; } = new();
 }
 
 public class ExecuteLLMFunctionCommandHandler : IRequestHandler<ExecuteLLMFunctionCommand, LLMFunctionResult>
 {
     private readonly ILogger<ExecuteLLMFunctionCommandHandler> _logger;
     private readonly IClientRepository _clientRepository;
+    private readonly Klacks.Api.Domain.Services.Skills.ILLMSkillBridge? _skillBridge;
 
     public ExecuteLLMFunctionCommandHandler(
         ILogger<ExecuteLLMFunctionCommandHandler> logger,
-        IClientRepository clientRepository)
+        IClientRepository clientRepository,
+        Klacks.Api.Domain.Services.Skills.ILLMSkillBridge? skillBridge = null)
     {
         _logger = logger;
         _clientRepository = clientRepository;
+        _skillBridge = skillBridge;
     }
 
     public async Task<LLMFunctionResult> Handle(ExecuteLLMFunctionCommand request, CancellationToken cancellationToken)
@@ -37,11 +43,7 @@ public class ExecuteLLMFunctionCommandHandler : IRequestHandler<ExecuteLLMFuncti
                 "create_client" => await ExecuteCreateClientAsync(request.Parameters ?? new()),
                 "search_clients" => await ExecuteSearchClientsAsync(request.Parameters ?? new()),
                 "get_system_info" => ExecuteGetSystemInfo(),
-                _ => new LLMFunctionResult
-                {
-                    Success = false,
-                    Error = $"Unknown function: {request.FunctionName}"
-                }
+                _ => await ExecuteSkillAsync(request)
             };
         }
         catch (Exception ex)
@@ -53,6 +55,42 @@ public class ExecuteLLMFunctionCommandHandler : IRequestHandler<ExecuteLLMFuncti
                 Error = ex.Message
             };
         }
+    }
+
+    private async Task<LLMFunctionResult> ExecuteSkillAsync(ExecuteLLMFunctionCommand request)
+    {
+        if (_skillBridge == null)
+        {
+            return new LLMFunctionResult
+            {
+                Success = false,
+                Error = $"Unknown function: {request.FunctionName}"
+            };
+        }
+
+        var context = new SkillExecutionContext
+        {
+            UserId = Guid.TryParse(request.UserId, out var uid) ? uid : Guid.Empty,
+            TenantId = Guid.Empty,
+            UserName = request.UserId,
+            UserPermissions = request.UserRights
+        };
+
+        var functionCall = new LLMFunctionCall
+        {
+            FunctionName = request.FunctionName,
+            Parameters = request.Parameters ?? new()
+        };
+
+        var result = await _skillBridge.ExecuteSkillFromLLMCallAsync(functionCall, context);
+
+        return new LLMFunctionResult
+        {
+            Success = result.Success,
+            Message = result.Message,
+            Result = result.Data,
+            Error = result.Success ? null : result.Message
+        };
     }
 
     private async Task<LLMFunctionResult> ExecuteCreateClientAsync(Dictionary<string, object> parameters)
