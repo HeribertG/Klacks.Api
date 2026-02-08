@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Queries.LLM;
 using Klacks.Api.Application.Commands.LLM;
+using Klacks.Api.Application.Mappers;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;
 
@@ -13,6 +14,7 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 public class ProvidersController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly LLMMapper _mapper = new();
 
     public ProvidersController(IMediator mediator)
     {
@@ -23,7 +25,7 @@ public class ProvidersController : ControllerBase
     public async Task<IActionResult> GetProviders()
     {
         var providers = await _mediator.Send(new GetProvidersQuery());
-        return Ok(providers);
+        return Ok(_mapper.ToProviderResources(providers));
     }
 
     [HttpGet("{id}")]
@@ -35,14 +37,14 @@ public class ProvidersController : ControllerBase
             return NotFound();
         }
 
-        return Ok(provider);
+        return Ok(_mapper.ToProviderResource(provider));
     }
 
     [HttpPost]
     public async Task<IActionResult> CreateProvider([FromBody] CreateProviderCommand command)
     {
         var provider = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetProvider), new { id = provider.Id }, provider);
+        return CreatedAtAction(nameof(GetProvider), new { id = provider.Id }, _mapper.ToProviderResource(provider));
     }
 
     [HttpPut("{id}")]
@@ -55,7 +57,7 @@ public class ProvidersController : ControllerBase
             return NotFound();
         }
 
-        return Ok(provider);
+        return Ok(_mapper.ToProviderResource(provider));
     }
 
     [HttpDelete("{id}")]

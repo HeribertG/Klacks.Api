@@ -1,4 +1,5 @@
 using Klacks.Api.Application.Commands.LLM;
+using Klacks.Api.Application.DTOs.LLM;
 using Klacks.Api.Application.Queries.LLM;
 using Klacks.Api.Domain.Models.LLM;
 using Riok.Mapperly.Abstractions;
@@ -35,6 +36,10 @@ public partial class LLMMapper
     [MapperIgnoreTarget(nameof(LLMProvider.ApiVersion))]
     [MapperIgnoreTarget(nameof(LLMProvider.Settings))]
     public partial LLMProvider ToProviderFromUpdate(UpdateProviderCommand command);
+
+    public partial LLMProviderResource ToProviderResource(LLMProvider provider);
+
+    public partial List<LLMProviderResource> ToProviderResources(List<LLMProvider> providers);
 
     public LLMUsageResponse ToUsageResponse(LLMUsageRawData rawData)
     {

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Domain.Models.LLM;
@@ -8,14 +9,18 @@ public class LLMProvider : BaseEntity
 {
     [Required]
     [MaxLength(50)]
-    public string ProviderId { get; set; } = string.Empty; 
-    
+    public string ProviderId { get; set; } = string.Empty;
+
     [Required]
     [MaxLength(100)]
     public string ProviderName { get; set; } = string.Empty;
-    
+
+    [JsonIgnore]
     [MaxLength(2000)]
-    public string? ApiKey { get; set; } 
+    public string? ApiKey { get; set; }
+
+    [NotMapped]
+    public bool HasApiKey => !string.IsNullOrEmpty(ApiKey); 
     
     public bool IsEnabled { get; set; }
     
