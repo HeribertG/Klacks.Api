@@ -15,6 +15,7 @@ public class LLMService : ILLMService
     private readonly LLMSystemPromptBuilder _promptBuilder;
     private readonly IAiSoulRepository _aiSoulRepository;
     private readonly IAiMemoryRepository _aiMemoryRepository;
+    private readonly IAiGuidelinesRepository _aiGuidelinesRepository;
 
     public LLMService(
         ILogger<LLMService> logger,
@@ -24,7 +25,8 @@ public class LLMService : ILLMService
         LLMResponseBuilder responseBuilder,
         LLMSystemPromptBuilder promptBuilder,
         IAiSoulRepository aiSoulRepository,
-        IAiMemoryRepository aiMemoryRepository)
+        IAiMemoryRepository aiMemoryRepository,
+        IAiGuidelinesRepository aiGuidelinesRepository)
     {
         this._logger = logger;
         _providerOrchestrator = providerOrchestrator;
@@ -34,6 +36,7 @@ public class LLMService : ILLMService
         _promptBuilder = promptBuilder;
         _aiSoulRepository = aiSoulRepository;
         _aiMemoryRepository = aiMemoryRepository;
+        _aiGuidelinesRepository = aiGuidelinesRepository;
     }
 
     public async Task<LLMResponse> ProcessAsync(LLMContext context)
@@ -58,11 +61,12 @@ public class LLMService : ILLMService
 
             var soul = await LoadSoulAsync();
             var memories = await _aiMemoryRepository.GetAllAsync();
+            var guidelines = await LoadGuidelinesAsync();
 
             var providerRequest = new LLMProviderRequest
             {
                 Message = context.Message,
-                SystemPrompt = _promptBuilder.BuildSystemPrompt(context, soul, memories),
+                SystemPrompt = _promptBuilder.BuildSystemPrompt(context, soul, memories, guidelines),
                 ModelId = model!.ApiModelId,
                 ConversationHistory = llmHistory,
                 AvailableFunctions = context.AvailableFunctions,
@@ -178,6 +182,20 @@ public class LLMService : ILLMService
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Failed to load AI soul");
+            return null;
+        }
+    }
+
+    private async Task<string?> LoadGuidelinesAsync()
+    {
+        try
+        {
+            var activeGuidelines = await _aiGuidelinesRepository.GetActiveAsync();
+            return activeGuidelines?.Content;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to load AI guidelines");
             return null;
         }
     }

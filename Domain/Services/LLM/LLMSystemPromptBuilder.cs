@@ -7,16 +7,16 @@ public class LLMSystemPromptBuilder
 {
     private const int MaxMemories = 20;
 
-    public string BuildSystemPrompt(LLMContext context, string? soul = null, IReadOnlyList<AiMemory>? memories = null)
+    public string BuildSystemPrompt(LLMContext context, string? soul = null, IReadOnlyList<AiMemory>? memories = null, string? guidelines = null)
     {
         var language = context.Language ?? "de";
 
         return language switch
         {
-            "en" => BuildEnglishPrompt(context, soul, memories),
-            "fr" => BuildFrenchPrompt(context, soul, memories),
-            "it" => BuildItalianPrompt(context, soul, memories),
-            _ => BuildGermanPrompt(context, soul, memories)
+            "en" => BuildEnglishPrompt(context, soul, memories, guidelines),
+            "fr" => BuildFrenchPrompt(context, soul, memories, guidelines),
+            "it" => BuildItalianPrompt(context, soul, memories, guidelines),
+            _ => BuildGermanPrompt(context, soul, memories, guidelines)
         };
     }
 
@@ -38,6 +38,15 @@ public class LLMSystemPromptBuilder
 ";
     }
 
+    private static string BuildGuidelinesSection(string? guidelines, string header, string fallback)
+    {
+        var content = string.IsNullOrWhiteSpace(guidelines) ? fallback : guidelines.Trim();
+
+        return $@"
+{header}:
+{content}";
+    }
+
     private static string BuildMemorySection(IReadOnlyList<AiMemory>? memories, string header)
     {
         if (memories == null || memories.Count == 0)
@@ -57,7 +66,14 @@ public class LLMSystemPromptBuilder
 {string.Join("\n", memoryLines)}";
     }
 
-    private string BuildGermanPrompt(LLMContext context, string? soul, IReadOnlyList<AiMemory>? memories)
+    private static readonly string DefaultGuidelinesFallback =
+        "- Be polite and professional\n" +
+        "- Use available functions when users ask for them\n" +
+        "- Give clear and precise instructions\n" +
+        "- Always check permissions before executing functions\n" +
+        "- For missing permissions: explain that the user needs to contact an administrator";
+
+    private string BuildGermanPrompt(LLMContext context, string? soul, IReadOnlyList<AiMemory>? memories, string? guidelines)
     {
         var canViewSettings = HasPermission(context, "CanViewSettings");
         var canEditSettings = HasPermission(context, "CanEditSettings");
@@ -70,6 +86,7 @@ public class LLMSystemPromptBuilder
 
         var soulSection = BuildSoulSection(soul);
         var memorySection = BuildMemorySection(memories, "Persistentes Wissen");
+        var guidelinesSection = BuildGuidelinesSection(guidelines, "Richtlinien", DefaultGuidelinesFallback);
 
         return $@"{soulSection}Du bist ein hilfreicher KI-Assistent für dieses Planungs-System.
 Antworte immer in der Sprache des Benutzers.
@@ -79,17 +96,10 @@ Benutzer-Kontext:
 - Berechtigungen: {string.Join(", ", context.UserRights)}{settingsNote}
 
 Verfügbare Funktionen:
-{string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}
-
-Richtlinien:
-- Sei höflich und professionell
-- Verwende die verfügbaren Funktionen, wenn der Benutzer danach fragt
-- Gib klare und präzise Anweisungen
-- Prüfe immer die Berechtigungen bevor du Funktionen ausführst
-- Bei fehlenden Berechtigungen: erkläre dem Benutzer, dass er sich an einen Administrator wenden muss{memorySection}";
+{string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}{guidelinesSection}{memorySection}";
     }
 
-    private string BuildEnglishPrompt(LLMContext context, string? soul, IReadOnlyList<AiMemory>? memories)
+    private string BuildEnglishPrompt(LLMContext context, string? soul, IReadOnlyList<AiMemory>? memories, string? guidelines)
     {
         var canViewSettings = HasPermission(context, "CanViewSettings");
         var canEditSettings = HasPermission(context, "CanEditSettings");
@@ -102,6 +112,7 @@ Richtlinien:
 
         var soulSection = BuildSoulSection(soul);
         var memorySection = BuildMemorySection(memories, "Persistent Knowledge");
+        var guidelinesSection = BuildGuidelinesSection(guidelines, "Guidelines", DefaultGuidelinesFallback);
 
         return $@"{soulSection}You are a helpful AI assistant for this planning system.
 Always respond in the user's language.
@@ -111,17 +122,10 @@ User Context:
 - Permissions: {string.Join(", ", context.UserRights)}{settingsNote}
 
 Available Functions:
-{string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}
-
-Guidelines:
-- Be polite and professional
-- Use available functions when users ask for them
-- Give clear and precise instructions
-- Always check permissions before executing functions
-- For missing permissions: explain that the user needs to contact an administrator{memorySection}";
+{string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}{guidelinesSection}{memorySection}";
     }
 
-    private string BuildFrenchPrompt(LLMContext context, string? soul, IReadOnlyList<AiMemory>? memories)
+    private string BuildFrenchPrompt(LLMContext context, string? soul, IReadOnlyList<AiMemory>? memories, string? guidelines)
     {
         var canViewSettings = HasPermission(context, "CanViewSettings");
         var canEditSettings = HasPermission(context, "CanEditSettings");
@@ -134,6 +138,7 @@ Guidelines:
 
         var soulSection = BuildSoulSection(soul);
         var memorySection = BuildMemorySection(memories, "Connaissances persistantes");
+        var guidelinesSection = BuildGuidelinesSection(guidelines, "Directives", DefaultGuidelinesFallback);
 
         return $@"{soulSection}Vous êtes un assistant IA utile pour ce système de planification.
 Répondez toujours dans la langue de l'utilisateur.
@@ -143,17 +148,10 @@ Contexte utilisateur:
 - Autorisations: {string.Join(", ", context.UserRights)}{settingsNote}
 
 Fonctions disponibles:
-{string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}
-
-Directives:
-- Soyez poli et professionnel
-- Utilisez les fonctions disponibles lorsque les utilisateurs le demandent
-- Donnez des instructions claires et précises
-- Vérifiez toujours les autorisations avant d'exécuter des fonctions
-- En cas d'autorisations manquantes: expliquez que l'utilisateur doit contacter un administrateur{memorySection}";
+{string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}{guidelinesSection}{memorySection}";
     }
 
-    private string BuildItalianPrompt(LLMContext context, string? soul, IReadOnlyList<AiMemory>? memories)
+    private string BuildItalianPrompt(LLMContext context, string? soul, IReadOnlyList<AiMemory>? memories, string? guidelines)
     {
         var canViewSettings = HasPermission(context, "CanViewSettings");
         var canEditSettings = HasPermission(context, "CanEditSettings");
@@ -166,6 +164,7 @@ Directives:
 
         var soulSection = BuildSoulSection(soul);
         var memorySection = BuildMemorySection(memories, "Conoscenze persistenti");
+        var guidelinesSection = BuildGuidelinesSection(guidelines, "Linee guida", DefaultGuidelinesFallback);
 
         return $@"{soulSection}Sei un assistente AI utile per questo sistema di pianificazione.
 Rispondi sempre nella lingua dell'utente.
@@ -175,13 +174,6 @@ Contesto utente:
 - Autorizzazioni: {string.Join(", ", context.UserRights)}{settingsNote}
 
 Funzioni disponibili:
-{string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}
-
-Linee guida:
-- Sii educato e professionale
-- Usa le funzioni disponibili quando gli utenti le richiedono
-- Dai istruzioni chiare e precise
-- Controlla sempre le autorizzazioni prima di eseguire funzioni
-- Per autorizzazioni mancanti: spiega che l'utente deve contattare un amministratore{memorySection}";
+{string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}{guidelinesSection}{memorySection}";
     }
 }

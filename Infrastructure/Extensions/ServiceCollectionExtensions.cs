@@ -223,6 +223,7 @@ public static  class ServiceCollectionExtensions
         // AI Services
         services.AddScoped<IAiMemoryRepository, AiMemoryRepository>();
         services.AddScoped<IAiSoulRepository, AiSoulRepository>();
+        services.AddScoped<IAiGuidelinesRepository, AiGuidelinesRepository>();
 
         // LLM Services
         services.AddScoped<ILLMRepository, LLMRepository>();
@@ -294,6 +295,8 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.UpdateOwnerAddressSkill>();
         services.AddScoped<Application.Skills.GetAiSoulSkill>();
         services.AddScoped<Application.Skills.UpdateAiSoulSkill>();
+        services.AddScoped<Application.Skills.GetAiGuidelinesSkill>();
+        services.AddScoped<Application.Skills.UpdateAiGuidelinesSkill>();
         services.AddScoped<Application.Skills.AddAiMemorySkill>();
         services.AddScoped<Application.Skills.GetAiMemoriesSkill>();
         services.AddScoped<Application.Skills.UpdateAiMemorySkill>();
