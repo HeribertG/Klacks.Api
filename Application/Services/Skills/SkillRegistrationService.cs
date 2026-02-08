@@ -61,6 +61,7 @@ public class SkillRegistrationService
         var scopedSkillTypes = new[]
         {
             typeof(CreateEmployeeSkill),
+            typeof(CreateUserSkill),
             typeof(SearchEmployeesSkill),
             typeof(CreateContractSkill),
             typeof(SearchAndNavigateSkill),

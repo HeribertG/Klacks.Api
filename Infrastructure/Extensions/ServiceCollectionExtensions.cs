@@ -279,6 +279,7 @@ public static  class ServiceCollectionExtensions
 
         // Skill Implementations (Scoped - with database dependencies, in Application layer)
         services.AddScoped<Application.Skills.CreateEmployeeSkill>();
+        services.AddScoped<Application.Skills.CreateUserSkill>();
         services.AddScoped<Application.Skills.SearchEmployeesSkill>();
         services.AddScoped<Application.Skills.CreateContractSkill>();
         services.AddScoped<Application.Skills.SearchAndNavigateSkill>();
