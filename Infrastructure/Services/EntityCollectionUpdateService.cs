@@ -2,7 +2,7 @@ using Klacks.Api.Domain.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Application.Services.Common;
+namespace Klacks.Api.Infrastructure.Services;
 
 public class EntityCollectionUpdateService
 {

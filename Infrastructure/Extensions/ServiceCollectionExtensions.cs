@@ -4,6 +4,8 @@ using Klacks.Api.Application.Services;
 using Klacks.Api.Application.Skills;
 using Klacks.Api.Infrastructure.Scripting;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.AI;
+using Klacks.Api.Infrastructure.Repositories.AI;
 using Klacks.Api.Domain.Services.Absences;
 using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Domain.Services.CalendarSelections;
@@ -39,7 +41,7 @@ using Klacks.Api.Infrastructure.Repositories.Staffs;
 using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Application.Services.Authentication;
 using Klacks.Api.Application.Services.Clients;
-using Klacks.Api.Application.Services.Common;
+using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Application.Services.Identity;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Skills;
@@ -218,6 +220,9 @@ public static  class ServiceCollectionExtensions
                 : new Persistence.Adapters.GroupTreeProductionAdapter(context);
         });
 
+        // AI Services
+        services.AddScoped<IAiMemoryRepository, AiMemoryRepository>();
+
         // LLM Services
         services.AddScoped<ILLMRepository, LLMRepository>();
         services.AddScoped<ILLMService, LLMService>();
@@ -284,6 +289,14 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.GetUserPermissionsSkill>();
         services.AddScoped<Application.Skills.GetGeneralSettingsSkill>();
         services.AddScoped<Application.Skills.UpdateGeneralSettingsSkill>();
+        services.AddScoped<Application.Skills.GetOwnerAddressSkill>();
+        services.AddScoped<Application.Skills.UpdateOwnerAddressSkill>();
+        services.AddScoped<Application.Skills.GetAiSoulSkill>();
+        services.AddScoped<Application.Skills.UpdateAiSoulSkill>();
+        services.AddScoped<Application.Skills.AddAiMemorySkill>();
+        services.AddScoped<Application.Skills.GetAiMemoriesSkill>();
+        services.AddScoped<Application.Skills.UpdateAiMemorySkill>();
+        services.AddScoped<Application.Skills.DeleteAiMemorySkill>();
 
         // Geocoding Service
         services.AddHttpClient("Nominatim");

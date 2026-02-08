@@ -1,5 +1,4 @@
 using Klacks.Api.Domain.Common;
-using Klacks.Api.Infrastructure.Persistence;
 
 namespace Klacks.Api.Application.Interfaces;
 

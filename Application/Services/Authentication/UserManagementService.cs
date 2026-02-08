@@ -1,6 +1,5 @@
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Common;
-using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Domain.Helpers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
@@ -14,12 +13,10 @@ namespace Klacks.Api.Application.Services.Authentication;
 public class UserManagementService : IUserManagementService
 {
     private const string NotApplicable = "N/A";
-    private readonly DataBaseContext _context;
     private readonly UserManager<AppUser> _userManager;
 
-    public UserManagementService(DataBaseContext context, UserManager<AppUser> userManager)
+    public UserManagementService(UserManager<AppUser> userManager)
     {
-        _context = context;
         _userManager = userManager;
     }
 
@@ -88,15 +85,16 @@ public class UserManagementService : IUserManagementService
     {
         try
         {
-            var user = await _context.AppUser.SingleOrDefaultAsync(x => x.Id == userId.ToString());
+            var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null)
             {
                 return (false, "User was not found.");
             }
 
-            _context.Remove(user);
-            await _context.SaveChangesAsync();
-            return (true, "User deleted successfully.");
+            var result = await _userManager.DeleteAsync(user);
+            return result.Succeeded
+                ? (true, "User deleted successfully.")
+                : (false, string.Join(Environment.NewLine, result.Errors.Select(e => e.Description)));
         }
         catch (Exception e)
         {
@@ -106,7 +104,7 @@ public class UserManagementService : IUserManagementService
 
     public async Task<List<UserResource>> GetUserListAsync()
     {
-        var users = await _context.AppUser.ToListAsync();
+        var users = await _userManager.Users.ToListAsync();
         var userResources = new List<UserResource>(users.Count);
         var usersInAuthorisedRole = await _userManager.GetUsersInRoleAsync(Roles.Authorised);
         var usersInAdminRole = await _userManager.GetUsersInRoleAsync(Roles.Admin);
@@ -143,7 +141,7 @@ public class UserManagementService : IUserManagementService
 
     public async Task<AppUser?> FindUserByTokenAsync(string token)
     {
-        return await _context.AppUser
+        return await _userManager.Users
             .FirstOrDefaultAsync(u => u.PasswordResetToken == token);
     }
 }

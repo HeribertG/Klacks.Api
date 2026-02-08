@@ -4,7 +4,7 @@ using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
-using Klacks.Api.Application.Services.Common;
+using Klacks.Api.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -274,5 +274,13 @@ public class ClientRepository : IClientRepository
     {
         return await context.Client
             .FirstOrDefaultAsync(c => c.LdapExternalId == ldapExternalId);
+    }
+
+    public async Task<Client?> GetWithMembershipAsync(Guid clientId, CancellationToken cancellationToken = default)
+    {
+        return await context.Client
+            .Include(c => c.Membership)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == clientId, cancellationToken);
     }
 }

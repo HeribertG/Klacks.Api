@@ -2,7 +2,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.ContainerTemplates;
 using Klacks.Api.Infrastructure.Persistence;
-using Klacks.Api.Application.Services.Common;
+using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
 

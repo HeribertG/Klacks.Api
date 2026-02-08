@@ -1,19 +1,23 @@
 using FluentValidation;
 using Klacks.Api.Application.Commands;
-using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.DTOs.Schedules;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Validation.BreakPlaceholders;
 
 public class PostCommandValidator : AbstractValidator<PostCommand<BreakPlaceholderResource>>
 {
-    private readonly DataBaseContext _context;
+    private readonly IClientRepository _clientRepository;
+    private readonly IAbsenceRepository _absenceRepository;
     private readonly ILogger<PostCommandValidator> _logger;
 
-    public PostCommandValidator(DataBaseContext context, ILogger<PostCommandValidator> logger)
+    public PostCommandValidator(
+        IClientRepository clientRepository,
+        IAbsenceRepository absenceRepository,
+        ILogger<PostCommandValidator> logger)
     {
-        _context = context;
+        _clientRepository = clientRepository;
+        _absenceRepository = absenceRepository;
         this._logger = logger;
 
         RuleFor(x => x.Resource.ClientId)
@@ -34,10 +38,7 @@ public class PostCommandValidator : AbstractValidator<PostCommand<BreakPlacehold
             {
                 try
                 {
-                    var client = await _context.Client
-                        .Include(c => c.Membership)
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(c => c.Id == breakResource.ClientId, cancellation);
+                    var client = await _clientRepository.GetWithMembershipAsync(breakResource.ClientId, cancellation);
 
                     if (client == null)
                     {
@@ -76,7 +77,7 @@ public class PostCommandValidator : AbstractValidator<PostCommand<BreakPlacehold
             {
                 try
                 {
-                    return await _context.Absence.AnyAsync(a => a.Id == absenceId, cancellation);
+                    return await _absenceRepository.Exists(absenceId);
                 }
                 catch (Exception ex)
                 {

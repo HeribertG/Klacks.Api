@@ -1,19 +1,26 @@
 using FluentValidation;
 using Klacks.Api.Application.Commands;
-using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.DTOs.Schedules;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Validation.BreakPlaceholders;
 
 public class PutCommandValidator : AbstractValidator<PutCommand<BreakPlaceholderResource>>
 {
-    private readonly DataBaseContext _context;
+    private readonly IClientRepository _clientRepository;
+    private readonly IAbsenceRepository _absenceRepository;
+    private readonly IBreakPlaceholderRepository _breakPlaceholderRepository;
     private readonly ILogger<PutCommandValidator> _logger;
 
-    public PutCommandValidator(DataBaseContext context, ILogger<PutCommandValidator> logger)
+    public PutCommandValidator(
+        IClientRepository clientRepository,
+        IAbsenceRepository absenceRepository,
+        IBreakPlaceholderRepository breakPlaceholderRepository,
+        ILogger<PutCommandValidator> logger)
     {
-        _context = context;
+        _clientRepository = clientRepository;
+        _absenceRepository = absenceRepository;
+        _breakPlaceholderRepository = breakPlaceholderRepository;
         this._logger = logger;
 
         RuleFor(x => x.Resource.Id)
@@ -37,7 +44,7 @@ public class PutCommandValidator : AbstractValidator<PutCommand<BreakPlaceholder
             {
                 try
                 {
-                    return await _context.BreakPlaceholder.AnyAsync(b => b.Id == id, cancellation);
+                    return await _breakPlaceholderRepository.Exists(id);
                 }
                 catch (Exception ex)
                 {
@@ -52,10 +59,7 @@ public class PutCommandValidator : AbstractValidator<PutCommand<BreakPlaceholder
             {
                 try
                 {
-                    var client = await _context.Client
-                        .Include(c => c.Membership)
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(c => c.Id == breakResource.ClientId, cancellation);
+                    var client = await _clientRepository.GetWithMembershipAsync(breakResource.ClientId, cancellation);
 
                     if (client == null)
                     {
@@ -94,7 +98,7 @@ public class PutCommandValidator : AbstractValidator<PutCommand<BreakPlaceholder
             {
                 try
                 {
-                    return await _context.Absence.AnyAsync(a => a.Id == absenceId, cancellation);
+                    return await _absenceRepository.Exists(absenceId);
                 }
                 catch (Exception ex)
                 {
