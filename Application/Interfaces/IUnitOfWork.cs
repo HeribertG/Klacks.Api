@@ -1,17 +1,14 @@
-using Microsoft.EntityFrameworkCore.Storage;
+namespace Klacks.Api.Application.Interfaces;
 
-namespace Klacks.Api.Application.Interfaces
+public interface IUnitOfWork
 {
-    public interface IUnitOfWork
-    {
-        Task CompleteAsync();
+    Task CompleteAsync();
 
-        int Complete();
+    int Complete();
 
-        Task<IDbContextTransaction> BeginTransactionAsync();
+    Task<ITransaction> BeginTransactionAsync();
 
-        Task CommitTransactionAsync(IDbContextTransaction transaction);
+    Task CommitTransactionAsync(ITransaction transaction);
 
-        Task RollbackTransactionAsync(IDbContextTransaction transaction);
-    }
+    Task RollbackTransactionAsync(ITransaction transaction);
 }

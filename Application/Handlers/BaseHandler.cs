@@ -1,5 +1,4 @@
 using Klacks.Api.Domain.Exceptions;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers;
 
@@ -23,38 +22,38 @@ public abstract class BaseHandler
         }
         catch (InvalidRequestException ex)
         {
-            _logger.LogWarning(ex, "Invalid request during {OperationName}. Context: {@ContextData}", 
+            _logger.LogWarning(ex, "Invalid request during {OperationName}. Context: {@ContextData}",
                 operationName, contextData);
             throw;
         }
         catch (KeyNotFoundException ex)
         {
-            _logger.LogWarning(ex, "Resource not found during {OperationName}. Context: {@ContextData}", 
+            _logger.LogWarning(ex, "Resource not found during {OperationName}. Context: {@ContextData}",
                 operationName, contextData);
             throw;
         }
-        catch (DbUpdateConcurrencyException ex)
+        catch (ConcurrencyException ex)
         {
-            _logger.LogError(ex, "Concurrency error during {OperationName}. Context: {@ContextData}", 
+            _logger.LogError(ex, "Concurrency error during {OperationName}. Context: {@ContextData}",
                 operationName, contextData);
-            throw new InvalidRequestException($"The record was modified by another user. Please refresh and try again.");
+            throw new InvalidRequestException(ex.Message);
         }
-        catch (DbUpdateException ex)
+        catch (DatabaseUpdateException ex)
         {
-            _logger.LogError(ex, "Database error during {OperationName}. InnerException: {InnerMessage}. Context: {@ContextData}",
-                operationName, ex.InnerException?.Message ?? "No inner exception", contextData);
+            _logger.LogError(ex, "Database error during {OperationName}. Context: {@ContextData}",
+                operationName, contextData);
 
-            if (ex.InnerException?.Message.Contains("duplicate", StringComparison.OrdinalIgnoreCase) == true)
+            if (ex.IsDuplicate)
             {
                 throw new InvalidRequestException($"A duplicate entry already exists. Operation: {operationName}");
             }
 
-            if (ex.InnerException?.Message.Contains("foreign key", StringComparison.OrdinalIgnoreCase) == true)
+            if (ex.IsForeignKeyViolation)
             {
-                throw new InvalidRequestException($"Referenced data not found or constraint violation. Operation: {operationName}. Detail: {ex.InnerException?.Message}");
+                throw new InvalidRequestException($"Referenced data not found or constraint violation. Operation: {operationName}. Detail: {ex.Message}");
             }
 
-            throw new InvalidRequestException($"Database constraint violation during {operationName}. Detail: {ex.InnerException?.Message}");
+            throw new InvalidRequestException($"Database constraint violation during {operationName}. Detail: {ex.Message}");
         }
         catch (OperationCanceledException ex)
         {
@@ -63,7 +62,7 @@ public abstract class BaseHandler
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error during {OperationName}. Context: {@ContextData}. Exception: {ExceptionType}, Message: {ExceptionMessage}", 
+            _logger.LogError(ex, "Unexpected error during {OperationName}. Context: {@ContextData}. Exception: {ExceptionType}, Message: {ExceptionMessage}",
                 operationName, contextData, ex.GetType().Name, ex.Message);
             throw new InvalidRequestException($"An unexpected error occurred during {operationName}: {ex.Message}");
         }
