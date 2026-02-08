@@ -6,7 +6,7 @@ namespace Klacks.Api.Application.Interfaces;
 
 public interface IClientRepository : IBaseRepository<Client>
 {
-    int Count();
+    Task<int> CountAsync();
     Task<LastChangeMetaData> LastChangeMetaData();
     Task<List<Client>> GetActiveClientsWithAddressesAsync(CancellationToken cancellationToken = default);
     Task<List<Client>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default);

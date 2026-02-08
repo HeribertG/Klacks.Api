@@ -6,31 +6,28 @@ using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Groups
 {
-    public class GetGroupTreeQueryHandler : IRequestHandler<GetGroupTreeQuery, GroupTreeResource>
+    public class GetGroupTreeQueryHandler : BaseHandler, IRequestHandler<GetGroupTreeQuery, GroupTreeResource>
     {
         private readonly IGroupRepository _groupRepository;
         private readonly IGroupItemRepository _groupItemRepository;
         private readonly GroupMapper _groupMapper;
-        private readonly ILogger<GetGroupTreeQueryHandler> _logger;
 
         public GetGroupTreeQueryHandler(
             IGroupRepository groupRepository,
             IGroupItemRepository groupItemRepository,
             GroupMapper groupMapper,
             ILogger<GetGroupTreeQueryHandler> logger)
+            : base(logger)
         {
             _groupRepository = groupRepository;
             _groupItemRepository = groupItemRepository;
             _groupMapper = groupMapper;
-            _logger = logger;
         }
 
         public async Task<GroupTreeResource> Handle(GetGroupTreeQuery request, CancellationToken cancellationToken)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
-                _logger.LogInformation($"Processing GetGroupTreeQuery with rootId: {request.RootId}");
-
                 var flatNodes = await _groupRepository.GetTree(request.RootId);
                 var nodeDict = flatNodes.ToDictionary(g => g.Id, g => _groupMapper.ToGroupResource(g));
                 var rootNodes = new List<GroupResource>();
@@ -68,27 +65,13 @@ namespace Klacks.Api.Application.Handlers.Groups
 
                 SortChildrenRecursive(rootNodes);
 
-                var result = new GroupTreeResource
+                return new GroupTreeResource
                 {
                     RootId = request.RootId,
                     Nodes = rootNodes
                 };
-
-                _logger.LogInformation($"Retrieved tree with {result.Nodes.Count} root nodes");
-
-                return result;
-            }
-            catch (KeyNotFoundException ex)
-            {
-                _logger.LogWarning(ex, $"Group tree with root {request.RootId} not found");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error processing GetGroupTreeQuery with rootId: {request.RootId}");
-                throw;
-            }
-    }
+            }, nameof(Handle), new { request.RootId });
+        }
 
         private void CalculateDepthRecursive(GroupResource node, int depth)
         {
@@ -97,14 +80,14 @@ namespace Klacks.Api.Application.Handlers.Groups
             {
                 CalculateDepthRecursive(child, depth + 1);
             }
-    }
-        
+        }
+
         private void SortChildrenRecursive(List<GroupResource> nodes)
         {
             var sortedNodes = nodes.OrderBy(n => n.Lft).ToList();
             nodes.Clear();
             nodes.AddRange(sortedNodes);
-            
+
             foreach (var node in nodes)
             {
                 if (node.Children.Any())
@@ -112,6 +95,6 @@ namespace Klacks.Api.Application.Handlers.Groups
                     SortChildrenRecursive(node.Children);
                 }
             }
-    }
+        }
     }
 }

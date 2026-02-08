@@ -54,11 +54,11 @@ public class ClientRepository : IClientRepository
         await this.context.Client.AddAsync(client);
     }
 
-    public int Count()
+    public async Task<int> CountAsync()
     {
-        if (this.context.Client.Count() > 0)
+        if (await this.context.Client.AnyAsync())
         {
-            return this.context.Client.IgnoreQueryFilters().Max(c => c.IdNumber);
+            return await this.context.Client.IgnoreQueryFilters().MaxAsync(c => c.IdNumber);
         }
         else
         {

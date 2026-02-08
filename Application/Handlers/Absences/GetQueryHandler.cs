@@ -1,32 +1,27 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries;
-using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Absences
 {
-    public class GetQueryHandler : IRequestHandler<GetQuery<AbsenceResource>, AbsenceResource>
+    public class GetQueryHandler : BaseHandler, IRequestHandler<GetQuery<AbsenceResource>, AbsenceResource>
     {
         private readonly IAbsenceRepository _absenceRepository;
         private readonly SettingsMapper _settingsMapper;
-        private readonly ILogger<GetQueryHandler> _logger;
 
         public GetQueryHandler(IAbsenceRepository absenceRepository, SettingsMapper settingsMapper, ILogger<GetQueryHandler> logger)
+            : base(logger)
         {
             _absenceRepository = absenceRepository;
             _settingsMapper = settingsMapper;
-            _logger = logger;
         }
 
         public async Task<AbsenceResource> Handle(GetQuery<AbsenceResource> request, CancellationToken cancellationToken)
         {
-            try
+            return await ExecuteAsync(async () =>
             {
-                _logger.LogInformation("Getting absence with ID: {Id}", request.Id);
-
                 var absence = await _absenceRepository.Get(request.Id);
 
                 if (absence == null)
@@ -34,19 +29,8 @@ namespace Klacks.Api.Application.Handlers.Absences
                     throw new KeyNotFoundException($"Absence with ID {request.Id} not found");
                 }
 
-                var result = _settingsMapper.ToAbsenceResource(absence);
-                _logger.LogInformation("Successfully retrieved absence with ID: {Id}", request.Id);
-                return result;
-            }
-            catch (KeyNotFoundException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving absence with ID: {Id}", request.Id);
-                throw new InvalidRequestException($"Error retrieving absence with ID {request.Id}: {ex.Message}");
-            }
+                return _settingsMapper.ToAbsenceResource(absence);
+            }, nameof(Handle), new { request.Id });
         }
     }
 }

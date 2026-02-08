@@ -13,9 +13,9 @@ namespace Klacks.Api.Application.Handlers.Clients
             _clientRepository = clientRepository;
         }
 
-        public Task<int> Handle(CountQuery request, CancellationToken cancellationToken)
+        public async Task<int> Handle(CountQuery request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_clientRepository.Count());
+            return await _clientRepository.CountAsync();
         }
     }
 }
