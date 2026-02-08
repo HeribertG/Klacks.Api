@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using Klacks.Api.Domain.Interfaces.AI;
 using Klacks.Api.Domain.Services.LLM.Providers;
 using Klacks.Api.Application.DTOs.LLM;
@@ -41,6 +42,7 @@ public class LLMService : ILLMService
 
     public async Task<LLMResponse> ProcessAsync(LLMContext context)
     {
+        const int maxIterations = 5;
         var stopwatch = Stopwatch.StartNew();
 
         try
@@ -63,64 +65,83 @@ public class LLMService : ILLMService
             var memories = await _aiMemoryRepository.GetAllAsync();
             var guidelines = await LoadGuidelinesAsync();
 
-            var providerRequest = new LLMProviderRequest
-            {
-                Message = context.Message,
-                SystemPrompt = _promptBuilder.BuildSystemPrompt(context, soul, memories, guidelines),
-                ModelId = model!.ApiModelId,
-                ConversationHistory = llmHistory,
-                AvailableFunctions = context.AvailableFunctions,
-                Temperature = 0.7,
-                MaxTokens = model.MaxTokens,
-                CostPerInputToken = model.CostPerInputToken,
-                CostPerOutputToken = model.CostPerOutputToken
-            };
+            var systemPrompt = _promptBuilder.BuildSystemPrompt(context, soul, memories, guidelines);
 
-            var providerResponse = await provider!.ProcessAsync(providerRequest);
+            var allFunctionCalls = new List<LLMFunctionCall>();
+            var totalUsage = new LLMUsage();
+            var runningHistory = new List<LLMMessage>(llmHistory);
+            var currentMessage = context.Message;
+            string responseContent = "";
+            LLMProviderResponse? lastResponse = null;
+            int iterationsUsed = 0;
 
-            if (!providerResponse.Success)
+            for (int iteration = 0; iteration < maxIterations; iteration++)
             {
-                _logger.LogError("Provider returned error: {Error}", providerResponse.Error);
-                await _conversationManager.TrackUsageAsync(
-                    context.UserId, model, conversation,
-                    new Providers.LLMUsage(), stopwatch.ElapsedMilliseconds,
-                    hasError: true, errorMessage: providerResponse.Error);
-                return _responseBuilder.BuildErrorResponse(providerResponse.Error ?? "Ein Fehler ist aufgetreten.");
+                iterationsUsed = iteration + 1;
+
+                var providerRequest = new LLMProviderRequest
+                {
+                    Message = currentMessage,
+                    SystemPrompt = systemPrompt,
+                    ModelId = model!.ApiModelId,
+                    ConversationHistory = runningHistory,
+                    AvailableFunctions = context.AvailableFunctions,
+                    Temperature = 0.7,
+                    MaxTokens = model.MaxTokens,
+                    CostPerInputToken = model.CostPerInputToken,
+                    CostPerOutputToken = model.CostPerOutputToken
+                };
+
+                lastResponse = await provider!.ProcessAsync(providerRequest);
+                AccumulateUsage(totalUsage, lastResponse.Usage);
+
+                if (!lastResponse.Success)
+                {
+                    _logger.LogError("Provider returned error in iteration {Iteration}: {Error}",
+                        iterationsUsed, lastResponse.Error);
+                    await _conversationManager.TrackUsageAsync(
+                        context.UserId, model, conversation,
+                        totalUsage, stopwatch.ElapsedMilliseconds,
+                        hasError: true, errorMessage: lastResponse.Error);
+                    return _responseBuilder.BuildErrorResponse(lastResponse.Error ?? "Ein Fehler ist aufgetreten.");
+                }
+
+                responseContent = lastResponse.Content;
+
+                if (!lastResponse.FunctionCalls.Any())
+                    break;
+
+                _logger.LogInformation("Multi-turn iteration {Iteration}: executing {Count} function calls",
+                    iterationsUsed, lastResponse.FunctionCalls.Count);
+
+                allFunctionCalls.AddRange(lastResponse.FunctionCalls);
+                await _functionExecutor.ProcessFunctionCallsAsync(context, lastResponse.FunctionCalls);
+
+                runningHistory.Add(new LLMMessage { Role = "user", Content = currentMessage });
+                runningHistory.Add(new LLMMessage { Role = "assistant", Content = lastResponse.Content });
+                currentMessage = FormatFunctionResults(lastResponse.FunctionCalls);
             }
 
-            var responseContent = providerResponse.Content;
-            if (providerResponse.FunctionCalls.Any())
+            if (string.IsNullOrWhiteSpace(responseContent) && allFunctionCalls.Any())
             {
-                var functionResults = await _functionExecutor.ProcessFunctionCallsAsync(context, providerResponse.FunctionCalls);
+                responseContent = "Die angeforderten Aktionen wurden ausgeführt.";
+            }
 
-                if (!string.IsNullOrEmpty(functionResults))
-                {
-                    var summaryResponse = await GenerateSummaryAsync(
-                        provider!, providerRequest, providerResponse, functionResults, llmHistory, context.Message);
-
-                    if (summaryResponse is { Success: true })
-                    {
-                        responseContent = summaryResponse.Content;
-                        providerResponse.Usage.InputTokens += summaryResponse.Usage.InputTokens;
-                        providerResponse.Usage.OutputTokens += summaryResponse.Usage.OutputTokens;
-                        providerResponse.Usage.Cost += summaryResponse.Usage.Cost;
-                    }
-                    else
-                    {
-                        responseContent = providerResponse.Content;
-                        _logger.LogWarning("Summary generation failed, using original response without function results");
-                    }
-                }
+            if (allFunctionCalls.Count > 0)
+            {
+                _logger.LogInformation("Multi-turn completed: {TotalCalls} function calls in {Iterations} iterations",
+                    allFunctionCalls.Count, iterationsUsed);
             }
 
             await _conversationManager.SaveConversationMessagesAsync(
-                conversation, context.Message, responseContent, model.ModelId);
+                conversation, context.Message, responseContent, model!.ModelId);
 
             await _conversationManager.TrackUsageAsync(
                 context.UserId, model, conversation,
-                providerResponse.Usage, stopwatch.ElapsedMilliseconds);
+                totalUsage, stopwatch.ElapsedMilliseconds);
 
-            return _responseBuilder.BuildSuccessResponse(providerResponse, conversation.ConversationId, responseContent);
+            return _responseBuilder.BuildSuccessResponse(
+                lastResponse!, conversation.ConversationId, responseContent, allFunctionCalls);
         }
         catch (Exception ex)
         {
@@ -129,47 +150,23 @@ public class LLMService : ILLMService
         }
     }
 
-    private async Task<LLMProviderResponse?> GenerateSummaryAsync(
-        ILLMProvider provider,
-        LLMProviderRequest originalRequest,
-        LLMProviderResponse firstResponse,
-        string functionResults,
-        List<LLMMessage> history,
-        string userMessage)
+    private static string FormatFunctionResults(List<LLMFunctionCall> functionCalls)
     {
-        try
+        var sb = new StringBuilder();
+        sb.AppendLine("[Function Results]");
+        foreach (var call in functionCalls)
         {
-            var updatedHistory = new List<LLMMessage>(history)
-            {
-                new() { Role = "user", Content = userMessage },
-                new() { Role = "assistant", Content = firstResponse.Content }
-            };
-
-            var summaryRequest = new LLMProviderRequest
-            {
-                Message = $"[Funktionsergebnisse]\n{functionResults}\n[/Funktionsergebnisse]\n\n" +
-                          "Fasse die obigen Funktionsergebnisse in natürlicher Sprache für den Benutzer zusammen. " +
-                          "Antworte in der Sprache des Benutzers. " +
-                          "Zeige KEINE technischen Details wie IDs, JSON-Daten, rohe Objekte oder Funktionsnamen. " +
-                          "Formuliere die Antwort so, als würdest du direkt mit dem Benutzer sprechen.",
-                SystemPrompt = originalRequest.SystemPrompt,
-                ModelId = originalRequest.ModelId,
-                ConversationHistory = updatedHistory,
-                AvailableFunctions = new List<LLMFunction>(),
-                Temperature = originalRequest.Temperature,
-                MaxTokens = originalRequest.MaxTokens,
-                CostPerInputToken = originalRequest.CostPerInputToken,
-                CostPerOutputToken = originalRequest.CostPerOutputToken
-            };
-
-            _logger.LogInformation("Generating human-friendly summary for function results");
-            return await provider.ProcessAsync(summaryRequest);
+            sb.AppendLine($"- {call.FunctionName}: {call.Result ?? "OK"}");
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating summary for function results");
-            return null;
-        }
+        sb.AppendLine("[/Function Results]");
+        return sb.ToString();
+    }
+
+    private static void AccumulateUsage(LLMUsage total, LLMUsage current)
+    {
+        total.InputTokens += current.InputTokens;
+        total.OutputTokens += current.OutputTokens;
+        total.Cost += current.Cost;
     }
 
     private async Task<string?> LoadSoulAsync()

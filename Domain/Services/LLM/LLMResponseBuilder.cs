@@ -8,14 +8,16 @@ public class LLMResponseBuilder
     public LLMResponse BuildSuccessResponse(
         LLMProviderResponse providerResponse,
         string conversationId,
-        string responseContent)
+        string responseContent,
+        List<LLMFunctionCall>? allFunctionCalls = null)
     {
+        var functionCalls = allFunctionCalls ?? providerResponse.FunctionCalls;
         var response = new LLMResponse
         {
             Message = responseContent,
             ConversationId = conversationId,
-            ActionPerformed = providerResponse.FunctionCalls.Any(),
-            FunctionCalls = providerResponse.FunctionCalls
+            ActionPerformed = functionCalls.Any(),
+            FunctionCalls = functionCalls
                 .Select(f => (object)new { f.FunctionName, f.Parameters })
                 .ToList(),
             Usage = new LLMUsageInfo

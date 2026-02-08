@@ -43,6 +43,7 @@ public class LLMFunctionExecutor
             try
             {
                 var result = await ExecuteFunctionAsync(context, call);
+                call.Result = result;
                 if (!string.IsNullOrEmpty(result))
                 {
                     results.Add(result);
