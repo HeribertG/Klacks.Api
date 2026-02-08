@@ -6,6 +6,7 @@ using Klacks.Api.Domain.Models.Histories;
 using Klacks.Api.Domain.Models.LLM;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
+using Klacks.Api.Domain.Models.AI;
 using Klacks.Api.Domain.Models.Skills;
 using Klacks.Api.Domain.Models.Reports;
 using Klacks.Api.Domain.Enums;
@@ -127,6 +128,9 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<IdentityProvider> IdentityProviders { get; set; }
 
     public DbSet<IdentityProviderSyncLog> IdentityProviderSyncLogs { get; set; }
+
+    // AI DbSets
+    public DbSet<AiMemory> AiMemories { get; set; }
 
     // Report DbSets
     public DbSet<ReportTemplate> ReportTemplates { get; set; }
@@ -302,6 +306,13 @@ public class DataBaseContext : IdentityDbContext
             .WithMany()
             .HasForeignKey(s => s.ClientId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // AI Memory Configuration
+        modelBuilder.Entity<AiMemory>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.IsDeleted, p.Category, p.Importance });
+        });
 
         // Report Templates Configuration
         modelBuilder.Entity<ReportTemplate>(entity =>
