@@ -62,17 +62,15 @@ public class ValidateAddressSkill : BaseSkill
 
         var canton = DetectCantonFromPostalCode(postalCode);
 
-        var addressParts = new List<string>();
-        if (!string.IsNullOrEmpty(street)) addressParts.Add(street);
-        addressParts.Add($"{postalCode} {city}");
-
-        var fullAddress = string.Join(", ", addressParts);
+        var fullAddress = string.IsNullOrEmpty(street)
+            ? $"{postalCode} {city}"
+            : $"{street}, {postalCode} {city}";
 
         try
         {
-            var (latitude, longitude) = await _geocodingService.GeocodeAddressAsync(fullAddress, country);
+            var validation = await _geocodingService.ValidateExactAddressAsync(street, postalCode, city, country);
 
-            if (latitude == null || longitude == null)
+            if (!validation.Found)
             {
                 return new SkillResult
                 {
@@ -80,31 +78,55 @@ public class ValidateAddressSkill : BaseSkill
                     Data = new
                     {
                         IsValid = false,
+                        ExactMatch = false,
                         InputAddress = fullAddress,
                         Canton = canton,
-                        Message = "Address could not be verified via geocoding service.",
-                        Suggestion = "The address may still be valid. Canton was detected from postal code."
+                        MatchType = validation.MatchType,
+                        Message = $"Address '{fullAddress}' could not be found. Please check street name, house number and postal code."
                     },
-                    Message = $"Address verification inconclusive. Canton detected: {canton ?? "unknown"}",
+                    Message = $"ACHTUNG: Die Adresse '{fullAddress}' wurde NICHT gefunden. Bitte Strasse, Hausnummer und PLZ prüfen. Kanton aus PLZ: {canton ?? "unbekannt"}",
                     Type = SkillResultType.Data
                 };
             }
 
-            var resultData = new
+            if (!validation.ExactMatch)
             {
-                IsValid = true,
-                InputAddress = fullAddress,
-                Latitude = latitude,
-                Longitude = longitude,
-                Canton = canton,
-                PostalCode = postalCode,
-                City = city,
-                Country = country
-            };
+                return new SkillResult
+                {
+                    Success = true,
+                    Data = new
+                    {
+                        IsValid = false,
+                        ExactMatch = false,
+                        InputAddress = fullAddress,
+                        Canton = canton,
+                        MatchType = validation.MatchType,
+                        ReturnedAddress = validation.ReturnedAddress,
+                        Latitude = validation.Latitude,
+                        Longitude = validation.Longitude,
+                        Message = $"Address '{fullAddress}' was NOT found exactly. Only the city/postal code matched. The street or house number may not exist."
+                    },
+                    Message = $"ACHTUNG: Die Adresse '{fullAddress}' wurde NICHT exakt gefunden. Nur PLZ/Ort stimmen. Gefunden: '{validation.ReturnedAddress}'. Kanton: {canton ?? "unbekannt"}",
+                    Type = SkillResultType.Data
+                };
+            }
 
             return SkillResult.SuccessResult(
-                resultData,
-                $"Address validated successfully. Coordinates: {latitude}, {longitude}");
+                new
+                {
+                    IsValid = true,
+                    ExactMatch = true,
+                    InputAddress = fullAddress,
+                    ReturnedAddress = validation.ReturnedAddress,
+                    Latitude = validation.Latitude,
+                    Longitude = validation.Longitude,
+                    Canton = canton,
+                    PostalCode = postalCode,
+                    City = city,
+                    Country = country,
+                    MatchType = validation.MatchType
+                },
+                $"Address validated successfully. Exact match found: '{validation.ReturnedAddress}'. Canton: {canton}");
         }
         catch (Exception ex)
         {
@@ -114,10 +136,10 @@ public class ValidateAddressSkill : BaseSkill
                 Data = new
                 {
                     IsValid = false,
+                    ExactMatch = false,
                     InputAddress = fullAddress,
                     Canton = canton,
-                    Error = ex.Message,
-                    Suggestion = "Geocoding service unavailable. Canton was detected from postal code."
+                    Error = ex.Message
                 },
                 Message = $"Could not validate address via geocoding. Canton: {canton ?? "unknown"}",
                 Type = SkillResultType.Data

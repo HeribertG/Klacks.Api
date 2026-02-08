@@ -20,7 +20,8 @@ public class LLMFunctionExecutor
 
     private static readonly HashSet<string> FrontendOnlyFunctions = new()
     {
-        "get_general_settings", "update_general_settings"
+        "get_general_settings", "update_general_settings",
+        "get_owner_address", "update_owner_address"
     };
 
     public LLMFunctionExecutor(
@@ -57,8 +58,22 @@ public class LLMFunctionExecutor
         return string.Join("\n", results);
     }
 
+    private static readonly Dictionary<string, string> FunctionNameAliases = new()
+    {
+        { "get_user_context", "get_user_permissions" },
+        { "get_current_user", "get_user_permissions" },
+        { "getCurrentUser", "get_user_permissions" },
+        { "getUserPermissions", "get_user_permissions" }
+    };
+
     private async Task<string> ExecuteFunctionAsync(LLMContext context, LLMFunctionCall call)
     {
+        if (FunctionNameAliases.TryGetValue(call.FunctionName, out var normalizedName))
+        {
+            _logger.LogInformation("Normalizing function name {Original} to {Normalized}", call.FunctionName, normalizedName);
+            call.FunctionName = normalizedName;
+        }
+
         _logger.LogInformation("Executing function {FunctionName} with parameters {Parameters}",
             call.FunctionName, JsonSerializer.Serialize(call.Parameters));
 
@@ -127,8 +142,7 @@ public class LLMFunctionExecutor
 
         if (result.Success)
         {
-            var data = result.Data != null ? JsonSerializer.Serialize(result.Data) : "";
-            return string.IsNullOrEmpty(data) ? result.Message : $"{result.Message}\n{data}";
+            return result.Message;
         }
 
         return $"Error: {result.Message}";

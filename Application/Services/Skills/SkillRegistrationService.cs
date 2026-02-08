@@ -72,7 +72,15 @@ public class SkillRegistrationService
             typeof(ValidateAddressSkill),
             typeof(GetUserPermissionsSkill),
             typeof(GetGeneralSettingsSkill),
-            typeof(UpdateGeneralSettingsSkill)
+            typeof(UpdateGeneralSettingsSkill),
+            typeof(GetOwnerAddressSkill),
+            typeof(UpdateOwnerAddressSkill),
+            typeof(GetAiSoulSkill),
+            typeof(UpdateAiSoulSkill),
+            typeof(AddAiMemorySkill),
+            typeof(GetAiMemoriesSkill),
+            typeof(UpdateAiMemorySkill),
+            typeof(DeleteAiMemorySkill)
         };
 
         using var scope = _serviceProvider.CreateScope();
