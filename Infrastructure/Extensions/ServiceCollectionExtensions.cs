@@ -222,6 +222,7 @@ public static  class ServiceCollectionExtensions
 
         // AI Services
         services.AddScoped<IAiMemoryRepository, AiMemoryRepository>();
+        services.AddScoped<IAiSoulRepository, AiSoulRepository>();
 
         // LLM Services
         services.AddScoped<ILLMRepository, LLMRepository>();

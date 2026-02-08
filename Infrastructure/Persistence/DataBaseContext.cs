@@ -131,6 +131,7 @@ public class DataBaseContext : IdentityDbContext
 
     // AI DbSets
     public DbSet<AiMemory> AiMemories { get; set; }
+    public DbSet<AiSoul> AiSouls { get; set; }
 
     // Report DbSets
     public DbSet<ReportTemplate> ReportTemplates { get; set; }
@@ -312,6 +313,13 @@ public class DataBaseContext : IdentityDbContext
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
             entity.HasIndex(p => new { p.IsDeleted, p.Category, p.Importance });
+        });
+
+        // AI Soul Configuration
+        modelBuilder.Entity<AiSoul>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.IsDeleted, p.IsActive });
         });
 
         // Report Templates Configuration

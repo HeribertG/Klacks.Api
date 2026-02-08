@@ -1,6 +1,4 @@
 using System.Diagnostics;
-using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.AI;
 using Klacks.Api.Domain.Services.LLM.Providers;
 using Klacks.Api.Application.DTOs.LLM;
@@ -15,7 +13,7 @@ public class LLMService : ILLMService
     private readonly LLMFunctionExecutor _functionExecutor;
     private readonly LLMResponseBuilder _responseBuilder;
     private readonly LLMSystemPromptBuilder _promptBuilder;
-    private readonly ISettingsRepository _settingsRepository;
+    private readonly IAiSoulRepository _aiSoulRepository;
     private readonly IAiMemoryRepository _aiMemoryRepository;
 
     public LLMService(
@@ -25,7 +23,7 @@ public class LLMService : ILLMService
         LLMFunctionExecutor functionExecutor,
         LLMResponseBuilder responseBuilder,
         LLMSystemPromptBuilder promptBuilder,
-        ISettingsRepository settingsRepository,
+        IAiSoulRepository aiSoulRepository,
         IAiMemoryRepository aiMemoryRepository)
     {
         this._logger = logger;
@@ -34,7 +32,7 @@ public class LLMService : ILLMService
         _functionExecutor = functionExecutor;
         _responseBuilder = responseBuilder;
         _promptBuilder = promptBuilder;
-        _settingsRepository = settingsRepository;
+        _aiSoulRepository = aiSoulRepository;
         _aiMemoryRepository = aiMemoryRepository;
     }
 
@@ -174,12 +172,12 @@ public class LLMService : ILLMService
     {
         try
         {
-            var soulSetting = await _settingsRepository.GetSetting(Application.Constants.Settings.AI_SOUL);
-            return soulSetting?.Value;
+            var activeSoul = await _aiSoulRepository.GetActiveAsync();
+            return activeSoul?.Content;
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to load AI soul from settings");
+            _logger.LogWarning(ex, "Failed to load AI soul");
             return null;
         }
     }

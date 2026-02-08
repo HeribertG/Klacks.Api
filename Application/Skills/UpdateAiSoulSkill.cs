@@ -1,5 +1,6 @@
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.AI;
+using Klacks.Api.Domain.Models.AI;
 using Klacks.Api.Domain.Models.Skills;
 using Klacks.Api.Domain.Services.Skills.Implementations;
 
@@ -7,8 +8,7 @@ namespace Klacks.Api.Application.Skills;
 
 public class UpdateAiSoulSkill : BaseSkill
 {
-    private readonly ISettingsRepository _settingsRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IAiSoulRepository _aiSoulRepository;
 
     public override string Name => "update_ai_soul";
 
@@ -27,15 +27,17 @@ public class UpdateAiSoulSkill : BaseSkill
             "soul",
             "The complete soul text defining the AI's personality, values, boundaries, and communication style.",
             SkillParameterType.String,
-            Required: true)
+            Required: true),
+        new SkillParameter(
+            "name",
+            "A short name for this soul definition (e.g. 'Klacks Planungsassistent').",
+            SkillParameterType.String,
+            Required: false)
     };
 
-    public UpdateAiSoulSkill(
-        ISettingsRepository settingsRepository,
-        IUnitOfWork unitOfWork)
+    public UpdateAiSoulSkill(IAiSoulRepository aiSoulRepository)
     {
-        _settingsRepository = settingsRepository;
-        _unitOfWork = unitOfWork;
+        _aiSoulRepository = aiSoulRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -43,33 +45,25 @@ public class UpdateAiSoulSkill : BaseSkill
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var soul = GetRequiredString(parameters, "soul");
+        var soulContent = GetRequiredString(parameters, "soul");
+        var name = parameters.TryGetValue("name", out var nameObj) ? nameObj?.ToString() ?? "AI Soul" : "AI Soul";
 
-        var existingSetting = await _settingsRepository.GetSetting(Constants.Settings.AI_SOUL);
+        await _aiSoulRepository.DeactivateAllAsync(cancellationToken);
 
-        if (existingSetting != null)
-        {
-            existingSetting.Value = soul;
-            await _settingsRepository.PutSetting(existingSetting);
-            await _unitOfWork.CompleteAsync();
-
-            return SkillResult.SuccessResult(
-                new { Soul = soul },
-                $"AI soul updated ({soul.Length} characters).");
-        }
-
-        var newSetting = new Domain.Models.Settings.Settings
+        var newSoul = new AiSoul
         {
             Id = Guid.NewGuid(),
-            Type = Constants.Settings.AI_SOUL,
-            Value = soul
+            Name = name,
+            Content = soulContent,
+            IsActive = true,
+            Source = "chat",
+            CreateTime = DateTime.UtcNow
         };
 
-        await _settingsRepository.AddSetting(newSetting);
-        await _unitOfWork.CompleteAsync();
+        await _aiSoulRepository.AddAsync(newSoul, cancellationToken);
 
         return SkillResult.SuccessResult(
-            new { Soul = soul },
-            $"AI soul created ({soul.Length} characters).");
+            new { newSoul.Name, ContentLength = soulContent.Length },
+            $"AI soul '{name}' created and activated ({soulContent.Length} characters).");
     }
 }

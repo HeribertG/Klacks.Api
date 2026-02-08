@@ -27,8 +27,6 @@ namespace Klacks.Api.Application.Constants
 
         public const string APP_OUTGOING_SERVER_USERNAME = "outgoingserverUsername";
         public const string APP_OUTGOING_SERVER_PASSWORD = "outgoingserverPassword";
-
-        public const string AI_SOUL = "AI_SOUL";
     }
 }
 

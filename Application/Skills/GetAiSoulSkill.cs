@@ -1,5 +1,5 @@
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.AI;
 using Klacks.Api.Domain.Models.Skills;
 using Klacks.Api.Domain.Services.Skills.Implementations;
 
@@ -7,7 +7,7 @@ namespace Klacks.Api.Application.Skills;
 
 public class GetAiSoulSkill : BaseSkill
 {
-    private readonly ISettingsRepository _settingsRepository;
+    private readonly IAiSoulRepository _aiSoulRepository;
 
     public override string Name => "get_ai_soul";
 
@@ -21,9 +21,9 @@ public class GetAiSoulSkill : BaseSkill
 
     public override IReadOnlyList<SkillParameter> Parameters => Array.Empty<SkillParameter>();
 
-    public GetAiSoulSkill(ISettingsRepository settingsRepository)
+    public GetAiSoulSkill(IAiSoulRepository aiSoulRepository)
     {
-        _settingsRepository = settingsRepository;
+        _aiSoulRepository = aiSoulRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -31,14 +31,23 @@ public class GetAiSoulSkill : BaseSkill
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var soulSetting = await _settingsRepository.GetSetting(Constants.Settings.AI_SOUL);
+        var activeSoul = await _aiSoulRepository.GetActiveAsync(cancellationToken);
 
-        var soulText = soulSetting?.Value ?? "";
+        if (activeSoul == null)
+        {
+            return SkillResult.SuccessResult(
+                new { IsConfigured = false },
+                "No AI soul is configured yet.");
+        }
 
         return SkillResult.SuccessResult(
-            new { Soul = soulText, IsConfigured = !string.IsNullOrWhiteSpace(soulText) },
-            string.IsNullOrWhiteSpace(soulText)
-                ? "No AI soul is configured yet."
-                : $"AI soul retrieved ({soulText.Length} characters).");
+            new
+            {
+                activeSoul.Name,
+                activeSoul.Content,
+                activeSoul.IsActive,
+                activeSoul.Source
+            },
+            $"AI soul '{activeSoul.Name}' retrieved ({activeSoul.Content.Length} characters).");
     }
 }

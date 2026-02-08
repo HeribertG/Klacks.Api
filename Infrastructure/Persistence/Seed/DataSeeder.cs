@@ -9,6 +9,7 @@ namespace Klacks.Api.Data.Seed
         {
             DefaultSeed.SeedData(migrationBuilder);
             LLMSeed.SeedData(migrationBuilder);
+            AiSoulSeed.SeedData(migrationBuilder);
             SwissZipSeed.SeedData(migrationBuilder);
             MacrosSeed.SeedData(migrationBuilder);
             IdentityProvidersSeed.SeedData(migrationBuilder);
