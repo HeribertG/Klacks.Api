@@ -103,6 +103,72 @@ public static class LLMFunctions
         RequiredParameters = new List<string> { "page" }
     };
 
+    public static LLMFunction CreateSystemUser => new()
+    {
+        Name = "create_system_user",
+        Description = "Creates a new system user (login account) through the Settings UI. " +
+                      "Opens Settings → User Administration, fills the form and saves. Returns username and password.",
+        Parameters = new Dictionary<string, object>
+        {
+            ["firstName"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "First name of the user" },
+            ["lastName"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "Last name of the user" },
+            ["email"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "Email address of the user" }
+        },
+        RequiredParameters = new List<string> { "firstName", "lastName", "email" }
+    };
+
+    public static LLMFunction DeleteSystemUser => new()
+    {
+        Name = "delete_system_user",
+        Description = "Deletes a system user through the Settings UI. Opens Settings → User Administration, clicks the delete button and confirms.",
+        Parameters = new Dictionary<string, object>
+        {
+            ["userId"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "ID of the user to delete" }
+        },
+        RequiredParameters = new List<string> { "userId" }
+    };
+
+    public static LLMFunction ListSystemUsers => new()
+    {
+        Name = "list_system_users",
+        Description = "Lists all system users from the Settings UI. Opens Settings → User Administration and reads the user list.",
+        Parameters = new Dictionary<string, object>(),
+        RequiredParameters = new List<string>()
+    };
+
+    public static LLMFunction CreateBranch => new()
+    {
+        Name = "create_branch",
+        Description = "Creates a new branch through the Settings UI. Opens Settings → Branches, opens the modal, fills it and saves.",
+        Parameters = new Dictionary<string, object>
+        {
+            ["name"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "Name of the branch" },
+            ["address"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "Address of the branch" },
+            ["phone"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "Phone number" },
+            ["email"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "Email address" }
+        },
+        RequiredParameters = new List<string> { "name", "address" }
+    };
+
+    public static LLMFunction DeleteBranch => new()
+    {
+        Name = "delete_branch",
+        Description = "Deletes a branch through the Settings UI. Clicks the delete button and confirms.",
+        Parameters = new Dictionary<string, object>
+        {
+            ["branchId"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "ID of the branch to delete" }
+        },
+        RequiredParameters = new List<string> { "branchId" }
+    };
+
+    public static LLMFunction ListBranches => new()
+    {
+        Name = "list_branches",
+        Description = "Lists all branches from the Settings UI. Opens Settings and reads the branch list.",
+        Parameters = new Dictionary<string, object>(),
+        RequiredParameters = new List<string>()
+    };
+
     public static LLMFunction SearchAndNavigate => new()
     {
         Name = "searchAndNavigate",

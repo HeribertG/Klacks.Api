@@ -24,6 +24,13 @@ public class LLMFunctionExecutor
         "get_owner_address", "update_owner_address"
     };
 
+    private static readonly HashSet<string> UiPassthroughFunctions = new()
+    {
+        "create_system_user", "delete_system_user", "list_system_users",
+        "create_branch", "delete_branch", "list_branches",
+        "set_user_group_scope"
+    };
+
     public LLMFunctionExecutor(
         ILogger<LLMFunctionExecutor> logger,
         IMCPService? mcpService = null,
@@ -84,6 +91,16 @@ public class LLMFunctionExecutor
             var skillResult = await ExecuteSkillAsync(context, call);
             var firstLine = skillResult.Split('\n')[0];
             return firstLine;
+        }
+
+        if (UiPassthroughFunctions.Contains(call.FunctionName))
+        {
+            _logger.LogInformation("UI passthrough for {FunctionName} - frontend will handle via DOM manipulation", call.FunctionName);
+            var paramsJson = JsonSerializer.Serialize(call.Parameters);
+            return $"Function '{call.FunctionName}' is being executed through the browser UI automatically. " +
+                   $"Parameters: {paramsJson}. " +
+                   "The action is performed via the Settings page in the user's browser. " +
+                   "Inform the user that the action is being carried out.";
         }
 
         if (_mcpService != null && BuiltInFunctions.Contains(call.FunctionName))

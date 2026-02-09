@@ -99,7 +99,7 @@ public class CreateUserSkill : BaseSkill
         };
 
         return SkillResult.SuccessResult(resultData,
-            $"User '{firstName} {lastName}' ({email}) was successfully created with username '{username}'.");
+            $"User '{firstName} {lastName}' ({email}) was successfully created. UserId: '{user.Id}', Username: '{username}', Password: '{password}'.");
     }
 
     private static string GeneratePassword()

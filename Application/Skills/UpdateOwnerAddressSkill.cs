@@ -2,6 +2,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Skills;
 using Klacks.Api.Domain.Services.Skills.Implementations;
+using Klacks.Api.Infrastructure.Services;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -9,13 +10,14 @@ public class UpdateOwnerAddressSkill : BaseSkill
 {
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IGeocodingService _geocodingService;
 
     public override string Name => "update_owner_address";
 
     public override string Description =>
-        "Updates the owner/company address in settings. All fields are optional - only provided fields will be updated. " +
-        "IMPORTANT: state and country are REQUIRED and must always be provided. " +
-        "Use validate_address first to verify the address and detect the state/canton.";
+        "Updates the owner/company address in settings. The address is automatically validated via geocoding before saving. " +
+        "If the address is invalid, the update is rejected. " +
+        "IMPORTANT: state and country are REQUIRED and must always be provided.";
 
     public override SkillCategory Category => SkillCategory.Crud;
 
@@ -36,10 +38,12 @@ public class UpdateOwnerAddressSkill : BaseSkill
 
     public UpdateOwnerAddressSkill(
         ISettingsRepository settingsRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IGeocodingService geocodingService)
     {
         _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
+        _geocodingService = geocodingService;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -49,6 +53,25 @@ public class UpdateOwnerAddressSkill : BaseSkill
     {
         var state = GetRequiredString(parameters, "state");
         var country = GetRequiredString(parameters, "country");
+        var street = GetParameter<string>(parameters, "street");
+        var zip = GetParameter<string>(parameters, "zip");
+        var city = GetParameter<string>(parameters, "city");
+
+        if (!string.IsNullOrEmpty(street) && !string.IsNullOrEmpty(zip) && !string.IsNullOrEmpty(city))
+        {
+            var countryName = MapCountryCodeToName(country);
+            var validation = await _geocodingService.ValidateExactAddressAsync(street, zip, city, countryName);
+
+            if (!validation.Found)
+                return SkillResult.Error(
+                    $"Address validation failed: '{street}, {zip} {city}, {country}' could not be found. Please check street name, house number and postal code.");
+
+            if (!validation.ExactMatch)
+                return SkillResult.Error(
+                    $"Address validation failed: '{street}, {zip} {city}, {country}' was not found exactly. " +
+                    $"Only city/postal code matched. Found: '{validation.ReturnedAddress}'. " +
+                    $"Please verify the street name and house number.");
+        }
 
         var fieldMap = new Dictionary<string, string>
         {
@@ -99,5 +122,19 @@ public class UpdateOwnerAddressSkill : BaseSkill
             };
             await _settingsRepository.AddSetting(newSetting);
         }
+    }
+
+    private static string MapCountryCodeToName(string countryCode)
+    {
+        return countryCode.ToUpperInvariant() switch
+        {
+            "CH" => "Schweiz",
+            "DE" => "Deutschland",
+            "AT" => "Österreich",
+            "FR" => "France",
+            "IT" => "Italia",
+            "LI" => "Liechtenstein",
+            _ => countryCode
+        };
     }
 }

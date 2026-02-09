@@ -279,7 +279,6 @@ public static  class ServiceCollectionExtensions
 
         // Skill Implementations (Scoped - with database dependencies, in Application layer)
         services.AddScoped<Application.Skills.CreateEmployeeSkill>();
-        services.AddScoped<Application.Skills.CreateUserSkill>();
         services.AddScoped<Application.Skills.SearchEmployeesSkill>();
         services.AddScoped<Application.Skills.CreateContractSkill>();
         services.AddScoped<Application.Skills.SearchAndNavigateSkill>();
@@ -302,6 +301,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.GetAiMemoriesSkill>();
         services.AddScoped<Application.Skills.UpdateAiMemorySkill>();
         services.AddScoped<Application.Skills.DeleteAiMemorySkill>();
+        services.AddScoped<Application.Skills.SetUserGroupScopeSkill>();
 
         // Geocoding Service
         services.AddHttpClient("Nominatim");

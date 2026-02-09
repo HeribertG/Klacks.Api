@@ -71,7 +71,9 @@ public class LLMSystemPromptBuilder
         "- Use available functions when users ask for them\n" +
         "- Give clear and precise instructions\n" +
         "- Always check permissions before executing functions\n" +
-        "- For missing permissions: explain that the user needs to contact an administrator";
+        "- For missing permissions: explain that the user needs to contact an administrator\n" +
+        "- MANDATORY: Every address MUST be validated via validate_address before saving, regardless of the component (owner address, employee, branch, etc.). Never save an unvalidated address.\n" +
+        "- If address validation fails or returns a non-exact match, NEVER offer to save the incorrect address. Instead, inform the user that the address is invalid and ask them to provide a corrected address. Do not present 'save anyway' as an option.";
 
     private string BuildGermanPrompt(LLMContext context, string? soul, IReadOnlyList<AiMemory>? memories, string? guidelines)
     {

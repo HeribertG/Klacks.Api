@@ -61,7 +61,6 @@ public class SkillRegistrationService
         var scopedSkillTypes = new[]
         {
             typeof(CreateEmployeeSkill),
-            typeof(CreateUserSkill),
             typeof(SearchEmployeesSkill),
             typeof(CreateContractSkill),
             typeof(SearchAndNavigateSkill),
@@ -83,7 +82,8 @@ public class SkillRegistrationService
             typeof(AddAiMemorySkill),
             typeof(GetAiMemoriesSkill),
             typeof(UpdateAiMemorySkill),
-            typeof(DeleteAiMemorySkill)
+            typeof(DeleteAiMemorySkill),
+            typeof(SetUserGroupScopeSkill)
         };
 
         using var scope = _serviceProvider.CreateScope();

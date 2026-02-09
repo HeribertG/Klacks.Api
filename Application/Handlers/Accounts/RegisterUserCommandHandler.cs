@@ -29,6 +29,7 @@ public class RegisterUserCommandHandler : BaseHandler, IRequestHandler<RegisterU
     public async Task<AuthenticatedResult> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
         using var transaction = await _unitOfWork.BeginTransactionAsync();
+        var transactionCompleted = false;
 
         try
         {
@@ -36,23 +37,32 @@ public class RegisterUserCommandHandler : BaseHandler, IRequestHandler<RegisterU
 
             var userIdentity = _authMapper.ToAppUser(request.Registration);
             var result = await _accountRegistrationService.RegisterUserAsync(userIdentity, request.Registration.Password);
-            
+
             if (result != null && result.Success)
             {
                 await _unitOfWork.CompleteAsync();
                 await _unitOfWork.CommitTransactionAsync(transaction);
+                transactionCompleted = true;
                 _logger.LogInformation("User registration successful: {Email}", request.Registration.Email);
                 return result;
             }
-            
+
             await _unitOfWork.RollbackTransactionAsync(transaction);
-            _logger.LogWarning("User registration failed: {Email}, Reason: {Reason}", 
+            transactionCompleted = true;
+            _logger.LogWarning("User registration failed: {Email}, Reason: {Reason}",
                 request.Registration.Email, result?.Message ?? "Unknown");
             throw new ConflictException(result?.Message ?? "User registration failed.");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (!transactionCompleted)
         {
-            await _unitOfWork.RollbackTransactionAsync(transaction);
+            try
+            {
+                await _unitOfWork.RollbackTransactionAsync(transaction);
+            }
+            catch (InvalidOperationException)
+            {
+                _logger.LogWarning("Transaction already completed during error handling for: {Email}", request.Registration.Email);
+            }
             _logger.LogError(ex, "Error processing user registration: {Email}", request.Registration.Email);
             throw;
         }

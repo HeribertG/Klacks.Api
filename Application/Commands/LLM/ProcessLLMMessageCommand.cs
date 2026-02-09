@@ -66,6 +66,16 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             functions.Add(LLMFunctions.CreateContract);
         }
 
+        if (userRights.Contains("CanEditSettings") || userRights.Contains("Admin"))
+        {
+            functions.Add(LLMFunctions.CreateSystemUser);
+            functions.Add(LLMFunctions.DeleteSystemUser);
+            functions.Add(LLMFunctions.ListSystemUsers);
+            functions.Add(LLMFunctions.CreateBranch);
+            functions.Add(LLMFunctions.DeleteBranch);
+            functions.Add(LLMFunctions.ListBranches);
+        }
+
         var skillFunctions = _skillBridge.GetSkillsAsLLMFunctions(userRights);
         var existingNames = new HashSet<string>(functions.Select(f => f.Name));
         foreach (var skillFunction in skillFunctions)
