@@ -169,6 +169,53 @@ public static class LLMFunctions
         RequiredParameters = new List<string>()
     };
 
+    public static LLMFunction CreateMacro => new()
+    {
+        Name = "create_macro",
+        Description = "Creates a new macro with KlacksScript code through the Settings UI. " +
+                      "Macros are VB.NET-like scripts that calculate shift surcharges, work rules, and break rules. " +
+                      "Available variables (via import): hour (work hours), fromhour/untilhour (start/end as decimal hours), " +
+                      "weekday (1=Mon..7=Sun), holiday/holidaynextday (boolean), nightrate, holidayrate, sarate (Samstag/Saturday surcharge), sorate (Sonntag/Sunday surcharge), " +
+                      "guaranteedhours, fulltime. " +
+                      "Available functions: TimeToHours('08:30')→8.5, TimeOverlap(s1,e1,s2,e2) for time range overlap, " +
+                      "IIF(cond,true,false), Abs, Round, Len, Left, Right, Mid, InStr, Replace, Trim. " +
+                      "Control: IF-THEN-ELSE-ENDIF, SELECT CASE, FOR-NEXT, DO-WHILE/UNTIL-LOOP, FUNCTION-ENDFUNCTION, SUB-ENDSUB. " +
+                      "Output: OUTPUT type, value (type 1=DefaultResult, 5=Info, 8000=Filter). Debug: DEBUGPRINT value. " +
+                      "IMPORTANT: DIM cannot initialize with a value (like old VB/VBA). Use: DIM varname on one line, then varname = value on the next. " +
+                      "IMPORTANT: Ask the user what the macro should calculate before writing code. " +
+                      "Example: dim rate / rate = 0 / if weekday >= 6 then rate = sorate / endif / OUTPUT 1, rate",
+        Parameters = new Dictionary<string, object>
+        {
+            ["name"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "Name of the macro" },
+            ["type"] = new Dictionary<string, object> {
+                ["type"] = "string",
+                ["enum"] = new[] { "ShiftAndEmployments", "WorkRules" },
+                ["description"] = "Type: ShiftAndEmployments (shift surcharges) or WorkRules (work rule checks). Default: ShiftAndEmployments"
+            },
+            ["content"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "KlacksScript code for the macro. Use \\n for newlines." }
+        },
+        RequiredParameters = new List<string> { "name" }
+    };
+
+    public static LLMFunction DeleteMacro => new()
+    {
+        Name = "delete_macro",
+        Description = "Deletes a macro through the Settings UI. Clicks the delete button and confirms.",
+        Parameters = new Dictionary<string, object>
+        {
+            ["macroId"] = new Dictionary<string, object> { ["type"] = "string", ["description"] = "ID of the macro to delete" }
+        },
+        RequiredParameters = new List<string> { "macroId" }
+    };
+
+    public static LLMFunction ListMacros => new()
+    {
+        Name = "list_macros",
+        Description = "Lists all macros from the Settings UI. Opens Settings and reads the macro list.",
+        Parameters = new Dictionary<string, object>(),
+        RequiredParameters = new List<string>()
+    };
+
     public static LLMFunction SearchAndNavigate => new()
     {
         Name = "searchAndNavigate",

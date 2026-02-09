@@ -28,6 +28,7 @@ public class LLMFunctionExecutor
     {
         "create_system_user", "delete_system_user", "list_system_users",
         "create_branch", "delete_branch", "list_branches",
+        "create_macro", "delete_macro", "list_macros",
         "set_user_group_scope"
     };
 

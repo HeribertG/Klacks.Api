@@ -74,6 +74,9 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             functions.Add(LLMFunctions.CreateBranch);
             functions.Add(LLMFunctions.DeleteBranch);
             functions.Add(LLMFunctions.ListBranches);
+            functions.Add(LLMFunctions.CreateMacro);
+            functions.Add(LLMFunctions.DeleteMacro);
+            functions.Add(LLMFunctions.ListMacros);
         }
 
         var skillFunctions = _skillBridge.GetSkillsAsLLMFunctions(userRights);

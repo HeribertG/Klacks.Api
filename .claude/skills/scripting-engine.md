@@ -58,12 +58,14 @@ if (engine.ErrorNumber == 0)
 
 ### Variablen
 
+**WICHTIG:** `DIM` kann Variablen nur deklarieren, NICHT gleichzeitig initialisieren (wie in VB vor Version 6 / VBA). `DIM x = 10` ist ein Syntaxfehler!
+
 ```basic
 DIM x
 DIM a, b, c
 CONST PI_VALUE = 3.14159
 
-x = 10
+x = 10       ' Zuweisung separat
 x += 5
 x &= " cm"  ' String-Konkatenation
 ```
@@ -143,6 +145,21 @@ Import betrag
 
 message 1, kundenName & ": " & betrag
 ```
+
+### Macro-spezifische Import-Variablen
+
+| Variable | Beschreibung |
+|----------|-------------|
+| hour | Arbeitsstunden |
+| fromhour/untilhour | Start-/Endzeit als Dezimalstunden |
+| weekday | Wochentag ISO-8601 (1=Mo..7=So) |
+| holiday/holidaynextday | Feiertag boolean |
+| nightrate | Nachtzuschlag-Satz |
+| holidayrate | Feiertagszuschlag-Satz |
+| sarate | **Sa**mstags-Zuschlag (sa = Samstag/Saturday) |
+| sorate | **So**nntags-Zuschlag (so = Sonntag/Sunday) |
+| guaranteedhours | Garantierte Monatsstunden |
+| fulltime | Vollzeit-Stunden |
 
 ## ScriptValue (Boxing-frei)
 
