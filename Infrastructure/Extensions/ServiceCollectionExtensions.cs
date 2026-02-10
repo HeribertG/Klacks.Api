@@ -19,6 +19,7 @@ using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Domain.Services.ScheduleEntries;
 using Klacks.Api.Domain.Services.PeriodHours;
 using Klacks.Api.Domain.Services.LLM;
+using Klacks.Api.Infrastructure.Services.LLM;
 using Klacks.Api.Domain.Services.Skills;
 using Klacks.Api.Domain.Services.RouteOptimization;
 using Klacks.Api.Domain.Services.Common;
@@ -224,6 +225,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IAiMemoryRepository, AiMemoryRepository>();
         services.AddScoped<IAiSoulRepository, AiSoulRepository>();
         services.AddScoped<IAiGuidelinesRepository, AiGuidelinesRepository>();
+        services.AddScoped<ILlmFunctionDefinitionRepository, LlmFunctionDefinitionRepository>();
 
         // LLM Services
         services.AddScoped<ILLMRepository, LLMRepository>();
@@ -238,22 +240,22 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<LLMSystemPromptBuilder>();
 
         // LLM Providers
-        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.OpenAI.OpenAIProvider>();
-        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.Anthropic.AnthropicProvider>();
-        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.Gemini.GeminiProvider>();
-        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.Azure.AzureOpenAIProvider>();
-        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.Mistral.MistralProvider>();
-        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.Cohere.CohereProvider>();
-        services.AddScoped<Klacks.Api.Domain.Services.LLM.Providers.DeepSeek.DeepSeekProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.OpenAI.OpenAIProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Anthropic.AnthropicProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Gemini.GeminiProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Azure.AzureOpenAIProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Mistral.MistralProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Cohere.CohereProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.DeepSeek.DeepSeekProvider>();
 
         // HttpClients for Providers
-        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.OpenAI.OpenAIProvider>();
-        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.Anthropic.AnthropicProvider>();
-        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.Gemini.GeminiProvider>();
-        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.Azure.AzureOpenAIProvider>();
-        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.Mistral.MistralProvider>();
-        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.Cohere.CohereProvider>();
-        services.AddHttpClient<Klacks.Api.Domain.Services.LLM.Providers.DeepSeek.DeepSeekProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.OpenAI.OpenAIProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Anthropic.AnthropicProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Gemini.GeminiProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Azure.AzureOpenAIProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Mistral.MistralProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Cohere.CohereProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.DeepSeek.DeepSeekProvider>();
 
         // Skills System Services
         services.AddSingleton<Domain.Services.Skills.Adapters.ISkillAdapterFactory, Domain.Services.Skills.Adapters.SkillAdapterFactory>();
