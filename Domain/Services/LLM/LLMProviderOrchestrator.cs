@@ -30,14 +30,14 @@ public class LLMProviderOrchestrator
             if (model == null || !model.IsEnabled)
             {
                 _logger.LogWarning("Model {ModelId} not found or not enabled", effectiveModelId);
-                return (null, null, "Das gewählte Modell ist nicht verfügbar.");
+                return (null, null, "The selected model is not available.");
             }
 
             var provider = await _providerFactory.GetProviderForModelAsync(effectiveModelId);
             if (provider == null)
             {
                 _logger.LogWarning("Provider for model {ModelId} not found", effectiveModelId);
-                return (null, null, "Der Provider für das gewählte Modell ist nicht verfügbar.");
+                return (null, null, "The provider for the selected model is not available.");
             }
 
             return (model, provider, null);
@@ -45,7 +45,7 @@ public class LLMProviderOrchestrator
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting model and provider");
-            return (null, null, "Ein Fehler ist beim Laden des Modells aufgetreten.");
+            return (null, null, "An error occurred while loading the model.");
         }
     }
 

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Klacks.Api.Domain.Interfaces.AI;
 using Klacks.Api.Domain.Services.LLM.Providers;
 using Klacks.Api.Domain.Services.Skills;
 using Klacks.Api.Domain.Models.Skills;
@@ -12,34 +13,31 @@ public class LLMFunctionExecutor
     private readonly ILogger<LLMFunctionExecutor> _logger;
     private readonly IMCPService? _mcpService;
     private readonly ILLMSkillBridge? _skillBridge;
+    private readonly ILlmFunctionDefinitionRepository _functionDefinitionRepository;
 
-    private static readonly HashSet<string> BuiltInFunctions = new()
-    {
-        "create_client", "search_clients", "create_contract", "get_system_info"
-    };
-
-    private static readonly HashSet<string> FrontendOnlyFunctions = new()
-    {
-        "get_general_settings", "update_general_settings",
-        "get_owner_address", "update_owner_address"
-    };
-
-    private static readonly HashSet<string> UiPassthroughFunctions = new()
-    {
-        "create_system_user", "delete_system_user", "list_system_users",
-        "create_branch", "delete_branch", "list_branches",
-        "create_macro", "delete_macro", "list_macros",
-        "set_user_group_scope"
-    };
+    private Dictionary<string, string>? _executionTypeCache;
 
     public LLMFunctionExecutor(
         ILogger<LLMFunctionExecutor> logger,
+        ILlmFunctionDefinitionRepository functionDefinitionRepository,
         IMCPService? mcpService = null,
         ILLMSkillBridge? skillBridge = null)
     {
         this._logger = logger;
+        _functionDefinitionRepository = functionDefinitionRepository;
         _mcpService = mcpService;
         _skillBridge = skillBridge;
+    }
+
+    private async Task<string> GetExecutionTypeAsync(string functionName)
+    {
+        if (_executionTypeCache == null)
+        {
+            var definitions = await _functionDefinitionRepository.GetAllEnabledAsync();
+            _executionTypeCache = definitions.ToDictionary(d => d.Name, d => d.ExecutionType);
+        }
+
+        return _executionTypeCache.GetValueOrDefault(functionName, "Skill");
     }
 
     public async Task<string> ProcessFunctionCallsAsync(LLMContext context, List<LLMFunctionCall> functionCalls)
@@ -86,7 +84,9 @@ public class LLMFunctionExecutor
         _logger.LogInformation("Executing function {FunctionName} with parameters {Parameters}",
             call.FunctionName, JsonSerializer.Serialize(call.Parameters));
 
-        if (FrontendOnlyFunctions.Contains(call.FunctionName))
+        var executionType = await GetExecutionTypeAsync(call.FunctionName);
+
+        if (executionType == "FrontendOnly")
         {
             _logger.LogInformation("Executing {FunctionName} for LLM context (frontend handles UI)", call.FunctionName);
             var skillResult = await ExecuteSkillAsync(context, call);
@@ -94,7 +94,7 @@ public class LLMFunctionExecutor
             return firstLine;
         }
 
-        if (UiPassthroughFunctions.Contains(call.FunctionName))
+        if (executionType == "UiPassthrough")
         {
             _logger.LogInformation("UI passthrough for {FunctionName} - frontend will handle via DOM manipulation", call.FunctionName);
             var paramsJson = JsonSerializer.Serialize(call.Parameters);
@@ -104,7 +104,7 @@ public class LLMFunctionExecutor
                    "Inform the user that the action is being carried out.";
         }
 
-        if (_mcpService != null && BuiltInFunctions.Contains(call.FunctionName))
+        if (_mcpService != null && executionType == "BuiltIn")
         {
             try
             {
@@ -120,7 +120,7 @@ public class LLMFunctionExecutor
             }
         }
 
-        if (BuiltInFunctions.Contains(call.FunctionName))
+        if (executionType == "BuiltIn")
         {
             return call.FunctionName switch
             {
@@ -128,7 +128,7 @@ public class LLMFunctionExecutor
                 "search_clients" => await ExecuteSearchClientsAsync(call.Parameters),
                 "create_contract" => await ExecuteCreateContractAsync(call.Parameters),
                 "get_system_info" => await ExecuteGetSystemInfoAsync(),
-                _ => ""
+                _ => await ExecuteSkillAsync(context, call)
             };
         }
 
@@ -173,9 +173,9 @@ public class LLMFunctionExecutor
         var lastName = parameters.GetValueOrDefault("lastName")?.ToString() ?? "";
         var canton = parameters.GetValueOrDefault("canton")?.ToString() ?? "";
 
-        return Task.FromResult($"✅ Mitarbeiter {firstName} {lastName}" +
-               (string.IsNullOrEmpty(canton) ? "" : $" aus {canton}") +
-               " wurde erfolgreich erstellt.");
+        return Task.FromResult($"Employee {firstName} {lastName}" +
+               (string.IsNullOrEmpty(canton) ? "" : $" from {canton}") +
+               " created successfully.");
     }
 
     private Task<string> ExecuteSearchClientsAsync(Dictionary<string, object> parameters)
@@ -183,8 +183,8 @@ public class LLMFunctionExecutor
         var searchTerm = parameters.GetValueOrDefault("searchTerm")?.ToString() ?? "";
         var canton = parameters.GetValueOrDefault("canton")?.ToString() ?? "";
 
-        return Task.FromResult($"🔍 Gefunden: 3 Mitarbeiter mit Suchbegriff '{searchTerm}'" +
-               (string.IsNullOrEmpty(canton) ? "" : $" in Kanton {canton}"));
+        return Task.FromResult($"Found: 3 employees matching '{searchTerm}'" +
+               (string.IsNullOrEmpty(canton) ? "" : $" in canton {canton}"));
     }
 
     private Task<string> ExecuteCreateContractAsync(Dictionary<string, object> parameters)
@@ -193,11 +193,11 @@ public class LLMFunctionExecutor
         var contractType = parameters.GetValueOrDefault("contractType")?.ToString() ?? "";
         var canton = parameters.GetValueOrDefault("canton")?.ToString() ?? "";
 
-        return Task.FromResult($"📄 Vertrag '{contractType}' für Mitarbeiter {clientId} in {canton} wurde erstellt.");
+        return Task.FromResult($"Contract '{contractType}' for employee {clientId} in {canton} created successfully.");
     }
 
     private Task<string> ExecuteGetSystemInfoAsync()
     {
-        return Task.FromResult("ℹ️ Klacks Planning System v1.0.0 - Status: Aktiv");
+        return Task.FromResult("Klacks Planning System v1.0.0 - Status: Active");
     }
 }

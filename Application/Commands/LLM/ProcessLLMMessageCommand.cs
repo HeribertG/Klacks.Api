@@ -1,5 +1,7 @@
+using System.Text.Json;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.AI;
+using Klacks.Api.Domain.Models.AI;
 using Klacks.Api.Domain.Services.LLM;
 using Klacks.Api.Domain.Services.Skills;
 using Klacks.Api.Application.DTOs.LLM;
@@ -20,11 +22,16 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
 {
     private readonly ILLMService _llmService;
     private readonly ILLMSkillBridge _skillBridge;
+    private readonly ILlmFunctionDefinitionRepository _functionDefinitionRepository;
 
-    public ProcessLLMMessageCommandHandler(ILLMService llmService, ILLMSkillBridge skillBridge)
+    public ProcessLLMMessageCommandHandler(
+        ILLMService llmService,
+        ILLMSkillBridge skillBridge,
+        ILlmFunctionDefinitionRepository functionDefinitionRepository)
     {
         _llmService = llmService;
         _skillBridge = skillBridge;
+        _functionDefinitionRepository = functionDefinitionRepository;
     }
 
     public async Task<LLMResponse> Handle(ProcessLLMMessageCommand request, CancellationToken cancellationToken)
@@ -37,46 +44,25 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             ModelId = request.ModelId,
             Language = request.Language,
             UserRights = request.UserRights,
-            AvailableFunctions = GetAvailableFunctions(request.UserRights)
+            AvailableFunctions = await GetAvailableFunctionsAsync(request.UserRights, cancellationToken)
         };
 
         return await _llmService.ProcessAsync(context);
     }
 
-    private List<LLMFunction> GetAvailableFunctions(List<string> userRights)
+    private async Task<List<LLMFunction>> GetAvailableFunctionsAsync(List<string> userRights, CancellationToken cancellationToken)
     {
+        var definitions = await _functionDefinitionRepository.GetAllEnabledAsync(cancellationToken);
         var functions = new List<LLMFunction>();
 
-        functions.Add(LLMFunctions.GetSystemInfo);
-        functions.Add(LLMFunctions.NavigateToPage);
-
-        if (userRights.Contains("CanViewClients") || userRights.Contains("Admin"))
+        foreach (var def in definitions)
         {
-            functions.Add(LLMFunctions.SearchClients);
-            functions.Add(LLMFunctions.SearchAndNavigate);
-        }
-
-        if (userRights.Contains("CanCreateClients") || userRights.Contains("Admin"))
-        {
-            functions.Add(LLMFunctions.CreateClient);
-        }
-
-        if (userRights.Contains("CanCreateContracts") || userRights.Contains("Admin"))
-        {
-            functions.Add(LLMFunctions.CreateContract);
-        }
-
-        if (userRights.Contains("CanEditSettings") || userRights.Contains("Admin"))
-        {
-            functions.Add(LLMFunctions.CreateSystemUser);
-            functions.Add(LLMFunctions.DeleteSystemUser);
-            functions.Add(LLMFunctions.ListSystemUsers);
-            functions.Add(LLMFunctions.CreateBranch);
-            functions.Add(LLMFunctions.DeleteBranch);
-            functions.Add(LLMFunctions.ListBranches);
-            functions.Add(LLMFunctions.CreateMacro);
-            functions.Add(LLMFunctions.DeleteMacro);
-            functions.Add(LLMFunctions.ListMacros);
+            if (def.RequiredPermission == null ||
+                userRights.Contains(def.RequiredPermission) ||
+                userRights.Contains("Admin"))
+            {
+                functions.Add(ConvertToLLMFunction(def));
+            }
         }
 
         var skillFunctions = _skillBridge.GetSkillsAsLLMFunctions(userRights);
@@ -90,5 +76,51 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         }
 
         return functions;
+    }
+
+    private static LLMFunction ConvertToLLMFunction(LlmFunctionDefinition definition)
+    {
+        var parameters = new Dictionary<string, object>();
+        var requiredParameters = new List<string>();
+
+        var paramDefs = JsonSerializer.Deserialize<List<ParameterDefinition>>(definition.ParametersJson) ?? [];
+
+        foreach (var param in paramDefs)
+        {
+            var paramDict = new Dictionary<string, object>
+            {
+                ["type"] = param.Type,
+                ["description"] = param.Description
+            };
+
+            if (param.Enum is { Count: > 0 })
+            {
+                paramDict["enum"] = param.Enum.ToArray();
+            }
+
+            parameters[param.Name] = paramDict;
+
+            if (param.Required)
+            {
+                requiredParameters.Add(param.Name);
+            }
+        }
+
+        return new LLMFunction
+        {
+            Name = definition.Name,
+            Description = definition.Description,
+            Parameters = parameters,
+            RequiredParameters = requiredParameters
+        };
+    }
+
+    private class ParameterDefinition
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Type { get; set; } = "string";
+        public string Description { get; set; } = string.Empty;
+        public bool Required { get; set; }
+        public List<string>? Enum { get; set; }
     }
 }

@@ -39,7 +39,7 @@ public class LLMResponseBuilder
         return new LLMResponse
         {
             Message = $"❌ {message}",
-            Suggestions = new List<string> { "Hilfe anzeigen", "Erneut versuchen" }
+            Suggestions = new List<string> { "Show help", "Try again" }
         };
     }
 
@@ -48,16 +48,17 @@ public class LLMResponseBuilder
         var navigationMap = new Dictionary<string, string>
         {
             ["dashboard"] = "/dashboard",
-            ["mitarbeiter"] = "/clients",
-            ["verträge"] = "/contracts",
-            ["einstellungen"] = "/settings"
+            ["clients"] = "/clients",
+            ["employees"] = "/clients",
+            ["contracts"] = "/contracts",
+            ["settings"] = "/settings"
         };
 
         var lowerContent = content.ToLower();
         foreach (var nav in navigationMap)
         {
-            if (lowerContent.Contains($"navigiere zu {nav.Key}") ||
-                lowerContent.Contains($"öffne {nav.Key}"))
+            if (lowerContent.Contains($"navigate to {nav.Key}") ||
+                lowerContent.Contains($"open {nav.Key}"))
             {
                 return nav.Value;
             }
@@ -70,20 +71,20 @@ public class LLMResponseBuilder
     {
         var suggestions = new List<string>();
 
-        if (response.ToLower().Contains("mitarbeiter") || response.ToLower().Contains("erstellt"))
+        if (response.ToLower().Contains("employee") || response.ToLower().Contains("created"))
         {
-            suggestions.Add("Zeige alle Mitarbeiter");
-            suggestions.Add("Erstelle weiteren Mitarbeiter");
+            suggestions.Add("Show all employees");
+            suggestions.Add("Create another employee");
         }
 
-        if (response.ToLower().Contains("suche") || response.ToLower().Contains("gefunden"))
+        if (response.ToLower().Contains("search") || response.ToLower().Contains("found"))
         {
-            suggestions.Add("Erweiterte Suche");
-            suggestions.Add("Filter anwenden");
+            suggestions.Add("Advanced search");
+            suggestions.Add("Apply filter");
         }
 
-        suggestions.Add("Hilfe anzeigen");
-        suggestions.Add("Zum Dashboard");
+        suggestions.Add("Show help");
+        suggestions.Add("Go to dashboard");
 
         return suggestions.Take(4).ToList();
     }

@@ -103,7 +103,7 @@ public class LLMService : ILLMService
                         context.UserId, model, conversation,
                         totalUsage, stopwatch.ElapsedMilliseconds,
                         hasError: true, errorMessage: lastResponse.Error);
-                    return _responseBuilder.BuildErrorResponse(lastResponse.Error ?? "Ein Fehler ist aufgetreten.");
+                    return _responseBuilder.BuildErrorResponse(lastResponse.Error ?? "An error occurred.");
                 }
 
                 responseContent = lastResponse.Content;
@@ -124,7 +124,7 @@ public class LLMService : ILLMService
 
             if (string.IsNullOrWhiteSpace(responseContent) && allFunctionCalls.Any())
             {
-                responseContent = "Die angeforderten Aktionen wurden ausgeführt.";
+                responseContent = "The requested actions have been executed.";
             }
 
             if (allFunctionCalls.Count > 0)
@@ -146,7 +146,7 @@ public class LLMService : ILLMService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing LLM request for user {UserId}", context.UserId);
-            return _responseBuilder.BuildErrorResponse("Ein interner Fehler ist aufgetreten.");
+            return _responseBuilder.BuildErrorResponse("An internal error occurred.");
         }
     }
 

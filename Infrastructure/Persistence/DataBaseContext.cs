@@ -133,6 +133,7 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<AiMemory> AiMemories { get; set; }
     public DbSet<AiSoul> AiSouls { get; set; }
     public DbSet<AiGuidelines> AiGuidelines { get; set; }
+    public DbSet<LlmFunctionDefinition> LlmFunctionDefinitions { get; set; }
 
     // Report DbSets
     public DbSet<ReportTemplate> ReportTemplates { get; set; }
@@ -328,6 +329,13 @@ public class DataBaseContext : IdentityDbContext
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
             entity.HasIndex(p => new { p.IsDeleted, p.IsActive });
+        });
+
+        // LLM Function Definitions Configuration
+        modelBuilder.Entity<LlmFunctionDefinition>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.IsDeleted, p.IsEnabled, p.SortOrder });
         });
 
         // Report Templates Configuration
