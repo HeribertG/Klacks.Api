@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Klacks.Api.Infrastructure.Services.LLM.Providers.Base;
 using Klacks.Api.Infrastructure.Services.LLM.Providers.Shared;
 using Klacks.Api.Infrastructure.Services.LLM.Providers.Mistral;
@@ -80,6 +81,8 @@ public class DeepSeekProvider : BaseHttpProvider
                         });
                     }
                 }
+
+                NormalizeMalformedParameters(result.FunctionCalls, request.AvailableFunctions);
             }
 
             return result;
@@ -126,6 +129,69 @@ public class DeepSeekProvider : BaseHttpProvider
         messages.Add(new OpenAIMessage { Role = "user", Content = request.Message });
 
         return messages;
+    }
+
+    private void NormalizeMalformedParameters(List<LLMFunctionCall> calls, List<LLMFunction> functions)
+    {
+        foreach (var call in calls)
+        {
+            var funcDef = functions.FirstOrDefault(f => f.Name == call.FunctionName);
+            if (funcDef == null || funcDef.Parameters.Count == 0) continue;
+
+            var expectedNames = funcDef.Parameters.Keys.ToList();
+
+            if (call.Parameters.Keys.Any(k => expectedNames.Contains(k, StringComparer.OrdinalIgnoreCase)))
+                continue;
+
+            var rawValue = string.Join(", ", call.Parameters.Values.Select(v => v?.ToString() ?? ""));
+            if (string.IsNullOrWhiteSpace(rawValue)) continue;
+
+            var normalized = ExtractParametersFromString(rawValue, expectedNames);
+            if (normalized.Count > 0)
+            {
+                _logger.LogInformation(
+                    "Normalized malformed parameters for {Function}: {ParamCount} params extracted from raw string",
+                    call.FunctionName, normalized.Count);
+                call.Parameters = normalized;
+            }
+        }
+    }
+
+    private static readonly Dictionary<string, string[]> ParameterAliases = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["firstName"] = ["Vorname", "First Name"],
+        ["lastName"] = ["Nachname", "Last Name"],
+        ["email"] = ["E-Mail", "Email-Adresse", "Mail"],
+        ["userId"] = ["User-ID", "Benutzer-ID", "BenutzerID"],
+        ["groupNames"] = ["Gruppenname", "Gruppennamen", "Group Name", "Group Names"],
+        ["name"] = ["Name", "Bezeichnung"],
+        ["script"] = ["Script", "Skript", "Code"],
+    };
+
+    private static Dictionary<string, object> ExtractParametersFromString(string raw, List<string> expectedNames)
+    {
+        var result = new Dictionary<string, object>();
+
+        foreach (var paramName in expectedNames)
+        {
+            var patterns = new List<string> { Regex.Escape(paramName) };
+            if (ParameterAliases.TryGetValue(paramName, out var aliases))
+            {
+                patterns.AddRange(aliases.Select(Regex.Escape));
+            }
+
+            var pattern = $@"(?:{string.Join("|", patterns)})\s*[:=]\s*(?:'([^']+)'|""([^""]+)""|(\S[^,\n]*))";
+            var match = Regex.Match(raw, pattern, RegexOptions.IgnoreCase);
+            if (match.Success)
+            {
+                var value = match.Groups[1].Success ? match.Groups[1].Value :
+                            match.Groups[2].Success ? match.Groups[2].Value :
+                            match.Groups[3].Value;
+                result[paramName] = value.Trim();
+            }
+        }
+
+        return result;
     }
 
     private List<MistralTool>? BuildTools(List<LLMFunction> functions)

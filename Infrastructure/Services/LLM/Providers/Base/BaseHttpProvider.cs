@@ -56,11 +56,11 @@ public abstract class BaseHttpProvider : ILLMProvider
         var content = new StringContent(json, Encoding.UTF8, "application/json");
         
         _logger.LogDebug("{Provider} sending request to {Endpoint}: {Request}", ProviderName, endpoint, json);
-        
+
         var response = await _httpClient.PostAsync(endpoint, content);
         var responseJson = await response.Content.ReadAsStringAsync();
-        
-        _logger.LogDebug("{Provider} received response: {StatusCode} - {Response}", 
+
+        _logger.LogDebug("{Provider} received response: {StatusCode} - {Response}",
             ProviderName, response.StatusCode, responseJson);
         
         if (!response.IsSuccessStatusCode)

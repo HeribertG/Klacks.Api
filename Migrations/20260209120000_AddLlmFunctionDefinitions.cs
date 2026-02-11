@@ -142,8 +142,8 @@ namespace Klacks.Api.Migrations
             migrationBuilder.InsertData(
                 table: "llm_function_definitions",
                 columns: new[] { "id", "name", "description", "parameters_json", "required_permission", "execution_type", "category", "is_enabled", "sort_order", "create_time", "current_user_created", "is_deleted" },
-                values: new object[] { Guid.NewGuid(), "delete_system_user", "Deletes a system user through the Settings UI. Opens Settings → User Administration, clicks the delete button and confirms.",
-                    "[{\"name\":\"userId\",\"type\":\"string\",\"description\":\"ID of the user to delete\",\"required\":true}]",
+                values: new object[] { Guid.NewGuid(), "delete_system_user", "Delete a system user by ID or by first and last name. Provide either userId OR firstName+lastName.",
+                    "[{\"name\":\"userId\",\"type\":\"string\",\"description\":\"ID of the user to delete (optional if firstName and lastName are provided)\",\"required\":false},{\"name\":\"firstName\",\"type\":\"string\",\"description\":\"First name of the user to delete\",\"required\":false},{\"name\":\"lastName\",\"type\":\"string\",\"description\":\"Last name of the user to delete\",\"required\":false}]",
                     "CanEditSettings", "UiPassthrough", "ui", true, 130, now, "Migration", false });
 
             // 14. list_system_users

@@ -3,7 +3,6 @@ using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Interfaces.AI;
 using Klacks.Api.Domain.Models.AI;
 using Klacks.Api.Domain.Services.LLM;
-using Klacks.Api.Domain.Services.Skills;
 using Klacks.Api.Application.DTOs.LLM;
 
 namespace Klacks.Api.Application.Commands.LLM;
@@ -21,16 +20,13 @@ public class ProcessLLMMessageCommand : IRequest<LLMResponse>
 public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessageCommand, LLMResponse>
 {
     private readonly ILLMService _llmService;
-    private readonly ILLMSkillBridge _skillBridge;
     private readonly ILlmFunctionDefinitionRepository _functionDefinitionRepository;
 
     public ProcessLLMMessageCommandHandler(
         ILLMService llmService,
-        ILLMSkillBridge skillBridge,
         ILlmFunctionDefinitionRepository functionDefinitionRepository)
     {
         _llmService = llmService;
-        _skillBridge = skillBridge;
         _functionDefinitionRepository = functionDefinitionRepository;
     }
 
@@ -65,16 +61,6 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             }
         }
 
-        var skillFunctions = _skillBridge.GetSkillsAsLLMFunctions(userRights);
-        var existingNames = new HashSet<string>(functions.Select(f => f.Name));
-        foreach (var skillFunction in skillFunctions)
-        {
-            if (!existingNames.Contains(skillFunction.Name))
-            {
-                functions.Add(skillFunction);
-            }
-        }
-
         return functions;
     }
 
@@ -83,7 +69,9 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         var parameters = new Dictionary<string, object>();
         var requiredParameters = new List<string>();
 
-        var paramDefs = JsonSerializer.Deserialize<List<ParameterDefinition>>(definition.ParametersJson) ?? [];
+        var paramDefs = JsonSerializer.Deserialize<List<ParameterDefinition>>(
+            definition.ParametersJson,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
 
         foreach (var param in paramDefs)
         {
