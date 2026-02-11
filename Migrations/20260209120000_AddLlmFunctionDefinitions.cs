@@ -112,7 +112,7 @@ namespace Klacks.Api.Migrations
                 columns: new[] { "id", "name", "description", "parameters_json", "required_permission", "execution_type", "category", "is_enabled", "sort_order", "create_time", "current_user_created", "is_deleted" },
                 values: new object[] { Guid.NewGuid(), "update_general_settings", "Navigates to settings and changes the app name directly in the form.",
                     "[{\"name\":\"appName\",\"type\":\"string\",\"description\":\"New app name\",\"required\":true}]",
-                    "CanEditSettings", "FrontendOnly", "ui", true, 90, now, "Migration", false });
+                    "CanEditSettings", "UiPassthrough", "ui", true, 90, now, "Migration", false });
 
             // 10. get_owner_address
             migrationBuilder.InsertData(
@@ -128,7 +128,7 @@ namespace Klacks.Api.Migrations
                 columns: new[] { "id", "name", "description", "parameters_json", "required_permission", "execution_type", "category", "is_enabled", "sort_order", "create_time", "current_user_created", "is_deleted" },
                 values: new object[] { Guid.NewGuid(), "update_owner_address", "Updates the company/owner address in settings. State and Country are required fields. Use validate_address first to check the address and determine the canton.",
                     "[{\"name\":\"addressName\",\"type\":\"string\",\"description\":\"Company or owner name\",\"required\":false},{\"name\":\"supplementAddress\",\"type\":\"string\",\"description\":\"Address supplement\",\"required\":false},{\"name\":\"street\",\"type\":\"string\",\"description\":\"Street and house number\",\"required\":false},{\"name\":\"zip\",\"type\":\"string\",\"description\":\"Postal code\",\"required\":false},{\"name\":\"city\",\"type\":\"string\",\"description\":\"City/town\",\"required\":false},{\"name\":\"state\",\"type\":\"string\",\"description\":\"Canton/State abbreviation (e.g. BE, ZH)\",\"required\":true},{\"name\":\"country\",\"type\":\"string\",\"description\":\"Country abbreviation (e.g. CH, DE, AT)\",\"required\":true},{\"name\":\"phone\",\"type\":\"string\",\"description\":\"Phone number\",\"required\":false},{\"name\":\"email\",\"type\":\"string\",\"description\":\"Email address\",\"required\":false}]",
-                    "CanEditSettings", "FrontendOnly", "ui", true, 110, now, "Migration", false });
+                    "CanEditSettings", "UiPassthrough", "ui", true, 110, now, "Migration", false });
 
             // 12. create_system_user
             migrationBuilder.InsertData(
