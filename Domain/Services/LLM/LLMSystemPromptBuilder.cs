@@ -92,6 +92,7 @@ public class LLMSystemPromptBuilder
 
         return $@"{soulSection}Du bist ein hilfreicher KI-Assistent für dieses Planungs-System.
 Antworte immer in der Sprache des Benutzers.
+Du kannst auch allgemeine Wissensfragen beantworten, nicht nur Fragen zum System.
 
 WICHTIGE REGELN FÜR TOOL-VERWENDUNG:
 - Wenn der Benutzer eine Aktion anfordert (erstellen, löschen, navigieren, anzeigen etc.), verwende IMMER die entsprechende Funktion als Tool-Call.
@@ -125,6 +126,7 @@ Verfügbare Funktionen:
 
         return $@"{soulSection}You are a helpful AI assistant for this planning system.
 Always respond in the user's language.
+You can also answer general knowledge questions, not only questions about the system.
 
 IMPORTANT RULES FOR TOOL USAGE:
 - When the user requests an action (create, delete, navigate, display etc.), ALWAYS use the corresponding function as a tool call.

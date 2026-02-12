@@ -40,14 +40,21 @@ public class LLMFunctionExecutor
         return _executionTypeCache.GetValueOrDefault(functionName, "Skill");
     }
 
+    public bool HasOnlyUiPassthroughCalls { get; private set; }
+
     public async Task<string> ProcessFunctionCallsAsync(LLMContext context, List<LLMFunctionCall> functionCalls)
     {
         var results = new List<string>();
+        var allUiPassthrough = true;
 
         foreach (var call in functionCalls)
         {
             try
             {
+                var executionType = await GetExecutionTypeAsync(call.FunctionName);
+                if (executionType != "UiPassthrough")
+                    allUiPassthrough = false;
+
                 var result = await ExecuteFunctionAsync(context, call);
                 call.Result = result;
                 if (!string.IsNullOrEmpty(result))
@@ -59,9 +66,11 @@ public class LLMFunctionExecutor
             {
                 _logger.LogError(ex, "Error executing function {FunctionName}", call.FunctionName);
                 results.Add($"Error executing {call.FunctionName}: {ex.Message}");
+                allUiPassthrough = false;
             }
         }
 
+        HasOnlyUiPassthroughCalls = allUiPassthrough;
         return string.Join("\n", results);
     }
 
@@ -161,6 +170,12 @@ public class LLMFunctionExecutor
 
         if (result.Success)
         {
+            if (result.Data != null)
+            {
+                var dataJson = JsonSerializer.Serialize(result.Data, new JsonSerializerOptions { WriteIndented = false });
+                return $"{result.Message}\nData: {dataJson}";
+            }
+
             return result.Message;
         }
 

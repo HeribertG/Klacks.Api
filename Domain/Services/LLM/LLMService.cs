@@ -117,6 +117,12 @@ public class LLMService : ILLMService
                 allFunctionCalls.AddRange(lastResponse.FunctionCalls);
                 await _functionExecutor.ProcessFunctionCallsAsync(context, lastResponse.FunctionCalls);
 
+                if (_functionExecutor.HasOnlyUiPassthroughCalls)
+                {
+                    _logger.LogInformation("All function calls are UiPassthrough - breaking multi-turn loop");
+                    break;
+                }
+
                 runningHistory.Add(new LLMMessage { Role = "user", Content = currentMessage });
                 var assistantContent = string.IsNullOrEmpty(lastResponse.Content)
                     ? "[Executing function calls]"
