@@ -1,6 +1,7 @@
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.CalendarSelections;
+using Klacks.Api.Domain.Models.Scheduling;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -39,4 +40,10 @@ public class Contract : BaseEntity
 
     [JsonIgnore]
     public CalendarSelection? CalendarSelection { get; set; }
+
+    [ForeignKey("SchedulingRule")]
+    public Guid? SchedulingRuleId { get; set; }
+
+    [JsonIgnore]
+    public SchedulingRule? SchedulingRule { get; set; }
 }

@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260212221429_AddSchedulingRules")]
+    partial class AddSchedulingRules
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -368,10 +371,6 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("sa_rate");
 
-                    b.Property<Guid?>("SchedulingRuleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("scheduling_rule_id");
-
                     b.Property<decimal?>("SoRate")
                         .HasColumnType("numeric")
                         .HasColumnName("so_rate");
@@ -393,9 +392,6 @@ namespace Klacks.Api.Migrations
 
                     b.HasIndex("CalendarSelectionId")
                         .HasDatabaseName("ix_contract_calendar_selection_id");
-
-                    b.HasIndex("SchedulingRuleId")
-                        .HasDatabaseName("ix_contract_scheduling_rule_id");
 
                     b.HasIndex("Name", "ValidFrom", "ValidUntil")
                         .HasDatabaseName("ix_contract_name_valid_from_valid_until");
@@ -3029,6 +3025,10 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<Guid>("ContractId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("contract_id");
+
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("create_time");
@@ -3081,11 +3081,6 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("min_rest_days");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
@@ -3093,8 +3088,9 @@ namespace Klacks.Api.Migrations
                     b.HasKey("Id")
                         .HasName("pk_scheduling_rules");
 
-                    b.HasIndex("IsDeleted", "Name")
-                        .HasDatabaseName("ix_scheduling_rules_is_deleted_name");
+                    b.HasIndex("ContractId", "IsDeleted")
+                        .IsUnique()
+                        .HasDatabaseName("ix_scheduling_rules_contract_id_is_deleted");
 
                     b.ToTable("scheduling_rules", (string)null);
                 });
@@ -4358,15 +4354,7 @@ namespace Klacks.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_contract_calendar_selection_calendar_selection_id");
 
-                    b.HasOne("Klacks.Api.Domain.Models.Scheduling.SchedulingRule", "SchedulingRule")
-                        .WithMany()
-                        .HasForeignKey("SchedulingRuleId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("fk_contract_scheduling_rules_scheduling_rule_id");
-
                     b.Navigation("CalendarSelection");
-
-                    b.Navigation("SchedulingRule");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Associations.GroupItem", b =>
@@ -4901,6 +4889,18 @@ namespace Klacks.Api.Migrations
                     b.Navigation("ReplaceClient");
 
                     b.Navigation("Work");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Scheduling.SchedulingRule", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Associations.Contract", "Contract")
+                        .WithMany()
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_scheduling_rules_contract_contract_id");
+
+                    b.Navigation("Contract");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Settings.CalendarRule", b =>

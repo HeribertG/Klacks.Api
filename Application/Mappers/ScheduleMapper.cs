@@ -2,12 +2,14 @@ using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Scheduling;
 using Klacks.Api.Application.DTOs.Settings;
 using Staffs = Klacks.Api.Application.DTOs.Staffs;
 using Riok.Mapperly.Abstractions;
@@ -27,6 +29,7 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Contract.IsDeleted))]
     [MapperIgnoreTarget(nameof(Contract.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(Contract.CalendarSelection))]
+    [MapperIgnoreTarget(nameof(Contract.SchedulingRule))]
     public partial Contract ToContractEntity(ContractResource resource);
 
     public void UpdateContractEntity(Contract target, ContractResource source)
@@ -44,6 +47,7 @@ public partial class ScheduleMapper
         target.ValidFrom = source.ValidFrom;
         target.ValidUntil = source.ValidUntil;
         target.CalendarSelectionId = source.CalendarSelectionId;
+        target.SchedulingRuleId = source.SchedulingRuleId;
     }
 
     public partial MembershipResource ToMembershipResource(Membership membership);
@@ -459,5 +463,28 @@ public partial class ScheduleMapper
             OperationType = operationType,
             SourceConnectionId = sourceConnectionId
         };
+    }
+
+    public partial SchedulingRuleResource ToSchedulingRuleResource(SchedulingRule rule);
+
+    [MapperIgnoreTarget(nameof(SchedulingRule.CreateTime))]
+    [MapperIgnoreTarget(nameof(SchedulingRule.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(SchedulingRule.UpdateTime))]
+    [MapperIgnoreTarget(nameof(SchedulingRule.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(SchedulingRule.DeletedTime))]
+    [MapperIgnoreTarget(nameof(SchedulingRule.IsDeleted))]
+    [MapperIgnoreTarget(nameof(SchedulingRule.CurrentUserDeleted))]
+    public partial SchedulingRule ToSchedulingRuleEntity(SchedulingRuleResource resource);
+
+    public void UpdateSchedulingRuleEntity(SchedulingRule target, SchedulingRuleResource source)
+    {
+        target.Name = source.Name;
+        target.MaxWorkDays = source.MaxWorkDays;
+        target.MinRestDays = source.MinRestDays;
+        target.MinPauseHours = source.MinPauseHours;
+        target.MaxOptimalGap = source.MaxOptimalGap;
+        target.MaxDailyHours = source.MaxDailyHours;
+        target.MaxWeeklyHours = source.MaxWeeklyHours;
+        target.MaxConsecutiveDays = source.MaxConsecutiveDays;
     }
 }

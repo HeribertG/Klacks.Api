@@ -34,4 +34,6 @@ public class ContractResource
     public CalendarSelectionResource? CalendarSelection { get; set; }
 
     public Guid? CalendarSelectionId { get; set; }
+
+    public Guid? SchedulingRuleId { get; set; }
 }

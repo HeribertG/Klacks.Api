@@ -27,6 +27,14 @@ namespace Klacks.Api.Application.Constants
 
         public const string APP_OUTGOING_SERVER_USERNAME = "outgoingserverUsername";
         public const string APP_OUTGOING_SERVER_PASSWORD = "outgoingserverPassword";
+
+        public const string SCHEDULING_MAX_WORK_DAYS = "SCHEDULING_MAX_WORK_DAYS";
+        public const string SCHEDULING_MIN_REST_DAYS = "SCHEDULING_MIN_REST_DAYS";
+        public const string SCHEDULING_MIN_PAUSE_HOURS = "SCHEDULING_MIN_PAUSE_HOURS";
+        public const string SCHEDULING_MAX_OPTIMAL_GAP = "SCHEDULING_MAX_OPTIMAL_GAP";
+        public const string SCHEDULING_MAX_DAILY_HOURS = "SCHEDULING_MAX_DAILY_HOURS";
+        public const string SCHEDULING_MAX_WEEKLY_HOURS = "SCHEDULING_MAX_WEEKLY_HOURS";
+        public const string SCHEDULING_MAX_CONSECUTIVE_DAYS = "SCHEDULING_MAX_CONSECUTIVE_DAYS";
     }
 }
 

@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Histories;
 using Klacks.Api.Domain.Models.LLM;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.AI;
 using Klacks.Api.Domain.Models.Skills;
@@ -134,6 +135,9 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<AiSoul> AiSouls { get; set; }
     public DbSet<AiGuidelines> AiGuidelines { get; set; }
     public DbSet<LlmFunctionDefinition> LlmFunctionDefinitions { get; set; }
+
+    // Scheduling DbSets
+    public DbSet<SchedulingRule> SchedulingRules { get; set; }
 
     // Report DbSets
     public DbSet<ReportTemplate> ReportTemplates { get; set; }
@@ -549,6 +553,18 @@ public class DataBaseContext : IdentityDbContext
            .WithMany()
            .HasForeignKey(c => c.CalendarSelectionId)
            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<SchedulingRule>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.IsDeleted, p.Name });
+        });
+
+        modelBuilder.Entity<Contract>()
+           .HasOne(c => c.SchedulingRule)
+           .WithMany()
+           .HasForeignKey(c => c.SchedulingRuleId)
+           .OnDelete(DeleteBehavior.SetNull);
     }
 
     private void OnBeforeSaving()

@@ -36,6 +36,7 @@ using Klacks.Api.Infrastructure.Repositories.CalendarSelections;
 using Klacks.Api.Infrastructure.Repositories.LLM;
 using Klacks.Api.Infrastructure.Repositories.Reports;
 using Klacks.Api.Infrastructure.Repositories.Schedules;
+using Klacks.Api.Infrastructure.Repositories.Scheduling;
 using Klacks.Api.Infrastructure.Repositories.Settings;
 using Klacks.Api.Infrastructure.Repositories.Skills;
 using Klacks.Api.Infrastructure.Repositories.Staffs;
@@ -86,6 +87,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IGroupItemRepository, GroupItemRepository>();
         services.AddScoped<IGroupVisibilityRepository, GroupVisibilityRepository>();
         services.AddScoped<IContractRepository, ContractRepository>();
+        services.AddScoped<ISchedulingRuleRepository, SchedulingRuleRepository>();
         services.AddScoped<IClientImageRepository, ClientImageRepository>();
         services.AddScoped<IContainerTemplateRepository, ContainerTemplateRepository>();
         services.AddScoped<IIdentityProviderRepository, IdentityProviderRepository>();
