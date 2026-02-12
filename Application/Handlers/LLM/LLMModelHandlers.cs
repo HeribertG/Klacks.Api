@@ -69,6 +69,11 @@ public class CreateLLMModelCommandHandler : BaseTransactionHandler, IRequestHand
                 throw new InvalidOperationException($"Model with ID {request.Resource.ModelId} already exists");
             }
 
+            if (request.Resource.IsDefault)
+            {
+                await _repository.SetDefaultModelAsync(request.Resource.ModelId);
+            }
+
             return await _repository.CreateModelAsync(request.Resource);
         }, "CreateLLMModel", request.Resource);
     }
@@ -91,6 +96,11 @@ public class UpdateLLMModelCommandHandler : BaseTransactionHandler, IRequestHand
             if (existing == null)
             {
                 throw new KeyNotFoundException($"LLM Model with ID {request.Resource.Id} not found");
+            }
+
+            if (request.Resource.IsDefault && !existing.IsDefault)
+            {
+                await _repository.SetDefaultModelAsync(existing.ModelId);
             }
 
             existing.ModelName = request.Resource.ModelName;

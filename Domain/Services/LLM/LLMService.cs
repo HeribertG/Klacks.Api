@@ -118,7 +118,10 @@ public class LLMService : ILLMService
                 await _functionExecutor.ProcessFunctionCallsAsync(context, lastResponse.FunctionCalls);
 
                 runningHistory.Add(new LLMMessage { Role = "user", Content = currentMessage });
-                runningHistory.Add(new LLMMessage { Role = "assistant", Content = lastResponse.Content });
+                var assistantContent = string.IsNullOrEmpty(lastResponse.Content)
+                    ? "[Executing function calls]"
+                    : lastResponse.Content;
+                runningHistory.Add(new LLMMessage { Role = "assistant", Content = assistantContent });
                 currentMessage = FormatFunctionResults(lastResponse.FunctionCalls);
             }
 
@@ -159,6 +162,7 @@ public class LLMService : ILLMService
             sb.AppendLine($"- {call.FunctionName}: {call.Result ?? "OK"}");
         }
         sb.AppendLine("[/Function Results]");
+        sb.AppendLine("If the user's original request is not yet fully completed, continue by calling the next required function. Do NOT just report the results as text.");
         return sb.ToString();
     }
 

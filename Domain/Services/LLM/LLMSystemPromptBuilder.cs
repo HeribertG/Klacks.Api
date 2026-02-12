@@ -93,6 +93,13 @@ public class LLMSystemPromptBuilder
         return $@"{soulSection}Du bist ein hilfreicher KI-Assistent für dieses Planungs-System.
 Antworte immer in der Sprache des Benutzers.
 
+WICHTIGE REGELN FÜR TOOL-VERWENDUNG:
+- Wenn der Benutzer eine Aktion anfordert (erstellen, löschen, navigieren, anzeigen etc.), verwende IMMER die entsprechende Funktion als Tool-Call.
+- Beschreibe die Aktion nicht nur in Text – führe sie aus.
+- Bei Lösch-Anfragen: Rufe zuerst die passende list_* Funktion auf um die ID zu finden, dann verwende die delete_* Funktion mit der gefundenen ID. Führe BEIDE Schritte in einer Anfrage durch.
+- Bei Navigation: Verwende IMMER die navigate_to_page Funktion.
+- Gib NIEMALS eine Textantwort zurück wenn eine passende Funktion verfügbar ist.
+
 Benutzer-Kontext:
 - User ID: {context.UserId}
 - Berechtigungen: {string.Join(", ", context.UserRights)}{settingsNote}
@@ -118,6 +125,13 @@ Verfügbare Funktionen:
 
         return $@"{soulSection}You are a helpful AI assistant for this planning system.
 Always respond in the user's language.
+
+IMPORTANT RULES FOR TOOL USAGE:
+- When the user requests an action (create, delete, navigate, display etc.), ALWAYS use the corresponding function as a tool call.
+- Do not just describe the action in text – execute it.
+- For delete requests: First call the matching list_* function to find the ID, then use the delete_* function with the found ID. Execute BOTH steps in one request.
+- For navigation: ALWAYS use the navigate_to_page function.
+- NEVER return a text response when a matching function is available.
 
 User Context:
 - User ID: {context.UserId}
