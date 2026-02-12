@@ -6,6 +6,7 @@ using Klacks.Api.Infrastructure.Services.LLM.Providers.Cohere;
 using Klacks.Api.Infrastructure.Services.LLM.Providers.DeepSeek;
 using Klacks.Api.Infrastructure.Services.LLM.Providers.Gemini;
 using Klacks.Api.Infrastructure.Services.LLM.Providers.Mistral;
+using Klacks.Api.Infrastructure.Services.LLM.Providers.Generic;
 using Klacks.Api.Infrastructure.Services.LLM.Providers.OpenAI;
 
 namespace Klacks.Api.Infrastructure.Services.LLM;
@@ -43,7 +44,7 @@ public class LLMProviderFactory : ILLMProviderFactory
             "mistral" => _serviceProvider.GetService<MistralProvider>(),
             "cohere" => _serviceProvider.GetService<CohereProvider>(),
             "deepseek" => _serviceProvider.GetService<DeepSeekProvider>(),
-            _ => null
+            _ => _serviceProvider.GetService<GenericOpenAICompatibleProvider>()
         };
 
         if (provider != null)

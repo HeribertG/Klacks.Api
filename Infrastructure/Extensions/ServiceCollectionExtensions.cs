@@ -247,6 +247,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Mistral.MistralProvider>();
         services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Cohere.CohereProvider>();
         services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.DeepSeek.DeepSeekProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Generic.GenericOpenAICompatibleProvider>();
 
         // HttpClients for Providers
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.OpenAI.OpenAIProvider>();
@@ -256,6 +257,7 @@ public static  class ServiceCollectionExtensions
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Mistral.MistralProvider>();
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Cohere.CohereProvider>();
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.DeepSeek.DeepSeekProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Generic.GenericOpenAICompatibleProvider>();
 
         // Skills System Services
         services.AddSingleton<Domain.Services.Skills.Adapters.ISkillAdapterFactory, Domain.Services.Skills.Adapters.SkillAdapterFactory>();
