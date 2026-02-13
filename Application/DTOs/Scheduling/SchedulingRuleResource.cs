@@ -19,4 +19,16 @@ public class SchedulingRuleResource
     public decimal? MaxWeeklyHours { get; set; }
 
     public int? MaxConsecutiveDays { get; set; }
+
+    public decimal? DefaultWorkingHours { get; set; }
+
+    public decimal? OvertimeThreshold { get; set; }
+
+    public decimal? GuaranteedHours { get; set; }
+
+    public decimal? MaximumHours { get; set; }
+
+    public decimal? MinimumHours { get; set; }
+
+    public decimal? FullTimeHours { get; set; }
 }

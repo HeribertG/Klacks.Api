@@ -3049,6 +3049,18 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_time");
 
+                    b.Property<decimal?>("DefaultWorkingHours")
+                        .HasColumnType("numeric")
+                        .HasColumnName("default_working_hours");
+
+                    b.Property<decimal?>("FullTimeHours")
+                        .HasColumnType("numeric")
+                        .HasColumnName("full_time_hours");
+
+                    b.Property<decimal?>("GuaranteedHours")
+                        .HasColumnType("numeric")
+                        .HasColumnName("guaranteed_hours");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
@@ -3069,9 +3081,13 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("max_weekly_hours");
 
-                    b.Property<int?>("MaxWorkDays")
+                    b.Property<decimal?>("MaxWorkDays")
                         .HasColumnType("integer")
                         .HasColumnName("max_work_days");
+
+                    b.Property<decimal?>("MaximumHours")
+                        .HasColumnType("numeric")
+                        .HasColumnName("maximum_hours");
 
                     b.Property<decimal?>("MinPauseHours")
                         .HasColumnType("numeric")
@@ -3081,10 +3097,18 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("min_rest_days");
 
+                    b.Property<decimal?>("MinimumHours")
+                        .HasColumnType("numeric")
+                        .HasColumnName("minimum_hours");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
+
+                    b.Property<decimal?>("OvertimeThreshold")
+                        .HasColumnType("numeric")
+                        .HasColumnName("overtime_threshold");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")

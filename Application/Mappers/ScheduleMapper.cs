@@ -486,5 +486,11 @@ public partial class ScheduleMapper
         target.MaxDailyHours = source.MaxDailyHours;
         target.MaxWeeklyHours = source.MaxWeeklyHours;
         target.MaxConsecutiveDays = source.MaxConsecutiveDays;
+        target.DefaultWorkingHours = source.DefaultWorkingHours;
+        target.OvertimeThreshold = source.OvertimeThreshold;
+        target.GuaranteedHours = source.GuaranteedHours;
+        target.MaximumHours = source.MaximumHours;
+        target.MinimumHours = source.MinimumHours;
+        target.FullTimeHours = source.FullTimeHours;
     }
 }
