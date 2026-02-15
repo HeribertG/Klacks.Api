@@ -378,7 +378,10 @@ public partial class ScheduleMapper
         }
         catch
         {
-            return null;
+            var ml = new MultiLanguage();
+            foreach (var lang in MultiLanguage.CoreLanguages)
+                ml.SetValue(lang, json);
+            return ml;
         }
     }
 
