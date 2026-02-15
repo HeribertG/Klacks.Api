@@ -52,6 +52,9 @@ public class ReportTemplateRepository : IReportTemplateRepository
         }
 
         _context.Entry(existing).CurrentValues.SetValues(template);
+        existing.Sections = template.Sections;
+        existing.PageSetup = template.PageSetup;
+        existing.DataSetIds = template.DataSetIds;
         await _context.SaveChangesAsync(cancellationToken);
         return existing;
     }

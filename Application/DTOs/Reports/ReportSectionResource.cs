@@ -9,4 +9,6 @@ public class ReportSectionResource
     public bool Visible { get; set; } = true;
     public int SortOrder { get; set; }
     public string? BackgroundColor { get; set; }
+    public List<ReportFieldResource>? TableFooterFields { get; set; }
+    public List<FreeTextRowResource>? FreeTextRows { get; set; }
 }

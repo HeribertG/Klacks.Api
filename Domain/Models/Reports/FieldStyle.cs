@@ -12,5 +12,5 @@ public class FieldStyle
     public string TextColor { get; set; } = "#000000";
     public string BackgroundColor { get; set; } = "#FFFFFF";
     public TextAlignment Alignment { get; set; } = TextAlignment.Left;
-    public BorderStyle Border { get; set; } = new();
+    public CellBorderStyle? CellBorder { get; set; }
 }

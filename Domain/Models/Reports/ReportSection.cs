@@ -11,4 +11,6 @@ public class ReportSection
     public bool Visible { get; set; } = true;
     public int SortOrder { get; set; }
     public string? BackgroundColor { get; set; }
+    public List<ReportField>? TableFooterFields { get; set; }
+    public List<FreeTextRow>? FreeTextRows { get; set; }
 }

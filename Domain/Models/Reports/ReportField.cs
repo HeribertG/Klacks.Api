@@ -17,4 +17,7 @@ public class ReportField
     public string? Formula { get; set; }
     public int SortOrder { get; set; }
     public string? ImageUrl { get; set; }
+    public bool HideLabel { get; set; }
+    public List<string>? AdditionalBindings { get; set; }
+    public string? BindingSeparator { get; set; }
 }

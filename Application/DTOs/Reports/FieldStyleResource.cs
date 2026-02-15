@@ -10,5 +10,5 @@ public class FieldStyleResource
     public string TextColor { get; set; } = "#000000";
     public string BackgroundColor { get; set; } = "#FFFFFF";
     public int Alignment { get; set; }
-    public BorderStyleResource Border { get; set; } = new();
+    public CellBorderStyleResource? CellBorder { get; set; }
 }
