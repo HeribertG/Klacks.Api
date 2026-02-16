@@ -39,7 +39,8 @@ public class SkillRegistrationService
             (typeof(GetSystemInfoSkill), _ => new GetSystemInfoSkill()),
             (typeof(GetCurrentTimeSkill), _ => new GetCurrentTimeSkill()),
             (typeof(GetUserContextSkill), _ => new GetUserContextSkill()),
-            (typeof(NavigateToSkill), _ => new NavigateToSkill())
+            (typeof(NavigateToSkill), _ => new NavigateToSkill()),
+            (typeof(ValidateCalendarRuleSkill), _ => new ValidateCalendarRuleSkill())
         };
 
         foreach (var (type, factory) in singletonSkillTypes)

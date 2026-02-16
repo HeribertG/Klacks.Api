@@ -3,7 +3,6 @@ using Klacks.Api.Domain.Interfaces.AI;
 using Klacks.Api.Domain.Services.LLM.Providers;
 using Klacks.Api.Domain.Services.Skills;
 using Klacks.Api.Domain.Models.Skills;
-using Klacks.Api.Infrastructure.MCP;
 using Klacks.Api.Application.DTOs.LLM;
 
 namespace Klacks.Api.Domain.Services.LLM;
@@ -11,7 +10,6 @@ namespace Klacks.Api.Domain.Services.LLM;
 public class LLMFunctionExecutor
 {
     private readonly ILogger<LLMFunctionExecutor> _logger;
-    private readonly IMCPService? _mcpService;
     private readonly ILLMSkillBridge? _skillBridge;
     private readonly ILlmFunctionDefinitionRepository _functionDefinitionRepository;
 
@@ -20,12 +18,10 @@ public class LLMFunctionExecutor
     public LLMFunctionExecutor(
         ILogger<LLMFunctionExecutor> logger,
         ILlmFunctionDefinitionRepository functionDefinitionRepository,
-        IMCPService? mcpService = null,
         ILLMSkillBridge? skillBridge = null)
     {
         this._logger = logger;
         _functionDefinitionRepository = functionDefinitionRepository;
-        _mcpService = mcpService;
         _skillBridge = skillBridge;
     }
 
@@ -78,8 +74,10 @@ public class LLMFunctionExecutor
     {
         { "get_user_context", "get_user_permissions" },
         { "get_current_user", "get_user_permissions" },
-        { "getCurrentUser", "get_user_permissions" },
-        { "getUserPermissions", "get_user_permissions" }
+        { "getUserPermissions", "get_user_permissions" },
+        { "create_client", "create_employee" },
+        { "search_clients", "search_employees" },
+        { "navigate_to_page", "navigate_to" }
     };
 
     private async Task<string> ExecuteFunctionAsync(LLMContext context, LLMFunctionCall call)
@@ -111,34 +109,6 @@ public class LLMFunctionExecutor
                    $"Parameters: {paramsJson}. " +
                    "The action is performed via the Settings page in the user's browser. " +
                    "Inform the user that the action is being carried out.";
-        }
-
-        if (_mcpService != null && executionType == "BuiltIn")
-        {
-            try
-            {
-                var mcpResult = await _mcpService.ExecuteToolAsync(call.FunctionName, call.Parameters);
-                if (!string.IsNullOrEmpty(mcpResult) && !mcpResult.Contains("Error") && !mcpResult.Contains("not found"))
-                {
-                    return mcpResult;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "MCP execution failed for {FunctionName}, falling back to default", call.FunctionName);
-            }
-        }
-
-        if (executionType == "BuiltIn")
-        {
-            return call.FunctionName switch
-            {
-                "create_client" => await ExecuteCreateClientAsync(call.Parameters),
-                "search_clients" => await ExecuteSearchClientsAsync(call.Parameters),
-                "create_contract" => await ExecuteCreateContractAsync(call.Parameters),
-                "get_system_info" => await ExecuteGetSystemInfoAsync(),
-                _ => await ExecuteSkillAsync(context, call)
-            };
         }
 
         return await ExecuteSkillAsync(context, call);
@@ -180,39 +150,5 @@ public class LLMFunctionExecutor
         }
 
         return $"Error: {result.Message}";
-    }
-
-    private Task<string> ExecuteCreateClientAsync(Dictionary<string, object> parameters)
-    {
-        var firstName = parameters.GetValueOrDefault("firstName")?.ToString() ?? "";
-        var lastName = parameters.GetValueOrDefault("lastName")?.ToString() ?? "";
-        var canton = parameters.GetValueOrDefault("canton")?.ToString() ?? "";
-
-        return Task.FromResult($"Employee {firstName} {lastName}" +
-               (string.IsNullOrEmpty(canton) ? "" : $" from {canton}") +
-               " created successfully.");
-    }
-
-    private Task<string> ExecuteSearchClientsAsync(Dictionary<string, object> parameters)
-    {
-        var searchTerm = parameters.GetValueOrDefault("searchTerm")?.ToString() ?? "";
-        var canton = parameters.GetValueOrDefault("canton")?.ToString() ?? "";
-
-        return Task.FromResult($"Found: 3 employees matching '{searchTerm}'" +
-               (string.IsNullOrEmpty(canton) ? "" : $" in canton {canton}"));
-    }
-
-    private Task<string> ExecuteCreateContractAsync(Dictionary<string, object> parameters)
-    {
-        var clientId = parameters.GetValueOrDefault("clientId")?.ToString() ?? "";
-        var contractType = parameters.GetValueOrDefault("contractType")?.ToString() ?? "";
-        var canton = parameters.GetValueOrDefault("canton")?.ToString() ?? "";
-
-        return Task.FromResult($"Contract '{contractType}' for employee {clientId} in {canton} created successfully.");
-    }
-
-    private Task<string> ExecuteGetSystemInfoAsync()
-    {
-        return Task.FromResult("Klacks Planning System v1.0.0 - Status: Active");
     }
 }

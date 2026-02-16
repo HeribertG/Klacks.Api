@@ -282,6 +282,7 @@ public static  class ServiceCollectionExtensions
         services.AddSingleton<Domain.Services.Skills.Implementations.GetCurrentTimeSkill>();
         services.AddSingleton<Domain.Services.Skills.Implementations.GetUserContextSkill>();
         services.AddSingleton<Domain.Services.Skills.Implementations.NavigateToSkill>();
+        services.AddSingleton<Domain.Services.Skills.Implementations.ValidateCalendarRuleSkill>();
 
         // Skill Implementations (Scoped - with database dependencies, in Application layer)
         services.AddScoped<Application.Skills.CreateEmployeeSkill>();
