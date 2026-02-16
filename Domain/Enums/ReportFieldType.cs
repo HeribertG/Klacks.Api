@@ -7,6 +7,7 @@ public enum ReportFieldType
     Number = 2,
     Currency = 3,
     Boolean = 4,
-    Formula = 5,
-    Image = 6
+    Time = 5,
+    Image = 6,
+    Formula = 7
 }
