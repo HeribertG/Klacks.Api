@@ -29,4 +29,11 @@ public static class SignalRConstants
     }
 
     public const string HubPath = "/hubs/work-notifications";
+    public const string AssistantHubPath = "/hubs/assistant-notifications";
+
+    public static class AssistantEvents
+    {
+        public const string ProactiveMessage = "ProactiveMessage";
+        public const string OnboardingPrompt = "OnboardingPrompt";
+    }
 }

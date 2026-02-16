@@ -7,6 +7,7 @@ using Klacks.Api.Infrastructure.Converters;
 using Klacks.Api.Infrastructure.Exceptions;
 using Klacks.Api.Infrastructure.Extensions;
 using Microsoft.AspNetCore.DataProtection;
+using Klacks.Api.Domain.Interfaces.AI;
 using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Middleware;
 using Klacks.Api.Infrastructure.Services;
@@ -153,6 +154,10 @@ builder.Services.AddScoped<IWorkNotificationService, WorkNotificationService>();
 builder.Services.AddScoped<IShiftStatsNotificationService, ShiftStatsNotificationService>();
 builder.Services.AddSingleton<PeriodHoursBackgroundService>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<PeriodHoursBackgroundService>());
+builder.Services.AddSingleton<IAssistantConnectionTracker, AssistantConnectionTracker>();
+builder.Services.AddScoped<IAssistantNotificationService, AssistantNotificationService>();
+builder.Services.AddSingleton<HeartbeatBackgroundService>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<HeartbeatBackgroundService>());
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddMemoryCache();
@@ -268,6 +273,7 @@ app.UseEndpoints(endpoints =>
         endpoints.MapBlazorHub();
         endpoints.MapControllers();
         endpoints.MapHub<WorkNotificationHub>("/hubs/work-notifications");
+        endpoints.MapHub<AssistantNotificationHub>(SignalRConstants.AssistantHubPath);
         endpoints.MapHealthChecks("/health");
     }
 );

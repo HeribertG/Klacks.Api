@@ -228,6 +228,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IAiSoulRepository, AiSoulRepository>();
         services.AddScoped<IAiGuidelinesRepository, AiGuidelinesRepository>();
         services.AddScoped<ILlmFunctionDefinitionRepository, LlmFunctionDefinitionRepository>();
+        services.AddScoped<IHeartbeatConfigRepository, HeartbeatConfigRepository>();
 
         // LLM Services
         services.AddScoped<ILLMRepository, LLMRepository>();
@@ -309,6 +310,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.UpdateAiMemorySkill>();
         services.AddScoped<Application.Skills.DeleteAiMemorySkill>();
         services.AddScoped<Application.Skills.SetUserGroupScopeSkill>();
+        services.AddScoped<Application.Skills.ConfigureHeartbeatSkill>();
 
         // Geocoding Service
         services.AddHttpClient("Nominatim");

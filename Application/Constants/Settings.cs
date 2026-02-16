@@ -35,6 +35,9 @@ namespace Klacks.Api.Application.Constants
         public const string SCHEDULING_MAX_DAILY_HOURS = "SCHEDULING_MAX_DAILY_HOURS";
         public const string SCHEDULING_MAX_WEEKLY_HOURS = "SCHEDULING_MAX_WEEKLY_HOURS";
         public const string SCHEDULING_MAX_CONSECUTIVE_DAYS = "SCHEDULING_MAX_CONSECUTIVE_DAYS";
+
+        public const string HEARTBEAT_ENABLED_GLOBALLY = "HEARTBEAT_ENABLED_GLOBALLY";
+        public const string HEARTBEAT_DEFAULT_INTERVAL = "HEARTBEAT_DEFAULT_INTERVAL";
     }
 }
 

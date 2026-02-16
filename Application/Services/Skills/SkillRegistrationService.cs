@@ -84,7 +84,8 @@ public class SkillRegistrationService
             typeof(GetAiMemoriesSkill),
             typeof(UpdateAiMemorySkill),
             typeof(DeleteAiMemorySkill),
-            typeof(SetUserGroupScopeSkill)
+            typeof(SetUserGroupScopeSkill),
+            typeof(ConfigureHeartbeatSkill)
         };
 
         using var scope = _serviceProvider.CreateScope();

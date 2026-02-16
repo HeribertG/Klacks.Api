@@ -135,6 +135,7 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<AiSoul> AiSouls { get; set; }
     public DbSet<AiGuidelines> AiGuidelines { get; set; }
     public DbSet<LlmFunctionDefinition> LlmFunctionDefinitions { get; set; }
+    public DbSet<HeartbeatConfig> HeartbeatConfigs { get; set; }
 
     // Scheduling DbSets
     public DbSet<SchedulingRule> SchedulingRules { get; set; }
@@ -340,6 +341,14 @@ public class DataBaseContext : IdentityDbContext
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
             entity.HasIndex(p => new { p.IsDeleted, p.IsEnabled, p.SortOrder });
+        });
+
+        // Heartbeat Configuration
+        modelBuilder.Entity<HeartbeatConfig>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.IsDeleted, p.UserId });
+            entity.HasIndex(p => new { p.IsDeleted, p.IsEnabled });
         });
 
         // Report Templates Configuration
