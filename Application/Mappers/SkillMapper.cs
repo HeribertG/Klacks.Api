@@ -1,6 +1,6 @@
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Models.Skills;
-using Klacks.Api.Application.DTOs.Skills;
+using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Application.DTOs.Assistant;
 using Riok.Mapperly.Abstractions;
 
 namespace Klacks.Api.Application.Mappers;

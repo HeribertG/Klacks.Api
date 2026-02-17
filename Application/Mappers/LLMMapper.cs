@@ -1,7 +1,7 @@
-using Klacks.Api.Application.Commands.LLM;
-using Klacks.Api.Application.DTOs.LLM;
-using Klacks.Api.Application.Queries.LLM;
-using Klacks.Api.Domain.Models.LLM;
+using Klacks.Api.Application.Commands.Assistant;
+using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Application.Queries.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
 using Riok.Mapperly.Abstractions;
 
 namespace Klacks.Api.Application.Mappers;

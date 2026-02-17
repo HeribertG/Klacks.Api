@@ -1,0 +1,69 @@
+using Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
+using Microsoft.Extensions.Configuration;
+
+namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Azure;
+
+public class AzureOpenAIProvider : BaseOpenAICompatibleProvider
+{
+    private readonly IConfiguration _configuration;
+    private string _deploymentName = string.Empty;
+    private string _apiVersion = string.Empty;
+
+    public override string ProviderId => _providerConfig!.ProviderId;
+    public override string ProviderName => _providerConfig!.ProviderName;
+
+    public AzureOpenAIProvider(HttpClient httpClient, ILogger<AzureOpenAIProvider> logger, IConfiguration configuration)
+        : base(httpClient, logger)
+    {
+        _configuration = configuration;
+    }
+
+    public override void Configure(Domain.Models.Assistant.LLMProvider providerConfig)
+    {
+        base.Configure(providerConfig);
+        
+        if (providerConfig.Settings != null)
+        {
+            if (providerConfig.Settings.TryGetValue("deploymentName", out var deployment))
+            {
+                _deploymentName = deployment.ToString() ?? string.Empty;
+            }
+            
+            if (providerConfig.Settings.TryGetValue("apiVersion", out var version))
+            {
+                _apiVersion = _providerConfig!.ApiVersion!;
+            }
+        }
+    }
+
+    protected override void ConfigureHttpClient()
+    {
+        if (!string.IsNullOrEmpty(_apiKey))
+        {
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("api-key", _apiKey);
+        }
+    }
+
+    protected override string GetChatCompletionsEndpoint()
+    {
+        return $"openai/deployments/{_deploymentName}/chat/completions?api-version={_apiVersion}";
+    }
+
+    public override async Task<bool> ValidateApiKeyAsync(string apiKey)
+    {
+        try
+        {
+            var testClient = new HttpClient();
+            testClient.BaseAddress = _httpClient.BaseAddress;
+            testClient.DefaultRequestHeaders.Add("api-key", apiKey);
+            
+            var response = await testClient.GetAsync($"openai/deployments?api-version={_apiVersion}");
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}

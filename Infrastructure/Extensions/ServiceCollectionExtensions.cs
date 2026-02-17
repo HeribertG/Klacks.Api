@@ -4,8 +4,8 @@ using Klacks.Api.Application.Services;
 using Klacks.Api.Application.Skills;
 using Klacks.Api.Infrastructure.Scripting;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Interfaces.AI;
-using Klacks.Api.Infrastructure.Repositories.AI;
+using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Infrastructure.Repositories.Assistant;
 using Klacks.Api.Domain.Services.Absences;
 using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Domain.Services.CalendarSelections;
@@ -18,9 +18,9 @@ using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Domain.Services.ScheduleEntries;
 using Klacks.Api.Domain.Services.PeriodHours;
-using Klacks.Api.Domain.Services.LLM;
-using Klacks.Api.Infrastructure.Services.LLM;
-using Klacks.Api.Domain.Services.Skills;
+using Klacks.Api.Domain.Services.Assistant;
+using Klacks.Api.Infrastructure.Services.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.RouteOptimization;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Domain.Services.Macros;
@@ -33,20 +33,17 @@ using Klacks.Api.Infrastructure.Repositories;
 using Klacks.Api.Infrastructure.Repositories.Associations;
 using Klacks.Api.Infrastructure.Repositories.Authentification;
 using Klacks.Api.Infrastructure.Repositories.CalendarSelections;
-using Klacks.Api.Infrastructure.Repositories.LLM;
 using Klacks.Api.Infrastructure.Repositories.Reports;
 using Klacks.Api.Infrastructure.Repositories.Schedules;
 using Klacks.Api.Infrastructure.Repositories.Scheduling;
 using Klacks.Api.Infrastructure.Repositories.Settings;
-using Klacks.Api.Infrastructure.Repositories.Skills;
 using Klacks.Api.Infrastructure.Repositories.Staffs;
 using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Application.Services.Authentication;
 using Klacks.Api.Application.Services.Clients;
-using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Application.Services.Identity;
 using Klacks.Api.Application.Services.Schedules;
-using Klacks.Api.Application.Services.Skills;
+using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Application.Services.Translation;
 
 namespace Klacks.Api.Infrastructure.Extensions;
@@ -243,29 +240,29 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<LLMSystemPromptBuilder>();
 
         // LLM Providers
-        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.OpenAI.OpenAIProvider>();
-        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Anthropic.AnthropicProvider>();
-        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Gemini.GeminiProvider>();
-        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Azure.AzureOpenAIProvider>();
-        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Mistral.MistralProvider>();
-        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Cohere.CohereProvider>();
-        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.DeepSeek.DeepSeekProvider>();
-        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Generic.GenericOpenAICompatibleProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.OpenAI.OpenAIProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Anthropic.AnthropicProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Gemini.GeminiProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Azure.AzureOpenAIProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Mistral.MistralProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Cohere.CohereProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek.DeepSeekProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic.GenericOpenAICompatibleProvider>();
 
         // HttpClients for Providers
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.OpenAI.OpenAIProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Anthropic.AnthropicProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Gemini.GeminiProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Azure.AzureOpenAIProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Mistral.MistralProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Cohere.CohereProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.DeepSeek.DeepSeekProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Generic.GenericOpenAICompatibleProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.OpenAI.OpenAIProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Anthropic.AnthropicProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Gemini.GeminiProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Azure.AzureOpenAIProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Mistral.MistralProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Cohere.CohereProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek.DeepSeekProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic.GenericOpenAICompatibleProvider>();
 
         // Skills System Services
-        services.AddSingleton<Domain.Services.Skills.Adapters.ISkillAdapterFactory, Domain.Services.Skills.Adapters.SkillAdapterFactory>();
-        services.AddSingleton<ISkillRegistry, Domain.Services.Skills.SkillRegistry>();
-        services.AddScoped<ISkillExecutor, Domain.Services.Skills.SkillExecutorService>();
+        services.AddSingleton<Domain.Services.Assistant.Skills.Adapters.ISkillAdapterFactory, Domain.Services.Assistant.Skills.Adapters.SkillAdapterFactory>();
+        services.AddSingleton<ISkillRegistry, Domain.Services.Assistant.Skills.SkillRegistry>();
+        services.AddScoped<ISkillExecutor, Domain.Services.Assistant.Skills.SkillExecutorService>();
         services.AddScoped<ISkillUsageRepository, SkillUsageRepository>();
         services.AddScoped<ISkillUsageTracker, SkillUsageTrackerService>();
 
@@ -276,14 +273,14 @@ public static  class ServiceCollectionExtensions
         services.AddSingleton<SkillRegistrationService>();
 
         // LLM-Skill Bridge
-        services.AddScoped<Domain.Services.Skills.ILLMSkillBridge, Domain.Services.Skills.LLMSkillBridge>();
+        services.AddScoped<Domain.Services.Assistant.Skills.ILLMSkillBridge, Domain.Services.Assistant.Skills.LLMSkillBridge>();
 
         // Skill Implementations (Singleton - no dependencies, in Domain layer)
-        services.AddSingleton<Domain.Services.Skills.Implementations.GetSystemInfoSkill>();
-        services.AddSingleton<Domain.Services.Skills.Implementations.GetCurrentTimeSkill>();
-        services.AddSingleton<Domain.Services.Skills.Implementations.GetUserContextSkill>();
-        services.AddSingleton<Domain.Services.Skills.Implementations.NavigateToSkill>();
-        services.AddSingleton<Domain.Services.Skills.Implementations.ValidateCalendarRuleSkill>();
+        services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.GetSystemInfoSkill>();
+        services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.GetCurrentTimeSkill>();
+        services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.GetUserContextSkill>();
+        services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.NavigateToSkill>();
+        services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.ValidateCalendarRuleSkill>();
 
         // Skill Implementations (Scoped - with database dependencies, in Application layer)
         services.AddScoped<Application.Skills.CreateEmployeeSkill>();

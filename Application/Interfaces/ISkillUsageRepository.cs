@@ -1,4 +1,4 @@
-using Klacks.Api.Domain.Models.Skills;
+using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Application.Interfaces;
 

@@ -2,8 +2,8 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Settings;
-using Klacks.Api.Domain.Models.Skills;
-using Klacks.Api.Domain.Services.Skills.Implementations;
+using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 

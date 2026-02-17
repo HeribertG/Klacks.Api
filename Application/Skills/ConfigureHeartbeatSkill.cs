@@ -1,8 +1,8 @@
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Domain.Interfaces.AI;
-using Klacks.Api.Domain.Models.Skills;
-using Klacks.Api.Domain.Services.Skills.Implementations;
+using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -55,7 +55,7 @@ public class ConfigureHeartbeatSkill : BaseSkill
         };
     }
 
-    private static SkillResult HandleStatus(Domain.Models.AI.HeartbeatConfig? config)
+    private static SkillResult HandleStatus(Domain.Models.Assistant.HeartbeatConfig? config)
     {
         if (config == null)
             return SkillResult.SuccessResult(new { configured = false },
@@ -78,13 +78,13 @@ public class ConfigureHeartbeatSkill : BaseSkill
 
     private async Task<SkillResult> HandleEnableAsync(
         string userId,
-        Domain.Models.AI.HeartbeatConfig? config,
+        Domain.Models.Assistant.HeartbeatConfig? config,
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken)
     {
         if (config == null)
         {
-            config = new Domain.Models.AI.HeartbeatConfig
+            config = new Domain.Models.Assistant.HeartbeatConfig
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,
@@ -111,7 +111,7 @@ public class ConfigureHeartbeatSkill : BaseSkill
     }
 
     private async Task<SkillResult> HandleDisableAsync(
-        Domain.Models.AI.HeartbeatConfig? config,
+        Domain.Models.Assistant.HeartbeatConfig? config,
         CancellationToken cancellationToken)
     {
         if (config == null)
@@ -126,13 +126,13 @@ public class ConfigureHeartbeatSkill : BaseSkill
 
     private async Task<SkillResult> HandleConfigureAsync(
         string userId,
-        Domain.Models.AI.HeartbeatConfig? config,
+        Domain.Models.Assistant.HeartbeatConfig? config,
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken)
     {
         if (config == null)
         {
-            config = new Domain.Models.AI.HeartbeatConfig
+            config = new Domain.Models.Assistant.HeartbeatConfig
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,

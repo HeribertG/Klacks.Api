@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Klacks.Api.Application.Commands.Skills;
-using Klacks.Api.Application.Queries.Skills;
+using Klacks.Api.Application.Commands.Assistant;
+using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Application.DTOs.Skills;
+using Klacks.Api.Application.DTOs.Assistant;
 using System.Security.Claims;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Application.Queries.LLM;
+using Klacks.Api.Application.Queries.Assistant;
 using System.Security.Claims;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;

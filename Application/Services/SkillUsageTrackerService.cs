@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Models.Skills;
+using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Services;

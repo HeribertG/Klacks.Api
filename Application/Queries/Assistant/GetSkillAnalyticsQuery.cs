@@ -1,0 +1,6 @@
+using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Application.DTOs.Assistant;
+
+namespace Klacks.Api.Application.Queries.Assistant;
+
+public record GetSkillAnalyticsQuery(int Days) : IRequest<SkillAnalyticsDto>;

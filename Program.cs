@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Klacks.Api;
 using Klacks.Api.Application.Validation;
 using Klacks.Api.Data.Seed;
@@ -7,10 +7,11 @@ using Klacks.Api.Infrastructure.Converters;
 using Klacks.Api.Infrastructure.Exceptions;
 using Klacks.Api.Infrastructure.Extensions;
 using Microsoft.AspNetCore.DataProtection;
-using Klacks.Api.Domain.Interfaces.AI;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Middleware;
 using Klacks.Api.Infrastructure.Services;
+using Klacks.Api.Infrastructure.Services.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Mappers;
