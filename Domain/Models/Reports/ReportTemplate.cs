@@ -12,4 +12,6 @@ public class ReportTemplate : BaseEntity
     public List<string> DataSetIds { get; set; } = ["work"];
     public ReportPageSetup PageSetup { get; set; } = new();
     public List<ReportSection> Sections { get; set; } = [];
+    public bool MergeRows { get; set; }
+    public bool ShowFullPeriod { get; set; }
 }
