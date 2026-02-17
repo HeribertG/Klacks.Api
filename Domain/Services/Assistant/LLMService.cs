@@ -65,7 +65,7 @@ public class LLMService : ILLMService
             var memories = await _aiMemoryRepository.GetAllAsync();
             var guidelines = await LoadGuidelinesAsync();
 
-            var systemPrompt = _promptBuilder.BuildSystemPrompt(context, soul, memories, guidelines);
+            var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soul, memories, guidelines);
 
             var allFunctionCalls = new List<LLMFunctionCall>();
             var totalUsage = new LLMUsage();

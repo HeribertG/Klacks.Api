@@ -238,6 +238,7 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<LLMFunctionExecutor>();
         services.AddScoped<LLMResponseBuilder>();
         services.AddScoped<LLMSystemPromptBuilder>();
+        services.AddSingleton<IPromptTranslationProvider, PromptTranslationProvider>();
 
         // LLM Providers
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.OpenAI.OpenAIProvider>();

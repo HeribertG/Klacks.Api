@@ -41,6 +41,8 @@ namespace Klacks.Api.Application.Constants
 
         public const string REPORT_DEFAULT_TEMPLATES = "REPORT_DEFAULT_TEMPLATES";
 
+        public const string PROMPT_TRANSLATIONS_PREFIX = "PROMPT_TRANSLATIONS_";
+
         public const string LLM_FALLBACK_MODEL_ID = "claude-haiku-4-5-20251001";
     }
 }
