@@ -31,22 +31,24 @@ public class HeartbeatBackgroundService : BackgroundService
     {
         _logger.LogInformation("HeartbeatBackgroundService started");
 
-        using var timer = new PeriodicTimer(TickInterval);
-
-        while (await timer.WaitForNextTickAsync(stoppingToken))
+        try
         {
-            try
+            using var timer = new PeriodicTimer(TickInterval);
+
+            while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                await ProcessTickAsync(stoppingToken);
+                try
+                {
+                    await ProcessTickAsync(stoppingToken);
+                }
+                catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
+                {
+                    _logger.LogError(ex, "Error during heartbeat tick");
+                }
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-            {
-                break;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error during heartbeat tick");
-            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
         }
 
         _logger.LogInformation("HeartbeatBackgroundService stopped");

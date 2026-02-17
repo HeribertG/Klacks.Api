@@ -39,6 +39,8 @@ namespace Klacks.Api.Application.Constants
         public const string HEARTBEAT_ENABLED_GLOBALLY = "HEARTBEAT_ENABLED_GLOBALLY";
         public const string HEARTBEAT_DEFAULT_INTERVAL = "HEARTBEAT_DEFAULT_INTERVAL";
 
+        public const string REPORT_DEFAULT_TEMPLATES = "REPORT_DEFAULT_TEMPLATES";
+
         public const string LLM_FALLBACK_MODEL_ID = "claude-haiku-4-5-20251001";
     }
 }
