@@ -28,6 +28,13 @@ public class BreakPlaceholdersController : InputBaseController<BreakPlaceholderR
         return Ok(clientList);
     }
 
+    [HttpPost("GetScheduleList")]
+    public async Task<ActionResult<IEnumerable<ClientBreakPlaceholderResource>>> GetScheduleList([FromBody] BreakFilter filter)
+    {
+        var clientList = await Mediator.Send(new GetScheduleListQuery(filter));
+        return Ok(clientList);
+    }
+
     [HttpPost]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public override async Task<ActionResult<BreakPlaceholderResource>> Post([FromBody] BreakPlaceholderResource resource)

@@ -23,4 +23,8 @@ public class BreakFilter
     public bool ShowExtern { get; set; } = true;
 
     public string? HoursSortOrder { get; set; }
+
+    public DateOnly? StartDate { get; set; }
+
+    public DateOnly? EndDate { get; set; }
 }
