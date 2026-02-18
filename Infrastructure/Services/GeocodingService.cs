@@ -63,7 +63,7 @@ public class GeocodingService : IGeocodingService
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning($"Geocoding failed for {city}, {country}: {response.StatusCode}");
+                _logger.LogWarning("Geocoding failed for {City}, {Country}: {StatusCode}", city, country, response.StatusCode);
                 return (null, null);
             }
 
@@ -80,16 +80,16 @@ public class GeocodingService : IGeocodingService
 
                 _cache.Set(cacheKey, coords, TimeSpan.FromDays(30));
 
-                _logger.LogInformation($"Geocoded {city}, {country}: {coords.Latitude}, {coords.Longitude}");
+                _logger.LogInformation("Geocoded {City}, {Country}: {Latitude}, {Longitude}", city, country, coords.Latitude, coords.Longitude);
                 return coords;
             }
 
-            _logger.LogWarning($"No geocoding results for {city}, {country}");
+            _logger.LogWarning("No geocoding results for {City}, {Country}", city, country);
             return (null, null);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Error geocoding {city}, {country}");
+            _logger.LogError(ex, "Error geocoding {City}, {Country}", city, country);
             return (null, null);
         }
         finally

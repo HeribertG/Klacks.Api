@@ -26,7 +26,7 @@ namespace Klacks.Api.Application.Handlers.Addresses
         {
             try
             {
-                _logger.LogInformation($"Fetching simple address list for ID: {request.Id}");
+                _logger.LogInformation("Fetching simple address list for ID: {Id}", request.Id);
                 
                 if (request.Id == Guid.Empty)
                 {
@@ -36,12 +36,12 @@ namespace Klacks.Api.Application.Handlers.Addresses
                 
                 var addresses = await _addressRepository.SimpleList(request.Id);
                 
-                _logger.LogInformation($"Retrieved {addresses.Count()} simple addresses for ID: {request.Id}");
+                _logger.LogInformation("Retrieved {Count} simple addresses for ID: {Id}", addresses.Count(), request.Id);
                 return _addressCommunicationMapper.ToAddressResources(addresses.ToList());
             }
             catch (ValidationException ex)
             {
-                _logger.LogWarning(ex, $"No addresses found for ID: {request.Id}");
+                _logger.LogWarning(ex, "No addresses found for ID: {Id}", request.Id);
                 throw new KeyNotFoundException($"No addresses found for ID: {request.Id}");
             }
             catch (InvalidRequestException)
@@ -50,7 +50,7 @@ namespace Klacks.Api.Application.Handlers.Addresses
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unexpected error while fetching simple addresses for ID: {request.Id}");
+                _logger.LogError(ex, "Unexpected error while fetching simple addresses for ID: {Id}", request.Id);
                 throw new InvalidRequestException($"Failed to retrieve simple addresses for ID {request.Id}: {ex.Message}");
             }
         }

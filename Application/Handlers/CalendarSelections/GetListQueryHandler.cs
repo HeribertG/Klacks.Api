@@ -30,7 +30,7 @@ namespace Klacks.Api.Application.Handlers.CalendarSelections
                 var calendarSelections = await _calendarSelectionRepository.List();
                 var selectionsList = calendarSelections.ToList();
 
-                _logger.LogInformation($"Retrieved {selectionsList.Count} calendar selections");
+                _logger.LogInformation("Retrieved {Count} calendar selections", selectionsList.Count);
 
                 return selectionsList.Select(c => _scheduleMapper.ToCalendarSelectionResource(c)).ToList();
             }

@@ -26,7 +26,7 @@ public class TruncatedListQueryHandler : IRequestHandler<TruncatedListQuery, Tru
         {
             var truncatedList = await _settingsRepository.GetTruncatedCalendarRuleList(request.Filter);
             
-            _logger.LogInformation($"Successfully retrieved truncated calendar rules list with {truncatedList.CalendarRules?.Count ?? 0} items");
+            _logger.LogInformation("Successfully retrieved truncated calendar rules list with {Count} items", truncatedList.CalendarRules?.Count ?? 0);
             
             return truncatedList;
         }

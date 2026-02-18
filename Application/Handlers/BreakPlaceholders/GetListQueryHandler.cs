@@ -48,7 +48,7 @@ public class GetListQueryHandler : IRequestHandler<ListQuery, (IEnumerable<Clien
             var (clients, totalCount) = await _clientBreakPlaceholderRepository.BreakList(breakFilter);
             var clientList = clients.ToList();
 
-            _logger.LogInformation($"Retrieved {clientList.Count} clients with break data (Total: {totalCount})");
+            _logger.LogInformation("Retrieved {Count} clients with break data (Total: {TotalCount})", clientList.Count, totalCount);
 
             var mappedClients = clientList.Select(c =>
             {

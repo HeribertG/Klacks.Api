@@ -73,7 +73,7 @@ public class GetClientLocationsQueryHandler : IRequestHandler<GetClientLocations
                 });
             }
 
-            _logger.LogInformation($"Retrieved {result.Count} client locations");
+            _logger.LogInformation("Retrieved {Count} client locations", result.Count);
 
             return result;
         }

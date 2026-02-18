@@ -23,20 +23,20 @@ public class CutListQueryhandler : IRequestHandler<CutListQuery, IEnumerable<Shi
 
     public async Task<IEnumerable<ShiftResource>> Handle(CutListQuery request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation($"Fetching cut shift list for ID: {request.Id}");
+        _logger.LogInformation("Fetching cut shift list for ID: {Id}", request.Id);
         
         try
         {
             var cuts = await _shiftRepository.CutList(request.Id);
             var cutsList = cuts.ToList();
 
-            _logger.LogInformation($"Retrieved {cutsList.Count} cut shifts for ID: {request.Id}");
+            _logger.LogInformation("Retrieved {Count} cut shifts for ID: {Id}", cutsList.Count, request.Id);
 
             return cutsList.Select(s => _scheduleMapper.ToShiftResource(s)).ToList();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Unexpected error while fetching cut shift list for ID: {request.Id}");
+            _logger.LogError(ex, "Unexpected error while fetching cut shift list for ID: {Id}", request.Id);
             throw new InvalidRequestException($"Failed to retrieve cut shift list for ID {request.Id}: {ex.Message}");
         }
     }

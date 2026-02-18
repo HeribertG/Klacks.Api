@@ -13,12 +13,14 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IBreakMacroService _breakMacroService;
+    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public BulkAddBreaksCommandHandler(
         IBreakRepository breakRepository,
         IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
         IBreakMacroService breakMacroService,
+        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<BulkAddBreaksCommandHandler> logger)
         : base(logger)
     {
@@ -26,6 +28,7 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
         _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
         _breakMacroService = breakMacroService;
+        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<BulkBreaksResponse> Handle(BulkAddBreaksCommand command, CancellationToken cancellationToken)
@@ -48,8 +51,7 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
                     StartTime = item.StartTime,
                     EndTime = item.EndTime,
                     Information = item.Information,
-                    Description = item.Description,
-                    IsDeleted = false
+                    Description = item.Description
                 };
 
                 await _breakMacroService.ProcessBreakMacroAsync(breakEntry);
@@ -70,6 +72,11 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
         if (createdBreaks.Count > 0)
         {
             await _unitOfWork.CompleteAsync();
+
+            foreach (var breakEntry in createdBreaks)
+            {
+                await _scheduleChangeTracker.TrackChangeAsync(breakEntry.ClientId, breakEntry.CurrentDate);
+            }
 
             var periodStart = command.Request.PeriodStart;
             var periodEnd = command.Request.PeriodEnd;

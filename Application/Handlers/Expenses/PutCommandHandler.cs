@@ -62,13 +62,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
                 var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
                 var connectionId = _httpContextAccessor.HttpContext?.Request
                     .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
-                
-                // Send ScheduleUpdated for grid refresh
+
                 var notification = _scheduleMapper.ToScheduleNotificationDto(
                     work.ClientId, work.CurrentDate, "updated", connectionId, periodStart, periodEnd);
                 await _notificationService.NotifyScheduleUpdated(notification);
-                
-                // Send PeriodHoursUpdated with recalculated hours
+
                 await _periodHoursService.RecalculateAndNotifyAsync(work.ClientId, periodStart, periodEnd, connectionId);
             }
         }

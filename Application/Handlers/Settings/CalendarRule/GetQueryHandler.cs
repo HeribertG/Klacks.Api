@@ -19,19 +19,19 @@ namespace Klacks.Api.Application.Handlers.Settings.CalendarRule
 
         public async Task<Klacks.Api.Domain.Models.Settings.CalendarRule?> Handle(GetQuery request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"Fetching calendar rule with ID: {request.Id}");
+            _logger.LogInformation("Fetching calendar rule with ID: {Id}", request.Id);
             
             try
             {
                 var calendarRule = await _settingsRepository.GetCalendarRule(request.Id);
                 
-                _logger.LogInformation($"Successfully retrieved calendar rule with ID: {request.Id}");
+                _logger.LogInformation("Successfully retrieved calendar rule with ID: {Id}", request.Id);
                 
                 return calendarRule;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unexpected error while fetching calendar rule with ID: {request.Id}");
+                _logger.LogError(ex, "Unexpected error while fetching calendar rule with ID: {Id}", request.Id);
                 throw new InvalidRequestException($"Failed to retrieve calendar rule: {ex.Message}");
             }
         }

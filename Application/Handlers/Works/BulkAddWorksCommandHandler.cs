@@ -63,8 +63,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                     WorkTime = item.WorkTime,
                     StartTime = item.StartTime,
                     EndTime = item.EndTime,
-                    Information = item.Information,
-                    IsDeleted = false
+                    Information = item.Information
                 };
 
                 await _workRepository.Add(work);

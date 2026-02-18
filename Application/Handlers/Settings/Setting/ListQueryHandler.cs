@@ -46,7 +46,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
                     }
                 }
 
-                _logger.LogInformation($"Retrieved {settingsList.Count} settings");
+                _logger.LogInformation("Retrieved {Count} settings", settingsList.Count);
 
                 return settingsList;
             }

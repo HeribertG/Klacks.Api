@@ -25,18 +25,18 @@ namespace Klacks.Api.Application.Handlers.AssignedGroups
         {
             try
             {
-                _logger.LogInformation($"Fetching assigned groups for ID: {request.Id}");
+                _logger.LogInformation("Fetching assigned groups for ID: {Id}", request.Id);
                 
                 var groups = await _assignedGroupRepository.Assigned(request.Id);
                 var groupsList = groups.ToList();
                 
-                _logger.LogInformation($"Retrieved {groupsList.Count} assigned groups for ID: {request.Id}");
+                _logger.LogInformation("Retrieved {Count} assigned groups for ID: {Id}", groupsList.Count, request.Id);
                 
                 return _groupMapper.ToGroupResources(groupsList.ToList());
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unexpected error while fetching assigned groups for ID: {request.Id}");
+                _logger.LogError(ex, "Unexpected error while fetching assigned groups for ID: {Id}", request.Id);
                 throw new InvalidRequestException($"Failed to retrieve assigned groups: {ex.Message}");
             }
         }

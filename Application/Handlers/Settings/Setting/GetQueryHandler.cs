@@ -19,19 +19,19 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
 
         public async Task<Klacks.Api.Domain.Models.Settings.Settings?> Handle(GetQuery request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"Fetching setting with type: {request.Type}");
+            _logger.LogInformation("Fetching setting with type: {Type}", request.Type);
             
             try
             {
                 var setting = await _settingsRepository.GetSetting(request.Type);
                 
-                _logger.LogInformation($"Successfully retrieved setting with type: {request.Type}");
+                _logger.LogInformation("Successfully retrieved setting with type: {Type}", request.Type);
                 
                 return setting;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unexpected error while fetching setting with type: {request.Type}");
+                _logger.LogError(ex, "Unexpected error while fetching setting with type: {Type}", request.Type);
                 throw new InvalidRequestException($"Failed to retrieve setting: {ex.Message}");
             }
         }

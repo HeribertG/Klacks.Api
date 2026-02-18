@@ -26,7 +26,7 @@ namespace Klacks.Api.Application.Handlers.Addresses
         {
             try
             {
-                _logger.LogInformation($"Fetching client address list for ID: {request.Id}");
+                _logger.LogInformation("Fetching client address list for ID: {Id}", request.Id);
                 
                 if (request.Id == Guid.Empty)
                 {
@@ -36,12 +36,12 @@ namespace Klacks.Api.Application.Handlers.Addresses
                 
                 var addresses = await _addressRepository.ClienList(request.Id);
                 
-                _logger.LogInformation($"Retrieved {addresses.Count()} addresses for client ID: {request.Id}");
+                _logger.LogInformation("Retrieved {Count} addresses for client ID: {Id}", addresses.Count(), request.Id);
                 return _addressCommunicationMapper.ToAddressResources(addresses.ToList());
             }
             catch (ValidationException ex)
             {
-                _logger.LogWarning(ex, $"No addresses found for client ID: {request.Id}");
+                _logger.LogWarning(ex, "No addresses found for client ID: {Id}", request.Id);
                 throw new KeyNotFoundException($"No addresses found for client ID: {request.Id}");
             }
             catch (InvalidRequestException)
@@ -50,7 +50,7 @@ namespace Klacks.Api.Application.Handlers.Addresses
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unexpected error while fetching addresses for client ID: {request.Id}");
+                _logger.LogError(ex, "Unexpected error while fetching addresses for client ID: {Id}", request.Id);
                 throw new InvalidRequestException($"Failed to retrieve addresses for client ID {request.Id}: {ex.Message}");
             }
         }

@@ -30,7 +30,7 @@ namespace Klacks.Api.Application.Handlers.Countries
                 var countries = await _countryRepository.List();
                 var countriesList = countries.ToList();
                 
-                _logger.LogInformation($"Retrieved {countriesList.Count} countries");
+                _logger.LogInformation("Retrieved {Count} countries", countriesList.Count);
                 
                 return _settingsMapper.ToCountryResources(countriesList.ToList());
             }

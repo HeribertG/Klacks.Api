@@ -30,7 +30,7 @@ namespace Klacks.Api.Application.Handlers.Communications
                 var communicationTypes = await _communicationRepository.TypeList();
                 var typesList = communicationTypes.ToList();
                 
-                _logger.LogInformation($"Retrieved {typesList.Count} communication types");
+                _logger.LogInformation("Retrieved {Count} communication types", typesList.Count);
                 
                 return _addressCommunicationMapper.ToCommunicationTypeResources(typesList.ToList());
             }

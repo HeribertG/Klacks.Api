@@ -26,7 +26,7 @@ namespace Klacks.Api.Application.Handlers.Settings.CalendarRule
                 var calendarRules = await _settingsRepository.GetCalendarRuleList();
                 var rulesList = calendarRules.ToList();
                 
-                _logger.LogInformation($"Successfully retrieved {rulesList.Count} calendar rules");
+                _logger.LogInformation("Successfully retrieved {Count} calendar rules", rulesList.Count);
                 
                 return rulesList;
             }

@@ -25,7 +25,7 @@ namespace Klacks.Api.Application.Handlers.Branch
                 var branches = await _branchRepository.List();
                 var branchesList = branches;
 
-                _logger.LogInformation($"Retrieved {branchesList.Count} branches");
+                _logger.LogInformation("Retrieved {Count} branches", branchesList.Count);
 
                 return branchesList;
             }

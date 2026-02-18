@@ -52,7 +52,7 @@ public class AccountsController : BaseController
     [HttpPut("ChangeRoleUser")]
     public async Task<ActionResult> ChangeRoleUser([FromBody] ChangeRole changeRole)
     {
-        this._logger.LogInformation($"ChangeRoleUser request received for user: {changeRole.UserId}");
+        this._logger.LogInformation("ChangeRoleUser request received for user: {UserId}", changeRole.UserId);
         var result = await mediator.Send(new ChangeRoleCommand(changeRole));
         return Ok(result);
     }
@@ -61,7 +61,7 @@ public class AccountsController : BaseController
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteAccountUser(Guid id)
     {
-        this._logger.LogInformation($"DeleteAccountUser request received for user: {id}");
+        this._logger.LogInformation("DeleteAccountUser request received for user: {Id}", id);
         var result = await mediator.Send(new DeleteAccountCommand(id));
         return Ok(result);
     }
@@ -141,7 +141,7 @@ public class AccountsController : BaseController
     [HttpPost("RegisterUser")]
     public async Task<ActionResult> RegisterUser([FromBody] RegistrationResource model)
     {
-        this._logger.LogInformation($"RegisterUser request received: {JsonConvert.SerializeObject(model)}");
+        this._logger.LogInformation("RegisterUser request received: {Model}", JsonConvert.SerializeObject(model));
         var result = await mediator.Send(new RegisterUserCommand(model));
         return Ok(result);
     }

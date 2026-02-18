@@ -30,7 +30,7 @@ namespace Klacks.Api.Application.Handlers.Contracts
                 var contracts = await _contractRepository.List();
                 var contractsList = contracts.ToList();
 
-                _logger.LogInformation($"Retrieved {contractsList.Count} contracts");
+                _logger.LogInformation("Retrieved {Count} contracts", contractsList.Count);
 
                 return contractsList.Select(c => _scheduleMapper.ToContractResource(c)).ToList();
             }

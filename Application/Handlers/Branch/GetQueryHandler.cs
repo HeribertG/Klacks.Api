@@ -18,19 +18,19 @@ namespace Klacks.Api.Application.Handlers.Branch
 
         public async Task<Klacks.Api.Domain.Models.Settings.Branch?> Handle(GetQuery request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"Fetching branch with ID: {request.Id}");
+            _logger.LogInformation("Fetching branch with ID: {Id}", request.Id);
 
             try
             {
                 var branch = await _branchRepository.Get(request.Id);
 
-                _logger.LogInformation($"Successfully retrieved branch with ID: {request.Id}");
+                _logger.LogInformation("Successfully retrieved branch with ID: {Id}", request.Id);
 
                 return branch;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unexpected error while fetching branch with ID: {request.Id}");
+                _logger.LogError(ex, "Unexpected error while fetching branch with ID: {Id}", request.Id);
                 throw new InvalidRequestException($"Failed to retrieve branch: {ex.Message}");
             }
         }

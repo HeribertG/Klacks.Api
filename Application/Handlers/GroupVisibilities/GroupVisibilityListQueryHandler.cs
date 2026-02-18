@@ -23,7 +23,7 @@ public class GroupVisibilityListQueryHandler : IRequestHandler<GroupVisibilityLi
 
     public async Task<IEnumerable<GroupVisibilityResource>> Handle(GroupVisibilityListQuery request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation($"Fetching group visibilities list for ID: {request.Id}");
+        _logger.LogInformation("Fetching group visibilities list for ID: {Id}", request.Id);
         
         if (string.IsNullOrEmpty(request.Id))
         {
@@ -36,13 +36,13 @@ public class GroupVisibilityListQueryHandler : IRequestHandler<GroupVisibilityLi
             var groupVisibilities = await _groupVisibilityRepository.GroupVisibilityList(request.Id);
             var visibilitiesList = groupVisibilities.ToList();
             
-            _logger.LogInformation($"Retrieved {visibilitiesList.Count} group visibilities for ID: {request.Id}");
+            _logger.LogInformation("Retrieved {Count} group visibilities for ID: {Id}", visibilitiesList.Count, request.Id);
             
             return _groupMapper.ToGroupVisibilityResources(visibilitiesList.ToList());
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Unexpected error while fetching group visibilities for ID: {request.Id}");
+            _logger.LogError(ex, "Unexpected error while fetching group visibilities for ID: {Id}", request.Id);
             throw new InvalidRequestException($"Failed to retrieve group visibilities for ID {request.Id}: {ex.Message}");
         }
     }

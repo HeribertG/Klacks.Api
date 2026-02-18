@@ -30,7 +30,7 @@ namespace Klacks.Api.Application.Handlers.Memberships
                 var memberships = await _membershipRepository.List();
                 var membershipsList = memberships.ToList();
 
-                _logger.LogInformation($"Retrieved {membershipsList.Count} memberships");
+                _logger.LogInformation("Retrieved {Count} memberships", membershipsList.Count);
 
                 return membershipsList.Select(m => _scheduleMapper.ToMembershipResource(m)).ToList();
             }

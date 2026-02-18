@@ -44,7 +44,7 @@ namespace Klacks.Api.Application.Handlers.Groups
                     FirstItemOnPage = truncatedResult.FirstItemOnPage
                 };
                 
-                _logger.LogInformation($"Retrieved truncated groups list with {truncatedGroupResource.Groups.Count} groups");
+                _logger.LogInformation("Retrieved truncated groups list with {Count} groups", truncatedGroupResource.Groups.Count);
                 
                 return truncatedGroupResource;
             }
