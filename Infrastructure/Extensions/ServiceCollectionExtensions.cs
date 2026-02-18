@@ -131,6 +131,9 @@ public static  class ServiceCollectionExtensions
         // Period Hours Service
         services.AddScoped<IPeriodHoursService, PeriodHoursService>();
 
+        // Schedule Change Tracker
+        services.AddScoped<IScheduleChangeTracker, ScheduleChangeTracker>();
+
         // ContainerTemplate Domain Services
         services.AddScoped<IContainerAvailableTasksService, ContainerAvailableTasksService>();
 

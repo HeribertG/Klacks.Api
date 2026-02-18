@@ -93,6 +93,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<ShiftExpenses> ShiftExpenses { get; set; }
 
+    public DbSet<ScheduleChange> ScheduleChange { get; set; }
+
     public DbSet<ClientPeriodHours> ClientPeriodHours { get; set; }
 
     public DbSet<IndividualPeriod> IndividualPeriod { get; set; }
@@ -255,6 +257,11 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<WorkChange>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Expenses>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<ShiftExpenses>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<ScheduleChange>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.ClientId, p.ChangeDate }).IsUnique();
+        });
         modelBuilder.Entity<AssignedGroup>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<GroupVisibility>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Contract>().HasQueryFilter(p => !p.IsDeleted);
