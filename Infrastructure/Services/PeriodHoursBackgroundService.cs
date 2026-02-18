@@ -1,5 +1,5 @@
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Infrastructure.Hubs;
+using Klacks.Api.Application.Interfaces;
 using System.Threading.Channels;
 
 namespace Klacks.Api.Infrastructure.Services;

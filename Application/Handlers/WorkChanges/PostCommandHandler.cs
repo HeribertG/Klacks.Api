@@ -19,6 +19,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public PostCommandHandler(
         IWorkChangeRepository workChangeRepository,
@@ -29,6 +30,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         IScheduleEntriesService scheduleEntriesService,
         IWorkNotificationService notificationService,
         IHttpContextAccessor httpContextAccessor,
+        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -40,56 +42,59 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         _scheduleEntriesService = scheduleEntriesService;
         _notificationService = notificationService;
         _httpContextAccessor = httpContextAccessor;
+        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<WorkChangeResource?> Handle(PostCommand<WorkChangeResource> request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Creating new WorkChange");
-
-        var workChange = _scheduleMapper.ToWorkChangeEntity(request.Resource);
-        await _workChangeRepository.Add(workChange);
-        await _unitOfWork.CompleteAsync();
-
-        var work = await _workRepository.Get(workChange.WorkId);
-        if (work == null)
+        return await ExecuteAsync(async () =>
         {
-            _logger.LogWarning("Work not found for WorkChange: {WorkId}", workChange.WorkId);
-            return _scheduleMapper.ToWorkChangeResource(workChange);
-        }
+            var workChange = _scheduleMapper.ToWorkChangeEntity(request.Resource);
+            await _workChangeRepository.Add(workChange);
+            await _unitOfWork.CompleteAsync();
 
-        var currentDate = work.CurrentDate;
-        var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(currentDate);
-        var threeDayStart = currentDate.AddDays(-1);
-        var threeDayEnd = currentDate.AddDays(1);
+            var work = await _workRepository.Get(workChange.WorkId);
+            if (work == null)
+            {
+                _logger.LogWarning("Work not found for WorkChange: {WorkId}", workChange.WorkId);
+                return _scheduleMapper.ToWorkChangeResource(workChange);
+            }
 
-        var resource = _scheduleMapper.ToWorkChangeResource(workChange);
-        resource.PeriodStart = periodStart;
-        resource.PeriodEnd = periodEnd;
+            await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
 
-        var clientResult = await GetClientResultAsync(work.ClientId, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken);
-        resource.ClientResults.Add(clientResult);
+            var currentDate = work.CurrentDate;
+            var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(currentDate);
+            var threeDayStart = currentDate.AddDays(-1);
+            var threeDayEnd = currentDate.AddDays(1);
 
-        if (workChange.ReplaceClientId.HasValue)
-        {
-            var replaceClientResult = await GetClientResultAsync(workChange.ReplaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken);
-            resource.ClientResults.Add(replaceClientResult);
-        }
+            var resource = _scheduleMapper.ToWorkChangeResource(workChange);
+            resource.PeriodStart = periodStart;
+            resource.PeriodEnd = periodEnd;
 
-        var connectionId = _httpContextAccessor.HttpContext?.Request
-            .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
-        var notification = _scheduleMapper.ToScheduleNotificationDto(
-            work.ClientId, work.CurrentDate, "updated", connectionId, periodStart, periodEnd);
-        await _notificationService.NotifyScheduleUpdated(notification);
+            var clientResult = await GetClientResultAsync(work.ClientId, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken);
+            resource.ClientResults.Add(clientResult);
 
-        if (workChange.ReplaceClientId.HasValue)
-        {
-            var replaceNotification = _scheduleMapper.ToScheduleNotificationDto(
-                workChange.ReplaceClientId.Value, work.CurrentDate, "updated", connectionId, periodStart, periodEnd);
-            await _notificationService.NotifyScheduleUpdated(replaceNotification);
-        }
+            if (workChange.ReplaceClientId.HasValue)
+            {
+                var replaceClientResult = await GetClientResultAsync(workChange.ReplaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken);
+                resource.ClientResults.Add(replaceClientResult);
+            }
 
-        _logger.LogInformation("WorkChange created successfully with ID: {Id}", workChange.Id);
-        return resource;
+            var connectionId = _httpContextAccessor.HttpContext?.Request
+                .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
+            var notification = _scheduleMapper.ToScheduleNotificationDto(
+                work.ClientId, work.CurrentDate, "updated", connectionId, periodStart, periodEnd);
+            await _notificationService.NotifyScheduleUpdated(notification);
+
+            if (workChange.ReplaceClientId.HasValue)
+            {
+                var replaceNotification = _scheduleMapper.ToScheduleNotificationDto(
+                    workChange.ReplaceClientId.Value, work.CurrentDate, "updated", connectionId, periodStart, periodEnd);
+                await _notificationService.NotifyScheduleUpdated(replaceNotification);
+            }
+
+            return resource;
+        }, "CreateWorkChange", new { request.Resource.WorkId });
     }
 
     private async Task<WorkChangeClientResult> GetClientResultAsync(

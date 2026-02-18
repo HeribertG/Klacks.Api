@@ -2,7 +2,6 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +18,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public PutCommandHandler(
         IWorkChangeRepository workChangeRepository,
@@ -29,6 +29,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         IScheduleEntriesService scheduleEntriesService,
         IWorkNotificationService notificationService,
         IHttpContextAccessor httpContextAccessor,
+        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -40,6 +41,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         _scheduleEntriesService = scheduleEntriesService;
         _notificationService = notificationService;
         _httpContextAccessor = httpContextAccessor;
+        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<WorkChangeResource?> Handle(PutCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -68,6 +70,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
             _logger.LogWarning("Work not found for WorkChange: {WorkId}", updatedWorkChange.WorkId);
             return _scheduleMapper.ToWorkChangeResource(updatedWorkChange);
         }
+
+        await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
 
         var currentDate = work.CurrentDate;
         var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(currentDate);

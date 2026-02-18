@@ -16,6 +16,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public PostCommandHandler(
         IExpensesRepository expensesRepository,
@@ -24,6 +25,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
         IPeriodHoursService periodHoursService,
         IWorkNotificationService notificationService,
         IHttpContextAccessor httpContextAccessor,
+        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -33,34 +35,34 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
         _periodHoursService = periodHoursService;
         _notificationService = notificationService;
         _httpContextAccessor = httpContextAccessor;
+        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<ExpensesResource?> Handle(PostCommand<ExpensesResource> request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Creating new Expenses");
-
-        var expenses = _scheduleMapper.ToExpensesEntity(request.Resource);
-        await _expensesRepository.Add(expenses);
-        await _unitOfWork.CompleteAsync();
-
-        var expensesWithWork = await _expensesRepository.Get(expenses.Id);
-        if (expensesWithWork?.Work != null)
+        return await ExecuteAsync(async () =>
         {
-            var work = expensesWithWork.Work;
-            var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
-            var connectionId = _httpContextAccessor.HttpContext?.Request
-                .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
-            
-            // Send ScheduleUpdated for grid refresh
-            var notification = _scheduleMapper.ToScheduleNotificationDto(
-                work.ClientId, work.CurrentDate, "updated", connectionId, periodStart, periodEnd);
-            await _notificationService.NotifyScheduleUpdated(notification);
-            
-            // Send PeriodHoursUpdated with recalculated hours
-            await _periodHoursService.RecalculateAndNotifyAsync(work.ClientId, periodStart, periodEnd, connectionId);
-        }
+            var expenses = _scheduleMapper.ToExpensesEntity(request.Resource);
+            await _expensesRepository.Add(expenses);
+            await _unitOfWork.CompleteAsync();
 
-        _logger.LogInformation("Expenses created successfully with ID: {Id}", expenses.Id);
-        return _scheduleMapper.ToExpensesResource(expenses);
+            var expensesWithWork = await _expensesRepository.Get(expenses.Id);
+            if (expensesWithWork?.Work != null)
+            {
+                var work = expensesWithWork.Work;
+                await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
+                var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
+                var connectionId = _httpContextAccessor.HttpContext?.Request
+                    .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
+
+                var notification = _scheduleMapper.ToScheduleNotificationDto(
+                    work.ClientId, work.CurrentDate, "updated", connectionId, periodStart, periodEnd);
+                await _notificationService.NotifyScheduleUpdated(notification);
+
+                await _periodHoursService.RecalculateAndNotifyAsync(work.ClientId, periodStart, periodEnd, connectionId);
+            }
+
+            return _scheduleMapper.ToExpensesResource(expenses);
+        }, "CreateExpenses", new { request.Resource.Id });
     }
 }

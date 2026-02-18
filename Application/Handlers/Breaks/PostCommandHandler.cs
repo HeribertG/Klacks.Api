@@ -2,7 +2,6 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +17,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public PostCommandHandler(
         IBreakRepository breakRepository,
@@ -27,6 +27,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
         IScheduleEntriesService scheduleEntriesService,
         IWorkNotificationService notificationService,
         IHttpContextAccessor httpContextAccessor,
+        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -37,46 +38,51 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
         _scheduleEntriesService = scheduleEntriesService;
         _notificationService = notificationService;
         _httpContextAccessor = httpContextAccessor;
+        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<BreakResource?> Handle(PostCommand<BreakResource> request, CancellationToken cancellationToken)
     {
-        var entity = _scheduleMapper.ToBreakEntity(request.Resource);
-
-        DateOnly periodStart;
-        DateOnly periodEnd;
-
-        if (request.Resource.PeriodStart.HasValue && request.Resource.PeriodEnd.HasValue)
+        return await ExecuteAsync(async () =>
         {
-            periodStart = request.Resource.PeriodStart.Value;
-            periodEnd = request.Resource.PeriodEnd.Value;
-        }
-        else
-        {
-            (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(entity.CurrentDate);
-        }
+            var entity = _scheduleMapper.ToBreakEntity(request.Resource);
 
-        var (createdBreak, periodHours) = await _breakRepository.AddWithPeriodHours(entity, periodStart, periodEnd);
-        await _unitOfWork.CompleteAsync();
+            DateOnly periodStart;
+            DateOnly periodEnd;
 
-        var currentDate = entity.CurrentDate;
-        var threeDayStart = currentDate.AddDays(-1);
-        var threeDayEnd = currentDate.AddDays(1);
+            if (request.Resource.PeriodStart.HasValue && request.Resource.PeriodEnd.HasValue)
+            {
+                periodStart = request.Resource.PeriodStart.Value;
+                periodEnd = request.Resource.PeriodEnd.Value;
+            }
+            else
+            {
+                (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(entity.CurrentDate);
+            }
 
-        var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd)
-            .Where(e => e.ClientId == entity.ClientId)
-            .ToListAsync(cancellationToken);
+            var (createdBreak, periodHours) = await _breakRepository.AddWithPeriodHours(entity, periodStart, periodEnd);
+            await _unitOfWork.CompleteAsync();
+            await _scheduleChangeTracker.TrackChangeAsync(createdBreak.ClientId, createdBreak.CurrentDate);
 
-        var breakResource = _scheduleMapper.ToBreakResource(createdBreak);
-        breakResource.PeriodHours = periodHours;
-        breakResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
+            var currentDate = entity.CurrentDate;
+            var threeDayStart = currentDate.AddDays(-1);
+            var threeDayEnd = currentDate.AddDays(1);
 
-        var connectionId = _httpContextAccessor.HttpContext?.Request
-            .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
-        var notification = _scheduleMapper.ToScheduleNotificationDto(
-            entity.ClientId, entity.CurrentDate, "updated", connectionId, periodStart, periodEnd);
-        await _notificationService.NotifyScheduleUpdated(notification);
+            var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd)
+                .Where(e => e.ClientId == entity.ClientId)
+                .ToListAsync(cancellationToken);
 
-        return breakResource;
+            var breakResource = _scheduleMapper.ToBreakResource(createdBreak);
+            breakResource.PeriodHours = periodHours;
+            breakResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
+
+            var connectionId = _httpContextAccessor.HttpContext?.Request
+                .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
+            var notification = _scheduleMapper.ToScheduleNotificationDto(
+                entity.ClientId, entity.CurrentDate, "updated", connectionId, periodStart, periodEnd);
+            await _notificationService.NotifyScheduleUpdated(notification);
+
+            return breakResource;
+        }, "CreateBreak", new { request.Resource.ClientId });
     }
 }

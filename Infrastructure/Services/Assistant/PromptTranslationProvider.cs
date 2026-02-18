@@ -3,9 +3,10 @@ using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Translation;
+using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 
-namespace Klacks.Api.Domain.Services.Assistant;
+namespace Klacks.Api.Infrastructure.Services.Assistant;
 
 public class PromptTranslationProvider : IPromptTranslationProvider
 {

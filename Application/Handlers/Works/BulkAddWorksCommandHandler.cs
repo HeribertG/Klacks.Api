@@ -3,7 +3,6 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
-using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 
@@ -19,6 +18,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public BulkAddWorksCommandHandler(
         IWorkRepository workRepository,
@@ -29,6 +29,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         IShiftScheduleService shiftScheduleService,
         IPeriodHoursService periodHoursService,
         IHttpContextAccessor httpContextAccessor,
+        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<BulkAddWorksCommandHandler> logger)
         : base(logger)
     {
@@ -40,6 +41,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         _shiftScheduleService = shiftScheduleService;
         _periodHoursService = periodHoursService;
         _httpContextAccessor = httpContextAccessor;
+        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<BulkWorksResponse> Handle(BulkAddWorksCommand command, CancellationToken cancellationToken)
@@ -83,6 +85,11 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         if (createdWorks.Count > 0)
         {
             await _unitOfWork.CompleteAsync();
+
+            foreach (var work in createdWorks)
+            {
+                await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
+            }
 
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;

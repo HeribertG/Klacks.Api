@@ -2,7 +2,6 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +17,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public PutCommandHandler(
         IBreakRepository breakRepository,
@@ -27,6 +27,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
         IScheduleEntriesService scheduleEntriesService,
         IWorkNotificationService notificationService,
         IHttpContextAccessor httpContextAccessor,
+        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -37,6 +38,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
         _scheduleEntriesService = scheduleEntriesService;
         _notificationService = notificationService;
         _httpContextAccessor = httpContextAccessor;
+        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<BreakResource?> Handle(PutCommand<BreakResource> request, CancellationToken cancellationToken)
@@ -66,6 +68,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
             }
 
             await _unitOfWork.CompleteAsync();
+            await _scheduleChangeTracker.TrackChangeAsync(updated.ClientId, updated.CurrentDate);
 
             var currentDate = updated.CurrentDate;
             var threeDayStart = currentDate.AddDays(-1);

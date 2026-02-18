@@ -1,4 +1,5 @@
 using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Application.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Klacks.Api.Infrastructure.Hubs;

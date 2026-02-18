@@ -2,7 +2,6 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 
@@ -16,6 +15,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public PutCommandHandler(
         IExpensesRepository expensesRepository,
@@ -24,6 +24,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
         IPeriodHoursService periodHoursService,
         IWorkNotificationService notificationService,
         IHttpContextAccessor httpContextAccessor,
+        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -33,6 +34,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
         _periodHoursService = periodHoursService;
         _notificationService = notificationService;
         _httpContextAccessor = httpContextAccessor;
+        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<ExpensesResource?> Handle(PutCommand<ExpensesResource> request, CancellationToken cancellationToken)
@@ -56,6 +58,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
             if (expensesWithWork?.Work != null)
             {
                 var work = expensesWithWork.Work;
+                await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
                 var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
                 var connectionId = _httpContextAccessor.HttpContext?.Request
                     .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;

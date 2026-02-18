@@ -1,6 +1,7 @@
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Hubs;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;

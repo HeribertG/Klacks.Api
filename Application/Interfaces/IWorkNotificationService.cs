@@ -1,6 +1,6 @@
 using Klacks.Api.Application.DTOs.Notifications;
 
-namespace Klacks.Api.Infrastructure.Hubs;
+namespace Klacks.Api.Application.Interfaces;
 
 public interface IWorkNotificationService
 {

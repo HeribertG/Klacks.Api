@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Domain.Services.Assistant.Skills;
@@ -33,7 +34,7 @@ public class LLMFunctionExecutor
             _executionTypeCache = definitions.ToDictionary(d => d.Name, d => d.ExecutionType);
         }
 
-        return _executionTypeCache.GetValueOrDefault(functionName, "Skill");
+        return _executionTypeCache.GetValueOrDefault(functionName, LlmExecutionTypes.Skill);
     }
 
     public bool HasOnlyUiPassthroughCalls { get; private set; }
@@ -48,7 +49,7 @@ public class LLMFunctionExecutor
             try
             {
                 var executionType = await GetExecutionTypeAsync(call.FunctionName);
-                if (executionType != "UiPassthrough")
+                if (executionType != LlmExecutionTypes.UiPassthrough)
                     allUiPassthrough = false;
 
                 var result = await ExecuteFunctionAsync(context, call);
@@ -93,7 +94,7 @@ public class LLMFunctionExecutor
 
         var executionType = await GetExecutionTypeAsync(call.FunctionName);
 
-        if (executionType == "FrontendOnly")
+        if (executionType == LlmExecutionTypes.FrontendOnly)
         {
             _logger.LogInformation("Executing {FunctionName} for LLM context (frontend handles UI)", call.FunctionName);
             var skillResult = await ExecuteSkillAsync(context, call);
@@ -101,7 +102,7 @@ public class LLMFunctionExecutor
             return firstLine;
         }
 
-        if (executionType == "UiPassthrough")
+        if (executionType == LlmExecutionTypes.UiPassthrough)
         {
             _logger.LogInformation("UI passthrough for {FunctionName} - frontend will handle via DOM manipulation", call.FunctionName);
             var paramsJson = JsonSerializer.Serialize(call.Parameters);
