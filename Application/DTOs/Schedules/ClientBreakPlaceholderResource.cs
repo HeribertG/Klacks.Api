@@ -1,18 +1,11 @@
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Application.DTOs.Associations;
-using System.Collections.ObjectModel;
 
 namespace Klacks.Api.Application.DTOs.Schedules;
 
 public class ClientBreakPlaceholderResource
 {
-    public ClientBreakPlaceholderResource()
-    {
-        BreakPlaceholders = new Collection<BreakPlaceholder>();
-    }
-
-    public ICollection<BreakPlaceholder> BreakPlaceholders { get; set; }
+    public ICollection<BreakPlaceholderResource> BreakPlaceholders { get; set; } = [];
 
     public string? Company { get; set; } = string.Empty;
 

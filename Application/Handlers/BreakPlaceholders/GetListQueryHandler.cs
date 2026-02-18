@@ -1,11 +1,11 @@
-using Klacks.Api.Application.Mappers;
-using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Queries.BreakPlaceholders;
-using Klacks.Api.Domain.Exceptions;
-using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Mappers;
+using Klacks.Api.Application.Queries.BreakPlaceholders;
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.BreakPlaceholders;
 
@@ -50,7 +50,14 @@ public class GetListQueryHandler : IRequestHandler<ListQuery, (IEnumerable<Clien
 
             _logger.LogInformation($"Retrieved {clientList.Count} clients with break data (Total: {totalCount})");
 
-            var mappedClients = clientList.Select(c => _clientMapper.ToBreakPlaceholderResource(c)).ToList();
+            var mappedClients = clientList.Select(c =>
+            {
+                var resource = _clientMapper.ToBreakPlaceholderResource(c);
+                resource.BreakPlaceholders = resource.BreakPlaceholders
+                    .Concat(MergeScheduleBreaks(c.Breaks))
+                    .ToList();
+                return resource;
+            }).ToList();
             return (mappedClients, totalCount);
         }
         catch (InvalidRequestException)
@@ -67,5 +74,53 @@ public class GetListQueryHandler : IRequestHandler<ListQuery, (IEnumerable<Clien
             _logger.LogError(ex, "Unexpected error while fetching client break list");
             throw new InvalidRequestException($"Failed to retrieve client break list: {ex.Message}");
         }
+    }
+
+    private static List<BreakPlaceholderResource> MergeScheduleBreaks(ICollection<Break>? breaks)
+    {
+        if (breaks == null || breaks.Count == 0)
+            return [];
+
+        var result = new List<BreakPlaceholderResource>();
+
+        foreach (var group in breaks.GroupBy(b => b.AbsenceId))
+        {
+            var sorted = group.OrderBy(b => b.CurrentDate).ToList();
+            var rangeStart = sorted[0];
+            var rangeEnd = sorted[0];
+
+            for (var i = 1; i < sorted.Count; i++)
+            {
+                var current = sorted[i];
+                if (current.CurrentDate == rangeEnd.CurrentDate.AddDays(1))
+                {
+                    rangeEnd = current;
+                }
+                else
+                {
+                    result.Add(CreateMergedResource(rangeStart, rangeEnd));
+                    rangeStart = current;
+                    rangeEnd = current;
+                }
+            }
+
+            result.Add(CreateMergedResource(rangeStart, rangeEnd));
+        }
+
+        return result;
+    }
+
+    private static BreakPlaceholderResource CreateMergedResource(Break first, Break last)
+    {
+        return new BreakPlaceholderResource
+        {
+            Id = first.Id,
+            ClientId = first.ClientId,
+            AbsenceId = first.AbsenceId,
+            Information = first.Information,
+            EntrySource = EntrySource.Schedule,
+            From = first.CurrentDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
+            Until = last.CurrentDate.ToDateTime(new TimeOnly(23, 59, 0), DateTimeKind.Utc)
+        };
     }
 }

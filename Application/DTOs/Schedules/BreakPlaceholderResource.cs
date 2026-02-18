@@ -1,3 +1,5 @@
+using Klacks.Api.Domain.Enums;
+
 namespace Klacks.Api.Application.DTOs.Schedules;
 
 public class BreakPlaceholderResource
@@ -5,6 +7,8 @@ public class BreakPlaceholderResource
     public Guid AbsenceId { get; set; }
 
     public Guid ClientId { get; set; }
+
+    public EntrySource EntrySource { get; set; } = EntrySource.Placeholder;
 
     public DateTime From { get; set; }
 
