@@ -1,4 +1,5 @@
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
@@ -77,9 +78,9 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
             breakResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
 
             var connectionId = _httpContextAccessor.HttpContext?.Request
-                .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
+                .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
             var notification = _scheduleMapper.ToScheduleNotificationDto(
-                entity.ClientId, entity.CurrentDate, "updated", connectionId, periodStart, periodEnd);
+                entity.ClientId, entity.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
             await _notificationService.NotifyScheduleUpdated(notification);
 
             return breakResource;

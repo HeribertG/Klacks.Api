@@ -592,7 +592,7 @@ public class DataBaseContext : IdentityDbContext
             }
 
             var now = DateTime.UtcNow;
-            const string defaultUser = "Annonymus";
+            const string defaultUser = "Anonymous";
             string currentUserName = defaultUser;
 
             try
@@ -604,9 +604,8 @@ public class DataBaseContext : IdentityDbContext
                     currentUserName = claimValue;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine($"Fehler beim Abrufen des Benutzers für die Auditierung: {ex.ToString()}");
             }
 
             switch (entry.State)

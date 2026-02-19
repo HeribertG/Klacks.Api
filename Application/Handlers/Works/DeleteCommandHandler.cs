@@ -1,5 +1,6 @@
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.Works;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -58,9 +59,9 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
             await _unitOfWork.CompleteAsync();
 
             var connectionId = _httpContextAccessor.HttpContext?.Request
-                .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
+                .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
 
-            var notification = _scheduleMapper.ToWorkNotificationDto(work, "deleted", connectionId, request.PeriodStart, request.PeriodEnd);
+            var notification = _scheduleMapper.ToWorkNotificationDto(work, ScheduleEventTypes.Deleted, connectionId, request.PeriodStart, request.PeriodEnd);
             await _notificationService.NotifyWorkDeleted(notification);
 
             if (periodHours != null)

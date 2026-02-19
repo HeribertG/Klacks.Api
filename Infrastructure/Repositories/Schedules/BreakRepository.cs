@@ -1,3 +1,4 @@
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
@@ -93,7 +94,7 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
     private async Task RecalculatePeriodHoursAsync(Guid clientId, DateOnly periodStart, DateOnly periodEnd)
     {
         var connectionId = _httpContextAccessor.HttpContext?.Request
-            .Headers["X-SignalR-ConnectionId"].FirstOrDefault();
+            .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault();
 
         await _periodHoursService.RecalculateAndNotifyAsync(
             clientId,
@@ -105,7 +106,7 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
     private async Task<PeriodHoursResource> RecalculateAndGetPeriodHoursAsync(Guid clientId, DateOnly periodStart, DateOnly periodEnd)
     {
         var connectionId = _httpContextAccessor.HttpContext?.Request
-            .Headers["X-SignalR-ConnectionId"].FirstOrDefault();
+            .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault();
 
         return await _periodHoursService.RecalculateAndNotifyAsync(
             clientId,

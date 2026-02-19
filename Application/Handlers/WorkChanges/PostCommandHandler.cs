@@ -1,4 +1,5 @@
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
@@ -81,15 +82,15 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
             }
 
             var connectionId = _httpContextAccessor.HttpContext?.Request
-                .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
+                .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
             var notification = _scheduleMapper.ToScheduleNotificationDto(
-                work.ClientId, work.CurrentDate, "updated", connectionId, periodStart, periodEnd);
+                work.ClientId, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
             await _notificationService.NotifyScheduleUpdated(notification);
 
             if (workChange.ReplaceClientId.HasValue)
             {
                 var replaceNotification = _scheduleMapper.ToScheduleNotificationDto(
-                    workChange.ReplaceClientId.Value, work.CurrentDate, "updated", connectionId, periodStart, periodEnd);
+                    workChange.ReplaceClientId.Value, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
                 await _notificationService.NotifyScheduleUpdated(replaceNotification);
             }
 

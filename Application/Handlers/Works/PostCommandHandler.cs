@@ -1,5 +1,6 @@
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -70,8 +71,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
             await _scheduleChangeTracker.TrackChangeAsync(createdWork.ClientId, createdWork.CurrentDate);
 
             var connectionId = _httpContextAccessor.HttpContext?.Request
-                .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
-            var notification = _scheduleMapper.ToWorkNotificationDto(createdWork, "created", connectionId, periodStart, periodEnd);
+                .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
+            var notification = _scheduleMapper.ToWorkNotificationDto(createdWork, ScheduleEventTypes.Created, connectionId, periodStart, periodEnd);
             await _notificationService.NotifyWorkCreated(notification);
 
             if (periodHours != null)

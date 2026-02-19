@@ -1,3 +1,4 @@
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
@@ -67,7 +68,7 @@ public class WorkChangeRepository : BaseRepository<WorkChange>, IWorkChangeRepos
         if (work == null) return;
 
         var connectionId = _httpContextAccessor.HttpContext?.Request
-            .Headers["X-SignalR-ConnectionId"].FirstOrDefault();
+            .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault();
 
         var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
 

@@ -1,4 +1,5 @@
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
@@ -80,7 +81,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
             await _unitOfWork.CompleteAsync();
 
             var connectionId = _httpContextAccessor.HttpContext?.Request
-                .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
+                .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
 
             var clientPeriods = new Dictionary<Guid, (DateOnly Start, DateOnly End)>();
 
@@ -101,7 +102,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
                     );
                 }
 
-                var notification = _scheduleMapper.ToWorkNotificationDto(work, "deleted", connectionId, start, end);
+                var notification = _scheduleMapper.ToWorkNotificationDto(work, ScheduleEventTypes.Deleted, connectionId, start, end);
                 await _notificationService.NotifyWorkDeleted(notification);
             }
 

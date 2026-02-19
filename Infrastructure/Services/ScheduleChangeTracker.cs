@@ -1,4 +1,3 @@
-using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
@@ -42,15 +41,10 @@ public class ScheduleChangeTracker : IScheduleChangeTracker
         await _context.SaveChangesAsync();
     }
 
-    public async Task<List<ScheduleChangeResource>> GetChangesAsync(DateOnly startDate, DateOnly endDate)
+    public async Task<List<ScheduleChange>> GetChangesAsync(DateOnly startDate, DateOnly endDate)
     {
         return await _context.ScheduleChange
             .Where(sc => sc.ChangeDate >= startDate && sc.ChangeDate <= endDate)
-            .Select(sc => new ScheduleChangeResource
-            {
-                ClientId = sc.ClientId,
-                ChangeDate = sc.ChangeDate
-            })
             .ToListAsync();
     }
 }

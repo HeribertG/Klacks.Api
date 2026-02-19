@@ -1,4 +1,5 @@
 using Klacks.Api.Application.Commands.Breaks;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
@@ -61,9 +62,9 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
             breakResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
 
             var connectionId = _httpContextAccessor.HttpContext?.Request
-                .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
+                .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
             var notification = _scheduleMapper.ToScheduleNotificationDto(
-                breakEntry.ClientId, breakEntry.CurrentDate, "updated", connectionId, request.PeriodStart, request.PeriodEnd);
+                breakEntry.ClientId, breakEntry.CurrentDate, ScheduleEventTypes.Updated, connectionId, request.PeriodStart, request.PeriodEnd);
             await _notificationService.NotifyScheduleUpdated(notification);
 
             return breakResource;

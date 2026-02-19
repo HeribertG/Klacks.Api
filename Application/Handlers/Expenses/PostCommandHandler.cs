@@ -1,4 +1,5 @@
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
@@ -52,10 +53,10 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
                 await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
                 var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
                 var connectionId = _httpContextAccessor.HttpContext?.Request
-                    .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
+                    .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
 
                 var notification = _scheduleMapper.ToScheduleNotificationDto(
-                    work.ClientId, work.CurrentDate, "updated", connectionId, periodStart, periodEnd);
+                    work.ClientId, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
                 await _notificationService.NotifyScheduleUpdated(notification);
 
                 await _periodHoursService.RecalculateAndNotifyAsync(work.ClientId, periodStart, periodEnd, connectionId);

@@ -20,7 +20,12 @@ public class GetListQueryHandler : BaseHandler, IRequestHandler<GetListQuery, Li
     {
         return await ExecuteAsync(async () =>
         {
-            return await _scheduleChangeTracker.GetChangesAsync(request.StartDate, request.EndDate);
+            var changes = await _scheduleChangeTracker.GetChangesAsync(request.StartDate, request.EndDate);
+            return changes.Select(c => new ScheduleChangeResource
+            {
+                ClientId = c.ClientId,
+                ChangeDate = c.ChangeDate
+            }).ToList();
         }, nameof(Handle), new { request.StartDate, request.EndDate });
     }
 }

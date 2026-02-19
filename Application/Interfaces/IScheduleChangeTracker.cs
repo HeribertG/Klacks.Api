@@ -1,9 +1,9 @@
-using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Application.Interfaces;
 
 public interface IScheduleChangeTracker
 {
     Task TrackChangeAsync(Guid clientId, DateOnly changeDate);
-    Task<List<ScheduleChangeResource>> GetChangesAsync(DateOnly startDate, DateOnly endDate);
+    Task<List<ScheduleChange>> GetChangesAsync(DateOnly startDate, DateOnly endDate);
 }

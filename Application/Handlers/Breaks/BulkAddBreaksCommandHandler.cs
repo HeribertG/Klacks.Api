@@ -33,66 +33,69 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
 
     public async Task<BulkBreaksResponse> Handle(BulkAddBreaksCommand command, CancellationToken cancellationToken)
     {
-        var response = new BulkBreaksResponse();
-        var createdBreaks = new List<Break>();
-        var affectedClients = new HashSet<Guid>();
-
-        foreach (var item in command.Request.Breaks)
+        return await ExecuteAsync(async () =>
         {
-            try
+            var response = new BulkBreaksResponse();
+            var createdBreaks = new List<Break>();
+            var affectedClients = new HashSet<Guid>();
+
+            foreach (var item in command.Request.Breaks)
             {
-                var breakEntry = new Break
+                try
                 {
-                    Id = Guid.NewGuid(),
-                    ClientId = item.ClientId,
-                    AbsenceId = item.AbsenceId,
-                    CurrentDate = item.CurrentDate,
-                    WorkTime = item.WorkTime,
-                    StartTime = item.StartTime,
-                    EndTime = item.EndTime,
-                    Information = item.Information,
-                    Description = item.Description
-                };
+                    var breakEntry = new Break
+                    {
+                        Id = Guid.NewGuid(),
+                        ClientId = item.ClientId,
+                        AbsenceId = item.AbsenceId,
+                        CurrentDate = item.CurrentDate,
+                        WorkTime = item.WorkTime,
+                        StartTime = item.StartTime,
+                        EndTime = item.EndTime,
+                        Information = item.Information,
+                        Description = item.Description
+                    };
 
-                await _breakMacroService.ProcessBreakMacroAsync(breakEntry);
-                await _breakRepository.Add(breakEntry);
-                createdBreaks.Add(breakEntry);
-                response.CreatedIds.Add(breakEntry.Id);
-                response.SuccessCount++;
-                affectedClients.Add(item.ClientId);
+                    await _breakMacroService.ProcessBreakMacroAsync(breakEntry);
+                    await _breakRepository.Add(breakEntry);
+                    createdBreaks.Add(breakEntry);
+                    response.CreatedIds.Add(breakEntry.Id);
+                    response.SuccessCount++;
+                    affectedClients.Add(item.ClientId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to create break for client {ClientId} on {Date}",
+                        item.ClientId, item.CurrentDate);
+                    response.FailedCount++;
+                }
             }
-            catch (Exception ex)
+
+            if (createdBreaks.Count > 0)
             {
-                _logger.LogError(ex, "Failed to create break for client {ClientId} on {Date}",
-                    item.ClientId, item.CurrentDate);
-                response.FailedCount++;
+                await _unitOfWork.CompleteAsync();
+
+                foreach (var breakEntry in createdBreaks)
+                {
+                    await _scheduleChangeTracker.TrackChangeAsync(breakEntry.ClientId, breakEntry.CurrentDate);
+                }
+
+                var periodStart = command.Request.PeriodStart;
+                var periodEnd = command.Request.PeriodEnd;
+
+                response.PeriodHours = new Dictionary<Guid, PeriodHoursResource>();
+
+                foreach (var clientId in affectedClients)
+                {
+                    var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(
+                        clientId,
+                        periodStart,
+                        periodEnd);
+                    response.PeriodHours[clientId] = periodHours;
+                }
             }
-        }
 
-        if (createdBreaks.Count > 0)
-        {
-            await _unitOfWork.CompleteAsync();
-
-            foreach (var breakEntry in createdBreaks)
-            {
-                await _scheduleChangeTracker.TrackChangeAsync(breakEntry.ClientId, breakEntry.CurrentDate);
-            }
-
-            var periodStart = command.Request.PeriodStart;
-            var periodEnd = command.Request.PeriodEnd;
-
-            response.PeriodHours = new Dictionary<Guid, PeriodHoursResource>();
-
-            foreach (var clientId in affectedClients)
-            {
-                var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(
-                    clientId,
-                    periodStart,
-                    periodEnd);
-                response.PeriodHours[clientId] = periodHours;
-            }
-        }
-
-        return response;
+            return response;
+        }, "BulkAddBreaks", new { Count = command.Request.Breaks.Count });
     }
 }
