@@ -14,9 +14,9 @@ public class LLMService : ILLMService
     private readonly LLMFunctionExecutor _functionExecutor;
     private readonly LLMResponseBuilder _responseBuilder;
     private readonly LLMSystemPromptBuilder _promptBuilder;
-    private readonly IAiSoulRepository _aiSoulRepository;
-    private readonly IAiMemoryRepository _aiMemoryRepository;
-    private readonly IAiGuidelinesRepository _aiGuidelinesRepository;
+    private readonly IAgentRepository _agentRepository;
+    private readonly IAgentMemoryRepository _agentMemoryRepository;
+    private readonly ContextAssemblyPipeline _contextAssemblyPipeline;
 
     public LLMService(
         ILogger<LLMService> logger,
@@ -25,9 +25,9 @@ public class LLMService : ILLMService
         LLMFunctionExecutor functionExecutor,
         LLMResponseBuilder responseBuilder,
         LLMSystemPromptBuilder promptBuilder,
-        IAiSoulRepository aiSoulRepository,
-        IAiMemoryRepository aiMemoryRepository,
-        IAiGuidelinesRepository aiGuidelinesRepository)
+        IAgentRepository agentRepository,
+        IAgentMemoryRepository agentMemoryRepository,
+        ContextAssemblyPipeline contextAssemblyPipeline)
     {
         this._logger = logger;
         _providerOrchestrator = providerOrchestrator;
@@ -35,9 +35,9 @@ public class LLMService : ILLMService
         _functionExecutor = functionExecutor;
         _responseBuilder = responseBuilder;
         _promptBuilder = promptBuilder;
-        _aiSoulRepository = aiSoulRepository;
-        _aiMemoryRepository = aiMemoryRepository;
-        _aiGuidelinesRepository = aiGuidelinesRepository;
+        _agentRepository = agentRepository;
+        _agentMemoryRepository = agentMemoryRepository;
+        _contextAssemblyPipeline = contextAssemblyPipeline;
     }
 
     public async Task<LLMResponse> ProcessAsync(LLMContext context)
@@ -61,11 +61,16 @@ public class LLMService : ILLMService
 
             var llmHistory = await _conversationManager.GetConversationHistoryAsync(conversation.ConversationId);
 
-            var soul = await LoadSoulAsync();
-            var memories = await _aiMemoryRepository.GetAllAsync();
-            var guidelines = await LoadGuidelinesAsync();
+            var agent = await _agentRepository.GetDefaultAgentAsync();
+            string? soulAndMemoryPrompt = null;
 
-            var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soul, memories, guidelines);
+            if (agent != null)
+            {
+                soulAndMemoryPrompt = await _contextAssemblyPipeline.AssembleSoulAndMemoryPromptAsync(
+                    agent.Id, context.Message);
+            }
+
+            var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt);
 
             var allFunctionCalls = new List<LLMFunctionCall>();
             var totalUsage = new LLMUsage();
@@ -177,33 +182,5 @@ public class LLMService : ILLMService
         total.InputTokens += current.InputTokens;
         total.OutputTokens += current.OutputTokens;
         total.Cost += current.Cost;
-    }
-
-    private async Task<string?> LoadSoulAsync()
-    {
-        try
-        {
-            var activeSoul = await _aiSoulRepository.GetActiveAsync();
-            return activeSoul?.Content;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to load AI soul");
-            return null;
-        }
-    }
-
-    private async Task<string?> LoadGuidelinesAsync()
-    {
-        try
-        {
-            var activeGuidelines = await _aiGuidelinesRepository.GetActiveAsync();
-            return activeGuidelines?.Content;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to load AI guidelines");
-            return null;
-        }
     }
 }

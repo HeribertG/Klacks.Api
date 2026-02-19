@@ -15,23 +15,31 @@ public class ProcessLLMMessageCommand : IRequest<LLMResponse>
     public string? ModelId { get; set; }
     public string? Language { get; set; }
     public List<string> UserRights { get; set; } = new();
+    public Guid? AgentId { get; set; }
 }
 
 public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessageCommand, LLMResponse>
 {
     private readonly ILLMService _llmService;
-    private readonly ILlmFunctionDefinitionRepository _functionDefinitionRepository;
+    private readonly IAgentSkillRepository _agentSkillRepository;
+    private readonly IAgentRepository _agentRepository;
 
     public ProcessLLMMessageCommandHandler(
         ILLMService llmService,
-        ILlmFunctionDefinitionRepository functionDefinitionRepository)
+        IAgentSkillRepository agentSkillRepository,
+        IAgentRepository agentRepository)
     {
         _llmService = llmService;
-        _functionDefinitionRepository = functionDefinitionRepository;
+        _agentSkillRepository = agentSkillRepository;
+        _agentRepository = agentRepository;
     }
 
     public async Task<LLMResponse> Handle(ProcessLLMMessageCommand request, CancellationToken cancellationToken)
     {
+        var agent = request.AgentId.HasValue
+            ? await _agentRepository.GetByIdAsync(request.AgentId.Value, cancellationToken)
+            : await _agentRepository.GetDefaultAgentAsync(cancellationToken);
+
         var context = new LLMContext
         {
             Message = request.Message,
@@ -40,37 +48,39 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             ModelId = request.ModelId,
             Language = request.Language,
             UserRights = request.UserRights,
-            AvailableFunctions = await GetAvailableFunctionsAsync(request.UserRights, cancellationToken)
+            AvailableFunctions = await GetAvailableFunctionsAsync(agent, request.UserRights, cancellationToken)
         };
 
         return await _llmService.ProcessAsync(context);
     }
 
-    private async Task<List<LLMFunction>> GetAvailableFunctionsAsync(List<string> userRights, CancellationToken cancellationToken)
+    private async Task<List<LLMFunction>> GetAvailableFunctionsAsync(Agent? agent, List<string> userRights, CancellationToken cancellationToken)
     {
-        var definitions = await _functionDefinitionRepository.GetAllEnabledAsync(cancellationToken);
+        if (agent == null) return [];
+
+        var skills = await _agentSkillRepository.GetEnabledAsync(agent.Id, cancellationToken);
         var functions = new List<LLMFunction>();
 
-        foreach (var def in definitions)
+        foreach (var skill in skills)
         {
-            if (def.RequiredPermission == null ||
-                userRights.Contains(def.RequiredPermission) ||
+            if (skill.RequiredPermission == null ||
+                userRights.Contains(skill.RequiredPermission) ||
                 userRights.Contains("Admin"))
             {
-                functions.Add(ConvertToLLMFunction(def));
+                functions.Add(ConvertToLLMFunction(skill));
             }
         }
 
         return functions;
     }
 
-    private static LLMFunction ConvertToLLMFunction(LlmFunctionDefinition definition)
+    private static LLMFunction ConvertToLLMFunction(AgentSkill skill)
     {
         var parameters = new Dictionary<string, object>();
         var requiredParameters = new List<string>();
 
         var paramDefs = JsonSerializer.Deserialize<List<ParameterDefinition>>(
-            definition.ParametersJson,
+            skill.ParametersJson,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
 
         foreach (var param in paramDefs)
@@ -96,8 +106,8 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
 
         return new LLMFunction
         {
-            Name = definition.Name,
-            Description = definition.Description,
+            Name = skill.Name,
+            Description = skill.Description,
             Parameters = parameters,
             RequiredParameters = requiredParameters
         };

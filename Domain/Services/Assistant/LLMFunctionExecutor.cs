@@ -12,17 +12,20 @@ public class LLMFunctionExecutor
 {
     private readonly ILogger<LLMFunctionExecutor> _logger;
     private readonly ILLMSkillBridge? _skillBridge;
-    private readonly ILlmFunctionDefinitionRepository _functionDefinitionRepository;
+    private readonly IAgentSkillRepository _agentSkillRepository;
+    private readonly IAgentRepository _agentRepository;
 
     private Dictionary<string, string>? _executionTypeCache;
 
     public LLMFunctionExecutor(
         ILogger<LLMFunctionExecutor> logger,
-        ILlmFunctionDefinitionRepository functionDefinitionRepository,
+        IAgentSkillRepository agentSkillRepository,
+        IAgentRepository agentRepository,
         ILLMSkillBridge? skillBridge = null)
     {
         this._logger = logger;
-        _functionDefinitionRepository = functionDefinitionRepository;
+        _agentSkillRepository = agentSkillRepository;
+        _agentRepository = agentRepository;
         _skillBridge = skillBridge;
     }
 
@@ -30,8 +33,16 @@ public class LLMFunctionExecutor
     {
         if (_executionTypeCache == null)
         {
-            var definitions = await _functionDefinitionRepository.GetAllEnabledAsync();
-            _executionTypeCache = definitions.ToDictionary(d => d.Name, d => d.ExecutionType);
+            var agent = await _agentRepository.GetDefaultAgentAsync();
+            if (agent != null)
+            {
+                var skills = await _agentSkillRepository.GetEnabledAsync(agent.Id);
+                _executionTypeCache = skills.ToDictionary(d => d.Name, d => d.ExecutionType);
+            }
+            else
+            {
+                _executionTypeCache = new Dictionary<string, string>();
+            }
         }
 
         return _executionTypeCache.GetValueOrDefault(functionName, LlmExecutionTypes.Skill);

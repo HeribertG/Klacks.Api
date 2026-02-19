@@ -1,4 +1,4 @@
-using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -8,14 +8,16 @@ namespace Klacks.Api.Application.Skills;
 
 public class AddAiMemorySkill : BaseSkill
 {
-    private readonly IAiMemoryRepository _aiMemoryRepository;
+    private readonly IAgentMemoryRepository _agentMemoryRepository;
+    private readonly IAgentRepository _agentRepository;
+    private readonly IEmbeddingService _embeddingService;
 
     public override string Name => "add_ai_memory";
 
     public override string Description =>
         "Adds a new persistent memory entry for the AI assistant. " +
         "Memories persist across all conversations and help the assistant remember important facts, " +
-        "user preferences, and system knowledge.";
+        "user preferences, and system knowledge. Embeddings are generated automatically for semantic search.";
 
     public override SkillCategory Category => SkillCategory.Crud;
 
@@ -35,21 +37,37 @@ public class AddAiMemorySkill : BaseSkill
             Required: true),
         new SkillParameter(
             "category",
-            "Category of the memory. Options: user_preference, system_knowledge, learned_fact, workflow, context.",
+            "Category: fact, preference, decision, user_info, project_context, learned_behavior, correction, temporal, user_preference, system_knowledge, learned_fact, workflow, context.",
             SkillParameterType.String,
             Required: false,
-            DefaultValue: AiMemoryCategories.LEARNED_FACT),
+            DefaultValue: MemoryCategories.LearnedFact),
         new SkillParameter(
             "importance",
-            "Importance level from 1 (low) to 10 (high). Higher importance memories are prioritized in the context.",
+            "Importance level from 1 (low) to 10 (high).",
             SkillParameterType.Integer,
             Required: false,
-            DefaultValue: 5)
+            DefaultValue: 5),
+        new SkillParameter(
+            "isPinned",
+            "If true, this memory is always included in the context.",
+            SkillParameterType.Boolean,
+            Required: false,
+            DefaultValue: false),
+        new SkillParameter(
+            "tags",
+            "Comma-separated tags for categorization.",
+            SkillParameterType.String,
+            Required: false)
     };
 
-    public AddAiMemorySkill(IAiMemoryRepository aiMemoryRepository)
+    public AddAiMemorySkill(
+        IAgentMemoryRepository agentMemoryRepository,
+        IAgentRepository agentRepository,
+        IEmbeddingService embeddingService)
     {
-        _aiMemoryRepository = aiMemoryRepository;
+        _agentMemoryRepository = agentMemoryRepository;
+        _agentRepository = agentRepository;
+        _embeddingService = embeddingService;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -59,25 +77,47 @@ public class AddAiMemorySkill : BaseSkill
     {
         var key = GetRequiredString(parameters, "key");
         var content = GetRequiredString(parameters, "content");
-        var category = GetParameter<string>(parameters, "category", AiMemoryCategories.LEARNED_FACT)!;
+        var category = GetParameter<string>(parameters, "category", MemoryCategories.LearnedFact)!;
         var importance = GetParameter<int?>(parameters, "importance", 5) ?? 5;
+        var isPinned = GetParameter<bool?>(parameters, "isPinned") ?? false;
+        var tagsStr = GetParameter<string>(parameters, "tags");
 
         importance = Math.Clamp(importance, 1, 10);
 
-        var memory = new AiMemory
+        var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
+        if (agent == null)
+        {
+            return SkillResult.Error("No agent is configured yet.");
+        }
+
+        var embedding = await _embeddingService.GenerateEmbeddingAsync($"{key}: {content}", cancellationToken);
+
+        var memory = new AgentMemory
         {
             Id = Guid.NewGuid(),
+            AgentId = agent.Id,
             Key = key,
             Content = content,
             Category = category,
             Importance = importance,
-            Source = "chat"
+            IsPinned = isPinned,
+            Embedding = embedding,
+            Source = MemorySources.Chat
         };
 
-        await _aiMemoryRepository.AddAsync(memory, cancellationToken);
+        if (!string.IsNullOrWhiteSpace(tagsStr))
+        {
+            var tags = tagsStr.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            foreach (var tag in tags)
+            {
+                memory.Tags.Add(new AgentMemoryTag { MemoryId = memory.Id, Tag = tag });
+            }
+        }
+
+        await _agentMemoryRepository.AddAsync(memory, cancellationToken);
 
         return SkillResult.SuccessResult(
-            new { MemoryId = memory.Id, Key = key, Category = category, Importance = importance },
-            $"Memory added: '{key}' [{category}] (importance: {importance}).");
+            new { MemoryId = memory.Id, Key = key, Category = category, Importance = importance, HasEmbedding = embedding != null, IsPinned = isPinned },
+            $"Memory added: '{key}' [{category}] (importance: {importance}{(isPinned ? ", pinned" : "")}{(embedding != null ? ", with embedding" : ", embedding pending")}).");
     }
 }

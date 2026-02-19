@@ -7,13 +7,12 @@ namespace Klacks.Api.Application.Skills;
 
 public class DeleteAiMemorySkill : BaseSkill
 {
-    private readonly IAiMemoryRepository _aiMemoryRepository;
+    private readonly IAgentMemoryRepository _agentMemoryRepository;
 
     public override string Name => "delete_ai_memory";
 
     public override string Description =>
-        "Deletes a persistent memory entry by its ID. " +
-        "This permanently removes the memory from the AI assistant's knowledge base.";
+        "Deletes a persistent memory entry by its ID.";
 
     public override SkillCategory Category => SkillCategory.Crud;
 
@@ -28,9 +27,9 @@ public class DeleteAiMemorySkill : BaseSkill
             Required: true)
     };
 
-    public DeleteAiMemorySkill(IAiMemoryRepository aiMemoryRepository)
+    public DeleteAiMemorySkill(IAgentMemoryRepository agentMemoryRepository)
     {
-        _aiMemoryRepository = aiMemoryRepository;
+        _agentMemoryRepository = agentMemoryRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -40,14 +39,14 @@ public class DeleteAiMemorySkill : BaseSkill
     {
         var memoryId = GetRequiredGuid(parameters, "memoryId");
 
-        var memory = await _aiMemoryRepository.GetByIdAsync(memoryId, cancellationToken);
+        var memory = await _agentMemoryRepository.GetByIdAsync(memoryId, cancellationToken);
         if (memory == null)
         {
             return SkillResult.Error($"Memory with ID '{memoryId}' not found.");
         }
 
         var deletedKey = memory.Key;
-        await _aiMemoryRepository.DeleteAsync(memoryId, cancellationToken);
+        await _agentMemoryRepository.DeleteAsync(memoryId, cancellationToken);
 
         return SkillResult.SuccessResult(
             new { DeletedId = memoryId, DeletedKey = deletedKey },

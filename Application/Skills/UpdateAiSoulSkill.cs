@@ -7,14 +7,15 @@ namespace Klacks.Api.Application.Skills;
 
 public class UpdateAiSoulSkill : BaseSkill
 {
-    private readonly IAiSoulRepository _aiSoulRepository;
+    private readonly IAgentSoulRepository _agentSoulRepository;
+    private readonly IAgentRepository _agentRepository;
 
     public override string Name => "update_ai_soul";
 
     public override string Description =>
-        "Updates the AI assistant's personality definition (soul). " +
-        "The soul defines the assistant's identity, values, boundaries, and communication style. " +
-        "This affects how the assistant behaves and responds in all conversations.";
+        "Updates a specific section of the AI assistant's personality definition (soul). " +
+        "Sections: identity, personality, tone, boundaries, communication_style, values, domain_expertise, error_handling. " +
+        "Each section can be independently updated. Changes are versioned with full audit trail.";
 
     public override SkillCategory Category => SkillCategory.Crud;
 
@@ -23,20 +24,27 @@ public class UpdateAiSoulSkill : BaseSkill
     public override IReadOnlyList<SkillParameter> Parameters => new[]
     {
         new SkillParameter(
-            "soul",
-            "The complete soul text defining the AI's personality, values, boundaries, and communication style.",
+            "sectionType",
+            "The section type to update: identity, personality, tone, boundaries, communication_style, values, domain_expertise, error_handling.",
             SkillParameterType.String,
             Required: true),
         new SkillParameter(
-            "name",
-            "A short name for this soul definition (e.g. 'Klacks Planungsassistent').",
+            "content",
+            "The content for this soul section.",
             SkillParameterType.String,
-            Required: false)
+            Required: true),
+        new SkillParameter(
+            "sortOrder",
+            "Display order (0 = first). Default: auto-assigned based on section type.",
+            SkillParameterType.Integer,
+            Required: false,
+            DefaultValue: 0)
     };
 
-    public UpdateAiSoulSkill(IAiSoulRepository aiSoulRepository)
+    public UpdateAiSoulSkill(IAgentSoulRepository agentSoulRepository, IAgentRepository agentRepository)
     {
-        _aiSoulRepository = aiSoulRepository;
+        _agentSoulRepository = agentSoulRepository;
+        _agentRepository = agentRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -44,25 +52,37 @@ public class UpdateAiSoulSkill : BaseSkill
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var soulContent = GetRequiredString(parameters, "soul");
-        var name = parameters.TryGetValue("name", out var nameObj) ? nameObj?.ToString() ?? "AI Soul" : "AI Soul";
+        var sectionType = GetRequiredString(parameters, "sectionType");
+        var content = GetRequiredString(parameters, "content");
+        var sortOrder = GetParameter<int?>(parameters, "sortOrder") ?? GetDefaultSortOrder(sectionType);
 
-        await _aiSoulRepository.DeactivateAllAsync(cancellationToken);
-
-        var newSoul = new AiSoul
+        var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
+        if (agent == null)
         {
-            Id = Guid.NewGuid(),
-            Name = name,
-            Content = soulContent,
-            IsActive = true,
-            Source = "chat",
-            CreateTime = DateTime.UtcNow
-        };
+            return SkillResult.Error("No agent is configured yet.");
+        }
 
-        await _aiSoulRepository.AddAsync(newSoul, cancellationToken);
+        var section = await _agentSoulRepository.UpsertSectionAsync(
+            agent.Id, sectionType, content, sortOrder,
+            source: "chat",
+            changedBy: context.UserId.ToString(),
+            cancellationToken: cancellationToken);
 
         return SkillResult.SuccessResult(
-            new { newSoul.Name, ContentLength = soulContent.Length },
-            $"AI soul '{name}' created and activated ({soulContent.Length} characters).");
+            new { section.SectionType, ContentLength = content.Length, section.Version },
+            $"Soul section '{sectionType}' updated (v{section.Version}, {content.Length} chars).");
     }
+
+    private static int GetDefaultSortOrder(string sectionType) => sectionType switch
+    {
+        "identity" => 0,
+        "personality" => 1,
+        "tone" => 2,
+        "boundaries" => 3,
+        "communication_style" => 4,
+        "values" => 5,
+        "domain_expertise" => 6,
+        "error_handling" => 7,
+        _ => 10
+    };
 }

@@ -7,23 +7,32 @@ namespace Klacks.Api.Application.Skills;
 
 public class GetAiSoulSkill : BaseSkill
 {
-    private readonly IAiSoulRepository _aiSoulRepository;
+    private readonly IAgentSoulRepository _agentSoulRepository;
+    private readonly IAgentRepository _agentRepository;
 
     public override string Name => "get_ai_soul";
 
     public override string Description =>
-        "Retrieves the AI assistant's personality definition (soul). " +
-        "The soul defines the assistant's identity, values, boundaries, and communication style.";
+        "Retrieves the AI assistant's personality definition (soul sections). " +
+        "The soul is organized in sections: identity, personality, tone, boundaries, communication_style, values, etc.";
 
     public override SkillCategory Category => SkillCategory.Query;
 
     public override IReadOnlyList<string> RequiredPermissions => new[] { "CanViewSettings" };
 
-    public override IReadOnlyList<SkillParameter> Parameters => Array.Empty<SkillParameter>();
-
-    public GetAiSoulSkill(IAiSoulRepository aiSoulRepository)
+    public override IReadOnlyList<SkillParameter> Parameters => new[]
     {
-        _aiSoulRepository = aiSoulRepository;
+        new SkillParameter(
+            "sectionType",
+            "Optional: Filter by section type (identity, personality, tone, boundaries, communication_style, values, domain_expertise, error_handling).",
+            SkillParameterType.String,
+            Required: false)
+    };
+
+    public GetAiSoulSkill(IAgentSoulRepository agentSoulRepository, IAgentRepository agentRepository)
+    {
+        _agentSoulRepository = agentSoulRepository;
+        _agentRepository = agentRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -31,23 +40,51 @@ public class GetAiSoulSkill : BaseSkill
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var activeSoul = await _aiSoulRepository.GetActiveAsync(cancellationToken);
-
-        if (activeSoul == null)
+        var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
+        if (agent == null)
         {
             return SkillResult.SuccessResult(
                 new { IsConfigured = false },
-                "No AI soul is configured yet.");
+                "No agent is configured yet.");
         }
 
-        return SkillResult.SuccessResult(
-            new
+        var sectionType = GetParameter<string>(parameters, "sectionType");
+
+        if (!string.IsNullOrWhiteSpace(sectionType))
+        {
+            var section = await _agentSoulRepository.GetSectionAsync(agent.Id, sectionType, cancellationToken);
+            if (section == null)
             {
-                activeSoul.Name,
-                activeSoul.Content,
-                activeSoul.IsActive,
-                activeSoul.Source
-            },
-            $"AI soul '{activeSoul.Name}' retrieved ({activeSoul.Content.Length} characters).");
+                return SkillResult.SuccessResult(
+                    new { IsConfigured = false, SectionType = sectionType },
+                    $"No soul section '{sectionType}' is configured.");
+            }
+
+            return SkillResult.SuccessResult(
+                new { section.SectionType, section.Content, section.IsActive, section.Version, section.Source },
+                $"Soul section '{sectionType}' retrieved (v{section.Version}, {section.Content.Length} chars).");
+        }
+
+        var sections = await _agentSoulRepository.GetActiveSectionsAsync(agent.Id, cancellationToken);
+
+        if (sections.Count == 0)
+        {
+            return SkillResult.SuccessResult(
+                new { IsConfigured = false },
+                "No AI soul sections are configured yet.");
+        }
+
+        var result = sections.Select(s => new
+        {
+            s.SectionType,
+            s.Content,
+            s.SortOrder,
+            s.Version,
+            s.Source
+        }).ToList();
+
+        return SkillResult.SuccessResult(
+            new { Sections = result, Count = result.Count },
+            $"Retrieved {result.Count} soul sections.");
     }
 }

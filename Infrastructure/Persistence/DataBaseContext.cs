@@ -131,12 +131,25 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<IdentityProviderSyncLog> IdentityProviderSyncLogs { get; set; }
 
-    // AI DbSets
+    // AI DbSets (Legacy - kept for migration compatibility)
     public DbSet<AiMemory> AiMemories { get; set; }
     public DbSet<AiSoul> AiSouls { get; set; }
     public DbSet<AiGuidelines> AiGuidelines { get; set; }
     public DbSet<LlmFunctionDefinition> LlmFunctionDefinitions { get; set; }
     public DbSet<HeartbeatConfig> HeartbeatConfigs { get; set; }
+
+    // Agent Architecture DbSets
+    public DbSet<Agent> Agents { get; set; }
+    public DbSet<AgentTemplate> AgentTemplates { get; set; }
+    public DbSet<AgentLink> AgentLinks { get; set; }
+    public DbSet<AgentSoulSection> AgentSoulSections { get; set; }
+    public DbSet<AgentSoulHistory> AgentSoulHistories { get; set; }
+    public DbSet<AgentMemory> AgentMemories { get; set; }
+    public DbSet<AgentMemoryTag> AgentMemoryTags { get; set; }
+    public DbSet<AgentSession> AgentSessions { get; set; }
+    public DbSet<AgentSessionMessage> AgentSessionMessages { get; set; }
+    public DbSet<AgentSkill> AgentSkills { get; set; }
+    public DbSet<AgentSkillExecution> AgentSkillExecutions { get; set; }
 
     // Scheduling DbSets
     public DbSet<SchedulingRule> SchedulingRules { get; set; }
@@ -548,6 +561,156 @@ public class DataBaseContext : IdentityDbContext
            .WithMany()
            .HasForeignKey(c => c.SchedulingRuleId)
            .OnDelete(DeleteBehavior.SetNull);
+
+        ConfigureAgentArchitecture(modelBuilder);
+    }
+
+    private static void ConfigureAgentArchitecture(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Agent>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.IsDeleted, p.IsActive });
+            entity.HasIndex(p => p.IsDefault).HasFilter("is_default = true AND is_deleted = false").IsUnique();
+        });
+
+        modelBuilder.Entity<AgentTemplate>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+        });
+
+        modelBuilder.Entity<AgentLink>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.SourceAgentId, p.TargetAgentId, p.LinkType })
+                .HasFilter("is_active = true AND is_deleted = false")
+                .IsUnique();
+
+            entity.HasOne(l => l.SourceAgent)
+                .WithMany()
+                .HasForeignKey(l => l.SourceAgentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(l => l.TargetAgent)
+                .WithMany()
+                .HasForeignKey(l => l.TargetAgentId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<AgentSoulSection>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.AgentId, p.SectionType })
+                .HasFilter("is_active = true AND is_deleted = false")
+                .IsUnique();
+            entity.HasIndex(p => new { p.AgentId, p.SortOrder })
+                .HasFilter("is_active = true AND is_deleted = false");
+
+            entity.HasOne(s => s.Agent)
+                .WithMany(a => a.SoulSections)
+                .HasForeignKey(s => s.AgentId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AgentSoulHistory>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.SoulSectionId, p.CreateTime });
+            entity.HasIndex(p => new { p.AgentId, p.CreateTime });
+
+            entity.HasOne(h => h.SoulSection)
+                .WithMany(s => s.History)
+                .HasForeignKey(h => h.SoulSectionId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AgentMemory>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.AgentId, p.Category });
+            entity.HasIndex(p => new { p.AgentId, p.Importance });
+            entity.HasIndex(p => p.AgentId).HasFilter("is_pinned = true AND is_deleted = false");
+            entity.HasIndex(p => p.ExpiresAt).HasFilter("expires_at IS NOT NULL AND is_deleted = false");
+            entity.HasIndex(p => new { p.AgentId, p.Source });
+
+            entity.HasOne(m => m.Agent)
+                .WithMany(a => a.Memories)
+                .HasForeignKey(m => m.AgentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(m => m.Supersedes)
+                .WithMany()
+                .HasForeignKey(m => m.SupersedesId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<AgentMemoryTag>(entity =>
+        {
+            entity.HasKey(t => new { t.MemoryId, t.Tag });
+            entity.HasIndex(t => t.Tag);
+
+            entity.HasOne(t => t.Memory)
+                .WithMany(m => m.Tags)
+                .HasForeignKey(t => t.MemoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AgentSession>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.AgentId, p.Status });
+            entity.HasIndex(p => new { p.UserId, p.UpdateTime });
+            entity.HasIndex(p => new { p.AgentId, p.SessionId }).IsUnique();
+
+            entity.HasOne(s => s.Agent)
+                .WithMany(a => a.Sessions)
+                .HasForeignKey(s => s.AgentId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AgentSessionMessage>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.SessionId, p.CreateTime });
+            entity.HasIndex(p => new { p.SessionId, p.CreateTime })
+                .HasFilter("is_compacted = false AND is_deleted = false");
+
+            entity.HasOne(m => m.Session)
+                .WithMany(s => s.Messages)
+                .HasForeignKey(m => m.SessionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(m => m.CompactedInto)
+                .WithMany()
+                .HasForeignKey(m => m.CompactedIntoId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<AgentSkill>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.AgentId, p.Name })
+                .HasFilter("is_deleted = false")
+                .IsUnique();
+            entity.HasIndex(p => new { p.AgentId, p.IsEnabled, p.SortOrder });
+
+            entity.HasOne(s => s.Agent)
+                .WithMany(a => a.Skills)
+                .HasForeignKey(s => s.AgentId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AgentSkillExecution>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.SessionId, p.CreateTime });
+            entity.HasIndex(p => new { p.SkillId, p.CreateTime });
+
+            entity.HasOne(e => e.Skill)
+                .WithMany(s => s.Executions)
+                .HasForeignKey(e => e.SkillId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 
     private void OnBeforeSaving()

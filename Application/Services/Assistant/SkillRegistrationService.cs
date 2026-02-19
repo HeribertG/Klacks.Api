@@ -78,8 +78,6 @@ public class SkillRegistrationService
             typeof(UpdateOwnerAddressSkill),
             typeof(GetAiSoulSkill),
             typeof(UpdateAiSoulSkill),
-            typeof(GetAiGuidelinesSkill),
-            typeof(UpdateAiGuidelinesSkill),
             typeof(AddAiMemorySkill),
             typeof(GetAiMemoriesSkill),
             typeof(UpdateAiMemorySkill),

@@ -106,6 +106,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IHeartbeatConfigRepository, HeartbeatConfigRepository>();
         services.AddScoped<ILLMRepository, LLMRepository>();
         services.AddScoped<ISkillUsageRepository, SkillUsageRepository>();
+        services.AddScoped<IAgentRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentRepository>();
+        services.AddScoped<IAgentSoulRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSoulRepository>();
+        services.AddScoped<IAgentMemoryRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentMemoryRepository>();
+        services.AddScoped<IAgentSessionRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSessionRepository>();
+        services.AddScoped<IAgentSkillRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSkillRepository>();
     }
 
     private static void AddDomainServices(this IServiceCollection services)
@@ -232,6 +237,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<LLMResponseBuilder>();
         services.AddScoped<LLMSystemPromptBuilder>();
         services.AddSingleton<IPromptTranslationProvider, PromptTranslationProvider>();
+        services.AddScoped<IEmbeddingService, Klacks.Api.Infrastructure.Services.Assistant.EmbeddingService>();
+        services.AddScoped<ContextAssemblyPipeline>();
+        services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.EmbeddingBackgroundService>();
+        services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.MemoryCleanupBackgroundService>();
 
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.OpenAI.OpenAIProvider>();
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Anthropic.AnthropicProvider>();
@@ -282,8 +291,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.UpdateOwnerAddressSkill>();
         services.AddScoped<Application.Skills.GetAiSoulSkill>();
         services.AddScoped<Application.Skills.UpdateAiSoulSkill>();
-        services.AddScoped<Application.Skills.GetAiGuidelinesSkill>();
-        services.AddScoped<Application.Skills.UpdateAiGuidelinesSkill>();
         services.AddScoped<Application.Skills.AddAiMemorySkill>();
         services.AddScoped<Application.Skills.GetAiMemoriesSkill>();
         services.AddScoped<Application.Skills.UpdateAiMemorySkill>();
