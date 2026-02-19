@@ -1,12 +1,11 @@
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Associations;
 
-public class GroupItemsController(IMediator mediator, ILogger<GroupItemsController> logger, IGroupItemRepository groupItemRepository, DataBaseContext context) : InputBaseController<GroupItemResource>(mediator, logger)
+public class GroupItemsController(IMediator mediator, ILogger<GroupItemsController> logger, IGroupItemRepository groupItemRepository, IUnitOfWork unitOfWork) : InputBaseController<GroupItemResource>(mediator, logger)
 {
     [HttpDelete("remove")]
     public async Task<IActionResult> RemoveByClientAndGroup([FromQuery] Guid clientId, [FromQuery] Guid groupId)
@@ -18,7 +17,7 @@ public class GroupItemsController(IMediator mediator, ILogger<GroupItemsControll
         }
 
         groupItemRepository.Remove(groupItem);
-        await context.SaveChangesAsync();
+        await unitOfWork.CompleteAsync();
 
         return NoContent();
     }

@@ -1,4 +1,4 @@
-using Klacks.Api.Infrastructure.Interfaces;
+using Klacks.Api.Application.Interfaces;
 
 namespace Klacks.Api.Domain.Interfaces.Associations;
 

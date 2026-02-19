@@ -1,5 +1,5 @@
 using Klacks.Api.Application.Commands.Settings.Settings;
-using Klacks.Api.Infrastructure.Email;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;

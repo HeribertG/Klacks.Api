@@ -1,34 +1,32 @@
-using Klacks.Api.Domain.Common;
-using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Settings;
 
 [Authorize(Roles = "Admin")]
 public class PostcodeChController : BaseController
 {
-    private readonly DataBaseContext context;
+    private readonly IPostcodeChRepository _postcodeChRepository;
 
-    public PostcodeChController(DataBaseContext context)
+    public PostcodeChController(IPostcodeChRepository postcodeChRepository)
     {
-        this.context = context;
+        _postcodeChRepository = postcodeChRepository;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<PostcodeCH>>> GetPostcodeCh()
     {
-        return await context.PostcodeCH.ToListAsync();
+        return await _postcodeChRepository.GetAllAsync();
     }
 
     [HttpGet("{zip}")]
     public async Task<ActionResult<IEnumerable<PostcodeCH>>> GetPostcodeCh(int zip)
     {
-        var postcodeCh = await context.PostcodeCH.Where(x => x.Zip == zip).ToListAsync();
+        var postcodeCh = await _postcodeChRepository.GetByZipAsync(zip);
 
-        if (postcodeCh == null)
+        if (postcodeCh == null || postcodeCh.Count == 0)
         {
             return NotFound();
         }

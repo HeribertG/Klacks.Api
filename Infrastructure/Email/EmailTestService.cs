@@ -1,14 +1,10 @@
 using Klacks.Api.Application.DTOs.Settings;
+using Klacks.Api.Application.Interfaces;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
 
 namespace Klacks.Api.Infrastructure.Email;
-
-public interface IEmailTestService
-{
-    Task<EmailTestResult> TestConnectionAsync(EmailTestRequest request);
-}
 
 public class EmailTestService : IEmailTestService
 {

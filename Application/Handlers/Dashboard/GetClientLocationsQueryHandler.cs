@@ -1,6 +1,5 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Dashboard;
-using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Logging;
@@ -35,7 +34,7 @@ public class GetClientLocationsQueryHandler : IRequestHandler<GetClientLocations
                 .Select(client =>
                 {
                     var currentAddress = client.Addresses
-                        .Where(a => a.ValidFrom.HasValue && a.ValidFrom.Value <= DateTime.Now)
+                        .Where(a => a.ValidFrom.HasValue && a.ValidFrom.Value <= DateTime.UtcNow)
                         .OrderByDescending(a => a.ValidFrom)
                         .FirstOrDefault();
 

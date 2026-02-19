@@ -2,6 +2,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
+using Klacks.Api.Application.Interfaces;
+
 namespace Klacks.Api.Infrastructure.Services;
 
 public class GeocodingService : IGeocodingService

@@ -1,6 +1,6 @@
 using Klacks.Api.Domain.Interfaces;
 
-namespace Klacks.Api.Infrastructure.Interfaces;
+namespace Klacks.Api.Application.Interfaces;
 
 public interface IHolidayCalculatorCache
 {

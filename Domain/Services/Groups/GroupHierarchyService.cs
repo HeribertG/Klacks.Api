@@ -1,6 +1,6 @@
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
-using Klacks.Api.Infrastructure.Interfaces;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 

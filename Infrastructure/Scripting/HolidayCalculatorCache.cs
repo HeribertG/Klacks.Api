@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Infrastructure.Interfaces;
 
 namespace Klacks.Api.Infrastructure.Scripting;
 

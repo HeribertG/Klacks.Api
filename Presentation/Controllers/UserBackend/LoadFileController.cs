@@ -1,4 +1,4 @@
-using Klacks.Api.Infrastructure.FileHandling;
+using Klacks.Api.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 
@@ -6,11 +6,13 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend;
 
 public class LoadFileController : BaseController
 {
-    private readonly IConfiguration configuration;
+    private readonly IConfiguration _configuration;
+    private readonly IFileUploadService _fileUploadService;
 
-    public LoadFileController(IConfiguration config)
+    public LoadFileController(IConfiguration configuration, IFileUploadService fileUploadService)
     {
-        configuration = config;
+        _configuration = configuration;
+        _fileUploadService = fileUploadService;
     }
 
     [HttpDelete("{type}")]
@@ -32,10 +34,7 @@ public class LoadFileController : BaseController
     {
         if (file != null)
         {
-            var sf = new UploadFile(configuration);
-
-            sf.StoreFile(file);
-
+            _fileUploadService.StoreFile(file);
             return Ok();
         }
 
@@ -59,7 +58,7 @@ public class LoadFileController : BaseController
                 }
                 else
                 {
-                    return File(Encoding.UTF8.GetBytes("File nicht gefunden"), "text/plain");
+                    return File(Encoding.UTF8.GetBytes("File not found"), "text/plain");
                 }
             }
             catch (Exception ex)
@@ -76,7 +75,7 @@ public class LoadFileController : BaseController
         if (type.Contains("profile"))
         {
             var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            var path = configuration["CurrentPaths:Images"];
+            var path = _configuration["CurrentPaths:Images"];
             var docuDirectory = Path.Combine(baseDirectory, path!);
 
             if (Directory.Exists(docuDirectory))
@@ -102,7 +101,7 @@ public class LoadFileController : BaseController
         else if (type == "own-icon.ico")
         {
             var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            var path = configuration["CurrentPaths:Images"];
+            var path = _configuration["CurrentPaths:Images"];
             var docuDirectory = Path.Combine(baseDirectory, path!);
 
             if (Directory.Exists(docuDirectory))
@@ -113,7 +112,7 @@ public class LoadFileController : BaseController
         else if (type == "own-logo.png")
         {
             var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            var path = configuration["CurrentPaths:Images"];
+            var path = _configuration["CurrentPaths:Images"];
             var docuDirectory = Path.Combine(baseDirectory, path!);
 
             if (Directory.Exists(docuDirectory))
@@ -121,11 +120,7 @@ public class LoadFileController : BaseController
                 return Path.Combine(docuDirectory, "own-logo.png");
             }
         }
-        else
-        {
-        }
 
         return null!;
     }
-
 }

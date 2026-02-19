@@ -3,7 +3,7 @@ using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Infrastructure.Interfaces;
+using Klacks.Api.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

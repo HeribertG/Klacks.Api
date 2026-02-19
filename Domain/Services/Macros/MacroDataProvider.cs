@@ -4,7 +4,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Holidays;
-using Klacks.Api.Infrastructure.Interfaces;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 

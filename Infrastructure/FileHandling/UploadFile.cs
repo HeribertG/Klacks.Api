@@ -1,6 +1,8 @@
+using Klacks.Api.Application.Interfaces;
+
 namespace Klacks.Api.Infrastructure.FileHandling
 {
-    public class UploadFile
+    public class UploadFile : IFileUploadService
     {
         private readonly Microsoft.Extensions.Configuration.IConfiguration configuration;
         private string? folderImage;
