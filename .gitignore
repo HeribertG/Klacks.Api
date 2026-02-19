@@ -371,3 +371,6 @@ appsettings.Production.json
 appsettings.*.json
 !appsettings.Development.json
 !appsettings.json
+
+# Claude Code agent memory (auto-generated)
+.claude/
