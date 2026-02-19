@@ -175,7 +175,7 @@ public class DataBaseContext : IdentityDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ShiftDayAssignment>().HasNoKey();
-        modelBuilder.Entity<ScheduleCell>().HasNoKey();
+        modelBuilder.Entity<ScheduleCell>().HasNoKey().ToView(null);
 
         base.OnModelCreating(modelBuilder);
 
