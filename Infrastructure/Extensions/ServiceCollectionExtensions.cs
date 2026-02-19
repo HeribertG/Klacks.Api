@@ -48,13 +48,20 @@ using Klacks.Api.Application.Services.Translation;
 
 namespace Klacks.Api.Infrastructure.Extensions;
 
-public static  class ServiceCollectionExtensions
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        services.AddScoped<ITokenService, TokenService>();
-        services.AddScoped<IUserService, UserService>();
+        services.AddRepositories();
+        services.AddDomainServices();
+        services.AddAuthenticationServices();
+        services.AddAssistantServices();
+        services.AddInfrastructureServices();
+        return services;
+    }
 
+    private static void AddRepositories(this IServiceCollection services)
+    {
         services.AddScoped<IClientRepository, ClientRepository>();
         services.AddScoped<IClientFilterRepository, ClientFilterRepository>();
         services.AddScoped<IClientBreakPlaceholderRepository, ClientBreakPlaceholderRepository>();
@@ -90,17 +97,36 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IPostcodeChRepository, PostcodeChRepository>();
         services.AddScoped<IIdentityProviderRepository, IdentityProviderRepository>();
         services.AddScoped<IIdentityProviderSyncLogRepository, IdentityProviderSyncLogRepository>();
+        services.AddScoped<IShiftScheduleRepository, ShiftScheduleRepository>();
+        services.AddScoped<IReportTemplateRepository, ReportTemplateRepository>();
+        services.AddScoped<IAiMemoryRepository, AiMemoryRepository>();
+        services.AddScoped<IAiSoulRepository, AiSoulRepository>();
+        services.AddScoped<IAiGuidelinesRepository, AiGuidelinesRepository>();
+        services.AddScoped<ILlmFunctionDefinitionRepository, LlmFunctionDefinitionRepository>();
+        services.AddScoped<IHeartbeatConfigRepository, HeartbeatConfigRepository>();
+        services.AddScoped<ILLMRepository, LLMRepository>();
+        services.AddScoped<ISkillUsageRepository, SkillUsageRepository>();
+    }
+
+    private static void AddDomainServices(this IServiceCollection services)
+    {
+        services.AddScoped<IGetAllClientIdsFromGroupAndSubgroups, GroupClientService>();
+        services.AddScoped<IGroupVisibilityService, GroupVisibilityService>();
+        services.AddScoped<IHolidaysListCalculator, HolidaysListCalculator>();
         services.AddSingleton<IMacroEngine, MacroEngine>();
         services.AddSingleton<IMacroCache, MacroCache>();
         services.AddSingleton<IHolidayCalculatorCache, HolidayCalculatorCache>();
         services.AddScoped<IMacroDataProvider, MacroDataProvider>();
-        services.AddScoped<IFileUploadService, UploadFile>();
 
-        services.AddScoped<IGetAllClientIdsFromGroupAndSubgroups, GroupClientService>();
-        services.AddScoped<IGroupVisibilityService, GroupVisibilityService>();
-        services.AddScoped<IHolidaysListCalculator, HolidaysListCalculator>();
+        services.AddShiftServices();
+        services.AddClientServices();
+        services.AddGroupServices();
+        services.AddScheduleServices();
+        services.AddSettingsServices();
+    }
 
-        // Shift Domain Services
+    private static void AddShiftServices(this IServiceCollection services)
+    {
         services.AddScoped<IDateRangeFilterService, DateRangeFilterService>();
         services.AddScoped<IShiftSearchService, ShiftSearchService>();
         services.AddScoped<IShiftSortingService, ShiftSortingService>();
@@ -113,35 +139,16 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IShiftTreeService, ShiftTreeService>();
         services.AddScoped<IShiftResetService, ShiftResetService>();
         services.AddScoped<IShiftCutFacade, ShiftCutFacade>();
-
-        // Shift Schedule Repository and Services
-        services.AddScoped<IShiftScheduleRepository, ShiftScheduleRepository>();
         services.AddScoped<IShiftScheduleService, ShiftScheduleService>();
         services.AddScoped<IShiftGroupFilterService, ShiftGroupFilterService>();
         services.AddScoped<IShiftScheduleFilterService, ShiftScheduleFilterService>();
         services.AddScoped<IShiftScheduleSearchService, ShiftScheduleSearchService>();
         services.AddScoped<IShiftScheduleSortingService, ShiftScheduleSortingService>();
         services.AddScoped<IShiftScheduleTypeFilterService, ShiftScheduleTypeFilterService>();
+    }
 
-        // Schedule Entries Service
-        services.AddScoped<IScheduleEntriesService, ScheduleEntriesService>();
-
-        // WorkLockLevel Service
-        services.AddScoped<IWorkLockLevelService, WorkLockLevelService>();
-
-        // Period Hours Service
-        services.AddScoped<IPeriodHoursService, PeriodHoursService>();
-
-        // Schedule Change Tracker
-        services.AddScoped<IScheduleChangeTracker, ScheduleChangeTracker>();
-
-        // ContainerTemplate Domain Services
-        services.AddScoped<IContainerAvailableTasksService, ContainerAvailableTasksService>();
-
-        // Route Optimization Service
-        services.AddScoped<IRouteOptimizationService, RouteOptimizationService>();
-
-        // Employee Domain Services
+    private static void AddClientServices(this IServiceCollection services)
+    {
         services.AddScoped<IClientFilterService, ClientFilterService>();
         services.AddScoped<IClientMembershipFilterService, ClientMembershipFilterService>();
         services.AddScoped<IClientSearchService, ClientSearchService>();
@@ -150,8 +157,10 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IClientEntityManagementService, ClientEntityManagementService>();
         services.AddScoped<IClientValidator, ClientValidator>();
         services.AddScoped<IClientWorkFilterService, ClientWorkFilterService>();
+    }
 
-        // Group Domain Services
+    private static void AddGroupServices(this IServiceCollection services)
+    {
         services.AddScoped<IGroupTreeService, GroupTreeService>();
         services.AddScoped<IGroupHierarchyService, GroupHierarchyService>();
         services.AddScoped<IGroupSearchService, GroupSearchService>();
@@ -159,84 +168,64 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IGroupMembershipService, GroupMembershipService>();
         services.AddScoped<IGroupIntegrityService, GroupIntegrityService>();
         services.AddSingleton<IGroupCacheService, GroupCacheService>();
-
-        // Group Integrity Sub-Services (refactored from 478-line GroupIntegrityService)
         services.AddScoped<Domain.Services.Groups.Integrity.NestedSetRepairService>();
         services.AddScoped<Domain.Services.Groups.Integrity.NestedSetValidationService>();
         services.AddScoped<Domain.Services.Groups.Integrity.GroupIssueFindingService>();
         services.AddScoped<Domain.Services.Groups.Integrity.RootIntegrityService>();
-
-        // Group Service Façade (reduces GroupRepository dependencies from 8 to 1)
         services.AddScoped<IGroupServiceFacade, GroupServiceFacade>();
+    }
 
-        // Absence Domain Services
+    private static void AddScheduleServices(this IServiceCollection services)
+    {
+        services.AddScoped<IScheduleEntriesService, ScheduleEntriesService>();
+        services.AddScoped<IWorkLockLevelService, WorkLockLevelService>();
+        services.AddScoped<IPeriodHoursService, PeriodHoursService>();
+        services.AddScoped<IScheduleChangeTracker, ScheduleChangeTracker>();
+        services.AddScoped<IContainerAvailableTasksService, ContainerAvailableTasksService>();
+        services.AddScoped<IRouteOptimizationService, RouteOptimizationService>();
         services.AddScoped<IAbsenceSortingService, AbsenceSortingService>();
         services.AddScoped<IAbsencePaginationService, AbsencePaginationService>();
         services.AddScoped<IAbsenceExportService, AbsenceExportService>();
+        services.AddScoped<IWorkMacroService, WorkMacroService>();
+        services.AddScoped<IBreakMacroService, BreakMacroService>();
+        services.AddScoped<ICalendarSelectionUpdateService, CalendarSelectionUpdateService>();
+        services.AddScoped<ContainerTemplateService>();
+    }
 
-        // Settings Domain Services
+    private static void AddSettingsServices(this IServiceCollection services)
+    {
         services.AddSingleton<ISettingsEncryptionService, SettingsEncryptionService>();
         services.AddScoped<ICalendarRuleFilterService, CalendarRuleFilterService>();
         services.AddScoped<ICalendarRuleSortingService, CalendarRuleSortingService>();
         services.AddScoped<ICalendarRulePaginationService, CalendarRulePaginationService>();
         services.AddScoped<IMacroManagementService, MacroManagementService>();
-        services.AddScoped<IWorkMacroService, WorkMacroService>();
-        services.AddScoped<IBreakMacroService, BreakMacroService>();
         services.AddScoped<ISettingsTokenService, SettingsTokenService>();
-        
-        // Email Services  
         services.AddScoped<IEmailTestService, EmailTestService>();
+    }
 
-        // CalendarSelection Domain Services
-        services.AddScoped<ICalendarSelectionUpdateService, CalendarSelectionUpdateService>();
-
-        // Authentication Domain Services
+    private static void AddAuthenticationServices(this IServiceCollection services)
+    {
+        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IUserService, UserService>();
         services.AddScoped<Application.Validation.Accounts.JwtValidator>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IUserManagementService, UserManagementService>();
         services.AddScoped<IRefreshTokenService, Services.Authentication.RefreshTokenService>();
-
-        // Account Domain Services
         services.AddScoped<IAccountAuthenticationService, AccountAuthenticationService>();
         services.AddScoped<IAccountPasswordService, AccountPasswordService>();
         services.AddScoped<IAccountRegistrationService, AccountRegistrationService>();
         services.AddScoped<IAccountManagementService, AccountManagementService>();
         services.AddScoped<IAccountNotificationService, AccountNotificationService>();
         services.AddScoped<IUsernameGeneratorService, UsernameGeneratorService>();
-
-        // Identity Provider Services
         services.AddScoped<ILdapService, Services.Identity.LdapService>();
         services.AddScoped<IOAuth2Service, Services.Identity.OAuth2Service>();
         services.AddScoped<IClientSyncService, ClientSyncService>();
+    }
 
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-        // Infrastructure Services
-        services.AddScoped<EntityCollectionUpdateService>();
-
-        // Database Adapters - Register based on environment
-        services.AddScoped<IGroupTreeDatabaseAdapter>(sp =>
-        {
-            var context = sp.GetRequiredService<DataBaseContext>();
-            var isInMemory = context.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory";
-            return isInMemory
-                ? new Persistence.Adapters.GroupTreeInMemoryAdapter(context)
-                : new Persistence.Adapters.GroupTreeProductionAdapter(context);
-        });
-
-        // AI Services
-        services.AddScoped<IAiMemoryRepository, AiMemoryRepository>();
-        services.AddScoped<IAiSoulRepository, AiSoulRepository>();
-        services.AddScoped<IAiGuidelinesRepository, AiGuidelinesRepository>();
-        services.AddScoped<ILlmFunctionDefinitionRepository, LlmFunctionDefinitionRepository>();
-        services.AddScoped<IHeartbeatConfigRepository, HeartbeatConfigRepository>();
-
-        // LLM Services
-        services.AddScoped<ILLMRepository, LLMRepository>();
+    private static void AddAssistantServices(this IServiceCollection services)
+    {
         services.AddScoped<ILLMService, LLMService>();
         services.AddScoped<ILLMProviderFactory, LLMProviderFactory>();
-
-        // LLM Domain Services
         services.AddScoped<LLMProviderOrchestrator>();
         services.AddScoped<LLMConversationManager>();
         services.AddScoped<LLMFunctionExecutor>();
@@ -244,7 +233,6 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<LLMSystemPromptBuilder>();
         services.AddSingleton<IPromptTranslationProvider, PromptTranslationProvider>();
 
-        // LLM Providers
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.OpenAI.OpenAIProvider>();
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Anthropic.AnthropicProvider>();
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Gemini.GeminiProvider>();
@@ -254,7 +242,6 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek.DeepSeekProvider>();
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic.GenericOpenAICompatibleProvider>();
 
-        // HttpClients for Providers
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.OpenAI.OpenAIProvider>();
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Anthropic.AnthropicProvider>();
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Gemini.GeminiProvider>();
@@ -264,30 +251,20 @@ public static  class ServiceCollectionExtensions
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek.DeepSeekProvider>();
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic.GenericOpenAICompatibleProvider>();
 
-        // Skills System Services
         services.AddSingleton<Domain.Services.Assistant.Skills.Adapters.ISkillAdapterFactory, Domain.Services.Assistant.Skills.Adapters.SkillAdapterFactory>();
         services.AddSingleton<ISkillRegistry, Domain.Services.Assistant.Skills.SkillRegistry>();
         services.AddScoped<ISkillExecutor, Domain.Services.Assistant.Skills.SkillExecutorService>();
-        services.AddScoped<ISkillUsageRepository, SkillUsageRepository>();
         services.AddScoped<ISkillUsageTracker, SkillUsageTrackerService>();
-
-        // Skill Mapper (Application Layer)
         services.AddScoped<SkillMapper>();
-
-        // Skill Registration Service (in Application layer)
         services.AddSingleton<SkillRegistrationService>();
-
-        // LLM-Skill Bridge
         services.AddScoped<Domain.Services.Assistant.Skills.ILLMSkillBridge, Domain.Services.Assistant.Skills.LLMSkillBridge>();
 
-        // Skill Implementations (Singleton - no dependencies, in Domain layer)
         services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.GetSystemInfoSkill>();
         services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.GetCurrentTimeSkill>();
         services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.GetUserContextSkill>();
         services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.NavigateToSkill>();
         services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.ValidateCalendarRuleSkill>();
 
-        // Skill Implementations (Scoped - with database dependencies, in Application layer)
         services.AddScoped<Application.Skills.CreateEmployeeSkill>();
         services.AddScoped<Application.Skills.SearchEmployeesSkill>();
         services.AddScoped<Application.Skills.CreateContractSkill>();
@@ -313,23 +290,30 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.DeleteAiMemorySkill>();
         services.AddScoped<Application.Skills.SetUserGroupScopeSkill>();
         services.AddScoped<Application.Skills.ConfigureHeartbeatSkill>();
+    }
 
-        // Geocoding Service
+    private static void AddInfrastructureServices(this IServiceCollection services)
+    {
+        services.AddScoped<IFileUploadService, UploadFile>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<EntityCollectionUpdateService>();
+
+        services.AddScoped<IGroupTreeDatabaseAdapter>(sp =>
+        {
+            var context = sp.GetRequiredService<DataBaseContext>();
+            var isInMemory = context.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory";
+            return isInMemory
+                ? new Persistence.Adapters.GroupTreeInMemoryAdapter(context)
+                : new Persistence.Adapters.GroupTreeProductionAdapter(context);
+        });
+
         services.AddHttpClient("Nominatim");
         services.AddMemoryCache();
         services.AddSingleton<IGeocodingService, GeocodingService>();
 
-        // ContainerTemplate Service
-        services.AddScoped<ContainerTemplateService>();
-
-        // Translation Service
         services.AddHttpClient<ITranslationService, Services.Translation.DeepLTranslationService>();
         services.AddScoped<IMultiLanguageTranslationService, MultiLanguageTranslationService>();
 
-        // Report Services
-        services.AddScoped<IReportTemplateRepository, ReportTemplateRepository>();
         services.AddScoped<Application.Mappers.Reports.ReportTemplateMapper>();
-
-        return services;
     }
 }

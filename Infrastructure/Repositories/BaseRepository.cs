@@ -24,9 +24,11 @@ namespace Klacks.Api.Infrastructure.Repositories
 
         public async virtual Task<TEntity?> Delete(Guid id)
         {
-            var entity = await this.context.Set<TEntity>().FirstOrDefaultAsync(add => add.Id == id);
-            this.context.Remove<TEntity>(entity!);
-            return entity!;
+            var entity = await this.context.Set<TEntity>().FirstOrDefaultAsync(e => e.Id == id);
+            if (entity is null) return null;
+
+            this.context.Remove(entity);
+            return entity;
         }
 
         public async Task<bool> Exists(Guid id)

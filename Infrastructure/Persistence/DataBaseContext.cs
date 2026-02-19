@@ -10,6 +10,7 @@ using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Reports;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Infrastructure.Persistence.Converters;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -238,11 +239,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<ContainerTemplate>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.Property(e => e.RouteInfo)
-                  .HasConversion(
-                      v => v == null ? null : System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                      v => string.IsNullOrEmpty(v) ? null : System.Text.Json.JsonSerializer.Deserialize<RouteInfo>(v, (System.Text.Json.JsonSerializerOptions?)null))
-                  .HasColumnType("jsonb");
+            entity.Property(e => e.RouteInfo).HasJsonbConversion<RouteInfo>();
         });
         modelBuilder.Entity<ContainerTemplateItem>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Work>().HasQueryFilter(p => !p.IsDeleted);
@@ -271,15 +268,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<LLMProvider>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.Property(e => e.Settings)
-                  .HasConversion(
-                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                      v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(v, (System.Text.Json.JsonSerializerOptions?)null))
-                  .HasColumnType("jsonb")
-                  .Metadata.SetValueComparer(new ValueComparer<Dictionary<string, object>?>(
-                      (c1, c2) => System.Text.Json.JsonSerializer.Serialize(c1, (System.Text.Json.JsonSerializerOptions?)null) == System.Text.Json.JsonSerializer.Serialize(c2, (System.Text.Json.JsonSerializerOptions?)null),
-                      c => c == null ? 0 : System.Text.Json.JsonSerializer.Serialize(c, (System.Text.Json.JsonSerializerOptions?)null).GetHashCode(),
-                      c => c == null ? null : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(System.Text.Json.JsonSerializer.Serialize(c, (System.Text.Json.JsonSerializerOptions?)null), (System.Text.Json.JsonSerializerOptions?)null)));
+            entity.Property(e => e.Settings).HasJsonbConversionWithComparer<Dictionary<string, object>>();
         });
         modelBuilder.Entity<LLMModel>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<LLMUsage>().HasQueryFilter(p => !p.IsDeleted);
@@ -290,15 +279,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<IdentityProvider>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.Property(e => e.AttributeMapping)
-                  .HasConversion(
-                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                      v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(v, (System.Text.Json.JsonSerializerOptions?)null))
-                  .HasColumnType("jsonb")
-                  .Metadata.SetValueComparer(new ValueComparer<Dictionary<string, string>?>(
-                      (c1, c2) => System.Text.Json.JsonSerializer.Serialize(c1, (System.Text.Json.JsonSerializerOptions?)null) == System.Text.Json.JsonSerializer.Serialize(c2, (System.Text.Json.JsonSerializerOptions?)null),
-                      c => c == null ? 0 : System.Text.Json.JsonSerializer.Serialize(c, (System.Text.Json.JsonSerializerOptions?)null).GetHashCode(),
-                      c => c == null ? null : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(System.Text.Json.JsonSerializer.Serialize(c, (System.Text.Json.JsonSerializerOptions?)null), (System.Text.Json.JsonSerializerOptions?)null)));
+            entity.Property(e => e.AttributeMapping).HasJsonbConversionWithComparer<Dictionary<string, string>>();
             entity.HasIndex(p => new { p.IsDeleted, p.IsEnabled, p.SortOrder });
         });
         modelBuilder.Entity<IdentityProviderSyncLog>(entity =>
@@ -360,21 +341,9 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<ReportTemplate>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.Property(e => e.PageSetup)
-                  .HasConversion(
-                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                      v => System.Text.Json.JsonSerializer.Deserialize<Domain.Models.Reports.ReportPageSetup>(v, (System.Text.Json.JsonSerializerOptions?)null))
-                  .HasColumnType("jsonb");
-            entity.Property(e => e.Sections)
-                  .HasConversion(
-                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                      v => System.Text.Json.JsonSerializer.Deserialize<List<Domain.Models.Reports.ReportSection>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new())
-                  .HasColumnType("jsonb");
-            entity.Property(e => e.DataSetIds)
-                  .HasConversion(
-                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                      v => System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new())
-                  .HasColumnType("jsonb");
+            entity.Property(e => e.PageSetup).HasJsonbConversion<ReportPageSetup>();
+            entity.Property(e => e.Sections).HasJsonbListConversion<ReportSection>();
+            entity.Property(e => e.DataSetIds).HasJsonbListConversion<string>();
             entity.HasIndex(p => new { p.IsDeleted, p.Type, p.Name });
         });
 
@@ -604,7 +573,7 @@ public class DataBaseContext : IdentityDbContext
                     currentUserName = claimValue;
                 }
             }
-            catch (Exception)
+            catch (ObjectDisposedException)
             {
             }
 
