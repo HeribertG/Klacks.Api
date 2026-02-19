@@ -1,5 +1,5 @@
 using Klacks.Api.Application.Skills;
-using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -34,21 +34,21 @@ public class SkillRegistrationService
 
     private void RegisterSingletonSkills()
     {
-        var singletonSkillTypes = new (Type type, Func<IServiceProvider, ISkill> factory)[]
+        var singletonSkills = new (Type type, Func<ISkill> factory)[]
         {
-            (typeof(GetSystemInfoSkill), _ => new GetSystemInfoSkill()),
-            (typeof(GetCurrentTimeSkill), _ => new GetCurrentTimeSkill()),
-            (typeof(GetUserContextSkill), _ => new GetUserContextSkill()),
-            (typeof(NavigateToSkill), _ => new NavigateToSkill()),
-            (typeof(ValidateCalendarRuleSkill), _ => new ValidateCalendarRuleSkill())
+            (typeof(GetSystemInfoSkill), () => new GetSystemInfoSkill()),
+            (typeof(GetCurrentTimeSkill), () => new GetCurrentTimeSkill()),
+            (typeof(GetUserContextSkill), () => new GetUserContextSkill()),
+            (typeof(NavigateToSkill), () => new NavigateToSkill()),
+            (typeof(ValidateCalendarRuleSkill), () => new ValidateCalendarRuleSkill())
         };
 
-        foreach (var (type, factory) in singletonSkillTypes)
+        foreach (var (type, factory) in singletonSkills)
         {
             try
             {
-                var skill = factory(_serviceProvider);
-                _registry.Register(skill);
+                var skill = factory();
+                _registry.Register(CreateDescriptor(skill, type));
             }
             catch (Exception ex)
             {
@@ -95,12 +95,24 @@ public class SkillRegistrationService
             try
             {
                 var skill = (ISkill)scope.ServiceProvider.GetRequiredService(type);
-                _registry.Register(skill);
+                _registry.Register(CreateDescriptor(skill, type));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to register scoped skill: {TypeName}", type.Name);
             }
         }
+    }
+
+    private static SkillDescriptor CreateDescriptor(ISkill skill, Type implementationType)
+    {
+        return new SkillDescriptor(
+            skill.Name,
+            skill.Description,
+            skill.Category,
+            skill.Parameters,
+            skill.RequiredPermissions,
+            skill.RequiredCapabilities,
+            implementationType);
     }
 }

@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant.Skills.Adapters;
@@ -9,7 +8,7 @@ public abstract class BaseSkillAdapter : ISkillAdapter
 {
     public abstract LLMProviderType ProviderType { get; }
 
-    public abstract object ConvertSkillToProviderFormat(ISkill skill);
+    public abstract object ConvertSkillToProviderFormat(SkillDescriptor descriptor);
 
     public abstract SkillInvocation ParseProviderCall(object providerFunctionCall);
 

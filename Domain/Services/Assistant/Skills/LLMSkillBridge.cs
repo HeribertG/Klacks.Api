@@ -44,16 +44,16 @@ public class LLMSkillBridge : ILLMSkillBridge
 
     public IReadOnlyList<LLMFunction> GetSkillsAsLLMFunctions(IReadOnlyList<string> userPermissions)
     {
-        var skills = _skillRegistry.GetSkillsForUser(userPermissions);
+        var descriptors = _skillRegistry.GetSkillsForUser(userPermissions);
 
-        return skills.Select(skill => new LLMFunction
+        return descriptors.Select(descriptor => new LLMFunction
         {
-            Name = skill.Name,
-            Description = skill.Description,
-            Parameters = skill.Parameters.ToDictionary(
+            Name = descriptor.Name,
+            Description = descriptor.Description,
+            Parameters = descriptor.Parameters.ToDictionary(
                 p => p.Name,
                 p => (object)ConvertParameterToLLMFormat(p)),
-            RequiredParameters = skill.Parameters
+            RequiredParameters = descriptor.Parameters
                 .Where(p => p.Required)
                 .Select(p => p.Name)
                 .ToList()

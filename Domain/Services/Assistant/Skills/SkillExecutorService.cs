@@ -37,35 +37,35 @@ public class SkillExecutorService : ISkillExecutor
 
         try
         {
-            var skill = _registry.GetSkillByName(invocation.SkillName);
-            if (skill == null)
+            var descriptor = _registry.GetSkillByName(invocation.SkillName);
+            if (descriptor == null)
             {
                 _logger.LogWarning("Skill not found: {SkillName}", invocation.SkillName);
                 return SkillResult.Error($"Skill '{invocation.SkillName}' not found");
             }
 
-            var permissionResult = ValidatePermissions(skill, context);
+            var permissionResult = ValidatePermissions(descriptor, context);
             if (!permissionResult.Success)
             {
                 return permissionResult;
             }
 
-            var parameterResult = ValidateParameters(skill, invocation.Parameters);
+            var parameterResult = ValidateParameters(descriptor, invocation.Parameters);
             if (!parameterResult.Success)
             {
                 return parameterResult;
             }
 
             _logger.LogInformation("Executing skill: {SkillName} for user {UserId}",
-                skill.Name, context.UserId);
+                descriptor.Name, context.UserId);
 
-            var executableSkill = ResolveFreshSkillInstance(skill);
-            var result = await executableSkill.ExecuteAsync(context, invocation.Parameters, cancellationToken);
+            var skill = (ISkill)_serviceProvider.GetRequiredService(descriptor.ImplementationType);
+            var result = await skill.ExecuteAsync(context, invocation.Parameters, cancellationToken);
 
             stopwatch.Stop();
 
             await _usageTracker.TrackAsync(
-                skill,
+                descriptor,
                 context,
                 invocation.Parameters,
                 result,
@@ -73,7 +73,7 @@ public class SkillExecutorService : ISkillExecutor
                 cancellationToken);
 
             _logger.LogInformation("Skill executed: {SkillName}, Success: {Success}, Duration: {Duration}ms",
-                skill.Name, result.Success, stopwatch.ElapsedMilliseconds);
+                descriptor.Name, result.Success, stopwatch.ElapsedMilliseconds);
 
             return result;
         }
@@ -139,33 +139,14 @@ public class SkillExecutorService : ISkillExecutor
         return results;
     }
 
-    private ISkill ResolveFreshSkillInstance(ISkill registeredSkill)
-    {
-        try
-        {
-            var freshSkill = _serviceProvider.GetService(registeredSkill.GetType()) as ISkill;
-            if (freshSkill != null)
-            {
-                return freshSkill;
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogDebug(ex, "Could not resolve fresh instance for {SkillType}, using registered instance",
-                registeredSkill.GetType().Name);
-        }
-
-        return registeredSkill;
-    }
-
-    private static SkillResult ValidatePermissions(ISkill skill, SkillExecutionContext context)
+    private static SkillResult ValidatePermissions(SkillDescriptor descriptor, SkillExecutionContext context)
     {
         if (context.UserPermissions.Contains("Admin"))
         {
             return SkillResult.SuccessResult(null);
         }
 
-        var missingPermissions = skill.RequiredPermissions
+        var missingPermissions = descriptor.RequiredPermissions
             .Where(rp => !context.UserPermissions.Contains(rp))
             .ToList();
 
@@ -178,9 +159,9 @@ public class SkillExecutorService : ISkillExecutor
         return SkillResult.SuccessResult(null);
     }
 
-    private static SkillResult ValidateParameters(ISkill skill, Dictionary<string, object> parameters)
+    private static SkillResult ValidateParameters(SkillDescriptor descriptor, Dictionary<string, object> parameters)
     {
-        var missingRequired = skill.Parameters
+        var missingRequired = descriptor.Parameters
             .Where(p => p.Required && !parameters.ContainsKey(p.Name))
             .Select(p => p.Name)
             .ToList();

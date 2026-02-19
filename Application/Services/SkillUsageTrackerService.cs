@@ -20,7 +20,7 @@ public class SkillUsageTrackerService : ISkillUsageTracker
     }
 
     public async Task TrackAsync(
-        ISkill skill,
+        SkillDescriptor descriptor,
         SkillExecutionContext context,
         Dictionary<string, object> parameters,
         SkillResult result,
@@ -30,8 +30,8 @@ public class SkillUsageTrackerService : ISkillUsageTracker
         var record = new SkillUsageRecord
         {
             Id = Guid.NewGuid(),
-            SkillName = skill.Name,
-            Category = skill.Category,
+            SkillName = descriptor.Name,
+            Category = descriptor.Category,
             UserId = context.UserId,
             TenantId = context.TenantId,
             ProviderId = context.ProviderId,
@@ -53,7 +53,7 @@ public class SkillUsageTrackerService : ISkillUsageTracker
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to track skill usage for {SkillName}", skill.Name);
+            _logger.LogError(ex, "Failed to track skill usage for {SkillName}", descriptor.Name);
         }
     }
 

@@ -5,7 +5,7 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 public interface ISkillUsageTracker
 {
     Task TrackAsync(
-        ISkill skill,
+        SkillDescriptor descriptor,
         SkillExecutionContext context,
         Dictionary<string, object> parameters,
         SkillResult result,

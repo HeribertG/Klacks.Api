@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant.Skills.Adapters;
@@ -10,12 +9,12 @@ public class AnthropicSkillAdapter : BaseSkillAdapter
 {
     public override LLMProviderType ProviderType => LLMProviderType.Anthropic;
 
-    public override object ConvertSkillToProviderFormat(ISkill skill)
+    public override object ConvertSkillToProviderFormat(SkillDescriptor descriptor)
     {
         var properties = new Dictionary<string, object>();
         var required = new List<string>();
 
-        foreach (var param in skill.Parameters)
+        foreach (var param in descriptor.Parameters)
         {
             properties[param.Name] = ConvertParameterToJsonSchema(param);
 
@@ -27,8 +26,8 @@ public class AnthropicSkillAdapter : BaseSkillAdapter
 
         return new AnthropicToolDefinition
         {
-            Name = skill.Name,
-            Description = skill.Description,
+            Name = descriptor.Name,
+            Description = descriptor.Description,
             InputSchema = new AnthropicInputSchemaDefinition
             {
                 Type = "object",

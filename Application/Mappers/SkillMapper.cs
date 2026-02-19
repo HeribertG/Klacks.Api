@@ -1,4 +1,3 @@
-using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Application.DTOs.Assistant;
 using Riok.Mapperly.Abstractions;
@@ -8,21 +7,21 @@ namespace Klacks.Api.Application.Mappers;
 [Mapper]
 public partial class SkillMapper
 {
-    public SkillDto ToDto(ISkill skill)
+    public SkillDto ToDto(SkillDescriptor descriptor)
     {
         return new SkillDto
         {
-            Name = skill.Name,
-            Description = skill.Description,
-            Category = skill.Category,
-            Parameters = skill.Parameters.Select(ToParameterDto).ToList(),
-            RequiredPermissions = skill.RequiredPermissions.ToList()
+            Name = descriptor.Name,
+            Description = descriptor.Description,
+            Category = descriptor.Category,
+            Parameters = descriptor.Parameters.Select(ToParameterDto).ToList(),
+            RequiredPermissions = descriptor.RequiredPermissions.ToList()
         };
     }
 
-    public List<SkillDto> ToDtos(IEnumerable<ISkill> skills)
+    public List<SkillDto> ToDtos(IEnumerable<SkillDescriptor> descriptors)
     {
-        return skills.Select(ToDto).ToList();
+        return descriptors.Select(ToDto).ToList();
     }
 
     public SkillParameterDto ToParameterDto(SkillParameter parameter)
@@ -96,7 +95,7 @@ public partial class SkillMapper
     }
 
     public SkillAnalyticsDto ToAnalyticsDto(
-        IReadOnlyList<ISkill> skills,
+        IReadOnlyList<SkillDescriptor> descriptors,
         IReadOnlyList<SkillUsageRecord> usageRecords,
         int days)
     {
@@ -123,7 +122,7 @@ public partial class SkillMapper
                     AvgDurationMs = g.Average(r => r.DurationMs)
                 })
                 .ToList(),
-            UsageByCategory = skills
+            UsageByCategory = descriptors
                 .GroupBy(s => s.Category.ToString())
                 .ToDictionary(g => g.Key, g => g.Count()),
             UsageOverTime = Enumerable.Range(0, Math.Min(days, 30))
