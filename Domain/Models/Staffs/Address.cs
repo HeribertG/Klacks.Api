@@ -1,6 +1,5 @@
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
-using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
 namespace Klacks.Api.Domain.Models.Staffs;

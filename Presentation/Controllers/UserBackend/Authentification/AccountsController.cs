@@ -6,7 +6,7 @@ using Klacks.Api.Application.DTOs.Registrations;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Authentification;
 
@@ -141,7 +141,7 @@ public class AccountsController : BaseController
     [HttpPost("RegisterUser")]
     public async Task<ActionResult> RegisterUser([FromBody] RegistrationResource model)
     {
-        this._logger.LogInformation("RegisterUser request received: {Model}", JsonConvert.SerializeObject(model));
+        this._logger.LogInformation("RegisterUser request received: {Model}", JsonSerializer.Serialize(model));
         var result = await mediator.Send(new RegisterUserCommand(model));
         return Ok(result);
     }
