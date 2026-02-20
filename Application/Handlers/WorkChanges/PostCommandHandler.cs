@@ -61,6 +61,10 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
             }
 
             await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
+            if (workChange.ReplaceClientId.HasValue)
+            {
+                await _scheduleChangeTracker.TrackChangeAsync(workChange.ReplaceClientId.Value, work.CurrentDate);
+            }
 
             var currentDate = work.CurrentDate;
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(currentDate);

@@ -73,6 +73,10 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         }
 
         await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
+        if (updatedWorkChange.ReplaceClientId.HasValue)
+        {
+            await _scheduleChangeTracker.TrackChangeAsync(updatedWorkChange.ReplaceClientId.Value, work.CurrentDate);
+        }
 
         var currentDate = work.CurrentDate;
         var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(currentDate);
