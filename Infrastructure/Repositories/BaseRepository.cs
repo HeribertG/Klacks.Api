@@ -9,7 +9,7 @@ namespace Klacks.Api.Infrastructure.Repositories
         where TEntity : BaseEntity
     {
         protected readonly ILogger<TEntity> Logger;
-        private readonly DataBaseContext context;
+        protected readonly DataBaseContext context;
 
         public BaseRepository(DataBaseContext context, ILogger<TEntity> logger)
         {
