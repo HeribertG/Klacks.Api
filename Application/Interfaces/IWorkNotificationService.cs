@@ -11,4 +11,5 @@ public interface IWorkNotificationService
     Task NotifyPeriodHoursUpdated(PeriodHoursNotificationDto notification);
     Task NotifyPeriodHoursRecalculated(DateOnly startDate, DateOnly endDate);
     Task NotifyScheduleChangeTracked(ScheduleChangeNotificationDto notification);
+    Task NotifyCollisionsDetected(CollisionListNotificationDto notification);
 }

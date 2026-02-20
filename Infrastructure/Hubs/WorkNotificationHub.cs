@@ -1,3 +1,4 @@
+using Klacks.Api.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
@@ -8,13 +9,16 @@ public class WorkNotificationHub : Hub<IScheduleClient>
 {
     private readonly ILogger<WorkNotificationHub> _logger;
     private readonly IConnectionDateRangeTracker _dateRangeTracker;
+    private readonly IScheduleTimelineService _timelineService;
 
     public WorkNotificationHub(
         ILogger<WorkNotificationHub> logger,
-        IConnectionDateRangeTracker dateRangeTracker)
+        IConnectionDateRangeTracker dateRangeTracker,
+        IScheduleTimelineService timelineService)
     {
         _logger = logger;
         _dateRangeTracker = dateRangeTracker;
+        _timelineService = timelineService;
     }
 
     public override async Task OnConnectedAsync()
@@ -43,6 +47,7 @@ public class WorkNotificationHub : Hub<IScheduleClient>
         if (DateOnly.TryParse(startDate, out var start) && DateOnly.TryParse(endDate, out var end))
         {
             _dateRangeTracker.RegisterConnection(Context.ConnectionId, start, end);
+            _timelineService.QueueRangeCheck(start, end);
             _logger.LogInformation(
                 "SignalR GROUP JOIN: {ConnectionId} joined '{GroupName}', registered DateRange {Start} - {End}",
                 Context.ConnectionId, groupName, start, end);

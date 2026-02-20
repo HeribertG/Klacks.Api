@@ -12,4 +12,5 @@ public interface IScheduleClient
     Task PeriodHoursUpdated(PeriodHoursNotificationDto notification);
     Task PeriodHoursRecalculated(PeriodHoursRecalculatedDto notification);
     Task ScheduleChangeTracked(ScheduleChangeNotificationDto notification);
+    Task CollisionsDetected(CollisionListNotificationDto notification);
 }
