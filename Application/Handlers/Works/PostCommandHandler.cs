@@ -13,39 +13,33 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
 {
     private readonly IWorkRepository _workRepository;
     private readonly ScheduleMapper _scheduleMapper;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkNotificationService _notificationService;
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public PostCommandHandler(
         IWorkRepository workRepository,
         ScheduleMapper scheduleMapper,
-        IUnitOfWork unitOfWork,
         IWorkNotificationService notificationService,
         IShiftStatsNotificationService shiftStatsNotificationService,
         IShiftScheduleService shiftScheduleService,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
         IHttpContextAccessor httpContextAccessor,
-        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _workRepository = workRepository;
         _scheduleMapper = scheduleMapper;
-        _unitOfWork = unitOfWork;
         _notificationService = notificationService;
         _shiftStatsNotificationService = shiftStatsNotificationService;
         _shiftScheduleService = shiftScheduleService;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
         _httpContextAccessor = httpContextAccessor;
-        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<WorkResource?> Handle(PostCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -67,8 +61,6 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
                 (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
             }
             var (createdWork, periodHours) = await _workRepository.AddWithPeriodHours(work, periodStart, periodEnd);
-            await _unitOfWork.CompleteAsync();
-            await _scheduleChangeTracker.TrackChangeAsync(createdWork.ClientId, createdWork.CurrentDate);
 
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;

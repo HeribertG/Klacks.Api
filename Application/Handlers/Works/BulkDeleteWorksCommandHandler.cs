@@ -13,81 +13,52 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
 {
     private readonly IWorkRepository _workRepository;
     private readonly ScheduleMapper _scheduleMapper;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkNotificationService _notificationService;
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public BulkDeleteWorksCommandHandler(
         IWorkRepository workRepository,
         ScheduleMapper scheduleMapper,
-        IUnitOfWork unitOfWork,
         IWorkNotificationService notificationService,
         IShiftStatsNotificationService shiftStatsNotificationService,
         IShiftScheduleService shiftScheduleService,
         IPeriodHoursService periodHoursService,
         IHttpContextAccessor httpContextAccessor,
-        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<BulkDeleteWorksCommandHandler> logger)
         : base(logger)
     {
         _workRepository = workRepository;
         _scheduleMapper = scheduleMapper;
-        _unitOfWork = unitOfWork;
         _notificationService = notificationService;
         _shiftStatsNotificationService = shiftStatsNotificationService;
         _shiftScheduleService = shiftScheduleService;
         _periodHoursService = periodHoursService;
         _httpContextAccessor = httpContextAccessor;
-        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<BulkWorksResponse> Handle(BulkDeleteWorksCommand command, CancellationToken cancellationToken)
     {
         var response = new BulkWorksResponse();
-        var deletedWorks = new List<Work>();
         var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>();
         var affectedClients = new HashSet<Guid>();
 
-        foreach (var workId in command.Request.WorkIds)
+        var deletedWorks = await _workRepository.BulkDeleteWithTracking(command.Request.WorkIds);
+
+        foreach (var work in deletedWorks)
         {
-            try
-            {
-                var work = await _workRepository.Get(workId);
-                if (work == null)
-                {
-                    _logger.LogWarning("Work with ID {WorkId} not found for deletion", workId);
-                    response.FailedCount++;
-                    continue;
-                }
-
-                affectedShifts.Add((work.ShiftId, work.CurrentDate));
-                affectedClients.Add(work.ClientId);
-                deletedWorks.Add(work);
-
-                await _workRepository.Delete(workId);
-                response.DeletedIds.Add(workId);
-                response.SuccessCount++;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to delete work {WorkId}", workId);
-                response.FailedCount++;
-            }
+            affectedShifts.Add((work.ShiftId, work.CurrentDate));
+            affectedClients.Add(work.ClientId);
+            response.DeletedIds.Add(work.Id);
+            response.SuccessCount++;
         }
+
+        response.FailedCount = command.Request.WorkIds.Count - deletedWorks.Count;
 
         if (deletedWorks.Count > 0)
         {
-            await _unitOfWork.CompleteAsync();
-
-            foreach (var work in deletedWorks)
-            {
-                await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
-            }
-
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
 

@@ -14,35 +14,29 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
     private readonly IWorkChangeRepository _workChangeRepository;
     private readonly IWorkRepository _workRepository;
     private readonly ScheduleMapper _scheduleMapper;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public DeleteCommandHandler(
         IWorkChangeRepository workChangeRepository,
         IWorkRepository workRepository,
         ScheduleMapper scheduleMapper,
-        IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
         IWorkNotificationService notificationService,
         IHttpContextAccessor httpContextAccessor,
-        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _workChangeRepository = workChangeRepository;
         _workRepository = workRepository;
         _scheduleMapper = scheduleMapper;
-        _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
         _notificationService = notificationService;
         _httpContextAccessor = httpContextAccessor;
-        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<WorkChangeResource?> Handle(DeleteCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -61,17 +55,8 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
         var workChangeResource = _scheduleMapper.ToWorkChangeResource(existingWorkChange);
 
         await _workChangeRepository.Delete(request.Id);
-        await _unitOfWork.CompleteAsync();
 
         var work = await _workRepository.Get(workId);
-        if (work != null)
-        {
-            await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
-            if (replaceClientId.HasValue)
-            {
-                await _scheduleChangeTracker.TrackChangeAsync(replaceClientId.Value, work.CurrentDate);
-            }
-        }
         if (work == null)
         {
             _logger.LogWarning("Work not found for WorkChange: {WorkId}", workId);

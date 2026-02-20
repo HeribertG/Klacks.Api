@@ -10,65 +10,36 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkDeleteBreaksCommand, BulkBreaksResponse>
 {
     private readonly IBreakRepository _breakRepository;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
-    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public BulkDeleteBreaksCommandHandler(
         IBreakRepository breakRepository,
-        IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
-        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<BulkDeleteBreaksCommandHandler> logger)
         : base(logger)
     {
         _breakRepository = breakRepository;
-        _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
-        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<BulkBreaksResponse> Handle(BulkDeleteBreaksCommand command, CancellationToken cancellationToken)
     {
         var response = new BulkBreaksResponse();
-        var deletedBreaks = new List<Break>();
         var affectedClients = new HashSet<Guid>();
 
-        foreach (var breakId in command.Request.BreakIds)
+        var deletedBreaks = await _breakRepository.BulkDeleteWithTracking(command.Request.BreakIds);
+
+        foreach (var breakEntry in deletedBreaks)
         {
-            try
-            {
-                var breakEntry = await _breakRepository.Get(breakId);
-                if (breakEntry == null)
-                {
-                    _logger.LogWarning("Break with ID {BreakId} not found for deletion", breakId);
-                    response.FailedCount++;
-                    continue;
-                }
-
-                affectedClients.Add(breakEntry.ClientId);
-                deletedBreaks.Add(breakEntry);
-
-                await _breakRepository.Delete(breakId);
-                response.DeletedIds.Add(breakId);
-                response.SuccessCount++;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to delete break {BreakId}", breakId);
-                response.FailedCount++;
-            }
+            affectedClients.Add(breakEntry.ClientId);
+            response.DeletedIds.Add(breakEntry.Id);
+            response.SuccessCount++;
         }
+
+        response.FailedCount = command.Request.BreakIds.Count - deletedBreaks.Count;
 
         if (deletedBreaks.Count > 0)
         {
-            await _unitOfWork.CompleteAsync();
-
-            foreach (var breakEntry in deletedBreaks)
-            {
-                await _scheduleChangeTracker.TrackChangeAsync(breakEntry.ClientId, breakEntry.CurrentDate);
-            }
-
             var periodStart = command.Request.PeriodStart;
             var periodEnd = command.Request.PeriodEnd;
 

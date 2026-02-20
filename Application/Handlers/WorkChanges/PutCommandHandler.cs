@@ -14,35 +14,29 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
     private readonly IWorkChangeRepository _workChangeRepository;
     private readonly IWorkRepository _workRepository;
     private readonly ScheduleMapper _scheduleMapper;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public PutCommandHandler(
         IWorkChangeRepository workChangeRepository,
         IWorkRepository workRepository,
         ScheduleMapper scheduleMapper,
-        IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
         IWorkNotificationService notificationService,
         IHttpContextAccessor httpContextAccessor,
-        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _workChangeRepository = workChangeRepository;
         _workRepository = workRepository;
         _scheduleMapper = scheduleMapper;
-        _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
         _notificationService = notificationService;
         _httpContextAccessor = httpContextAccessor;
-        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<WorkChangeResource?> Handle(PutCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -58,7 +52,6 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
 
         var workChange = _scheduleMapper.ToWorkChangeEntity(request.Resource);
         var updatedWorkChange = await _workChangeRepository.Put(workChange);
-        await _unitOfWork.CompleteAsync();
 
         if (updatedWorkChange == null)
         {
@@ -70,12 +63,6 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         {
             _logger.LogWarning("Work not found for WorkChange: {WorkId}", updatedWorkChange.WorkId);
             return _scheduleMapper.ToWorkChangeResource(updatedWorkChange);
-        }
-
-        await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
-        if (updatedWorkChange.ReplaceClientId.HasValue)
-        {
-            await _scheduleChangeTracker.TrackChangeAsync(updatedWorkChange.ReplaceClientId.Value, work.CurrentDate);
         }
 
         var currentDate = work.CurrentDate;

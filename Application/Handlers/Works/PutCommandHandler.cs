@@ -19,7 +19,6 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public PutCommandHandler(
         IWorkRepository workRepository,
@@ -30,7 +29,6 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
         IHttpContextAccessor httpContextAccessor,
-        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -42,7 +40,6 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
         _httpContextAccessor = httpContextAccessor;
-        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<WorkResource?> Handle(PutCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -69,7 +66,6 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         var (updatedWork, periodHours) = await _workRepository.PutWithPeriodHours(work, periodStart, periodEnd);
 
         if (updatedWork == null) return null;
-        await _scheduleChangeTracker.TrackChangeAsync(updatedWork.ClientId, updatedWork.CurrentDate);
 
         var connectionId = _httpContextAccessor.HttpContext?.Request
             .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;

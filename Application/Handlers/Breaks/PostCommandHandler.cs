@@ -13,33 +13,27 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
 {
     private readonly IBreakRepository _breakRepository;
     private readonly ScheduleMapper _scheduleMapper;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public PostCommandHandler(
         IBreakRepository breakRepository,
         ScheduleMapper scheduleMapper,
-        IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
         IWorkNotificationService notificationService,
         IHttpContextAccessor httpContextAccessor,
-        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _breakRepository = breakRepository;
         _scheduleMapper = scheduleMapper;
-        _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
         _notificationService = notificationService;
         _httpContextAccessor = httpContextAccessor;
-        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<BreakResource?> Handle(PostCommand<BreakResource> request, CancellationToken cancellationToken)
@@ -62,8 +56,6 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
             }
 
             var (createdBreak, periodHours) = await _breakRepository.AddWithPeriodHours(entity, periodStart, periodEnd);
-            await _unitOfWork.CompleteAsync();
-            await _scheduleChangeTracker.TrackChangeAsync(createdBreak.ClientId, createdBreak.CurrentDate);
 
             var currentDate = entity.CurrentDate;
             var threeDayStart = currentDate.AddDays(-1);

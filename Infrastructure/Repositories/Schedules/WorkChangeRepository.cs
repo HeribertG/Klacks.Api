@@ -10,36 +10,48 @@ namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 public class WorkChangeRepository : BaseRepository<WorkChange>, IWorkChangeRepository
 {
     private readonly DataBaseContext _context;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IWorkMacroService _workMacroService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IScheduleChangeTracker _scheduleChangeTracker;
+    private readonly IScheduleTimelineService _timelineService;
 
     public WorkChangeRepository(
         DataBaseContext context,
         ILogger<WorkChange> logger,
+        IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
         IWorkMacroService workMacroService,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        IScheduleChangeTracker scheduleChangeTracker,
+        IScheduleTimelineService timelineService)
         : base(context, logger)
     {
         _context = context;
+        _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
         _workMacroService = workMacroService;
         _httpContextAccessor = httpContextAccessor;
+        _scheduleChangeTracker = scheduleChangeTracker;
+        _timelineService = timelineService;
     }
 
     public override async Task Add(WorkChange entity)
     {
         await _workMacroService.ProcessWorkChangeMacroAsync(entity);
         await base.Add(entity);
-        await RecalculatePeriodHoursForWorkChangeAsync(entity.WorkId, entity.ReplaceClientId);
+        await _unitOfWork.CompleteAsync();
+        await PostSaveProcessingAsync(entity.WorkId, entity.ReplaceClientId);
     }
 
     public override async Task<WorkChange?> Put(WorkChange entity)
     {
         await _workMacroService.ProcessWorkChangeMacroAsync(entity);
         var result = await base.Put(entity);
-        await RecalculatePeriodHoursForWorkChangeAsync(entity.WorkId, entity.ReplaceClientId);
+        if (result == null) return null;
+        await _unitOfWork.CompleteAsync();
+        await PostSaveProcessingAsync(entity.WorkId, entity.ReplaceClientId);
         return result;
     }
 
@@ -47,10 +59,9 @@ public class WorkChangeRepository : BaseRepository<WorkChange>, IWorkChangeRepos
     {
         var entity = await base.Get(id);
         var result = await base.Delete(id);
-        if (entity != null)
-        {
-            await RecalculatePeriodHoursForWorkChangeAsync(entity.WorkId, entity.ReplaceClientId);
-        }
+        if (entity == null) return result;
+        await _unitOfWork.CompleteAsync();
+        await PostSaveProcessingAsync(entity.WorkId, entity.ReplaceClientId);
         return result;
     }
 
@@ -62,9 +73,9 @@ public class WorkChangeRepository : BaseRepository<WorkChange>, IWorkChangeRepos
             .FirstOrDefaultAsync(wc => wc.Id == id);
     }
 
-    private async Task RecalculatePeriodHoursForWorkChangeAsync(Guid workId, Guid? replaceClientId)
+    private async Task PostSaveProcessingAsync(Guid workId, Guid? replaceClientId)
     {
-        var work = await _context.Work.FirstOrDefaultAsync(w => w.Id == workId);
+        var work = await _context.Work.AsNoTracking().FirstOrDefaultAsync(w => w.Id == workId);
         if (work == null) return;
 
         var connectionId = _httpContextAccessor.HttpContext?.Request
@@ -78,6 +89,9 @@ public class WorkChangeRepository : BaseRepository<WorkChange>, IWorkChangeRepos
             periodEnd,
             connectionId);
 
+        await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
+        _timelineService.QueueCheck(work.ClientId, work.CurrentDate);
+
         if (replaceClientId.HasValue)
         {
             await _periodHoursService.RecalculateAndNotifyAsync(
@@ -85,6 +99,9 @@ public class WorkChangeRepository : BaseRepository<WorkChange>, IWorkChangeRepos
                 periodStart,
                 periodEnd,
                 connectionId);
+
+            await _scheduleChangeTracker.TrackChangeAsync(replaceClientId.Value, work.CurrentDate);
+            _timelineService.QueueCheck(replaceClientId.Value, work.CurrentDate);
         }
     }
 }

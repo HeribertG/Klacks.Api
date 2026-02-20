@@ -10,25 +10,16 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddBreaksCommand, BulkBreaksResponse>
 {
     private readonly IBreakRepository _breakRepository;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
-    private readonly IBreakMacroService _breakMacroService;
-    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public BulkAddBreaksCommandHandler(
         IBreakRepository breakRepository,
-        IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
-        IBreakMacroService breakMacroService,
-        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<BulkAddBreaksCommandHandler> logger)
         : base(logger)
     {
         _breakRepository = breakRepository;
-        _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
-        _breakMacroService = breakMacroService;
-        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<BulkBreaksResponse> Handle(BulkAddBreaksCommand command, CancellationToken cancellationToken)
@@ -36,7 +27,7 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
         return await ExecuteAsync(async () =>
         {
             var response = new BulkBreaksResponse();
-            var createdBreaks = new List<Break>();
+            var breaks = new List<Break>();
             var affectedClients = new HashSet<Guid>();
 
             foreach (var item in command.Request.Breaks)
@@ -56,9 +47,7 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
                         Description = item.Description
                     };
 
-                    await _breakMacroService.ProcessBreakMacroAsync(breakEntry);
-                    await _breakRepository.Add(breakEntry);
-                    createdBreaks.Add(breakEntry);
+                    breaks.Add(breakEntry);
                     response.CreatedIds.Add(breakEntry.Id);
                     response.SuccessCount++;
                     affectedClients.Add(item.ClientId);
@@ -71,14 +60,9 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
                 }
             }
 
-            if (createdBreaks.Count > 0)
+            if (breaks.Count > 0)
             {
-                await _unitOfWork.CompleteAsync();
-
-                foreach (var breakEntry in createdBreaks)
-                {
-                    await _scheduleChangeTracker.TrackChangeAsync(breakEntry.ClientId, breakEntry.CurrentDate);
-                }
+                await _breakRepository.BulkAddWithTracking(breaks);
 
                 var periodStart = command.Request.PeriodStart;
                 var periodEnd = command.Request.PeriodEnd;

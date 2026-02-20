@@ -13,36 +13,30 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
 {
     private readonly IWorkRepository _workRepository;
     private readonly ScheduleMapper _scheduleMapper;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkNotificationService _notificationService;
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public BulkAddWorksCommandHandler(
         IWorkRepository workRepository,
         ScheduleMapper scheduleMapper,
-        IUnitOfWork unitOfWork,
         IWorkNotificationService notificationService,
         IShiftStatsNotificationService shiftStatsNotificationService,
         IShiftScheduleService shiftScheduleService,
         IPeriodHoursService periodHoursService,
         IHttpContextAccessor httpContextAccessor,
-        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<BulkAddWorksCommandHandler> logger)
         : base(logger)
     {
         _workRepository = workRepository;
         _scheduleMapper = scheduleMapper;
-        _unitOfWork = unitOfWork;
         _notificationService = notificationService;
         _shiftStatsNotificationService = shiftStatsNotificationService;
         _shiftScheduleService = shiftScheduleService;
         _periodHoursService = periodHoursService;
         _httpContextAccessor = httpContextAccessor;
-        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<BulkWorksResponse> Handle(BulkAddWorksCommand command, CancellationToken cancellationToken)
@@ -50,7 +44,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         return await ExecuteAsync(async () =>
         {
             var response = new BulkWorksResponse();
-            var createdWorks = new List<Work>();
+            var works = new List<Work>();
             var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>();
 
             foreach (var item in command.Request.Works)
@@ -69,11 +63,9 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                         Information = item.Information
                     };
 
-                    await _workRepository.Add(work);
-                    createdWorks.Add(work);
+                    works.Add(work);
                     response.CreatedIds.Add(work.Id);
                     response.SuccessCount++;
-
                     affectedShifts.Add((item.ShiftId, item.CurrentDate));
                 }
                 catch (Exception ex)
@@ -84,23 +76,18 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                 }
             }
 
-            if (createdWorks.Count > 0)
+            if (works.Count > 0)
             {
-                await _unitOfWork.CompleteAsync();
-
-                foreach (var work in createdWorks)
-                {
-                    await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
-                }
+                await _workRepository.BulkAddWithTracking(works);
 
                 var connectionId = _httpContextAccessor.HttpContext?.Request
                     .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
 
-                var affectedClients = createdWorks.Select(w => w.ClientId).Distinct().ToList();
+                var affectedClients = works.Select(w => w.ClientId).Distinct().ToList();
                 var periodStart = command.Request.PeriodStart;
                 var periodEnd = command.Request.PeriodEnd;
 
-                foreach (var work in createdWorks)
+                foreach (var work in works)
                 {
                     var notification = _scheduleMapper.ToWorkNotificationDto(work, ScheduleEventTypes.Created, connectionId, periodStart, periodEnd);
                     await _notificationService.NotifyWorkCreated(notification);

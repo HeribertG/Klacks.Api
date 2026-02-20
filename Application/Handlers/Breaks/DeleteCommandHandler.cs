@@ -13,30 +13,24 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
 {
     private readonly IBreakRepository _breakRepository;
     private readonly ScheduleMapper _scheduleMapper;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public DeleteCommandHandler(
         IBreakRepository breakRepository,
         ScheduleMapper scheduleMapper,
-        IUnitOfWork unitOfWork,
         IScheduleEntriesService scheduleEntriesService,
         IWorkNotificationService notificationService,
         IHttpContextAccessor httpContextAccessor,
-        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _breakRepository = breakRepository;
         _scheduleMapper = scheduleMapper;
-        _unitOfWork = unitOfWork;
         _scheduleEntriesService = scheduleEntriesService;
         _notificationService = notificationService;
         _httpContextAccessor = httpContextAccessor;
-        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<BreakResource?> Handle(DeleteBreakCommand request, CancellationToken cancellationToken)
@@ -50,8 +44,6 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
             }
 
             var (deletedBreak, periodHours) = await _breakRepository.DeleteWithPeriodHours(request.Id, request.PeriodStart, request.PeriodEnd);
-            await _unitOfWork.CompleteAsync();
-            await _scheduleChangeTracker.TrackChangeAsync(breakEntry.ClientId, breakEntry.CurrentDate);
 
             var currentDate = breakEntry.CurrentDate;
             var threeDayStart = currentDate.AddDays(-1);

@@ -16,6 +16,8 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IBreakMacroService _breakMacroService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IScheduleChangeTracker _scheduleChangeTracker;
+    private readonly IScheduleTimelineService _timelineService;
 
     public BreakRepository(
         DataBaseContext context,
@@ -23,7 +25,9 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
         IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
         IBreakMacroService breakMacroService,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        IScheduleChangeTracker scheduleChangeTracker,
+        IScheduleTimelineService timelineService)
         : base(context, logger)
     {
         _context = context;
@@ -31,6 +35,8 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
         _periodHoursService = periodHoursService;
         _breakMacroService = breakMacroService;
         _httpContextAccessor = httpContextAccessor;
+        _scheduleChangeTracker = scheduleChangeTracker;
+        _timelineService = timelineService;
     }
 
     public override async Task Add(Break entity)
@@ -67,6 +73,8 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
         await _breakMacroService.ProcessBreakMacroAsync(breakEntry);
         await base.Add(breakEntry);
         await _unitOfWork.CompleteAsync();
+        await _scheduleChangeTracker.TrackChangeAsync(breakEntry.ClientId, breakEntry.CurrentDate);
+        _timelineService.QueueCheck(breakEntry.ClientId, breakEntry.CurrentDate);
         var periodHours = await RecalculateAndGetPeriodHoursAsync(breakEntry.ClientId, periodStart, periodEnd);
         return (breakEntry, periodHours);
     }
@@ -77,6 +85,8 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
         var result = await base.Put(breakEntry);
         if (result == null) return (null, null);
         await _unitOfWork.CompleteAsync();
+        await _scheduleChangeTracker.TrackChangeAsync(breakEntry.ClientId, breakEntry.CurrentDate);
+        _timelineService.QueueCheck(breakEntry.ClientId, breakEntry.CurrentDate);
         var periodHours = await RecalculateAndGetPeriodHoursAsync(breakEntry.ClientId, periodStart, periodEnd);
         return (result, periodHours);
     }
@@ -87,8 +97,45 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
         var result = await base.Delete(id);
         if (breakEntry == null) return (null, null);
         await _unitOfWork.CompleteAsync();
+        await _scheduleChangeTracker.TrackChangeAsync(breakEntry.ClientId, breakEntry.CurrentDate);
+        _timelineService.QueueCheck(breakEntry.ClientId, breakEntry.CurrentDate);
         var periodHours = await RecalculateAndGetPeriodHoursAsync(breakEntry.ClientId, periodStart, periodEnd);
         return (result, periodHours);
+    }
+
+    public async Task<List<Break>> BulkAddWithTracking(List<Break> breaks)
+    {
+        foreach (var breakEntry in breaks)
+        {
+            await _breakMacroService.ProcessBreakMacroAsync(breakEntry);
+            await base.Add(breakEntry);
+        }
+        await _unitOfWork.CompleteAsync();
+        foreach (var breakEntry in breaks)
+        {
+            await _scheduleChangeTracker.TrackChangeAsync(breakEntry.ClientId, breakEntry.CurrentDate);
+            _timelineService.QueueCheck(breakEntry.ClientId, breakEntry.CurrentDate);
+        }
+        return breaks;
+    }
+
+    public async Task<List<Break>> BulkDeleteWithTracking(List<Guid> breakIds)
+    {
+        var deletedBreaks = new List<Break>();
+        foreach (var breakId in breakIds)
+        {
+            var breakEntry = await base.Get(breakId);
+            if (breakEntry == null) continue;
+            deletedBreaks.Add(breakEntry);
+            await base.Delete(breakId);
+        }
+        await _unitOfWork.CompleteAsync();
+        foreach (var breakEntry in deletedBreaks)
+        {
+            await _scheduleChangeTracker.TrackChangeAsync(breakEntry.ClientId, breakEntry.CurrentDate);
+            _timelineService.QueueCheck(breakEntry.ClientId, breakEntry.CurrentDate);
+        }
+        return deletedBreaks;
     }
 
     private async Task RecalculatePeriodHoursAsync(Guid clientId, DateOnly periodStart, DateOnly periodEnd)

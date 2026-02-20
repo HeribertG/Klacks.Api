@@ -13,33 +13,27 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
 {
     private readonly IBreakRepository _breakRepository;
     private readonly ScheduleMapper _scheduleMapper;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public PutCommandHandler(
         IBreakRepository breakRepository,
         ScheduleMapper scheduleMapper,
-        IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
         IWorkNotificationService notificationService,
         IHttpContextAccessor httpContextAccessor,
-        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _breakRepository = breakRepository;
         _scheduleMapper = scheduleMapper;
-        _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
         _notificationService = notificationService;
         _httpContextAccessor = httpContextAccessor;
-        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<BreakResource?> Handle(PutCommand<BreakResource> request, CancellationToken cancellationToken)
@@ -67,9 +61,6 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
             {
                 throw new KeyNotFoundException($"Break with ID {request.Resource.Id} not found");
             }
-
-            await _unitOfWork.CompleteAsync();
-            await _scheduleChangeTracker.TrackChangeAsync(updated.ClientId, updated.CurrentDate);
 
             var currentDate = updated.CurrentDate;
             var threeDayStart = currentDate.AddDays(-1);
