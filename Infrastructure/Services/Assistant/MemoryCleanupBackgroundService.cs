@@ -21,21 +21,33 @@ public class MemoryCleanupBackgroundService : BackgroundService
     {
         _logger.LogInformation("Memory cleanup background service started");
 
-        await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
-
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            try
-            {
-                await CleanupAsync(stoppingToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in memory cleanup background service");
-            }
+            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
 
-            await Task.Delay(TimeSpan.FromHours(IntervalHours), stoppingToken);
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                try
+                {
+                    await CleanupAsync(stoppingToken);
+                }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error in memory cleanup background service");
+                }
+
+                await Task.Delay(TimeSpan.FromHours(IntervalHours), stoppingToken);
+            }
         }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+        }
+
+        _logger.LogInformation("Memory cleanup background service stopped");
     }
 
     private async Task CleanupAsync(CancellationToken stoppingToken)

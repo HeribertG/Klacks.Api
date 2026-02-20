@@ -22,19 +22,31 @@ public class EmbeddingBackgroundService : BackgroundService
     {
         _logger.LogInformation("Embedding background service started");
 
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            try
+            while (!stoppingToken.IsCancellationRequested)
             {
-                await ProcessPendingEmbeddingsAsync(stoppingToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in embedding background service");
-            }
+                try
+                {
+                    await ProcessPendingEmbeddingsAsync(stoppingToken);
+                }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error in embedding background service");
+                }
 
-            await Task.Delay(TimeSpan.FromSeconds(IntervalSeconds), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(IntervalSeconds), stoppingToken);
+            }
         }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+        }
+
+        _logger.LogInformation("Embedding background service stopped");
     }
 
     private async Task ProcessPendingEmbeddingsAsync(CancellationToken stoppingToken)
