@@ -206,6 +206,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMacroManagementService, MacroManagementService>();
         services.AddScoped<ISettingsTokenService, SettingsTokenService>();
         services.AddScoped<IEmailTestService, EmailTestService>();
+        services.AddScoped<IScheduleEmailService, ScheduleEmailService>();
     }
 
     private static void AddAuthenticationServices(this IServiceCollection services)
