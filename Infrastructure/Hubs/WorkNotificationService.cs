@@ -127,6 +127,34 @@ public class WorkNotificationService : IWorkNotificationService
         }
     }
 
+    public async Task NotifyScheduleChangeTracked(ScheduleChangeNotificationDto notification)
+    {
+        try
+        {
+            var targetConnections = _dateRangeTracker
+                .GetConnectionsForDate(notification.ChangeDate)
+                .ToList();
+
+            if (targetConnections.Count == 0)
+            {
+                _logger.LogDebug(
+                    "SignalR SKIP: ScheduleChangeTracked - no connections have DateRange containing {Date}",
+                    notification.ChangeDate);
+                return;
+            }
+
+            await _hubContext.Clients.Clients(targetConnections).ScheduleChangeTracked(notification);
+
+            _logger.LogDebug(
+                "Sent ScheduleChangeTracked to {Count} connections for Client {ClientId}, Date {Date}",
+                targetConnections.Count, notification.ClientId, notification.ChangeDate);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending ScheduleChangeTracked notification");
+        }
+    }
+
     private async Task SendWorkNotification(
         WorkNotificationDto notification,
         Func<IScheduleClient, WorkNotificationDto, Task> sendAction,

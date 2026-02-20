@@ -11,4 +11,5 @@ public interface IScheduleClient
     Task ShiftStatsUpdated(ShiftStatsNotificationDto notification);
     Task PeriodHoursUpdated(PeriodHoursNotificationDto notification);
     Task PeriodHoursRecalculated(PeriodHoursRecalculatedDto notification);
+    Task ScheduleChangeTracked(ScheduleChangeNotificationDto notification);
 }

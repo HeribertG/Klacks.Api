@@ -19,6 +19,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public DeleteCommandHandler(
         IWorkRepository workRepository,
@@ -29,6 +30,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         IShiftScheduleService shiftScheduleService,
         IScheduleEntriesService scheduleEntriesService,
         IHttpContextAccessor httpContextAccessor,
+        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
@@ -40,6 +42,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         _shiftScheduleService = shiftScheduleService;
         _scheduleEntriesService = scheduleEntriesService;
         _httpContextAccessor = httpContextAccessor;
+        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<WorkResource?> Handle(DeleteWorkCommand request, CancellationToken cancellationToken)
@@ -57,6 +60,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
 
             var (deletedWork, periodHours) = await _workRepository.DeleteWithPeriodHours(request.Id, request.PeriodStart, request.PeriodEnd);
             await _unitOfWork.CompleteAsync();
+            await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
 
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;

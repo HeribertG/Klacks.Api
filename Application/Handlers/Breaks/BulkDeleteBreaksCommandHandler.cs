@@ -12,17 +12,20 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
     private readonly IBreakRepository _breakRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
+    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public BulkDeleteBreaksCommandHandler(
         IBreakRepository breakRepository,
         IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
+        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<BulkDeleteBreaksCommandHandler> logger)
         : base(logger)
     {
         _breakRepository = breakRepository;
         _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
+        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<BulkBreaksResponse> Handle(BulkDeleteBreaksCommand command, CancellationToken cancellationToken)
@@ -60,6 +63,11 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
         if (deletedBreaks.Count > 0)
         {
             await _unitOfWork.CompleteAsync();
+
+            foreach (var breakEntry in deletedBreaks)
+            {
+                await _scheduleChangeTracker.TrackChangeAsync(breakEntry.ClientId, breakEntry.CurrentDate);
+            }
 
             var periodStart = command.Request.PeriodStart;
             var periodEnd = command.Request.PeriodEnd;

@@ -19,6 +19,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public BulkDeleteWorksCommandHandler(
         IWorkRepository workRepository,
@@ -29,6 +30,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         IShiftScheduleService shiftScheduleService,
         IPeriodHoursService periodHoursService,
         IHttpContextAccessor httpContextAccessor,
+        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<BulkDeleteWorksCommandHandler> logger)
         : base(logger)
     {
@@ -40,6 +42,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         _shiftScheduleService = shiftScheduleService;
         _periodHoursService = periodHoursService;
         _httpContextAccessor = httpContextAccessor;
+        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<BulkWorksResponse> Handle(BulkDeleteWorksCommand command, CancellationToken cancellationToken)
@@ -79,6 +82,11 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         if (deletedWorks.Count > 0)
         {
             await _unitOfWork.CompleteAsync();
+
+            foreach (var work in deletedWorks)
+            {
+                await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
+            }
 
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;

@@ -16,6 +16,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public DeleteCommandHandler(
         IExpensesRepository expensesRepository,
@@ -24,6 +25,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
         IPeriodHoursService periodHoursService,
         IWorkNotificationService notificationService,
         IHttpContextAccessor httpContextAccessor,
+        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
@@ -33,6 +35,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
         _periodHoursService = periodHoursService;
         _notificationService = notificationService;
         _httpContextAccessor = httpContextAccessor;
+        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<ExpensesResource?> Handle(DeleteCommand<ExpensesResource> request, CancellationToken cancellationToken)
@@ -54,6 +57,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
 
         if (work != null)
         {
+            await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
