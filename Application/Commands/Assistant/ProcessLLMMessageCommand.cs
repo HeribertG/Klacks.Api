@@ -3,7 +3,6 @@ using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
-using Klacks.Api.Application.DTOs.Assistant;
 
 namespace Klacks.Api.Application.Commands.Assistant;
 

@@ -1,3 +1,4 @@
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -54,7 +55,7 @@ public class UpdateAiSoulSkill : BaseSkill
     {
         var sectionType = GetRequiredString(parameters, "sectionType");
         var content = GetRequiredString(parameters, "content");
-        var sortOrder = GetParameter<int?>(parameters, "sortOrder") ?? GetDefaultSortOrder(sectionType);
+        var sortOrder = GetParameter<int?>(parameters, "sortOrder") ?? SoulSectionTypes.GetDefaultSortOrder(sectionType);
 
         var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
         if (agent == null)
@@ -64,7 +65,7 @@ public class UpdateAiSoulSkill : BaseSkill
 
         var section = await _agentSoulRepository.UpsertSectionAsync(
             agent.Id, sectionType, content, sortOrder,
-            source: "chat",
+            source: MemorySources.Chat,
             changedBy: context.UserId.ToString(),
             cancellationToken: cancellationToken);
 
@@ -72,17 +73,4 @@ public class UpdateAiSoulSkill : BaseSkill
             new { section.SectionType, ContentLength = content.Length, section.Version },
             $"Soul section '{sectionType}' updated (v{section.Version}, {content.Length} chars).");
     }
-
-    private static int GetDefaultSortOrder(string sectionType) => sectionType switch
-    {
-        "identity" => 0,
-        "personality" => 1,
-        "tone" => 2,
-        "boundaries" => 3,
-        "communication_style" => 4,
-        "values" => 5,
-        "domain_expertise" => 6,
-        "error_handling" => 7,
-        _ => 10
-    };
 }

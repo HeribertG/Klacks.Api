@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
@@ -48,7 +49,7 @@ public class SkillRegistry : ISkillRegistry
 
     public IReadOnlyList<SkillDescriptor> GetSkillsForUser(IReadOnlyList<string> userPermissions)
     {
-        if (userPermissions.Contains("Admin"))
+        if (userPermissions.Contains(Roles.Admin))
         {
             return _skills.Values.ToList();
         }

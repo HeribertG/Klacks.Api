@@ -1,4 +1,4 @@
-namespace Klacks.Api.Application.DTOs.Assistant;
+namespace Klacks.Api.Domain.Models.Assistant;
 
 public class LLMUsageInfo
 {

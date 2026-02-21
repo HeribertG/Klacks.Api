@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Constants;
@@ -117,7 +118,7 @@ public class AgentsController : ControllerBase
 
         await _soulRepository.UpsertSectionAsync(
             id, sectionType, request.Content,
-            request.SortOrder ?? GetDefaultSortOrder(sectionType),
+            request.SortOrder ?? SoulSectionTypes.GetDefaultSortOrder(sectionType),
             source: null, changedBy: userId, cancellationToken: ct);
 
         return Ok(new { AgentId = id, SectionType = sectionType });
@@ -279,25 +280,4 @@ public class AgentsController : ControllerBase
         m.Id, m.Key, m.Content, m.Category, m.Importance,
         m.IsPinned, m.Source, m.ExpiresAt, m.AccessCount, m.CreateTime
     };
-
-    private static int GetDefaultSortOrder(string sectionType) => sectionType switch
-    {
-        SoulSectionTypes.Identity => 0,
-        SoulSectionTypes.Personality => 1,
-        SoulSectionTypes.Tone => 2,
-        SoulSectionTypes.Boundaries => 3,
-        SoulSectionTypes.CommunicationStyle => 4,
-        SoulSectionTypes.Values => 5,
-        SoulSectionTypes.DomainExpertise => 6,
-        SoulSectionTypes.ErrorHandling => 7,
-        SoulSectionTypes.UserContext => 8,
-        SoulSectionTypes.GroupBehavior => 9,
-        _ => 99
-    };
 }
-
-public record CreateAgentRequest(string Name, string? DisplayName, string? Description);
-public record UpdateAgentRequest(string? Name, string? DisplayName, string? Description, bool? IsActive);
-public record UpsertSoulRequest(string Content, int? SortOrder);
-public record CreateMemoryRequest(string Key, string Content, string? Category, int? Importance, bool? IsPinned, DateTime? ExpiresAt);
-public record UpdateMemoryRequest(string? Key, string? Content, string? Category, int? Importance, bool? IsPinned);

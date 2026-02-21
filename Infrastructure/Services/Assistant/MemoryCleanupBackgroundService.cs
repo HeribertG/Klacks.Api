@@ -8,6 +8,7 @@ public class MemoryCleanupBackgroundService : BackgroundService
     private readonly ILogger<MemoryCleanupBackgroundService> _logger;
 
     private const int IntervalHours = 6;
+    private const int StaleSessionDays = 30;
 
     public MemoryCleanupBackgroundService(
         IServiceScopeFactory scopeFactory,
@@ -61,7 +62,7 @@ public class MemoryCleanupBackgroundService : BackgroundService
         await memoryRepository.CleanupExpiredAsync(stoppingToken);
         _logger.LogInformation("Expired memories cleaned up");
 
-        await sessionRepository.ArchiveStaleSessionsAsync(30, stoppingToken);
+        await sessionRepository.ArchiveStaleSessionsAsync(StaleSessionDays, stoppingToken);
         _logger.LogInformation("Stale sessions archived");
     }
 }

@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Mistral;
-using Klacks.Api.Application.DTOs.Assistant;
+using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek;

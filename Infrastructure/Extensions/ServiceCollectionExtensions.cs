@@ -66,7 +66,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IClientFilterRepository, ClientFilterRepository>();
         services.AddScoped<IClientBreakPlaceholderRepository, ClientBreakPlaceholderRepository>();
         services.AddScoped<IClientSearchRepository, ClientSearchRepository>();
-        services.AddScoped<IClientGroupFilterService, ClientGroupFilterService>();
         services.AddScoped<IClientSearchFilterService, ClientSearchFilterService>();
         services.AddScoped<IAddressRepository, AddressRepository>();
         services.AddScoped<IAnnotationRepository, AnnotationRepository>();
@@ -155,6 +154,7 @@ public static class ServiceCollectionExtensions
     private static void AddClientServices(this IServiceCollection services)
     {
         services.AddScoped<IClientFilterService, ClientFilterService>();
+        services.AddScoped<IClientGroupFilterService, ClientGroupFilterService>();
         services.AddScoped<IClientMembershipFilterService, ClientMembershipFilterService>();
         services.AddScoped<IClientSearchService, ClientSearchService>();
         services.AddScoped<IClientSortingService, ClientSortingService>();
@@ -196,6 +196,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICalendarSelectionUpdateService, CalendarSelectionUpdateService>();
         services.AddScoped<IScheduleCompletionService, ScheduleCompletionService>();
         services.AddScoped<ContainerTemplateService>();
+        services.AddScoped<IWorkChangeResultService, WorkChangeResultService>();
     }
 
     private static void AddSettingsServices(this IServiceCollection services)

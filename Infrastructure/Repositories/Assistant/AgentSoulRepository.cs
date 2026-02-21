@@ -1,3 +1,4 @@
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
@@ -52,7 +53,7 @@ public class AgentSoulRepository : IAgentSoulRepository
                 ContentBefore = contentBefore,
                 ContentAfter = content,
                 Version = existing.Version,
-                ChangeType = "update",
+                ChangeType = SoulChangeTypes.Update,
                 ChangedBy = changedBy
             });
 
@@ -81,7 +82,7 @@ public class AgentSoulRepository : IAgentSoulRepository
             ContentBefore = null,
             ContentAfter = content,
             Version = 1,
-            ChangeType = "create",
+            ChangeType = SoulChangeTypes.Create,
             ChangedBy = changedBy
         });
 
@@ -106,7 +107,7 @@ public class AgentSoulRepository : IAgentSoulRepository
                 ContentBefore = section.Content,
                 ContentAfter = section.Content,
                 Version = section.Version,
-                ChangeType = "deactivate"
+                ChangeType = SoulChangeTypes.Deactivate
             });
 
             await _context.SaveChangesAsync(cancellationToken);

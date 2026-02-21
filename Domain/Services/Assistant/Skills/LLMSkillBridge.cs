@@ -1,27 +1,11 @@
-using System.Text.Json;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Domain.Services.Assistant.Skills.Adapters;
-using Klacks.Api.Application.DTOs.Assistant;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Domain.Services.Assistant.Skills;
-
-public interface ILLMSkillBridge
-{
-    IReadOnlyList<LLMFunction> GetSkillsAsLLMFunctions(IReadOnlyList<string> userPermissions);
-
-    Task<LLMFunctionResult> ExecuteSkillFromLLMCallAsync(
-        LLMFunctionCall functionCall,
-        SkillExecutionContext context,
-        CancellationToken cancellationToken = default);
-
-    IReadOnlyList<object> GetSkillsForProvider(
-        LLMProviderType providerType,
-        IReadOnlyList<string> userPermissions);
-}
 
 public class LLMSkillBridge : ILLMSkillBridge
 {
@@ -60,7 +44,7 @@ public class LLMSkillBridge : ILLMSkillBridge
         }).ToList();
     }
 
-    public async Task<LLMFunctionResult> ExecuteSkillFromLLMCallAsync(
+    public async Task<SkillBridgeResult> ExecuteSkillFromLLMCallAsync(
         LLMFunctionCall functionCall,
         SkillExecutionContext context,
         CancellationToken cancellationToken = default)
@@ -75,7 +59,7 @@ public class LLMSkillBridge : ILLMSkillBridge
 
         var result = await _skillExecutor.ExecuteAsync(invocation, context, cancellationToken);
 
-        return new LLMFunctionResult
+        return new SkillBridgeResult
         {
             Success = result.Success,
             Message = result.Message ?? "",
@@ -124,12 +108,4 @@ public class LLMSkillBridge : ILLMSkillBridge
 
         return result;
     }
-}
-
-public class LLMFunctionResult
-{
-    public bool Success { get; set; }
-    public string Message { get; set; } = string.Empty;
-    public object? Data { get; set; }
-    public string ResultType { get; set; } = "Data";
 }

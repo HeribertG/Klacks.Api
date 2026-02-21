@@ -6,14 +6,13 @@ using Klacks.Api.Application.DTOs.Registrations;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Authentification;
 
 public class AccountsController : BaseController
 {
     private readonly ILogger<AccountsController> _logger;
-    private readonly IMediator mediator;
+    private readonly IMediator _mediator;
     private readonly IUsernameGeneratorService _usernameGeneratorService;
 
     public AccountsController(
@@ -21,18 +20,18 @@ public class AccountsController : BaseController
         ILogger<AccountsController> logger,
         IUsernameGeneratorService usernameGeneratorService)
     {
-        this.mediator = mediator;
-        this._logger = logger;
-        this._usernameGeneratorService = usernameGeneratorService;
+        _mediator = mediator;
+        _logger = logger;
+        _usernameGeneratorService = usernameGeneratorService;
     }
 
     [Authorize]
     [HttpPut("ChangePassword")]
     public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordResource model)
     {
-        this._logger.LogInformation("ChangePassword requested for user: {Email}", model.Email);
+        _logger.LogInformation("ChangePassword requested for user: {Email}", model.Email);
 
-        var result = await mediator.Send(new ChangePasswordCommand(model));
+        var result = await _mediator.Send(new ChangePasswordCommand(model));
 
         return Ok(result);
     }
@@ -41,9 +40,9 @@ public class AccountsController : BaseController
     [HttpPost("ChangePasswordUser")]
     public async Task<ActionResult> ChangePasswordUser([FromBody] ChangePasswordResource model)
     {
-        this._logger.LogInformation("ChangePasswordUser requested for user: {Email}", model.Email);
+        _logger.LogInformation("ChangePasswordUser requested for user: {Email}", model.Email);
 
-        var result = await mediator.Send(new ChangePasswordUserCommand(model));
+        var result = await _mediator.Send(new ChangePasswordUserCommand(model));
 
         return Ok(result);
     }
@@ -52,8 +51,8 @@ public class AccountsController : BaseController
     [HttpPut("ChangeRoleUser")]
     public async Task<ActionResult> ChangeRoleUser([FromBody] ChangeRole changeRole)
     {
-        this._logger.LogInformation("ChangeRoleUser request received for user: {UserId}", changeRole.UserId);
-        var result = await mediator.Send(new ChangeRoleCommand(changeRole));
+        _logger.LogInformation("ChangeRoleUser request received for user: {UserId}", changeRole.UserId);
+        var result = await _mediator.Send(new ChangeRoleCommand(changeRole));
         return Ok(result);
     }
 
@@ -61,8 +60,8 @@ public class AccountsController : BaseController
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteAccountUser(Guid id)
     {
-        this._logger.LogInformation("DeleteAccountUser request received for user: {Id}", id);
-        var result = await mediator.Send(new DeleteAccountCommand(id));
+        _logger.LogInformation("DeleteAccountUser request received for user: {Id}", id);
+        var result = await _mediator.Send(new DeleteAccountCommand(id));
         return Ok(result);
     }
 
@@ -70,8 +69,8 @@ public class AccountsController : BaseController
     [HttpPut]
     public async Task<ActionResult> UpdateAccount([FromBody] UpdateAccountResource model)
     {
-        this._logger.LogInformation("UpdateAccount request received for user: {UserId}", model.Id);
-        var result = await mediator.Send(new UpdateAccountCommand(model));
+        _logger.LogInformation("UpdateAccount request received for user: {UserId}", model.Id);
+        var result = await _mediator.Send(new UpdateAccountCommand(model));
         return Ok(result);
     }
 
@@ -79,7 +78,7 @@ public class AccountsController : BaseController
     [HttpGet("GenerateUsername")]
     public async Task<ActionResult<string>> GenerateUsername([FromQuery] string firstName, [FromQuery] string lastName)
     {
-        this._logger.LogInformation("GenerateUsername request for {FirstName} {LastName}", firstName, lastName);
+        _logger.LogInformation("GenerateUsername request for {FirstName} {LastName}", firstName, lastName);
         var username = await _usernameGeneratorService.GenerateUniqueUsernameAsync(firstName, lastName);
         return Ok(username);
     }
@@ -93,9 +92,9 @@ public class AccountsController : BaseController
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserResource>>> GetUserList()
     {
-        this._logger.LogInformation("GetUserList request received");
-        var users = await mediator.Send(new GetUserListQuery());
-        this._logger.LogInformation("Retrieved {Count} users", users.Count);
+        _logger.LogInformation("GetUserList request received");
+        var users = await _mediator.Send(new GetUserListQuery());
+        _logger.LogInformation("Retrieved {Count} users", users.Count);
         return Ok(users);
     }
 
@@ -105,13 +104,13 @@ public class AccountsController : BaseController
     {
         if (model == null || !ModelState.IsValid)
         {
-            this._logger.LogWarning("Invalid login request received.");
+            _logger.LogWarning("Invalid login request received.");
             return BadRequest("Invalid login data.");
         }
 
-        this._logger.LogInformation("Login attempt for user: {Email}", model.Email);
+        _logger.LogInformation("Login attempt for user: {Email}", model.Email);
 
-        var result = await mediator.Send(new LoginUserQuery(model.Email, model.Password));
+        var result = await _mediator.Send(new LoginUserQuery(model.Email, model.Password));
         return Ok(result);
     }
 
@@ -119,19 +118,19 @@ public class AccountsController : BaseController
     [HttpPost("RefreshToken")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshRequestResource model)
     {
-        this._logger.LogInformation("RefreshToken requested.");
+        _logger.LogInformation("RefreshToken requested.");
 
         if (model == null || !ModelState.IsValid)
         {
-            this._logger.LogWarning("Invalid refresh token request received.");
+            _logger.LogWarning("Invalid refresh token request received.");
             return BadRequest("Invalid data for token update.");
         }
 
-        var result = await mediator.Send(new RefreshTokenQuery(model));
+        var result = await _mediator.Send(new RefreshTokenQuery(model));
         
         if (result == null)
         {
-            this._logger.LogWarning("Token refresh failed - invalid or expired refresh token");
+            _logger.LogWarning("Token refresh failed - invalid or expired refresh token");
             return Unauthorized("Invalid or expired refresh token");
         }
         
@@ -141,8 +140,8 @@ public class AccountsController : BaseController
     [HttpPost("RegisterUser")]
     public async Task<ActionResult> RegisterUser([FromBody] RegistrationResource model)
     {
-        this._logger.LogInformation("RegisterUser request received: {Model}", JsonSerializer.Serialize(model));
-        var result = await mediator.Send(new RegisterUserCommand(model));
+        _logger.LogInformation("RegisterUser request received for: {Email}", model.Email);
+        var result = await _mediator.Send(new RegisterUserCommand(model));
         return Ok(result);
     }
 
@@ -152,15 +151,15 @@ public class AccountsController : BaseController
     {
         if (model == null || string.IsNullOrWhiteSpace(model.Email))
         {
-            this._logger.LogWarning("Invalid password reset request received");
+            _logger.LogWarning("Invalid password reset request received");
             return BadRequest("Email address is required.");
         }
 
-        this._logger.LogInformation("Password reset requested for email: {Email}", model.Email);
+        _logger.LogInformation("Password reset requested for email: {Email}", model.Email);
         
-        var result = await mediator.Send(new RequestPasswordResetCommand(model.Email));
+        var result = await _mediator.Send(new RequestPasswordResetCommand(model.Email));
         
-        this._logger.LogInformation("Password reset request processed for email: {Email}", model.Email);
+        _logger.LogInformation("Password reset request processed for email: {Email}", model.Email);
         return Ok(result);
     }
 
@@ -170,13 +169,13 @@ public class AccountsController : BaseController
     {
         if (model == null || !ModelState.IsValid)
         {
-            this._logger.LogWarning("Invalid reset password request received");
+            _logger.LogWarning("Invalid reset password request received");
             return BadRequest("Invalid data for password reset.");
         }
 
-        this._logger.LogInformation("Password reset confirmation requested");
+        _logger.LogInformation("Password reset confirmation requested");
         
-        var result = await mediator.Send(new ResetPasswordCommand(model));
+        var result = await _mediator.Send(new ResetPasswordCommand(model));
         
         return Ok(result);
     }
@@ -187,15 +186,15 @@ public class AccountsController : BaseController
     {
         if (string.IsNullOrWhiteSpace(token))
         {
-            this._logger.LogWarning("Empty token provided for validation");
+            _logger.LogWarning("Empty token provided for validation");
             return BadRequest("Token is required.");
         }
 
-        this._logger.LogInformation("Password reset token validation requested");
+        _logger.LogInformation("Password reset token validation requested");
         
-        var isValid = await mediator.Send(new ValidatePasswordResetTokenQuery(token));
+        var isValid = await _mediator.Send(new ValidatePasswordResetTokenQuery(token));
         
-        this._logger.LogInformation("Token validation result: {IsValid}", isValid);
+        _logger.LogInformation("Token validation result: {IsValid}", isValid);
         return Ok(isValid);
     }
 }

@@ -13,8 +13,6 @@ public interface ISkillUsageTracker
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<SkillUsageRecord>> GetUsageAsync(
-        Guid tenantId,
         DateTime from,
-        DateTime to,
         CancellationToken cancellationToken = default);
 }

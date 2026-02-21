@@ -189,11 +189,10 @@ public class AgentMemoryRepository : IAgentMemoryRepository
 
     public async Task<List<AgentMemory>> SearchAsync(Guid agentId, string searchTerm, CancellationToken cancellationToken = default)
     {
-        var lowerSearch = searchTerm.ToLower();
         return await _context.AgentMemories
             .Where(m => m.AgentId == agentId &&
-                        (m.Key.ToLower().Contains(lowerSearch) ||
-                         m.Content.ToLower().Contains(lowerSearch)))
+                        (EF.Functions.ILike(m.Key, $"%{searchTerm}%") ||
+                         EF.Functions.ILike(m.Content, $"%{searchTerm}%")))
             .OrderByDescending(m => m.Importance)
             .ThenByDescending(m => m.CreateTime)
             .AsNoTracking()

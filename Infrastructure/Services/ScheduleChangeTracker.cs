@@ -1,3 +1,4 @@
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
@@ -32,7 +33,6 @@ public class ScheduleChangeTracker : IScheduleChangeTracker
         if (existing != null)
         {
             existing.IsDeleted = false;
-            existing.UpdateTime = DateTime.UtcNow;
             _context.ScheduleChange.Update(existing);
         }
         else
@@ -49,7 +49,8 @@ public class ScheduleChangeTracker : IScheduleChangeTracker
 
         await _context.SaveChangesAsync();
 
-        var connectionId = _httpContextAccessor.HttpContext?.Request.Query["connectionId"].FirstOrDefault() ?? string.Empty;
+        var connectionId = _httpContextAccessor.HttpContext?.Request
+            .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
         var notification = new ScheduleChangeNotificationDto
         {
             ClientId = clientId,

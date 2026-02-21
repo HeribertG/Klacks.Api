@@ -1,4 +1,5 @@
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Domain.Models.Assistant;
 
@@ -26,7 +27,7 @@ public class AgentMemory : BaseEntity
 
     public DateTime? LastAccessedAt { get; set; }
 
-    public string Source { get; set; } = "conversation";
+    public string Source { get; set; } = MemorySources.Conversation;
 
     public string? SourceRef { get; set; }
 

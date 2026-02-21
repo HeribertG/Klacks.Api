@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
@@ -84,8 +85,8 @@ public class SkillExecutorService : ISkillExecutor
                 invocation.SkillName, ex.ErrorCode, ex.Message);
             return SkillResult.Error(ex.Message, new Dictionary<string, object>
             {
-                { "errorCode", ex.ErrorCode ?? "UNKNOWN" },
-                { "skillName", ex.SkillName }
+                { SkillErrorKeys.ErrorCode, ex.ErrorCode ?? SkillErrorKeys.Unknown },
+                { SkillErrorKeys.SkillName, ex.SkillName }
             });
         }
         catch (OperationCanceledException)
@@ -100,9 +101,9 @@ public class SkillExecutorService : ISkillExecutor
             _logger.LogError(ex, "Unexpected error executing skill: {SkillName}", invocation.SkillName);
             return SkillResult.Error($"Execution error: {ex.Message}", new Dictionary<string, object>
             {
-                { "errorCode", "EXECUTION_ERROR" },
-                { "skillName", invocation.SkillName },
-                { "exceptionType", ex.GetType().Name }
+                { SkillErrorKeys.ErrorCode, SkillErrorKeys.ExecutionError },
+                { SkillErrorKeys.SkillName, invocation.SkillName },
+                { SkillErrorKeys.ExceptionType, ex.GetType().Name }
             });
         }
     }
@@ -141,7 +142,7 @@ public class SkillExecutorService : ISkillExecutor
 
     private static SkillResult ValidatePermissions(SkillDescriptor descriptor, SkillExecutionContext context)
     {
-        if (context.UserPermissions.Contains("Admin"))
+        if (context.UserPermissions.Contains(Roles.Admin))
         {
             return SkillResult.SuccessResult(null);
         }

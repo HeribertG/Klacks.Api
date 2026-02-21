@@ -1,4 +1,4 @@
-using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Interfaces.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant;

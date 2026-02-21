@@ -50,7 +50,7 @@ public class SendScheduleReportCommandHandler : BaseHandler,
                 request.PdfData,
                 request.FileName);
 
-            if (result == "true")
+            if (result)
             {
                 return new SendScheduleReportResponse
                 {
@@ -62,7 +62,7 @@ public class SendScheduleReportCommandHandler : BaseHandler,
             return new SendScheduleReportResponse
             {
                 Success = false,
-                ErrorMessage = result,
+                ErrorMessage = "Failed to send schedule email",
                 ClientEmail = email.Value
             };
         },

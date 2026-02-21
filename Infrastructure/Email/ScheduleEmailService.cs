@@ -20,7 +20,7 @@ public class ScheduleEmailService : IScheduleEmailService
         _logger = logger;
     }
 
-    public async Task<string> SendScheduleEmailAsync(string recipientEmail, string clientName,
+    public async Task<bool> SendScheduleEmailAsync(string recipientEmail, string clientName,
         string startDate, string endDate, byte[] pdfAttachment, string fileName)
     {
         var msgEmail = new MsgEMail(_context, _encryptionService);
@@ -40,22 +40,24 @@ public class ScheduleEmailService : IScheduleEmailService
             var email = InitEmailWrapper(settings);
             if (email == null)
             {
-                return "Email configuration is incomplete";
+                _logger.LogWarning("Email configuration is incomplete, cannot send schedule email to {Email}", recipientEmail);
+                return false;
             }
 
             var result = email.SendEmailMessage(recipientEmail, subject, body, tempFile);
-            return result;
+            return result == "true";
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to send schedule email to {Email}", recipientEmail);
-            return ex.Message;
+            return false;
         }
         finally
         {
             if (tempFile != null && File.Exists(tempFile))
             {
-                try { File.Delete(tempFile); } catch { }
+                try { File.Delete(tempFile); }
+                catch (Exception ex) { _logger.LogWarning(ex, "Failed to delete temp file {TempFile}", tempFile); }
             }
         }
     }
@@ -67,7 +69,7 @@ public class ScheduleEmailService : IScheduleEmailService
 
         if (string.IsNullOrWhiteSpace(template))
         {
-            template = "Dienstplan {ClientName} ({StartDate} - {EndDate})";
+            template = ScheduleEmailDefaults.Subject;
         }
 
         return template
@@ -84,9 +86,7 @@ public class ScheduleEmailService : IScheduleEmailService
 
         if (string.IsNullOrWhiteSpace(template))
         {
-            template = @"<p>Sehr geehrte Damen und Herren,</p>
-<p>anbei erhalten Sie den Dienstplan für <strong>{ClientName}</strong> im Zeitraum {StartDate} - {EndDate}.</p>
-<p>Mit freundlichen Grüßen<br/>{AppName}</p>";
+            template = ScheduleEmailDefaults.Body;
         }
 
         return template

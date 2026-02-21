@@ -1,4 +1,5 @@
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Domain.Models.Assistant;
 
@@ -14,15 +15,15 @@ public class AgentSkill : BaseEntity
 
     public string? RequiredPermission { get; set; }
 
-    public string ExecutionType { get; set; } = "Skill";
+    public string ExecutionType { get; set; } = LlmExecutionTypes.Skill;
 
-    public string Category { get; set; } = "backend";
+    public string Category { get; set; } = AgentSkillDefaults.Category;
 
     public bool IsEnabled { get; set; } = true;
 
     public int SortOrder { get; set; }
 
-    public string HandlerType { get; set; } = "internal";
+    public string HandlerType { get; set; } = AgentSkillDefaults.HandlerType;
 
     public string HandlerConfig { get; set; } = "{}";
 

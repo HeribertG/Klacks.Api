@@ -19,4 +19,19 @@ public static class SoulSectionTypes
         CommunicationStyle, Values, GroupBehavior,
         UserContext, DomainExpertise, ErrorHandling
     ];
+
+    public static int GetDefaultSortOrder(string sectionType) => sectionType switch
+    {
+        Identity => 0,
+        Personality => 1,
+        Tone => 2,
+        Boundaries => 3,
+        CommunicationStyle => 4,
+        Values => 5,
+        DomainExpertise => 6,
+        ErrorHandling => 7,
+        UserContext => 8,
+        GroupBehavior => 9,
+        _ => 99
+    };
 }

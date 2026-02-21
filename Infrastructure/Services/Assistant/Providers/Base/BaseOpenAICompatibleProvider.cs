@@ -1,5 +1,5 @@
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
-using Klacks.Api.Application.DTOs.Assistant;
+using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using System.Text.Json;
 

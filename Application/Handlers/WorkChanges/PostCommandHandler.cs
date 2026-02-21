@@ -5,7 +5,6 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.WorkChanges;
 
@@ -15,9 +14,9 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     private readonly IWorkRepository _workRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
-    private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IScheduleCompletionService _completionService;
+    private readonly IWorkChangeResultService _resultService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public PostCommandHandler(
@@ -25,9 +24,9 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         IWorkRepository workRepository,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
-        IScheduleEntriesService scheduleEntriesService,
         IWorkNotificationService notificationService,
         IScheduleCompletionService completionService,
+        IWorkChangeResultService resultService,
         IHttpContextAccessor httpContextAccessor,
         ILogger<PostCommandHandler> logger)
         : base(logger)
@@ -36,9 +35,9 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         _workRepository = workRepository;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
-        _scheduleEntriesService = scheduleEntriesService;
         _notificationService = notificationService;
         _completionService = completionService;
+        _resultService = resultService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -69,12 +68,12 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
             resource.PeriodStart = periodStart;
             resource.PeriodEnd = periodEnd;
 
-            var clientResult = await GetClientResultAsync(work.ClientId, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken);
+            var clientResult = await _resultService.GetClientResultAsync(work.ClientId, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken);
             resource.ClientResults.Add(clientResult);
 
             if (workChange.ReplaceClientId.HasValue)
             {
-                var replaceClientResult = await GetClientResultAsync(workChange.ReplaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken);
+                var replaceClientResult = await _resultService.GetClientResultAsync(workChange.ReplaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken);
                 resource.ClientResults.Add(replaceClientResult);
             }
 
@@ -93,27 +92,5 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
 
             return resource;
         }, "CreateWorkChange", new { request.Resource.WorkId });
-    }
-
-    private async Task<WorkChangeClientResult> GetClientResultAsync(
-        Guid clientId,
-        DateOnly periodStart,
-        DateOnly periodEnd,
-        DateOnly threeDayStart,
-        DateOnly threeDayEnd,
-        CancellationToken cancellationToken)
-    {
-        var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(clientId, periodStart, periodEnd);
-
-        var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd)
-            .Where(e => e.ClientId == clientId)
-            .ToListAsync(cancellationToken);
-
-        return new WorkChangeClientResult
-        {
-            ClientId = clientId,
-            PeriodHours = periodHours,
-            ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList()
-        };
     }
 }

@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Text;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
-using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
@@ -73,8 +73,8 @@ public class LLMService : ILLMService
             var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt);
 
             var allFunctionCalls = new List<LLMFunctionCall>();
-            var totalUsage = new LLMUsage();
-            var runningHistory = new List<LLMMessage>(llmHistory);
+            var totalUsage = new Providers.LLMUsage();
+            var runningHistory = new List<Providers.LLMMessage>(llmHistory);
             var currentMessage = context.Message;
             string responseContent = "";
             LLMProviderResponse? lastResponse = null;
@@ -128,11 +128,11 @@ public class LLMService : ILLMService
                     break;
                 }
 
-                runningHistory.Add(new LLMMessage { Role = "user", Content = currentMessage });
+                runningHistory.Add(new Providers.LLMMessage { Role = "user", Content = currentMessage });
                 var assistantContent = string.IsNullOrEmpty(lastResponse.Content)
                     ? "[Executing function calls]"
                     : lastResponse.Content;
-                runningHistory.Add(new LLMMessage { Role = "assistant", Content = assistantContent });
+                runningHistory.Add(new Providers.LLMMessage { Role = "assistant", Content = assistantContent });
                 currentMessage = FormatFunctionResults(lastResponse.FunctionCalls);
             }
 
@@ -177,7 +177,7 @@ public class LLMService : ILLMService
         return sb.ToString();
     }
 
-    private static void AccumulateUsage(LLMUsage total, LLMUsage current)
+    private static void AccumulateUsage(Providers.LLMUsage total, Providers.LLMUsage current)
     {
         total.InputTokens += current.InputTokens;
         total.OutputTokens += current.OutputTokens;

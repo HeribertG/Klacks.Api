@@ -1,3 +1,4 @@
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Application.DTOs.Assistant;
 using Riok.Mapperly.Abstractions;
@@ -90,7 +91,7 @@ public partial class SkillMapper
             TenantId = tenantId,
             UserName = userName,
             UserPermissions = userPermissions,
-            UserTimezone = "Europe/Zurich"
+            UserTimezone = TimeZoneDefaults.DefaultTimezone
         };
     }
 

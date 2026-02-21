@@ -1,3 +1,4 @@
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
@@ -27,7 +28,7 @@ public class AgentSessionRepository : IAgentSessionRepository
             AgentId = agentId,
             SessionId = sessionId,
             UserId = userId,
-            Status = "active",
+            Status = AgentSessionStatus.Active,
             LastMessageAt = DateTime.UtcNow
         };
 
@@ -106,7 +107,7 @@ public class AgentSessionRepository : IAgentSessionRepository
     public async Task<List<AgentSession>> GetUserSessionsAsync(string userId, int limit = 20, CancellationToken cancellationToken = default)
     {
         return await _context.AgentSessions
-            .Where(s => s.UserId == userId && s.Status == "active")
+            .Where(s => s.UserId == userId && s.Status == AgentSessionStatus.Active)
             .OrderByDescending(s => s.LastMessageAt)
             .Take(limit)
             .AsNoTracking()
@@ -117,8 +118,8 @@ public class AgentSessionRepository : IAgentSessionRepository
     {
         var cutoff = DateTime.UtcNow.AddDays(-daysInactive);
         await _context.Database.ExecuteSqlInterpolatedAsync($"""
-            UPDATE agent_sessions SET status = 'archived', update_time = NOW()
-            WHERE status = 'active'
+            UPDATE agent_sessions SET status = {AgentSessionStatus.Archived}, update_time = NOW()
+            WHERE status = {AgentSessionStatus.Active}
               AND last_message_at < {cutoff}
               AND is_deleted = false
             """, cancellationToken);

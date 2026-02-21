@@ -58,9 +58,7 @@ public class SkillUsageTrackerService : ISkillUsageTracker
     }
 
     public async Task<IReadOnlyList<SkillUsageRecord>> GetUsageAsync(
-        Guid tenantId,
         DateTime from,
-        DateTime to,
         CancellationToken cancellationToken = default)
     {
         return await _repository.GetRecordsAsync(from, cancellationToken);

@@ -1,4 +1,5 @@
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Domain.Models.Assistant;
 
@@ -14,7 +15,7 @@ public class AgentSession : BaseEntity
 
     public string? Summary { get; set; }
 
-    public string Status { get; set; } = "active";
+    public string Status { get; set; } = AgentSessionStatus.Active;
 
     public int MessageCount { get; set; }
 
