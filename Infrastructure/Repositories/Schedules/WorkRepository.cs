@@ -1,4 +1,3 @@
-using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
@@ -16,166 +15,34 @@ namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 public class WorkRepository : BaseRepository<Work>, IWorkRepository
 {
     private readonly DataBaseContext _context;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IClientGroupFilterService _groupFilterService;
     private readonly IClientSearchFilterService _searchFilterService;
     private readonly IWorkMacroService _workMacroService;
-    private readonly IPeriodHoursService _periodHoursService;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IScheduleChangeTracker _scheduleChangeTracker;
-    private readonly IScheduleTimelineService _timelineService;
 
     public WorkRepository(
         DataBaseContext context,
         ILogger<Work> logger,
-        IUnitOfWork unitOfWork,
         IClientGroupFilterService groupFilterService,
         IClientSearchFilterService searchFilterService,
-        IWorkMacroService workMacroService,
-        IPeriodHoursService periodHoursService,
-        IHttpContextAccessor httpContextAccessor,
-        IScheduleChangeTracker scheduleChangeTracker,
-        IScheduleTimelineService timelineService)
+        IWorkMacroService workMacroService)
         : base(context, logger)
     {
         _context = context;
-        _unitOfWork = unitOfWork;
         _groupFilterService = groupFilterService;
         _searchFilterService = searchFilterService;
         _workMacroService = workMacroService;
-        _periodHoursService = periodHoursService;
-        _httpContextAccessor = httpContextAccessor;
-        _scheduleChangeTracker = scheduleChangeTracker;
-        _timelineService = timelineService;
     }
 
     public override async Task Add(Work work)
     {
         await _workMacroService.ProcessWorkMacroAsync(work);
         await base.Add(work);
-        var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
-        await RecalculatePeriodHoursAsync(work.ClientId, periodStart, periodEnd);
     }
 
     public override async Task<Work?> Put(Work work)
     {
         await _workMacroService.ProcessWorkMacroAsync(work);
-        var result = await base.Put(work);
-        var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
-        await RecalculatePeriodHoursAsync(work.ClientId, periodStart, periodEnd);
-        return result;
-    }
-
-    public override async Task<Work?> Delete(Guid id)
-    {
-        var work = await base.Get(id);
-        var result = await base.Delete(id);
-        if (work != null)
-        {
-            var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
-            await RecalculatePeriodHoursAsync(work.ClientId, periodStart, periodEnd);
-        }
-        return result;
-    }
-
-    public async Task<(Work Work, PeriodHoursResource PeriodHours)> AddWithPeriodHours(Work work, DateOnly periodStart, DateOnly periodEnd)
-    {
-        await _workMacroService.ProcessWorkMacroAsync(work);
-        await base.Add(work);
-        await _unitOfWork.CompleteAsync();
-        await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
-        _timelineService.QueueCheck(work.ClientId, work.CurrentDate);
-        var periodHours = await RecalculateAndGetPeriodHoursAsync(work.ClientId, periodStart, periodEnd);
-        return (work, periodHours);
-    }
-
-    public async Task<(Work? Work, PeriodHoursResource? PeriodHours)> PutWithPeriodHours(Work work, DateOnly periodStart, DateOnly periodEnd)
-    {
-        var existing = await _context.Work.AsNoTracking().FirstOrDefaultAsync(w => w.Id == work.Id);
-        await _workMacroService.ProcessWorkMacroAsync(work);
-        var result = await base.Put(work);
-        if (result == null) return (null, null);
-        await _unitOfWork.CompleteAsync();
-        await _scheduleChangeTracker.TrackChangeAsync(result.ClientId, result.CurrentDate);
-        _timelineService.QueueCheck(result.ClientId, result.CurrentDate);
-        if (existing != null && (existing.ClientId != result.ClientId || existing.CurrentDate != result.CurrentDate))
-        {
-            await _scheduleChangeTracker.TrackChangeAsync(existing.ClientId, existing.CurrentDate);
-            _timelineService.QueueCheck(existing.ClientId, existing.CurrentDate);
-        }
-        var periodHours = await RecalculateAndGetPeriodHoursAsync(work.ClientId, periodStart, periodEnd);
-        return (result, periodHours);
-    }
-
-    public async Task<(Work? Work, PeriodHoursResource? PeriodHours)> DeleteWithPeriodHours(Guid id, DateOnly periodStart, DateOnly periodEnd)
-    {
-        var work = await base.Get(id);
-        var result = await base.Delete(id);
-        if (work == null) return (null, null);
-        await _unitOfWork.CompleteAsync();
-        await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
-        _timelineService.QueueCheck(work.ClientId, work.CurrentDate);
-        var periodHours = await RecalculateAndGetPeriodHoursAsync(work.ClientId, periodStart, periodEnd);
-        return (result, periodHours);
-    }
-
-    public async Task<List<Work>> BulkAddWithTracking(List<Work> works)
-    {
-        foreach (var work in works)
-        {
-            await _workMacroService.ProcessWorkMacroAsync(work);
-            await base.Add(work);
-        }
-        await _unitOfWork.CompleteAsync();
-        foreach (var work in works)
-        {
-            await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
-            _timelineService.QueueCheck(work.ClientId, work.CurrentDate);
-        }
-        return works;
-    }
-
-    public async Task<List<Work>> BulkDeleteWithTracking(List<Guid> workIds)
-    {
-        var deletedWorks = new List<Work>();
-        foreach (var workId in workIds)
-        {
-            var work = await base.Get(workId);
-            if (work == null) continue;
-            deletedWorks.Add(work);
-            await base.Delete(workId);
-        }
-        await _unitOfWork.CompleteAsync();
-        foreach (var work in deletedWorks)
-        {
-            await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
-            _timelineService.QueueCheck(work.ClientId, work.CurrentDate);
-        }
-        return deletedWorks;
-    }
-
-    private async Task RecalculatePeriodHoursAsync(Guid clientId, DateOnly periodStart, DateOnly periodEnd)
-    {
-        var connectionId = _httpContextAccessor.HttpContext?.Request
-            .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault();
-
-        await _periodHoursService.RecalculateAndNotifyAsync(
-            clientId,
-            periodStart,
-            periodEnd,
-            connectionId);
-    }
-
-    private async Task<PeriodHoursResource> RecalculateAndGetPeriodHoursAsync(Guid clientId, DateOnly periodStart, DateOnly periodEnd)
-    {
-        var connectionId = _httpContextAccessor.HttpContext?.Request
-            .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault();
-
-        return await _periodHoursService.RecalculateAndNotifyAsync(
-            clientId,
-            periodStart,
-            periodEnd,
-            connectionId);
+        return await base.Put(work);
     }
 
     public async Task<(List<Client> Clients, int TotalCount)> WorkList(WorkFilter filter)

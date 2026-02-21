@@ -17,6 +17,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IPeriodHoursService _periodHoursService;
+    private readonly IScheduleCompletionService _completionService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public BulkAddWorksCommandHandler(
@@ -26,6 +27,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         IShiftStatsNotificationService shiftStatsNotificationService,
         IShiftScheduleService shiftScheduleService,
         IPeriodHoursService periodHoursService,
+        IScheduleCompletionService completionService,
         IHttpContextAccessor httpContextAccessor,
         ILogger<BulkAddWorksCommandHandler> logger)
         : base(logger)
@@ -36,6 +38,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         _shiftStatsNotificationService = shiftStatsNotificationService;
         _shiftScheduleService = shiftScheduleService;
         _periodHoursService = periodHoursService;
+        _completionService = completionService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -78,7 +81,13 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
 
             if (works.Count > 0)
             {
-                await _workRepository.BulkAddWithTracking(works);
+                foreach (var work in works)
+                {
+                    await _workRepository.Add(work);
+                }
+
+                var affected = works.Select(w => (w.ClientId, w.CurrentDate)).ToList();
+                await _completionService.SaveBulkAndTrackAsync(affected);
 
                 var connectionId = _httpContextAccessor.HttpContext?.Request
                     .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;

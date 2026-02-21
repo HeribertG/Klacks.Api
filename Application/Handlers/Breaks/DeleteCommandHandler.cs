@@ -15,6 +15,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IWorkNotificationService _notificationService;
+    private readonly IScheduleCompletionService _completionService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public DeleteCommandHandler(
@@ -22,6 +23,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
         ScheduleMapper scheduleMapper,
         IScheduleEntriesService scheduleEntriesService,
         IWorkNotificationService notificationService,
+        IScheduleCompletionService completionService,
         IHttpContextAccessor httpContextAccessor,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
@@ -30,6 +32,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
         _scheduleMapper = scheduleMapper;
         _scheduleEntriesService = scheduleEntriesService;
         _notificationService = notificationService;
+        _completionService = completionService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -43,7 +46,9 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
                 throw new KeyNotFoundException($"Break with ID {request.Id} not found.");
             }
 
-            var (deletedBreak, periodHours) = await _breakRepository.DeleteWithPeriodHours(request.Id, request.PeriodStart, request.PeriodEnd);
+            await _breakRepository.Delete(request.Id);
+            var periodHours = await _completionService.SaveAndTrackAsync(
+                breakEntry.ClientId, breakEntry.CurrentDate, request.PeriodStart, request.PeriodEnd);
 
             var currentDate = breakEntry.CurrentDate;
             var threeDayStart = currentDate.AddDays(-1);

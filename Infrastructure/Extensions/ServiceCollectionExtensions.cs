@@ -194,6 +194,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IWorkMacroService, WorkMacroService>();
         services.AddScoped<IBreakMacroService, BreakMacroService>();
         services.AddScoped<ICalendarSelectionUpdateService, CalendarSelectionUpdateService>();
+        services.AddScoped<IScheduleCompletionService, ScheduleCompletionService>();
         services.AddScoped<ContainerTemplateService>();
     }
 

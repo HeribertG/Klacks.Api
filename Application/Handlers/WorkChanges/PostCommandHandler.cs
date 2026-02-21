@@ -17,6 +17,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IWorkNotificationService _notificationService;
+    private readonly IScheduleCompletionService _completionService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public PostCommandHandler(
@@ -26,6 +27,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
         IWorkNotificationService notificationService,
+        IScheduleCompletionService completionService,
         IHttpContextAccessor httpContextAccessor,
         ILogger<PostCommandHandler> logger)
         : base(logger)
@@ -36,6 +38,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
         _notificationService = notificationService;
+        _completionService = completionService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -55,6 +58,10 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
 
             var currentDate = work.CurrentDate;
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(currentDate);
+
+            await _completionService.SaveAndTrackWithReplaceClientAsync(
+                work.ClientId, work.CurrentDate, periodStart, periodEnd, workChange.ReplaceClientId);
+
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
 
@@ -96,7 +103,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         DateOnly threeDayEnd,
         CancellationToken cancellationToken)
     {
-        var periodHours = await _periodHoursService.RecalculateAndNotifyAsync(clientId, periodStart, periodEnd);
+        var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(clientId, periodStart, periodEnd);
 
         var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd)
             .Where(e => e.ClientId == clientId)

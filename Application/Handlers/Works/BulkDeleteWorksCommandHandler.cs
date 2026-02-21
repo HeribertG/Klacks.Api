@@ -17,6 +17,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IPeriodHoursService _periodHoursService;
+    private readonly IScheduleCompletionService _completionService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public BulkDeleteWorksCommandHandler(
@@ -26,6 +27,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         IShiftStatsNotificationService shiftStatsNotificationService,
         IShiftScheduleService shiftScheduleService,
         IPeriodHoursService periodHoursService,
+        IScheduleCompletionService completionService,
         IHttpContextAccessor httpContextAccessor,
         ILogger<BulkDeleteWorksCommandHandler> logger)
         : base(logger)
@@ -36,6 +38,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         _shiftStatsNotificationService = shiftStatsNotificationService;
         _shiftScheduleService = shiftScheduleService;
         _periodHoursService = periodHoursService;
+        _completionService = completionService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -45,7 +48,17 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>();
         var affectedClients = new HashSet<Guid>();
 
-        var deletedWorks = await _workRepository.BulkDeleteWithTracking(command.Request.WorkIds);
+        var deletedWorks = new List<Work>();
+        foreach (var workId in command.Request.WorkIds)
+        {
+            var work = await _workRepository.Get(workId);
+            if (work == null) continue;
+            deletedWorks.Add(work);
+            await _workRepository.Delete(workId);
+        }
+
+        var affected = deletedWorks.Select(w => (w.ClientId, w.CurrentDate)).ToList();
+        await _completionService.SaveBulkAndTrackAsync(affected);
 
         foreach (var work in deletedWorks)
         {

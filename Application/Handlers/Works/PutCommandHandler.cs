@@ -18,6 +18,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
+    private readonly IScheduleCompletionService _completionService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public PutCommandHandler(
@@ -28,6 +29,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         IShiftScheduleService shiftScheduleService,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
+        IScheduleCompletionService completionService,
         IHttpContextAccessor httpContextAccessor,
         ILogger<PutCommandHandler> logger)
         : base(logger)
@@ -39,6 +41,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         _shiftScheduleService = shiftScheduleService;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
+        _completionService = completionService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -63,29 +66,29 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
             (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
         }
 
-        var (updatedWork, periodHours) = await _workRepository.PutWithPeriodHours(work, periodStart, periodEnd);
-
+        var updatedWork = await _workRepository.Put(work);
         if (updatedWork == null) return null;
+
+        var periodHours = await _completionService.SaveAndTrackMoveAsync(
+            updatedWork.ClientId, updatedWork.CurrentDate, periodStart, periodEnd,
+            existingWork?.ClientId, existingWork?.CurrentDate);
 
         var connectionId = _httpContextAccessor.HttpContext?.Request
             .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
         var notification = _scheduleMapper.ToWorkNotificationDto(updatedWork, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
         await _notificationService.NotifyWorkUpdated(notification);
 
-        if (periodHours != null)
+        var periodHoursNotification = new Application.DTOs.Notifications.PeriodHoursNotificationDto
         {
-            var periodHoursNotification = new Application.DTOs.Notifications.PeriodHoursNotificationDto
-            {
-                ClientId = updatedWork.ClientId,
-                StartDate = periodStart,
-                EndDate = periodEnd,
-                Hours = periodHours.Hours,
-                Surcharges = periodHours.Surcharges,
-                GuaranteedHours = periodHours.GuaranteedHours,
-                SourceConnectionId = connectionId
-            };
-            await _notificationService.NotifyPeriodHoursUpdated(periodHoursNotification);
-        }
+            ClientId = updatedWork.ClientId,
+            StartDate = periodStart,
+            EndDate = periodEnd,
+            Hours = periodHours.Hours,
+            Surcharges = periodHours.Surcharges,
+            GuaranteedHours = periodHours.GuaranteedHours,
+            SourceConnectionId = connectionId
+        };
+        await _notificationService.NotifyPeriodHoursUpdated(periodHoursNotification);
 
         var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>
         {

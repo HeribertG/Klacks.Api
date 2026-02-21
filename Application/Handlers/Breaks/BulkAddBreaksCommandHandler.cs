@@ -11,15 +11,18 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
 {
     private readonly IBreakRepository _breakRepository;
     private readonly IPeriodHoursService _periodHoursService;
+    private readonly IScheduleCompletionService _completionService;
 
     public BulkAddBreaksCommandHandler(
         IBreakRepository breakRepository,
         IPeriodHoursService periodHoursService,
+        IScheduleCompletionService completionService,
         ILogger<BulkAddBreaksCommandHandler> logger)
         : base(logger)
     {
         _breakRepository = breakRepository;
         _periodHoursService = periodHoursService;
+        _completionService = completionService;
     }
 
     public async Task<BulkBreaksResponse> Handle(BulkAddBreaksCommand command, CancellationToken cancellationToken)
@@ -62,7 +65,13 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
 
             if (breaks.Count > 0)
             {
-                await _breakRepository.BulkAddWithTracking(breaks);
+                foreach (var b in breaks)
+                {
+                    await _breakRepository.Add(b);
+                }
+
+                var affected = breaks.Select(b => (b.ClientId, b.CurrentDate)).ToList();
+                await _completionService.SaveBulkAndTrackAsync(affected);
 
                 var periodStart = command.Request.PeriodStart;
                 var periodEnd = command.Request.PeriodEnd;

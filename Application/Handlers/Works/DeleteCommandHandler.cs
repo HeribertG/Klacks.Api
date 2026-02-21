@@ -17,6 +17,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
+    private readonly IScheduleCompletionService _completionService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public DeleteCommandHandler(
@@ -26,6 +27,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         IShiftStatsNotificationService shiftStatsNotificationService,
         IShiftScheduleService shiftScheduleService,
         IScheduleEntriesService scheduleEntriesService,
+        IScheduleCompletionService completionService,
         IHttpContextAccessor httpContextAccessor,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
@@ -36,6 +38,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         _shiftStatsNotificationService = shiftStatsNotificationService;
         _shiftScheduleService = shiftScheduleService;
         _scheduleEntriesService = scheduleEntriesService;
+        _completionService = completionService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -52,7 +55,9 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
             var shiftId = work.ShiftId;
             var workDate = work.CurrentDate;
 
-            var (deletedWork, periodHours) = await _workRepository.DeleteWithPeriodHours(request.Id, request.PeriodStart, request.PeriodEnd);
+            await _workRepository.Delete(request.Id);
+            var periodHours = await _completionService.SaveAndTrackAsync(
+                work.ClientId, work.CurrentDate, request.PeriodStart, request.PeriodEnd);
 
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
@@ -60,20 +65,17 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
             var notification = _scheduleMapper.ToWorkNotificationDto(work, ScheduleEventTypes.Deleted, connectionId, request.PeriodStart, request.PeriodEnd);
             await _notificationService.NotifyWorkDeleted(notification);
 
-            if (periodHours != null)
+            var periodHoursNotification = new Application.DTOs.Notifications.PeriodHoursNotificationDto
             {
-                var periodHoursNotification = new Application.DTOs.Notifications.PeriodHoursNotificationDto
-                {
-                    ClientId = work.ClientId,
-                    StartDate = request.PeriodStart,
-                    EndDate = request.PeriodEnd,
-                    Hours = periodHours.Hours,
-                    Surcharges = periodHours.Surcharges,
-                    GuaranteedHours = periodHours.GuaranteedHours,
-                    SourceConnectionId = connectionId
-                };
-                await _notificationService.NotifyPeriodHoursUpdated(periodHoursNotification);
-            }
+                ClientId = work.ClientId,
+                StartDate = request.PeriodStart,
+                EndDate = request.PeriodEnd,
+                Hours = periodHours.Hours,
+                Surcharges = periodHours.Surcharges,
+                GuaranteedHours = periodHours.GuaranteedHours,
+                SourceConnectionId = connectionId
+            };
+            await _notificationService.NotifyPeriodHoursUpdated(periodHoursNotification);
 
             await SendShiftStatsNotificationAsync(shiftId, workDate, connectionId, cancellationToken);
 

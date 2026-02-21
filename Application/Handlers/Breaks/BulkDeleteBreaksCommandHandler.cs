@@ -11,15 +11,18 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
 {
     private readonly IBreakRepository _breakRepository;
     private readonly IPeriodHoursService _periodHoursService;
+    private readonly IScheduleCompletionService _completionService;
 
     public BulkDeleteBreaksCommandHandler(
         IBreakRepository breakRepository,
         IPeriodHoursService periodHoursService,
+        IScheduleCompletionService completionService,
         ILogger<BulkDeleteBreaksCommandHandler> logger)
         : base(logger)
     {
         _breakRepository = breakRepository;
         _periodHoursService = periodHoursService;
+        _completionService = completionService;
     }
 
     public async Task<BulkBreaksResponse> Handle(BulkDeleteBreaksCommand command, CancellationToken cancellationToken)
@@ -27,7 +30,17 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
         var response = new BulkBreaksResponse();
         var affectedClients = new HashSet<Guid>();
 
-        var deletedBreaks = await _breakRepository.BulkDeleteWithTracking(command.Request.BreakIds);
+        var deletedBreaks = new List<Break>();
+        foreach (var breakId in command.Request.BreakIds)
+        {
+            var breakEntry = await _breakRepository.Get(breakId);
+            if (breakEntry == null) continue;
+            deletedBreaks.Add(breakEntry);
+            await _breakRepository.Delete(breakId);
+        }
+
+        var affected = deletedBreaks.Select(b => (b.ClientId, b.CurrentDate)).ToList();
+        await _completionService.SaveBulkAndTrackAsync(affected);
 
         foreach (var breakEntry in deletedBreaks)
         {
