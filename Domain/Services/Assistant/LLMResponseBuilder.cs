@@ -1,5 +1,5 @@
 using Klacks.Api.Domain.Services.Assistant.Providers;
-using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
@@ -18,7 +18,7 @@ public class LLMResponseBuilder
             ConversationId = conversationId,
             ActionPerformed = functionCalls.Any(),
             FunctionCalls = functionCalls
-                .Select(f => (object)new { f.FunctionName, f.Parameters })
+                .Select(f => (object)new { f.FunctionName, f.Parameters, f.UiActionSteps })
                 .ToList(),
             Usage = new LLMUsageInfo
             {

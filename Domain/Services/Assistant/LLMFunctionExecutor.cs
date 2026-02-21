@@ -4,7 +4,7 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Models.Assistant;
-using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
@@ -15,7 +15,7 @@ public class LLMFunctionExecutor
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly IAgentRepository _agentRepository;
 
-    private Dictionary<string, string>? _executionTypeCache;
+    private Dictionary<string, AgentSkill>? _skillCache;
 
     public LLMFunctionExecutor(
         ILogger<LLMFunctionExecutor> logger,
@@ -29,23 +29,29 @@ public class LLMFunctionExecutor
         _skillBridge = skillBridge;
     }
 
-    private async Task<string> GetExecutionTypeAsync(string functionName)
+    private async Task<AgentSkill?> GetSkillAsync(string functionName)
     {
-        if (_executionTypeCache == null)
+        if (_skillCache == null)
         {
             var agent = await _agentRepository.GetDefaultAgentAsync();
             if (agent != null)
             {
                 var skills = await _agentSkillRepository.GetEnabledAsync(agent.Id);
-                _executionTypeCache = skills.ToDictionary(d => d.Name, d => d.ExecutionType);
+                _skillCache = skills.ToDictionary(d => d.Name);
             }
             else
             {
-                _executionTypeCache = new Dictionary<string, string>();
+                _skillCache = new Dictionary<string, AgentSkill>();
             }
         }
 
-        return _executionTypeCache.GetValueOrDefault(functionName, LlmExecutionTypes.Skill);
+        return _skillCache.GetValueOrDefault(functionName);
+    }
+
+    private async Task<string> GetExecutionTypeAsync(string functionName)
+    {
+        var skill = await GetSkillAsync(functionName);
+        return skill?.ExecutionType ?? LlmExecutionTypes.Skill;
     }
 
     public bool HasOnlyUiPassthroughCalls { get; private set; }
@@ -60,7 +66,7 @@ public class LLMFunctionExecutor
             try
             {
                 var executionType = await GetExecutionTypeAsync(call.FunctionName);
-                if (executionType != LlmExecutionTypes.UiPassthrough)
+                if (executionType != LlmExecutionTypes.UiPassthrough && executionType != LlmExecutionTypes.UiAction)
                     allUiPassthrough = false;
 
                 var result = await ExecuteFunctionAsync(context, call);
@@ -121,6 +127,15 @@ public class LLMFunctionExecutor
                    $"Parameters: {paramsJson}. " +
                    "The action is performed via the Settings page in the user's browser. " +
                    "Inform the user that the action is being carried out.";
+        }
+
+        if (executionType == LlmExecutionTypes.UiAction)
+        {
+            _logger.LogInformation("UI action for {FunctionName} - frontend will execute declarative steps", call.FunctionName);
+            var skill = await GetSkillAsync(call.FunctionName);
+            call.UiActionSteps = skill?.HandlerConfig ?? "{}";
+            var paramsJson = JsonSerializer.Serialize(call.Parameters);
+            return $"Function '{call.FunctionName}' will be executed as UI action. Parameters: {paramsJson}";
         }
 
         return await ExecuteSkillAsync(context, call);
