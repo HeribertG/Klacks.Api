@@ -161,12 +161,11 @@ public class WorkNotificationService : IWorkNotificationService
     {
         try
         {
-            if (notification.Collisions.Count == 0 && !notification.IsFullRefresh)
-            {
-                return;
-            }
-
             var dates = notification.Collisions.Select(c => c.Date).Distinct().ToList();
+            if (dates.Count == 0 && notification.CheckedDate.HasValue)
+            {
+                dates.Add(notification.CheckedDate.Value);
+            }
 
             if (notification.IsFullRefresh || dates.Count == 0)
             {

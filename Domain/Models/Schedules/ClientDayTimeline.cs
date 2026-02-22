@@ -19,19 +19,15 @@ public class ClientDayTimeline
     public List<(TimeRect A, TimeRect B)> GetCollisions()
     {
         var collisions = new List<(TimeRect A, TimeRect B)>();
-        var workRects = Rects
-            .Where(r => r.SourceType is TimeRectSourceType.Work or TimeRectSourceType.Correction or TimeRectSourceType.Replacement)
-            .ToList();
-
-        for (var i = 0; i < workRects.Count - 1; i++)
+        for (var i = 0; i < Rects.Count - 1; i++)
         {
-            for (var j = i + 1; j < workRects.Count; j++)
+            for (var j = i + 1; j < Rects.Count; j++)
             {
-                if (workRects[i].SourceId == workRects[j].SourceId) continue;
+                if (Rects[i].SourceId == Rects[j].SourceId) continue;
 
-                if (TimeRectsOverlap(workRects[i], workRects[j]))
+                if (TimeRectsOverlap(Rects[i], Rects[j]))
                 {
-                    collisions.Add((workRects[i], workRects[j]));
+                    collisions.Add((Rects[i], Rects[j]));
                 }
             }
         }
