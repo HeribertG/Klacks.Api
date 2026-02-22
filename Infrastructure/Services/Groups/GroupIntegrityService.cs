@@ -1,8 +1,8 @@
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
-using Klacks.Api.Domain.Services.Groups.Integrity;
+using Klacks.Api.Infrastructure.Services.Groups.Integrity;
 
-namespace Klacks.Api.Domain.Services.Groups;
+namespace Klacks.Api.Infrastructure.Services.Groups;
 
 public class GroupIntegrityService : IGroupIntegrityService
 {

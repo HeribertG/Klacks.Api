@@ -7,7 +7,7 @@ using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.PeriodHours;
+namespace Klacks.Api.Infrastructure.Services.PeriodHours;
 
 public class PeriodHoursService : IPeriodHoursService
 {

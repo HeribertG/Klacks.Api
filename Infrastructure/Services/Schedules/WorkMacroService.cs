@@ -6,35 +6,36 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Scripting;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.Schedules;
+namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 public class WorkMacroService : IWorkMacroService
 {
+    private readonly DataBaseContext _context;
     private readonly IShiftRepository _shiftRepository;
     private readonly IMacroManagementService _macroManagementService;
     private readonly IMacroCache _macroCache;
     private readonly IMacroDataProvider _macroDataProvider;
     private readonly IMacroEngine _macroEngine;
-    private readonly DataBaseContext _context;
     private readonly ILogger<WorkMacroService> _logger;
 
     public WorkMacroService(
+        DataBaseContext context,
         IShiftRepository shiftRepository,
         IMacroManagementService macroManagementService,
         IMacroCache macroCache,
         IMacroDataProvider macroDataProvider,
         IMacroEngine macroEngine,
-        DataBaseContext context,
         ILogger<WorkMacroService> logger)
     {
+        _context = context;
         _shiftRepository = shiftRepository;
         _macroManagementService = macroManagementService;
         _macroCache = macroCache;
         _macroDataProvider = macroDataProvider;
         _macroEngine = macroEngine;
-        _context = context;
         _logger = logger;
     }
 
@@ -116,7 +117,7 @@ public class WorkMacroService : IWorkMacroService
         }
     }
 
-    private static void SetImportsFromMacroData(Infrastructure.Scripting.CompiledScript compiledScript, MacroData data)
+    private static void SetImportsFromMacroData(CompiledScript compiledScript, MacroData data)
     {
         compiledScript.SetExternalValue("hour", data.Hour);
         compiledScript.SetExternalValue("fromhour", data.FromHour);

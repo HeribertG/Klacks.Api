@@ -3,7 +3,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.ScheduleEntries;
+namespace Klacks.Api.Infrastructure.Services.ScheduleEntries;
 
 public class ScheduleEntriesService : IScheduleEntriesService
 {

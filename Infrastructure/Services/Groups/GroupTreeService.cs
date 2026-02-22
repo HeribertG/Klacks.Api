@@ -3,7 +3,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.Groups;
+namespace Klacks.Api.Infrastructure.Services.Groups;
 
 public class GroupTreeService : IGroupTreeService
 {
@@ -24,7 +24,7 @@ public class GroupTreeService : IGroupTreeService
     public async Task<Group> AddChildNodeAsync(Guid parentId, Group newGroup)
     {
         _logger.LogInformation("Adding child node to parent {ParentId} for new group {GroupName}", parentId, newGroup.Name);
-        
+
         var parent = await _context.Group
             .Include(x => x.GroupItems)
             .Where(g => g.Id == parentId)
@@ -46,7 +46,7 @@ public class GroupTreeService : IGroupTreeService
         newGroup.CreateTime = DateTime.UtcNow;
 
         _context.Group.Add(newGroup);
-        
+
         _logger.LogInformation("Child node {GroupName} added to parent {ParentId}.", newGroup.Name, parentId);
         return newGroup;
     }
@@ -54,7 +54,7 @@ public class GroupTreeService : IGroupTreeService
     public async Task<Group> AddRootNodeAsync(Group newGroup)
     {
         _logger.LogInformation("Adding new root group: {GroupName}", newGroup.Name);
-        
+
         var maxRgt = await _context.Group
             .Where(g => g.Root == null)
             .OrderByDescending(g => g.Rgt)
@@ -68,7 +68,7 @@ public class GroupTreeService : IGroupTreeService
         newGroup.CreateTime = DateTime.UtcNow;
 
         _context.Group.Add(newGroup);
-        
+
         _logger.LogInformation("Root group {GroupName} prepared for addition.", newGroup.Name);
         return newGroup;
     }
@@ -76,7 +76,7 @@ public class GroupTreeService : IGroupTreeService
     public async Task MoveNodeAsync(Guid nodeId, Guid newParentId)
     {
         _logger.LogInformation("Attempting to move group with ID: {NodeId} to new parent ID: {NewParentId}", nodeId, newParentId);
-        
+
         var node = await _context.Group
             .Where(g => g.Id == nodeId)
             .FirstOrDefaultAsync();
@@ -122,14 +122,14 @@ public class GroupTreeService : IGroupTreeService
 
         node.Parent = newParentId;
         _context.Group.Update(node);
-        
+
         _logger.LogInformation("Group with ID: {NodeId} moved to new parent {NewParentId}.", nodeId, newParentId);
     }
 
     public async Task<int> DeleteNodeAsync(Guid nodeId)
     {
         _logger.LogInformation("Attempting to delete group with ID: {NodeId}", nodeId);
-        
+
         var groupEntity = await _context.Group
             .Where(g => g.Id == nodeId)
             .FirstOrDefaultAsync();
@@ -147,7 +147,7 @@ public class GroupTreeService : IGroupTreeService
 
         await _databaseAdapter.ShiftNodesAfterDeleteAsync(
             groupEntity.Rgt, groupEntity.Root ?? groupEntity.Id, width);
-        
+
         _logger.LogInformation("Group with ID: {NodeId} and its subtree deleted.", nodeId);
         return width;
     }
@@ -165,11 +165,11 @@ public class GroupTreeService : IGroupTreeService
     public async Task RepairNestedSetValuesAsync(Guid rootId)
     {
         _logger.LogInformation("Starting RepairNestedSetValues for root {RootId}.", rootId);
-        
+
         var rootNode = await _context.Group
             .Where(g => g.Id == rootId)
             .FirstOrDefaultAsync();
-            
+
         if (rootNode == null)
         {
             throw new KeyNotFoundException($"Root node with ID {rootId} not found");
@@ -180,13 +180,13 @@ public class GroupTreeService : IGroupTreeService
 
     public async Task UpdateTreePositionsAsync(Guid rootId, int startPosition, int adjustment)
     {
-        _logger.LogInformation("Updating tree positions for root {RootId} from position {StartPosition} with adjustment {Adjustment}.", 
+        _logger.LogInformation("Updating tree positions for root {RootId} from position {StartPosition} with adjustment {Adjustment}.",
             rootId, startPosition, adjustment);
-        
+
         var affectedNodes = await _context.Group
             .Where(g => g.Root == rootId && (g.Lft >= startPosition || g.Rgt >= startPosition))
             .CountAsync();
-            
+
         _logger.LogInformation("Would update {Count} nodes in tree {RootId}.", affectedNodes, rootId);
     }
 }

@@ -9,7 +9,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.Macros;
+namespace Klacks.Api.Infrastructure.Services.Macros;
 
 public class MacroDataProvider : IMacroDataProvider
 {

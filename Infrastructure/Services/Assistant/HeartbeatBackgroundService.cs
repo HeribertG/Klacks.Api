@@ -152,7 +152,7 @@ public class HeartbeatBackgroundService : BackgroundService
     {
         var context = scopedProvider.GetRequiredService<Klacks.Api.Infrastructure.Persistence.DataBaseContext>();
         var setting = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
-            .FirstOrDefaultAsync(context.Settings, s => s.Type == Settings.HEARTBEAT_ENABLED_GLOBALLY, cancellationToken);
+            .FirstOrDefaultAsync(context.Settings, s => s.Type == Application.Constants.Settings.HEARTBEAT_ENABLED_GLOBALLY, cancellationToken);
 
         return setting?.Value?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? true;
     }

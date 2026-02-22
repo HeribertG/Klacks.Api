@@ -2,7 +2,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.Groups.Integrity;
+namespace Klacks.Api.Infrastructure.Services.Groups.Integrity;
 
 public class NestedSetRepairService
 {

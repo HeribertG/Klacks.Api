@@ -1,4 +1,4 @@
-﻿using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Authentification;
@@ -7,7 +7,7 @@ using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.Groups
+namespace Klacks.Api.Infrastructure.Services.Groups
 {
     public class GroupVisibilityService : IGroupVisibilityService
     {

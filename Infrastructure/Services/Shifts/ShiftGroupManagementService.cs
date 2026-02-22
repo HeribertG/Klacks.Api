@@ -3,7 +3,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.Shifts;
+namespace Klacks.Api.Infrastructure.Services.Shifts;
 
 public class ShiftGroupManagementService : IShiftGroupManagementService
 {
@@ -19,7 +19,7 @@ public class ShiftGroupManagementService : IShiftGroupManagementService
     public async Task UpdateGroupItemsAsync(Guid shiftId, List<Guid> actualGroupIds)
     {
         _logger.LogInformation("Updating group items for shift ID: {ShiftId}", shiftId);
-        
+
         try
         {
             var existingIds = await _context.GroupItem

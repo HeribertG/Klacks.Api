@@ -4,7 +4,7 @@ using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
-namespace Klacks.Api.Domain.Services.CalendarSelections;
+namespace Klacks.Api.Infrastructure.Services.CalendarSelections;
 
 public class CalendarSelectionUpdateService : ICalendarSelectionUpdateService
 {
@@ -22,13 +22,13 @@ public class CalendarSelectionUpdateService : ICalendarSelectionUpdateService
     public async Task<CalendarSelection> GetWithSelectedCalendarsAsync(Guid id)
     {
         _logger.LogInformation("Fetching CalendarSelection with ID: {CalendarSelectionId}", id);
-        
+
         var calendarSelection = await _context.CalendarSelection
             .Include(c => c.SelectedCalendars)
             .FirstOrDefaultAsync(c => c.Id == id);
 
         if (calendarSelection == null)
-        { 
+        {
             _logger.LogWarning("CalendarSelection with ID: {CalendarSelectionId} not found.", id);
             throw new ValidationException($"CalendarSelection with ID {id} not found.");
         }

@@ -3,7 +3,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.Shifts;
+namespace Klacks.Api.Infrastructure.Services.Shifts;
 
 public class ShiftTreeService : IShiftTreeService
 {

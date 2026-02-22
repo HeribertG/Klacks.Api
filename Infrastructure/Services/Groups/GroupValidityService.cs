@@ -3,7 +3,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.Groups;
+namespace Klacks.Api.Infrastructure.Services.Groups;
 
 public class GroupValidityService : IGroupValidityService
 {
@@ -18,7 +18,7 @@ public class GroupValidityService : IGroupValidityService
 
     public IQueryable<Group> ApplyDateRangeFilter(IQueryable<Group> query, bool activeDateRange, bool formerDateRange, bool futureDateRange)
     {
-        _logger.LogDebug("Filtering by date range: active={Active}, former={Former}, future={Future}", 
+        _logger.LogDebug("Filtering by date range: active={Active}, former={Former}, future={Future}",
             activeDateRange, formerDateRange, futureDateRange);
 
         if (activeDateRange && formerDateRange && futureDateRange)
@@ -54,7 +54,7 @@ public class GroupValidityService : IGroupValidityService
             predicates.Add(g => g.ValidFrom.Date > nowDate);
         }
 
-        var combinedPredicate = predicates.Aggregate((expr1, expr2) => 
+        var combinedPredicate = predicates.Aggregate((expr1, expr2) =>
         {
             var param = System.Linq.Expressions.Expression.Parameter(typeof(Group), "g");
             var body1 = System.Linq.Expressions.Expression.Invoke(expr1, param);
@@ -132,7 +132,7 @@ public class GroupValidityService : IGroupValidityService
         }
 
         var isValid = group.ValidFrom <= group.ValidUntil.Value;
-        _logger.LogDebug("Group {GroupId} date range validation: {IsValid} (ValidFrom: {ValidFrom}, ValidUntil: {ValidUntil})", 
+        _logger.LogDebug("Group {GroupId} date range validation: {IsValid} (ValidFrom: {ValidFrom}, ValidUntil: {ValidUntil})",
             group.Id, isValid, group.ValidFrom, group.ValidUntil);
 
         return isValid;
@@ -176,7 +176,7 @@ public class GroupValidityService : IGroupValidityService
             }
         }
 
-        _logger.LogInformation("Effective validity period for group {GroupId}: {ValidFrom} - {ValidUntil}", 
+        _logger.LogInformation("Effective validity period for group {GroupId}: {ValidFrom} - {ValidUntil}",
             groupId, effectiveValidFrom, effectiveValidUntil?.ToString() ?? "∞");
 
         return (effectiveValidFrom, effectiveValidUntil);
@@ -184,7 +184,7 @@ public class GroupValidityService : IGroupValidityService
 
     public async Task<IEnumerable<Group>> GetGroupsExpiringWithinAsync(int withinDays, Guid? rootId = null)
     {
-        _logger.LogInformation("Finding groups expiring within {Days} days for root {RootId}", 
+        _logger.LogInformation("Finding groups expiring within {Days} days for root {RootId}",
             withinDays, rootId?.ToString() ?? "all");
 
         var cutoffDate = DateTime.Now.Date.AddDays(withinDays);
@@ -197,7 +197,7 @@ public class GroupValidityService : IGroupValidityService
         }
 
         var expiringGroups = await query
-            .Where(g => g.ValidUntil.HasValue && 
+            .Where(g => g.ValidUntil.HasValue &&
                        g.ValidUntil.Value.Date <= cutoffDate &&
                        g.ValidUntil.Value.Date >= DateTime.Now.Date)
             .OrderBy(g => g.ValidUntil)

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using NpgsqlTypes;
 
-namespace Klacks.Api.Domain.Services.ShiftSchedule;
+namespace Klacks.Api.Infrastructure.Services.ShiftSchedule;
 
 public class ShiftScheduleService : IShiftScheduleService
 {

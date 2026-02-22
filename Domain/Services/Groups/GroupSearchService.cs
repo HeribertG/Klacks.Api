@@ -1,6 +1,5 @@
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
-using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,13 +7,11 @@ namespace Klacks.Api.Domain.Services.Groups;
 
 public class GroupSearchService : IGroupSearchService
 {
-    private readonly DataBaseContext _context;
     private readonly ILogger<GroupSearchService> _logger;
     private readonly IGroupValidityService _validityService;
 
-    public GroupSearchService(DataBaseContext context, ILogger<GroupSearchService> logger, IGroupValidityService validityService)
+    public GroupSearchService(ILogger<GroupSearchService> logger, IGroupValidityService validityService)
     {
-        _context = context;
         _logger = logger;
         _validityService = validityService;
     }

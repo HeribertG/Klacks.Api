@@ -5,7 +5,7 @@ using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.Groups;
+namespace Klacks.Api.Infrastructure.Services.Groups;
 
 public class GroupMembershipService : IGroupMembershipService
 {
@@ -22,7 +22,7 @@ public class GroupMembershipService : IGroupMembershipService
 
     public async Task UpdateGroupMembershipAsync(Guid groupId, IEnumerable<Guid> newClientIds, Guid? shiftId = null)
     {
-        _logger.LogInformation("Updating group membership for group {GroupId} with {Count} clients", 
+        _logger.LogInformation("Updating group membership for group {GroupId} with {Count} clients",
             groupId, newClientIds.Count());
 
         var existingIds = await _context.GroupItem
@@ -182,14 +182,14 @@ public class GroupMembershipService : IGroupMembershipService
         _logger.LogInformation("Bulk adding {Count} clients to group {GroupId}", clientIds.Count(), groupId);
 
         var clientIdsList = clientIds.ToList();
-        
+
         var existingIds = await _context.GroupItem
             .Where(gi => gi.GroupId == groupId && gi.ClientId.HasValue && clientIdsList.Contains(gi.ClientId!.Value))
             .Select(gi => gi.ClientId!.Value)
             .ToHashSetAsync();
 
         var newIds = clientIdsList.Except(existingIds);
-        
+
         if (newIds.Any())
         {
             var newGroupItems = newIds.Select(clientId => new GroupItem
@@ -215,7 +215,7 @@ public class GroupMembershipService : IGroupMembershipService
         _logger.LogInformation("Bulk removing {Count} clients from group {GroupId}", clientIds.Count(), groupId);
 
         var clientIdsList = clientIds.ToList();
-        
+
         var itemsToRemove = await _context.GroupItem
             .Where(gi => gi.GroupId == groupId && gi.ClientId.HasValue && clientIdsList.Contains(gi.ClientId.Value))
             .ToListAsync();

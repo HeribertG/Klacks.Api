@@ -3,7 +3,7 @@ using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.Settings;
+namespace Klacks.Api.Infrastructure.Services.Settings;
 
 public class MacroManagementService : IMacroManagementService
 {
@@ -27,7 +27,7 @@ public class MacroManagementService : IMacroManagementService
     {
         _logger.LogInformation("Deleting macro with ID: {MacroId}", id);
         var macro = await _context.Macro.FindAsync(id);
-        
+
         if (macro == null)
         {
             _logger.LogWarning("Macro with ID: {MacroId} not found for deletion", id);
@@ -42,7 +42,7 @@ public class MacroManagementService : IMacroManagementService
     {
         _logger.LogInformation("Retrieving macro with ID: {MacroId}", id);
         var macro = await _context.Macro.FindAsync(id);
-        
+
         if (macro == null)
         {
             _logger.LogWarning("Macro with ID: {MacroId} not found", id);

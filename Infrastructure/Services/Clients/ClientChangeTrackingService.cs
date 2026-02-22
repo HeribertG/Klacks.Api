@@ -4,7 +4,7 @@ using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.Clients;
+namespace Klacks.Api.Infrastructure.Services.Clients;
 
 public class ClientChangeTrackingService : IClientChangeTrackingService
 {

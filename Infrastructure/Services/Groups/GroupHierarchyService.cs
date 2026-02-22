@@ -4,7 +4,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.Groups;
+namespace Klacks.Api.Infrastructure.Services.Groups;
 
 public class GroupHierarchyService : IGroupHierarchyService
 {
@@ -227,13 +227,13 @@ public class GroupHierarchyService : IGroupHierarchyService
 
         if (ancestor == null || descendant == null)
         {
-            _logger.LogWarning("One or both groups not found: ancestor={AncestorExists}, descendant={DescendantExists}", 
+            _logger.LogWarning("One or both groups not found: ancestor={AncestorExists}, descendant={DescendantExists}",
                 ancestor != null, descendant != null);
             return false;
         }
 
-        var isAncestor = ancestor.Lft < descendant.Lft && 
-                        ancestor.Rgt > descendant.Rgt && 
+        var isAncestor = ancestor.Lft < descendant.Lft &&
+                        ancestor.Rgt > descendant.Rgt &&
                         ancestor.Root == descendant.Root;
 
         _logger.LogInformation("IsAncestor result: {IsAncestor}", isAncestor);
@@ -242,7 +242,7 @@ public class GroupHierarchyService : IGroupHierarchyService
 
     public async Task<IEnumerable<Group>> GetDescendantsAsync(Guid parentId, bool includeParent = false)
     {
-        _logger.LogInformation("Getting descendants for parent {ParentId}, includeParent: {IncludeParent}", 
+        _logger.LogInformation("Getting descendants for parent {ParentId}, includeParent: {IncludeParent}",
             parentId, includeParent);
 
         var parent = await _context.Group
@@ -277,7 +277,7 @@ public class GroupHierarchyService : IGroupHierarchyService
 
     public async Task<IEnumerable<Group>> GetAncestorsAsync(Guid nodeId, bool includeNode = false)
     {
-        _logger.LogInformation("Getting ancestors for node {NodeId}, includeNode: {IncludeNode}", 
+        _logger.LogInformation("Getting ancestors for node {NodeId}, includeNode: {IncludeNode}",
             nodeId, includeNode);
 
         var node = await _context.Group

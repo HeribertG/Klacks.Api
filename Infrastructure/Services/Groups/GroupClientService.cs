@@ -1,9 +1,9 @@
-﻿using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace Klacks.Api.Domain.Services.Groups;
+namespace Klacks.Api.Infrastructure.Services.Groups;
 
 public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
 {
