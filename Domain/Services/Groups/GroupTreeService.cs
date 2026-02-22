@@ -1,7 +1,6 @@
-using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
-using Klacks.Api.Infrastructure.Interfaces;
+using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Domain.Services.Groups;
@@ -18,7 +17,7 @@ public class GroupTreeService : IGroupTreeService
         IGroupTreeDatabaseAdapter databaseAdapter)
     {
         _context = context;
-        this._logger = logger;
+        _logger = logger;
         _databaseAdapter = databaseAdapter;
     }
 
@@ -37,11 +36,9 @@ public class GroupTreeService : IGroupTreeService
             throw new KeyNotFoundException($"Parent group with ID {parentId} not found");
         }
 
-        // Update existing nodes to make space for the new node
         await _databaseAdapter.UpdateRgtValuesAsync(parent.Rgt, parent.Root ?? parent.Id, 2);
         await _databaseAdapter.UpdateLftValuesAsync(parent.Rgt, parent.Root ?? parent.Id, 2);
 
-        // Set the new node's position
         newGroup.Lft = parent.Rgt;
         newGroup.Rgt = parent.Rgt + 1;
         newGroup.Parent = parent.Id;
@@ -162,7 +159,6 @@ public class GroupTreeService : IGroupTreeService
 
     public bool ValidateTreeMovement(Group nodeToMove, Group newParent)
     {
-        // New parent cannot be a descendant of the node being moved
         return !(newParent.Lft > nodeToMove.Lft && newParent.Rgt < nodeToMove.Rgt);
     }
 
@@ -179,8 +175,6 @@ public class GroupTreeService : IGroupTreeService
             throw new KeyNotFoundException($"Root node with ID {rootId} not found");
         }
 
-        // In production: Rebuild nested set values recursively
-        // For testing: Log the operation
         _logger.LogInformation("RepairNestedSetValues would rebuild tree structure for root {RootId}.", rootId);
     }
 
@@ -189,8 +183,6 @@ public class GroupTreeService : IGroupTreeService
         _logger.LogInformation("Updating tree positions for root {RootId} from position {StartPosition} with adjustment {Adjustment}.", 
             rootId, startPosition, adjustment);
         
-        // In production: Batch update with ExecuteSqlRawAsync
-        // For testing: Log the operation
         var affectedNodes = await _context.Group
             .Where(g => g.Root == rootId && (g.Lft >= startPosition || g.Rgt >= startPosition))
             .CountAsync();

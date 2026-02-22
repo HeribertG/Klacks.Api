@@ -61,13 +61,9 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
-            
-            // Send ScheduleUpdated for grid refresh
             var notification = _scheduleMapper.ToScheduleNotificationDto(
                 work.ClientId, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
             await _notificationService.NotifyScheduleUpdated(notification);
-            
-            // Send PeriodHoursUpdated with recalculated hours
             await _periodHoursService.RecalculateAndNotifyAsync(work.ClientId, periodStart, periodEnd, connectionId);
         }
 

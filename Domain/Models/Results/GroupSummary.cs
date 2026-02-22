@@ -18,7 +18,6 @@ public class GroupSummary
     
     public bool IsFuture { get; set; }
     
-    // Hierarchy information
     public int? ParentId { get; set; }
     
     public string ParentName { get; set; } = string.Empty;
@@ -27,14 +26,12 @@ public class GroupSummary
     
     public string Path { get; set; } = string.Empty;
     
-    // Member information
     public int MemberCount { get; set; }
     
     public int DirectMemberCount { get; set; }
     
     public int SubGroupCount { get; set; }
     
-    // Tree structure info
     public int LeftValue { get; set; }
     
     public int RightValue { get; set; }

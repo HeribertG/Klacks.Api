@@ -4,12 +4,10 @@ namespace Klacks.Api.Domain.Models.Authentification;
 
 public class AppUser : IdentityUser
 {
-    // Extended Properties
     public string FirstName { get; set; } = string.Empty;
 
     public string LastName { get; set; } = string.Empty;
 
-    // Password Reset Properties
     public string? PasswordResetToken { get; set; }
     public DateTime? PasswordResetTokenExpires { get; set; }
 

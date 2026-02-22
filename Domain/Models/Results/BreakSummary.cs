@@ -24,7 +24,6 @@ public class BreakSummary
     
     public DateTime UpdateTime { get; set; }
     
-    // Group information
     public int? GroupId { get; set; }
     
     public string GroupName { get; set; } = string.Empty;

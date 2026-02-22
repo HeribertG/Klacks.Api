@@ -32,12 +32,10 @@ public class ShiftSummary
     
     public DateTime UpdateTime { get; set; }
     
-    // Group information
     public int? GroupId { get; set; }
     
     public string GroupName { get; set; } = string.Empty;
     
-    // Break information
     public bool HasBreaks { get; set; }
     
     public int BreakCount { get; set; }

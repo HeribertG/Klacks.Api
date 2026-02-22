@@ -1,4 +1,4 @@
-namespace Klacks.Api.Application.Interfaces;
+namespace Klacks.Api.Domain.Interfaces;
 
 public interface IUnitOfWork
 {

@@ -10,10 +10,12 @@ namespace Klacks.Api.Infrastructure.Services.Authentication;
 public class RefreshTokenService : IRefreshTokenService
 {
     private readonly DataBaseContext _context;
+    private readonly ILogger<RefreshTokenService> _logger;
 
-    public RefreshTokenService(DataBaseContext context)
+    public RefreshTokenService(DataBaseContext context, ILogger<RefreshTokenService> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<string> CreateRefreshTokenAsync(string userId)
@@ -61,7 +63,7 @@ public class RefreshTokenService : IRefreshTokenService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"GetUserFromRefreshToken Error: {ex.Message}");
+            _logger.LogError(ex, "Error retrieving user from refresh token");
         }
 
         return null;

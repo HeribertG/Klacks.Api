@@ -27,47 +27,50 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
 
     public async Task<BulkBreaksResponse> Handle(BulkDeleteBreaksCommand command, CancellationToken cancellationToken)
     {
-        var response = new BulkBreaksResponse();
-        var affectedClients = new HashSet<Guid>();
-
-        var deletedBreaks = new List<Break>();
-        foreach (var breakId in command.Request.BreakIds)
+        return await ExecuteAsync(async () =>
         {
-            var breakEntry = await _breakRepository.Get(breakId);
-            if (breakEntry == null) continue;
-            deletedBreaks.Add(breakEntry);
-            await _breakRepository.Delete(breakId);
-        }
+            var response = new BulkBreaksResponse();
+            var affectedClients = new HashSet<Guid>();
 
-        var affected = deletedBreaks.Select(b => (b.ClientId, b.CurrentDate)).ToList();
-        await _completionService.SaveBulkAndTrackAsync(affected);
-
-        foreach (var breakEntry in deletedBreaks)
-        {
-            affectedClients.Add(breakEntry.ClientId);
-            response.DeletedIds.Add(breakEntry.Id);
-            response.SuccessCount++;
-        }
-
-        response.FailedCount = command.Request.BreakIds.Count - deletedBreaks.Count;
-
-        if (deletedBreaks.Count > 0)
-        {
-            var periodStart = command.Request.PeriodStart;
-            var periodEnd = command.Request.PeriodEnd;
-
-            response.PeriodHours = new Dictionary<Guid, PeriodHoursResource>();
-
-            foreach (var clientId in affectedClients)
+            var deletedBreaks = new List<Break>();
+            foreach (var breakId in command.Request.BreakIds)
             {
-                var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(
-                    clientId,
-                    periodStart,
-                    periodEnd);
-                response.PeriodHours[clientId] = periodHours;
+                var breakEntry = await _breakRepository.Get(breakId);
+                if (breakEntry == null) continue;
+                deletedBreaks.Add(breakEntry);
+                await _breakRepository.Delete(breakId);
             }
-        }
 
-        return response;
+            var affected = deletedBreaks.Select(b => (b.ClientId, b.CurrentDate)).ToList();
+            await _completionService.SaveBulkAndTrackAsync(affected);
+
+            foreach (var breakEntry in deletedBreaks)
+            {
+                affectedClients.Add(breakEntry.ClientId);
+                response.DeletedIds.Add(breakEntry.Id);
+                response.SuccessCount++;
+            }
+
+            response.FailedCount = command.Request.BreakIds.Count - deletedBreaks.Count;
+
+            if (deletedBreaks.Count > 0)
+            {
+                var periodStart = command.Request.PeriodStart;
+                var periodEnd = command.Request.PeriodEnd;
+
+                response.PeriodHours = new Dictionary<Guid, PeriodHoursResource>();
+
+                foreach (var clientId in affectedClients)
+                {
+                    var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(
+                        clientId,
+                        periodStart,
+                        periodEnd);
+                    response.PeriodHours[clientId] = periodHours;
+                }
+            }
+
+            return response;
+        }, "BulkDeleteBreaks", new { Count = command.Request.BreakIds.Count });
     }
 }

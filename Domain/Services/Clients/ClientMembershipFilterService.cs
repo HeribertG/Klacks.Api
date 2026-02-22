@@ -1,30 +1,22 @@
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
-using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.DTOs.Filter;
 
 namespace Klacks.Api.Domain.Services.Clients;
 
 public class ClientMembershipFilterService : IClientMembershipFilterService
 {
-    private readonly DataBaseContext _context;
-
-    public ClientMembershipFilterService(DataBaseContext context)
-    {
-        _context = context;
-    }
 
     public IQueryable<Client> ApplyMembershipFilter(IQueryable<Client> query, bool activeMembership, bool formerMembership, bool futureMembership)
     {
         if (activeMembership && formerMembership && futureMembership)
         {
-            return query; // No need for filters
+            return query;
         }
 
         var nowDate = DateTime.Now;
 
-        // only active
         if (activeMembership && !formerMembership && !futureMembership)
         {
             return query.Where(co =>
@@ -34,21 +26,18 @@ public class ClientMembershipFilterService : IClientMembershipFilterService
                             ));
         }
 
-        // only former
         if (!activeMembership && formerMembership && !futureMembership)
         {
             return query.Where(co =>
                            (co.Membership!.ValidUntil.HasValue && co.Membership.ValidUntil.Value.Date < nowDate));
         }
 
-        // only future
         if (!activeMembership && !formerMembership && futureMembership)
         {
             return query.Where(co =>
                            (co.Membership!.ValidFrom.Date > nowDate));
         }
 
-        // former + active
         if (activeMembership && formerMembership && !futureMembership)
         {
             return query.Where(co =>
@@ -58,7 +47,6 @@ public class ClientMembershipFilterService : IClientMembershipFilterService
                             co.Membership.ValidUntil.HasValue && co.Membership.ValidUntil.Value.Date < nowDate));
         }
 
-        // active + future
         if (activeMembership && !formerMembership && futureMembership)
         {
             return query.Where(co =>
@@ -68,7 +56,6 @@ public class ClientMembershipFilterService : IClientMembershipFilterService
                              (co.Membership.ValidFrom.Date > nowDate)));
         }
 
-        // former + future
         if (!activeMembership && formerMembership && futureMembership)
         {
             return query.Where(co =>

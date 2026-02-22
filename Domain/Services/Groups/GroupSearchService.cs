@@ -15,7 +15,7 @@ public class GroupSearchService : IGroupSearchService
     public GroupSearchService(DataBaseContext context, ILogger<GroupSearchService> logger, IGroupValidityService validityService)
     {
         _context = context;
-        this._logger = logger;
+        _logger = logger;
         _validityService = validityService;
     }
 
@@ -23,7 +23,6 @@ public class GroupSearchService : IGroupSearchService
     {
         _logger.LogInformation("Applying search filters to query");
 
-        // Apply date range filtering using validity service
         query = _validityService.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange);
         query = ApplySearchFilter(query, filter.SearchString);
         query = ApplySorting(query, filter.OrderBy, filter.SortOrder);

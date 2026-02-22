@@ -4,7 +4,6 @@ public class GroupSearchCriteria : BaseCriteria
 {
     public string SearchString { get; set; } = string.Empty;
     
-    // Date range filtering for group validity
     public bool ActiveDateRange { get; set; }
     
     public bool FormerDateRange { get; set; }
@@ -15,14 +14,12 @@ public class GroupSearchCriteria : BaseCriteria
     
     public DateOnly? ValidToDate { get; set; }
     
-    // Hierarchy filtering
     public int? ParentGroupId { get; set; }
     
     public bool IncludeSubGroups { get; set; }
     
     public int? MaxDepth { get; set; }
     
-    // Membership filtering
     public bool? HasMembers { get; set; }
     
     public int? MinMemberCount { get; set; }

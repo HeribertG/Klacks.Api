@@ -38,7 +38,6 @@ public class ClientSummary
     
     public DateTime UpdateTime { get; set; }
     
-    // Membership info for summary
     public bool HasActiveMembership { get; set; }
     
     public bool HasFormerMembership { get; set; }

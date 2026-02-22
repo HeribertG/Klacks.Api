@@ -4,6 +4,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Handlers.GroupVisibilities;
 public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<GroupVisibilityResource>, GroupVisibilityResource?>

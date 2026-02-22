@@ -14,7 +14,6 @@ namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 
 public class WorkRepository : BaseRepository<Work>, IWorkRepository
 {
-    private readonly DataBaseContext _context;
     private readonly IClientGroupFilterService _groupFilterService;
     private readonly IClientSearchFilterService _searchFilterService;
     private readonly IWorkMacroService _workMacroService;
@@ -27,7 +26,6 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         IWorkMacroService workMacroService)
         : base(context, logger)
     {
-        _context = context;
         _groupFilterService = groupFilterService;
         _searchFilterService = searchFilterService;
         _workMacroService = workMacroService;
@@ -55,7 +53,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         var startOfYear = new DateTime(filter.StartDate.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         var endOfYear = new DateTime(filter.EndDate.Year, 12, 31, 23, 59, 59, DateTimeKind.Utc);
 
-        var query = _context.Client
+        var query = context.Client
             .Where(c => c.Type != EntityTypeEnum.Customer)
             .Include(c => c.Membership)
             .Where(c => c.Membership != null &&
@@ -153,7 +151,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
         var result = new Dictionary<Guid, PeriodHoursResource>();
 
-        var periodHours = await _context.ClientPeriodHours
+        var periodHours = await context.ClientPeriodHours
             .Where(m => clientIds.Contains(m.ClientId)
                 && m.StartDate == startDate
                 && m.EndDate == endDate)
@@ -162,19 +160,19 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         var clientIdsWithPeriodHours = periodHours.Select(m => m.ClientId).ToHashSet();
         var clientIdsWithoutPeriodHours = clientIds.Where(id => !clientIdsWithPeriodHours.Contains(id)).ToList();
 
-        var worksHours = await _context.Work
+        var worksHours = await context.Work
             .Where(w => clientIdsWithoutPeriodHours.Contains(w.ClientId) && w.CurrentDate >= startDate && w.CurrentDate <= endDate)
             .GroupBy(w => w.ClientId)
             .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime), TotalSurcharges = g.Sum(w => w.Surcharges) })
             .ToListAsync();
 
-        var breaksHours = await _context.Break
+        var breaksHours = await context.Break
             .Where(b => clientIdsWithoutPeriodHours.Contains(b.ClientId) && b.CurrentDate >= startDate && b.CurrentDate <= endDate)
             .GroupBy(b => b.ClientId)
             .Select(g => new { ClientId = g.Key, TotalBreaks = g.Sum(b => b.WorkTime) })
             .ToListAsync();
 
-        var workChanges = await _context.WorkChange
+        var workChanges = await context.WorkChange
             .Where(wc => clientIdsWithoutPeriodHours.Contains(wc.Work!.ClientId) && wc.Work.CurrentDate >= startDate && wc.Work.CurrentDate <= endDate)
             .Select(wc => new
             {
@@ -190,7 +188,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         var worksHoursDict = worksHours.ToDictionary(x => x.ClientId, x => (Hours: x.TotalHours, Surcharges: x.TotalSurcharges));
         var breaksHoursDict = breaksHours.ToDictionary(x => x.ClientId, x => x.TotalBreaks);
 
-        var contractData = await _context.ClientContract
+        var contractData = await context.ClientContract
             .Where(cc => clientIds.Contains(cc.ClientId) && cc.FromDate <= startDate && (cc.UntilDate == null || cc.UntilDate >= startDate))
             .Include(cc => cc.Contract)
             .ToListAsync();
@@ -259,7 +257,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
     public async Task<List<Work>> GetByClientAndDateRangeAsync(Guid clientId, DateTime fromDate, DateTime toDate, CancellationToken cancellationToken = default)
     {
-        return await _context.Work
+        return await context.Work
             .AsNoTracking()
             .Where(w => w.ClientId == clientId && !w.IsDeleted)
             .Where(w => w.CurrentDate >= DateOnly.FromDateTime(fromDate) && w.CurrentDate <= DateOnly.FromDateTime(toDate))
@@ -270,9 +268,9 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
     public async Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
     {
-        return await _context.Work
+        return await context.Work
             .Where(w => !w.IsDeleted && w.CurrentDate == date && w.LockLevel < level)
-            .Where(w => _context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
+            .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
             .ExecuteUpdateAsync(s => s
                 .SetProperty(w => w.LockLevel, level)
                 .SetProperty(w => w.SealedAt, DateTime.UtcNow)
@@ -281,9 +279,9 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
     public async Task<int> UnsealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default)
     {
-        return await _context.Work
+        return await context.Work
             .Where(w => !w.IsDeleted && w.CurrentDate == date && w.LockLevel == level)
-            .Where(w => _context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
+            .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
             .ExecuteUpdateAsync(s => s
                 .SetProperty(w => w.LockLevel, WorkLockLevel.None)
                 .SetProperty(w => w.SealedAt, (DateTime?)null)
@@ -292,7 +290,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
     public async Task<int> SealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
     {
-        return await _context.Work
+        return await context.Work
             .Where(w => !w.IsDeleted && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.LockLevel < level)
             .ExecuteUpdateAsync(s => s
                 .SetProperty(w => w.LockLevel, level)
@@ -302,7 +300,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
     public async Task<int> UnsealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, CancellationToken cancellationToken = default)
     {
-        return await _context.Work
+        return await context.Work
             .Where(w => !w.IsDeleted && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.LockLevel == level)
             .ExecuteUpdateAsync(s => s
                 .SetProperty(w => w.LockLevel, WorkLockLevel.None)

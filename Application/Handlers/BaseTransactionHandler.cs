@@ -1,5 +1,6 @@
 using Klacks.Api.Application.Interfaces;
 using Microsoft.Extensions.Logging;
+using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Handlers;
 

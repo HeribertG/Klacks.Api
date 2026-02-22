@@ -23,7 +23,7 @@ public class ScheduleEmailService : IScheduleEmailService
     public async Task<bool> SendScheduleEmailAsync(string recipientEmail, string clientName,
         string startDate, string endDate, byte[] pdfAttachment, string fileName)
     {
-        var msgEmail = new MsgEMail(_context, _encryptionService);
+        var msgEmail = new MsgEMail(_context, _logger, _encryptionService);
 
         var settings = _context.Settings?.ToList();
         var appName = settings?.FirstOrDefault(x => x.Type == Settings.APP_NAME)?.Value ?? "Klacks";

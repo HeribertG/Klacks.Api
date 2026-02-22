@@ -1,4 +1,4 @@
-using Klacks.Api.Infrastructure.Interfaces;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;

@@ -1,7 +1,6 @@
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
-using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Application.DTOs.Registrations;
 
 namespace Klacks.Api.Domain.Services.Accounts;
@@ -25,7 +24,7 @@ public class AccountAuthenticationService : IAccountAuthenticationService
         _authenticationService = authenticationService;
         _userManagementService = userManagementService;
         _refreshTokenService = refreshTokenService;
-        this._logger = logger;
+        _logger = logger;
     }
 
     public async Task<AuthenticatedResult> LogInUserAsync(string email, string password)

@@ -86,18 +86,11 @@ public class EmailWrapper
 
     private string SendEmail(MailMessage mailMsg)
     {
-        SmtpClient smtpMail;
-        if (!string.IsNullOrEmpty(OutgoingserverPort))
-        {
-            smtpMail = new SmtpClient(Outgoingserver, int.Parse(OutgoingserverPort));
-        }
-        else
-        {
-            smtpMail = new SmtpClient(Outgoingserver);
-        }
+        using var smtpMail = !string.IsNullOrEmpty(OutgoingserverPort)
+            ? new SmtpClient(Outgoingserver, int.Parse(OutgoingserverPort))
+            : new SmtpClient(Outgoingserver);
 
-        var switchExpr = AuthenticationType;
-        switch (switchExpr)
+        switch (AuthenticationType)
         {
             case "<None>":
             case "":

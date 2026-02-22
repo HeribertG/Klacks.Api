@@ -15,7 +15,7 @@ public class GroupHierarchyService : IGroupHierarchyService
     public GroupHierarchyService(DataBaseContext context, ILogger<GroupHierarchyService> logger, IGroupVisibilityService groupVisibilityService)
     {
         _context = context;
-        this._logger = logger;
+        _logger = logger;
         _groupVisibilityService = groupVisibilityService;
     }
 
@@ -232,7 +232,6 @@ public class GroupHierarchyService : IGroupHierarchyService
             return false;
         }
 
-        // In nested set model, ancestor's Lft < descendant's Lft and ancestor's Rgt > descendant's Rgt
         var isAncestor = ancestor.Lft < descendant.Lft && 
                         ancestor.Rgt > descendant.Rgt && 
                         ancestor.Root == descendant.Root;

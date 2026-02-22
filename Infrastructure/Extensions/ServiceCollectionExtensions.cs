@@ -1,5 +1,4 @@
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Services;
 using Klacks.Api.Application.Skills;
 using Klacks.Api.Infrastructure.Scripting;
@@ -209,6 +208,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISettingsTokenService, SettingsTokenService>();
         services.AddScoped<IEmailTestService, EmailTestService>();
         services.AddScoped<IScheduleEmailService, ScheduleEmailService>();
+        services.AddScoped<IEmailService, EmailService>();
     }
 
     private static void AddAuthenticationServices(this IServiceCollection services)
@@ -267,7 +267,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ISkillRegistry, Domain.Services.Assistant.Skills.SkillRegistry>();
         services.AddScoped<ISkillExecutor, Domain.Services.Assistant.Skills.SkillExecutorService>();
         services.AddScoped<ISkillUsageTracker, SkillUsageTrackerService>();
-        services.AddScoped<SkillMapper>();
         services.AddSingleton<SkillRegistrationService>();
         services.AddScoped<Domain.Services.Assistant.Skills.ILLMSkillBridge, Domain.Services.Assistant.Skills.LLMSkillBridge>();
 
@@ -324,6 +323,5 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<ITranslationService, Services.Translation.DeepLTranslationService>();
         services.AddScoped<IMultiLanguageTranslationService, MultiLanguageTranslationService>();
 
-        services.AddScoped<Application.Mappers.Reports.ReportTemplateMapper>();
     }
 }

@@ -13,7 +13,7 @@ public class GroupValidityService : IGroupValidityService
     public GroupValidityService(DataBaseContext context, ILogger<GroupValidityService> logger)
     {
         _context = context;
-        this._logger = logger;
+        _logger = logger;
     }
 
     public IQueryable<Group> ApplyDateRangeFilter(IQueryable<Group> query, bool activeDateRange, bool formerDateRange, bool futureDateRange)
@@ -21,7 +21,6 @@ public class GroupValidityService : IGroupValidityService
         _logger.LogDebug("Filtering by date range: active={Active}, former={Former}, future={Future}", 
             activeDateRange, formerDateRange, futureDateRange);
 
-        // If all three are true or all three are false, return accordingly
         if (activeDateRange && formerDateRange && futureDateRange)
         {
             _logger.LogDebug("All date ranges selected - returning all groups");
@@ -37,7 +36,6 @@ public class GroupValidityService : IGroupValidityService
         var nowDate = DateTime.Now;
         _logger.LogDebug("Using reference date: {ReferenceDate}", nowDate);
 
-        // Build compound filter based on selected ranges
         var predicates = new List<System.Linq.Expressions.Expression<Func<Group, bool>>>();
 
         if (activeDateRange)
@@ -56,7 +54,6 @@ public class GroupValidityService : IGroupValidityService
             predicates.Add(g => g.ValidFrom.Date > nowDate);
         }
 
-        // Combine predicates with OR logic
         var combinedPredicate = predicates.Aggregate((expr1, expr2) => 
         {
             var param = System.Linq.Expressions.Expression.Parameter(typeof(Group), "g");
@@ -155,7 +152,6 @@ public class GroupValidityService : IGroupValidityService
             throw new KeyNotFoundException($"Group with ID {groupId} not found");
         }
 
-        // Get all ancestors to determine constraining validity periods
         var ancestors = await _context.Group
             .Where(g => g.Lft < group.Lft && g.Rgt > group.Rgt && g.Root == group.Root)
             .OrderBy(g => g.Lft)
@@ -164,7 +160,6 @@ public class GroupValidityService : IGroupValidityService
         var effectiveValidFrom = group.ValidFrom;
         DateTime? effectiveValidUntil = group.ValidUntil;
 
-        // Apply parent constraints
         foreach (var ancestor in ancestors)
         {
             if (ancestor.ValidFrom > effectiveValidFrom)
@@ -204,7 +199,7 @@ public class GroupValidityService : IGroupValidityService
         var expiringGroups = await query
             .Where(g => g.ValidUntil.HasValue && 
                        g.ValidUntil.Value.Date <= cutoffDate &&
-                       g.ValidUntil.Value.Date >= DateTime.Now.Date) // Still valid today
+                       g.ValidUntil.Value.Date >= DateTime.Now.Date)
             .OrderBy(g => g.ValidUntil)
             .ThenBy(g => g.Name)
             .ToListAsync();

@@ -15,7 +15,7 @@ public class AccountManagementService : IAccountManagementService
         ILogger<AccountManagementService> logger)
     {
         _userManagementService = userManagementService;
-        this._logger = logger;
+        _logger = logger;
     }
 
     public async Task<HttpResultResource> ChangeRoleUserAsync(ChangeRole editUserRole)

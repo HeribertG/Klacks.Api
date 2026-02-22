@@ -81,46 +81,46 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
             var path = context.HttpContext.Request.Path;
             var accessToken = context.Request.Query["access_token"];
             var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("JwtBearer");
 
-            // Always log for debugging
-            Console.WriteLine($"[JWT] OnMessageReceived: Path={path}, IsHubPath={path.StartsWithSegments("/hubs")}");
-            
+            logger.LogDebug("OnMessageReceived: Path={Path}, IsHubPath={IsHubPath}", path, path.StartsWithSegments("/hubs"));
+
             if (path.StartsWithSegments("/hubs"))
             {
-                // Check if SignalR middleware set the token in Items
                 if (context.HttpContext.Items.TryGetValue("SignalRToken", out var signalRToken) && signalRToken is string tokenFromItems)
                 {
                     context.Token = tokenFromItems;
-                    Console.WriteLine($"[JWT-HUB] Token set from SignalR middleware (length: {context.Token?.Length})");
+                    logger.LogDebug("Token set from SignalR middleware (length: {TokenLength})", context.Token?.Length);
                 }
                 else if (!string.IsNullOrEmpty(accessToken))
                 {
-                    // URL-decode the token in case it was encoded by the client
                     context.Token = Uri.UnescapeDataString(accessToken);
-                    Console.WriteLine($"[JWT-HUB] Token set from query string (length: {context.Token?.Length})");
+                    logger.LogDebug("Token set from query string (length: {TokenLength})", context.Token?.Length);
                 }
                 else if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
                 {
                     context.Token = authHeader.Substring("Bearer ".Length).Trim();
-                    Console.WriteLine($"[JWT-HUB] Token set from Authorization header (length: {context.Token?.Length})");
+                    logger.LogDebug("Token set from Authorization header (length: {TokenLength})", context.Token?.Length);
                 }
                 else
                 {
-                    Console.WriteLine($"[JWT-HUB] No token found! QueryToken={!string.IsNullOrEmpty(accessToken)}, AuthHeader={!string.IsNullOrEmpty(authHeader)}");
+                    logger.LogWarning("No token found for hub path. QueryToken={HasQueryToken}, AuthHeader={HasAuthHeader}",
+                        !string.IsNullOrEmpty(accessToken), !string.IsNullOrEmpty(authHeader));
                 }
             }
             return Task.CompletedTask;
         },
         OnAuthenticationFailed = context =>
         {
-            var path = context.HttpContext.Request.Path;
-            Console.WriteLine($"[JWT] Authentication failed: Path={path}, Error={context.Exception.Message}");
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("JwtBearer");
+            logger.LogWarning("Authentication failed: Path={Path}, Error={Error}", context.HttpContext.Request.Path, context.Exception.Message);
             return Task.CompletedTask;
         },
         OnChallenge = context =>
         {
-            var path = context.HttpContext.Request.Path;
-            Console.WriteLine($"[JWT] OnChallenge: Path={path}, Error={context.Error}, ErrorDescription={context.ErrorDescription}");
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("JwtBearer");
+            logger.LogDebug("OnChallenge: Path={Path}, Error={Error}, ErrorDescription={ErrorDescription}",
+                context.HttpContext.Request.Path, context.Error, context.ErrorDescription);
             return Task.CompletedTask;
         }
     };

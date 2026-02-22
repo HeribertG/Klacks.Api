@@ -1,12 +1,11 @@
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
-using Klacks.Api.Infrastructure.Persistence;
 
 namespace Klacks.Api.Domain.Services.Accounts;
 
 public class AccountRegistrationService : IAccountRegistrationService
 {
-    private readonly DataBaseContext _appDbContext;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IAuthenticationService _authenticationService;
     private readonly IUserManagementService _userManagementService;
     private readonly IRefreshTokenService _refreshTokenService;
@@ -15,7 +14,7 @@ public class AccountRegistrationService : IAccountRegistrationService
     private readonly ILogger<AccountRegistrationService> _logger;
 
     public AccountRegistrationService(
-        DataBaseContext appDbContext,
+        IUnitOfWork unitOfWork,
         IAuthenticationService authenticationService,
         IUserManagementService userManagementService,
         IRefreshTokenService refreshTokenService,
@@ -23,13 +22,13 @@ public class AccountRegistrationService : IAccountRegistrationService
         IAccountPasswordService accountPasswordService,
         ILogger<AccountRegistrationService> logger)
     {
-        _appDbContext = appDbContext;
+        _unitOfWork = unitOfWork;
         _authenticationService = authenticationService;
         _userManagementService = userManagementService;
         _refreshTokenService = refreshTokenService;
         _accountAuthenticationService = accountAuthenticationService;
         _accountPasswordService = accountPasswordService;
-        this._logger = logger;
+        _logger = logger;
     }
 
     public async Task<AuthenticatedResult> RegisterUserAsync(AppUser user, string password)
@@ -57,7 +56,7 @@ public class AccountRegistrationService : IAccountRegistrationService
         var expires = _refreshTokenService.CalculateTokenExpiryTime();
         authenticatedResult = await _accountAuthenticationService.SetAuthenticatedResultAsync(authenticatedResult, user, expires);
 
-        await _appDbContext.SaveChangesAsync();
+        await _unitOfWork.CompleteAsync();
 
         try
         {

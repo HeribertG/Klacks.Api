@@ -4,7 +4,6 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Models.Assistant;
-using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
@@ -23,7 +22,7 @@ public class LLMFunctionExecutor
         IAgentRepository agentRepository,
         ILLMSkillBridge? skillBridge = null)
     {
-        this._logger = logger;
+        _logger = logger;
         _agentSkillRepository = agentSkillRepository;
         _agentRepository = agentRepository;
         _skillBridge = skillBridge;

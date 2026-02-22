@@ -122,14 +122,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             throw new KeyNotFoundException($"Group with ID {id} not found.");
         }
 
-        Console.WriteLine($"Repository: Group {id} loaded with {group.GroupItems?.Count ?? 0} items");
-        if (group.GroupItems?.Any() == true)
-        {
-            foreach (var item in group.GroupItems)
-            {
-                Console.WriteLine($"Repository: GroupItem {item.Id} - ClientId: {item.ClientId}, Employee: {item.Client?.Name ?? "NULL"}");
-            }
-        }
+        Logger.LogDebug("Group {GroupId} loaded with {ItemCount} items", id, group.GroupItems?.Count ?? 0);
 
         Logger.LogInformation("Group with ID: {GroupId} found successfully.", id);
         return group;

@@ -17,7 +17,7 @@ public class SettingsTokenService : ISettingsTokenService
     {
         _stateRepository = stateRepository;
         _countryRepository = countryRepository;
-        this._logger = logger;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<StateCountryToken>> GetRuleTokenListAsync(bool isSelected)

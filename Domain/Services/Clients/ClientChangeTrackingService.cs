@@ -23,7 +23,6 @@ public class ClientChangeTrackingService : IClientChangeTrackingService
         var lst = new List<Guid>();
         var lstAutorKeys = new List<string>();
 
-        // Check Create Time
         var c = await _context.Client.Where(x => x.CreateTime.HasValue).OrderByDescending(x => x.CreateTime).FirstOrDefaultAsync();
         if (c != null)
         {
@@ -49,7 +48,6 @@ public class ClientChangeTrackingService : IClientChangeTrackingService
             }
         }
 
-        // Check Update Time
         c = await _context.Client.Where(x => x.UpdateTime.HasValue).OrderByDescending(x => x.UpdateTime).FirstOrDefaultAsync();
         if (c != null)
         {
@@ -77,7 +75,6 @@ public class ClientChangeTrackingService : IClientChangeTrackingService
             }
         }
 
-        // Check Delete Time
         c = await _context.Client.IgnoreQueryFilters().Where(x => x.DeletedTime.HasValue).OrderByDescending(x => x.DeletedTime).FirstOrDefaultAsync();
         if (c != null)
         {

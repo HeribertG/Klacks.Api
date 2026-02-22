@@ -80,9 +80,3 @@ public class PeriodHoursBackgroundService : BackgroundService
         _logger.LogInformation("PeriodHoursBackgroundService stopped");
     }
 }
-
-public class PeriodHoursFullRecalculationRequest
-{
-    public DateOnly StartDate { get; init; }
-    public DateOnly EndDate { get; init; }
-}

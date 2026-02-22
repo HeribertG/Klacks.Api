@@ -1,5 +1,5 @@
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 

@@ -15,6 +15,8 @@ public static class MapperServiceCollectionExtensions
         services.AddSingleton<LLMMapper>();
         services.AddSingleton<FilterMapper>();
         services.AddSingleton<IdentityProviderMapper>();
+        services.AddSingleton<SkillMapper>();
+        services.AddSingleton<Reports.ReportTemplateMapper>();
 
         return services;
     }

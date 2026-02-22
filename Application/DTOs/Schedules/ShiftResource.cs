@@ -5,7 +5,6 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 
 public class ShiftResource
 {
-    // If the shift was cut by a parent shift after midnight
     public bool CuttingAfterMidnight { get; set; }
 
     public string Abbreviation { get; set; } = string.Empty;
@@ -20,7 +19,6 @@ public class ShiftResource
 
     public Guid? ParentId { get; set; }
 
-    // All Shift cuts are based on this root
     public Guid? RootId { get; set; }
 
     public int? Lft { get; set; }
@@ -59,7 +57,6 @@ public class ShiftResource
 
     public bool IsFriday { get; set; }
 
-    // Holiday, no matter what day of the week.
     public bool IsHoliday { get; set; }
 
     public bool IsMonday { get; set; }
@@ -74,7 +71,6 @@ public class ShiftResource
 
     public bool IsWednesday { get; set; }
 
-    // Weekdays (Mon-Fri) AND also on holidays.
     public bool IsWeekdayAndHoliday { get; set; }
 
     #endregion WeekDay

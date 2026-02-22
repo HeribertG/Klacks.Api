@@ -1,7 +1,7 @@
+using Klacks.Api.Domain.Extensions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
-using Klacks.Api.Infrastructure.Extensions;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +16,7 @@ public class GroupMembershipService : IGroupMembershipService
     public GroupMembershipService(DataBaseContext context, ILogger<GroupMembershipService> logger, IGroupHierarchyService hierarchyService)
     {
         _context = context;
-        this._logger = logger;
+        _logger = logger;
         _hierarchyService = hierarchyService;
     }
 
@@ -32,7 +32,6 @@ public class GroupMembershipService : IGroupMembershipService
 
         var newIds = newClientIds.ToHashSet();
 
-        // Find items to delete
         var itemsToDelete = await _context.GroupItem
             .Where(x => x.GroupId == groupId &&
                        x.ClientId.HasValue &&
@@ -45,7 +44,6 @@ public class GroupMembershipService : IGroupMembershipService
             _context.GroupItem.RemoveRange(itemsToDelete);
         }
 
-        // Find IDs to add
         var idsToAdd = newIds.Except(existingIds);
         if (idsToAdd.Any())
         {
@@ -165,7 +163,6 @@ public class GroupMembershipService : IGroupMembershipService
     {
         _logger.LogInformation("Getting hierarchy members for group {GroupId}", groupId);
 
-        // Get all descendants including the group itself
         var descendants = await _hierarchyService.GetDescendantsAsync(groupId, includeParent: true);
         var descendantIds = descendants.Select(g => g.Id).ToList();
 
@@ -186,7 +183,6 @@ public class GroupMembershipService : IGroupMembershipService
 
         var clientIdsList = clientIds.ToList();
         
-        // Get existing memberships to avoid duplicates
         var existingIds = await _context.GroupItem
             .Where(gi => gi.GroupId == groupId && gi.ClientId.HasValue && clientIdsList.Contains(gi.ClientId!.Value))
             .Select(gi => gi.ClientId!.Value)

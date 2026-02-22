@@ -13,7 +13,7 @@ public class ShiftGroupManagementService : IShiftGroupManagementService
     public ShiftGroupManagementService(DataBaseContext context, ILogger<ShiftGroupManagementService> logger)
     {
         _context = context;
-        this._logger = logger;
+        _logger = logger;
     }
 
     public async Task UpdateGroupItemsAsync(Guid shiftId, List<Guid> actualGroupIds)

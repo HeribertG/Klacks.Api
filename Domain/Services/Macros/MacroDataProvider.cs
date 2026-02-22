@@ -1,4 +1,5 @@
 using System.Globalization;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Macros;
@@ -83,14 +84,14 @@ public class MacroDataProvider : IMacroDataProvider
 
     private async Task<(string? Country, string? State, Guid? CalendarSelectionId)> GetGlobalCalendarSettingsAsync()
     {
-        var settingTypes = new[] { "globalCalendarCountry", "globalCalendarState", "globalCalendarSelectionId" };
+        var settingTypes = new[] { SettingKeys.GlobalCalendarCountry, SettingKeys.GlobalCalendarState, SettingKeys.GlobalCalendarSelectionId };
         var settings = await _context.Settings
             .Where(s => settingTypes.Contains(s.Type))
             .ToListAsync();
 
-        var country = settings.FirstOrDefault(s => s.Type == "globalCalendarCountry")?.Value;
-        var state = settings.FirstOrDefault(s => s.Type == "globalCalendarState")?.Value;
-        var calendarSelectionIdStr = settings.FirstOrDefault(s => s.Type == "globalCalendarSelectionId")?.Value;
+        var country = settings.FirstOrDefault(s => s.Type == SettingKeys.GlobalCalendarCountry)?.Value;
+        var state = settings.FirstOrDefault(s => s.Type == SettingKeys.GlobalCalendarState)?.Value;
+        var calendarSelectionIdStr = settings.FirstOrDefault(s => s.Type == SettingKeys.GlobalCalendarSelectionId)?.Value;
 
         Guid? calendarSelectionId = null;
         if (!string.IsNullOrEmpty(calendarSelectionIdStr) && Guid.TryParse(calendarSelectionIdStr, out var parsedGuid))
@@ -119,7 +120,7 @@ public class MacroDataProvider : IMacroDataProvider
 
     private async Task<DefaultMacroSettings> GetDefaultSettingsAsync()
     {
-        var settingTypes = new[] { "nightRate", "holidayRate", "saRate", "soRate", "guaranteedHours", "fullTime" };
+        var settingTypes = new[] { SettingKeys.NightRate, SettingKeys.HolidayRate, SettingKeys.SaRate, SettingKeys.SoRate, SettingKeys.GuaranteedHours, SettingKeys.FullTime };
 
         var settings = await _context.Settings
             .Where(s => settingTypes.Contains(s.Type))
@@ -127,12 +128,12 @@ public class MacroDataProvider : IMacroDataProvider
 
         return new DefaultMacroSettings
         {
-            NightRate = ParseDecimal(settings.GetValueOrDefault("nightRate")),
-            HolidayRate = ParseDecimal(settings.GetValueOrDefault("holidayRate")),
-            SaRate = ParseDecimal(settings.GetValueOrDefault("saRate")),
-            SoRate = ParseDecimal(settings.GetValueOrDefault("soRate")),
-            GuaranteedHours = ParseDecimal(settings.GetValueOrDefault("guaranteedHours")),
-            FullTime = ParseDecimal(settings.GetValueOrDefault("fullTime"))
+            NightRate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.NightRate)),
+            HolidayRate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.HolidayRate)),
+            SaRate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SaRate)),
+            SoRate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SoRate)),
+            GuaranteedHours = ParseDecimal(settings.GetValueOrDefault(SettingKeys.GuaranteedHours)),
+            FullTime = ParseDecimal(settings.GetValueOrDefault(SettingKeys.FullTime))
         };
     }
 

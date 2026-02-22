@@ -80,7 +80,7 @@ public class WorkNotificationService : IWorkNotificationService
                 return;
             }
 
-            Console.WriteLine($"[SignalR] SEND: PeriodHoursUpdated to {targetConnections.Count} connections");
+            _logger.LogDebug("SignalR SEND: PeriodHoursUpdated to {Count} connections", targetConnections.Count);
 
             await _hubContext.Clients.Clients(targetConnections).PeriodHoursUpdated(notification);
 
@@ -216,7 +216,7 @@ public class WorkNotificationService : IWorkNotificationService
                 return;
             }
 
-            Console.WriteLine($"[SignalR] SEND: {methodName} to {targetConnections.Count} connections (DateRange contains {targetDate:yyyy-MM-dd})");
+            _logger.LogDebug("SignalR SEND: {Method} to {Count} connections (DateRange contains {Date:yyyy-MM-dd})", methodName, targetConnections.Count, targetDate);
 
             _logger.LogInformation(
                 "SignalR SEND: {Method} to {Count} connections for date {Date}, ClientId={ClientId}",
@@ -229,7 +229,6 @@ public class WorkNotificationService : IWorkNotificationService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[SignalR] ERROR sending {methodName}: {ex.Message}");
             _logger.LogError(ex, "Error sending {Method} notification", methodName);
         }
     }

@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Handlers.CalendarSelections;
 

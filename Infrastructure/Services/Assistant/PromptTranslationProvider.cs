@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Translation;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
+using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
 

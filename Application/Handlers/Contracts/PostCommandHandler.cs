@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Handlers.Contracts;
 

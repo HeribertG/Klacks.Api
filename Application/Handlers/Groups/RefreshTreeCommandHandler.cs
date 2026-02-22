@@ -1,6 +1,7 @@
 using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Handlers.Groups
 {

@@ -1,5 +1,4 @@
 using Klacks.Api.Domain.Models.Assistant;
-using Klacks.Api.Application.Interfaces;
 
 namespace Klacks.Api.Domain.Interfaces.Assistant;
 

@@ -29,7 +29,7 @@ public class LLMService : ILLMService
         IAgentMemoryRepository agentMemoryRepository,
         ContextAssemblyPipeline contextAssemblyPipeline)
     {
-        this._logger = logger;
+        _logger = logger;
         _providerOrchestrator = providerOrchestrator;
         _conversationManager = conversationManager;
         _functionExecutor = functionExecutor;

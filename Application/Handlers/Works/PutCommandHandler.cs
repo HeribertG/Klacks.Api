@@ -47,75 +47,78 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
 
     public async Task<WorkResource?> Handle(PutCommand<WorkResource> request, CancellationToken cancellationToken)
     {
-        var existingWork = await _workRepository.GetNoTracking(request.Resource.Id);
-        var oldShiftId = existingWork?.ShiftId;
-        var oldDate = existingWork?.CurrentDate;
-
-        var work = _scheduleMapper.ToWorkEntity(request.Resource);
-
-        DateOnly periodStart;
-        DateOnly periodEnd;
-
-        if (request.Resource.PeriodStart.HasValue && request.Resource.PeriodEnd.HasValue)
+        return await ExecuteAsync(async () =>
         {
-            periodStart = request.Resource.PeriodStart.Value;
-            periodEnd = request.Resource.PeriodEnd.Value;
-        }
-        else
-        {
-            (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
-        }
+            var existingWork = await _workRepository.GetNoTracking(request.Resource.Id);
+            var oldShiftId = existingWork?.ShiftId;
+            var oldDate = existingWork?.CurrentDate;
 
-        var updatedWork = await _workRepository.Put(work);
-        if (updatedWork == null) return null;
+            var work = _scheduleMapper.ToWorkEntity(request.Resource);
 
-        var periodHours = await _completionService.SaveAndTrackMoveAsync(
-            updatedWork.ClientId, updatedWork.CurrentDate, periodStart, periodEnd,
-            existingWork?.ClientId, existingWork?.CurrentDate);
+            DateOnly periodStart;
+            DateOnly periodEnd;
 
-        var connectionId = _httpContextAccessor.HttpContext?.Request
-            .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
-        var notification = _scheduleMapper.ToWorkNotificationDto(updatedWork, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
-        await _notificationService.NotifyWorkUpdated(notification);
+            if (request.Resource.PeriodStart.HasValue && request.Resource.PeriodEnd.HasValue)
+            {
+                periodStart = request.Resource.PeriodStart.Value;
+                periodEnd = request.Resource.PeriodEnd.Value;
+            }
+            else
+            {
+                (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
+            }
 
-        var periodHoursNotification = new Application.DTOs.Notifications.PeriodHoursNotificationDto
-        {
-            ClientId = updatedWork.ClientId,
-            StartDate = periodStart,
-            EndDate = periodEnd,
-            Hours = periodHours.Hours,
-            Surcharges = periodHours.Surcharges,
-            GuaranteedHours = periodHours.GuaranteedHours,
-            SourceConnectionId = connectionId
-        };
-        await _notificationService.NotifyPeriodHoursUpdated(periodHoursNotification);
+            var updatedWork = await _workRepository.Put(work);
+            if (updatedWork == null) return null;
 
-        var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>
-        {
-            (updatedWork.ShiftId, updatedWork.CurrentDate)
-        };
+            var periodHours = await _completionService.SaveAndTrackMoveAsync(
+                updatedWork.ClientId, updatedWork.CurrentDate, periodStart, periodEnd,
+                existingWork?.ClientId, existingWork?.CurrentDate);
 
-        if (oldShiftId.HasValue && oldDate.HasValue &&
-            (oldShiftId.Value != updatedWork.ShiftId || oldDate.Value != updatedWork.CurrentDate))
-        {
-            affectedShifts.Add((oldShiftId.Value, oldDate.Value));
-        }
+            var connectionId = _httpContextAccessor.HttpContext?.Request
+                .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
+            var notification = _scheduleMapper.ToWorkNotificationDto(updatedWork, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
+            await _notificationService.NotifyWorkUpdated(notification);
 
-        await SendShiftStatsNotificationsAsync(affectedShifts, connectionId, cancellationToken);
+            var periodHoursNotification = new Application.DTOs.Notifications.PeriodHoursNotificationDto
+            {
+                ClientId = updatedWork.ClientId,
+                StartDate = periodStart,
+                EndDate = periodEnd,
+                Hours = periodHours.Hours,
+                Surcharges = periodHours.Surcharges,
+                GuaranteedHours = periodHours.GuaranteedHours,
+                SourceConnectionId = connectionId
+            };
+            await _notificationService.NotifyPeriodHoursUpdated(periodHoursNotification);
 
-        var currentDate = updatedWork.CurrentDate;
-        var threeDayStart = currentDate.AddDays(-1);
-        var threeDayEnd = currentDate.AddDays(1);
+            var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>
+            {
+                (updatedWork.ShiftId, updatedWork.CurrentDate)
+            };
 
-        var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd)
-            .Where(e => e.ClientId == updatedWork.ClientId)
-            .ToListAsync(cancellationToken);
+            if (oldShiftId.HasValue && oldDate.HasValue &&
+                (oldShiftId.Value != updatedWork.ShiftId || oldDate.Value != updatedWork.CurrentDate))
+            {
+                affectedShifts.Add((oldShiftId.Value, oldDate.Value));
+            }
 
-        var workResource = _scheduleMapper.ToWorkResource(updatedWork);
-        workResource.PeriodHours = periodHours;
-        workResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
+            await SendShiftStatsNotificationsAsync(affectedShifts, connectionId, cancellationToken);
 
-        return workResource;
+            var currentDate = updatedWork.CurrentDate;
+            var threeDayStart = currentDate.AddDays(-1);
+            var threeDayEnd = currentDate.AddDays(1);
+
+            var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd)
+                .Where(e => e.ClientId == updatedWork.ClientId)
+                .ToListAsync(cancellationToken);
+
+            var workResource = _scheduleMapper.ToWorkResource(updatedWork);
+            workResource.PeriodHours = periodHours;
+            workResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
+
+            return workResource;
+        }, "UpdateWork", new { request.Resource.Id });
     }
 
     private async Task SendShiftStatsNotificationsAsync(

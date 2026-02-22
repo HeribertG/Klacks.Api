@@ -157,19 +157,21 @@ public class AnthropicProvider : ILLMProvider
     {
         try
         {
-            var testClient = new HttpClient();
-            testClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
-            testClient.DefaultRequestHeaders.Add("anthropic-version", "2024-01-01");
-            
             var testRequest = new
             {
                 model = "claude-3-haiku-20240307",
                 messages = new[] { new { role = "user", content = "Hi" } },
                 max_tokens = 10
             };
-            
-            var content = new StringContent(JsonSerializer.Serialize(testRequest), Encoding.UTF8, "application/json");
-            var response = await testClient.PostAsync("https://api.anthropic.com/v1/messages", content);
+
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.anthropic.com/v1/messages")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(testRequest), Encoding.UTF8, "application/json")
+            };
+            request.Headers.Add("x-api-key", apiKey);
+            request.Headers.Add("anthropic-version", "2024-01-01");
+
+            var response = await _httpClient.SendAsync(request);
             return response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.PaymentRequired;
         }
         catch

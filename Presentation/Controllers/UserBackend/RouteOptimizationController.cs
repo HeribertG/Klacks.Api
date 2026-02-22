@@ -1,3 +1,4 @@
+using Klacks.Api.Application.DTOs.RouteOptimization;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Services.RouteOptimization;
@@ -5,9 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend;
 
-[ApiController]
-[Route("api/backend/[controller]")]
-public class RouteOptimizationController : ControllerBase
+public class RouteOptimizationController : BaseController
 {
     private readonly IRouteOptimizationService _routeOptimizationService;
     private readonly ILogger<RouteOptimizationController> _logger;
@@ -183,58 +182,4 @@ public class RouteOptimizationController : ControllerBase
 
         return TimeSpan.FromSeconds(result.DurationMatrix[fromIndex, toIndex]);
     }
-}
-
-public class DistanceMatrixResponse
-{
-    public List<LocationDto> Locations { get; set; } = new();
-    public double[][] Matrix { get; set; } = Array.Empty<double[]>();
-}
-
-public class RouteOptimizationResponse
-{
-    public List<RouteStepDto> OptimizedRoute { get; set; } = new();
-    public double TotalDistanceKm { get; set; }
-    public TimeSpan EstimatedTravelTime { get; set; }
-    public TimeSpan TravelTimeFromStartBase { get; set; }
-    public double DistanceFromStartBaseKm { get; set; }
-    public double DistanceToEndBaseKm { get; set; }
-    public TimeSpan TravelTimeToEndBase { get; set; }
-    public List<RouteSegmentDirectionsDto>? SegmentDirections { get; set; }
-}
-
-public class RouteSegmentDirectionsDto
-{
-    public string FromName { get; set; } = string.Empty;
-    public string ToName { get; set; } = string.Empty;
-    public string TransportMode { get; set; } = string.Empty;
-    public double DistanceKm { get; set; }
-    public TimeSpan Duration { get; set; }
-    public List<DirectionStepDto> Steps { get; set; } = new();
-}
-
-public class DirectionStepDto
-{
-    public string Instruction { get; set; } = string.Empty;
-    public string StreetName { get; set; } = string.Empty;
-    public double DistanceMeters { get; set; }
-    public int DurationSeconds { get; set; }
-    public string ManeuverType { get; set; } = string.Empty;
-}
-
-public class LocationDto
-{
-    public string Name { get; set; } = string.Empty;
-    public string Address { get; set; } = string.Empty;
-    public double Latitude { get; set; }
-    public double Longitude { get; set; }
-    public Guid ShiftId { get; set; }
-    public TransportMode TransportMode { get; set; } = TransportMode.ByCar;
-}
-
-public class RouteStepDto : LocationDto
-{
-    public int Order { get; set; }
-    public double DistanceToNextKm { get; set; }
-    public TimeSpan TravelTimeToNext { get; set; }
 }

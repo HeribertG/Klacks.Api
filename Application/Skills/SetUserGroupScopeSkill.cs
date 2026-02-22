@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Interfaces.Authentification;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
+using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Skills;
 

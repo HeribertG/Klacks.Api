@@ -1,6 +1,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Domain.Services.ContainerTemplates;
 
@@ -11,10 +12,10 @@ public class ContainerTemplateService
 
     public ContainerTemplateService(
         IUnitOfWork unitOfWork,
-        ILogger<ContainerTemplateService> _logger)
+        ILogger<ContainerTemplateService> logger)
     {
         _unitOfWork = unitOfWork;
-        this._logger = _logger;
+        _logger = logger;
     }
 
     public async Task<ContainerTemplateUpdateResult> UpdateContainerTemplate(

@@ -94,12 +94,10 @@ public class MistralProvider : BaseHttpProvider
     {
         try
         {
-            var testClient = new HttpClient();
-            testClient.BaseAddress = _httpClient.BaseAddress;
-            testClient.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_httpClient.BaseAddress!, "models"));
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
 
-            var response = await testClient.GetAsync("models");
+            var response = await _httpClient.SendAsync(request);
             return response.IsSuccessStatusCode;
         }
         catch

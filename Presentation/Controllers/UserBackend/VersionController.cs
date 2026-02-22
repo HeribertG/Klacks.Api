@@ -17,7 +17,7 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend;
                 MyVersion.Build,
                 MyVersion.BuildKey,
                 MyVersion.BuildTimestamp,
-                rsionString = version.Get(),
+                VersionString = version.Get(),
                 VersionStringWithBuildInfo = version.Get(true),
             });
         }

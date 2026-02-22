@@ -98,11 +98,10 @@ public class CohereProvider : BaseHttpProvider
     {
         try
         {
-            var testClient = new HttpClient();
-            testClient.BaseAddress = _httpClient.BaseAddress;
-            testClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-            
-            var response = await testClient.GetAsync("models");
+            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_httpClient.BaseAddress!, "models"));
+            request.Headers.Add("Authorization", $"Bearer {apiKey}");
+
+            var response = await _httpClient.SendAsync(request);
             return response.IsSuccessStatusCode;
         }
         catch

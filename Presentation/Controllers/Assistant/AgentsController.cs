@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Klacks.Api.Application.DTOs.Assistant;
-using Klacks.Api.Domain.Interfaces.Assistant;
-using Klacks.Api.Domain.Models.Assistant;
-using Klacks.Api.Domain.Constants;
+using Klacks.Api.Application.Commands.Assistant;
+using Klacks.Api.Application.Queries.Assistant;
+using Klacks.Api.Infrastructure.Mediator;
 using System.Security.Claims;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;
@@ -14,100 +14,60 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class AgentsController : ControllerBase
 {
-    private readonly IAgentRepository _agentRepository;
-    private readonly IAgentSoulRepository _soulRepository;
-    private readonly IAgentMemoryRepository _memoryRepository;
-    private readonly IAgentSkillRepository _skillRepository;
-    private readonly IAgentSessionRepository _sessionRepository;
-    private readonly IEmbeddingService _embeddingService;
+    private readonly IMediator _mediator;
 
-    public AgentsController(
-        IAgentRepository agentRepository,
-        IAgentSoulRepository soulRepository,
-        IAgentMemoryRepository memoryRepository,
-        IAgentSkillRepository skillRepository,
-        IAgentSessionRepository sessionRepository,
-        IEmbeddingService embeddingService)
+    public AgentsController(IMediator mediator)
     {
-        _agentRepository = agentRepository;
-        _soulRepository = soulRepository;
-        _memoryRepository = memoryRepository;
-        _skillRepository = skillRepository;
-        _sessionRepository = sessionRepository;
-        _embeddingService = embeddingService;
+        _mediator = mediator;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
-        var agents = await _agentRepository.GetAllAsync(ct);
-        return Ok(agents.Select(a => new
-        {
-            a.Id, a.Name, a.DisplayName, a.Description,
-            a.IsActive, a.IsDefault, a.CreateTime
-        }));
+        var result = await _mediator.Send(new GetAllAgentsQuery());
+        return Ok(result);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
-        var agent = await _agentRepository.GetByIdAsync(id, ct);
-        if (agent == null) return NotFound();
-
-        var sections = await _soulRepository.GetActiveSectionsAsync(id, ct);
-        var skills = await _skillRepository.GetEnabledAsync(id, ct);
-
-        return Ok(new
-        {
-            agent.Id, agent.Name, agent.DisplayName, agent.Description,
-            agent.IsActive, agent.IsDefault, agent.CreateTime,
-            SoulSections = sections.Select(s => new { s.Id, s.SectionType, s.SortOrder, s.Version }),
-            SkillCount = skills.Count
-        });
+        var result = await _mediator.Send(new GetAgentByIdQuery { Id = id });
+        if (result == null) return NotFound();
+        return Ok(result);
     }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateAgentRequest request, CancellationToken ct)
     {
-        var agent = new Agent
+        var result = await _mediator.Send(new CreateAgentCommand
         {
             Name = request.Name,
             DisplayName = request.DisplayName,
-            Description = request.Description,
-            IsActive = true,
-            IsDefault = false
-        };
-
-        await _agentRepository.AddAsync(agent, ct);
-        return CreatedAtAction(nameof(GetById), new { id = agent.Id }, new { agent.Id, agent.Name });
+            Description = request.Description
+        });
+        return CreatedAtAction(nameof(GetById), new { id = ((dynamic)result).Id }, result);
     }
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAgentRequest request, CancellationToken ct)
     {
-        var agent = await _agentRepository.GetByIdAsync(id, ct);
-        if (agent == null) return NotFound();
-
-        if (request.Name != null) agent.Name = request.Name;
-        if (request.DisplayName != null) agent.DisplayName = request.DisplayName;
-        if (request.Description != null) agent.Description = request.Description;
-        if (request.IsActive.HasValue) agent.IsActive = request.IsActive.Value;
-
-        await _agentRepository.UpdateAsync(agent, ct);
-        return Ok(new { agent.Id, agent.Name, agent.DisplayName, agent.IsActive });
+        var result = await _mediator.Send(new UpdateAgentCommand
+        {
+            Id = id,
+            Name = request.Name,
+            DisplayName = request.DisplayName,
+            Description = request.Description,
+            IsActive = request.IsActive
+        });
+        if (result == null) return NotFound();
+        return Ok(result);
     }
-
-    // ── Soul Sections ─────────────────────────────────────────
 
     [HttpGet("{id:guid}/soul")]
     public async Task<IActionResult> GetSoulSections(Guid id, CancellationToken ct)
     {
-        var sections = await _soulRepository.GetActiveSectionsAsync(id, ct);
-        return Ok(sections.Select(s => new
-        {
-            s.Id, s.SectionType, s.Content, s.SortOrder,
-            s.IsActive, s.Version, s.Source, s.CreateTime
-        }));
+        var result = await _mediator.Send(new GetSoulSectionsQuery { AgentId = id });
+        return Ok(result);
     }
 
     [HttpPut("{id:guid}/soul/{sectionType}")]
@@ -115,169 +75,111 @@ public class AgentsController : ControllerBase
         Guid id, string sectionType, [FromBody] UpsertSoulRequest request, CancellationToken ct)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        await _soulRepository.UpsertSectionAsync(
-            id, sectionType, request.Content,
-            request.SortOrder ?? SoulSectionTypes.GetDefaultSortOrder(sectionType),
-            source: null, changedBy: userId, cancellationToken: ct);
-
-        return Ok(new { AgentId = id, SectionType = sectionType });
+        var result = await _mediator.Send(new UpsertSoulSectionCommand
+        {
+            AgentId = id,
+            SectionType = sectionType,
+            Content = request.Content,
+            SortOrder = request.SortOrder,
+            UserId = userId
+        });
+        return Ok(result);
     }
 
     [HttpDelete("{id:guid}/soul/{sectionType}")]
     public async Task<IActionResult> DeactivateSoulSection(Guid id, string sectionType, CancellationToken ct)
     {
-        await _soulRepository.DeactivateSectionAsync(id, sectionType, ct);
+        await _mediator.Send(new DeactivateSoulSectionCommand { AgentId = id, SectionType = sectionType });
         return NoContent();
     }
 
     [HttpGet("{id:guid}/soul/history")]
     public async Task<IActionResult> GetSoulHistory(Guid id, [FromQuery] int limit = 50, CancellationToken ct = default)
     {
-        var history = await _soulRepository.GetHistoryAsync(id, limit, ct);
-        return Ok(history.Select(h => new
-        {
-            h.Id, h.SectionType, h.ContentBefore, h.ContentAfter,
-            h.Version, h.ChangeType, h.ChangedBy, h.CreateTime
-        }));
+        var result = await _mediator.Send(new GetSoulHistoryQuery { AgentId = id, Limit = limit });
+        return Ok(result);
     }
-
-    // ── Memories ──────────────────────────────────────────────
 
     [HttpGet("{id:guid}/memories")]
     public async Task<IActionResult> GetMemories(
         Guid id, [FromQuery] string? search, [FromQuery] string? category, CancellationToken ct)
     {
-        if (!string.IsNullOrWhiteSpace(search))
+        var result = await _mediator.Send(new GetAgentMemoriesQuery
         {
-            var queryEmbedding = _embeddingService.IsAvailable
-                ? await _embeddingService.GenerateEmbeddingAsync(search, ct)
-                : null;
-
-            var results = await _memoryRepository.HybridSearchAsync(id, search, queryEmbedding, 20, ct);
-            return Ok(results);
-        }
-
-        if (!string.IsNullOrWhiteSpace(category))
-        {
-            var memories = await _memoryRepository.GetByCategoryAsync(id, category, ct);
-            return Ok(memories.Select(MapMemory));
-        }
-
-        var all = await _memoryRepository.GetAllAsync(id, ct);
-        return Ok(all.Select(MapMemory));
+            AgentId = id,
+            Search = search,
+            Category = category
+        });
+        return Ok(result);
     }
 
     [HttpPost("{id:guid}/memories")]
     public async Task<IActionResult> CreateMemory(Guid id, [FromBody] CreateMemoryRequest request, CancellationToken ct)
     {
-        var memory = new AgentMemory
+        var result = await _mediator.Send(new CreateAgentMemoryCommand
         {
             AgentId = id,
-            Category = request.Category ?? MemoryCategories.Fact,
             Key = request.Key,
             Content = request.Content,
-            Importance = Math.Clamp(request.Importance ?? 5, 1, 10),
-            IsPinned = request.IsPinned ?? false,
-            Source = MemorySources.UserExplicit,
+            Category = request.Category,
+            Importance = request.Importance,
+            IsPinned = request.IsPinned,
             ExpiresAt = request.ExpiresAt
-        };
-
-        if (_embeddingService.IsAvailable)
-        {
-            memory.Embedding = await _embeddingService.GenerateEmbeddingAsync(
-                $"{memory.Key}: {memory.Content}", ct);
-        }
-
-        await _memoryRepository.AddAsync(memory, ct);
-        return CreatedAtAction(nameof(GetMemories), new { id }, MapMemory(memory));
+        });
+        return CreatedAtAction(nameof(GetMemories), new { id }, result);
     }
 
     [HttpPut("{id:guid}/memories/{memoryId:guid}")]
     public async Task<IActionResult> UpdateMemory(Guid id, Guid memoryId, [FromBody] UpdateMemoryRequest request, CancellationToken ct)
     {
-        var memory = await _memoryRepository.GetByIdAsync(memoryId, ct);
-        if (memory == null || memory.AgentId != id) return NotFound();
-
-        var contentChanged = false;
-        if (request.Key != null) { memory.Key = request.Key; contentChanged = true; }
-        if (request.Content != null) { memory.Content = request.Content; contentChanged = true; }
-        if (request.Category != null) memory.Category = request.Category;
-        if (request.Importance.HasValue) memory.Importance = Math.Clamp(request.Importance.Value, 1, 10);
-        if (request.IsPinned.HasValue) memory.IsPinned = request.IsPinned.Value;
-
-        if (contentChanged && _embeddingService.IsAvailable)
+        var result = await _mediator.Send(new UpdateAgentMemoryCommand
         {
-            memory.Embedding = await _embeddingService.GenerateEmbeddingAsync(
-                $"{memory.Key}: {memory.Content}", ct);
-        }
-
-        await _memoryRepository.UpdateAsync(memory, ct);
-        return Ok(MapMemory(memory));
+            AgentId = id,
+            MemoryId = memoryId,
+            Key = request.Key,
+            Content = request.Content,
+            Category = request.Category,
+            Importance = request.Importance,
+            IsPinned = request.IsPinned
+        });
+        if (result == null) return NotFound();
+        return Ok(result);
     }
 
     [HttpDelete("{id:guid}/memories/{memoryId:guid}")]
     public async Task<IActionResult> DeleteMemory(Guid id, Guid memoryId, CancellationToken ct)
     {
-        var memory = await _memoryRepository.GetByIdAsync(memoryId, ct);
-        if (memory == null || memory.AgentId != id) return NotFound();
-
-        await _memoryRepository.DeleteAsync(memoryId, ct);
+        await _mediator.Send(new DeleteAgentMemoryCommand { AgentId = id, MemoryId = memoryId });
         return NoContent();
     }
 
     [HttpPost("{id:guid}/memories/{memoryId:guid}/pin")]
     public async Task<IActionResult> TogglePin(Guid id, Guid memoryId, CancellationToken ct)
     {
-        var memory = await _memoryRepository.GetByIdAsync(memoryId, ct);
-        if (memory == null || memory.AgentId != id) return NotFound();
-
-        memory.IsPinned = !memory.IsPinned;
-        await _memoryRepository.UpdateAsync(memory, ct);
-        return Ok(new { memory.Id, memory.IsPinned });
+        var result = await _mediator.Send(new ToggleMemoryPinCommand { AgentId = id, MemoryId = memoryId });
+        if (result == null) return NotFound();
+        return Ok(result);
     }
-
-    // ── Skills ────────────────────────────────────────────────
 
     [HttpGet("{id:guid}/skills")]
     public async Task<IActionResult> GetSkills(Guid id, CancellationToken ct)
     {
-        var skills = await _skillRepository.GetEnabledAsync(id, ct);
-        return Ok(skills.Select(s => new
-        {
-            s.Id, s.Name, s.Description, s.Category,
-            s.IsEnabled, s.SortOrder, s.ExecutionType, s.Version
-        }));
+        var result = await _mediator.Send(new GetAgentSkillsQuery { AgentId = id });
+        return Ok(result);
     }
-
-    // ── Sessions ──────────────────────────────────────────────
 
     [HttpGet("{id:guid}/sessions")]
     public async Task<IActionResult> GetSessions(Guid id, CancellationToken ct)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "system";
-        var sessions = await _sessionRepository.GetUserSessionsAsync(userId, 50, ct);
-        return Ok(sessions.Select(s => new
-        {
-            s.Id, s.SessionId, s.Title, s.Status,
-            s.MessageCount, s.TokenCountEst, s.LastMessageAt, s.IsArchived
-        }));
+        var result = await _mediator.Send(new GetAgentSessionsQuery { AgentId = id, UserId = userId });
+        return Ok(result);
     }
 
     [HttpGet("{id:guid}/sessions/{sessionId:guid}")]
     public async Task<IActionResult> GetSession(Guid id, Guid sessionId, CancellationToken ct)
     {
-        var messages = await _sessionRepository.GetActiveMessagesAsync(sessionId, ct);
-        return Ok(messages.Select(m => new
-        {
-            m.Id, m.Role, m.Content, m.TokenCount,
-            m.ModelId, m.FunctionCalls, m.CreateTime
-        }));
+        var result = await _mediator.Send(new GetAgentSessionMessagesQuery { AgentId = id, SessionId = sessionId });
+        return Ok(result);
     }
-
-    private static object MapMemory(AgentMemory m) => new
-    {
-        m.Id, m.Key, m.Content, m.Category, m.Importance,
-        m.IsPinned, m.Source, m.ExpiresAt, m.AccessCount, m.CreateTime
-    };
 }

@@ -1,6 +1,6 @@
 using Klacks.Api.Domain.Common;
 
-namespace Klacks.Api.Application.Interfaces;
+namespace Klacks.Api.Domain.Interfaces;
 
 public interface IBaseRepository<TEntity>
     where TEntity : BaseEntity
