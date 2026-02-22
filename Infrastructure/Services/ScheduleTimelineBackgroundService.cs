@@ -3,7 +3,7 @@
 using System.Threading.Channels;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
@@ -26,6 +26,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         _serviceProvider = serviceProvider;
         _logger = logger;
         _timelineStore = timelineStore;
+
         _channel = Channel.CreateUnbounded<TimelineCheckRequest>(new UnboundedChannelOptions
         {
             SingleReader = true
@@ -78,14 +79,15 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                     using var scope = _serviceProvider.CreateScope();
                     var dbContext = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
                     var notificationService = scope.ServiceProvider.GetRequiredService<IWorkNotificationService>();
+                    var timelineCalculationService = scope.ServiceProvider.GetRequiredService<ITimelineCalculationService>();
 
                     if (request.IsRangeCheck)
                     {
-                        await ProcessRangeCheckAsync(dbContext, notificationService, request.StartDate, request.EndDate, stoppingToken);
+                        await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, request.StartDate, request.EndDate, stoppingToken);
                     }
                     else
                     {
-                        await ProcessSingleCheckAsync(dbContext, notificationService, request.ClientId, request.Date, stoppingToken);
+                        await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, request.ClientId, request.Date, stoppingToken);
                     }
                 }
                 catch (Exception ex)
@@ -104,6 +106,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
     private async Task ProcessSingleCheckAsync(
         DataBaseContext dbContext,
         IWorkNotificationService notificationService,
+        ITimelineCalculationService timelineCalculationService,
         Guid clientId,
         DateOnly date,
         CancellationToken cancellationToken)
@@ -141,7 +144,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             .ToListAsync(cancellationToken);
 
         var clientNameLookup = BuildClientNameLookup(allWorks, workChanges);
-        var timeRects = CalculateTimeRects(allWorks, workChanges, breaks);
+        var timeRects = timelineCalculationService.CalculateTimeRects(allWorks, workChanges, breaks);
         var clientRects = timeRects.Where(r => r.ClientId == clientId).ToList();
 
         var timeline = new ClientDayTimeline(clientId, date);
@@ -163,6 +166,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
     private async Task ProcessRangeCheckAsync(
         DataBaseContext dbContext,
         IWorkNotificationService notificationService,
+        ITimelineCalculationService timelineCalculationService,
         DateOnly startDate,
         DateOnly endDate,
         CancellationToken cancellationToken)
@@ -188,7 +192,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             .ToListAsync(cancellationToken);
 
         var clientNameLookup = BuildClientNameLookup(works, workChanges);
-        var timeRects = CalculateTimeRects(works, workChanges, breaks);
+        var timeRects = timelineCalculationService.CalculateTimeRects(works, workChanges, breaks);
         var allCollisions = new List<CollisionNotificationDto>();
 
         var groupedByClientDate = timeRects.GroupBy(r => new { r.ClientId, r.Date });
@@ -209,86 +213,6 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             IsFullRefresh = true
         };
         await notificationService.NotifyCollisionsDetected(notification);
-    }
-
-    internal static List<TimeRect> CalculateTimeRects(List<Work> works, List<WorkChange> workChanges, List<Break> breaks)
-    {
-        var result = new List<TimeRect>();
-        var changesByWorkId = workChanges.GroupBy(wc => wc.WorkId).ToDictionary(g => g.Key, g => g.ToList());
-
-        foreach (var work in works)
-        {
-            var effectiveStart = work.StartTime;
-            var effectiveEnd = work.EndTime;
-
-            if (changesByWorkId.TryGetValue(work.Id, out var changes))
-            {
-                foreach (var change in changes)
-                {
-                    switch (change.Type)
-                    {
-                        case WorkChangeType.CorrectionStart:
-                            effectiveStart = change.StartTime;
-                            break;
-                        case WorkChangeType.CorrectionEnd:
-                            effectiveEnd = change.EndTime;
-                            break;
-                        case WorkChangeType.ReplacementStart:
-                            effectiveStart = change.EndTime;
-                            break;
-                        case WorkChangeType.ReplacementEnd:
-                            effectiveEnd = change.StartTime;
-                            break;
-                    }
-                }
-
-                foreach (var change in changes.Where(c =>
-                    c.Type is WorkChangeType.CorrectionStart or WorkChangeType.CorrectionEnd))
-                {
-                    AddRectsWithMidnightSplit(result, work.Id, TimeRectSourceType.Correction,
-                        work.ClientId, work.CurrentDate, change.StartTime, change.EndTime);
-                }
-
-                foreach (var change in changes.Where(c =>
-                    c.Type is WorkChangeType.ReplacementStart or WorkChangeType.ReplacementEnd &&
-                    c.ReplaceClientId.HasValue))
-                {
-                    AddRectsWithMidnightSplit(result, work.Id, TimeRectSourceType.Replacement,
-                        change.ReplaceClientId!.Value, work.CurrentDate, change.StartTime, change.EndTime);
-                }
-            }
-
-            AddRectsWithMidnightSplit(result, work.Id, TimeRectSourceType.Work,
-                work.ClientId, work.CurrentDate, effectiveStart, effectiveEnd);
-        }
-
-        foreach (var b in breaks)
-        {
-            AddRectsWithMidnightSplit(result, b.Id, TimeRectSourceType.Break,
-                b.ClientId, b.CurrentDate, b.StartTime, b.EndTime);
-        }
-
-        return result;
-    }
-
-    private static void AddRectsWithMidnightSplit(
-        List<TimeRect> result,
-        Guid sourceId,
-        TimeRectSourceType sourceType,
-        Guid clientId,
-        DateOnly date,
-        TimeOnly start,
-        TimeOnly end)
-    {
-        if (end < start)
-        {
-            result.Add(new TimeRect(sourceId, sourceType, clientId, date, start, TimeOnly.MaxValue));
-            result.Add(new TimeRect(sourceId, sourceType, clientId, date.AddDays(1), TimeOnly.MinValue, end));
-        }
-        else
-        {
-            result.Add(new TimeRect(sourceId, sourceType, clientId, date, start, end));
-        }
     }
 
     private static List<CollisionNotificationDto> BuildCollisionNotifications(

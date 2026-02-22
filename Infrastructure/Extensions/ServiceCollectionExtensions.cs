@@ -204,6 +204,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IScheduleCompletionService, ScheduleCompletionService>();
         services.AddScoped<ContainerTemplateService>();
         services.AddScoped<IWorkChangeResultService, WorkChangeResultService>();
+        services.AddSingleton<ITimelineCalculationService, TimelineCalculationService>();
     }
 
     private static void AddSettingsServices(this IServiceCollection services)
