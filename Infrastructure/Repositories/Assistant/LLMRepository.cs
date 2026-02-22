@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Microsoft.EntityFrameworkCore;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;

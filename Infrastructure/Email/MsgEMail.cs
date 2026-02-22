@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;

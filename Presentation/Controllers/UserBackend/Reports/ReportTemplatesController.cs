@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Commands.Reports;
 using Klacks.Api.Application.DTOs.Reports;
 using Klacks.Api.Application.Mappers.Reports;

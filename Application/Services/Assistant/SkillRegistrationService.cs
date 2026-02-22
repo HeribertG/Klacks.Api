@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Skills;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Web;

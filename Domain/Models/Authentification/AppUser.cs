@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Microsoft.AspNetCore.Identity;
 
 namespace Klacks.Api.Domain.Models.Authentification;

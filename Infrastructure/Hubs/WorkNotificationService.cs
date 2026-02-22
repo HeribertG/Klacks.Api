@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces;
 using Microsoft.AspNetCore.SignalR;

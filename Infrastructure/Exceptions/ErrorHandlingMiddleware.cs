@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 ﻿using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Domain.Exceptions;
 using FluentValidation;

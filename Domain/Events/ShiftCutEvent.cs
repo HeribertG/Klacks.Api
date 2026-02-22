@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 namespace Klacks.Api.Domain.Events;
 
 public sealed record ShiftCutEvent(Guid RootShiftId, int ChildCount) : DomainEvent;

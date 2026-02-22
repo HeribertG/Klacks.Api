@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 global using Klacks.Api.Domain.Interfaces.Accounts;
 global using Klacks.Api.Domain.Interfaces.Associations;
 global using Klacks.Api.Domain.Interfaces.Authentification;

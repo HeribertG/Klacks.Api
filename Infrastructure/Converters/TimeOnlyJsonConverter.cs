@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;

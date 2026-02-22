@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Data.Seed.IdentityProviders;
 using Microsoft.EntityFrameworkCore.Migrations;
 

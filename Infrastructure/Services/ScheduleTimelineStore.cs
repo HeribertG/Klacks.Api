@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using System.Collections.Concurrent;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Interfaces;

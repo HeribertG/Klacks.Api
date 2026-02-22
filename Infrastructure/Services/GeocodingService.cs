@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;

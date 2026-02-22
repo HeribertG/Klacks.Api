@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Klacks.Api.Data.Seed;

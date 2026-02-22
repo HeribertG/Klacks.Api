@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 using Microsoft.Extensions.Configuration;
 

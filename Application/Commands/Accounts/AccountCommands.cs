@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Application.DTOs;
 using Klacks.Api.Application.DTOs.Registrations;

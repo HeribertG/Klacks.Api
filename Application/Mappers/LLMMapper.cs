@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Application.Queries.Assistant;

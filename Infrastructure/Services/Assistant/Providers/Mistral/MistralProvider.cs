@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;

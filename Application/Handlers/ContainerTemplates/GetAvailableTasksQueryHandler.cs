@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries.ContainerTemplates;
 using Klacks.Api.Domain.Interfaces;

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using System.Net.Mail;
 
 namespace Klacks.Api.Infrastructure.Email;

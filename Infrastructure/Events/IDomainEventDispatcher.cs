@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Events;
 
 namespace Klacks.Api.Infrastructure.Events;

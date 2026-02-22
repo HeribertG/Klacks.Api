@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.Settings.Macros;
 using Klacks.Api.Application.Interfaces;

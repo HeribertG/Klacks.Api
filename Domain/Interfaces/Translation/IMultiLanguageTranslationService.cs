@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Domain.Interfaces.Translation;

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Application.Interfaces;
 using MailKit.Net.Smtp;

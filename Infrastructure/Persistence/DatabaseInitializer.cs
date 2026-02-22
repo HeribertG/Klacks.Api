@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Data.Seed;
 using Klacks.Api.Infrastructure.Persistence.StoredProcedures;
 using Microsoft.EntityFrameworkCore;

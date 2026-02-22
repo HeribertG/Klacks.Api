@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using System.ComponentModel.DataAnnotations;
 using Klacks.Api.Domain.Common;
 

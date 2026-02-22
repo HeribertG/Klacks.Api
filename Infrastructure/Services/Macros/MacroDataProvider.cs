@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using System.Globalization;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;

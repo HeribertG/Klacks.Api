@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;

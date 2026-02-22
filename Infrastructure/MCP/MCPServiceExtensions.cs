@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Klacks.Api.Infrastructure.MCP;

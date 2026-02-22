@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 namespace Klacks.Api.Infrastructure.Mediator;
 
 public delegate Task<TResponse> RequestHandlerDelegate<TResponse>();

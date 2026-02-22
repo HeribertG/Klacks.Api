@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Klacks.Api.Domain.Models.Authentification;

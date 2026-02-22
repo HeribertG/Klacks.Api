@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Services.Assistant;
 
 namespace Klacks.Api.Infrastructure.Extensions;

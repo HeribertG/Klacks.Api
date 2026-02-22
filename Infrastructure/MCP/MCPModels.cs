@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using System.Text.Json.Serialization;
 
 namespace Klacks.Api.Infrastructure.MCP;

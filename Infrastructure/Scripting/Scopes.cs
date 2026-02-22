@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using System.Diagnostics;
 
 namespace Klacks.Api.Infrastructure.Scripting;

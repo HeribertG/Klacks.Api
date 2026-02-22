@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.Web

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.DTOs.Associations;
 using System.ComponentModel.DataAnnotations;
 

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Exceptions;
 
 namespace Klacks.Api.Application.Handlers;

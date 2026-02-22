@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 namespace Klacks.Api.Presentation.Controllers.UserBackend;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using System.Text.Json.Serialization;
 using Klacks.Api.Domain.Common;
 
