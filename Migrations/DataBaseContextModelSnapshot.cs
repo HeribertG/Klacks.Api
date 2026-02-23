@@ -4268,6 +4268,10 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
 
+                    b.Property<int?>("VacationDaysPerYear")
+                        .HasColumnType("integer")
+                        .HasColumnName("vacation_days_per_year");
+
                     b.HasKey("Id")
                         .HasName("pk_scheduling_rules");
 

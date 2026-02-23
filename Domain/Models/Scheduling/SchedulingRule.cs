@@ -33,4 +33,6 @@ public class SchedulingRule : BaseEntity
     public decimal? MinimumHours { get; set; }
 
     public decimal? FullTimeHours { get; set; }
+
+    public int? VacationDaysPerYear { get; set; }
 }

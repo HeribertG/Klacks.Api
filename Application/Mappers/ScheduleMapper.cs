@@ -497,5 +497,6 @@ public partial class ScheduleMapper
         target.MaximumHours = source.MaximumHours;
         target.MinimumHours = source.MinimumHours;
         target.FullTimeHours = source.FullTimeHours;
+        target.VacationDaysPerYear = source.VacationDaysPerYear;
     }
 }
