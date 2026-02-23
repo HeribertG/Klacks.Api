@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
@@ -53,18 +54,17 @@ public class PeriodHoursService : IPeriodHoursService
         var clientIdsWithoutCache = clientIds.Where(id => !clientIdsWithCache.Contains(id)).ToList();
 
         var contractByClient = await GetContractsByClientAsync(clientIds, startDate);
+        var defaultGuaranteedHours = await GetDefaultGuaranteedHoursAsync();
 
         foreach (var ph in cachedPeriodHours)
         {
-            var guaranteedHours = contractByClient.TryGetValue(ph.ClientId, out var contract)
-                ? contract.GuaranteedHours ?? 0m
-                : 0m;
+            contractByClient.TryGetValue(ph.ClientId, out var contract);
 
             result[ph.ClientId] = new PeriodHoursResource
             {
                 Hours = ph.Hours,
                 Surcharges = ph.Surcharges,
-                GuaranteedHours = guaranteedHours
+                GuaranteedHours = GetEffectiveGuaranteedHours(contract, defaultGuaranteedHours)
             };
         }
 
@@ -77,15 +77,13 @@ public class PeriodHoursService : IPeriodHoursService
 
             foreach (var (clientId, hours) in calculatedHours)
             {
-                var guaranteedHours = contractByClient.TryGetValue(clientId, out var contract)
-                    ? contract.GuaranteedHours ?? 0m
-                    : 0m;
+                contractByClient.TryGetValue(clientId, out var contract);
 
                 result[clientId] = new PeriodHoursResource
                 {
                     Hours = hours.Hours,
                     Surcharges = hours.Surcharges,
-                    GuaranteedHours = guaranteedHours
+                    GuaranteedHours = GetEffectiveGuaranteedHours(contract, defaultGuaranteedHours)
                 };
             }
         }
@@ -103,8 +101,16 @@ public class PeriodHoursService : IPeriodHoursService
             startDate,
             endDate);
 
+        var contractByClient = await GetContractsByClientAsync(
+            new List<Guid> { clientId },
+            startDate);
+        contractByClient.TryGetValue(clientId, out var contract);
+        var defaultGuaranteedHours = await GetDefaultGuaranteedHoursAsync();
+        var guaranteedHours = GetEffectiveGuaranteedHours(contract, defaultGuaranteedHours);
+
         if (results.TryGetValue(clientId, out var hours))
         {
+            hours.GuaranteedHours = guaranteedHours;
             return hours;
         }
 
@@ -112,7 +118,7 @@ public class PeriodHoursService : IPeriodHoursService
         {
             Hours = 0m,
             Surcharges = 0m,
-            GuaranteedHours = 0m
+            GuaranteedHours = guaranteedHours
         };
     }
 
@@ -384,6 +390,7 @@ public class PeriodHoursService : IPeriodHoursService
                 && cc.FromDate <= refDate
                 && (cc.UntilDate == null || cc.UntilDate >= refDate))
             .Include(cc => cc.Contract)
+                .ThenInclude(c => c.SchedulingRule)
             .ToListAsync();
 
         return contractData
@@ -391,6 +398,30 @@ public class PeriodHoursService : IPeriodHoursService
             .ToDictionary(
                 g => g.Key,
                 g => g.OrderByDescending(cc => cc.FromDate).First().Contract);
+    }
+
+    internal static decimal GetEffectiveGuaranteedHours(
+        Domain.Models.Associations.Contract? contract,
+        decimal defaultGuaranteedHours)
+    {
+        if (contract?.SchedulingRuleId != null)
+            return contract.GuaranteedHours ?? defaultGuaranteedHours;
+
+        return defaultGuaranteedHours;
+    }
+
+    private async Task<decimal> GetDefaultGuaranteedHoursAsync()
+    {
+        var setting = await _context.Settings
+            .FirstOrDefaultAsync(s => s.Type == SettingKeys.GuaranteedHours);
+
+        if (setting != null && decimal.TryParse(setting.Value,
+            System.Globalization.NumberStyles.Any,
+            System.Globalization.CultureInfo.InvariantCulture,
+            out var value))
+            return value;
+
+        return 0m;
     }
 
     public (DateOnly StartDate, DateOnly EndDate) GetPeriodBoundaries(DateOnly date)

@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Filters;
@@ -9,6 +10,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Services.PeriodHours;
 using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
 
@@ -193,23 +195,24 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         var contractData = await context.ClientContract
             .Where(cc => clientIds.Contains(cc.ClientId) && cc.FromDate <= startDate && (cc.UntilDate == null || cc.UntilDate >= startDate))
             .Include(cc => cc.Contract)
+                .ThenInclude(c => c.SchedulingRule)
             .ToListAsync();
 
         var contractByClient = contractData
             .GroupBy(cc => cc.ClientId)
             .ToDictionary(g => g.Key, g => g.OrderByDescending(cc => cc.FromDate).First().Contract);
 
+        var defaultGuaranteedHours = await GetDefaultGuaranteedHoursAsync();
+
         foreach (var ph in periodHours)
         {
-            var guaranteedHours = contractByClient.TryGetValue(ph.ClientId, out var contract)
-                ? contract.GuaranteedHours
-                : 0m;
+            contractByClient.TryGetValue(ph.ClientId, out var contract);
 
             result[ph.ClientId] = new PeriodHoursResource
             {
                 Hours = ph.Hours,
                 Surcharges = ph.Surcharges,
-                GuaranteedHours = guaranteedHours ?? 0m
+                GuaranteedHours = PeriodHoursService.GetEffectiveGuaranteedHours(contract, defaultGuaranteedHours)
             };
         }
 
@@ -242,19 +245,31 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
                 }
             }
 
-            var guaranteedHours = contractByClient.TryGetValue(clientId, out var contract)
-                ? contract.GuaranteedHours ?? 0m
-                : 0m;
+            contractByClient.TryGetValue(clientId, out var contract);
 
             result[clientId] = new PeriodHoursResource
             {
                 Hours = workData.Hours + breaks + workChangeHours,
                 Surcharges = workData.Surcharges + workChangeSurcharges,
-                GuaranteedHours = guaranteedHours
+                GuaranteedHours = PeriodHoursService.GetEffectiveGuaranteedHours(contract, defaultGuaranteedHours)
             };
         }
 
         return result;
+    }
+
+    private async Task<decimal> GetDefaultGuaranteedHoursAsync()
+    {
+        var setting = await context.Settings
+            .FirstOrDefaultAsync(s => s.Type == SettingKeys.GuaranteedHours);
+
+        if (setting != null && decimal.TryParse(setting.Value,
+            System.Globalization.NumberStyles.Any,
+            System.Globalization.CultureInfo.InvariantCulture,
+            out var value))
+            return value;
+
+        return 0m;
     }
 
     public async Task<List<Work>> GetByClientAndDateRangeAsync(Guid clientId, DateTime fromDate, DateTime toDate, CancellationToken cancellationToken = default)
