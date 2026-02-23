@@ -54,6 +54,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
                 return null;
             }
 
+            var previousReplaceClientId = existingWorkChange.ReplaceClientId;
+
             var workChange = _scheduleMapper.ToWorkChangeEntity(request.Resource);
             var updatedWorkChange = await _workChangeRepository.Put(workChange);
 
@@ -72,8 +74,16 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
             var currentDate = work.CurrentDate;
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(currentDate);
 
+            var replaceClientChanged = previousReplaceClientId != updatedWorkChange.ReplaceClientId;
+
             await _completionService.SaveAndTrackWithReplaceClientAsync(
                 work.ClientId, work.CurrentDate, periodStart, periodEnd, updatedWorkChange.ReplaceClientId);
+
+            if (replaceClientChanged && previousReplaceClientId.HasValue)
+            {
+                await _completionService.SaveAndTrackWithReplaceClientAsync(
+                    work.ClientId, work.CurrentDate, periodStart, periodEnd, previousReplaceClientId);
+            }
 
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
@@ -91,6 +101,12 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
                 resource.ClientResults.Add(replaceClientResult);
             }
 
+            if (replaceClientChanged && previousReplaceClientId.HasValue)
+            {
+                var previousReplaceClientResult = await _resultService.GetClientResultAsync(previousReplaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken);
+                resource.ClientResults.Add(previousReplaceClientResult);
+            }
+
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
             var notification = _scheduleMapper.ToScheduleNotificationDto(
@@ -102,6 +118,13 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
                 var replaceNotification = _scheduleMapper.ToScheduleNotificationDto(
                     updatedWorkChange.ReplaceClientId.Value, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
                 await _notificationService.NotifyScheduleUpdated(replaceNotification);
+            }
+
+            if (replaceClientChanged && previousReplaceClientId.HasValue)
+            {
+                var previousReplaceNotification = _scheduleMapper.ToScheduleNotificationDto(
+                    previousReplaceClientId.Value, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
+                await _notificationService.NotifyScheduleUpdated(previousReplaceNotification);
             }
 
             return resource;
