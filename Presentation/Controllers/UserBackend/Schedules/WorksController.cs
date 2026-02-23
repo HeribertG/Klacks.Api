@@ -188,4 +188,11 @@ public class WorksController : BaseController
         var count = await _mediator.Send(command);
         return Ok(count);
     }
+
+    [HttpPost("RecalculatePeriodHours")]
+    public async Task<ActionResult<bool>> RecalculatePeriodHours([FromBody] RecalculatePeriodHoursCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
 }

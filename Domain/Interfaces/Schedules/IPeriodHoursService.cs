@@ -24,7 +24,8 @@ public interface IPeriodHoursService
 
     Task RecalculateAllClientsAsync(
         DateOnly startDate,
-        DateOnly endDate);
+        DateOnly endDate,
+        Guid? groupId = null);
 
     Task InvalidateCacheAsync(
         Guid clientId,

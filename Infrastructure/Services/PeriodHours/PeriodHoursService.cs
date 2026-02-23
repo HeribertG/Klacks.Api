@@ -3,6 +3,7 @@
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.DTOs.Notifications;
@@ -16,15 +17,18 @@ public class PeriodHoursService : IPeriodHoursService
     private readonly DataBaseContext _context;
     private readonly ILogger<PeriodHoursService> _logger;
     private readonly IWorkNotificationService _notificationService;
+    private readonly IClientGroupFilterService _clientGroupFilterService;
 
     public PeriodHoursService(
         DataBaseContext context,
         ILogger<PeriodHoursService> logger,
-        IWorkNotificationService notificationService)
+        IWorkNotificationService notificationService,
+        IClientGroupFilterService clientGroupFilterService)
     {
         _context = context;
         _logger = logger;
         _notificationService = notificationService;
+        _clientGroupFilterService = clientGroupFilterService;
     }
 
     public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursAsync(
@@ -167,18 +171,25 @@ public class PeriodHoursService : IPeriodHoursService
 
     public async Task RecalculateAllClientsAsync(
         DateOnly startDate,
-        DateOnly endDate)
+        DateOnly endDate,
+        Guid? groupId = null)
     {
         _logger.LogInformation(
-            "Recalculating period hours for all clients from {StartDate} to {EndDate}",
+            "Recalculating period hours for {Scope} from {StartDate} to {EndDate}",
+            groupId.HasValue ? $"group {groupId}" : "all clients",
             startDate,
             endDate);
 
-        var clientIds = await _context.Client
+        var query = _context.Client
+            .Include(c => c.GroupItems)
             .Where(c => c.Type != EntityTypeEnum.Customer)
             .Where(c => c.Membership != null
                 && c.Membership.ValidFrom <= endDate.ToDateTime(TimeOnly.MaxValue)
-                && (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startDate.ToDateTime(TimeOnly.MinValue)))
+                && (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startDate.ToDateTime(TimeOnly.MinValue)));
+
+        query = await _clientGroupFilterService.FilterClientsByGroupId(groupId, query);
+
+        var clientIds = await query
             .Select(c => c.Id)
             .ToListAsync();
 
