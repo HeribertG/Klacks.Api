@@ -73,7 +73,8 @@ public class ScheduleCompletionService : IScheduleCompletionService
     public async Task SaveAndTrackWithReplaceClientAsync(
         Guid clientId, DateOnly currentDate,
         DateOnly periodStart, DateOnly periodEnd,
-        Guid? replaceClientId)
+        Guid? replaceClientId,
+        Guid? previousReplaceClientId = null)
     {
         await _unitOfWork.CompleteAsync();
 
@@ -86,6 +87,13 @@ public class ScheduleCompletionService : IScheduleCompletionService
             await _scheduleChangeTracker.TrackChangeAsync(replaceClientId.Value, currentDate);
             _timelineService.QueueCheck(replaceClientId.Value, currentDate);
             await RecalculateAndGetPeriodHoursAsync(replaceClientId.Value, periodStart, periodEnd);
+        }
+
+        if (previousReplaceClientId.HasValue && previousReplaceClientId != replaceClientId)
+        {
+            await _scheduleChangeTracker.TrackChangeAsync(previousReplaceClientId.Value, currentDate);
+            _timelineService.QueueCheck(previousReplaceClientId.Value, currentDate);
+            await RecalculateAndGetPeriodHoursAsync(previousReplaceClientId.Value, periodStart, periodEnd);
         }
     }
 

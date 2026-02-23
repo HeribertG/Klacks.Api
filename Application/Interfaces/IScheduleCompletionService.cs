@@ -21,5 +21,6 @@ public interface IScheduleCompletionService
     Task SaveAndTrackWithReplaceClientAsync(
         Guid clientId, DateOnly currentDate,
         DateOnly periodStart, DateOnly periodEnd,
-        Guid? replaceClientId);
+        Guid? replaceClientId,
+        Guid? previousReplaceClientId = null);
 }

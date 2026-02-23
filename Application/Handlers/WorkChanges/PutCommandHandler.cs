@@ -77,13 +77,9 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
             var replaceClientChanged = previousReplaceClientId != updatedWorkChange.ReplaceClientId;
 
             await _completionService.SaveAndTrackWithReplaceClientAsync(
-                work.ClientId, work.CurrentDate, periodStart, periodEnd, updatedWorkChange.ReplaceClientId);
-
-            if (replaceClientChanged && previousReplaceClientId.HasValue)
-            {
-                await _completionService.SaveAndTrackWithReplaceClientAsync(
-                    work.ClientId, work.CurrentDate, periodStart, periodEnd, previousReplaceClientId);
-            }
+                work.ClientId, work.CurrentDate, periodStart, periodEnd,
+                updatedWorkChange.ReplaceClientId,
+                replaceClientChanged ? previousReplaceClientId : null);
 
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
