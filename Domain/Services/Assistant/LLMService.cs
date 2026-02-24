@@ -69,7 +69,7 @@ public class LLMService : ILLMService
             if (agent != null)
             {
                 soulAndMemoryPrompt = await _contextAssemblyPipeline.AssembleSoulAndMemoryPromptAsync(
-                    agent.Id, context.Message);
+                    agent.Id, context.Message, context.Language);
             }
 
             var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt);

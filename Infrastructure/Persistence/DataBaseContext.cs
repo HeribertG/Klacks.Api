@@ -153,6 +153,10 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<AgentSkill> AgentSkills { get; set; }
     public DbSet<AgentSkillExecution> AgentSkillExecutions { get; set; }
 
+    // Global Agent Rules DbSets
+    public DbSet<GlobalAgentRule> GlobalAgentRules { get; set; }
+    public DbSet<GlobalAgentRuleHistory> GlobalAgentRuleHistories { get; set; }
+
     // Scheduling DbSets
     public DbSet<SchedulingRule> SchedulingRules { get; set; }
 
@@ -552,6 +556,12 @@ public class DataBaseContext : IdentityDbContext
            .HasForeignKey(c => c.CalendarSelectionId)
            .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<Group>()
+           .HasOne(g => g.CalendarSelection)
+           .WithMany()
+           .HasForeignKey(g => g.CalendarSelectionId)
+           .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<SchedulingRule>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
@@ -711,6 +721,27 @@ public class DataBaseContext : IdentityDbContext
             entity.HasOne(e => e.Skill)
                 .WithMany(s => s.Executions)
                 .HasForeignKey(e => e.SkillId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<GlobalAgentRule>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => p.Name)
+                .HasFilter("is_active = true AND is_deleted = false")
+                .IsUnique();
+            entity.HasIndex(p => p.SortOrder)
+                .HasFilter("is_active = true AND is_deleted = false");
+        });
+
+        modelBuilder.Entity<GlobalAgentRuleHistory>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.GlobalAgentRuleId, p.CreateTime });
+
+            entity.HasOne(h => h.GlobalAgentRule)
+                .WithMany(r => r.History)
+                .HasForeignKey(h => h.GlobalAgentRuleId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }
