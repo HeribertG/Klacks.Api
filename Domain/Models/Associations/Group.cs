@@ -1,8 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Models.CalendarSelections;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Klacks.Api.Domain.Models.Associations;
 
@@ -24,6 +28,14 @@ public class Group : BaseEntity
 
     [DataType(DataType.Date)]
     public DateTime? ValidUntil { get; set; }
+
+    public PaymentInterval PaymentInterval { get; set; } = PaymentInterval.Monthly;
+
+    [ForeignKey("CalendarSelection")]
+    public Guid? CalendarSelectionId { get; set; }
+
+    [JsonIgnore]
+    public CalendarSelection? CalendarSelection { get; set; }
 
     public Guid? Parent { get; set; }
 

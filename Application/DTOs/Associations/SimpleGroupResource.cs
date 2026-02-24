@@ -1,6 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-﻿namespace Klacks.Api.Application.DTOs.Associations;
+﻿using Klacks.Api.Domain.Enums;
+using Klacks.Api.Application.DTOs.Schedules;
+
+namespace Klacks.Api.Application.DTOs.Associations;
 
 public class SimpleGroupResource
 {
@@ -13,4 +16,10 @@ public class SimpleGroupResource
     public DateTime ValidFrom { get; set; }
 
     public DateTime? ValidUntil { get; set; }
+
+    public PaymentInterval PaymentInterval { get; set; }
+
+    public Guid? CalendarSelectionId { get; set; }
+
+    public CalendarSelectionResource? CalendarSelection { get; set; }
 }
