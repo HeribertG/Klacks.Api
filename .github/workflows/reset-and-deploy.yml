@@ -183,10 +183,10 @@ jobs:
           $COMPOSE_CMD build klacks-api --no-cache
 
           echo "Building klacks-ui..."
-          $COMPOSE_CMD build klacks-ui --no-cache
+          $COMPOSE_CMD build klacks-ui --memory=2g
 
           echo "Building klacks-blazor..."
-          $COMPOSE_CMD build klacks-blazor --no-cache
+          $COMPOSE_CMD build klacks-blazor
 
           echo "✅ All images built"
           echo ""
