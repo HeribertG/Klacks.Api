@@ -54,12 +54,12 @@ namespace Klacks.Api.Data.Seed
                 script.AppendLine($@"INSERT INTO public.contract (
                     id, name, guaranteed_hours, maximum_hours, minimum_hours, full_time,
                     night_rate, holiday_rate, sa_rate, so_rate, payment_interval,
-                    valid_from, valid_until, calendar_selection_id,
+                    valid_from, valid_until, calendar_selection_id, scheduling_rule_id,
                     create_time, update_time, is_deleted, current_user_created, current_user_updated
                 ) VALUES (
                     '{contractId}', '{contract.Name}', {contract.Guaranteed}, {contract.Max}, {contract.Min}, {contract.FullTime},
                     {contract.NightRate}, {contract.HolidayRate}, {contract.SaRate}, {contract.SoRate}, {contract.PaymentInterval},
-                    '{validFrom:yyyy-MM-dd HH:mm:ss}', NULL, '{calendarSelectionId}',
+                    '{validFrom:yyyy-MM-dd HH:mm:ss}', NULL, '{calendarSelectionId}', NULL,
                     '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', false, '{userId}', '{userId}'
                 );");
             }

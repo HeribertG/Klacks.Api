@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20260212234036_AlterSchedulingRulesFKDirection")]
-    partial class AlterSchedulingRulesFKDirection
+    [Migration("20260225081046_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,7 +27,931 @@ namespace Klacks.Api.Migrations
 
             modelBuilder.HasSequence<int>("client_idnumber_seq", "public");
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.AI.AiGuidelines", b =>
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.Agent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("text")
+                        .HasColumnName("display_name");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<Guid?>("TemplateId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("template_id");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_agents");
+
+                    b.HasIndex("IsDefault")
+                        .IsUnique()
+                        .HasDatabaseName("ix_agents_is_default")
+                        .HasFilter("is_default = true AND is_deleted = false");
+
+                    b.HasIndex("TemplateId")
+                        .HasDatabaseName("ix_agents_template_id");
+
+                    b.HasIndex("IsDeleted", "IsActive")
+                        .HasDatabaseName("ix_agents_is_deleted_is_active");
+
+                    b.ToTable("agents", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentLink", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Config")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("config");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("LinkType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("link_type");
+
+                    b.Property<Guid>("SourceAgentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_agent_id");
+
+                    b.Property<Guid>("TargetAgentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("target_agent_id");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_agent_links");
+
+                    b.HasIndex("TargetAgentId")
+                        .HasDatabaseName("ix_agent_links_target_agent_id");
+
+                    b.HasIndex("SourceAgentId", "TargetAgentId", "LinkType")
+                        .IsUnique()
+                        .HasDatabaseName("ix_agent_links_source_agent_id_target_agent_id_link_type")
+                        .HasFilter("is_active = true AND is_deleted = false");
+
+                    b.ToTable("agent_links", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentMemory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AccessCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("access_count");
+
+                    b.Property<Guid>("AgentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("agent_id");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("category");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.PrimitiveCollection<float[]>("Embedding")
+                        .HasColumnType("real[]")
+                        .HasColumnName("embedding");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<int>("Importance")
+                        .HasColumnType("integer")
+                        .HasColumnName("importance");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsPinned")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_pinned");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("key");
+
+                    b.Property<DateTime?>("LastAccessedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_accessed_at");
+
+                    b.Property<string>("Metadata")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("metadata");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("source");
+
+                    b.Property<string>("SourceRef")
+                        .HasColumnType("text")
+                        .HasColumnName("source_ref");
+
+                    b.Property<Guid?>("SupersedesId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("supersedes_id");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_agent_memories");
+
+                    b.HasIndex("AgentId")
+                        .HasDatabaseName("ix_agent_memories_agent_id")
+                        .HasFilter("is_pinned = true AND is_deleted = false");
+
+                    b.HasIndex("ExpiresAt")
+                        .HasDatabaseName("ix_agent_memories_expires_at")
+                        .HasFilter("expires_at IS NOT NULL AND is_deleted = false");
+
+                    b.HasIndex("SupersedesId")
+                        .HasDatabaseName("ix_agent_memories_supersedes_id");
+
+                    b.HasIndex("AgentId", "Category")
+                        .HasDatabaseName("ix_agent_memories_agent_id_category");
+
+                    b.HasIndex("AgentId", "Importance")
+                        .HasDatabaseName("ix_agent_memories_agent_id_importance");
+
+                    b.HasIndex("AgentId", "Source")
+                        .HasDatabaseName("ix_agent_memories_agent_id_source");
+
+                    b.ToTable("agent_memories", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentMemoryTag", b =>
+                {
+                    b.Property<Guid>("MemoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("memory_id");
+
+                    b.Property<string>("Tag")
+                        .HasColumnType("text")
+                        .HasColumnName("tag");
+
+                    b.HasKey("MemoryId", "Tag")
+                        .HasName("pk_agent_memory_tags");
+
+                    b.HasIndex("Tag")
+                        .HasDatabaseName("ix_agent_memory_tags_tag");
+
+                    b.ToTable("agent_memory_tags", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ActiveCategories")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("active_categories");
+
+                    b.Property<Guid>("AgentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("agent_id");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("channel");
+
+                    b.Property<int>("CompactionCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("compaction_count");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_archived");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime>("LastMessageAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_message_at");
+
+                    b.Property<string>("LastModelId")
+                        .HasColumnType("text")
+                        .HasColumnName("last_model_id");
+
+                    b.Property<int>("MessageCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("message_count");
+
+                    b.Property<string>("SessionId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("session_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Summary")
+                        .HasColumnType("text")
+                        .HasColumnName("summary");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text")
+                        .HasColumnName("title");
+
+                    b.Property<int>("TokenCountEst")
+                        .HasColumnType("integer")
+                        .HasColumnName("token_count_est");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_agent_sessions");
+
+                    b.HasIndex("AgentId", "SessionId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_agent_sessions_agent_id_session_id");
+
+                    b.HasIndex("AgentId", "Status")
+                        .HasDatabaseName("ix_agent_sessions_agent_id_status");
+
+                    b.HasIndex("UserId", "UpdateTime")
+                        .HasDatabaseName("ix_agent_sessions_user_id_update_time");
+
+                    b.ToTable("agent_sessions", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentSessionMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("CompactedIntoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("compacted_into_id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<string>("FunctionCalls")
+                        .HasColumnType("text")
+                        .HasColumnName("function_calls");
+
+                    b.Property<bool>("IsCompacted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_compacted");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("ModelId")
+                        .HasColumnType("text")
+                        .HasColumnName("model_id");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("role");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("session_id");
+
+                    b.Property<int?>("TokenCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("token_count");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_agent_session_messages");
+
+                    b.HasIndex("CompactedIntoId")
+                        .HasDatabaseName("ix_agent_session_messages_compacted_into_id");
+
+                    b.HasIndex("SessionId", "CreateTime")
+                        .HasDatabaseName("ix_agent_session_messages_session_id_create_time")
+                        .HasFilter("is_compacted = false AND is_deleted = false");
+
+                    b.ToTable("agent_session_messages", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentSkill", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AgentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("agent_id");
+
+                    b.Property<string>("AllowedChannels")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("allowed_channels");
+
+                    b.Property<bool>("AlwaysOn")
+                        .HasColumnType("boolean")
+                        .HasColumnName("always_on");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("category");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<string>("ExecutionType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("execution_type");
+
+                    b.Property<string>("HandlerConfig")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("handler_config");
+
+                    b.Property<string>("HandlerType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("handler_type");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<int?>("MaxCallsPerSession")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_calls_per_session");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string>("ParametersJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("parameters_json");
+
+                    b.Property<string>("RequiredPermission")
+                        .HasColumnType("text")
+                        .HasColumnName("required_permission");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("TriggerKeywords")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("trigger_keywords");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_agent_skills");
+
+                    b.HasIndex("AgentId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_agent_skills_agent_id_name")
+                        .HasFilter("is_deleted = false");
+
+                    b.HasIndex("AgentId", "IsEnabled", "SortOrder")
+                        .HasDatabaseName("ix_agent_skills_agent_id_is_enabled_sort_order");
+
+                    b.ToTable("agent_skills", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentSkillExecution", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AgentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("agent_id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<int>("DurationMs")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration_ms");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("text")
+                        .HasColumnName("error_message");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("ParametersJson")
+                        .HasColumnType("text")
+                        .HasColumnName("parameters_json");
+
+                    b.Property<string>("ResultMessage")
+                        .HasColumnType("text")
+                        .HasColumnName("result_message");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("session_id");
+
+                    b.Property<Guid>("SkillId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("skill_id");
+
+                    b.Property<bool>("Success")
+                        .HasColumnType("boolean")
+                        .HasColumnName("success");
+
+                    b.Property<string>("ToolName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("tool_name");
+
+                    b.Property<string>("TriggeredBy")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("triggered_by");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_agent_skill_executions");
+
+                    b.HasIndex("SessionId", "CreateTime")
+                        .HasDatabaseName("ix_agent_skill_executions_session_id_create_time");
+
+                    b.HasIndex("SkillId", "CreateTime")
+                        .HasDatabaseName("ix_agent_skill_executions_skill_id_create_time");
+
+                    b.ToTable("agent_skill_executions", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentSoulHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AgentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("agent_id");
+
+                    b.Property<string>("ChangeReason")
+                        .HasColumnType("text")
+                        .HasColumnName("change_reason");
+
+                    b.Property<string>("ChangeType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("change_type");
+
+                    b.Property<string>("ChangedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("changed_by");
+
+                    b.Property<string>("ContentAfter")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content_after");
+
+                    b.Property<string>("ContentBefore")
+                        .HasColumnType("text")
+                        .HasColumnName("content_before");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("SectionType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("section_type");
+
+                    b.Property<Guid>("SoulSectionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("soul_section_id");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_agent_soul_histories");
+
+                    b.HasIndex("AgentId", "CreateTime")
+                        .HasDatabaseName("ix_agent_soul_histories_agent_id_create_time");
+
+                    b.HasIndex("SoulSectionId", "CreateTime")
+                        .HasDatabaseName("ix_agent_soul_histories_soul_section_id_create_time");
+
+                    b.ToTable("agent_soul_histories", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentSoulSection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AgentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("agent_id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("SectionType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("section_type");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("Source")
+                        .HasColumnType("text")
+                        .HasColumnName("source");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_agent_soul_sections");
+
+                    b.HasIndex("AgentId", "SectionType")
+                        .IsUnique()
+                        .HasDatabaseName("ix_agent_soul_sections_agent_id_section_type")
+                        .HasFilter("is_active = true AND is_deleted = false");
+
+                    b.HasIndex("AgentId", "SortOrder")
+                        .HasDatabaseName("ix_agent_soul_sections_agent_id_sort_order")
+                        .HasFilter("is_active = true AND is_deleted = false");
+
+                    b.ToTable("agent_soul_sections", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<string>("DefaultSkillsJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("default_skills_json");
+
+                    b.Property<string>("DefaultSoulJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("default_soul_json");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_agent_templates");
+
+                    b.ToTable("agent_templates", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AiGuidelines", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -89,7 +1013,7 @@ namespace Klacks.Api.Migrations
                     b.ToTable("ai_guidelines", (string)null);
                 });
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.AI.AiMemory", b =>
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AiMemory", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -156,7 +1080,7 @@ namespace Klacks.Api.Migrations
                     b.ToTable("ai_memories", (string)null);
                 });
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.AI.AiSoul", b =>
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AiSoul", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -218,7 +1142,702 @@ namespace Klacks.Api.Migrations
                     b.ToTable("ai_souls", (string)null);
                 });
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.AI.LlmFunctionDefinition", b =>
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.GlobalAgentRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("Source")
+                        .HasColumnType("text")
+                        .HasColumnName("source");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_global_agent_rules");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_global_agent_rules_name")
+                        .HasFilter("is_active = true AND is_deleted = false");
+
+                    b.HasIndex("SortOrder")
+                        .HasDatabaseName("ix_global_agent_rules_sort_order")
+                        .HasFilter("is_active = true AND is_deleted = false");
+
+                    b.ToTable("global_agent_rules", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.GlobalAgentRuleHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ChangeReason")
+                        .HasColumnType("text")
+                        .HasColumnName("change_reason");
+
+                    b.Property<string>("ChangeType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("change_type");
+
+                    b.Property<string>("ChangedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("changed_by");
+
+                    b.Property<string>("ContentAfter")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content_after");
+
+                    b.Property<string>("ContentBefore")
+                        .HasColumnType("text")
+                        .HasColumnName("content_before");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<Guid>("GlobalAgentRuleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("global_agent_rule_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_global_agent_rule_histories");
+
+                    b.HasIndex("GlobalAgentRuleId", "CreateTime")
+                        .HasDatabaseName("ix_global_agent_rule_histories_global_agent_rule_id_create_time");
+
+                    b.ToTable("global_agent_rule_histories", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.HeartbeatConfig", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<TimeOnly>("ActiveHoursEnd")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("active_hours_end");
+
+                    b.Property<TimeOnly>("ActiveHoursStart")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("active_hours_start");
+
+                    b.Property<string>("ChecklistJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("checklist_json");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<int>("IntervalMinutes")
+                        .HasColumnType("integer")
+                        .HasColumnName("interval_minutes");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<DateTime?>("LastExecutedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_executed_at");
+
+                    b.Property<bool>("OnboardingCompleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("onboarding_completed");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_heartbeat_configs");
+
+                    b.HasIndex("IsDeleted", "IsEnabled")
+                        .HasDatabaseName("ix_heartbeat_configs_is_deleted_is_enabled");
+
+                    b.HasIndex("IsDeleted", "UserId")
+                        .HasDatabaseName("ix_heartbeat_configs_is_deleted_user_id");
+
+                    b.ToTable("heartbeat_configs", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.LLMConversation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ConversationId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("conversation_id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_archived");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime>("LastMessageAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_message_at");
+
+                    b.Property<string>("LastModelId")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("last_model_id");
+
+                    b.Property<int>("MessageCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("message_count");
+
+                    b.Property<string>("Summary")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("summary");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<decimal>("TotalCost")
+                        .HasColumnType("decimal(10, 4)")
+                        .HasColumnName("total_cost");
+
+                    b.Property<int>("TotalTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("total_tokens");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_llm_conversations");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_llm_conversations_user_id");
+
+                    b.ToTable("llm_conversations", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.LLMMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<Guid>("ConversationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("conversation_id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<string>("FunctionCalls")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("function_calls");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("ModelId")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("model_id");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("role");
+
+                    b.Property<int?>("TokenCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("token_count");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_llm_messages");
+
+                    b.HasIndex("ConversationId")
+                        .HasDatabaseName("ix_llm_messages_conversation_id");
+
+                    b.ToTable("llm_messages", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.LLMModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ApiModelId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("api_model_id");
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("category");
+
+                    b.Property<int>("ContextWindow")
+                        .HasColumnType("integer")
+                        .HasColumnName("context_window");
+
+                    b.Property<decimal>("CostPerInputToken")
+                        .HasColumnType("decimal(10, 6)")
+                        .HasColumnName("cost_per_input_token");
+
+                    b.Property<decimal>("CostPerOutputToken")
+                        .HasColumnType("decimal(10, 6)")
+                        .HasColumnName("cost_per_output_token");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<DateTime?>("DeprecatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deprecated_at");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<Guid?>("LLMProviderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("llm_provider_id");
+
+                    b.Property<int>("MaxTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_tokens");
+
+                    b.Property<string>("ModelId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("model_id");
+
+                    b.Property<string>("ModelName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("model_name");
+
+                    b.Property<string>("ProviderId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("provider_id");
+
+                    b.Property<DateTime?>("ReleasedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("released_at");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_llm_models");
+
+                    b.HasIndex("LLMProviderId")
+                        .HasDatabaseName("ix_llm_models_llm_provider_id");
+
+                    b.ToTable("llm_models", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.LLMProvider", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ApiKey")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("api_key");
+
+                    b.Property<string>("ApiVersion")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("api_version");
+
+                    b.Property<string>("BaseUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("base_url");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer")
+                        .HasColumnName("priority");
+
+                    b.Property<string>("ProviderId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("provider_id");
+
+                    b.Property<string>("ProviderName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("provider_name");
+
+                    b.Property<string>("Settings")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("settings");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_llm_providers");
+
+                    b.ToTable("llm_providers", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.LLMUsage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AssistantMessage")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("assistant_message");
+
+                    b.Property<string>("ConversationId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("conversation_id");
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("decimal(10, 4)")
+                        .HasColumnName("cost");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("error_message");
+
+                    b.Property<string>("FunctionsCalled")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("functions_called");
+
+                    b.Property<bool>("HasError")
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_error");
+
+                    b.Property<int>("InputTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("input_tokens");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid>("ModelId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("model_id");
+
+                    b.Property<int>("OutputTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("output_tokens");
+
+                    b.Property<int>("ResponseTimeMs")
+                        .HasColumnType("integer")
+                        .HasColumnName("response_time_ms");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("UserMessage")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("user_message");
+
+                    b.HasKey("Id")
+                        .HasName("pk_llm_usages");
+
+                    b.HasIndex("ModelId")
+                        .HasDatabaseName("ix_llm_usages_model_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_llm_usages_user_id");
+
+                    b.ToTable("llm_usages", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.LlmFunctionDefinition", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -297,6 +1916,92 @@ namespace Klacks.Api.Migrations
                         .HasDatabaseName("ix_llm_function_definitions_is_deleted_is_enabled_sort_order");
 
                     b.ToTable("llm_function_definitions", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillUsageRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("integer")
+                        .HasColumnName("category");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<int>("DurationMs")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration_ms");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("text")
+                        .HasColumnName("error_message");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("ModelId")
+                        .HasColumnType("text")
+                        .HasColumnName("model_id");
+
+                    b.Property<string>("ParametersJson")
+                        .HasColumnType("text")
+                        .HasColumnName("parameters_json");
+
+                    b.Property<int?>("ProviderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("provider_id");
+
+                    b.Property<string>("SkillName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("skill_name");
+
+                    b.Property<bool>("Success")
+                        .HasColumnType("boolean")
+                        .HasColumnName("success");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("timestamp");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_skill_usage_records");
+
+                    b.ToTable("skill_usage_records", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Associations.Contract", b =>
@@ -413,6 +2118,10 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<Guid?>("CalendarSelectionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("calendar_selection_id");
+
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("create_time");
@@ -455,6 +2164,10 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("parent");
 
+                    b.Property<int>("PaymentInterval")
+                        .HasColumnType("integer")
+                        .HasColumnName("payment_interval");
+
                     b.Property<int>("Rgt")
                         .HasColumnType("integer")
                         .HasColumnName("rgt");
@@ -477,6 +2190,9 @@ namespace Klacks.Api.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_group");
+
+                    b.HasIndex("CalendarSelectionId")
+                        .HasDatabaseName("ix_group_calendar_selection_id");
 
                     b.HasIndex("Name")
                         .HasDatabaseName("ix_group_name");
@@ -1117,465 +2833,6 @@ namespace Klacks.Api.Migrations
                     b.ToTable("history", (string)null);
                 });
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMConversation", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("ConversationId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("conversation_id");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_time");
-
-                    b.Property<string>("CurrentUserCreated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_created");
-
-                    b.Property<string>("CurrentUserDeleted")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_deleted");
-
-                    b.Property<string>("CurrentUserUpdated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_updated");
-
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_time");
-
-                    b.Property<bool>("IsArchived")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_archived");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<DateTime>("LastMessageAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_message_at");
-
-                    b.Property<string>("LastModelId")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("last_model_id");
-
-                    b.Property<int>("MessageCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("message_count");
-
-                    b.Property<string>("Summary")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("summary");
-
-                    b.Property<string>("Title")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("title");
-
-                    b.Property<decimal>("TotalCost")
-                        .HasColumnType("decimal(10, 4)")
-                        .HasColumnName("total_cost");
-
-                    b.Property<int>("TotalTokens")
-                        .HasColumnType("integer")
-                        .HasColumnName("total_tokens");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_time");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_llm_conversations");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_llm_conversations_user_id");
-
-                    b.ToTable("llm_conversations", (string)null);
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMMessage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("content");
-
-                    b.Property<Guid>("ConversationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("conversation_id");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_time");
-
-                    b.Property<string>("CurrentUserCreated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_created");
-
-                    b.Property<string>("CurrentUserDeleted")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_deleted");
-
-                    b.Property<string>("CurrentUserUpdated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_updated");
-
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_time");
-
-                    b.Property<string>("FunctionCalls")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("function_calls");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<string>("ModelId")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("model_id");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("role");
-
-                    b.Property<int?>("TokenCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("token_count");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_time");
-
-                    b.HasKey("Id")
-                        .HasName("pk_llm_messages");
-
-                    b.HasIndex("ConversationId")
-                        .HasDatabaseName("ix_llm_messages_conversation_id");
-
-                    b.ToTable("llm_messages", (string)null);
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("ApiModelId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("api_model_id");
-
-                    b.Property<string>("Category")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("category");
-
-                    b.Property<int>("ContextWindow")
-                        .HasColumnType("integer")
-                        .HasColumnName("context_window");
-
-                    b.Property<decimal>("CostPerInputToken")
-                        .HasColumnType("decimal(10, 6)")
-                        .HasColumnName("cost_per_input_token");
-
-                    b.Property<decimal>("CostPerOutputToken")
-                        .HasColumnType("decimal(10, 6)")
-                        .HasColumnName("cost_per_output_token");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_time");
-
-                    b.Property<string>("CurrentUserCreated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_created");
-
-                    b.Property<string>("CurrentUserDeleted")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_deleted");
-
-                    b.Property<string>("CurrentUserUpdated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_updated");
-
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_time");
-
-                    b.Property<DateTime?>("DeprecatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deprecated_at");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("description");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_default");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_enabled");
-
-                    b.Property<Guid?>("LLMProviderId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("llm_provider_id");
-
-                    b.Property<int>("MaxTokens")
-                        .HasColumnType("integer")
-                        .HasColumnName("max_tokens");
-
-                    b.Property<string>("ModelId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("model_id");
-
-                    b.Property<string>("ModelName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("model_name");
-
-                    b.Property<string>("ProviderId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("provider_id");
-
-                    b.Property<DateTime?>("ReleasedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("released_at");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_time");
-
-                    b.HasKey("Id")
-                        .HasName("pk_llm_models");
-
-                    b.HasIndex("LLMProviderId")
-                        .HasDatabaseName("ix_llm_models_llm_provider_id");
-
-                    b.ToTable("llm_models", (string)null);
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMProvider", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("ApiKey")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("api_key");
-
-                    b.Property<string>("ApiVersion")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("api_version");
-
-                    b.Property<string>("BaseUrl")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("base_url");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_time");
-
-                    b.Property<string>("CurrentUserCreated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_created");
-
-                    b.Property<string>("CurrentUserDeleted")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_deleted");
-
-                    b.Property<string>("CurrentUserUpdated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_updated");
-
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_time");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_enabled");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("integer")
-                        .HasColumnName("priority");
-
-                    b.Property<string>("ProviderId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("provider_id");
-
-                    b.Property<string>("ProviderName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("provider_name");
-
-                    b.Property<string>("Settings")
-                        .HasColumnType("jsonb")
-                        .HasColumnName("settings");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_time");
-
-                    b.HasKey("Id")
-                        .HasName("pk_llm_providers");
-
-                    b.ToTable("llm_providers", (string)null);
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMUsage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("AssistantMessage")
-                        .HasMaxLength(4000)
-                        .HasColumnType("character varying(4000)")
-                        .HasColumnName("assistant_message");
-
-                    b.Property<string>("ConversationId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("conversation_id");
-
-                    b.Property<decimal>("Cost")
-                        .HasColumnType("decimal(10, 4)")
-                        .HasColumnName("cost");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_time");
-
-                    b.Property<string>("CurrentUserCreated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_created");
-
-                    b.Property<string>("CurrentUserDeleted")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_deleted");
-
-                    b.Property<string>("CurrentUserUpdated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_updated");
-
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_time");
-
-                    b.Property<string>("ErrorMessage")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("error_message");
-
-                    b.Property<string>("FunctionsCalled")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("functions_called");
-
-                    b.Property<bool>("HasError")
-                        .HasColumnType("boolean")
-                        .HasColumnName("has_error");
-
-                    b.Property<int>("InputTokens")
-                        .HasColumnType("integer")
-                        .HasColumnName("input_tokens");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<Guid>("ModelId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("model_id");
-
-                    b.Property<int>("OutputTokens")
-                        .HasColumnType("integer")
-                        .HasColumnName("output_tokens");
-
-                    b.Property<int>("ResponseTimeMs")
-                        .HasColumnType("integer")
-                        .HasColumnName("response_time_ms");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_time");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("user_id");
-
-                    b.Property<string>("UserMessage")
-                        .HasMaxLength(4000)
-                        .HasColumnType("character varying(4000)")
-                        .HasColumnName("user_message");
-
-                    b.HasKey("Id")
-                        .HasName("pk_llm_usages");
-
-                    b.HasIndex("ModelId")
-                        .HasDatabaseName("ix_llm_usages_model_id");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_llm_usages_user_id");
-
-                    b.ToTable("llm_usages", (string)null);
-                });
-
             modelBuilder.Entity("Klacks.Api.Domain.Models.Reports.ReportTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1617,6 +2874,10 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
+                    b.Property<bool>("MergeRows")
+                        .HasColumnType("boolean")
+                        .HasColumnName("merge_rows");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
@@ -1631,6 +2892,10 @@ namespace Klacks.Api.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb")
                         .HasColumnName("sections");
+
+                    b.Property<bool>("ShowFullPeriod")
+                        .HasColumnType("boolean")
+                        .HasColumnName("show_full_period");
 
                     b.Property<string>("SourceId")
                         .IsRequired()
@@ -2509,7 +3774,62 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("work_change_type");
 
-                    b.ToTable("schedule_cells", (string)null);
+                    b.ToTable((string)null);
+
+                    b.ToView(null, (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.ScheduleChange", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateOnly>("ChangeDate")
+                        .HasColumnType("date")
+                        .HasColumnName("change_date");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("client_id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_schedule_change");
+
+                    b.HasIndex("ClientId", "ChangeDate")
+                        .IsUnique()
+                        .HasDatabaseName("ix_schedule_change_client_id_change_date");
+
+                    b.ToTable("schedule_change", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Shift", b =>
@@ -3048,9 +4368,21 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("text")
                         .HasColumnName("current_user_updated");
 
+                    b.Property<decimal?>("DefaultWorkingHours")
+                        .HasColumnType("numeric")
+                        .HasColumnName("default_working_hours");
+
                     b.Property<DateTime?>("DeletedTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_time");
+
+                    b.Property<decimal?>("FullTimeHours")
+                        .HasColumnType("numeric")
+                        .HasColumnName("full_time_hours");
+
+                    b.Property<decimal?>("GuaranteedHours")
+                        .HasColumnType("numeric")
+                        .HasColumnName("guaranteed_hours");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
@@ -3076,6 +4408,10 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("max_work_days");
 
+                    b.Property<decimal?>("MaximumHours")
+                        .HasColumnType("numeric")
+                        .HasColumnName("maximum_hours");
+
                     b.Property<decimal?>("MinPauseHours")
                         .HasColumnType("numeric")
                         .HasColumnName("min_pause_hours");
@@ -3084,14 +4420,26 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("min_rest_days");
 
+                    b.Property<decimal?>("MinimumHours")
+                        .HasColumnType("numeric")
+                        .HasColumnName("minimum_hours");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
 
+                    b.Property<decimal?>("OvertimeThreshold")
+                        .HasColumnType("numeric")
+                        .HasColumnName("overtime_threshold");
+
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
+
+                    b.Property<int?>("VacationDaysPerYear")
+                        .HasColumnType("integer")
+                        .HasColumnName("vacation_days_per_year");
 
                     b.HasKey("Id")
                         .HasName("pk_scheduling_rules");
@@ -3454,92 +4802,6 @@ namespace Klacks.Api.Migrations
                         .HasName("pk_state");
 
                     b.ToTable("state", (string)null);
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Skills.SkillUsageRecord", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<int>("Category")
-                        .HasColumnType("integer")
-                        .HasColumnName("category");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_time");
-
-                    b.Property<string>("CurrentUserCreated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_created");
-
-                    b.Property<string>("CurrentUserDeleted")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_deleted");
-
-                    b.Property<string>("CurrentUserUpdated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_updated");
-
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_time");
-
-                    b.Property<int>("DurationMs")
-                        .HasColumnType("integer")
-                        .HasColumnName("duration_ms");
-
-                    b.Property<string>("ErrorMessage")
-                        .HasColumnType("text")
-                        .HasColumnName("error_message");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<string>("ModelId")
-                        .HasColumnType("text")
-                        .HasColumnName("model_id");
-
-                    b.Property<string>("ParametersJson")
-                        .HasColumnType("text")
-                        .HasColumnName("parameters_json");
-
-                    b.Property<int?>("ProviderId")
-                        .HasColumnType("integer")
-                        .HasColumnName("provider_id");
-
-                    b.Property<string>("SkillName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("skill_name");
-
-                    b.Property<bool>("Success")
-                        .HasColumnType("boolean")
-                        .HasColumnName("success");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("timestamp");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_time");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_skill_usage_records");
-
-                    b.ToTable("skill_usage_records", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.Address", b =>
@@ -4353,6 +5615,214 @@ namespace Klacks.Api.Migrations
                     b.HasDiscriminator().HasValue("AppUser");
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.Agent", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.AgentTemplate", "Template")
+                        .WithMany()
+                        .HasForeignKey("TemplateId")
+                        .HasConstraintName("fk_agents_agent_templates_template_id");
+
+                    b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentLink", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.Agent", "SourceAgent")
+                        .WithMany()
+                        .HasForeignKey("SourceAgentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_agent_links_agents_source_agent_id");
+
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.Agent", "TargetAgent")
+                        .WithMany()
+                        .HasForeignKey("TargetAgentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_agent_links_agents_target_agent_id");
+
+                    b.Navigation("SourceAgent");
+
+                    b.Navigation("TargetAgent");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentMemory", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.Agent", "Agent")
+                        .WithMany("Memories")
+                        .HasForeignKey("AgentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_agent_memories_agents_agent_id");
+
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.AgentMemory", "Supersedes")
+                        .WithMany()
+                        .HasForeignKey("SupersedesId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_agent_memories_agent_memories_supersedes_id");
+
+                    b.Navigation("Agent");
+
+                    b.Navigation("Supersedes");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentMemoryTag", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.AgentMemory", "Memory")
+                        .WithMany("Tags")
+                        .HasForeignKey("MemoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_agent_memory_tags_agent_memories_memory_id");
+
+                    b.Navigation("Memory");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentSession", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.Agent", "Agent")
+                        .WithMany("Sessions")
+                        .HasForeignKey("AgentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_agent_sessions_agents_agent_id");
+
+                    b.Navigation("Agent");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentSessionMessage", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.AgentSessionMessage", "CompactedInto")
+                        .WithMany()
+                        .HasForeignKey("CompactedIntoId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_agent_session_messages_agent_session_messages_compacted_int");
+
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.AgentSession", "Session")
+                        .WithMany("Messages")
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_agent_session_messages_agent_sessions_session_id");
+
+                    b.Navigation("CompactedInto");
+
+                    b.Navigation("Session");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentSkill", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.Agent", "Agent")
+                        .WithMany("Skills")
+                        .HasForeignKey("AgentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_agent_skills_agents_agent_id");
+
+                    b.Navigation("Agent");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentSkillExecution", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.AgentSkill", "Skill")
+                        .WithMany("Executions")
+                        .HasForeignKey("SkillId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_agent_skill_executions_agent_skills_skill_id");
+
+                    b.Navigation("Skill");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentSoulHistory", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.AgentSoulSection", "SoulSection")
+                        .WithMany("History")
+                        .HasForeignKey("SoulSectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_agent_soul_histories_agent_soul_sections_soul_section_id");
+
+                    b.Navigation("SoulSection");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentSoulSection", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.Agent", "Agent")
+                        .WithMany("SoulSections")
+                        .HasForeignKey("AgentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_agent_soul_sections_agents_agent_id");
+
+                    b.Navigation("Agent");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.GlobalAgentRuleHistory", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.GlobalAgentRule", "GlobalAgentRule")
+                        .WithMany("History")
+                        .HasForeignKey("GlobalAgentRuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_global_agent_rule_histories_global_agent_rules_global_agent");
+
+                    b.Navigation("GlobalAgentRule");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.LLMConversation", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Authentification.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_llm_conversations_app_user_user_id");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.LLMMessage", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.LLMConversation", "Conversation")
+                        .WithMany("Messages")
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_llm_messages_llm_conversations_conversation_id");
+
+                    b.Navigation("Conversation");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.LLMModel", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.LLMProvider", null)
+                        .WithMany("Models")
+                        .HasForeignKey("LLMProviderId")
+                        .HasConstraintName("fk_llm_models_llm_providers_llm_provider_id");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.LLMUsage", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.LLMModel", "Model")
+                        .WithMany("Usages")
+                        .HasForeignKey("ModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_llm_usages_llm_models_model_id");
+
+                    b.HasOne("Klacks.Api.Domain.Models.Authentification.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_llm_usages_app_user_user_id");
+
+                    b.Navigation("Model");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Associations.Contract", b =>
                 {
                     b.HasOne("Klacks.Api.Domain.Models.CalendarSelections.CalendarSelection", "CalendarSelection")
@@ -4370,6 +5840,17 @@ namespace Klacks.Api.Migrations
                     b.Navigation("CalendarSelection");
 
                     b.Navigation("SchedulingRule");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Associations.Group", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.CalendarSelections.CalendarSelection", "CalendarSelection")
+                        .WithMany()
+                        .HasForeignKey("CalendarSelectionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_group_calendar_selection_calendar_selection_id");
+
+                    b.Navigation("CalendarSelection");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Associations.GroupItem", b =>
@@ -4476,59 +5957,6 @@ namespace Klacks.Api.Migrations
                         .HasConstraintName("fk_history_client_client_id");
 
                     b.Navigation("Client");
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMConversation", b =>
-                {
-                    b.HasOne("Klacks.Api.Domain.Models.Authentification.AppUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_llm_conversations_app_user_user_id");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMMessage", b =>
-                {
-                    b.HasOne("Klacks.Api.Domain.Models.LLM.LLMConversation", "Conversation")
-                        .WithMany("Messages")
-                        .HasForeignKey("ConversationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_llm_messages_llm_conversations_conversation_id");
-
-                    b.Navigation("Conversation");
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMModel", b =>
-                {
-                    b.HasOne("Klacks.Api.Domain.Models.LLM.LLMProvider", null)
-                        .WithMany("Models")
-                        .HasForeignKey("LLMProviderId")
-                        .HasConstraintName("fk_llm_models_llm_providers_llm_provider_id");
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMUsage", b =>
-                {
-                    b.HasOne("Klacks.Api.Domain.Models.LLM.LLMModel", "Model")
-                        .WithMany("Usages")
-                        .HasForeignKey("ModelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_llm_usages_llm_models_model_id");
-
-                    b.HasOne("Klacks.Api.Domain.Models.Authentification.AppUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_llm_usages_app_user_user_id");
-
-                    b.Navigation("Model");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Absence", b =>
@@ -5224,6 +6652,57 @@ namespace Klacks.Api.Migrations
                         .HasConstraintName("fk_asp_net_user_tokens_asp_net_users_user_id");
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.Agent", b =>
+                {
+                    b.Navigation("Memories");
+
+                    b.Navigation("Sessions");
+
+                    b.Navigation("Skills");
+
+                    b.Navigation("SoulSections");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentMemory", b =>
+                {
+                    b.Navigation("Tags");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentSession", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentSkill", b =>
+                {
+                    b.Navigation("Executions");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentSoulSection", b =>
+                {
+                    b.Navigation("History");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.GlobalAgentRule", b =>
+                {
+                    b.Navigation("History");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.LLMConversation", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.LLMModel", b =>
+                {
+                    b.Navigation("Usages");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.LLMProvider", b =>
+                {
+                    b.Navigation("Models");
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Associations.Group", b =>
                 {
                     b.Navigation("GroupItems");
@@ -5232,21 +6711,6 @@ namespace Klacks.Api.Migrations
             modelBuilder.Entity("Klacks.Api.Domain.Models.CalendarSelections.CalendarSelection", b =>
                 {
                     b.Navigation("SelectedCalendars");
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMConversation", b =>
-                {
-                    b.Navigation("Messages");
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMModel", b =>
-                {
-                    b.Navigation("Usages");
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.LLM.LLMProvider", b =>
-                {
-                    b.Navigation("Models");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.ContainerTemplate", b =>

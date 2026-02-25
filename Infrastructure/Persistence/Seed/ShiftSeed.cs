@@ -28,9 +28,9 @@ namespace Klacks.Api.Data.Seed
             // Available ROOT GROUP names for assignment (4 Root Groups)
             var availableRootGroups = new[] {
                 "Westschweiz",           // Root 1: GE, VD, NE, JU, FR
-                "Deutschweiz Zürich",    // Root 2: ZH, AG
-                "Deutschweiz Mitte",     // Root 3: BE, SO, BS, BL
-                "Deutschweiz Ost"        // Root 4: LU, SG, etc.
+                "Deutschschweiz Zürich",    // Root 2: ZH, AG
+                "Deutschschweiz Mitte",     // Root 3: BE, SO, BS, BL
+                "Deutschschweiz Ost"        // Root 4: LU, SG, etc.
             };
 
             List<string> GetRandomRootGroups(int count)
@@ -701,9 +701,9 @@ INSERT INTO public.shift (
 
             var availableRootGroups = new[] {
                 "Westschweiz",
-                "Deutschweiz Zürich",
-                "Deutschweiz Mitte",
-                "Deutschweiz Ost"
+                "Deutschschweiz Zürich",
+                "Deutschschweiz Mitte",
+                "Deutschschweiz Ost"
             };
 
             List<string> GetRandomRootGroups(int count)
@@ -818,9 +818,9 @@ INSERT INTO public.shift (
 
             var availableRootGroups = new[] {
                 "Westschweiz",
-                "Deutschweiz Zürich",
-                "Deutschweiz Mitte",
-                "Deutschweiz Ost"
+                "Deutschschweiz Zürich",
+                "Deutschschweiz Mitte",
+                "Deutschschweiz Ost"
             };
 
             var containerTypes = new[]
@@ -892,9 +892,9 @@ INSERT INTO public.shift (
 
             var availableRootGroups = new[] {
                 "Westschweiz",
-                "Deutschweiz Zürich",
-                "Deutschweiz Mitte",
-                "Deutschweiz Ost"
+                "Deutschschweiz Zürich",
+                "Deutschschweiz Mitte",
+                "Deutschschweiz Ost"
             };
 
             var shiftsPerGroup = 100;

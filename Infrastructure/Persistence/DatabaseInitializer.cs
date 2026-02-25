@@ -127,7 +127,8 @@ public class DatabaseInitializer : IDatabaseInitializer
                 if (!string.IsNullOrWhiteSpace(operation.Sql))
                 {
                     _logger.LogDebug("Executing SQL: {SqlPreview}...", operation.Sql.Substring(0, Math.Min(100, operation.Sql.Length)));
-                    await _context.Database.ExecuteSqlRawAsync(operation.Sql);
+                    var sql = operation.Sql.Replace("{", "{{").Replace("}", "}}");
+                    await _context.Database.ExecuteSqlRawAsync(sql);
                 }
             }
 
