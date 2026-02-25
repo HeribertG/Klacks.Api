@@ -92,9 +92,9 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
                 ["description"] = param.Description
             };
 
-            if (param.Enum is { Count: > 0 })
+            if (param.EnumValues is { Count: > 0 })
             {
-                paramDict["enum"] = param.Enum.ToArray();
+                paramDict["enum"] = param.EnumValues.ToArray();
             }
 
             parameters[param.Name] = paramDict;
@@ -120,6 +120,6 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         public string Type { get; set; } = "string";
         public string Description { get; set; } = string.Empty;
         public bool Required { get; set; }
-        public List<string>? Enum { get; set; }
+        public List<string>? EnumValues { get; set; }
     }
 }

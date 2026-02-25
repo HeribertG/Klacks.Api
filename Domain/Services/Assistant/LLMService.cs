@@ -140,7 +140,7 @@ public class LLMService : ILLMService
 
             if (string.IsNullOrWhiteSpace(responseContent) && allFunctionCalls.Any())
             {
-                responseContent = "The requested actions have been executed.";
+                responseContent = FormatFallbackResponse(allFunctionCalls);
             }
 
             if (allFunctionCalls.Count > 0)
@@ -175,8 +175,22 @@ public class LLMService : ILLMService
             sb.AppendLine($"- {call.FunctionName}: {call.Result ?? "OK"}");
         }
         sb.AppendLine("[/Function Results]");
-        sb.AppendLine("If the user's original request is not yet fully completed, continue by calling the next required function. Do NOT just report the results as text.");
+        sb.AppendLine("Respond naturally to the user about what was accomplished. If additional function calls are needed to fully complete the user's request, make them. Otherwise, confirm the action in a brief, friendly response.");
         return sb.ToString();
+    }
+
+    private static string FormatFallbackResponse(List<LLMFunctionCall> functionCalls)
+    {
+        var parts = functionCalls.Select(call =>
+        {
+            var paramValues = call.Parameters
+                .Where(p => p.Value != null)
+                .Select(p => $"{p.Key}: {p.Value}")
+                .ToList();
+            var paramsStr = paramValues.Count > 0 ? $" ({string.Join(", ", paramValues)})" : "";
+            return $"{call.FunctionName}{paramsStr}";
+        });
+        return string.Join(", ", parts);
     }
 
     private static void AccumulateUsage(Providers.LLMUsage total, Providers.LLMUsage current)

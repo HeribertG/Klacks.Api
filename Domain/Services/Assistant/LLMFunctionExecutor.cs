@@ -67,7 +67,7 @@ public class LLMFunctionExecutor
             try
             {
                 var executionType = await GetExecutionTypeAsync(call.FunctionName);
-                if (executionType != LlmExecutionTypes.UiPassthrough && executionType != LlmExecutionTypes.UiAction)
+                if (executionType != LlmExecutionTypes.UiPassthrough)
                     allUiPassthrough = false;
 
                 var result = await ExecuteFunctionAsync(context, call);

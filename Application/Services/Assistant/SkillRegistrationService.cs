@@ -41,7 +41,6 @@ public class SkillRegistrationService
             (typeof(GetSystemInfoSkill), () => new GetSystemInfoSkill()),
             (typeof(GetCurrentTimeSkill), () => new GetCurrentTimeSkill()),
             (typeof(GetUserContextSkill), () => new GetUserContextSkill()),
-            (typeof(NavigateToSkill), () => new NavigateToSkill()),
             (typeof(ValidateCalendarRuleSkill), () => new ValidateCalendarRuleSkill())
         };
 
@@ -63,6 +62,7 @@ public class SkillRegistrationService
     {
         var scopedSkillTypes = new[]
         {
+            typeof(NavigateToSkill),
             typeof(CreateEmployeeSkill),
             typeof(SearchEmployeesSkill),
             typeof(CreateContractSkill),

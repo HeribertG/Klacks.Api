@@ -300,5 +300,7 @@ if (builder.Configuration.GetValue<bool>("Database:InitializeOnStartup", false))
 
 // Initialize Skills System
 app.InitializeSkills();
+await app.SeedAgentSkillsAsync();
+await app.SeedGlobalAgentRulesAsync();
 
 app.Run();

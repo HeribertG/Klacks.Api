@@ -13,4 +13,20 @@ public static class AssistantExtensions
         registrationService.RegisterAllSkills();
         return app;
     }
+
+    public static async Task<IApplicationBuilder> SeedAgentSkillsAsync(this IApplicationBuilder app)
+    {
+        using var scope = app.ApplicationServices.CreateScope();
+        var seedService = scope.ServiceProvider.GetRequiredService<AgentSkillSeedService>();
+        await seedService.SeedAsync();
+        return app;
+    }
+
+    public static async Task<IApplicationBuilder> SeedGlobalAgentRulesAsync(this IApplicationBuilder app)
+    {
+        using var scope = app.ApplicationServices.CreateScope();
+        var seedService = scope.ServiceProvider.GetRequiredService<GlobalAgentRuleSeedService>();
+        await seedService.SeedAsync();
+        return app;
+    }
 }

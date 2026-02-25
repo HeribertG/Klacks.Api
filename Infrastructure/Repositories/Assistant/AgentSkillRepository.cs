@@ -26,6 +26,15 @@ public class AgentSkillRepository : IAgentSkillRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<AgentSkill>> GetAllByAgentIdAsync(Guid agentId, CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentSkills
+            .Where(s => s.AgentId == agentId)
+            .OrderBy(s => s.SortOrder)
+            .ThenBy(s => s.Name)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<AgentSkill?> GetByNameAsync(Guid agentId, string name, CancellationToken cancellationToken = default)
     {
         return await _context.AgentSkills

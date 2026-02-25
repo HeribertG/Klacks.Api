@@ -278,12 +278,14 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISkillExecutor, Domain.Services.Assistant.Skills.SkillExecutorService>();
         services.AddScoped<ISkillUsageTracker, SkillUsageTrackerService>();
         services.AddSingleton<SkillRegistrationService>();
+        services.AddScoped<AgentSkillSeedService>();
+        services.AddScoped<GlobalAgentRuleSeedService>();
         services.AddScoped<Domain.Services.Assistant.Skills.ILLMSkillBridge, Domain.Services.Assistant.Skills.LLMSkillBridge>();
 
         services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.GetSystemInfoSkill>();
         services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.GetCurrentTimeSkill>();
         services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.GetUserContextSkill>();
-        services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.NavigateToSkill>();
+        services.AddScoped<Domain.Services.Assistant.Skills.Implementations.NavigateToSkill>();
         services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.ValidateCalendarRuleSkill>();
 
         services.AddScoped<Application.Skills.CreateEmployeeSkill>();

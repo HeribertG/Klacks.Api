@@ -1,25 +1,38 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Text.Json;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 public class NavigateToSkill : BaseSkill
 {
-    private static readonly Dictionary<string, string> Routes = new(StringComparer.OrdinalIgnoreCase)
+    private readonly IAgentSkillRepository _agentSkillRepository;
+    private readonly IAgentRepository _agentRepository;
+
+    private static readonly Dictionary<string, string> FallbackRoutes = new(StringComparer.OrdinalIgnoreCase)
     {
-        { "dashboard", "/dashboard" },
-        { "employees", "/employees" },
-        { "employee-details", "/employees" },
-        { "schedule", "/schedule" },
-        { "absences", "/absences" },
-        { "reports", "/reports" },
-        { "settings", "/settings" },
-        { "groups", "/groups" },
-        { "contracts", "/contracts" },
-        { "holidays", "/holidays" }
+        { "dashboard", "/workplace/dashboard" },
+        { "employees", "/workplace/client" },
+        { "employee-details", "/workplace/client" },
+        { "schedule", "/workplace/schedule" },
+        { "absences", "/workplace/absence" },
+        { "reports", "/workplace/dashboard" },
+        { "settings", "/workplace/settings" },
+        { "groups", "/workplace/group" },
+        { "contracts", "/workplace/client" },
+        { "holidays", "/workplace/settings" }
     };
+
+    public NavigateToSkill(
+        IAgentSkillRepository agentSkillRepository,
+        IAgentRepository agentRepository)
+    {
+        _agentSkillRepository = agentSkillRepository;
+        _agentRepository = agentRepository;
+    }
 
     public override string Name => "navigate_to";
     public override string Description => "Navigate to a specific page in the Klacks application";
@@ -32,7 +45,7 @@ public class NavigateToSkill : BaseSkill
             "The page to navigate to",
             SkillParameterType.Enum,
             Required: true,
-            EnumValues: Routes.Keys.ToList()),
+            EnumValues: FallbackRoutes.Keys.ToList()),
         new SkillParameter(
             "entityId",
             "The ID of the entity to view (for detail pages)",
@@ -45,7 +58,7 @@ public class NavigateToSkill : BaseSkill
             Required: false)
     };
 
-    public override Task<SkillResult> ExecuteAsync(
+    public override async Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
@@ -54,9 +67,11 @@ public class NavigateToSkill : BaseSkill
         var entityId = GetParameter<string>(parameters, "entityId");
         var tab = GetParameter<string>(parameters, "tab");
 
-        if (!Routes.TryGetValue(page, out var baseRoute))
+        var routes = await LoadRoutesFromDbAsync(cancellationToken);
+
+        if (!routes.TryGetValue(page, out var baseRoute))
         {
-            return Task.FromResult(SkillResult.Error($"Unknown page: {page}. Available pages: {string.Join(", ", Routes.Keys)}"));
+            return SkillResult.Error($"Unknown page: {page}. Available pages: {string.Join(", ", routes.Keys)}");
         }
 
         var route = baseRoute;
@@ -80,6 +95,37 @@ public class NavigateToSkill : BaseSkill
             QueryParams = queryParams
         };
 
-        return Task.FromResult(SkillResult.Navigation(navigationData, $"Navigate to {page}"));
+        return SkillResult.Navigation(navigationData, $"Navigate to {page}");
+    }
+
+    private async Task<Dictionary<string, string>> LoadRoutesFromDbAsync(CancellationToken cancellationToken)
+    {
+        var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
+        if (agent == null)
+            return FallbackRoutes;
+
+        var skill = await _agentSkillRepository.GetByNameAsync(agent.Id, Name, cancellationToken);
+        if (skill == null || string.IsNullOrEmpty(skill.HandlerConfig) || skill.HandlerConfig == "{}")
+            return FallbackRoutes;
+
+        try
+        {
+            using var doc = JsonDocument.Parse(skill.HandlerConfig);
+            if (doc.RootElement.TryGetProperty("routes", out var routesElement))
+            {
+                var routes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var prop in routesElement.EnumerateObject())
+                {
+                    routes[prop.Name] = prop.Value.GetString() ?? string.Empty;
+                }
+                return routes;
+            }
+        }
+        catch (JsonException)
+        {
+            // Fallback on malformed config
+        }
+
+        return FallbackRoutes;
     }
 }
