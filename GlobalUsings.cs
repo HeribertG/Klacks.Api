@@ -5,6 +5,7 @@ global using Klacks.Api.Domain.Interfaces.Associations;
 global using Klacks.Api.Domain.Interfaces.Authentification;
 global using Klacks.Api.Domain.Interfaces.CalendarSelections;
 global using Klacks.Api.Domain.Interfaces.Assistant;
+global using Klacks.Api.Domain.Interfaces.Email;
 global using Klacks.Api.Domain.Interfaces.Macros;
 global using Klacks.Api.Domain.Interfaces.Schedules;
 global using Klacks.Api.Domain.Interfaces.Settings;

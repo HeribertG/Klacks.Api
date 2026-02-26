@@ -4,6 +4,7 @@ using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Models.CalendarSelections;
+using Klacks.Api.Domain.Models.Email;
 using Klacks.Api.Domain.Models.Histories;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
@@ -165,6 +166,9 @@ public class DataBaseContext : IdentityDbContext
 
     // Report DbSets
     public DbSet<ReportTemplate> ReportTemplates { get; set; }
+
+    // Email DbSets
+    public DbSet<ReceivedEmail> ReceivedEmails { get; set; }
 
     public override int SaveChanges()
     {
@@ -576,6 +580,15 @@ public class DataBaseContext : IdentityDbContext
            .WithMany()
            .HasForeignKey(c => c.SchedulingRuleId)
            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<ReceivedEmail>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => p.MessageId).IsUnique();
+            entity.HasIndex(p => new { p.Folder, p.ImapUid });
+            entity.HasIndex(p => new { p.IsDeleted, p.IsRead });
+            entity.HasIndex(p => new { p.IsDeleted, p.ReceivedDate });
+        });
 
         ConfigureAgentArchitecture(modelBuilder);
     }

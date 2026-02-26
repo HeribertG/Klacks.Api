@@ -29,12 +29,14 @@ using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Services.Macros;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Services.Schedules;
+using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Infrastructure.Email;
 using Klacks.Api.Infrastructure.FileHandling;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Repositories;
 using Klacks.Api.Infrastructure.Repositories.Associations;
+using Klacks.Api.Infrastructure.Repositories.Email;
 using Klacks.Api.Infrastructure.Repositories.Authentification;
 using Klacks.Api.Infrastructure.Repositories.CalendarSelections;
 using Klacks.Api.Infrastructure.Repositories.Reports;
@@ -119,6 +121,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAgentSkillRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSkillRepository>();
         services.AddScoped<IGlobalAgentRuleRepository, Klacks.Api.Infrastructure.Repositories.Assistant.GlobalAgentRuleRepository>();
         services.AddScoped<IUiControlRepository, Klacks.Api.Infrastructure.Repositories.Assistant.UiControlRepository>();
+        services.AddScoped<IReceivedEmailRepository, ReceivedEmailRepository>();
     }
 
     private static void AddDomainServices(this IServiceCollection services)
@@ -220,6 +223,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IEmailTestService, EmailTestService>();
         services.AddScoped<IScheduleEmailService, ScheduleEmailService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IImapEmailService, ImapEmailService>();
+        services.AddScoped<IImapTestService, ImapTestService>();
+        services.AddHostedService<EmailPollingBackgroundService>();
     }
 
     private static void AddAuthenticationServices(this IServiceCollection services)

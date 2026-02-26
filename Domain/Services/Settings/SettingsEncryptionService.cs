@@ -13,6 +13,7 @@ public class SettingsEncryptionService : ISettingsEncryptionService
     private static readonly HashSet<string> SensitiveSettingTypes = new(StringComparer.OrdinalIgnoreCase)
     {
         "outgoingserverPassword",
+        "incomingServerPassword",
         "OPENROUTESERVICE_API_KEY",
         "DEEPL_API_KEY"
     };

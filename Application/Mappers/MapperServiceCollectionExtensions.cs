@@ -19,6 +19,7 @@ public static class MapperServiceCollectionExtensions
         services.AddSingleton<IdentityProviderMapper>();
         services.AddSingleton<SkillMapper>();
         services.AddSingleton<Reports.ReportTemplateMapper>();
+        services.AddSingleton<ReceivedEmailMapper>();
 
         return services;
     }

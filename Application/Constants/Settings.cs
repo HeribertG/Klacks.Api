@@ -49,6 +49,14 @@ namespace Klacks.Api.Application.Constants
         public const string PROMPT_TRANSLATIONS_PREFIX = "PROMPT_TRANSLATIONS_";
 
         public const string LLM_FALLBACK_MODEL_ID = "claude-haiku-4-5-20251001";
+
+        public const string APP_INCOMING_SERVER = "incomingServer";
+        public const string APP_INCOMING_SERVER_PORT = "incomingServerPort";
+        public const string APP_INCOMING_SERVER_USERNAME = "incomingServerUsername";
+        public const string APP_INCOMING_SERVER_PASSWORD = "incomingServerPassword";
+        public const string APP_INCOMING_SERVER_SSL = "incomingServerSSL";
+        public const string APP_INCOMING_SERVER_FOLDER = "incomingServerFolder";
+        public const string APP_INCOMING_SERVER_POLL_INTERVAL = "incomingServerPollInterval";
     }
 }
 
