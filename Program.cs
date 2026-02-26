@@ -303,5 +303,6 @@ app.InitializeSkills();
 await app.SeedAgentSkillsAsync();
 await app.SeedGlobalAgentRulesAsync();
 await app.SeedAgentSoulSectionsAsync();
+await app.SeedUiControlsAsync();
 
 app.Run();

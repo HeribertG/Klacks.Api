@@ -3,7 +3,7 @@
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Microsoft.Extensions.Logging;
 
-namespace Klacks.Api.Application.Services.Assistant;
+namespace Klacks.Api.Infrastructure.Persistence.Seed;
 
 public class AgentSoulSectionSeedService
 {

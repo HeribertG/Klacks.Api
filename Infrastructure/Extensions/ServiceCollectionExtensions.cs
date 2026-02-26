@@ -118,6 +118,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAgentSessionRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSessionRepository>();
         services.AddScoped<IAgentSkillRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSkillRepository>();
         services.AddScoped<IGlobalAgentRuleRepository, Klacks.Api.Infrastructure.Repositories.Assistant.GlobalAgentRuleRepository>();
+        services.AddScoped<IUiControlRepository, Klacks.Api.Infrastructure.Repositories.Assistant.UiControlRepository>();
     }
 
     private static void AddDomainServices(this IServiceCollection services)
@@ -278,8 +279,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISkillExecutor, Domain.Services.Assistant.Skills.SkillExecutorService>();
         services.AddScoped<ISkillUsageTracker, SkillUsageTrackerService>();
         services.AddSingleton<SkillRegistrationService>();
-        services.AddScoped<AgentSkillSeedService>();
-        services.AddScoped<GlobalAgentRuleSeedService>();
+        services.AddScoped<Persistence.Seed.AgentSkillSeedService>();
+        services.AddScoped<Persistence.Seed.GlobalAgentRuleSeedService>();
         services.AddScoped<Domain.Services.Assistant.Skills.ILLMSkillBridge, Domain.Services.Assistant.Skills.LLMSkillBridge>();
 
         services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.GetSystemInfoSkill>();
@@ -313,8 +314,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.ConfigureHeartbeatSkill>();
         services.AddScoped<Application.Skills.GetAiGuidelinesSkill>();
         services.AddScoped<Application.Skills.UpdateAiGuidelinesSkill>();
+        services.AddScoped<Application.Skills.GetPageControlsSkill>();
 
-        services.AddScoped<AgentSoulSectionSeedService>();
+        services.AddScoped<Persistence.Seed.AgentSoulSectionSeedService>();
+        services.AddScoped<Persistence.Seed.UiControlSeedService>();
     }
 
     private static void AddInfrastructureServices(this IServiceCollection services)

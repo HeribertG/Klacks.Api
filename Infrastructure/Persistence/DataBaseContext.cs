@@ -157,6 +157,9 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<GlobalAgentRule> GlobalAgentRules { get; set; }
     public DbSet<GlobalAgentRuleHistory> GlobalAgentRuleHistories { get; set; }
 
+    // UI Control Registry DbSet
+    public DbSet<UiControl> UiControls { get; set; }
+
     // Scheduling DbSets
     public DbSet<SchedulingRule> SchedulingRules { get; set; }
 
@@ -743,6 +746,21 @@ public class DataBaseContext : IdentityDbContext
                 .WithMany(r => r.History)
                 .HasForeignKey(h => h.GlobalAgentRuleId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<UiControl>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.PageKey, p.ControlKey })
+                .HasFilter("is_deleted = false")
+                .IsUnique();
+            entity.HasIndex(p => new { p.PageKey, p.SortOrder })
+                .HasFilter("is_deleted = false");
+
+            entity.HasOne(c => c.ParentControl)
+                .WithMany(c => c.ChildControls)
+                .HasForeignKey(c => c.ParentControlId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 

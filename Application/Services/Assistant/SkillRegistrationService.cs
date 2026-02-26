@@ -87,7 +87,8 @@ public class SkillRegistrationService
             typeof(SetUserGroupScopeSkill),
             typeof(ConfigureHeartbeatSkill),
             typeof(GetAiGuidelinesSkill),
-            typeof(UpdateAiGuidelinesSkill)
+            typeof(UpdateAiGuidelinesSkill),
+            typeof(GetPageControlsSkill)
         };
 
         using var scope = _serviceProvider.CreateScope();
