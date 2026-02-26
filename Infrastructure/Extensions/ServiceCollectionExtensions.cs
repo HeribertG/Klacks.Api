@@ -311,6 +311,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.DeleteAiMemorySkill>();
         services.AddScoped<Application.Skills.SetUserGroupScopeSkill>();
         services.AddScoped<Application.Skills.ConfigureHeartbeatSkill>();
+        services.AddScoped<Application.Skills.GetAiGuidelinesSkill>();
+        services.AddScoped<Application.Skills.UpdateAiGuidelinesSkill>();
+
+        services.AddScoped<AgentSoulSectionSeedService>();
     }
 
     private static void AddInfrastructureServices(this IServiceCollection services)

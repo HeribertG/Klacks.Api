@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -22,7 +23,7 @@ public class GetAiMemoriesSkill : BaseSkill
 
     public override SkillCategory Category => SkillCategory.Query;
 
-    public override IReadOnlyList<string> RequiredPermissions => new[] { "Admin" };
+    public override IReadOnlyList<string> RequiredPermissions => [Roles.Admin];
 
     public override IReadOnlyList<SkillParameter> Parameters => new[]
     {

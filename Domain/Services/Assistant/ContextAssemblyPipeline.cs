@@ -19,6 +19,7 @@ public class ContextAssemblyPipeline
     private readonly IAgentMemoryRepository _memoryRepository;
     private readonly IAgentSkillRepository _skillRepository;
     private readonly IGlobalAgentRuleRepository _globalRuleRepository;
+    private readonly IAiGuidelinesRepository _guidelinesRepository;
     private readonly IEmbeddingService _embeddingService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<ContextAssemblyPipeline> _logger;
@@ -35,6 +36,7 @@ public class ContextAssemblyPipeline
         IAgentMemoryRepository memoryRepository,
         IAgentSkillRepository skillRepository,
         IGlobalAgentRuleRepository globalRuleRepository,
+        IAiGuidelinesRepository guidelinesRepository,
         IEmbeddingService embeddingService,
         IConfiguration configuration,
         ILogger<ContextAssemblyPipeline> logger)
@@ -43,6 +45,7 @@ public class ContextAssemblyPipeline
         _memoryRepository = memoryRepository;
         _skillRepository = skillRepository;
         _globalRuleRepository = globalRuleRepository;
+        _guidelinesRepository = guidelinesRepository;
         _embeddingService = embeddingService;
         _configuration = configuration;
         _logger = logger;
@@ -68,6 +71,15 @@ public class ContextAssemblyPipeline
                 sb.AppendLine();
             }
             sb.AppendLine("====================");
+            sb.AppendLine();
+        }
+
+        var guidelines = await _guidelinesRepository.GetActiveAsync(cancellationToken);
+        if (guidelines != null)
+        {
+            sb.AppendLine("=== GUIDELINES ===");
+            sb.AppendLine(ResolveTemplateVariables(guidelines.Content.Trim(), templateVariables));
+            sb.AppendLine("==================");
             sb.AppendLine();
         }
 

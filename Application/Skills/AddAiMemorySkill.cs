@@ -23,7 +23,7 @@ public class AddAiMemorySkill : BaseSkill
 
     public override SkillCategory Category => SkillCategory.Crud;
 
-    public override IReadOnlyList<string> RequiredPermissions => new[] { "Admin" };
+    public override IReadOnlyList<string> RequiredPermissions => [Roles.Admin];
 
     public override IReadOnlyList<SkillParameter> Parameters => new[]
     {

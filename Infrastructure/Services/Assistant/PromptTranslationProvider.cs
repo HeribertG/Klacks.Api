@@ -56,8 +56,7 @@ public class PromptTranslationProvider : IPromptTranslationProvider
         ["LabelPermissions"] = "Berechtigungen",
         ["HeaderAvailableFunctions"] = "Verfügbare Funktionen",
         ["HeaderPersistentKnowledge"] = "Persistentes Wissen",
-        ["HeaderGuidelines"] = "Richtlinien",
-        ["DefaultGuidelinesFallback"] = "- Sei höflich und professionell\n- Verwende verfügbare Funktionen wenn Benutzer danach fragen\n- Gib klare und präzise Anweisungen\n- Prüfe immer die Berechtigungen bevor du Funktionen ausführst\n- Bei fehlenden Berechtigungen: erkläre, dass der Benutzer einen Administrator kontaktieren muss\n- PFLICHT: Jede Adresse MUSS vor dem Speichern über validate_address validiert werden, unabhängig von der Komponente (Inhaberadresse, Mitarbeiter, Filiale, etc.). Speichere niemals eine unvalidierte Adresse.\n- Wenn die Adressvalidierung fehlschlägt oder keine exakte Übereinstimmung zurückgibt, biete NIEMALS an die falsche Adresse zu speichern. Informiere stattdessen den Benutzer, dass die Adresse ungültig ist und bitte um eine korrigierte Adresse. Biete 'trotzdem speichern' nicht als Option an."
+        ["HeaderGuidelines"] = "Richtlinien"
     };
 
     private readonly ConcurrentDictionary<string, Dictionary<string, string>> _cache = new();
