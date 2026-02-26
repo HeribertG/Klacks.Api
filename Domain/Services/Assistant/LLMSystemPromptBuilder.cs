@@ -16,7 +16,7 @@ public class LLMSystemPromptBuilder
 
     public async Task<string> BuildSystemPromptAsync(LLMContext context, string? soulAndMemoryPrompt = null)
     {
-        var language = context.Language ?? "de";
+        var language = context.Language ?? "en";
         var t = await _translationProvider.GetTranslationsAsync(language);
 
         var canViewSettings = HasPermission(context, "CanViewSettings");

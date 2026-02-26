@@ -24,7 +24,7 @@ public class GlobalAgentRuleSeedService
         ),
         (
             "RESPONSE_LANGUAGE",
-            "Always respond in the language configured in the Klacks application settings. Check the current language setting and use it consistently for all responses.",
+            "You MUST respond in {{LANGUAGE}}. This is the configured application language. Use it consistently for all responses, regardless of what language the user writes in.",
             2
         )
     ];
