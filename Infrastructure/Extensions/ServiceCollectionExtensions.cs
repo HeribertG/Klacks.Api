@@ -321,6 +321,14 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.GetAiGuidelinesSkill>();
         services.AddScoped<Application.Skills.UpdateAiGuidelinesSkill>();
         services.AddScoped<Application.Skills.GetPageControlsSkill>();
+        services.AddScoped<Application.Skills.GetEmailSettingsSkill>();
+        services.AddScoped<Application.Skills.UpdateEmailSettingsSkill>();
+        services.AddScoped<Application.Skills.GetImapSettingsSkill>();
+        services.AddScoped<Application.Skills.UpdateImapSettingsSkill>();
+        services.AddScoped<Application.Skills.WebSearchSkill>();
+        services.AddScoped<Application.Skills.TestSmtpConnectionSkill>();
+        services.AddScoped<Application.Skills.TestImapConnectionSkill>();
+        services.AddScoped<Infrastructure.WebSearch.WebSearchProviderFactory>();
 
         services.AddScoped<Persistence.Seed.AgentSoulSectionSeedService>();
         services.AddScoped<Persistence.Seed.UiControlSeedService>();

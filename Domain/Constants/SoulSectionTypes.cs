@@ -14,12 +14,14 @@ public static class SoulSectionTypes
     public const string UserContext = "user_context";
     public const string DomainExpertise = "domain_expertise";
     public const string ErrorHandling = "error_handling";
+    public const string EmailSetupGuide = "email_setup_guide";
 
     public static readonly string[] All =
     [
         Identity, Personality, Tone, Boundaries,
         CommunicationStyle, Values, GroupBehavior,
-        UserContext, DomainExpertise, ErrorHandling
+        UserContext, DomainExpertise, ErrorHandling,
+        EmailSetupGuide
     ];
 
     public static int GetDefaultSortOrder(string sectionType) => sectionType switch
@@ -34,6 +36,7 @@ public static class SoulSectionTypes
         ErrorHandling => 7,
         UserContext => 8,
         GroupBehavior => 9,
+        EmailSetupGuide => 10,
         _ => 99
     };
 }

@@ -88,7 +88,14 @@ public class SkillRegistrationService
             typeof(ConfigureHeartbeatSkill),
             typeof(GetAiGuidelinesSkill),
             typeof(UpdateAiGuidelinesSkill),
-            typeof(GetPageControlsSkill)
+            typeof(GetPageControlsSkill),
+            typeof(GetEmailSettingsSkill),
+            typeof(UpdateEmailSettingsSkill),
+            typeof(GetImapSettingsSkill),
+            typeof(UpdateImapSettingsSkill),
+            typeof(WebSearchSkill),
+            typeof(TestSmtpConnectionSkill),
+            typeof(TestImapConnectionSkill)
         };
 
         using var scope = _serviceProvider.CreateScope();

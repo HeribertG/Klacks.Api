@@ -50,13 +50,17 @@ namespace Klacks.Api.Application.Constants
 
         public const string LLM_FALLBACK_MODEL_ID = "claude-haiku-4-5-20251001";
 
-        public const string APP_INCOMING_SERVER = "incomingServer";
-        public const string APP_INCOMING_SERVER_PORT = "incomingServerPort";
-        public const string APP_INCOMING_SERVER_USERNAME = "incomingServerUsername";
-        public const string APP_INCOMING_SERVER_PASSWORD = "incomingServerPassword";
-        public const string APP_INCOMING_SERVER_SSL = "incomingServerSSL";
-        public const string APP_INCOMING_SERVER_FOLDER = "incomingServerFolder";
-        public const string APP_INCOMING_SERVER_POLL_INTERVAL = "incomingServerPollInterval";
+        public const string APP_INCOMING_SERVER = "incomingserver";
+        public const string APP_INCOMING_SERVER_PORT = "incomingserverPort";
+        public const string APP_INCOMING_SERVER_USERNAME = "incomingserverUsername";
+        public const string APP_INCOMING_SERVER_PASSWORD = "incomingserverPassword";
+        public const string APP_INCOMING_SERVER_SSL = "incomingserverSSL";
+        public const string APP_INCOMING_SERVER_FOLDER = "incomingserverFolder";
+        public const string APP_INCOMING_SERVER_POLL_INTERVAL = "incomingserverPollInterval";
+
+        public const string WEB_SEARCH_PROVIDER = "WEB_SEARCH_PROVIDER";
+        public const string WEB_SEARCH_API_KEY = "WEB_SEARCH_API_KEY";
+        public const string WEB_SEARCH_MAX_RESULTS = "WEB_SEARCH_MAX_RESULTS";
     }
 }
 
