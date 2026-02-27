@@ -27,9 +27,18 @@ public class GetReceivedEmailsQueryHandler : BaseHandler, IRequestHandler<GetRec
     {
         return await ExecuteAsync(async () =>
         {
-            var emails = await _repository.GetListAsync(request.Skip, request.Take);
-            var totalCount = await _repository.GetTotalCountAsync();
-            var unreadCount = await _repository.GetUnreadCountAsync();
+            bool? isRead = request.ReadFilter?.ToLowerInvariant() switch
+            {
+                "read" => true,
+                "unread" => false,
+                _ => null
+            };
+
+            var sortAsc = string.Equals(request.SortDirection, "asc", StringComparison.OrdinalIgnoreCase);
+
+            var emails = await _repository.GetFilteredListAsync(request.Folder, isRead, sortAsc, request.Skip, request.Take);
+            var totalCount = await _repository.GetFilteredCountAsync(request.Folder, isRead);
+            var unreadCount = await _repository.GetFilteredCountAsync(request.Folder, false);
 
             return new ReceivedEmailListResponse
             {

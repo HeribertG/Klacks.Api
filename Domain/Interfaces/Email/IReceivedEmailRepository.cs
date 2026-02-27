@@ -23,4 +23,16 @@ public interface IReceivedEmailRepository
     Task DeleteAsync(Guid id);
 
     Task<int> GetTotalCountAsync();
+
+    Task<List<ReceivedEmail>> GetListByFolderAsync(string folder, int skip, int take);
+
+    Task<int> GetUnreadCountByFolderAsync(string folder);
+
+    Task<int> GetTotalCountByFolderAsync(string folder);
+
+    Task DeleteByFolderAsync(string folder);
+
+    Task<List<ReceivedEmail>> GetFilteredListAsync(string? folder, bool? isRead, bool sortAsc, int skip, int take);
+
+    Task<int> GetFilteredCountAsync(string? folder, bool? isRead);
 }

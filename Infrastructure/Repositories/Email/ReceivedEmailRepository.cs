@@ -77,4 +77,62 @@ public class ReceivedEmailRepository : IReceivedEmailRepository
     {
         return await _context.ReceivedEmails.CountAsync();
     }
+
+    public async Task<List<ReceivedEmail>> GetListByFolderAsync(string folder, int skip, int take)
+    {
+        return await _context.ReceivedEmails
+            .Where(e => e.Folder == folder)
+            .OrderByDescending(e => e.ReceivedDate)
+            .Skip(skip)
+            .Take(take)
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    public async Task<int> GetUnreadCountByFolderAsync(string folder)
+    {
+        return await _context.ReceivedEmails.CountAsync(e => e.Folder == folder && !e.IsRead);
+    }
+
+    public async Task<int> GetTotalCountByFolderAsync(string folder)
+    {
+        return await _context.ReceivedEmails.CountAsync(e => e.Folder == folder);
+    }
+
+    public async Task DeleteByFolderAsync(string folder)
+    {
+        var emails = await _context.ReceivedEmails.Where(e => e.Folder == folder).ToListAsync();
+        _context.ReceivedEmails.RemoveRange(emails);
+    }
+
+    public async Task<List<ReceivedEmail>> GetFilteredListAsync(
+        string? folder, bool? isRead, bool sortAsc, int skip, int take)
+    {
+        var query = _context.ReceivedEmails.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(folder))
+            query = query.Where(e => e.Folder == folder);
+
+        if (isRead.HasValue)
+            query = query.Where(e => e.IsRead == isRead.Value);
+
+        query = sortAsc
+            ? query.OrderBy(e => e.ReceivedDate)
+            : query.OrderByDescending(e => e.ReceivedDate);
+
+        return await query.Skip(skip).Take(take).AsNoTracking().ToListAsync();
+    }
+
+    public async Task<int> GetFilteredCountAsync(string? folder, bool? isRead)
+    {
+        var query = _context.ReceivedEmails.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(folder))
+            query = query.Where(e => e.Folder == folder);
+
+        if (isRead.HasValue)
+            query = query.Where(e => e.IsRead == isRead.Value);
+
+        return await query.CountAsync();
+    }
 }

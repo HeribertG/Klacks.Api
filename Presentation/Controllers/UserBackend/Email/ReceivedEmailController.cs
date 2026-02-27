@@ -31,9 +31,13 @@ public class ReceivedEmailController : BaseController
     }
 
     [HttpGet("List")]
-    public async Task<ActionResult<ReceivedEmailListResponse>> GetList([FromQuery] int skip = 0, [FromQuery] int take = 50, [FromQuery] string? folder = null)
+    public async Task<ActionResult<ReceivedEmailListResponse>> GetList(
+        [FromQuery] int skip = 0, [FromQuery] int take = 50,
+        [FromQuery] string? folder = null,
+        [FromQuery] string? readFilter = null,
+        [FromQuery] string? sortDirection = null)
     {
-        var result = await _mediator.Send(new GetReceivedEmailsQuery(skip, take, folder));
+        var result = await _mediator.Send(new GetReceivedEmailsQuery(skip, take, folder, readFilter, sortDirection));
         return Ok(result);
     }
 
