@@ -6,7 +6,7 @@ public class ImapTestRequest
 {
     public string Server { get; set; } = string.Empty;
 
-    public string Port { get; set; } = string.Empty;
+    public int Port { get; set; } = 993;
 
     public string Username { get; set; } = string.Empty;
 

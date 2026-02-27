@@ -46,6 +46,8 @@ public class UiControlSeedService
         controls.AddRange(BuildLlmChatControls());
         controls.AddRange(BuildClientControls());
         controls.AddRange(BuildSettingsBranchesControls());
+        controls.AddRange(BuildSettingsEmailControls());
+        controls.AddRange(BuildSettingsImapControls());
 
         return controls;
     }
@@ -287,6 +289,102 @@ public class UiControlSeedService
 
             Create(UiPageKeys.SettingsBranches, "delete-confirm", "modal-delete-confirm",
                 UiControlDefaults.ControlTypeButton, "Confirm Delete", "/workplace/settings", 12)
+        ];
+    }
+
+    private static List<UiControl> BuildSettingsEmailControls()
+    {
+        return
+        [
+            Create(UiPageKeys.SettingsEmail, "section", "email-setting-container",
+                UiControlDefaults.ControlTypeSection, "Email Setting Section", "/workplace/settings", 0),
+
+            Create(UiPageKeys.SettingsEmail, "header", "email-setting-header",
+                UiControlDefaults.ControlTypeContainer, "Email Setting Header", "/workplace/settings", 1),
+
+            Create(UiPageKeys.SettingsEmail, "form", "email-setting-form",
+                UiControlDefaults.ControlTypeForm, "Email Setting Form", "/workplace/settings", 2),
+
+            Create(UiPageKeys.SettingsEmail, "outgoing-server", "outgoingServer",
+                UiControlDefaults.ControlTypeInput, "Outgoing Server", "/workplace/settings", 3),
+
+            Create(UiPageKeys.SettingsEmail, "outgoing-server-port", "outgoingServerPort",
+                UiControlDefaults.ControlTypeInput, "Outgoing Server Port", "/workplace/settings", 4),
+
+            Create(UiPageKeys.SettingsEmail, "outgoing-server-timeout", "outgoingServerTimeout",
+                UiControlDefaults.ControlTypeInput, "Outgoing Server Timeout", "/workplace/settings", 5),
+
+            Create(UiPageKeys.SettingsEmail, "enabled-ssl", "enabledSSL",
+                UiControlDefaults.ControlTypeSelect, "Enable SSL", "/workplace/settings", 6),
+
+            Create(UiPageKeys.SettingsEmail, "authentication-type", "authenticationType",
+                UiControlDefaults.ControlTypeSelect, "Authentication Type", "/workplace/settings", 7),
+
+            Create(UiPageKeys.SettingsEmail, "disposition-notification", "dispositionNotification",
+                UiControlDefaults.ControlTypeSelect, "Disposition Notification", "/workplace/settings", 8),
+
+            Create(UiPageKeys.SettingsEmail, "read-receipt", "readReceipt",
+                UiControlDefaults.ControlTypeInput, "Read Receipt", "/workplace/settings", 9),
+
+            Create(UiPageKeys.SettingsEmail, "reply-to", "replyTo",
+                UiControlDefaults.ControlTypeInput, "Reply To", "/workplace/settings", 10),
+
+            Create(UiPageKeys.SettingsEmail, "mark", "mark",
+                UiControlDefaults.ControlTypeInput, "Mark", "/workplace/settings", 11),
+
+            Create(UiPageKeys.SettingsEmail, "smtp-auth-user", "outgoingServerAuthUser",
+                UiControlDefaults.ControlTypeInput, "SMTP Auth User", "/workplace/settings", 12),
+
+            Create(UiPageKeys.SettingsEmail, "smtp-auth-key", "outgoingServerAuthKey",
+                UiControlDefaults.ControlTypeInput, "SMTP Auth Key", "/workplace/settings", 13),
+
+            Create(UiPageKeys.SettingsEmail, "password-toggle", "setting-email-password-toggle",
+                UiControlDefaults.ControlTypeButton, "Toggle Password", "/workplace/settings", 14),
+
+            Create(UiPageKeys.SettingsEmail, "test-btn", "setting-email-test-btn",
+                UiControlDefaults.ControlTypeButton, "Test Email", "/workplace/settings", 15)
+        ];
+    }
+
+    private static List<UiControl> BuildSettingsImapControls()
+    {
+        return
+        [
+            Create(UiPageKeys.SettingsImap, "section", "imap-setting-container",
+                UiControlDefaults.ControlTypeSection, "IMAP Setting Section", "/workplace/settings", 0),
+
+            Create(UiPageKeys.SettingsImap, "header", "imap-setting-header",
+                UiControlDefaults.ControlTypeContainer, "IMAP Setting Header", "/workplace/settings", 1),
+
+            Create(UiPageKeys.SettingsImap, "form", "imap-setting-form",
+                UiControlDefaults.ControlTypeForm, "IMAP Setting Form", "/workplace/settings", 2),
+
+            Create(UiPageKeys.SettingsImap, "server", "imapServer",
+                UiControlDefaults.ControlTypeInput, "IMAP Server", "/workplace/settings", 3),
+
+            Create(UiPageKeys.SettingsImap, "port", "imapPort",
+                UiControlDefaults.ControlTypeInput, "IMAP Port", "/workplace/settings", 4),
+
+            Create(UiPageKeys.SettingsImap, "enable-ssl", "imapEnableSSL",
+                UiControlDefaults.ControlTypeSelect, "IMAP Enable SSL", "/workplace/settings", 5),
+
+            Create(UiPageKeys.SettingsImap, "folder", "imapFolder",
+                UiControlDefaults.ControlTypeInput, "IMAP Folder", "/workplace/settings", 6),
+
+            Create(UiPageKeys.SettingsImap, "poll-interval", "imapPollInterval",
+                UiControlDefaults.ControlTypeInput, "IMAP Poll Interval", "/workplace/settings", 7),
+
+            Create(UiPageKeys.SettingsImap, "username", "imapUsername",
+                UiControlDefaults.ControlTypeInput, "IMAP Username", "/workplace/settings", 8),
+
+            Create(UiPageKeys.SettingsImap, "password", "imapPassword",
+                UiControlDefaults.ControlTypeInput, "IMAP Password", "/workplace/settings", 9),
+
+            Create(UiPageKeys.SettingsImap, "password-toggle", "setting-imap-password-toggle",
+                UiControlDefaults.ControlTypeButton, "Toggle Password", "/workplace/settings", 10),
+
+            Create(UiPageKeys.SettingsImap, "test-btn", "setting-imap-test-btn",
+                UiControlDefaults.ControlTypeButton, "Test IMAP", "/workplace/settings", 11)
         ];
     }
 

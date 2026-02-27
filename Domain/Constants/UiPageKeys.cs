@@ -12,6 +12,8 @@ public static class UiPageKeys
     public const string LlmChat = "llm-chat";
     public const string Client = "client";
     public const string SettingsBranches = "settings-branches";
+    public const string SettingsEmail = "settings-email";
+    public const string SettingsImap = "settings-imap";
 
     public const string ListCommand = "list";
 }

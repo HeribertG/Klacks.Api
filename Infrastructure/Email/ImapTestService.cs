@@ -25,7 +25,6 @@ public class ImapTestService : IImapTestService
                 request.Server, request.Port, request.Username);
 
             if (string.IsNullOrWhiteSpace(request.Server) ||
-                string.IsNullOrWhiteSpace(request.Port) ||
                 string.IsNullOrWhiteSpace(request.Username) ||
                 string.IsNullOrWhiteSpace(request.Password))
             {
@@ -36,15 +35,7 @@ public class ImapTestService : IImapTestService
                 };
             }
 
-            if (!int.TryParse(request.Port, out var port))
-            {
-                return new ImapTestResult
-                {
-                    Success = false,
-                    Message = "Invalid port number."
-                };
-            }
-
+            var port = request.Port;
             var secureSocketOptions = GetSecureSocketOptions(port, request.EnableSSL);
 
             using var client = new ImapClient();

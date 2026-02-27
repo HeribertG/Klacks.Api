@@ -17,17 +17,20 @@ public class ImapEmailService : IImapEmailService
 {
     private readonly ISettingsRepository _settingsRepository;
     private readonly IReceivedEmailRepository _receivedEmailRepository;
+    private readonly IEmailFolderRepository _emailFolderRepository;
     private readonly ISettingsEncryptionService _encryptionService;
     private readonly ILogger<ImapEmailService> _logger;
 
     public ImapEmailService(
         ISettingsRepository settingsRepository,
         IReceivedEmailRepository receivedEmailRepository,
+        IEmailFolderRepository emailFolderRepository,
         ISettingsEncryptionService encryptionService,
         ILogger<ImapEmailService> logger)
     {
         _settingsRepository = settingsRepository;
         _receivedEmailRepository = receivedEmailRepository;
+        _emailFolderRepository = emailFolderRepository;
         _encryptionService = encryptionService;
         _logger = logger;
     }
@@ -39,7 +42,6 @@ public class ImapEmailService : IImapEmailService
         var username = await GetSettingValueAsync(Settings.APP_INCOMING_SERVER_USERNAME);
         var password = await GetSettingValueAsync(Settings.APP_INCOMING_SERVER_PASSWORD);
         var sslStr = await GetSettingValueAsync(Settings.APP_INCOMING_SERVER_SSL);
-        var folder = await GetSettingValueAsync(Settings.APP_INCOMING_SERVER_FOLDER);
 
         if (string.IsNullOrWhiteSpace(server) || string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
         {
@@ -52,15 +54,12 @@ public class ImapEmailService : IImapEmailService
             port = 993;
         }
 
-        if (string.IsNullOrWhiteSpace(folder))
-        {
-            folder = "INBOX";
-        }
-
         var enableSsl = string.Equals(sslStr, "true", StringComparison.OrdinalIgnoreCase);
         password = _encryptionService.ProcessForReading(Settings.APP_INCOMING_SERVER_PASSWORD, password);
 
         var secureSocketOptions = GetSecureSocketOptions(port, enableSsl);
+
+        var folderNames = await GetFolderNamesAsync();
         var newEmails = new List<ReceivedEmail>();
 
         using var client = new ImapClient();
@@ -70,39 +69,18 @@ public class ImapEmailService : IImapEmailService
             await client.ConnectAsync(server, port, secureSocketOptions, cancellationToken);
             await client.AuthenticateAsync(username, password, cancellationToken);
 
-            var mailFolder = await client.GetFolderAsync(folder, cancellationToken);
-            await mailFolder.OpenAsync(FolderAccess.ReadOnly, cancellationToken);
-
-            var highestUid = await _receivedEmailRepository.GetHighestImapUidAsync(folder);
-            var query = highestUid > 0
-                ? SearchQuery.Uids(new UniqueIdRange(new UniqueId((uint)highestUid + 1), UniqueId.MaxValue))
-                : SearchQuery.All;
-
-            var uids = await mailFolder.SearchAsync(query, cancellationToken);
-
-            _logger.LogInformation("Found {Count} messages to process in folder {Folder}", uids.Count, folder);
-
-            foreach (var uid in uids)
+            foreach (var folderName in folderNames)
             {
                 if (cancellationToken.IsCancellationRequested) break;
 
                 try
                 {
-                    var message = await mailFolder.GetMessageAsync(uid, cancellationToken);
-                    var messageId = message.MessageId ?? $"{folder}-{uid.Id}";
-
-                    if (await _receivedEmailRepository.ExistsByMessageIdAsync(messageId))
-                    {
-                        continue;
-                    }
-
-                    var receivedEmail = MapToReceivedEmail(message, uid, folder, messageId);
-                    await _receivedEmailRepository.AddAsync(receivedEmail);
-                    newEmails.Add(receivedEmail);
+                    var fetchedEmails = await FetchEmailsFromFolderAsync(client, folderName, cancellationToken);
+                    newEmails.AddRange(fetchedEmails);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "Failed to process message UID {Uid} in folder {Folder}", uid.Id, folder);
+                    _logger.LogWarning(ex, "Failed to fetch emails from folder {Folder}", folderName);
                 }
             }
 
@@ -121,6 +99,61 @@ public class ImapEmailService : IImapEmailService
         if (newEmails.Count > 0)
         {
             _logger.LogInformation("Fetched {Count} new emails from {Server}", newEmails.Count, server);
+        }
+
+        return newEmails;
+    }
+
+    private async Task<List<string>> GetFolderNamesAsync()
+    {
+        var dbFolders = await _emailFolderRepository.GetAllAsync();
+        if (dbFolders.Count > 0)
+        {
+            return dbFolders.Select(f => f.ImapFolderName).ToList();
+        }
+
+        var settingsFolder = await GetSettingValueAsync(Settings.APP_INCOMING_SERVER_FOLDER);
+        return [string.IsNullOrWhiteSpace(settingsFolder) ? "INBOX" : settingsFolder];
+    }
+
+    private async Task<List<ReceivedEmail>> FetchEmailsFromFolderAsync(ImapClient client, string folder, CancellationToken cancellationToken)
+    {
+        var newEmails = new List<ReceivedEmail>();
+
+        var mailFolder = await client.GetFolderAsync(folder, cancellationToken);
+        await mailFolder.OpenAsync(FolderAccess.ReadOnly, cancellationToken);
+
+        var highestUid = await _receivedEmailRepository.GetHighestImapUidAsync(folder);
+        var query = highestUid > 0
+            ? SearchQuery.Uids(new UniqueIdRange(new UniqueId((uint)highestUid + 1), UniqueId.MaxValue))
+            : SearchQuery.All;
+
+        var uids = await mailFolder.SearchAsync(query, cancellationToken);
+
+        _logger.LogInformation("Found {Count} messages to process in folder {Folder}", uids.Count, folder);
+
+        foreach (var uid in uids)
+        {
+            if (cancellationToken.IsCancellationRequested) break;
+
+            try
+            {
+                var message = await mailFolder.GetMessageAsync(uid, cancellationToken);
+                var messageId = message.MessageId ?? $"{folder}-{uid.Id}";
+
+                if (await _receivedEmailRepository.ExistsByMessageIdAsync(messageId))
+                {
+                    continue;
+                }
+
+                var receivedEmail = MapToReceivedEmail(message, uid, folder, messageId);
+                await _receivedEmailRepository.AddAsync(receivedEmail);
+                newEmails.Add(receivedEmail);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to process message UID {Uid} in folder {Folder}", uid.Id, folder);
+            }
         }
 
         return newEmails;
