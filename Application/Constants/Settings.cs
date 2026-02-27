@@ -61,6 +61,10 @@ namespace Klacks.Api.Application.Constants
         public const string WEB_SEARCH_PROVIDER = "WEB_SEARCH_PROVIDER";
         public const string WEB_SEARCH_API_KEY = "WEB_SEARCH_API_KEY";
         public const string WEB_SEARCH_MAX_RESULTS = "WEB_SEARCH_MAX_RESULTS";
+
+        public const string SPAM_FILTER_SPAM_THRESHOLD = "SPAM_FILTER_SPAM_THRESHOLD";
+        public const string SPAM_FILTER_UNCERTAIN_THRESHOLD = "SPAM_FILTER_UNCERTAIN_THRESHOLD";
+        public const string SPAM_FILTER_LLM_ENABLED = "SPAM_FILTER_LLM_ENABLED";
     }
 }
 

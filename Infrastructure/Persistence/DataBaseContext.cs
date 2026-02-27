@@ -169,6 +169,8 @@ public class DataBaseContext : IdentityDbContext
 
     // Email DbSets
     public DbSet<ReceivedEmail> ReceivedEmails { get; set; }
+    public DbSet<EmailFolder> EmailFolders { get; set; }
+    public DbSet<SpamRule> SpamRules { get; set; }
 
     public override int SaveChanges()
     {
@@ -588,6 +590,19 @@ public class DataBaseContext : IdentityDbContext
             entity.HasIndex(p => new { p.Folder, p.ImapUid });
             entity.HasIndex(p => new { p.IsDeleted, p.IsRead });
             entity.HasIndex(p => new { p.IsDeleted, p.ReceivedDate });
+        });
+
+        modelBuilder.Entity<EmailFolder>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => p.ImapFolderName).HasFilter("is_deleted = false").IsUnique();
+            entity.HasIndex(p => new { p.IsDeleted, p.SortOrder });
+        });
+
+        modelBuilder.Entity<SpamRule>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.IsDeleted, p.IsActive, p.SortOrder });
         });
 
         ConfigureAgentArchitecture(modelBuilder);

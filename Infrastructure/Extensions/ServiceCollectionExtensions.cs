@@ -122,6 +122,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGlobalAgentRuleRepository, Klacks.Api.Infrastructure.Repositories.Assistant.GlobalAgentRuleRepository>();
         services.AddScoped<IUiControlRepository, Klacks.Api.Infrastructure.Repositories.Assistant.UiControlRepository>();
         services.AddScoped<IReceivedEmailRepository, ReceivedEmailRepository>();
+        services.AddScoped<IEmailFolderRepository, EmailFolderRepository>();
+        services.AddScoped<ISpamRuleRepository, SpamRuleRepository>();
     }
 
     private static void AddDomainServices(this IServiceCollection services)
@@ -225,6 +227,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IImapEmailService, ImapEmailService>();
         services.AddScoped<IImapTestService, ImapTestService>();
+        services.AddScoped<ISpamFilterService, SpamFilterService>();
         services.AddHostedService<EmailPollingBackgroundService>();
     }
 

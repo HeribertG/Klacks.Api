@@ -57,6 +57,17 @@ public class EmailPollingBackgroundService : BackgroundService
 
                     if (newEmails.Count > 0)
                     {
+                        var spamFilterService = scope.ServiceProvider.GetRequiredService<ISpamFilterService>();
+                        foreach (var email in newEmails.Where(e => string.Equals(e.Folder, "INBOX", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            var spamResult = await spamFilterService.ClassifyAsync(email, stoppingToken);
+                            if (spamResult.IsSpam)
+                            {
+                                email.Folder = "Junk";
+                                _logger.LogInformation("Email from {From} classified as spam: {Reason}", email.FromAddress, spamResult.Reason);
+                            }
+                        }
+
                         await unitOfWork.CompleteAsync();
                         _logger.LogInformation("Saved {Count} new emails to database", newEmails.Count);
                     }
