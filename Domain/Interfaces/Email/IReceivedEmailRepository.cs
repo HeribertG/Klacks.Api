@@ -35,4 +35,6 @@ public interface IReceivedEmailRepository
     Task<List<ReceivedEmail>> GetFilteredListAsync(string? folder, bool? isRead, bool sortAsc, int skip, int take);
 
     Task<int> GetFilteredCountAsync(string? folder, bool? isRead);
+
+    Task MoveToFolderAsync(Guid id, string folder);
 }

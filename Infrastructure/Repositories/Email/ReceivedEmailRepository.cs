@@ -135,4 +135,13 @@ public class ReceivedEmailRepository : IReceivedEmailRepository
 
         return await query.CountAsync();
     }
+
+    public async Task MoveToFolderAsync(Guid id, string folder)
+    {
+        var email = await _context.ReceivedEmails.FirstOrDefaultAsync(e => e.Id == id);
+        if (email != null)
+        {
+            email.Folder = folder;
+        }
+    }
 }

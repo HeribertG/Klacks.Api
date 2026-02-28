@@ -304,5 +304,6 @@ await app.SeedAgentSkillsAsync();
 await app.SeedGlobalAgentRulesAsync();
 await app.SeedAgentSoulSectionsAsync();
 await app.SeedUiControlsAsync();
+await app.SeedEmailFoldersAsync();
 
 app.Run();

@@ -95,6 +95,27 @@ public class ReceivedEmailController : BaseController
         return Ok(result);
     }
 
+    [HttpPut("{id:guid}/Restore")]
+    public async Task<ActionResult<bool>> Restore(Guid id)
+    {
+        var result = await _mediator.Send(new RestoreEmailCommand(id));
+        return Ok(result);
+    }
+
+    [HttpPut("{id:guid}/MoveToFolder")]
+    public async Task<ActionResult<bool>> MoveToFolder(Guid id, [FromQuery] string folder)
+    {
+        var result = await _mediator.Send(new MoveEmailToFolderCommand(id, folder));
+        return Ok(result);
+    }
+
+    [HttpDelete("{id:guid}/Permanent")]
+    public async Task<ActionResult<bool>> PermanentlyDelete(Guid id)
+    {
+        var result = await _mediator.Send(new PermanentlyDeleteEmailCommand(id));
+        return Ok(result);
+    }
+
     [HttpPost("FetchNow")]
     public async Task<ActionResult> FetchNow()
     {

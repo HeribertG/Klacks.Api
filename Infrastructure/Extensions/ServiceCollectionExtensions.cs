@@ -335,6 +335,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<Persistence.Seed.AgentSoulSectionSeedService>();
         services.AddScoped<Persistence.Seed.UiControlSeedService>();
+        services.AddScoped<Persistence.Seed.EmailFolderSeedService>();
     }
 
     private static void AddInfrastructureServices(this IServiceCollection services)

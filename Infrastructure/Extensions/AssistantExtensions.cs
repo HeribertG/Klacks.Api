@@ -46,4 +46,12 @@ public static class AssistantExtensions
         await seedService.SeedAsync();
         return app;
     }
+
+    public static async Task<IApplicationBuilder> SeedEmailFoldersAsync(this IApplicationBuilder app)
+    {
+        using var scope = app.ApplicationServices.CreateScope();
+        var seedService = scope.ServiceProvider.GetRequiredService<EmailFolderSeedService>();
+        await seedService.SeedAsync();
+        return app;
+    }
 }
