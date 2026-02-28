@@ -32,6 +32,7 @@ public static class SignalRConstants
 
     public const string HubPath = "/hubs/work-notifications";
     public const string AssistantHubPath = "/hubs/assistant-notifications";
+    public const string EmailHubPath = "/hubs/email-notifications";
 
     public static class AssistantEvents
     {

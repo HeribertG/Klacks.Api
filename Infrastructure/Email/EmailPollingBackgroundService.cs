@@ -4,6 +4,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Email;
+using IEmailNotificationService = Klacks.Api.Domain.Interfaces.Email.IEmailNotificationService;
 
 namespace Klacks.Api.Infrastructure.Email;
 
@@ -70,6 +71,9 @@ public class EmailPollingBackgroundService : BackgroundService
 
                         await unitOfWork.CompleteAsync();
                         _logger.LogInformation("Saved {Count} new emails to database", newEmails.Count);
+
+                        var notificationService = scope.ServiceProvider.GetRequiredService<IEmailNotificationService>();
+                        await notificationService.NotifyNewEmailsAsync(newEmails.Count);
                     }
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)

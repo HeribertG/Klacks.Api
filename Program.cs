@@ -165,6 +165,7 @@ builder.Services.AddHostedService(sp => sp.GetRequiredService<ScheduleTimelineBa
 builder.Services.AddSingleton<IScheduleTimelineService>(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());
 builder.Services.AddSingleton<IAssistantConnectionTracker, AssistantConnectionTracker>();
 builder.Services.AddScoped<IAssistantNotificationService, AssistantNotificationService>();
+builder.Services.AddScoped<Klacks.Api.Domain.Interfaces.Email.IEmailNotificationService, EmailNotificationService>();
 builder.Services.AddSingleton<HeartbeatBackgroundService>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<HeartbeatBackgroundService>());
 builder.Services.AddHttpContextAccessor();
@@ -283,6 +284,7 @@ app.UseEndpoints(endpoints =>
         endpoints.MapControllers();
         endpoints.MapHub<WorkNotificationHub>("/hubs/work-notifications");
         endpoints.MapHub<AssistantNotificationHub>(SignalRConstants.AssistantHubPath);
+        endpoints.MapHub<EmailNotificationHub>(SignalRConstants.EmailHubPath);
         endpoints.MapHealthChecks("/health");
     }
 );
