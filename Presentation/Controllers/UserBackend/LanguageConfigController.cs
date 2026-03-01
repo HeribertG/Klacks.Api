@@ -3,6 +3,7 @@
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Application.DTOs.Config;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -85,7 +86,7 @@ public class LanguageConfigController : ControllerBase
         return Ok(_languagePluginService.GetAllPlugins());
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     [HttpPost("language-plugins/{code}/install")]
     public async Task<ActionResult> InstallPlugin(string code)
     {
@@ -96,7 +97,7 @@ public class LanguageConfigController : ControllerBase
         return Ok();
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     [HttpDelete("language-plugins/{code}/uninstall")]
     public async Task<ActionResult> UninstallPlugin(string code)
     {
