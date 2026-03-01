@@ -10,4 +10,5 @@ public class ClientForReplacementResource
     public string? Company { get; set; }
     public bool LegalEntity { get; set; }
     public int IdNumber { get; set; }
+    public List<Guid> GroupIds { get; set; } = [];
 }
