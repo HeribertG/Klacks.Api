@@ -113,6 +113,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<ClientContract> ClientContract { get; set; }
 
+    public DbSet<ClientAvailability> ClientAvailability { get; set; }
+
     public DbSet<ClientImage> ClientImage { get; set; }
 
     // LLM DbSets
@@ -291,6 +293,19 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<GroupVisibility>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Contract>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<ClientContract>().HasQueryFilter(p => !p.IsDeleted);
+
+        modelBuilder.Entity<ClientAvailability>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.ClientId, p.Date, p.Hour }).IsUnique();
+            entity.HasIndex(p => new { p.IsDeleted, p.ClientId, p.Date });
+        });
+
+        modelBuilder.Entity<ClientAvailability>()
+            .HasOne(ca => ca.Client)
+            .WithMany()
+            .HasForeignKey(ca => ca.ClientId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // LLM Query Filters
         modelBuilder.Entity<LLMProvider>(entity =>

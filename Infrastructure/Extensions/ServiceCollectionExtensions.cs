@@ -54,6 +54,7 @@ using Klacks.Api.Application.Services.Identity;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Application.Services.Translation;
+using Klacks.Api.Domain.Interfaces.Settings;
 
 namespace Klacks.Api.Infrastructure.Extensions;
 
@@ -100,6 +101,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGroupVisibilityRepository, GroupVisibilityRepository>();
         services.AddScoped<IContractRepository, ContractRepository>();
         services.AddScoped<ISchedulingRuleRepository, SchedulingRuleRepository>();
+        services.AddScoped<IClientAvailabilityRepository, ClientAvailabilityRepository>();
         services.AddScoped<IClientImageRepository, ClientImageRepository>();
         services.AddScoped<IContainerTemplateRepository, ContainerTemplateRepository>();
         services.AddScoped<IPostcodeChRepository, PostcodeChRepository>();
@@ -217,6 +219,7 @@ public static class ServiceCollectionExtensions
     private static void AddSettingsServices(this IServiceCollection services)
     {
         services.AddSingleton<ISettingsEncryptionService, SettingsEncryptionService>();
+        services.AddSingleton<ILanguagePluginService, LanguagePluginService>();
         services.AddScoped<ICalendarRuleFilterService, CalendarRuleFilterService>();
         services.AddScoped<ICalendarRuleSortingService, CalendarRuleSortingService>();
         services.AddScoped<ICalendarRulePaginationService, CalendarRulePaginationService>();
