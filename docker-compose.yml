@@ -76,6 +76,20 @@ services:
     networks:
       - klacks_network
 
+  klacks-marketplace:
+    build: ./Klacks.Marketplace
+    container_name: klacks-marketplace
+    restart: unless-stopped
+    ports:
+      - "7003:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+    volumes:
+      - marketplace_data:/app/data
+    networks:
+      - klacks_network
+
   nginx-proxy:
     image: nginx:alpine
     container_name: klacks-proxy
@@ -88,6 +102,7 @@ services:
       - "5443:5443"
       - "7443:7443"
       - "5553:5553"
+      - "7553:7553"
     volumes:
       - ./nginx-proxy/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx-proxy/certs:/etc/nginx/certs:ro
@@ -107,4 +122,6 @@ volumes:
   postgres_data:
     driver: local
   pgadmin_data:
+    driver: local
+  marketplace_data:
     driver: local
