@@ -68,4 +68,13 @@
 	  </Content>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Content Update="Plugins\Languages\**\*">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <None Include="Plugins\Languages\**\*.md">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
 </Project>

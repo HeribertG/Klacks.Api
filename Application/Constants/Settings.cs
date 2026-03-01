@@ -65,6 +65,8 @@ namespace Klacks.Api.Application.Constants
         public const string SPAM_FILTER_SPAM_THRESHOLD = "SPAM_FILTER_SPAM_THRESHOLD";
         public const string SPAM_FILTER_UNCERTAIN_THRESHOLD = "SPAM_FILTER_UNCERTAIN_THRESHOLD";
         public const string SPAM_FILTER_LLM_ENABLED = "SPAM_FILTER_LLM_ENABLED";
+
+        public const string INSTALLED_LANGUAGE_PREFIX = "INSTALLED_LANGUAGE_";
     }
 }
 

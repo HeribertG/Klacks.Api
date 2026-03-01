@@ -300,6 +300,9 @@ if (builder.Configuration.GetValue<bool>("Database:InitializeOnStartup", false))
     }
 }
 
+// Initialize Language Plugins
+app.InitializeLanguagePlugins();
+
 // Initialize Skills System
 app.InitializeSkills();
 await app.SeedAgentSkillsAsync();
