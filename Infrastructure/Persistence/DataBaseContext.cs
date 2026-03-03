@@ -1,17 +1,19 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Models.CalendarSelections;
+using Klacks.Api.Domain.Models.Email;
 using Klacks.Api.Domain.Models.Histories;
-using Klacks.Api.Domain.Models.LLM;
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Settings;
-using Klacks.Api.Domain.Models.AI;
-using Klacks.Api.Domain.Models.Skills;
 using Klacks.Api.Domain.Models.Reports;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Infrastructure.Persistence.Converters;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -95,6 +97,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<ShiftExpenses> ShiftExpenses { get; set; }
 
+    public DbSet<ScheduleChange> ScheduleChange { get; set; }
+
     public DbSet<ClientPeriodHours> ClientPeriodHours { get; set; }
 
     public DbSet<IndividualPeriod> IndividualPeriod { get; set; }
@@ -108,6 +112,8 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<Contract> Contract { get; set; }
 
     public DbSet<ClientContract> ClientContract { get; set; }
+
+    public DbSet<ClientAvailability> ClientAvailability { get; set; }
 
     public DbSet<ClientImage> ClientImage { get; set; }
 
@@ -130,18 +136,43 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<IdentityProviderSyncLog> IdentityProviderSyncLogs { get; set; }
 
-    // AI DbSets
+    // AI DbSets (Legacy - kept for migration compatibility)
     public DbSet<AiMemory> AiMemories { get; set; }
     public DbSet<AiSoul> AiSouls { get; set; }
     public DbSet<AiGuidelines> AiGuidelines { get; set; }
     public DbSet<LlmFunctionDefinition> LlmFunctionDefinitions { get; set; }
     public DbSet<HeartbeatConfig> HeartbeatConfigs { get; set; }
 
+    // Agent Architecture DbSets
+    public DbSet<Agent> Agents { get; set; }
+    public DbSet<AgentTemplate> AgentTemplates { get; set; }
+    public DbSet<AgentLink> AgentLinks { get; set; }
+    public DbSet<AgentSoulSection> AgentSoulSections { get; set; }
+    public DbSet<AgentSoulHistory> AgentSoulHistories { get; set; }
+    public DbSet<AgentMemory> AgentMemories { get; set; }
+    public DbSet<AgentMemoryTag> AgentMemoryTags { get; set; }
+    public DbSet<AgentSession> AgentSessions { get; set; }
+    public DbSet<AgentSessionMessage> AgentSessionMessages { get; set; }
+    public DbSet<AgentSkill> AgentSkills { get; set; }
+    public DbSet<AgentSkillExecution> AgentSkillExecutions { get; set; }
+
+    // Global Agent Rules DbSets
+    public DbSet<GlobalAgentRule> GlobalAgentRules { get; set; }
+    public DbSet<GlobalAgentRuleHistory> GlobalAgentRuleHistories { get; set; }
+
+    // UI Control Registry DbSet
+    public DbSet<UiControl> UiControls { get; set; }
+
     // Scheduling DbSets
     public DbSet<SchedulingRule> SchedulingRules { get; set; }
 
     // Report DbSets
     public DbSet<ReportTemplate> ReportTemplates { get; set; }
+
+    // Email DbSets
+    public DbSet<ReceivedEmail> ReceivedEmails { get; set; }
+    public DbSet<EmailFolder> EmailFolders { get; set; }
+    public DbSet<SpamRule> SpamRules { get; set; }
 
     public override int SaveChanges()
     {
@@ -175,7 +206,7 @@ public class DataBaseContext : IdentityDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ShiftDayAssignment>().HasNoKey();
-        modelBuilder.Entity<ScheduleCell>().HasNoKey();
+        modelBuilder.Entity<ScheduleCell>().HasNoKey().ToView(null);
 
         base.OnModelCreating(modelBuilder);
 
@@ -238,11 +269,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<ContainerTemplate>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.Property(e => e.RouteInfo)
-                  .HasConversion(
-                      v => v == null ? null : System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                      v => string.IsNullOrEmpty(v) ? null : System.Text.Json.JsonSerializer.Deserialize<RouteInfo>(v, (System.Text.Json.JsonSerializerOptions?)null))
-                  .HasColumnType("jsonb");
+            entity.Property(e => e.RouteInfo).HasJsonbConversion<RouteInfo>();
         });
         modelBuilder.Entity<ContainerTemplateItem>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Work>().HasQueryFilter(p => !p.IsDeleted);
@@ -257,24 +284,34 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<WorkChange>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Expenses>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<ShiftExpenses>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<ScheduleChange>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.ClientId, p.ChangeDate }).IsUnique();
+        });
         modelBuilder.Entity<AssignedGroup>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<GroupVisibility>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Contract>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<ClientContract>().HasQueryFilter(p => !p.IsDeleted);
 
+        modelBuilder.Entity<ClientAvailability>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.ClientId, p.Date, p.Hour }).IsUnique();
+            entity.HasIndex(p => new { p.IsDeleted, p.ClientId, p.Date });
+        });
+
+        modelBuilder.Entity<ClientAvailability>()
+            .HasOne(ca => ca.Client)
+            .WithMany()
+            .HasForeignKey(ca => ca.ClientId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         // LLM Query Filters
         modelBuilder.Entity<LLMProvider>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.Property(e => e.Settings)
-                  .HasConversion(
-                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                      v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(v, (System.Text.Json.JsonSerializerOptions?)null))
-                  .HasColumnType("jsonb")
-                  .Metadata.SetValueComparer(new ValueComparer<Dictionary<string, object>?>(
-                      (c1, c2) => System.Text.Json.JsonSerializer.Serialize(c1, (System.Text.Json.JsonSerializerOptions?)null) == System.Text.Json.JsonSerializer.Serialize(c2, (System.Text.Json.JsonSerializerOptions?)null),
-                      c => c == null ? 0 : System.Text.Json.JsonSerializer.Serialize(c, (System.Text.Json.JsonSerializerOptions?)null).GetHashCode(),
-                      c => c == null ? null : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(System.Text.Json.JsonSerializer.Serialize(c, (System.Text.Json.JsonSerializerOptions?)null), (System.Text.Json.JsonSerializerOptions?)null)));
+            entity.Property(e => e.Settings).HasJsonbConversionWithComparer<Dictionary<string, object>>();
         });
         modelBuilder.Entity<LLMModel>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<LLMUsage>().HasQueryFilter(p => !p.IsDeleted);
@@ -285,15 +322,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<IdentityProvider>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.Property(e => e.AttributeMapping)
-                  .HasConversion(
-                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                      v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(v, (System.Text.Json.JsonSerializerOptions?)null))
-                  .HasColumnType("jsonb")
-                  .Metadata.SetValueComparer(new ValueComparer<Dictionary<string, string>?>(
-                      (c1, c2) => System.Text.Json.JsonSerializer.Serialize(c1, (System.Text.Json.JsonSerializerOptions?)null) == System.Text.Json.JsonSerializer.Serialize(c2, (System.Text.Json.JsonSerializerOptions?)null),
-                      c => c == null ? 0 : System.Text.Json.JsonSerializer.Serialize(c, (System.Text.Json.JsonSerializerOptions?)null).GetHashCode(),
-                      c => c == null ? null : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(System.Text.Json.JsonSerializer.Serialize(c, (System.Text.Json.JsonSerializerOptions?)null), (System.Text.Json.JsonSerializerOptions?)null)));
+            entity.Property(e => e.AttributeMapping).HasJsonbConversionWithComparer<Dictionary<string, string>>();
             entity.HasIndex(p => new { p.IsDeleted, p.IsEnabled, p.SortOrder });
         });
         modelBuilder.Entity<IdentityProviderSyncLog>(entity =>
@@ -355,21 +384,9 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<ReportTemplate>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.Property(e => e.PageSetup)
-                  .HasConversion(
-                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                      v => System.Text.Json.JsonSerializer.Deserialize<Domain.Models.Reports.ReportPageSetup>(v, (System.Text.Json.JsonSerializerOptions?)null))
-                  .HasColumnType("jsonb");
-            entity.Property(e => e.Sections)
-                  .HasConversion(
-                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                      v => System.Text.Json.JsonSerializer.Deserialize<List<Domain.Models.Reports.ReportSection>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new())
-                  .HasColumnType("jsonb");
-            entity.Property(e => e.DataSetIds)
-                  .HasConversion(
-                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                      v => System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new())
-                  .HasColumnType("jsonb");
+            entity.Property(e => e.PageSetup).HasJsonbConversion<ReportPageSetup>();
+            entity.Property(e => e.Sections).HasJsonbListConversion<ReportSection>();
+            entity.Property(e => e.DataSetIds).HasJsonbListConversion<string>();
             entity.HasIndex(p => new { p.IsDeleted, p.Type, p.Name });
         });
 
@@ -563,6 +580,12 @@ public class DataBaseContext : IdentityDbContext
            .HasForeignKey(c => c.CalendarSelectionId)
            .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<Group>()
+           .HasOne(g => g.CalendarSelection)
+           .WithMany()
+           .HasForeignKey(g => g.CalendarSelectionId)
+           .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<SchedulingRule>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
@@ -574,6 +597,214 @@ public class DataBaseContext : IdentityDbContext
            .WithMany()
            .HasForeignKey(c => c.SchedulingRuleId)
            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<ReceivedEmail>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => p.MessageId).IsUnique();
+            entity.HasIndex(p => new { p.Folder, p.ImapUid });
+            entity.HasIndex(p => new { p.IsDeleted, p.IsRead });
+            entity.HasIndex(p => new { p.IsDeleted, p.ReceivedDate });
+        });
+
+        modelBuilder.Entity<EmailFolder>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => p.ImapFolderName).HasFilter("is_deleted = false").IsUnique();
+            entity.HasIndex(p => new { p.IsDeleted, p.SortOrder });
+        });
+
+        modelBuilder.Entity<SpamRule>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.IsDeleted, p.IsActive, p.SortOrder });
+        });
+
+        ConfigureAgentArchitecture(modelBuilder);
+    }
+
+    private static void ConfigureAgentArchitecture(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Agent>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.IsDeleted, p.IsActive });
+            entity.HasIndex(p => p.IsDefault).HasFilter("is_default = true AND is_deleted = false").IsUnique();
+        });
+
+        modelBuilder.Entity<AgentTemplate>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+        });
+
+        modelBuilder.Entity<AgentLink>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.SourceAgentId, p.TargetAgentId, p.LinkType })
+                .HasFilter("is_active = true AND is_deleted = false")
+                .IsUnique();
+
+            entity.HasOne(l => l.SourceAgent)
+                .WithMany()
+                .HasForeignKey(l => l.SourceAgentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(l => l.TargetAgent)
+                .WithMany()
+                .HasForeignKey(l => l.TargetAgentId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<AgentSoulSection>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.AgentId, p.SectionType })
+                .HasFilter("is_active = true AND is_deleted = false")
+                .IsUnique();
+            entity.HasIndex(p => new { p.AgentId, p.SortOrder })
+                .HasFilter("is_active = true AND is_deleted = false");
+
+            entity.HasOne(s => s.Agent)
+                .WithMany(a => a.SoulSections)
+                .HasForeignKey(s => s.AgentId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AgentSoulHistory>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.SoulSectionId, p.CreateTime });
+            entity.HasIndex(p => new { p.AgentId, p.CreateTime });
+
+            entity.HasOne(h => h.SoulSection)
+                .WithMany(s => s.History)
+                .HasForeignKey(h => h.SoulSectionId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AgentMemory>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.AgentId, p.Category });
+            entity.HasIndex(p => new { p.AgentId, p.Importance });
+            entity.HasIndex(p => p.AgentId).HasFilter("is_pinned = true AND is_deleted = false");
+            entity.HasIndex(p => p.ExpiresAt).HasFilter("expires_at IS NOT NULL AND is_deleted = false");
+            entity.HasIndex(p => new { p.AgentId, p.Source });
+
+            entity.HasOne(m => m.Agent)
+                .WithMany(a => a.Memories)
+                .HasForeignKey(m => m.AgentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(m => m.Supersedes)
+                .WithMany()
+                .HasForeignKey(m => m.SupersedesId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<AgentMemoryTag>(entity =>
+        {
+            entity.HasKey(t => new { t.MemoryId, t.Tag });
+            entity.HasIndex(t => t.Tag);
+
+            entity.HasOne(t => t.Memory)
+                .WithMany(m => m.Tags)
+                .HasForeignKey(t => t.MemoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AgentSession>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.AgentId, p.Status });
+            entity.HasIndex(p => new { p.UserId, p.UpdateTime });
+            entity.HasIndex(p => new { p.AgentId, p.SessionId }).IsUnique();
+
+            entity.HasOne(s => s.Agent)
+                .WithMany(a => a.Sessions)
+                .HasForeignKey(s => s.AgentId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AgentSessionMessage>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.SessionId, p.CreateTime });
+            entity.HasIndex(p => new { p.SessionId, p.CreateTime })
+                .HasFilter("is_compacted = false AND is_deleted = false");
+
+            entity.HasOne(m => m.Session)
+                .WithMany(s => s.Messages)
+                .HasForeignKey(m => m.SessionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(m => m.CompactedInto)
+                .WithMany()
+                .HasForeignKey(m => m.CompactedIntoId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<AgentSkill>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.AgentId, p.Name })
+                .HasFilter("is_deleted = false")
+                .IsUnique();
+            entity.HasIndex(p => new { p.AgentId, p.IsEnabled, p.SortOrder });
+
+            entity.HasOne(s => s.Agent)
+                .WithMany(a => a.Skills)
+                .HasForeignKey(s => s.AgentId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AgentSkillExecution>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.SessionId, p.CreateTime });
+            entity.HasIndex(p => new { p.SkillId, p.CreateTime });
+
+            entity.HasOne(e => e.Skill)
+                .WithMany(s => s.Executions)
+                .HasForeignKey(e => e.SkillId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<GlobalAgentRule>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => p.Name)
+                .HasFilter("is_active = true AND is_deleted = false")
+                .IsUnique();
+            entity.HasIndex(p => p.SortOrder)
+                .HasFilter("is_active = true AND is_deleted = false");
+        });
+
+        modelBuilder.Entity<GlobalAgentRuleHistory>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.GlobalAgentRuleId, p.CreateTime });
+
+            entity.HasOne(h => h.GlobalAgentRule)
+                .WithMany(r => r.History)
+                .HasForeignKey(h => h.GlobalAgentRuleId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<UiControl>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.PageKey, p.ControlKey })
+                .HasFilter("is_deleted = false")
+                .IsUnique();
+            entity.HasIndex(p => new { p.PageKey, p.SortOrder })
+                .HasFilter("is_deleted = false");
+
+            entity.HasOne(c => c.ParentControl)
+                .WithMany(c => c.ChildControls)
+                .HasForeignKey(c => c.ParentControlId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
     }
 
     private void OnBeforeSaving()
@@ -587,7 +818,7 @@ public class DataBaseContext : IdentityDbContext
             }
 
             var now = DateTime.UtcNow;
-            const string defaultUser = "Annonymus";
+            const string defaultUser = "Anonymous";
             string currentUserName = defaultUser;
 
             try
@@ -599,9 +830,8 @@ public class DataBaseContext : IdentityDbContext
                     currentUserName = claimValue;
                 }
             }
-            catch (Exception ex)
+            catch (ObjectDisposedException)
             {
-                Console.WriteLine($"Fehler beim Abrufen des Benutzers für die Auditierung: {ex.ToString()}");
             }
 
             switch (entry.State)

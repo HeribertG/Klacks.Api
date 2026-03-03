@@ -1,5 +1,7 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Models.Associations;
-using Klacks.Api.Infrastructure.Interfaces;
+using Klacks.Api.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Persistence.Adapters;

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Histories;
 using Klacks.Api.Domain.Models.Schedules;

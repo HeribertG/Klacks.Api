@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Application.DTOs.Registrations;
@@ -24,7 +26,7 @@ public class AccountPasswordService : IAccountPasswordService
         _userManagementService = userManagementService;
         _serviceProvider = serviceProvider;
         _configuration = configuration;
-        this._logger = logger;
+        _logger = logger;
     }
 
     public async Task<AuthenticatedResult> ChangePasswordAsync(ChangePasswordResource model)

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Settings.Branch;
 using Klacks.Api.Domain.Exceptions;
@@ -25,7 +27,7 @@ namespace Klacks.Api.Application.Handlers.Branch
                 var branches = await _branchRepository.List();
                 var branchesList = branches;
 
-                _logger.LogInformation($"Retrieved {branchesList.Count} branches");
+                _logger.LogInformation("Retrieved {Count} branches", branchesList.Count);
 
                 return branchesList;
             }

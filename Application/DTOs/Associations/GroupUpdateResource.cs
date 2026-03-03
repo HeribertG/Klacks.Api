@@ -1,4 +1,7 @@
-﻿using System.Collections.ObjectModel;
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+﻿using Klacks.Api.Domain.Enums;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Klacks.Api.Application.DTOs.Associations;
@@ -21,4 +24,8 @@ public class GroupUpdateResource
     public Guid? Parent { get; set; }
 
     public ICollection<Guid> ClientIds { get; set; } = new Collection<Guid>();
+
+    public PaymentInterval PaymentInterval { get; set; }
+
+    public Guid? CalendarSelectionId { get; set; }
 }

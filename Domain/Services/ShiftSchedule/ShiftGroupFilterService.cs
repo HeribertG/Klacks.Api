@@ -1,4 +1,6 @@
-using Klacks.Api.Infrastructure.Interfaces;
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+using Klacks.Api.Application.Interfaces;
 
 namespace Klacks.Api.Domain.Services.ShiftSchedule;
 

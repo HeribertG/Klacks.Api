@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Application.DTOs;
@@ -15,7 +17,7 @@ public class AccountManagementService : IAccountManagementService
         ILogger<AccountManagementService> logger)
     {
         _userManagementService = userManagementService;
-        this._logger = logger;
+        _logger = logger;
     }
 
     public async Task<HttpResultResource> ChangeRoleUserAsync(ChangeRole editUserRole)

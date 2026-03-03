@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Data.Seed;
 using Klacks.Api.Infrastructure.Persistence.StoredProcedures;
 using Microsoft.EntityFrameworkCore;
@@ -60,7 +62,7 @@ public class DatabaseInitializer : IDatabaseInitializer
                 command.CommandText = $"CREATE DATABASE \"{databaseName}\"";
                 await command.ExecuteNonQueryAsync();
 
-                _logger.LogInformation($"Database '{databaseName}' created successfully.");
+                _logger.LogInformation("Database '{DatabaseName}' created successfully.", databaseName);
             }
 
             // Execute migrations (ignore empty migrations)
@@ -124,15 +126,16 @@ public class DatabaseInitializer : IDatabaseInitializer
             {
                 if (!string.IsNullOrWhiteSpace(operation.Sql))
                 {
-                    _logger.LogDebug($"Executing SQL: {operation.Sql.Substring(0, Math.Min(100, operation.Sql.Length))}...");
-                    await _context.Database.ExecuteSqlRawAsync(operation.Sql);
+                    _logger.LogDebug("Executing SQL: {SqlPreview}...", operation.Sql.Substring(0, Math.Min(100, operation.Sql.Length)));
+                    var sql = operation.Sql.Replace("{", "{{").Replace("}", "}}");
+                    await _context.Database.ExecuteSqlRawAsync(sql);
                 }
             }
 
             await transaction.CommitAsync();
 
             var clientCount = await _context.Client.CountAsync();
-            _logger.LogInformation($"Seed data successfully inserted. {clientCount} clients created.");
+            _logger.LogInformation("Seed data successfully inserted. {ClientCount} clients created.", clientCount);
         }
         catch (Exception ex)
         {

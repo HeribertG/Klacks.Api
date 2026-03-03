@@ -1,8 +1,11 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Commands.IdentityProviders;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.IdentityProviders;
+using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Handlers.IdentityProviders;
 

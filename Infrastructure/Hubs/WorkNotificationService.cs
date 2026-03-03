@@ -1,4 +1,7 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Application.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Klacks.Api.Infrastructure.Hubs;
@@ -79,7 +82,7 @@ public class WorkNotificationService : IWorkNotificationService
                 return;
             }
 
-            Console.WriteLine($"[SignalR] SEND: PeriodHoursUpdated to {targetConnections.Count} connections");
+            _logger.LogDebug("SignalR SEND: PeriodHoursUpdated to {Count} connections", targetConnections.Count);
 
             await _hubContext.Clients.Clients(targetConnections).PeriodHoursUpdated(notification);
 
@@ -126,6 +129,74 @@ public class WorkNotificationService : IWorkNotificationService
         }
     }
 
+    public async Task NotifyScheduleChangeTracked(ScheduleChangeNotificationDto notification)
+    {
+        try
+        {
+            var targetConnections = _dateRangeTracker
+                .GetConnectionsForDate(notification.ChangeDate)
+                .ToList();
+
+            if (targetConnections.Count == 0)
+            {
+                _logger.LogDebug(
+                    "SignalR SKIP: ScheduleChangeTracked - no connections have DateRange containing {Date}",
+                    notification.ChangeDate);
+                return;
+            }
+
+            await _hubContext.Clients.Clients(targetConnections).ScheduleChangeTracked(notification);
+
+            _logger.LogDebug(
+                "Sent ScheduleChangeTracked to {Count} connections for Client {ClientId}, Date {Date}",
+                targetConnections.Count, notification.ClientId, notification.ChangeDate);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending ScheduleChangeTracked notification");
+        }
+    }
+
+    public async Task NotifyCollisionsDetected(CollisionListNotificationDto notification)
+    {
+        try
+        {
+            var dates = notification.Collisions.Select(c => c.Date).Distinct().ToList();
+            if (dates.Count == 0 && notification.CheckedDate.HasValue)
+            {
+                dates.Add(notification.CheckedDate.Value);
+            }
+
+            if (notification.IsFullRefresh || dates.Count == 0)
+            {
+                await _hubContext.Clients.All.CollisionsDetected(notification);
+                _logger.LogDebug("Sent CollisionsDetected (full refresh) to all connections");
+                return;
+            }
+
+            var targetConnections = new HashSet<string>();
+            foreach (var date in dates)
+            {
+                foreach (var conn in _dateRangeTracker.GetConnectionsForDate(date))
+                {
+                    targetConnections.Add(conn);
+                }
+            }
+
+            if (targetConnections.Count == 0)
+            {
+                return;
+            }
+
+            await _hubContext.Clients.Clients(targetConnections.ToList()).CollisionsDetected(notification);
+            _logger.LogDebug("Sent CollisionsDetected to {Count} connections", targetConnections.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending CollisionsDetected notification");
+        }
+    }
+
     private async Task SendWorkNotification(
         WorkNotificationDto notification,
         Func<IScheduleClient, WorkNotificationDto, Task> sendAction,
@@ -146,7 +217,7 @@ public class WorkNotificationService : IWorkNotificationService
                 return;
             }
 
-            Console.WriteLine($"[SignalR] SEND: {methodName} to {targetConnections.Count} connections (DateRange contains {targetDate:yyyy-MM-dd})");
+            _logger.LogDebug("SignalR SEND: {Method} to {Count} connections (DateRange contains {Date:yyyy-MM-dd})", methodName, targetConnections.Count, targetDate);
 
             _logger.LogInformation(
                 "SignalR SEND: {Method} to {Count} connections for date {Date}, ClientId={ClientId}",
@@ -159,7 +230,6 @@ public class WorkNotificationService : IWorkNotificationService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[SignalR] ERROR sending {methodName}: {ex.Message}");
             _logger.LogError(ex, "Error sending {Method} notification", methodName);
         }
     }

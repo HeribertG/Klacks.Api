@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.Annotation;
 using Klacks.Api.Application.DTOs.Staffs;

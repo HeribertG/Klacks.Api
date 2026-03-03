@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -20,7 +22,7 @@ public class ContractsController : InputBaseController<ContractResource>
     {
         _logger.LogInformation("Fetching all contracts.");
         var contracts = await Mediator.Send(new ListQuery<ContractResource>());
-        _logger.LogInformation($"Retrieved {contracts.Count()} contracts.");
+        _logger.LogInformation("Retrieved {Count} contracts.", contracts.Count());
         return Ok(contracts);
     }
 }

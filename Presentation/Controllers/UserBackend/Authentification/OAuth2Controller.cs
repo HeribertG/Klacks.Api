@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Commands.OAuth2;
 using Klacks.Api.Application.Queries.OAuth2;
 using Klacks.Api.Infrastructure.Mediator;

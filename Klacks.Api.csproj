@@ -8,12 +8,15 @@
 		<UserSecretsId>29f16e3f-7df9-4276-b7fa-281e84ee989e</UserSecretsId>
 	</PropertyGroup>
 
+	<ItemGroup>
+		<InternalsVisibleTo Include="Klacks.UnitTest" />
+	</ItemGroup>
+
 
 
 	<ItemGroup>
 		<PackageReference Include="MailKit" Version="4.14.1" />
-		<PackageReference Include="Microsoft.Playwright" Version="1.56.0" />
-				<PackageReference Include="FluentValidation" Version="12.1.0" />
+		<PackageReference Include="FluentValidation" Version="12.1.0" />
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.0" />
 <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.0" />
@@ -32,7 +35,6 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
 		<PackageReference Include="EFCore.NamingConventions" Version="10.0.0-rc.2" />
 		<PackageReference Include="Npgsql.Json.NET" Version="10.0.0" />
@@ -64,6 +66,15 @@
 	  <Content Update="appsettings.Production.json">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Update="Plugins\Languages\**\*">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <None Include="Plugins\Languages\**\*.md">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 
 </Project>

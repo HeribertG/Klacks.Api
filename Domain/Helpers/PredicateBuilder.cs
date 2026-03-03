@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 ﻿using System.Linq.Expressions;
 
 namespace Klacks.Api.Domain.Helpers;

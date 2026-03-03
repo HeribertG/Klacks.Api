@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
@@ -30,7 +32,7 @@ namespace Klacks.Api.Application.Handlers.Memberships
                 var memberships = await _membershipRepository.List();
                 var membershipsList = memberships.ToList();
 
-                _logger.LogInformation($"Retrieved {membershipsList.Count} memberships");
+                _logger.LogInformation("Retrieved {Count} memberships", membershipsList.Count);
 
                 return membershipsList.Select(m => _scheduleMapper.ToMembershipResource(m)).ToList();
             }

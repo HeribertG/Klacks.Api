@@ -1,5 +1,7 @@
-using Klacks.Api.Application.Interfaces;
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +11,7 @@ namespace Klacks.Api.Infrastructure.Repositories
         where TEntity : BaseEntity
     {
         protected readonly ILogger<TEntity> Logger;
-        private readonly DataBaseContext context;
+        protected readonly DataBaseContext context;
 
         public BaseRepository(DataBaseContext context, ILogger<TEntity> logger)
         {
@@ -24,9 +26,11 @@ namespace Klacks.Api.Infrastructure.Repositories
 
         public async virtual Task<TEntity?> Delete(Guid id)
         {
-            var entity = await this.context.Set<TEntity>().FirstOrDefaultAsync(add => add.Id == id);
-            this.context.Remove<TEntity>(entity!);
-            return entity!;
+            var entity = await this.context.Set<TEntity>().FirstOrDefaultAsync(e => e.Id == id);
+            if (entity is null) return null;
+
+            this.context.Remove(entity);
+            return entity;
         }
 
         public async Task<bool> Exists(Guid id)

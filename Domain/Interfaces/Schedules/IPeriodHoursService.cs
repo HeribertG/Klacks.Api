@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 
@@ -22,7 +24,8 @@ public interface IPeriodHoursService
 
     Task RecalculateAllClientsAsync(
         DateOnly startDate,
-        DateOnly endDate);
+        DateOnly endDate,
+        Guid? groupId = null);
 
     Task InvalidateCacheAsync(
         Guid clientId,

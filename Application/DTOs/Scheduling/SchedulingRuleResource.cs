@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 namespace Klacks.Api.Application.DTOs.Scheduling;
 
 public class SchedulingRuleResource
@@ -31,4 +33,6 @@ public class SchedulingRuleResource
     public decimal? MinimumHours { get; set; }
 
     public decimal? FullTimeHours { get; set; }
+
+    public int? VacationDaysPerYear { get; set; }
 }

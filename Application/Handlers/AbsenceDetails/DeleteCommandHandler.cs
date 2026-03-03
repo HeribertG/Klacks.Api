@@ -1,8 +1,11 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Handlers.AbsenceDetails;
 

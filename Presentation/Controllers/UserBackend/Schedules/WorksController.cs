@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Queries;
@@ -185,5 +187,12 @@ public class WorksController : BaseController
     {
         var count = await _mediator.Send(command);
         return Ok(count);
+    }
+
+    [HttpPost("RecalculatePeriodHours")]
+    public async Task<ActionResult<bool>> RecalculatePeriodHours([FromBody] RecalculatePeriodHoursCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return Ok(result);
     }
 }

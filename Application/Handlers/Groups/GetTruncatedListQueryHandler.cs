@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Groups;
@@ -44,7 +46,7 @@ namespace Klacks.Api.Application.Handlers.Groups
                     FirstItemOnPage = truncatedResult.FirstItemOnPage
                 };
                 
-                _logger.LogInformation($"Retrieved truncated groups list with {truncatedGroupResource.Groups.Count} groups");
+                _logger.LogInformation("Retrieved truncated groups list with {Count} groups", truncatedGroupResource.Groups.Count);
                 
                 return truncatedGroupResource;
             }

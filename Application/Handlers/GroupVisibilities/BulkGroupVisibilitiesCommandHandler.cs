@@ -1,8 +1,11 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.GroupVisibilities;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Handlers.GroupVisibilities;
 

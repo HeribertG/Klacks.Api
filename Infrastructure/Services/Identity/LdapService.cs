@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using System.DirectoryServices.Protocols;
 using System.Net;
 using System.Text;

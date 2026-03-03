@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Klacks.Api.Application.Mappers;
@@ -15,6 +17,10 @@ public static class MapperServiceCollectionExtensions
         services.AddSingleton<LLMMapper>();
         services.AddSingleton<FilterMapper>();
         services.AddSingleton<IdentityProviderMapper>();
+        services.AddSingleton<SkillMapper>();
+        services.AddSingleton<Reports.ReportTemplateMapper>();
+        services.AddSingleton<ReceivedEmailMapper>();
+        services.AddSingleton<ClientAvailabilityMapper>();
 
         return services;
     }

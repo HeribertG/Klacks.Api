@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 namespace Klacks.Api.Application.DTOs.Reports;
 
 public class ReportTemplateResource
@@ -10,4 +12,6 @@ public class ReportTemplateResource
     public List<string> DataSetIds { get; set; } = ["work"];
     public ReportPageSetupResource PageSetup { get; set; } = new();
     public List<ReportSectionResource> Sections { get; set; } = [];
+    public bool MergeRows { get; set; }
+    public bool ShowFullPeriod { get; set; }
 }

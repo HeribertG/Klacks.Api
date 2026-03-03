@@ -1,9 +1,12 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.ContainerTemplates;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Handlers.ContainerTemplates;
 

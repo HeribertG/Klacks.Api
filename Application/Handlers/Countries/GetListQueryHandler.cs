@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
@@ -30,7 +32,7 @@ namespace Klacks.Api.Application.Handlers.Countries
                 var countries = await _countryRepository.List();
                 var countriesList = countries.ToList();
                 
-                _logger.LogInformation($"Retrieved {countriesList.Count} countries");
+                _logger.LogInformation("Retrieved {Count} countries", countriesList.Count);
                 
                 return _settingsMapper.ToCountryResources(countriesList.ToList());
             }

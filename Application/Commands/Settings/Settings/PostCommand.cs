@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Infrastructure.Mediator;
 using S = Klacks.Api.Domain.Models.Settings;
 

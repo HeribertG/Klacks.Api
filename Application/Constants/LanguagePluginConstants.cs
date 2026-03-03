@@ -11,13 +11,4 @@ public static class LanguagePluginConstants
     public const string SettingPrefix = "INSTALLED_LANGUAGE_";
 
     public static readonly string[] CoreLanguages = ["de", "en", "fr", "it"];
-
-    public static readonly string[] ManualNames =
-    [
-        "scheduling-rule-manual",
-        "calendar-rule-manual",
-        "report-manual",
-        "macro-manual",
-        "identity-provider-manual"
-    ];
 }

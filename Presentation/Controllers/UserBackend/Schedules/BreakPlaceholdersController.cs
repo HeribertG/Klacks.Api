@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.BreakPlaceholders;
@@ -25,6 +27,13 @@ public class BreakPlaceholdersController : InputBaseController<BreakPlaceholderR
         Response.Headers.Append("X-Total-Count", totalCount.ToString());
         Response.Headers.Append("Access-Control-Expose-Headers", "X-Total-Count");
 
+        return Ok(clientList);
+    }
+
+    [HttpPost("GetScheduleList")]
+    public async Task<ActionResult<IEnumerable<ClientBreakPlaceholderResource>>> GetScheduleList([FromBody] BreakFilter filter)
+    {
+        var clientList = await Mediator.Send(new GetScheduleListQuery(filter));
         return Ok(clientList);
     }
 

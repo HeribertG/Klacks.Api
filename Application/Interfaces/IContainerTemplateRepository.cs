@@ -1,3 +1,6 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.ContainerTemplates;
 using Klacks.Api.Application.DTOs.Schedules;

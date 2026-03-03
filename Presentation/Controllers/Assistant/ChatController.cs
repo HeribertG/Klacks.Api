@@ -1,10 +1,13 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Application.Commands.LLM;
-using Klacks.Api.Application.DTOs.LLM;
-using Klacks.Api.Domain.Interfaces.AI;
+using Klacks.Api.Application.Commands.Assistant;
+using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Constants;
 using System.Security.Claims;
 
@@ -17,16 +20,19 @@ public class ChatController : ControllerBase
 {
     private readonly ILogger<ChatController> _logger;
     private readonly IMediator _mediator;
-    private readonly ILlmFunctionDefinitionRepository _functionDefinitionRepository;
+    private readonly IAgentSkillRepository _agentSkillRepository;
+    private readonly IAgentRepository _agentRepository;
 
     public ChatController(
         ILogger<ChatController> logger,
         IMediator mediator,
-        ILlmFunctionDefinitionRepository functionDefinitionRepository)
+        IAgentSkillRepository agentSkillRepository,
+        IAgentRepository agentRepository)
     {
         this._logger = logger;
         _mediator = mediator;
-        _functionDefinitionRepository = functionDefinitionRepository;
+        _agentSkillRepository = agentSkillRepository;
+        _agentRepository = agentRepository;
     }
 
     [HttpPost]
@@ -61,13 +67,18 @@ public class ChatController : ControllerBase
     public async Task<ActionResult<object>> GetAvailableFunctions()
     {
         var userRights = GetCurrentUserRights();
-        var definitions = await _functionDefinitionRepository.GetAllEnabledAsync();
+        var agent = await _agentRepository.GetDefaultAgentAsync();
 
-        var filtered = definitions
-            .Where(d => d.RequiredPermission == null ||
-                        userRights.Contains(d.RequiredPermission) ||
+        if (agent == null)
+            return Ok(Array.Empty<object>());
+
+        var skills = await _agentSkillRepository.GetEnabledAsync(agent.Id);
+
+        var filtered = skills
+            .Where(s => s.RequiredPermission == null ||
+                        userRights.Contains(s.RequiredPermission) ||
                         userRights.Contains("Admin"))
-            .Select(d => new { d.Name, d.Description, d.ExecutionType, d.Category })
+            .Select(s => new { s.Name, s.Description, s.ExecutionType, s.Category })
             .ToList();
 
         return Ok(filtered);
@@ -76,19 +87,24 @@ public class ChatController : ControllerBase
     [HttpGet("function-definitions")]
     public async Task<ActionResult<object>> GetFunctionDefinitions()
     {
-        var definitions = await _functionDefinitionRepository.GetAllEnabledAsync();
+        var agent = await _agentRepository.GetDefaultAgentAsync();
 
-        var result = definitions.Select(d => new
+        if (agent == null)
+            return Ok(Array.Empty<object>());
+
+        var skills = await _agentSkillRepository.GetEnabledAsync(agent.Id);
+
+        var result = skills.Select(s => new
         {
-            d.Id,
-            d.Name,
-            d.Description,
-            d.ParametersJson,
-            d.RequiredPermission,
-            d.ExecutionType,
-            d.Category,
-            d.IsEnabled,
-            d.SortOrder
+            s.Id,
+            s.Name,
+            s.Description,
+            s.ParametersJson,
+            s.RequiredPermission,
+            s.ExecutionType,
+            s.Category,
+            s.IsEnabled,
+            s.SortOrder
         });
 
         return Ok(result);

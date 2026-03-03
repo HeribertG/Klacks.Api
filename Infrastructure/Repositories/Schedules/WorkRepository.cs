@@ -1,5 +1,8 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Filters;
@@ -7,6 +10,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Services.PeriodHours;
 using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,114 +18,33 @@ namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 
 public class WorkRepository : BaseRepository<Work>, IWorkRepository
 {
-    private readonly DataBaseContext _context;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IClientGroupFilterService _groupFilterService;
     private readonly IClientSearchFilterService _searchFilterService;
     private readonly IWorkMacroService _workMacroService;
-    private readonly IPeriodHoursService _periodHoursService;
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public WorkRepository(
         DataBaseContext context,
         ILogger<Work> logger,
-        IUnitOfWork unitOfWork,
         IClientGroupFilterService groupFilterService,
         IClientSearchFilterService searchFilterService,
-        IWorkMacroService workMacroService,
-        IPeriodHoursService periodHoursService,
-        IHttpContextAccessor httpContextAccessor)
+        IWorkMacroService workMacroService)
         : base(context, logger)
     {
-        _context = context;
-        _unitOfWork = unitOfWork;
         _groupFilterService = groupFilterService;
         _searchFilterService = searchFilterService;
         _workMacroService = workMacroService;
-        _periodHoursService = periodHoursService;
-        _httpContextAccessor = httpContextAccessor;
     }
 
     public override async Task Add(Work work)
     {
         await _workMacroService.ProcessWorkMacroAsync(work);
         await base.Add(work);
-        var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
-        await RecalculatePeriodHoursAsync(work.ClientId, periodStart, periodEnd);
     }
 
     public override async Task<Work?> Put(Work work)
     {
         await _workMacroService.ProcessWorkMacroAsync(work);
-        var result = await base.Put(work);
-        var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
-        await RecalculatePeriodHoursAsync(work.ClientId, periodStart, periodEnd);
-        return result;
-    }
-
-    public override async Task<Work?> Delete(Guid id)
-    {
-        var work = await base.Get(id);
-        var result = await base.Delete(id);
-        if (work != null)
-        {
-            var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
-            await RecalculatePeriodHoursAsync(work.ClientId, periodStart, periodEnd);
-        }
-        return result;
-    }
-
-    public async Task<(Work Work, PeriodHoursResource PeriodHours)> AddWithPeriodHours(Work work, DateOnly periodStart, DateOnly periodEnd)
-    {
-        await _workMacroService.ProcessWorkMacroAsync(work);
-        await base.Add(work);
-        await _unitOfWork.CompleteAsync();
-        var periodHours = await RecalculateAndGetPeriodHoursAsync(work.ClientId, periodStart, periodEnd);
-        return (work, periodHours);
-    }
-
-    public async Task<(Work? Work, PeriodHoursResource? PeriodHours)> PutWithPeriodHours(Work work, DateOnly periodStart, DateOnly periodEnd)
-    {
-        await _workMacroService.ProcessWorkMacroAsync(work);
-        var result = await base.Put(work);
-        if (result == null) return (null, null);
-        await _unitOfWork.CompleteAsync();
-        var periodHours = await RecalculateAndGetPeriodHoursAsync(work.ClientId, periodStart, periodEnd);
-        return (result, periodHours);
-    }
-
-    public async Task<(Work? Work, PeriodHoursResource? PeriodHours)> DeleteWithPeriodHours(Guid id, DateOnly periodStart, DateOnly periodEnd)
-    {
-        var work = await base.Get(id);
-        var result = await base.Delete(id);
-        if (work == null) return (null, null);
-        await _unitOfWork.CompleteAsync();
-        var periodHours = await RecalculateAndGetPeriodHoursAsync(work.ClientId, periodStart, periodEnd);
-        return (result, periodHours);
-    }
-
-    private async Task RecalculatePeriodHoursAsync(Guid clientId, DateOnly periodStart, DateOnly periodEnd)
-    {
-        var connectionId = _httpContextAccessor.HttpContext?.Request
-            .Headers["X-SignalR-ConnectionId"].FirstOrDefault();
-
-        await _periodHoursService.RecalculateAndNotifyAsync(
-            clientId,
-            periodStart,
-            periodEnd,
-            connectionId);
-    }
-
-    private async Task<PeriodHoursResource> RecalculateAndGetPeriodHoursAsync(Guid clientId, DateOnly periodStart, DateOnly periodEnd)
-    {
-        var connectionId = _httpContextAccessor.HttpContext?.Request
-            .Headers["X-SignalR-ConnectionId"].FirstOrDefault();
-
-        return await _periodHoursService.RecalculateAndNotifyAsync(
-            clientId,
-            periodStart,
-            periodEnd,
-            connectionId);
+        return await base.Put(work);
     }
 
     public async Task<(List<Client> Clients, int TotalCount)> WorkList(WorkFilter filter)
@@ -134,7 +57,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         var startOfYear = new DateTime(filter.StartDate.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         var endOfYear = new DateTime(filter.EndDate.Year, 12, 31, 23, 59, 59, DateTimeKind.Utc);
 
-        var query = _context.Client
+        var query = context.Client
             .Where(c => c.Type != EntityTypeEnum.Customer)
             .Include(c => c.Membership)
             .Where(c => c.Membership != null &&
@@ -232,7 +155,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
         var result = new Dictionary<Guid, PeriodHoursResource>();
 
-        var periodHours = await _context.ClientPeriodHours
+        var periodHours = await context.ClientPeriodHours
             .Where(m => clientIds.Contains(m.ClientId)
                 && m.StartDate == startDate
                 && m.EndDate == endDate)
@@ -241,19 +164,19 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         var clientIdsWithPeriodHours = periodHours.Select(m => m.ClientId).ToHashSet();
         var clientIdsWithoutPeriodHours = clientIds.Where(id => !clientIdsWithPeriodHours.Contains(id)).ToList();
 
-        var worksHours = await _context.Work
+        var worksHours = await context.Work
             .Where(w => clientIdsWithoutPeriodHours.Contains(w.ClientId) && w.CurrentDate >= startDate && w.CurrentDate <= endDate)
             .GroupBy(w => w.ClientId)
             .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime), TotalSurcharges = g.Sum(w => w.Surcharges) })
             .ToListAsync();
 
-        var breaksHours = await _context.Break
+        var breaksHours = await context.Break
             .Where(b => clientIdsWithoutPeriodHours.Contains(b.ClientId) && b.CurrentDate >= startDate && b.CurrentDate <= endDate)
             .GroupBy(b => b.ClientId)
             .Select(g => new { ClientId = g.Key, TotalBreaks = g.Sum(b => b.WorkTime) })
             .ToListAsync();
 
-        var workChanges = await _context.WorkChange
+        var workChanges = await context.WorkChange
             .Where(wc => clientIdsWithoutPeriodHours.Contains(wc.Work!.ClientId) && wc.Work.CurrentDate >= startDate && wc.Work.CurrentDate <= endDate)
             .Select(wc => new
             {
@@ -269,26 +192,27 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         var worksHoursDict = worksHours.ToDictionary(x => x.ClientId, x => (Hours: x.TotalHours, Surcharges: x.TotalSurcharges));
         var breaksHoursDict = breaksHours.ToDictionary(x => x.ClientId, x => x.TotalBreaks);
 
-        var contractData = await _context.ClientContract
+        var contractData = await context.ClientContract
             .Where(cc => clientIds.Contains(cc.ClientId) && cc.FromDate <= startDate && (cc.UntilDate == null || cc.UntilDate >= startDate))
             .Include(cc => cc.Contract)
+                .ThenInclude(c => c.SchedulingRule)
             .ToListAsync();
 
         var contractByClient = contractData
             .GroupBy(cc => cc.ClientId)
             .ToDictionary(g => g.Key, g => g.OrderByDescending(cc => cc.FromDate).First().Contract);
 
+        var defaultGuaranteedHours = await GetDefaultGuaranteedHoursAsync();
+
         foreach (var ph in periodHours)
         {
-            var guaranteedHours = contractByClient.TryGetValue(ph.ClientId, out var contract)
-                ? contract.GuaranteedHours
-                : 0m;
+            contractByClient.TryGetValue(ph.ClientId, out var contract);
 
             result[ph.ClientId] = new PeriodHoursResource
             {
                 Hours = ph.Hours,
                 Surcharges = ph.Surcharges,
-                GuaranteedHours = guaranteedHours ?? 0m
+                GuaranteedHours = PeriodHoursService.GetEffectiveGuaranteedHours(contract, defaultGuaranteedHours)
             };
         }
 
@@ -321,24 +245,36 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
                 }
             }
 
-            var guaranteedHours = contractByClient.TryGetValue(clientId, out var contract)
-                ? contract.GuaranteedHours ?? 0m
-                : 0m;
+            contractByClient.TryGetValue(clientId, out var contract);
 
             result[clientId] = new PeriodHoursResource
             {
                 Hours = workData.Hours + breaks + workChangeHours,
                 Surcharges = workData.Surcharges + workChangeSurcharges,
-                GuaranteedHours = guaranteedHours
+                GuaranteedHours = PeriodHoursService.GetEffectiveGuaranteedHours(contract, defaultGuaranteedHours)
             };
         }
 
         return result;
     }
 
+    private async Task<decimal> GetDefaultGuaranteedHoursAsync()
+    {
+        var setting = await context.Settings
+            .FirstOrDefaultAsync(s => s.Type == SettingKeys.GuaranteedHours);
+
+        if (setting != null && decimal.TryParse(setting.Value,
+            System.Globalization.NumberStyles.Any,
+            System.Globalization.CultureInfo.InvariantCulture,
+            out var value))
+            return value;
+
+        return 0m;
+    }
+
     public async Task<List<Work>> GetByClientAndDateRangeAsync(Guid clientId, DateTime fromDate, DateTime toDate, CancellationToken cancellationToken = default)
     {
-        return await _context.Work
+        return await context.Work
             .AsNoTracking()
             .Where(w => w.ClientId == clientId && !w.IsDeleted)
             .Where(w => w.CurrentDate >= DateOnly.FromDateTime(fromDate) && w.CurrentDate <= DateOnly.FromDateTime(toDate))
@@ -349,9 +285,9 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
     public async Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
     {
-        return await _context.Work
+        return await context.Work
             .Where(w => !w.IsDeleted && w.CurrentDate == date && w.LockLevel < level)
-            .Where(w => _context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
+            .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
             .ExecuteUpdateAsync(s => s
                 .SetProperty(w => w.LockLevel, level)
                 .SetProperty(w => w.SealedAt, DateTime.UtcNow)
@@ -360,9 +296,9 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
     public async Task<int> UnsealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default)
     {
-        return await _context.Work
+        return await context.Work
             .Where(w => !w.IsDeleted && w.CurrentDate == date && w.LockLevel == level)
-            .Where(w => _context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
+            .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
             .ExecuteUpdateAsync(s => s
                 .SetProperty(w => w.LockLevel, WorkLockLevel.None)
                 .SetProperty(w => w.SealedAt, (DateTime?)null)
@@ -371,7 +307,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
     public async Task<int> SealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
     {
-        return await _context.Work
+        return await context.Work
             .Where(w => !w.IsDeleted && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.LockLevel < level)
             .ExecuteUpdateAsync(s => s
                 .SetProperty(w => w.LockLevel, level)
@@ -381,7 +317,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
     public async Task<int> UnsealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, CancellationToken cancellationToken = default)
     {
-        return await _context.Work
+        return await context.Work
             .Where(w => !w.IsDeleted && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.LockLevel == level)
             .ExecuteUpdateAsync(s => s
                 .SetProperty(w => w.LockLevel, WorkLockLevel.None)

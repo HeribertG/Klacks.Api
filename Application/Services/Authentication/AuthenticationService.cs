@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
@@ -194,7 +196,6 @@ public class AuthenticationService : IAuthenticationService
     {
         try
         {
-            // For our custom token system, we'll change the password directly
             var passwordHasher = new PasswordHasher<AppUser>();
             user.PasswordHash = passwordHasher.HashPassword(user, newPassword);
             

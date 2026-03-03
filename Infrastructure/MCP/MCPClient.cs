@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;

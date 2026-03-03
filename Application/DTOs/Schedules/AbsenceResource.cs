@@ -1,5 +1,6 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Common;
-using Klacks.Api.Infrastructure.Persistence;
 
 namespace Klacks.Api.Application.DTOs.Schedules;
 

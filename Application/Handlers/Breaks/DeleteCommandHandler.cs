@@ -1,8 +1,10 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Commands.Breaks;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -13,26 +15,26 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
 {
     private readonly IBreakRepository _breakRepository;
     private readonly ScheduleMapper _scheduleMapper;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IWorkNotificationService _notificationService;
+    private readonly IScheduleCompletionService _completionService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public DeleteCommandHandler(
         IBreakRepository breakRepository,
         ScheduleMapper scheduleMapper,
-        IUnitOfWork unitOfWork,
         IScheduleEntriesService scheduleEntriesService,
         IWorkNotificationService notificationService,
+        IScheduleCompletionService completionService,
         IHttpContextAccessor httpContextAccessor,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _breakRepository = breakRepository;
         _scheduleMapper = scheduleMapper;
-        _unitOfWork = unitOfWork;
         _scheduleEntriesService = scheduleEntriesService;
         _notificationService = notificationService;
+        _completionService = completionService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -46,8 +48,9 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
                 throw new KeyNotFoundException($"Break with ID {request.Id} not found.");
             }
 
-            var (deletedBreak, periodHours) = await _breakRepository.DeleteWithPeriodHours(request.Id, request.PeriodStart, request.PeriodEnd);
-            await _unitOfWork.CompleteAsync();
+            await _breakRepository.Delete(request.Id);
+            var periodHours = await _completionService.SaveAndTrackAsync(
+                breakEntry.ClientId, breakEntry.CurrentDate, request.PeriodStart, request.PeriodEnd);
 
             var currentDate = breakEntry.CurrentDate;
             var threeDayStart = currentDate.AddDays(-1);
@@ -62,9 +65,9 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
             breakResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
 
             var connectionId = _httpContextAccessor.HttpContext?.Request
-                .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
+                .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
             var notification = _scheduleMapper.ToScheduleNotificationDto(
-                breakEntry.ClientId, breakEntry.CurrentDate, "updated", connectionId, request.PeriodStart, request.PeriodEnd);
+                breakEntry.ClientId, breakEntry.CurrentDate, ScheduleEventTypes.Updated, connectionId, request.PeriodStart, request.PeriodEnd);
             await _notificationService.NotifyScheduleUpdated(notification);
 
             return breakResource;

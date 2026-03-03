@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 ﻿using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Shifts;
@@ -28,7 +30,7 @@ public class GetTruncatedListQueryHandler : IRequestHandler<GetTruncatedListQuer
         {
             var truncatedShift = await _shiftRepository.GetFilteredAndPaginatedShifts(request.Filter);
             
-            _logger.LogInformation($"Retrieved truncated shift list with {truncatedShift.Shifts?.Count() ?? 0} shifts");
+            _logger.LogInformation("Retrieved truncated shift list with {Count} shifts", truncatedShift.Shifts?.Count() ?? 0);
             
             return _scheduleMapper.ToTruncatedShiftResource(truncatedShift);
         }

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Models.Criteria;
@@ -16,7 +18,6 @@ public class ClientSearchCriteria : BaseCriteria
     
     public bool? HasAnnotation { get; set; }
     
-    // Membership filtering
     public bool? IsActiveMember { get; set; }
     
     public bool? IsFormerMember { get; set; }

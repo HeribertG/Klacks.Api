@@ -1,6 +1,7 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
-using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,14 +9,12 @@ namespace Klacks.Api.Domain.Services.Groups;
 
 public class GroupSearchService : IGroupSearchService
 {
-    private readonly DataBaseContext _context;
     private readonly ILogger<GroupSearchService> _logger;
     private readonly IGroupValidityService _validityService;
 
-    public GroupSearchService(DataBaseContext context, ILogger<GroupSearchService> logger, IGroupValidityService validityService)
+    public GroupSearchService(ILogger<GroupSearchService> logger, IGroupValidityService validityService)
     {
-        _context = context;
-        this._logger = logger;
+        _logger = logger;
         _validityService = validityService;
     }
 
@@ -23,7 +22,6 @@ public class GroupSearchService : IGroupSearchService
     {
         _logger.LogInformation("Applying search filters to query");
 
-        // Apply date range filtering using validity service
         query = _validityService.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange);
         query = ApplySearchFilter(query, filter.SearchString);
         query = ApplySorting(query, filter.OrderBy, filter.SortOrder);

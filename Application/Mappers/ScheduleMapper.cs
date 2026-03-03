@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.CalendarSelections;
@@ -495,5 +497,6 @@ public partial class ScheduleMapper
         target.MaximumHours = source.MaximumHours;
         target.MinimumHours = source.MinimumHours;
         target.FullTimeHours = source.FullTimeHours;
+        target.VacationDaysPerYear = source.VacationDaysPerYear;
     }
 }

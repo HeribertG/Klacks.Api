@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+using FluentValidation;
 using Klacks.Api;
 using Klacks.Api.Application.Validation;
 using Klacks.Api.Data.Seed;
@@ -7,10 +9,13 @@ using Klacks.Api.Infrastructure.Converters;
 using Klacks.Api.Infrastructure.Exceptions;
 using Klacks.Api.Infrastructure.Extensions;
 using Microsoft.AspNetCore.DataProtection;
-using Klacks.Api.Domain.Interfaces.AI;
+using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Middleware;
+using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Services;
+using Klacks.Api.Infrastructure.Services.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Mappers;
@@ -78,46 +83,46 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
             var path = context.HttpContext.Request.Path;
             var accessToken = context.Request.Query["access_token"];
             var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("JwtBearer");
 
-            // Always log for debugging
-            Console.WriteLine($"[JWT] OnMessageReceived: Path={path}, IsHubPath={path.StartsWithSegments("/hubs")}");
-            
+            logger.LogDebug("OnMessageReceived: Path={Path}, IsHubPath={IsHubPath}", path, path.StartsWithSegments("/hubs"));
+
             if (path.StartsWithSegments("/hubs"))
             {
-                // Check if SignalR middleware set the token in Items
                 if (context.HttpContext.Items.TryGetValue("SignalRToken", out var signalRToken) && signalRToken is string tokenFromItems)
                 {
                     context.Token = tokenFromItems;
-                    Console.WriteLine($"[JWT-HUB] Token set from SignalR middleware (length: {context.Token?.Length})");
+                    logger.LogDebug("Token set from SignalR middleware (length: {TokenLength})", context.Token?.Length);
                 }
                 else if (!string.IsNullOrEmpty(accessToken))
                 {
-                    // URL-decode the token in case it was encoded by the client
                     context.Token = Uri.UnescapeDataString(accessToken);
-                    Console.WriteLine($"[JWT-HUB] Token set from query string (length: {context.Token?.Length})");
+                    logger.LogDebug("Token set from query string (length: {TokenLength})", context.Token?.Length);
                 }
                 else if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
                 {
                     context.Token = authHeader.Substring("Bearer ".Length).Trim();
-                    Console.WriteLine($"[JWT-HUB] Token set from Authorization header (length: {context.Token?.Length})");
+                    logger.LogDebug("Token set from Authorization header (length: {TokenLength})", context.Token?.Length);
                 }
                 else
                 {
-                    Console.WriteLine($"[JWT-HUB] No token found! QueryToken={!string.IsNullOrEmpty(accessToken)}, AuthHeader={!string.IsNullOrEmpty(authHeader)}");
+                    logger.LogWarning("No token found for hub path. QueryToken={HasQueryToken}, AuthHeader={HasAuthHeader}",
+                        !string.IsNullOrEmpty(accessToken), !string.IsNullOrEmpty(authHeader));
                 }
             }
             return Task.CompletedTask;
         },
         OnAuthenticationFailed = context =>
         {
-            var path = context.HttpContext.Request.Path;
-            Console.WriteLine($"[JWT] Authentication failed: Path={path}, Error={context.Exception.Message}");
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("JwtBearer");
+            logger.LogWarning("Authentication failed: Path={Path}, Error={Error}", context.HttpContext.Request.Path, context.Exception.Message);
             return Task.CompletedTask;
         },
         OnChallenge = context =>
         {
-            var path = context.HttpContext.Request.Path;
-            Console.WriteLine($"[JWT] OnChallenge: Path={path}, Error={context.Error}, ErrorDescription={context.ErrorDescription}");
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("JwtBearer");
+            logger.LogDebug("OnChallenge: Path={Path}, Error={Error}, ErrorDescription={ErrorDescription}",
+                context.HttpContext.Request.Path, context.Error, context.ErrorDescription);
             return Task.CompletedTask;
         }
     };
@@ -154,8 +159,13 @@ builder.Services.AddScoped<IWorkNotificationService, WorkNotificationService>();
 builder.Services.AddScoped<IShiftStatsNotificationService, ShiftStatsNotificationService>();
 builder.Services.AddSingleton<PeriodHoursBackgroundService>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<PeriodHoursBackgroundService>());
+builder.Services.AddSingleton<IScheduleTimelineStore, ScheduleTimelineStore>();
+builder.Services.AddSingleton<ScheduleTimelineBackgroundService>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());
+builder.Services.AddSingleton<IScheduleTimelineService>(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());
 builder.Services.AddSingleton<IAssistantConnectionTracker, AssistantConnectionTracker>();
 builder.Services.AddScoped<IAssistantNotificationService, AssistantNotificationService>();
+builder.Services.AddScoped<Klacks.Api.Domain.Interfaces.Email.IEmailNotificationService, EmailNotificationService>();
 builder.Services.AddSingleton<HeartbeatBackgroundService>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<HeartbeatBackgroundService>());
 builder.Services.AddHttpContextAccessor();
@@ -274,6 +284,7 @@ app.UseEndpoints(endpoints =>
         endpoints.MapControllers();
         endpoints.MapHub<WorkNotificationHub>("/hubs/work-notifications");
         endpoints.MapHub<AssistantNotificationHub>(SignalRConstants.AssistantHubPath);
+        endpoints.MapHub<EmailNotificationHub>(SignalRConstants.EmailHubPath);
         endpoints.MapHealthChecks("/health");
     }
 );
@@ -289,7 +300,15 @@ if (builder.Configuration.GetValue<bool>("Database:InitializeOnStartup", false))
     }
 }
 
+// Initialize Language Plugins
+app.InitializeLanguagePlugins();
+
 // Initialize Skills System
 app.InitializeSkills();
+await app.SeedAgentSkillsAsync();
+await app.SeedGlobalAgentRulesAsync();
+await app.SeedAgentSoulSectionsAsync();
+await app.SeedUiControlsAsync();
+await app.SeedEmailFoldersAsync();
 
 app.Run();

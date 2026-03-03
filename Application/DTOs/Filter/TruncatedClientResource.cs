@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 ﻿using Klacks.Api.Application.DTOs.Clients;
 
 namespace Klacks.Api.Application.DTOs.Filter;

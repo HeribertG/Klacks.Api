@@ -1,68 +1,81 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Services;
 using Klacks.Api.Application.Skills;
 using Klacks.Api.Infrastructure.Scripting;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Interfaces.AI;
-using Klacks.Api.Infrastructure.Repositories.AI;
+using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Infrastructure.Repositories.Assistant;
 using Klacks.Api.Domain.Services.Absences;
 using Klacks.Api.Domain.Services.Accounts;
-using Klacks.Api.Domain.Services.CalendarSelections;
+using Klacks.Api.Infrastructure.Services.CalendarSelections;
 using Klacks.Api.Domain.Services.Clients;
+using Klacks.Api.Infrastructure.Services.Clients;
 using Klacks.Api.Domain.Services.ContainerTemplates;
 using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Domain.Services.Holidays;
 using Klacks.Api.Domain.Services.Settings;
 using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Domain.Services.ShiftSchedule;
-using Klacks.Api.Domain.Services.ScheduleEntries;
-using Klacks.Api.Domain.Services.PeriodHours;
-using Klacks.Api.Domain.Services.LLM;
-using Klacks.Api.Infrastructure.Services.LLM;
-using Klacks.Api.Domain.Services.Skills;
+using Klacks.Api.Infrastructure.Services.ShiftSchedule;
+using Klacks.Api.Infrastructure.Services.ScheduleEntries;
+using Klacks.Api.Infrastructure.Services.PeriodHours;
+using Klacks.Api.Domain.Services.Assistant;
+using Klacks.Api.Infrastructure.Services.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.RouteOptimization;
 using Klacks.Api.Domain.Services.Common;
-using Klacks.Api.Domain.Services.Macros;
+using Klacks.Api.Infrastructure.Services.Macros;
 using Klacks.Api.Domain.Services.Schedules;
+using Klacks.Api.Infrastructure.Services.Schedules;
+using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Infrastructure.Email;
 using Klacks.Api.Infrastructure.FileHandling;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Repositories;
 using Klacks.Api.Infrastructure.Repositories.Associations;
+using Klacks.Api.Infrastructure.Repositories.Email;
 using Klacks.Api.Infrastructure.Repositories.Authentification;
 using Klacks.Api.Infrastructure.Repositories.CalendarSelections;
-using Klacks.Api.Infrastructure.Repositories.LLM;
 using Klacks.Api.Infrastructure.Repositories.Reports;
 using Klacks.Api.Infrastructure.Repositories.Schedules;
 using Klacks.Api.Infrastructure.Repositories.Scheduling;
 using Klacks.Api.Infrastructure.Repositories.Settings;
-using Klacks.Api.Infrastructure.Repositories.Skills;
 using Klacks.Api.Infrastructure.Repositories.Staffs;
 using Klacks.Api.Infrastructure.Services;
+using Klacks.Api.Infrastructure.Services.Groups;
+using Klacks.Api.Infrastructure.Services.Settings;
+using Klacks.Api.Infrastructure.Services.Shifts;
 using Klacks.Api.Application.Services.Authentication;
 using Klacks.Api.Application.Services.Clients;
-using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Application.Services.Identity;
 using Klacks.Api.Application.Services.Schedules;
-using Klacks.Api.Application.Services.Skills;
+using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Application.Services.Translation;
+using Klacks.Api.Domain.Interfaces.Settings;
 
 namespace Klacks.Api.Infrastructure.Extensions;
 
-public static  class ServiceCollectionExtensions
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        services.AddScoped<ITokenService, TokenService>();
-        services.AddScoped<IUserService, UserService>();
+        services.AddRepositories();
+        services.AddDomainServices();
+        services.AddAuthenticationServices();
+        services.AddAssistantServices();
+        services.AddInfrastructureServices();
+        return services;
+    }
 
+    private static void AddRepositories(this IServiceCollection services)
+    {
         services.AddScoped<IClientRepository, ClientRepository>();
         services.AddScoped<IClientFilterRepository, ClientFilterRepository>();
         services.AddScoped<IClientBreakPlaceholderRepository, ClientBreakPlaceholderRepository>();
         services.AddScoped<IClientSearchRepository, ClientSearchRepository>();
-        services.AddScoped<IClientGroupFilterService, ClientGroupFilterService>();
         services.AddScoped<IClientSearchFilterService, ClientSearchFilterService>();
         services.AddScoped<IAddressRepository, AddressRepository>();
         services.AddScoped<IAnnotationRepository, AnnotationRepository>();
@@ -88,21 +101,52 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IGroupVisibilityRepository, GroupVisibilityRepository>();
         services.AddScoped<IContractRepository, ContractRepository>();
         services.AddScoped<ISchedulingRuleRepository, SchedulingRuleRepository>();
+        services.AddScoped<IClientAvailabilityRepository, ClientAvailabilityRepository>();
         services.AddScoped<IClientImageRepository, ClientImageRepository>();
         services.AddScoped<IContainerTemplateRepository, ContainerTemplateRepository>();
+        services.AddScoped<IPostcodeChRepository, PostcodeChRepository>();
         services.AddScoped<IIdentityProviderRepository, IdentityProviderRepository>();
         services.AddScoped<IIdentityProviderSyncLogRepository, IdentityProviderSyncLogRepository>();
+        services.AddScoped<IShiftScheduleRepository, ShiftScheduleRepository>();
+        services.AddScoped<IReportTemplateRepository, ReportTemplateRepository>();
+        services.AddScoped<IAiMemoryRepository, AiMemoryRepository>();
+        services.AddScoped<IAiSoulRepository, AiSoulRepository>();
+        services.AddScoped<IAiGuidelinesRepository, AiGuidelinesRepository>();
+        services.AddScoped<ILlmFunctionDefinitionRepository, LlmFunctionDefinitionRepository>();
+        services.AddScoped<IHeartbeatConfigRepository, HeartbeatConfigRepository>();
+        services.AddScoped<ILLMRepository, LLMRepository>();
+        services.AddScoped<ISkillUsageRepository, SkillUsageRepository>();
+        services.AddScoped<IAgentRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentRepository>();
+        services.AddScoped<IAgentSoulRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSoulRepository>();
+        services.AddScoped<IAgentMemoryRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentMemoryRepository>();
+        services.AddScoped<IAgentSessionRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSessionRepository>();
+        services.AddScoped<IAgentSkillRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSkillRepository>();
+        services.AddScoped<IGlobalAgentRuleRepository, Klacks.Api.Infrastructure.Repositories.Assistant.GlobalAgentRuleRepository>();
+        services.AddScoped<IUiControlRepository, Klacks.Api.Infrastructure.Repositories.Assistant.UiControlRepository>();
+        services.AddScoped<IReceivedEmailRepository, ReceivedEmailRepository>();
+        services.AddScoped<IEmailFolderRepository, EmailFolderRepository>();
+        services.AddScoped<ISpamRuleRepository, SpamRuleRepository>();
+    }
+
+    private static void AddDomainServices(this IServiceCollection services)
+    {
+        services.AddScoped<IGetAllClientIdsFromGroupAndSubgroups, GroupClientService>();
+        services.AddScoped<IGroupVisibilityService, GroupVisibilityService>();
+        services.AddScoped<IHolidaysListCalculator, HolidaysListCalculator>();
         services.AddSingleton<IMacroEngine, MacroEngine>();
         services.AddSingleton<IMacroCache, MacroCache>();
         services.AddSingleton<IHolidayCalculatorCache, HolidayCalculatorCache>();
         services.AddScoped<IMacroDataProvider, MacroDataProvider>();
-        services.AddScoped<UploadFile>();
 
-        services.AddScoped<IGetAllClientIdsFromGroupAndSubgroups, GroupClientService>();
-        services.AddScoped<IGroupVisibilityService, GroupVisibilityService>();
-        services.AddScoped<IHolidaysListCalculator, HolidaysListCalculator>();
+        services.AddShiftServices();
+        services.AddClientServices();
+        services.AddGroupServices();
+        services.AddScheduleServices();
+        services.AddSettingsServices();
+    }
 
-        // Shift Domain Services
+    private static void AddShiftServices(this IServiceCollection services)
+    {
         services.AddScoped<IDateRangeFilterService, DateRangeFilterService>();
         services.AddScoped<IShiftSearchService, ShiftSearchService>();
         services.AddScoped<IShiftSortingService, ShiftSortingService>();
@@ -115,33 +159,18 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IShiftTreeService, ShiftTreeService>();
         services.AddScoped<IShiftResetService, ShiftResetService>();
         services.AddScoped<IShiftCutFacade, ShiftCutFacade>();
-
-        // Shift Schedule Repository and Services
-        services.AddScoped<IShiftScheduleRepository, ShiftScheduleRepository>();
         services.AddScoped<IShiftScheduleService, ShiftScheduleService>();
         services.AddScoped<IShiftGroupFilterService, ShiftGroupFilterService>();
         services.AddScoped<IShiftScheduleFilterService, ShiftScheduleFilterService>();
         services.AddScoped<IShiftScheduleSearchService, ShiftScheduleSearchService>();
         services.AddScoped<IShiftScheduleSortingService, ShiftScheduleSortingService>();
         services.AddScoped<IShiftScheduleTypeFilterService, ShiftScheduleTypeFilterService>();
+    }
 
-        // Schedule Entries Service
-        services.AddScoped<IScheduleEntriesService, ScheduleEntriesService>();
-
-        // WorkLockLevel Service
-        services.AddScoped<IWorkLockLevelService, WorkLockLevelService>();
-
-        // Period Hours Service
-        services.AddScoped<IPeriodHoursService, PeriodHoursService>();
-
-        // ContainerTemplate Domain Services
-        services.AddScoped<IContainerAvailableTasksService, ContainerAvailableTasksService>();
-
-        // Route Optimization Service
-        services.AddScoped<IRouteOptimizationService, RouteOptimizationService>();
-
-        // Employee Domain Services
+    private static void AddClientServices(this IServiceCollection services)
+    {
         services.AddScoped<IClientFilterService, ClientFilterService>();
+        services.AddScoped<IClientGroupFilterService, ClientGroupFilterService>();
         services.AddScoped<IClientMembershipFilterService, ClientMembershipFilterService>();
         services.AddScoped<IClientSearchService, ClientSearchService>();
         services.AddScoped<IClientSortingService, ClientSortingService>();
@@ -149,8 +178,10 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IClientEntityManagementService, ClientEntityManagementService>();
         services.AddScoped<IClientValidator, ClientValidator>();
         services.AddScoped<IClientWorkFilterService, ClientWorkFilterService>();
+    }
 
-        // Group Domain Services
+    private static void AddGroupServices(this IServiceCollection services)
+    {
         services.AddScoped<IGroupTreeService, GroupTreeService>();
         services.AddScoped<IGroupHierarchyService, GroupHierarchyService>();
         services.AddScoped<IGroupSearchService, GroupSearchService>();
@@ -158,134 +189,118 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<IGroupMembershipService, GroupMembershipService>();
         services.AddScoped<IGroupIntegrityService, GroupIntegrityService>();
         services.AddSingleton<IGroupCacheService, GroupCacheService>();
-
-        // Group Integrity Sub-Services (refactored from 478-line GroupIntegrityService)
-        services.AddScoped<Domain.Services.Groups.Integrity.NestedSetRepairService>();
-        services.AddScoped<Domain.Services.Groups.Integrity.NestedSetValidationService>();
-        services.AddScoped<Domain.Services.Groups.Integrity.GroupIssueFindingService>();
-        services.AddScoped<Domain.Services.Groups.Integrity.RootIntegrityService>();
-
-        // Group Service Façade (reduces GroupRepository dependencies from 8 to 1)
+        services.AddScoped<Infrastructure.Services.Groups.Integrity.NestedSetRepairService>();
+        services.AddScoped<Infrastructure.Services.Groups.Integrity.NestedSetValidationService>();
+        services.AddScoped<Infrastructure.Services.Groups.Integrity.GroupIssueFindingService>();
+        services.AddScoped<Infrastructure.Services.Groups.Integrity.RootIntegrityService>();
         services.AddScoped<IGroupServiceFacade, GroupServiceFacade>();
+    }
 
-        // Absence Domain Services
+    private static void AddScheduleServices(this IServiceCollection services)
+    {
+        services.AddScoped<IScheduleEntriesService, ScheduleEntriesService>();
+        services.AddScoped<IWorkLockLevelService, WorkLockLevelService>();
+        services.AddScoped<IPeriodHoursService, PeriodHoursService>();
+        services.AddScoped<IScheduleChangeTracker, ScheduleChangeTracker>();
+        services.AddScoped<IContainerAvailableTasksService, ContainerAvailableTasksService>();
+        services.AddScoped<IRouteOptimizationService, RouteOptimizationService>();
         services.AddScoped<IAbsenceSortingService, AbsenceSortingService>();
         services.AddScoped<IAbsencePaginationService, AbsencePaginationService>();
         services.AddScoped<IAbsenceExportService, AbsenceExportService>();
+        services.AddScoped<IWorkMacroService, WorkMacroService>();
+        services.AddScoped<IBreakMacroService, BreakMacroService>();
+        services.AddScoped<ICalendarSelectionUpdateService, CalendarSelectionUpdateService>();
+        services.AddScoped<IScheduleCompletionService, ScheduleCompletionService>();
+        services.AddScoped<ContainerTemplateService>();
+        services.AddScoped<IWorkChangeResultService, WorkChangeResultService>();
+        services.AddSingleton<ITimelineCalculationService, TimelineCalculationService>();
+    }
 
-        // Settings Domain Services
+    private static void AddSettingsServices(this IServiceCollection services)
+    {
         services.AddSingleton<ISettingsEncryptionService, SettingsEncryptionService>();
+        services.AddSingleton<ILanguagePluginService, LanguagePluginService>();
         services.AddScoped<ICalendarRuleFilterService, CalendarRuleFilterService>();
         services.AddScoped<ICalendarRuleSortingService, CalendarRuleSortingService>();
         services.AddScoped<ICalendarRulePaginationService, CalendarRulePaginationService>();
         services.AddScoped<IMacroManagementService, MacroManagementService>();
-        services.AddScoped<IWorkMacroService, WorkMacroService>();
-        services.AddScoped<IBreakMacroService, BreakMacroService>();
         services.AddScoped<ISettingsTokenService, SettingsTokenService>();
-        
-        // Email Services  
         services.AddScoped<IEmailTestService, EmailTestService>();
+        services.AddScoped<IScheduleEmailService, ScheduleEmailService>();
+        services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IImapEmailService, ImapEmailService>();
+        services.AddScoped<IImapTestService, ImapTestService>();
+        services.AddScoped<ISpamFilterService, SpamFilterService>();
+        services.AddHostedService<EmailPollingBackgroundService>();
+    }
 
-        // CalendarSelection Domain Services
-        services.AddScoped<ICalendarSelectionUpdateService, CalendarSelectionUpdateService>();
-
-        // Authentication Domain Services
+    private static void AddAuthenticationServices(this IServiceCollection services)
+    {
+        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IUserService, UserService>();
         services.AddScoped<Application.Validation.Accounts.JwtValidator>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IUserManagementService, UserManagementService>();
         services.AddScoped<IRefreshTokenService, Services.Authentication.RefreshTokenService>();
-
-        // Account Domain Services
         services.AddScoped<IAccountAuthenticationService, AccountAuthenticationService>();
         services.AddScoped<IAccountPasswordService, AccountPasswordService>();
         services.AddScoped<IAccountRegistrationService, AccountRegistrationService>();
         services.AddScoped<IAccountManagementService, AccountManagementService>();
         services.AddScoped<IAccountNotificationService, AccountNotificationService>();
         services.AddScoped<IUsernameGeneratorService, UsernameGeneratorService>();
-
-        // Identity Provider Services
         services.AddScoped<ILdapService, Services.Identity.LdapService>();
         services.AddScoped<IOAuth2Service, Services.Identity.OAuth2Service>();
         services.AddScoped<IClientSyncService, ClientSyncService>();
+    }
 
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-        // Infrastructure Services
-        services.AddScoped<EntityCollectionUpdateService>();
-
-        // Database Adapters - Register based on environment
-        services.AddScoped<IGroupTreeDatabaseAdapter>(sp =>
-        {
-            var context = sp.GetRequiredService<DataBaseContext>();
-            var isInMemory = context.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory";
-            return isInMemory
-                ? new Persistence.Adapters.GroupTreeInMemoryAdapter(context)
-                : new Persistence.Adapters.GroupTreeProductionAdapter(context);
-        });
-
-        // AI Services
-        services.AddScoped<IAiMemoryRepository, AiMemoryRepository>();
-        services.AddScoped<IAiSoulRepository, AiSoulRepository>();
-        services.AddScoped<IAiGuidelinesRepository, AiGuidelinesRepository>();
-        services.AddScoped<ILlmFunctionDefinitionRepository, LlmFunctionDefinitionRepository>();
-        services.AddScoped<IHeartbeatConfigRepository, HeartbeatConfigRepository>();
-
-        // LLM Services
-        services.AddScoped<ILLMRepository, LLMRepository>();
+    private static void AddAssistantServices(this IServiceCollection services)
+    {
         services.AddScoped<ILLMService, LLMService>();
         services.AddScoped<ILLMProviderFactory, LLMProviderFactory>();
-
-        // LLM Domain Services
         services.AddScoped<LLMProviderOrchestrator>();
         services.AddScoped<LLMConversationManager>();
         services.AddScoped<LLMFunctionExecutor>();
         services.AddScoped<LLMResponseBuilder>();
         services.AddScoped<LLMSystemPromptBuilder>();
+        services.AddSingleton<IPromptTranslationProvider, PromptTranslationProvider>();
+        services.AddScoped<IEmbeddingService, Klacks.Api.Infrastructure.Services.Assistant.EmbeddingService>();
+        services.AddScoped<ContextAssemblyPipeline>();
+        services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.EmbeddingBackgroundService>();
+        services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.MemoryCleanupBackgroundService>();
 
-        // LLM Providers
-        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.OpenAI.OpenAIProvider>();
-        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Anthropic.AnthropicProvider>();
-        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Gemini.GeminiProvider>();
-        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Azure.AzureOpenAIProvider>();
-        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Mistral.MistralProvider>();
-        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Cohere.CohereProvider>();
-        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.DeepSeek.DeepSeekProvider>();
-        services.AddScoped<Klacks.Api.Infrastructure.Services.LLM.Providers.Generic.GenericOpenAICompatibleProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.OpenAI.OpenAIProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Anthropic.AnthropicProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Gemini.GeminiProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Azure.AzureOpenAIProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Mistral.MistralProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Cohere.CohereProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek.DeepSeekProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic.GenericOpenAICompatibleProvider>();
 
-        // HttpClients for Providers
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.OpenAI.OpenAIProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Anthropic.AnthropicProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Gemini.GeminiProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Azure.AzureOpenAIProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Mistral.MistralProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Cohere.CohereProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.DeepSeek.DeepSeekProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.LLM.Providers.Generic.GenericOpenAICompatibleProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.OpenAI.OpenAIProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Anthropic.AnthropicProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Gemini.GeminiProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Azure.AzureOpenAIProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Mistral.MistralProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Cohere.CohereProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek.DeepSeekProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic.GenericOpenAICompatibleProvider>();
 
-        // Skills System Services
-        services.AddSingleton<Domain.Services.Skills.Adapters.ISkillAdapterFactory, Domain.Services.Skills.Adapters.SkillAdapterFactory>();
-        services.AddSingleton<ISkillRegistry, Domain.Services.Skills.SkillRegistry>();
-        services.AddScoped<ISkillExecutor, Domain.Services.Skills.SkillExecutorService>();
-        services.AddScoped<ISkillUsageRepository, SkillUsageRepository>();
+        services.AddSingleton<Domain.Services.Assistant.Skills.Adapters.ISkillAdapterFactory, Domain.Services.Assistant.Skills.Adapters.SkillAdapterFactory>();
+        services.AddSingleton<ISkillRegistry, Domain.Services.Assistant.Skills.SkillRegistry>();
+        services.AddScoped<ISkillExecutor, Domain.Services.Assistant.Skills.SkillExecutorService>();
         services.AddScoped<ISkillUsageTracker, SkillUsageTrackerService>();
-
-        // Skill Mapper (Application Layer)
-        services.AddScoped<SkillMapper>();
-
-        // Skill Registration Service (in Application layer)
         services.AddSingleton<SkillRegistrationService>();
+        services.AddScoped<Persistence.Seed.AgentSkillSeedService>();
+        services.AddScoped<Persistence.Seed.GlobalAgentRuleSeedService>();
+        services.AddScoped<Domain.Services.Assistant.Skills.ILLMSkillBridge, Domain.Services.Assistant.Skills.LLMSkillBridge>();
 
-        // LLM-Skill Bridge
-        services.AddScoped<Domain.Services.Skills.ILLMSkillBridge, Domain.Services.Skills.LLMSkillBridge>();
+        services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.GetSystemInfoSkill>();
+        services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.GetCurrentTimeSkill>();
+        services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.GetUserContextSkill>();
+        services.AddScoped<Domain.Services.Assistant.Skills.Implementations.NavigateToSkill>();
+        services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.ValidateCalendarRuleSkill>();
 
-        // Skill Implementations (Singleton - no dependencies, in Domain layer)
-        services.AddSingleton<Domain.Services.Skills.Implementations.GetSystemInfoSkill>();
-        services.AddSingleton<Domain.Services.Skills.Implementations.GetCurrentTimeSkill>();
-        services.AddSingleton<Domain.Services.Skills.Implementations.GetUserContextSkill>();
-        services.AddSingleton<Domain.Services.Skills.Implementations.NavigateToSkill>();
-        services.AddSingleton<Domain.Services.Skills.Implementations.ValidateCalendarRuleSkill>();
-
-        // Skill Implementations (Scoped - with database dependencies, in Application layer)
         services.AddScoped<Application.Skills.CreateEmployeeSkill>();
         services.AddScoped<Application.Skills.SearchEmployeesSkill>();
         services.AddScoped<Application.Skills.CreateContractSkill>();
@@ -303,31 +318,50 @@ public static  class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.UpdateOwnerAddressSkill>();
         services.AddScoped<Application.Skills.GetAiSoulSkill>();
         services.AddScoped<Application.Skills.UpdateAiSoulSkill>();
-        services.AddScoped<Application.Skills.GetAiGuidelinesSkill>();
-        services.AddScoped<Application.Skills.UpdateAiGuidelinesSkill>();
         services.AddScoped<Application.Skills.AddAiMemorySkill>();
         services.AddScoped<Application.Skills.GetAiMemoriesSkill>();
         services.AddScoped<Application.Skills.UpdateAiMemorySkill>();
         services.AddScoped<Application.Skills.DeleteAiMemorySkill>();
         services.AddScoped<Application.Skills.SetUserGroupScopeSkill>();
         services.AddScoped<Application.Skills.ConfigureHeartbeatSkill>();
+        services.AddScoped<Application.Skills.GetAiGuidelinesSkill>();
+        services.AddScoped<Application.Skills.UpdateAiGuidelinesSkill>();
+        services.AddScoped<Application.Skills.GetPageControlsSkill>();
+        services.AddScoped<Application.Skills.GetEmailSettingsSkill>();
+        services.AddScoped<Application.Skills.UpdateEmailSettingsSkill>();
+        services.AddScoped<Application.Skills.GetImapSettingsSkill>();
+        services.AddScoped<Application.Skills.UpdateImapSettingsSkill>();
+        services.AddScoped<Application.Skills.WebSearchSkill>();
+        services.AddScoped<Application.Skills.TestSmtpConnectionSkill>();
+        services.AddScoped<Application.Skills.TestImapConnectionSkill>();
+        services.AddScoped<Infrastructure.WebSearch.WebSearchProviderFactory>();
 
-        // Geocoding Service
+        services.AddScoped<Persistence.Seed.AgentSoulSectionSeedService>();
+        services.AddScoped<Persistence.Seed.UiControlSeedService>();
+        services.AddScoped<Persistence.Seed.EmailFolderSeedService>();
+    }
+
+    private static void AddInfrastructureServices(this IServiceCollection services)
+    {
+        services.AddScoped<IFileUploadService, UploadFile>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<EntityCollectionUpdateService>();
+
+        services.AddScoped<IGroupTreeDatabaseAdapter>(sp =>
+        {
+            var context = sp.GetRequiredService<DataBaseContext>();
+            var isInMemory = context.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory";
+            return isInMemory
+                ? new Persistence.Adapters.GroupTreeInMemoryAdapter(context)
+                : new Persistence.Adapters.GroupTreeProductionAdapter(context);
+        });
+
         services.AddHttpClient("Nominatim");
         services.AddMemoryCache();
         services.AddSingleton<IGeocodingService, GeocodingService>();
 
-        // ContainerTemplate Service
-        services.AddScoped<ContainerTemplateService>();
-
-        // Translation Service
         services.AddHttpClient<ITranslationService, Services.Translation.DeepLTranslationService>();
         services.AddScoped<IMultiLanguageTranslationService, MultiLanguageTranslationService>();
 
-        // Report Services
-        services.AddScoped<IReportTemplateRepository, ReportTemplateRepository>();
-        services.AddScoped<Application.Mappers.Reports.ReportTemplateMapper>();
-
-        return services;
     }
 }

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Infrastructure.Scripting;
 
 namespace Klacks.Api.Infrastructure.Interfaces;

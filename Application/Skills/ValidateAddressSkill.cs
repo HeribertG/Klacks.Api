@@ -1,8 +1,10 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Models.Skills;
-using Klacks.Api.Domain.Services.Skills.Implementations;
-using Klacks.Api.Infrastructure.Services;
+using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
+using Klacks.Api.Application.Interfaces;
 
 namespace Klacks.Api.Application.Skills;
 

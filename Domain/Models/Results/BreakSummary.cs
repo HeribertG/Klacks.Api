@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 namespace Klacks.Api.Domain.Models.Results;
 
 public class BreakSummary
@@ -24,7 +26,6 @@ public class BreakSummary
     
     public DateTime UpdateTime { get; set; }
     
-    // Group information
     public int? GroupId { get; set; }
     
     public string GroupName { get; set; } = string.Empty;

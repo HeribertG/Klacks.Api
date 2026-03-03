@@ -1,8 +1,10 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 
@@ -16,6 +18,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public DeleteCommandHandler(
         IExpensesRepository expensesRepository,
@@ -24,6 +27,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
         IPeriodHoursService periodHoursService,
         IWorkNotificationService notificationService,
         IHttpContextAccessor httpContextAccessor,
+        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
@@ -33,6 +37,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
         _periodHoursService = periodHoursService;
         _notificationService = notificationService;
         _httpContextAccessor = httpContextAccessor;
+        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<ExpensesResource?> Handle(DeleteCommand<ExpensesResource> request, CancellationToken cancellationToken)
@@ -54,16 +59,13 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
 
         if (work != null)
         {
+            await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
             var connectionId = _httpContextAccessor.HttpContext?.Request
-                .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
-            
-            // Send ScheduleUpdated for grid refresh
+                .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
             var notification = _scheduleMapper.ToScheduleNotificationDto(
-                work.ClientId, work.CurrentDate, "updated", connectionId, periodStart, periodEnd);
+                work.ClientId, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
             await _notificationService.NotifyScheduleUpdated(notification);
-            
-            // Send PeriodHoursUpdated with recalculated hours
             await _periodHoursService.RecalculateAndNotifyAsync(work.ClientId, periodStart, periodEnd, connectionId);
         }
 

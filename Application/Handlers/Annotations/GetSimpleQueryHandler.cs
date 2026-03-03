@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Annotation;
@@ -25,7 +27,7 @@ namespace Klacks.Api.Application.Handlers.Annotations
         {
             try
             {
-                _logger.LogInformation($"Fetching simple annotations for ID: {request.Id}");
+                _logger.LogInformation("Fetching simple annotations for ID: {Id}", request.Id);
                 
                 if (request.Id == Guid.Empty)
                 {
@@ -35,7 +37,7 @@ namespace Klacks.Api.Application.Handlers.Annotations
                 
                 var annotations = await _annotationRepository.SimpleList(request.Id);
                 
-                _logger.LogInformation($"Retrieved {annotations.Count} simple annotations for ID: {request.Id}");
+                _logger.LogInformation("Retrieved {Count} simple annotations for ID: {Id}", annotations.Count, request.Id);
                 return _settingsMapper.ToAnnotationResources(annotations.ToList());
             }
             catch (InvalidRequestException)
@@ -44,7 +46,7 @@ namespace Klacks.Api.Application.Handlers.Annotations
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unexpected error while fetching simple annotations for ID: {request.Id}");
+                _logger.LogError(ex, "Unexpected error while fetching simple annotations for ID: {Id}", request.Id);
                 throw new InvalidRequestException($"Failed to retrieve simple annotations for ID {request.Id}: {ex.Message}");
             }
         }

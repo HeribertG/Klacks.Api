@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
@@ -9,10 +11,12 @@ public class MsgEMail
 {
     private readonly DataBaseContext context;
     private readonly ISettingsEncryptionService? _encryptionService;
+    private readonly ILogger _logger;
 
-    public MsgEMail(DataBaseContext context, ISettingsEncryptionService? encryptionService = null)
+    public MsgEMail(DataBaseContext context, ILogger logger, ISettingsEncryptionService? encryptionService = null)
     {
         this.context = context;
+        _logger = logger;
         this._encryptionService = encryptionService;
     }
 
@@ -79,7 +83,7 @@ public class MsgEMail
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Email configuration error: {ex.Message}");
+            _logger.LogError(ex, "Email configuration error");
             return null;
         }
     }

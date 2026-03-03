@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 namespace Klacks.Api.Domain.Models.Results;
 
 public class AbsenceSummary
@@ -26,7 +28,6 @@ public class AbsenceSummary
     
     public DateTime UpdateTime { get; set; }
     
-    // Group information
     public int? GroupId { get; set; }
     
     public string GroupName { get; set; } = string.Empty;

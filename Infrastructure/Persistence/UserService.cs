@@ -1,5 +1,7 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Constants;
-using Klacks.Api.Infrastructure.Interfaces;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
@@ -10,11 +12,13 @@ public class UserService : IUserService
 {
     private readonly IHttpContextAccessor httpContextAccessor;
     private readonly UserManager<AppUser> userManager;
+    private readonly ILogger<UserService> _logger;
 
-    public UserService(IHttpContextAccessor httpContextAccessor, UserManager<AppUser> userManager)
+    public UserService(IHttpContextAccessor httpContextAccessor, UserManager<AppUser> userManager, ILogger<UserService> logger)
     {
         this.httpContextAccessor = httpContextAccessor;
         this.userManager = userManager;
+        _logger = logger;
     }
 
     public Guid? GetId()
@@ -38,7 +42,7 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.LogError(ex, "Error retrieving user ID from claims");
             return null;
         }
     }
@@ -52,7 +56,7 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.LogError(ex, "Error retrieving username from claims");
             return "Anonymous";
         }
     }

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 namespace Klacks.Api.Application.Constants
 {
     public class Settings
@@ -38,6 +40,33 @@ namespace Klacks.Api.Application.Constants
 
         public const string HEARTBEAT_ENABLED_GLOBALLY = "HEARTBEAT_ENABLED_GLOBALLY";
         public const string HEARTBEAT_DEFAULT_INTERVAL = "HEARTBEAT_DEFAULT_INTERVAL";
+
+        public const string REPORT_DEFAULT_TEMPLATES = "REPORT_DEFAULT_TEMPLATES";
+
+        public const string SCHEDULE_EMAIL_SUBJECT_TEMPLATE = "SCHEDULE_EMAIL_SUBJECT_TEMPLATE";
+        public const string SCHEDULE_EMAIL_BODY_TEMPLATE = "SCHEDULE_EMAIL_BODY_TEMPLATE";
+
+        public const string PROMPT_TRANSLATIONS_PREFIX = "PROMPT_TRANSLATIONS_";
+
+        public const string LLM_FALLBACK_MODEL_ID = "claude-haiku-4-5-20251001";
+
+        public const string APP_INCOMING_SERVER = "incomingserver";
+        public const string APP_INCOMING_SERVER_PORT = "incomingserverPort";
+        public const string APP_INCOMING_SERVER_USERNAME = "incomingserverUsername";
+        public const string APP_INCOMING_SERVER_PASSWORD = "incomingserverPassword";
+        public const string APP_INCOMING_SERVER_SSL = "incomingserverSSL";
+        public const string APP_INCOMING_SERVER_FOLDER = "incomingserverFolder";
+        public const string APP_INCOMING_SERVER_POLL_INTERVAL = "incomingserverPollInterval";
+
+        public const string WEB_SEARCH_PROVIDER = "WEB_SEARCH_PROVIDER";
+        public const string WEB_SEARCH_API_KEY = "WEB_SEARCH_API_KEY";
+        public const string WEB_SEARCH_MAX_RESULTS = "WEB_SEARCH_MAX_RESULTS";
+
+        public const string SPAM_FILTER_SPAM_THRESHOLD = "SPAM_FILTER_SPAM_THRESHOLD";
+        public const string SPAM_FILTER_UNCERTAIN_THRESHOLD = "SPAM_FILTER_UNCERTAIN_THRESHOLD";
+        public const string SPAM_FILTER_LLM_ENABLED = "SPAM_FILTER_LLM_ENABLED";
+
+        public const string INSTALLED_LANGUAGE_PREFIX = "INSTALLED_LANGUAGE_";
     }
 }
 

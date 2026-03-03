@@ -1,5 +1,7 @@
-using Klacks.Api.Application.Interfaces;
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 

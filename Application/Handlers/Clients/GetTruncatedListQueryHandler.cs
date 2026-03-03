@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Clients;
@@ -53,7 +55,7 @@ namespace Klacks.Api.Application.Handlers.Clients
                 truncatedClients.Editor = lastChangeMetaData.Author;
                 truncatedClients.LastChange = lastChangeMetaData.LastChangesDate;
                 
-                _logger.LogInformation($"Retrieved truncated client list with {pagedResult.Items.Count()} clients");
+                _logger.LogInformation("Retrieved truncated client list with {Count} clients", pagedResult.Items.Count());
                 
                 return _clientMapper.ToTruncatedResource(truncatedClients);
             }

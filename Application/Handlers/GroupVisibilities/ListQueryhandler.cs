@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 ﻿using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries;
@@ -30,7 +32,7 @@ public class ListQueryhandler : IRequestHandler<ListQuery<GroupVisibilityResourc
             var groupVisibilities = await _groupVisibilityRepository.List();
             var visibilitiesList = groupVisibilities.ToList();
             
-            _logger.LogInformation($"Retrieved {visibilitiesList.Count} group visibilities");
+            _logger.LogInformation("Retrieved {Count} group visibilities", visibilitiesList.Count);
             
             return _groupMapper.ToGroupVisibilityResources(visibilitiesList.ToList());
         }

@@ -1,3 +1,6 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Schedules;
@@ -10,9 +13,6 @@ public interface IWorkRepository : IBaseRepository<Work>
 {
     Task<(List<Client> Clients, int TotalCount)> WorkList(WorkFilter filter);
     Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursForClients(List<Guid> clientIds, DateOnly startDate, DateOnly endDate);
-    Task<(Work Work, PeriodHoursResource PeriodHours)> AddWithPeriodHours(Work work, DateOnly periodStart, DateOnly periodEnd);
-    Task<(Work? Work, PeriodHoursResource? PeriodHours)> PutWithPeriodHours(Work work, DateOnly periodStart, DateOnly periodEnd);
-    Task<(Work? Work, PeriodHoursResource? PeriodHours)> DeleteWithPeriodHours(Guid id, DateOnly periodStart, DateOnly periodEnd);
     Task<List<Work>> GetByClientAndDateRangeAsync(Guid clientId, DateTime fromDate, DateTime toDate, CancellationToken cancellationToken = default);
     Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default);
     Task<int> UnsealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default);

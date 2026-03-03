@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Settings.Macros;
@@ -23,19 +25,19 @@ namespace Klacks.Api.Application.Handlers.Settings.Macro
 
         public async Task<MacroResource?> Handle(GetQuery request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"Fetching macro with ID: {request.Id}");
+            _logger.LogInformation("Fetching macro with ID: {Id}", request.Id);
             
             try
             {
                 var macro = await _settingsRepository.GetMacro(request.Id);
                 
-                _logger.LogInformation($"Successfully retrieved macro with ID: {request.Id}");
+                _logger.LogInformation("Successfully retrieved macro with ID: {Id}", request.Id);
                 
                 return _settingsMapper.ToMacroResource(macro);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unexpected error while fetching macro with ID: {request.Id}");
+                _logger.LogError(ex, "Unexpected error while fetching macro with ID: {Id}", request.Id);
                 throw new InvalidRequestException($"Failed to retrieve macro: {ex.Message}");
             }
         }

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Models.Results;
@@ -38,7 +40,6 @@ public class ClientSummary
     
     public DateTime UpdateTime { get; set; }
     
-    // Membership info for summary
     public bool HasActiveMembership { get; set; }
     
     public bool HasFormerMembership { get; set; }

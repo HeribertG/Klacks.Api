@@ -1,0 +1,9 @@
+{
+  "code": "ja",
+  "name": "Japanese",
+  "displayName": "日本語",
+  "speechLocale": "ja-JP",
+  "version": "1.0.0",
+  "author": "Klacks Community",
+  "coverage": 100.0
+}

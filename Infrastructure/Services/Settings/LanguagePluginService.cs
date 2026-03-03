@@ -223,32 +223,6 @@ public class LanguagePluginService : ILanguagePluginService
         }
     }
 
-    public string? GetDocContent(string code, string manualName)
-    {
-        if (LanguagePluginConstants.CoreLanguages.Contains(code))
-            return null;
-
-        if (!_manifests.ContainsKey(code))
-            return null;
-
-        if (!LanguagePluginConstants.ManualNames.Contains(manualName))
-            return null;
-
-        var docPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.DocsDirectory, $"{manualName}.html");
-        if (!File.Exists(docPath))
-            return null;
-
-        try
-        {
-            return File.ReadAllText(docPath);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to load doc '{ManualName}' for language plugin '{Code}'", manualName, code);
-            return null;
-        }
-    }
-
     public IReadOnlyList<string> GetInstalledPluginCodes()
     {
         lock (_installedLock)

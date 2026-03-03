@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Criteria;
 using Klacks.Api.Domain.Models.Filters;
@@ -104,7 +106,9 @@ public partial class FilterMapper
             AbsenceIds = filter.Absences?.Where(a => a.Checked).Select(a => a.Id).ToList() ?? [],
             ShowEmployees = filter.ShowEmployees,
             ShowExtern = filter.ShowExtern,
-            HoursSortOrder = filter.HoursSortOrder
+            HoursSortOrder = filter.HoursSortOrder,
+            StartDate = filter.StartDate,
+            EndDate = filter.EndDate
         };
     }
 

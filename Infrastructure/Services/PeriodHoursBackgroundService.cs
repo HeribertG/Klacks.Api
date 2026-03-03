@@ -1,5 +1,7 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Infrastructure.Hubs;
+using Klacks.Api.Application.Interfaces;
 using System.Threading.Channels;
 
 namespace Klacks.Api.Infrastructure.Services;
@@ -79,10 +81,4 @@ public class PeriodHoursBackgroundService : BackgroundService
 
         _logger.LogInformation("PeriodHoursBackgroundService stopped");
     }
-}
-
-public class PeriodHoursFullRecalculationRequest
-{
-    public DateOnly StartDate { get; init; }
-    public DateOnly EndDate { get; init; }
 }

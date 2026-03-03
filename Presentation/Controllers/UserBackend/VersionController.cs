@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend;
@@ -17,7 +19,7 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend;
                 MyVersion.Build,
                 MyVersion.BuildKey,
                 MyVersion.BuildTimestamp,
-                rsionString = version.Get(),
+                VersionString = version.Get(),
                 VersionStringWithBuildInfo = version.Get(true),
             });
         }

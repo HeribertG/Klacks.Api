@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Settings.Macros;
@@ -30,7 +32,7 @@ public class ListQueryHandler : IRequestHandler<ListQuery, IEnumerable<MacroReso
             var macros = await _settingsRepository.GetMacroList();
             var macrosList = macros.ToList();
             
-            _logger.LogInformation($"Successfully retrieved {macrosList.Count} macros");
+            _logger.LogInformation("Successfully retrieved {Count} macros", macrosList.Count);
             
             return _settingsMapper.ToMacroResources(macrosList.ToList());
         }

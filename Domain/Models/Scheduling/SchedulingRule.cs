@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Domain.Models.Scheduling;
@@ -31,4 +33,6 @@ public class SchedulingRule : BaseEntity
     public decimal? MinimumHours { get; set; }
 
     public decimal? FullTimeHours { get; set; }
+
+    public int? VacationDaysPerYear { get; set; }
 }

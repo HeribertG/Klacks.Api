@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -13,11 +15,13 @@ public class SignalRQueryStringAuthMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<SignalRQueryStringAuthMiddleware> _logger;
 
-    public SignalRQueryStringAuthMiddleware(RequestDelegate next, IConfiguration configuration)
+    public SignalRQueryStringAuthMiddleware(RequestDelegate next, IConfiguration configuration, ILogger<SignalRQueryStringAuthMiddleware> logger)
     {
         _next = next;
         _configuration = configuration;
+        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -39,16 +43,16 @@ public class SignalRQueryStringAuthMiddleware
                 if (principal != null)
                 {
                     context.User = principal;
-                    Console.WriteLine($"[SignalR-Auth] User authenticated: {principal.Identity?.Name}");
+                    _logger.LogDebug("SignalR-Auth: User authenticated: {UserName}", principal.Identity?.Name);
                 }
                 else
                 {
-                    Console.WriteLine($"[SignalR-Auth] Token validation failed");
+                    _logger.LogWarning("SignalR-Auth: Token validation failed");
                 }
             }
             else
             {
-                Console.WriteLine($"[SignalR-Auth] No access_token found in query string");
+                _logger.LogDebug("SignalR-Auth: No access_token found in query string");
             }
         }
 
@@ -82,7 +86,7 @@ public class SignalRQueryStringAuthMiddleware
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[SignalR-Auth] Token validation exception: {ex.Message}");
+            _logger.LogWarning(ex, "SignalR-Auth: Token validation exception");
             return null;
         }
     }

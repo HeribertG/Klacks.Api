@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Clients;
 using Klacks.Api.Domain.Models.Staffs;

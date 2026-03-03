@@ -1,25 +1,12 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
+using Klacks.Api.Application.Interfaces;
+
 namespace Klacks.Api.Infrastructure.Services;
-
-public interface IGeocodingService
-{
-    Task<(double? Latitude, double? Longitude)> GeocodeAsync(string city, string country);
-    Task<(double? Latitude, double? Longitude)> GeocodeAddressAsync(string fullAddress, string country);
-    Task<GeocodingValidationResult> ValidateExactAddressAsync(string? street, string postalCode, string city, string country);
-}
-
-public class GeocodingValidationResult
-{
-    public bool Found { get; set; }
-    public bool ExactMatch { get; set; }
-    public double? Latitude { get; set; }
-    public double? Longitude { get; set; }
-    public string? ReturnedAddress { get; set; }
-    public string? MatchType { get; set; }
-}
 
 public class GeocodingService : IGeocodingService
 {
@@ -63,7 +50,7 @@ public class GeocodingService : IGeocodingService
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning($"Geocoding failed for {city}, {country}: {response.StatusCode}");
+                _logger.LogWarning("Geocoding failed for {City}, {Country}: {StatusCode}", city, country, response.StatusCode);
                 return (null, null);
             }
 
@@ -80,16 +67,16 @@ public class GeocodingService : IGeocodingService
 
                 _cache.Set(cacheKey, coords, TimeSpan.FromDays(30));
 
-                _logger.LogInformation($"Geocoded {city}, {country}: {coords.Latitude}, {coords.Longitude}");
+                _logger.LogInformation("Geocoded {City}, {Country}: {Latitude}, {Longitude}", city, country, coords.Latitude, coords.Longitude);
                 return coords;
             }
 
-            _logger.LogWarning($"No geocoding results for {city}, {country}");
+            _logger.LogWarning("No geocoding results for {City}, {Country}", city, country);
             return (null, null);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Error geocoding {city}, {country}");
+            _logger.LogError(ex, "Error geocoding {City}, {Country}", city, country);
             return (null, null);
         }
         finally

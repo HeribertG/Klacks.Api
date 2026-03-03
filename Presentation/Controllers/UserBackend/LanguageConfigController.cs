@@ -86,16 +86,6 @@ public class LanguageConfigController : ControllerBase
         return Ok(_languagePluginService.GetAllPlugins());
     }
 
-    [HttpGet("language-plugins/{code}/docs/{manualName}")]
-    public ActionResult GetPluginDoc(string code, string manualName)
-    {
-        var content = _languagePluginService.GetDocContent(code, manualName);
-        if (content == null)
-            return NotFound();
-
-        return Content(content, "text/html");
-    }
-
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     [HttpPost("language-plugins/{code}/install")]
     public async Task<ActionResult> InstallPlugin(string code)

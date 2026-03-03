@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Communications;
@@ -30,7 +32,7 @@ namespace Klacks.Api.Application.Handlers.Communications
                 var communicationTypes = await _communicationRepository.TypeList();
                 var typesList = communicationTypes.ToList();
                 
-                _logger.LogInformation($"Retrieved {typesList.Count} communication types");
+                _logger.LogInformation("Retrieved {Count} communication types", typesList.Count);
                 
                 return _addressCommunicationMapper.ToCommunicationTypeResources(typesList.ToList());
             }

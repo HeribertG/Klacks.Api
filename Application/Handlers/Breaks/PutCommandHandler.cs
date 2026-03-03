@@ -1,8 +1,10 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -13,29 +15,29 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
 {
     private readonly IBreakRepository _breakRepository;
     private readonly ScheduleMapper _scheduleMapper;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IWorkNotificationService _notificationService;
+    private readonly IScheduleCompletionService _completionService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public PutCommandHandler(
         IBreakRepository breakRepository,
         ScheduleMapper scheduleMapper,
-        IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
         IWorkNotificationService notificationService,
+        IScheduleCompletionService completionService,
         IHttpContextAccessor httpContextAccessor,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _breakRepository = breakRepository;
         _scheduleMapper = scheduleMapper;
-        _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
         _notificationService = notificationService;
+        _completionService = completionService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -58,14 +60,15 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
                 (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(entity.CurrentDate);
             }
 
-            var (updated, periodHours) = await _breakRepository.PutWithPeriodHours(entity, periodStart, periodEnd);
+            var updated = await _breakRepository.Put(entity);
 
             if (updated == null)
             {
                 throw new KeyNotFoundException($"Break with ID {request.Resource.Id} not found");
             }
 
-            await _unitOfWork.CompleteAsync();
+            var periodHours = await _completionService.SaveAndTrackAsync(
+                updated.ClientId, updated.CurrentDate, periodStart, periodEnd);
 
             var currentDate = updated.CurrentDate;
             var threeDayStart = currentDate.AddDays(-1);
@@ -80,9 +83,9 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
             breakResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
 
             var connectionId = _httpContextAccessor.HttpContext?.Request
-                .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
+                .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
             var notification = _scheduleMapper.ToScheduleNotificationDto(
-                updated.ClientId, updated.CurrentDate, "updated", connectionId, periodStart, periodEnd);
+                updated.ClientId, updated.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
             await _notificationService.NotifyScheduleUpdated(notification);
 
             return breakResource;

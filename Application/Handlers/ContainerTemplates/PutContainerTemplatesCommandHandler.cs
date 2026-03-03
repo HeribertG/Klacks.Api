@@ -1,9 +1,12 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.ContainerTemplates;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Handlers.ContainerTemplates;
 
@@ -73,11 +76,9 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
                     existingTemplate.Id,
                     resource.ContainerTemplateItems);
 
-                // TODO: SignalR Events
                 foreach (var deletedItem in updateResult.DeletedItems)
                 {
-                    // TODO: SignalR Event für DELETE
-                    _logger.LogInformation("Item deleted (SignalR pending): {ItemId}", deletedItem.Id);
+                    _logger.LogInformation("ContainerTemplateItem deleted: {ItemId}", deletedItem.Id);
                 }
 
                 resultTemplates.Add(existingTemplate);
@@ -114,7 +115,6 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
         {
             _logger.LogInformation("Deleting ContainerTemplate: {TemplateId}", templateToDelete.Id);
             await _repository.Delete(templateToDelete.Id);
-            // TODO: SignalR Event für DELETE
         }
 
         await _unitOfWork.CompleteAsync();

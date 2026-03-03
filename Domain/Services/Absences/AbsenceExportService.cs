@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.DTOs;
@@ -11,7 +13,7 @@ public class AbsenceExportService : IAbsenceExportService
 
     public AbsenceExportService(ILogger<AbsenceExportService> logger)
     {
-        this._logger = logger;
+        _logger = logger;
     }
 
     public HttpResultResource CreateExcelFile(string language)

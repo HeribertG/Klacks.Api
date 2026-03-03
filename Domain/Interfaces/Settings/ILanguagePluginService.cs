@@ -11,7 +11,6 @@ public interface ILanguagePluginService
     Task<bool> InstallAsync(string code);
     Task<bool> UninstallAsync(string code);
     Dictionary<string, string>? GetTranslations(string code);
-    string? GetDocContent(string code, string manualName);
     IReadOnlyList<string> GetInstalledPluginCodes();
     void RefreshPlugins();
 }

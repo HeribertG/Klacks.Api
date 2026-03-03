@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
@@ -86,7 +88,8 @@ public class ClientSearchRepository : IClientSearchRepository
                 FirstName = c.FirstName,
                 Company = c.Company,
                 LegalEntity = c.LegalEntity,
-                IdNumber = c.IdNumber
+                IdNumber = c.IdNumber,
+                GroupIds = c.GroupItems.Select(g => g.GroupId).ToList()
             })
             .ToListAsync();
     }

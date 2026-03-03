@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Commands.Shifts;
 using Klacks.Api.Application.Queries.Shifts;
 using Klacks.Api.Domain.Constants;

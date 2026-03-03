@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Settings.Settings;
 using Klacks.Api.Domain.Exceptions;
@@ -46,7 +48,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
                     }
                 }
 
-                _logger.LogInformation($"Retrieved {settingsList.Count} settings");
+                _logger.LogInformation("Retrieved {Count} settings", settingsList.Count);
 
                 return settingsList;
             }

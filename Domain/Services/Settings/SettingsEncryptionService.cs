@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Domain.Interfaces;
 using Microsoft.AspNetCore.DataProtection;
 
@@ -11,6 +13,7 @@ public class SettingsEncryptionService : ISettingsEncryptionService
     private static readonly HashSet<string> SensitiveSettingTypes = new(StringComparer.OrdinalIgnoreCase)
     {
         "outgoingserverPassword",
+        "incomingServerPassword",
         "OPENROUTESERVICE_API_KEY",
         "DEEPL_API_KEY"
     };

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
@@ -5,6 +7,7 @@ using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Handlers.Communications;
 

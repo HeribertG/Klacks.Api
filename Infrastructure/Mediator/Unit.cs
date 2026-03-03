@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 namespace Klacks.Api.Infrastructure.Mediator;
 
 public readonly struct Unit : IEquatable<Unit>, IComparable<Unit>, IComparable

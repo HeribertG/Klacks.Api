@@ -1,10 +1,12 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.Works;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Infrastructure.Hubs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Works;
@@ -13,32 +15,32 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
 {
     private readonly IWorkRepository _workRepository;
     private readonly ScheduleMapper _scheduleMapper;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkNotificationService _notificationService;
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
+    private readonly IScheduleCompletionService _completionService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public DeleteCommandHandler(
         IWorkRepository workRepository,
         ScheduleMapper scheduleMapper,
-        IUnitOfWork unitOfWork,
         IWorkNotificationService notificationService,
         IShiftStatsNotificationService shiftStatsNotificationService,
         IShiftScheduleService shiftScheduleService,
         IScheduleEntriesService scheduleEntriesService,
+        IScheduleCompletionService completionService,
         IHttpContextAccessor httpContextAccessor,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _workRepository = workRepository;
         _scheduleMapper = scheduleMapper;
-        _unitOfWork = unitOfWork;
         _notificationService = notificationService;
         _shiftStatsNotificationService = shiftStatsNotificationService;
         _shiftScheduleService = shiftScheduleService;
         _scheduleEntriesService = scheduleEntriesService;
+        _completionService = completionService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -55,29 +57,27 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
             var shiftId = work.ShiftId;
             var workDate = work.CurrentDate;
 
-            var (deletedWork, periodHours) = await _workRepository.DeleteWithPeriodHours(request.Id, request.PeriodStart, request.PeriodEnd);
-            await _unitOfWork.CompleteAsync();
+            await _workRepository.Delete(request.Id);
+            var periodHours = await _completionService.SaveAndTrackAsync(
+                work.ClientId, work.CurrentDate, request.PeriodStart, request.PeriodEnd);
 
             var connectionId = _httpContextAccessor.HttpContext?.Request
-                .Headers["X-SignalR-ConnectionId"].FirstOrDefault() ?? string.Empty;
+                .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
 
-            var notification = _scheduleMapper.ToWorkNotificationDto(work, "deleted", connectionId, request.PeriodStart, request.PeriodEnd);
+            var notification = _scheduleMapper.ToWorkNotificationDto(work, ScheduleEventTypes.Deleted, connectionId, request.PeriodStart, request.PeriodEnd);
             await _notificationService.NotifyWorkDeleted(notification);
 
-            if (periodHours != null)
+            var periodHoursNotification = new Application.DTOs.Notifications.PeriodHoursNotificationDto
             {
-                var periodHoursNotification = new Application.DTOs.Notifications.PeriodHoursNotificationDto
-                {
-                    ClientId = work.ClientId,
-                    StartDate = request.PeriodStart,
-                    EndDate = request.PeriodEnd,
-                    Hours = periodHours.Hours,
-                    Surcharges = periodHours.Surcharges,
-                    GuaranteedHours = periodHours.GuaranteedHours,
-                    SourceConnectionId = connectionId
-                };
-                await _notificationService.NotifyPeriodHoursUpdated(periodHoursNotification);
-            }
+                ClientId = work.ClientId,
+                StartDate = request.PeriodStart,
+                EndDate = request.PeriodEnd,
+                Hours = periodHours.Hours,
+                Surcharges = periodHours.Surcharges,
+                GuaranteedHours = periodHours.GuaranteedHours,
+                SourceConnectionId = connectionId
+            };
+            await _notificationService.NotifyPeriodHoursUpdated(periodHoursNotification);
 
             await SendShiftStatsNotificationAsync(shiftId, workDate, connectionId, cancellationToken);
 

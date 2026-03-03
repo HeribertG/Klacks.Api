@@ -1,11 +1,13 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Exceptions;
-using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Handlers.Clients;
 
@@ -34,15 +36,6 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientR
     {
         return await ExecuteAsync(async () =>
         {
-            _logger.LogInformation("🔍 [BACKEND SAVE] Received ClientResource with {ContractCount} contracts",
-                request.Resource.ClientContracts?.Count ?? 0);
-
-            foreach (var contract in request.Resource.ClientContracts ?? new List<ClientContractResource>())
-            {
-                _logger.LogInformation("🔍 [BACKEND SAVE] Contract: ClientId={ClientId}, ContractId={ContractId}, IsActive={IsActive}, FromDate={FromDate}, UntilDate={UntilDate}",
-                    contract.ClientId, contract.ContractId, contract.IsActive, contract.FromDate, contract.UntilDate);
-            }
-
             var isAdmin = await _groupVisibilityService.IsAdmin();
             if (!isAdmin)
             {
@@ -66,23 +59,12 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientR
             }
 
             var client = _clientMapper.ToEntity(request.Resource);
-
-            _logger.LogInformation("🔍 [BACKEND SAVE] Mapped Domain Client with {ContractCount} contracts",
-                client.ClientContracts?.Count ?? 0);
-
             var updatedClient = await _clientRepository.Put(client);
-
-            _logger.LogInformation("🔍 [BACKEND SAVE] Updated Client from DB with {ContractCount} contracts",
-                updatedClient?.ClientContracts?.Count ?? 0);
-
             await _unitOfWork.CompleteAsync();
 
-            var result = _clientMapper.ToResource(updatedClient);
+            _logger.LogInformation("Client updated: {ClientId}", request.Resource.Id);
 
-            _logger.LogInformation("🔍 [BACKEND SAVE] Final ClientResource has {ContractCount} contracts",
-                result.ClientContracts?.Count ?? 0);
-
-            return result;
+            return _clientMapper.ToResource(updatedClient);
         },
         "updating",
         new { });

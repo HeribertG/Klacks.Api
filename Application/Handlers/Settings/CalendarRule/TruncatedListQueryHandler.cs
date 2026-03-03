@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Settings.CalendarRules;
 using Klacks.Api.Domain.Exceptions;
@@ -26,7 +28,7 @@ public class TruncatedListQueryHandler : IRequestHandler<TruncatedListQuery, Tru
         {
             var truncatedList = await _settingsRepository.GetTruncatedCalendarRuleList(request.Filter);
             
-            _logger.LogInformation($"Successfully retrieved truncated calendar rules list with {truncatedList.CalendarRules?.Count ?? 0} items");
+            _logger.LogInformation("Successfully retrieved truncated calendar rules list with {Count} items", truncatedList.CalendarRules?.Count ?? 0);
             
             return truncatedList;
         }

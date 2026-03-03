@@ -1,7 +1,9 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Models.Skills;
+using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Services;
@@ -20,7 +22,7 @@ public class SkillUsageTrackerService : ISkillUsageTracker
     }
 
     public async Task TrackAsync(
-        ISkill skill,
+        SkillDescriptor descriptor,
         SkillExecutionContext context,
         Dictionary<string, object> parameters,
         SkillResult result,
@@ -30,8 +32,8 @@ public class SkillUsageTrackerService : ISkillUsageTracker
         var record = new SkillUsageRecord
         {
             Id = Guid.NewGuid(),
-            SkillName = skill.Name,
-            Category = skill.Category,
+            SkillName = descriptor.Name,
+            Category = descriptor.Category,
             UserId = context.UserId,
             TenantId = context.TenantId,
             ProviderId = context.ProviderId,
@@ -53,14 +55,12 @@ public class SkillUsageTrackerService : ISkillUsageTracker
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to track skill usage for {SkillName}", skill.Name);
+            _logger.LogError(ex, "Failed to track skill usage for {SkillName}", descriptor.Name);
         }
     }
 
     public async Task<IReadOnlyList<SkillUsageRecord>> GetUsageAsync(
-        Guid tenantId,
         DateTime from,
-        DateTime to,
         CancellationToken cancellationToken = default)
     {
         return await _repository.GetRecordsAsync(from, cancellationToken);

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 namespace Klacks.Api.Domain.ValueObjects;
 
 public sealed class TimeRange : IEquatable<TimeRange>

@@ -1,10 +1,11 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 using System.Text;
 using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
-using Klacks.Api.Infrastructure.Services;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Klacks.Api.Domain.Services.RouteOptimization;
