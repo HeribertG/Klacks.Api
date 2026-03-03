@@ -1,0 +1,330 @@
+<h2>マクロスクリプティング マニュアル</h2>
+
+<h3>はじめに</h3>
+<p>
+マクロエディターを使用して、業務、雇用形態などの計算基盤として使用されるスクリプトを
+作成することができます。
+</p>
+
+<p><strong>使用例：</strong></p>
+<ul>
+  <li>雇用率に基づいた休暇や軍務の時間の正確な計算</li>
+  <li>夜間勤務、週末、祝日の割増賃金の計算</li>
+  <li>新しい要件への柔軟な対応</li>
+</ul>
+
+<p>
+<em>注意：スクリプトインタープリターはファイルシステムやネットワークにアクセスできない
+安全なサンドボックス環境で動作します。悪意のあるコードを実行することはできません。</em>
+</p>
+
+<hr>
+
+<h3>変数と定数</h3>
+<p>すべての変数と定数は型なしです。</p>
+
+<pre>
+CONST PI = 3.1415
+DIM a, b, c
+IMPORT betrag, rabatt
+</pre>
+
+<h4>インポート変数（IMPORT）</h4>
+<p>これらの変数はWork、Contract、CalendarSelectionから生成されます：</p>
+
+<table>
+  <tr><th>変数</th><th>型</th><th>説明</th></tr>
+  <tr><td>hour</td><td>Decimal</td><td>労働時間（Workから取得）</td></tr>
+  <tr><td>fromhour</td><td>Decimal</td><td>開始時刻（10進時間）（8:30 → 8.5）</td></tr>
+  <tr><td>untilhour</td><td>Decimal</td><td>終了時刻（10進時間）（17:00 → 17.0）</td></tr>
+  <tr><td>weekday</td><td>Integer</td><td>曜日 ISO-8601（1=月、2=火、3=水、4=木、5=金、6=土、7=日）</td></tr>
+  <tr><td>holiday</td><td>Boolean</td><td>当日が公式祝日かどうか</td></tr>
+  <tr><td>holidaynextday</td><td>Boolean</td><td>翌日が公式祝日かどうか</td></tr>
+  <tr><td>nightrate</td><td>Decimal</td><td>Contractの夜間割増率（例：0.10 = 10%）</td></tr>
+  <tr><td>holidayrate</td><td>Decimal</td><td>Contractの祝日割増率（例：0.15 = 15%）</td></tr>
+  <tr><td>sarate</td><td>Decimal</td><td>Contractの土曜日割増率</td></tr>
+  <tr><td>sorate</td><td>Decimal</td><td>Contractの日曜日割増率</td></tr>
+  <tr><td>guaranteedhours</td><td>Decimal</td><td>Contractの保証月次時間数</td></tr>
+  <tr><td>fulltime</td><td>Decimal</td><td>Contractのフルタイム時間数</td></tr>
+</table>
+
+<hr>
+
+<h3>制御構造</h3>
+
+<p><strong>重要：</strong> <code>ENDIF</code>、<code>ENDFUNCTION</code>、<code>ENDSUB</code>などのキーワードは
+続けて記述する必要があります（<code>END IF</code>のように分けて記述しないでください）。</p>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF x > 10 THEN
+    OUTPUT 1, "大"
+ELSEIF x > 5 THEN
+    OUTPUT 1, "中"
+ELSE
+    OUTPUT 1, "小"
+ENDIF
+</pre>
+
+<h4>1行IF</h4>
+<pre>
+IF x > 10 THEN OUTPUT 1, "大" ENDIF
+</pre>
+
+<h4>SELECT CASE</h4>
+<pre>
+SELECT CASE weekday
+    CASE 6, 7
+        OUTPUT 1, "週末"
+    CASE 1, 2, 3, 4, 5
+        OUTPUT 1, "平日"
+    CASE ELSE
+        OUTPUT 1, "不明"
+END SELECT
+</pre>
+
+<h4>FOR-NEXT ループ</h4>
+<pre>
+FOR i = 1 TO 10
+    summe += i
+NEXT
+
+FOR i = 10 TO 1 STEP -1
+    IF x > y THEN EXIT FOR
+NEXT
+</pre>
+
+<h4>DO-LOOP ループ</h4>
+<pre>
+DO WHILE a > 0
+    a -= 1
+LOOP
+
+DO
+    x += 1
+LOOP UNTIL x >= 10
+</pre>
+
+<hr>
+
+<h3>関数とプロシージャ</h3>
+
+<p><strong>重要：</strong> 関数（FUNCTION）とプロシージャ（SUB）は、最初の呼び出しより<em>前</em>に定義する必要があります。
+インタープリターはコードを上から下へ読み込みます。関数またはプロシージャは、その定義が処理された後にのみ使用できます。</p>
+
+<h4>SUB（戻り値なしのプロシージャ）</h4>
+<pre>
+SUB berechne(a, b)
+    IF a = b THEN EXIT SUB ENDIF
+    OUTPUT 1, a + b
+ENDSUB
+</pre>
+
+<h4>FUNCTION（戻り値ありの関数）</h4>
+<pre>
+FUNCTION verdoppeln(x)
+    verdoppeln = x * 2
+ENDFUNCTION
+
+DIM ergebnis
+ergebnis = verdoppeln(21)
+OUTPUT 1, ergebnis
+</pre>
+
+<hr>
+
+<h3>演算子</h3>
+
+<h4>算術演算子</h4>
+<table>
+  <tr><th>演算子</th><th>説明</th><th>例</th></tr>
+  <tr><td>+</td><td>加算</td><td>5 + 3 = 8</td></tr>
+  <tr><td>-</td><td>減算</td><td>5 - 3 = 2</td></tr>
+  <tr><td>*</td><td>乗算</td><td>5 * 3 = 15</td></tr>
+  <tr><td>/</td><td>除算</td><td>10 / 4 = 2.5</td></tr>
+  <tr><td>\</td><td>整数除算</td><td>10 \ 4 = 2</td></tr>
+  <tr><td>MOD</td><td>剰余（余り）</td><td>10 MOD 3 = 1</td></tr>
+  <tr><td>^</td><td>べき乗</td><td>2 ^ 3 = 8</td></tr>
+</table>
+
+<h4>比較演算子</h4>
+<table>
+  <tr><th>演算子</th><th>説明</th></tr>
+  <tr><td>=</td><td>等しい</td></tr>
+  <tr><td>&lt;&gt;</td><td>等しくない</td></tr>
+  <tr><td>&lt;</td><td>より小さい</td></tr>
+  <tr><td>&gt;</td><td>より大きい</td></tr>
+  <tr><td>&lt;=</td><td>以下</td></tr>
+  <tr><td>&gt;=</td><td>以上</td></tr>
+</table>
+
+<h4>論理演算子</h4>
+<table>
+  <tr><th>演算子</th><th>説明</th></tr>
+  <tr><td>AND</td><td>ビット論理積</td></tr>
+  <tr><td>OR</td><td>ビット論理和</td></tr>
+  <tr><td>NOT</td><td>否定</td></tr>
+  <tr><td>ANDALSO</td><td>論理積（短絡評価）</td></tr>
+  <tr><td>ORELSE</td><td>論理和（短絡評価）</td></tr>
+</table>
+
+<h4>代入演算子</h4>
+<pre>
+a = 10      ' 単純代入
+a += 5      ' a = a + 5
+a -= 3      ' a = a - 3
+a *= 2      ' a = a * 2
+a /= 4      ' a = a / 4
+a &= "!"    ' 文字列連結
+</pre>
+
+<hr>
+
+<h3>組み込み関数</h3>
+
+<h4>文字列関数</h4>
+<table>
+  <tr><th>関数</th><th>説明</th><th>例</th></tr>
+  <tr><td>Len(s)</td><td>文字列の長さ</td><td>Len("Hallo") = 5</td></tr>
+  <tr><td>Left(s, n)</td><td>左からn文字</td><td>Left("Hallo", 2) = "Ha"</td></tr>
+  <tr><td>Right(s, n)</td><td>右からn文字</td><td>Right("Hallo", 2) = "lo"</td></tr>
+  <tr><td>Mid(s, start, len)</td><td>部分文字列</td><td>Mid("Hallo", 2, 3) = "all"</td></tr>
+  <tr><td>InStr(s, search)</td><td>位置を検索</td><td>InStr("Hallo", "l") = 3</td></tr>
+  <tr><td>Replace(s, old, new)</td><td>置換</td><td>Replace("Hallo", "l", "x") = "Haxxo"</td></tr>
+  <tr><td>Trim(s)</td><td>空白を除去</td><td>Trim("  Hi  ") = "Hi"</td></tr>
+  <tr><td>UCase(s)</td><td>大文字に変換</td><td>UCase("hallo") = "HALLO"</td></tr>
+  <tr><td>LCase(s)</td><td>小文字に変換</td><td>LCase("HALLO") = "hallo"</td></tr>
+</table>
+
+<h4>数学関数</h4>
+<table>
+  <tr><th>関数</th><th>説明</th><th>例</th></tr>
+  <tr><td>Abs(x)</td><td>絶対値</td><td>Abs(-5) = 5</td></tr>
+  <tr><td>Round(x, d)</td><td>四捨五入</td><td>Round(3.456, 2) = 3.46</td></tr>
+  <tr><td>Sqr(x)</td><td>平方根</td><td>Sqr(16) = 4</td></tr>
+  <tr><td>Log(x)</td><td>自然対数</td><td>Log(2.718) = 1</td></tr>
+  <tr><td>Exp(x)</td><td>指数関数（e^x）</td><td>Exp(1) = 2.718...</td></tr>
+  <tr><td>Sgn(x)</td><td>符号（-1、0、1）</td><td>Sgn(-5) = -1</td></tr>
+  <tr><td>Rnd()</td><td>乱数 0-1</td><td>Rnd() = 0.xxxxx</td></tr>
+</table>
+
+<h4>三角関数</h4>
+<table>
+  <tr><th>関数</th><th>説明</th></tr>
+  <tr><td>Sin(x)</td><td>正弦（サイン）</td></tr>
+  <tr><td>Cos(x)</td><td>余弦（コサイン）</td></tr>
+  <tr><td>Tan(x)</td><td>正接（タンジェント）</td></tr>
+  <tr><td>Atan(x)</td><td>逆正接（アークタンジェント）</td></tr>
+</table>
+
+<h4>時間関数</h4>
+<table>
+  <tr><th>関数</th><th>説明</th><th>例</th></tr>
+  <tr><td>TimeToHours(s)</td><td>時刻文字列を10進時間に変換</td><td>TimeToHours("08:30") = 8.5</td></tr>
+  <tr><td>TimeOverlap(s1, e1, s2, e2)</td><td>2つの時間帯の重複時間（時間単位）</td><td>TimeOverlap("23:00", "06:00", "22:00", "07:00") = 7</td></tr>
+</table>
+
+<p><em>TimeOverlapは深夜をまたぐ時間帯をサポートします（例：23:00-06:00）。</em></p>
+
+<h4>条件関数</h4>
+<table>
+  <tr><th>関数</th><th>説明</th><th>例</th></tr>
+  <tr><td>IIF(bed, wahr, falsch)</td><td>条件式（三項演算子）</td><td>IIF(x > 0, "正", "負")</td></tr>
+</table>
+
+<hr>
+
+<h3>戻り値</h3>
+
+<pre>
+OUTPUT typ, wert            ' Klacksへの戻り値（typはMacroTypeに対応）
+</pre>
+
+<hr>
+
+<h3>デバッグ関数</h3>
+<p>マクロのテスト用に以下のデバッグ関数が利用できます：</p>
+
+<table>
+  <tr><th>関数</th><th>説明</th></tr>
+  <tr><td>DEBUGPRINT wert</td><td>テストウィンドウに値を出力します</td></tr>
+  <tr><td>DEBUGCLEAR</td><td>テストウィンドウをクリアします</td></tr>
+</table>
+
+<h4>例</h4>
+<pre>
+DIM x
+x = 42
+DEBUGPRINT "値は: " & x
+DEBUGPRINT "計算実行中..."
+</pre>
+
+<p><em>デバッグ出力はマクロエディターの「テスト」タブに表示されます。</em></p>
+
+<hr>
+
+<h3>例：割増賃金計算</h3>
+<p>深夜をまたぐシフトを正しく処理した（セグメント分割）夜間、祝日、週末の割増賃金を計算します。</p>
+
+<pre>
+IMPORT hour, fromhour, untilhour
+IMPORT weekday, holiday, holidaynextday
+IMPORT nightrate, holidayrate, sarate, sorate
+
+FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
+    DIM SegmentHours, NightHours, NonNightHours
+    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+
+    SegmentHours = EndHour - StartHour
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    ' 夜間時間を計算（23:00-06:00）
+    NightHours = 0
+    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
+    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NonNightHours = SegmentHours - NightHours
+
+    HasHoliday = IsHoliday
+    IsSaturday = WeekdayNum = 6    ' 土 = 6（ISO-8601）
+    IsSunday = WeekdayNum = 7      ' 日 = 7（ISO-8601）
+
+    ' 夜間時間の最高割増率
+    NRate = nightrate
+    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+
+    ' 日中時間の最高割増率
+    DRate = 0
+    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+
+    CalcSegment = NightHours * NRate + NonNightHours * DRate
+ENDFUNCTION
+
+DIM TotalBonus, WeekdayNextDay
+
+' 翌日の曜日を計算（ISO-8601）
+WeekdayNextDay = (weekday MOD 7) + 1
+
+IF untilhour &lt;= fromhour THEN
+    ' 深夜をまたぐシフト - 2つのセグメント
+    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
+    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+ELSE
+    ' 通常の日勤シフト
+    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+ENDIF
+
+OUTPUT 1, Round(TotalBonus, 2)
+</pre>
+
+<h4>説明</h4>
+<ul>
+  <li><strong>セグメント分割：</strong> 深夜をまたぐシフト（例：22:00-06:00）の場合、シフトを2つのセグメントに分割します</li>
+  <li><strong>CalcSegment：</strong> 夜間、祝日、週末の割増賃金を考慮してセグメントの割増額を計算します</li>
+  <li><strong>土日別割増率：</strong> sarateとsorateにより、土曜日と日曜日で異なる割増率を設定できます</li>
+  <li><strong>最高割増率：</strong> 常に適用可能な最高の割増率が使用されます</li>
+  <li><strong>holidaynextday：</strong> 翌日が祝日かどうかを考慮します（夜間シフトにとって重要）</li>
+</ul>

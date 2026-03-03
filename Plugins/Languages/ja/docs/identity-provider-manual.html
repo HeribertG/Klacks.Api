@@ -1,0 +1,117 @@
+<h2>IDプロバイダー マニュアル</h2>
+
+<h3>はじめに</h3>
+<p>
+IDプロバイダーを使用することで、LDAP、Active Directory、OAuth2/OpenID Connectなどの
+外部ディレクトリサービスを通じてユーザー認証を行うことができます。
+</p>
+
+<p><strong>対応プロバイダーの種類：</strong></p>
+<ul>
+  <li><strong>LDAP</strong> - 標準軽量ディレクトリアクセスプロトコル</li>
+  <li><strong>Active Directory</strong> - Microsoft Active Directory</li>
+  <li><strong>OAuth2</strong> - OAuth 2.0 認可フレームワーク</li>
+  <li><strong>OpenID Connect</strong> - OAuth 2.0 上のIDレイヤー</li>
+</ul>
+
+<hr>
+
+<h3>LDAP / Active Directory</h3>
+
+<h4>接続設定</h4>
+<table>
+  <tr><th>フィールド</th><th>説明</th><th>例</th></tr>
+  <tr><td>ホスト</td><td>LDAPサーバーのホスト名またはIPアドレス</td><td>ldap.example.com</td></tr>
+  <tr><td>ポート</td><td>389（LDAP）または636（LDAPS）</td><td>389</td></tr>
+  <tr><td>SSL使用</td><td>暗号化接続を有効にします</td><td>-</td></tr>
+  <tr><td>ベースDN</td><td>検索のベース識別名</td><td>DC=example,DC=com</td></tr>
+  <tr><td>バインドDN</td><td>接続に使用するユーザーのDN</td><td>CN=admin,DC=example,DC=com</td></tr>
+  <tr><td>バインドパスワード</td><td>バインドユーザーのパスワード</td><td>-</td></tr>
+  <tr><td>ユーザーフィルター</td><td>ユーザー検索用のLDAPフィルター</td><td>(objectClass=person)</td></tr>
+</table>
+
+<h4>LDAP と Active Directory の違い</h4>
+<table>
+  <tr><th>属性</th><th>LDAP（OpenLDAP）</th><th>Active Directory</th></tr>
+  <tr><td>ユーザー属性</td><td>uid</td><td>sAMAccountName</td></tr>
+  <tr><td>住所属性</td><td>street</td><td>streetAddress</td></tr>
+  <tr><td>敬称属性</td><td>-</td><td>personalTitle</td></tr>
+  <tr><td>国属性</td><td>-</td><td>c</td></tr>
+  <tr><td>認証方式</td><td>シンプルバインド</td><td>Negotiate/Kerberos</td></tr>
+</table>
+
+<h4>代表的なユーザーフィルター</h4>
+<pre>
+LDAP:             (objectClass=person)
+                  (objectClass=inetOrgPerson)
+
+Active Directory: (&amp;(objectClass=user)(objectCategory=person))
+                  (&amp;(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+</pre>
+
+<h4>クライアントインポート</h4>
+<p>「クライアントインポートに使用」を有効にした場合、以下のデータがインポートされます：</p>
+<ul>
+  <li><strong>氏名</strong> - sn（姓）または displayName</li>
+  <li><strong>名前</strong> - givenName</li>
+  <li><strong>役職</strong> - title（役職名）</li>
+  <li><strong>会社</strong> - company</li>
+  <li><strong>住所</strong> - street/streetAddress、postalCode、l（市区町村）、st（都道府県）、c（国）</li>
+  <li><strong>性別</strong> - Active Directoryの場合、personalTitle（Herr/Frau）から取得</li>
+</ul>
+
+<p><em>注意：OpenLDAPの場合、性別はデフォルトで「ニュートラル」となり、手動で修正できます。</em></p>
+
+<hr>
+
+<h3>OAuth2 / OpenID Connect</h3>
+
+<h4>設定</h4>
+<table>
+  <tr><th>フィールド</th><th>説明</th></tr>
+  <tr><td>クライアントID</td><td>プロバイダーに登録されたクライアントID</td></tr>
+  <tr><td>クライアントシークレット</td><td>対応するクライアントシークレット</td></tr>
+  <tr><td>テナントID</td><td>Azure ADテナントID（任意、Microsoftのみ）</td></tr>
+  <tr><td>認可URL</td><td>認可用エンドポイント</td></tr>
+  <tr><td>トークンURL</td><td>トークン交換用エンドポイント</td></tr>
+  <tr><td>ユーザー情報URL</td><td>ユーザー情報取得用エンドポイント</td></tr>
+  <tr><td>スコープ</td><td>要求する権限（例：「openid profile email」）</td></tr>
+</table>
+
+<h4>主要プロバイダー</h4>
+<table>
+  <tr><th>プロバイダー</th><th>認可URL</th><th>トークンURL</th></tr>
+  <tr><td>Google</td><td>https://accounts.google.com/o/oauth2/v2/auth</td><td>https://oauth2.googleapis.com/token</td></tr>
+  <tr><td>Microsoft</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</td></tr>
+  <tr><td>GitHub</td><td>https://github.com/login/oauth/authorize</td><td>https://github.com/login/oauth/access_token</td></tr>
+</table>
+
+<hr>
+
+<h3>ヒント</h3>
+
+<h4>Synology NAS を LDAPサーバーとして使用</h4>
+<p>
+Synology NASをLDAPサーバーとして使用できます。その場合、「LDAPサーバー」パッケージ
+またはOpenLDAPを使用したDockerコンテナーをインストールする必要があります。
+</p>
+<ul>
+  <li>プロバイダータイプ：「Active Directory」（フォールバック認証用）</li>
+  <li>ユーザーフィルター：(objectClass=inetOrgPerson)</li>
+  <li>ユーザーDN形式：cn=username,ou=users,dc=example,dc=com</li>
+</ul>
+
+<h4>接続のテスト</h4>
+<p>
+「接続をテスト」ボタンを使用して設定を確認してください。
+接続が成功すると、見つかったユーザー数といくつかのサンプルユーザー名が表示されます。
+</p>
+
+<h4>トラブルシューティング</h4>
+<table>
+  <tr><th>問題</th><th>解決策</th></tr>
+  <tr><td>接続に失敗</td><td>ホスト、ポート、SSL設定を確認してください</td></tr>
+  <tr><td>バインドに失敗</td><td>バインドDNとパスワードを確認してください</td></tr>
+  <tr><td>ユーザーが見つからない</td><td>ベースDNとユーザーフィルターを確認してください</td></tr>
+  <tr><td>住所がインポートされない</td><td>OpenLDAPは「streetAddress」ではなく「street」を使用します</td></tr>
+</table>

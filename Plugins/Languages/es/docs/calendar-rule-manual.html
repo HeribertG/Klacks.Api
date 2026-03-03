@@ -1,0 +1,82 @@
+<h2>Reglas de días festivos - Explicaciones</h2>
+
+<h3>Formato de reglas</h3>
+<p>Existen dos tipos de reglas: <strong>fechas fijas</strong> y <strong>fechas relativas a la Pascua</strong>.</p>
+
+<h4>Fechas fijas</h4>
+<p>Formato: <code>MM/DD</code></p>
+<table>
+  <tr><th>Ejemplo</th><th>Significado</th></tr>
+  <tr><td><code>01/01</code></td><td>1 de enero (Año Nuevo)</td></tr>
+  <tr><td><code>12/25</code></td><td>25 de diciembre (Navidad)</td></tr>
+  <tr><td><code>08/01</code></td><td>1 de agosto (Fiesta Nacional Suiza)</td></tr>
+</table>
+
+<h4>Fechas fijas con desplazamiento por día de la semana</h4>
+<p>Formato: <code>MM/DD+XX+WW</code> o <code>MM/DD+XX-WW</code></p>
+<ul>
+  <li><code>+XX</code> = signo + desplazamiento en días (00 a 99)</li>
+  <li><code>+</code> = siguiente día de la semana después de la fecha</li>
+  <li><code>-</code> = día de la semana anterior a la fecha</li>
+  <li><code>WW</code> = día de la semana (SU, MO, TU, WE, TH, FR, SA)</li>
+</ul>
+<table>
+  <tr><th>Ejemplo</th><th>Significado</th></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>Primer jueves de noviembre</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>Cuarto jueves de noviembre (Acción de Gracias)</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>Último lunes de mayo (Día de los Caídos)</td></tr>
+</table>
+
+<h4>Fechas relativas a la Pascua</h4>
+<p>Formato: <code>EASTER+XX</code> o <code>EASTER-XX</code></p>
+<table>
+  <tr><th>Ejemplo</th><th>Significado</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>Domingo de Pascua</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>Viernes Santo (2 días antes de Pascua)</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>Lunes de Pascua (1 día después de Pascua)</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>Ascensión de Cristo (39 días después de Pascua)</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>Domingo de Pentecostés (49 días después de Pascua)</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>Lunes de Pentecostés (50 días después de Pascua)</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>Corpus Christi (60 días después de Pascua)</td></tr>
+</table>
+
+<hr>
+
+<h3>Formato de SubReglas</h3>
+<p>Las SubReglas permiten el desplazamiento automático de un día festivo cuando cae en un determinado día de la semana.</p>
+<p>Formato: <code>WW+X</code> o <code>WW-X</code>, varias reglas separadas con <code>;</code></p>
+<ul>
+  <li><code>WW</code> = día de la semana (SU, MO, TU, WE, TH, FR, SA)</li>
+  <li><code>+X</code> = desplazar X días hacia adelante</li>
+  <li><code>-X</code> = desplazar X días hacia atrás</li>
+</ul>
+<table>
+  <tr><th>Ejemplo</th><th>Significado</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>Si es sábado: +2 días (lunes), si es domingo: +1 día (lunes)</td></tr>
+  <tr><td><code>SU+1</code></td><td>Si es domingo: mover al lunes</td></tr>
+</table>
+
+<p><em>Nota: Las SubReglas se utilizan típicamente para trasladar los días festivos que caen en fin de semana al siguiente día laborable.</em></p>
+
+<hr>
+
+<h3>Abreviaturas de días de la semana</h3>
+<table>
+  <tr><th>Abreviatura</th><th>Día de la semana</th></tr>
+  <tr><td>SU</td><td>Domingo (Sunday)</td></tr>
+  <tr><td>MO</td><td>Lunes (Monday)</td></tr>
+  <tr><td>TU</td><td>Martes (Tuesday)</td></tr>
+  <tr><td>WE</td><td>Miércoles (Wednesday)</td></tr>
+  <tr><td>TH</td><td>Jueves (Thursday)</td></tr>
+  <tr><td>FR</td><td>Viernes (Friday)</td></tr>
+  <tr><td>SA</td><td>Sábado (Saturday)</td></tr>
+</table>
+
+<hr>
+
+<h3>Casillas de verificación</h3>
+<table>
+  <tr><th>Casilla</th><th>Significado</th></tr>
+  <tr><td>Día festivo oficial</td><td>El día es un día festivo oficial/legal</td></tr>
+  <tr><td>Remunerado</td><td>El día festivo es remunerado (relevante para el cálculo de salarios)</td></tr>
+</table>

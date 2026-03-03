@@ -1,0 +1,82 @@
+<h2>祝日ルール - 説明</h2>
+
+<h3>ルール形式</h3>
+<p>ルールには2種類あります：<strong>固定日付</strong>と<strong>イースター基準日付</strong>です。</p>
+
+<h4>固定日付</h4>
+<p>形式：<code>MM/DD</code></p>
+<table>
+  <tr><th>例</th><th>意味</th></tr>
+  <tr><td><code>01/01</code></td><td>1月1日（元日）</td></tr>
+  <tr><td><code>12/25</code></td><td>12月25日（クリスマス）</td></tr>
+  <tr><td><code>08/01</code></td><td>8月1日（スイス建国記念日）</td></tr>
+</table>
+
+<h4>曜日シフト付き固定日付</h4>
+<p>形式：<code>MM/DD+XX+WW</code> または <code>MM/DD+XX-WW</code></p>
+<ul>
+  <li><code>+XX</code> = 符号 + オフセット（日数）（00から99）</li>
+  <li><code>+</code> = 日付以降の次の曜日</li>
+  <li><code>-</code> = 日付以前の前の曜日</li>
+  <li><code>WW</code> = 曜日（SU、MO、TU、WE、TH、FR、SA）</li>
+</ul>
+<table>
+  <tr><th>例</th><th>意味</th></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>11月の第1木曜日</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>11月の第4木曜日（感謝祭）</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>5月最終月曜日（メモリアルデー）</td></tr>
+</table>
+
+<h4>イースター基準日付</h4>
+<p>形式：<code>EASTER+XX</code> または <code>EASTER-XX</code></p>
+<table>
+  <tr><th>例</th><th>意味</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>イースターサンデー（復活祭）</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>聖金曜日（イースターの2日前）</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>イースターマンデー（イースターの1日後）</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>昇天祭（イースターの39日後）</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>ペンテコステ（イースターの49日後）</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>聖霊降臨節翌日（イースターの50日後）</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>聖体節（イースターの60日後）</td></tr>
+</table>
+
+<hr>
+
+<h3>サブルール形式</h3>
+<p>サブルールは、祝日が特定の曜日に当たった場合に自動的に振り替えることを可能にします。</p>
+<p>形式：<code>WW+X</code> または <code>WW-X</code>、複数のルールは <code>;</code> で区切ります</p>
+<ul>
+  <li><code>WW</code> = 曜日（SU、MO、TU、WE、TH、FR、SA）</li>
+  <li><code>+X</code> = X日後ろへ移動</li>
+  <li><code>-X</code> = X日前へ移動</li>
+</ul>
+<table>
+  <tr><th>例</th><th>意味</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>土曜日の場合：+2日（月曜日）、日曜日の場合：+1日（月曜日）</td></tr>
+  <tr><td><code>SU+1</code></td><td>日曜日の場合：月曜日に振り替え</td></tr>
+</table>
+
+<p><em>注意：サブルールは通常、週末に当たる祝日を次の平日に振り替えるために使用されます。</em></p>
+
+<hr>
+
+<h3>曜日略語</h3>
+<table>
+  <tr><th>略語</th><th>曜日</th></tr>
+  <tr><td>SU</td><td>日曜日（Sunday）</td></tr>
+  <tr><td>MO</td><td>月曜日（Monday）</td></tr>
+  <tr><td>TU</td><td>火曜日（Tuesday）</td></tr>
+  <tr><td>WE</td><td>水曜日（Wednesday）</td></tr>
+  <tr><td>TH</td><td>木曜日（Thursday）</td></tr>
+  <tr><td>FR</td><td>金曜日（Friday）</td></tr>
+  <tr><td>SA</td><td>土曜日（Saturday）</td></tr>
+</table>
+
+<hr>
+
+<h3>チェックボックス</h3>
+<table>
+  <tr><th>チェックボックス</th><th>意味</th></tr>
+  <tr><td>法定祝日</td><td>その日は公式・法定の祝日です</td></tr>
+  <tr><td>有給</td><td>祝日は有給扱いです（給与計算に関連）</td></tr>
+</table>

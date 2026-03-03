@@ -1,0 +1,126 @@
+<h2>Manual del Diseñador de Informes</h2>
+
+<h3>Estructura del informe</h3>
+<p>Un informe consta de tres secciones:</p>
+<ul>
+  <li><strong>Encabezado</strong> &ndash; se imprime en la parte superior de cada página</li>
+  <li><strong>Cuerpo</strong> &ndash; contiene las tablas de datos</li>
+  <li><strong>Pie de página</strong> &ndash; se imprime en la parte inferior de cada página</li>
+</ul>
+<p>Cada sección puede editarse a través de la pestaña <em>Diseño</em> en el editor de informes.</p>
+
+<hr>
+
+<h3>Sección de encabezado</h3>
+<p>El encabezado tiene tres zonas: <strong>Izquierda</strong>, <strong>Centro</strong> y <strong>Derecha</strong>.</p>
+<p>Cada zona puede contener:</p>
+<ul>
+  <li><strong>Campos</strong> &ndash; campos de base de datos que se rellenan automáticamente</li>
+  <li><strong>Texto libre</strong> &ndash; texto introducido manualmente</li>
+  <li><strong>Imágenes</strong> &ndash; p. ej., un logotipo de empresa (cargar a través del administrador de imágenes)</li>
+</ul>
+<p>Las filas se pueden añadir o eliminar mediante la barra de herramientas.</p>
+
+<hr>
+
+<h3>Tablas del cuerpo</h3>
+<p>El cuerpo contiene una o más tablas.</p>
+<table>
+  <tr><th>Acción</th><th>Descripción</th></tr>
+  <tr><td>Añadir columna</td><td>Mediante el símbolo <strong>+</strong> o arrastrando desde la lista de campos</td></tr>
+  <tr><td>Ancho de columna</td><td>Ajustar arrastrando el borde de la columna</td></tr>
+  <tr><td>Orden de columnas</td><td>Cambiar arrastrando y soltando</td></tr>
+  <tr><td>Eliminar columna</td><td>En el editor de columnas mediante el símbolo de eliminación</td></tr>
+</table>
+<p>Cada tabla está vinculada a un conjunto de datos (p. ej., horario de trabajo, direcciones).</p>
+
+<hr>
+
+<h3>Combinar campos (Merged Fields)</h3>
+<p>Los campos combinados permiten múltiples vinculaciones de datos en una sola columna.</p>
+<ul>
+  <li>En el editor de columnas, hacer clic en <strong>Añadir campo</strong> para agregar más campos a la misma columna</li>
+  <li>Los valores se muestran uno debajo del otro o con un separador</li>
+  <li>El separador se puede configurar en el diálogo de campo (p. ej., coma, espacio, salto de línea)</li>
+</ul>
+
+<hr>
+
+<h3>Pie de tabla</h3>
+<p>Debajo de cada tabla se puede mostrar un pie de página.</p>
+<ul>
+  <li><strong>Campos SUM:</strong> las columnas numéricas se pueden sumar automáticamente</li>
+  <li><strong>Etiqueta:</strong> la descripción de la suma puede mostrarse u ocultarse</li>
+  <li>Se activa en el editor de columnas bajo la pestaña <em>Pie de página</em></li>
+</ul>
+
+<hr>
+
+<h3>Filas de texto libre</h3>
+<p>Se pueden insertar filas de texto libre antes o después de las tablas de datos.</p>
+<table>
+  <tr><th>Propiedad</th><th>Descripción</th></tr>
+  <tr><td>Posición</td><td>Seleccionable <em>Antes de los datos</em> o <em>Después de los datos</em></td></tr>
+  <tr><td>Contenido</td><td>Texto libre, p. ej., notas, condiciones o campos de firma</td></tr>
+  <tr><td>Estilo</td><td>Fuente, tamaño y alineación configurables</td></tr>
+</table>
+
+<hr>
+
+<h3>Formato</h3>
+<p>Cada celda y cada texto libre se puede formatear individualmente:</p>
+<table>
+  <tr><th>Opción</th><th>Descripción</th></tr>
+  <tr><td>Fuente</td><td>Fuentes seleccionables para la celda</td></tr>
+  <tr><td>Tamaño de fuente</td><td>Tamaño en puntos (pt)</td></tr>
+  <tr><td>Negrita / Cursiva / Subrayado</td><td>Mediante los botones <strong>B</strong> / <strong>I</strong> / <strong>U</strong></td></tr>
+  <tr><td>Color de texto</td><td>Color de libre elección</td></tr>
+  <tr><td>Alineación</td><td>Izquierda, centrado o derecha</td></tr>
+</table>
+
+<hr>
+
+<h3>Bordes de celda</h3>
+<p>Los bordes de cada celda se pueden configurar individualmente.</p>
+<table>
+  <tr><th>Propiedad</th><th>Opciones</th></tr>
+  <tr><td>Lados</td><td>Superior, derecho, inferior, izquierdo (individualmente o todos)</td></tr>
+  <tr><td>Estilo de línea</td><td>Fino, medio, grueso, discontinuo, doble</td></tr>
+  <tr><td>Color de línea</td><td>De libre elección</td></tr>
+</table>
+<p>Los bordes se configuran en el editor de columnas bajo <em>Bordes</em>.</p>
+
+<hr>
+
+<h3>Configuración de página</h3>
+<p>En la pestaña <em>General</em> se pueden ajustar las opciones de impresión:</p>
+<ul>
+  <li><strong>Orientación:</strong> Vertical (Portrait) u horizontal (Landscape)</li>
+  <li><strong>Tamaño de papel:</strong> A4, A3, B4 (JIS), B5 (JIS) o Carta</li>
+  <li><strong>Márgenes de página:</strong> Superior, derecho, inferior, izquierdo en mm</li>
+</ul>
+
+<hr>
+
+<h3>Opciones de presentación (Diseñador)</h3>
+<p>En la pestaña <em>Diseño</em>, cuando la fuente de datos es <strong>Horario de trabajo (Schedule)</strong>, hay opciones adicionales disponibles:</p>
+<ul>
+  <li><strong>Consolidar entradas por día:</strong> Varias entradas del mismo día se agrupan en una sola fila</li>
+  <li><strong>Mostrar período completo:</strong> Se muestran todos los días del período, incluso si no hay entradas</li>
+</ul>
+
+<hr>
+
+<h3>Fuentes de datos</h3>
+<p>Fuentes de datos disponibles para informes:</p>
+<table>
+  <tr><th>Fuente de datos</th><th>Descripción</th></tr>
+  <tr><td>Horario de trabajo (Schedule)</td><td>Turnos y horarios de trabajo</td></tr>
+  <tr><td>Direcciones (Lista)</td><td>Todas las direcciones como tabla</td></tr>
+  <tr><td>Dirección (Detalle)</td><td>Dirección individual</td></tr>
+  <tr><td>Ausencias</td><td>Resumen de ausencias</td></tr>
+  <tr><td>Turnos (Shifts)</td><td>Tabla de turnos</td></tr>
+  <tr><td>Grupos</td><td>Resumen de grupos</td></tr>
+  <tr><td>Plantilla de contenedor</td><td>Plantilla para informes de contenedor</td></tr>
+</table>
+<p><em>La fuente de datos se selecciona en la pestaña «Fuente de datos» y determina los campos disponibles.</em></p>
