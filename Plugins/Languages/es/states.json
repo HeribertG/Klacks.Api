@@ -1,0 +1,104 @@
+[
+  {
+    "id": "s1b2c3d4-es01-4000-8000-000000000001",
+    "abbreviation": "AN",
+    "countryPrefix": "ES",
+    "name": { "de": "Andalusien", "en": "Andalusia", "fr": "Andalousie", "it": "Andalusia", "es": "Andalucía" }
+  },
+  {
+    "id": "s1b2c3d4-es01-4000-8000-000000000002",
+    "abbreviation": "AR",
+    "countryPrefix": "ES",
+    "name": { "de": "Aragonien", "en": "Aragon", "fr": "Aragon", "it": "Aragona", "es": "Aragón" }
+  },
+  {
+    "id": "s1b2c3d4-es01-4000-8000-000000000003",
+    "abbreviation": "AS",
+    "countryPrefix": "ES",
+    "name": { "de": "Asturien", "en": "Asturias", "fr": "Asturies", "it": "Asturie", "es": "Asturias" }
+  },
+  {
+    "id": "s1b2c3d4-es01-4000-8000-000000000004",
+    "abbreviation": "IB",
+    "countryPrefix": "ES",
+    "name": { "de": "Balearen", "en": "Balearic Islands", "fr": "Îles Baléares", "it": "Isole Baleari", "es": "Islas Baleares" }
+  },
+  {
+    "id": "s1b2c3d4-es01-4000-8000-000000000005",
+    "abbreviation": "CN",
+    "countryPrefix": "ES",
+    "name": { "de": "Kanarische Inseln", "en": "Canary Islands", "fr": "Îles Canaries", "it": "Isole Canarie", "es": "Canarias" }
+  },
+  {
+    "id": "s1b2c3d4-es01-4000-8000-000000000006",
+    "abbreviation": "CB",
+    "countryPrefix": "ES",
+    "name": { "de": "Kantabrien", "en": "Cantabria", "fr": "Cantabrie", "it": "Cantabria", "es": "Cantabria" }
+  },
+  {
+    "id": "s1b2c3d4-es01-4000-8000-000000000007",
+    "abbreviation": "CL",
+    "countryPrefix": "ES",
+    "name": { "de": "Kastilien und León", "en": "Castile and León", "fr": "Castille-et-León", "it": "Castiglia e León", "es": "Castilla y León" }
+  },
+  {
+    "id": "s1b2c3d4-es01-4000-8000-000000000008",
+    "abbreviation": "CM",
+    "countryPrefix": "ES",
+    "name": { "de": "Kastilien-La Mancha", "en": "Castilla-La Mancha", "fr": "Castille-La Manche", "it": "Castiglia-La Mancia", "es": "Castilla-La Mancha" }
+  },
+  {
+    "id": "s1b2c3d4-es01-4000-8000-000000000009",
+    "abbreviation": "CT",
+    "countryPrefix": "ES",
+    "name": { "de": "Katalonien", "en": "Catalonia", "fr": "Catalogne", "it": "Catalogna", "es": "Cataluña" }
+  },
+  {
+    "id": "s1b2c3d4-es01-4000-8000-000000000010",
+    "abbreviation": "EX",
+    "countryPrefix": "ES",
+    "name": { "de": "Extremadura", "en": "Extremadura", "fr": "Estrémadure", "it": "Estremadura", "es": "Extremadura" }
+  },
+  {
+    "id": "s1b2c3d4-es01-4000-8000-000000000011",
+    "abbreviation": "GA",
+    "countryPrefix": "ES",
+    "name": { "de": "Galicien", "en": "Galicia", "fr": "Galice", "it": "Galizia", "es": "Galicia" }
+  },
+  {
+    "id": "s1b2c3d4-es01-4000-8000-000000000012",
+    "abbreviation": "MD",
+    "countryPrefix": "ES",
+    "name": { "de": "Madrid", "en": "Madrid", "fr": "Madrid", "it": "Madrid", "es": "Madrid" }
+  },
+  {
+    "id": "s1b2c3d4-es01-4000-8000-000000000013",
+    "abbreviation": "MC",
+    "countryPrefix": "ES",
+    "name": { "de": "Murcia", "en": "Murcia", "fr": "Murcie", "it": "Murcia", "es": "Murcia" }
+  },
+  {
+    "id": "s1b2c3d4-es01-4000-8000-000000000014",
+    "abbreviation": "NC",
+    "countryPrefix": "ES",
+    "name": { "de": "Navarra", "en": "Navarre", "fr": "Navarre", "it": "Navarra", "es": "Navarra" }
+  },
+  {
+    "id": "s1b2c3d4-es01-4000-8000-000000000015",
+    "abbreviation": "PV",
+    "countryPrefix": "ES",
+    "name": { "de": "Baskenland", "en": "Basque Country", "fr": "Pays basque", "it": "Paesi Baschi", "es": "País Vasco" }
+  },
+  {
+    "id": "s1b2c3d4-es01-4000-8000-000000000016",
+    "abbreviation": "LR",
+    "countryPrefix": "ES",
+    "name": { "de": "La Rioja", "en": "La Rioja", "fr": "La Rioja", "it": "La Rioja", "es": "La Rioja" }
+  },
+  {
+    "id": "s1b2c3d4-es01-4000-8000-000000000017",
+    "abbreviation": "VC",
+    "countryPrefix": "ES",
+    "name": { "de": "Valencia", "en": "Valencian Community", "fr": "Communauté valencienne", "it": "Comunità Valenciana", "es": "Comunidad Valenciana" }
+  }
+]

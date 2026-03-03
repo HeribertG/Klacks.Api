@@ -8,6 +8,8 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Settings;
+using Klacks.Api.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.Settings;
 
@@ -154,6 +156,7 @@ public class LanguagePluginService : ILanguagePluginService
             });
         }
 
+        await InstallGeoDataAsync(scope, code);
         await unitOfWork.CompleteAsync();
 
         lock (_installedLock)
@@ -176,12 +179,15 @@ public class LanguagePluginService : ILanguagePluginService
         var settingsRepo = scope.ServiceProvider.GetRequiredService<ISettingsRepository>();
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
+        await UninstallGeoDataAsync(scope, code);
+
         var existing = await settingsRepo.GetSetting(settingKey);
         if (existing != null)
         {
             existing.Value = "false";
-            await unitOfWork.CompleteAsync();
         }
+
+        await unitOfWork.CompleteAsync();
 
         lock (_installedLock)
         {
@@ -237,6 +243,98 @@ public class LanguagePluginService : ILanguagePluginService
         _translationCache.Clear();
         _initialized = false;
         Initialize();
+    }
+
+    private List<T>? LoadPluginDataFile<T>(string code, string fileName)
+    {
+        var filePath = Path.Combine(_pluginDirectory, code, fileName);
+        if (!File.Exists(filePath))
+            return null;
+
+        try
+        {
+            var json = File.ReadAllText(filePath);
+            return JsonSerializer.Deserialize<List<T>>(json, JsonOptions);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to load plugin data file '{FileName}' for language '{Code}'", fileName, code);
+            return null;
+        }
+    }
+
+    private async Task InstallGeoDataAsync(IServiceScope scope, string code)
+    {
+        var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+
+        var countries = LoadPluginDataFile<Countries>(code, LanguagePluginConstants.CountriesFileName);
+        if (countries != null)
+        {
+            foreach (var country in countries)
+            {
+                if (!await db.Countries.AnyAsync(c => c.Id == country.Id))
+                {
+                    db.Countries.Add(country);
+                }
+            }
+        }
+
+        var states = LoadPluginDataFile<State>(code, LanguagePluginConstants.StatesFileName);
+        if (states != null)
+        {
+            foreach (var state in states)
+            {
+                if (!await db.State.AnyAsync(s => s.Id == state.Id))
+                {
+                    db.State.Add(state);
+                }
+            }
+        }
+
+        var rules = LoadPluginDataFile<CalendarRule>(code, LanguagePluginConstants.CalendarRulesFileName);
+        if (rules != null)
+        {
+            foreach (var rule in rules)
+            {
+                if (!await db.CalendarRule.AnyAsync(r => r.Id == rule.Id))
+                {
+                    db.CalendarRule.Add(rule);
+                }
+            }
+        }
+
+        _logger.LogInformation(
+            "Installed geo data for language plugin '{Code}': {Countries} countries, {States} states, {Rules} calendar rules",
+            code, countries?.Count ?? 0, states?.Count ?? 0, rules?.Count ?? 0);
+    }
+
+    private async Task UninstallGeoDataAsync(IServiceScope scope, string code)
+    {
+        var countries = LoadPluginDataFile<Countries>(code, LanguagePluginConstants.CountriesFileName);
+        if (countries == null || countries.Count == 0)
+            return;
+
+        var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+        var abbreviations = countries.Select(c => c.Abbreviation).ToList();
+
+        var calendarRules = await db.CalendarRule
+            .Where(r => abbreviations.Contains(r.Country))
+            .ToListAsync();
+        db.CalendarRule.RemoveRange(calendarRules);
+
+        var statesToRemove = await db.State
+            .Where(s => abbreviations.Contains(s.CountryPrefix))
+            .ToListAsync();
+        db.State.RemoveRange(statesToRemove);
+
+        var countriesToRemove = await db.Countries
+            .Where(c => abbreviations.Contains(c.Abbreviation))
+            .ToListAsync();
+        db.Countries.RemoveRange(countriesToRemove);
+
+        _logger.LogInformation(
+            "Uninstalled geo data for language plugin '{Code}': {Countries} countries, {States} states, {Rules} calendar rules",
+            code, countriesToRemove.Count, statesToRemove.Count, calendarRules.Count);
     }
 
     private bool IsInstalled(string code)

@@ -1,0 +1,178 @@
+[
+  {
+    "id": "c1b2c3d4-ja01-4000-8000-000000000001",
+    "rule": "01/01",
+    "subRule": "SU+1",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "JP",
+    "country": "JP",
+    "name": { "de": "Neujahr", "en": "New Year's Day", "fr": "Jour de l'An", "it": "Capodanno", "ja": "元日" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "ja": "" }
+  },
+  {
+    "id": "c1b2c3d4-ja01-4000-8000-000000000002",
+    "rule": "01/01+07+MO",
+    "subRule": "SU+1",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "JP",
+    "country": "JP",
+    "name": { "de": "Tag der Volljährigkeit", "en": "Coming of Age Day", "fr": "Jour de la majorité", "it": "Giorno della maggiore età", "ja": "成人の日" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "ja": "" }
+  },
+  {
+    "id": "c1b2c3d4-ja01-4000-8000-000000000003",
+    "rule": "02/11",
+    "subRule": "SU+1",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "JP",
+    "country": "JP",
+    "name": { "de": "Tag der Staatsgründung", "en": "National Foundation Day", "fr": "Jour de la fondation nationale", "it": "Giorno della fondazione nazionale", "ja": "建国記念の日" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "ja": "" }
+  },
+  {
+    "id": "c1b2c3d4-ja01-4000-8000-000000000004",
+    "rule": "02/23",
+    "subRule": "SU+1",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "JP",
+    "country": "JP",
+    "name": { "de": "Geburtstag des Kaisers", "en": "Emperor's Birthday", "fr": "Anniversaire de l'Empereur", "it": "Compleanno dell'Imperatore", "ja": "天皇誕生日" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "ja": "" }
+  },
+  {
+    "id": "c1b2c3d4-ja01-4000-8000-000000000005",
+    "rule": "03/20",
+    "subRule": "SU+1",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "JP",
+    "country": "JP",
+    "name": { "de": "Frühlingsanfang", "en": "Vernal Equinox Day", "fr": "Jour de l'équinoxe de printemps", "it": "Giorno dell'equinozio di primavera", "ja": "春分の日" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "ja": "" }
+  },
+  {
+    "id": "c1b2c3d4-ja01-4000-8000-000000000006",
+    "rule": "04/29",
+    "subRule": "SU+1",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "JP",
+    "country": "JP",
+    "name": { "de": "Showa-Tag", "en": "Showa Day", "fr": "Jour de Showa", "it": "Giorno di Showa", "ja": "昭和の日" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "ja": "" }
+  },
+  {
+    "id": "c1b2c3d4-ja01-4000-8000-000000000007",
+    "rule": "05/03",
+    "subRule": "SU+1",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "JP",
+    "country": "JP",
+    "name": { "de": "Verfassungsgedenktag", "en": "Constitution Memorial Day", "fr": "Jour de la Constitution", "it": "Giorno della Costituzione", "ja": "憲法記念日" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "ja": "" }
+  },
+  {
+    "id": "c1b2c3d4-ja01-4000-8000-000000000008",
+    "rule": "05/04",
+    "subRule": "SU+1",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "JP",
+    "country": "JP",
+    "name": { "de": "Tag des Grüns", "en": "Greenery Day", "fr": "Jour de la verdure", "it": "Giorno del verde", "ja": "みどりの日" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "ja": "" }
+  },
+  {
+    "id": "c1b2c3d4-ja01-4000-8000-000000000009",
+    "rule": "05/05",
+    "subRule": "SU+1",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "JP",
+    "country": "JP",
+    "name": { "de": "Tag der Kinder", "en": "Children's Day", "fr": "Jour des enfants", "it": "Giorno dei bambini", "ja": "こどもの日" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "ja": "" }
+  },
+  {
+    "id": "c1b2c3d4-ja01-4000-8000-000000000010",
+    "rule": "07/01+14+MO",
+    "subRule": "SU+1",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "JP",
+    "country": "JP",
+    "name": { "de": "Tag des Meeres", "en": "Marine Day", "fr": "Jour de la mer", "it": "Giorno del mare", "ja": "海の日" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "ja": "" }
+  },
+  {
+    "id": "c1b2c3d4-ja01-4000-8000-000000000011",
+    "rule": "08/11",
+    "subRule": "SU+1",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "JP",
+    "country": "JP",
+    "name": { "de": "Tag der Berge", "en": "Mountain Day", "fr": "Jour de la montagne", "it": "Giorno della montagna", "ja": "山の日" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "ja": "" }
+  },
+  {
+    "id": "c1b2c3d4-ja01-4000-8000-000000000012",
+    "rule": "09/01+14+MO",
+    "subRule": "SU+1",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "JP",
+    "country": "JP",
+    "name": { "de": "Tag der Ehrung der Alten", "en": "Respect for the Aged Day", "fr": "Jour du respect des personnes âgées", "it": "Giorno del rispetto per gli anziani", "ja": "敬老の日" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "ja": "" }
+  },
+  {
+    "id": "c1b2c3d4-ja01-4000-8000-000000000013",
+    "rule": "09/22",
+    "subRule": "SU+1",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "JP",
+    "country": "JP",
+    "name": { "de": "Herbstanfang", "en": "Autumnal Equinox Day", "fr": "Jour de l'équinoxe d'automne", "it": "Giorno dell'equinozio d'autunno", "ja": "秋分の日" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "ja": "" }
+  },
+  {
+    "id": "c1b2c3d4-ja01-4000-8000-000000000014",
+    "rule": "10/01+07+MO",
+    "subRule": "SU+1",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "JP",
+    "country": "JP",
+    "name": { "de": "Tag des Sports", "en": "Sports Day", "fr": "Jour du sport", "it": "Giorno dello sport", "ja": "スポーツの日" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "ja": "" }
+  },
+  {
+    "id": "c1b2c3d4-ja01-4000-8000-000000000015",
+    "rule": "11/03",
+    "subRule": "SU+1",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "JP",
+    "country": "JP",
+    "name": { "de": "Tag der Kultur", "en": "Culture Day", "fr": "Jour de la culture", "it": "Giorno della cultura", "ja": "文化の日" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "ja": "" }
+  },
+  {
+    "id": "c1b2c3d4-ja01-4000-8000-000000000016",
+    "rule": "11/23",
+    "subRule": "SU+1",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "JP",
+    "country": "JP",
+    "name": { "de": "Tag der Arbeit", "en": "Labor Thanksgiving Day", "fr": "Jour d'action de grâce pour le travail", "it": "Giorno del ringraziamento per il lavoro", "ja": "勤労感謝の日" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "ja": "" }
+  }
+]
