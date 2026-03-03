@@ -231,6 +231,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IImapEmailService, ImapEmailService>();
         services.AddScoped<IImapTestService, ImapTestService>();
         services.AddScoped<ISpamFilterService, SpamFilterService>();
+        services.AddScoped<IEmailClientAssignmentService, EmailClientAssignmentService>();
         services.AddHostedService<EmailPollingBackgroundService>();
     }
 

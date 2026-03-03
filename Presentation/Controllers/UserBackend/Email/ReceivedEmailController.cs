@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Commands.Email;
 using Klacks.Api.Application.DTOs.Email;
 using Klacks.Api.Application.Queries.Email;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Infrastructure.Mediator;
@@ -28,6 +29,29 @@ public class ReceivedEmailController : BaseController
         _imapTestService = imapTestService;
         _imapEmailService = imapEmailService;
         _unitOfWork = unitOfWork;
+    }
+
+    [HttpGet("GroupTree")]
+    public async Task<ActionResult<List<EmailGroupTreeNode>>> GetGroupTree()
+    {
+        var result = await _mediator.Send(new GetEmailGroupTreeQuery());
+        return Ok(result);
+    }
+
+    [HttpGet("ByGroup/{groupId:guid}")]
+    public async Task<ActionResult<ReceivedEmailListResponse>> GetByGroup(
+        Guid groupId, [FromQuery] int skip = 0, [FromQuery] int take = 50)
+    {
+        var result = await _mediator.Send(new GetEmailsByGroupQuery(groupId, skip, take));
+        return Ok(result);
+    }
+
+    [HttpGet("ByClient/{clientId:guid}")]
+    public async Task<ActionResult<ReceivedEmailListResponse>> GetByClient(
+        Guid clientId, [FromQuery] int skip = 0, [FromQuery] int take = 50)
+    {
+        var result = await _mediator.Send(new GetEmailsByClientQuery(clientId, skip, take));
+        return Ok(result);
     }
 
     [HttpGet("List")]
