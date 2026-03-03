@@ -84,6 +84,7 @@ public class LanguagePluginService : ILanguagePluginService
                 Version = manifest.Version,
                 Author = manifest.Author,
                 Coverage = manifest.Coverage,
+                MinKlacksVersion = manifest.MinKlacksVersion,
                 IsCore = false,
                 IsInstalled = IsInstalled(manifest.Code),
                 TranslationCount = translations?.Count ?? 0
@@ -121,6 +122,7 @@ public class LanguagePluginService : ILanguagePluginService
             Version = manifest.Version,
             Author = manifest.Author,
             Coverage = manifest.Coverage,
+            MinKlacksVersion = manifest.MinKlacksVersion,
             IsCore = false,
             IsInstalled = IsInstalled(code),
             TranslationCount = translations?.Count ?? 0
@@ -132,8 +134,16 @@ public class LanguagePluginService : ILanguagePluginService
         if (LanguagePluginConstants.CoreLanguages.Contains(code))
             return false;
 
-        if (!_manifests.ContainsKey(code))
+        if (!_manifests.TryGetValue(code, out var manifest))
             return false;
+
+        if (!IsVersionCompatible(manifest.MinKlacksVersion))
+        {
+            _logger.LogWarning(
+                "Language plugin '{Code}' requires Klacks version {MinVersion}, but current version is {CurrentVersion}",
+                code, manifest.MinKlacksVersion, $"{MyVersion.Major}.{MyVersion.Minor}.{MyVersion.Patch}");
+            return false;
+        }
 
         var settingKey = LanguagePluginConstants.SettingPrefix + code.ToUpperInvariant();
 
@@ -157,6 +167,7 @@ public class LanguagePluginService : ILanguagePluginService
         }
 
         await InstallGeoDataAsync(scope, code);
+        await InstallDocsAsync(scope, code);
         await unitOfWork.CompleteAsync();
 
         lock (_installedLock)
@@ -180,6 +191,7 @@ public class LanguagePluginService : ILanguagePluginService
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
         await UninstallGeoDataAsync(scope, code);
+        await UninstallDocsAsync(scope, code);
 
         var existing = await settingsRepo.GetSetting(settingKey);
         if (existing != null)
@@ -335,6 +347,76 @@ public class LanguagePluginService : ILanguagePluginService
         _logger.LogInformation(
             "Uninstalled geo data for language plugin '{Code}': {Countries} countries, {States} states, {Rules} calendar rules",
             code, countriesToRemove.Count, statesToRemove.Count, calendarRules.Count);
+    }
+
+    private static bool IsVersionCompatible(string minVersion)
+    {
+        if (string.IsNullOrWhiteSpace(minVersion))
+            return true;
+
+        var parts = minVersion.Split('.');
+        if (parts.Length != 3
+            || !int.TryParse(parts[0], out var reqMajor)
+            || !int.TryParse(parts[1], out var reqMinor)
+            || !int.TryParse(parts[2], out var reqPatch))
+        {
+            return true;
+        }
+
+        var currentVersion = new Version(MyVersion.Major, MyVersion.Minor, MyVersion.Patch);
+        var requiredVersion = new Version(reqMajor, reqMinor, reqPatch);
+
+        return currentVersion >= requiredVersion;
+    }
+
+    private async Task InstallDocsAsync(IServiceScope scope, string code)
+    {
+        var docsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.DocsDirectory);
+        if (!Directory.Exists(docsPath))
+            return;
+
+        var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+        var htmlFiles = Directory.GetFiles(docsPath, "*.html");
+        var count = 0;
+
+        foreach (var filePath in htmlFiles)
+        {
+            var manualName = Path.GetFileNameWithoutExtension(filePath);
+            var htmlContent = await File.ReadAllTextAsync(filePath);
+
+            var existing = await db.PluginDocs
+                .FirstOrDefaultAsync(d => d.PluginCode == code && d.ManualName == manualName);
+
+            if (existing != null)
+            {
+                existing.HtmlContent = htmlContent;
+            }
+            else
+            {
+                db.PluginDocs.Add(new PluginDoc
+                {
+                    Id = Guid.NewGuid(),
+                    PluginCode = code,
+                    ManualName = manualName,
+                    HtmlContent = htmlContent
+                });
+            }
+
+            count++;
+        }
+
+        _logger.LogInformation("Installed {Count} doc(s) for language plugin '{Code}'", count, code);
+    }
+
+    private async Task UninstallDocsAsync(IServiceScope scope, string code)
+    {
+        var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+        var docs = await db.PluginDocs
+            .Where(d => d.PluginCode == code)
+            .ToListAsync();
+
+        db.PluginDocs.RemoveRange(docs);
+        _logger.LogInformation("Uninstalled {Count} doc(s) for language plugin '{Code}'", docs.Count, code);
     }
 
     private bool IsInstalled(string code)

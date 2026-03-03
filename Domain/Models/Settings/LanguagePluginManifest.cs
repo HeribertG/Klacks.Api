@@ -11,4 +11,5 @@ public class LanguagePluginManifest
     public string Version { get; set; } = "1.0.0";
     public string Author { get; set; } = string.Empty;
     public double Coverage { get; set; }
+    public string MinKlacksVersion { get; set; } = "1.0.0";
 }

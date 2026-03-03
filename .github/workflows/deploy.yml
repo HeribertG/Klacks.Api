@@ -59,9 +59,15 @@ jobs:
           fi
           echo "Using: $COMPOSE_CMD"
           
-          # Rebuild and restart only API service
+          # Rebuild and restart only API service with version injection
           echo "🔨 Building Klacks.Api..."
-          $COMPOSE_CMD build klacks-api --no-cache
+          $COMPOSE_CMD build klacks-api --no-cache \
+            --build-arg KLACKS_VERSION_MAJOR=${VERSION_MAJOR:-1} \
+            --build-arg KLACKS_VERSION_MINOR=${VERSION_MINOR:-0} \
+            --build-arg KLACKS_VERSION_PATCH=${VERSION_PATCH:-0} \
+            --build-arg KLACKS_BUILD_KEY=$(git rev-parse --short HEAD) \
+            --build-arg KLACKS_BUILD_TIMESTAMP=$(date -u +%Y-%m-%d) \
+            --build-arg KLACKS_VARIANT=RELEASE
           
           echo "🔄 Restarting Klacks.Api..."
           $COMPOSE_CMD up -d klacks-api

@@ -174,6 +174,9 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<EmailFolder> EmailFolders { get; set; }
     public DbSet<SpamRule> SpamRules { get; set; }
 
+    // Plugin DbSets
+    public DbSet<PluginDoc> PluginDocs { get; set; }
+
     public override int SaveChanges()
     {
         OnBeforeSaving();
@@ -263,6 +266,10 @@ public class DataBaseContext : IdentityDbContext
         });
         modelBuilder.Entity<SelectedCalendar>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<CalendarSelection>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<PluginDoc>(entity =>
+        {
+            entity.HasIndex(p => new { p.PluginCode, p.ManualName }).IsUnique();
+        });
         modelBuilder.Entity<Group>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<GroupItem>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Shift>().HasQueryFilter(p => !p.IsDeleted);

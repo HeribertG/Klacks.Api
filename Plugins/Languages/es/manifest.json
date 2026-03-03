@@ -5,5 +5,6 @@
   "speechLocale": "es-ES",
   "version": "1.0.0",
   "author": "Klacks Community",
-  "coverage": 15.0
+  "coverage": 15.0,
+  "minKlacksVersion": "1.0.0"
 }

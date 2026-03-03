@@ -2,6 +2,13 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
+ARG KLACKS_VERSION_MAJOR=1
+ARG KLACKS_VERSION_MINOR=0
+ARG KLACKS_VERSION_PATCH=0
+ARG KLACKS_BUILD_KEY=local
+ARG KLACKS_BUILD_TIMESTAMP=unknown
+ARG KLACKS_VARIANT=DEV
+
 # Copy csproj files for restore
 COPY Klacks.Api/Klacks.Api.csproj Klacks.Api/
 COPY Klacks.Docs/Klacks.Docs.csproj Klacks.Docs/
@@ -12,6 +19,14 @@ RUN dotnet restore Klacks.Api/Klacks.Api.csproj
 # Copy everything else
 COPY Klacks.Api/ Klacks.Api/
 COPY Klacks.Docs/ Klacks.Docs/
+
+# Inject version into constants before build
+RUN sed -i "s/public const int CMajor = 1;/public const int CMajor = ${KLACKS_VERSION_MAJOR};/" Klacks.Api/Infrastructure/Constants/VersionConstant.cs && \
+    sed -i "s/public const int CMinor = 0;/public const int CMinor = ${KLACKS_VERSION_MINOR};/" Klacks.Api/Infrastructure/Constants/VersionConstant.cs && \
+    sed -i "s/public const int CPatch = 0;/public const int CPatch = ${KLACKS_VERSION_PATCH};/" Klacks.Api/Infrastructure/Constants/VersionConstant.cs && \
+    sed -i "s/public const string CBuildKey = \"local\";/public const string CBuildKey = \"${KLACKS_BUILD_KEY}\";/" Klacks.Api/Infrastructure/Constants/VersionConstant.cs && \
+    sed -i "s/public const string CBuildTimestamp = \"2026-03-03\";/public const string CBuildTimestamp = \"${KLACKS_BUILD_TIMESTAMP}\";/" Klacks.Api/Infrastructure/Constants/VersionConstant.cs && \
+    sed -i "s/public static string CVar = \"DEV\";/public static string CVar = \"${KLACKS_VARIANT}\";/" Klacks.Api/Infrastructure/Constants/BuildVariantConstant.cs
 
 # Build and publish
 RUN dotnet publish Klacks.Api/Klacks.Api.csproj -c Release -o /app/publish

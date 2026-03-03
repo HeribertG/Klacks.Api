@@ -14,9 +14,9 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend;
             return Ok(new
             {
                 MyVersion.Variant,
-                MyVersion.Year,
-                MyVersion.Week,
-                MyVersion.Build,
+                MyVersion.Major,
+                MyVersion.Minor,
+                MyVersion.Patch,
                 MyVersion.BuildKey,
                 MyVersion.BuildTimestamp,
                 VersionString = version.Get(),

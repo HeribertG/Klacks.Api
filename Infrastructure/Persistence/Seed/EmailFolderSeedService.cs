@@ -25,24 +25,50 @@ public class EmailFolderSeedService
 
     public async Task SeedAsync()
     {
-        var exists = await _folderRepository.ExistsByImapNameAsync(EmailConstants.TrashFolder);
-        if (exists)
+        var seeded = false;
+
+        if (!await _folderRepository.ExistsByImapNameAsync(EmailConstants.InboxFolder))
         {
-            _logger.LogInformation("Trash folder already exists, skipping seed.");
-            return;
+            await _folderRepository.AddAsync(new EmailFolder
+            {
+                Name = "Inbox",
+                ImapFolderName = EmailConstants.InboxFolder,
+                IsSystem = true,
+                SortOrder = 0
+            });
+            seeded = true;
+            _logger.LogInformation("Seeded inbox email folder.");
         }
 
-        var trashFolder = new EmailFolder
+        if (!await _folderRepository.ExistsByImapNameAsync(EmailConstants.JunkFolder))
         {
-            Name = "Deleted Items",
-            ImapFolderName = EmailConstants.TrashFolder,
-            IsSystem = true,
-            SortOrder = 999
-        };
+            await _folderRepository.AddAsync(new EmailFolder
+            {
+                Name = "Junk",
+                ImapFolderName = EmailConstants.JunkFolder,
+                IsSystem = true,
+                SortOrder = 900
+            });
+            seeded = true;
+            _logger.LogInformation("Seeded junk email folder.");
+        }
 
-        await _folderRepository.AddAsync(trashFolder);
-        await _unitOfWork.CompleteAsync();
+        if (!await _folderRepository.ExistsByImapNameAsync(EmailConstants.TrashFolder))
+        {
+            await _folderRepository.AddAsync(new EmailFolder
+            {
+                Name = "Deleted Items",
+                ImapFolderName = EmailConstants.TrashFolder,
+                IsSystem = true,
+                SortOrder = 999
+            });
+            seeded = true;
+            _logger.LogInformation("Seeded trash email folder.");
+        }
 
-        _logger.LogInformation("Seeded trash email folder.");
+        if (seeded)
+        {
+            await _unitOfWork.CompleteAsync();
+        }
     }
 }

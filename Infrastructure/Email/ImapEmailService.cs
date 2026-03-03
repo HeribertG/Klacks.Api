@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Models.Email;
@@ -107,13 +108,19 @@ public class ImapEmailService : IImapEmailService
     private async Task<List<string>> GetFolderNamesAsync()
     {
         var dbFolders = await _emailFolderRepository.GetAllAsync();
-        if (dbFolders.Count > 0)
+        var appOnlyFolders = new HashSet<string> { EmailConstants.TrashFolder, EmailConstants.JunkFolder };
+        var imapFolders = dbFolders
+            .Where(f => !appOnlyFolders.Contains(f.ImapFolderName))
+            .Select(f => f.ImapFolderName)
+            .ToList();
+
+        if (imapFolders.Count > 0)
         {
-            return dbFolders.Select(f => f.ImapFolderName).ToList();
+            return imapFolders;
         }
 
         var settingsFolder = await GetSettingValueAsync(Settings.APP_INCOMING_SERVER_FOLDER);
-        return [string.IsNullOrWhiteSpace(settingsFolder) ? "INBOX" : settingsFolder];
+        return [string.IsNullOrWhiteSpace(settingsFolder) ? EmailConstants.InboxFolder : settingsFolder];
     }
 
     private async Task<List<ReceivedEmail>> FetchEmailsFromFolderAsync(ImapClient client, string folder, CancellationToken cancellationToken)
