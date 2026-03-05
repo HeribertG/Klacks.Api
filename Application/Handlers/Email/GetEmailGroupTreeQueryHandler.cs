@@ -52,6 +52,7 @@ public class GetEmailGroupTreeQueryHandler : BaseHandler, IRequestHandler<GetEma
                 .ToListAsync(cancellationToken);
 
             var clientEmailCounts = new Dictionary<Guid, int>();
+            var clientUnreadCounts = new Dictionary<Guid, int>();
             var clientGroupMapping = new Dictionary<Guid, HashSet<Guid>>();
             var clientNames = new Dictionary<Guid, string>();
 
@@ -69,8 +70,18 @@ public class GetEmailGroupTreeQueryHandler : BaseHandler, IRequestHandler<GetEma
 
                 if (emailCount == 0) continue;
 
+                var unreadCount = await _context.ReceivedEmails
+                    .CountAsync(e => !e.IsDeleted &&
+                                     e.Folder == EmailConstants.ClientAssignedFolder &&
+                                     !e.IsRead &&
+                                     e.FromAddress.ToLower() == comm.Value.ToLower(),
+                        cancellationToken);
+
                 clientEmailCounts.TryAdd(clientId, 0);
                 clientEmailCounts[clientId] += emailCount;
+
+                clientUnreadCounts.TryAdd(clientId, 0);
+                clientUnreadCounts[clientId] += unreadCount;
 
                 clientNames.TryAdd(clientId,
                     $"{comm.Client.IdNumber}, {comm.Client.FirstName}, {comm.Client.Name}".TrimEnd(',', ' '));
@@ -91,7 +102,7 @@ public class GetEmailGroupTreeQueryHandler : BaseHandler, IRequestHandler<GetEma
             var result = new List<EmailGroupTreeNode>();
             foreach (var root in roots)
             {
-                var node = BuildGroupNode(root, allGroups, clientEmailCounts, clientGroupMapping, clientNames);
+                var node = BuildGroupNode(root, allGroups, clientEmailCounts, clientUnreadCounts, clientGroupMapping, clientNames);
                 if (node != null)
                     result.Add(node);
             }
@@ -104,6 +115,7 @@ public class GetEmailGroupTreeQueryHandler : BaseHandler, IRequestHandler<GetEma
         Group group,
         List<Group> allGroups,
         Dictionary<Guid, int> clientEmailCounts,
+        Dictionary<Guid, int> clientUnreadCounts,
         Dictionary<Guid, HashSet<Guid>> clientGroupMapping,
         Dictionary<Guid, string> clientNames)
     {
@@ -116,7 +128,7 @@ public class GetEmailGroupTreeQueryHandler : BaseHandler, IRequestHandler<GetEma
 
         foreach (var childGroup in childGroups)
         {
-            var childNode = BuildGroupNode(childGroup, allGroups, clientEmailCounts, clientGroupMapping, clientNames);
+            var childNode = BuildGroupNode(childGroup, allGroups, clientEmailCounts, clientUnreadCounts, clientGroupMapping, clientNames);
             if (childNode != null)
                 children.Add(childNode);
         }
@@ -132,6 +144,7 @@ public class GetEmailGroupTreeQueryHandler : BaseHandler, IRequestHandler<GetEma
                 Name = clientNames.GetValueOrDefault(clientId, string.Empty),
                 Type = EmailGroupNodeType.Client,
                 EmailCount = emailCount,
+                UnreadCount = clientUnreadCounts.GetValueOrDefault(clientId, 0),
                 Children = []
             });
         }
@@ -146,6 +159,7 @@ public class GetEmailGroupTreeQueryHandler : BaseHandler, IRequestHandler<GetEma
             Name = group.Name,
             Type = EmailGroupNodeType.Group,
             EmailCount = totalEmails,
+            UnreadCount = 0,
             Children = children
         };
     }

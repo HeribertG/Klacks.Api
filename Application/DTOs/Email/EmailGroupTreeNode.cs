@@ -8,5 +8,6 @@ public class EmailGroupTreeNode
     public string Name { get; set; } = string.Empty;
     public EmailGroupNodeType Type { get; set; }
     public int EmailCount { get; set; }
+    public int UnreadCount { get; set; }
     public List<EmailGroupTreeNode> Children { get; set; } = [];
 }
