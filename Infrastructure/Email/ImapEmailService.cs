@@ -163,6 +163,11 @@ public class ImapEmailService : IImapEmailService
                         await _emailFolderRepository.UpdateSortOrderAsync(existingFolder.Id, sortOrder);
                     }
 
+                    if (!existingFolder.IsSystem)
+                    {
+                        await _emailFolderRepository.UpdateIsSystemAsync(existingFolder.Id, true);
+                    }
+
                     continue;
                 }
 
@@ -171,7 +176,7 @@ public class ImapEmailService : IImapEmailService
                     Name = folderName,
                     ImapFolderName = folderName,
                     SortOrder = sortOrder,
-                    IsSystem = specialUse != null,
+                    IsSystem = true,
                     SpecialUse = specialUse
                 });
 

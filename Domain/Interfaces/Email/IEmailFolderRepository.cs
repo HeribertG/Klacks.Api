@@ -23,5 +23,7 @@ public interface IEmailFolderRepository
 
     Task UpdateSpecialUseAsync(Guid id, string specialUse);
 
+    Task UpdateIsSystemAsync(Guid id, bool isSystem);
+
     Task<string?> GetImapNameBySpecialUseAsync(string specialUse);
 }

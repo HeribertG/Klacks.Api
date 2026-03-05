@@ -81,6 +81,15 @@ public class EmailFolderRepository : IEmailFolderRepository
         }
     }
 
+    public async Task UpdateIsSystemAsync(Guid id, bool isSystem)
+    {
+        var folder = await _context.EmailFolders.FirstOrDefaultAsync(f => f.Id == id);
+        if (folder != null)
+        {
+            folder.IsSystem = isSystem;
+        }
+    }
+
     public async Task<string?> GetImapNameBySpecialUseAsync(string specialUse)
     {
         var folder = await _context.EmailFolders
