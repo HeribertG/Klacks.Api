@@ -42,8 +42,6 @@ public class BreakMacroService : IBreakMacroService
     {
         try
         {
-            CalculateWorkTime(breakEntry);
-
             var absence = await _context.Absence.FirstOrDefaultAsync(a => a.Id == breakEntry.AbsenceId);
             if (absence?.MacroId == null || absence.MacroId.Value == Guid.Empty)
             {
@@ -89,9 +87,9 @@ public class BreakMacroService : IBreakMacroService
             foreach (var msg in results)
             {
                 if (msg.Type == (int)MacroTypeEnum.DefaultResult &&
-                    decimal.TryParse(msg.Message, NumberStyles.Any, CultureInfo.InvariantCulture, out var surcharges))
+                    decimal.TryParse(msg.Message, NumberStyles.Any, CultureInfo.InvariantCulture, out var workTime))
                 {
-                    breakEntry.Surcharges = surcharges;
+                    breakEntry.WorkTime = workTime;
                 }
             }
         }
@@ -103,9 +101,9 @@ public class BreakMacroService : IBreakMacroService
 
     private static void SetImportsFromMacroData(CompiledScript compiledScript, MacroData data)
     {
-        compiledScript.SetExternalValue("hour", data.Hour);
-        compiledScript.SetExternalValue("fromhour", data.FromHour);
-        compiledScript.SetExternalValue("untilhour", data.UntilHour);
+        compiledScript.SetExternalValue("hour", 0);
+        compiledScript.SetExternalValue("fromhour", string.Empty);
+        compiledScript.SetExternalValue("untilhour", string.Empty);
         compiledScript.SetExternalValue("weekday", data.Weekday);
         compiledScript.SetExternalValue("holiday", data.Holiday ? 1 : 0);
         compiledScript.SetExternalValue("holidaynextday", data.HolidayNextDay ? 1 : 0);
@@ -139,21 +137,4 @@ public class BreakMacroService : IBreakMacroService
         await _context.SaveChangesAsync();
     }
 
-    private static void CalculateWorkTime(Break breakEntry)
-    {
-        var start = breakEntry.StartTime.ToTimeSpan();
-        var end = breakEntry.EndTime.ToTimeSpan();
-
-        TimeSpan duration;
-        if (end >= start)
-        {
-            duration = end - start;
-        }
-        else
-        {
-            duration = TimeSpan.FromHours(24) - start + end;
-        }
-
-        breakEntry.WorkTime = (decimal)duration.TotalHours;
-    }
 }

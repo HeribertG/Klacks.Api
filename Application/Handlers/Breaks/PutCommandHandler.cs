@@ -5,6 +5,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakResource>, BreakResource?>
 {
     private readonly IBreakRepository _breakRepository;
+    private readonly IBreakMacroService _breakMacroService;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
@@ -23,6 +25,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
 
     public PutCommandHandler(
         IBreakRepository breakRepository,
+        IBreakMacroService breakMacroService,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
@@ -33,6 +36,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
         : base(logger)
     {
         _breakRepository = breakRepository;
+        _breakMacroService = breakMacroService;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
@@ -60,6 +64,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
                 (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(entity.CurrentDate);
             }
 
+            await _breakMacroService.ProcessBreakMacroAsync(entity);
             var updated = await _breakRepository.Put(entity);
 
             if (updated == null)

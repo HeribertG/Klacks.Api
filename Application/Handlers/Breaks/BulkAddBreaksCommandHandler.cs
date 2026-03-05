@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -12,17 +13,20 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddBreaksCommand, BulkBreaksResponse>
 {
     private readonly IBreakRepository _breakRepository;
+    private readonly IBreakMacroService _breakMacroService;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleCompletionService _completionService;
 
     public BulkAddBreaksCommandHandler(
         IBreakRepository breakRepository,
+        IBreakMacroService breakMacroService,
         IPeriodHoursService periodHoursService,
         IScheduleCompletionService completionService,
         ILogger<BulkAddBreaksCommandHandler> logger)
         : base(logger)
     {
         _breakRepository = breakRepository;
+        _breakMacroService = breakMacroService;
         _periodHoursService = periodHoursService;
         _completionService = completionService;
     }
@@ -69,6 +73,7 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
             {
                 foreach (var b in breaks)
                 {
+                    await _breakMacroService.ProcessBreakMacroAsync(b);
                     await _breakRepository.Add(b);
                 }
 

@@ -65,9 +65,6 @@ public class MacroDataProvider : IMacroDataProvider
 
         var macroData = new MacroData
         {
-            Hour = breakEntry.WorkTime,
-            FromHour = breakEntry.StartTime.ToString("HH:mm"),
-            UntilHour = breakEntry.EndTime.ToString("HH:mm"),
             Weekday = ConvertToIsoWeekday(breakEntry.CurrentDate.DayOfWeek),
             NightRate = effectiveData.NightRate,
             HolidayRate = effectiveData.HolidayRate,

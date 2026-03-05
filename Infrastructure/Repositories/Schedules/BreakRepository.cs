@@ -2,7 +2,6 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -12,28 +11,13 @@ namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 public class BreakRepository : BaseRepository<Break>, IBreakRepository
 {
     private readonly DataBaseContext _context;
-    private readonly IBreakMacroService _breakMacroService;
 
     public BreakRepository(
         DataBaseContext context,
-        ILogger<Break> logger,
-        IBreakMacroService breakMacroService)
+        ILogger<Break> logger)
         : base(context, logger)
     {
         _context = context;
-        _breakMacroService = breakMacroService;
-    }
-
-    public override async Task Add(Break entity)
-    {
-        await _breakMacroService.ProcessBreakMacroAsync(entity);
-        await base.Add(entity);
-    }
-
-    public override async Task<Break?> Put(Break entity)
-    {
-        await _breakMacroService.ProcessBreakMacroAsync(entity);
-        return await base.Put(entity);
     }
 
     public async Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
