@@ -26,11 +26,16 @@ public class GetUnreadEmailCountQueryHandler : BaseHandler, IRequestHandler<GetU
     {
         return await ExecuteAsync(async () =>
         {
+            var inboxUnread = 0;
             var inboxFolder = await _folderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Inbox);
-            if (string.IsNullOrEmpty(inboxFolder))
-                return 0;
+            if (!string.IsNullOrEmpty(inboxFolder))
+            {
+                inboxUnread = await _repository.GetUnreadCountByFolderAsync(inboxFolder);
+            }
 
-            return await _repository.GetUnreadCountByFolderAsync(inboxFolder);
+            var groupUnread = await _repository.GetUnreadCountByFolderAsync(EmailConstants.ClientAssignedFolder);
+
+            return inboxUnread + groupUnread;
         }, nameof(GetUnreadEmailCountQuery));
     }
 }
