@@ -8,5 +8,7 @@ public class CalendarSelection : BaseEntity
 {
     public string Name { get; set; } = string.Empty;
 
+    public string? PluginCode { get; set; }
+
     public List<SelectedCalendar> SelectedCalendars { get; set; } = new();
 }
