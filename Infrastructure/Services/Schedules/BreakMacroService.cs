@@ -38,7 +38,7 @@ public class BreakMacroService : IBreakMacroService
         _logger = logger;
     }
 
-    public async Task ProcessBreakMacroAsync(Break breakEntry)
+    public async Task ProcessBreakMacroAsync(Break breakEntry, int? paymentInterval = null)
     {
         try
         {
@@ -67,7 +67,7 @@ public class BreakMacroService : IBreakMacroService
             }
 
             var compiledScript = cachedScript.CloneForExecution();
-            var macroData = await _macroDataProvider.GetMacroDataForBreakAsync(breakEntry);
+            var macroData = await _macroDataProvider.GetMacroDataForBreakAsync(breakEntry, paymentInterval);
 
             SetImportsFromMacroData(compiledScript, macroData);
 

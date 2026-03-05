@@ -64,7 +64,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
                 (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(entity.CurrentDate);
             }
 
-            await _breakMacroService.ProcessBreakMacroAsync(entity);
+            await _breakMacroService.ProcessBreakMacroAsync(entity, request.Resource.PaymentInterval);
             await _breakRepository.Add(entity);
             var periodHours = await _completionService.SaveAndTrackAsync(
                 entity.ClientId, entity.CurrentDate, periodStart, periodEnd);

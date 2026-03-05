@@ -6,6 +6,6 @@ namespace Klacks.Api.Domain.Interfaces.Associations;
 
 public interface IClientContractDataProvider
 {
-    Task<EffectiveContractData> GetEffectiveContractDataAsync(Guid clientId, DateOnly date);
-    Task<Dictionary<Guid, EffectiveContractData>> GetEffectiveContractDataForClientsAsync(List<Guid> clientIds, DateOnly date);
+    Task<EffectiveContractData> GetEffectiveContractDataAsync(Guid clientId, DateOnly date, int? paymentInterval = null);
+    Task<Dictionary<Guid, EffectiveContractData>> GetEffectiveContractDataForClientsAsync(List<Guid> clientIds, DateOnly date, int? paymentInterval = null);
 }

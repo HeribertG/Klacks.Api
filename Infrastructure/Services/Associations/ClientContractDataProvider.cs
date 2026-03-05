@@ -18,16 +18,16 @@ public class ClientContractDataProvider : IClientContractDataProvider
         _context = context;
     }
 
-    public async Task<EffectiveContractData> GetEffectiveContractDataAsync(Guid clientId, DateOnly date)
+    public async Task<EffectiveContractData> GetEffectiveContractDataAsync(Guid clientId, DateOnly date, int? paymentInterval = null)
     {
-        var result = await GetEffectiveContractDataForClientsAsync(new List<Guid> { clientId }, date);
+        var result = await GetEffectiveContractDataForClientsAsync(new List<Guid> { clientId }, date, paymentInterval);
         return result.GetValueOrDefault(clientId) ?? BuildFromDefaults(await LoadDefaultSettingsAsync());
     }
 
     public async Task<Dictionary<Guid, EffectiveContractData>> GetEffectiveContractDataForClientsAsync(
-        List<Guid> clientIds, DateOnly date)
+        List<Guid> clientIds, DateOnly date, int? paymentInterval = null)
     {
-        var contracts = await LoadActiveContractsByClientAsync(clientIds, date);
+        var contracts = await LoadActiveContractsByClientAsync(clientIds, date, paymentInterval);
         var defaults = await LoadDefaultSettingsAsync();
 
         var result = new Dictionary<Guid, EffectiveContractData>();
@@ -43,13 +43,21 @@ public class ClientContractDataProvider : IClientContractDataProvider
     }
 
     private async Task<Dictionary<Guid, Contract>> LoadActiveContractsByClientAsync(
-        List<Guid> clientIds, DateOnly date)
+        List<Guid> clientIds, DateOnly date, int? paymentInterval = null)
     {
-        var clientContracts = await _context.ClientContract
+        var query = _context.ClientContract
             .Where(cc => clientIds.Contains(cc.ClientId)
                 && cc.IsActive
                 && cc.FromDate <= date
-                && (cc.UntilDate == null || cc.UntilDate >= date))
+                && (cc.UntilDate == null || cc.UntilDate >= date));
+
+        if (paymentInterval.HasValue)
+        {
+            var interval = (Domain.Enums.PaymentInterval)paymentInterval.Value;
+            query = query.Where(cc => cc.Contract.PaymentInterval == interval);
+        }
+
+        var clientContracts = await query
             .Include(cc => cc.Contract)
                 .ThenInclude(c => c.SchedulingRule)
             .ToListAsync();

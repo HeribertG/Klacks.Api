@@ -71,9 +71,11 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
 
             if (breaks.Count > 0)
             {
+                var paymentInterval = command.Request.PaymentInterval;
+
                 foreach (var b in breaks)
                 {
-                    await _breakMacroService.ProcessBreakMacroAsync(b);
+                    await _breakMacroService.ProcessBreakMacroAsync(b, paymentInterval);
                     await _breakRepository.Add(b);
                 }
 

@@ -37,5 +37,7 @@ public class ScheduleEntryResource
 
     public DateOnly? PeriodEnd { get; set; }
 
+    public int? PaymentInterval { get; set; }
+
     public List<WorkScheduleResource> ScheduleEntries { get; set; } = [];
 }

@@ -64,7 +64,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
                 (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(entity.CurrentDate);
             }
 
-            await _breakMacroService.ProcessBreakMacroAsync(entity);
+            await _breakMacroService.ProcessBreakMacroAsync(entity, request.Resource.PaymentInterval);
             var updated = await _breakRepository.Put(entity);
 
             if (updated == null)

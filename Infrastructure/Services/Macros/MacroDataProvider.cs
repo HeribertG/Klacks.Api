@@ -56,12 +56,12 @@ public class MacroDataProvider : IMacroDataProvider
         return macroData;
     }
 
-    public async Task<MacroData> GetMacroDataForBreakAsync(Break breakEntry)
+    public async Task<MacroData> GetMacroDataForBreakAsync(Break breakEntry, int? paymentInterval = null)
     {
         var breakDate = breakEntry.CurrentDate;
         var breakDateNextDay = breakDate.AddDays(1);
 
-        var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(breakEntry.ClientId, breakDate);
+        var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(breakEntry.ClientId, breakDate, paymentInterval);
 
         var macroData = new MacroData
         {

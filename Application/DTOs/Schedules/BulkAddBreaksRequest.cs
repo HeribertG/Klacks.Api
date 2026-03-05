@@ -9,4 +9,6 @@ public class BulkAddBreaksRequest
     public DateOnly PeriodStart { get; set; }
 
     public DateOnly PeriodEnd { get; set; }
+
+    public int? PaymentInterval { get; set; }
 }
