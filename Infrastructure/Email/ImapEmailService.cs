@@ -105,6 +105,79 @@ public class ImapEmailService : IImapEmailService
         return newEmails;
     }
 
+    public async Task SyncFoldersAsync(CancellationToken cancellationToken = default)
+    {
+        var server = await GetSettingValueAsync(Settings.APP_INCOMING_SERVER);
+        var portStr = await GetSettingValueAsync(Settings.APP_INCOMING_SERVER_PORT);
+        var username = await GetSettingValueAsync(Settings.APP_INCOMING_SERVER_USERNAME);
+        var password = await GetSettingValueAsync(Settings.APP_INCOMING_SERVER_PASSWORD);
+        var sslStr = await GetSettingValueAsync(Settings.APP_INCOMING_SERVER_SSL);
+
+        if (string.IsNullOrWhiteSpace(server) || string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            return;
+
+        if (!int.TryParse(portStr, out var port))
+            port = 993;
+
+        var enableSsl = string.Equals(sslStr, "true", StringComparison.OrdinalIgnoreCase);
+        password = _encryptionService.ProcessForReading(Settings.APP_INCOMING_SERVER_PASSWORD, password);
+        var secureSocketOptions = GetSecureSocketOptions(port, enableSsl);
+
+        using var client = new ImapClient();
+
+        try
+        {
+            await client.ConnectAsync(server, port, secureSocketOptions, cancellationToken);
+            await client.AuthenticateAsync(username, password, cancellationToken);
+
+            var personalNamespace = client.PersonalNamespaces[0];
+            var imapFolders = await client.GetFoldersAsync(personalNamespace, cancellationToken: cancellationToken);
+            var imapFolderNames = imapFolders
+                .Where(f => f.Exists)
+                .Select(f => f.FullName)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var dbFolders = await _emailFolderRepository.GetAllAsync();
+            var dbImapNames = dbFolders.Select(f => f.ImapFolderName).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var appOnlyFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                EmailConstants.TrashFolder,
+                EmailConstants.ClientAssignedFolder
+            };
+
+            var maxSortOrder = dbFolders.Count > 0 ? dbFolders.Max(f => f.SortOrder) : -1;
+
+            foreach (var folderName in imapFolderNames)
+            {
+                if (appOnlyFolders.Contains(folderName) || dbImapNames.Contains(folderName))
+                    continue;
+
+                maxSortOrder++;
+                await _emailFolderRepository.AddAsync(new EmailFolder
+                {
+                    Name = folderName,
+                    ImapFolderName = folderName,
+                    SortOrder = maxSortOrder,
+                    IsSystem = false
+                });
+
+                _logger.LogInformation("Synced new IMAP folder: {Folder}", folderName);
+            }
+
+            await _emailFolderRepository.DeleteNonSystemByImapNamesAsync(imapFolderNames);
+
+            await client.DisconnectAsync(true, cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error syncing folders from IMAP server {Server}:{Port}", server, port);
+        }
+    }
+
     private async Task<List<string>> GetFolderNamesAsync()
     {
         var dbFolders = await _emailFolderRepository.GetAllAsync();

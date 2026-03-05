@@ -57,6 +57,9 @@ public class EmailPollingBackgroundService : BackgroundService
                     var emailService = scope.ServiceProvider.GetRequiredService<IImapEmailService>();
                     var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
+                    await emailService.SyncFoldersAsync(stoppingToken);
+                    await unitOfWork.CompleteAsync();
+
                     var newEmails = await emailService.FetchNewEmailsAsync(stoppingToken);
 
                     if (newEmails.Count > 0)

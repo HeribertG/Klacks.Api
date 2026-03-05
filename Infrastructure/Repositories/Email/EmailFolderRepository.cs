@@ -47,4 +47,13 @@ public class EmailFolderRepository : IEmailFolderRepository
     {
         return await _context.EmailFolders.AnyAsync(f => f.ImapFolderName == imapFolderName);
     }
+
+    public async Task DeleteNonSystemByImapNamesAsync(IEnumerable<string> imapFolderNames)
+    {
+        var nameSet = imapFolderNames.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var toDelete = await _context.EmailFolders
+            .Where(f => !f.IsSystem && !nameSet.Contains(f.ImapFolderName))
+            .ToListAsync();
+        _context.EmailFolders.RemoveRange(toDelete);
+    }
 }

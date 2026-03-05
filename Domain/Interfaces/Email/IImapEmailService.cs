@@ -7,4 +7,5 @@ namespace Klacks.Api.Domain.Interfaces.Email;
 public interface IImapEmailService
 {
     Task<List<ReceivedEmail>> FetchNewEmailsAsync(CancellationToken cancellationToken = default);
+    Task SyncFoldersAsync(CancellationToken cancellationToken = default);
 }
