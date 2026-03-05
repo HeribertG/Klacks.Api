@@ -77,6 +77,7 @@ public class EmailFolderRepository : IEmailFolderRepository
         if (folder != null)
         {
             folder.SpecialUse = specialUse;
+            folder.IsSystem = true;
         }
     }
 
