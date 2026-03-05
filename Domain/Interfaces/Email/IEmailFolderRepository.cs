@@ -15,5 +15,13 @@ public interface IEmailFolderRepository
     Task DeleteAsync(Guid id);
 
     Task<bool> ExistsByImapNameAsync(string imapFolderName);
+
+    Task<EmailFolder?> GetByImapNameAsync(string imapFolderName);
     Task DeleteNonSystemByImapNamesAsync(IEnumerable<string> imapFolderNames);
+
+    Task UpdateSortOrderAsync(Guid id, int sortOrder);
+
+    Task UpdateSpecialUseAsync(Guid id, string specialUse);
+
+    Task<string?> GetImapNameBySpecialUseAsync(string specialUse);
 }

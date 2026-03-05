@@ -48,6 +48,11 @@ public class EmailFolderRepository : IEmailFolderRepository
         return await _context.EmailFolders.AnyAsync(f => f.ImapFolderName == imapFolderName);
     }
 
+    public async Task<EmailFolder?> GetByImapNameAsync(string imapFolderName)
+    {
+        return await _context.EmailFolders.FirstOrDefaultAsync(f => f.ImapFolderName == imapFolderName);
+    }
+
     public async Task DeleteNonSystemByImapNamesAsync(IEnumerable<string> imapFolderNames)
     {
         var nameSet = imapFolderNames.ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -55,5 +60,31 @@ public class EmailFolderRepository : IEmailFolderRepository
             .Where(f => !f.IsSystem && !nameSet.Contains(f.ImapFolderName))
             .ToListAsync();
         _context.EmailFolders.RemoveRange(toDelete);
+    }
+
+    public async Task UpdateSortOrderAsync(Guid id, int sortOrder)
+    {
+        var folder = await _context.EmailFolders.FirstOrDefaultAsync(f => f.Id == id);
+        if (folder != null)
+        {
+            folder.SortOrder = sortOrder;
+        }
+    }
+
+    public async Task UpdateSpecialUseAsync(Guid id, string specialUse)
+    {
+        var folder = await _context.EmailFolders.FirstOrDefaultAsync(f => f.Id == id);
+        if (folder != null)
+        {
+            folder.SpecialUse = specialUse;
+        }
+    }
+
+    public async Task<string?> GetImapNameBySpecialUseAsync(string specialUse)
+    {
+        var folder = await _context.EmailFolders
+            .AsNoTracking()
+            .FirstOrDefaultAsync(f => f.SpecialUse == specialUse);
+        return folder?.ImapFolderName;
     }
 }

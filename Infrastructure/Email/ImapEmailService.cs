@@ -132,33 +132,47 @@ public class ImapEmailService : IImapEmailService
 
             var personalNamespace = client.PersonalNamespaces[0];
             var imapFolders = await client.GetFoldersAsync(personalNamespace, cancellationToken: cancellationToken);
-            var imapFolderNames = imapFolders
-                .Where(f => f.Exists)
+            var existingImapFolders = imapFolders.Where(f => f.Exists).ToList();
+            var imapFolderNames = existingImapFolders
                 .Select(f => f.FullName)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             var dbFolders = await _emailFolderRepository.GetAllAsync();
-            var dbImapNames = dbFolders.Select(f => f.ImapFolderName).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var dbFoldersByImapName = dbFolders.ToDictionary(f => f.ImapFolderName, StringComparer.OrdinalIgnoreCase);
             var appOnlyFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                EmailConstants.TrashFolder,
                 EmailConstants.ClientAssignedFolder
             };
 
             var maxSortOrder = dbFolders.Count > 0 ? dbFolders.Max(f => f.SortOrder) : -1;
 
-            foreach (var folderName in imapFolderNames)
+            foreach (var imapFolder in existingImapFolders)
             {
-                if (appOnlyFolders.Contains(folderName) || dbImapNames.Contains(folderName))
+                var folderName = imapFolder.FullName;
+                if (appOnlyFolders.Contains(folderName))
                     continue;
 
-                maxSortOrder++;
+                var specialUse = GetSpecialUse(imapFolder.Attributes);
+                var sortOrder = GetSpecialUseSortOrder(specialUse, ref maxSortOrder);
+
+                if (dbFoldersByImapName.TryGetValue(folderName, out var existingFolder))
+                {
+                    if (specialUse != null && string.IsNullOrEmpty(existingFolder.SpecialUse))
+                    {
+                        await _emailFolderRepository.UpdateSpecialUseAsync(existingFolder.Id, specialUse);
+                        await _emailFolderRepository.UpdateSortOrderAsync(existingFolder.Id, sortOrder);
+                    }
+
+                    continue;
+                }
+
                 await _emailFolderRepository.AddAsync(new EmailFolder
                 {
                     Name = folderName,
                     ImapFolderName = folderName,
-                    SortOrder = maxSortOrder,
-                    IsSystem = false
+                    SortOrder = sortOrder,
+                    IsSystem = specialUse != null,
+                    SpecialUse = specialUse
                 });
 
                 _logger.LogInformation("Synced new IMAP folder: {Folder}", folderName);
@@ -178,12 +192,32 @@ public class ImapEmailService : IImapEmailService
         }
     }
 
+    private static string? GetSpecialUse(FolderAttributes attributes)
+    {
+        if (attributes.HasFlag(FolderAttributes.Inbox)) return FolderSpecialUse.Inbox;
+        if (attributes.HasFlag(FolderAttributes.Trash)) return FolderSpecialUse.Trash;
+        if (attributes.HasFlag(FolderAttributes.Junk)) return FolderSpecialUse.Junk;
+        if (attributes.HasFlag(FolderAttributes.Sent)) return FolderSpecialUse.Sent;
+        return null;
+    }
+
+    private static int GetSpecialUseSortOrder(string? specialUse, ref int maxSortOrder)
+    {
+        if (specialUse == FolderSpecialUse.Inbox) return 0;
+        if (specialUse == FolderSpecialUse.Sent) return 100;
+        if (specialUse == FolderSpecialUse.Junk) return 900;
+        if (specialUse == FolderSpecialUse.Trash) return 999;
+
+        maxSortOrder++;
+        return maxSortOrder;
+    }
+
     private async Task<List<string>> GetFolderNamesAsync()
     {
         var dbFolders = await _emailFolderRepository.GetAllAsync();
-        var appOnlyFolders = new HashSet<string> { EmailConstants.TrashFolder, EmailConstants.JunkFolder };
+        var excludedSpecialUses = new HashSet<string> { FolderSpecialUse.Trash, FolderSpecialUse.Junk };
         var imapFolders = dbFolders
-            .Where(f => !appOnlyFolders.Contains(f.ImapFolderName))
+            .Where(f => !excludedSpecialUses.Contains(f.SpecialUse ?? string.Empty))
             .Select(f => f.ImapFolderName)
             .ToList();
 
@@ -193,7 +227,7 @@ public class ImapEmailService : IImapEmailService
         }
 
         var settingsFolder = await GetSettingValueAsync(Settings.APP_INCOMING_SERVER_FOLDER);
-        return [string.IsNullOrWhiteSpace(settingsFolder) ? EmailConstants.InboxFolder : settingsFolder];
+        return [string.IsNullOrWhiteSpace(settingsFolder) ? "INBOX" : settingsFolder];
     }
 
     private async Task<List<ReceivedEmail>> FetchEmailsFromFolderAsync(ImapClient client, string folder, CancellationToken cancellationToken)

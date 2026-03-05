@@ -12,15 +12,18 @@ namespace Klacks.Api.Application.Handlers.Email;
 public class PermanentlyDeleteEmailCommandHandler : BaseHandler, IRequestHandler<PermanentlyDeleteEmailCommand, bool>
 {
     private readonly IReceivedEmailRepository _repository;
+    private readonly IEmailFolderRepository _folderRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public PermanentlyDeleteEmailCommandHandler(
         IReceivedEmailRepository repository,
+        IEmailFolderRepository folderRepository,
         IUnitOfWork unitOfWork,
         ILogger<PermanentlyDeleteEmailCommandHandler> logger)
         : base(logger)
     {
         _repository = repository;
+        _folderRepository = folderRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -34,7 +37,8 @@ public class PermanentlyDeleteEmailCommandHandler : BaseHandler, IRequestHandler
                 throw new KeyNotFoundException($"Email with id {request.Id} not found.");
             }
 
-            if (email.Folder != EmailConstants.TrashFolder)
+            var trashFolder = await _folderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Trash);
+            if (email.Folder != trashFolder)
             {
                 throw new InvalidRequestException("Only emails in trash can be permanently deleted.");
             }

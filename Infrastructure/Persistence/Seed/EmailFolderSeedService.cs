@@ -3,72 +3,50 @@
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Email;
-using Klacks.Api.Domain.Models.Email;
 
 namespace Klacks.Api.Infrastructure.Persistence.Seed;
 
 public class EmailFolderSeedService
 {
     private readonly IEmailFolderRepository _folderRepository;
+    private readonly IReceivedEmailRepository _emailRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<EmailFolderSeedService> _logger;
 
     public EmailFolderSeedService(
         IEmailFolderRepository folderRepository,
+        IReceivedEmailRepository emailRepository,
         IUnitOfWork unitOfWork,
         ILogger<EmailFolderSeedService> logger)
     {
         _folderRepository = folderRepository;
+        _emailRepository = emailRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
     public async Task SeedAsync()
     {
-        var seeded = false;
+        var changed = false;
 
-        if (!await _folderRepository.ExistsByImapNameAsync(EmailConstants.InboxFolder))
-        {
-            await _folderRepository.AddAsync(new EmailFolder
-            {
-                Name = "Inbox",
-                ImapFolderName = EmailConstants.InboxFolder,
-                IsSystem = true,
-                SortOrder = 0
-            });
-            seeded = true;
-            _logger.LogInformation("Seeded inbox email folder.");
-        }
+        changed |= await MigrateOldFolderAsync("Junk");
+        changed |= await MigrateOldFolderAsync("$trash");
 
-        if (!await _folderRepository.ExistsByImapNameAsync(EmailConstants.JunkFolder))
-        {
-            await _folderRepository.AddAsync(new EmailFolder
-            {
-                Name = "Junk",
-                ImapFolderName = EmailConstants.JunkFolder,
-                IsSystem = true,
-                SortOrder = 900
-            });
-            seeded = true;
-            _logger.LogInformation("Seeded junk email folder.");
-        }
-
-        if (!await _folderRepository.ExistsByImapNameAsync(EmailConstants.TrashFolder))
-        {
-            await _folderRepository.AddAsync(new EmailFolder
-            {
-                Name = "Deleted Items",
-                ImapFolderName = EmailConstants.TrashFolder,
-                IsSystem = true,
-                SortOrder = 999
-            });
-            seeded = true;
-            _logger.LogInformation("Seeded trash email folder.");
-        }
-
-        if (seeded)
+        if (changed)
         {
             await _unitOfWork.CompleteAsync();
         }
+    }
+
+    private async Task<bool> MigrateOldFolderAsync(string oldImapName)
+    {
+        var oldFolder = await _folderRepository.GetByImapNameAsync(oldImapName);
+        if (oldFolder == null) return false;
+
+        await _folderRepository.DeleteAsync(oldFolder.Id);
+        var movedCount = await _emailRepository.BulkMoveFolderAsync(oldImapName, "INBOX");
+        _logger.LogInformation("Removed legacy folder {OldName}, moved {Count} emails to INBOX.", oldImapName, movedCount);
+
+        return true;
     }
 }

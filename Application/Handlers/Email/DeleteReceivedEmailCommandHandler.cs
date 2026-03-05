@@ -11,15 +11,18 @@ namespace Klacks.Api.Application.Handlers.Email;
 public class DeleteReceivedEmailCommandHandler : BaseHandler, IRequestHandler<DeleteReceivedEmailCommand, bool>
 {
     private readonly IReceivedEmailRepository _repository;
+    private readonly IEmailFolderRepository _folderRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public DeleteReceivedEmailCommandHandler(
         IReceivedEmailRepository repository,
+        IEmailFolderRepository folderRepository,
         IUnitOfWork unitOfWork,
         ILogger<DeleteReceivedEmailCommandHandler> logger)
         : base(logger)
     {
         _repository = repository;
+        _folderRepository = folderRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -27,7 +30,11 @@ public class DeleteReceivedEmailCommandHandler : BaseHandler, IRequestHandler<De
     {
         return await ExecuteAsync(async () =>
         {
-            await _repository.MoveToFolderAsync(request.Id, EmailConstants.TrashFolder);
+            var trashFolder = await _folderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Trash);
+            if (string.IsNullOrEmpty(trashFolder))
+                throw new InvalidOperationException("No trash folder configured.");
+
+            await _repository.MoveToFolderAsync(request.Id, trashFolder);
             await _unitOfWork.CompleteAsync();
 
             return true;

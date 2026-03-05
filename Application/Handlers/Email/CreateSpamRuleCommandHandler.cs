@@ -15,12 +15,14 @@ public class CreateSpamRuleCommandHandler : BaseHandler, IRequestHandler<CreateS
 {
     private readonly ISpamRuleRepository _repository;
     private readonly IReceivedEmailRepository _emailRepository;
+    private readonly IEmailFolderRepository _folderRepository;
     private readonly ISpamFilterService _spamFilterService;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateSpamRuleCommandHandler(
         ISpamRuleRepository repository,
         IReceivedEmailRepository emailRepository,
+        IEmailFolderRepository folderRepository,
         ISpamFilterService spamFilterService,
         IUnitOfWork unitOfWork,
         ILogger<CreateSpamRuleCommandHandler> logger)
@@ -28,6 +30,7 @@ public class CreateSpamRuleCommandHandler : BaseHandler, IRequestHandler<CreateS
     {
         _repository = repository;
         _emailRepository = emailRepository;
+        _folderRepository = folderRepository;
         _spamFilterService = spamFilterService;
         _unitOfWork = unitOfWork;
     }
@@ -59,7 +62,13 @@ public class CreateSpamRuleCommandHandler : BaseHandler, IRequestHandler<CreateS
 
     private async Task ReclassifyInboxEmailsAsync(CancellationToken cancellationToken)
     {
-        var inboxEmails = await _emailRepository.GetListByFolderAsync(EmailConstants.InboxFolder, 0, int.MaxValue);
+        var inboxFolder = await _folderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Inbox);
+        if (string.IsNullOrEmpty(inboxFolder)) return;
+
+        var junkFolder = await _folderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Junk);
+        if (string.IsNullOrEmpty(junkFolder)) return;
+
+        var inboxEmails = await _emailRepository.GetListByFolderAsync(inboxFolder, 0, int.MaxValue);
         var movedCount = 0;
 
         foreach (var email in inboxEmails)
@@ -67,7 +76,7 @@ public class CreateSpamRuleCommandHandler : BaseHandler, IRequestHandler<CreateS
             var result = await _spamFilterService.ClassifyAsync(email, cancellationToken);
             if (result.IsSpam)
             {
-                await _emailRepository.MoveToFolderAsync(email.Id, EmailConstants.JunkFolder);
+                await _emailRepository.MoveToFolderAsync(email.Id, junkFolder);
                 movedCount++;
             }
         }

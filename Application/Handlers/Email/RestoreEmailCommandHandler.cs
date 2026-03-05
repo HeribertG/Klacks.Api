@@ -31,7 +31,7 @@ public class RestoreEmailCommandHandler : BaseHandler, IRequestHandler<RestoreEm
         return await ExecuteAsync(async () =>
         {
             var folders = await _folderRepository.GetAllAsync();
-            var defaultFolder = folders.FirstOrDefault(f => f.ImapFolderName != EmailConstants.TrashFolder);
+            var defaultFolder = folders.FirstOrDefault(f => f.SpecialUse != FolderSpecialUse.Trash);
             var targetFolder = defaultFolder?.ImapFolderName ?? "INBOX";
 
             await _repository.MoveToFolderAsync(request.Id, targetFolder);

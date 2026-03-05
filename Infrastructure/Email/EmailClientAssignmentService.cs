@@ -16,17 +16,20 @@ public class EmailClientAssignmentService : IEmailClientAssignmentService
 {
     private readonly DataBaseContext _context;
     private readonly IReceivedEmailRepository _emailRepository;
+    private readonly IEmailFolderRepository _folderRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<EmailClientAssignmentService> _logger;
 
     public EmailClientAssignmentService(
         DataBaseContext context,
         IReceivedEmailRepository emailRepository,
+        IEmailFolderRepository folderRepository,
         IUnitOfWork unitOfWork,
         ILogger<EmailClientAssignmentService> logger)
     {
         _context = context;
         _emailRepository = emailRepository;
+        _folderRepository = folderRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -36,7 +39,10 @@ public class EmailClientAssignmentService : IEmailClientAssignmentService
         var clientEmailAddresses = await GetClientEmailAddressesAsync();
         if (clientEmailAddresses.Count == 0) return;
 
-        var inboxEmails = await _emailRepository.GetListByFolderAsync(EmailConstants.InboxFolder, 0, int.MaxValue);
+        var inboxFolder = await _folderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Inbox);
+        if (string.IsNullOrEmpty(inboxFolder)) return;
+
+        var inboxEmails = await _emailRepository.GetListByFolderAsync(inboxFolder, 0, int.MaxValue);
         var assignedCount = 0;
 
         foreach (var email in inboxEmails)
@@ -57,7 +63,8 @@ public class EmailClientAssignmentService : IEmailClientAssignmentService
 
     public async Task AssignNewEmailAsync(ReceivedEmail email)
     {
-        if (!string.Equals(email.Folder, EmailConstants.InboxFolder, StringComparison.OrdinalIgnoreCase))
+        var inboxFolder = await _folderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Inbox);
+        if (!string.Equals(email.Folder, inboxFolder, StringComparison.OrdinalIgnoreCase))
             return;
 
         var clientEmailAddresses = await GetClientEmailAddressesAsync();

@@ -13,4 +13,6 @@ public class EmailFolder : BaseEntity
     public int SortOrder { get; set; }
 
     public bool IsSystem { get; set; }
+
+    public string? SpecialUse { get; set; }
 }

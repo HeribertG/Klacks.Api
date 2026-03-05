@@ -145,6 +145,9 @@ public class ReceivedEmailController : BaseController
     {
         try
         {
+            await _imapEmailService.SyncFoldersAsync();
+            await _unitOfWork.CompleteAsync();
+
             var newEmails = await _imapEmailService.FetchNewEmailsAsync();
             if (newEmails.Count > 0)
             {

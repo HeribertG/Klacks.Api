@@ -37,4 +37,6 @@ public interface IReceivedEmailRepository
     Task<int> GetFilteredCountAsync(string? folder, bool? isRead);
 
     Task MoveToFolderAsync(Guid id, string folder);
+
+    Task<int> BulkMoveFolderAsync(string oldFolder, string newFolder);
 }

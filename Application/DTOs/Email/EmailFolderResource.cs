@@ -14,6 +14,8 @@ public class EmailFolderResource
 
     public bool IsSystem { get; set; }
 
+    public string? SpecialUse { get; set; }
+
     public int UnreadCount { get; set; }
 
     public int TotalCount { get; set; }
