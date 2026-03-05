@@ -54,7 +54,9 @@ using Klacks.Api.Application.Services.Identity;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Application.Services.Translation;
+using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Infrastructure.Services.Associations;
 
 namespace Klacks.Api.Infrastructure.Extensions;
 
@@ -133,10 +135,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGetAllClientIdsFromGroupAndSubgroups, GroupClientService>();
         services.AddScoped<IGroupVisibilityService, GroupVisibilityService>();
         services.AddScoped<IHolidaysListCalculator, HolidaysListCalculator>();
-        services.AddSingleton<IMacroEngine, MacroEngine>();
+        services.AddScoped<IMacroEngine, MacroEngine>();
         services.AddSingleton<IMacroCache, MacroCache>();
         services.AddSingleton<IHolidayCalculatorCache, HolidayCalculatorCache>();
         services.AddScoped<IMacroDataProvider, MacroDataProvider>();
+        services.AddScoped<IClientContractDataProvider, ClientContractDataProvider>();
 
         services.AddShiftServices();
         services.AddClientServices();

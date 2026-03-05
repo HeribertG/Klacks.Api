@@ -451,6 +451,19 @@ namespace Klacks.Api.Data.Seed
                 ("1234567a-1234-1234-1234-123456789031", "dayVisibleBeforeMonth", "10"),
                 ("1234567a-1234-1234-1234-123456789032", "dayVisibleAfterMonth", "10"),
 
+                // Scheduling Default Settings
+                ("1234567a-1234-1234-1234-123456789035", "guaranteedHours", "170"),
+                ("1234567a-1234-1234-1234-123456789036", "maximumHours", "200"),
+                ("1234567a-1234-1234-1234-123456789037", "minimumHours", "160"),
+                ("1234567a-1234-1234-1234-123456789038", "fullTime", "180"),
+                ("1234567a-1234-1234-1234-123456789039", "SCHEDULING_MAX_WORK_DAYS", "5"),
+                ("1234567a-1234-1234-1234-123456789040", "SCHEDULING_MIN_REST_DAYS", "2"),
+                ("1234567a-1234-1234-1234-123456789041", "SCHEDULING_MIN_PAUSE_HOURS", "12"),
+                ("1234567a-1234-1234-1234-123456789042", "SCHEDULING_MAX_OPTIMAL_GAP", "2"),
+                ("1234567a-1234-1234-1234-123456789043", "SCHEDULING_MAX_DAILY_HOURS", "10"),
+                ("1234567a-1234-1234-1234-123456789044", "SCHEDULING_MAX_WEEKLY_HOURS", "50"),
+                ("1234567a-1234-1234-1234-123456789045", "SCHEDULING_MAX_CONSECUTIVE_DAYS", "6"),
+
                 // Grid Color Settings
                 ("1234567a-1234-1234-1234-123456789033", "WORK_CHANGE_COLOR_KEY", "#FFA500"),
                 ("1234567a-1234-1234-1234-123456789034", "SURCHARGE_COLOR_KEY", "#FFFF00"),

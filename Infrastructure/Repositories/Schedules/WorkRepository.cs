@@ -5,12 +5,12 @@ using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
-using Klacks.Api.Infrastructure.Services.PeriodHours;
 using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,18 +21,21 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
     private readonly IClientGroupFilterService _groupFilterService;
     private readonly IClientSearchFilterService _searchFilterService;
     private readonly IWorkMacroService _workMacroService;
+    private readonly IClientContractDataProvider _contractDataProvider;
 
     public WorkRepository(
         DataBaseContext context,
         ILogger<Work> logger,
         IClientGroupFilterService groupFilterService,
         IClientSearchFilterService searchFilterService,
-        IWorkMacroService workMacroService)
+        IWorkMacroService workMacroService,
+        IClientContractDataProvider contractDataProvider)
         : base(context, logger)
     {
         _groupFilterService = groupFilterService;
         _searchFilterService = searchFilterService;
         _workMacroService = workMacroService;
+        _contractDataProvider = contractDataProvider;
     }
 
     public override async Task Add(Work work)
@@ -192,27 +195,19 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         var worksHoursDict = worksHours.ToDictionary(x => x.ClientId, x => (Hours: x.TotalHours, Surcharges: x.TotalSurcharges));
         var breaksHoursDict = breaksHours.ToDictionary(x => x.ClientId, x => x.TotalBreaks);
 
-        var contractData = await context.ClientContract
-            .Where(cc => clientIds.Contains(cc.ClientId) && cc.FromDate <= startDate && (cc.UntilDate == null || cc.UntilDate >= startDate))
-            .Include(cc => cc.Contract)
-                .ThenInclude(c => c.SchedulingRule)
-            .ToListAsync();
-
-        var contractByClient = contractData
-            .GroupBy(cc => cc.ClientId)
-            .ToDictionary(g => g.Key, g => g.OrderByDescending(cc => cc.FromDate).First().Contract);
-
-        var defaultGuaranteedHours = await GetDefaultGuaranteedHoursAsync();
+        var effectiveDataByClient = await _contractDataProvider.GetEffectiveContractDataForClientsAsync(clientIds, startDate);
 
         foreach (var ph in periodHours)
         {
-            contractByClient.TryGetValue(ph.ClientId, out var contract);
+            var guaranteedHours = effectiveDataByClient.TryGetValue(ph.ClientId, out var data)
+                ? data.GuaranteedHours
+                : 0m;
 
             result[ph.ClientId] = new PeriodHoursResource
             {
                 Hours = ph.Hours,
                 Surcharges = ph.Surcharges,
-                GuaranteedHours = PeriodHoursService.GetEffectiveGuaranteedHours(contract, defaultGuaranteedHours)
+                GuaranteedHours = guaranteedHours
             };
         }
 
@@ -245,31 +240,19 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
                 }
             }
 
-            contractByClient.TryGetValue(clientId, out var contract);
+            var guaranteedHours = effectiveDataByClient.TryGetValue(clientId, out var data)
+                ? data.GuaranteedHours
+                : 0m;
 
             result[clientId] = new PeriodHoursResource
             {
                 Hours = workData.Hours + breaks + workChangeHours,
                 Surcharges = workData.Surcharges + workChangeSurcharges,
-                GuaranteedHours = PeriodHoursService.GetEffectiveGuaranteedHours(contract, defaultGuaranteedHours)
+                GuaranteedHours = guaranteedHours
             };
         }
 
         return result;
-    }
-
-    private async Task<decimal> GetDefaultGuaranteedHoursAsync()
-    {
-        var setting = await context.Settings
-            .FirstOrDefaultAsync(s => s.Type == SettingKeys.GuaranteedHours);
-
-        if (setting != null && decimal.TryParse(setting.Value,
-            System.Globalization.NumberStyles.Any,
-            System.Globalization.CultureInfo.InvariantCulture,
-            out var value))
-            return value;
-
-        return 0m;
     }
 
     public async Task<List<Work>> GetByClientAndDateRangeAsync(Guid clientId, DateTime fromDate, DateTime toDate, CancellationToken cancellationToken = default)

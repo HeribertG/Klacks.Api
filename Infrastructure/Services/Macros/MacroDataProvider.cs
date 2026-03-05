@@ -1,13 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using System.Globalization;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Associations;
+using Klacks.Api.Domain.Interfaces.CalendarSelections;
+using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Holidays;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,11 +18,16 @@ public class MacroDataProvider : IMacroDataProvider
 {
     private readonly DataBaseContext _context;
     private readonly IHolidayCalculatorCache _holidayCache;
+    private readonly IClientContractDataProvider _contractDataProvider;
 
-    public MacroDataProvider(DataBaseContext context, IHolidayCalculatorCache holidayCache)
+    public MacroDataProvider(
+        DataBaseContext context,
+        IHolidayCalculatorCache holidayCache,
+        IClientContractDataProvider contractDataProvider)
     {
         _context = context;
         _holidayCache = holidayCache;
+        _contractDataProvider = contractDataProvider;
     }
 
     public async Task<MacroData> GetMacroDataAsync(Work work)
@@ -29,8 +35,7 @@ public class MacroDataProvider : IMacroDataProvider
         var workDate = work.CurrentDate;
         var workDateNextDay = workDate.AddDays(1);
 
-        var contract = await GetActiveContractAsync(work.ClientId, workDate);
-        var defaultSettings = await GetDefaultSettingsAsync();
+        var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(work.ClientId, workDate);
 
         var macroData = new MacroData
         {
@@ -38,22 +43,83 @@ public class MacroDataProvider : IMacroDataProvider
             FromHour = work.StartTime.ToString("HH:mm"),
             UntilHour = work.EndTime.ToString("HH:mm"),
             Weekday = ConvertToIsoWeekday(work.CurrentDate.DayOfWeek),
-            NightRate = contract?.NightRate ?? defaultSettings.NightRate,
-            HolidayRate = contract?.HolidayRate ?? defaultSettings.HolidayRate,
-            SaRate = contract?.SaRate ?? defaultSettings.SaRate,
-            SoRate = contract?.SoRate ?? defaultSettings.SoRate,
-            GuaranteedHours = contract?.GuaranteedHours ?? defaultSettings.GuaranteedHours,
-            FullTime = contract?.FullTime ?? defaultSettings.FullTime
+            NightRate = effectiveData.NightRate,
+            HolidayRate = effectiveData.HolidayRate,
+            SaRate = effectiveData.SaRate,
+            SoRate = effectiveData.SoRate,
+            GuaranteedHours = effectiveData.GuaranteedHours,
+            FullTime = effectiveData.FullTime
         };
 
+        await ApplyHolidayData(macroData, effectiveData.CalendarSelectionId, workDate, workDateNextDay);
+
+        return macroData;
+    }
+
+    public async Task<MacroData> GetMacroDataForBreakAsync(Break breakEntry)
+    {
+        var breakDate = breakEntry.CurrentDate;
+        var breakDateNextDay = breakDate.AddDays(1);
+
+        var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(breakEntry.ClientId, breakDate);
+
+        var macroData = new MacroData
+        {
+            Hour = breakEntry.WorkTime,
+            FromHour = breakEntry.StartTime.ToString("HH:mm"),
+            UntilHour = breakEntry.EndTime.ToString("HH:mm"),
+            Weekday = ConvertToIsoWeekday(breakEntry.CurrentDate.DayOfWeek),
+            NightRate = effectiveData.NightRate,
+            HolidayRate = effectiveData.HolidayRate,
+            SaRate = effectiveData.SaRate,
+            SoRate = effectiveData.SoRate,
+            GuaranteedHours = effectiveData.GuaranteedHours,
+            FullTime = effectiveData.FullTime
+        };
+
+        await ApplyHolidayData(macroData, effectiveData.CalendarSelectionId, breakDate, breakDateNextDay);
+
+        return macroData;
+    }
+
+    public async Task<MacroData> GetMacroDataForWorkChangeAsync(WorkChange workChange, Work work)
+    {
+        var shift = await _context.Shift.FirstOrDefaultAsync(s => s.Id == work.ShiftId);
+
+        var workChangeDate = GetWorkChangeDateWithMidnightRule(workChange, work, shift);
+        var workChangeDateNextDay = workChangeDate.AddDays(1);
+
+        var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(work.ClientId, workChangeDate);
+
+        var macroData = new MacroData
+        {
+            Hour = workChange.ChangeTime,
+            FromHour = workChange.StartTime.ToString("HH:mm"),
+            UntilHour = workChange.EndTime.ToString("HH:mm"),
+            Weekday = ConvertToIsoWeekday(workChangeDate.DayOfWeek),
+            NightRate = effectiveData.NightRate,
+            HolidayRate = effectiveData.HolidayRate,
+            SaRate = effectiveData.SaRate,
+            SoRate = effectiveData.SoRate,
+            GuaranteedHours = effectiveData.GuaranteedHours,
+            FullTime = effectiveData.FullTime
+        };
+
+        await ApplyHolidayData(macroData, effectiveData.CalendarSelectionId, workChangeDate, workChangeDateNextDay);
+
+        return macroData;
+    }
+
+    private async Task ApplyHolidayData(MacroData macroData, Guid? calendarSelectionId, DateOnly date, DateOnly nextDay)
+    {
         IHolidaysListCalculator? calculator = null;
         IHolidaysListCalculator? calculatorNextDay = null;
 
-        if (contract?.CalendarSelectionId != null)
+        if (calendarSelectionId != null)
         {
-            calculator = await GetHolidayCalculatorAsync(contract.CalendarSelectionId.Value, workDate.Year);
-            calculatorNextDay = workDateNextDay.Year != workDate.Year
-                ? await GetHolidayCalculatorAsync(contract.CalendarSelectionId.Value, workDateNextDay.Year)
+            calculator = await GetHolidayCalculatorAsync(calendarSelectionId.Value, date.Year);
+            calculatorNextDay = nextDay.Year != date.Year
+                ? await GetHolidayCalculatorAsync(calendarSelectionId.Value, nextDay.Year)
                 : calculator;
         }
         else
@@ -61,27 +127,25 @@ public class MacroDataProvider : IMacroDataProvider
             var globalSettings = await GetGlobalCalendarSettingsAsync();
             if (globalSettings.CalendarSelectionId != null)
             {
-                calculator = await GetHolidayCalculatorAsync(globalSettings.CalendarSelectionId.Value, workDate.Year);
-                calculatorNextDay = workDateNextDay.Year != workDate.Year
-                    ? await GetHolidayCalculatorAsync(globalSettings.CalendarSelectionId.Value, workDateNextDay.Year)
+                calculator = await GetHolidayCalculatorAsync(globalSettings.CalendarSelectionId.Value, date.Year);
+                calculatorNextDay = nextDay.Year != date.Year
+                    ? await GetHolidayCalculatorAsync(globalSettings.CalendarSelectionId.Value, nextDay.Year)
                     : calculator;
             }
             else if (!string.IsNullOrEmpty(globalSettings.Country) && !string.IsNullOrEmpty(globalSettings.State))
             {
-                calculator = await GetHolidayCalculatorByCountryStateAsync(globalSettings.Country, globalSettings.State, workDate.Year);
-                calculatorNextDay = workDateNextDay.Year != workDate.Year
-                    ? await GetHolidayCalculatorByCountryStateAsync(globalSettings.Country, globalSettings.State, workDateNextDay.Year)
+                calculator = await GetHolidayCalculatorByCountryStateAsync(globalSettings.Country, globalSettings.State, date.Year);
+                calculatorNextDay = nextDay.Year != date.Year
+                    ? await GetHolidayCalculatorByCountryStateAsync(globalSettings.Country, globalSettings.State, nextDay.Year)
                     : calculator;
             }
         }
 
         if (calculator != null)
         {
-            macroData.Holiday = calculator.IsHoliday(workDate) == HolidayStatus.OfficialHoliday;
-            macroData.HolidayNextDay = calculatorNextDay?.IsHoliday(workDateNextDay) == HolidayStatus.OfficialHoliday;
+            macroData.Holiday = calculator.IsHoliday(date) == HolidayStatus.OfficialHoliday;
+            macroData.HolidayNextDay = calculatorNextDay?.IsHoliday(nextDay) == HolidayStatus.OfficialHoliday;
         }
-
-        return macroData;
     }
 
     private async Task<(string? Country, string? State, Guid? CalendarSelectionId)> GetGlobalCalendarSettingsAsync()
@@ -118,57 +182,6 @@ public class MacroDataProvider : IMacroDataProvider
         return await _context.CalendarRule
             .Where(cr => cr.Country == country && cr.State == state)
             .ToListAsync();
-    }
-
-    private async Task<DefaultMacroSettings> GetDefaultSettingsAsync()
-    {
-        var settingTypes = new[] { SettingKeys.NightRate, SettingKeys.HolidayRate, SettingKeys.SaRate, SettingKeys.SoRate, SettingKeys.GuaranteedHours, SettingKeys.FullTime };
-
-        var settings = await _context.Settings
-            .Where(s => settingTypes.Contains(s.Type))
-            .ToDictionaryAsync(s => s.Type, s => s.Value);
-
-        return new DefaultMacroSettings
-        {
-            NightRate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.NightRate)),
-            HolidayRate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.HolidayRate)),
-            SaRate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SaRate)),
-            SoRate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SoRate)),
-            GuaranteedHours = ParseDecimal(settings.GetValueOrDefault(SettingKeys.GuaranteedHours)),
-            FullTime = ParseDecimal(settings.GetValueOrDefault(SettingKeys.FullTime))
-        };
-    }
-
-    private static decimal ParseDecimal(string? value)
-    {
-        if (string.IsNullOrEmpty(value))
-            return 0;
-
-        return decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) ? result : 0;
-    }
-
-    private record DefaultMacroSettings
-    {
-        public decimal NightRate { get; init; }
-        public decimal HolidayRate { get; init; }
-        public decimal SaRate { get; init; }
-        public decimal SoRate { get; init; }
-        public decimal GuaranteedHours { get; init; }
-        public decimal FullTime { get; init; }
-    }
-
-    private async Task<Domain.Models.Associations.Contract?> GetActiveContractAsync(Guid clientId, DateOnly date)
-    {
-        var clientContract = await _context.Set<Domain.Models.Staffs.ClientContract>()
-            .Include(cc => cc.Contract)
-            .Where(cc => cc.ClientId == clientId)
-            .Where(cc => cc.FromDate <= date)
-            .Where(cc => cc.UntilDate == null || cc.UntilDate >= date)
-            .Where(cc => cc.IsActive)
-            .OrderByDescending(cc => cc.FromDate)
-            .FirstOrDefaultAsync();
-
-        return clientContract?.Contract;
     }
 
     private async Task<IHolidaysListCalculator> GetHolidayCalculatorAsync(Guid calendarSelectionId, int year)
@@ -209,71 +222,7 @@ public class MacroDataProvider : IMacroDataProvider
 
     private static int ConvertToIsoWeekday(DayOfWeek dayOfWeek)
     {
-        // C# DayOfWeek: Sunday=0, Monday=1, ..., Saturday=6
-        // ISO-8601/Frontend: Monday=1, Tuesday=2, ..., Sunday=7
         return dayOfWeek == DayOfWeek.Sunday ? 7 : (int)dayOfWeek;
-    }
-
-    public async Task<MacroData> GetMacroDataForWorkChangeAsync(WorkChange workChange, Work work)
-    {
-        var shift = await _context.Shift.FirstOrDefaultAsync(s => s.Id == work.ShiftId);
-
-        var workChangeDate = GetWorkChangeDateWithMidnightRule(workChange, work, shift);
-        var workChangeDateNextDay = workChangeDate.AddDays(1);
-
-        var contract = await GetActiveContractAsync(work.ClientId, workChangeDate);
-        var defaultSettings = await GetDefaultSettingsAsync();
-
-        var macroData = new MacroData
-        {
-            Hour = workChange.ChangeTime,
-            FromHour = workChange.StartTime.ToString("HH:mm"),
-            UntilHour = workChange.EndTime.ToString("HH:mm"),
-            Weekday = ConvertToIsoWeekday(workChangeDate.DayOfWeek),
-            NightRate = contract?.NightRate ?? defaultSettings.NightRate,
-            HolidayRate = contract?.HolidayRate ?? defaultSettings.HolidayRate,
-            SaRate = contract?.SaRate ?? defaultSettings.SaRate,
-            SoRate = contract?.SoRate ?? defaultSettings.SoRate,
-            GuaranteedHours = contract?.GuaranteedHours ?? defaultSettings.GuaranteedHours,
-            FullTime = contract?.FullTime ?? defaultSettings.FullTime
-        };
-
-        IHolidaysListCalculator? calculator = null;
-        IHolidaysListCalculator? calculatorNextDay = null;
-
-        if (contract?.CalendarSelectionId != null)
-        {
-            calculator = await GetHolidayCalculatorAsync(contract.CalendarSelectionId.Value, workChangeDate.Year);
-            calculatorNextDay = workChangeDateNextDay.Year != workChangeDate.Year
-                ? await GetHolidayCalculatorAsync(contract.CalendarSelectionId.Value, workChangeDateNextDay.Year)
-                : calculator;
-        }
-        else
-        {
-            var globalSettings = await GetGlobalCalendarSettingsAsync();
-            if (globalSettings.CalendarSelectionId != null)
-            {
-                calculator = await GetHolidayCalculatorAsync(globalSettings.CalendarSelectionId.Value, workChangeDate.Year);
-                calculatorNextDay = workChangeDateNextDay.Year != workChangeDate.Year
-                    ? await GetHolidayCalculatorAsync(globalSettings.CalendarSelectionId.Value, workChangeDateNextDay.Year)
-                    : calculator;
-            }
-            else if (!string.IsNullOrEmpty(globalSettings.Country) && !string.IsNullOrEmpty(globalSettings.State))
-            {
-                calculator = await GetHolidayCalculatorByCountryStateAsync(globalSettings.Country, globalSettings.State, workChangeDate.Year);
-                calculatorNextDay = workChangeDateNextDay.Year != workChangeDate.Year
-                    ? await GetHolidayCalculatorByCountryStateAsync(globalSettings.Country, globalSettings.State, workChangeDateNextDay.Year)
-                    : calculator;
-            }
-        }
-
-        if (calculator != null)
-        {
-            macroData.Holiday = calculator.IsHoliday(workChangeDate) == HolidayStatus.OfficialHoliday;
-            macroData.HolidayNextDay = calculatorNextDay?.IsHoliday(workChangeDateNextDay) == HolidayStatus.OfficialHoliday;
-        }
-
-        return macroData;
     }
 
     private static DateOnly GetWorkChangeDateWithMidnightRule(WorkChange workChange, Work work, Shift? shift)

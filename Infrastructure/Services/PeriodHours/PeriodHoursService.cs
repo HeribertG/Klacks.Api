@@ -3,6 +3,7 @@
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Application.Interfaces;
@@ -19,17 +20,20 @@ public class PeriodHoursService : IPeriodHoursService
     private readonly ILogger<PeriodHoursService> _logger;
     private readonly IWorkNotificationService _notificationService;
     private readonly IClientGroupFilterService _clientGroupFilterService;
+    private readonly IClientContractDataProvider _contractDataProvider;
 
     public PeriodHoursService(
         DataBaseContext context,
         ILogger<PeriodHoursService> logger,
         IWorkNotificationService notificationService,
-        IClientGroupFilterService clientGroupFilterService)
+        IClientGroupFilterService clientGroupFilterService,
+        IClientContractDataProvider contractDataProvider)
     {
         _context = context;
         _logger = logger;
         _notificationService = notificationService;
         _clientGroupFilterService = clientGroupFilterService;
+        _contractDataProvider = contractDataProvider;
     }
 
     public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursAsync(
@@ -53,18 +57,19 @@ public class PeriodHoursService : IPeriodHoursService
         var clientIdsWithCache = cachedPeriodHours.Select(p => p.ClientId).ToHashSet();
         var clientIdsWithoutCache = clientIds.Where(id => !clientIdsWithCache.Contains(id)).ToList();
 
-        var contractByClient = await GetContractsByClientAsync(clientIds, startDate);
-        var defaultGuaranteedHours = await GetDefaultGuaranteedHoursAsync();
+        var effectiveDataByClient = await _contractDataProvider.GetEffectiveContractDataForClientsAsync(clientIds, startDate);
 
         foreach (var ph in cachedPeriodHours)
         {
-            contractByClient.TryGetValue(ph.ClientId, out var contract);
+            var guaranteedHours = effectiveDataByClient.TryGetValue(ph.ClientId, out var data)
+                ? data.GuaranteedHours
+                : 0m;
 
             result[ph.ClientId] = new PeriodHoursResource
             {
                 Hours = ph.Hours,
                 Surcharges = ph.Surcharges,
-                GuaranteedHours = GetEffectiveGuaranteedHours(contract, defaultGuaranteedHours)
+                GuaranteedHours = guaranteedHours
             };
         }
 
@@ -77,13 +82,15 @@ public class PeriodHoursService : IPeriodHoursService
 
             foreach (var (clientId, hours) in calculatedHours)
             {
-                contractByClient.TryGetValue(clientId, out var contract);
+                var guaranteedHours = effectiveDataByClient.TryGetValue(clientId, out var data)
+                    ? data.GuaranteedHours
+                    : 0m;
 
                 result[clientId] = new PeriodHoursResource
                 {
                     Hours = hours.Hours,
                     Surcharges = hours.Surcharges,
-                    GuaranteedHours = GetEffectiveGuaranteedHours(contract, defaultGuaranteedHours)
+                    GuaranteedHours = guaranteedHours
                 };
             }
         }
@@ -101,16 +108,11 @@ public class PeriodHoursService : IPeriodHoursService
             startDate,
             endDate);
 
-        var contractByClient = await GetContractsByClientAsync(
-            new List<Guid> { clientId },
-            startDate);
-        contractByClient.TryGetValue(clientId, out var contract);
-        var defaultGuaranteedHours = await GetDefaultGuaranteedHoursAsync();
-        var guaranteedHours = GetEffectiveGuaranteedHours(contract, defaultGuaranteedHours);
+        var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, startDate);
 
         if (results.TryGetValue(clientId, out var hours))
         {
-            hours.GuaranteedHours = guaranteedHours;
+            hours.GuaranteedHours = effectiveData.GuaranteedHours;
             return hours;
         }
 
@@ -118,7 +120,7 @@ public class PeriodHoursService : IPeriodHoursService
         {
             Hours = 0m,
             Surcharges = 0m,
-            GuaranteedHours = guaranteedHours
+            GuaranteedHours = effectiveData.GuaranteedHours
         };
     }
 
@@ -311,7 +313,7 @@ public class PeriodHoursService : IPeriodHoursService
                 && b.CurrentDate >= startDate
                 && b.CurrentDate <= endDate)
             .GroupBy(b => b.ClientId)
-            .Select(g => new { ClientId = g.Key, TotalBreaks = g.Sum(b => b.WorkTime) })
+            .Select(g => new { ClientId = g.Key, TotalBreaks = g.Sum(b => b.WorkTime), TotalBreakSurcharges = g.Sum(b => b.Surcharges) })
             .ToListAsync();
 
         var workChanges = await _context.WorkChange
@@ -332,12 +334,12 @@ public class PeriodHoursService : IPeriodHoursService
             .ToListAsync();
 
         var worksHoursDict = worksHours.ToDictionary(x => x.ClientId, x => (Hours: x.TotalHours, Surcharges: x.TotalSurcharges));
-        var breaksHoursDict = breaksHours.ToDictionary(x => x.ClientId, x => x.TotalBreaks);
+        var breaksHoursDict = breaksHours.ToDictionary(x => x.ClientId, x => (Hours: x.TotalBreaks, Surcharges: x.TotalBreakSurcharges));
 
         foreach (var clientId in clientIds)
         {
             var workData = worksHoursDict.TryGetValue(clientId, out var wd) ? wd : (Hours: 0m, Surcharges: 0m);
-            var breaks = breaksHoursDict.TryGetValue(clientId, out var b) ? b : 0m;
+            var breakData = breaksHoursDict.TryGetValue(clientId, out var bd) ? bd : (Hours: 0m, Surcharges: 0m);
 
             var workChangeHours = 0m;
             var workChangeSurcharges = 0m;
@@ -372,56 +374,13 @@ public class PeriodHoursService : IPeriodHoursService
 
             result[clientId] = new PeriodHoursResource
             {
-                Hours = workData.Hours + breaks + workChangeHours,
-                Surcharges = workData.Surcharges + workChangeSurcharges,
+                Hours = workData.Hours + breakData.Hours + workChangeHours,
+                Surcharges = workData.Surcharges + breakData.Surcharges + workChangeSurcharges,
                 GuaranteedHours = 0m
             };
         }
 
         return result;
-    }
-
-    private async Task<Dictionary<Guid, Domain.Models.Associations.Contract>> GetContractsByClientAsync(
-        List<Guid> clientIds,
-        DateOnly refDate)
-    {
-        var contractData = await _context.ClientContract
-            .Where(cc => clientIds.Contains(cc.ClientId)
-                && cc.FromDate <= refDate
-                && (cc.UntilDate == null || cc.UntilDate >= refDate))
-            .Include(cc => cc.Contract)
-                .ThenInclude(c => c.SchedulingRule)
-            .ToListAsync();
-
-        return contractData
-            .GroupBy(cc => cc.ClientId)
-            .ToDictionary(
-                g => g.Key,
-                g => g.OrderByDescending(cc => cc.FromDate).First().Contract);
-    }
-
-    internal static decimal GetEffectiveGuaranteedHours(
-        Domain.Models.Associations.Contract? contract,
-        decimal defaultGuaranteedHours)
-    {
-        if (contract?.SchedulingRuleId != null)
-            return contract.GuaranteedHours ?? defaultGuaranteedHours;
-
-        return defaultGuaranteedHours;
-    }
-
-    private async Task<decimal> GetDefaultGuaranteedHoursAsync()
-    {
-        var setting = await _context.Settings
-            .FirstOrDefaultAsync(s => s.Type == SettingKeys.GuaranteedHours);
-
-        if (setting != null && decimal.TryParse(setting.Value,
-            System.Globalization.NumberStyles.Any,
-            System.Globalization.CultureInfo.InvariantCulture,
-            out var value))
-            return value;
-
-        return 0m;
     }
 
     public (DateOnly StartDate, DateOnly EndDate) GetPeriodBoundaries(DateOnly date)
@@ -440,7 +399,7 @@ public class PeriodHoursService : IPeriodHoursService
     private async Task<PaymentInterval> GetGlobalPaymentIntervalAsync()
     {
         var setting = await _context.Settings
-            .FirstOrDefaultAsync(s => s.Type == "paymentInterval");
+            .FirstOrDefaultAsync(s => s.Type == SettingKeys.PaymentInterval);
 
         if (setting != null && int.TryParse(setting.Value, out var value))
         {
