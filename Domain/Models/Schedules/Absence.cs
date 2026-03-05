@@ -18,6 +18,8 @@ public class Absence : BaseEntity
 
     public bool HideInGantt { get; set; }
 
+    public Guid? MacroId { get; set; }
+
     public MultiLanguage Name { get; set; } = null!;
 
     public bool Undeletable { get; set; }

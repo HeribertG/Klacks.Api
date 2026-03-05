@@ -20,6 +20,8 @@ public class AbsenceResource
 
     public Guid Id { get; set; }
 
+    public Guid? MacroId { get; set; }
+
     public MultiLanguage Name { get; set; } = null!;
 
     public bool Undeletable { get; set; }

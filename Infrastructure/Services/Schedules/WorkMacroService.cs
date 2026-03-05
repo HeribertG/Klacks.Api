@@ -67,16 +67,18 @@ public class WorkMacroService : IWorkMacroService
                 return;
             }
 
-            var compiledScript = _macroCache.GetOrCompile(macro.Id, macro.Content);
-            if (compiledScript.HasError)
+            var cachedScript = _macroCache.GetOrCompile(macro.Id, macro.Content);
+            if (cachedScript.HasError)
             {
                 _logger.LogError(
                     "Macro compilation failed for Work {WorkId}, Macro {MacroName}: {Error}",
                     work.Id,
                     macro.Name,
-                    compiledScript.Error?.Description);
+                    cachedScript.Error?.Description);
                 return;
             }
+
+            var compiledScript = cachedScript.CloneForExecution();
 
             _logger.LogInformation(
                 "Macro compiled successfully. Instructions: {Count}, ExternalSymbols: {Symbols}",
@@ -186,17 +188,18 @@ public class WorkMacroService : IWorkMacroService
                 return;
             }
 
-            var compiledScript = _macroCache.GetOrCompile(macro.Id, macro.Content);
-            if (compiledScript.HasError)
+            var cachedScript = _macroCache.GetOrCompile(macro.Id, macro.Content);
+            if (cachedScript.HasError)
             {
                 _logger.LogError(
                     "Macro compilation failed for WorkChange {WorkChangeId}, Macro {MacroName}: {Error}",
                     workChange.Id,
                     macro.Name,
-                    compiledScript.Error?.Description);
+                    cachedScript.Error?.Description);
                 return;
             }
 
+            var compiledScript = cachedScript.CloneForExecution();
             var macroData = await _macroDataProvider.GetMacroDataForWorkChangeAsync(workChange, work);
 
             _logger.LogInformation(

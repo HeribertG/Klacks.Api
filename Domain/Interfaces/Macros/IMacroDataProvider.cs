@@ -9,4 +9,5 @@ public interface IMacroDataProvider
 {
     Task<MacroData> GetMacroDataAsync(Work work);
     Task<MacroData> GetMacroDataForWorkChangeAsync(WorkChange workChange, Work work);
+    Task<MacroData> GetMacroDataForBreakAsync(Break breakEntry);
 }

@@ -7,4 +7,5 @@ namespace Klacks.Api.Domain.Interfaces.Macros;
 public interface IBreakMacroService
 {
     Task ProcessBreakMacroAsync(Break breakEntry);
+    Task ReprocessAllBreaksAsync(DateOnly startDate, DateOnly endDate, List<Guid>? clientIds = null);
 }
