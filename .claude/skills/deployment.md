@@ -12,13 +12,15 @@
 
 ## URLs
 
-| Service | URL | Port |
-|---------|-----|------|
-| Klacks UI | http://157.180.42.127:3000 | 3000 |
-| Klacks API | http://157.180.42.127:5000 | 5000 |
-| Klacks Blazor | http://157.180.42.127:7002 | 7002 |
-| pgAdmin | http://157.180.42.127:5050 | 5050 |
-| PostgreSQL | 157.180.42.127:5432 | 5432 |
+| Service | URL | Port | Zugang |
+|---------|-----|------|--------|
+| Klacks UI | http://157.180.42.127:3000 | 3000 | via Nginx |
+| Klacks UI (HTTPS) | https://157.180.42.127 | 443 | via Nginx |
+| Klacks API | http://157.180.42.127:5000 | 5000 | via Nginx |
+| Klacks API (HTTPS) | https://157.180.42.127:5443 | 5443 | via Nginx |
+| Klacks Blazor (HTTPS) | https://157.180.42.127:7443 | 7443 | via Nginx |
+| pgAdmin (HTTPS) | https://157.180.42.127:5553 | 5553 | via Nginx |
+| PostgreSQL | nur Docker-intern | 5432 | nicht extern erreichbar |
 
 ## Docker Container
 

@@ -91,13 +91,13 @@ jobs:
             exit 1
           fi
           
-          # Check HTTP response (API might have different endpoints)
-          if curl -f -s -o /dev/null -w "%{http_code}" http://localhost:5000/api/values 2>/dev/null | grep -q "200\|401\|404"; then
-            echo "✅ Klacks.Api is responding on port 5000"
-          elif curl -f -s -o /dev/null -w "%{http_code}" http://localhost:5000/swagger 2>/dev/null | grep -q "200\|301\|302"; then
-            echo "✅ Klacks.Api Swagger is accessible"
+          # Check HTTP response via Nginx proxy
+          if curl -f -s -o /dev/null -w "%{http_code}" http://localhost:5000/api/values 2>/dev/null | grep -qE "200|401|404"; then
+            echo "✅ Klacks.Api is responding via Nginx (port 5000)"
+          elif curl -f -s -o /dev/null -w "%{http_code}" http://localhost:5000/swagger 2>/dev/null | grep -qE "200|301|302"; then
+            echo "✅ Klacks.Api Swagger is accessible via Nginx"
           else
-            echo "⚠️  API endpoints not directly accessible (might be normal for secured APIs)"
+            echo "⚠️  API endpoints not yet accessible via Nginx (might still be initializing)"
           fi
           
           # Check database connectivity via container logs

@@ -241,23 +241,23 @@ jobs:
           echo ""
           echo "🌐 HTTP Health Checks:"
 
-          # Check API
+          # Check API (via Nginx proxy on port 5000)
           if curl -f -s -o /dev/null -w "%{http_code}" http://localhost:5000/swagger 2>/dev/null | grep -qE "200|301|302"; then
-            echo "✅ Klacks.Api is responding (port 5000)"
+            echo "✅ Klacks.Api is responding via Nginx (port 5000)"
           else
             echo "⚠️  Klacks.Api may still be initializing"
           fi
 
-          # Check UI
+          # Check UI (via Nginx proxy on port 3000)
           if curl -f -s -o /dev/null http://localhost:3000 2>/dev/null; then
-            echo "✅ Klacks.Ui is responding (port 3000)"
+            echo "✅ Klacks.Ui is responding via Nginx (port 3000)"
           else
             echo "⚠️  Klacks.Ui may still be initializing"
           fi
 
-          # Check Blazor
-          if curl -f -s -o /dev/null http://localhost:7002 2>/dev/null; then
-            echo "✅ Klacks.Blazor is responding (port 7002)"
+          # Check Blazor (via Nginx proxy on port 7443)
+          if curl -k -f -s -o /dev/null https://localhost:7443 2>/dev/null; then
+            echo "✅ Klacks.Blazor is responding via Nginx (port 7443)"
           else
             echo "⚠️  Klacks.Blazor may still be initializing"
           fi
@@ -267,9 +267,10 @@ jobs:
           echo "✅ KLACKS FULL RESET & REDEPLOY COMPLETED!"
           echo "=============================================="
           echo ""
-          echo "🌐 Access URLs:"
+          echo "🌐 Access URLs (all via Nginx Reverse Proxy):"
           echo "   - Klacks UI:     http://157.180.42.127:3000"
-          echo "   - Klacks API:    http://157.180.42.127:5000"
-          echo "   - Klacks Blazor: http://157.180.42.127:7002"
-          echo "   - pgAdmin:       http://157.180.42.127:5050"
+          echo "   - Klacks UI:     https://157.180.42.127"
+          echo "   - Klacks API:    https://157.180.42.127:5443"
+          echo "   - Klacks Blazor: https://157.180.42.127:7443"
+          echo "   - pgAdmin:       https://157.180.42.127:5553"
           echo ""
