@@ -59,6 +59,24 @@ public sealed class CompiledScript
         return new CompiledScript(instructions, externalSymbols, error);
     }
 
+    public CompiledScript CloneForExecution()
+    {
+        var clonedSymbols = new Dictionary<string, Identifier>(StringComparer.OrdinalIgnoreCase);
+        foreach (var kvp in externalSymbols)
+        {
+            clonedSymbols[kvp.Key] = new Identifier
+            {
+                Name = kvp.Value.Name,
+                Value = kvp.Value.Value,
+                IdType = kvp.Value.IdType,
+                Address = kvp.Value.Address,
+                FormalParameters = kvp.Value.FormalParameters
+            };
+        }
+
+        return new CompiledScript(instructions, clonedSymbols, Error);
+    }
+
     public void SetExternalValue(string name, object? value)
     {
         if (externalSymbols.TryGetValue(name, out var identifier))
