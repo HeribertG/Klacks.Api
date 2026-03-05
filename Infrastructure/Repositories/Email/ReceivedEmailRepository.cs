@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Models.Email;
 using Klacks.Api.Infrastructure.Persistence;
@@ -40,7 +41,7 @@ public class ReceivedEmailRepository : IReceivedEmailRepository
 
     public async Task<int> GetUnreadCountAsync()
     {
-        return await _context.ReceivedEmails.CountAsync(e => !e.IsRead);
+        return await _context.ReceivedEmails.CountAsync(e => !e.IsRead && e.Folder != EmailConstants.ClientAssignedFolder);
     }
 
     public async Task<bool> ExistsByMessageIdAsync(string messageId)
