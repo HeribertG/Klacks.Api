@@ -12,8 +12,6 @@ public interface IReceivedEmailRepository
 
     Task<List<ReceivedEmail>> GetListAsync(int skip, int take);
 
-    Task<int> GetUnreadCountAsync();
-
     Task<bool> ExistsByMessageIdAsync(string messageId);
 
     Task<long> GetHighestImapUidAsync(string folder);
