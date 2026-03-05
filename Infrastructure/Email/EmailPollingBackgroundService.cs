@@ -28,6 +28,7 @@ public class EmailPollingBackgroundService : BackgroundService
     {
         _logger.LogInformation("Email polling background service started");
 
+        await InitialSyncAsync(stoppingToken);
         await ReclassifyExistingEmailsAsync(stoppingToken);
 
         try
@@ -116,6 +117,24 @@ public class EmailPollingBackgroundService : BackgroundService
         }
 
         _logger.LogInformation("Email polling background service stopped");
+    }
+
+    private async Task InitialSyncAsync(CancellationToken stoppingToken)
+    {
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var emailService = scope.ServiceProvider.GetRequiredService<IImapEmailService>();
+            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+
+            await emailService.SyncFoldersAsync(stoppingToken);
+            await unitOfWork.CompleteAsync();
+            _logger.LogInformation("Initial folder sync completed");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Initial folder sync failed");
+        }
     }
 
     private async Task ReclassifyExistingEmailsAsync(CancellationToken stoppingToken)
