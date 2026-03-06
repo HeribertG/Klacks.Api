@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20260227214706_AddSpamRuleTable")]
-    partial class AddSpamRuleTable
+    [Migration("20260306155155_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -2795,6 +2795,10 @@ namespace Klacks.Api.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
+                    b.Property<string>("PluginCode")
+                        .HasColumnType("text")
+                        .HasColumnName("plugin_code");
+
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
@@ -2914,6 +2918,10 @@ namespace Klacks.Api.Migrations
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer")
                         .HasColumnName("sort_order");
+
+                    b.Property<string>("SpecialUse")
+                        .HasColumnType("text")
+                        .HasColumnName("special_use");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")
@@ -3308,6 +3316,10 @@ namespace Klacks.Api.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
+
+                    b.Property<Guid?>("MacroId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("macro_id");
 
                     b.Property<bool>("Undeletable")
                         .HasColumnType("boolean")
@@ -5040,6 +5052,38 @@ namespace Klacks.Api.Migrations
                     b.ToTable("macro", (string)null);
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Settings.PluginDoc", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("HtmlContent")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("html_content");
+
+                    b.Property<string>("ManualName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("manual_name");
+
+                    b.Property<string>("PluginCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("plugin_code");
+
+                    b.HasKey("Id")
+                        .HasName("pk_plugin_docs");
+
+                    b.HasIndex("PluginCode", "ManualName")
+                        .IsUnique()
+                        .HasDatabaseName("ix_plugin_docs_plugin_code_manual_name");
+
+                    b.ToTable("plugin_docs", (string)null);
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Settings.PostcodeCH", b =>
                 {
                     b.Property<int>("Id")
@@ -5489,6 +5533,70 @@ namespace Klacks.Api.Migrations
                         .HasDatabaseName("ix_client_first_name_second_name_name_maiden_name_company_gend");
 
                     b.ToTable("client", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.ClientAvailability", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("client_id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<int>("Hour")
+                        .HasColumnType("integer")
+                        .HasColumnName("hour");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_available");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_client_availability");
+
+                    b.HasIndex("ClientId", "Date", "Hour")
+                        .IsUnique()
+                        .HasDatabaseName("ix_client_availability_client_id_date_hour");
+
+                    b.HasIndex("IsDeleted", "ClientId", "Date")
+                        .HasDatabaseName("ix_client_availability_is_deleted_client_id_date");
+
+                    b.ToTable("client_availability", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.ClientContract", b =>
@@ -6410,7 +6518,7 @@ namespace Klacks.Api.Migrations
                     b.HasOne("Klacks.Api.Domain.Models.Schedules.Absence", "Absence")
                         .WithMany()
                         .HasForeignKey("AbsenceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_absence_detail_absence_absence_id");
 
@@ -6481,7 +6589,7 @@ namespace Klacks.Api.Migrations
                     b.HasOne("Klacks.Api.Domain.Models.Schedules.Absence", "Absence")
                         .WithMany()
                         .HasForeignKey("AbsenceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_break_absence_absence_id");
 
@@ -6531,7 +6639,7 @@ namespace Klacks.Api.Migrations
                     b.HasOne("Klacks.Api.Domain.Models.Schedules.Absence", "Absence")
                         .WithMany()
                         .HasForeignKey("AbsenceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_break_placeholder_absence_absence_id");
 
@@ -6902,6 +7010,18 @@ namespace Klacks.Api.Migrations
                         .HasConstraintName("fk_client_identity_providers_identity_provider_id");
 
                     b.Navigation("IdentityProvider");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.ClientAvailability", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_client_availability_client_client_id");
+
+                    b.Navigation("Client");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.ClientContract", b =>

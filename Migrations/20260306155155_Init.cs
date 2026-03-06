@@ -28,6 +28,7 @@ namespace Klacks.Api.Migrations
                     default_length = table.Column<int>(type: "integer", nullable: false),
                     default_value = table.Column<double>(type: "double precision", nullable: false),
                     hide_in_gantt = table.Column<bool>(type: "boolean", nullable: false),
+                    macro_id = table.Column<Guid>(type: "uuid", nullable: true),
                     undeletable = table.Column<bool>(type: "boolean", nullable: false),
                     with_holiday = table.Column<bool>(type: "boolean", nullable: false),
                     with_saturday = table.Column<bool>(type: "boolean", nullable: false),
@@ -228,6 +229,7 @@ namespace Klacks.Api.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
+                    plugin_code = table.Column<string>(type: "text", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -291,6 +293,29 @@ namespace Klacks.Api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_countries", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "email_folders",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    imap_folder_name = table.Column<string>(type: "text", nullable: false),
+                    sort_order = table.Column<int>(type: "integer", nullable: false),
+                    is_system = table.Column<bool>(type: "boolean", nullable: false),
+                    special_use = table.Column<string>(type: "text", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_email_folders", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -479,6 +504,20 @@ namespace Klacks.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "plugin_docs",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    plugin_code = table.Column<string>(type: "text", nullable: false),
+                    manual_name = table.Column<string>(type: "text", nullable: false),
+                    html_content = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_plugin_docs", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "postcode_ch",
                 columns: table => new
                 {
@@ -491,6 +530,36 @@ namespace Klacks.Api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_postcode_ch", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "received_emails",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    message_id = table.Column<string>(type: "text", nullable: false),
+                    imap_uid = table.Column<long>(type: "bigint", nullable: false),
+                    folder = table.Column<string>(type: "text", nullable: false),
+                    from_address = table.Column<string>(type: "text", nullable: false),
+                    from_name = table.Column<string>(type: "text", nullable: true),
+                    to_address = table.Column<string>(type: "text", nullable: false),
+                    subject = table.Column<string>(type: "text", nullable: false),
+                    body_html = table.Column<string>(type: "text", nullable: true),
+                    body_text = table.Column<string>(type: "text", nullable: true),
+                    received_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    is_read = table.Column<bool>(type: "boolean", nullable: false),
+                    has_attachments = table.Column<bool>(type: "boolean", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_received_emails", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -656,6 +725,28 @@ namespace Klacks.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "spam_rules",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    rule_type = table.Column<int>(type: "integer", nullable: false),
+                    pattern = table.Column<string>(type: "text", nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    sort_order = table.Column<int>(type: "integer", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_spam_rules", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "state",
                 columns: table => new
                 {
@@ -674,6 +765,42 @@ namespace Klacks.Api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_state", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ui_controls",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    page_key = table.Column<string>(type: "text", nullable: false),
+                    control_key = table.Column<string>(type: "text", nullable: false),
+                    selector = table.Column<string>(type: "text", nullable: false),
+                    selector_type = table.Column<string>(type: "text", nullable: false),
+                    control_type = table.Column<string>(type: "text", nullable: false),
+                    label = table.Column<string>(type: "text", nullable: true),
+                    route = table.Column<string>(type: "text", nullable: true),
+                    parent_control_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    sort_order = table.Column<int>(type: "integer", nullable: false),
+                    is_dynamic = table.Column<bool>(type: "boolean", nullable: false),
+                    selector_pattern = table.Column<string>(type: "text", nullable: true),
+                    metadata = table.Column<string>(type: "text", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_ui_controls", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_ui_controls_ui_controls_parent_control_id",
+                        column: x => x.parent_control_id,
+                        principalTable: "ui_controls",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -704,7 +831,7 @@ namespace Klacks.Api.Migrations
                         column: x => x.absence_id,
                         principalTable: "absence",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -1495,7 +1622,7 @@ namespace Klacks.Api.Migrations
                         column: x => x.absence_id,
                         principalTable: "absence",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "fk_break_client_client_id",
                         column: x => x.client_id,
@@ -1530,9 +1657,37 @@ namespace Klacks.Api.Migrations
                         column: x => x.absence_id,
                         principalTable: "absence",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "fk_break_placeholder_client_client_id",
+                        column: x => x.client_id,
+                        principalTable: "client",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "client_availability",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    date = table.Column<DateOnly>(type: "date", nullable: false),
+                    hour = table.Column<int>(type: "integer", nullable: false),
+                    is_available = table.Column<bool>(type: "boolean", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_client_availability", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_client_availability_client_client_id",
                         column: x => x.client_id,
                         principalTable: "client",
                         principalColumn: "id",
@@ -2535,6 +2690,17 @@ namespace Klacks.Api.Migrations
                 columns: new[] { "is_deleted", "name", "first_name" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_client_availability_client_id_date_hour",
+                table: "client_availability",
+                columns: new[] { "client_id", "date", "hour" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_client_availability_is_deleted_client_id_date",
+                table: "client_availability",
+                columns: new[] { "is_deleted", "client_id", "date" });
+
+            migrationBuilder.CreateIndex(
                 name: "ix_client_contract_client_id_contract_id_from_date_until_date",
                 table: "client_contract",
                 columns: new[] { "client_id", "contract_id", "from_date", "until_date" });
@@ -2610,6 +2776,18 @@ namespace Klacks.Api.Migrations
                 name: "ix_contract_scheduling_rule_id",
                 table: "contract",
                 column: "scheduling_rule_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_email_folders_imap_folder_name",
+                table: "email_folders",
+                column: "imap_folder_name",
+                unique: true,
+                filter: "is_deleted = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_email_folders_is_deleted_sort_order",
+                table: "email_folders",
+                columns: new[] { "is_deleted", "sort_order" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_expenses_work_id",
@@ -2756,6 +2934,33 @@ namespace Klacks.Api.Migrations
                 column: "individual_period_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_plugin_docs_plugin_code_manual_name",
+                table: "plugin_docs",
+                columns: new[] { "plugin_code", "manual_name" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_received_emails_folder_imap_uid",
+                table: "received_emails",
+                columns: new[] { "folder", "imap_uid" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_received_emails_is_deleted_is_read",
+                table: "received_emails",
+                columns: new[] { "is_deleted", "is_read" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_received_emails_is_deleted_received_date",
+                table: "received_emails",
+                columns: new[] { "is_deleted", "received_date" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_received_emails_message_id",
+                table: "received_emails",
+                column: "message_id",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "ix_report_templates_is_deleted_type_name",
                 table: "report_templates",
                 columns: new[] { "is_deleted", "type", "name" });
@@ -2795,6 +3000,29 @@ namespace Klacks.Api.Migrations
                 name: "ix_shift_expenses_shift_id",
                 table: "shift_expenses",
                 column: "shift_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_spam_rules_is_deleted_is_active_sort_order",
+                table: "spam_rules",
+                columns: new[] { "is_deleted", "is_active", "sort_order" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_ui_controls_page_key_control_key",
+                table: "ui_controls",
+                columns: new[] { "page_key", "control_key" },
+                unique: true,
+                filter: "is_deleted = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_ui_controls_page_key_sort_order",
+                table: "ui_controls",
+                columns: new[] { "page_key", "sort_order" },
+                filter: "is_deleted = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_ui_controls_parent_control_id",
+                table: "ui_controls",
+                column: "parent_control_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_work_client_id_shift_id",
@@ -2884,6 +3112,9 @@ namespace Klacks.Api.Migrations
                 name: "calendar_rule");
 
             migrationBuilder.DropTable(
+                name: "client_availability");
+
+            migrationBuilder.DropTable(
                 name: "client_contract");
 
             migrationBuilder.DropTable(
@@ -2906,6 +3137,9 @@ namespace Klacks.Api.Migrations
 
             migrationBuilder.DropTable(
                 name: "countries");
+
+            migrationBuilder.DropTable(
+                name: "email_folders");
 
             migrationBuilder.DropTable(
                 name: "expenses");
@@ -2947,7 +3181,13 @@ namespace Klacks.Api.Migrations
                 name: "period");
 
             migrationBuilder.DropTable(
+                name: "plugin_docs");
+
+            migrationBuilder.DropTable(
                 name: "postcode_ch");
+
+            migrationBuilder.DropTable(
+                name: "received_emails");
 
             migrationBuilder.DropTable(
                 name: "refresh_token");
@@ -2974,7 +3214,13 @@ namespace Klacks.Api.Migrations
                 name: "skill_usage_records");
 
             migrationBuilder.DropTable(
+                name: "spam_rules");
+
+            migrationBuilder.DropTable(
                 name: "state");
+
+            migrationBuilder.DropTable(
+                name: "ui_controls");
 
             migrationBuilder.DropTable(
                 name: "work_change");
