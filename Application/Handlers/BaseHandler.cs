@@ -57,6 +57,12 @@ public abstract class BaseHandler
 
             throw new InvalidRequestException($"Database constraint violation during {operationName}. Detail: {ex.Message}");
         }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Invalid operation during {OperationName}. Context: {@ContextData}",
+                operationName, contextData);
+            throw new InvalidRequestException(ex.Message);
+        }
         catch (OperationCanceledException ex)
         {
             _logger.LogWarning(ex, "Operation cancelled: {OperationName}", operationName);
