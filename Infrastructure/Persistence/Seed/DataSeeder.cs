@@ -20,8 +20,10 @@ namespace Klacks.Api.Data.Seed
             if (withFake)
             {
                 CalendarRulesSeed.SeedData(migrationBuilder);
+                AdditionalCalendarRulesSeed.SeedData(migrationBuilder);
                 AbsencesSeed.SeedData(migrationBuilder);
                 SwissCantonCalendarSelectionsSeed.SeedCalendarSelections(migrationBuilder);
+                CountryCalendarSelectionsSeed.SeedCalendarSelections(migrationBuilder);
                 FakeDataSeed.SeedData(migrationBuilder);
                 ContractsSeed.SeedContracts(migrationBuilder);
             }

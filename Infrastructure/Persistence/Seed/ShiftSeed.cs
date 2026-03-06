@@ -104,7 +104,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', false, '{shift.Name} mit {shift.Employees} Mitarbeiter(n)', '00000000-0000-0000-0000-000000000000', '{uniqueName}', NULL, NULL, 0,
+                    '{orderId}', false, '{shift.Name} mit {shift.Employees} Mitarbeiter(n)', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueName}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '{shift.End}', '{baseDate:yyyy-MM-dd}', '{shift.Start}', NULL,
                     true, false, true, false, false, true, true, true,
                     false, false, {(shift.IsTimeRange ? "true" : "false")}, 1, '00:00:00', '00:00:00',
@@ -138,7 +138,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', false, '{shift.Name} mit {shift.Employees} Mitarbeiter(n)', '00000000-0000-0000-0000-000000000000', '{uniqueName}', NULL, NULL, 2,
+                    '{originalShiftId}', false, '{shift.Name} mit {shift.Employees} Mitarbeiter(n)', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueName}', NULL, NULL, 2,
                     '00:00:00', '00:00:00', '{shift.End}', '{baseDate:yyyy-MM-dd}', '{shift.Start}', NULL,
                     true, false, true, false, false, true, true, true,
                     false, false, {(shift.IsTimeRange ? "true" : "false")}, 1, '00:00:00', '00:00:00',
@@ -178,7 +178,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', false, '6-Stunden Morgenschicht - {employees} Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameMorning}', NULL, NULL, 0,
+                    '{orderId}', false, '6-Stunden Morgenschicht - {employees} Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameMorning}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
                     true, false, true, false, false, true, true, true,
                     false, false, false, 1, '00:00:00', '00:00:00',
@@ -212,7 +212,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', false, '6-Stunden Morgenschicht - {employees} Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameMorning}', NULL, NULL, 2,
+                    '{originalShiftId}', false, '6-Stunden Morgenschicht - {employees} Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameMorning}', NULL, NULL, 2,
                     '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
                     true, false, true, false, false, true, true, true,
                     false, false, false, 1, '00:00:00', '00:00:00',
@@ -250,7 +250,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', false, 'Tagschicht Mo-Fr mit 1h Mittagspause - {employees} Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameDay}', NULL, NULL, 0,
+                    '{orderId}', false, 'Tagschicht Mo-Fr mit 1h Mittagspause - {employees} Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameDay}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '17:00:00', '{baseDate:yyyy-MM-dd}', '08:00:00', NULL,
                     true, false, true, false, false, true, true, true,
                     true, false, false, 1, '00:00:00', '00:00:00',
@@ -284,7 +284,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', false, 'Tagschicht Mo-Fr mit 1h Mittagspause - {employees} Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameDay}', NULL, NULL, 2,
+                    '{originalShiftId}', false, 'Tagschicht Mo-Fr mit 1h Mittagspause - {employees} Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameDay}', NULL, NULL, 2,
                     '00:00:00', '00:00:00', '17:00:00', '{baseDate:yyyy-MM-dd}', '08:00:00', NULL,
                     true, false, true, false, false, true, true, true,
                     true, false, false, 1, '00:00:00', '00:00:00',
@@ -321,7 +321,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', false, 'Nachtdienst Mo-Fr - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightMF}', NULL, NULL, 0,
+                    '{orderId}', false, 'Nachtdienst Mo-Fr - 1 Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightMF}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     true, false, true, false, false, true, true, false,
                     true, false, false, 1, '00:00:00', '00:00:00',
@@ -355,7 +355,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', false, 'Nachtdienst Mo-Fr - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightMF}', NULL, NULL, 2,
+                    '{originalShiftId}', false, 'Nachtdienst Mo-Fr - 1 Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightMF}', NULL, NULL, 2,
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     true, false, true, false, false, true, true, false,
                     true, false, false, 1, '00:00:00', '00:00:00',
@@ -392,7 +392,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', false, 'Nachtdienst Sa-So - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightSS}', NULL, NULL, 0,
+                    '{orderId}', false, 'Nachtdienst Sa-So - 1 Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightSS}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     false, false, false, true, true, false, false, false,
                     false, false, false, 1, '00:00:00', '00:00:00',
@@ -426,7 +426,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', false, 'Nachtdienst Sa-So - 1 Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightSS}', NULL, NULL, 2,
+                    '{originalShiftId}', false, 'Nachtdienst Sa-So - 1 Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightSS}', NULL, NULL, 2,
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     false, false, false, true, true, false, false, false,
                     false, false, false, 1, '00:00:00', '00:00:00',
@@ -468,7 +468,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{orderId}', false, '24-Stunden Schichtdienst - {employees} Mitarbeiter pro Schicht', '00000000-0000-0000-0000-000000000000', '{uniqueName24h}', NULL, NULL, 0,
+    '{orderId}', false, '24-Stunden Schichtdienst - {employees} Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueName24h}', NULL, NULL, 0,
     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '07:00:00', NULL,
     true, true, true, true, true, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -508,7 +508,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{split1Id}', false, 'Frühschicht - {employees} Mitarbeiter', '00000000-0000-0000-0000-000000000000', '{uniqueNameFrüh}', NULL, '{orderId}', 3,
+    '{split1Id}', false, 'Frühschicht - {employees} Mitarbeiter', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameFrüh}', NULL, '{orderId}', 3,
     '00:00:00', '00:00:00', '15:00:00', '{baseDate:yyyy-MM-dd}', '07:00:00', NULL,
     true, true, true, true, true, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -535,7 +535,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{split2Id}', false, 'Spätschicht - {employees} Mitarbeiter', '00000000-0000-0000-0000-000000000000', '{uniqueNameSpät}', NULL, '{orderId}', 3,
+    '{split2Id}', false, 'Spätschicht - {employees} Mitarbeiter', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameSpät}', NULL, '{orderId}', 3,
     '00:00:00', '00:00:00', '23:00:00', '{baseDate:yyyy-MM-dd}', '15:00:00', NULL,
     true, true, true, true, true, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -563,7 +563,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{split3Id}', false, 'Nachtschicht - {employees} Mitarbeiter', '00000000-0000-0000-0000-000000000000', '{uniqueNameNacht}', NULL, '{orderId}', 3,
+    '{split3Id}', false, 'Nachtschicht - {employees} Mitarbeiter', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNacht}', NULL, '{orderId}', 3,
     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
     true, true, true, true, true, true, true, true,
     false, true, false, 1, '00:00:00', '00:00:00',
@@ -601,7 +601,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{orderId}', false, 'Nachtschicht 22:00-06:00 mit Teilung bei 02:00', '00000000-0000-0000-0000-000000000000', '{uniqueNameNightCut}', NULL, NULL, 0,
+    '{orderId}', false, 'Nachtschicht 22:00-06:00 mit Teilung bei 02:00', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightCut}', NULL, NULL, 0,
     '00:00:00', '00:00:00', '06:00:00', '{baseDate:yyyy-MM-dd}', '22:00:00', NULL,
     true, false, true, false, false, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -640,7 +640,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{split1Id}', false, 'Teil VOR Mitternacht (22:00-02:00)', '00000000-0000-0000-0000-000000000000', '{uniqueNamePre}', NULL, '{orderId}', 3,
+    '{split1Id}', false, 'Teil VOR Mitternacht (22:00-02:00)', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNamePre}', NULL, '{orderId}', 3,
     '00:00:00', '00:00:00', '02:00:00', '{baseDate:yyyy-MM-dd}', '22:00:00', NULL,
     true, false, true, false, false, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -671,7 +671,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{split2Id}', true, 'Teil NACH Mitternacht (02:00-06:00)', '00000000-0000-0000-0000-000000000000', '{uniqueNamePost}', NULL, '{orderId}', 3,
+    '{split2Id}', true, 'Teil NACH Mitternacht (02:00-06:00)', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNamePost}', NULL, '{orderId}', 3,
     '00:00:00', '00:00:00', '06:00:00', '{nextDay:yyyy-MM-dd}', '02:00:00', NULL,
     true, false, true, false, false, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -757,7 +757,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{containerId}', false, 'Container für {container.Name}', '00000000-0000-0000-0000-000000000000', '{container.Name}', NULL, NULL, 2,
+    '{containerId}', false, 'Container für {container.Name}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{container.Name}', NULL, NULL, 2,
     '00:00:00', '00:00:00', '{container.End}', '{baseDate:yyyy-MM-dd}', '{container.Start}', NULL,
     {(container.Fri ? "true" : "false")}, false, {(container.Mon ? "true" : "false")}, {(container.Sat ? "true" : "false")}, {(container.Sun ? "true" : "false")}, {(container.Thu ? "true" : "false")}, {(container.Tue ? "true" : "false")}, {(container.Wed ? "true" : "false")},
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -858,7 +858,7 @@ INSERT INTO public.shift (
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
     '{containerId}', false, 'Container {containerType.Name} für {rootGroup}',
-    '00000000-0000-0000-0000-000000000000', '{name}', NULL, NULL, 2,
+    'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{name}', NULL, NULL, 2,
     '00:00:00', '00:00:00', '{containerType.End}', '{baseDate:yyyy-MM-dd}', '{containerType.Start}', NULL,
     true, false, true, false, false, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -950,7 +950,7 @@ INSERT INTO public.shift (
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
     '{orderId}', false, 'TimeRange Shift {workTimeMinutes} Minuten Arbeitszeit in {timeRangeHours}h Zeitfenster{(crossesMidnight ? " (über Mitternacht)" : "")}',
-    '00000000-0000-0000-0000-000000000000', '{name}', NULL, NULL, 0,
+    'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{name}', NULL, NULL, 0,
     '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
     true, false, true, false, false, true, true, true,
     false, false, true, 1, '00:00:00', '00:00:00',
@@ -984,7 +984,7 @@ INSERT INTO public.shift (
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
     '{originalShiftId}', false, 'TimeRange Shift {workTimeMinutes} Minuten Arbeitszeit in {timeRangeHours}h Zeitfenster{(crossesMidnight ? " (über Mitternacht)" : "")}',
-    '00000000-0000-0000-0000-000000000000', '{name}', NULL, NULL, 2,
+    'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{name}', NULL, NULL, 2,
     '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
     true, false, true, false, false, true, true, true,
     false, false, true, 1, '00:00:00', '00:00:00',
