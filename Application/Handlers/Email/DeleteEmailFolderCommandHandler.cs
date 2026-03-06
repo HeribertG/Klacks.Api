@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Commands.Email;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Infrastructure.Mediator;
@@ -39,7 +40,12 @@ public class DeleteEmailFolderCommandHandler : BaseHandler, IRequestHandler<Dele
                 throw new InvalidOperationException("System folders cannot be deleted.");
             }
 
-            await _emailRepository.DeleteByFolderAsync(folder.ImapFolderName);
+            var trashFolder = await _folderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Trash);
+            if (!string.IsNullOrEmpty(trashFolder))
+            {
+                await _emailRepository.BulkMoveFolderAsync(folder.ImapFolderName, trashFolder);
+            }
+
             await _folderRepository.DeleteAsync(request.Id);
             await _unitOfWork.CompleteAsync();
 
