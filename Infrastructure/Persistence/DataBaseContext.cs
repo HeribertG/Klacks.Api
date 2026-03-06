@@ -537,11 +537,23 @@ public class DataBaseContext : IdentityDbContext
                .WithMany(b => b.Breaks)
                .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<Break>()
+            .HasOne(p => p.Absence)
+            .WithMany()
+            .HasForeignKey(p => p.AbsenceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<BreakPlaceholder>()
+            .HasOne(p => p.Absence)
+            .WithMany()
+            .HasForeignKey(p => p.AbsenceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<AbsenceDetail>()
             .HasOne(p => p.Absence)
             .WithMany()
             .HasForeignKey(p => p.AbsenceId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<WorkChange>()
             .HasOne(sc => sc.Work)
