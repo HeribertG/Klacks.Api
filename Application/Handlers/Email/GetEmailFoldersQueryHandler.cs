@@ -28,7 +28,7 @@ public class GetEmailFoldersQueryHandler : BaseHandler, IRequestHandler<GetEmail
         return await ExecuteAsync(async () =>
         {
             var allFolders = await _folderRepository.GetAllAsync();
-            var folders = allFolders.Where(f => !string.IsNullOrEmpty(f.SpecialUse)).ToList();
+            var folders = allFolders.Where(f => !string.IsNullOrEmpty(f.SpecialUse) || !f.IsSystem).ToList();
             var resources = new List<EmailFolderResource>();
 
             foreach (var folder in folders)
