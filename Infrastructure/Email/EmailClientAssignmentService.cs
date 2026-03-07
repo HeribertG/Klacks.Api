@@ -60,6 +60,35 @@ public class EmailClientAssignmentService : IEmailClientAssignmentService
         }
     }
 
+    public async Task ReassignOrphanedEmailsAsync()
+    {
+        var clientEmailAddresses = await GetClientEmailAddressesAsync();
+
+        var orphanedEmails = await _context.ReceivedEmails
+            .Where(e => e.Folder == EmailConstants.ClientAssignedFolder)
+            .ToListAsync();
+
+        var movedCount = 0;
+
+        foreach (var email in orphanedEmails)
+        {
+            if (clientEmailAddresses.Contains(email.FromAddress))
+                continue;
+
+            var inboxFolder = await _folderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Inbox);
+            email.Folder = !string.IsNullOrEmpty(email.SourceImapFolder)
+                ? email.SourceImapFolder
+                : inboxFolder ?? "INBOX";
+            movedCount++;
+        }
+
+        if (movedCount > 0)
+        {
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("Reassigned {Count} orphaned emails back to their source folders", movedCount);
+        }
+    }
+
     private async Task<HashSet<string>> GetClientEmailAddressesAsync()
     {
         var addresses = await _context.Set<Communication>()

@@ -24,11 +24,21 @@ public class ReceivedEmailResource
 
     public string? BodyText { get; set; }
 
-    public DateTime ReceivedDate { get; set; }
+    private DateTime _receivedDate;
+    public DateTime ReceivedDate
+    {
+        get => DateTime.SpecifyKind(_receivedDate, DateTimeKind.Utc);
+        set => _receivedDate = value;
+    }
 
     public bool IsRead { get; set; }
 
     public bool HasAttachments { get; set; }
 
-    public DateTime? CreateTime { get; set; }
+    private DateTime? _createTime;
+    public DateTime? CreateTime
+    {
+        get => _createTime.HasValue ? DateTime.SpecifyKind(_createTime.Value, DateTimeKind.Utc) : null;
+        set => _createTime = value;
+    }
 }

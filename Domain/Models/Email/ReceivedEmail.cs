@@ -12,6 +12,8 @@ public class ReceivedEmail : BaseEntity
 
     public string Folder { get; set; } = string.Empty;
 
+    public string SourceImapFolder { get; set; } = string.Empty;
+
     public string FromAddress { get; set; } = string.Empty;
 
     public string? FromName { get; set; }

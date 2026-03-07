@@ -80,6 +80,7 @@ public class EmailPollingBackgroundService : BackgroundService
                                 if (spamResult.IsSpam)
                                 {
                                     email.Folder = junkFolder;
+                                    await emailService.MoveEmailOnImapAsync(email.ImapUid, inboxFolder, junkFolder, stoppingToken);
                                     _logger.LogInformation("Email from {From} classified as spam: {Reason}", email.FromAddress, spamResult.Reason);
                                 }
                             }
@@ -99,6 +100,9 @@ public class EmailPollingBackgroundService : BackgroundService
                         var notificationService = scope.ServiceProvider.GetRequiredService<IEmailNotificationService>();
                         await notificationService.NotifyNewEmailsAsync(newEmails.Count);
                     }
+
+                    await emailService.SyncEmailStatesAsync(stoppingToken);
+                    await unitOfWork.CompleteAsync();
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {
@@ -145,6 +149,7 @@ public class EmailPollingBackgroundService : BackgroundService
             var emailRepository = scope.ServiceProvider.GetRequiredService<IReceivedEmailRepository>();
             var folderRepository = scope.ServiceProvider.GetRequiredService<IEmailFolderRepository>();
             var spamFilterService = scope.ServiceProvider.GetRequiredService<ISpamFilterService>();
+            var emailService = scope.ServiceProvider.GetRequiredService<IImapEmailService>();
             var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
             var inboxFolder = await folderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Inbox);
@@ -153,6 +158,7 @@ public class EmailPollingBackgroundService : BackgroundService
             if (!string.IsNullOrEmpty(inboxFolder) && !string.IsNullOrEmpty(junkFolder))
             {
                 var inboxEmails = await emailRepository.GetListByFolderAsync(inboxFolder, 0, int.MaxValue);
+                var clientAssignedEmails = await emailRepository.GetListByFolderAsync(EmailConstants.ClientAssignedFolder, 0, int.MaxValue);
                 var movedCount = 0;
 
                 foreach (var email in inboxEmails)
@@ -163,6 +169,20 @@ public class EmailPollingBackgroundService : BackgroundService
                     if (result.IsSpam)
                     {
                         await emailRepository.MoveToFolderAsync(email.Id, junkFolder);
+                        await emailService.MoveEmailOnImapAsync(email.ImapUid, inboxFolder, junkFolder, stoppingToken);
+                        movedCount++;
+                    }
+                }
+
+                foreach (var email in clientAssignedEmails)
+                {
+                    if (stoppingToken.IsCancellationRequested) break;
+
+                    var result = await spamFilterService.ClassifyAsync(email, stoppingToken);
+                    if (result.IsSpam)
+                    {
+                        await emailRepository.MoveToFolderAsync(email.Id, junkFolder);
+                        await emailService.MoveEmailOnImapAsync(email.ImapUid, email.SourceImapFolder, junkFolder, stoppingToken);
                         movedCount++;
                     }
                 }

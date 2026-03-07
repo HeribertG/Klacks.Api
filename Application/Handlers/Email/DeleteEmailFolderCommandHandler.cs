@@ -12,16 +12,19 @@ public class DeleteEmailFolderCommandHandler : BaseHandler, IRequestHandler<Dele
 {
     private readonly IEmailFolderRepository _folderRepository;
     private readonly IReceivedEmailRepository _emailRepository;
+    private readonly IImapEmailService _imapEmailService;
     private readonly IUnitOfWork _unitOfWork;
 
     public DeleteEmailFolderCommandHandler(
         IEmailFolderRepository folderRepository,
         IReceivedEmailRepository emailRepository,
+        IImapEmailService imapEmailService,
         IUnitOfWork unitOfWork,
         ILogger<DeleteEmailFolderCommandHandler> logger) : base(logger)
     {
         _folderRepository = folderRepository;
         _emailRepository = emailRepository;
+        _imapEmailService = imapEmailService;
         _unitOfWork = unitOfWork;
     }
 
@@ -45,6 +48,8 @@ public class DeleteEmailFolderCommandHandler : BaseHandler, IRequestHandler<Dele
             {
                 await _emailRepository.BulkMoveFolderAsync(folder.ImapFolderName, trashFolder);
             }
+
+            await _imapEmailService.DeleteFolderOnImapAsync(folder.ImapFolderName, cancellationToken);
 
             await _folderRepository.DeleteAsync(request.Id);
             await _unitOfWork.CompleteAsync();

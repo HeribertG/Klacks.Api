@@ -622,6 +622,7 @@ public class DataBaseContext : IdentityDbContext
             entity.HasQueryFilter(p => !p.IsDeleted);
             entity.HasIndex(p => p.MessageId).IsUnique();
             entity.HasIndex(p => new { p.Folder, p.ImapUid });
+            entity.HasIndex(p => new { p.SourceImapFolder, p.ImapUid });
             entity.HasIndex(p => new { p.IsDeleted, p.IsRead });
             entity.HasIndex(p => new { p.IsDeleted, p.ReceivedDate });
         });

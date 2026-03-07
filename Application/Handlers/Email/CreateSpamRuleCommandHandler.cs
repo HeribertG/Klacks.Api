@@ -17,6 +17,8 @@ public class CreateSpamRuleCommandHandler : BaseHandler, IRequestHandler<CreateS
     private readonly IReceivedEmailRepository _emailRepository;
     private readonly IEmailFolderRepository _folderRepository;
     private readonly ISpamFilterService _spamFilterService;
+    private readonly IImapEmailService _imapEmailService;
+    private readonly IEmailNotificationService _notificationService;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateSpamRuleCommandHandler(
@@ -24,6 +26,8 @@ public class CreateSpamRuleCommandHandler : BaseHandler, IRequestHandler<CreateS
         IReceivedEmailRepository emailRepository,
         IEmailFolderRepository folderRepository,
         ISpamFilterService spamFilterService,
+        IImapEmailService imapEmailService,
+        IEmailNotificationService notificationService,
         IUnitOfWork unitOfWork,
         ILogger<CreateSpamRuleCommandHandler> logger)
         : base(logger)
@@ -32,6 +36,8 @@ public class CreateSpamRuleCommandHandler : BaseHandler, IRequestHandler<CreateS
         _emailRepository = emailRepository;
         _folderRepository = folderRepository;
         _spamFilterService = spamFilterService;
+        _imapEmailService = imapEmailService;
+        _notificationService = notificationService;
         _unitOfWork = unitOfWork;
     }
 
@@ -69,6 +75,8 @@ public class CreateSpamRuleCommandHandler : BaseHandler, IRequestHandler<CreateS
         if (string.IsNullOrEmpty(junkFolder)) return;
 
         var inboxEmails = await _emailRepository.GetListByFolderAsync(inboxFolder, 0, int.MaxValue);
+        var clientAssignedEmails = await _emailRepository.GetListByFolderAsync(EmailConstants.ClientAssignedFolder, 0, int.MaxValue);
+
         var movedCount = 0;
 
         foreach (var email in inboxEmails)
@@ -77,6 +85,18 @@ public class CreateSpamRuleCommandHandler : BaseHandler, IRequestHandler<CreateS
             if (result.IsSpam)
             {
                 await _emailRepository.MoveToFolderAsync(email.Id, junkFolder);
+                await _imapEmailService.MoveEmailOnImapAsync(email.ImapUid, inboxFolder, junkFolder, cancellationToken);
+                movedCount++;
+            }
+        }
+
+        foreach (var email in clientAssignedEmails)
+        {
+            var result = await _spamFilterService.ClassifyAsync(email, cancellationToken);
+            if (result.IsSpam)
+            {
+                await _emailRepository.MoveToFolderAsync(email.Id, junkFolder);
+                await _imapEmailService.MoveEmailOnImapAsync(email.ImapUid, email.SourceImapFolder, junkFolder, cancellationToken);
                 movedCount++;
             }
         }
@@ -84,6 +104,7 @@ public class CreateSpamRuleCommandHandler : BaseHandler, IRequestHandler<CreateS
         if (movedCount > 0)
         {
             await _unitOfWork.CompleteAsync();
+            await _notificationService.NotifyNewEmailsAsync(movedCount);
             _logger.LogInformation("Reclassified {Count} emails as spam after new rule", movedCount);
         }
     }

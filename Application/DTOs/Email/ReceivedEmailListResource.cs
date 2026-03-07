@@ -14,7 +14,12 @@ public class ReceivedEmailListResource
 
     public string Subject { get; set; } = string.Empty;
 
-    public DateTime ReceivedDate { get; set; }
+    private DateTime _receivedDate;
+    public DateTime ReceivedDate
+    {
+        get => DateTime.SpecifyKind(_receivedDate, DateTimeKind.Utc);
+        set => _receivedDate = value;
+    }
 
     public bool IsRead { get; set; }
 

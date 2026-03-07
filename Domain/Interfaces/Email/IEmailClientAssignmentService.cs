@@ -8,4 +8,5 @@ public interface IEmailClientAssignmentService
 {
     Task AssignInboxEmailsToClientsAsync();
     Task AssignNewEmailAsync(ReceivedEmail email);
+    Task ReassignOrphanedEmailsAsync();
 }

@@ -45,11 +45,11 @@ public class ReceivedEmailRepository : IReceivedEmailRepository
 
     public async Task<long> GetHighestImapUidAsync(string folder)
     {
-        var hasAny = await _context.ReceivedEmails.AnyAsync(e => e.Folder == folder);
+        var hasAny = await _context.ReceivedEmails.AnyAsync(e => e.SourceImapFolder == folder);
         if (!hasAny) return 0;
 
         return await _context.ReceivedEmails
-            .Where(e => e.Folder == folder)
+            .Where(e => e.SourceImapFolder == folder)
             .MaxAsync(e => e.ImapUid);
     }
 

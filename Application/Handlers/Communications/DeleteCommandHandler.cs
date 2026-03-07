@@ -7,26 +7,30 @@ using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Email;
 
 namespace Klacks.Api.Application.Handlers.Communications;
 
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<CommunicationResource>, CommunicationResource?>
 {
     private readonly ICommunicationRepository _communicationRepository;
+    private readonly IEmailClientAssignmentService _emailAssignmentService;
     private readonly AddressCommunicationMapper _addressCommunicationMapper;
     private readonly IUnitOfWork _unitOfWork;
-    
+
     public DeleteCommandHandler(
         ICommunicationRepository communicationRepository,
+        IEmailClientAssignmentService emailAssignmentService,
         AddressCommunicationMapper addressCommunicationMapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _communicationRepository = communicationRepository;
+        _emailAssignmentService = emailAssignmentService;
         _addressCommunicationMapper = addressCommunicationMapper;
         _unitOfWork = unitOfWork;
-        }
+    }
 
     public async Task<CommunicationResource?> Handle(DeleteCommand<CommunicationResource> request, CancellationToken cancellationToken)
     {
@@ -42,9 +46,11 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<C
             await _communicationRepository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
 
+            await _emailAssignmentService.ReassignOrphanedEmailsAsync();
+
             return communicationResource;
-        }, 
-        "deleting communication", 
+        },
+        "deleting communication",
         new { CommunicationId = request.Id });
     }
 }

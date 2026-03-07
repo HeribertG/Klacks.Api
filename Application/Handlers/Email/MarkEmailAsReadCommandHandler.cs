@@ -13,17 +13,20 @@ public class MarkEmailAsReadCommandHandler : BaseHandler, IRequestHandler<MarkEm
     private readonly IReceivedEmailRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailNotificationService _notificationService;
+    private readonly IImapEmailService _imapService;
 
     public MarkEmailAsReadCommandHandler(
         IReceivedEmailRepository repository,
         IUnitOfWork unitOfWork,
         IEmailNotificationService notificationService,
+        IImapEmailService imapService,
         ILogger<MarkEmailAsReadCommandHandler> logger)
         : base(logger)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;
         _notificationService = notificationService;
+        _imapService = imapService;
     }
 
     public async Task<bool> Handle(MarkEmailAsReadCommand request, CancellationToken cancellationToken)
@@ -39,6 +42,8 @@ public class MarkEmailAsReadCommandHandler : BaseHandler, IRequestHandler<MarkEm
             email.IsRead = request.IsRead;
             await _repository.UpdateAsync(email);
             await _unitOfWork.CompleteAsync();
+
+            await _imapService.SetReadFlagOnImapAsync(email.ImapUid, email.Folder, request.IsRead, cancellationToken);
 
             await _notificationService.NotifyReadStateChangedAsync(request.Id, request.IsRead, email.Folder);
 

@@ -13,15 +13,18 @@ namespace Klacks.Api.Application.Handlers.Email;
 public class CreateEmailFolderCommandHandler : BaseHandler, IRequestHandler<CreateEmailFolderCommand, EmailFolderResource>
 {
     private readonly IEmailFolderRepository _folderRepository;
+    private readonly IImapEmailService _imapEmailService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly EmailFolderMapper _mapper = new();
 
     public CreateEmailFolderCommandHandler(
         IEmailFolderRepository folderRepository,
+        IImapEmailService imapEmailService,
         IUnitOfWork unitOfWork,
         ILogger<CreateEmailFolderCommandHandler> logger) : base(logger)
     {
         _folderRepository = folderRepository;
+        _imapEmailService = imapEmailService;
         _unitOfWork = unitOfWork;
     }
 
@@ -34,6 +37,8 @@ public class CreateEmailFolderCommandHandler : BaseHandler, IRequestHandler<Crea
             {
                 throw new InvalidOperationException($"A folder with IMAP name '{request.ImapFolderName}' already exists.");
             }
+
+            await _imapEmailService.CreateFolderOnImapAsync(request.ImapFolderName, cancellationToken);
 
             var allFolders = await _folderRepository.GetAllAsync();
             var maxSortOrder = allFolders.Count > 0 ? allFolders.Max(f => f.SortOrder) : -1;

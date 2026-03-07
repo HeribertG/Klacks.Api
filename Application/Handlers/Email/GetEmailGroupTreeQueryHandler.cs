@@ -107,8 +107,50 @@ public class GetEmailGroupTreeQueryHandler : BaseHandler, IRequestHandler<GetEma
                     result.Add(node);
             }
 
+            var assignedClientIds = new HashSet<Guid>();
+            CollectClientIds(result, assignedClientIds);
+
+            var unassignedChildren = new List<EmailGroupTreeNode>();
+            foreach (var (clientId, emailCount) in clientEmailCounts)
+            {
+                if (assignedClientIds.Contains(clientId)) continue;
+                unassignedChildren.Add(new EmailGroupTreeNode
+                {
+                    Id = clientId,
+                    Name = clientNames.GetValueOrDefault(clientId, string.Empty),
+                    Type = EmailGroupNodeType.Client,
+                    EmailCount = emailCount,
+                    UnreadCount = clientUnreadCounts.GetValueOrDefault(clientId, 0),
+                    Children = []
+                });
+            }
+
+            if (unassignedChildren.Count > 0)
+            {
+                result.Add(new EmailGroupTreeNode
+                {
+                    Id = Guid.Empty,
+                    Name = "Unassigned",
+                    Type = EmailGroupNodeType.Group,
+                    EmailCount = unassignedChildren.Sum(c => c.EmailCount),
+                    UnreadCount = 0,
+                    Children = unassignedChildren
+                });
+            }
+
             return result;
         }, nameof(GetEmailGroupTreeQuery));
+    }
+
+    private static void CollectClientIds(List<EmailGroupTreeNode> nodes, HashSet<Guid> clientIds)
+    {
+        foreach (var node in nodes)
+        {
+            if (node.Type == EmailGroupNodeType.Client)
+                clientIds.Add(node.Id);
+            if (node.Children.Count > 0)
+                CollectClientIds(node.Children, clientIds);
+        }
     }
 
     private static EmailGroupTreeNode? BuildGroupNode(
