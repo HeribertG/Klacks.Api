@@ -24,6 +24,13 @@ public class CalendarSelectionRepository : BaseRepository<CalendarSelection>, IC
         _updateService = updateService;
     }
 
+    public override async Task<List<CalendarSelection>> List()
+    {
+        return await context.CalendarSelection
+            .Include(cs => cs.SelectedCalendars)
+            .ToListAsync();
+    }
+
     public async Task<CalendarSelection?> GetWithSelectedCalendars(Guid id)
     {
         return await _updateService.GetWithSelectedCalendarsAsync(id);
