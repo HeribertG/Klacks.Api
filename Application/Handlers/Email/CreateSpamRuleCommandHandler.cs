@@ -3,7 +3,6 @@
 using Klacks.Api.Application.Commands.Email;
 using Klacks.Api.Application.DTOs.Email;
 using Klacks.Api.Application.Mappers;
-using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Models.Email;
@@ -14,30 +13,18 @@ namespace Klacks.Api.Application.Handlers.Email;
 public class CreateSpamRuleCommandHandler : BaseHandler, IRequestHandler<CreateSpamRuleCommand, SpamRuleResource>
 {
     private readonly ISpamRuleRepository _repository;
-    private readonly IReceivedEmailRepository _emailRepository;
-    private readonly IEmailFolderRepository _folderRepository;
-    private readonly ISpamFilterService _spamFilterService;
-    private readonly IImapEmailService _imapEmailService;
-    private readonly IEmailNotificationService _notificationService;
+    private readonly IEmailReclassificationTrigger _reclassificationTrigger;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateSpamRuleCommandHandler(
         ISpamRuleRepository repository,
-        IReceivedEmailRepository emailRepository,
-        IEmailFolderRepository folderRepository,
-        ISpamFilterService spamFilterService,
-        IImapEmailService imapEmailService,
-        IEmailNotificationService notificationService,
+        IEmailReclassificationTrigger reclassificationTrigger,
         IUnitOfWork unitOfWork,
         ILogger<CreateSpamRuleCommandHandler> logger)
         : base(logger)
     {
         _repository = repository;
-        _emailRepository = emailRepository;
-        _folderRepository = folderRepository;
-        _spamFilterService = spamFilterService;
-        _imapEmailService = imapEmailService;
-        _notificationService = notificationService;
+        _reclassificationTrigger = reclassificationTrigger;
         _unitOfWork = unitOfWork;
     }
 
@@ -59,53 +46,10 @@ public class CreateSpamRuleCommandHandler : BaseHandler, IRequestHandler<CreateS
             await _repository.AddAsync(rule);
             await _unitOfWork.CompleteAsync();
 
-            await ReclassifyInboxEmailsAsync(cancellationToken);
+            _reclassificationTrigger.TriggerReclassification();
 
             var mapper = new SpamRuleMapper();
             return mapper.ToResource(rule);
         }, nameof(CreateSpamRuleCommand), new { request.RuleType, request.Pattern });
-    }
-
-    private async Task ReclassifyInboxEmailsAsync(CancellationToken cancellationToken)
-    {
-        var inboxFolder = await _folderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Inbox);
-        if (string.IsNullOrEmpty(inboxFolder)) return;
-
-        var junkFolder = await _folderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Junk);
-        if (string.IsNullOrEmpty(junkFolder)) return;
-
-        var inboxEmails = await _emailRepository.GetListByFolderAsync(inboxFolder, 0, int.MaxValue);
-        var clientAssignedEmails = await _emailRepository.GetListByFolderAsync(EmailConstants.ClientAssignedFolder, 0, int.MaxValue);
-
-        var movedCount = 0;
-
-        foreach (var email in inboxEmails)
-        {
-            var result = await _spamFilterService.ClassifyAsync(email, cancellationToken);
-            if (result.IsSpam)
-            {
-                await _emailRepository.MoveToFolderAsync(email.Id, junkFolder);
-                await _imapEmailService.MoveEmailOnImapAsync(email.ImapUid, inboxFolder, junkFolder, cancellationToken);
-                movedCount++;
-            }
-        }
-
-        foreach (var email in clientAssignedEmails)
-        {
-            var result = await _spamFilterService.ClassifyAsync(email, cancellationToken);
-            if (result.IsSpam)
-            {
-                await _emailRepository.MoveToFolderAsync(email.Id, junkFolder);
-                await _imapEmailService.MoveEmailOnImapAsync(email.ImapUid, email.SourceImapFolder, junkFolder, cancellationToken);
-                movedCount++;
-            }
-        }
-
-        if (movedCount > 0)
-        {
-            await _unitOfWork.CompleteAsync();
-            await _notificationService.NotifyNewEmailsAsync(movedCount);
-            _logger.LogInformation("Reclassified {Count} emails as spam after new rule", movedCount);
-        }
     }
 }

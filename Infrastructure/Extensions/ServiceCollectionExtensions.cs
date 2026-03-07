@@ -235,6 +235,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IImapTestService, ImapTestService>();
         services.AddScoped<ISpamFilterService, SpamFilterService>();
         services.AddScoped<IEmailClientAssignmentService, EmailClientAssignmentService>();
+        services.AddSingleton<IEmailReclassificationTrigger, EmailReclassificationTrigger>();
         services.AddHostedService<EmailPollingBackgroundService>();
     }
 
