@@ -540,6 +540,7 @@ namespace Klacks.Api.Migrations
                     message_id = table.Column<string>(type: "text", nullable: false),
                     imap_uid = table.Column<long>(type: "bigint", nullable: false),
                     folder = table.Column<string>(type: "text", nullable: false),
+                    source_imap_folder = table.Column<string>(type: "text", nullable: false),
                     from_address = table.Column<string>(type: "text", nullable: false),
                     from_name = table.Column<string>(type: "text", nullable: true),
                     to_address = table.Column<string>(type: "text", nullable: false),
@@ -2959,6 +2960,11 @@ namespace Klacks.Api.Migrations
                 table: "received_emails",
                 column: "message_id",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_received_emails_source_imap_folder_imap_uid",
+                table: "received_emails",
+                columns: new[] { "source_imap_folder", "imap_uid" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_report_templates_is_deleted_type_name",
