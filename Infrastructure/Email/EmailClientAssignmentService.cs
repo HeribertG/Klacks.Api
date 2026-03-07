@@ -2,7 +2,6 @@
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Models.Email;
 using Klacks.Api.Domain.Models.Staffs;
@@ -15,48 +14,35 @@ namespace Klacks.Api.Infrastructure.Email;
 public class EmailClientAssignmentService : IEmailClientAssignmentService
 {
     private readonly DataBaseContext _context;
-    private readonly IReceivedEmailRepository _emailRepository;
     private readonly IEmailFolderRepository _folderRepository;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<EmailClientAssignmentService> _logger;
 
     public EmailClientAssignmentService(
         DataBaseContext context,
-        IReceivedEmailRepository emailRepository,
         IEmailFolderRepository folderRepository,
-        IUnitOfWork unitOfWork,
         ILogger<EmailClientAssignmentService> logger)
     {
         _context = context;
-        _emailRepository = emailRepository;
         _folderRepository = folderRepository;
-        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
     public async Task AssignInboxEmailsToClientsAsync()
     {
-        var clientEmailAddresses = await GetClientEmailAddressesAsync();
-        if (clientEmailAddresses.Count == 0) return;
-
         var inboxFolder = await _folderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Inbox);
         if (string.IsNullOrEmpty(inboxFolder)) return;
 
-        var inboxEmails = await _emailRepository.GetListByFolderAsync(inboxFolder, 0, int.MaxValue);
-        var assignedCount = 0;
-
-        foreach (var email in inboxEmails)
-        {
-            if (clientEmailAddresses.Contains(email.FromAddress))
-            {
-                await _emailRepository.MoveToFolderAsync(email.Id, EmailConstants.ClientAssignedFolder);
-                assignedCount++;
-            }
-        }
+        var assignedCount = await _context.ReceivedEmails
+            .Where(e => e.Folder == inboxFolder &&
+                _context.Set<Communication>()
+                    .Where(c => !c.IsDeleted &&
+                        (c.Type == CommunicationTypeEnum.PrivateMail || c.Type == CommunicationTypeEnum.OfficeMail) &&
+                        c.Value != null && c.Value != "")
+                    .Any(c => c.Value!.ToLower() == e.FromAddress.ToLower()))
+            .ExecuteUpdateAsync(s => s.SetProperty(e => e.Folder, EmailConstants.ClientAssignedFolder));
 
         if (assignedCount > 0)
         {
-            await _unitOfWork.CompleteAsync();
             _logger.LogInformation("Assigned {Count} inbox emails to client folders", assignedCount);
         }
     }

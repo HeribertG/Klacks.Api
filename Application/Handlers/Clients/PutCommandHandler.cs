@@ -3,11 +3,13 @@
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Email;
 
 namespace Klacks.Api.Application.Handlers.Clients;
 
@@ -17,12 +19,14 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientR
     private readonly ClientMapper _clientMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IGroupVisibilityService _groupVisibilityService;
+    private readonly IEmailClientAssignmentService _emailAssignmentService;
 
     public PutCommandHandler(
         IClientRepository clientRepository,
         ClientMapper clientMapper,
         IUnitOfWork unitOfWork,
         IGroupVisibilityService groupVisibilityService,
+        IEmailClientAssignmentService emailAssignmentService,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -30,7 +34,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientR
         _clientMapper = clientMapper;
         _unitOfWork = unitOfWork;
         _groupVisibilityService = groupVisibilityService;
-        }
+        _emailAssignmentService = emailAssignmentService;
+    }
 
     public async Task<ClientResource?> Handle(PutCommand<ClientResource> request, CancellationToken cancellationToken)
     {
@@ -61,6 +66,12 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientR
             var client = _clientMapper.ToEntity(request.Resource);
             var updatedClient = await _clientRepository.Put(client);
             await _unitOfWork.CompleteAsync();
+
+            if (request.Resource.Communications.Any(c =>
+                c.Type is CommunicationTypeEnum.PrivateMail or CommunicationTypeEnum.OfficeMail))
+            {
+                await _emailAssignmentService.AssignInboxEmailsToClientsAsync();
+            }
 
             _logger.LogInformation("Client updated: {ClientId}", request.Resource.Id);
 

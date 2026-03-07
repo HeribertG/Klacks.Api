@@ -109,6 +109,9 @@ public class DatabaseInitializer : IDatabaseInitializer
 
         _logger.LogInformation("Starting seed data insertion...");
 
+        var previousTimeout = _context.Database.GetCommandTimeout();
+        _context.Database.SetCommandTimeout(TimeSpan.FromMinutes(5));
+
         using var transaction = await _context.Database.BeginTransactionAsync();
 
         try
@@ -142,6 +145,10 @@ public class DatabaseInitializer : IDatabaseInitializer
             await transaction.RollbackAsync();
             _logger.LogError(ex, "Error inserting seed data");
             throw;
+        }
+        finally
+        {
+            _context.Database.SetCommandTimeout(previousTimeout);
         }
     }
 }
