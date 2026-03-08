@@ -298,7 +298,7 @@ namespace Klacks.Api.Infrastructure.Scripting
 
             if (returnNumberSymbol)
             {
-                nextSymbol.Init(Symbol.Tokens.tokNumber, symbolText, symbolText);
+                nextSymbol.Init(Symbol.Tokens.tokNumber, symbolText, double.Parse(symbolText, System.Globalization.CultureInfo.InvariantCulture));
             }
 
             return nextSymbol;

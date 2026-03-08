@@ -304,7 +304,10 @@ namespace Klacks.Api.Infrastructure.Scripting
                     if (symboltable!.Exists(sym.Text, true))
                         errorObject!.Raise((int)InterpreterError.ParsErrors.errIdentifierAlreadyExists, "VariableDeclaration", "Variable identifier '" + sym.Text + "' is already declared", sym.Line, sym.Col, sym.Index, sym.Text);
                     if (external)
+                    {
                         symboltable.Allocate(sym.Text);
+                        code!.ImportAdd(sym.Text);
+                    }
                     else
                     {
                         symboltable.Allocate(sym.Text);
