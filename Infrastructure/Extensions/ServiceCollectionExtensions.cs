@@ -56,7 +56,7 @@ using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Application.Services.Translation;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
-using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Application.Interfaces.Settings;
 using Klacks.Api.Infrastructure.Services.Associations;
 using Klacks.Api.Infrastructure.Services.ClientAvailabilitySchedule;
 

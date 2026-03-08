@@ -2,10 +2,11 @@
 
 using Klacks.Api.Application.DTOs.Config;
 
-namespace Klacks.Api.Domain.Interfaces.Settings;
+namespace Klacks.Api.Application.Interfaces.Settings;
 
 public interface ILanguagePluginService
 {
+    void Initialize();
     IReadOnlyList<LanguagePluginInfo> GetAllPlugins();
     LanguagePluginInfo? GetPlugin(string code);
     Task<bool> InstallAsync(string code);

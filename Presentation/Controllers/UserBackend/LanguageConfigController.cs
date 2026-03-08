@@ -2,7 +2,7 @@
 
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Application.DTOs.Config;
-using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Application.Interfaces.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

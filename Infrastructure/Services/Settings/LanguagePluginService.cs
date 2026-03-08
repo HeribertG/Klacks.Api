@@ -6,7 +6,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Config;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Application.Interfaces.Settings;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Infrastructure.Persistence;
