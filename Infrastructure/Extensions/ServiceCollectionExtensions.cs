@@ -55,8 +55,10 @@ using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Application.Services.Translation;
 using Klacks.Api.Domain.Interfaces.Associations;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Infrastructure.Services.Associations;
+using Klacks.Api.Infrastructure.Services.ClientAvailabilitySchedule;
 
 namespace Klacks.Api.Infrastructure.Extensions;
 
@@ -202,6 +204,7 @@ public static class ServiceCollectionExtensions
     private static void AddScheduleServices(this IServiceCollection services)
     {
         services.AddScoped<IScheduleEntriesService, ScheduleEntriesService>();
+        services.AddScoped<IClientAvailabilityScheduleService, ClientAvailabilityScheduleService>();
         services.AddScoped<IWorkLockLevelService, WorkLockLevelService>();
         services.AddScoped<IPeriodHoursService, PeriodHoursService>();
         services.AddScoped<IScheduleChangeTracker, ScheduleChangeTracker>();

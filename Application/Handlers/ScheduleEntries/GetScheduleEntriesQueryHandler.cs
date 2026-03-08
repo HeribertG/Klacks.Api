@@ -4,6 +4,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries.ScheduleEntries;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Infrastructure.Mediator;
@@ -18,6 +19,7 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
     private readonly IShiftGroupFilterService _groupFilterService;
     private readonly IWorkRepository _workRepository;
     private readonly ScheduleMapper _scheduleMapper;
+    private readonly IClientAvailabilityScheduleService _clientAvailabilityScheduleService;
     private readonly ILogger<GetScheduleEntriesQueryHandler> _logger;
 
     public GetScheduleEntriesQueryHandler(
@@ -25,12 +27,14 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
         IShiftGroupFilterService groupFilterService,
         IWorkRepository workRepository,
         ScheduleMapper scheduleMapper,
+        IClientAvailabilityScheduleService clientAvailabilityScheduleService,
         ILogger<GetScheduleEntriesQueryHandler> logger)
     {
         _scheduleEntriesService = scheduleEntriesService;
         _groupFilterService = groupFilterService;
         _workRepository = workRepository;
         _scheduleMapper = scheduleMapper;
+        _clientAvailabilityScheduleService = clientAvailabilityScheduleService;
         _logger = logger;
     }
 
@@ -87,6 +91,18 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
 
         var resources = _scheduleMapper.ToWorkScheduleResourceList(entries);
 
+        var availabilityEntries = await _clientAvailabilityScheduleService
+            .GetClientAvailabilityQuery(startDate, endDate, clientIds)
+            .ToListAsync(cancellationToken);
+
+        var clientAvailabilities = availabilityEntries
+            .GroupBy(a => a.ClientId)
+            .ToDictionary(
+                g => g.Key,
+                g => g.ToDictionary(
+                    a => DateOnly.FromDateTime(a.AvailabilityDate),
+                    a => a.AvailabilityRanges));
+
         var periodHours = await _workRepository.GetPeriodHoursForClients(
             clientIds,
             startDate,
@@ -105,7 +121,8 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
             PeriodHours = periodHours,
             TotalClientCount = totalClientCount,
             StartDate = startDate,
-            EndDate = endDate
+            EndDate = endDate,
+            ClientAvailabilities = clientAvailabilities
         };
     }
 

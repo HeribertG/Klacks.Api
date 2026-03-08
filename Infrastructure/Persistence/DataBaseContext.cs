@@ -81,6 +81,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<ScheduleCell> ScheduleCells { get; set; }
 
+    public DbSet<ClientAvailabilityScheduleEntry> ClientAvailabilityScheduleEntries { get; set; }
+
     public DbSet<ContainerTemplate> ContainerTemplate { get; set; }
 
     public DbSet<ContainerTemplateItem> ContainerTemplateItem { get; set; }
@@ -210,6 +212,7 @@ public class DataBaseContext : IdentityDbContext
     {
         modelBuilder.Entity<ShiftDayAssignment>().HasNoKey();
         modelBuilder.Entity<ScheduleCell>().HasNoKey().ToView(null);
+        modelBuilder.Entity<ClientAvailabilityScheduleEntry>().HasNoKey().ToView(null);
 
         base.OnModelCreating(modelBuilder);
 
