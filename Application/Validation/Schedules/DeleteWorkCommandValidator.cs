@@ -3,6 +3,7 @@
 using FluentValidation;
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 
@@ -22,7 +23,7 @@ public class DeleteWorkCommandValidator : AbstractValidator<DeleteWorkCommand>
                 if (work == null || work.LockLevel == WorkLockLevel.None)
                     return true;
 
-                var isAdmin = httpContextAccessor.HttpContext?.User?.IsInRole("Admin") == true;
+                var isAdmin = httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
                 return lockLevelService.CanModifyWork(work.LockLevel, isAdmin);
             })
             .WithMessage("Cannot delete a sealed work entry.");

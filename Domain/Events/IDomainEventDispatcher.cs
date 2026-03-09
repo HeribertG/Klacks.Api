@@ -1,8 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Domain.Events;
-
-namespace Klacks.Api.Infrastructure.Events;
+namespace Klacks.Api.Domain.Events;
 
 public interface IDomainEventDispatcher
 {

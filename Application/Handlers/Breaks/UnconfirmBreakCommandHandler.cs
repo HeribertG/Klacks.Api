@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -41,8 +42,8 @@ public class UnconfirmBreakCommandHandler : BaseHandler, IRequestHandler<Unconfi
             if (breakEntry == null)
                 throw new KeyNotFoundException($"Break with ID {request.BreakId} not found.");
 
-            var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole("Admin") == true;
-            var isAuthorised = _httpContextAccessor.HttpContext?.User?.HasClaim("IsAuthorised", "true") == true;
+            var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
+            var isAuthorised = _httpContextAccessor.HttpContext?.User?.HasClaim(ClaimNames.IsAuthorised, "true") == true;
 
             _lockLevelService.Unseal(breakEntry, isAdmin, isAuthorised);
 

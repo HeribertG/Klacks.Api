@@ -60,6 +60,7 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Application.Interfaces.Settings;
 using Klacks.Api.Infrastructure.Services.Associations;
 using Klacks.Api.Infrastructure.Services.ClientAvailabilitySchedule;
+using Klacks.Api.Application.Skills.Generated;
 
 namespace Klacks.Api.Infrastructure.Extensions;
 
@@ -130,6 +131,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGlobalAgentRuleRepository, Klacks.Api.Infrastructure.Repositories.Assistant.GlobalAgentRuleRepository>();
         services.AddScoped<IUiControlRepository, Klacks.Api.Infrastructure.Repositories.Assistant.UiControlRepository>();
         services.AddScoped<IReceivedEmailRepository, ReceivedEmailRepository>();
+        services.AddScoped<IEmailQueryRepository, EmailQueryRepository>();
         services.AddScoped<IEmailFolderRepository, EmailFolderRepository>();
         services.AddScoped<ISpamRuleRepository, SpamRuleRepository>();
         services.AddScoped<IFloorPlanRepository, FloorPlanRepository>();
@@ -325,7 +327,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.ValidateAddressSkill>();
         services.AddScoped<Application.Skills.GetUserPermissionsSkill>();
         services.AddScoped<Application.Skills.GetGeneralSettingsSkill>();
-        services.AddScoped<Application.Skills.GetOwnerAddressSkill>();
         services.AddScoped<Application.Skills.GetAiSoulSkill>();
         services.AddScoped<Application.Skills.UpdateAiSoulSkill>();
         services.AddScoped<Application.Skills.AddAiMemorySkill>();
@@ -337,17 +338,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.GetAiGuidelinesSkill>();
         services.AddScoped<Application.Skills.UpdateAiGuidelinesSkill>();
         services.AddScoped<Application.Skills.GetPageControlsSkill>();
-        services.AddScoped<Application.Skills.GetEmailSettingsSkill>();
-        services.AddScoped<Application.Skills.GetImapSettingsSkill>();
+        services.AddGeneratedSettingsSkills();
         services.AddScoped<Application.Skills.WebSearchSkill>();
         services.AddScoped<Application.Skills.TestSmtpConnectionSkill>();
         services.AddScoped<Application.Skills.TestImapConnectionSkill>();
-        services.AddScoped<Application.Skills.GetWorkSettingsSkill>();
-        services.AddScoped<Application.Skills.GetSchedulingDefaultsSkill>();
-        services.AddScoped<Application.Skills.GetDeeplSettingsSkill>();
-        services.AddScoped<Application.Skills.GetWebSearchSettingsSkill>();
         services.AddScoped<Application.Skills.UpdateWebSearchSettingsSkill>();
-        services.AddScoped<Application.Skills.GetSpamFilterSettingsSkill>();
         services.AddScoped<Application.Skills.UpdateSpamFilterSettingsSkill>();
         services.AddScoped<Application.Skills.ListLlmProvidersSkill>();
         services.AddScoped<Application.Skills.ListLlmModelsSkill>();

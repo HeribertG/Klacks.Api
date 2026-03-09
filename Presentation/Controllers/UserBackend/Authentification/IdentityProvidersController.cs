@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Commands.IdentityProviders;
 using Klacks.Api.Application.Queries.IdentityProviders;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.IdentityProviders;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Authentification;
 
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = Roles.Admin)]
 public class IdentityProvidersController : BaseController
 {
     private readonly IMediator _mediator;

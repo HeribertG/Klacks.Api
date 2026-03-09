@@ -77,7 +77,7 @@ public class ChatController : ControllerBase
         var filtered = skills
             .Where(s => s.RequiredPermission == null ||
                         userRights.Contains(s.RequiredPermission) ||
-                        userRights.Contains("Admin"))
+                        userRights.Contains(Roles.Admin))
             .Select(s => new { s.Name, s.Description, s.ExecutionType, s.Category })
             .ToList();
 

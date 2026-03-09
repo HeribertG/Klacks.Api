@@ -16,11 +16,12 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 public class ProvidersController : ControllerBase
 {
     private readonly IMediator _mediator;
-    private readonly LLMMapper _mapper = new();
+    private readonly LLMMapper _mapper;
 
-    public ProvidersController(IMediator mediator)
+    public ProvidersController(IMediator mediator, LLMMapper mapper)
     {
         _mediator = mediator;
+        _mapper = mapper;
     }
 
     [HttpGet]

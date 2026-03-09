@@ -12,4 +12,8 @@ public interface IAbsenceRepository : IBaseRepository<Absence>
     HttpResultResource CreateExcelFile(string language);
 
     Task<TruncatedAbsence> Truncated(AbsenceFilter filter);
+
+    Task<int> CountActiveBreaksByAbsenceAsync(Guid absenceId, CancellationToken cancellationToken = default);
+
+    Task<int> CountActiveBreakPlaceholdersByAbsenceAsync(Guid absenceId, CancellationToken cancellationToken = default);
 }

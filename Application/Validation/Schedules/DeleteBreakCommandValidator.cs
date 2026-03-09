@@ -3,6 +3,7 @@
 using FluentValidation;
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 
@@ -22,7 +23,7 @@ public class DeleteBreakCommandValidator : AbstractValidator<DeleteBreakCommand>
                 if (breakEntry == null || breakEntry.LockLevel == WorkLockLevel.None)
                     return true;
 
-                var isAdmin = httpContextAccessor.HttpContext?.User?.IsInRole("Admin") == true;
+                var isAdmin = httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
                 return lockLevelService.CanModifyWork(breakEntry.LockLevel, isAdmin);
             })
             .WithMessage("Cannot delete a sealed break entry.");

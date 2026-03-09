@@ -3,6 +3,7 @@
 using FluentValidation;
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 
@@ -18,7 +19,7 @@ public class BulkDeleteBreaksCommandValidator : AbstractValidator<BulkDeleteBrea
         RuleFor(x => x.Request.BreakIds)
             .MustAsync(async (breakIds, cancellationToken) =>
             {
-                var isAdmin = httpContextAccessor.HttpContext?.User?.IsInRole("Admin") == true;
+                var isAdmin = httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
                 if (lockLevelService.CanModifyWork(WorkLockLevel.Closed, isAdmin))
                     return true;
 

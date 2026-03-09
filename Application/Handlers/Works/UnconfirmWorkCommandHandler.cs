@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -41,8 +42,8 @@ public class UnconfirmWorkCommandHandler : BaseHandler, IRequestHandler<Unconfir
             if (work == null)
                 throw new KeyNotFoundException($"Work with ID {request.WorkId} not found.");
 
-            var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole("Admin") == true;
-            var isAuthorised = _httpContextAccessor.HttpContext?.User?.HasClaim("IsAuthorised", "true") == true;
+            var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
+            var isAuthorised = _httpContextAccessor.HttpContext?.User?.HasClaim(ClaimNames.IsAuthorised, "true") == true;
 
             _lockLevelService.Unseal(work, isAdmin, isAuthorised);
 

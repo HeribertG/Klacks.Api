@@ -5,6 +5,7 @@ using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
@@ -71,5 +72,17 @@ public class CalendarSelectionRepository : BaseRepository<CalendarSelection>, IC
             .Select(c => c.CalendarSelectionId!.Value)
             .Distinct()
             .ToListAsync();
+    }
+
+    public async Task<int> CountActiveGroupsByCalendarSelectionAsync(Guid calendarSelectionId, CancellationToken cancellationToken = default)
+    {
+        return await context.Set<Group>()
+            .CountAsync(g => !g.IsDeleted && g.CalendarSelectionId == calendarSelectionId, cancellationToken);
+    }
+
+    public async Task<int> CountActiveContractsByCalendarSelectionAsync(Guid calendarSelectionId, CancellationToken cancellationToken = default)
+    {
+        return await context.Set<Contract>()
+            .CountAsync(c => !c.IsDeleted && c.CalendarSelectionId == calendarSelectionId, cancellationToken);
     }
 }

@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Application.DTOs.Config;
 using Klacks.Api.Application.Interfaces.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -86,7 +87,7 @@ public class LanguageConfigController : ControllerBase
         return Ok(_languagePluginService.GetAllPlugins());
     }
 
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     [HttpPost("language-plugins/{code}/install")]
     public async Task<ActionResult> InstallPlugin(string code)
     {
@@ -97,7 +98,7 @@ public class LanguageConfigController : ControllerBase
         return Ok();
     }
 
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     [HttpDelete("language-plugins/{code}/uninstall")]
     public async Task<ActionResult> UninstallPlugin(string code)
     {

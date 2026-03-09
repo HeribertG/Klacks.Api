@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Interfaces.Assistant;
 
@@ -46,6 +47,6 @@ public class LLMSystemPromptBuilder
 
     private static bool HasPermission(LLMContext context, string permission)
     {
-        return context.UserRights.Contains(permission) || context.UserRights.Contains("Admin");
+        return context.UserRights.Contains(permission) || context.UserRights.Contains(Roles.Admin);
     }
 }

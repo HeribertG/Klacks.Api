@@ -1,55 +1,47 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Handler zum Aufbau eines Gruppen-Baums mit Email-Zahlern pro Client und Gruppe.
+/// </summary>
+
 using Klacks.Api.Application.DTOs.Email;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Email;
 using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Email;
 
 public class GetEmailGroupTreeQueryHandler : BaseHandler, IRequestHandler<GetEmailGroupTreeQuery, List<EmailGroupTreeNode>>
 {
     private readonly IGroupHierarchyService _groupHierarchyService;
-    private readonly DataBaseContext _context;
+    private readonly IEmailQueryRepository _emailQueryRepository;
 
     public GetEmailGroupTreeQueryHandler(
         IGroupHierarchyService groupHierarchyService,
-        DataBaseContext context,
+        IEmailQueryRepository emailQueryRepository,
         ILogger<GetEmailGroupTreeQueryHandler> logger)
         : base(logger)
     {
         _groupHierarchyService = groupHierarchyService;
-        _context = context;
+        _emailQueryRepository = emailQueryRepository;
     }
 
     public async Task<List<EmailGroupTreeNode>> Handle(GetEmailGroupTreeQuery request, CancellationToken cancellationToken)
     {
         return await ExecuteAsync(async () =>
         {
-            var receivedAddresses = await _context.ReceivedEmails
-                .Where(e => !e.IsDeleted && e.Folder == EmailConstants.ClientAssignedFolder)
-                .Select(e => e.FromAddress.ToLower())
-                .Distinct()
-                .ToListAsync(cancellationToken);
+            var receivedAddresses = await _emailQueryRepository.GetDistinctAssignedEmailAddressesAsync(
+                EmailConstants.ClientAssignedFolder, cancellationToken);
 
             if (receivedAddresses.Count == 0)
                 return [];
 
             var receivedAddressSet = new HashSet<string>(receivedAddresses, StringComparer.OrdinalIgnoreCase);
 
-            var clientsWithEmails = await _context.Set<Domain.Models.Staffs.Communication>()
-                .Where(c => !c.IsDeleted &&
-                            (c.Type == CommunicationTypeEnum.PrivateMail || c.Type == CommunicationTypeEnum.OfficeMail) &&
-                            !string.IsNullOrEmpty(c.Value))
-                .Include(c => c.Client)
-                .ThenInclude(cl => cl.GroupItems)
-                .Where(c => !c.Client.IsDeleted)
-                .ToListAsync(cancellationToken);
+            var clientsWithEmails = await _emailQueryRepository.GetClientsWithEmailCommunicationsAsync(cancellationToken);
 
             var clientEmailCounts = new Dictionary<Guid, int>();
             var clientUnreadCounts = new Dictionary<Guid, int>();
@@ -58,24 +50,17 @@ public class GetEmailGroupTreeQueryHandler : BaseHandler, IRequestHandler<GetEma
 
             foreach (var comm in clientsWithEmails)
             {
-                if (!receivedAddressSet.Contains(comm.Value)) continue;
+                if (!receivedAddressSet.Contains(comm.EmailAddress)) continue;
 
                 var clientId = comm.ClientId;
 
-                var emailCount = await _context.ReceivedEmails
-                    .CountAsync(e => !e.IsDeleted &&
-                                     e.Folder == EmailConstants.ClientAssignedFolder &&
-                                     e.FromAddress.ToLower() == comm.Value.ToLower(),
-                        cancellationToken);
+                var emailCount = await _emailQueryRepository.CountEmailsByAddressAsync(
+                    EmailConstants.ClientAssignedFolder, comm.EmailAddress, cancellationToken);
 
                 if (emailCount == 0) continue;
 
-                var unreadCount = await _context.ReceivedEmails
-                    .CountAsync(e => !e.IsDeleted &&
-                                     e.Folder == EmailConstants.ClientAssignedFolder &&
-                                     !e.IsRead &&
-                                     e.FromAddress.ToLower() == comm.Value.ToLower(),
-                        cancellationToken);
+                var unreadCount = await _emailQueryRepository.CountUnreadEmailsByAddressAsync(
+                    EmailConstants.ClientAssignedFolder, comm.EmailAddress, cancellationToken);
 
                 clientEmailCounts.TryAdd(clientId, 0);
                 clientEmailCounts[clientId] += emailCount;
@@ -83,13 +68,12 @@ public class GetEmailGroupTreeQueryHandler : BaseHandler, IRequestHandler<GetEma
                 clientUnreadCounts.TryAdd(clientId, 0);
                 clientUnreadCounts[clientId] += unreadCount;
 
-                clientNames.TryAdd(clientId,
-                    $"{comm.Client.IdNumber}, {comm.Client.FirstName}, {comm.Client.Name}".TrimEnd(',', ' '));
+                clientNames.TryAdd(clientId, comm.ClientDisplayName);
 
                 clientGroupMapping.TryAdd(clientId, []);
-                foreach (var gi in comm.Client.GroupItems.Where(gi => !gi.IsDeleted))
+                foreach (var groupId in comm.GroupIds)
                 {
-                    clientGroupMapping[clientId].Add(gi.GroupId);
+                    clientGroupMapping[clientId].Add(groupId);
                 }
             }
 

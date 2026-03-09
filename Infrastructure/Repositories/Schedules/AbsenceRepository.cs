@@ -70,4 +70,16 @@ public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
     {
         return _exportService.CreateExcelFile(language);
     }
+
+    public async Task<int> CountActiveBreaksByAbsenceAsync(Guid absenceId, CancellationToken cancellationToken = default)
+    {
+        return await context.Set<Break>()
+            .CountAsync(b => !b.IsDeleted && b.AbsenceId == absenceId, cancellationToken);
+    }
+
+    public async Task<int> CountActiveBreakPlaceholdersByAbsenceAsync(Guid absenceId, CancellationToken cancellationToken = default)
+    {
+        return await context.Set<BreakPlaceholder>()
+            .CountAsync(bp => !bp.IsDeleted && bp.AbsenceId == absenceId, cancellationToken);
+    }
 }

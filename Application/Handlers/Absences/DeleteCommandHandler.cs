@@ -1,14 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Handler zum Loeschen einer Absence mit Pruefung auf bestehende Referenzen.
+/// @param request - Enthaelt die ID der zu loeschenden Absence
+/// </summary>
+
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Models.Schedules;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Absences;
 
@@ -16,20 +18,17 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<A
 {
     private readonly SettingsMapper _settingsMapper;
     private readonly IAbsenceRepository _repository;
-    private readonly DataBaseContext _context;
     private readonly IUnitOfWork _unitOfWork;
 
     public DeleteCommandHandler(
         SettingsMapper settingsMapper,
         IAbsenceRepository repository,
-        DataBaseContext context,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _settingsMapper = settingsMapper;
         _repository = repository;
-        _context = context;
         _unitOfWork = unitOfWork;
     }
 
@@ -43,7 +42,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<A
                 throw new KeyNotFoundException($"Absence with ID {request.Id} not found.");
             }
 
-            var usages = await GetUsagesAsync(request.Id);
+            var usages = await GetUsagesAsync(request.Id, cancellationToken);
             if (usages.Count > 0)
             {
                 throw new InvalidOperationException(
@@ -59,19 +58,17 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<A
         new { AbsenceId = request.Id });
     }
 
-    private async Task<List<string>> GetUsagesAsync(Guid absenceId)
+    private async Task<List<string>> GetUsagesAsync(Guid absenceId, CancellationToken cancellationToken)
     {
         var usages = new List<string>();
 
-        var breakCount = await _context.Set<Break>()
-            .CountAsync(b => !b.IsDeleted && b.AbsenceId == absenceId);
+        var breakCount = await _repository.CountActiveBreaksByAbsenceAsync(absenceId, cancellationToken);
         if (breakCount > 0)
         {
             usages.Add($"{breakCount} Break(s)");
         }
 
-        var placeholderCount = await _context.Set<BreakPlaceholder>()
-            .CountAsync(bp => !bp.IsDeleted && bp.AbsenceId == absenceId);
+        var placeholderCount = await _repository.CountActiveBreakPlaceholdersByAbsenceAsync(absenceId, cancellationToken);
         if (placeholderCount > 0)
         {
             usages.Add($"{placeholderCount} Break Placeholder(s)");

@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using System.Text.Json;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -66,7 +67,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         {
             if (skill.RequiredPermission == null ||
                 userRights.Contains(skill.RequiredPermission) ||
-                userRights.Contains("Admin"))
+                userRights.Contains(Roles.Admin))
             {
                 functions.Add(ConvertToLLMFunction(skill));
             }

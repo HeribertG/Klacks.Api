@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +26,7 @@ namespace Klacks.Api.Presentation.Controllers.Internal;
 /// </summary>
 [ApiController]
 [Route("api/internal/[controller]")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = Roles.Admin)]
 public class DatabaseController : ControllerBase
 {
     private readonly IDatabaseInitializer _databaseInitializer;

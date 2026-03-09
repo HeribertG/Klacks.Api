@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Commands.Accounts;
 using Klacks.Api.Application.Queries.Accounts;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Application.DTOs.Registrations;
@@ -49,7 +50,7 @@ public class AccountsController : BaseController
         return Ok(result);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     [HttpPut("ChangeRoleUser")]
     public async Task<ActionResult> ChangeRoleUser([FromBody] ChangeRole changeRole)
     {
@@ -58,7 +59,7 @@ public class AccountsController : BaseController
         return Ok(result);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteAccountUser(Guid id)
     {
@@ -67,7 +68,7 @@ public class AccountsController : BaseController
         return Ok(result);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     [HttpPut]
     public async Task<ActionResult> UpdateAccount([FromBody] UpdateAccountResource model)
     {
@@ -76,7 +77,7 @@ public class AccountsController : BaseController
         return Ok(result);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     [HttpGet("GenerateUsername")]
     public async Task<ActionResult<string>> GenerateUsername([FromQuery] string firstName, [FromQuery] string lastName)
     {

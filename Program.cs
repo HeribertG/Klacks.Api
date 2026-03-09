@@ -163,6 +163,7 @@ builder.Services.AddSingleton<IScheduleTimelineStore, ScheduleTimelineStore>();
 builder.Services.AddSingleton<ScheduleTimelineBackgroundService>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());
 builder.Services.AddSingleton<IScheduleTimelineService>(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());
+builder.Services.AddSingleton<LLMMapper>();
 builder.Services.AddSingleton<IAssistantConnectionTracker, AssistantConnectionTracker>();
 builder.Services.AddScoped<IAssistantNotificationService, AssistantNotificationService>();
 builder.Services.AddScoped<Klacks.Api.Domain.Interfaces.Email.IEmailNotificationService, EmailNotificationService>();

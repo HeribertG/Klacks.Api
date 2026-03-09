@@ -1,13 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Settings;
 
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = Roles.Admin)]
 public class PostcodeChController : BaseController
 {
     private readonly IPostcodeChRepository _postcodeChRepository;

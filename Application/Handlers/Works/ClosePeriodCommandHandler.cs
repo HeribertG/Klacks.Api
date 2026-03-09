@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
@@ -34,8 +35,8 @@ public class ClosePeriodCommandHandler : BaseHandler, IRequestHandler<ClosePerio
     {
         return await ExecuteAsync(async () =>
         {
-            var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole("Admin") == true;
-            var isAuthorised = _httpContextAccessor.HttpContext?.User?.HasClaim("IsAuthorised", "true") == true;
+            var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
+            var isAuthorised = _httpContextAccessor.HttpContext?.User?.HasClaim(ClaimNames.IsAuthorised, "true") == true;
 
             if (!_lockLevelService.CanSeal(WorkLockLevel.None, WorkLockLevel.Closed, isAdmin, isAuthorised))
                 throw new Domain.Exceptions.InvalidRequestException("You do not have permission to close periods.");

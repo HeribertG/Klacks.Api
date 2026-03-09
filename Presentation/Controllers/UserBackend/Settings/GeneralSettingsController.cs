@@ -3,13 +3,14 @@
 using Klacks.Api.Application.Commands.Settings.Settings;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.DTOs.Settings;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Settings;
 
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = Roles.Admin)]
 public class GeneralSettingsController : BaseController
 {
     private readonly IMediator mediator;

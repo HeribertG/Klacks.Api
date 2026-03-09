@@ -1,15 +1,17 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Handler zum Loeschen einer CalendarSelection mit Pruefung auf bestehende Referenzen.
+/// @param request - Enthaelt die ID der zu loeschenden CalendarSelection
+/// </summary>
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Infrastructure.Persistence;
-using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Models.Associations;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.CalendarSelections;
 
@@ -17,14 +19,12 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<C
 {
     private readonly ICalendarSelectionRepository _calendarSelectionRepository;
     private readonly ISettingsRepository _settingsRepository;
-    private readonly DataBaseContext _context;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public DeleteCommandHandler(
         ICalendarSelectionRepository calendarSelectionRepository,
         ISettingsRepository settingsRepository,
-        DataBaseContext context,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
@@ -32,7 +32,6 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<C
     {
         _calendarSelectionRepository = calendarSelectionRepository;
         _settingsRepository = settingsRepository;
-        _context = context;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
     }
@@ -47,7 +46,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<C
                 throw new KeyNotFoundException($"Calendar Selection with ID {request.Id} not found.");
             }
 
-            var usages = await GetUsagesAsync(request.Id);
+            var usages = await GetUsagesAsync(request.Id, cancellationToken);
             if (usages.Count > 0)
             {
                 throw new InvalidOperationException(
@@ -63,25 +62,23 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<C
         new { CalendarSelectionId = request.Id });
     }
 
-    private async Task<List<string>> GetUsagesAsync(Guid calendarSelectionId)
+    private async Task<List<string>> GetUsagesAsync(Guid calendarSelectionId, CancellationToken cancellationToken)
     {
         var usages = new List<string>();
 
-        var globalSetting = await _settingsRepository.GetSetting(Domain.Constants.SettingKeys.GlobalCalendarSelectionId);
+        var globalSetting = await _settingsRepository.GetSetting(SettingKeys.GlobalCalendarSelectionId);
         if (globalSetting?.Value == calendarSelectionId.ToString())
         {
             usages.Add("Global Settings");
         }
 
-        var groupCount = await _context.Set<Group>()
-            .CountAsync(g => !g.IsDeleted && g.CalendarSelectionId == calendarSelectionId);
+        var groupCount = await _calendarSelectionRepository.CountActiveGroupsByCalendarSelectionAsync(calendarSelectionId, cancellationToken);
         if (groupCount > 0)
         {
             usages.Add($"{groupCount} Group(s)");
         }
 
-        var contractCount = await _context.Set<Contract>()
-            .CountAsync(c => !c.IsDeleted && c.CalendarSelectionId == calendarSelectionId);
+        var contractCount = await _calendarSelectionRepository.CountActiveContractsByCalendarSelectionAsync(calendarSelectionId, cancellationToken);
         if (contractCount > 0)
         {
             usages.Add($"{contractCount} Contract(s)");

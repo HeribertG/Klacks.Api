@@ -4,6 +4,7 @@ using Klacks.Api.Application.Commands.Reports;
 using Klacks.Api.Application.DTOs.Reports;
 using Klacks.Api.Application.Mappers.Reports;
 using Klacks.Api.Application.Queries.Reports;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Reports;
 
 [ApiController]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = Roles.Admin)]
 public class ReportTemplatesController : BaseController
 {
     private readonly IMediator _mediator;

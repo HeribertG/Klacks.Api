@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Queries.Assistant;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
@@ -55,7 +56,7 @@ public class ModelsController : ControllerBase
     }
 
     [HttpPost("{modelId}/enable")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<ActionResult> EnableModel(string modelId)
     {
         await _mediator.Send(new EnableLLMModelCommand(modelId));
@@ -64,7 +65,7 @@ public class ModelsController : ControllerBase
     }
 
     [HttpPost("{modelId}/disable")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<ActionResult> DisableModel(string modelId)
     {
         await _mediator.Send(new DisableLLMModelCommand(modelId));
@@ -73,7 +74,7 @@ public class ModelsController : ControllerBase
     }
 
     [HttpPost("{modelId}/set-default")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<ActionResult> SetDefaultModel(string modelId)
     {
         await _mediator.Send(new SetDefaultLLMModelCommand(modelId));
@@ -82,7 +83,7 @@ public class ModelsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<ActionResult<LLMModel>> CreateModel([FromBody] LLMModel model)
     {
         var result = await _mediator.Send(new PostCommand<LLMModel>(model));
@@ -91,7 +92,7 @@ public class ModelsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<ActionResult<LLMModel>> UpdateModel(Guid id, [FromBody] LLMModel model)
     {
         model.Id = id;
@@ -101,7 +102,7 @@ public class ModelsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<ActionResult> DeleteModel(string id)
     {
         if (Guid.TryParse(id, out var guidId))
