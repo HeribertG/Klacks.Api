@@ -325,9 +325,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.ValidateAddressSkill>();
         services.AddScoped<Application.Skills.GetUserPermissionsSkill>();
         services.AddScoped<Application.Skills.GetGeneralSettingsSkill>();
-        services.AddScoped<Application.Skills.UpdateGeneralSettingsSkill>();
         services.AddScoped<Application.Skills.GetOwnerAddressSkill>();
-        services.AddScoped<Application.Skills.UpdateOwnerAddressSkill>();
         services.AddScoped<Application.Skills.GetAiSoulSkill>();
         services.AddScoped<Application.Skills.UpdateAiSoulSkill>();
         services.AddScoped<Application.Skills.AddAiMemorySkill>();
@@ -340,12 +338,20 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.UpdateAiGuidelinesSkill>();
         services.AddScoped<Application.Skills.GetPageControlsSkill>();
         services.AddScoped<Application.Skills.GetEmailSettingsSkill>();
-        services.AddScoped<Application.Skills.UpdateEmailSettingsSkill>();
         services.AddScoped<Application.Skills.GetImapSettingsSkill>();
-        services.AddScoped<Application.Skills.UpdateImapSettingsSkill>();
         services.AddScoped<Application.Skills.WebSearchSkill>();
         services.AddScoped<Application.Skills.TestSmtpConnectionSkill>();
         services.AddScoped<Application.Skills.TestImapConnectionSkill>();
+        services.AddScoped<Application.Skills.GetWorkSettingsSkill>();
+        services.AddScoped<Application.Skills.GetSchedulingDefaultsSkill>();
+        services.AddScoped<Application.Skills.GetDeeplSettingsSkill>();
+        services.AddScoped<Application.Skills.GetWebSearchSettingsSkill>();
+        services.AddScoped<Application.Skills.UpdateWebSearchSettingsSkill>();
+        services.AddScoped<Application.Skills.GetSpamFilterSettingsSkill>();
+        services.AddScoped<Application.Skills.UpdateSpamFilterSettingsSkill>();
+        services.AddScoped<Application.Skills.ListLlmProvidersSkill>();
+        services.AddScoped<Application.Skills.ListLlmModelsSkill>();
+        services.AddScoped<Application.Skills.ListSchedulingRulesSkill>();
         services.AddScoped<Infrastructure.WebSearch.WebSearchProviderFactory>();
 
         services.AddScoped<Persistence.Seed.AgentSoulSectionSeedService>();

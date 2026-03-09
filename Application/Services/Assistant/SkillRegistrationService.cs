@@ -75,9 +75,7 @@ public class SkillRegistrationService
             typeof(ValidateAddressSkill),
             typeof(GetUserPermissionsSkill),
             typeof(GetGeneralSettingsSkill),
-            typeof(UpdateGeneralSettingsSkill),
             typeof(GetOwnerAddressSkill),
-            typeof(UpdateOwnerAddressSkill),
             typeof(GetAiSoulSkill),
             typeof(UpdateAiSoulSkill),
             typeof(AddAiMemorySkill),
@@ -90,12 +88,20 @@ public class SkillRegistrationService
             typeof(UpdateAiGuidelinesSkill),
             typeof(GetPageControlsSkill),
             typeof(GetEmailSettingsSkill),
-            typeof(UpdateEmailSettingsSkill),
             typeof(GetImapSettingsSkill),
-            typeof(UpdateImapSettingsSkill),
             typeof(WebSearchSkill),
             typeof(TestSmtpConnectionSkill),
-            typeof(TestImapConnectionSkill)
+            typeof(TestImapConnectionSkill),
+            typeof(GetWorkSettingsSkill),
+            typeof(GetSchedulingDefaultsSkill),
+            typeof(GetDeeplSettingsSkill),
+            typeof(GetWebSearchSettingsSkill),
+            typeof(UpdateWebSearchSettingsSkill),
+            typeof(GetSpamFilterSettingsSkill),
+            typeof(UpdateSpamFilterSettingsSkill),
+            typeof(ListLlmProvidersSkill),
+            typeof(ListLlmModelsSkill),
+            typeof(ListSchedulingRulesSkill)
         };
 
         using var scope = _serviceProvider.CreateScope();

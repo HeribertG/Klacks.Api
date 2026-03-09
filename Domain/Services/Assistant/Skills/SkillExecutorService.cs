@@ -62,6 +62,11 @@ public class SkillExecutorService : ISkillExecutor
             _logger.LogInformation("Executing skill: {SkillName} for user {UserId}",
                 descriptor.Name, context.UserId);
 
+            if (descriptor.ImplementationType == null)
+            {
+                return SkillResult.Error($"Skill '{invocation.SkillName}' is a declarative skill and cannot be executed directly.");
+            }
+
             var skill = (ISkill)_serviceProvider.GetRequiredService(descriptor.ImplementationType);
             var result = await skill.ExecuteAsync(context, invocation.Parameters, cancellationToken);
 

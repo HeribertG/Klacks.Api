@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Skill zum Aktualisieren der Web-Search-Einstellungen.
+/// </summary>
+/// <param name="provider">Web-Search-Provider (z.B. Brave, Google)</param>
+/// <param name="apiKey">API-Key für den Web-Search-Provider</param>
+/// <param name="maxResults">Maximale Anzahl an Suchergebnissen</param>
+
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
@@ -8,16 +15,15 @@ using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class UpdateImapSettingsSkill : BaseSkill
+public class UpdateWebSearchSettingsSkill : BaseSkill
 {
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public override string Name => "update_imap_settings";
+    public override string Name => "update_web_search_settings";
 
     public override string Description =>
-        "Updates the incoming email (IMAP) settings. " +
-        "All parameters are optional - only provided values will be updated.";
+        "Updates web search settings. All parameters are optional - only provided values will be updated.";
 
     public override SkillCategory Category => SkillCategory.Crud;
 
@@ -25,16 +31,12 @@ public class UpdateImapSettingsSkill : BaseSkill
 
     public override IReadOnlyList<SkillParameter> Parameters => new[]
     {
-        new SkillParameter("server", "IMAP server hostname", SkillParameterType.String, Required: false),
-        new SkillParameter("port", "IMAP server port (e.g. 993, 143)", SkillParameterType.String, Required: false),
-        new SkillParameter("enableSSL", "Enable SSL/TLS (true or false)", SkillParameterType.String, Required: false),
-        new SkillParameter("folder", "IMAP folder to monitor (e.g. INBOX)", SkillParameterType.String, Required: false),
-        new SkillParameter("pollInterval", "Poll interval in seconds", SkillParameterType.String, Required: false),
-        new SkillParameter("username", "IMAP authentication username", SkillParameterType.String, Required: false),
-        new SkillParameter("password", "IMAP authentication password", SkillParameterType.String, Required: false),
+        new SkillParameter("provider", "Web search provider name e.g. Brave, Google", SkillParameterType.String, Required: false),
+        new SkillParameter("apiKey", "API key for the web search provider", SkillParameterType.String, Required: false),
+        new SkillParameter("maxResults", "Maximum number of search results to return", SkillParameterType.String, Required: false),
     };
 
-    public UpdateImapSettingsSkill(
+    public UpdateWebSearchSettingsSkill(
         ISettingsRepository settingsRepository,
         IUnitOfWork unitOfWork)
     {
@@ -49,13 +51,9 @@ public class UpdateImapSettingsSkill : BaseSkill
     {
         var fieldMap = new Dictionary<string, string>
         {
-            { "server", Constants.Settings.APP_INCOMING_SERVER },
-            { "port", Constants.Settings.APP_INCOMING_SERVER_PORT },
-            { "enableSSL", Constants.Settings.APP_INCOMING_SERVER_SSL },
-            { "folder", Constants.Settings.APP_INCOMING_SERVER_FOLDER },
-            { "pollInterval", Constants.Settings.APP_INCOMING_SERVER_POLL_INTERVAL },
-            { "username", Constants.Settings.APP_INCOMING_SERVER_USERNAME },
-            { "password", Constants.Settings.APP_INCOMING_SERVER_PASSWORD },
+            { "provider", Constants.Settings.WEB_SEARCH_PROVIDER },
+            { "apiKey", Constants.Settings.WEB_SEARCH_API_KEY },
+            { "maxResults", Constants.Settings.WEB_SEARCH_MAX_RESULTS },
         };
 
         var updatedFields = new List<string>();
@@ -70,13 +68,13 @@ public class UpdateImapSettingsSkill : BaseSkill
         }
 
         if (updatedFields.Count == 0)
-            return SkillResult.Error("No IMAP settings parameters provided to update.");
+            return SkillResult.Error("No web search settings parameters provided to update.");
 
         await _unitOfWork.CompleteAsync();
 
         return SkillResult.SuccessResult(
             new { UpdatedFields = updatedFields },
-            $"IMAP settings updated ({updatedFields.Count} fields): {string.Join(", ", updatedFields)}");
+            $"Web search settings updated ({updatedFields.Count} fields): {string.Join(", ", updatedFields)}");
     }
 
     private async Task UpsertSetting(string settingType, string value)

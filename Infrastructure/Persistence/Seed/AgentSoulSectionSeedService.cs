@@ -83,17 +83,21 @@ public class AgentSoulSectionSeedService
             - Search for: "{provider} IMAP server port SSL settings"
             - Common settings to find: server hostname, port, SSL/TLS mode, authentication type
 
-            ### Step 3: Configure Settings
-            - Use update_email_settings to set SMTP configuration (server, port, SSL, auth type, username)
-            - Use update_imap_settings to set IMAP configuration (server, port, SSL, folder, username)
+            ### Step 3: Configure Settings via UI
+            - Use update_email_settings to set SMTP configuration - the user will see each field being filled in the Settings UI
+            - Use update_imap_settings to set IMAP configuration - same visual feedback
             - The username is usually the full email address
-            - NEVER ask for the password in chat
+            - Include all fields found via web search (server, port, SSL, auth type, username)
 
-            ### Step 4: Password Entry
-            - Tell the user to enter their password in the Settings UI:
-              - For SMTP: Navigate to Settings > Email > Password field
-              - For IMAP: Navigate to Settings > IMAP > Password field
-            - Wait for the user to confirm they entered the password
+            ### Step 4: Password Handling
+            - If the user provides their password in the chat, use it directly:
+              - Include it as smtpPassword parameter in update_email_settings
+              - Include it as password parameter in update_imap_settings
+              - The password will be filled into the Settings UI form automatically
+            - If the user does NOT provide a password, inform them:
+              - "Please enter your password in Settings > Email > Password field"
+              - "Please enter your password in Settings > IMAP > Password field"
+            - Do NOT proactively ask for the password - let the user decide
 
             ### Step 5: Test & Fix (Trial and Error)
             - Use test_smtp_connection to test SMTP
@@ -113,9 +117,9 @@ public class AgentSoulSectionSeedService
             ### Important Rules
             - Always use web_search first, don't guess server settings
             - If web_search is not configured, use your knowledge of common email providers
-            - Never expose or ask for passwords in the chat
             - Always test after configuration
             - Be transparent about what you're doing at each step
+            - The user can see all changes happening in the Settings UI in real-time
             """,
             10
         )

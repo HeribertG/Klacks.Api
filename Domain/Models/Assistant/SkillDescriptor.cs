@@ -11,4 +11,4 @@ public record SkillDescriptor(
     IReadOnlyList<SkillParameter> Parameters,
     IReadOnlyList<string> RequiredPermissions,
     IReadOnlyList<LLMCapability> RequiredCapabilities,
-    Type ImplementationType);
+    Type? ImplementationType);

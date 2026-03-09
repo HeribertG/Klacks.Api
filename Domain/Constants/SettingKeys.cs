@@ -22,6 +22,11 @@ public static class SettingKeys
     public const string PaymentInterval = "paymentInterval";
     public const string VacationDaysPerYear = "vacationDaysPerYear";
 
+    public const string ProbationPeriod = "probationPeriod";
+    public const string NoticePeriod = "noticePeriod";
+    public const string DayVisibleBefore = "dayVisibleBefore";
+    public const string DayVisibleAfter = "dayVisibleAfter";
+
     public const string SchedulingMaxWorkDays = "SCHEDULING_MAX_WORK_DAYS";
     public const string SchedulingMinRestDays = "SCHEDULING_MIN_REST_DAYS";
     public const string SchedulingMinPauseHours = "SCHEDULING_MIN_PAUSE_HOURS";
