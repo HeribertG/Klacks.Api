@@ -101,9 +101,9 @@ public class BreakMacroService : IBreakMacroService
 
     private static void SetImportsFromMacroData(CompiledScript compiledScript, MacroData data)
     {
-        compiledScript.SetExternalValue("hour", 0);
-        compiledScript.SetExternalValue("fromhour", string.Empty);
-        compiledScript.SetExternalValue("untilhour", string.Empty);
+        compiledScript.SetExternalValue("hour", data.Hour);
+        compiledScript.SetExternalValue("fromhour", data.FromHour);
+        compiledScript.SetExternalValue("untilhour", data.UntilHour);
         compiledScript.SetExternalValue("weekday", data.Weekday);
         compiledScript.SetExternalValue("holiday", data.Holiday ? 1 : 0);
         compiledScript.SetExternalValue("holidaynextday", data.HolidayNextDay ? 1 : 0);

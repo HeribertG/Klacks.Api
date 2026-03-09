@@ -35,4 +35,12 @@ public class SchedulingRuleResource
     public decimal? FullTimeHours { get; set; }
 
     public int? VacationDaysPerYear { get; set; }
+
+    public decimal? NightRate { get; set; }
+
+    public decimal? HolidayRate { get; set; }
+
+    public decimal? SaRate { get; set; }
+
+    public decimal? SoRate { get; set; }
 }
