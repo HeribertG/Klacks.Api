@@ -98,6 +98,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<Expenses> Expenses { get; set; }
 
+    public DbSet<ScheduleNote> ScheduleNotes { get; set; }
+
     public DbSet<ShiftExpenses> ShiftExpenses { get; set; }
 
     public DbSet<ScheduleChange> ScheduleChange { get; set; }
@@ -299,6 +301,7 @@ public class DataBaseContext : IdentityDbContext
         });
         modelBuilder.Entity<WorkChange>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Expenses>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<ScheduleNote>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<ShiftExpenses>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<ScheduleChange>(entity =>
         {

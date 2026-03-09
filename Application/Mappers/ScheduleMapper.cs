@@ -420,6 +420,19 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Expenses.Work))]
     public partial Expenses ToExpensesEntity(ExpensesResource resource);
 
+    public partial ScheduleNoteResource ToScheduleNoteResource(ScheduleNote scheduleNote);
+    public partial List<ScheduleNoteResource> ToScheduleNoteResourceList(List<ScheduleNote> scheduleNotes);
+
+    [MapperIgnoreTarget(nameof(ScheduleNote.CreateTime))]
+    [MapperIgnoreTarget(nameof(ScheduleNote.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(ScheduleNote.UpdateTime))]
+    [MapperIgnoreTarget(nameof(ScheduleNote.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(ScheduleNote.DeletedTime))]
+    [MapperIgnoreTarget(nameof(ScheduleNote.IsDeleted))]
+    [MapperIgnoreTarget(nameof(ScheduleNote.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(ScheduleNote.Client))]
+    public partial ScheduleNote ToScheduleNoteEntity(ScheduleNoteResource resource);
+
     public WorkNotificationDto ToWorkNotificationDto(
         Work work,
         string operationType,

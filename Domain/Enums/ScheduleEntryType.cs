@@ -8,4 +8,5 @@ public enum ScheduleEntryType
     WorkChange = 1,
     Expenses = 2,
     Break = 3,
+    ScheduleNote = 4,
 }

@@ -1,10 +1,10 @@
--- GetScheduleEntries: Returns unified view of Work, WorkChange, Expenses, and Break
+-- GetScheduleEntries: Returns unified view of Work, WorkChange, Expenses, Break, and ScheduleNote
 -- Parameters:
 --   start_date: Start of the period
 --   end_date: End of the period
 --   visible_group_ids: Optional array of visible group IDs for filtering (includes subgroups)
--- Returns: Combined entries from Work, WorkChange, Expenses, and Break with calculated times
--- Entry Types: 0 = Work, 1 = WorkChange, 2 = Expenses, 3 = Break
+-- Returns: Combined entries from Work, WorkChange, Expenses, Break, and ScheduleNote with calculated times
+-- Entry Types: 0 = Work, 1 = WorkChange, 2 = Expenses, 3 = Break, 4 = ScheduleNote
 -- Lock Levels: 0 = None, 1 = Confirmed, 2 = Approved, 3 = Closed
 
 DROP FUNCTION IF EXISTS get_work_schedule(DATE, DATE, UUID[]);
@@ -387,6 +387,36 @@ BEGIN
         WHERE b.is_deleted = false
         AND b."current_date"::DATE >= start_date
         AND b."current_date"::DATE <= end_date
+    ),
+    -- Entry Type 4: ScheduleNote entries
+    schedule_note_entries AS (
+        SELECT
+            sn.id,
+            4 AS entry_type,
+            sn.id AS source_id,
+            sn.client_id,
+            sn."current_date"::DATE AS entry_date,
+            '23:59:59'::TIME AS start_time,
+            '23:59:59'::TIME AS end_time,
+            NULL::NUMERIC AS change_time,
+            NULL::NUMERIC AS surcharges,
+            NULL::INTEGER AS work_change_type,
+            sn.content AS description,
+            NULL::TEXT AS information,
+            NULL::NUMERIC AS amount,
+            NULL::BOOLEAN AS to_invoice,
+            NULL::BOOLEAN AS taxable,
+            '00000000-0000-0000-0000-000000000000'::UUID AS entry_id,
+            NULL::TEXT AS entry_name,
+            NULL::TEXT AS abbreviation,
+            NULL::UUID AS replace_client_id,
+            false AS is_replacement_entry,
+            0 AS lock_level,
+            false AS is_group_restricted
+        FROM schedule_notes sn
+        WHERE sn.is_deleted = false
+        AND sn."current_date"::DATE >= start_date
+        AND sn."current_date"::DATE <= end_date
     )
     -- Combine all entries
     SELECT * FROM (
@@ -407,13 +437,16 @@ BEGIN
         SELECT * FROM expense_entries
         UNION ALL
         SELECT * FROM break_entries
+        UNION ALL
+        SELECT * FROM schedule_note_entries
     ) AS combined
     ORDER BY combined.client_id, combined.entry_date, combined.start_time,
         CASE combined.entry_type
             WHEN 0 THEN 0  -- Work first
             WHEN 2 THEN 1  -- Expenses second
             WHEN 1 THEN 2  -- WorkChange third
-            WHEN 3 THEN 3  -- Break last
+            WHEN 3 THEN 3  -- Break fourth
+            WHEN 4 THEN 4  -- ScheduleNote last
         END;
 END;
 $$ LANGUAGE plpgsql;

@@ -99,6 +99,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IBreakRepository, BreakRepository>();
         services.AddScoped<IWorkChangeRepository, WorkChangeRepository>();
         services.AddScoped<IExpensesRepository, ExpensesRepository>();
+        services.AddScoped<IScheduleNoteRepository, ScheduleNoteRepository>();
         services.AddScoped<IShiftRepository, ShiftRepository>();
         services.AddScoped<IGroupRepository, GroupRepository>();
         services.AddScoped<IAssignedGroupRepository, AssignedGroupRepository>();
