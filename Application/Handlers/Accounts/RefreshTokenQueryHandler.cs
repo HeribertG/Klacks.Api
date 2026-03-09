@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Queries.Accounts;
 using Klacks.Api.Domain.Interfaces;
@@ -43,7 +44,7 @@ public class RefreshTokenQueryHandler : IRequestHandler<RefreshTokenQuery, Token
                     IsAdmin = result.IsAdmin,
                     IsAuthorised = result.IsAuthorised,
                     RefreshToken = result.RefreshToken,
-                    Version = new MyVersion().Get()
+                    Version = MyVersion.Get()
                 };
                 
                 _logger.LogInformation("Token refresh successful for user: {UserId}", result.Id);

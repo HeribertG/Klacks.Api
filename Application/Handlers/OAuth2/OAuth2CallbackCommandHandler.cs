@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Commands.OAuth2;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
@@ -105,7 +106,7 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
             ExpTime = result.Expires,
             IsAdmin = result.IsAdmin,
             IsAuthorised = result.IsAuthorised,
-            Version = new MyVersion().Get()
+            Version = MyVersion.Get()
         };
     }
 
@@ -142,7 +143,7 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
             ExpTime = result.Expires,
             IsAdmin = result.IsAdmin,
             IsAuthorised = result.IsAuthorised,
-            Version = new MyVersion().Get()
+            Version = MyVersion.Get()
         };
     }
 

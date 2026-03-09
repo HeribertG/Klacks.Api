@@ -21,12 +21,12 @@ COPY Klacks.Api/ Klacks.Api/
 COPY Klacks.Docs/ Klacks.Docs/
 
 # Inject version into constants before build
-RUN sed -i "s/public const int CMajor = 1;/public const int CMajor = ${KLACKS_VERSION_MAJOR};/" Klacks.Api/Infrastructure/Constants/VersionConstant.cs && \
-    sed -i "s/public const int CMinor = 0;/public const int CMinor = ${KLACKS_VERSION_MINOR};/" Klacks.Api/Infrastructure/Constants/VersionConstant.cs && \
-    sed -i "s/public const int CPatch = 0;/public const int CPatch = ${KLACKS_VERSION_PATCH};/" Klacks.Api/Infrastructure/Constants/VersionConstant.cs && \
-    sed -i "s/public const string CBuildKey = \"local\";/public const string CBuildKey = \"${KLACKS_BUILD_KEY}\";/" Klacks.Api/Infrastructure/Constants/VersionConstant.cs && \
-    sed -i "s/public const string CBuildTimestamp = \"2026-03-03\";/public const string CBuildTimestamp = \"${KLACKS_BUILD_TIMESTAMP}\";/" Klacks.Api/Infrastructure/Constants/VersionConstant.cs && \
-    sed -i "s/public static string CVar = \"DEV\";/public static string CVar = \"${KLACKS_VARIANT}\";/" Klacks.Api/Infrastructure/Constants/BuildVariantConstant.cs
+RUN sed -i "s/public const int CMajor = 1;/public const int CMajor = ${KLACKS_VERSION_MAJOR};/" Klacks.Api/Application/Constants/VersionConstant.cs && \
+    sed -i "s/public const int CMinor = 0;/public const int CMinor = ${KLACKS_VERSION_MINOR};/" Klacks.Api/Application/Constants/VersionConstant.cs && \
+    sed -i "s/public const int CPatch = 0;/public const int CPatch = ${KLACKS_VERSION_PATCH};/" Klacks.Api/Application/Constants/VersionConstant.cs && \
+    sed -i "s/public const string CBuildKey = \"local\";/public const string CBuildKey = \"${KLACKS_BUILD_KEY}\";/" Klacks.Api/Application/Constants/VersionConstant.cs && \
+    sed -i "s/public const string CBuildTimestamp = \"2026-03-03\";/public const string CBuildTimestamp = \"${KLACKS_BUILD_TIMESTAMP}\";/" Klacks.Api/Application/Constants/VersionConstant.cs && \
+    sed -i "s/public static readonly string CVar = \"DEV\";/public static readonly string CVar = \"${KLACKS_VARIANT}\";/" Klacks.Api/Application/Constants/BuildVariantConstant.cs
 
 # Build and publish
 RUN dotnet publish Klacks.Api/Klacks.Api.csproj -c Release -o /app/publish

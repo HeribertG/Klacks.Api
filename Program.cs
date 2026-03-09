@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using FluentValidation;
-using Klacks.Api;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Validation;
 using Klacks.Api.Data.Seed;
 using Klacks.Api.Domain.Models.Authentification;
@@ -246,7 +246,7 @@ var app = builder.Build();
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-Console.WriteLine("Version {0}", new MyVersion().Get(true));
+Console.WriteLine("Version {0}", MyVersion.Get(true));
 
 if (app.Environment.IsDevelopment())
 {
