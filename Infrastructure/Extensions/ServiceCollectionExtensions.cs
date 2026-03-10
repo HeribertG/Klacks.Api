@@ -247,6 +247,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IEmailClientAssignmentService, EmailClientAssignmentService>();
         services.AddSingleton<IEmailReclassificationTrigger, EmailReclassificationTrigger>();
         services.AddHostedService<EmailPollingBackgroundService>();
+        services.AddHttpClient<IMarketplaceClientService, MarketplaceClientService>();
     }
 
     private static void AddAuthenticationServices(this IServiceCollection services)

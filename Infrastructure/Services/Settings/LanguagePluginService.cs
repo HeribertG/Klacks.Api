@@ -250,6 +250,20 @@ public class LanguagePluginService : ILanguagePluginService
         }
     }
 
+    public async Task<string?> GetPluginDocAsync(string code, string manualName)
+    {
+        if (!IsInstalled(code))
+            return null;
+
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+
+        var doc = await db.PluginDocs
+            .FirstOrDefaultAsync(d => d.PluginCode == code && d.ManualName == manualName);
+
+        return doc?.HtmlContent;
+    }
+
     public void RefreshPlugins()
     {
         _manifests.Clear();
