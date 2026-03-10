@@ -12,6 +12,8 @@ public class MultiLanguage
     private Dictionary<string, string?> _values = new(StringComparer.OrdinalIgnoreCase);
 
     public static string[] CoreLanguages => ["de", "en", "fr", "it"];
+    public static string[] PluginLanguages => ["ja", "es"];
+    public static string[] MappedLanguages => [..CoreLanguages, ..PluginLanguages];
 
     [Obsolete("Use CoreLanguages or LanguageConfig.SupportedLanguages instead")]
     public static string[] SupportedLanguages => CoreLanguages;
@@ -44,18 +46,32 @@ public class MultiLanguage
         set => SetValue("it", value);
     }
 
+    [JsonPropertyName("ja")]
+    public string? Ja
+    {
+        get => GetValue("ja");
+        set => SetValue("ja", value);
+    }
+
+    [JsonPropertyName("es")]
+    public string? Es
+    {
+        get => GetValue("es");
+        set => SetValue("es", value);
+    }
+
     [JsonExtensionData]
     [NotMapped]
     public Dictionary<string, object?> AdditionalLanguages
     {
         get => _values
-            .Where(kvp => !CoreLanguages.Contains(kvp.Key, StringComparer.OrdinalIgnoreCase))
+            .Where(kvp => !MappedLanguages.Contains(kvp.Key, StringComparer.OrdinalIgnoreCase))
             .ToDictionary(kvp => kvp.Key, kvp => (object?)kvp.Value);
         set
         {
             foreach (var kvp in value)
             {
-                if (!CoreLanguages.Contains(kvp.Key, StringComparer.OrdinalIgnoreCase))
+                if (!MappedLanguages.Contains(kvp.Key, StringComparer.OrdinalIgnoreCase))
                 {
                     SetValue(kvp.Key, kvp.Value?.ToString());
                 }
