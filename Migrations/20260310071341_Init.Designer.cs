@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20260308231805_AddSurchargeRatesToSchedulingRule")]
-    partial class AddSurchargeRatesToSchedulingRule
+    [Migration("20260310071341_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -4356,6 +4356,63 @@ namespace Klacks.Api.Migrations
                     b.ToTable("schedule_change", (string)null);
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.ScheduleNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("client_id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<DateOnly>("CurrentDate")
+                        .HasColumnType("date")
+                        .HasColumnName("current_date");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_schedule_notes");
+
+                    b.HasIndex("ClientId")
+                        .HasDatabaseName("ix_schedule_notes_client_id");
+
+                    b.ToTable("schedule_notes", (string)null);
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Shift", b =>
                 {
                     b.Property<Guid>("Id")
@@ -6939,6 +6996,18 @@ namespace Klacks.Api.Migrations
                         .HasConstraintName("fk_period_individual_period_individual_period_id");
 
                     b.Navigation("IndividualPeriod");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.ScheduleNote", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_schedule_notes_client_client_id");
+
+                    b.Navigation("Client");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Shift", b =>

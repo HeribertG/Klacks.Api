@@ -319,6 +319,28 @@ namespace Klacks.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "floor_plan",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    description = table.Column<string>(type: "text", nullable: true),
+                    canvas_json = table.Column<string>(type: "text", nullable: true),
+                    thumbnail_data = table.Column<string>(type: "text", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_floor_plan", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "global_agent_rules",
                 columns: table => new
                 {
@@ -644,6 +666,10 @@ namespace Klacks.Api.Migrations
                     minimum_hours = table.Column<decimal>(type: "numeric", nullable: true),
                     full_time_hours = table.Column<decimal>(type: "numeric", nullable: true),
                     vacation_days_per_year = table.Column<int>(type: "integer", nullable: true),
+                    night_rate = table.Column<decimal>(type: "numeric", nullable: true),
+                    holiday_rate = table.Column<decimal>(type: "numeric", nullable: true),
+                    sa_rate = table.Column<decimal>(type: "numeric", nullable: true),
+                    so_rate = table.Column<decimal>(type: "numeric", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -1061,6 +1087,40 @@ namespace Klacks.Api.Migrations
                         name: "fk_selected_calendar_calendar_selection_calendar_selection_id",
                         column: x => x.calendar_selection_id,
                         principalTable: "calendar_selection",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "floor_plan_work_marker",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    floor_plan_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    work_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    label = table.Column<string>(type: "text", nullable: true),
+                    x = table.Column<double>(type: "double precision", nullable: false),
+                    y = table.Column<double>(type: "double precision", nullable: false),
+                    width = table.Column<double>(type: "double precision", nullable: false),
+                    height = table.Column<double>(type: "double precision", nullable: false),
+                    color = table.Column<string>(type: "text", nullable: true),
+                    marker_type = table.Column<int>(type: "integer", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_floor_plan_work_marker", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_floor_plan_work_marker_floor_plan_floor_plan_id",
+                        column: x => x.floor_plan_id,
+                        principalTable: "floor_plan",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1874,6 +1934,33 @@ namespace Klacks.Api.Migrations
                     table.PrimaryKey("pk_membership", x => x.id);
                     table.ForeignKey(
                         name: "fk_membership_client_client_id",
+                        column: x => x.client_id,
+                        principalTable: "client",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "schedule_notes",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    content = table.Column<string>(type: "text", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_schedule_notes", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_schedule_notes_client_client_id",
                         column: x => x.client_id,
                         principalTable: "client",
                         principalColumn: "id",
@@ -2796,6 +2883,11 @@ namespace Klacks.Api.Migrations
                 column: "work_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_floor_plan_work_marker_floor_plan_id",
+                table: "floor_plan_work_marker",
+                column: "floor_plan_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_global_agent_rule_histories_global_agent_rule_id_create_time",
                 table: "global_agent_rule_histories",
                 columns: new[] { "global_agent_rule_id", "create_time" });
@@ -2978,6 +3070,11 @@ namespace Klacks.Api.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "ix_schedule_notes_client_id",
+                table: "schedule_notes",
+                column: "client_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_scheduling_rules_is_deleted_name",
                 table: "scheduling_rules",
                 columns: new[] { "is_deleted", "name" });
@@ -3151,6 +3248,9 @@ namespace Klacks.Api.Migrations
                 name: "expenses");
 
             migrationBuilder.DropTable(
+                name: "floor_plan_work_marker");
+
+            migrationBuilder.DropTable(
                 name: "global_agent_rule_histories");
 
             migrationBuilder.DropTable(
@@ -3205,6 +3305,9 @@ namespace Klacks.Api.Migrations
                 name: "schedule_change");
 
             migrationBuilder.DropTable(
+                name: "schedule_notes");
+
+            migrationBuilder.DropTable(
                 name: "selected_calendar");
 
             migrationBuilder.DropTable(
@@ -3254,6 +3357,9 @@ namespace Klacks.Api.Migrations
 
             migrationBuilder.DropTable(
                 name: "container_template");
+
+            migrationBuilder.DropTable(
+                name: "floor_plan");
 
             migrationBuilder.DropTable(
                 name: "global_agent_rules");
