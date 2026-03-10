@@ -7,6 +7,7 @@ using Klacks.Api.Application.DTOs.Config;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.Interfaces.Settings;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Infrastructure.Persistence;
@@ -169,6 +170,7 @@ public class LanguagePluginService : ILanguagePluginService
 
         await InstallGeoDataAsync(scope, code);
         await InstallDocsAsync(scope, code);
+        await InstallSkillSynonymsAsync(scope, code);
         await unitOfWork.CompleteAsync();
 
         lock (_installedLock)
@@ -191,6 +193,7 @@ public class LanguagePluginService : ILanguagePluginService
         var settingsRepo = scope.ServiceProvider.GetRequiredService<ISettingsRepository>();
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
+        await UninstallSkillSynonymsAsync(scope, code);
         await UninstallGeoDataAsync(scope, code);
         await UninstallDocsAsync(scope, code);
 
@@ -592,6 +595,84 @@ public class LanguagePluginService : ILanguagePluginService
 
         db.PluginDocs.RemoveRange(docs);
         _logger.LogInformation("Uninstalled {Count} doc(s) for language plugin '{Code}'", docs.Count, code);
+    }
+
+    private async Task InstallSkillSynonymsAsync(IServiceScope scope, string code)
+    {
+        var synonymsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.SkillSynonymsFileName);
+        if (!File.Exists(synonymsPath))
+            return;
+
+        try
+        {
+            var json = File.ReadAllText(synonymsPath);
+            var synonymMap = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json, JsonOptions);
+            if (synonymMap == null || synonymMap.Count == 0)
+                return;
+
+            var skillRepo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
+            var allSkills = await skillRepo.GetAllEnabledAsync();
+            var count = 0;
+
+            foreach (var skill in allSkills)
+            {
+                if (!synonymMap.TryGetValue(skill.Name, out var keywords))
+                    continue;
+
+                skill.Synonyms ??= new Dictionary<string, List<string>>();
+                skill.Synonyms[code] = keywords;
+                await skillRepo.UpdateAsync(skill);
+                count++;
+            }
+
+            _logger.LogInformation(
+                "Installed skill synonyms for language plugin '{Code}': {Count} skill(s) updated",
+                code, count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to install skill synonyms for language plugin '{Code}'", code);
+        }
+    }
+
+    private async Task UninstallSkillSynonymsAsync(IServiceScope scope, string code)
+    {
+        var synonymsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.SkillSynonymsFileName);
+        if (!File.Exists(synonymsPath))
+            return;
+
+        try
+        {
+            var json = File.ReadAllText(synonymsPath);
+            var synonymMap = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json, JsonOptions);
+            if (synonymMap == null || synonymMap.Count == 0)
+                return;
+
+            var skillRepo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
+            var allSkills = await skillRepo.GetAllEnabledAsync();
+            var count = 0;
+
+            foreach (var skill in allSkills)
+            {
+                if (!synonymMap.ContainsKey(skill.Name))
+                    continue;
+
+                if (skill.Synonyms == null || !skill.Synonyms.ContainsKey(code))
+                    continue;
+
+                skill.Synonyms.Remove(code);
+                await skillRepo.UpdateAsync(skill);
+                count++;
+            }
+
+            _logger.LogInformation(
+                "Uninstalled skill synonyms for language plugin '{Code}': {Count} skill(s) updated",
+                code, count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to uninstall skill synonyms for language plugin '{Code}'", code);
+        }
     }
 
     private bool IsInstalled(string code)

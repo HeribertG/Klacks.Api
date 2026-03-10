@@ -23,6 +23,7 @@ using Klacks.Api.Infrastructure.Services.ScheduleEntries;
 using Klacks.Api.Infrastructure.Services.PeriodHours;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Services.Assistant;
+using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.RouteOptimization;
 using Klacks.Api.Domain.Services.Common;
@@ -278,6 +279,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<LLMConversationManager>();
         services.AddScoped<LLMFunctionExecutor>();
         services.AddScoped<LLMResponseBuilder>();
+        services.AddScoped<ISkillClassifierService, SkillClassifierService>();
         services.AddScoped<LLMSystemPromptBuilder>();
         services.AddSingleton<IPromptTranslationProvider, PromptTranslationProvider>();
         services.AddScoped<IEmbeddingService, Klacks.Api.Infrastructure.Services.Assistant.EmbeddingService>();

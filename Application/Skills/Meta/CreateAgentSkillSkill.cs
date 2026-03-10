@@ -9,6 +9,7 @@
 /// <param name="category">Skill category (optional, default: Action)</param>
 /// <param name="handlerSteps">JSON array of handler steps for UiAction (optional)</param>
 /// <param name="triggerKeywords">Comma-separated keywords that trigger this skill (optional)</param>
+/// <param name="synonyms">JSON object mapping language codes to synonym lists, e.g. {"de":["wort1"],"en":["word1"]} (optional)</param>
 
 using System.Text.Json;
 using Klacks.Api.Application.Services.Assistant;
@@ -47,6 +48,7 @@ public class CreateAgentSkillSkill : BaseSkillImplementation
         var category = GetParameter<string>(parameters, "category") ?? "Action";
         var handlerSteps = GetParameter<string>(parameters, "handlerSteps");
         var triggerKeywords = GetParameter<string>(parameters, "triggerKeywords");
+        var synonymsJson = GetParameter<string>(parameters, "synonyms");
 
         name = name.Trim().ToLowerInvariant().Replace(' ', '_');
 
@@ -82,6 +84,17 @@ public class CreateAgentSkillSkill : BaseSkillImplementation
             keywordsJson = $"[{string.Join(",", keywords)}]";
         }
 
+        Dictionary<string, List<string>>? synonyms = null;
+        if (!string.IsNullOrWhiteSpace(synonymsJson))
+        {
+            var parseResult = ParseSynonyms(synonymsJson);
+            if (parseResult.Error != null)
+            {
+                return SkillResult.Error(parseResult.Error);
+            }
+            synonyms = parseResult.Value;
+        }
+
         var agentSkill = new AgentSkill
         {
             AgentId = agent.Id,
@@ -91,6 +104,7 @@ public class CreateAgentSkillSkill : BaseSkillImplementation
             ExecutionType = LlmExecutionTypes.UiAction,
             HandlerConfig = handlerConfig,
             TriggerKeywords = keywordsJson,
+            Synonyms = synonyms,
             IsEnabled = true,
             Version = 1
         };
@@ -123,6 +137,23 @@ public class CreateAgentSkillSkill : BaseSkillImplementation
         catch
         {
             return $"{{\"steps\":{handlerSteps}}}";
+        }
+    }
+
+    private static (Dictionary<string, List<string>>? Value, string? Error) ParseSynonyms(string json)
+    {
+        try
+        {
+            var result = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json);
+            if (result == null)
+            {
+                return (null, "Synonyms JSON parsed to null. Expected an object like {\"de\":[\"wort1\"],\"en\":[\"word1\"]}.");
+            }
+            return (result, null);
+        }
+        catch (JsonException ex)
+        {
+            return (null, $"Invalid synonyms JSON: {ex.Message}");
         }
     }
 }

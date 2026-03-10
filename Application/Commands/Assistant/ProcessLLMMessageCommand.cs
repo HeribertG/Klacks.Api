@@ -16,6 +16,7 @@ using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
+using Klacks.Api.Application.Services.Assistant;
 
 namespace Klacks.Api.Application.Commands.Assistant;
 
@@ -35,18 +36,22 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     private readonly ILLMService _llmService;
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly IAgentRepository _agentRepository;
+    private readonly ISkillClassifierService _skillClassifierService;
 
     private const int MaxToolsForProvider = 30;
     private const int WordBoundaryThreshold = 5;
+    private const int MinMessageLengthForClassification = 20;
 
     public ProcessLLMMessageCommandHandler(
         ILLMService llmService,
         IAgentSkillRepository agentSkillRepository,
-        IAgentRepository agentRepository)
+        IAgentRepository agentRepository,
+        ISkillClassifierService skillClassifierService)
     {
         _llmService = llmService;
         _agentSkillRepository = agentSkillRepository;
         _agentRepository = agentRepository;
+        _skillClassifierService = skillClassifierService;
     }
 
     public async Task<LLMResponse> Handle(ProcessLLMMessageCommand request, CancellationToken cancellationToken)
@@ -89,6 +94,19 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         var keywordMatchedSkills = permittedSkills
             .Where(s => !s.AlwaysOn && MatchesSkillKeywords(s, userMessage, language))
             .ToList();
+
+        if (keywordMatchedSkills.Count == 0 && userMessage.Length > MinMessageLengthForClassification)
+        {
+            var classifiedKeywords = await _skillClassifierService.ClassifyMessageAsync(userMessage, language, cancellationToken);
+
+            if (classifiedKeywords.Count > 0)
+            {
+                var classifiedMessage = string.Join(" ", classifiedKeywords);
+                keywordMatchedSkills = permittedSkills
+                    .Where(s => !s.AlwaysOn && MatchesSkillKeywords(s, classifiedMessage, language))
+                    .ToList();
+            }
+        }
 
         if (keywordMatchedSkills.Count == 0)
         {

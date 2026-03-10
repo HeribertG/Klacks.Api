@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "skills": [
     {
       "name": "get_current_time",
@@ -28,7 +28,7 @@
       "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_system_info",
@@ -43,7 +43,7 @@
       "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_user_context",
@@ -58,7 +58,7 @@
       "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
-      "version": 3
+      "version": 4
     },
     {
       "name": "validate_calendar_rule",
@@ -109,10 +109,40 @@
         "geocode"
       ],
       "synonyms": {
-        "de": ["kalenderregel", "feiertag", "ostern", "kalender", "feiertagsregel", "datumsregel"],
-        "en": ["calendar rule", "holiday", "easter", "calendar", "holiday rule", "date rule"]
+        "de": [
+          "kalenderregel",
+          "feiertag",
+          "ostern",
+          "kalender",
+          "feiertagsregel",
+          "datumsregel"
+        ],
+        "en": [
+          "calendar rule",
+          "holiday",
+          "easter",
+          "calendar",
+          "holiday rule",
+          "date rule"
+        ],
+        "fr": [
+          "regle de calendrier",
+          "jour ferie",
+          "paques",
+          "calendrier",
+          "regle de fete",
+          "regle de date"
+        ],
+        "it": [
+          "regola calendario",
+          "giorno festivo",
+          "pasqua",
+          "calendario",
+          "regola festivita",
+          "regola data"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "navigate_to",
@@ -163,7 +193,7 @@
       "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_page_controls",
@@ -187,7 +217,7 @@
       "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
-      "version": 3
+      "version": 4
     },
     {
       "name": "add_ai_memory",
@@ -280,10 +310,44 @@
         "verhalten"
       ],
       "synonyms": {
-        "de": ["erinnerung", "gedächtnis", "notiz", "merkzettel", "speicher", "kontext", "information merken"],
-        "en": ["memory", "remember", "note", "recall", "context", "memorize", "store info"]
+        "de": [
+          "erinnerung",
+          "gedächtnis",
+          "notiz",
+          "merkzettel",
+          "speicher",
+          "kontext",
+          "information merken"
+        ],
+        "en": [
+          "memory",
+          "remember",
+          "note",
+          "recall",
+          "context",
+          "memorize",
+          "store info"
+        ],
+        "fr": [
+          "memoire",
+          "souvenir",
+          "note",
+          "memo",
+          "stockage",
+          "contexte",
+          "memoriser"
+        ],
+        "it": [
+          "memoria",
+          "ricordo",
+          "nota",
+          "promemoria",
+          "archivio",
+          "contesto",
+          "memorizzare"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "add_client_to_group",
@@ -343,10 +407,51 @@
         "personal"
       ],
       "synonyms": {
-        "de": ["mitarbeiter", "angestellter", "personal", "arbeitnehmer", "beschäftigter", "kunde", "klient", "person", "belegschaft", "personalverwaltung"],
-        "en": ["employee", "staff", "worker", "personnel", "hire", "client", "customer", "person", "workforce"]
+        "de": [
+          "mitarbeiter",
+          "angestellter",
+          "personal",
+          "arbeitnehmer",
+          "beschäftigter",
+          "kunde",
+          "klient",
+          "person",
+          "belegschaft",
+          "personalverwaltung"
+        ],
+        "en": [
+          "employee",
+          "staff",
+          "worker",
+          "personnel",
+          "hire",
+          "client",
+          "customer",
+          "person",
+          "workforce"
+        ],
+        "fr": [
+          "employe",
+          "collaborateur",
+          "personnel",
+          "salarie",
+          "client",
+          "clientele",
+          "personne",
+          "effectif"
+        ],
+        "it": [
+          "dipendente",
+          "collaboratore",
+          "personale",
+          "lavoratore",
+          "cliente",
+          "clientela",
+          "persona",
+          "forza lavoro"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "assign_contract_to_client",
@@ -413,10 +518,51 @@
         "personal"
       ],
       "synonyms": {
-        "de": ["mitarbeiter", "angestellter", "personal", "arbeitnehmer", "beschäftigter", "kunde", "klient", "person", "belegschaft", "personalverwaltung"],
-        "en": ["employee", "staff", "worker", "personnel", "hire", "client", "customer", "person", "workforce"]
+        "de": [
+          "mitarbeiter",
+          "angestellter",
+          "personal",
+          "arbeitnehmer",
+          "beschäftigter",
+          "kunde",
+          "klient",
+          "person",
+          "belegschaft",
+          "personalverwaltung"
+        ],
+        "en": [
+          "employee",
+          "staff",
+          "worker",
+          "personnel",
+          "hire",
+          "client",
+          "customer",
+          "person",
+          "workforce"
+        ],
+        "fr": [
+          "employe",
+          "collaborateur",
+          "personnel",
+          "salarie",
+          "client",
+          "clientele",
+          "personne",
+          "effectif"
+        ],
+        "it": [
+          "dipendente",
+          "collaboratore",
+          "personale",
+          "lavoratore",
+          "cliente",
+          "clientela",
+          "persona",
+          "forza lavoro"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "configure_heartbeat",
@@ -471,10 +617,40 @@
         "überwachung"
       ],
       "synonyms": {
-        "de": ["heartbeat", "überwachung", "monitoring", "proaktiv", "statusprüfung", "health check"],
-        "en": ["heartbeat", "monitoring", "proactive", "status check", "health check", "watchdog"]
+        "de": [
+          "heartbeat",
+          "überwachung",
+          "monitoring",
+          "proaktiv",
+          "statusprüfung",
+          "health check"
+        ],
+        "en": [
+          "heartbeat",
+          "monitoring",
+          "proactive",
+          "status check",
+          "health check",
+          "watchdog"
+        ],
+        "fr": [
+          "heartbeat",
+          "surveillance",
+          "monitoring",
+          "proactif",
+          "verification statut",
+          "health check"
+        ],
+        "it": [
+          "heartbeat",
+          "sorveglianza",
+          "monitoring",
+          "proattivo",
+          "controllo stato",
+          "health check"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "create_branch",
@@ -532,10 +708,41 @@
         "niederlassung"
       ],
       "synonyms": {
-        "de": ["filiale", "standort", "niederlassung", "geschäftsstelle", "zweigstelle", "aussenstelle", "büro"],
-        "en": ["branch", "office", "location", "site", "outlet", "subsidiary"]
+        "de": [
+          "filiale",
+          "standort",
+          "niederlassung",
+          "geschäftsstelle",
+          "zweigstelle",
+          "aussenstelle",
+          "büro"
+        ],
+        "en": [
+          "branch",
+          "office",
+          "location",
+          "site",
+          "outlet",
+          "subsidiary"
+        ],
+        "fr": [
+          "filiale",
+          "succursale",
+          "bureau",
+          "agence",
+          "antenne",
+          "site"
+        ],
+        "it": [
+          "filiale",
+          "sede",
+          "ufficio",
+          "agenzia",
+          "succursale",
+          "punto vendita"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "create_contract",
@@ -635,10 +842,41 @@
         "arbeitsvertrag"
       ],
       "synonyms": {
-        "de": ["vertrag", "arbeitsvertrag", "anstellung", "beschäftigung", "kontrakt", "vereinbarung", "dienstvertrag"],
-        "en": ["contract", "agreement", "employment", "engagement", "terms", "hiring"]
+        "de": [
+          "vertrag",
+          "arbeitsvertrag",
+          "anstellung",
+          "beschäftigung",
+          "kontrakt",
+          "vereinbarung",
+          "dienstvertrag"
+        ],
+        "en": [
+          "contract",
+          "agreement",
+          "employment",
+          "engagement",
+          "terms",
+          "hiring"
+        ],
+        "fr": [
+          "contrat",
+          "contrat de travail",
+          "engagement",
+          "emploi",
+          "accord",
+          "convention"
+        ],
+        "it": [
+          "contratto",
+          "contratto di lavoro",
+          "assunzione",
+          "impiego",
+          "accordo",
+          "convenzione"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "create_employee",
@@ -750,10 +988,51 @@
         "personal"
       ],
       "synonyms": {
-        "de": ["mitarbeiter", "angestellter", "personal", "arbeitnehmer", "beschäftigter", "kunde", "klient", "person", "belegschaft", "personalverwaltung"],
-        "en": ["employee", "staff", "worker", "personnel", "hire", "client", "customer", "person", "workforce"]
+        "de": [
+          "mitarbeiter",
+          "angestellter",
+          "personal",
+          "arbeitnehmer",
+          "beschäftigter",
+          "kunde",
+          "klient",
+          "person",
+          "belegschaft",
+          "personalverwaltung"
+        ],
+        "en": [
+          "employee",
+          "staff",
+          "worker",
+          "personnel",
+          "hire",
+          "client",
+          "customer",
+          "person",
+          "workforce"
+        ],
+        "fr": [
+          "employe",
+          "collaborateur",
+          "personnel",
+          "salarie",
+          "client",
+          "clientele",
+          "personne",
+          "effectif"
+        ],
+        "it": [
+          "dipendente",
+          "collaboratore",
+          "personale",
+          "lavoratore",
+          "cliente",
+          "clientela",
+          "persona",
+          "forza lavoro"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "create_user",
@@ -806,10 +1085,46 @@
         "berechtigung"
       ],
       "synonyms": {
-        "de": ["benutzer", "nutzer", "account", "konto", "anmeldung", "zugang", "benutzerkonto", "passwort", "berechtigung"],
-        "en": ["user", "account", "login", "access", "credentials", "password", "permission"]
+        "de": [
+          "benutzer",
+          "nutzer",
+          "account",
+          "konto",
+          "anmeldung",
+          "zugang",
+          "benutzerkonto",
+          "passwort",
+          "berechtigung"
+        ],
+        "en": [
+          "user",
+          "account",
+          "login",
+          "access",
+          "credentials",
+          "password",
+          "permission"
+        ],
+        "fr": [
+          "utilisateur",
+          "compte",
+          "connexion",
+          "acces",
+          "identifiants",
+          "mot de passe",
+          "permission"
+        ],
+        "it": [
+          "utente",
+          "account",
+          "login",
+          "accesso",
+          "credenziali",
+          "password",
+          "permesso"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_ai_memory",
@@ -848,10 +1163,44 @@
         "verhalten"
       ],
       "synonyms": {
-        "de": ["erinnerung", "gedächtnis", "notiz", "merkzettel", "speicher", "kontext", "information merken"],
-        "en": ["memory", "remember", "note", "recall", "context", "memorize", "store info"]
+        "de": [
+          "erinnerung",
+          "gedächtnis",
+          "notiz",
+          "merkzettel",
+          "speicher",
+          "kontext",
+          "information merken"
+        ],
+        "en": [
+          "memory",
+          "remember",
+          "note",
+          "recall",
+          "context",
+          "memorize",
+          "store info"
+        ],
+        "fr": [
+          "memoire",
+          "souvenir",
+          "note",
+          "memo",
+          "stockage",
+          "contexte",
+          "memoriser"
+        ],
+        "it": [
+          "memoria",
+          "ricordo",
+          "nota",
+          "promemoria",
+          "archivio",
+          "contesto",
+          "memorizzare"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_branch",
@@ -885,10 +1234,41 @@
         "niederlassung"
       ],
       "synonyms": {
-        "de": ["filiale", "standort", "niederlassung", "geschäftsstelle", "zweigstelle", "aussenstelle", "büro"],
-        "en": ["branch", "office", "location", "site", "outlet", "subsidiary"]
+        "de": [
+          "filiale",
+          "standort",
+          "niederlassung",
+          "geschäftsstelle",
+          "zweigstelle",
+          "aussenstelle",
+          "büro"
+        ],
+        "en": [
+          "branch",
+          "office",
+          "location",
+          "site",
+          "outlet",
+          "subsidiary"
+        ],
+        "fr": [
+          "filiale",
+          "succursale",
+          "bureau",
+          "agence",
+          "antenne",
+          "site"
+        ],
+        "it": [
+          "filiale",
+          "sede",
+          "ufficio",
+          "agenzia",
+          "succursale",
+          "punto vendita"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_system_user",
@@ -925,10 +1305,46 @@
         "berechtigung"
       ],
       "synonyms": {
-        "de": ["benutzer", "nutzer", "account", "konto", "anmeldung", "zugang", "benutzerkonto", "passwort", "berechtigung"],
-        "en": ["user", "account", "login", "access", "credentials", "password", "permission"]
+        "de": [
+          "benutzer",
+          "nutzer",
+          "account",
+          "konto",
+          "anmeldung",
+          "zugang",
+          "benutzerkonto",
+          "passwort",
+          "berechtigung"
+        ],
+        "en": [
+          "user",
+          "account",
+          "login",
+          "access",
+          "credentials",
+          "password",
+          "permission"
+        ],
+        "fr": [
+          "utilisateur",
+          "compte",
+          "connexion",
+          "acces",
+          "identifiants",
+          "mot de passe",
+          "permission"
+        ],
+        "it": [
+          "utente",
+          "account",
+          "login",
+          "accesso",
+          "credenziali",
+          "password",
+          "permesso"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_ai_guidelines",
@@ -958,10 +1374,40 @@
         "verhalten"
       ],
       "synonyms": {
-        "de": ["richtlinie", "leitlinie", "anweisung", "vorgabe", "guideline", "verhaltensregel"],
-        "en": ["guideline", "directive", "instruction", "policy", "rule", "behavioral"]
+        "de": [
+          "richtlinie",
+          "leitlinie",
+          "anweisung",
+          "vorgabe",
+          "guideline",
+          "verhaltensregel"
+        ],
+        "en": [
+          "guideline",
+          "directive",
+          "instruction",
+          "policy",
+          "rule",
+          "behavioral"
+        ],
+        "fr": [
+          "directive",
+          "ligne directrice",
+          "instruction",
+          "politique",
+          "regle",
+          "comportement"
+        ],
+        "it": [
+          "direttiva",
+          "linea guida",
+          "istruzione",
+          "politica",
+          "regola",
+          "comportamento"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_ai_memories",
@@ -1030,10 +1476,44 @@
         "verhalten"
       ],
       "synonyms": {
-        "de": ["erinnerung", "gedächtnis", "notiz", "merkzettel", "speicher", "kontext", "information merken"],
-        "en": ["memory", "remember", "note", "recall", "context", "memorize", "store info"]
+        "de": [
+          "erinnerung",
+          "gedächtnis",
+          "notiz",
+          "merkzettel",
+          "speicher",
+          "kontext",
+          "information merken"
+        ],
+        "en": [
+          "memory",
+          "remember",
+          "note",
+          "recall",
+          "context",
+          "memorize",
+          "store info"
+        ],
+        "fr": [
+          "memoire",
+          "souvenir",
+          "note",
+          "memo",
+          "stockage",
+          "contexte",
+          "memoriser"
+        ],
+        "it": [
+          "memoria",
+          "ricordo",
+          "nota",
+          "promemoria",
+          "archivio",
+          "contesto",
+          "memorizzare"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_ai_soul",
@@ -1081,10 +1561,44 @@
         "verhalten"
       ],
       "synonyms": {
-        "de": ["persönlichkeit", "charakter", "seele", "verhalten", "tonfall", "identität", "soul"],
-        "en": ["personality", "character", "soul", "behavior", "tone", "identity", "persona"]
+        "de": [
+          "persönlichkeit",
+          "charakter",
+          "seele",
+          "verhalten",
+          "tonfall",
+          "identität",
+          "soul"
+        ],
+        "en": [
+          "personality",
+          "character",
+          "soul",
+          "behavior",
+          "tone",
+          "identity",
+          "persona"
+        ],
+        "fr": [
+          "personnalite",
+          "caractere",
+          "ame",
+          "comportement",
+          "tonalite",
+          "identite",
+          "persona"
+        ],
+        "it": [
+          "personalita",
+          "carattere",
+          "anima",
+          "comportamento",
+          "tono",
+          "identita",
+          "persona"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_client_details",
@@ -1119,10 +1633,51 @@
         "personal"
       ],
       "synonyms": {
-        "de": ["mitarbeiter", "angestellter", "personal", "arbeitnehmer", "beschäftigter", "kunde", "klient", "person", "belegschaft", "personalverwaltung"],
-        "en": ["employee", "staff", "worker", "personnel", "hire", "client", "customer", "person", "workforce"]
+        "de": [
+          "mitarbeiter",
+          "angestellter",
+          "personal",
+          "arbeitnehmer",
+          "beschäftigter",
+          "kunde",
+          "klient",
+          "person",
+          "belegschaft",
+          "personalverwaltung"
+        ],
+        "en": [
+          "employee",
+          "staff",
+          "worker",
+          "personnel",
+          "hire",
+          "client",
+          "customer",
+          "person",
+          "workforce"
+        ],
+        "fr": [
+          "employe",
+          "collaborateur",
+          "personnel",
+          "salarie",
+          "client",
+          "clientele",
+          "personne",
+          "effectif"
+        ],
+        "it": [
+          "dipendente",
+          "collaboratore",
+          "personale",
+          "lavoratore",
+          "cliente",
+          "clientela",
+          "persona",
+          "forza lavoro"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_general_settings",
@@ -1139,7 +1694,7 @@
       "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_user_permissions",
@@ -1154,7 +1709,7 @@
       "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_branches",
@@ -1188,10 +1743,41 @@
         "niederlassung"
       ],
       "synonyms": {
-        "de": ["filiale", "standort", "niederlassung", "geschäftsstelle", "zweigstelle", "aussenstelle", "büro"],
-        "en": ["branch", "office", "location", "site", "outlet", "subsidiary"]
+        "de": [
+          "filiale",
+          "standort",
+          "niederlassung",
+          "geschäftsstelle",
+          "zweigstelle",
+          "aussenstelle",
+          "büro"
+        ],
+        "en": [
+          "branch",
+          "office",
+          "location",
+          "site",
+          "outlet",
+          "subsidiary"
+        ],
+        "fr": [
+          "filiale",
+          "succursale",
+          "bureau",
+          "agence",
+          "antenne",
+          "site"
+        ],
+        "it": [
+          "filiale",
+          "sede",
+          "ufficio",
+          "agenzia",
+          "succursale",
+          "punto vendita"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_contracts",
@@ -1224,10 +1810,41 @@
         "arbeitsvertrag"
       ],
       "synonyms": {
-        "de": ["vertrag", "arbeitsvertrag", "anstellung", "beschäftigung", "kontrakt", "vereinbarung", "dienstvertrag"],
-        "en": ["contract", "agreement", "employment", "engagement", "terms", "hiring"]
+        "de": [
+          "vertrag",
+          "arbeitsvertrag",
+          "anstellung",
+          "beschäftigung",
+          "kontrakt",
+          "vereinbarung",
+          "dienstvertrag"
+        ],
+        "en": [
+          "contract",
+          "agreement",
+          "employment",
+          "engagement",
+          "terms",
+          "hiring"
+        ],
+        "fr": [
+          "contrat",
+          "contrat de travail",
+          "engagement",
+          "emploi",
+          "accord",
+          "convention"
+        ],
+        "it": [
+          "contratto",
+          "contratto di lavoro",
+          "assunzione",
+          "impiego",
+          "accordo",
+          "convenzione"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_groups",
@@ -1268,10 +1885,40 @@
         "abteilung"
       ],
       "synonyms": {
-        "de": ["gruppe", "team", "abteilung", "bereich", "organisationseinheit", "gruppierung"],
-        "en": ["group", "team", "department", "unit", "division", "organization"]
+        "de": [
+          "gruppe",
+          "team",
+          "abteilung",
+          "bereich",
+          "organisationseinheit",
+          "gruppierung"
+        ],
+        "en": [
+          "group",
+          "team",
+          "department",
+          "unit",
+          "division",
+          "organization"
+        ],
+        "fr": [
+          "groupe",
+          "equipe",
+          "departement",
+          "unite",
+          "division",
+          "organisation"
+        ],
+        "it": [
+          "gruppo",
+          "squadra",
+          "dipartimento",
+          "unita",
+          "divisione",
+          "organizzazione"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_llm_models",
@@ -1317,10 +1964,46 @@
         "api key"
       ],
       "synonyms": {
-        "de": ["llm", "ki modell", "sprachmodell", "modell", "deepseek", "openai", "anthropic", "ki konfiguration"],
-        "en": ["llm", "language model", "model", "deepseek", "openai", "anthropic", "ai config", "ai model"]
+        "de": [
+          "llm",
+          "ki modell",
+          "sprachmodell",
+          "modell",
+          "deepseek",
+          "openai",
+          "anthropic",
+          "ki konfiguration"
+        ],
+        "en": [
+          "llm",
+          "language model",
+          "model",
+          "deepseek",
+          "openai",
+          "anthropic",
+          "ai config",
+          "ai model"
+        ],
+        "fr": [
+          "modele IA",
+          "modele de langage",
+          "modele",
+          "deepseek",
+          "openai",
+          "anthropic",
+          "configuration IA"
+        ],
+        "it": [
+          "modello IA",
+          "modello di linguaggio",
+          "modello",
+          "deepseek",
+          "openai",
+          "anthropic",
+          "configurazione IA"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_llm_providers",
@@ -1358,10 +2041,42 @@
         "api key"
       ],
       "synonyms": {
-        "de": ["provider", "anbieter", "llm anbieter", "ki anbieter", "api schlüssel", "schnittstelle", "llm provider"],
-        "en": ["provider", "vendor", "llm provider", "api key", "interface", "ai provider", "llm vendor"]
+        "de": [
+          "provider",
+          "anbieter",
+          "llm anbieter",
+          "ki anbieter",
+          "api schlüssel",
+          "schnittstelle",
+          "llm provider"
+        ],
+        "en": [
+          "provider",
+          "vendor",
+          "llm provider",
+          "api key",
+          "interface",
+          "ai provider",
+          "llm vendor"
+        ],
+        "fr": [
+          "fournisseur",
+          "prestataire",
+          "fournisseur IA",
+          "cle API",
+          "interface",
+          "provider IA"
+        ],
+        "it": [
+          "provider",
+          "fornitore",
+          "provider IA",
+          "chiave API",
+          "interfaccia",
+          "fornitore IA"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_scheduling_rules",
@@ -1401,10 +2116,44 @@
         "regel"
       ],
       "synonyms": {
-        "de": ["schichtplanung", "dienstplan", "schicht", "planung", "arbeitsplan", "einsatzplanung", "überstunden", "planungsregel"],
-        "en": ["scheduling", "shift", "roster", "planning", "timetable", "overtime", "schedule rule", "shift plan"]
+        "de": [
+          "schichtplanung",
+          "dienstplan",
+          "schicht",
+          "planung",
+          "arbeitsplan",
+          "einsatzplanung",
+          "überstunden",
+          "planungsregel"
+        ],
+        "en": [
+          "scheduling",
+          "shift",
+          "roster",
+          "planning",
+          "timetable",
+          "overtime",
+          "schedule rule",
+          "shift plan"
+        ],
+        "fr": [
+          "planification",
+          "planning",
+          "horaire",
+          "plan de travail",
+          "heures supplementaires",
+          "regle de planification"
+        ],
+        "it": [
+          "pianificazione",
+          "orario",
+          "turno",
+          "piano di lavoro",
+          "straordinari",
+          "regola pianificazione"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_system_users",
@@ -1441,10 +2190,46 @@
         "berechtigung"
       ],
       "synonyms": {
-        "de": ["benutzer", "nutzer", "account", "konto", "anmeldung", "zugang", "benutzerkonto", "passwort", "berechtigung"],
-        "en": ["user", "account", "login", "access", "credentials", "password", "permission"]
+        "de": [
+          "benutzer",
+          "nutzer",
+          "account",
+          "konto",
+          "anmeldung",
+          "zugang",
+          "benutzerkonto",
+          "passwort",
+          "berechtigung"
+        ],
+        "en": [
+          "user",
+          "account",
+          "login",
+          "access",
+          "credentials",
+          "password",
+          "permission"
+        ],
+        "fr": [
+          "utilisateur",
+          "compte",
+          "connexion",
+          "acces",
+          "identifiants",
+          "mot de passe",
+          "permission"
+        ],
+        "it": [
+          "utente",
+          "account",
+          "login",
+          "accesso",
+          "credenziali",
+          "password",
+          "permesso"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "search_and_navigate",
@@ -1493,7 +2278,7 @@
       "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
-      "version": 3
+      "version": 4
     },
     {
       "name": "search_employees",
@@ -1569,10 +2354,51 @@
         "personal"
       ],
       "synonyms": {
-        "de": ["mitarbeiter", "angestellter", "personal", "arbeitnehmer", "beschäftigter", "kunde", "klient", "person", "belegschaft", "personalverwaltung"],
-        "en": ["employee", "staff", "worker", "personnel", "hire", "client", "customer", "person", "workforce"]
+        "de": [
+          "mitarbeiter",
+          "angestellter",
+          "personal",
+          "arbeitnehmer",
+          "beschäftigter",
+          "kunde",
+          "klient",
+          "person",
+          "belegschaft",
+          "personalverwaltung"
+        ],
+        "en": [
+          "employee",
+          "staff",
+          "worker",
+          "personnel",
+          "hire",
+          "client",
+          "customer",
+          "person",
+          "workforce"
+        ],
+        "fr": [
+          "employe",
+          "collaborateur",
+          "personnel",
+          "salarie",
+          "client",
+          "clientele",
+          "personne",
+          "effectif"
+        ],
+        "it": [
+          "dipendente",
+          "collaboratore",
+          "personale",
+          "lavoratore",
+          "cliente",
+          "clientela",
+          "persona",
+          "forza lavoro"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "set_user_group_scope",
@@ -1617,10 +2443,46 @@
         "berechtigung"
       ],
       "synonyms": {
-        "de": ["benutzer", "nutzer", "account", "konto", "anmeldung", "zugang", "benutzerkonto", "passwort", "berechtigung"],
-        "en": ["user", "account", "login", "access", "credentials", "password", "permission"]
+        "de": [
+          "benutzer",
+          "nutzer",
+          "account",
+          "konto",
+          "anmeldung",
+          "zugang",
+          "benutzerkonto",
+          "passwort",
+          "berechtigung"
+        ],
+        "en": [
+          "user",
+          "account",
+          "login",
+          "access",
+          "credentials",
+          "password",
+          "permission"
+        ],
+        "fr": [
+          "utilisateur",
+          "compte",
+          "connexion",
+          "acces",
+          "identifiants",
+          "mot de passe",
+          "permission"
+        ],
+        "it": [
+          "utente",
+          "account",
+          "login",
+          "accesso",
+          "credenziali",
+          "password",
+          "permesso"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "test_imap_connection",
@@ -1648,10 +2510,48 @@
         "incoming"
       ],
       "synonyms": {
-        "de": ["email", "postfach", "smtp", "imap", "mailserver", "posteingang", "postausgang", "emailkonfiguration", "mailkonto"],
-        "en": ["email", "mailbox", "smtp", "imap", "mail server", "inbox", "outbox", "mail config", "mail account"]
+        "de": [
+          "email",
+          "postfach",
+          "smtp",
+          "imap",
+          "mailserver",
+          "posteingang",
+          "postausgang",
+          "emailkonfiguration",
+          "mailkonto"
+        ],
+        "en": [
+          "email",
+          "mailbox",
+          "smtp",
+          "imap",
+          "mail server",
+          "inbox",
+          "outbox",
+          "mail config",
+          "mail account"
+        ],
+        "fr": [
+          "email",
+          "boite mail",
+          "smtp",
+          "imap",
+          "serveur mail",
+          "courrier entrant",
+          "configuration email"
+        ],
+        "it": [
+          "email",
+          "casella postale",
+          "smtp",
+          "imap",
+          "server mail",
+          "posta in entrata",
+          "configurazione email"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "test_smtp_connection",
@@ -1679,10 +2579,48 @@
         "incoming"
       ],
       "synonyms": {
-        "de": ["email", "postfach", "smtp", "imap", "mailserver", "posteingang", "postausgang", "emailkonfiguration", "mailkonto"],
-        "en": ["email", "mailbox", "smtp", "imap", "mail server", "inbox", "outbox", "mail config", "mail account"]
+        "de": [
+          "email",
+          "postfach",
+          "smtp",
+          "imap",
+          "mailserver",
+          "posteingang",
+          "postausgang",
+          "emailkonfiguration",
+          "mailkonto"
+        ],
+        "en": [
+          "email",
+          "mailbox",
+          "smtp",
+          "imap",
+          "mail server",
+          "inbox",
+          "outbox",
+          "mail config",
+          "mail account"
+        ],
+        "fr": [
+          "email",
+          "boite mail",
+          "smtp",
+          "imap",
+          "serveur mail",
+          "courrier sortant",
+          "configuration email"
+        ],
+        "it": [
+          "email",
+          "casella postale",
+          "smtp",
+          "imap",
+          "server mail",
+          "posta in uscita",
+          "configurazione email"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_ai_guidelines",
@@ -1729,10 +2667,40 @@
         "verhalten"
       ],
       "synonyms": {
-        "de": ["richtlinie", "leitlinie", "anweisung", "vorgabe", "guideline", "verhaltensregel"],
-        "en": ["guideline", "directive", "instruction", "policy", "rule", "behavioral"]
+        "de": [
+          "richtlinie",
+          "leitlinie",
+          "anweisung",
+          "vorgabe",
+          "guideline",
+          "verhaltensregel"
+        ],
+        "en": [
+          "guideline",
+          "directive",
+          "instruction",
+          "policy",
+          "rule",
+          "behavioral"
+        ],
+        "fr": [
+          "directive",
+          "ligne directrice",
+          "instruction",
+          "politique",
+          "regle",
+          "comportement"
+        ],
+        "it": [
+          "direttiva",
+          "linea guida",
+          "istruzione",
+          "politica",
+          "regola",
+          "comportamento"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_ai_memory",
@@ -1826,10 +2794,44 @@
         "verhalten"
       ],
       "synonyms": {
-        "de": ["erinnerung", "gedächtnis", "notiz", "merkzettel", "speicher", "kontext", "information merken"],
-        "en": ["memory", "remember", "note", "recall", "context", "memorize", "store info"]
+        "de": [
+          "erinnerung",
+          "gedächtnis",
+          "notiz",
+          "merkzettel",
+          "speicher",
+          "kontext",
+          "information merken"
+        ],
+        "en": [
+          "memory",
+          "remember",
+          "note",
+          "recall",
+          "context",
+          "memorize",
+          "store info"
+        ],
+        "fr": [
+          "memoire",
+          "souvenir",
+          "note",
+          "memo",
+          "stockage",
+          "contexte",
+          "memoriser"
+        ],
+        "it": [
+          "memoria",
+          "ricordo",
+          "nota",
+          "promemoria",
+          "archivio",
+          "contesto",
+          "memorizzare"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_ai_soul",
@@ -1896,10 +2898,44 @@
         "verhalten"
       ],
       "synonyms": {
-        "de": ["persönlichkeit", "charakter", "seele", "verhalten", "tonfall", "identität", "soul"],
-        "en": ["personality", "character", "soul", "behavior", "tone", "identity", "persona"]
+        "de": [
+          "persönlichkeit",
+          "charakter",
+          "seele",
+          "verhalten",
+          "tonfall",
+          "identität",
+          "soul"
+        ],
+        "en": [
+          "personality",
+          "character",
+          "soul",
+          "behavior",
+          "tone",
+          "identity",
+          "persona"
+        ],
+        "fr": [
+          "personnalite",
+          "caractere",
+          "ame",
+          "comportement",
+          "tonalite",
+          "identite",
+          "persona"
+        ],
+        "it": [
+          "personalita",
+          "carattere",
+          "anima",
+          "comportamento",
+          "tono",
+          "identita",
+          "persona"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_spam_filter_settings",
@@ -1951,10 +2987,40 @@
         "search provider"
       ],
       "synonyms": {
-        "de": ["spamfilter", "spam", "junkmail", "unerwünschte", "spamschutz", "filterregel"],
-        "en": ["spam filter", "spam", "junk mail", "unwanted", "spam protection", "filter rule"]
+        "de": [
+          "spamfilter",
+          "spam",
+          "junkmail",
+          "unerwünschte",
+          "spamschutz",
+          "filterregel"
+        ],
+        "en": [
+          "spam filter",
+          "spam",
+          "junk mail",
+          "unwanted",
+          "spam protection",
+          "filter rule"
+        ],
+        "fr": [
+          "filtre spam",
+          "spam",
+          "courrier indesirable",
+          "indesirable",
+          "protection spam",
+          "regle de filtre"
+        ],
+        "it": [
+          "filtro spam",
+          "spam",
+          "posta indesiderata",
+          "indesiderato",
+          "protezione spam",
+          "regola filtro"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_web_search_settings",
@@ -2009,10 +3075,36 @@
         "search provider"
       ],
       "synonyms": {
-        "de": ["websuche", "suchmaschine", "internetsuch", "sucheinstellung", "websearch"],
-        "en": ["web search", "search engine", "internet search", "search setting", "search provider"]
+        "de": [
+          "websuche",
+          "suchmaschine",
+          "internetsuch",
+          "sucheinstellung",
+          "websearch"
+        ],
+        "en": [
+          "web search",
+          "search engine",
+          "internet search",
+          "search setting",
+          "search provider"
+        ],
+        "fr": [
+          "recherche web",
+          "moteur de recherche",
+          "recherche internet",
+          "parametre recherche",
+          "fournisseur recherche"
+        ],
+        "it": [
+          "ricerca web",
+          "motore di ricerca",
+          "ricerca internet",
+          "impostazione ricerca",
+          "provider ricerca"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "validate_address",
@@ -2071,10 +3163,40 @@
         "geocode"
       ],
       "synonyms": {
-        "de": ["adresse", "adressvalidierung", "postleitzahl", "strasse", "adressprüfung", "anschrift"],
-        "en": ["address", "address validation", "postal code", "street", "address check", "zip code"]
+        "de": [
+          "adresse",
+          "adressvalidierung",
+          "postleitzahl",
+          "strasse",
+          "adressprüfung",
+          "anschrift"
+        ],
+        "en": [
+          "address",
+          "address validation",
+          "postal code",
+          "street",
+          "address check",
+          "zip code"
+        ],
+        "fr": [
+          "adresse",
+          "validation adresse",
+          "code postal",
+          "rue",
+          "verification adresse",
+          "localite"
+        ],
+        "it": [
+          "indirizzo",
+          "validazione indirizzo",
+          "codice postale",
+          "via",
+          "verifica indirizzo",
+          "CAP"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "web_search",
@@ -2108,7 +3230,7 @@
       "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_general_settings",
@@ -2153,12 +3275,50 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": ["settings", "einstellung", "app name", "appname", "application name", "titel", "title"],
+      "triggerKeywords": [
+        "settings",
+        "einstellung",
+        "app name",
+        "appname",
+        "application name",
+        "titel",
+        "title"
+      ],
       "synonyms": {
-        "de": ["einstellung", "konfiguration", "appname", "anwendungsname", "allgemein", "grundeinstellung"],
-        "en": ["setting", "configuration", "app name", "application", "general", "preference"]
+        "de": [
+          "einstellung",
+          "konfiguration",
+          "appname",
+          "anwendungsname",
+          "allgemein",
+          "grundeinstellung"
+        ],
+        "en": [
+          "setting",
+          "configuration",
+          "app name",
+          "application",
+          "general",
+          "preference"
+        ],
+        "fr": [
+          "parametre",
+          "configuration",
+          "nom application",
+          "application",
+          "general",
+          "reglage"
+        ],
+        "it": [
+          "impostazione",
+          "configurazione",
+          "nome app",
+          "applicazione",
+          "generale",
+          "preferenza"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_owner_address",
@@ -2408,10 +3568,41 @@
         "anschrift"
       ],
       "synonyms": {
-        "de": ["inhaber", "firmenadresse", "geschäftsadresse", "anschrift", "firmeninhaber", "unternehmen", "firma"],
-        "en": ["owner", "company address", "business address", "organization", "company", "corporate"]
+        "de": [
+          "inhaber",
+          "firmenadresse",
+          "geschäftsadresse",
+          "anschrift",
+          "firmeninhaber",
+          "unternehmen",
+          "firma"
+        ],
+        "en": [
+          "owner",
+          "company address",
+          "business address",
+          "organization",
+          "company",
+          "corporate"
+        ],
+        "fr": [
+          "proprietaire",
+          "adresse entreprise",
+          "adresse commerciale",
+          "organisation",
+          "societe",
+          "entreprise"
+        ],
+        "it": [
+          "proprietario",
+          "indirizzo aziendale",
+          "indirizzo commerciale",
+          "organizzazione",
+          "societa",
+          "azienda"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_email_settings",
@@ -2707,10 +3898,48 @@
         "incoming"
       ],
       "synonyms": {
-        "de": ["email", "postfach", "smtp", "imap", "mailserver", "posteingang", "postausgang", "emailkonfiguration", "mailkonto"],
-        "en": ["email", "mailbox", "smtp", "imap", "mail server", "inbox", "outbox", "mail config", "mail account"]
+        "de": [
+          "email",
+          "postfach",
+          "smtp",
+          "imap",
+          "mailserver",
+          "posteingang",
+          "postausgang",
+          "emailkonfiguration",
+          "mailkonto"
+        ],
+        "en": [
+          "email",
+          "mailbox",
+          "smtp",
+          "imap",
+          "mail server",
+          "inbox",
+          "outbox",
+          "mail config",
+          "mail account"
+        ],
+        "fr": [
+          "email",
+          "boite mail",
+          "smtp",
+          "imap",
+          "serveur mail",
+          "courrier sortant",
+          "configuration email"
+        ],
+        "it": [
+          "email",
+          "casella postale",
+          "smtp",
+          "imap",
+          "server mail",
+          "posta in uscita",
+          "configurazione email"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_imap_settings",
@@ -2918,10 +4147,48 @@
         "incoming"
       ],
       "synonyms": {
-        "de": ["email", "postfach", "smtp", "imap", "mailserver", "posteingang", "postausgang", "emailkonfiguration", "mailkonto"],
-        "en": ["email", "mailbox", "smtp", "imap", "mail server", "inbox", "outbox", "mail config", "mail account"]
+        "de": [
+          "email",
+          "postfach",
+          "smtp",
+          "imap",
+          "mailserver",
+          "posteingang",
+          "postausgang",
+          "emailkonfiguration",
+          "mailkonto"
+        ],
+        "en": [
+          "email",
+          "mailbox",
+          "smtp",
+          "imap",
+          "mail server",
+          "inbox",
+          "outbox",
+          "mail config",
+          "mail account"
+        ],
+        "fr": [
+          "email",
+          "boite mail",
+          "smtp",
+          "imap",
+          "serveur mail",
+          "courrier entrant",
+          "configuration email"
+        ],
+        "it": [
+          "email",
+          "casella postale",
+          "smtp",
+          "imap",
+          "server mail",
+          "posta in entrata",
+          "configurazione email"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_work_settings",
@@ -3198,10 +4465,44 @@
         "zahlung"
       ],
       "synonyms": {
-        "de": ["arbeitszeit", "urlaubstage", "probezeit", "ferien", "werktage", "arbeitsstunden", "wochenarbeitszeit", "feiertag"],
-        "en": ["working hours", "vacation", "probation", "holiday", "work days", "weekly hours", "leave", "time off"]
+        "de": [
+          "arbeitszeit",
+          "urlaubstage",
+          "probezeit",
+          "ferien",
+          "werktage",
+          "arbeitsstunden",
+          "wochenarbeitszeit",
+          "feiertag"
+        ],
+        "en": [
+          "working hours",
+          "vacation",
+          "probation",
+          "holiday",
+          "work days",
+          "weekly hours",
+          "leave",
+          "time off"
+        ],
+        "fr": [
+          "temps de travail",
+          "jours de vacances",
+          "periode essai",
+          "conges",
+          "jours ouvrables",
+          "heures hebdomadaires"
+        ],
+        "it": [
+          "orario lavoro",
+          "giorni ferie",
+          "periodo prova",
+          "ferie",
+          "giorni lavorativi",
+          "ore settimanali"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_scheduling_defaults",
@@ -3632,10 +4933,44 @@
         "regel"
       ],
       "synonyms": {
-        "de": ["schichtplanung", "dienstplan", "schicht", "planung", "arbeitsplan", "einsatzplanung", "überstunden", "planungsregel"],
-        "en": ["scheduling", "shift", "roster", "planning", "timetable", "overtime", "schedule rule", "shift plan"]
+        "de": [
+          "schichtplanung",
+          "dienstplan",
+          "schicht",
+          "planung",
+          "arbeitsplan",
+          "einsatzplanung",
+          "überstunden",
+          "planungsregel"
+        ],
+        "en": [
+          "scheduling",
+          "shift",
+          "roster",
+          "planning",
+          "timetable",
+          "overtime",
+          "schedule rule",
+          "shift plan"
+        ],
+        "fr": [
+          "planification",
+          "planning",
+          "horaire",
+          "plan de travail",
+          "heures supplementaires",
+          "regle de planification"
+        ],
+        "it": [
+          "pianificazione",
+          "orario",
+          "turno",
+          "piano di lavoro",
+          "straordinari",
+          "regola pianificazione"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_deepl_settings",
@@ -3710,10 +5045,40 @@
         "search provider"
       ],
       "synonyms": {
-        "de": ["deepl", "übersetzung", "translation", "übersetzer", "sprachübersetzung", "api schlüssel"],
-        "en": ["deepl", "translation", "translator", "language translation", "api key", "translate"]
+        "de": [
+          "deepl",
+          "übersetzung",
+          "translation",
+          "übersetzer",
+          "sprachübersetzung",
+          "api schlüssel"
+        ],
+        "en": [
+          "deepl",
+          "translation",
+          "translator",
+          "language translation",
+          "api key",
+          "translate"
+        ],
+        "fr": [
+          "deepl",
+          "traduction",
+          "traducteur",
+          "traduction linguistique",
+          "cle API",
+          "traduire"
+        ],
+        "it": [
+          "deepl",
+          "traduzione",
+          "traduttore",
+          "traduzione linguistica",
+          "chiave API",
+          "tradurre"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "create_llm_provider",
@@ -3938,10 +5303,42 @@
         "api key"
       ],
       "synonyms": {
-        "de": ["provider", "anbieter", "llm anbieter", "ki anbieter", "api schlüssel", "schnittstelle", "llm provider"],
-        "en": ["provider", "vendor", "llm provider", "api key", "interface", "ai provider", "llm vendor"]
+        "de": [
+          "provider",
+          "anbieter",
+          "llm anbieter",
+          "ki anbieter",
+          "api schlüssel",
+          "schnittstelle",
+          "llm provider"
+        ],
+        "en": [
+          "provider",
+          "vendor",
+          "llm provider",
+          "api key",
+          "interface",
+          "ai provider",
+          "llm vendor"
+        ],
+        "fr": [
+          "fournisseur",
+          "prestataire",
+          "fournisseur IA",
+          "cle API",
+          "interface",
+          "provider IA"
+        ],
+        "it": [
+          "provider",
+          "fornitore",
+          "provider IA",
+          "chiave API",
+          "interfaccia",
+          "fornitore IA"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_llm_provider",
@@ -4133,10 +5530,42 @@
         "api key"
       ],
       "synonyms": {
-        "de": ["provider", "anbieter", "llm anbieter", "ki anbieter", "api schlüssel", "schnittstelle", "llm provider"],
-        "en": ["provider", "vendor", "llm provider", "api key", "interface", "ai provider", "llm vendor"]
+        "de": [
+          "provider",
+          "anbieter",
+          "llm anbieter",
+          "ki anbieter",
+          "api schlüssel",
+          "schnittstelle",
+          "llm provider"
+        ],
+        "en": [
+          "provider",
+          "vendor",
+          "llm provider",
+          "api key",
+          "interface",
+          "ai provider",
+          "llm vendor"
+        ],
+        "fr": [
+          "fournisseur",
+          "prestataire",
+          "fournisseur IA",
+          "cle API",
+          "interface",
+          "provider IA"
+        ],
+        "it": [
+          "provider",
+          "fornitore",
+          "provider IA",
+          "chiave API",
+          "interfaccia",
+          "fornitore IA"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_llm_provider",
@@ -4197,10 +5626,42 @@
         "api key"
       ],
       "synonyms": {
-        "de": ["provider", "anbieter", "llm anbieter", "ki anbieter", "api schlüssel", "schnittstelle", "llm provider"],
-        "en": ["provider", "vendor", "llm provider", "api key", "interface", "ai provider", "llm vendor"]
+        "de": [
+          "provider",
+          "anbieter",
+          "llm anbieter",
+          "ki anbieter",
+          "api schlüssel",
+          "schnittstelle",
+          "llm provider"
+        ],
+        "en": [
+          "provider",
+          "vendor",
+          "llm provider",
+          "api key",
+          "interface",
+          "ai provider",
+          "llm vendor"
+        ],
+        "fr": [
+          "fournisseur",
+          "prestataire",
+          "fournisseur IA",
+          "cle API",
+          "interface",
+          "provider IA"
+        ],
+        "it": [
+          "provider",
+          "fornitore",
+          "provider IA",
+          "chiave API",
+          "interfaccia",
+          "fornitore IA"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "create_llm_model",
@@ -4534,10 +5995,46 @@
         "api key"
       ],
       "synonyms": {
-        "de": ["llm", "ki modell", "sprachmodell", "modell", "deepseek", "openai", "anthropic", "ki konfiguration"],
-        "en": ["llm", "language model", "model", "deepseek", "openai", "anthropic", "ai config", "ai model"]
+        "de": [
+          "llm",
+          "ki modell",
+          "sprachmodell",
+          "modell",
+          "deepseek",
+          "openai",
+          "anthropic",
+          "ki konfiguration"
+        ],
+        "en": [
+          "llm",
+          "language model",
+          "model",
+          "deepseek",
+          "openai",
+          "anthropic",
+          "ai config",
+          "ai model"
+        ],
+        "fr": [
+          "modele IA",
+          "modele de langage",
+          "modele",
+          "deepseek",
+          "openai",
+          "anthropic",
+          "configuration IA"
+        ],
+        "it": [
+          "modello IA",
+          "modello di linguaggio",
+          "modello",
+          "deepseek",
+          "openai",
+          "anthropic",
+          "configurazione IA"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_llm_model",
@@ -4824,10 +6321,46 @@
         "api key"
       ],
       "synonyms": {
-        "de": ["llm", "ki modell", "sprachmodell", "modell", "deepseek", "openai", "anthropic", "ki konfiguration"],
-        "en": ["llm", "language model", "model", "deepseek", "openai", "anthropic", "ai config", "ai model"]
+        "de": [
+          "llm",
+          "ki modell",
+          "sprachmodell",
+          "modell",
+          "deepseek",
+          "openai",
+          "anthropic",
+          "ki konfiguration"
+        ],
+        "en": [
+          "llm",
+          "language model",
+          "model",
+          "deepseek",
+          "openai",
+          "anthropic",
+          "ai config",
+          "ai model"
+        ],
+        "fr": [
+          "modele IA",
+          "modele de langage",
+          "modele",
+          "deepseek",
+          "openai",
+          "anthropic",
+          "configuration IA"
+        ],
+        "it": [
+          "modello IA",
+          "modello di linguaggio",
+          "modello",
+          "deepseek",
+          "openai",
+          "anthropic",
+          "configurazione IA"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_llm_model",
@@ -4888,10 +6421,46 @@
         "api key"
       ],
       "synonyms": {
-        "de": ["llm", "ki modell", "sprachmodell", "modell", "deepseek", "openai", "anthropic", "ki konfiguration"],
-        "en": ["llm", "language model", "model", "deepseek", "openai", "anthropic", "ai config", "ai model"]
+        "de": [
+          "llm",
+          "ki modell",
+          "sprachmodell",
+          "modell",
+          "deepseek",
+          "openai",
+          "anthropic",
+          "ki konfiguration"
+        ],
+        "en": [
+          "llm",
+          "language model",
+          "model",
+          "deepseek",
+          "openai",
+          "anthropic",
+          "ai config",
+          "ai model"
+        ],
+        "fr": [
+          "modele IA",
+          "modele de langage",
+          "modele",
+          "deepseek",
+          "openai",
+          "anthropic",
+          "configuration IA"
+        ],
+        "it": [
+          "modello IA",
+          "modello di linguaggio",
+          "modello",
+          "deepseek",
+          "openai",
+          "anthropic",
+          "configurazione IA"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "create_scheduling_rule",
@@ -5383,10 +6952,44 @@
         "regel"
       ],
       "synonyms": {
-        "de": ["schichtplanung", "dienstplan", "schicht", "planung", "arbeitsplan", "einsatzplanung", "überstunden", "planungsregel"],
-        "en": ["scheduling", "shift", "roster", "planning", "timetable", "overtime", "schedule rule", "shift plan"]
+        "de": [
+          "schichtplanung",
+          "dienstplan",
+          "schicht",
+          "planung",
+          "arbeitsplan",
+          "einsatzplanung",
+          "überstunden",
+          "planungsregel"
+        ],
+        "en": [
+          "scheduling",
+          "shift",
+          "roster",
+          "planning",
+          "timetable",
+          "overtime",
+          "schedule rule",
+          "shift plan"
+        ],
+        "fr": [
+          "planification",
+          "planning",
+          "horaire",
+          "plan de travail",
+          "heures supplementaires",
+          "regle de planification"
+        ],
+        "it": [
+          "pianificazione",
+          "orario",
+          "turno",
+          "piano di lavoro",
+          "straordinari",
+          "regola pianificazione"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_scheduling_rule",
@@ -5639,10 +7242,44 @@
         "regel"
       ],
       "synonyms": {
-        "de": ["schichtplanung", "dienstplan", "schicht", "planung", "arbeitsplan", "einsatzplanung", "überstunden", "planungsregel"],
-        "en": ["scheduling", "shift", "roster", "planning", "timetable", "overtime", "schedule rule", "shift plan"]
+        "de": [
+          "schichtplanung",
+          "dienstplan",
+          "schicht",
+          "planung",
+          "arbeitsplan",
+          "einsatzplanung",
+          "überstunden",
+          "planungsregel"
+        ],
+        "en": [
+          "scheduling",
+          "shift",
+          "roster",
+          "planning",
+          "timetable",
+          "overtime",
+          "schedule rule",
+          "shift plan"
+        ],
+        "fr": [
+          "planification",
+          "planning",
+          "horaire",
+          "plan de travail",
+          "heures supplementaires",
+          "regle de planification"
+        ],
+        "it": [
+          "pianificazione",
+          "orario",
+          "turno",
+          "piano di lavoro",
+          "straordinari",
+          "regola pianificazione"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_scheduling_rule",
@@ -5705,10 +7342,44 @@
         "regel"
       ],
       "synonyms": {
-        "de": ["schichtplanung", "dienstplan", "schicht", "planung", "arbeitsplan", "einsatzplanung", "überstunden", "planungsregel"],
-        "en": ["scheduling", "shift", "roster", "planning", "timetable", "overtime", "schedule rule", "shift plan"]
+        "de": [
+          "schichtplanung",
+          "dienstplan",
+          "schicht",
+          "planung",
+          "arbeitsplan",
+          "einsatzplanung",
+          "überstunden",
+          "planungsregel"
+        ],
+        "en": [
+          "scheduling",
+          "shift",
+          "roster",
+          "planning",
+          "timetable",
+          "overtime",
+          "schedule rule",
+          "shift plan"
+        ],
+        "fr": [
+          "planification",
+          "planning",
+          "horaire",
+          "plan de travail",
+          "heures supplementaires",
+          "regle de planification"
+        ],
+        "it": [
+          "pianificazione",
+          "orario",
+          "turno",
+          "piano di lavoro",
+          "straordinari",
+          "regola pianificazione"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_branch",
@@ -5867,10 +7538,41 @@
         "niederlassung"
       ],
       "synonyms": {
-        "de": ["filiale", "standort", "niederlassung", "geschäftsstelle", "zweigstelle", "aussenstelle", "büro"],
-        "en": ["branch", "office", "location", "site", "outlet", "subsidiary"]
+        "de": [
+          "filiale",
+          "standort",
+          "niederlassung",
+          "geschäftsstelle",
+          "zweigstelle",
+          "aussenstelle",
+          "büro"
+        ],
+        "en": [
+          "branch",
+          "office",
+          "location",
+          "site",
+          "outlet",
+          "subsidiary"
+        ],
+        "fr": [
+          "filiale",
+          "succursale",
+          "bureau",
+          "agence",
+          "antenne",
+          "site"
+        ],
+        "it": [
+          "filiale",
+          "sede",
+          "ufficio",
+          "agenzia",
+          "succursale",
+          "punto vendita"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_email_settings",
@@ -5898,10 +7600,48 @@
         "incoming"
       ],
       "synonyms": {
-        "de": ["email", "postfach", "smtp", "imap", "mailserver", "posteingang", "postausgang", "emailkonfiguration", "mailkonto"],
-        "en": ["email", "mailbox", "smtp", "imap", "mail server", "inbox", "outbox", "mail config", "mail account"]
+        "de": [
+          "email",
+          "postfach",
+          "smtp",
+          "imap",
+          "mailserver",
+          "posteingang",
+          "postausgang",
+          "emailkonfiguration",
+          "mailkonto"
+        ],
+        "en": [
+          "email",
+          "mailbox",
+          "smtp",
+          "imap",
+          "mail server",
+          "inbox",
+          "outbox",
+          "mail config",
+          "mail account"
+        ],
+        "fr": [
+          "email",
+          "boite mail",
+          "smtp",
+          "imap",
+          "serveur mail",
+          "courrier sortant",
+          "configuration email"
+        ],
+        "it": [
+          "email",
+          "casella postale",
+          "smtp",
+          "imap",
+          "server mail",
+          "posta in uscita",
+          "configurazione email"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_imap_settings",
@@ -5929,10 +7669,48 @@
         "incoming"
       ],
       "synonyms": {
-        "de": ["email", "postfach", "smtp", "imap", "mailserver", "posteingang", "postausgang", "emailkonfiguration", "mailkonto"],
-        "en": ["email", "mailbox", "smtp", "imap", "mail server", "inbox", "outbox", "mail config", "mail account"]
+        "de": [
+          "email",
+          "postfach",
+          "smtp",
+          "imap",
+          "mailserver",
+          "posteingang",
+          "postausgang",
+          "emailkonfiguration",
+          "mailkonto"
+        ],
+        "en": [
+          "email",
+          "mailbox",
+          "smtp",
+          "imap",
+          "mail server",
+          "inbox",
+          "outbox",
+          "mail config",
+          "mail account"
+        ],
+        "fr": [
+          "email",
+          "boite mail",
+          "smtp",
+          "imap",
+          "serveur mail",
+          "courrier entrant",
+          "configuration email"
+        ],
+        "it": [
+          "email",
+          "casella postale",
+          "smtp",
+          "imap",
+          "server mail",
+          "posta in entrata",
+          "configurazione email"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_owner_address",
@@ -5958,10 +7736,41 @@
         "anschrift"
       ],
       "synonyms": {
-        "de": ["inhaber", "firmenadresse", "geschäftsadresse", "anschrift", "firmeninhaber", "unternehmen", "firma"],
-        "en": ["owner", "company address", "business address", "organization", "company", "corporate"]
+        "de": [
+          "inhaber",
+          "firmenadresse",
+          "geschäftsadresse",
+          "anschrift",
+          "firmeninhaber",
+          "unternehmen",
+          "firma"
+        ],
+        "en": [
+          "owner",
+          "company address",
+          "business address",
+          "organization",
+          "company",
+          "corporate"
+        ],
+        "fr": [
+          "proprietaire",
+          "adresse entreprise",
+          "adresse commerciale",
+          "organisation",
+          "societe",
+          "entreprise"
+        ],
+        "it": [
+          "proprietario",
+          "indirizzo aziendale",
+          "indirizzo commerciale",
+          "organizzazione",
+          "societa",
+          "azienda"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_work_settings",
@@ -5992,10 +7801,44 @@
         "zahlung"
       ],
       "synonyms": {
-        "de": ["arbeitszeit", "urlaubstage", "probezeit", "ferien", "werktage", "arbeitsstunden", "wochenarbeitszeit", "feiertag"],
-        "en": ["working hours", "vacation", "probation", "holiday", "work days", "weekly hours", "leave", "time off"]
+        "de": [
+          "arbeitszeit",
+          "urlaubstage",
+          "probezeit",
+          "ferien",
+          "werktage",
+          "arbeitsstunden",
+          "wochenarbeitszeit",
+          "feiertag"
+        ],
+        "en": [
+          "working hours",
+          "vacation",
+          "probation",
+          "holiday",
+          "work days",
+          "weekly hours",
+          "leave",
+          "time off"
+        ],
+        "fr": [
+          "temps de travail",
+          "jours de vacances",
+          "periode essai",
+          "conges",
+          "jours ouvrables",
+          "heures hebdomadaires"
+        ],
+        "it": [
+          "orario lavoro",
+          "giorni ferie",
+          "periodo prova",
+          "ferie",
+          "giorni lavorativi",
+          "ore settimanali"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_scheduling_defaults",
@@ -6026,10 +7869,44 @@
         "regel"
       ],
       "synonyms": {
-        "de": ["schichtplanung", "dienstplan", "schicht", "planung", "arbeitsplan", "einsatzplanung", "überstunden", "planungsregel"],
-        "en": ["scheduling", "shift", "roster", "planning", "timetable", "overtime", "schedule rule", "shift plan"]
+        "de": [
+          "schichtplanung",
+          "dienstplan",
+          "schicht",
+          "planung",
+          "arbeitsplan",
+          "einsatzplanung",
+          "überstunden",
+          "planungsregel"
+        ],
+        "en": [
+          "scheduling",
+          "shift",
+          "roster",
+          "planning",
+          "timetable",
+          "overtime",
+          "schedule rule",
+          "shift plan"
+        ],
+        "fr": [
+          "planification",
+          "planning",
+          "horaire",
+          "plan de travail",
+          "heures supplementaires",
+          "regle de planification"
+        ],
+        "it": [
+          "pianificazione",
+          "orario",
+          "turno",
+          "piano di lavoro",
+          "straordinari",
+          "regola pianificazione"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_deepl_settings",
@@ -6056,10 +7933,40 @@
         "search provider"
       ],
       "synonyms": {
-        "de": ["deepl", "übersetzung", "translation", "übersetzer", "sprachübersetzung", "api schlüssel"],
-        "en": ["deepl", "translation", "translator", "language translation", "api key", "translate"]
+        "de": [
+          "deepl",
+          "übersetzung",
+          "translation",
+          "übersetzer",
+          "sprachübersetzung",
+          "api schlüssel"
+        ],
+        "en": [
+          "deepl",
+          "translation",
+          "translator",
+          "language translation",
+          "api key",
+          "translate"
+        ],
+        "fr": [
+          "deepl",
+          "traduction",
+          "traducteur",
+          "traduction linguistique",
+          "cle API",
+          "traduire"
+        ],
+        "it": [
+          "deepl",
+          "traduzione",
+          "traduttore",
+          "traduzione linguistica",
+          "chiave API",
+          "tradurre"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_spam_filter_settings",
@@ -6086,10 +7993,40 @@
         "search provider"
       ],
       "synonyms": {
-        "de": ["spamfilter", "spam", "junkmail", "unerwünschte", "spamschutz", "filterregel"],
-        "en": ["spam filter", "spam", "junk mail", "unwanted", "spam protection", "filter rule"]
+        "de": [
+          "spamfilter",
+          "spam",
+          "junkmail",
+          "unerwünschte",
+          "spamschutz",
+          "filterregel"
+        ],
+        "en": [
+          "spam filter",
+          "spam",
+          "junk mail",
+          "unwanted",
+          "spam protection",
+          "filter rule"
+        ],
+        "fr": [
+          "filtre spam",
+          "spam",
+          "courrier indesirable",
+          "indesirable",
+          "protection spam",
+          "regle de filtre"
+        ],
+        "it": [
+          "filtro spam",
+          "spam",
+          "posta indesiderata",
+          "indesiderato",
+          "protezione spam",
+          "regola filtro"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_web_search_settings",
@@ -6116,10 +8053,36 @@
         "search provider"
       ],
       "synonyms": {
-        "de": ["websuche", "suchmaschine", "internetsuch", "sucheinstellung", "websearch"],
-        "en": ["web search", "search engine", "internet search", "search setting", "search provider"]
+        "de": [
+          "websuche",
+          "suchmaschine",
+          "internetsuch",
+          "sucheinstellung",
+          "websearch"
+        ],
+        "en": [
+          "web search",
+          "search engine",
+          "internet search",
+          "search setting",
+          "search provider"
+        ],
+        "fr": [
+          "recherche web",
+          "moteur de recherche",
+          "recherche internet",
+          "parametre recherche",
+          "fournisseur recherche"
+        ],
+        "it": [
+          "ricerca web",
+          "motore di ricerca",
+          "ricerca internet",
+          "impostazione ricerca",
+          "provider ricerca"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_agent_skills",
@@ -6163,10 +8126,38 @@
         "capability"
       ],
       "synonyms": {
-        "de": ["skill", "fähigkeit", "funktion", "fertigkeit", "kompetenz", "agentenskill"],
-        "en": ["skill", "ability", "function", "capability", "competence", "agent skill"]
+        "de": [
+          "skill",
+          "fähigkeit",
+          "funktion",
+          "fertigkeit",
+          "kompetenz",
+          "agentenskill"
+        ],
+        "en": [
+          "skill",
+          "ability",
+          "function",
+          "capability",
+          "competence",
+          "agent skill"
+        ],
+        "fr": [
+          "competence",
+          "capacite",
+          "fonction",
+          "aptitude",
+          "skill agent"
+        ],
+        "it": [
+          "competenza",
+          "capacita",
+          "funzione",
+          "abilita",
+          "skill agente"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "create_agent_skill",
@@ -6222,6 +8213,14 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "synonyms",
+          "description": "JSON object mapping language codes to synonym arrays for keyword matching, e.g. {\"de\":[\"wort1\",\"wort2\"],\"en\":[\"word1\",\"word2\"]}",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -6237,14 +8236,42 @@
         "capability"
       ],
       "synonyms": {
-        "de": ["skill", "fähigkeit", "funktion", "fertigkeit", "kompetenz", "agentenskill"],
-        "en": ["skill", "ability", "function", "capability", "competence", "agent skill"]
+        "de": [
+          "skill",
+          "fähigkeit",
+          "funktion",
+          "fertigkeit",
+          "kompetenz",
+          "agentenskill"
+        ],
+        "en": [
+          "skill",
+          "ability",
+          "function",
+          "capability",
+          "competence",
+          "agent skill"
+        ],
+        "fr": [
+          "competence",
+          "capacite",
+          "fonction",
+          "aptitude",
+          "skill agent"
+        ],
+        "it": [
+          "competenza",
+          "capacita",
+          "funzione",
+          "abilita",
+          "skill agente"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_agent_skill",
-      "description": "Updates an existing skill's description, parameters, or configuration. Use this to improve skill descriptions for better selection accuracy, or to adjust handler steps.",
+      "description": "Updates an existing skill's description, parameters, or configuration. Use this to improve skill descriptions for better selection accuracy, or to adjust handler steps, trigger keywords, or synonyms.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -6282,6 +8309,22 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "triggerKeywords",
+          "description": "New comma-separated trigger keywords",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "synonyms",
+          "description": "JSON object mapping language codes to synonym arrays for keyword matching, e.g. {\"de\":[\"wort1\",\"wort2\"],\"en\":[\"word1\",\"word2\"]}",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -6297,10 +8340,38 @@
         "capability"
       ],
       "synonyms": {
-        "de": ["skill", "fähigkeit", "funktion", "fertigkeit", "kompetenz", "agentenskill"],
-        "en": ["skill", "ability", "function", "capability", "competence", "agent skill"]
+        "de": [
+          "skill",
+          "fähigkeit",
+          "funktion",
+          "fertigkeit",
+          "kompetenz",
+          "agentenskill"
+        ],
+        "en": [
+          "skill",
+          "ability",
+          "function",
+          "capability",
+          "competence",
+          "agent skill"
+        ],
+        "fr": [
+          "competence",
+          "capacite",
+          "fonction",
+          "aptitude",
+          "skill agent"
+        ],
+        "it": [
+          "competenza",
+          "capacita",
+          "funzione",
+          "abilita",
+          "skill agente"
+        ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_agent_skill",
@@ -6333,10 +8404,38 @@
         "capability"
       ],
       "synonyms": {
-        "de": ["skill", "fähigkeit", "funktion", "fertigkeit", "kompetenz", "agentenskill"],
-        "en": ["skill", "ability", "function", "capability", "competence", "agent skill"]
+        "de": [
+          "skill",
+          "fähigkeit",
+          "funktion",
+          "fertigkeit",
+          "kompetenz",
+          "agentenskill"
+        ],
+        "en": [
+          "skill",
+          "ability",
+          "function",
+          "capability",
+          "competence",
+          "agent skill"
+        ],
+        "fr": [
+          "competence",
+          "capacite",
+          "fonction",
+          "aptitude",
+          "skill agent"
+        ],
+        "it": [
+          "competenza",
+          "capacita",
+          "funzione",
+          "abilita",
+          "skill agente"
+        ]
       },
-      "version": 3
+      "version": 4
     }
   ]
 }
