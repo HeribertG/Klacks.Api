@@ -2,7 +2,7 @@
   {
     "id": "a1b2c3d4-aa01-4000-8000-000000000001",
     "abbreviation": "JP",
-    "name": { "de": "Japan", "en": "Japan", "fr": "Japon", "it": "Giappone", "ja": "日本" },
+    "name": { "de": "Japan", "en": "Japan", "fr": "Japon", "it": "Giappone", "ja": "日本", "es": "Japón" },
     "prefix": "+81"
   }
 ]

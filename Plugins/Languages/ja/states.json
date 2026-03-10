@@ -3,282 +3,282 @@
     "id": "51b2c3d4-aa01-4000-8000-000000000001",
     "abbreviation": "HK",
     "countryPrefix": "JP",
-    "name": { "de": "Hokkaido", "en": "Hokkaido", "fr": "Hokkaido", "it": "Hokkaido", "ja": "北海道" }
+    "name": { "de": "Hokkaido", "en": "Hokkaido", "fr": "Hokkaido", "it": "Hokkaido", "ja": "北海道", "es": "Hokkaido" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000002",
     "abbreviation": "AO",
     "countryPrefix": "JP",
-    "name": { "de": "Aomori", "en": "Aomori", "fr": "Aomori", "it": "Aomori", "ja": "青森県" }
+    "name": { "de": "Aomori", "en": "Aomori", "fr": "Aomori", "it": "Aomori", "ja": "青森県", "es": "Aomori" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000003",
     "abbreviation": "IW",
     "countryPrefix": "JP",
-    "name": { "de": "Iwate", "en": "Iwate", "fr": "Iwate", "it": "Iwate", "ja": "岩手県" }
+    "name": { "de": "Iwate", "en": "Iwate", "fr": "Iwate", "it": "Iwate", "ja": "岩手県", "es": "Iwate" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000004",
     "abbreviation": "MI",
     "countryPrefix": "JP",
-    "name": { "de": "Miyagi", "en": "Miyagi", "fr": "Miyagi", "it": "Miyagi", "ja": "宮城県" }
+    "name": { "de": "Miyagi", "en": "Miyagi", "fr": "Miyagi", "it": "Miyagi", "ja": "宮城県", "es": "Miyagi" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000005",
     "abbreviation": "AK",
     "countryPrefix": "JP",
-    "name": { "de": "Akita", "en": "Akita", "fr": "Akita", "it": "Akita", "ja": "秋田県" }
+    "name": { "de": "Akita", "en": "Akita", "fr": "Akita", "it": "Akita", "ja": "秋田県", "es": "Akita" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000006",
     "abbreviation": "YM",
     "countryPrefix": "JP",
-    "name": { "de": "Yamagata", "en": "Yamagata", "fr": "Yamagata", "it": "Yamagata", "ja": "山形県" }
+    "name": { "de": "Yamagata", "en": "Yamagata", "fr": "Yamagata", "it": "Yamagata", "ja": "山形県", "es": "Yamagata" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000007",
     "abbreviation": "FK",
     "countryPrefix": "JP",
-    "name": { "de": "Fukushima", "en": "Fukushima", "fr": "Fukushima", "it": "Fukushima", "ja": "福島県" }
+    "name": { "de": "Fukushima", "en": "Fukushima", "fr": "Fukushima", "it": "Fukushima", "ja": "福島県", "es": "Fukushima" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000008",
     "abbreviation": "IB",
     "countryPrefix": "JP",
-    "name": { "de": "Ibaraki", "en": "Ibaraki", "fr": "Ibaraki", "it": "Ibaraki", "ja": "茨城県" }
+    "name": { "de": "Ibaraki", "en": "Ibaraki", "fr": "Ibaraki", "it": "Ibaraki", "ja": "茨城県", "es": "Ibaraki" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000009",
     "abbreviation": "TG",
     "countryPrefix": "JP",
-    "name": { "de": "Tochigi", "en": "Tochigi", "fr": "Tochigi", "it": "Tochigi", "ja": "栃木県" }
+    "name": { "de": "Tochigi", "en": "Tochigi", "fr": "Tochigi", "it": "Tochigi", "ja": "栃木県", "es": "Tochigi" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000010",
     "abbreviation": "GN",
     "countryPrefix": "JP",
-    "name": { "de": "Gunma", "en": "Gunma", "fr": "Gunma", "it": "Gunma", "ja": "群馬県" }
+    "name": { "de": "Gunma", "en": "Gunma", "fr": "Gunma", "it": "Gunma", "ja": "群馬県", "es": "Gunma" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000011",
     "abbreviation": "ST",
     "countryPrefix": "JP",
-    "name": { "de": "Saitama", "en": "Saitama", "fr": "Saitama", "it": "Saitama", "ja": "埼玉県" }
+    "name": { "de": "Saitama", "en": "Saitama", "fr": "Saitama", "it": "Saitama", "ja": "埼玉県", "es": "Saitama" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000012",
     "abbreviation": "CB",
     "countryPrefix": "JP",
-    "name": { "de": "Chiba", "en": "Chiba", "fr": "Chiba", "it": "Chiba", "ja": "千葉県" }
+    "name": { "de": "Chiba", "en": "Chiba", "fr": "Chiba", "it": "Chiba", "ja": "千葉県", "es": "Chiba" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000013",
     "abbreviation": "TK",
     "countryPrefix": "JP",
-    "name": { "de": "Tokio", "en": "Tokyo", "fr": "Tokyo", "it": "Tokyo", "ja": "東京都" }
+    "name": { "de": "Tokio", "en": "Tokyo", "fr": "Tokyo", "it": "Tokyo", "ja": "東京都", "es": "Tokio" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000014",
     "abbreviation": "KN",
     "countryPrefix": "JP",
-    "name": { "de": "Kanagawa", "en": "Kanagawa", "fr": "Kanagawa", "it": "Kanagawa", "ja": "神奈川県" }
+    "name": { "de": "Kanagawa", "en": "Kanagawa", "fr": "Kanagawa", "it": "Kanagawa", "ja": "神奈川県", "es": "Kanagawa" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000015",
     "abbreviation": "NI",
     "countryPrefix": "JP",
-    "name": { "de": "Niigata", "en": "Niigata", "fr": "Niigata", "it": "Niigata", "ja": "新潟県" }
+    "name": { "de": "Niigata", "en": "Niigata", "fr": "Niigata", "it": "Niigata", "ja": "新潟県", "es": "Niigata" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000016",
     "abbreviation": "TY",
     "countryPrefix": "JP",
-    "name": { "de": "Toyama", "en": "Toyama", "fr": "Toyama", "it": "Toyama", "ja": "富山県" }
+    "name": { "de": "Toyama", "en": "Toyama", "fr": "Toyama", "it": "Toyama", "ja": "富山県", "es": "Toyama" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000017",
     "abbreviation": "IS",
     "countryPrefix": "JP",
-    "name": { "de": "Ishikawa", "en": "Ishikawa", "fr": "Ishikawa", "it": "Ishikawa", "ja": "石川県" }
+    "name": { "de": "Ishikawa", "en": "Ishikawa", "fr": "Ishikawa", "it": "Ishikawa", "ja": "石川県", "es": "Ishikawa" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000018",
     "abbreviation": "FI",
     "countryPrefix": "JP",
-    "name": { "de": "Fukui", "en": "Fukui", "fr": "Fukui", "it": "Fukui", "ja": "福井県" }
+    "name": { "de": "Fukui", "en": "Fukui", "fr": "Fukui", "it": "Fukui", "ja": "福井県", "es": "Fukui" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000019",
     "abbreviation": "YN",
     "countryPrefix": "JP",
-    "name": { "de": "Yamanashi", "en": "Yamanashi", "fr": "Yamanashi", "it": "Yamanashi", "ja": "山梨県" }
+    "name": { "de": "Yamanashi", "en": "Yamanashi", "fr": "Yamanashi", "it": "Yamanashi", "ja": "山梨県", "es": "Yamanashi" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000020",
     "abbreviation": "NG",
     "countryPrefix": "JP",
-    "name": { "de": "Nagano", "en": "Nagano", "fr": "Nagano", "it": "Nagano", "ja": "長野県" }
+    "name": { "de": "Nagano", "en": "Nagano", "fr": "Nagano", "it": "Nagano", "ja": "長野県", "es": "Nagano" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000021",
     "abbreviation": "GF",
     "countryPrefix": "JP",
-    "name": { "de": "Gifu", "en": "Gifu", "fr": "Gifu", "it": "Gifu", "ja": "岐阜県" }
+    "name": { "de": "Gifu", "en": "Gifu", "fr": "Gifu", "it": "Gifu", "ja": "岐阜県", "es": "Gifu" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000022",
     "abbreviation": "SZ",
     "countryPrefix": "JP",
-    "name": { "de": "Shizuoka", "en": "Shizuoka", "fr": "Shizuoka", "it": "Shizuoka", "ja": "静岡県" }
+    "name": { "de": "Shizuoka", "en": "Shizuoka", "fr": "Shizuoka", "it": "Shizuoka", "ja": "静岡県", "es": "Shizuoka" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000023",
     "abbreviation": "AI",
     "countryPrefix": "JP",
-    "name": { "de": "Aichi", "en": "Aichi", "fr": "Aichi", "it": "Aichi", "ja": "愛知県" }
+    "name": { "de": "Aichi", "en": "Aichi", "fr": "Aichi", "it": "Aichi", "ja": "愛知県", "es": "Aichi" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000024",
     "abbreviation": "ME",
     "countryPrefix": "JP",
-    "name": { "de": "Mie", "en": "Mie", "fr": "Mie", "it": "Mie", "ja": "三重県" }
+    "name": { "de": "Mie", "en": "Mie", "fr": "Mie", "it": "Mie", "ja": "三重県", "es": "Mie" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000025",
     "abbreviation": "SG",
     "countryPrefix": "JP",
-    "name": { "de": "Shiga", "en": "Shiga", "fr": "Shiga", "it": "Shiga", "ja": "滋賀県" }
+    "name": { "de": "Shiga", "en": "Shiga", "fr": "Shiga", "it": "Shiga", "ja": "滋賀県", "es": "Shiga" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000026",
     "abbreviation": "KY",
     "countryPrefix": "JP",
-    "name": { "de": "Kyoto", "en": "Kyoto", "fr": "Kyoto", "it": "Kyoto", "ja": "京都府" }
+    "name": { "de": "Kyoto", "en": "Kyoto", "fr": "Kyoto", "it": "Kyoto", "ja": "京都府", "es": "Kioto" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000027",
     "abbreviation": "OS",
     "countryPrefix": "JP",
-    "name": { "de": "Osaka", "en": "Osaka", "fr": "Osaka", "it": "Osaka", "ja": "大阪府" }
+    "name": { "de": "Osaka", "en": "Osaka", "fr": "Osaka", "it": "Osaka", "ja": "大阪府", "es": "Osaka" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000028",
     "abbreviation": "HG",
     "countryPrefix": "JP",
-    "name": { "de": "Hyogo", "en": "Hyogo", "fr": "Hyogo", "it": "Hyogo", "ja": "兵庫県" }
+    "name": { "de": "Hyogo", "en": "Hyogo", "fr": "Hyogo", "it": "Hyogo", "ja": "兵庫県", "es": "Hyogo" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000029",
     "abbreviation": "NR",
     "countryPrefix": "JP",
-    "name": { "de": "Nara", "en": "Nara", "fr": "Nara", "it": "Nara", "ja": "奈良県" }
+    "name": { "de": "Nara", "en": "Nara", "fr": "Nara", "it": "Nara", "ja": "奈良県", "es": "Nara" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000030",
     "abbreviation": "WK",
     "countryPrefix": "JP",
-    "name": { "de": "Wakayama", "en": "Wakayama", "fr": "Wakayama", "it": "Wakayama", "ja": "和歌山県" }
+    "name": { "de": "Wakayama", "en": "Wakayama", "fr": "Wakayama", "it": "Wakayama", "ja": "和歌山県", "es": "Wakayama" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000031",
     "abbreviation": "TT",
     "countryPrefix": "JP",
-    "name": { "de": "Tottori", "en": "Tottori", "fr": "Tottori", "it": "Tottori", "ja": "鳥取県" }
+    "name": { "de": "Tottori", "en": "Tottori", "fr": "Tottori", "it": "Tottori", "ja": "鳥取県", "es": "Tottori" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000032",
     "abbreviation": "SM",
     "countryPrefix": "JP",
-    "name": { "de": "Shimane", "en": "Shimane", "fr": "Shimane", "it": "Shimane", "ja": "島根県" }
+    "name": { "de": "Shimane", "en": "Shimane", "fr": "Shimane", "it": "Shimane", "ja": "島根県", "es": "Shimane" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000033",
     "abbreviation": "OY",
     "countryPrefix": "JP",
-    "name": { "de": "Okayama", "en": "Okayama", "fr": "Okayama", "it": "Okayama", "ja": "岡山県" }
+    "name": { "de": "Okayama", "en": "Okayama", "fr": "Okayama", "it": "Okayama", "ja": "岡山県", "es": "Okayama" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000034",
     "abbreviation": "HS",
     "countryPrefix": "JP",
-    "name": { "de": "Hiroshima", "en": "Hiroshima", "fr": "Hiroshima", "it": "Hiroshima", "ja": "広島県" }
+    "name": { "de": "Hiroshima", "en": "Hiroshima", "fr": "Hiroshima", "it": "Hiroshima", "ja": "広島県", "es": "Hiroshima" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000035",
     "abbreviation": "YG",
     "countryPrefix": "JP",
-    "name": { "de": "Yamaguchi", "en": "Yamaguchi", "fr": "Yamaguchi", "it": "Yamaguchi", "ja": "山口県" }
+    "name": { "de": "Yamaguchi", "en": "Yamaguchi", "fr": "Yamaguchi", "it": "Yamaguchi", "ja": "山口県", "es": "Yamaguchi" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000036",
     "abbreviation": "TS",
     "countryPrefix": "JP",
-    "name": { "de": "Tokushima", "en": "Tokushima", "fr": "Tokushima", "it": "Tokushima", "ja": "徳島県" }
+    "name": { "de": "Tokushima", "en": "Tokushima", "fr": "Tokushima", "it": "Tokushima", "ja": "徳島県", "es": "Tokushima" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000037",
     "abbreviation": "KG",
     "countryPrefix": "JP",
-    "name": { "de": "Kagawa", "en": "Kagawa", "fr": "Kagawa", "it": "Kagawa", "ja": "香川県" }
+    "name": { "de": "Kagawa", "en": "Kagawa", "fr": "Kagawa", "it": "Kagawa", "ja": "香川県", "es": "Kagawa" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000038",
     "abbreviation": "EH",
     "countryPrefix": "JP",
-    "name": { "de": "Ehime", "en": "Ehime", "fr": "Ehime", "it": "Ehime", "ja": "愛媛県" }
+    "name": { "de": "Ehime", "en": "Ehime", "fr": "Ehime", "it": "Ehime", "ja": "愛媛県", "es": "Ehime" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000039",
     "abbreviation": "KC",
     "countryPrefix": "JP",
-    "name": { "de": "Kochi", "en": "Kochi", "fr": "Kochi", "it": "Kochi", "ja": "高知県" }
+    "name": { "de": "Kochi", "en": "Kochi", "fr": "Kochi", "it": "Kochi", "ja": "高知県", "es": "Kochi" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000040",
     "abbreviation": "FO",
     "countryPrefix": "JP",
-    "name": { "de": "Fukuoka", "en": "Fukuoka", "fr": "Fukuoka", "it": "Fukuoka", "ja": "福岡県" }
+    "name": { "de": "Fukuoka", "en": "Fukuoka", "fr": "Fukuoka", "it": "Fukuoka", "ja": "福岡県", "es": "Fukuoka" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000041",
     "abbreviation": "SA",
     "countryPrefix": "JP",
-    "name": { "de": "Saga", "en": "Saga", "fr": "Saga", "it": "Saga", "ja": "佐賀県" }
+    "name": { "de": "Saga", "en": "Saga", "fr": "Saga", "it": "Saga", "ja": "佐賀県", "es": "Saga" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000042",
     "abbreviation": "NS",
     "countryPrefix": "JP",
-    "name": { "de": "Nagasaki", "en": "Nagasaki", "fr": "Nagasaki", "it": "Nagasaki", "ja": "長崎県" }
+    "name": { "de": "Nagasaki", "en": "Nagasaki", "fr": "Nagasaki", "it": "Nagasaki", "ja": "長崎県", "es": "Nagasaki" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000043",
     "abbreviation": "KM",
     "countryPrefix": "JP",
-    "name": { "de": "Kumamoto", "en": "Kumamoto", "fr": "Kumamoto", "it": "Kumamoto", "ja": "熊本県" }
+    "name": { "de": "Kumamoto", "en": "Kumamoto", "fr": "Kumamoto", "it": "Kumamoto", "ja": "熊本県", "es": "Kumamoto" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000044",
     "abbreviation": "OI",
     "countryPrefix": "JP",
-    "name": { "de": "Oita", "en": "Oita", "fr": "Oita", "it": "Oita", "ja": "大分県" }
+    "name": { "de": "Oita", "en": "Oita", "fr": "Oita", "it": "Oita", "ja": "大分県", "es": "Oita" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000045",
     "abbreviation": "MZ",
     "countryPrefix": "JP",
-    "name": { "de": "Miyazaki", "en": "Miyazaki", "fr": "Miyazaki", "it": "Miyazaki", "ja": "宮崎県" }
+    "name": { "de": "Miyazaki", "en": "Miyazaki", "fr": "Miyazaki", "it": "Miyazaki", "ja": "宮崎県", "es": "Miyazaki" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000046",
     "abbreviation": "KS",
     "countryPrefix": "JP",
-    "name": { "de": "Kagoshima", "en": "Kagoshima", "fr": "Kagoshima", "it": "Kagoshima", "ja": "鹿児島県" }
+    "name": { "de": "Kagoshima", "en": "Kagoshima", "fr": "Kagoshima", "it": "Kagoshima", "ja": "鹿児島県", "es": "Kagoshima" }
   },
   {
     "id": "51b2c3d4-aa01-4000-8000-000000000047",
     "abbreviation": "ON",
     "countryPrefix": "JP",
-    "name": { "de": "Okinawa", "en": "Okinawa", "fr": "Okinawa", "it": "Okinawa", "ja": "沖縄県" }
+    "name": { "de": "Okinawa", "en": "Okinawa", "fr": "Okinawa", "it": "Okinawa", "ja": "沖縄県", "es": "Okinawa" }
   }
 ]
