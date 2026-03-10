@@ -23,5 +23,6 @@ public class SkillSeedDefinition
     public bool AlwaysOn { get; set; }
     public int? MaxCallsPerSession { get; set; }
     public List<string>? TriggerKeywords { get; set; }
+    public Dictionary<string, List<string>>? Synonyms { get; set; }
     public int Version { get; set; } = 1;
 }

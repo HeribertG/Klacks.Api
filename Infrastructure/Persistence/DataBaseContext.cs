@@ -168,6 +168,9 @@ public class DataBaseContext : IdentityDbContext
     // UI Control Registry DbSet
     public DbSet<UiControl> UiControls { get; set; }
 
+    // Skill Synonym DbSet
+    public DbSet<SkillSynonym> SkillSynonyms { get; set; }
+
     // Scheduling DbSets
     public DbSet<SchedulingRule> SchedulingRules { get; set; }
 
@@ -783,6 +786,8 @@ public class DataBaseContext : IdentityDbContext
                 .HasFilter("is_deleted = false")
                 .IsUnique();
             entity.HasIndex(p => new { p.AgentId, p.IsEnabled, p.SortOrder });
+            entity.Property(e => e.Synonyms)
+                .HasJsonbConversionWithComparer<Dictionary<string, List<string>>>();
 
             entity.HasOne(s => s.Agent)
                 .WithMany(a => a.Skills)
@@ -836,6 +841,16 @@ public class DataBaseContext : IdentityDbContext
                 .WithMany(c => c.ChildControls)
                 .HasForeignKey(c => c.ParentControlId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<SkillSynonym>(entity =>
+        {
+            entity.ToTable("skill_synonyms");
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => p.Language);
+            entity.HasIndex(p => new { p.SkillName, p.Language, p.Keyword })
+                .HasFilter("is_deleted = false")
+                .IsUnique();
         });
     }
 

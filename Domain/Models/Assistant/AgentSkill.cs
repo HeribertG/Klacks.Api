@@ -39,6 +39,8 @@ public class AgentSkill : BaseEntity
 
     public int Version { get; set; } = 1;
 
+    public Dictionary<string, List<string>>? Synonyms { get; set; }
+
     public virtual Agent Agent { get; set; } = null!;
 
     public virtual ICollection<AgentSkillExecution> Executions { get; set; } = new List<AgentSkillExecution>();

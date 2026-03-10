@@ -2,12 +2,15 @@
 
 /// <summary>
 /// Command to process an LLM chat message with intelligent skill filtering.
+/// Uses language-specific synonyms (JSONB) and word-boundary matching for precise skill selection.
 /// @param Message - User's chat message
 /// @param UserRights - User's permissions for skill access control
 /// @param ModelId - Optional specific LLM model to use
+/// @param Language - User's UI language (de, en, fr, it) for synonym matching
 /// </summary>
 
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -34,6 +37,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     private readonly IAgentRepository _agentRepository;
 
     private const int MaxToolsForProvider = 30;
+    private const int WordBoundaryThreshold = 5;
 
     public ProcessLLMMessageCommandHandler(
         ILLMService llmService,
@@ -59,7 +63,8 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             ModelId = request.ModelId,
             Language = request.Language,
             UserRights = request.UserRights,
-            AvailableFunctions = await GetFilteredFunctionsAsync(agent, request.UserRights, request.Message, cancellationToken)
+            AvailableFunctions = await GetFilteredFunctionsAsync(
+                agent, request.UserRights, request.Message, request.Language, cancellationToken)
         };
 
         return await _llmService.ProcessAsync(context);
@@ -69,6 +74,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         Agent? agent,
         List<string> userRights,
         string userMessage,
+        string? language,
         CancellationToken cancellationToken)
     {
         if (agent == null) return [];
@@ -81,32 +87,103 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             .ToList();
 
         var keywordMatchedSkills = permittedSkills
-            .Where(s => !s.AlwaysOn && MatchesTriggerKeywords(s, userMessage))
+            .Where(s => !s.AlwaysOn && MatchesSkillKeywords(s, userMessage, language))
             .ToList();
+
+        if (keywordMatchedSkills.Count == 0)
+        {
+            return alwaysOnSkills.Select(ConvertToLLMFunction).ToList();
+        }
 
         var selectedSkills = alwaysOnSkills
             .Concat(keywordMatchedSkills)
             .DistinctBy(s => s.Name)
             .ToList();
 
-        if (selectedSkills.Count < MaxToolsForProvider && keywordMatchedSkills.Count == 0)
+        if (selectedSkills.Count > MaxToolsForProvider)
         {
-            selectedSkills = permittedSkills
+            selectedSkills = selectedSkills
                 .OrderByDescending(s => s.AlwaysOn)
                 .ThenBy(s => s.SortOrder)
                 .Take(MaxToolsForProvider)
                 .ToList();
         }
 
-        if (selectedSkills.Count > MaxToolsForProvider)
+        return selectedSkills.Select(ConvertToLLMFunction).ToList();
+    }
+
+    private static bool MatchesSkillKeywords(AgentSkill skill, string userMessage, string? language)
+    {
+        var messageLower = userMessage.ToLowerInvariant();
+
+        if (MatchesSynonyms(skill.Synonyms, messageLower, language))
+            return true;
+
+        return MatchesLegacyTriggerKeywords(skill.TriggerKeywords, messageLower);
+    }
+
+    private static bool MatchesSynonyms(
+        Dictionary<string, List<string>>? synonyms,
+        string messageLower,
+        string? language)
+    {
+        if (synonyms == null || synonyms.Count == 0)
+            return false;
+
+        var languagesToCheck = GetLanguagePriority(language);
+
+        foreach (var lang in languagesToCheck)
         {
-            selectedSkills = selectedSkills
-                .OrderByDescending(s => s.AlwaysOn)
-                .Take(MaxToolsForProvider)
-                .ToList();
+            if (!synonyms.TryGetValue(lang, out var keywords) || keywords.Count == 0)
+                continue;
+
+            if (keywords.Any(kw => MatchesKeyword(messageLower, kw.ToLowerInvariant())))
+                return true;
         }
 
-        return selectedSkills.Select(ConvertToLLMFunction).ToList();
+        return false;
+    }
+
+    private static bool MatchesLegacyTriggerKeywords(string triggerKeywords, string messageLower)
+    {
+        if (string.IsNullOrWhiteSpace(triggerKeywords) || triggerKeywords == "[]")
+            return false;
+
+        try
+        {
+            var keywords = JsonSerializer.Deserialize<List<string>>(triggerKeywords);
+            if (keywords == null || keywords.Count == 0) return false;
+
+            return keywords.Any(kw => MatchesKeyword(messageLower, kw.ToLowerInvariant()));
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static bool MatchesKeyword(string message, string keyword)
+    {
+        if (keyword.Length < WordBoundaryThreshold)
+        {
+            return Regex.IsMatch(message, $@"\b{Regex.Escape(keyword)}\b", RegexOptions.IgnoreCase);
+        }
+
+        return message.Contains(keyword);
+    }
+
+    private static List<string> GetLanguagePriority(string? language)
+    {
+        var lang = (language ?? "de").ToLowerInvariant();
+
+        return lang switch
+        {
+            "de" => ["de", "en"],
+            "en" => ["en", "de"],
+            "fr" => ["fr", "en", "de"],
+            "it" => ["it", "en", "de"],
+            _ => [lang, "en", "de"]
+        };
     }
 
     private static List<AgentSkill> FilterByPermissions(IReadOnlyList<AgentSkill> skills, List<string> userRights)
@@ -116,25 +193,6 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
                         userRights.Contains(s.RequiredPermission) ||
                         userRights.Contains(Roles.Admin))
             .ToList();
-    }
-
-    private static bool MatchesTriggerKeywords(AgentSkill skill, string userMessage)
-    {
-        if (string.IsNullOrWhiteSpace(skill.TriggerKeywords) || skill.TriggerKeywords == "[]")
-            return false;
-
-        try
-        {
-            var keywords = JsonSerializer.Deserialize<List<string>>(skill.TriggerKeywords);
-            if (keywords == null || keywords.Count == 0) return false;
-
-            var messageLower = userMessage.ToLowerInvariant();
-            return keywords.Any(kw => messageLower.Contains(kw.ToLowerInvariant()));
-        }
-        catch
-        {
-            return false;
-        }
     }
 
     private static LLMFunction ConvertToLLMFunction(AgentSkill skill)
@@ -150,13 +208,18 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         {
             var paramDict = new Dictionary<string, object>
             {
-                ["type"] = param.Type,
+                ["type"] = NormalizeToJsonSchemaType(param.Type),
                 ["description"] = param.Description
             };
 
             if (param.EnumValues is { Count: > 0 })
             {
-                paramDict["enum"] = param.EnumValues.ToArray();
+                paramDict["enum"] = param.EnumValues;
+            }
+
+            if (param.DefaultValue != null)
+            {
+                paramDict["default"] = param.DefaultValue;
             }
 
             parameters[param.Name] = paramDict;
@@ -176,12 +239,29 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         };
     }
 
+    private static string NormalizeToJsonSchemaType(string type)
+    {
+        return type.ToLowerInvariant() switch
+        {
+            "string" => "string",
+            "integer" => "integer",
+            "decimal" or "number" => "number",
+            "boolean" => "boolean",
+            "date" or "time" or "datetime" => "string",
+            "array" => "array",
+            "object" => "object",
+            "enum" => "string",
+            _ => "string"
+        };
+    }
+
     private class ParameterDefinition
     {
         public string Name { get; set; } = string.Empty;
         public string Type { get; set; } = "string";
         public string Description { get; set; } = string.Empty;
         public bool Required { get; set; }
+        public object? DefaultValue { get; set; }
         public List<string>? EnumValues { get; set; }
     }
 }

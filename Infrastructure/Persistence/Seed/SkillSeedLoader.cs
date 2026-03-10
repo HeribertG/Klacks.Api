@@ -157,6 +157,7 @@ public class SkillSeedLoader
             HandlerConfig = SerializeHandlerConfig(definition.HandlerConfig),
             HandlerType = definition.HandlerType ?? AgentSkillDefaults.HandlerType,
             TriggerKeywords = SerializeTriggerKeywords(definition.TriggerKeywords),
+            Synonyms = definition.Synonyms,
             IsEnabled = definition.IsEnabled,
             AlwaysOn = definition.AlwaysOn,
             MaxCallsPerSession = definition.MaxCallsPerSession,
@@ -176,6 +177,7 @@ public class SkillSeedLoader
         skill.HandlerConfig = SerializeHandlerConfig(definition.HandlerConfig);
         skill.HandlerType = definition.HandlerType ?? AgentSkillDefaults.HandlerType;
         skill.TriggerKeywords = SerializeTriggerKeywords(definition.TriggerKeywords);
+        skill.Synonyms = definition.Synonyms;
         skill.IsEnabled = definition.IsEnabled;
         skill.AlwaysOn = definition.AlwaysOn;
         skill.MaxCallsPerSession = definition.MaxCallsPerSession;

@@ -21,7 +21,11 @@ public static class LLMSeed
             (gen_random_uuid(), 'deepseek', 'DeepSeek', true, 7, 'https://api.deepseek.com/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'qwen', 'Qwen (Alibaba)', false, 8, 'https://dashscope.aliyuncs.com/api/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'baidu', 'Baidu Ernie', false, 9, 'https://aip.baidubce.com/rpc/2.0/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
-            (gen_random_uuid(), 'zhipu', 'Zhipu AI (GLM)', false, 10, 'https://open.bigmodel.cn/api/paas/v4/', 'v4', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false);
+            (gen_random_uuid(), 'zhipu', 'Zhipu AI (GLM)', false, 10, 'https://open.bigmodel.cn/api/paas/v4/', 'v4', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'apertus', 'Apertus (Swiss AI)', false, 11, 'https://app.apertus.ai/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'groq', 'Groq', false, 12, 'https://api.groq.com/openai/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'together', 'Together AI', false, 13, 'https://api.together.xyz/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'fireworks', 'Fireworks AI', false, 14, 'https://api.fireworks.ai/inference/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false);
         ");
 
         migrationBuilder.Sql($@"
@@ -50,7 +54,13 @@ public static class LLMSeed
             (gen_random_uuid(), 'ernie-5', 'ERNIE 5.0', 'ernie-5.0', 'baidu', false, false, 0.002, 0.006, 8192, 128000, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'ernie-45-vl', 'ERNIE 4.5 VL', 'ernie-4.5-vl', 'baidu', false, false, 0.0015, 0.004, 8192, 128000, 'balanced', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'glm-46', 'GLM-4.6', 'glm-4.6', 'zhipu', false, false, 0.002, 0.006, 8192, 200000, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
-            (gen_random_uuid(), 'glm-45', 'GLM-4.5', 'glm-4.5', 'zhipu', false, false, 0.001, 0.003, 8192, 128000, 'balanced', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false);
+            (gen_random_uuid(), 'glm-45', 'GLM-4.5', 'glm-4.5', 'zhipu', false, false, 0.001, 0.003, 8192, 128000, 'balanced', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'apertus-70b', 'Apertus 70B Instruct', 'swiss-ai/Apertus-70B-Instruct-2509', 'apertus', false, false, 0.0009, 0.0009, 8192, 65536, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'apertus-8b', 'Apertus 8B Instruct', 'swiss-ai/Apertus-8B-Instruct-2509', 'apertus', false, false, 0.0002, 0.0002, 8192, 65536, 'fast', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'llama-4-maverick', 'Llama 4 Maverick', 'meta-llama/Llama-4-Maverick-17B-128E-Instruct', 'groq', false, false, 0.0002, 0.0006, 8192, 131072, 'fast', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'llama-4-scout', 'Llama 4 Scout', 'meta-llama/Llama-4-Scout-17B-16E-Instruct', 'groq', false, false, 0.00011, 0.00034, 8192, 131072, 'balanced', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'qwen3-235b-together', 'Qwen3 235B (Together)', 'Qwen/Qwen3-235B-A22B', 'together', false, false, 0.0012, 0.0012, 8192, 131072, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'deepseek-v3-fireworks', 'DeepSeek V3 (Fireworks)', 'accounts/fireworks/models/deepseek-v3', 'fireworks', false, false, 0.0009, 0.0009, 8192, 131072, 'balanced', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false);
         ");
     }
 }
