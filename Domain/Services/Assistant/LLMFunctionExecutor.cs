@@ -89,10 +89,9 @@ public class LLMFunctionExecutor
         return string.Join("\n", results);
     }
 
-    private static readonly Dictionary<string, string> FunctionNameAliases = new()
+    private static readonly Dictionary<string, string> FunctionNameAliases = new(StringComparer.OrdinalIgnoreCase)
     {
-        { "get_user_context", "get_user_permissions" },
-        { "get_current_user", "get_user_permissions" },
+        { "get_current_user", "get_user_context" },
         { "getUserPermissions", "get_user_permissions" },
         { "create_client", "create_employee" },
         { "search_clients", "search_employees" },

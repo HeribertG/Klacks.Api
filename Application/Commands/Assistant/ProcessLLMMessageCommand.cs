@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Command to process an LLM chat message with intelligent skill filtering.
+/// @param Message - User's chat message
+/// @param UserRights - User's permissions for skill access control
+/// @param ModelId - Optional specific LLM model to use
+/// </summary>
+
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
@@ -26,6 +33,8 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly IAgentRepository _agentRepository;
 
+    private const int MaxToolsForProvider = 30;
+
     public ProcessLLMMessageCommandHandler(
         ILLMService llmService,
         IAgentSkillRepository agentSkillRepository,
@@ -50,30 +59,82 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             ModelId = request.ModelId,
             Language = request.Language,
             UserRights = request.UserRights,
-            AvailableFunctions = await GetAvailableFunctionsAsync(agent, request.UserRights, cancellationToken)
+            AvailableFunctions = await GetFilteredFunctionsAsync(agent, request.UserRights, request.Message, cancellationToken)
         };
 
         return await _llmService.ProcessAsync(context);
     }
 
-    private async Task<List<LLMFunction>> GetAvailableFunctionsAsync(Agent? agent, List<string> userRights, CancellationToken cancellationToken)
+    private async Task<List<LLMFunction>> GetFilteredFunctionsAsync(
+        Agent? agent,
+        List<string> userRights,
+        string userMessage,
+        CancellationToken cancellationToken)
     {
         if (agent == null) return [];
 
         var skills = await _agentSkillRepository.GetEnabledAsync(agent.Id, cancellationToken);
-        var functions = new List<LLMFunction>();
+        var permittedSkills = FilterByPermissions(skills, userRights);
 
-        foreach (var skill in skills)
+        var alwaysOnSkills = permittedSkills
+            .Where(s => s.AlwaysOn)
+            .ToList();
+
+        var keywordMatchedSkills = permittedSkills
+            .Where(s => !s.AlwaysOn && MatchesTriggerKeywords(s, userMessage))
+            .ToList();
+
+        var selectedSkills = alwaysOnSkills
+            .Concat(keywordMatchedSkills)
+            .DistinctBy(s => s.Name)
+            .ToList();
+
+        if (selectedSkills.Count < MaxToolsForProvider && keywordMatchedSkills.Count == 0)
         {
-            if (skill.RequiredPermission == null ||
-                userRights.Contains(skill.RequiredPermission) ||
-                userRights.Contains(Roles.Admin))
-            {
-                functions.Add(ConvertToLLMFunction(skill));
-            }
+            selectedSkills = permittedSkills
+                .OrderByDescending(s => s.AlwaysOn)
+                .ThenBy(s => s.SortOrder)
+                .Take(MaxToolsForProvider)
+                .ToList();
         }
 
-        return functions;
+        if (selectedSkills.Count > MaxToolsForProvider)
+        {
+            selectedSkills = selectedSkills
+                .OrderByDescending(s => s.AlwaysOn)
+                .Take(MaxToolsForProvider)
+                .ToList();
+        }
+
+        return selectedSkills.Select(ConvertToLLMFunction).ToList();
+    }
+
+    private static List<AgentSkill> FilterByPermissions(IReadOnlyList<AgentSkill> skills, List<string> userRights)
+    {
+        return skills
+            .Where(s => s.RequiredPermission == null ||
+                        userRights.Contains(s.RequiredPermission) ||
+                        userRights.Contains(Roles.Admin))
+            .ToList();
+    }
+
+    private static bool MatchesTriggerKeywords(AgentSkill skill, string userMessage)
+    {
+        if (string.IsNullOrWhiteSpace(skill.TriggerKeywords) || skill.TriggerKeywords == "[]")
+            return false;
+
+        try
+        {
+            var keywords = JsonSerializer.Deserialize<List<string>>(skill.TriggerKeywords);
+            if (keywords == null || keywords.Count == 0) return false;
+
+            var messageLower = userMessage.ToLowerInvariant();
+            return keywords.Any(kw => messageLower.Contains(kw.ToLowerInvariant()));
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private static LLMFunction ConvertToLLMFunction(AgentSkill skill)

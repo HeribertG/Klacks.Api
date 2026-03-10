@@ -1,11 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// OpenAI-compatible request using the modern "tools" format (vs legacy "functions" in OpenAIRequest).
+/// Used by DeepSeek, Mistral, Generic and other OpenAI-compatible providers.
+/// </summary>
+
 using System.Text.Json.Serialization;
-using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 
-namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Mistral;
+namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 
-public class MistralRequest
+public class OpenAIToolsRequest
 {
     [JsonPropertyName("model")]
     public string Model { get; set; } = string.Empty;
@@ -22,23 +26,23 @@ public class MistralRequest
 
     [JsonPropertyName("tools")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public List<MistralTool>? Tools { get; set; }
+    public List<OpenAITool>? Tools { get; set; }
 
     [JsonPropertyName("tool_choice")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? ToolChoice { get; set; }
 }
 
-public class MistralTool
+public class OpenAITool
 {
     [JsonPropertyName("type")]
     public string Type { get; set; } = "function";
 
     [JsonPropertyName("function")]
-    public MistralFunction Function { get; set; } = new();
+    public OpenAIToolFunction Function { get; set; } = new();
 }
 
-public class MistralFunction
+public class OpenAIToolFunction
 {
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
@@ -47,10 +51,10 @@ public class MistralFunction
     public string Description { get; set; } = string.Empty;
 
     [JsonPropertyName("parameters")]
-    public MistralFunctionParameters Parameters { get; set; } = new();
+    public OpenAIToolFunctionParameters Parameters { get; set; } = new();
 }
 
-public class MistralFunctionParameters
+public class OpenAIToolFunctionParameters
 {
     [JsonPropertyName("type")]
     public string Type { get; set; } = "object";

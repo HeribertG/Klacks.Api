@@ -24,7 +24,7 @@ public class ContextAssemblyPipeline
     private readonly IConfiguration _configuration;
     private readonly ILogger<ContextAssemblyPipeline> _logger;
 
-    private const int TokensPerChar = 4;
+    private const int CharsPerToken = 4;
     private const int MaxMemoriesPerTurn = 15;
     private const int MaxPinnedMemories = 10;
 
@@ -148,7 +148,7 @@ public class ContextAssemblyPipeline
     public int EstimateTokens(string text)
     {
         if (string.IsNullOrEmpty(text)) return 0;
-        return text.Length / TokensPerChar;
+        return text.Length / CharsPerToken;
     }
 
     private Dictionary<string, string> BuildTemplateVariables(string? language)

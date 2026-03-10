@@ -20,6 +20,9 @@ public class LLMService : ILLMService
     private readonly IAgentMemoryRepository _agentMemoryRepository;
     private readonly ContextAssemblyPipeline _contextAssemblyPipeline;
 
+    private const int MaxHistoryMessages = 40;
+    private const int ReducedHistoryMessages = 20;
+
     public LLMService(
         ILogger<LLMService> logger,
         LLMProviderOrchestrator providerOrchestrator,
@@ -76,15 +79,21 @@ public class LLMService : ILLMService
 
             var allFunctionCalls = new List<LLMFunctionCall>();
             var totalUsage = new Providers.LLMUsage();
-            var runningHistory = new List<Providers.LLMMessage>(llmHistory);
+            var truncatedHistory = TruncateHistory(llmHistory, model!.ContextWindow, model.MaxTokens);
+            var runningHistory = new List<Providers.LLMMessage>(truncatedHistory);
             var currentMessage = context.Message;
             string responseContent = "";
             LLMProviderResponse? lastResponse = null;
             int iterationsUsed = 0;
+            var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             for (int iteration = 0; iteration < maxIterations; iteration++)
             {
                 iterationsUsed = iteration + 1;
+
+                var iterationFunctions = iteration == 0
+                    ? context.AvailableFunctions
+                    : GetReducedFunctions(context.AvailableFunctions, calledFunctionNames);
 
                 var providerRequest = new LLMProviderRequest
                 {
@@ -92,7 +101,7 @@ public class LLMService : ILLMService
                     SystemPrompt = systemPrompt,
                     ModelId = model!.ApiModelId,
                     ConversationHistory = runningHistory,
-                    AvailableFunctions = context.AvailableFunctions,
+                    AvailableFunctions = iterationFunctions,
                     Temperature = 0.7,
                     MaxTokens = model.MaxTokens,
                     CostPerInputToken = model.CostPerInputToken,
@@ -122,6 +131,11 @@ public class LLMService : ILLMService
                     iterationsUsed, lastResponse.FunctionCalls.Count);
 
                 allFunctionCalls.AddRange(lastResponse.FunctionCalls);
+                foreach (var call in lastResponse.FunctionCalls)
+                {
+                    calledFunctionNames.Add(call.FunctionName);
+                }
+
                 await _functionExecutor.ProcessFunctionCallsAsync(context, lastResponse.FunctionCalls);
 
                 if (_functionExecutor.HasOnlyUiPassthroughCalls)
@@ -175,8 +189,58 @@ public class LLMService : ILLMService
             sb.AppendLine($"- {call.FunctionName}: {call.Result ?? "OK"}");
         }
         sb.AppendLine("[/Function Results]");
-        sb.AppendLine("Respond naturally to the user about what was accomplished. If additional function calls are needed to fully complete the user's request, make them. Otherwise, confirm the action in a brief, friendly response.");
         return sb.ToString();
+    }
+
+    private static List<LLMFunction> GetReducedFunctions(
+        List<LLMFunction> allFunctions,
+        HashSet<string> calledFunctionNames)
+    {
+        return allFunctions
+            .Where(f => calledFunctionNames.Contains(f.Name) ||
+                        f.Name.StartsWith("get_") ||
+                        f.Name.StartsWith("list_") ||
+                        f.Name.StartsWith("search_") ||
+                        f.Name == "navigate_to")
+            .ToList();
+    }
+
+    private static List<Providers.LLMMessage> TruncateHistory(
+        List<Providers.LLMMessage> history,
+        int contextWindow,
+        int maxOutputTokens)
+    {
+        if (history.Count <= MaxHistoryMessages)
+            return history;
+
+        var availableTokens = contextWindow - maxOutputTokens;
+        var estimatedOverheadTokens = 15000;
+        var historyBudget = availableTokens - estimatedOverheadTokens;
+
+        var truncated = new List<Providers.LLMMessage>();
+        var tokenCount = 0;
+
+        for (var i = history.Count - 1; i >= 0; i--)
+        {
+            var msgTokens = (history[i].Content?.Length ?? 0) / 4;
+            tokenCount += msgTokens;
+
+            if (tokenCount > historyBudget || truncated.Count >= MaxHistoryMessages)
+                break;
+
+            truncated.Insert(0, history[i]);
+        }
+
+        if (truncated.Count < history.Count)
+        {
+            truncated.Insert(0, new Providers.LLMMessage
+            {
+                Role = "system",
+                Content = $"[Earlier messages truncated. Showing last {truncated.Count} of {history.Count} messages.]"
+            });
+        }
+
+        return truncated;
     }
 
     private static string FormatFallbackResponse(List<LLMFunctionCall> functionCalls)

@@ -20,7 +20,8 @@ public static class LLMCapabilityService
         { "bytedance", LLMProviderType.ByteDance },
         { "mistral", LLMProviderType.Mistral },
         { "cohere", LLMProviderType.Cohere },
-        { "huggingface", LLMProviderType.HuggingFace }
+        { "huggingface", LLMProviderType.HuggingFace },
+        { "deepseek", LLMProviderType.DeepSeek }
     };
 
     public static LLMCapability[] GetCapabilities(LLMModel model)
@@ -66,6 +67,9 @@ public static class LLMCapabilityService
                 break;
             case LLMProviderType.HuggingFace:
                 AddHuggingFaceCapabilities(capabilities, model);
+                break;
+            case LLMProviderType.DeepSeek:
+                AddDeepSeekCapabilities(capabilities, model);
                 break;
             case LLMProviderType.Local:
                 AddLocalCapabilities(capabilities, model);
@@ -179,6 +183,12 @@ public static class LLMCapabilityService
         {
             capabilities.Add(LLMCapability.Vision);
         }
+    }
+
+    private static void AddDeepSeekCapabilities(List<LLMCapability> capabilities, LLMModel model)
+    {
+        capabilities.Add(LLMCapability.FunctionCalling);
+        capabilities.Add(LLMCapability.CodeGeneration);
     }
 
     private static void AddLocalCapabilities(List<LLMCapability> capabilities, LLMModel model)

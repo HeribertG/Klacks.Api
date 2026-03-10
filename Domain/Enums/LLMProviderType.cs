@@ -15,5 +15,6 @@ public enum LLMProviderType
     ByteDance,
     Mistral,
     Cohere,
-    HuggingFace
+    HuggingFace,
+    DeepSeek
 }

@@ -133,6 +133,40 @@ public class ChatController : ControllerBase
         return Ok(response);
     }
 
+    [HttpPost("execute-functions-batch")]
+    public async Task<ActionResult<List<LLMFunctionResult>>> ExecuteFunctionsBatch([FromBody] List<LLMFunctionExecuteRequest> requests)
+    {
+        if (requests == null || !requests.Any())
+            return BadRequest("At least one function is required");
+
+        var userId = GetCurrentUserId();
+        var userRights = GetCurrentUserRights();
+        var results = new List<LLMFunctionResult>();
+
+        foreach (var request in requests)
+        {
+            if (string.IsNullOrWhiteSpace(request.FunctionName))
+            {
+                results.Add(new LLMFunctionResult { Success = false, Error = "Function name cannot be empty" });
+                continue;
+            }
+
+            _logger.LogInformation("Batch executing function {FunctionName} for user {UserId}", request.FunctionName, userId);
+
+            var response = await _mediator.Send(new ExecuteLLMFunctionCommand
+            {
+                FunctionName = request.FunctionName,
+                Parameters = request.Parameters,
+                UserId = userId,
+                UserRights = userRights
+            });
+
+            results.Add(response);
+        }
+
+        return Ok(results);
+    }
+
     [HttpGet("help")]
     public ActionResult<object> GetHelp()
     {

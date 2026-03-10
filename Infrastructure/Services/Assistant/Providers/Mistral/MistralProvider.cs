@@ -1,5 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// LLM provider for Mistral AI API (OpenAI-compatible tools format).
+/// </summary>
+
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
@@ -32,7 +36,7 @@ public class MistralProvider : BaseHttpProvider
 
         try
         {
-            var mistralRequest = new MistralRequest
+            var mistralRequest = new OpenAIToolsRequest
             {
                 Model = request.ModelId,
                 Messages = BuildMessages(request),
@@ -43,7 +47,7 @@ public class MistralProvider : BaseHttpProvider
             };
 
             var endpoint = "chat/completions";
-            var mistralResponse = await PostJsonAsync<MistralRequest, OpenAIResponse>(endpoint, mistralRequest);
+            var mistralResponse = await PostJsonAsync<OpenAIToolsRequest, OpenAIResponse>(endpoint, mistralRequest);
 
             if (mistralResponse?.Choices == null || !mistralResponse.Choices.Any())
             {
@@ -127,21 +131,21 @@ public class MistralProvider : BaseHttpProvider
         return messages;
     }
 
-    private List<MistralTool>? BuildTools(List<LLMFunction> functions)
+    private List<OpenAITool>? BuildTools(List<LLMFunction> functions)
     {
         if (!functions.Any())
         {
             return null;
         }
 
-        return functions.Select(f => new MistralTool
+        return functions.Select(f => new OpenAITool
         {
             Type = "function",
-            Function = new MistralFunction
+            Function = new OpenAIToolFunction
             {
                 Name = f.Name,
                 Description = f.Description,
-                Parameters = new MistralFunctionParameters
+                Parameters = new OpenAIToolFunctionParameters
                 {
                     Type = "object",
                     Properties = f.Parameters,

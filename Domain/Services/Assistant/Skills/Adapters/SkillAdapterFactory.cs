@@ -18,7 +18,8 @@ public class SkillAdapterFactory : ISkillAdapterFactory
             { LLMProviderType.Mistral, new MistralSkillAdapter() },
             { LLMProviderType.Azure, new OpenAISkillAdapter() },
             { LLMProviderType.Cohere, new OpenAISkillAdapter() },
-            { LLMProviderType.HuggingFace, new OpenAISkillAdapter() }
+            { LLMProviderType.HuggingFace, new OpenAISkillAdapter() },
+            { LLMProviderType.DeepSeek, new OpenAISkillAdapter() }
         };
     }
 

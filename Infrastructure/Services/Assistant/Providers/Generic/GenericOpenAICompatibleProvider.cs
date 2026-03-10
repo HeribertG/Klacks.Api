@@ -1,9 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Generic LLM provider for any OpenAI-compatible API (tools format).
+/// Supports custom base URLs, includes parameter normalization for malformed outputs.
+/// </summary>
+
 using System.Text.RegularExpressions;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
-using Klacks.Api.Infrastructure.Services.Assistant.Providers.Mistral;
 using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 
@@ -47,7 +51,7 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
 
         try
         {
-            var openAiRequest = new MistralRequest
+            var openAiRequest = new OpenAIToolsRequest
             {
                 Model = request.ModelId,
                 Messages = BuildMessages(request),
@@ -58,7 +62,7 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
             };
 
             var endpoint = "chat/completions";
-            var response = await PostJsonAsync<MistralRequest, OpenAIResponse>(endpoint, openAiRequest);
+            var response = await PostJsonAsync<OpenAIToolsRequest, OpenAIResponse>(endpoint, openAiRequest);
 
             if (response?.Choices == null || !response.Choices.Any())
             {
@@ -207,21 +211,21 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
         return result;
     }
 
-    private List<MistralTool>? BuildTools(List<LLMFunction> functions)
+    private List<OpenAITool>? BuildTools(List<LLMFunction> functions)
     {
         if (!functions.Any())
         {
             return null;
         }
 
-        return functions.Select(f => new MistralTool
+        return functions.Select(f => new OpenAITool
         {
             Type = "function",
-            Function = new MistralFunction
+            Function = new OpenAIToolFunction
             {
                 Name = f.Name,
                 Description = f.Description,
-                Parameters = new MistralFunctionParameters
+                Parameters = new OpenAIToolFunctionParameters
                 {
                     Type = "object",
                     Properties = f.Parameters,

@@ -25,7 +25,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": false,
+      "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 1
@@ -40,7 +40,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": false,
+      "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 1
@@ -55,7 +55,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": false,
+      "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 1
@@ -97,7 +97,17 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "validate",
+        "validierung",
+        "calendar",
+        "kalender",
+        "holiday",
+        "feiertag",
+        "address",
+        "adresse",
+        "geocode"
+      ],
       "version": 1
     },
     {
@@ -146,7 +156,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": false,
+      "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 1
@@ -170,7 +180,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": false,
+      "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 1
@@ -252,7 +262,19 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "memory",
+        "erinnerung",
+        "remember",
+        "merke",
+        "soul",
+        "personality",
+        "persönlichkeit",
+        "guidelines",
+        "richtlinien",
+        "behavior",
+        "verhalten"
+      ],
       "version": 1
     },
     {
@@ -303,7 +325,15 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "employee",
+        "mitarbeiter",
+        "client",
+        "kunde",
+        "person",
+        "angestellte",
+        "personal"
+      ],
       "version": 1
     },
     {
@@ -361,7 +391,15 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "employee",
+        "mitarbeiter",
+        "client",
+        "kunde",
+        "person",
+        "angestellte",
+        "personal"
+      ],
       "version": 1
     },
     {
@@ -408,7 +446,14 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "heartbeat",
+        "monitoring",
+        "proactive",
+        "proaktiv",
+        "check",
+        "überwachung"
+      ],
       "version": 1
     },
     {
@@ -458,7 +503,14 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "branch",
+        "filiale",
+        "standort",
+        "office",
+        "büro",
+        "niederlassung"
+      ],
       "version": 1
     },
     {
@@ -551,7 +603,13 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "contract",
+        "vertrag",
+        "employment",
+        "anstellung",
+        "arbeitsvertrag"
+      ],
       "version": 1
     },
     {
@@ -654,7 +712,15 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "employee",
+        "mitarbeiter",
+        "client",
+        "kunde",
+        "person",
+        "angestellte",
+        "personal"
+      ],
       "version": 1
     },
     {
@@ -696,7 +762,17 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "user",
+        "benutzer",
+        "account",
+        "login",
+        "konto",
+        "password",
+        "passwort",
+        "permission",
+        "berechtigung"
+      ],
       "version": 1
     },
     {
@@ -722,7 +798,19 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "memory",
+        "erinnerung",
+        "remember",
+        "merke",
+        "soul",
+        "personality",
+        "persönlichkeit",
+        "guidelines",
+        "richtlinien",
+        "behavior",
+        "verhalten"
+      ],
       "version": 1
     },
     {
@@ -748,7 +836,14 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "branch",
+        "filiale",
+        "standort",
+        "office",
+        "büro",
+        "niederlassung"
+      ],
       "version": 1
     },
     {
@@ -774,7 +869,17 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "user",
+        "benutzer",
+        "account",
+        "login",
+        "konto",
+        "password",
+        "passwort",
+        "permission",
+        "berechtigung"
+      ],
       "version": 1
     },
     {
@@ -791,7 +896,19 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "memory",
+        "erinnerung",
+        "remember",
+        "merke",
+        "soul",
+        "personality",
+        "persönlichkeit",
+        "guidelines",
+        "richtlinien",
+        "behavior",
+        "verhalten"
+      ],
       "version": 1
     },
     {
@@ -847,7 +964,19 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "memory",
+        "erinnerung",
+        "remember",
+        "merke",
+        "soul",
+        "personality",
+        "persönlichkeit",
+        "guidelines",
+        "richtlinien",
+        "behavior",
+        "verhalten"
+      ],
       "version": 1
     },
     {
@@ -882,7 +1011,19 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "memory",
+        "erinnerung",
+        "remember",
+        "merke",
+        "soul",
+        "personality",
+        "persönlichkeit",
+        "guidelines",
+        "richtlinien",
+        "behavior",
+        "verhalten"
+      ],
       "version": 1
     },
     {
@@ -908,7 +1049,15 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "employee",
+        "mitarbeiter",
+        "client",
+        "kunde",
+        "person",
+        "angestellte",
+        "personal"
+      ],
       "version": 1
     },
     {
@@ -923,7 +1072,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": false,
+      "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 1
@@ -938,7 +1087,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": false,
+      "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 1
@@ -966,7 +1115,14 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "branch",
+        "filiale",
+        "standort",
+        "office",
+        "büro",
+        "niederlassung"
+      ],
       "version": 1
     },
     {
@@ -992,7 +1148,13 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "contract",
+        "vertrag",
+        "employment",
+        "anstellung",
+        "arbeitsvertrag"
+      ],
       "version": 1
     },
     {
@@ -1026,7 +1188,13 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "group",
+        "gruppe",
+        "team",
+        "department",
+        "abteilung"
+      ],
       "version": 1
     },
     {
@@ -1060,7 +1228,18 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "model",
+        "modell",
+        "provider",
+        "llm",
+        "ai model",
+        "ki modell",
+        "deepseek",
+        "openai",
+        "anthropic",
+        "api key"
+      ],
       "version": 1
     },
     {
@@ -1086,7 +1265,18 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "model",
+        "modell",
+        "provider",
+        "llm",
+        "ai model",
+        "ki modell",
+        "deepseek",
+        "openai",
+        "anthropic",
+        "api key"
+      ],
       "version": 1
     },
     {
@@ -1112,7 +1302,20 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "schedule",
+        "scheduling",
+        "schicht",
+        "shift",
+        "planung",
+        "planning",
+        "overtime",
+        "überstunden",
+        "working hours",
+        "arbeitszeit",
+        "rule",
+        "regel"
+      ],
       "version": 1
     },
     {
@@ -1138,7 +1341,17 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "user",
+        "benutzer",
+        "account",
+        "login",
+        "konto",
+        "password",
+        "passwort",
+        "permission",
+        "berechtigung"
+      ],
       "version": 1
     },
     {
@@ -1185,7 +1398,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": false,
+      "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 1
@@ -1254,7 +1467,15 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "employee",
+        "mitarbeiter",
+        "client",
+        "kunde",
+        "person",
+        "angestellte",
+        "personal"
+      ],
       "version": 1
     },
     {
@@ -1288,7 +1509,17 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "user",
+        "benutzer",
+        "account",
+        "login",
+        "konto",
+        "password",
+        "passwort",
+        "permission",
+        "berechtigung"
+      ],
       "version": 1
     },
     {
@@ -1305,7 +1536,17 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "email",
+        "e-mail",
+        "smtp",
+        "imap",
+        "mail",
+        "postfach",
+        "posteingang",
+        "outgoing",
+        "incoming"
+      ],
       "version": 1
     },
     {
@@ -1322,7 +1563,17 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "email",
+        "e-mail",
+        "smtp",
+        "imap",
+        "mail",
+        "postfach",
+        "posteingang",
+        "outgoing",
+        "incoming"
+      ],
       "version": 1
     },
     {
@@ -1356,7 +1607,19 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "memory",
+        "erinnerung",
+        "remember",
+        "merke",
+        "soul",
+        "personality",
+        "persönlichkeit",
+        "guidelines",
+        "richtlinien",
+        "behavior",
+        "verhalten"
+      ],
       "version": 1
     },
     {
@@ -1437,7 +1700,19 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "memory",
+        "erinnerung",
+        "remember",
+        "merke",
+        "soul",
+        "personality",
+        "persönlichkeit",
+        "guidelines",
+        "richtlinien",
+        "behavior",
+        "verhalten"
+      ],
       "version": 1
     },
     {
@@ -1491,7 +1766,19 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "memory",
+        "erinnerung",
+        "remember",
+        "merke",
+        "soul",
+        "personality",
+        "persönlichkeit",
+        "guidelines",
+        "richtlinien",
+        "behavior",
+        "verhalten"
+      ],
       "version": 1
     },
     {
@@ -1533,7 +1820,16 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "spam",
+        "filter",
+        "deepl",
+        "translation",
+        "übersetzung",
+        "web search",
+        "websuche",
+        "search provider"
+      ],
       "version": 1
     },
     {
@@ -1578,7 +1874,16 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "spam",
+        "filter",
+        "deepl",
+        "translation",
+        "übersetzung",
+        "web search",
+        "websuche",
+        "search provider"
+      ],
       "version": 1
     },
     {
@@ -1626,7 +1931,17 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "validate",
+        "validierung",
+        "calendar",
+        "kalender",
+        "holiday",
+        "feiertag",
+        "address",
+        "adresse",
+        "geocode"
+      ],
       "version": 1
     },
     {
@@ -1658,7 +1973,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": false,
+      "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 1
@@ -1706,7 +2021,7 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": ["settings", "einstellung", "app name", "appname", "application name", "titel", "title"],
       "version": 1
     },
     {
@@ -1947,7 +2262,15 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "address",
+        "adresse",
+        "owner",
+        "inhaber",
+        "firma",
+        "company",
+        "anschrift"
+      ],
       "version": 1
     },
     {
@@ -2232,7 +2555,17 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "email",
+        "e-mail",
+        "smtp",
+        "imap",
+        "mail",
+        "postfach",
+        "posteingang",
+        "outgoing",
+        "incoming"
+      ],
       "version": 1
     },
     {
@@ -2429,7 +2762,17 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "email",
+        "e-mail",
+        "smtp",
+        "imap",
+        "mail",
+        "postfach",
+        "posteingang",
+        "outgoing",
+        "incoming"
+      ],
       "version": 1
     },
     {
@@ -2692,7 +3035,20 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "work",
+        "arbeit",
+        "vacation",
+        "urlaub",
+        "probation",
+        "probezeit",
+        "surcharge",
+        "zuschlag",
+        "night rate",
+        "nachtzuschlag",
+        "payment",
+        "zahlung"
+      ],
       "version": 1
     },
     {
@@ -3109,7 +3465,20 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "schedule",
+        "scheduling",
+        "schicht",
+        "shift",
+        "planung",
+        "planning",
+        "overtime",
+        "überstunden",
+        "working hours",
+        "arbeitszeit",
+        "rule",
+        "regel"
+      ],
       "version": 1
     },
     {
@@ -3174,7 +3543,16 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "spam",
+        "filter",
+        "deepl",
+        "translation",
+        "übersetzung",
+        "web search",
+        "websuche",
+        "search provider"
+      ],
       "version": 1
     },
     {
@@ -3387,7 +3765,18 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "model",
+        "modell",
+        "provider",
+        "llm",
+        "ai model",
+        "ki modell",
+        "deepseek",
+        "openai",
+        "anthropic",
+        "api key"
+      ],
       "version": 1
     },
     {
@@ -3567,7 +3956,18 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "model",
+        "modell",
+        "provider",
+        "llm",
+        "ai model",
+        "ki modell",
+        "deepseek",
+        "openai",
+        "anthropic",
+        "api key"
+      ],
       "version": 1
     },
     {
@@ -3616,7 +4016,18 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "model",
+        "modell",
+        "provider",
+        "llm",
+        "ai model",
+        "ki modell",
+        "deepseek",
+        "openai",
+        "anthropic",
+        "api key"
+      ],
       "version": 1
     },
     {
@@ -3938,7 +4349,18 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "model",
+        "modell",
+        "provider",
+        "llm",
+        "ai model",
+        "ki modell",
+        "deepseek",
+        "openai",
+        "anthropic",
+        "api key"
+      ],
       "version": 1
     },
     {
@@ -4213,7 +4635,18 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "model",
+        "modell",
+        "provider",
+        "llm",
+        "ai model",
+        "ki modell",
+        "deepseek",
+        "openai",
+        "anthropic",
+        "api key"
+      ],
       "version": 1
     },
     {
@@ -4262,7 +4695,18 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "model",
+        "modell",
+        "provider",
+        "llm",
+        "ai model",
+        "ki modell",
+        "deepseek",
+        "openai",
+        "anthropic",
+        "api key"
+      ],
       "version": 1
     },
     {
@@ -4740,7 +5184,20 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "schedule",
+        "scheduling",
+        "schicht",
+        "shift",
+        "planung",
+        "planning",
+        "overtime",
+        "überstunden",
+        "working hours",
+        "arbeitszeit",
+        "rule",
+        "regel"
+      ],
       "version": 1
     },
     {
@@ -4979,7 +5436,20 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "schedule",
+        "scheduling",
+        "schicht",
+        "shift",
+        "planung",
+        "planning",
+        "overtime",
+        "überstunden",
+        "working hours",
+        "arbeitszeit",
+        "rule",
+        "regel"
+      ],
       "version": 1
     },
     {
@@ -5028,7 +5498,20 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "schedule",
+        "scheduling",
+        "schicht",
+        "shift",
+        "planung",
+        "planning",
+        "overtime",
+        "überstunden",
+        "working hours",
+        "arbeitszeit",
+        "rule",
+        "regel"
+      ],
       "version": 1
     },
     {
@@ -5179,7 +5662,14 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "branch",
+        "filiale",
+        "standort",
+        "office",
+        "büro",
+        "niederlassung"
+      ],
       "version": 1
     },
     {
@@ -5196,7 +5686,17 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "email",
+        "e-mail",
+        "smtp",
+        "imap",
+        "mail",
+        "postfach",
+        "posteingang",
+        "outgoing",
+        "incoming"
+      ],
       "version": 1
     },
     {
@@ -5213,7 +5713,17 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "email",
+        "e-mail",
+        "smtp",
+        "imap",
+        "mail",
+        "postfach",
+        "posteingang",
+        "outgoing",
+        "incoming"
+      ],
       "version": 1
     },
     {
@@ -5230,7 +5740,15 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "address",
+        "adresse",
+        "owner",
+        "inhaber",
+        "firma",
+        "company",
+        "anschrift"
+      ],
       "version": 1
     },
     {
@@ -5247,7 +5765,20 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "work",
+        "arbeit",
+        "vacation",
+        "urlaub",
+        "probation",
+        "probezeit",
+        "surcharge",
+        "zuschlag",
+        "night rate",
+        "nachtzuschlag",
+        "payment",
+        "zahlung"
+      ],
       "version": 1
     },
     {
@@ -5264,7 +5795,20 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "schedule",
+        "scheduling",
+        "schicht",
+        "shift",
+        "planung",
+        "planning",
+        "overtime",
+        "überstunden",
+        "working hours",
+        "arbeitszeit",
+        "rule",
+        "regel"
+      ],
       "version": 1
     },
     {
@@ -5281,7 +5825,16 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "spam",
+        "filter",
+        "deepl",
+        "translation",
+        "übersetzung",
+        "web search",
+        "websuche",
+        "search provider"
+      ],
       "version": 1
     },
     {
@@ -5298,7 +5851,16 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "spam",
+        "filter",
+        "deepl",
+        "translation",
+        "übersetzung",
+        "web search",
+        "websuche",
+        "search provider"
+      ],
       "version": 1
     },
     {
@@ -5315,7 +5877,16 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "spam",
+        "filter",
+        "deepl",
+        "translation",
+        "übersetzung",
+        "web search",
+        "websuche",
+        "search provider"
+      ],
       "version": 1
     },
     {
@@ -5352,7 +5923,13 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "skill",
+        "function",
+        "funktion",
+        "fähigkeit",
+        "capability"
+      ],
       "version": 1
     },
     {
@@ -5416,7 +5993,13 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "skill",
+        "function",
+        "funktion",
+        "fähigkeit",
+        "capability"
+      ],
       "version": 1
     },
     {
@@ -5466,7 +6049,13 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "skill",
+        "function",
+        "funktion",
+        "fähigkeit",
+        "capability"
+      ],
       "version": 1
     },
     {
@@ -5492,7 +6081,13 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": null,
+      "triggerKeywords": [
+        "skill",
+        "function",
+        "funktion",
+        "fähigkeit",
+        "capability"
+      ],
       "version": 1
     }
   ]

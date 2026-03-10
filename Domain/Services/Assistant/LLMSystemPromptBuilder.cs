@@ -39,10 +39,7 @@ public class LLMSystemPromptBuilder
 
 {t["HeaderUserContext"]}:
 - {t["LabelUserId"]}: {context.UserId}
-- {t["LabelPermissions"]}: {string.Join(", ", context.UserRights)}{settingsNote}
-
-{t["HeaderAvailableFunctions"]}:
-{string.Join("\n", context.AvailableFunctions.Select(f => $"- {f.Name}: {f.Description}"))}";
+- {t["LabelPermissions"]}: {string.Join(", ", context.UserRights)}{settingsNote}";
     }
 
     private static bool HasPermission(LLMContext context, string permission)

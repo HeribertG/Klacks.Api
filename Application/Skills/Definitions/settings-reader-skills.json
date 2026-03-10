@@ -61,7 +61,7 @@
     {
       "name": "get_work_settings",
       "className": "GetWorkSettingsSkill",
-      "description": "Retrieves employment and payroll settings: vacation days per year, probation period, notice period, payment interval, surcharge rates (night, holiday, saturday, sunday), and day visibility ranges. For working hour limits, overtime thresholds, and scheduling rule parameters use get_scheduling_defaults instead.",
+      "description": "Retrieves employment and payroll settings: vacation, probation, notice period, payment interval, surcharge rates (night, holiday, saturday, sunday), and day visibility. For scheduling rule parameters use get_scheduling_defaults.",
       "category": "Query",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Work settings retrieved successfully.",
@@ -82,7 +82,7 @@
     {
       "name": "get_scheduling_defaults",
       "className": "GetSchedulingDefaultsSkill",
-      "description": "Retrieves scheduling parameters: working hour limits, overtime thresholds, guaranteed/maximum/minimum hours, full-time hours, and scheduling rule limits (max work days, min rest days, pause hours, max consecutive days, max daily/weekly hours). For surcharge rates (night, holiday, weekend) or employment terms (vacation, probation, notice period) use get_work_settings instead.",
+      "description": "Retrieves scheduling parameters: working hour limits, overtime thresholds, guaranteed/maximum/minimum hours, full-time hours, and scheduling rule limits. For surcharge rates or employment terms use get_work_settings.",
       "category": "Query",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Scheduling defaults retrieved successfully.",
@@ -99,11 +99,7 @@
         { "constant": "SettingKeys.SchedulingMaxOptimalGap", "resultName": "SchedulingMaxOptimalGap" },
         { "constant": "SettingKeys.SchedulingMaxDailyHours", "resultName": "SchedulingMaxDailyHours" },
         { "constant": "SettingKeys.SchedulingMaxWeeklyHours", "resultName": "SchedulingMaxWeeklyHours" },
-        { "constant": "SettingKeys.SchedulingMaxConsecutiveDays", "resultName": "SchedulingMaxConsecutiveDays" },
-        { "constant": "SettingKeys.NightRate", "resultName": "NightRate" },
-        { "constant": "SettingKeys.HolidayRate", "resultName": "HolidayRate" },
-        { "constant": "SettingKeys.SaRate", "resultName": "SaRate" },
-        { "constant": "SettingKeys.SoRate", "resultName": "SoRate" }
+        { "constant": "SettingKeys.SchedulingMaxConsecutiveDays", "resultName": "SchedulingMaxConsecutiveDays" }
       ],
       "sensitiveFields": []
     },
