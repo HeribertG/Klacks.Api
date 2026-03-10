@@ -1,40 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class UpdateAiGuidelinesSkill : BaseSkill
+[SkillImplementation("update_ai_guidelines")]
+public class UpdateAiGuidelinesSkill : BaseSkillImplementation
 {
     private readonly IAiGuidelinesRepository _aiGuidelinesRepository;
-
-    public override string Name => "update_ai_guidelines";
-
-    public override string Description =>
-        "Updates the AI assistant's guidelines. " +
-        "Guidelines define rules for behavior, function usage, and permission handling. " +
-        "This affects how the assistant operates in all conversations.";
-
-    public override SkillCategory Category => SkillCategory.Crud;
-
-    public override IReadOnlyList<string> RequiredPermissions => new[] { "CanEditSettings" };
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter(
-            "guidelines",
-            "The complete guidelines text defining the AI's behavioral rules.",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "name",
-            "A short name for this guidelines set (e.g. 'Default Guidelines').",
-            SkillParameterType.String,
-            Required: false)
-    };
 
     public UpdateAiGuidelinesSkill(IAiGuidelinesRepository aiGuidelinesRepository)
     {

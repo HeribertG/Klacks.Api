@@ -1,27 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class GetGeneralSettingsSkill : BaseSkill
+[SkillImplementation("get_general_settings")]
+public class GetGeneralSettingsSkill : BaseSkillImplementation
 {
     private readonly ISettingsRepository _settingsRepository;
-
-    public override string Name => "get_general_settings";
-
-    public override string Description =>
-        "Retrieves the general application settings including the application name. " +
-        "Use this to check what the application is called or to verify settings before updating them.";
-
-    public override SkillCategory Category => SkillCategory.Query;
-
-    public override IReadOnlyList<string> RequiredPermissions => new[] { "CanViewSettings" };
-
-    public override IReadOnlyList<SkillParameter> Parameters => Array.Empty<SkillParameter>();
 
     public GetGeneralSettingsSkill(ISettingsRepository settingsRepository)
     {

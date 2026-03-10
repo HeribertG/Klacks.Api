@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,17 +18,20 @@ public class SkillExecutorService : ISkillExecutor
     private readonly ISkillRegistry _registry;
     private readonly ISkillUsageTracker _usageTracker;
     private readonly IServiceProvider _serviceProvider;
+    private readonly IGenericSkillDispatcher _genericDispatcher;
     private readonly ILogger<SkillExecutorService> _logger;
 
     public SkillExecutorService(
         ISkillRegistry registry,
         ISkillUsageTracker usageTracker,
         IServiceProvider serviceProvider,
+        IGenericSkillDispatcher genericDispatcher,
         ILogger<SkillExecutorService> logger)
     {
         _registry = registry;
         _usageTracker = usageTracker;
         _serviceProvider = serviceProvider;
+        _genericDispatcher = genericDispatcher;
         _logger = logger;
     }
 
@@ -62,13 +66,42 @@ public class SkillExecutorService : ISkillExecutor
             _logger.LogInformation("Executing skill: {SkillName} for user {UserId}",
                 descriptor.Name, context.UserId);
 
-            if (descriptor.ImplementationType == null)
-            {
-                return SkillResult.Error($"Skill '{invocation.SkillName}' is a declarative skill and cannot be executed directly.");
-            }
+            SkillResult result;
 
-            var skill = (ISkill)_serviceProvider.GetRequiredService(descriptor.ImplementationType);
-            var result = await skill.ExecuteAsync(context, invocation.Parameters, cancellationToken);
+            if (_genericDispatcher.CanHandle(descriptor.HandlerType))
+            {
+                if (string.IsNullOrWhiteSpace(descriptor.HandlerConfig))
+                {
+                    return SkillResult.Error($"Skill '{invocation.SkillName}' has HandlerType '{descriptor.HandlerType}' but no HandlerConfig.");
+                }
+
+                result = await _genericDispatcher.ExecuteAsync(
+                    descriptor.HandlerType!,
+                    descriptor.HandlerConfig,
+                    invocation.Parameters,
+                    cancellationToken);
+            }
+            else if (descriptor.ImplementationType != null)
+            {
+                var instance = _serviceProvider.GetRequiredService(descriptor.ImplementationType);
+
+                if (instance is ISkillImplementation impl)
+                {
+                    result = await impl.ExecuteAsync(context, invocation.Parameters, cancellationToken);
+                }
+                else if (instance is ISkill skill)
+                {
+                    result = await skill.ExecuteAsync(context, invocation.Parameters, cancellationToken);
+                }
+                else
+                {
+                    return SkillResult.Error($"Skill '{invocation.SkillName}' does not implement ISkillImplementation or ISkill.");
+                }
+            }
+            else
+            {
+                return SkillResult.Error($"No implementation or handler found for skill '{invocation.SkillName}'.");
+            }
 
             stopwatch.Stop();
 

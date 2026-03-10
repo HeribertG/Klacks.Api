@@ -1,8 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -10,44 +9,11 @@ using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Skills;
 
-public class CreateBranchSkill : BaseSkill
+[SkillImplementation("create_branch")]
+public class CreateBranchSkill : BaseSkillImplementation
 {
     private readonly IBranchRepository _branchRepository;
     private readonly IUnitOfWork _unitOfWork;
-
-    public override string Name => "create_branch";
-
-    public override string Description =>
-        "Creates a new branch (Filiale) in the system. " +
-        "A branch represents a physical office location with name, address, phone, and email.";
-
-    public override SkillCategory Category => SkillCategory.Crud;
-
-    public override IReadOnlyList<string> RequiredPermissions => [Permissions.CanEditSettings];
-
-    public override IReadOnlyList<SkillParameter> Parameters =>
-    [
-        new SkillParameter(
-            "name",
-            "Name of the branch (e.g. 'Filiale Zürich')",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "address",
-            "Address of the branch",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "phone",
-            "Phone number of the branch",
-            SkillParameterType.String,
-            Required: false),
-        new SkillParameter(
-            "email",
-            "Email address of the branch",
-            SkillParameterType.String,
-            Required: false)
-    ];
 
     public CreateBranchSkill(IBranchRepository branchRepository, IUnitOfWork unitOfWork)
     {
@@ -62,6 +28,17 @@ public class CreateBranchSkill : BaseSkill
     {
         var name = GetRequiredString(parameters, "name");
         var address = GetRequiredString(parameters, "address");
+
+        if (string.IsNullOrWhiteSpace(name))
+            return SkillResult.Error("Branch name cannot be empty.");
+
+        if (string.IsNullOrWhiteSpace(address))
+            return SkillResult.Error("Branch address cannot be empty.");
+
+        var exists = await _branchRepository.ExistsByNameAsync(name);
+        if (exists)
+            return SkillResult.Error($"A branch with the name '{name}' already exists.");
+
         var phone = GetParameter<string>(parameters, "phone") ?? string.Empty;
         var email = GetParameter<string>(parameters, "email") ?? string.Empty;
 

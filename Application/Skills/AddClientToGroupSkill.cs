@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Assistant;
@@ -9,46 +9,13 @@ using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class AddClientToGroupSkill : BaseSkill
+[SkillImplementation("add_client_to_group")]
+public class AddClientToGroupSkill : BaseSkillImplementation
 {
     private readonly IClientRepository _clientRepository;
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IUnitOfWork _unitOfWork;
-
-    public override string Name => "add_client_to_group";
-
-    public override string Description =>
-        "Adds a client/employee to a group. The group membership can have optional validity dates. " +
-        "Use this when you need to assign a person to a team, department, or organizational unit.";
-
-    public override SkillCategory Category => SkillCategory.Crud;
-
-    public override IReadOnlyList<string> RequiredPermissions => new[] { "CanEditClients", "CanViewGroups" };
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter(
-            "clientId",
-            "The unique ID (GUID) of the client to add to the group",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "groupId",
-            "The unique ID (GUID) of the group",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "validFrom",
-            "Start date of group membership (format: YYYY-MM-DD). Defaults to today.",
-            SkillParameterType.Date,
-            Required: false),
-        new SkillParameter(
-            "validUntil",
-            "End date of group membership (format: YYYY-MM-DD). Leave empty for indefinite.",
-            SkillParameterType.Date,
-            Required: false)
-    };
 
     public AddClientToGroupSkill(
         IClientRepository clientRepository,

@@ -1,36 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.Authentification;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class DeleteSystemUserSkill : BaseSkill
+[SkillImplementation("delete_system_user")]
+public class DeleteSystemUserSkill : BaseSkillImplementation
 {
     private readonly IUserManagementService _userManagementService;
-
-    public override string Name => "delete_system_user";
-
-    public override string Description =>
-        "Deletes a system user account by user ID. " +
-        "This permanently removes the login account. " +
-        "Requires admin permissions.";
-
-    public override SkillCategory Category => SkillCategory.Crud;
-
-    public override IReadOnlyList<string> RequiredPermissions => [Permissions.CanEditSettings];
-
-    public override IReadOnlyList<SkillParameter> Parameters =>
-    [
-        new SkillParameter(
-            "userId",
-            "The ID of the user to delete",
-            SkillParameterType.String,
-            Required: true)
-    ];
 
     public DeleteSystemUserSkill(IUserManagementService userManagementService)
     {

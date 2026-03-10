@@ -1,62 +1,17 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class UpdateAiMemorySkill : BaseSkill
+[SkillImplementation("update_ai_memory")]
+public class UpdateAiMemorySkill : BaseSkillImplementation
 {
     private readonly IAgentMemoryRepository _agentMemoryRepository;
     private readonly IEmbeddingService _embeddingService;
-
-    public override string Name => "update_ai_memory";
-
-    public override string Description =>
-        "Updates an existing persistent memory entry. " +
-        "You can update the key, content, category, importance, or pinned status. " +
-        "If content changes, the embedding is regenerated automatically.";
-
-    public override SkillCategory Category => SkillCategory.Crud;
-
-    public override IReadOnlyList<string> RequiredPermissions => [Roles.Admin];
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter(
-            "memoryId",
-            "The ID of the memory entry to update.",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "key",
-            "New short identifier or title for the memory entry.",
-            SkillParameterType.String,
-            Required: false),
-        new SkillParameter(
-            "content",
-            "New memory content.",
-            SkillParameterType.String,
-            Required: false),
-        new SkillParameter(
-            "category",
-            "New category.",
-            SkillParameterType.String,
-            Required: false),
-        new SkillParameter(
-            "importance",
-            "New importance level from 1 (low) to 10 (high).",
-            SkillParameterType.Integer,
-            Required: false),
-        new SkillParameter(
-            "isPinned",
-            "Whether this memory should always be included in context.",
-            SkillParameterType.Boolean,
-            Required: false)
-    };
 
     public UpdateAiMemorySkill(
         IAgentMemoryRepository agentMemoryRepository,

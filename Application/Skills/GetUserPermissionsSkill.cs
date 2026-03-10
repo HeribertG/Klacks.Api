@@ -1,27 +1,20 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Skill that returns the current user's role and full permission list.
+/// Use this before attempting operations that require specific permissions to verify access.
+/// For basic user identity (name, ID, tenant) use get_user_context instead.
+/// </summary>
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Enums;
-using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class GetUserPermissionsSkill : BaseSkill
+[SkillImplementation("get_user_permissions")]
+public class GetUserPermissionsSkill : BaseSkillImplementation
 {
-    public override string Name => "get_user_permissions";
-
-    public override string Description =>
-        "Returns the current user's permissions and role. Use this to understand what actions the user is allowed to perform " +
-        "before attempting operations that require specific permissions.";
-
-    public override SkillCategory Category => SkillCategory.System;
-
-    public override IReadOnlyList<string> RequiredPermissions => Array.Empty<string>();
-
-    public override IReadOnlyList<SkillParameter> Parameters => Array.Empty<SkillParameter>();
-
     public override Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,
         Dictionary<string, object> parameters,
@@ -61,18 +54,19 @@ public class GetUserPermissionsSkill : BaseSkill
 
     private static string DetermineRole(List<string> permissions)
     {
-        if (permissions.Contains(Permissions.CanEditSettings))
+        if (permissions.Contains(Permissions.CanEditSettings) ||
+            permissions.Contains(Permissions.CanViewSettings))
             return Roles.Admin;
 
-        if (permissions.Contains(Permissions.CanDeleteClients) ||
+        if (permissions.Contains(Permissions.CanCreateClients) ||
+            permissions.Contains(Permissions.CanEditClients) ||
+            permissions.Contains(Permissions.CanDeleteClients) ||
+            permissions.Contains(Permissions.CanCreateGroups) ||
+            permissions.Contains(Permissions.CanEditGroups) ||
             permissions.Contains(Permissions.CanDeleteGroups))
-            return Roles.Admin;
-
-        if (permissions.Contains(Permissions.CanEditClients) ||
-            permissions.Contains(Permissions.CanCreateClients))
             return Roles.Authorised;
 
-        return Roles.Authorised;
+        return Roles.User;
     }
 
     private static List<string> GetAvailableActions(IReadOnlyList<string> permissions)

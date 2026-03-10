@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Assistant;
@@ -10,62 +10,12 @@ using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class CreateContractSkill : BaseSkill
+[SkillImplementation("create_contract")]
+public class CreateContractSkill : BaseSkillImplementation
 {
     private readonly IClientRepository _clientRepository;
     private readonly IContractRepository _contractRepository;
     private readonly IUnitOfWork _unitOfWork;
-
-    public override string Name => "create_contract";
-
-    public override string Description =>
-        "Creates a new employment contract for an employee. " +
-        "Specify the employee ID, contract type, and canton.";
-
-    public override SkillCategory Category => SkillCategory.Crud;
-
-    public override IReadOnlyList<string> RequiredPermissions => new[] { "CanCreateContracts" };
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter(
-            "employeeId",
-            "ID of the employee to create the contract for",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "contractType",
-            "Type of employment contract",
-            SkillParameterType.Enum,
-            Required: true,
-            EnumValues: new List<string> { "Vollzeit 160", "Vollzeit 180", "Teilzeit 0 Std", "Teilzeit 80 Std", "Minijob" }),
-        new SkillParameter(
-            "canton",
-            "Swiss canton code for the contract",
-            SkillParameterType.Enum,
-            Required: true,
-            EnumValues: new List<string> { "BE", "ZH", "SG", "VD", "AG", "LU", "BS", "BL", "GR", "TG", "GE", "NE" }),
-        new SkillParameter(
-            "startDate",
-            "Contract start date in format YYYY-MM-DD",
-            SkillParameterType.Date,
-            Required: false),
-        new SkillParameter(
-            "endDate",
-            "Contract end date in format YYYY-MM-DD (optional for unlimited contracts)",
-            SkillParameterType.Date,
-            Required: false),
-        new SkillParameter(
-            "weeklyHours",
-            "Weekly working hours",
-            SkillParameterType.Decimal,
-            Required: false),
-        new SkillParameter(
-            "guaranteedHours",
-            "Guaranteed hours per month",
-            SkillParameterType.Decimal,
-            Required: false)
-    };
 
     public CreateContractSkill(
         IClientRepository clientRepository,

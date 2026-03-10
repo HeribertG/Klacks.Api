@@ -1,48 +1,18 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class GetAiMemoriesSkill : BaseSkill
+[SkillImplementation("get_ai_memories")]
+public class GetAiMemoriesSkill : BaseSkillImplementation
 {
     private readonly IAgentMemoryRepository _agentMemoryRepository;
     private readonly IAgentRepository _agentRepository;
     private readonly IEmbeddingService _embeddingService;
-
-    public override string Name => "get_ai_memories";
-
-    public override string Description =>
-        "Retrieves the AI assistant's persistent memory entries. " +
-        "Supports semantic hybrid search (vector + full-text + importance scoring). " +
-        "Can also filter by category.";
-
-    public override SkillCategory Category => SkillCategory.Query;
-
-    public override IReadOnlyList<string> RequiredPermissions => [Roles.Admin];
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter(
-            "searchQuery",
-            "Semantic search query - uses hybrid search (vector similarity + full-text + importance).",
-            SkillParameterType.String,
-            Required: false),
-        new SkillParameter(
-            "category",
-            "Filter by category: fact, preference, decision, user_info, project_context, learned_behavior, correction, temporal.",
-            SkillParameterType.String,
-            Required: false),
-        new SkillParameter(
-            "searchTerm",
-            "Simple text search in key and content (fallback if no searchQuery).",
-            SkillParameterType.String,
-            Required: false)
-    };
 
     public GetAiMemoriesSkill(
         IAgentMemoryRepository agentMemoryRepository,

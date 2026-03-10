@@ -1,40 +1,26 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Skill zum Aktualisieren der Spam-Filter-Einstellungen.
+/// Skill for updating spam filter settings (thresholds and LLM classification toggle).
 /// </summary>
-/// <param name="spamThreshold">Schwellenwert für Spam-Klassifizierung (0.0-1.0)</param>
-/// <param name="uncertainThreshold">Schwellenwert für unsichere Klassifizierung (0.0-1.0)</param>
-/// <param name="llmEnabled">LLM-basierte Spam-Filterung aktivieren (true/false)</param>
+/// <param name="spamThreshold">Spam classification threshold (0.0–1.0)</param>
+/// <param name="uncertainThreshold">Uncertain classification threshold (0.0–1.0)</param>
+/// <param name="llmEnabled">Enable or disable LLM-based spam filtering</param>
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class UpdateSpamFilterSettingsSkill : BaseSkill
+[SkillImplementation("update_spam_filter_settings")]
+public class UpdateSpamFilterSettingsSkill : BaseSkillImplementation
 {
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
-
-    public override string Name => "update_spam_filter_settings";
-
-    public override string Description =>
-        "Updates spam filter settings. All parameters are optional - only provided values will be updated.";
-
-    public override SkillCategory Category => SkillCategory.Crud;
-
-    public override IReadOnlyList<string> RequiredPermissions => new[] { "CanEditSettings" };
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter("spamThreshold", "Spam score threshold 0.0-1.0 above which messages are classified as spam", SkillParameterType.String, Required: false),
-        new SkillParameter("uncertainThreshold", "Score threshold 0.0-1.0 for uncertain/review classification", SkillParameterType.String, Required: false),
-        new SkillParameter("llmEnabled", "Enable LLM-based spam filtering true/false", SkillParameterType.String, Required: false),
-    };
 
     public UpdateSpamFilterSettingsSkill(
         ISettingsRepository settingsRepository,
@@ -49,22 +35,27 @@ public class UpdateSpamFilterSettingsSkill : BaseSkill
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var fieldMap = new Dictionary<string, string>
-        {
-            { "spamThreshold", Constants.Settings.SPAM_FILTER_SPAM_THRESHOLD },
-            { "uncertainThreshold", Constants.Settings.SPAM_FILTER_UNCERTAIN_THRESHOLD },
-            { "llmEnabled", Constants.Settings.SPAM_FILTER_LLM_ENABLED },
-        };
-
         var updatedFields = new List<string>();
 
-        foreach (var (paramName, settingKey) in fieldMap)
+        var spamThreshold = GetParameter<decimal?>(parameters, "spamThreshold");
+        if (spamThreshold.HasValue)
         {
-            var value = GetParameter<string>(parameters, paramName);
-            if (value == null) continue;
+            await UpsertSetting(Settings.SPAM_FILTER_SPAM_THRESHOLD, spamThreshold.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            updatedFields.Add("spamThreshold");
+        }
 
-            await UpsertSetting(settingKey, value);
-            updatedFields.Add(paramName);
+        var uncertainThreshold = GetParameter<decimal?>(parameters, "uncertainThreshold");
+        if (uncertainThreshold.HasValue)
+        {
+            await UpsertSetting(Settings.SPAM_FILTER_UNCERTAIN_THRESHOLD, uncertainThreshold.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            updatedFields.Add("uncertainThreshold");
+        }
+
+        var llmEnabled = GetParameter<bool?>(parameters, "llmEnabled");
+        if (llmEnabled.HasValue)
+        {
+            await UpsertSetting(Settings.SPAM_FILTER_LLM_ENABLED, llmEnabled.Value.ToString().ToLowerInvariant());
+            updatedFields.Add("llmEnabled");
         }
 
         if (updatedFields.Count == 0)

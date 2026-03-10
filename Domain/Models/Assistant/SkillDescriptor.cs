@@ -11,4 +11,9 @@ public record SkillDescriptor(
     IReadOnlyList<SkillParameter> Parameters,
     IReadOnlyList<string> RequiredPermissions,
     IReadOnlyList<LLMCapability> RequiredCapabilities,
-    Type? ImplementationType);
+    Type? ImplementationType)
+{
+    public string ExecutionType { get; init; } = "Skill";
+    public string? HandlerType { get; init; }
+    public string? HandlerConfig { get; init; }
+}

@@ -1,27 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class GetAiGuidelinesSkill : BaseSkill
+[SkillImplementation("get_ai_guidelines")]
+public class GetAiGuidelinesSkill : BaseSkillImplementation
 {
     private readonly IAiGuidelinesRepository _aiGuidelinesRepository;
-
-    public override string Name => "get_ai_guidelines";
-
-    public override string Description =>
-        "Retrieves the AI assistant's guidelines. " +
-        "Guidelines define rules for behavior, function usage, and permission handling.";
-
-    public override SkillCategory Category => SkillCategory.Query;
-
-    public override IReadOnlyList<string> RequiredPermissions => new[] { "CanViewSettings" };
-
-    public override IReadOnlyList<SkillParameter> Parameters => Array.Empty<SkillParameter>();
 
     public GetAiGuidelinesSkill(IAiGuidelinesRepository aiGuidelinesRepository)
     {

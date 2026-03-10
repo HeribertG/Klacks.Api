@@ -1,41 +1,17 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class ListGroupsSkill : BaseSkill
+[SkillImplementation("list_groups")]
+public class ListGroupsSkill : BaseSkillImplementation
 {
     private readonly IGroupRepository _groupRepository;
-
-    public override string Name => "list_groups";
-
-    public override string Description =>
-        "Lists all available groups (teams, departments, organizational units) in the system. " +
-        "Returns group names and IDs. Use this to find group IDs before adding clients to groups.";
-
-    public override SkillCategory Category => SkillCategory.Query;
-
-    public override IReadOnlyList<string> RequiredPermissions => new[] { "CanViewGroups" };
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter(
-            "searchTerm",
-            "Optional search term to filter groups by name",
-            SkillParameterType.String,
-            Required: false),
-        new SkillParameter(
-            "rootOnly",
-            "If true, only return root-level groups (no parent)",
-            SkillParameterType.Boolean,
-            Required: false,
-            DefaultValue: "false")
-    };
 
     public ListGroupsSkill(IGroupRepository groupRepository)
     {

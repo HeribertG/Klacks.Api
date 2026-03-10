@@ -1,37 +1,18 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Skills;
 
-public class DeleteBranchSkill : BaseSkill
+[SkillImplementation("delete_branch")]
+public class DeleteBranchSkill : BaseSkillImplementation
 {
     private readonly IBranchRepository _branchRepository;
     private readonly IUnitOfWork _unitOfWork;
-
-    public override string Name => "delete_branch";
-
-    public override string Description =>
-        "Deletes a branch (Filiale) by its ID. " +
-        "Requires admin permissions.";
-
-    public override SkillCategory Category => SkillCategory.Crud;
-
-    public override IReadOnlyList<string> RequiredPermissions => [Permissions.CanEditSettings];
-
-    public override IReadOnlyList<SkillParameter> Parameters =>
-    [
-        new SkillParameter(
-            "branchId",
-            "The ID of the branch to delete",
-            SkillParameterType.String,
-            Required: true)
-    ];
 
     public DeleteBranchSkill(IBranchRepository branchRepository, IUnitOfWork unitOfWork)
     {

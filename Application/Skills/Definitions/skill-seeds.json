@@ -1,0 +1,5499 @@
+{
+  "version": 1,
+  "skills": [
+    {
+      "name": "get_current_time",
+      "description": "Get the current date and time in the user's timezone",
+      "category": "System",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "format",
+          "description": "The format for the date/time output",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "full",
+          "enumValues": [
+            "full",
+            "date",
+            "time",
+            "iso"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "get_system_info",
+      "description": "Get information about the Klacks system, version, and environment",
+      "category": "System",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "get_user_context",
+      "description": "Get basic information about the current user (name, ID, tenant, current page, timezone). Use get_user_permissions instead if you need to check what actions the user is allowed to perform.",
+      "category": "System",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "validate_calendar_rule",
+      "description": "Validates a calendar/holiday rule and calculates the resulting date. Supports fixed dates (MM/DD), Easter-relative (EASTER+XX) and SubRules (SA+2;SU+1)",
+      "category": "Validation",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "rule",
+          "description": "The rule (e.g. '01/01', 'EASTER+39', '11/22+00+TH')",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "subRule",
+          "description": "Optional SubRule for weekend adjustment (e.g. 'SA+2;SU+1')",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "year",
+          "description": "Year for calculation (default: current year)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "navigate_to",
+      "description": "Navigate to a specific page in the Klacks application by page key (e.g. dashboard, settings, schedule). Use this for known, fixed pages. For searching a person or entity by name and opening their detail page, use search_and_navigate instead.",
+      "category": "UI",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "page",
+          "description": "The page to navigate to",
+          "type": "Enum",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "dashboard",
+            "employees",
+            "employee-details",
+            "schedule",
+            "absences",
+            "reports",
+            "settings",
+            "groups",
+            "contracts",
+            "holidays"
+          ]
+        },
+        {
+          "name": "entityId",
+          "description": "The ID of the entity to view (for detail pages)",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "tab",
+          "description": "The specific tab to open on the page",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "get_page_controls",
+      "description": "Returns the UI controls for a given page. Use page=\"list\" to get all available page keys. Use a specific page key (e.g. \"settings-owner-address\") to get the controls for that page, including selectors, control types, labels, and routes. This helps you navigate and interact with the UI.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "page",
+          "description": "The page key to retrieve controls for. Use \"list\" to see all available pages.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "add_ai_memory",
+      "description": "Adds a new persistent memory entry for the AI assistant. Memories persist across all conversations and help the assistant remember important facts, user preferences, and system knowledge. Embeddings are generated automatically for semantic search.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "key",
+          "description": "Short identifier or title for the memory entry.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "content",
+          "description": "The actual memory content to remember.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "category",
+          "description": "Category for the memory entry.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "learned_fact",
+          "enumValues": [
+            "fact",
+            "preference",
+            "decision",
+            "user_info",
+            "project_context",
+            "learned_behavior",
+            "correction",
+            "temporal",
+            "user_preference",
+            "system_knowledge",
+            "learned_fact",
+            "workflow",
+            "context"
+          ]
+        },
+        {
+          "name": "importance",
+          "description": "Importance level from 1 (low) to 10 (high).",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 5,
+          "enumValues": null
+        },
+        {
+          "name": "isPinned",
+          "description": "If true, this memory is always included in the context.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        },
+        {
+          "name": "tags",
+          "description": "Comma-separated tags for categorization.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "add_client_to_group",
+      "description": "Adds a client/employee to a group. The group membership can have optional validity dates. Use this when you need to assign a person to a team, department, or organizational unit.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "The unique ID (GUID) of the client to add to the group",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupId",
+          "description": "The unique ID (GUID) of the group",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "validFrom",
+          "description": "Start date of group membership (format: YYYY-MM-DD). Defaults to today.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "validUntil",
+          "description": "End date of group membership (format: YYYY-MM-DD). Leave empty for indefinite.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "assign_contract_to_client",
+      "description": "Assigns an existing contract to a client/employee. This creates a client-contract association with validity dates. Only one contract can be active at a time per client. Use this to set up employment contracts.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "The unique ID (GUID) of the client",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "contractId",
+          "description": "The unique ID (GUID) of the contract to assign",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "Start date of the contract assignment (format: YYYY-MM-DD)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "End date of the contract assignment (format: YYYY-MM-DD). Leave empty for indefinite.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "setAsActive",
+          "description": "Whether to set this as the active contract (will deactivate other contracts)",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": true,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "configure_heartbeat",
+      "description": "Configure the proactive heartbeat monitoring. Use 'enable' to activate monitoring, 'disable' to stop it, 'configure' to set checklist and interval, or 'status' to view current configuration.",
+      "category": "System",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "action",
+          "description": "The action to perform",
+          "type": "Enum",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "enable",
+            "disable",
+            "configure",
+            "status"
+          ]
+        },
+        {
+          "name": "checklist",
+          "description": "JSON array of items to monitor, e.g. [\"shift conflicts\", \"contract expirations\"]",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "intervalMinutes",
+          "description": "How often to check in minutes (default: 30)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 30,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "create_branch",
+      "description": "Creates a new branch (Filiale) in the system. A branch represents a physical office location with name, address, phone, and email.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "Name of the branch (e.g. 'Filiale ZÃ¼rich')",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "address",
+          "description": "Address of the branch",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "phone",
+          "description": "Phone number of the branch",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "email",
+          "description": "Email address of the branch",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "create_contract",
+      "description": "Creates a new employment contract. IMPORTANT: After creation, use assign_contract_to_client to link the contract to an employee. The contract is not automatically assigned.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanCreateContracts"
+      ],
+      "parameters": [
+        {
+          "name": "employeeId",
+          "description": "ID of the employee to create the contract for",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "contractType",
+          "description": "Type of employment contract",
+          "type": "Enum",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "Vollzeit 160",
+            "Vollzeit 180",
+            "Teilzeit 0 Std",
+            "Teilzeit 80 Std",
+            "Minijob"
+          ]
+        },
+        {
+          "name": "canton",
+          "description": "Swiss canton code for the contract",
+          "type": "Enum",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "BE",
+            "ZH",
+            "SG",
+            "VD",
+            "AG",
+            "LU",
+            "BS",
+            "BL",
+            "GR",
+            "TG",
+            "GE",
+            "NE"
+          ]
+        },
+        {
+          "name": "startDate",
+          "description": "Contract start date in format YYYY-MM-DD",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endDate",
+          "description": "Contract end date in format YYYY-MM-DD (optional for unlimited contracts)",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "weeklyHours",
+          "description": "Weekly working hours",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "guaranteedHours",
+          "description": "Guaranteed hours per month",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "create_employee",
+      "description": "Creates a new employee or customer in the system with personal data (name, address, birthdate). For Swiss addresses, the canton is automatically detected from the postal code. Note: To assign a contract, use assign_contract_to_client separately. To add to a group, use add_client_to_group separately. Contact information (email, phone) can be added later via the UI.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanCreateClients"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "First name of the employee",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the employee",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "gender",
+          "description": "Gender of the employee",
+          "type": "Enum",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "Male",
+            "Female",
+            "Intersexuality",
+            "LegalEntity"
+          ]
+        },
+        {
+          "name": "birthdate",
+          "description": "Birthdate in format YYYY-MM-DD",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "street",
+          "description": "Street and house number",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "postalCode",
+          "description": "Postal code (e.g. 3097)",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "city",
+          "description": "City name (e.g. Liebefeld)",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "canton",
+          "description": "Swiss canton code (e.g. BE, ZH, SG). Auto-detected from postal code if not provided.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "country",
+          "description": "Country name (e.g. Schweiz, Deutschland)",
+          "type": "String",
+          "required": false,
+          "defaultValue": "Schweiz",
+          "enumValues": null
+        },
+        {
+          "name": "company",
+          "description": "Company name (for business entities)",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "create_user",
+      "description": "Creates a new system user account (login) in the user administration. This is for authentication accounts, not HR employees. Requires admin permissions. A username is auto-generated from first and last name. A random password is generated and returned.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "First name of the user",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the user",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "email",
+          "description": "Email address of the user",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "delete_ai_memory",
+      "description": "Deletes a persistent memory entry by its ID. Use get_ai_memories first to find the memory ID you want to delete.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "memoryId",
+          "description": "The ID of the memory entry to delete.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "delete_branch",
+      "description": "Deletes a branch (Filiale) by its ID. Use list_branches first to find the branch ID. Requires admin permissions.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "branchId",
+          "description": "The ID of the branch to delete",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "delete_system_user",
+      "description": "Deletes a system user account permanently by user ID. Use list_system_users first to find the user ID. Requires admin permissions.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "userId",
+          "description": "The ID of the user to delete",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "get_ai_guidelines",
+      "description": "Retrieves the AI assistant's active guidelines. Use this when the user asks about current rules, or to check guidelines before updating them with update_ai_guidelines. Guidelines define rules for behavior and function usage.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "get_ai_memories",
+      "description": "Retrieves the AI assistant's persistent memories. Use this when the user asks 'What do you know about X?' or 'What memories do you have?'. Supports three search modes: semantic search (searchQuery uses vector similarity), text search (searchTerm uses keyword matching), or category filter.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "searchQuery",
+          "description": "Semantic search query â€” finds memories with similar meaning (uses embeddings).",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "category",
+          "description": "Filter by memory category.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "fact",
+            "preference",
+            "decision",
+            "user_info",
+            "project_context",
+            "learned_behavior",
+            "correction",
+            "temporal",
+            "user_preference",
+            "system_knowledge",
+            "learned_fact",
+            "workflow",
+            "context"
+          ]
+        },
+        {
+          "name": "searchTerm",
+          "description": "Exact text search â€” finds memories containing this keyword.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "get_ai_soul",
+      "description": "Retrieves the AI assistant's personality definition (soul sections). Use this when the user asks about the assistant's personality, identity, or behavior rules, or when you need to check current settings before updating them. Sections: identity, personality, tone, boundaries, communication_style, values, domain_expertise, error_handling.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "sectionType",
+          "description": "Optional: Filter to retrieve a specific soul section.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "identity",
+            "personality",
+            "tone",
+            "boundaries",
+            "communication_style",
+            "values",
+            "domain_expertise",
+            "error_handling"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "get_client_details",
+      "description": "Retrieves complete details for a client/employee including their contracts, group memberships, addresses, and contact information. Use this to check what contracts a person has, which groups they belong to, or to get their full profile.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "The unique ID (GUID) of the client to retrieve",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "get_general_settings",
+      "description": "Retrieves the general application settings including the application name. Use this to check what the application is called or to verify settings before updating them.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "get_user_permissions",
+      "description": "Returns the current user's role and detailed permission list. Use this BEFORE attempting operations that require specific permissions to verify the user has access. For basic user info (name, ID, tenant) use get_user_context instead.",
+      "category": "System",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "list_branches",
+      "description": "Lists all branches (Filialen) in the system. Returns branch IDs, names, addresses, phone numbers, and emails.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "searchTerm",
+          "description": "Optional search term to filter branches by name",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerType": "generic-list",
+      "handlerConfig": "{\"repositoryInterface\":\"IBranchRepository\",\"method\":\"List\",\"select\":[\"Id\",\"Name\",\"Address\",\"Phone\",\"Email\"],\"orderBy\":\"Name\",\"resultProperty\":\"Branches\",\"filterIsDeleted\":true,\"searchField\":\"Name\"}",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "list_contracts",
+      "description": "Lists all available contracts in the system. Returns contract details including name, hours, and rates. Use this to find contract IDs before assigning contracts to clients.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "activeOnly",
+          "description": "If true, only return contracts that are currently valid (ValidFrom <= today and ValidUntil is null or >= today)",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": true,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "list_groups",
+      "description": "Lists all available groups (teams, departments, organizational units) in the system. Returns group names and IDs. Use this to find group IDs before adding clients to groups.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "searchTerm",
+          "description": "Optional search term to filter groups by name",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "rootOnly",
+          "description": "If true, only return root-level groups (no parent)",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "list_llm_models",
+      "description": "Lists all configured LLM models with their provider, status, costs, and capabilities.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "searchTerm",
+          "description": "Optional search term to filter models by name",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "providerId",
+          "description": "Filter by provider ID",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerType": "generic-list",
+      "handlerConfig": "{\"repositoryInterface\":\"ILLMRepository\",\"method\":\"GetModelsAsync\",\"select\":[\"ModelId\",\"ModelName\",\"ProviderId\",\"ApiModelId\",\"IsEnabled\",\"IsDefault\",\"ContextWindow\",\"MaxTokens\",\"CostPerInputToken\",\"CostPerOutputToken\"],\"searchFields\":[\"ModelName\",\"ModelId\"],\"orderByFields\":[\"ProviderId\",\"ModelName\"],\"resultProperty\":\"Models\",\"filterIsDeleted\":true,\"additionalFilters\":[{\"parameterName\":\"providerId\",\"propertyName\":\"ProviderId\",\"matchType\":\"equals\"}]}",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "list_llm_providers",
+      "description": "Lists all configured LLM providers with their status, priority, and whether an API key is configured.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "searchTerm",
+          "description": "Filter providers by name",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerType": "generic-list",
+      "handlerConfig": "{\"repositoryInterface\":\"ILLMRepository\",\"method\":\"GetProvidersAsync\",\"select\":[\"ProviderId\",\"ProviderName\",\"IsEnabled\",\"HasApiKey\",\"BaseUrl\",\"Priority\"],\"orderByFields\":[\"Priority\",\"ProviderName\"],\"resultProperty\":\"Providers\",\"filterIsDeleted\":true,\"searchField\":\"ProviderName\"}",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "list_scheduling_rules",
+      "description": "Lists all scheduling rules (e.g. maximum shift duration, minimum rest time, overtime limits) with their configured values and thresholds.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "searchTerm",
+          "description": "Optional search term to filter scheduling rules by name",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerType": "generic-list",
+      "handlerConfig": "{\"repositoryInterface\":\"ISchedulingRuleRepository\",\"method\":\"List\",\"select\":[\"Id\",\"Name\",\"MaxWorkDays\",\"MinRestDays\",\"MinPauseHours\",\"MaxOptimalGap\",\"MaxDailyHours\",\"MaxWeeklyHours\",\"MaxConsecutiveDays\",\"DefaultWorkingHours\",\"OvertimeThreshold\",\"GuaranteedHours\",\"MaximumHours\",\"MinimumHours\",\"FullTimeHours\",\"VacationDaysPerYear\",\"NightRate\",\"HolidayRate\",\"SaRate\",\"SoRate\"],\"orderBy\":\"Name\",\"resultProperty\":\"Rules\",\"filterIsDeleted\":true,\"searchField\":\"Name\"}",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "list_system_users",
+      "description": "Lists all system user accounts (login accounts) in the user administration. Returns user IDs, usernames, names, emails, and roles. Use this to find user IDs for further operations like deletion or role changes.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "searchTerm",
+          "description": "Optional search term to filter users by name or email",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "search_and_navigate",
+      "description": "Search for an entity (employee, customer, group, shift) by name and navigate directly to it. Use this when the user wants to open or edit a specific person or entity (e.g., 'Open customer Max MÃ¼ller', 'Show me Heribert Gasparoli'). If multiple matches are found, all will be shown.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "entityType",
+          "description": "Type of entity to search for",
+          "type": "Enum",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "client",
+            "shift",
+            "group"
+          ]
+        },
+        {
+          "name": "searchQuery",
+          "description": "Name or search term to find the entity",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "action",
+          "description": "Action to take after finding: view or edit",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "edit",
+          "enumValues": [
+            "view",
+            "edit"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "search_employees",
+      "description": "Search for employees or customers by criteria (name, canton, type) and return a list of matches. Use this for filtered searches and lists. To search AND directly navigate to a specific person, use search_and_navigate instead.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "searchTerm",
+          "description": "Search term for name, company, or other text fields",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "canton",
+          "description": "Filter by Swiss canton code",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "BE",
+            "ZH",
+            "SG",
+            "VD",
+            "AG",
+            "LU",
+            "BS",
+            "BL",
+            "GR",
+            "TG",
+            "GE",
+            "NE"
+          ]
+        },
+        {
+          "name": "entityType",
+          "description": "Filter by entity type: Employee, ExternEmp, or Customer",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Employee",
+            "ExternEmp",
+            "Customer"
+          ]
+        },
+        {
+          "name": "limit",
+          "description": "Maximum number of results to return",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 10,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "set_user_group_scope",
+      "description": "Sets the group visibility scope for a user. This controls which groups a user can see in the system. Provide the user ID and one or more group names to assign. Existing group scope entries for the user are replaced.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "userId",
+          "description": "The ID of the user to set the group scope for",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupNames",
+          "description": "Comma-separated list of group names to assign (e.g. 'Deutschweiz Mitte, Romandie')",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "test_imap_connection",
+      "description": "Tests the IMAP connection using the currently saved IMAP settings. The password must already be entered in the settings UI. Returns success, error details, and message count.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "test_smtp_connection",
+      "description": "Tests the SMTP connection using the currently saved email settings. The password must already be entered in the settings UI. Returns success or detailed error message for troubleshooting.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "update_ai_guidelines",
+      "description": "Replaces the AI assistant's guidelines with new content. WARNING: This deactivates ALL existing guidelines and creates a new one. Guidelines define rules for behavior, function usage, and permission handling.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "guidelines",
+          "description": "The complete guidelines text defining the AI's behavioral rules.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name",
+          "description": "A short name for this guidelines set (e.g. 'Default Guidelines').",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "update_ai_memory",
+      "description": "Updates an existing persistent memory entry. You can update the key, content, category, importance, or pinned status. If content changes, the embedding is regenerated automatically.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "memoryId",
+          "description": "The ID of the memory entry to update.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "key",
+          "description": "New short identifier or title for the memory entry.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "content",
+          "description": "New memory content.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "category",
+          "description": "New category for the memory entry.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "fact",
+            "preference",
+            "decision",
+            "interaction_summary",
+            "user_info",
+            "project_context",
+            "learned_behavior",
+            "correction",
+            "temporal",
+            "user_preference",
+            "system_knowledge",
+            "learned_fact",
+            "workflow",
+            "context"
+          ]
+        },
+        {
+          "name": "importance",
+          "description": "New importance level from 1 (low) to 10 (high).",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "isPinned",
+          "description": "Whether this memory should always be included in context.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "update_ai_soul",
+      "description": "Updates a specific section of the AI assistant's personality definition (soul). Sections: identity, personality, tone, boundaries, communication_style, values, domain_expertise, error_handling. Each section can be independently updated. Changes are versioned with full audit trail.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "sectionType",
+          "description": "The soul section to update.",
+          "type": "Enum",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "identity",
+            "personality",
+            "tone",
+            "boundaries",
+            "communication_style",
+            "values",
+            "group_behavior",
+            "user_context",
+            "domain_expertise",
+            "error_handling",
+            "email_setup_guide"
+          ]
+        },
+        {
+          "name": "content",
+          "description": "The content for this soul section.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "sortOrder",
+          "description": "Display order (0 = first). Default: auto-assigned based on section type.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 0,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "update_spam_filter_settings",
+      "description": "Updates the spam filter configuration. Set spam/uncertain thresholds (0.0 to 1.0, higher = stricter) and enable/disable LLM-based email classification. All parameters are optional â€” only provided values will be updated.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "spamThreshold",
+          "description": "Spam score threshold 0.0â€“1.0 above which messages are classified as spam",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "uncertainThreshold",
+          "description": "Score threshold 0.0â€“1.0 for uncertain/review classification",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "llmEnabled",
+          "description": "Enable LLM-based spam filtering",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "update_web_search_settings",
+      "description": "Updates the web search provider configuration. Set the search provider, API key, and maximum results per query. All parameters are optional â€” only provided values will be updated.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "provider",
+          "description": "Web search provider to use",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "serper",
+            "tavily"
+          ]
+        },
+        {
+          "name": "apiKey",
+          "description": "API key for the web search provider",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maxResults",
+          "description": "Maximum number of search results to return per query",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "validate_address",
+      "description": "Validates an address and returns geocoding information (coordinates, formatted address). Also detects the Swiss canton from postal code. Use this before creating an employee to verify the address exists.",
+      "category": "Validation",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "street",
+          "description": "Street name and house number",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "postalCode",
+          "description": "Postal code / ZIP code",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "city",
+          "description": "City name",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "country",
+          "description": "Country name (default: Schweiz)",
+          "type": "String",
+          "required": false,
+          "defaultValue": "Schweiz",
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "web_search",
+      "description": "Searches the internet for current, real-time information. Use this for email provider settings (SMTP/IMAP servers, ports, SSL), current events, or information that requires up-to-date data. Do NOT use for general knowledge questions you can answer from training data.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "query",
+          "description": "Search query string",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maxResults",
+          "description": "Maximum number of results to return (default: 5)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "update_general_settings",
+      "description": "Updates general application settings. Currently supports changing the application name. The application name is displayed in the browser title bar and the application header.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "appName",
+          "type": "string",
+          "description": "The new application name to set. This is displayed in the browser title and application header.",
+          "required": true,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "setting-general-name",
+            "timeout": 5000
+          },
+          {
+            "action": "setValue",
+            "selector": "setting-general-name",
+            "valueFrom": "params.appName"
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "update_owner_address",
+      "description": "Updates the owner/company address in settings. IMPORTANT: state and country are REQUIRED and must always be provided.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "addressName",
+          "type": "string",
+          "description": "Company or owner name",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "supplementAddress",
+          "type": "string",
+          "description": "Additional address line",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "street",
+          "type": "string",
+          "description": "Street and house number",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "zip",
+          "type": "string",
+          "description": "Postal code / ZIP",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "description": "City name",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "description": "State or canton abbreviation (e.g. BE, ZH)",
+          "required": true,
+          "enumValues": null
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "description": "Country abbreviation (e.g. CH, DE, AT)",
+          "required": true,
+          "enumValues": null
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "description": "Phone number",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "description": "Email address",
+          "required": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "onError": "continue",
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "setting-owner-address-name",
+            "timeout": 5000
+          },
+          {
+            "action": "delay",
+            "delay": 1000
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "addressName",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "setting-owner-address-name",
+                "valueFrom": "params.addressName"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "phone",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "setting-owner-address-tel",
+                "valueFrom": "params.phone"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "supplementAddress",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "setting-owner-address-supplement",
+                "valueFrom": "params.supplementAddress"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "email",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "setting-owner-address-email",
+                "valueFrom": "params.email"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "street",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "setting-owner-address-street",
+                "valueFrom": "params.street"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "zip",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "setting-owner-address-zip",
+                "valueFrom": "params.zip"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "city",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "setting-owner-address-city",
+                "valueFrom": "params.city"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "country",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setSelect",
+                "selector": "setting-owner-address-country",
+                "valueFrom": "params.country"
+              }
+            ]
+          },
+          {
+            "action": "delay",
+            "delay": 500
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "state",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setSelect",
+                "selector": "setting-owner-address-state",
+                "valueFrom": "params.state"
+              }
+            ]
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "update_email_settings",
+      "description": "Updates the outgoing email (SMTP) settings. All parameters are optional - only provided values will be updated.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "outgoingServer",
+          "type": "string",
+          "description": "SMTP server hostname",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "outgoingServerPort",
+          "type": "string",
+          "description": "SMTP server port (e.g. 587, 465)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "outgoingServerTimeout",
+          "type": "string",
+          "description": "Connection timeout in milliseconds",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "enabledSSL",
+          "type": "string",
+          "description": "Enable SSL/TLS (true or false)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "authenticationType",
+          "type": "string",
+          "description": "Authentication type (None, LOGIN, PLAIN, CRAM-MD5)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "dispositionNotification",
+          "type": "string",
+          "description": "Request disposition notification (true or false)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "readReceipt",
+          "type": "string",
+          "description": "Read receipt email address",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "replyTo",
+          "type": "string",
+          "description": "Reply-to email address",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "mark",
+          "type": "string",
+          "description": "Email mark/label",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "smtpUsername",
+          "type": "string",
+          "description": "SMTP authentication username",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "smtpPassword",
+          "type": "string",
+          "description": "SMTP authentication password",
+          "required": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "onError": "continue",
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "outgoingServer",
+            "timeout": 5000
+          },
+          {
+            "action": "scrollTo",
+            "selector": "settings-email-setting"
+          },
+          {
+            "action": "delay",
+            "delay": 500
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "outgoingServer",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "outgoingServer",
+                "valueFrom": "params.outgoingServer"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "outgoingServerPort",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "outgoingServerPort",
+                "valueFrom": "params.outgoingServerPort"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "outgoingServerTimeout",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "outgoingServerTimeout",
+                "valueFrom": "params.outgoingServerTimeout"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "enabledSSL",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setSelect",
+                "selector": "enabledSSL",
+                "valueFrom": "params.enabledSSL"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "authenticationType",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setSelect",
+                "selector": "authenticationType",
+                "valueFrom": "params.authenticationType"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "dispositionNotification",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setSelect",
+                "selector": "dispositionNotification",
+                "valueFrom": "params.dispositionNotification"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "readReceipt",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "readReceipt",
+                "valueFrom": "params.readReceipt"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "replyTo",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "replyTo",
+                "valueFrom": "params.replyTo"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "mark",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "mark",
+                "valueFrom": "params.mark"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "smtpUsername",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "outgoingServerAuthUser",
+                "valueFrom": "params.smtpUsername"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "smtpPassword",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "outgoingServerAuthKey",
+                "valueFrom": "params.smtpPassword"
+              }
+            ]
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "update_imap_settings",
+      "description": "Updates the incoming email (IMAP) settings. All parameters are optional - only provided values will be updated.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "server",
+          "type": "string",
+          "description": "IMAP server hostname",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "port",
+          "type": "string",
+          "description": "IMAP server port (e.g. 993, 143)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "enableSSL",
+          "type": "string",
+          "description": "Enable SSL/TLS (true or false)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "folder",
+          "type": "string",
+          "description": "IMAP folder to monitor (e.g. INBOX)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "pollInterval",
+          "type": "string",
+          "description": "Poll interval in seconds",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "description": "IMAP authentication username",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "description": "IMAP authentication password",
+          "required": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "onError": "continue",
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "imapServer",
+            "timeout": 5000
+          },
+          {
+            "action": "scrollTo",
+            "selector": "settings-imap-setting"
+          },
+          {
+            "action": "delay",
+            "delay": 500
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "server",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "imapServer",
+                "valueFrom": "params.server"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "port",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "imapPort",
+                "valueFrom": "params.port"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "enableSSL",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setSelect",
+                "selector": "imapEnableSSL",
+                "valueFrom": "params.enableSSL"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "folder",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "imapFolder",
+                "valueFrom": "params.folder"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "pollInterval",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "imapPollInterval",
+                "valueFrom": "params.pollInterval"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "username",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "imapUsername",
+                "valueFrom": "params.username"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "password",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "imapPassword",
+                "valueFrom": "params.password"
+              }
+            ]
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "update_work_settings",
+      "description": "Updates work-related settings. All parameters are optional - only provided values will be updated. Includes vacation days, probation/notice periods, payment interval, surcharge rates, and visibility ranges.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "vacationDaysPerYear",
+          "type": "string",
+          "description": "Number of vacation days per year",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "probationPeriod",
+          "type": "string",
+          "description": "Probation period in months",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "noticePeriod",
+          "type": "string",
+          "description": "Notice period in months",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "paymentInterval",
+          "type": "string",
+          "description": "Payment interval (e.g. monthly, weekly)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "nightRate",
+          "type": "string",
+          "description": "Surcharge rate for night shifts",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "holidayRate",
+          "type": "string",
+          "description": "Surcharge rate for holidays",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "saRate",
+          "type": "string",
+          "description": "Surcharge rate for saturdays",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "soRate",
+          "type": "string",
+          "description": "Surcharge rate for sundays",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "dayVisibleBefore",
+          "type": "string",
+          "description": "Days visible before current date",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "dayVisibleAfter",
+          "type": "string",
+          "description": "Days visible after current date",
+          "required": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "onError": "continue",
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "vacationDaysPerYear",
+            "timeout": 5000
+          },
+          {
+            "action": "scrollTo",
+            "selector": "settings-work-setting"
+          },
+          {
+            "action": "delay",
+            "delay": 500
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "vacationDaysPerYear",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "vacationDaysPerYear",
+                "valueFrom": "params.vacationDaysPerYear"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "probationPeriod",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "probationPeriod",
+                "valueFrom": "params.probationPeriod"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "noticePeriod",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "noticePeriod",
+                "valueFrom": "params.noticePeriod"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "paymentInterval",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setSelect",
+                "selector": "paymentInterval",
+                "valueFrom": "params.paymentInterval"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "nightRate",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "nightRate",
+                "valueFrom": "params.nightRate"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "holidayRate",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "holidayRate",
+                "valueFrom": "params.holidayRate"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "saRate",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "saRate",
+                "valueFrom": "params.saRate"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "soRate",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "soRate",
+                "valueFrom": "params.soRate"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "dayVisibleBefore",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "dayVisibleBefore",
+                "valueFrom": "params.dayVisibleBefore"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "dayVisibleAfter",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "dayVisibleAfter",
+                "valueFrom": "params.dayVisibleAfter"
+              }
+            ]
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "update_scheduling_defaults",
+      "description": "Updates scheduling default settings. All parameters are optional - only provided values will be updated.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "defaultWorkingHours",
+          "type": "string",
+          "description": "Default working hours per day",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "overtimeThreshold",
+          "type": "string",
+          "description": "Threshold for overtime calculation",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "guaranteedHours",
+          "type": "string",
+          "description": "Guaranteed minimum hours",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "maximumHours",
+          "type": "string",
+          "description": "Maximum allowed hours",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "minimumHours",
+          "type": "string",
+          "description": "Minimum required hours",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "fullTime",
+          "type": "string",
+          "description": "Full-time hours threshold",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "schedulingMaxWorkDays",
+          "type": "string",
+          "description": "Maximum consecutive work days per scheduling period",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "schedulingMinRestDays",
+          "type": "string",
+          "description": "Minimum rest days between work periods",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "schedulingMinPauseHours",
+          "type": "string",
+          "description": "Minimum pause hours between shifts",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "schedulingMaxOptimalGap",
+          "type": "string",
+          "description": "Maximum optimal gap between shifts in hours",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "schedulingMaxDailyHours",
+          "type": "string",
+          "description": "Maximum daily working hours for scheduling",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "schedulingMaxWeeklyHours",
+          "type": "string",
+          "description": "Maximum weekly working hours for scheduling",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "schedulingMaxConsecutiveDays",
+          "type": "string",
+          "description": "Maximum consecutive working days",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "nightRate",
+          "type": "string",
+          "description": "Surcharge rate for night shifts",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "holidayRate",
+          "type": "string",
+          "description": "Surcharge rate for holidays",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "saRate",
+          "type": "string",
+          "description": "Surcharge rate for saturdays",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "soRate",
+          "type": "string",
+          "description": "Surcharge rate for sundays",
+          "required": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "onError": "continue",
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "sdDefaultWorkingHours",
+            "timeout": 5000
+          },
+          {
+            "action": "scrollTo",
+            "selector": "settings-scheduling-defaults"
+          },
+          {
+            "action": "delay",
+            "delay": 500
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "defaultWorkingHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdDefaultWorkingHours",
+                "valueFrom": "params.defaultWorkingHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "overtimeThreshold",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdOvertimeThreshold",
+                "valueFrom": "params.overtimeThreshold"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "guaranteedHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdGuaranteedHours",
+                "valueFrom": "params.guaranteedHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "maximumHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdMaximumHours",
+                "valueFrom": "params.maximumHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "minimumHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdMinimumHours",
+                "valueFrom": "params.minimumHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "fullTime",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdFullTime",
+                "valueFrom": "params.fullTime"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "schedulingMaxWorkDays",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdSchedulingMaxWorkDays",
+                "valueFrom": "params.schedulingMaxWorkDays"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "schedulingMinRestDays",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdSchedulingMinRestDays",
+                "valueFrom": "params.schedulingMinRestDays"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "schedulingMinPauseHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdSchedulingMinPauseHours",
+                "valueFrom": "params.schedulingMinPauseHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "schedulingMaxOptimalGap",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdSchedulingMaxOptimalGap",
+                "valueFrom": "params.schedulingMaxOptimalGap"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "schedulingMaxDailyHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdSchedulingMaxDailyHours",
+                "valueFrom": "params.schedulingMaxDailyHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "schedulingMaxWeeklyHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdSchedulingMaxWeeklyHours",
+                "valueFrom": "params.schedulingMaxWeeklyHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "schedulingMaxConsecutiveDays",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdSchedulingMaxConsecutiveDays",
+                "valueFrom": "params.schedulingMaxConsecutiveDays"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "nightRate",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdNightRate",
+                "valueFrom": "params.nightRate"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "holidayRate",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdHolidayRate",
+                "valueFrom": "params.holidayRate"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "saRate",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdSaRate",
+                "valueFrom": "params.saRate"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "soRate",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdSoRate",
+                "valueFrom": "params.soRate"
+              }
+            ]
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "update_deepl_settings",
+      "description": "Updates the DeepL translation API key. The API key is stored encrypted in settings.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "apiKey",
+          "type": "string",
+          "description": "The DeepL API key for translation services",
+          "required": true,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "onError": "continue",
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "deepl-apikey",
+            "timeout": 5000
+          },
+          {
+            "action": "scrollTo",
+            "selector": "settings-deepl"
+          },
+          {
+            "action": "delay",
+            "delay": 500
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "apiKey",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "deepl-apikey",
+                "valueFrom": "params.apiKey"
+              }
+            ]
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "create_llm_provider",
+      "description": "Creates a new LLM provider configuration. The provider will be visible in Settings > LLM Providers.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "providerId",
+          "type": "string",
+          "description": "Unique provider identifier (e.g., openai, anthropic, deepseek)",
+          "required": true,
+          "enumValues": null
+        },
+        {
+          "name": "providerName",
+          "type": "string",
+          "description": "Display name of the provider",
+          "required": true,
+          "enumValues": null
+        },
+        {
+          "name": "baseUrl",
+          "type": "string",
+          "description": "Base URL for the provider API",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "apiVersion",
+          "type": "string",
+          "description": "API version string",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "description": "Provider priority (lower number = higher priority)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "apiKey",
+          "type": "string",
+          "description": "API key for the provider",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "isEnabled",
+          "type": "string",
+          "description": "Whether provider is enabled (true/false), defaults to true",
+          "required": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "onError": "continue",
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "llm-providers-add-btn",
+            "timeout": 5000
+          },
+          {
+            "action": "scrollTo",
+            "selector": "settings-llm-providers"
+          },
+          {
+            "action": "delay",
+            "delay": 300
+          },
+          {
+            "action": "click",
+            "selector": "llm-providers-add-btn"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "llm-providers-modal-provider-id",
+            "timeout": 3000
+          },
+          {
+            "action": "delay",
+            "delay": 300
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "providerId",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-providers-modal-provider-id",
+                "valueFrom": "params.providerId"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "providerName",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-providers-modal-provider-name",
+                "valueFrom": "params.providerName"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "baseUrl",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-providers-modal-base-url",
+                "valueFrom": "params.baseUrl"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "apiVersion",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-providers-modal-api-version",
+                "valueFrom": "params.apiVersion"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "priority",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-providers-modal-priority",
+                "valueFrom": "params.priority"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "apiKey",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-providers-modal-api-key",
+                "valueFrom": "params.apiKey"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "isEnabled",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "click",
+                "selector": "llm-providers-modal-is-enabled"
+              }
+            ]
+          },
+          {
+            "action": "click",
+            "selector": "llm-providers-modal-save-btn"
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "update_llm_provider",
+      "description": "Updates an existing LLM provider configuration. Only provided values will be changed.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "providerId",
+          "type": "string",
+          "description": "The provider ID to update",
+          "required": true,
+          "enumValues": null
+        },
+        {
+          "name": "providerName",
+          "type": "string",
+          "description": "Display name of the provider",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "baseUrl",
+          "type": "string",
+          "description": "Base URL for the provider API",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "apiVersion",
+          "type": "string",
+          "description": "API version string",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "description": "Provider priority (lower number = higher priority)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "apiKey",
+          "type": "string",
+          "description": "API key for the provider",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "isEnabled",
+          "type": "string",
+          "description": "Whether provider is enabled (true/false)",
+          "required": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "onError": "continue",
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "llm-providers-row-display-{providerId}",
+            "timeout": 5000
+          },
+          {
+            "action": "scrollTo",
+            "selector": "settings-llm-providers"
+          },
+          {
+            "action": "click",
+            "selector": "llm-providers-row-display-{providerId}"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "llm-providers-modal-provider-name",
+            "timeout": 3000
+          },
+          {
+            "action": "delay",
+            "delay": 300
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "providerName",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-providers-modal-provider-name",
+                "valueFrom": "params.providerName"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "baseUrl",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-providers-modal-base-url",
+                "valueFrom": "params.baseUrl"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "apiVersion",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-providers-modal-api-version",
+                "valueFrom": "params.apiVersion"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "priority",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-providers-modal-priority",
+                "valueFrom": "params.priority"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "apiKey",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-providers-modal-api-key",
+                "valueFrom": "params.apiKey"
+              }
+            ]
+          },
+          {
+            "action": "click",
+            "selector": "llm-providers-modal-save-btn"
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "delete_llm_provider",
+      "description": "Deletes an LLM provider configuration.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "providerId",
+          "type": "string",
+          "description": "The provider ID to delete",
+          "required": true,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "llm-providers-row-delete-{providerId}",
+            "timeout": 5000
+          },
+          {
+            "action": "scrollTo",
+            "selector": "settings-llm-providers"
+          },
+          {
+            "action": "click",
+            "selector": "llm-providers-row-delete-{providerId}"
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "create_llm_model",
+      "description": "Creates a new LLM model configuration. The model will be available in the chat model selector.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "modelId",
+          "type": "string",
+          "description": "Unique model identifier",
+          "required": true,
+          "enumValues": null
+        },
+        {
+          "name": "modelName",
+          "type": "string",
+          "description": "Display name",
+          "required": true,
+          "enumValues": null
+        },
+        {
+          "name": "providerId",
+          "type": "string",
+          "description": "Provider ID this model belongs to",
+          "required": true,
+          "enumValues": null
+        },
+        {
+          "name": "apiModelId",
+          "type": "string",
+          "description": "API model identifier (defaults to modelId)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Model description",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "contextWindow",
+          "type": "string",
+          "description": "Context window size (default 128000)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "maxTokens",
+          "type": "string",
+          "description": "Max output tokens (default 4096)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "costPerInputToken",
+          "type": "string",
+          "description": "Cost per 1K input tokens",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "costPerOutputToken",
+          "type": "string",
+          "description": "Cost per 1K output tokens",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "apiKey",
+          "type": "string",
+          "description": "Model-specific API key override",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "isEnabled",
+          "type": "string",
+          "description": "Enabled (true/false, default true)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "isDefault",
+          "type": "string",
+          "description": "Set as default model (true/false, default false)",
+          "required": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "onError": "continue",
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "llm-models-add-btn",
+            "timeout": 5000
+          },
+          {
+            "action": "scrollTo",
+            "selector": "settings-llm-models"
+          },
+          {
+            "action": "delay",
+            "delay": 300
+          },
+          {
+            "action": "click",
+            "selector": "llm-models-add-btn"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "llm-models-modal-model-id",
+            "timeout": 3000
+          },
+          {
+            "action": "delay",
+            "delay": 300
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "modelId",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-models-modal-model-id",
+                "valueFrom": "params.modelId"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "modelName",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-models-modal-model-name",
+                "valueFrom": "params.modelName"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "providerId",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setSelect",
+                "selector": "llm-models-modal-provider",
+                "valueFrom": "params.providerId"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "description",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-models-modal-description",
+                "valueFrom": "params.description"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "apiModelId",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-models-modal-api-model-id",
+                "valueFrom": "params.apiModelId"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "contextWindow",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-models-modal-context-window",
+                "valueFrom": "params.contextWindow"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "maxTokens",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-models-modal-max-tokens",
+                "valueFrom": "params.maxTokens"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "costPerInputToken",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-models-modal-input-cost",
+                "valueFrom": "params.costPerInputToken"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "costPerOutputToken",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-models-modal-output-cost",
+                "valueFrom": "params.costPerOutputToken"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "apiKey",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-models-modal-api-key",
+                "valueFrom": "params.apiKey"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "isEnabled",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "click",
+                "selector": "llm-models-modal-is-enabled"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "isDefault",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "click",
+                "selector": "llm-models-modal-is-default"
+              }
+            ]
+          },
+          {
+            "action": "click",
+            "selector": "llm-models-modal-save-btn"
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "update_llm_model",
+      "description": "Updates an existing LLM model configuration. Only provided values will be changed.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "modelId",
+          "type": "string",
+          "description": "The model ID to update",
+          "required": true,
+          "enumValues": null
+        },
+        {
+          "name": "modelName",
+          "type": "string",
+          "description": "Display name",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "providerId",
+          "type": "string",
+          "description": "Provider ID this model belongs to",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "apiModelId",
+          "type": "string",
+          "description": "API model identifier",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Model description",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "contextWindow",
+          "type": "string",
+          "description": "Context window size",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "maxTokens",
+          "type": "string",
+          "description": "Max output tokens",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "costPerInputToken",
+          "type": "string",
+          "description": "Cost per 1K input tokens",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "costPerOutputToken",
+          "type": "string",
+          "description": "Cost per 1K output tokens",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "apiKey",
+          "type": "string",
+          "description": "Model-specific API key override",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "isEnabled",
+          "type": "string",
+          "description": "Enabled (true/false)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "isDefault",
+          "type": "string",
+          "description": "Set as default model (true/false)",
+          "required": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "onError": "continue",
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "llm-models-row-display-{modelId}",
+            "timeout": 5000
+          },
+          {
+            "action": "scrollTo",
+            "selector": "settings-llm-models"
+          },
+          {
+            "action": "click",
+            "selector": "llm-models-row-display-{modelId}"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "llm-models-modal-model-name",
+            "timeout": 3000
+          },
+          {
+            "action": "delay",
+            "delay": 300
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "modelName",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-models-modal-model-name",
+                "valueFrom": "params.modelName"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "providerId",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setSelect",
+                "selector": "llm-models-modal-provider",
+                "valueFrom": "params.providerId"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "description",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-models-modal-description",
+                "valueFrom": "params.description"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "apiModelId",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-models-modal-api-model-id",
+                "valueFrom": "params.apiModelId"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "contextWindow",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-models-modal-context-window",
+                "valueFrom": "params.contextWindow"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "maxTokens",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-models-modal-max-tokens",
+                "valueFrom": "params.maxTokens"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "costPerInputToken",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-models-modal-input-cost",
+                "valueFrom": "params.costPerInputToken"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "costPerOutputToken",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-models-modal-output-cost",
+                "valueFrom": "params.costPerOutputToken"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "apiKey",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "llm-models-modal-api-key",
+                "valueFrom": "params.apiKey"
+              }
+            ]
+          },
+          {
+            "action": "click",
+            "selector": "llm-models-modal-save-btn"
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "delete_llm_model",
+      "description": "Deletes an LLM model configuration.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "modelId",
+          "type": "string",
+          "description": "The model ID to delete",
+          "required": true,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "llm-models-row-delete-{modelId}",
+            "timeout": 5000
+          },
+          {
+            "action": "scrollTo",
+            "selector": "settings-llm-models"
+          },
+          {
+            "action": "click",
+            "selector": "llm-models-row-delete-{modelId}"
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "create_scheduling_rule",
+      "description": "Creates a new scheduling rule with work time limits and surcharge rates.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name of the scheduling rule",
+          "required": true,
+          "enumValues": null
+        },
+        {
+          "name": "maxWorkDays",
+          "type": "string",
+          "description": "Maximum work days per week",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "minRestDays",
+          "type": "string",
+          "description": "Minimum rest days per week",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "minPauseHours",
+          "type": "string",
+          "description": "Minimum pause hours between shifts",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "maxOptimalGap",
+          "type": "string",
+          "description": "Maximum optimal gap between shifts",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "maxDailyHours",
+          "type": "string",
+          "description": "Maximum daily working hours",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "maxWeeklyHours",
+          "type": "string",
+          "description": "Maximum weekly working hours",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "maxConsecutiveDays",
+          "type": "string",
+          "description": "Maximum consecutive working days",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "defaultWorkingHours",
+          "type": "string",
+          "description": "Default working hours per day",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "overtimeThreshold",
+          "type": "string",
+          "description": "Overtime threshold in hours",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "guaranteedHours",
+          "type": "string",
+          "description": "Guaranteed minimum hours",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "maximumHours",
+          "type": "string",
+          "description": "Maximum allowed hours",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "minimumHours",
+          "type": "string",
+          "description": "Minimum required hours",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "fullTimeHours",
+          "type": "string",
+          "description": "Full-time hours definition",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "vacationDaysPerYear",
+          "type": "string",
+          "description": "Vacation days per year",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "nightRate",
+          "type": "string",
+          "description": "Night surcharge rate (0-1)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "holidayRate",
+          "type": "string",
+          "description": "Holiday surcharge rate (0-1)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "saRate",
+          "type": "string",
+          "description": "Saturday surcharge rate (0-1)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "soRate",
+          "type": "string",
+          "description": "Sunday surcharge rate (0-1)",
+          "required": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "onError": "continue",
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "scheduling-rules-add-btn",
+            "timeout": 5000
+          },
+          {
+            "action": "scrollTo",
+            "selector": "settings-scheduling-rules"
+          },
+          {
+            "action": "delay",
+            "delay": 300
+          },
+          {
+            "action": "click",
+            "selector": "scheduling-rules-add-btn"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "ruleName",
+            "timeout": 3000
+          },
+          {
+            "action": "delay",
+            "delay": 300
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "name",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "ruleName",
+                "valueFrom": "params.name"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "maxWorkDays",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "maxWorkDays",
+                "valueFrom": "params.maxWorkDays"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "minRestDays",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "minRestDays",
+                "valueFrom": "params.minRestDays"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "minPauseHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "minPauseHours",
+                "valueFrom": "params.minPauseHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "maxOptimalGap",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "maxOptimalGap",
+                "valueFrom": "params.maxOptimalGap"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "maxDailyHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "maxDailyHours",
+                "valueFrom": "params.maxDailyHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "maxWeeklyHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "maxWeeklyHours",
+                "valueFrom": "params.maxWeeklyHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "maxConsecutiveDays",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "maxConsecutiveDays",
+                "valueFrom": "params.maxConsecutiveDays"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "defaultWorkingHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "ruleDefaultWorkingHours",
+                "valueFrom": "params.defaultWorkingHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "overtimeThreshold",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "ruleOvertimeThreshold",
+                "valueFrom": "params.overtimeThreshold"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "guaranteedHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "ruleGuaranteedHours",
+                "valueFrom": "params.guaranteedHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "maximumHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "ruleMaximumHours",
+                "valueFrom": "params.maximumHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "minimumHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "ruleMinimumHours",
+                "valueFrom": "params.minimumHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "fullTimeHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "ruleFullTimeHours",
+                "valueFrom": "params.fullTimeHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "vacationDaysPerYear",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "ruleVacationDaysPerYear",
+                "valueFrom": "params.vacationDaysPerYear"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "nightRate",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "ruleNightRate",
+                "valueFrom": "params.nightRate"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "holidayRate",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "ruleHolidayRate",
+                "valueFrom": "params.holidayRate"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "saRate",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "ruleSaRate",
+                "valueFrom": "params.saRate"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "soRate",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "ruleSoRate",
+                "valueFrom": "params.soRate"
+              }
+            ]
+          },
+          {
+            "action": "click",
+            "selector": "scheduling-rule-modal-save-btn"
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "update_scheduling_rule",
+      "description": "Updates an existing scheduling rule. Only provided values will be changed.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "ruleId",
+          "type": "string",
+          "description": "The scheduling rule ID to update",
+          "required": true,
+          "enumValues": null
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name of the scheduling rule",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "maxWorkDays",
+          "type": "string",
+          "description": "Maximum work days per week",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "minRestDays",
+          "type": "string",
+          "description": "Minimum rest days per week",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "minPauseHours",
+          "type": "string",
+          "description": "Minimum pause hours between shifts",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "maxOptimalGap",
+          "type": "string",
+          "description": "Maximum optimal gap between shifts",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "maxDailyHours",
+          "type": "string",
+          "description": "Maximum daily working hours",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "maxWeeklyHours",
+          "type": "string",
+          "description": "Maximum weekly working hours",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "maxConsecutiveDays",
+          "type": "string",
+          "description": "Maximum consecutive working days",
+          "required": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "onError": "continue",
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "scheduling-rule-row-name-{ruleId}",
+            "timeout": 5000
+          },
+          {
+            "action": "scrollTo",
+            "selector": "settings-scheduling-rules"
+          },
+          {
+            "action": "click",
+            "selector": "scheduling-rule-row-name-{ruleId}"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "ruleName",
+            "timeout": 3000
+          },
+          {
+            "action": "delay",
+            "delay": 300
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "name",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "ruleName",
+                "valueFrom": "params.name"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "maxWorkDays",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "maxWorkDays",
+                "valueFrom": "params.maxWorkDays"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "minRestDays",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "minRestDays",
+                "valueFrom": "params.minRestDays"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "minPauseHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "minPauseHours",
+                "valueFrom": "params.minPauseHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "maxOptimalGap",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "maxOptimalGap",
+                "valueFrom": "params.maxOptimalGap"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "maxDailyHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "maxDailyHours",
+                "valueFrom": "params.maxDailyHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "maxWeeklyHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "maxWeeklyHours",
+                "valueFrom": "params.maxWeeklyHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "maxConsecutiveDays",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "maxConsecutiveDays",
+                "valueFrom": "params.maxConsecutiveDays"
+              }
+            ]
+          },
+          {
+            "action": "click",
+            "selector": "scheduling-rule-modal-save-btn"
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "delete_scheduling_rule",
+      "description": "Deletes a scheduling rule.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "ruleId",
+          "type": "string",
+          "description": "The scheduling rule ID to delete",
+          "required": true,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "scheduling-rule-row-delete-{ruleId}",
+            "timeout": 5000
+          },
+          {
+            "action": "scrollTo",
+            "selector": "settings-scheduling-rules"
+          },
+          {
+            "action": "click",
+            "selector": "scheduling-rule-row-delete-{ruleId}"
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "update_branch",
+      "description": "Updates an existing branch/location. Only provided values will be changed.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "branchId",
+          "type": "string",
+          "description": "The branch ID to update",
+          "required": true,
+          "enumValues": null
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "New branch name",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "description": "New branch address",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "description": "New phone number",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "description": "New email address",
+          "required": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "onError": "continue",
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "branches-row-name-{branchId}",
+            "timeout": 5000
+          },
+          {
+            "action": "scrollTo",
+            "selector": "settings-branches"
+          },
+          {
+            "action": "click",
+            "selector": "branches-row-name-{branchId}"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "branches-modal-name",
+            "timeout": 3000
+          },
+          {
+            "action": "delay",
+            "delay": 300
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "name",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "branches-modal-name",
+                "valueFrom": "params.name"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "address",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "branches-modal-address",
+                "valueFrom": "params.address"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "phone",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "branches-modal-phone",
+                "valueFrom": "params.phone"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
+              "key": "email",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "branches-modal-email",
+                "valueFrom": "params.email"
+              }
+            ]
+          },
+          {
+            "action": "click",
+            "selector": "branches-modal-save-btn"
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "get_email_settings",
+      "description": "Reads the current outgoing email (SMTP) settings. Returns server, port, timeout, SSL, authentication type, disposition notification, read receipt, reply-to, mark and SMTP username. Does NOT return the password.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "get_imap_settings",
+      "description": "Reads the current incoming email (IMAP) settings. Returns server, port, SSL, folder, poll interval and username. Does NOT return the password.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "get_owner_address",
+      "description": "Reads the current owner/company address from the settings. Returns all address fields: name, supplement, street, zip, city, state, country, phone, email.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "get_work_settings",
+      "description": "Retrieves employment and payroll settings: vacation days per year, probation period, notice period, payment interval, surcharge rates (night, holiday, saturday, sunday), and day visibility ranges. For working hour limits, overtime thresholds, and scheduling rule parameters use get_scheduling_defaults instead.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "get_scheduling_defaults",
+      "description": "Retrieves scheduling parameters: working hour limits, overtime thresholds, guaranteed/maximum/minimum hours, full-time hours, and scheduling rule limits (max work days, min rest days, pause hours, max consecutive days, max daily/weekly hours). For surcharge rates (night, holiday, weekend) or employment terms (vacation, probation, notice period) use get_work_settings instead.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "get_deepl_settings",
+      "description": "Retrieves the DeepL translation API settings. Returns whether an API key is configured (not the key itself for security).",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "get_spam_filter_settings",
+      "description": "Retrieves spam filter configuration including spam threshold, uncertain threshold, and whether LLM-based filtering is enabled.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "get_web_search_settings",
+      "description": "Retrieves web search configuration including provider, max results, and whether an API key is configured.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "list_agent_skills",
+      "description": "Lists all registered skills with their name, description, execution type, and status. Use this for self-reflection — to understand what capabilities are available.",
+      "category": "System",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "searchTerm",
+          "description": "Optional search term to filter skills by name or description",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "executionType",
+          "description": "Filter by execution type",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Skill",
+            "UiAction"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "create_agent_skill",
+      "description": "Creates a new UiAction skill at runtime. The new skill will be immediately available. Use this to learn new UI shortcuts or automation patterns that the user teaches you.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "Skill name in snake_case (e.g. open_employee_settings)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description",
+          "description": "LLM-facing description that explains when and how to use this skill",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "category",
+          "description": "Skill category",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "Action",
+          "enumValues": [
+            "Query",
+            "Crud",
+            "Action",
+            "UI",
+            "System"
+          ]
+        },
+        {
+          "name": "handlerSteps",
+          "description": "JSON array of handler steps (e.g. [{\"action\":\"navigate\",\"route\":\"/settings\"}])",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "triggerKeywords",
+          "description": "Comma-separated keywords that trigger this skill",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "update_agent_skill",
+      "description": "Updates an existing skill's description, parameters, or configuration. Use this to improve skill descriptions for better selection accuracy, or to adjust handler steps.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "skillName",
+          "description": "Name of the skill to update",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description",
+          "description": "New LLM-facing description",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "isEnabled",
+          "description": "Enable or disable the skill",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "handlerSteps",
+          "description": "New handler steps as JSON array",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "delete_agent_skill",
+      "description": "Disables a skill by name. The skill will no longer be available for use. Only user-created skills can be deleted, not system skills.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "skillName",
+          "description": "Name of the skill to disable",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    }
+  ]
+}

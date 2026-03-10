@@ -1,7 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Models.Assistant;
@@ -10,41 +9,11 @@ using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class CreateUserSkill : BaseSkill
+[SkillImplementation("create_user")]
+public class CreateUserSkill : BaseSkillImplementation
 {
     private readonly IUserManagementService _userManagementService;
     private readonly IUsernameGeneratorService _usernameGeneratorService;
-
-    public override string Name => "create_user";
-
-    public override string Description =>
-        "Creates a new system user account (login) in the user administration. " +
-        "This is for authentication accounts, not HR employees. " +
-        "Requires admin permissions. A username is auto-generated from first and last name. " +
-        "A random password is generated and returned.";
-
-    public override SkillCategory Category => SkillCategory.Crud;
-
-    public override IReadOnlyList<string> RequiredPermissions => new[] { Permissions.CanEditSettings };
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter(
-            "firstName",
-            "First name of the user",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "lastName",
-            "Last name of the user",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "email",
-            "Email address of the user",
-            SkillParameterType.String,
-            Required: true)
-    };
 
     public CreateUserSkill(
         IUserManagementService userManagementService,

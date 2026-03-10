@@ -1,35 +1,17 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class GetAiSoulSkill : BaseSkill
+[SkillImplementation("get_ai_soul")]
+public class GetAiSoulSkill : BaseSkillImplementation
 {
     private readonly IAgentSoulRepository _agentSoulRepository;
     private readonly IAgentRepository _agentRepository;
-
-    public override string Name => "get_ai_soul";
-
-    public override string Description =>
-        "Retrieves the AI assistant's personality definition (soul sections). " +
-        "The soul is organized in sections: identity, personality, tone, boundaries, communication_style, values, etc.";
-
-    public override SkillCategory Category => SkillCategory.Query;
-
-    public override IReadOnlyList<string> RequiredPermissions => new[] { "CanViewSettings" };
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter(
-            "sectionType",
-            "Optional: Filter by section type (identity, personality, tone, boundaries, communication_style, values, domain_expertise, error_handling).",
-            SkillParameterType.String,
-            Required: false)
-    };
 
     public GetAiSoulSkill(IAgentSoulRepository agentSoulRepository, IAgentRepository agentRepository)
     {

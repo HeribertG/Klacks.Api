@@ -2,30 +2,18 @@
 
 using Klacks.Api.Application.DTOs.Email;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class TestImapConnectionSkill : BaseSkill
+[SkillImplementation("test_imap_connection")]
+public class TestImapConnectionSkill : BaseSkillImplementation
 {
     private readonly ISettingsRepository _settingsRepository;
     private readonly IImapTestService _imapTestService;
-
-    public override string Name => "test_imap_connection";
-
-    public override string Description =>
-        "Tests the IMAP connection using the currently saved IMAP settings. " +
-        "The password must already be entered in the settings UI. " +
-        "Returns success, error details, and message count.";
-
-    public override SkillCategory Category => SkillCategory.Query;
-
-    public override IReadOnlyList<string> RequiredPermissions => new[] { "CanEditSettings" };
-
-    public override IReadOnlyList<SkillParameter> Parameters => Array.Empty<SkillParameter>();
 
     public TestImapConnectionSkill(
         ISettingsRepository settingsRepository,
@@ -85,9 +73,10 @@ public class TestImapConnectionSkill : BaseSkill
 
         return result.Success
             ? SkillResult.SuccessResult(resultData, result.Message)
-            : SkillResult.SuccessResult(resultData,
+            : SkillResult.Error(
                 $"IMAP test failed: {result.Message}" +
-                (result.ErrorDetails != null ? $" Details: {result.ErrorDetails}" : ""));
+                (result.ErrorDetails != null ? $" Details: {result.ErrorDetails}" : ""),
+                new Dictionary<string, object> { { "details", resultData } });
     }
 
     private async Task<string> GetSettingValue(string settingType)

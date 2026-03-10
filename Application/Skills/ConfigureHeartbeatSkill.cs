@@ -1,14 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class ConfigureHeartbeatSkill : BaseSkill
+[SkillImplementation("configure_heartbeat")]
+public class ConfigureHeartbeatSkill : BaseSkillImplementation
 {
     private readonly IHeartbeatConfigRepository _repo;
 
@@ -16,26 +16,6 @@ public class ConfigureHeartbeatSkill : BaseSkill
     {
         _repo = repo;
     }
-
-    public override string Name => "configure_heartbeat";
-
-    public override string Description =>
-        "Configure the proactive heartbeat monitoring. Use 'enable' to activate monitoring, 'disable' to stop it, " +
-        "'configure' to set checklist and interval, or 'status' to view current configuration.";
-
-    public override SkillCategory Category => SkillCategory.System;
-
-    public override IReadOnlyList<string> RequiredPermissions => [Permissions.CanViewSettings];
-
-    public override IReadOnlyList<SkillParameter> Parameters =>
-    [
-        new("action", "The action to perform", SkillParameterType.Enum, true,
-            EnumValues: new[] { "enable", "disable", "configure", "status" }),
-        new("checklist", "JSON array of items to monitor, e.g. [\"shift conflicts\", \"contract expirations\"]",
-            SkillParameterType.String, false),
-        new("intervalMinutes", "How often to check in minutes (default: 30)",
-            SkillParameterType.Integer, false, 30)
-    ];
 
     public override async Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,

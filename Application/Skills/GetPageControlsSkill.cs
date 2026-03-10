@@ -1,36 +1,17 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class GetPageControlsSkill : BaseSkill
+[SkillImplementation("get_page_controls")]
+public class GetPageControlsSkill : BaseSkillImplementation
 {
     private readonly IUiControlRepository _uiControlRepository;
-
-    public override string Name => "get_page_controls";
-
-    public override string Description =>
-        "Returns the UI controls for a given page. " +
-        "Use page=\"list\" to get all available page keys. " +
-        "Use a specific page key (e.g. \"settings-owner-address\") to get the controls for that page, " +
-        "including selectors, control types, labels, and routes. " +
-        "This helps you navigate and interact with the UI.";
-
-    public override SkillCategory Category => SkillCategory.Query;
-
-    public override IReadOnlyList<SkillParameter> Parameters =>
-    [
-        new SkillParameter(
-            "page",
-            "The page key to retrieve controls for. Use \"list\" to see all available pages.",
-            SkillParameterType.String,
-            Required: true)
-    ];
 
     public GetPageControlsSkill(IUiControlRepository uiControlRepository)
     {

@@ -1,36 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.Authentification;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class ListSystemUsersSkill : BaseSkill
+[SkillImplementation("list_system_users")]
+public class ListSystemUsersSkill : BaseSkillImplementation
 {
     private readonly IUserManagementService _userManagementService;
-
-    public override string Name => "list_system_users";
-
-    public override string Description =>
-        "Lists all system user accounts (login accounts) in the user administration. " +
-        "Returns user IDs, usernames, names, emails, and roles. " +
-        "Use this to find user IDs for further operations like deletion or role changes.";
-
-    public override SkillCategory Category => SkillCategory.Query;
-
-    public override IReadOnlyList<string> RequiredPermissions => [Permissions.CanEditSettings];
-
-    public override IReadOnlyList<SkillParameter> Parameters =>
-    [
-        new SkillParameter(
-            "searchTerm",
-            "Optional search term to filter users by name or email",
-            SkillParameterType.String,
-            Required: false)
-    ];
 
     public ListSystemUsersSkill(IUserManagementService userManagementService)
     {

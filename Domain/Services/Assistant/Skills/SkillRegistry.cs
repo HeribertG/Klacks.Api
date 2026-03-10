@@ -1,5 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Singleton registry that holds all registered SkillDescriptors and exports them
+/// in provider-specific formats. Supports atomic reload from DB-driven descriptors.
+/// </summary>
+
 using System.Collections.Concurrent;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -13,7 +18,8 @@ namespace Klacks.Api.Domain.Services.Assistant.Skills;
 
 public class SkillRegistry : ISkillRegistry
 {
-    private readonly ConcurrentDictionary<string, SkillDescriptor> _skills = new(StringComparer.OrdinalIgnoreCase);
+    private volatile ConcurrentDictionary<string, SkillDescriptor> _skills = new(StringComparer.OrdinalIgnoreCase);
+    private volatile int _cacheVersion = 0;
     private readonly ISkillAdapterFactory _adapterFactory;
     private readonly ILogger<SkillRegistry> _logger;
     private readonly IMemoryCache _cache;
@@ -44,6 +50,29 @@ public class SkillRegistry : ISkillRegistry
         }
     }
 
+    public void Reload(IReadOnlyList<SkillDescriptor> descriptors)
+    {
+        var newDictionary = new ConcurrentDictionary<string, SkillDescriptor>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var descriptor in descriptors)
+        {
+            newDictionary[descriptor.Name] = descriptor;
+        }
+
+        _skills = newDictionary;
+        Interlocked.Increment(ref _cacheVersion);
+
+        _logger.LogInformation("SkillRegistry reloaded with {Count} skills", descriptors.Count);
+    }
+
+    public void Clear()
+    {
+        _skills = new ConcurrentDictionary<string, SkillDescriptor>(StringComparer.OrdinalIgnoreCase);
+        Interlocked.Increment(ref _cacheVersion);
+
+        _logger.LogInformation("SkillRegistry cleared");
+    }
+
     public IReadOnlyList<SkillDescriptor> GetAllSkills()
     {
         return _skills.Values.ToList();
@@ -72,7 +101,7 @@ public class SkillRegistry : ISkillRegistry
         IReadOnlyList<string> userPermissions)
     {
         var permissionsHash = string.Join(",", userPermissions.OrderBy(p => p));
-        var cacheKey = $"skills_export_{provider}_{permissionsHash.GetHashCode()}";
+        var cacheKey = $"skills_export_v{_cacheVersion}_{provider}_{permissionsHash.GetHashCode()}";
 
         return _cache.GetOrCreate(cacheKey, entry =>
         {

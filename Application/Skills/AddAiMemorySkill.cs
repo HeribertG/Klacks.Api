@@ -1,66 +1,19 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class AddAiMemorySkill : BaseSkill
+[SkillImplementation("add_ai_memory")]
+public class AddAiMemorySkill : BaseSkillImplementation
 {
     private readonly IAgentMemoryRepository _agentMemoryRepository;
     private readonly IAgentRepository _agentRepository;
     private readonly IEmbeddingService _embeddingService;
-
-    public override string Name => "add_ai_memory";
-
-    public override string Description =>
-        "Adds a new persistent memory entry for the AI assistant. " +
-        "Memories persist across all conversations and help the assistant remember important facts, " +
-        "user preferences, and system knowledge. Embeddings are generated automatically for semantic search.";
-
-    public override SkillCategory Category => SkillCategory.Crud;
-
-    public override IReadOnlyList<string> RequiredPermissions => [Roles.Admin];
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter(
-            "key",
-            "Short identifier or title for the memory entry.",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "content",
-            "The actual memory content to remember.",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "category",
-            "Category: fact, preference, decision, user_info, project_context, learned_behavior, correction, temporal, user_preference, system_knowledge, learned_fact, workflow, context.",
-            SkillParameterType.String,
-            Required: false,
-            DefaultValue: MemoryCategories.LearnedFact),
-        new SkillParameter(
-            "importance",
-            "Importance level from 1 (low) to 10 (high).",
-            SkillParameterType.Integer,
-            Required: false,
-            DefaultValue: 5),
-        new SkillParameter(
-            "isPinned",
-            "If true, this memory is always included in the context.",
-            SkillParameterType.Boolean,
-            Required: false,
-            DefaultValue: false),
-        new SkillParameter(
-            "tags",
-            "Comma-separated tags for categorization.",
-            SkillParameterType.String,
-            Required: false)
-    };
 
     public AddAiMemorySkill(
         IAgentMemoryRepository agentMemoryRepository,

@@ -1,0 +1,152 @@
+{
+  "skills": [
+    {
+      "name": "get_email_settings",
+      "className": "GetEmailSettingsSkill",
+      "description": "Reads the current outgoing email (SMTP) settings. Returns server, port, timeout, SSL, authentication type, disposition notification, read receipt, reply-to, mark and SMTP username. Does NOT return the password.",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "Email settings retrieved successfully.",
+      "fields": [
+        { "constant": "Constants.Settings.APP_OUTGOING_SERVER", "resultName": "OutgoingServer" },
+        { "constant": "Constants.Settings.APP_OUTGOING_SERVER_PORT", "resultName": "Port" },
+        { "constant": "Constants.Settings.APP_OUTGOING_SERVER_TIMEOUT", "resultName": "Timeout" },
+        { "constant": "Constants.Settings.APP_ENABLE_SSL", "resultName": "EnabledSSL" },
+        { "constant": "Constants.Settings.APP_AUTHENTICATION_TYPE", "resultName": "AuthenticationType" },
+        { "constant": "Constants.Settings.APP_DISPOSITION_NOTIFICATION", "resultName": "DispositionNotification" },
+        { "constant": "Constants.Settings.APP_READ_RECEIPT", "resultName": "ReadReceipt" },
+        { "constant": "Constants.Settings.APP_REPLY_TO", "resultName": "ReplyTo" },
+        { "constant": "Constants.Settings.APP_MARK", "resultName": "Mark" },
+        { "constant": "Constants.Settings.APP_OUTGOING_SERVER_USERNAME", "resultName": "SmtpUsername" }
+      ],
+      "sensitiveFields": []
+    },
+    {
+      "name": "get_imap_settings",
+      "className": "GetImapSettingsSkill",
+      "description": "Reads the current incoming email (IMAP) settings. Returns server, port, SSL, folder, poll interval and username. Does NOT return the password.",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "IMAP settings retrieved successfully.",
+      "fields": [
+        { "constant": "Constants.Settings.APP_INCOMING_SERVER", "resultName": "Server" },
+        { "constant": "Constants.Settings.APP_INCOMING_SERVER_PORT", "resultName": "Port" },
+        { "constant": "Constants.Settings.APP_INCOMING_SERVER_SSL", "resultName": "EnableSSL" },
+        { "constant": "Constants.Settings.APP_INCOMING_SERVER_FOLDER", "resultName": "Folder" },
+        { "constant": "Constants.Settings.APP_INCOMING_SERVER_POLL_INTERVAL", "resultName": "PollInterval" },
+        { "constant": "Constants.Settings.APP_INCOMING_SERVER_USERNAME", "resultName": "Username" }
+      ],
+      "sensitiveFields": []
+    },
+    {
+      "name": "get_owner_address",
+      "className": "GetOwnerAddressSkill",
+      "description": "Reads the current owner/company address from the settings. Returns all address fields: name, supplement, street, zip, city, state, country, phone, email.",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "Owner address retrieved successfully.",
+      "fields": [
+        { "constant": "Constants.Settings.APP_ADDRESS_NAME", "resultName": "AddressName" },
+        { "constant": "Constants.Settings.APP_ADDRESS_SUPPLEMENT", "resultName": "SupplementAddress" },
+        { "constant": "Constants.Settings.APP_ADDRESS_ADDRESS", "resultName": "Street" },
+        { "constant": "Constants.Settings.APP_ADDRESS_ZIP", "resultName": "Zip" },
+        { "constant": "Constants.Settings.APP_ADDRESS_PLACE", "resultName": "City" },
+        { "constant": "Constants.Settings.APP_ADDRESS_STATE", "resultName": "State" },
+        { "constant": "Constants.Settings.APP_ADDRESS_COUNTRY", "resultName": "Country" },
+        { "constant": "Constants.Settings.APP_ADDRESS_PHONE", "resultName": "Phone" },
+        { "constant": "Constants.Settings.APP_ADDRESS_MAIL", "resultName": "Email" }
+      ],
+      "sensitiveFields": []
+    },
+    {
+      "name": "get_work_settings",
+      "className": "GetWorkSettingsSkill",
+      "description": "Retrieves employment and payroll settings: vacation days per year, probation period, notice period, payment interval, surcharge rates (night, holiday, saturday, sunday), and day visibility ranges. For working hour limits, overtime thresholds, and scheduling rule parameters use get_scheduling_defaults instead.",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "Work settings retrieved successfully.",
+      "fields": [
+        { "constant": "SettingKeys.VacationDaysPerYear", "resultName": "VacationDaysPerYear" },
+        { "constant": "SettingKeys.ProbationPeriod", "resultName": "ProbationPeriod" },
+        { "constant": "SettingKeys.NoticePeriod", "resultName": "NoticePeriod" },
+        { "constant": "SettingKeys.PaymentInterval", "resultName": "PaymentInterval" },
+        { "constant": "SettingKeys.NightRate", "resultName": "NightRate" },
+        { "constant": "SettingKeys.HolidayRate", "resultName": "HolidayRate" },
+        { "constant": "SettingKeys.SaRate", "resultName": "SaRate" },
+        { "constant": "SettingKeys.SoRate", "resultName": "SoRate" },
+        { "constant": "SettingKeys.DayVisibleBefore", "resultName": "DayVisibleBefore" },
+        { "constant": "SettingKeys.DayVisibleAfter", "resultName": "DayVisibleAfter" }
+      ],
+      "sensitiveFields": []
+    },
+    {
+      "name": "get_scheduling_defaults",
+      "className": "GetSchedulingDefaultsSkill",
+      "description": "Retrieves scheduling parameters: working hour limits, overtime thresholds, guaranteed/maximum/minimum hours, full-time hours, and scheduling rule limits (max work days, min rest days, pause hours, max consecutive days, max daily/weekly hours). For surcharge rates (night, holiday, weekend) or employment terms (vacation, probation, notice period) use get_work_settings instead.",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "Scheduling defaults retrieved successfully.",
+      "fields": [
+        { "constant": "SettingKeys.DefaultWorkingHours", "resultName": "DefaultWorkingHours" },
+        { "constant": "SettingKeys.OvertimeThreshold", "resultName": "OvertimeThreshold" },
+        { "constant": "SettingKeys.GuaranteedHours", "resultName": "GuaranteedHours" },
+        { "constant": "SettingKeys.MaximumHours", "resultName": "MaximumHours" },
+        { "constant": "SettingKeys.MinimumHours", "resultName": "MinimumHours" },
+        { "constant": "SettingKeys.FullTime", "resultName": "FullTime" },
+        { "constant": "SettingKeys.SchedulingMaxWorkDays", "resultName": "SchedulingMaxWorkDays" },
+        { "constant": "SettingKeys.SchedulingMinRestDays", "resultName": "SchedulingMinRestDays" },
+        { "constant": "SettingKeys.SchedulingMinPauseHours", "resultName": "SchedulingMinPauseHours" },
+        { "constant": "SettingKeys.SchedulingMaxOptimalGap", "resultName": "SchedulingMaxOptimalGap" },
+        { "constant": "SettingKeys.SchedulingMaxDailyHours", "resultName": "SchedulingMaxDailyHours" },
+        { "constant": "SettingKeys.SchedulingMaxWeeklyHours", "resultName": "SchedulingMaxWeeklyHours" },
+        { "constant": "SettingKeys.SchedulingMaxConsecutiveDays", "resultName": "SchedulingMaxConsecutiveDays" },
+        { "constant": "SettingKeys.NightRate", "resultName": "NightRate" },
+        { "constant": "SettingKeys.HolidayRate", "resultName": "HolidayRate" },
+        { "constant": "SettingKeys.SaRate", "resultName": "SaRate" },
+        { "constant": "SettingKeys.SoRate", "resultName": "SoRate" }
+      ],
+      "sensitiveFields": []
+    },
+    {
+      "name": "get_deepl_settings",
+      "className": "GetDeeplSettingsSkill",
+      "description": "Retrieves the DeepL translation API settings. Returns whether an API key is configured (not the key itself for security).",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "DeepL settings retrieved successfully.",
+      "fields": [],
+      "sensitiveFields": [
+        { "constant": "Settings.DEEPL_API_KEY", "resultName": "HasApiKey" }
+      ]
+    },
+    {
+      "name": "get_spam_filter_settings",
+      "className": "GetSpamFilterSettingsSkill",
+      "description": "Retrieves spam filter configuration including spam threshold, uncertain threshold, and whether LLM-based filtering is enabled.",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "Spam filter settings retrieved successfully.",
+      "fields": [
+        { "constant": "Constants.Settings.SPAM_FILTER_SPAM_THRESHOLD", "resultName": "SpamThreshold" },
+        { "constant": "Constants.Settings.SPAM_FILTER_UNCERTAIN_THRESHOLD", "resultName": "UncertainThreshold" },
+        { "constant": "Constants.Settings.SPAM_FILTER_LLM_ENABLED", "resultName": "LlmEnabled" }
+      ],
+      "sensitiveFields": []
+    },
+    {
+      "name": "get_web_search_settings",
+      "className": "GetWebSearchSettingsSkill",
+      "description": "Retrieves web search configuration including provider, max results, and whether an API key is configured.",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "Web search settings retrieved successfully.",
+      "fields": [
+        { "constant": "Constants.Settings.WEB_SEARCH_PROVIDER", "resultName": "Provider" },
+        { "constant": "Constants.Settings.WEB_SEARCH_MAX_RESULTS", "resultName": "MaxResults" }
+      ],
+      "sensitiveFields": [
+        { "constant": "Constants.Settings.WEB_SEARCH_API_KEY", "resultName": "HasApiKey" }
+      ]
+    }
+  ]
+}

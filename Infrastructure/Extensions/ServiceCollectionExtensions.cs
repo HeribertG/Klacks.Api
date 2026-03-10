@@ -61,6 +61,7 @@ using Klacks.Api.Application.Interfaces.Settings;
 using Klacks.Api.Infrastructure.Services.Associations;
 using Klacks.Api.Infrastructure.Services.ClientAvailabilitySchedule;
 using Klacks.Api.Application.Skills.Generated;
+using Klacks.Api.Application.Skills.Generic;
 
 namespace Klacks.Api.Infrastructure.Extensions;
 
@@ -304,8 +305,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ISkillRegistry, Domain.Services.Assistant.Skills.SkillRegistry>();
         services.AddScoped<ISkillExecutor, Domain.Services.Assistant.Skills.SkillExecutorService>();
         services.AddScoped<ISkillUsageTracker, SkillUsageTrackerService>();
-        services.AddSingleton<SkillRegistrationService>();
-        services.AddScoped<Persistence.Seed.AgentSkillSeedService>();
         services.AddScoped<Persistence.Seed.GlobalAgentRuleSeedService>();
         services.AddScoped<Domain.Services.Assistant.Skills.ILLMSkillBridge, Domain.Services.Assistant.Skills.LLMSkillBridge>();
 
@@ -344,14 +343,21 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.TestImapConnectionSkill>();
         services.AddScoped<Application.Skills.UpdateWebSearchSettingsSkill>();
         services.AddScoped<Application.Skills.UpdateSpamFilterSettingsSkill>();
-        services.AddScoped<Application.Skills.ListLlmProvidersSkill>();
-        services.AddScoped<Application.Skills.ListLlmModelsSkill>();
-        services.AddScoped<Application.Skills.ListSchedulingRulesSkill>();
+        services.AddScoped<Application.Skills.Meta.ListAgentSkillsSkill>();
+        services.AddScoped<Application.Skills.Meta.CreateAgentSkillSkill>();
+        services.AddScoped<Application.Skills.Meta.UpdateAgentSkillSkill>();
+        services.AddScoped<Application.Skills.Meta.DeleteAgentSkillSkill>();
         services.AddScoped<Infrastructure.WebSearch.WebSearchProviderFactory>();
 
         services.AddScoped<Persistence.Seed.AgentSoulSectionSeedService>();
         services.AddScoped<Persistence.Seed.UiControlSeedService>();
         services.AddScoped<Persistence.Seed.EmailFolderSeedService>();
+        services.AddScoped<Persistence.Seed.SkillSeedLoader>();
+        services.AddScoped<Application.Services.Assistant.SkillRegistryInitializer>();
+
+        services.AddScoped<GenericListExecutor>();
+        services.AddScoped<GenericDeleteExecutor>();
+        services.AddScoped<IGenericSkillDispatcher, GenericSkillDispatcher>();
     }
 
     private static void AddInfrastructureServices(this IServiceCollection services)

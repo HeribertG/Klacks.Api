@@ -16,6 +16,16 @@ public class AgentSkillRepository : IAgentSkillRepository
         _context = context;
     }
 
+    public async Task<List<AgentSkill>> GetAllEnabledAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentSkills
+            .Where(s => s.IsEnabled && !s.IsDeleted)
+            .OrderBy(s => s.SortOrder)
+            .ThenBy(s => s.Name)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<AgentSkill>> GetEnabledAsync(Guid agentId, CancellationToken cancellationToken = default)
     {
         return await _context.AgentSkills

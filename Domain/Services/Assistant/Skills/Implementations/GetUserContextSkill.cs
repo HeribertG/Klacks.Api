@@ -1,18 +1,17 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Domain.Enums;
+/// <summary>
+/// Skill that returns basic identity information about the current user (name, ID, tenant, current page).
+/// Use get_user_permissions instead if you need to check what actions the user is allowed to perform.
+/// </summary>
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
-public class GetUserContextSkill : BaseSkill
+[SkillImplementation("get_user_context")]
+public class GetUserContextSkill : BaseSkillImplementation
 {
-    public override string Name => "get_user_context";
-    public override string Description => "Get information about the current user and their permissions";
-    public override SkillCategory Category => SkillCategory.System;
-
-    public override IReadOnlyList<SkillParameter> Parameters => Array.Empty<SkillParameter>();
-
     public override Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,
         Dictionary<string, object> parameters,

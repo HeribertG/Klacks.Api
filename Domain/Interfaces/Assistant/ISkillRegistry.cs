@@ -8,6 +8,8 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 public interface ISkillRegistry
 {
     void Register(SkillDescriptor descriptor);
+    void Reload(IReadOnlyList<SkillDescriptor> descriptors);
+    void Clear();
 
     IReadOnlyList<SkillDescriptor> GetAllSkills();
     IReadOnlyList<SkillDescriptor> GetSkillsForUser(IReadOnlyList<string> userPermissions);

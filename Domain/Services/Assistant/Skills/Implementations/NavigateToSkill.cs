@@ -1,13 +1,19 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Skill that navigates to a known page in the Klacks application by page key (e.g. dashboard, settings, schedule).
+/// Use this for known, fixed pages. For searching a person or entity by name and opening their detail page,
+/// use search_and_navigate instead.
+/// </summary>
 using System.Text.Json;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
-public class NavigateToSkill : BaseSkill
+[SkillImplementation("navigate_to")]
+public class NavigateToSkill : BaseSkillImplementation
 {
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly IAgentRepository _agentRepository;
@@ -33,30 +39,6 @@ public class NavigateToSkill : BaseSkill
         _agentSkillRepository = agentSkillRepository;
         _agentRepository = agentRepository;
     }
-
-    public override string Name => "navigate_to";
-    public override string Description => "Navigate to a specific page in the Klacks application";
-    public override SkillCategory Category => SkillCategory.UI;
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter(
-            "page",
-            "The page to navigate to",
-            SkillParameterType.Enum,
-            Required: true,
-            EnumValues: FallbackRoutes.Keys.ToList()),
-        new SkillParameter(
-            "entityId",
-            "The ID of the entity to view (for detail pages)",
-            SkillParameterType.String,
-            Required: false),
-        new SkillParameter(
-            "tab",
-            "The specific tab to open on the page",
-            SkillParameterType.String,
-            Required: false)
-    };
 
     public override async Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,
@@ -104,7 +86,7 @@ public class NavigateToSkill : BaseSkill
         if (agent == null)
             return FallbackRoutes;
 
-        var skill = await _agentSkillRepository.GetByNameAsync(agent.Id, Name, cancellationToken);
+        var skill = await _agentSkillRepository.GetByNameAsync(agent.Id, "navigate_to", cancellationToken);
         if (skill == null || string.IsNullOrEmpty(skill.HandlerConfig) || skill.HandlerConfig == "{}")
             return FallbackRoutes;
 

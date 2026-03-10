@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
@@ -9,87 +10,12 @@ using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class CreateEmployeeSkill : BaseSkill
+[SkillImplementation("create_employee")]
+public class CreateEmployeeSkill : BaseSkillImplementation
 {
     private readonly IClientRepository _clientRepository;
     private readonly IAddressRepository _addressRepository;
     private readonly IUnitOfWork _unitOfWork;
-
-    public override string Name => "create_employee";
-
-    public override string Description =>
-        "Creates a new employee or customer in the system with all data (name, address, birthdate, contract, group). " +
-        "For Swiss addresses, the canton is automatically detected from the postal code.";
-
-    public override SkillCategory Category => SkillCategory.Crud;
-
-    public override IReadOnlyList<string> RequiredPermissions => new[] { "CanCreateClients" };
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter(
-            "firstName",
-            "First name of the employee",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "lastName",
-            "Last name of the employee",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "gender",
-            "Gender of the employee",
-            SkillParameterType.Enum,
-            Required: true,
-            EnumValues: new List<string> { "Male", "Female", "Intersexuality", "LegalEntity" }),
-        new SkillParameter(
-            "birthdate",
-            "Birthdate in format YYYY-MM-DD",
-            SkillParameterType.Date,
-            Required: false),
-        new SkillParameter(
-            "street",
-            "Street and house number",
-            SkillParameterType.String,
-            Required: false),
-        new SkillParameter(
-            "postalCode",
-            "Postal code (e.g. 3097)",
-            SkillParameterType.String,
-            Required: false),
-        new SkillParameter(
-            "city",
-            "City name (e.g. Liebefeld)",
-            SkillParameterType.String,
-            Required: false),
-        new SkillParameter(
-            "canton",
-            "Swiss canton code (e.g. BE, ZH, SG). Auto-detected from postal code if not provided.",
-            SkillParameterType.String,
-            Required: false),
-        new SkillParameter(
-            "country",
-            "Country name (e.g. Schweiz, Deutschland)",
-            SkillParameterType.String,
-            Required: false,
-            DefaultValue: "Schweiz"),
-        new SkillParameter(
-            "email",
-            "Email address",
-            SkillParameterType.String,
-            Required: false),
-        new SkillParameter(
-            "phone",
-            "Phone number",
-            SkillParameterType.String,
-            Required: false),
-        new SkillParameter(
-            "company",
-            "Company name (for business entities)",
-            SkillParameterType.String,
-            Required: false)
-    };
 
     public CreateEmployeeSkill(
         IClientRepository clientRepository,

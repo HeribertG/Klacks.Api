@@ -1,35 +1,17 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class GetClientDetailsSkill : BaseSkill
+[SkillImplementation("get_client_details")]
+public class GetClientDetailsSkill : BaseSkillImplementation
 {
     private readonly IClientRepository _clientRepository;
-
-    public override string Name => "get_client_details";
-
-    public override string Description =>
-        "Retrieves complete details for a client/employee including their contracts, group memberships, addresses, and contact information. " +
-        "Use this to check what contracts a person has, which groups they belong to, or to get their full profile.";
-
-    public override SkillCategory Category => SkillCategory.Query;
-
-    public override IReadOnlyList<string> RequiredPermissions => new[] { "CanViewClients" };
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter(
-            "clientId",
-            "The unique ID (GUID) of the client to retrieve",
-            SkillParameterType.String,
-            Required: true)
-    };
 
     public GetClientDetailsSkill(IClientRepository clientRepository)
     {

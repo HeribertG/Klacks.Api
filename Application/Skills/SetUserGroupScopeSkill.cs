@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Authentification;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Assistant;
@@ -11,38 +11,13 @@ using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Skills;
 
-public class SetUserGroupScopeSkill : BaseSkill
+[SkillImplementation("set_user_group_scope")]
+public class SetUserGroupScopeSkill : BaseSkillImplementation
 {
     private readonly IUserManagementService _userManagementService;
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupVisibilityRepository _groupVisibilityRepository;
     private readonly IUnitOfWork _unitOfWork;
-
-    public override string Name => "set_user_group_scope";
-
-    public override string Description =>
-        "Sets the group visibility scope for a user. " +
-        "This controls which groups a user can see in the system. " +
-        "Provide the user ID and one or more group names to assign. " +
-        "Existing group scope entries for the user are replaced.";
-
-    public override SkillCategory Category => SkillCategory.Crud;
-
-    public override IReadOnlyList<string> RequiredPermissions => [Permissions.CanEditSettings];
-
-    public override IReadOnlyList<SkillParameter> Parameters =>
-    [
-        new SkillParameter(
-            "userId",
-            "The ID of the user to set the group scope for",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "groupNames",
-            "Comma-separated list of group names to assign (e.g. 'Deutschweiz Mitte, Romandie')",
-            SkillParameterType.String,
-            Required: true)
-    ];
 
     public SetUserGroupScopeSkill(
         IUserManagementService userManagementService,

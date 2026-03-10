@@ -63,6 +63,22 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Klacks.Api.SourceGenerators\Klacks.Api.SourceGenerators.csproj"
+		                  OutputItemType="Analyzer"
+		                  ReferenceOutputAssembly="false" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<AdditionalFiles Include="Application\Skills\Definitions\*.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Update="Application\Skills\Definitions\skill-seeds.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Content Update="appsettings.Production.json">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>

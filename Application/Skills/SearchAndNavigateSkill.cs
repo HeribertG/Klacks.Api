@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
@@ -8,45 +9,12 @@ using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class SearchAndNavigateSkill : BaseSkill
+[SkillImplementation("search_and_navigate")]
+public class SearchAndNavigateSkill : BaseSkillImplementation
 {
     private readonly IClientSearchRepository _clientSearchRepository;
     private readonly IGroupRepository _groupRepository;
     private readonly IShiftRepository _shiftRepository;
-
-    public override string Name => "search_and_navigate";
-
-    public override string Description =>
-        "Search for an entity (employee, customer, group, shift) by name and navigate directly to it. " +
-        "Use this when the user wants to open or edit a specific person or entity " +
-        "(e.g., 'Open customer Max Müller', 'Show me Heribert Gasparoli'). " +
-        "If multiple matches are found, all will be shown.";
-
-    public override SkillCategory Category => SkillCategory.Query;
-
-    public override IReadOnlyList<string> RequiredPermissions => new[] { "CanViewClients" };
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter(
-            "entityType",
-            "Type of entity to search for",
-            SkillParameterType.Enum,
-            Required: true,
-            EnumValues: new List<string> { "client", "shift", "group" }),
-        new SkillParameter(
-            "searchQuery",
-            "Name or search term to find the entity",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "action",
-            "Action to take after finding: view or edit",
-            SkillParameterType.Enum,
-            Required: false,
-            DefaultValue: "edit",
-            EnumValues: new List<string> { "view", "edit" })
-    };
 
     public SearchAndNavigateSkill(
         IClientSearchRepository clientSearchRepository,

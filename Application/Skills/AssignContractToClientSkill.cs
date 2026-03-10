@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Staffs;
@@ -9,51 +9,12 @@ using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class AssignContractToClientSkill : BaseSkill
+[SkillImplementation("assign_contract_to_client")]
+public class AssignContractToClientSkill : BaseSkillImplementation
 {
     private readonly IClientRepository _clientRepository;
     private readonly IContractRepository _contractRepository;
     private readonly IUnitOfWork _unitOfWork;
-
-    public override string Name => "assign_contract_to_client";
-
-    public override string Description =>
-        "Assigns an existing contract to a client/employee. This creates a client-contract association with validity dates. " +
-        "Only one contract can be active at a time per client. Use this to set up employment contracts.";
-
-    public override SkillCategory Category => SkillCategory.Crud;
-
-    public override IReadOnlyList<string> RequiredPermissions => new[] { "CanEditClients" };
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter(
-            "clientId",
-            "The unique ID (GUID) of the client",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "contractId",
-            "The unique ID (GUID) of the contract to assign",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "fromDate",
-            "Start date of the contract assignment (format: YYYY-MM-DD)",
-            SkillParameterType.Date,
-            Required: true),
-        new SkillParameter(
-            "untilDate",
-            "End date of the contract assignment (format: YYYY-MM-DD). Leave empty for indefinite.",
-            SkillParameterType.Date,
-            Required: false),
-        new SkillParameter(
-            "setAsActive",
-            "Whether to set this as the active contract (will deactivate other contracts)",
-            SkillParameterType.Boolean,
-            Required: false,
-            DefaultValue: "true")
-    };
 
     public AssignContractToClientSkill(
         IClientRepository clientRepository,

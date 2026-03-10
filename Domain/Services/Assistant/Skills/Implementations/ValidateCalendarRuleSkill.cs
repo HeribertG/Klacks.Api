@@ -1,29 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Holidays;
 
 namespace Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
-public class ValidateCalendarRuleSkill : BaseSkill
+[SkillImplementation("validate_calendar_rule")]
+public class ValidateCalendarRuleSkill : BaseSkillImplementation
 {
-    public override string Name => "validate_calendar_rule";
-
-    public override string Description =>
-        "Validates a calendar/holiday rule and calculates the resulting date. " +
-        "Supports fixed dates (MM/DD), Easter-relative (EASTER+XX) and SubRules (SA+2;SU+1)";
-
-    public override SkillCategory Category => SkillCategory.Validation;
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter("rule", "The rule (e.g. '01/01', 'EASTER+39', '11/22+00+TH')", SkillParameterType.String, true),
-        new SkillParameter("subRule", "Optional SubRule for weekend adjustment (e.g. 'SA+2;SU+1')", SkillParameterType.String, false),
-        new SkillParameter("year", "Year for calculation (default: current year)", SkillParameterType.Integer, false)
-    };
-
     public override Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,
         Dictionary<string, object> parameters,

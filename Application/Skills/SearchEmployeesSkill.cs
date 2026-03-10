@@ -1,6 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Skill that searches for employees or customers by criteria such as name, canton, or entity type
+/// and returns a filtered list of matches with basic information.
+/// To search AND directly navigate to a specific person, use search_and_navigate instead.
+/// </summary>
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
@@ -8,45 +14,10 @@ using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-public class SearchEmployeesSkill : BaseSkill
+[SkillImplementation("search_employees")]
+public class SearchEmployeesSkill : BaseSkillImplementation
 {
     private readonly IClientSearchRepository _searchRepository;
-
-    public override string Name => "search_employees";
-
-    public override string Description =>
-        "Search for employees or customers by various criteria like name, canton, or membership type. " +
-        "Returns a list of matching employees with their basic information.";
-
-    public override SkillCategory Category => SkillCategory.Query;
-
-    public override IReadOnlyList<string> RequiredPermissions => new[] { "CanViewClients" };
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter(
-            "searchTerm",
-            "Search term for name, company, or other text fields",
-            SkillParameterType.String,
-            Required: false),
-        new SkillParameter(
-            "canton",
-            "Filter by Swiss canton code",
-            SkillParameterType.Enum,
-            Required: false,
-            EnumValues: new List<string> { "BE", "ZH", "SG", "VD", "AG", "LU", "BS", "BL", "GR", "TG", "GE", "NE" }),
-        new SkillParameter(
-            "entityType",
-            "Filter by entity type (0=Employee, 1=ExternEmp, 2=Customer)",
-            SkillParameterType.Integer,
-            Required: false),
-        new SkillParameter(
-            "limit",
-            "Maximum number of results to return",
-            SkillParameterType.Integer,
-            Required: false,
-            DefaultValue: 10)
-    };
 
     public SearchEmployeesSkill(IClientSearchRepository searchRepository)
     {
@@ -60,12 +31,16 @@ public class SearchEmployeesSkill : BaseSkill
     {
         var searchTerm = GetParameter<string>(parameters, "searchTerm");
         var canton = GetParameter<string>(parameters, "canton");
-        var entityTypeValue = GetParameter<int?>(parameters, "entityType");
+        var entityTypeValue = GetParameter<string>(parameters, "entityType");
         var limit = GetParameter<int?>(parameters, "limit") ?? 10;
 
-        EntityTypeEnum? entityType = entityTypeValue.HasValue
-            ? (EntityTypeEnum)entityTypeValue.Value
-            : null;
+        EntityTypeEnum? entityType = entityTypeValue switch
+        {
+            "Employee" => EntityTypeEnum.Employee,
+            "ExternEmp" => EntityTypeEnum.ExternEmp,
+            "Customer" => EntityTypeEnum.Customer,
+            _ => null
+        };
 
         var result = await _searchRepository.SearchAsync(
             searchTerm,

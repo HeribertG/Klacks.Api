@@ -1,51 +1,18 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
-using Klacks.Api.Application.Interfaces;
 
 namespace Klacks.Api.Application.Skills;
 
-public class ValidateAddressSkill : BaseSkill
+[SkillImplementation("validate_address")]
+public class ValidateAddressSkill : BaseSkillImplementation
 {
     private readonly IGeocodingService _geocodingService;
-
-    public override string Name => "validate_address";
-
-    public override string Description =>
-        "Validates an address and returns geocoding information (coordinates, formatted address). " +
-        "Also detects the Swiss canton from postal code. Use this before creating an employee to verify the address exists.";
-
-    public override SkillCategory Category => SkillCategory.Validation;
-
-    public override IReadOnlyList<string> RequiredPermissions => Array.Empty<string>();
-
-    public override IReadOnlyList<SkillParameter> Parameters => new[]
-    {
-        new SkillParameter(
-            "street",
-            "Street name and house number",
-            SkillParameterType.String,
-            Required: false),
-        new SkillParameter(
-            "postalCode",
-            "Postal code / ZIP code",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "city",
-            "City name",
-            SkillParameterType.String,
-            Required: true),
-        new SkillParameter(
-            "country",
-            "Country name (default: Schweiz)",
-            SkillParameterType.String,
-            Required: false,
-            DefaultValue: "Schweiz")
-    };
 
     public ValidateAddressSkill(IGeocodingService geocodingService)
     {

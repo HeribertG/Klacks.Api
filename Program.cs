@@ -305,8 +305,8 @@ if (builder.Configuration.GetValue<bool>("Database:InitializeOnStartup", false))
 app.InitializeLanguagePlugins();
 
 // Initialize Skills System
-app.InitializeSkills();
-await app.SeedAgentSkillsAsync();
+await app.LoadSkillSeedsAsync();
+await app.InitializeSkillRegistryAsync();
 await app.SeedGlobalAgentRulesAsync();
 await app.SeedAgentSoulSectionsAsync();
 await app.SeedUiControlsAsync();
