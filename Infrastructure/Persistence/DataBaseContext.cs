@@ -227,6 +227,8 @@ public class DataBaseContext : IdentityDbContext
 
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.RegisterMultiLanguageDbFunctions();
+
         modelBuilder.HasSequence<int>("client_idnumber_seq", schema: "public")
             .StartsAt(1)
             .IncrementsBy(1);
@@ -251,32 +253,32 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Macro>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.OwnsOne(m => m.Description, nav => nav.ToJson("description"));
+            entity.ConfigureMultiLanguage(m => m.Description, "description");
         });
         modelBuilder.Entity<Absence>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.OwnsOne(a => a.Name, nav => nav.ToJson("name"));
-            entity.OwnsOne(a => a.Description, nav => nav.ToJson("description"));
-            entity.OwnsOne(a => a.Abbreviation, nav => nav.ToJson("abbreviation"));
+            entity.ConfigureMultiLanguage(a => a.Name, "name");
+            entity.ConfigureMultiLanguage(a => a.Description, "description");
+            entity.ConfigureMultiLanguage(a => a.Abbreviation, "abbreviation");
         });
         modelBuilder.Entity<BreakPlaceholder>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<AbsenceDetail>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.OwnsOne(a => a.DetailName, nav => nav.ToJson("detail_name"));
-            entity.OwnsOne(a => a.Description, nav => nav.ToJson("description"));
+            entity.ConfigureMultiLanguage(a => a.DetailName, "detail_name");
+            entity.ConfigureMultiLanguage(a => a.Description, "description");
         });
         modelBuilder.Entity<Branch>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Countries>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.OwnsOne(c => c.Name, nav => nav.ToJson("name"));
+            entity.ConfigureMultiLanguage(c => c.Name, "name");
         });
         modelBuilder.Entity<State>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.OwnsOne(s => s.Name, nav => nav.ToJson("name"));
+            entity.ConfigureMultiLanguage(s => s.Name, "name");
         });
         modelBuilder.Entity<SelectedCalendar>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<CalendarSelection>().HasQueryFilter(p => !p.IsDeleted);
@@ -297,10 +299,7 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<Break>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.OwnsOne(b => b.Description, nav =>
-            {
-                nav.ToJson("description");
-            });
+            entity.ConfigureMultiLanguage(b => b.Description, "description");
         });
         modelBuilder.Entity<WorkChange>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Expenses>().HasQueryFilter(p => !p.IsDeleted);
@@ -425,10 +424,8 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<CalendarRule>(entity =>
         {
             entity.HasIndex(p => new { p.State, p.Country });
-            entity.OwnsOne(c => c.Name, nav => nav.ToJson("name"));
-            entity.OwnsOne(c => c.Description, nav => nav.ToJson("description"));
-            entity.Navigation(c => c.Name).IsRequired();
-            entity.Navigation(c => c.Description).IsRequired();
+            entity.ConfigureMultiLanguage(c => c.Name, "name");
+            entity.ConfigureMultiLanguage(c => c.Description, "description");
         });
         modelBuilder.Entity<SelectedCalendar>().HasIndex(p => new { p.State, p.Country, p.CalendarSelectionId });
         modelBuilder.Entity<Group>().HasIndex(p => new { p.Name });

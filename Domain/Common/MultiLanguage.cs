@@ -1,82 +1,50 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using System.ComponentModel.DataAnnotations.Schema;
+/// <summary>
+/// Mehrsprachiges Wertobjekt für JSONB-Spalten.
+/// Core-Sprachen (de/en/fr/it) haben explizite Properties für Code-Zugriff.
+/// Alle Sprachen (Core + Plugin) werden dynamisch via MultiLanguageSystemTextJsonConverter serialisiert.
+/// </summary>
 using System.Text.Json.Serialization;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Domain.Common;
 
-[Owned]
+[JsonConverter(typeof(MultiLanguageSystemTextJsonConverter))]
 public class MultiLanguage
 {
     private Dictionary<string, string?> _values = new(StringComparer.OrdinalIgnoreCase);
 
     public static string[] CoreLanguages => ["de", "en", "fr", "it"];
-    public static string[] PluginLanguages => ["ja", "es"];
-    public static string[] MappedLanguages => [..CoreLanguages, ..PluginLanguages];
 
     [Obsolete("Use CoreLanguages or LanguageConfig.SupportedLanguages instead")]
     public static string[] SupportedLanguages => CoreLanguages;
 
-    [JsonPropertyName("de")]
+    [JsonIgnore]
     public string? De
     {
         get => GetValue("de");
         set => SetValue("de", value);
     }
 
-    [JsonPropertyName("en")]
+    [JsonIgnore]
     public string? En
     {
         get => GetValue("en");
         set => SetValue("en", value);
     }
 
-    [JsonPropertyName("fr")]
+    [JsonIgnore]
     public string? Fr
     {
         get => GetValue("fr");
         set => SetValue("fr", value);
     }
 
-    [JsonPropertyName("it")]
+    [JsonIgnore]
     public string? It
     {
         get => GetValue("it");
         set => SetValue("it", value);
-    }
-
-    [JsonPropertyName("ja")]
-    public string? Ja
-    {
-        get => GetValue("ja");
-        set => SetValue("ja", value);
-    }
-
-    [JsonPropertyName("es")]
-    public string? Es
-    {
-        get => GetValue("es");
-        set => SetValue("es", value);
-    }
-
-    [JsonExtensionData]
-    [NotMapped]
-    public Dictionary<string, object?> AdditionalLanguages
-    {
-        get => _values
-            .Where(kvp => !MappedLanguages.Contains(kvp.Key, StringComparer.OrdinalIgnoreCase))
-            .ToDictionary(kvp => kvp.Key, kvp => (object?)kvp.Value);
-        set
-        {
-            foreach (var kvp in value)
-            {
-                if (!MappedLanguages.Contains(kvp.Key, StringComparer.OrdinalIgnoreCase))
-                {
-                    SetValue(kvp.Key, kvp.Value?.ToString());
-                }
-            }
-        }
     }
 
     public string? GetValue(string language)
@@ -104,6 +72,7 @@ public class MultiLanguage
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value!);
     }
 
+    [JsonIgnore]
     public bool IsEmpty => _values.Count == 0 || _values.Values.All(string.IsNullOrEmpty);
 
     public static MultiLanguage Empty() => new();

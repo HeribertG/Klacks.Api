@@ -1,5 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Sortierservice für CalendarRule-Abfragen.
+/// Nutzt MultiLanguageDbFunctions.ExtractText für sprachabhängige JSONB-Sortierung,
+/// unterstützt dynamisch alle Sprachen (Core + Plugin).
+/// </summary>
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Settings;
 
@@ -19,69 +25,19 @@ public class CalendarRuleSortingService : ICalendarRuleSortingService
 
         return orderBy?.ToLower() switch
         {
-            "name" => ApplyNameSorting(query, lang, isAscending),
-            "state" => ApplyStateSorting(query, isAscending),
-            "country" => ApplyCountrySorting(query, isAscending),
-            "description" => ApplyDescriptionSorting(query, lang, isAscending),
+            "name" => isAscending
+                ? query.OrderBy(x => MultiLanguageDbFunctions.ExtractText(x.Name, lang))
+                : query.OrderByDescending(x => MultiLanguageDbFunctions.ExtractText(x.Name, lang)),
+            "state" => isAscending
+                ? query.OrderBy(x => x.State)
+                : query.OrderByDescending(x => x.State),
+            "country" => isAscending
+                ? query.OrderBy(x => x.Country)
+                : query.OrderByDescending(x => x.Country),
+            "description" => isAscending
+                ? query.OrderBy(x => MultiLanguageDbFunctions.ExtractText(x.Description, lang))
+                : query.OrderByDescending(x => MultiLanguageDbFunctions.ExtractText(x.Description, lang)),
             _ => query
-        };
-    }
-
-    private IQueryable<CalendarRule> ApplyNameSorting(IQueryable<CalendarRule> query, string language, bool isAscending)
-    {
-        return language switch
-        {
-            "de" => isAscending 
-                ? query.OrderBy(x => x.Name!.De!) 
-                : query.OrderByDescending(x => x.Name!.De!),
-            "en" => isAscending 
-                ? query.OrderBy(x => x.Name!.En!) 
-                : query.OrderByDescending(x => x.Name!.En!),
-            "fr" => isAscending 
-                ? query.OrderBy(x => x.Name!.Fr!) 
-                : query.OrderByDescending(x => x.Name!.Fr!),
-            "it" => isAscending 
-                ? query.OrderBy(x => x.Name!.It!) 
-                : query.OrderByDescending(x => x.Name!.It!),
-            _ => isAscending 
-                ? query.OrderBy(x => x.Name!.En!) 
-                : query.OrderByDescending(x => x.Name!.En!)
-        };
-    }
-
-    private IQueryable<CalendarRule> ApplyStateSorting(IQueryable<CalendarRule> query, bool isAscending)
-    {
-        return isAscending 
-            ? query.OrderBy(x => x.State) 
-            : query.OrderByDescending(x => x.State);
-    }
-
-    private IQueryable<CalendarRule> ApplyCountrySorting(IQueryable<CalendarRule> query, bool isAscending)
-    {
-        return isAscending 
-            ? query.OrderBy(x => x.Country) 
-            : query.OrderByDescending(x => x.Country);
-    }
-
-    private IQueryable<CalendarRule> ApplyDescriptionSorting(IQueryable<CalendarRule> query, string language, bool isAscending)
-    {
-        return language switch
-        {
-            "de" => isAscending 
-                ? query.OrderBy(x => x.Description!.De!) 
-                : query.OrderByDescending(x => x.Description!.De!),
-            "en" => isAscending 
-                ? query.OrderBy(x => x.Description!.En!) 
-                : query.OrderByDescending(x => x.Description!.En!),
-            "fr" => isAscending 
-                ? query.OrderBy(x => x.Description!.Fr!) 
-                : query.OrderByDescending(x => x.Description!.Fr!),
-            "it" => isAscending 
-                ? query.OrderBy(x => x.Description!.It!) 
-                : query.OrderByDescending(x => x.Description!.It!),
-            _ => isAscending 
-                ? query.OrderBy(x => x.Description!.En!) 
-                : query.OrderByDescending(x => x.Description!.En!)
         };
     }
 }
