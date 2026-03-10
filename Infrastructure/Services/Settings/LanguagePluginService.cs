@@ -7,6 +7,7 @@ using Klacks.Api.Application.DTOs.Config;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.Interfaces.Settings;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Settings;
@@ -172,6 +173,7 @@ public class LanguagePluginService : ILanguagePluginService
         await InstallDocsAsync(scope, code);
         await InstallSkillSynonymsAsync(scope, code);
         await unitOfWork.CompleteAsync();
+        await MergeNonCoreTranslationsAsync(scope, code);
 
         lock (_installedLock)
         {
@@ -673,6 +675,88 @@ public class LanguagePluginService : ILanguagePluginService
         {
             _logger.LogError(ex, "Failed to uninstall skill synonyms for language plugin '{Code}'", code);
         }
+    }
+
+    private async Task MergeNonCoreTranslationsAsync(IServiceScope scope, string code)
+    {
+        var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+
+        await MergeNonCoreJsonbTranslationsAsync(db, code,
+            LanguagePluginConstants.CalendarRulesFileName, "calendar_rule", hasDescription: true);
+        await MergeNonCoreJsonbTranslationsAsync(db, code,
+            LanguagePluginConstants.StatesFileName, "state", hasDescription: false);
+        await MergeNonCoreJsonbTranslationsAsync(db, code,
+            LanguagePluginConstants.CountriesFileName, "countries", hasDescription: false);
+    }
+
+    private async Task MergeNonCoreJsonbTranslationsAsync(
+        DataBaseContext db, string code, string fileName, string tableName, bool hasDescription)
+    {
+        var filePath = Path.Combine(_pluginDirectory, code, fileName);
+        if (!File.Exists(filePath))
+            return;
+
+        try
+        {
+            var json = File.ReadAllText(filePath);
+            using var doc = JsonDocument.Parse(json);
+            var count = 0;
+
+            foreach (var element in doc.RootElement.EnumerateArray())
+            {
+                var id = element.GetProperty("id").GetString();
+                if (string.IsNullOrEmpty(id))
+                    continue;
+
+                count += await MergeJsonbPropertyAsync(db, tableName, id, element, "name");
+
+                if (hasDescription)
+                {
+                    await MergeJsonbPropertyAsync(db, tableName, id, element, "description");
+                }
+            }
+
+            if (count > 0)
+            {
+                _logger.LogInformation(
+                    "Merged non-core translations for {Count} {Table} record(s) in language plugin '{Code}'",
+                    count, tableName, code);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Failed to merge non-core translations for {Table} in language plugin '{Code}'",
+                tableName, code);
+        }
+    }
+
+    private static async Task<int> MergeJsonbPropertyAsync(
+        DataBaseContext db, string tableName, string id, JsonElement element, string propertyName)
+    {
+        if (!element.TryGetProperty(propertyName, out var propObj))
+            return 0;
+
+        var nonCoreValues = new Dictionary<string, string>();
+
+        foreach (var prop in propObj.EnumerateObject())
+        {
+            if (MultiLanguage.CoreLanguages.Contains(prop.Name))
+                continue;
+
+            var val = prop.Value.GetString();
+            if (val != null)
+                nonCoreValues[prop.Name] = val;
+        }
+
+        if (nonCoreValues.Count == 0)
+            return 0;
+
+        var mergeJson = JsonSerializer.Serialize(nonCoreValues);
+        var sql = $"UPDATE {tableName} SET {propertyName} = {propertyName} || {{0}}::jsonb WHERE id = {{1}}::uuid";
+        await db.Database.ExecuteSqlRawAsync(sql, mergeJson, id);
+
+        return 1;
     }
 
     private bool IsInstalled(string code)
