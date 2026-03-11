@@ -20,4 +20,6 @@ public interface IAgentMemoryRepository
     Task<List<AgentMemory>> GetPendingEmbeddingsAsync(int limit = 100, CancellationToken cancellationToken = default);
     Task CleanupExpiredAsync(CancellationToken cancellationToken = default);
     Task UpdateAccessCountsAsync(List<Guid> memoryIds, CancellationToken cancellationToken = default);
+    Task<int> AdjustImportanceByUsageAsync(CancellationToken cancellationToken = default);
+    Task<int> CleanupLowValueMemoriesAsync(CancellationToken cancellationToken = default);
 }

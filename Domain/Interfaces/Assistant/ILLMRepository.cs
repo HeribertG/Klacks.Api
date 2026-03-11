@@ -32,5 +32,7 @@ public interface ILLMRepository : IBaseRepository<LLMModel>
     
     Task<LLMMessage> SaveMessageAsync(LLMMessage message);
     Task<List<LLMMessage>> GetConversationMessagesAsync(string conversationId, int limit = 20);
+    Task<List<LLMMessage>> GetOldestMessagesAsync(string conversationId, int skipNewest, int limit = 40);
+    Task<LLMConversation?> GetConversationByConversationIdAsync(string conversationId);
     Task<int> GetConversationTokenCountAsync(string conversationId);
 }

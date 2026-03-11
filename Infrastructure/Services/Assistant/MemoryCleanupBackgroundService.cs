@@ -64,6 +64,18 @@ public class MemoryCleanupBackgroundService : BackgroundService
         await memoryRepository.CleanupExpiredAsync(stoppingToken);
         _logger.LogInformation("Expired memories cleaned up");
 
+        var adjustedCount = await memoryRepository.AdjustImportanceByUsageAsync(stoppingToken);
+        if (adjustedCount > 0)
+        {
+            _logger.LogInformation("Adjusted importance for {Count} memories based on usage patterns", adjustedCount);
+        }
+
+        var cleanedCount = await memoryRepository.CleanupLowValueMemoriesAsync(stoppingToken);
+        if (cleanedCount > 0)
+        {
+            _logger.LogInformation("Cleaned up {Count} low-value memories (old, unused, low importance)", cleanedCount);
+        }
+
         await sessionRepository.ArchiveStaleSessionsAsync(StaleSessionDays, stoppingToken);
         _logger.LogInformation("Stale sessions archived");
     }

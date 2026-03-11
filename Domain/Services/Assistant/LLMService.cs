@@ -21,6 +21,7 @@ public class LLMService : ILLMService
     private readonly ContextAssemblyPipeline _contextAssemblyPipeline;
     private readonly IAutoMemoryExtractionService _autoMemoryExtraction;
     private readonly ISkillGapDetector _skillGapDetector;
+    private readonly IConversationCompactionService _compactionService;
 
     private const int MaxHistoryMessages = 40;
     private const int ReducedHistoryMessages = 20;
@@ -36,7 +37,8 @@ public class LLMService : ILLMService
         IAgentMemoryRepository agentMemoryRepository,
         ContextAssemblyPipeline contextAssemblyPipeline,
         IAutoMemoryExtractionService autoMemoryExtraction,
-        ISkillGapDetector skillGapDetector)
+        ISkillGapDetector skillGapDetector,
+        IConversationCompactionService compactionService)
     {
         _logger = logger;
         _providerOrchestrator = providerOrchestrator;
@@ -49,6 +51,7 @@ public class LLMService : ILLMService
         _contextAssemblyPipeline = contextAssemblyPipeline;
         _autoMemoryExtraction = autoMemoryExtraction;
         _skillGapDetector = skillGapDetector;
+        _compactionService = compactionService;
     }
 
     public async Task<LLMResponse> ProcessAsync(LLMContext context)
@@ -85,7 +88,7 @@ public class LLMService : ILLMService
 
             var allFunctionCalls = new List<LLMFunctionCall>();
             var totalUsage = new Providers.LLMUsage();
-            var truncatedHistory = TruncateHistory(llmHistory, model!.ContextWindow, model.MaxTokens);
+            var truncatedHistory = TruncateHistory(llmHistory, model!.ContextWindow, model.MaxTokens, conversation.Summary);
             var runningHistory = new List<Providers.LLMMessage>(truncatedHistory);
             var currentMessage = context.Message;
             string responseContent = "";
@@ -176,6 +179,19 @@ public class LLMService : ILLMService
                 context.UserId, model, conversation,
                 totalUsage, stopwatch.ElapsedMilliseconds);
 
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _compactionService.CompactIfNeededAsync(conversation.ConversationId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Fire-and-forget conversation compaction failed for {ConversationId}",
+                        conversation.ConversationId);
+                }
+            });
+
             if (agent != null && !string.IsNullOrWhiteSpace(responseContent))
             {
                 _ = Task.Run(async () =>
@@ -243,14 +259,22 @@ public class LLMService : ILLMService
     private static List<Providers.LLMMessage> TruncateHistory(
         List<Providers.LLMMessage> history,
         int contextWindow,
-        int maxOutputTokens)
+        int maxOutputTokens,
+        string? conversationSummary = null)
     {
-        if (history.Count <= MaxHistoryMessages)
+        var hasSummary = !string.IsNullOrWhiteSpace(conversationSummary);
+
+        if (history.Count <= MaxHistoryMessages && !hasSummary)
             return history;
 
         var availableTokens = contextWindow - maxOutputTokens;
         var estimatedOverheadTokens = 15000;
         var historyBudget = availableTokens - estimatedOverheadTokens;
+
+        if (hasSummary)
+        {
+            historyBudget -= (conversationSummary!.Length / 4) + 50;
+        }
 
         var truncated = new List<Providers.LLMMessage>();
         var tokenCount = 0;
@@ -266,7 +290,15 @@ public class LLMService : ILLMService
             truncated.Insert(0, history[i]);
         }
 
-        if (truncated.Count < history.Count)
+        if (hasSummary)
+        {
+            truncated.Insert(0, new Providers.LLMMessage
+            {
+                Role = "system",
+                Content = $"[Conversation Summary (earlier messages)]\n{conversationSummary}\n[/Conversation Summary]"
+            });
+        }
+        else if (truncated.Count < history.Count)
         {
             truncated.Insert(0, new Providers.LLMMessage
             {

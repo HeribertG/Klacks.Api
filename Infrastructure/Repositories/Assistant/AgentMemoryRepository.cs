@@ -15,13 +15,22 @@ public class AgentMemoryRepository : IAgentMemoryRepository
     private const float WeightVector = 0.50f;
     private const float WeightFullText = 0.20f;
     private const float WeightImportance = 0.15f;
-    private const float WeightRecency = 0.10f;
-    private const float WeightAccess = 0.05f;
+    private const float WeightRecency = 0.05f;
+    private const float WeightAccess = 0.10f;
 
     private const float FallbackWeightFullText = 0.40f;
-    private const float FallbackWeightImportance = 0.30f;
-    private const float FallbackWeightRecency = 0.20f;
-    private const float FallbackWeightAccess = 0.10f;
+    private const float FallbackWeightImportance = 0.25f;
+    private const float FallbackWeightRecency = 0.15f;
+    private const float FallbackWeightAccess = 0.20f;
+
+    private const int ImportanceBoostAccessThreshold = 20;
+    private const int ImportanceBoostMaxValue = 9;
+    private const int ImportanceDecayAgeDays = 60;
+    private const int ImportanceDecayMinAccessCount = 3;
+    private const int ImportanceDecayMinValue = 2;
+    private const int LowValueCleanupAgeDays = 90;
+    private const int LowValueMaxImportance = 2;
+    private const int LowValueMaxAccessCount = 3;
 
     private const int CandidatePool = 25;
     private const float DecayFactor = 0.01f;
@@ -260,6 +269,46 @@ public class AgentMemoryRepository : IAgentMemoryRepository
         }
 
         await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<int> AdjustImportanceByUsageAsync(CancellationToken cancellationToken = default)
+    {
+        var boosted = await _context.Database.ExecuteSqlRawAsync($"""
+            UPDATE agent_memories
+            SET importance = LEAST(importance + 1, {ImportanceBoostMaxValue}),
+                update_time = NOW()
+            WHERE is_deleted = false
+              AND is_pinned = false
+              AND access_count >= {ImportanceBoostAccessThreshold}
+              AND importance < {ImportanceBoostMaxValue}
+            """, cancellationToken);
+
+        var decayed = await _context.Database.ExecuteSqlRawAsync($"""
+            UPDATE agent_memories
+            SET importance = GREATEST(importance - 1, {ImportanceDecayMinValue}),
+                update_time = NOW()
+            WHERE is_deleted = false
+              AND is_pinned = false
+              AND access_count < {ImportanceDecayMinAccessCount}
+              AND importance > {ImportanceDecayMinValue}
+              AND EXTRACT(EPOCH FROM (NOW() - COALESCE(last_accessed_at, create_time))) / 86400.0 > {ImportanceDecayAgeDays}
+            """, cancellationToken);
+
+        return boosted + decayed;
+    }
+
+    public async Task<int> CleanupLowValueMemoriesAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.Database.ExecuteSqlRawAsync($"""
+            UPDATE agent_memories
+            SET is_deleted = true, deleted_time = NOW()
+            WHERE is_deleted = false
+              AND is_pinned = false
+              AND importance <= {LowValueMaxImportance}
+              AND access_count < {LowValueMaxAccessCount}
+              AND EXTRACT(EPOCH FROM (NOW() - COALESCE(update_time, create_time))) / 86400.0 > {LowValueCleanupAgeDays}
+              AND expires_at IS NULL
+            """, cancellationToken);
     }
 
     private class MemorySearchRow

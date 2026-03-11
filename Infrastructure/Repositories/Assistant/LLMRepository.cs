@@ -285,11 +285,50 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
             return new List<Domain.Models.Assistant.LLMMessage>();
         }
 
+        var newestMessages = await _context.Set<Domain.Models.Assistant.LLMMessage>()
+            .Where(m => !m.IsDeleted && m.ConversationId == conversation.Id)
+            .OrderByDescending(m => m.CreateTime)
+            .Take(limit)
+            .ToListAsync();
+
+        newestMessages.Reverse();
+        return newestMessages;
+    }
+
+    public async Task<List<Domain.Models.Assistant.LLMMessage>> GetOldestMessagesAsync(
+        string conversationId, int skipNewest, int limit = 40)
+    {
+        var conversation = await _context.Set<LLMConversation>()
+            .Where(c => !c.IsDeleted && c.ConversationId == conversationId)
+            .FirstOrDefaultAsync();
+
+        if (conversation == null)
+        {
+            return new List<Domain.Models.Assistant.LLMMessage>();
+        }
+
+        var totalCount = await _context.Set<Domain.Models.Assistant.LLMMessage>()
+            .Where(m => !m.IsDeleted && m.ConversationId == conversation.Id)
+            .CountAsync();
+
+        var toTake = totalCount - skipNewest;
+        if (toTake <= 0)
+        {
+            return new List<Domain.Models.Assistant.LLMMessage>();
+        }
+
         return await _context.Set<Domain.Models.Assistant.LLMMessage>()
             .Where(m => !m.IsDeleted && m.ConversationId == conversation.Id)
             .OrderBy(m => m.CreateTime)
-            .Take(limit)
+            .Take(Math.Min(toTake, limit))
             .ToListAsync();
+    }
+
+    public async Task<LLMConversation?> GetConversationByConversationIdAsync(string conversationId)
+    {
+        return await _context.Set<LLMConversation>()
+            .Where(c => !c.IsDeleted && c.ConversationId == conversationId)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<int> GetConversationTokenCountAsync(string conversationId)
