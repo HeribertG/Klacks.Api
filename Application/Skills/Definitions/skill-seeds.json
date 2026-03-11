@@ -8494,6 +8494,167 @@
         ]
       },
       "version": 4
+    },
+    {
+      "name": "list_absence_types",
+      "description": "Lists all configured absence types (e.g. Vacation, Sick Leave, Unpaid Leave) with their settings like color, default duration, and weekend/holiday rules. Use this to understand which absence categories exist before searching for specific client absences.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "language",
+          "description": "Language code for absence names (de, en, fr, it)",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "de",
+          "enumValues": [
+            "de",
+            "en",
+            "fr",
+            "it"
+          ]
+        },
+        {
+          "name": "includeHidden",
+          "description": "Include absence types that are hidden in the Gantt chart",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": "false",
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "absence type",
+        "abwesenheitstyp",
+        "leave type",
+        "urlaub typ",
+        "ferien typ",
+        "krankheit typ",
+        "absence list",
+        "abwesenheitsarten"
+      ],
+      "synonyms": {
+        "de": [
+          "abwesenheitstypen",
+          "abwesenheitsarten",
+          "urlaubsarten",
+          "welche abwesenheiten",
+          "fehlzeitentypen"
+        ],
+        "en": [
+          "absence types",
+          "leave types",
+          "absence categories",
+          "types of absence"
+        ]
+      },
+      "version": 4
+    },
+    {
+      "name": "search_client_absences",
+      "description": "Search for client/employee absences within a time period. Returns which employees are absent when, filtered by name, absence type, year, or date range. Use list_absence_types first if you need to know which absence types exist.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "searchTerm",
+          "description": "Client or employee name to search for",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "year",
+          "description": "Year to search absences in (default: current year)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "startDate",
+          "description": "Start date for date range filter (yyyy-MM-dd). Overrides year parameter.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endDate",
+          "description": "End date for date range filter (yyyy-MM-dd). Overrides year parameter.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "absenceType",
+          "description": "Filter by absence type name (e.g. 'Urlaub', 'Vacation', 'Krank'). Matches against all languages and abbreviations.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "limit",
+          "description": "Maximum number of clients to return (default: 10, max: 50)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": "10",
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "absence",
+        "abwesenheit",
+        "urlaub",
+        "vacation",
+        "krank",
+        "sick",
+        "ferien",
+        "frei",
+        "abwesend",
+        "nicht da",
+        "wer fehlt",
+        "wer ist weg"
+      ],
+      "synonyms": {
+        "de": [
+          "wer hat urlaub",
+          "wer ist krank",
+          "wer fehlt",
+          "wer ist abwesend",
+          "abwesenheiten suchen",
+          "wer ist nicht da",
+          "ferien suchen"
+        ],
+        "en": [
+          "who is absent",
+          "who is on vacation",
+          "who is sick",
+          "search absences",
+          "who is off",
+          "absence search"
+        ]
+      },
+      "version": 4
     }
   ]
 }

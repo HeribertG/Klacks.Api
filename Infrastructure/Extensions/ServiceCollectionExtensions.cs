@@ -353,6 +353,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.TestImapConnectionSkill>();
         services.AddScoped<Application.Skills.UpdateWebSearchSettingsSkill>();
         services.AddScoped<Application.Skills.UpdateSpamFilterSettingsSkill>();
+        services.AddScoped<Application.Skills.ListAbsenceTypesSkill>();
+        services.AddScoped<Application.Skills.SearchClientAbsencesSkill>();
         services.AddScoped<Application.Skills.Meta.ListAgentSkillsSkill>();
         services.AddScoped<Application.Skills.Meta.CreateAgentSkillSkill>();
         services.AddScoped<Application.Skills.Meta.UpdateAgentSkillSkill>();
