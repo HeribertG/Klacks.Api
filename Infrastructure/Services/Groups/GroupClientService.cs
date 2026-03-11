@@ -11,13 +11,15 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
 {
     private readonly DataBaseContext _context;
     private readonly IMemoryCache _cache;
+    private readonly ILogger<GroupClientService> _logger;
     private const string CacheKeyPrefix = "group_hierarchy_";
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(10);
 
-    public GroupClientService(DataBaseContext context, IMemoryCache cache)
+    public GroupClientService(DataBaseContext context, IMemoryCache cache, ILogger<GroupClientService> logger)
     {
         _context = context;
         _cache = cache;
+        _logger = logger;
     }
 
     public async Task<List<Guid>> GetAllClientIdsFromGroupAndSubgroups(Guid groupId)
@@ -98,7 +100,8 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
         var groupExists = await _context.Group.AnyAsync(g => g.Id == groupId);
         if (!groupExists)
         {
-            throw new KeyNotFoundException($"Group with ID {groupId} was not found");
+            _logger.LogWarning("Group with ID {GroupId} not found - returning empty group set for filter", groupId);
+            return new HashSet<Guid>();
         }
 
         var result = await GetAllSubGroupIds(new List<Guid> { groupId });
@@ -131,7 +134,12 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
         var missingGroups = groupIds.Except(existingGroups).ToList();
         if (missingGroups.Any())
         {
-            throw new KeyNotFoundException($"Groups with IDs {string.Join(", ", missingGroups)} were not found");
+            _logger.LogWarning("Groups with IDs {MissingGroupIds} not found - filtering with existing groups only", string.Join(", ", missingGroups));
+        }
+
+        if (!existingGroups.Any())
+        {
+            return new HashSet<Guid>();
         }
 
         var result = await GetAllSubGroupIds(existingGroups);

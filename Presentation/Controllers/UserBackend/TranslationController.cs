@@ -1,5 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Controller for text translation via DeepL API.
+/// </summary>
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.DTOs.Translation;
 using Microsoft.AspNetCore.Mvc;
@@ -27,6 +31,16 @@ public class TranslationController : BaseController
         if (string.IsNullOrWhiteSpace(request.Text))
         {
             return BadRequest("Text is required");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.SourceLanguage))
+        {
+            return BadRequest("Source language is required");
+        }
+
+        if (!LanguageConfig.SupportedLanguages.Contains(request.SourceLanguage, StringComparer.OrdinalIgnoreCase))
+        {
+            return BadRequest($"Unsupported source language: {request.SourceLanguage}");
         }
 
         if (!_translationService.IsConfigured)

@@ -19,13 +19,22 @@ public class MultiLanguageJsonConverter : ValueConverter<MultiLanguage, string>
     };
 
     public MultiLanguageJsonConverter() : base(
-        v => JsonSerializer.Serialize(v, SerializerOptions),
-        v => Deserialize(v))
+        v => Serialize(v),
+        v => Deserialize(v),
+        convertsNulls: true)
     { }
 
-    private static MultiLanguage Deserialize(string json)
+    private static string Serialize(MultiLanguage? multiLanguage)
     {
-        if (string.IsNullOrEmpty(json))
+        if (multiLanguage == null || multiLanguage.IsEmpty)
+            return "{}";
+
+        return JsonSerializer.Serialize(multiLanguage, SerializerOptions);
+    }
+
+    private static MultiLanguage Deserialize(string? json)
+    {
+        if (string.IsNullOrEmpty(json) || json == "{}")
             return new MultiLanguage();
 
         return JsonSerializer.Deserialize<MultiLanguage>(json, SerializerOptions)
@@ -51,8 +60,10 @@ public class MultiLanguageValueComparer : ValueComparer<MultiLanguage>
         return aValues.All(kvp => bValues.TryGetValue(kvp.Key, out var val) && val == kvp.Value);
     }
 
-    private static int ComputeHash(MultiLanguage v)
+    private static int ComputeHash(MultiLanguage? v)
     {
+        if (v is null) return 0;
+
         var hash = new HashCode();
         foreach (var kvp in v.GetAllValues().OrderBy(x => x.Key))
         {
@@ -62,8 +73,10 @@ public class MultiLanguageValueComparer : ValueComparer<MultiLanguage>
         return hash.ToHashCode();
     }
 
-    private static MultiLanguage Clone(MultiLanguage v)
+    private static MultiLanguage Clone(MultiLanguage? v)
     {
+        if (v is null) return new MultiLanguage();
+
         var clone = new MultiLanguage();
         foreach (var kvp in v.GetAllValues())
         {

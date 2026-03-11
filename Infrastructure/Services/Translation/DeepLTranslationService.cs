@@ -35,6 +35,9 @@ public class DeepLTranslationService : ITranslationService
 
     public async Task<TranslationResult> TranslateAsync(string text, string sourceLanguage, string targetLanguage)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(sourceLanguage);
+        ArgumentException.ThrowIfNullOrWhiteSpace(targetLanguage);
+
         if (string.IsNullOrWhiteSpace(text))
         {
             return new TranslationResult(text, sourceLanguage, targetLanguage);
@@ -91,6 +94,8 @@ public class DeepLTranslationService : ITranslationService
 
     public async Task<Dictionary<string, string>> TranslateToAllLanguagesAsync(string text, string sourceLanguage)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(sourceLanguage);
+
         var results = new Dictionary<string, string>();
 
         foreach (var targetLang in LanguageConfig.SupportedLanguages)
