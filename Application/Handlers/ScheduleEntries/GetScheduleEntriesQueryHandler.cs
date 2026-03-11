@@ -71,7 +71,8 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
             request.Filter.HoursSortOrder,
             request.Filter.StartRow,
             request.Filter.RowCount,
-            request.Filter.PaymentInterval);
+            request.Filter.PaymentInterval,
+            request.Filter.SearchString);
 
         var (clients, totalClientCount) = await _workRepository.WorkList(workFilter);
         var clientResources = _scheduleMapper.ToWorkScheduleClientResourceList(clients);
@@ -137,14 +138,15 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
         string? hoursSortOrder,
         int startRow,
         int rowCount,
-        int paymentInterval)
+        int paymentInterval,
+        string searchString)
     {
         return new WorkFilter
         {
             StartDate = startDate,
             EndDate = endDate,
             SelectedGroup = selectedGroup,
-            SearchString = string.Empty,
+            SearchString = searchString,
             OrderBy = orderBy,
             SortOrder = sortOrder,
             ShowEmployees = showEmployees,

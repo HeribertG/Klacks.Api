@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Commands.ClientAvailabilities;
+using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Application.Queries.ClientAvailabilities;
 using Klacks.Api.Infrastructure.Mediator;
@@ -30,6 +31,14 @@ public class ClientAvailabilitiesController : BaseController
     public async Task<ActionResult<int>> BulkUpdate([FromBody] ClientAvailabilityBulkRequest request)
     {
         var result = await _mediator.Send(new BulkUpdateClientAvailabilityCommand(request));
+        return Ok(result);
+    }
+
+    [HttpPost("Clients")]
+    public async Task<ActionResult<ClientAvailabilityClientListResponse>> GetClients(
+        [FromBody] ClientAvailabilityClientFilter filter)
+    {
+        var result = await _mediator.Send(new ListClientAvailabilityClientsQuery(filter));
         return Ok(result);
     }
 }
