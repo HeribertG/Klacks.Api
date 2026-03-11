@@ -23,7 +23,7 @@ public class AgentMemoryRepository : IAgentMemoryRepository
     private const float FallbackWeightRecency = 0.20f;
     private const float FallbackWeightAccess = 0.10f;
 
-    private const int CandidatePool = 50;
+    private const int CandidatePool = 25;
     private const float DecayFactor = 0.01f;
     private const float MinVectorScore = 0.30f;
 

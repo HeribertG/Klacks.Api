@@ -53,7 +53,7 @@ public class LLMService : ILLMService
 
     public async Task<LLMResponse> ProcessAsync(LLMContext context)
     {
-        const int maxIterations = 5;
+        const int maxIterations = 3;
         var stopwatch = Stopwatch.StartNew();
 
         try

@@ -17,7 +17,7 @@ public class SkillClassifierService : ISkillClassifierService
     private readonly LLMProviderOrchestrator _orchestrator;
     private readonly ILogger<SkillClassifierService> _logger;
 
-    private const int ClassificationTimeoutMs = 3000;
+    private const int ClassificationTimeoutMs = 1500;
     private const double ClassificationTemperature = 0.1;
     private const int ClassificationMaxTokens = 50;
 
