@@ -8,6 +8,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.Interfaces.Settings;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Settings;
@@ -172,6 +173,7 @@ public class LanguagePluginService : ILanguagePluginService
         await InstallGeoDataAsync(scope, code);
         await InstallDocsAsync(scope, code);
         await InstallSkillSynonymsAsync(scope, code);
+        await InstallSentimentKeywordsAsync(scope, code);
         await unitOfWork.CompleteAsync();
         await MergeNonCoreTranslationsAsync(scope, code);
 
@@ -196,6 +198,7 @@ public class LanguagePluginService : ILanguagePluginService
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
         await UninstallSkillSynonymsAsync(scope, code);
+        await UninstallSentimentKeywordsAsync(scope, code);
         await UninstallGeoDataAsync(scope, code);
         await UninstallDocsAsync(scope, code);
 
@@ -674,6 +677,55 @@ public class LanguagePluginService : ILanguagePluginService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to uninstall skill synonyms for language plugin '{Code}'", code);
+        }
+    }
+
+    private async Task InstallSentimentKeywordsAsync(IServiceScope scope, string code)
+    {
+        var keywordsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.SentimentKeywordsFileName);
+        if (!File.Exists(keywordsPath))
+            return;
+
+        try
+        {
+            var json = File.ReadAllText(keywordsPath);
+            var keywordMap = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json, JsonOptions);
+            if (keywordMap == null || keywordMap.Count == 0)
+                return;
+
+            var sentimentRepo = scope.ServiceProvider.GetRequiredService<ISentimentKeywordRepository>();
+            await sentimentRepo.UpsertAsync(code, keywordMap, SentimentKeywordSources.Plugin);
+
+            scope.ServiceProvider.GetRequiredService<ISentimentAnalyzer>().ReloadKeywords();
+
+            _logger.LogInformation(
+                "Installed sentiment keywords for language plugin '{Code}'", code);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to install sentiment keywords for language plugin '{Code}'", code);
+        }
+    }
+
+    private async Task UninstallSentimentKeywordsAsync(IServiceScope scope, string code)
+    {
+        var keywordsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.SentimentKeywordsFileName);
+        if (!File.Exists(keywordsPath))
+            return;
+
+        try
+        {
+            var sentimentRepo = scope.ServiceProvider.GetRequiredService<ISentimentKeywordRepository>();
+            await sentimentRepo.DeleteByLanguageAsync(code);
+
+            scope.ServiceProvider.GetRequiredService<ISentimentAnalyzer>().ReloadKeywords();
+
+            _logger.LogInformation(
+                "Uninstalled sentiment keywords for language plugin '{Code}'", code);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to uninstall sentiment keywords for language plugin '{Code}'", code);
         }
     }
 

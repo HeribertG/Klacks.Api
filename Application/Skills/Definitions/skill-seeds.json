@@ -8436,6 +8436,64 @@
         ]
       },
       "version": 4
+    },
+    {
+      "name": "review_skill_suggestions",
+      "description": "Lists auto-detected skill gaps and pending suggestions. Allows the admin to accept a suggestion (which creates the skill) or dismiss it. Actions: 'list' shows all pending, 'accept' creates the skill, 'dismiss' removes the suggestion.",
+      "category": "Meta",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "action",
+          "description": "Action to perform",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "list",
+          "enumValues": [
+            "list",
+            "accept",
+            "dismiss"
+          ]
+        },
+        {
+          "name": "gapId",
+          "description": "ID of the skill gap record to accept or dismiss (required for accept and dismiss actions)",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "skill suggestion",
+        "vorschlag",
+        "skill gap",
+        "skill review",
+        "neue fähigkeit"
+      ],
+      "synonyms": {
+        "de": [
+          "skill vorschlag",
+          "fähigkeitsvorschlag",
+          "skill lücke",
+          "neue funktion vorschlag"
+        ],
+        "en": [
+          "skill suggestion",
+          "skill gap",
+          "new skill proposal",
+          "ability suggestion"
+        ]
+      },
+      "version": 4
     }
   ]
 }

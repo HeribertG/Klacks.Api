@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Klacks.Api.Migrations
+namespace Klacks.Api.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
     public partial class Init : Migration
@@ -24,11 +24,14 @@ namespace Klacks.Api.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
+                    abbreviation = table.Column<string>(type: "jsonb", nullable: false),
                     color = table.Column<string>(type: "text", nullable: false),
                     default_length = table.Column<int>(type: "integer", nullable: false),
                     default_value = table.Column<double>(type: "double precision", nullable: false),
+                    description = table.Column<string>(type: "jsonb", nullable: false),
                     hide_in_gantt = table.Column<bool>(type: "boolean", nullable: false),
                     macro_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    name = table.Column<string>(type: "jsonb", nullable: false),
                     undeletable = table.Column<bool>(type: "boolean", nullable: false),
                     with_holiday = table.Column<bool>(type: "boolean", nullable: false),
                     with_saturday = table.Column<bool>(type: "boolean", nullable: false),
@@ -39,10 +42,7 @@ namespace Klacks.Api.Migrations
                     current_user_updated = table.Column<string>(type: "text", nullable: true),
                     deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    abbreviation = table.Column<string>(type: "jsonb", nullable: false),
-                    description = table.Column<string>(type: "jsonb", nullable: false),
-                    name = table.Column<string>(type: "jsonb", nullable: false)
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -69,73 +69,6 @@ namespace Klacks.Api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_agent_templates", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ai_guidelines",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    content = table.Column<string>(type: "text", nullable: false),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false),
-                    source = table.Column<string>(type: "text", nullable: true),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_ai_guidelines", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ai_memories",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    category = table.Column<string>(type: "text", nullable: false),
-                    key = table.Column<string>(type: "text", nullable: false),
-                    content = table.Column<string>(type: "text", nullable: false),
-                    importance = table.Column<int>(type: "integer", nullable: false),
-                    source = table.Column<string>(type: "text", nullable: true),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_ai_memories", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ai_souls",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    content = table.Column<string>(type: "text", nullable: false),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false),
-                    source = table.Column<string>(type: "text", nullable: true),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_ai_souls", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -210,13 +143,13 @@ namespace Klacks.Api.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     country = table.Column<string>(type: "text", nullable: false),
+                    description = table.Column<string>(type: "jsonb", nullable: false),
                     is_mandatory = table.Column<bool>(type: "boolean", nullable: false),
                     is_paid = table.Column<bool>(type: "boolean", nullable: false),
+                    name = table.Column<string>(type: "jsonb", nullable: false),
                     rule = table.Column<string>(type: "text", nullable: false),
                     state = table.Column<string>(type: "text", nullable: false),
-                    sub_rule = table.Column<string>(type: "text", nullable: false),
-                    description = table.Column<string>(type: "jsonb", nullable: false),
-                    name = table.Column<string>(type: "jsonb", nullable: false)
+                    sub_rule = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -280,6 +213,7 @@ namespace Klacks.Api.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     abbreviation = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    name = table.Column<string>(type: "jsonb", nullable: false),
                     prefix = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
@@ -287,8 +221,7 @@ namespace Klacks.Api.Migrations
                     current_user_updated = table.Column<string>(type: "text", nullable: true),
                     deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    name = table.Column<string>(type: "jsonb", nullable: false)
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -452,32 +385,6 @@ namespace Klacks.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "llm_function_definitions",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    description = table.Column<string>(type: "text", nullable: false),
-                    parameters_json = table.Column<string>(type: "text", nullable: false),
-                    required_permission = table.Column<string>(type: "text", nullable: true),
-                    execution_type = table.Column<string>(type: "text", nullable: false),
-                    category = table.Column<string>(type: "text", nullable: false),
-                    is_enabled = table.Column<bool>(type: "boolean", nullable: false),
-                    sort_order = table.Column<int>(type: "integer", nullable: false),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_llm_function_definitions", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "llm_providers",
                 columns: table => new
                 {
@@ -509,6 +416,7 @@ namespace Klacks.Api.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     content = table.Column<string>(type: "text", nullable: false),
+                    description = table.Column<string>(type: "jsonb", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
                     type = table.Column<int>(type: "integer", nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -517,8 +425,7 @@ namespace Klacks.Api.Migrations
                     current_user_updated = table.Column<string>(type: "text", nullable: true),
                     deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    description = table.Column<string>(type: "jsonb", nullable: false)
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -684,6 +591,27 @@ namespace Klacks.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "sentiment_keyword_sets",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    language = table.Column<string>(type: "text", nullable: false),
+                    keywords = table.Column<string>(type: "jsonb", nullable: false),
+                    source = table.Column<string>(type: "text", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_sentiment_keyword_sets", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "settings",
                 columns: table => new
                 {
@@ -720,6 +648,55 @@ namespace Klacks.Api.Migrations
                 },
                 constraints: table =>
                 {
+                });
+
+            migrationBuilder.CreateTable(
+                name: "skill_gap_records",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    agent_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_message = table.Column<string>(type: "text", nullable: false),
+                    detected_intent = table.Column<string>(type: "text", nullable: false),
+                    occurrence_count = table.Column<int>(type: "integer", nullable: false),
+                    suggested_skill_name = table.Column<string>(type: "text", nullable: true),
+                    suggested_description = table.Column<string>(type: "text", nullable: true),
+                    status = table.Column<string>(type: "text", nullable: false),
+                    first_detected_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    last_detected_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    embedding = table.Column<float[]>(type: "real[]", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_skill_gap_records", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "skill_synonyms",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    skill_name = table.Column<string>(type: "text", nullable: false),
+                    language = table.Column<string>(type: "text", nullable: false),
+                    keyword = table.Column<string>(type: "text", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_skill_synonyms", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -780,14 +757,14 @@ namespace Klacks.Api.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     abbreviation = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     country_prefix = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    name = table.Column<string>(type: "jsonb", nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
                     current_user_updated = table.Column<string>(type: "text", nullable: true),
                     deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    name = table.Column<string>(type: "jsonb", nullable: false)
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -840,15 +817,15 @@ namespace Klacks.Api.Migrations
                     start_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     end_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     duration = table.Column<decimal>(type: "numeric", nullable: false),
+                    detail_name = table.Column<string>(type: "jsonb", nullable: false),
+                    description = table.Column<string>(type: "jsonb", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
                     current_user_updated = table.Column<string>(type: "text", nullable: true),
                     deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    description = table.Column<string>(type: "jsonb", nullable: true),
-                    detail_name = table.Column<string>(type: "jsonb", nullable: false)
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1442,6 +1419,7 @@ namespace Klacks.Api.Migrations
                     max_calls_per_session = table.Column<int>(type: "integer", nullable: true),
                     always_on = table.Column<bool>(type: "boolean", nullable: false),
                     version = table.Column<int>(type: "integer", nullable: false),
+                    synonyms = table.Column<string>(type: "jsonb", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -1656,6 +1634,7 @@ namespace Klacks.Api.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     absence_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    description = table.Column<string>(type: "jsonb", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -1672,8 +1651,7 @@ namespace Klacks.Api.Migrations
                     end_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     lock_level = table.Column<int>(type: "integer", nullable: false),
                     sealed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    sealed_by = table.Column<string>(type: "text", nullable: true),
-                    description = table.Column<string>(type: "jsonb", nullable: true)
+                    sealed_by = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -2641,21 +2619,6 @@ namespace Klacks.Api.Migrations
                 column: "template_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_ai_guidelines_is_deleted_is_active",
-                table: "ai_guidelines",
-                columns: new[] { "is_deleted", "is_active" });
-
-            migrationBuilder.CreateIndex(
-                name: "ix_ai_memories_is_deleted_category_importance",
-                table: "ai_memories",
-                columns: new[] { "is_deleted", "category", "importance" });
-
-            migrationBuilder.CreateIndex(
-                name: "ix_ai_souls_is_deleted_is_active",
-                table: "ai_souls",
-                columns: new[] { "is_deleted", "is_active" });
-
-            migrationBuilder.CreateIndex(
                 name: "ix_annotation_client_id",
                 table: "annotation",
                 column: "client_id");
@@ -2981,11 +2944,6 @@ namespace Klacks.Api.Migrations
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_llm_function_definitions_is_deleted_is_enabled_sort_order",
-                table: "llm_function_definitions",
-                columns: new[] { "is_deleted", "is_enabled", "sort_order" });
-
-            migrationBuilder.CreateIndex(
                 name: "ix_llm_messages_conversation_id",
                 table: "llm_messages",
                 column: "conversation_id");
@@ -3090,6 +3048,13 @@ namespace Klacks.Api.Migrations
                 columns: new[] { "state", "country", "calendar_selection_id" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_sentiment_keyword_sets_language",
+                table: "sentiment_keyword_sets",
+                column: "language",
+                unique: true,
+                filter: "is_deleted = false");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_shift_client_id",
                 table: "shift",
                 column: "client_id");
@@ -3103,6 +3068,28 @@ namespace Klacks.Api.Migrations
                 name: "ix_shift_expenses_shift_id",
                 table: "shift_expenses",
                 column: "shift_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_skill_gap_records_agent_id_occurrence_count",
+                table: "skill_gap_records",
+                columns: new[] { "agent_id", "occurrence_count" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_skill_gap_records_agent_id_status",
+                table: "skill_gap_records",
+                columns: new[] { "agent_id", "status" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_skill_synonyms_language",
+                table: "skill_synonyms",
+                column: "language");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_skill_synonyms_skill_name_language_keyword",
+                table: "skill_synonyms",
+                columns: new[] { "skill_name", "language", "keyword" },
+                unique: true,
+                filter: "is_deleted = false");
 
             migrationBuilder.CreateIndex(
                 name: "ix_spam_rules_is_deleted_is_active_sort_order",
@@ -3171,15 +3158,6 @@ namespace Klacks.Api.Migrations
 
             migrationBuilder.DropTable(
                 name: "agent_soul_histories");
-
-            migrationBuilder.DropTable(
-                name: "ai_guidelines");
-
-            migrationBuilder.DropTable(
-                name: "ai_memories");
-
-            migrationBuilder.DropTable(
-                name: "ai_souls");
 
             migrationBuilder.DropTable(
                 name: "annotation");
@@ -3269,9 +3247,6 @@ namespace Klacks.Api.Migrations
                 name: "identity_provider_sync_logs");
 
             migrationBuilder.DropTable(
-                name: "llm_function_definitions");
-
-            migrationBuilder.DropTable(
                 name: "llm_messages");
 
             migrationBuilder.DropTable(
@@ -3311,6 +3286,9 @@ namespace Klacks.Api.Migrations
                 name: "selected_calendar");
 
             migrationBuilder.DropTable(
+                name: "sentiment_keyword_sets");
+
+            migrationBuilder.DropTable(
                 name: "settings");
 
             migrationBuilder.DropTable(
@@ -3318,6 +3296,12 @@ namespace Klacks.Api.Migrations
 
             migrationBuilder.DropTable(
                 name: "shift_expenses");
+
+            migrationBuilder.DropTable(
+                name: "skill_gap_records");
+
+            migrationBuilder.DropTable(
+                name: "skill_synonyms");
 
             migrationBuilder.DropTable(
                 name: "skill_usage_records");

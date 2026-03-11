@@ -3,7 +3,6 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,11 +11,9 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20260310124911_AddSynonymsJsonbToAgentSkills")]
-    partial class AddSynonymsJsonbToAgentSkills
+    partial class DataBaseContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -955,197 +952,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("agent_templates", (string)null);
                 });
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AiGuidelines", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("content");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_time");
-
-                    b.Property<string>("CurrentUserCreated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_created");
-
-                    b.Property<string>("CurrentUserDeleted")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_deleted");
-
-                    b.Property<string>("CurrentUserUpdated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_updated");
-
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_time");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
-                    b.Property<string>("Source")
-                        .HasColumnType("text")
-                        .HasColumnName("source");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_time");
-
-                    b.HasKey("Id")
-                        .HasName("pk_ai_guidelines");
-
-                    b.HasIndex("IsDeleted", "IsActive")
-                        .HasDatabaseName("ix_ai_guidelines_is_deleted_is_active");
-
-                    b.ToTable("ai_guidelines", (string)null);
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AiMemory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("category");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("content");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_time");
-
-                    b.Property<string>("CurrentUserCreated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_created");
-
-                    b.Property<string>("CurrentUserDeleted")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_deleted");
-
-                    b.Property<string>("CurrentUserUpdated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_updated");
-
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_time");
-
-                    b.Property<int>("Importance")
-                        .HasColumnType("integer")
-                        .HasColumnName("importance");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("key");
-
-                    b.Property<string>("Source")
-                        .HasColumnType("text")
-                        .HasColumnName("source");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_time");
-
-                    b.HasKey("Id")
-                        .HasName("pk_ai_memories");
-
-                    b.HasIndex("IsDeleted", "Category", "Importance")
-                        .HasDatabaseName("ix_ai_memories_is_deleted_category_importance");
-
-                    b.ToTable("ai_memories", (string)null);
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AiSoul", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("content");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_time");
-
-                    b.Property<string>("CurrentUserCreated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_created");
-
-                    b.Property<string>("CurrentUserDeleted")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_deleted");
-
-                    b.Property<string>("CurrentUserUpdated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_updated");
-
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_time");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
-                    b.Property<string>("Source")
-                        .HasColumnType("text")
-                        .HasColumnName("source");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_time");
-
-                    b.HasKey("Id")
-                        .HasName("pk_ai_souls");
-
-                    b.HasIndex("IsDeleted", "IsActive")
-                        .HasDatabaseName("ix_ai_souls_is_deleted_is_active");
-
-                    b.ToTable("ai_souls", (string)null);
-                });
-
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.GlobalAgentRule", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1841,17 +1647,12 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("llm_usages", (string)null);
                 });
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.LlmFunctionDefinition", b =>
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SentimentKeywordSet", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("category");
 
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("timestamp with time zone")
@@ -1873,53 +1674,128 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_time");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("description");
-
-                    b.Property<string>("ExecutionType")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("execution_type");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_enabled");
+                    b.Property<string>("Keywords")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("keywords");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Language")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("name");
+                        .HasColumnName("language");
 
-                    b.Property<string>("ParametersJson")
+                    b.Property<string>("Source")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("parameters_json");
-
-                    b.Property<string>("RequiredPermission")
-                        .HasColumnType("text")
-                        .HasColumnName("required_permission");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("integer")
-                        .HasColumnName("sort_order");
+                        .HasColumnName("source");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
 
                     b.HasKey("Id")
-                        .HasName("pk_llm_function_definitions");
+                        .HasName("pk_sentiment_keyword_sets");
 
-                    b.HasIndex("IsDeleted", "IsEnabled", "SortOrder")
-                        .HasDatabaseName("ix_llm_function_definitions_is_deleted_is_enabled_sort_order");
+                    b.HasIndex("Language")
+                        .IsUnique()
+                        .HasDatabaseName("ix_sentiment_keyword_sets_language")
+                        .HasFilter("is_deleted = false");
 
-                    b.ToTable("llm_function_definitions", (string)null);
+                    b.ToTable("sentiment_keyword_sets", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillGapRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AgentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("agent_id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<string>("DetectedIntent")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("detected_intent");
+
+                    b.PrimitiveCollection<float[]>("Embedding")
+                        .HasColumnType("real[]")
+                        .HasColumnName("embedding");
+
+                    b.Property<DateTime>("FirstDetectedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("first_detected_at");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime>("LastDetectedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_detected_at");
+
+                    b.Property<int>("OccurrenceCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("occurrence_count");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<string>("SuggestedDescription")
+                        .HasColumnType("text")
+                        .HasColumnName("suggested_description");
+
+                    b.Property<string>("SuggestedSkillName")
+                        .HasColumnType("text")
+                        .HasColumnName("suggested_skill_name");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<string>("UserMessage")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("user_message");
+
+                    b.HasKey("Id")
+                        .HasName("pk_skill_gap_records");
+
+                    b.HasIndex("AgentId", "OccurrenceCount")
+                        .HasDatabaseName("ix_skill_gap_records_agent_id_occurrence_count");
+
+                    b.HasIndex("AgentId", "Status")
+                        .HasDatabaseName("ix_skill_gap_records_agent_id_status");
+
+                    b.ToTable("skill_gap_records", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillSynonym", b =>
@@ -3494,6 +3370,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("Abbreviation")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("abbreviation");
+
                     b.Property<string>("Color")
                         .IsRequired()
                         .HasColumnType("text")
@@ -3527,6 +3408,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_time");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("description");
+
                     b.Property<bool>("HideInGantt")
                         .HasColumnType("boolean")
                         .HasColumnName("hide_in_gantt");
@@ -3538,6 +3424,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("MacroId")
                         .HasColumnType("uuid")
                         .HasColumnName("macro_id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("name");
 
                     b.Property<bool>("Undeletable")
                         .HasColumnType("boolean")
@@ -3598,6 +3489,15 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("DeletedTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_time");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("description");
+
+                    b.Property<string>("DetailName")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("detail_name");
 
                     b.Property<decimal>("Duration")
                         .HasColumnType("numeric")
@@ -3673,6 +3573,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("DeletedTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_time");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("description");
 
                     b.Property<TimeOnly>("EndTime")
                         .HasColumnType("time without time zone")
@@ -5188,6 +5092,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("country");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("description");
+
                     b.Property<bool>("IsMandatory")
                         .HasColumnType("boolean")
                         .HasColumnName("is_mandatory");
@@ -5195,6 +5104,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsPaid")
                         .HasColumnType("boolean")
                         .HasColumnName("is_paid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("name");
 
                     b.Property<string>("Rule")
                         .IsRequired()
@@ -5289,6 +5203,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("name");
+
                     b.Property<string>("Prefix")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -5336,6 +5255,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("DeletedTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_time");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("description");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
@@ -5490,6 +5414,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("name");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")
@@ -6743,105 +6672,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Navigation("Client");
                 });
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Absence", b =>
-                {
-                    b.OwnsOne("Klacks.Api.Domain.Common.MultiLanguage", "Abbreviation", b1 =>
-                        {
-                            b1.Property<Guid>("AbsenceId");
-
-                            b1.Property<string>("De")
-                                .HasJsonPropertyName("de");
-
-                            b1.Property<string>("En")
-                                .HasJsonPropertyName("en");
-
-                            b1.Property<string>("Fr")
-                                .HasJsonPropertyName("fr");
-
-                            b1.Property<string>("It")
-                                .HasJsonPropertyName("it");
-
-                            b1.HasKey("AbsenceId");
-
-                            b1.ToTable("absence");
-
-                            b1
-                                .ToJson("abbreviation")
-                                .HasColumnType("jsonb");
-
-                            b1.WithOwner()
-                                .HasForeignKey("AbsenceId")
-                                .HasConstraintName("fk_absence_absence_id");
-                        });
-
-                    b.OwnsOne("Klacks.Api.Domain.Common.MultiLanguage", "Description", b1 =>
-                        {
-                            b1.Property<Guid>("AbsenceId");
-
-                            b1.Property<string>("De")
-                                .HasJsonPropertyName("de");
-
-                            b1.Property<string>("En")
-                                .HasJsonPropertyName("en");
-
-                            b1.Property<string>("Fr")
-                                .HasJsonPropertyName("fr");
-
-                            b1.Property<string>("It")
-                                .HasJsonPropertyName("it");
-
-                            b1.HasKey("AbsenceId");
-
-                            b1.ToTable("absence");
-
-                            b1
-                                .ToJson("description")
-                                .HasColumnType("jsonb");
-
-                            b1.WithOwner()
-                                .HasForeignKey("AbsenceId")
-                                .HasConstraintName("fk_absence_absence_id");
-                        });
-
-                    b.OwnsOne("Klacks.Api.Domain.Common.MultiLanguage", "Name", b1 =>
-                        {
-                            b1.Property<Guid>("AbsenceId");
-
-                            b1.Property<string>("De")
-                                .HasJsonPropertyName("de");
-
-                            b1.Property<string>("En")
-                                .HasJsonPropertyName("en");
-
-                            b1.Property<string>("Fr")
-                                .HasJsonPropertyName("fr");
-
-                            b1.Property<string>("It")
-                                .HasJsonPropertyName("it");
-
-                            b1.HasKey("AbsenceId");
-
-                            b1.ToTable("absence");
-
-                            b1
-                                .ToJson("name")
-                                .HasColumnType("jsonb");
-
-                            b1.WithOwner()
-                                .HasForeignKey("AbsenceId")
-                                .HasConstraintName("fk_absence_absence_id");
-                        });
-
-                    b.Navigation("Abbreviation")
-                        .IsRequired();
-
-                    b.Navigation("Description")
-                        .IsRequired();
-
-                    b.Navigation("Name")
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.AbsenceDetail", b =>
                 {
                     b.HasOne("Klacks.Api.Domain.Models.Schedules.Absence", "Absence")
@@ -6851,70 +6681,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_absence_detail_absence_absence_id");
 
-                    b.OwnsOne("Klacks.Api.Domain.Common.MultiLanguage", "Description", b1 =>
-                        {
-                            b1.Property<Guid>("AbsenceDetailId");
-
-                            b1.Property<string>("De")
-                                .HasJsonPropertyName("de");
-
-                            b1.Property<string>("En")
-                                .HasJsonPropertyName("en");
-
-                            b1.Property<string>("Fr")
-                                .HasJsonPropertyName("fr");
-
-                            b1.Property<string>("It")
-                                .HasJsonPropertyName("it");
-
-                            b1.HasKey("AbsenceDetailId");
-
-                            b1.ToTable("absence_detail");
-
-                            b1
-                                .ToJson("description")
-                                .HasColumnType("jsonb");
-
-                            b1.WithOwner()
-                                .HasForeignKey("AbsenceDetailId")
-                                .HasConstraintName("fk_absence_detail_absence_detail_id");
-                        });
-
-                    b.OwnsOne("Klacks.Api.Domain.Common.MultiLanguage", "DetailName", b1 =>
-                        {
-                            b1.Property<Guid>("AbsenceDetailId");
-
-                            b1.Property<string>("De")
-                                .HasJsonPropertyName("de");
-
-                            b1.Property<string>("En")
-                                .HasJsonPropertyName("en");
-
-                            b1.Property<string>("Fr")
-                                .HasJsonPropertyName("fr");
-
-                            b1.Property<string>("It")
-                                .HasJsonPropertyName("it");
-
-                            b1.HasKey("AbsenceDetailId");
-
-                            b1.ToTable("absence_detail");
-
-                            b1
-                                .ToJson("detail_name")
-                                .HasColumnType("jsonb");
-
-                            b1.WithOwner()
-                                .HasForeignKey("AbsenceDetailId")
-                                .HasConstraintName("fk_absence_detail_absence_detail_id");
-                        });
-
                     b.Navigation("Absence");
-
-                    b.Navigation("Description");
-
-                    b.Navigation("DetailName")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Break", b =>
@@ -6933,40 +6700,9 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_break_client_client_id");
 
-                    b.OwnsOne("Klacks.Api.Domain.Common.MultiLanguage", "Description", b1 =>
-                        {
-                            b1.Property<Guid>("BreakId");
-
-                            b1.Property<string>("De")
-                                .HasJsonPropertyName("de");
-
-                            b1.Property<string>("En")
-                                .HasJsonPropertyName("en");
-
-                            b1.Property<string>("Fr")
-                                .HasJsonPropertyName("fr");
-
-                            b1.Property<string>("It")
-                                .HasJsonPropertyName("it");
-
-                            b1.HasKey("BreakId");
-
-                            b1.ToTable("break");
-
-                            b1
-                                .ToJson("description")
-                                .HasColumnType("jsonb");
-
-                            b1.WithOwner()
-                                .HasForeignKey("BreakId")
-                                .HasConstraintName("fk_break_break_id");
-                        });
-
                     b.Navigation("Absence");
 
                     b.Navigation("Client");
-
-                    b.Navigation("Description");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.BreakPlaceholder", b =>
@@ -7140,178 +6876,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Navigation("ReplaceClient");
 
                     b.Navigation("Work");
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Settings.CalendarRule", b =>
-                {
-                    b.OwnsOne("Klacks.Api.Domain.Common.MultiLanguage", "Description", b1 =>
-                        {
-                            b1.Property<Guid>("CalendarRuleId");
-
-                            b1.Property<string>("De")
-                                .HasJsonPropertyName("de");
-
-                            b1.Property<string>("En")
-                                .HasJsonPropertyName("en");
-
-                            b1.Property<string>("Fr")
-                                .HasJsonPropertyName("fr");
-
-                            b1.Property<string>("It")
-                                .HasJsonPropertyName("it");
-
-                            b1.HasKey("CalendarRuleId");
-
-                            b1.ToTable("calendar_rule");
-
-                            b1
-                                .ToJson("description")
-                                .HasColumnType("jsonb");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CalendarRuleId")
-                                .HasConstraintName("fk_calendar_rule_calendar_rule_id");
-                        });
-
-                    b.OwnsOne("Klacks.Api.Domain.Common.MultiLanguage", "Name", b1 =>
-                        {
-                            b1.Property<Guid>("CalendarRuleId");
-
-                            b1.Property<string>("De")
-                                .HasJsonPropertyName("de");
-
-                            b1.Property<string>("En")
-                                .HasJsonPropertyName("en");
-
-                            b1.Property<string>("Fr")
-                                .HasJsonPropertyName("fr");
-
-                            b1.Property<string>("It")
-                                .HasJsonPropertyName("it");
-
-                            b1.HasKey("CalendarRuleId");
-
-                            b1.ToTable("calendar_rule");
-
-                            b1
-                                .ToJson("name")
-                                .HasColumnType("jsonb");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CalendarRuleId")
-                                .HasConstraintName("fk_calendar_rule_calendar_rule_id");
-                        });
-
-                    b.Navigation("Description")
-                        .IsRequired();
-
-                    b.Navigation("Name")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Settings.Countries", b =>
-                {
-                    b.OwnsOne("Klacks.Api.Domain.Common.MultiLanguage", "Name", b1 =>
-                        {
-                            b1.Property<Guid>("CountriesId");
-
-                            b1.Property<string>("De")
-                                .HasJsonPropertyName("de");
-
-                            b1.Property<string>("En")
-                                .HasJsonPropertyName("en");
-
-                            b1.Property<string>("Fr")
-                                .HasJsonPropertyName("fr");
-
-                            b1.Property<string>("It")
-                                .HasJsonPropertyName("it");
-
-                            b1.HasKey("CountriesId");
-
-                            b1.ToTable("countries");
-
-                            b1
-                                .ToJson("name")
-                                .HasColumnType("jsonb");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CountriesId")
-                                .HasConstraintName("fk_countries_countries_id");
-                        });
-
-                    b.Navigation("Name")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Settings.Macro", b =>
-                {
-                    b.OwnsOne("Klacks.Api.Domain.Common.MultiLanguage", "Description", b1 =>
-                        {
-                            b1.Property<Guid>("MacroId");
-
-                            b1.Property<string>("De")
-                                .HasJsonPropertyName("de");
-
-                            b1.Property<string>("En")
-                                .HasJsonPropertyName("en");
-
-                            b1.Property<string>("Fr")
-                                .HasJsonPropertyName("fr");
-
-                            b1.Property<string>("It")
-                                .HasJsonPropertyName("it");
-
-                            b1.HasKey("MacroId");
-
-                            b1.ToTable("macro");
-
-                            b1
-                                .ToJson("description")
-                                .HasColumnType("jsonb");
-
-                            b1.WithOwner()
-                                .HasForeignKey("MacroId")
-                                .HasConstraintName("fk_macro_macro_id");
-                        });
-
-                    b.Navigation("Description")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Settings.State", b =>
-                {
-                    b.OwnsOne("Klacks.Api.Domain.Common.MultiLanguage", "Name", b1 =>
-                        {
-                            b1.Property<Guid>("StateId");
-
-                            b1.Property<string>("De")
-                                .HasJsonPropertyName("de");
-
-                            b1.Property<string>("En")
-                                .HasJsonPropertyName("en");
-
-                            b1.Property<string>("Fr")
-                                .HasJsonPropertyName("fr");
-
-                            b1.Property<string>("It")
-                                .HasJsonPropertyName("it");
-
-                            b1.HasKey("StateId");
-
-                            b1.ToTable("state");
-
-                            b1
-                                .ToJson("name")
-                                .HasColumnType("jsonb");
-
-                            b1.WithOwner()
-                                .HasForeignKey("StateId")
-                                .HasConstraintName("fk_state_state_id");
-                        });
-
-                    b.Navigation("Name")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Staffs.Address", b =>

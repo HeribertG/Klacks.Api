@@ -118,10 +118,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IIdentityProviderSyncLogRepository, IdentityProviderSyncLogRepository>();
         services.AddScoped<IShiftScheduleRepository, ShiftScheduleRepository>();
         services.AddScoped<IReportTemplateRepository, ReportTemplateRepository>();
-        services.AddScoped<IAiMemoryRepository, AiMemoryRepository>();
-        services.AddScoped<IAiSoulRepository, AiSoulRepository>();
-        services.AddScoped<IAiGuidelinesRepository, AiGuidelinesRepository>();
-        services.AddScoped<ILlmFunctionDefinitionRepository, LlmFunctionDefinitionRepository>();
         services.AddScoped<IHeartbeatConfigRepository, HeartbeatConfigRepository>();
         services.AddScoped<ILLMRepository, LLMRepository>();
         services.AddScoped<ISkillUsageRepository, SkillUsageRepository>();
@@ -133,12 +129,14 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISkillSynonymRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillSynonymRepository>();
         services.AddScoped<IGlobalAgentRuleRepository, Klacks.Api.Infrastructure.Repositories.Assistant.GlobalAgentRuleRepository>();
         services.AddScoped<IUiControlRepository, Klacks.Api.Infrastructure.Repositories.Assistant.UiControlRepository>();
+        services.AddScoped<ISkillGapRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillGapRepository>();
         services.AddScoped<IReceivedEmailRepository, ReceivedEmailRepository>();
         services.AddScoped<IEmailQueryRepository, EmailQueryRepository>();
         services.AddScoped<IEmailFolderRepository, EmailFolderRepository>();
         services.AddScoped<ISpamRuleRepository, SpamRuleRepository>();
         services.AddScoped<IFloorPlanRepository, FloorPlanRepository>();
         services.AddScoped<IFloorPlanWorkMarkerRepository, FloorPlanWorkMarkerRepository>();
+        services.AddScoped<ISentimentKeywordRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SentimentKeywordRepository>();
     }
 
     private static void AddDomainServices(this IServiceCollection services)
@@ -274,6 +272,9 @@ public static class ServiceCollectionExtensions
     private static void AddAssistantServices(this IServiceCollection services)
     {
         services.AddScoped<ILLMService, LLMService>();
+        services.AddScoped<IAutoMemoryExtractionService, AutoMemoryExtractionService>();
+        services.AddScoped<IHeartbeatLLMService, Klacks.Api.Domain.Services.Assistant.HeartbeatLLMService>();
+        services.AddScoped<IHeartbeatDataCollector, Klacks.Api.Infrastructure.Services.Assistant.HeartbeatDataCollector>();
         services.AddScoped<ILLMProviderFactory, LLMProviderFactory>();
         services.AddScoped<LLMProviderOrchestrator>();
         services.AddScoped<LLMConversationManager>();
@@ -284,8 +285,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IPromptTranslationProvider, PromptTranslationProvider>();
         services.AddScoped<IEmbeddingService, Klacks.Api.Infrastructure.Services.Assistant.EmbeddingService>();
         services.AddScoped<ContextAssemblyPipeline>();
+        services.AddSingleton<ISentimentAnalyzer, Domain.Services.Assistant.SentimentAnalyzer>();
         services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.EmbeddingBackgroundService>();
         services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.MemoryCleanupBackgroundService>();
+        services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.SkillGapSuggestionBackgroundService>();
+        services.AddScoped<ISkillGapDetector, Klacks.Api.Domain.Services.Assistant.Skills.SkillGapDetector>();
 
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.OpenAI.OpenAIProvider>();
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Anthropic.AnthropicProvider>();
@@ -351,12 +355,14 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.Meta.CreateAgentSkillSkill>();
         services.AddScoped<Application.Skills.Meta.UpdateAgentSkillSkill>();
         services.AddScoped<Application.Skills.Meta.DeleteAgentSkillSkill>();
+        services.AddScoped<Application.Skills.Meta.ReviewSkillSuggestionsSkill>();
         services.AddScoped<Infrastructure.WebSearch.WebSearchProviderFactory>();
 
         services.AddScoped<Persistence.Seed.AgentSoulSectionSeedService>();
         services.AddScoped<Persistence.Seed.UiControlSeedService>();
         services.AddScoped<Persistence.Seed.EmailFolderSeedService>();
         services.AddScoped<Persistence.Seed.SkillSeedLoader>();
+        services.AddScoped<Persistence.Seed.SentimentKeywordSeedService>();
         services.AddScoped<Application.Services.Assistant.SkillRegistryInitializer>();
 
         services.AddScoped<GenericListExecutor>();

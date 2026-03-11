@@ -1,6 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Retrieves the AI guidelines stored as a GlobalAgentRule named "AI_GUIDELINES".
+/// </summary>
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -10,11 +14,11 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("get_ai_guidelines")]
 public class GetAiGuidelinesSkill : BaseSkillImplementation
 {
-    private readonly IAiGuidelinesRepository _aiGuidelinesRepository;
+    private readonly IGlobalAgentRuleRepository _globalAgentRuleRepository;
 
-    public GetAiGuidelinesSkill(IAiGuidelinesRepository aiGuidelinesRepository)
+    public GetAiGuidelinesSkill(IGlobalAgentRuleRepository globalAgentRuleRepository)
     {
-        _aiGuidelinesRepository = aiGuidelinesRepository;
+        _globalAgentRuleRepository = globalAgentRuleRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -22,9 +26,10 @@ public class GetAiGuidelinesSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var activeGuidelines = await _aiGuidelinesRepository.GetActiveAsync(cancellationToken);
+        var rule = await _globalAgentRuleRepository.GetRuleAsync(
+            GlobalAgentRuleNames.AiGuidelines, cancellationToken);
 
-        if (activeGuidelines == null)
+        if (rule == null || !rule.IsActive)
         {
             return SkillResult.SuccessResult(
                 new { IsConfigured = false },
@@ -34,11 +39,11 @@ public class GetAiGuidelinesSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(
             new
             {
-                activeGuidelines.Name,
-                activeGuidelines.Content,
-                activeGuidelines.IsActive,
-                activeGuidelines.Source
+                rule.Name,
+                rule.Content,
+                rule.IsActive,
+                rule.Source
             },
-            $"AI guidelines '{activeGuidelines.Name}' retrieved ({activeGuidelines.Content.Length} characters).");
+            $"AI guidelines retrieved ({rule.Content.Length} characters).");
     }
 }

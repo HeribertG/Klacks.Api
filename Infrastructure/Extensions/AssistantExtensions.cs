@@ -53,4 +53,12 @@ public static class AssistantExtensions
         await loader.LoadAsync();
         return app;
     }
+
+    public static async Task<IApplicationBuilder> SeedSentimentKeywordsAsync(this IApplicationBuilder app)
+    {
+        using var scope = app.ApplicationServices.CreateScope();
+        var seedService = scope.ServiceProvider.GetRequiredService<SentimentKeywordSeedService>();
+        await seedService.SeedAsync();
+        return app;
+    }
 }

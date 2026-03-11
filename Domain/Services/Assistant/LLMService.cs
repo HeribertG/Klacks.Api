@@ -19,6 +19,8 @@ public class LLMService : ILLMService
     private readonly IAgentRepository _agentRepository;
     private readonly IAgentMemoryRepository _agentMemoryRepository;
     private readonly ContextAssemblyPipeline _contextAssemblyPipeline;
+    private readonly IAutoMemoryExtractionService _autoMemoryExtraction;
+    private readonly ISkillGapDetector _skillGapDetector;
 
     private const int MaxHistoryMessages = 40;
     private const int ReducedHistoryMessages = 20;
@@ -32,7 +34,9 @@ public class LLMService : ILLMService
         LLMSystemPromptBuilder promptBuilder,
         IAgentRepository agentRepository,
         IAgentMemoryRepository agentMemoryRepository,
-        ContextAssemblyPipeline contextAssemblyPipeline)
+        ContextAssemblyPipeline contextAssemblyPipeline,
+        IAutoMemoryExtractionService autoMemoryExtraction,
+        ISkillGapDetector skillGapDetector)
     {
         _logger = logger;
         _providerOrchestrator = providerOrchestrator;
@@ -43,6 +47,8 @@ public class LLMService : ILLMService
         _agentRepository = agentRepository;
         _agentMemoryRepository = agentMemoryRepository;
         _contextAssemblyPipeline = contextAssemblyPipeline;
+        _autoMemoryExtraction = autoMemoryExtraction;
+        _skillGapDetector = skillGapDetector;
     }
 
     public async Task<LLMResponse> ProcessAsync(LLMContext context)
@@ -154,7 +160,7 @@ public class LLMService : ILLMService
 
             if (string.IsNullOrWhiteSpace(responseContent) && allFunctionCalls.Any())
             {
-                responseContent = FormatFallbackResponse(allFunctionCalls);
+                responseContent = string.Empty;
             }
 
             if (allFunctionCalls.Count > 0)
@@ -169,6 +175,35 @@ public class LLMService : ILLMService
             await _conversationManager.TrackUsageAsync(
                 context.UserId, model, conversation,
                 totalUsage, stopwatch.ElapsedMilliseconds);
+
+            if (agent != null && !string.IsNullOrWhiteSpace(responseContent))
+            {
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _autoMemoryExtraction.ExtractAndStoreMemoriesAsync(
+                            agent.Id, context.Message, responseContent, context.UserId);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Fire-and-forget auto memory extraction failed for agent {AgentId}", agent.Id);
+                    }
+                });
+
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _skillGapDetector.DetectAndSuggestAsync(
+                            agent.Id, context.Message, responseContent, allFunctionCalls.Count > 0);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Fire-and-forget skill gap detection failed for agent {AgentId}", agent.Id);
+                    }
+                });
+            }
 
             return _responseBuilder.BuildSuccessResponse(
                 lastResponse!, conversation.ConversationId, responseContent, allFunctionCalls);
@@ -243,19 +278,6 @@ public class LLMService : ILLMService
         return truncated;
     }
 
-    private static string FormatFallbackResponse(List<LLMFunctionCall> functionCalls)
-    {
-        var parts = functionCalls.Select(call =>
-        {
-            var paramValues = call.Parameters
-                .Where(p => p.Value != null)
-                .Select(p => $"{p.Key}: {p.Value}")
-                .ToList();
-            var paramsStr = paramValues.Count > 0 ? $" ({string.Join(", ", paramValues)})" : "";
-            return $"{call.FunctionName}{paramsStr}";
-        });
-        return string.Join(", ", parts);
-    }
 
     private static void AccumulateUsage(Providers.LLMUsage total, Providers.LLMUsage current)
     {

@@ -1,9 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Text.Json;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Hubs;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
@@ -19,6 +21,11 @@ public class HeartbeatBackgroundService : BackgroundService
         "Hi! I'm your proactive assistant. I can periodically check things for you " +
         "- like shift conflicts, scheduling gaps, or contract expirations. " +
         "Just tell me what you'd like me to monitor, and I'll keep an eye on it for you!";
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
 
     public HeartbeatBackgroundService(
         IServiceProvider serviceProvider,
@@ -105,10 +112,10 @@ public class HeartbeatBackgroundService : BackgroundService
             UserId = userId,
             IsEnabled = false,
             OnboardingCompleted = false,
-            IntervalMinutes = 30,
-            ActiveHoursStart = new TimeOnly(8, 0),
-            ActiveHoursEnd = new TimeOnly(22, 0),
-            ChecklistJson = "[]"
+            IntervalMinutes = HeartbeatDefaults.DefaultIntervalMinutes,
+            ActiveHoursStart = HeartbeatDefaults.DefaultActiveHoursStart,
+            ActiveHoursEnd = HeartbeatDefaults.DefaultActiveHoursEnd,
+            ChecklistJson = HeartbeatDefaults.DefaultChecklistJson
         };
 
         await repo.AddAsync(config, cancellationToken);
@@ -139,15 +146,41 @@ public class HeartbeatBackgroundService : BackgroundService
     {
         var notificationService = scopedProvider.GetRequiredService<IAssistantNotificationService>();
         var repo = scopedProvider.GetRequiredService<IHeartbeatConfigRepository>();
+        var llmService = scopedProvider.GetRequiredService<IHeartbeatLLMService>();
+        var dataCollector = scopedProvider.GetRequiredService<IHeartbeatDataCollector>();
 
-        var message = $"Heartbeat check completed. Checklist: {config.ChecklistJson}";
+        var checkItems = ParseChecklistJson(config.ChecklistJson);
+        var since = config.LastExecutedAt ?? DateTime.UtcNow.AddMinutes(-config.IntervalMinutes);
 
-        await notificationService.SendProactiveMessageAsync(userId, message);
+        var snapshot = await dataCollector.CollectAsync(since, cancellationToken);
+
+        var message = await llmService.GenerateStatusMessageAsync(checkItems, snapshot, cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(message))
+        {
+            await notificationService.SendProactiveMessageAsync(userId, message);
+        }
 
         config.LastExecutedAt = DateTime.UtcNow;
         await repo.UpdateAsync(config, cancellationToken);
 
         _logger.LogInformation("Executed heartbeat for user {UserId}", userId);
+    }
+
+    private List<HeartbeatCheckItem> ParseChecklistJson(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json) || json == "[]")
+            return [];
+
+        try
+        {
+            return JsonSerializer.Deserialize<List<HeartbeatCheckItem>>(json, JsonOptions) ?? [];
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "Failed to parse heartbeat checklist JSON");
+            return [];
+        }
     }
 
     private static async Task<bool> IsGloballyEnabledAsync(IServiceProvider scopedProvider, CancellationToken cancellationToken)

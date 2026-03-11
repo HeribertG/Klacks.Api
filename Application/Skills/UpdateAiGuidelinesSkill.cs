@@ -1,6 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Updates the AI guidelines by upserting a GlobalAgentRule named "AI_GUIDELINES".
+/// </summary>
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -10,11 +14,11 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("update_ai_guidelines")]
 public class UpdateAiGuidelinesSkill : BaseSkillImplementation
 {
-    private readonly IAiGuidelinesRepository _aiGuidelinesRepository;
+    private readonly IGlobalAgentRuleRepository _globalAgentRuleRepository;
 
-    public UpdateAiGuidelinesSkill(IAiGuidelinesRepository aiGuidelinesRepository)
+    public UpdateAiGuidelinesSkill(IGlobalAgentRuleRepository globalAgentRuleRepository)
     {
-        _aiGuidelinesRepository = aiGuidelinesRepository;
+        _globalAgentRuleRepository = globalAgentRuleRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -23,24 +27,17 @@ public class UpdateAiGuidelinesSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var guidelinesContent = GetRequiredString(parameters, "guidelines");
-        var name = parameters.TryGetValue("name", out var nameObj) ? nameObj?.ToString() ?? "AI Guidelines" : "AI Guidelines";
 
-        await _aiGuidelinesRepository.DeactivateAllAsync(cancellationToken);
-
-        var newGuidelines = new AiGuidelines
-        {
-            Id = Guid.NewGuid(),
-            Name = name,
-            Content = guidelinesContent,
-            IsActive = true,
-            Source = "chat",
-            CreateTime = DateTime.UtcNow
-        };
-
-        await _aiGuidelinesRepository.AddAsync(newGuidelines, cancellationToken);
+        var rule = await _globalAgentRuleRepository.UpsertRuleAsync(
+            GlobalAgentRuleNames.AiGuidelines,
+            guidelinesContent,
+            sortOrder: 0,
+            source: "chat",
+            changedBy: context.UserId.ToString(),
+            cancellationToken: cancellationToken);
 
         return SkillResult.SuccessResult(
-            new { newGuidelines.Name, ContentLength = guidelinesContent.Length },
-            $"AI guidelines '{name}' created and activated ({guidelinesContent.Length} characters).");
+            new { rule.Name, ContentLength = guidelinesContent.Length },
+            $"AI guidelines updated ({guidelinesContent.Length} characters).");
     }
 }

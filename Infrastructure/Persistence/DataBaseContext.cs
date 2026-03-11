@@ -141,11 +141,6 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<IdentityProviderSyncLog> IdentityProviderSyncLogs { get; set; }
 
-    // AI DbSets (Legacy - kept for migration compatibility)
-    public DbSet<AiMemory> AiMemories { get; set; }
-    public DbSet<AiSoul> AiSouls { get; set; }
-    public DbSet<AiGuidelines> AiGuidelines { get; set; }
-    public DbSet<LlmFunctionDefinition> LlmFunctionDefinitions { get; set; }
     public DbSet<HeartbeatConfig> HeartbeatConfigs { get; set; }
 
     // Agent Architecture DbSets
@@ -171,6 +166,9 @@ public class DataBaseContext : IdentityDbContext
     // Skill Synonym DbSet
     public DbSet<SkillSynonym> SkillSynonyms { get; set; }
 
+    // Skill Gap Detection DbSet
+    public DbSet<SkillGapRecord> SkillGapRecords { get; set; }
+
     // Scheduling DbSets
     public DbSet<SchedulingRule> SchedulingRules { get; set; }
 
@@ -184,6 +182,9 @@ public class DataBaseContext : IdentityDbContext
 
     // Plugin DbSets
     public DbSet<PluginDoc> PluginDocs { get; set; }
+
+    // Sentiment DbSets
+    public DbSet<SentimentKeywordSet> SentimentKeywordSets { get; set; }
 
     // FloorPlan DbSets
     public DbSet<FloorPlan> FloorPlan { get; set; }
@@ -365,33 +366,6 @@ public class DataBaseContext : IdentityDbContext
             .HasForeignKey(s => s.ClientId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // AI Memory Configuration
-        modelBuilder.Entity<AiMemory>(entity =>
-        {
-            entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.HasIndex(p => new { p.IsDeleted, p.Category, p.Importance });
-        });
-
-        // AI Soul Configuration
-        modelBuilder.Entity<AiSoul>(entity =>
-        {
-            entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.HasIndex(p => new { p.IsDeleted, p.IsActive });
-        });
-
-        // AI Guidelines Configuration
-        modelBuilder.Entity<AiGuidelines>(entity =>
-        {
-            entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.HasIndex(p => new { p.IsDeleted, p.IsActive });
-        });
-
-        // LLM Function Definitions Configuration
-        modelBuilder.Entity<LlmFunctionDefinition>(entity =>
-        {
-            entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.HasIndex(p => new { p.IsDeleted, p.IsEnabled, p.SortOrder });
-        });
 
         // Heartbeat Configuration
         modelBuilder.Entity<HeartbeatConfig>(entity =>
@@ -846,6 +820,24 @@ public class DataBaseContext : IdentityDbContext
             entity.HasQueryFilter(p => !p.IsDeleted);
             entity.HasIndex(p => p.Language);
             entity.HasIndex(p => new { p.SkillName, p.Language, p.Keyword })
+                .HasFilter("is_deleted = false")
+                .IsUnique();
+        });
+
+        modelBuilder.Entity<SkillGapRecord>(entity =>
+        {
+            entity.ToTable("skill_gap_records");
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.AgentId, p.Status });
+            entity.HasIndex(p => new { p.AgentId, p.OccurrenceCount });
+        });
+
+        modelBuilder.Entity<SentimentKeywordSet>(entity =>
+        {
+            entity.ToTable("sentiment_keyword_sets");
+            entity.Property(e => e.Keywords)
+                .HasJsonbConversionWithComparer<Dictionary<string, List<string>>>();
+            entity.HasIndex(p => p.Language)
                 .HasFilter("is_deleted = false")
                 .IsUnique();
         });

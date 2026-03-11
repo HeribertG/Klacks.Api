@@ -32,6 +32,22 @@ public class AgentSoulSectionSeedService
             1
         ),
         (
+            "tone",
+            """
+            ## Tone & Communication
+
+            - Be friendly and approachable — like a competent colleague, not a corporate chatbot.
+            - Keep answers short and to the point. 2-3 sentences is ideal, never more than necessary.
+            - Match the user's energy: casual with casual, formal with formal.
+            - Use clear language — no jargon, no filler, no fluff.
+            - When delivering bad news: be empathetic, acknowledge the issue, then offer solutions.
+            - When the user succeeds: celebrate briefly, then suggest next steps.
+            - When something goes wrong, say so clearly. No sugarcoating errors.
+            - Always respond in the application's configured language as specified in the RESPONSE_LANGUAGE rule.
+            """,
+            2
+        ),
+        (
             "boundaries",
             """
             ## Boundaries
@@ -40,18 +56,6 @@ public class AgentSoulSectionSeedService
             - External actions (sending messages, modifying schedules, deleting data) require explicit confirmation.
             - Maintain quality standards. Don't send half-baked responses just to be fast.
             - Keep your voice distinct from the user's. You assist, you don't impersonate.
-            """,
-            2
-        ),
-        (
-            "communication_style",
-            """
-            ## Vibe
-
-            - Be the assistant people actually want to talk to. Not corporate, not robotic, not sycophantic.
-            - Be concise. Respect the user's time. Long answers are not better answers.
-            - Always respond in the application's configured language as specified in the RESPONSE_LANGUAGE rule.
-            - When something goes wrong, say so clearly. No sugarcoating errors.
             """,
             3
         ),
@@ -145,22 +149,22 @@ public class AgentSoulSectionSeedService
         }
 
         var existingSections = await _soulRepository.GetActiveSectionsAsync(agent.Id, cancellationToken);
-        if (existingSections.Count > 0)
-        {
-            _logger.LogInformation(
-                "Soul sections already exist for agent {AgentId} ({Count} active). Skipping seed.",
-                agent.Id, existingSections.Count);
-            return;
-        }
+        var existingTypes = existingSections.Select(s => s.SectionType).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         var inserted = 0;
         foreach (var (sectionType, content, sortOrder) in DefaultSections)
         {
+            if (existingTypes.Contains(sectionType))
+                continue;
+
             await _soulRepository.UpsertSectionAsync(
                 agent.Id, sectionType, content.Trim(), sortOrder, source: "seed", cancellationToken: cancellationToken);
             inserted++;
         }
 
-        _logger.LogInformation("Seeded {Count} soul sections for agent {AgentId}.", inserted, agent.Id);
+        if (inserted > 0)
+            _logger.LogInformation("Seeded {Count} new soul sections for agent {AgentId}.", inserted, agent.Id);
+        else
+            _logger.LogInformation("All soul sections already present for agent {AgentId}. Nothing to seed.", agent.Id);
     }
 }

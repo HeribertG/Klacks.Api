@@ -19,14 +19,15 @@ public class ContextAssemblyPipeline
     private readonly IAgentMemoryRepository _memoryRepository;
     private readonly IAgentSkillRepository _skillRepository;
     private readonly IGlobalAgentRuleRepository _globalRuleRepository;
-    private readonly IAiGuidelinesRepository _guidelinesRepository;
     private readonly IEmbeddingService _embeddingService;
+    private readonly ISentimentAnalyzer _sentimentAnalyzer;
     private readonly IConfiguration _configuration;
     private readonly ILogger<ContextAssemblyPipeline> _logger;
 
     private const int CharsPerToken = 4;
     private const int MaxMemoriesPerTurn = 15;
     private const int MaxPinnedMemories = 10;
+    private const float SentimentThreshold = 0.5f;
 
     private static readonly Regex TemplateVariableRegex = new(
         @"\{\{(\w+)\}\}", RegexOptions.Compiled);
@@ -36,8 +37,8 @@ public class ContextAssemblyPipeline
         IAgentMemoryRepository memoryRepository,
         IAgentSkillRepository skillRepository,
         IGlobalAgentRuleRepository globalRuleRepository,
-        IAiGuidelinesRepository guidelinesRepository,
         IEmbeddingService embeddingService,
+        ISentimentAnalyzer sentimentAnalyzer,
         IConfiguration configuration,
         ILogger<ContextAssemblyPipeline> logger)
     {
@@ -45,8 +46,8 @@ public class ContextAssemblyPipeline
         _memoryRepository = memoryRepository;
         _skillRepository = skillRepository;
         _globalRuleRepository = globalRuleRepository;
-        _guidelinesRepository = guidelinesRepository;
         _embeddingService = embeddingService;
+        _sentimentAnalyzer = sentimentAnalyzer;
         _configuration = configuration;
         _logger = logger;
     }
@@ -74,15 +75,6 @@ public class ContextAssemblyPipeline
             sb.AppendLine();
         }
 
-        var guidelines = await _guidelinesRepository.GetActiveAsync(cancellationToken);
-        if (guidelines != null)
-        {
-            sb.AppendLine("=== GUIDELINES ===");
-            sb.AppendLine(ResolveTemplateVariables(guidelines.Content.Trim(), templateVariables));
-            sb.AppendLine("==================");
-            sb.AppendLine();
-        }
-
         var sections = await _soulRepository.GetActiveSectionsAsync(agentId, cancellationToken);
         if (sections.Count > 0)
         {
@@ -94,6 +86,13 @@ public class ContextAssemblyPipeline
                 sb.AppendLine();
             }
             sb.AppendLine("================");
+            sb.AppendLine();
+        }
+
+        var sentimentResult = _sentimentAnalyzer.AnalyzeSentiment(userMessage);
+        if (sentimentResult.Mood != SentimentMood.Neutral && sentimentResult.Confidence > SentimentThreshold)
+        {
+            sb.AppendLine($"[USER_MOOD: {sentimentResult.Mood.ToString().ToUpperInvariant()}] Adjust your tone accordingly.");
             sb.AppendLine();
         }
 
