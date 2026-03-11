@@ -40,13 +40,16 @@ public class ListClientsQueryHandler : BaseHandler, IRequestHandler<ListClientAv
         return await ExecuteAsync(async () =>
         {
             var now = DateTime.UtcNow;
+            var startOfYear = new DateTime(now.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var endOfYear = new DateTime(now.Year, 12, 31, 23, 59, 59, DateTimeKind.Utc);
+
             var query = _context.Client
                 .Include(c => c.Membership)
                 .Include(c => c.GroupItems)
                 .Where(c => c.Type != EntityTypeEnum.Customer)
                 .Where(c => c.Membership != null &&
-                           c.Membership.ValidFrom <= now &&
-                           (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= now))
+                           c.Membership.ValidFrom <= endOfYear &&
+                           (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startOfYear))
                 .AsQueryable();
 
             query = await _groupFilterService.FilterClientsByGroupId(request.Filter.SelectedGroup, query);
