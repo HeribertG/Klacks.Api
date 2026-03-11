@@ -12,6 +12,8 @@ namespace Klacks.Api.Application.DTOs.Filter;
 public class ClientAvailabilityClientFilter
 {
     public string SearchString { get; set; } = string.Empty;
+    public DateOnly StartDate { get; set; }
+    public DateOnly EndDate { get; set; }
     public Guid? SelectedGroup { get; set; }
     public string OrderBy { get; set; } = "name";
     public string SortOrder { get; set; } = "asc";

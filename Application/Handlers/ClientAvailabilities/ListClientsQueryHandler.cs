@@ -39,9 +39,8 @@ public class ListClientsQueryHandler : BaseHandler, IRequestHandler<ListClientAv
     {
         return await ExecuteAsync(async () =>
         {
-            var now = DateTime.UtcNow;
-            var startOfYear = new DateTime(now.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var endOfYear = new DateTime(now.Year, 12, 31, 23, 59, 59, DateTimeKind.Utc);
+            var startOfYear = new DateTime(request.Filter.StartDate.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var endOfYear = new DateTime(request.Filter.EndDate.Year, 12, 31, 23, 59, 59, DateTimeKind.Utc);
 
             var query = _context.Client
                 .Include(c => c.Membership)
