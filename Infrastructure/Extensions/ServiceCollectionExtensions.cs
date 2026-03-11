@@ -85,6 +85,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IClientBreakPlaceholderRepository, ClientBreakPlaceholderRepository>();
         services.AddScoped<IClientSearchRepository, ClientSearchRepository>();
         services.AddScoped<IClientSearchFilterService, ClientSearchFilterService>();
+        services.AddScoped<IClientBaseQueryService, ClientBaseQueryService>();
         services.AddScoped<IAddressRepository, AddressRepository>();
         services.AddScoped<IAnnotationRepository, AnnotationRepository>();
         services.AddScoped<ICommunicationRepository, CommunicationRepository>();
@@ -273,6 +274,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ILLMService, LLMService>();
         services.AddScoped<IAutoMemoryExtractionService, AutoMemoryExtractionService>();
+        services.AddScoped<IConversationCompactionService, ConversationCompactionService>();
         services.AddScoped<IHeartbeatLLMService, Klacks.Api.Domain.Services.Assistant.HeartbeatLLMService>();
         services.AddScoped<IHeartbeatDataCollector, Klacks.Api.Infrastructure.Services.Assistant.HeartbeatDataCollector>();
         services.AddScoped<ILLMProviderFactory, LLMProviderFactory>();

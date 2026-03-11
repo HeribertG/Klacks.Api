@@ -1,36 +1,30 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler für die Client-Availability Client-Liste mit Suche, Gruppen- und Typ-Filter.
+/// Handler für die Client-Availability Client-Liste.
+/// Nutzt den zentralen ClientBaseQueryService für einheitliche Filterung.
 /// </summary>
 /// <param name="request">Query mit Filter für Suche, Gruppe und Paging</param>
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Application.Queries.ClientAvailabilities;
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.ClientAvailabilities;
 
 public class ListClientsQueryHandler : BaseHandler, IRequestHandler<ListClientAvailabilityClientsQuery, ClientAvailabilityClientListResponse>
 {
-    private readonly DataBaseContext _context;
-    private readonly IClientGroupFilterService _groupFilterService;
-    private readonly IClientSearchFilterService _searchFilterService;
+    private readonly IClientBaseQueryService _baseQueryService;
 
     public ListClientsQueryHandler(
-        DataBaseContext context,
-        IClientGroupFilterService groupFilterService,
-        IClientSearchFilterService searchFilterService,
+        IClientBaseQueryService baseQueryService,
         ILogger<ListClientsQueryHandler> logger)
         : base(logger)
     {
-        _context = context;
-        _groupFilterService = groupFilterService;
-        _searchFilterService = searchFilterService;
+        _baseQueryService = baseQueryService;
     }
 
     public async Task<ClientAvailabilityClientListResponse> Handle(
@@ -39,29 +33,38 @@ public class ListClientsQueryHandler : BaseHandler, IRequestHandler<ListClientAv
     {
         return await ExecuteAsync(async () =>
         {
-            var startOfYear = new DateTime(request.Filter.StartDate.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var endOfYear = new DateTime(request.Filter.EndDate.Year, 12, 31, 23, 59, 59, DateTimeKind.Utc);
+            _logger.LogWarning("[DEBUG-CA] Filter: SearchString={Search}, Start={Start}, End={End}, ShowEmp={Emp}, ShowExt={Ext}, Group={Group}, StartRow={SR}, RowCount={RC}",
+                request.Filter.SearchString, request.Filter.StartDate, request.Filter.EndDate,
+                request.Filter.ShowEmployees, request.Filter.ShowExtern, request.Filter.SelectedGroup,
+                request.Filter.StartRow, request.Filter.RowCount);
 
-            var query = _context.Client
-                .Include(c => c.Membership)
-                .Include(c => c.GroupItems)
-                .Where(c => c.Type != EntityTypeEnum.Customer)
-                .Where(c => c.Membership != null &&
-                           c.Membership.ValidFrom <= endOfYear &&
-                           (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startOfYear))
-                .AsQueryable();
+            var baseFilter = new ClientBaseFilter
+            {
+                StartDate = request.Filter.StartDate,
+                EndDate = request.Filter.EndDate,
+                SearchString = request.Filter.SearchString,
+                SelectedGroup = request.Filter.SelectedGroup,
+                ShowEmployees = request.Filter.ShowEmployees,
+                ShowExtern = request.Filter.ShowExtern,
+                OrderBy = request.Filter.OrderBy,
+                SortOrder = request.Filter.SortOrder,
+            };
 
-            query = await _groupFilterService.FilterClientsByGroupId(request.Filter.SelectedGroup, query);
-            query = _searchFilterService.ApplySearchFilter(query, request.Filter.SearchString, false);
-            query = ApplyTypeFilter(query, request.Filter.ShowEmployees, request.Filter.ShowExtern);
-            query = ApplySorting(query, request.Filter.OrderBy, request.Filter.SortOrder);
+            var query = await _baseQueryService.BuildBaseQuery(baseFilter);
+
+            query = query.Include(c => c.GroupItems);
 
             var totalCount = await query.CountAsync(cancellationToken);
+
+            _logger.LogWarning("[DEBUG-CA] TotalCount={Count}", totalCount);
 
             var clients = await query
                 .Skip(request.Filter.StartRow)
                 .Take(request.Filter.RowCount)
                 .ToListAsync(cancellationToken);
+
+            _logger.LogWarning("[DEBUG-CA] Returned {Count} clients: {Names}",
+                clients.Count, string.Join(", ", clients.Select(c => $"{c.Name} {c.FirstName}")));
 
             return new ClientAvailabilityClientListResponse
             {
@@ -82,35 +85,6 @@ public class ListClientsQueryHandler : BaseHandler, IRequestHandler<ListClientAv
             LegalEntity = client.LegalEntity,
             IdNumber = client.IdNumber,
             GroupIds = client.GroupItems?.Select(g => g.GroupId).ToList() ?? []
-        };
-    }
-
-    private static IQueryable<Client> ApplyTypeFilter(IQueryable<Client> query, bool showEmployees, bool showExtern)
-    {
-        if (!showEmployees && !showExtern)
-            return query.Where(c => false);
-        if (!showEmployees)
-            return query.Where(c => c.Type == EntityTypeEnum.ExternEmp);
-        if (!showExtern)
-            return query.Where(c => c.Type == EntityTypeEnum.Employee);
-        return query;
-    }
-
-    private static IQueryable<Client> ApplySorting(IQueryable<Client> query, string orderBy, string sortOrder)
-    {
-        var isAscending = sortOrder.Equals("asc", StringComparison.OrdinalIgnoreCase);
-
-        return orderBy.ToLower() switch
-        {
-            "firstname" => isAscending
-                ? query.OrderBy(c => c.FirstName).ThenBy(c => c.Name)
-                : query.OrderByDescending(c => c.FirstName).ThenByDescending(c => c.Name),
-            "company" => isAscending
-                ? query.OrderBy(c => c.Company).ThenBy(c => c.Name)
-                : query.OrderByDescending(c => c.Company).ThenByDescending(c => c.Name),
-            _ => isAscending
-                ? query.OrderBy(c => c.Name).ThenBy(c => c.FirstName)
-                : query.OrderByDescending(c => c.Name).ThenByDescending(c => c.FirstName)
         };
     }
 }

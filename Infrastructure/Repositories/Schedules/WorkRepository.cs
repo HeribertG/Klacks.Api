@@ -18,22 +18,19 @@ namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 
 public class WorkRepository : BaseRepository<Work>, IWorkRepository
 {
-    private readonly IClientGroupFilterService _groupFilterService;
-    private readonly IClientSearchFilterService _searchFilterService;
+    private readonly IClientBaseQueryService _baseQueryService;
     private readonly IWorkMacroService _workMacroService;
     private readonly IClientContractDataProvider _contractDataProvider;
 
     public WorkRepository(
         DataBaseContext context,
         ILogger<Work> logger,
-        IClientGroupFilterService groupFilterService,
-        IClientSearchFilterService searchFilterService,
+        IClientBaseQueryService baseQueryService,
         IWorkMacroService workMacroService,
         IClientContractDataProvider contractDataProvider)
         : base(context, logger)
     {
-        _groupFilterService = groupFilterService;
-        _searchFilterService = searchFilterService;
+        _baseQueryService = baseQueryService;
         _workMacroService = workMacroService;
         _contractDataProvider = contractDataProvider;
     }
@@ -57,96 +54,43 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             return (new List<Client>(), 0);
         }
 
-        var startOfYear = new DateTime(filter.StartDate.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        var endOfYear = new DateTime(filter.EndDate.Year, 12, 31, 23, 59, 59, DateTimeKind.Utc);
+        var baseFilter = new ClientBaseFilter
+        {
+            StartDate = filter.StartDate,
+            EndDate = filter.EndDate,
+            SearchString = filter.SearchString,
+            SelectedGroup = filter.SelectedGroup,
+            ShowEmployees = filter.ShowEmployees,
+            ShowExtern = filter.ShowExtern,
+            OrderBy = filter.OrderBy,
+            SortOrder = filter.SortOrder,
+            HoursSortOrder = filter.HoursSortOrder,
+        };
 
-        var query = context.Client
-            .Where(c => c.Type != EntityTypeEnum.Customer)
-            .Include(c => c.Membership)
-            .Where(c => c.Membership != null &&
-                        c.Membership.ValidFrom <= endOfYear &&
-                        (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startOfYear))
-            .AsQueryable();
+        Logger.LogWarning("[DEBUG-WR] Filter: SearchString={Search}, Start={Start}, End={End}, ShowEmp={Emp}, ShowExt={Ext}, Group={Group}, StartRow={SR}, RowCount={RC}",
+            filter.SearchString, filter.StartDate, filter.EndDate,
+            filter.ShowEmployees, filter.ShowExtern, filter.SelectedGroup,
+            filter.StartRow, filter.RowCount);
+
+        var query = await _baseQueryService.BuildBaseQuery(baseFilter);
 
         query = query.Include(c => c.Works.Where(w => w.CurrentDate >= filter.StartDate && w.CurrentDate <= filter.EndDate));
         query = query.Include(c => c.ClientContracts.Where(cc => !cc.IsDeleted && cc.IsActive))
             .ThenInclude(cc => cc.Contract);
 
-        query = await _groupFilterService.FilterClientsByGroupId(filter.SelectedGroup, query);
-
-        query = _searchFilterService.ApplySearchFilter(query, filter.SearchString, false);
-
-        query = ApplyTypeFilter(query, filter.ShowEmployees, filter.ShowExtern);
-
-        query = ApplySorting(query, filter.OrderBy, filter.SortOrder, filter.HoursSortOrder, filter.StartDate);
-
         var totalCount = await query.CountAsync();
+
+        Logger.LogWarning("[DEBUG-WR] TotalCount={Count}", totalCount);
 
         var clients = await query
             .Skip(filter.StartRow)
             .Take(filter.RowCount)
             .ToListAsync();
 
+        Logger.LogWarning("[DEBUG-WR] Returned {Count} clients: {Names}",
+            clients.Count, string.Join(", ", clients.Select(c => $"{c.Name} {c.FirstName}")));
+
         return (clients, totalCount);
-    }
-
-    private static IQueryable<Client> ApplyTypeFilter(IQueryable<Client> query, bool showEmployees, bool showExtern)
-    {
-        if (showEmployees && showExtern)
-        {
-            return query;
-        }
-
-        if (!showEmployees && !showExtern)
-        {
-            return query.Where(c => false);
-        }
-
-        if (showEmployees && !showExtern)
-        {
-            return query.Where(c => c.Type == EntityTypeEnum.Employee);
-        }
-
-        return query.Where(c => c.Type == EntityTypeEnum.ExternEmp);
-    }
-
-    private static IQueryable<Client> ApplySorting(IQueryable<Client> query, string orderBy, string sortOrder, string? hoursSortOrder, DateOnly refDate)
-    {
-        var isDescending = sortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
-
-        var orderedQuery = orderBy.ToLowerInvariant() switch
-        {
-            "firstname" => isDescending
-                ? query.OrderByDescending(c => c.FirstName)
-                : query.OrderBy(c => c.FirstName),
-            "company" => isDescending
-                ? query.OrderByDescending(c => c.Company)
-                : query.OrderBy(c => c.Company),
-            "type" => isDescending
-                ? query.OrderByDescending(c => c.Type)
-                : query.OrderBy(c => c.Type),
-            _ => isDescending
-                ? query.OrderByDescending(c => c.Name)
-                : query.OrderBy(c => c.Name)
-        };
-
-        if (string.IsNullOrEmpty(hoursSortOrder))
-        {
-            return orderedQuery;
-        }
-
-        var hoursDescending = hoursSortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
-        return hoursDescending
-            ? orderedQuery.ThenByDescending(c => c.ClientContracts
-                .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
-                .OrderByDescending(cc => cc.FromDate)
-                .Select(cc => cc.Contract.GuaranteedHours)
-                .FirstOrDefault())
-            : orderedQuery.ThenBy(c => c.ClientContracts
-                .Where(cc => cc.FromDate <= refDate && (cc.UntilDate == null || cc.UntilDate >= refDate))
-                .OrderByDescending(cc => cc.FromDate)
-                .Select(cc => cc.Contract.GuaranteedHours)
-                .FirstOrDefault());
     }
 
     public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursForClients(List<Guid> clientIds, DateOnly startDate, DateOnly endDate)
