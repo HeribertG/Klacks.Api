@@ -22,6 +22,14 @@ public class LLMResponseBuilder
         @"""([^""]+)""",
         RegexOptions.Compiled);
 
+    private static readonly Regex RepliesBlockRegex = new(
+        @"\[REPLIES:(single|multi)(?::([^""]*?))?\s+(.*?)\]",
+        RegexOptions.Compiled | RegexOptions.Singleline);
+
+    private static readonly Regex RepliesOptionRegex = new(
+        @"""([^""]+)""",
+        RegexOptions.Compiled);
+
     public LLMResponse BuildSuccessResponse(
         LLMProviderResponse providerResponse,
         string conversationId,
@@ -30,7 +38,8 @@ public class LLMResponseBuilder
     {
         var functionCalls = allFunctionCalls ?? providerResponse.FunctionCalls;
 
-        var (cleanedContent, suggestions) = ExtractSuggestions(responseContent);
+        var (afterReplies, suggestedReplies) = ExtractSuggestedReplies(responseContent);
+        var (cleanedContent, suggestions) = ExtractSuggestions(afterReplies);
 
         var response = new LLMResponse
         {
@@ -46,7 +55,8 @@ public class LLMResponseBuilder
                 OutputTokens = providerResponse.Usage.OutputTokens,
                 Cost = providerResponse.Usage.Cost
             },
-            Suggestions = suggestions
+            Suggestions = suggestions,
+            SuggestedReplies = suggestedReplies
         };
 
         response.NavigateTo = ExtractNavigation(cleanedContent);
@@ -89,6 +99,58 @@ public class LLMResponseBuilder
         var cleanedContent = SuggestionsBlockRegex.Replace(content, string.Empty).TrimEnd();
 
         return (cleanedContent, suggestions);
+    }
+
+    private static (string CleanedContent, SuggestedRepliesConfig? Replies) ExtractSuggestedReplies(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+            return (content, null);
+
+        var match = RepliesBlockRegex.Match(content);
+        if (!match.Success)
+            return (content, null);
+
+        var mode = match.Groups[1].Value;
+        var prompt = match.Groups[2].Success && !string.IsNullOrWhiteSpace(match.Groups[2].Value)
+            ? match.Groups[2].Value.Trim()
+            : null;
+        var optionsRaw = match.Groups[3].Value;
+
+        var options = new List<SuggestedReply>();
+        var optionMatches = RepliesOptionRegex.Matches(optionsRaw);
+        foreach (Match om in optionMatches)
+        {
+            var raw = om.Groups[1].Value.Trim();
+            var eqIndex = raw.IndexOf('=');
+            if (eqIndex > 0)
+            {
+                options.Add(new SuggestedReply
+                {
+                    Label = raw[..eqIndex].Trim(),
+                    Value = raw[(eqIndex + 1)..].Trim()
+                });
+            }
+            else
+            {
+                options.Add(new SuggestedReply { Label = raw, Value = raw });
+            }
+
+            if (options.Count >= LlmRepliesFormat.MaxOptions)
+                break;
+        }
+
+        if (options.Count == 0)
+            return (content, null);
+
+        var config = new SuggestedRepliesConfig
+        {
+            SelectionMode = mode,
+            Prompt = prompt,
+            Options = options
+        };
+
+        var cleanedContent = RepliesBlockRegex.Replace(content, string.Empty).TrimEnd();
+        return (cleanedContent, config);
     }
 
     private static string? ExtractNavigation(string content)

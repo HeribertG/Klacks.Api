@@ -50,6 +50,14 @@ public class GlobalAgentRuleSeedService
             "Groups: all-group-list-new-button,all-group-list-tree-toggle,edit-group-item-name | " +
             "Settings: setting-general-name,setting-owner-address-name,setting-email-test-btn,setting-imap-test-btn,contractName,absence-modal-name,deepl-apikey",
             4
+        ),
+        (
+            GlobalAgentRuleNames.SuggestedRepliesFormat,
+            "When you need the user to choose from options, append a REPLIES block.\n" +
+            "Single-select: [REPLIES:single \"Option A\" | \"Option B\" | \"Option C\"]\n" +
+            "Multi-select with heading: [REPLIES:multi:Choose items \"Label1=value1\" | \"Label2=value2\"]\n" +
+            "Rules: Use Label=Value for differing display/data. Max 10 options. Do not combine with SUGGESTIONS in the same response.",
+            5
         )
     ];
 
