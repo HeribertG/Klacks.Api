@@ -1,3 +1,8 @@
+---
+name: scripting-engine
+description: "Verwende wenn an der Backend-Scripting-Engine, Script-Compiler, ScriptValue oder Macro-Ausführung gearbeitet wird"
+---
+
 # Backend Scripting Engine
 
 ## Übersicht
@@ -146,20 +151,22 @@ Import betrag
 message 1, kundenName & ": " & betrag
 ```
 
-### Macro-spezifische Import-Variablen
+### Macro-spezifische Import-Variablen (12 Stück)
 
 | Variable | Beschreibung |
 |----------|-------------|
-| hour | Arbeitsstunden |
-| fromhour/untilhour | Start-/Endzeit als Dezimalstunden |
-| weekday | Wochentag ISO-8601 (1=Mo..7=So) |
-| holiday/holidaynextday | Feiertag boolean |
-| nightrate | Nachtzuschlag-Satz |
-| holidayrate | Feiertagszuschlag-Satz |
-| sarate | **Sa**mstags-Zuschlag (sa = Samstag/Saturday) |
-| sorate | **So**nntags-Zuschlag (so = Sonntag/Sunday) |
-| guaranteedhours | Garantierte Monatsstunden |
-| fulltime | Vollzeit-Stunden |
+| `hour` | Arbeitsstunden |
+| `fromhour` | Startzeit als Dezimalstunden (z.B. 22.5 = 22:30) |
+| `untilhour` | Endzeit als Dezimalstunden |
+| `weekday` | Wochentag ISO-8601 (1=Mo..7=So) |
+| `holiday` | Feiertag boolean |
+| `holidaynextday` | Feiertag morgen boolean |
+| `nightrate` | Nachtzuschlag-Satz |
+| `holidayrate` | Feiertagszuschlag-Satz |
+| `sarate` | **Sa**mstags-Zuschlag (sa = Samstag/Saturday) |
+| `sorate` | **So**nntags-Zuschlag (so = Sonntag/Sunday) |
+| `guaranteedhours` | Garantierte Monatsstunden |
+| `fulltime` | Vollzeit-Stunden |
 
 ## ScriptValue (Boxing-frei)
 

@@ -1,3 +1,8 @@
+---
+name: database-connection
+description: "Verwende als Referenz für Datenbank-Verbindungsdetails (Dev, Integration, Production) und DB-Zugriff aus WSL"
+---
+
 # Database Connection
 
 ## Connection Details
@@ -6,6 +11,7 @@
 |----------|------|------|----|------|----------|
 | Development | localhost | 5432 | klacks | admin | admin |
 | Integration Tests | localhost | 5434 | klacks | postgres | admin |
+| Production | postgres | 5432 | Klacks | admin | admin |
 
 ## Connection Strings
 
@@ -17,6 +23,11 @@ Host=localhost;Port=5432;Database=klacks;Username=admin;Password=admin
 **Integration Tests:**
 ```
 Host=localhost;Port=5434;Database=klacks;Username=postgres;Password=admin
+```
+
+**Production:**
+```
+Host=postgres;Port=5432;Database=Klacks;Username=admin;Password=admin
 ```
 
 ## Environment Variable

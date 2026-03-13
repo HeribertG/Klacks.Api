@@ -1,3 +1,8 @@
+---
+name: macro-zuschlaege
+description: "Verwende wenn an Zuschlagsberechnung, Nachtschicht-Segmentierung oder Macro-Scripting für Surcharges gearbeitet wird"
+---
+
 # Macro: Zuschlagsberechnung
 
 ## Zuschlagssätze

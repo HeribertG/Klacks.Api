@@ -1,3 +1,8 @@
+---
+name: architecture
+description: "Verwende als Referenz für Backend-Architektur, Layer-Struktur, Mediator-Pattern und Mapperly-Mapping"
+---
+
 # Backend Architektur
 
 ## Tech Stack
@@ -100,14 +105,16 @@ Klacks.Api/
     └── DTOs/              # Data Transfer Objects
 ```
 
+Code-Regeln siehe `.claude/rules/code-policies.md`
+
 ## Unit Tests
 
 ```bash
 # Alle Tests ausführen
-dotnet test UnitTest/UnitTest.csproj
+dotnet test Klacks.UnitTest/Klacks.UnitTest.csproj
 
 # Spezifische Kategorie
 dotnet test --filter "FullyQualifiedName~Controllers"
 ```
 
-Aktuell: **~800 Tests**
+Aktuell: **mehrere hundert Tests**

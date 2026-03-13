@@ -1,3 +1,8 @@
+---
+name: deployment
+description: "Verwende wenn an Deployment, Docker-Container, CI/CD, Nginx-Konfiguration oder Hetzner-Server gearbeitet wird"
+---
+
 # Deployment
 
 ## Server-Infrastruktur
@@ -19,19 +24,21 @@
 | Klacks API | http://157.180.42.127:5000 | 5000 | via Nginx |
 | Klacks API (HTTPS) | https://157.180.42.127:5443 | 5443 | via Nginx |
 | Klacks Blazor (HTTPS) | https://157.180.42.127:7443 | 7443 | via Nginx |
+| Klacks Marketplace (HTTPS) | https://157.180.42.127:7553 | 7553 | via Nginx |
 | pgAdmin (HTTPS) | https://157.180.42.127:5553 | 5553 | via Nginx |
 | PostgreSQL | nur Docker-intern | 5432 | nicht extern erreichbar |
 
 ## Docker Container
 
-| Container | Image |
-|-----------|-------|
-| klacks-postgres | postgres:17-alpine |
-| klacks-api | apps-klacks-api |
-| klacks-ui | apps-klacks-ui |
-| klacks-blazor | apps-klacks-blazor |
-| klacks-proxy | nginx:alpine |
-| klacks-pgadmin | dpage/pgadmin4 |
+| Container | Image | Expose | Beschreibung |
+|-----------|-------|--------|--------------|
+| klacks-postgres | postgres:17-alpine | 5432 | PostgreSQL Datenbank |
+| klacks-api | apps-klacks-api | 5000 | Backend API |
+| klacks-ui | apps-klacks-ui | 80 | Angular Frontend |
+| klacks-blazor | apps-klacks-blazor | 80 | Password Reset App |
+| klacks-marketplace | klacks-marketplace | 80 | Blazor Server Marketplace App (Port 7003) |
+| klacks-proxy | nginx:alpine | 80, 443, 3000, 5000, 5443, 7443, 5553, 7553 | Nginx Reverse Proxy |
+| klacks-pgadmin | dpage/pgadmin4 | 80 | Datenbank-Verwaltung |
 
 ## CI/CD mit GitHub Actions
 
@@ -88,8 +95,9 @@ docker compose logs -f klacks-api
 
 ### Port 3000 (UI + API)
 ```
-/api/*  → klacks-api:5000
-/*      → klacks-ui:80
+/api/*        → klacks-api:5000
+/marketplace  → marketplace:80
+/*            → klacks-ui:80
 ```
 
 ### Port 5000 (API Direct)
@@ -130,6 +138,7 @@ export const environment = {
 # Container-Logs prüfen
 docker compose logs klacks-api
 docker compose logs klacks-ui
+docker compose logs klacks-marketplace
 
 # Container-Status
 docker compose ps

@@ -1,3 +1,8 @@
+---
+name: multilanguage-jsonb
+description: "Verwende wenn an Mehrsprachigkeits-Migration, JSONB-Spalten oder MultiLanguage-Feldern gearbeitet wird"
+---
+
 # MultiLanguage JSONB Migration
 
 ## Konzept

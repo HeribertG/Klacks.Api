@@ -1,3 +1,8 @@
+---
+name: identity-provider
+description: "Verwende wenn an LDAP, OAuth2, OpenID Connect Authentifizierung oder Identity-Provider-Sync gearbeitet wird"
+---
+
 # Identity Provider (LDAP, OAuth2, AD)
 
 ## Provider-Typen
