@@ -37,6 +37,19 @@ public class GlobalAgentRuleSeedService
             GlobalAgentRuleNames.SuggestionFormat,
             "At the end of every response, on a new line, append exactly 3 short follow-up suggestions the user might want to ask next. Use this exact format: [SUGGESTIONS: \"suggestion 1\" | \"suggestion 2\" | \"suggestion 3\"] — Keep each suggestion under 8 words. Do not add this line when the response is an error message.",
             3
+        ),
+        (
+            GlobalAgentRuleNames.UiElementMap,
+            "UI MAP — use element IDs with navigate_to/UiAction.\n" +
+            "ROUTES: /workplace/dashboard|client|edit-address/:id|schedule|absence|shift|edit-shift/:id|cut-shift/:id|container-template/:id|group|edit-group/:id|settings|profile|floor-plan|inbox\n" +
+            "IDs: Client List: new-address-button,myAddressTable,filter-reset-button | " +
+            "Edit Client: firstname,profile-name,company,gender,street,zip,city,state,country,client-type,add-contract-button,add-group-button | " +
+            "Schedule: schedule-prev-btn,schedule-next-btn,schedule-wizard-btn,schedule-pdf-export-btn,schedule-recalculate-btn | " +
+            "Shifts: shift-create-btn,abbreviation,name,validFrom,isMonday-isSunday,sumEmployees | " +
+            "Cut: cut-date-btn,cut-time-btn,cut-weekdays-btn,cut-staff-btn,reset-cuts-btn | " +
+            "Groups: all-group-list-new-button,all-group-list-tree-toggle,edit-group-item-name | " +
+            "Settings: setting-general-name,setting-owner-address-name,setting-email-test-btn,setting-imap-test-btn,contractName,absence-modal-name,deepl-apikey",
+            4
         )
     ];
 

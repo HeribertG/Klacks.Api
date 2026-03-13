@@ -6,5 +6,6 @@ public static class GlobalAgentRuleNames
 {
     public const string AiGuidelines = "AI_GUIDELINES";
     public const string SuggestionFormat = "SUGGESTION_FORMAT";
+    public const string UiElementMap = "UI_ELEMENT_MAP";
 }
 

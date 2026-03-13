@@ -100,9 +100,11 @@ public class LLMService : ILLMService
             {
                 iterationsUsed = iteration + 1;
 
+
                 var iterationFunctions = iteration == 0
                     ? context.AvailableFunctions
                     : GetReducedFunctions(context.AvailableFunctions, calledFunctionNames);
+
 
                 var providerRequest = new LLMProviderRequest
                 {
@@ -134,7 +136,11 @@ public class LLMService : ILLMService
                 responseContent = lastResponse.Content;
 
                 if (!lastResponse.FunctionCalls.Any())
+                {
+
                     break;
+                }
+
 
                 _logger.LogInformation("Multi-turn iteration {Iteration}: executing {Count} function calls",
                     iterationsUsed, lastResponse.FunctionCalls.Count);
@@ -248,8 +254,7 @@ public class LLMService : ILLMService
         HashSet<string> calledFunctionNames)
     {
         return allFunctions
-            .Where(f => calledFunctionNames.Contains(f.Name) ||
-                        f.Name.StartsWith("get_") ||
+            .Where(f => f.Name.StartsWith("get_") ||
                         f.Name.StartsWith("list_") ||
                         f.Name.StartsWith("search_") ||
                         f.Name == "navigate_to")
