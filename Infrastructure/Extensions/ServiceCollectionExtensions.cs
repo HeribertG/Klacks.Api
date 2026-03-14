@@ -355,6 +355,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.UpdateSpamFilterSettingsSkill>();
         services.AddScoped<Application.Skills.ListAbsenceTypesSkill>();
         services.AddScoped<Application.Skills.SearchClientAbsencesSkill>();
+        services.AddScoped<Application.Skills.CreateShiftSkill>();
+        services.AddScoped<Application.Skills.CreateTestEnvironmentSkill>();
         services.AddScoped<Application.Skills.Meta.ListAgentSkillsSkill>();
         services.AddScoped<Application.Skills.Meta.CreateAgentSkillSkill>();
         services.AddScoped<Application.Skills.Meta.UpdateAgentSkillSkill>();

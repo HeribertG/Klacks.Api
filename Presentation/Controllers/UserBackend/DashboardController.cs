@@ -23,4 +23,11 @@ public class DashboardController : BaseController
         var locations = await _mediator.Send(new GetClientLocationsQuery());
         return Ok(locations);
     }
+
+    [HttpGet("ShiftCoverageStatistics")]
+    public async Task<ActionResult<IEnumerable<ShiftCoverageStatisticsResource>>> GetShiftCoverageStatistics()
+    {
+        var statistics = await _mediator.Send(new GetShiftCoverageStatisticsQuery());
+        return Ok(statistics);
+    }
 }

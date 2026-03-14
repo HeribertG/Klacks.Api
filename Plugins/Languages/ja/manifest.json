@@ -3,7 +3,7 @@
   "name": "Japanese",
   "displayName": "日本語",
   "speechLocale": "ja-JP",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "author": "Klacks Community",
   "coverage": 100.0,
   "minKlacksVersion": "1.0.0"

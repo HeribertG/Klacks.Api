@@ -8655,6 +8655,273 @@
         ]
       },
       "version": 4
+    },
+    {
+      "name": "create_shift",
+      "description": "Creates a new shift (Schicht/Dienst/Auftrag) in the scheduling system. The shift is automatically sealed and made available for planning. For a 24/7 operation split into 3 shifts, call this 3 times with different time ranges (e.g. 07:00-15:00, 15:00-23:00, 23:00-07:00). Use list_groups first to find group IDs.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "Name of the shift (e.g. 'Frühdienst Bern', 'Spätdienst', 'Nachtdienst')",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "abbreviation",
+          "description": "Short abbreviation (e.g. 'FD', 'SD', 'ND'). Auto-generated from name if not provided.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "startTime",
+          "description": "Start time in HH:mm format (e.g. '07:00', '15:00', '23:00')",
+          "type": "Time",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endTime",
+          "description": "End time in HH:mm format (e.g. '15:00', '23:00', '07:00'). Can be before startTime for overnight shifts.",
+          "type": "Time",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "Start date of the shift validity in YYYY-MM-DD format. Defaults to today.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "End date of the shift validity in YYYY-MM-DD format. Leave empty for unlimited/ongoing shifts.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "weekdays",
+          "description": "Which days the shift is active. Use 'all' or '24/7' for every day, 'weekdays' for Mon-Fri, 'weekend' for Sat-Sun, or specific days like 'Mo,Di,Mi,Do,Fr,Sa,So'",
+          "type": "String",
+          "required": false,
+          "defaultValue": "all",
+          "enumValues": null
+        },
+        {
+          "name": "sumEmployees",
+          "description": "Number of employees needed per shift occurrence",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 1,
+          "enumValues": null
+        },
+        {
+          "name": "groupIds",
+          "description": "Comma-separated list of group IDs (GUIDs) to assign the shift to. Use list_groups to find IDs.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description",
+          "description": "Optional description of the shift",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "shift",
+        "schicht",
+        "dienst",
+        "auftrag",
+        "order",
+        "fruhdienst",
+        "spatdienst",
+        "nachtdienst"
+      ],
+      "synonyms": {
+        "de": [
+          "schicht",
+          "dienst",
+          "auftrag",
+          "schichtplanung",
+          "dienstplan",
+          "arbeitsschicht",
+          "fruhdienst",
+          "spatdienst",
+          "nachtdienst"
+        ],
+        "en": [
+          "shift",
+          "order",
+          "duty",
+          "schedule",
+          "work shift",
+          "roster"
+        ],
+        "fr": [
+          "quart",
+          "service",
+          "poste",
+          "horaire"
+        ],
+        "it": [
+          "turno",
+          "servizio",
+          "orario"
+        ]
+      },
+      "version": 4
+    },
+    {
+      "name": "create_test_environment",
+      "description": "Creates a complete test environment for autofill testing in ONE call. Creates multiple employees with realistic Swiss addresses, assigns them to a group, creates a shared contract, and optionally creates 24/7 shifts (Fruhdienst/Spaetdienst/Nachtdienst). Use this when the user asks for 'Testmitarbeiter', 'Testdaten', or 'Testumgebung'.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanCreateClients"
+      ],
+      "parameters": [
+        {
+          "name": "city",
+          "description": "City for employee addresses (e.g. 'Bern'). Default: Bern",
+          "type": "String",
+          "required": false,
+          "defaultValue": "Bern",
+          "enumValues": null
+        },
+        {
+          "name": "numberOfEmployees",
+          "description": "Number of test employees to create (max 10). Default: 5",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 5,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Name of the group to assign employees to (e.g. 'Bern'). Default: same as city",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "contractType",
+          "description": "Contract type",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "Vollzeit 180",
+          "enumValues": [
+            "Vollzeit 160",
+            "Vollzeit 180",
+            "Teilzeit 0 Std",
+            "Teilzeit 80 Std",
+            "Minijob"
+          ]
+        },
+        {
+          "name": "canton",
+          "description": "Swiss canton code for the contract (e.g. 'BE'). Default: BE",
+          "type": "String",
+          "required": false,
+          "defaultValue": "BE",
+          "enumValues": null
+        },
+        {
+          "name": "guaranteedHours",
+          "description": "Guaranteed monthly hours for the contract. Default: 172.2",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": 172.2,
+          "enumValues": null
+        },
+        {
+          "name": "shiftStartDate",
+          "description": "Start date for shifts in YYYY-MM-DD format. Default: today",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "createShifts",
+          "description": "Whether to create 3 shifts (Fruhdienst 07-15, Spaetdienst 15-23, Nachtdienst 23-07). Default: true",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": true,
+          "enumValues": null
+        },
+        {
+          "name": "sumEmployees",
+          "description": "Number of employees needed per shift. Default: 1",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 1,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "testmitarbeiter",
+        "testdaten",
+        "testumgebung",
+        "test environment",
+        "test data",
+        "autofill test"
+      ],
+      "synonyms": {
+        "de": [
+          "testmitarbeiter",
+          "testdaten",
+          "testumgebung",
+          "testclienten",
+          "testpersonal"
+        ],
+        "en": [
+          "test employees",
+          "test data",
+          "test environment",
+          "sample data"
+        ],
+        "fr": [
+          "donnees de test",
+          "employes test",
+          "environnement test"
+        ],
+        "it": [
+          "dati di test",
+          "dipendenti test",
+          "ambiente di test"
+        ]
+      },
+      "version": 4
     }
   ]
 }
