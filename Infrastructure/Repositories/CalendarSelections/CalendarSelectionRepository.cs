@@ -85,4 +85,12 @@ public class CalendarSelectionRepository : BaseRepository<CalendarSelection>, IC
         return await context.Set<Contract>()
             .CountAsync(c => !c.IsDeleted && c.CalendarSelectionId == calendarSelectionId, cancellationToken);
     }
+
+    public async Task<List<Guid>> GetIdsByStateAsync(string country, string state, CancellationToken cancellationToken = default)
+    {
+        return await context.CalendarSelection
+            .Where(cs => !cs.IsDeleted && cs.SelectedCalendars.Any(sc => sc.Country == country && sc.State == state))
+            .Select(cs => cs.Id)
+            .ToListAsync(cancellationToken);
+    }
 }

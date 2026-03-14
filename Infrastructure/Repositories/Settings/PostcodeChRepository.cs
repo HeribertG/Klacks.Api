@@ -25,4 +25,11 @@ public class PostcodeChRepository : IPostcodeChRepository
     {
         return await _context.PostcodeCH.Where(x => x.Zip == zip).ToListAsync();
     }
+
+    public async Task<List<PostcodeCH>> GetByCityAsync(string city)
+    {
+        return await _context.PostcodeCH
+            .Where(x => EF.Functions.ILike(x.City, city))
+            .ToListAsync();
+    }
 }

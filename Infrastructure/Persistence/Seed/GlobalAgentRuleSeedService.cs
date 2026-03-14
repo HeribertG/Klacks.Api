@@ -58,6 +58,20 @@ public class GlobalAgentRuleSeedService
             "Multi-select with heading: [REPLIES:multi:Choose items \"Label1=value1\" | \"Label2=value2\"]\n" +
             "Rules: Use Label=Value for differing display/data. Max 10 options. Do not combine with SUGGESTIONS in the same response.",
             5
+        ),
+        (
+            GlobalAgentRuleNames.GuidedWorkflow,
+            "For complex tasks (creating employees, assigning contracts/groups, configuring settings), use a GUIDED step-by-step workflow:\n" +
+            "1. NAVIGATE FIRST: Go to the relevant page before asking questions.\n" +
+            "2. ONE QUESTION AT A TIME: Ask only one question per response. Wait for the answer before proceeding.\n" +
+            "3. SMART LOOKUPS: When user provides a city or zip, use lookup_location to find the canton/state. " +
+            "Then use list_contracts(canton) and list_groups(canton) to find matching options.\n" +
+            "4. OFFER CHOICES via [REPLIES:single]: Present found contracts, groups, or types as selection options.\n" +
+            "5. CONFIRM before executing create/update actions. Summarize collected data first.\n" +
+            "Example — \"Neuen MA anlegen\":\n" +
+            "Step 1: Ask name → Step 2: Ask location → Step 3: Lookup canton, show matching contracts as [REPLIES:single] → " +
+            "Step 4: Show matching groups as [REPLIES:single] → Step 5: Confirm all → Step 6: Execute create_employee + assign_contract + add_client_to_group.",
+            6
         )
     ];
 

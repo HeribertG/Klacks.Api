@@ -1781,7 +1781,7 @@
     },
     {
       "name": "list_contracts",
-      "description": "Lists all available contracts in the system. Returns contract details including name, hours, and rates. Use this to find contract IDs before assigning contracts to clients.",
+      "description": "Lists all available contracts in the system. Optionally filter by canton via CalendarSelection. Returns contract details including name, hours, and rates. Use this to find contract IDs before assigning contracts to clients.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -1794,6 +1794,14 @@
           "type": "Boolean",
           "required": false,
           "defaultValue": true,
+          "enumValues": null
+        },
+        {
+          "name": "canton",
+          "description": "Optional canton/state abbreviation (e.g. 'BE', 'ZH', 'AG') to filter contracts by their CalendarSelection. Use lookup_location to determine the canton first.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
           "enumValues": null
         }
       ],
@@ -1844,11 +1852,11 @@
           "convenzione"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_groups",
-      "description": "Lists all available groups (teams, departments, organizational units) in the system. Returns group names and IDs. Use this to find group IDs before adding clients to groups.",
+      "description": "Lists all available groups (teams, departments, organizational units) in the system. Optionally filter by canton via CalendarSelection. Returns group names and IDs. Use this to find group IDs before adding clients to groups.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -1869,6 +1877,14 @@
           "type": "Boolean",
           "required": false,
           "defaultValue": false,
+          "enumValues": null
+        },
+        {
+          "name": "canton",
+          "description": "Optional canton/state abbreviation (e.g. 'BE', 'ZH', 'AG') to filter groups by their CalendarSelection. Use lookup_location to determine the canton first.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
           "enumValues": null
         }
       ],
@@ -1918,7 +1934,86 @@
           "organizzazione"
         ]
       },
-      "version": 4
+      "version": 5
+    },
+    {
+      "name": "lookup_location",
+      "description": "Looks up a Swiss location by city name or postal code. Returns the city, canton/state abbreviation, country and associated zip codes. Use this in guided workflows to determine the canton before filtering contracts and groups.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "city",
+          "description": "City name to look up (e.g. 'Bern', 'Zürich', 'Aarau'). Case-insensitive.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "zip",
+          "description": "Postal code to look up (e.g. 3011, 8000). Either city or zip must be provided.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "location",
+        "ort",
+        "plz",
+        "kanton",
+        "canton",
+        "postleitzahl",
+        "stadt"
+      ],
+      "synonyms": {
+        "de": [
+          "ort",
+          "stadt",
+          "gemeinde",
+          "kanton",
+          "postleitzahl",
+          "plz",
+          "wohnort",
+          "standort"
+        ],
+        "en": [
+          "location",
+          "city",
+          "town",
+          "canton",
+          "postal code",
+          "zip",
+          "place"
+        ],
+        "fr": [
+          "lieu",
+          "ville",
+          "commune",
+          "canton",
+          "code postal",
+          "localite",
+          "emplacement"
+        ],
+        "it": [
+          "luogo",
+          "citta",
+          "comune",
+          "cantone",
+          "codice postale",
+          "cap",
+          "localita"
+        ]
+      },
+      "version": 1
     },
     {
       "name": "list_llm_models",
