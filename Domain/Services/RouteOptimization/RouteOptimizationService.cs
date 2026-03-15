@@ -23,7 +23,7 @@ public class RouteOptimizationService : IRouteOptimizationService
     private const double EARTH_RADIUS_KM = 6371.0;
     private const string OSRM_BASE_URL = "https://router.project-osrm.org";
     private const string OPENROUTESERVICE_BASE_URL = "https://api.openrouteservice.org/v2";
-    private const string OPENROUTESERVICE_API_KEY_SETTING = "OPENROUTESERVICE_API_KEY";
+    private const string OPENROUTESERVICE_API_KEY_SETTING = Application.Constants.Settings.OPENROUTESERVICE_API_KEY;
 
     public RouteOptimizationService(
         IContainerTemplateRepository containerRepository,

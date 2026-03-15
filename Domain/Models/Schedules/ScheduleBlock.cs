@@ -9,6 +9,7 @@
 /// <param name="ClientId">Zugeordneter Mitarbeiter</param>
 /// <param name="Start">Absoluter Startzeitpunkt</param>
 /// <param name="End">Absoluter Endzeitpunkt</param>
+/// <param name="ShiftId">Optionale Shift-ID für Reisezeit-Prüfung</param>
 namespace Klacks.Api.Domain.Models.Schedules;
 
 public record ScheduleBlock(
@@ -16,7 +17,8 @@ public record ScheduleBlock(
     ScheduleBlockType BlockType,
     Guid ClientId,
     DateTime Start,
-    DateTime End)
+    DateTime End,
+    Guid? ShiftId = null)
 {
     public TimeSpan Duration => End - Start;
 

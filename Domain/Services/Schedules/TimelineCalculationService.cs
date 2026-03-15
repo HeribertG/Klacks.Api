@@ -59,7 +59,7 @@ public class TimelineCalculationService : ITimelineCalculationService
             }
 
             result.Add(CreateBlock(work.Id, ScheduleBlockType.Work,
-                work.ClientId, work.CurrentDate, effectiveStart, effectiveEnd));
+                work.ClientId, work.CurrentDate, effectiveStart, effectiveEnd, work.ShiftId));
         }
 
         foreach (var b in breaks)
@@ -77,13 +77,14 @@ public class TimelineCalculationService : ITimelineCalculationService
         Guid clientId,
         DateOnly date,
         TimeOnly start,
-        TimeOnly end)
+        TimeOnly end,
+        Guid? shiftId = null)
     {
         var startDateTime = date.ToDateTime(start);
         var endDateTime = end <= start
             ? date.AddDays(1).ToDateTime(end)
             : date.ToDateTime(end);
 
-        return new ScheduleBlock(sourceId, blockType, clientId, startDateTime, endDateTime);
+        return new ScheduleBlock(sourceId, blockType, clientId, startDateTime, endDateTime, shiftId);
     }
 }

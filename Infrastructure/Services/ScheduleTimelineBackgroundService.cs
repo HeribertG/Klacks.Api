@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Background-Worker für Schedule-Validierung: Kollisionen, Ruhezeiten, Arbeitszeiten.
+/// Background-Worker für Schedule-Validierung: Kollisionen, Ruhezeiten, Arbeitszeiten, Reisezeiten.
 /// Empfängt Check-Requests via Channel und sendet Ergebnisse via SignalR.
 /// </summary>
 using System.Threading.Channels;
@@ -9,6 +9,7 @@ using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
     private static readonly TimeSpan MinRestDuration = TimeSpan.FromHours(11);
     private static readonly TimeSpan MaxDailyWorkDuration = TimeSpan.FromHours(10);
     private const int MaxConsecutiveWorkDays = 6;
+    private const double TravelTimeWarningFactor = 1.5;
 
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<ScheduleTimelineBackgroundService> _logger;
@@ -84,10 +86,16 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             {
                 try
                 {
+                    _logger.LogInformation("[TIMELINE-DEBUG] Processing request: IsRange={IsRange}, ClientId={ClientId}, Date={Date}",
+                        request.IsRangeCheck, request.ClientId, request.Date);
+
                     using var scope = _serviceProvider.CreateScope();
                     var dbContext = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
                     var notificationService = scope.ServiceProvider.GetRequiredService<IWorkNotificationService>();
                     var timelineCalculationService = scope.ServiceProvider.GetRequiredService<ITimelineCalculationService>();
+                    var travelTimeService = scope.ServiceProvider.GetRequiredService<ITravelTimeCalculationService>();
+
+                    _logger.LogInformation("[TIMELINE-DEBUG] DI resolved successfully");
 
                     if (request.IsRangeCheck)
                     {
@@ -95,12 +103,14 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                     }
                     else
                     {
-                        await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, request.ClientId, request.Date, stoppingToken);
+                        await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, request.ClientId, request.Date, stoppingToken);
                     }
+
+                    _logger.LogInformation("[TIMELINE-DEBUG] Request processed successfully");
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error processing timeline check request");
+                    _logger.LogError(ex, "[TIMELINE-DEBUG] Error processing timeline check request");
                 }
             }
         }
@@ -115,23 +125,32 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         DataBaseContext dbContext,
         IWorkNotificationService notificationService,
         ITimelineCalculationService timelineCalculationService,
+        ITravelTimeCalculationService travelTimeService,
         Guid clientId,
         DateOnly date,
         CancellationToken cancellationToken)
     {
+        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: querying ownWorks for Client {ClientId} on {Date}", clientId, date);
+
         var ownWorks = await dbContext.Work
             .AsNoTracking()
             .Include(w => w.Client)
+            .Include(w => w.Shift).ThenInclude(s => s!.Client).ThenInclude(c => c!.Addresses)
             .Where(w => w.ClientId == clientId && w.CurrentDate == date && !w.IsDeleted)
             .ToListAsync(cancellationToken);
+
+        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: ownWorks={Count}", ownWorks.Count);
 
         var worksWithReplacementForClient = await dbContext.Work
             .AsNoTracking()
             .Include(w => w.Client)
+            .Include(w => w.Shift).ThenInclude(s => s!.Client).ThenInclude(c => c!.Addresses)
             .Where(w => w.CurrentDate == date && !w.IsDeleted &&
                         dbContext.WorkChange.Any(wc =>
                             wc.WorkId == w.Id && !wc.IsDeleted && wc.ReplaceClientId == clientId))
             .ToListAsync(cancellationToken);
+
+        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: replacementWorks={Count}", worksWithReplacementForClient.Count);
 
         var allWorks = ownWorks
             .Union(worksWithReplacementForClient, new WorkIdComparer())
@@ -151,9 +170,15 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             .Where(b => b.ClientId == clientId && b.CurrentDate == date && !b.IsDeleted)
             .ToListAsync(cancellationToken);
 
+        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: allWorks={Works}, workChanges={Changes}, breaks={Breaks}",
+            allWorks.Count, workChanges.Count, breaks.Count);
+
         var clientNameLookup = BuildClientNameLookup(allWorks, workChanges);
         var scheduleBlocks = timelineCalculationService.CalculateScheduleBlocks(allWorks, workChanges, breaks);
         var clientBlocks = scheduleBlocks.Where(b => b.ClientId == clientId).ToList();
+
+        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: scheduleBlocks={Total}, clientBlocks={ForClient}",
+            scheduleBlocks.Count, clientBlocks.Count);
 
         var timeline = new ClientTimeline(clientId);
         timeline.AddBlocks(clientBlocks);
@@ -165,9 +190,24 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         clientName ??= string.Empty;
 
         AddCollisionEntries(entries, timeline, clientName);
+        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: after collisions, entries={Count}", entries.Count);
         AddRestViolationEntries(entries, timeline, clientName);
+        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: after rest, entries={Count}", entries.Count);
         AddOvertimeEntries(entries, timeline, clientName, date, date);
         AddConsecutiveDayEntries(entries, timeline, clientName, date, date);
+        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: after all checks, entries={Count}", entries.Count);
+
+        try
+        {
+            var shiftAddressLookup = BuildShiftAddressLookup(allWorks);
+            var apiKeyConfigured = await travelTimeService.IsApiKeyConfiguredAsync();
+            await AddTravelTimeEntriesAsync(entries, timeline, clientName, shiftAddressLookup, travelTimeService, apiKeyConfigured, cancellationToken);
+            _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: after travel time, entries={Count}", entries.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "[TIMELINE-DEBUG] Travel time check failed for Client {ClientId} on {Date}", clientId, date);
+        }
 
         var collisionNotification = BuildLegacyCollisionNotification(timeline, clientNameLookup, false, clientId, date);
         await notificationService.NotifyCollisionsDetected(collisionNotification);
@@ -179,6 +219,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             CheckedClientId = clientId,
             CheckedDate = date
         };
+        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: sending notification with {Count} entries, IsFullRefresh={IsFullRefresh}",
+            entries.Count, validationNotification.IsFullRefresh);
         await notificationService.NotifyScheduleValidationsDetected(validationNotification);
     }
 
@@ -190,11 +232,15 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         DateOnly endDate,
         CancellationToken cancellationToken)
     {
+        _logger.LogInformation("[TIMELINE-DEBUG] RangeCheck: querying works for {Start} to {End}", startDate, endDate);
+
         var works = await dbContext.Work
             .AsNoTracking()
             .Include(w => w.Client)
             .Where(w => w.CurrentDate >= startDate && w.CurrentDate <= endDate && !w.IsDeleted)
             .ToListAsync(cancellationToken);
+
+        _logger.LogInformation("[TIMELINE-DEBUG] RangeCheck: works={Count}", works.Count);
 
         var workIds = works.Select(w => w.Id).ToList();
         var workChanges = workIds.Count > 0
@@ -210,8 +256,13 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             .Where(b => b.CurrentDate >= startDate && b.CurrentDate <= endDate && !b.IsDeleted)
             .ToListAsync(cancellationToken);
 
+        _logger.LogInformation("[TIMELINE-DEBUG] RangeCheck: works={Works}, changes={Changes}, breaks={Breaks}",
+            works.Count, workChanges.Count, breaks.Count);
+
         var clientNameLookup = BuildClientNameLookup(works, workChanges);
         var scheduleBlocks = timelineCalculationService.CalculateScheduleBlocks(works, workChanges, breaks);
+
+        _logger.LogInformation("[TIMELINE-DEBUG] RangeCheck: scheduleBlocks={Count}", scheduleBlocks.Count);
 
         var groupedByClient = scheduleBlocks.GroupBy(b => b.ClientId);
         var allEntries = new List<ScheduleValidationNotificationDto>();
@@ -247,6 +298,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             Entries = allEntries,
             IsFullRefresh = true
         };
+        _logger.LogInformation("[TIMELINE-DEBUG] RangeCheck: sending notification with {Count} entries, IsFullRefresh=true",
+            allEntries.Count);
         await notificationService.NotifyScheduleValidationsDetected(validationNotification);
     }
 
@@ -360,6 +413,114 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 date = date.AddDays(1);
             }
         }
+    }
+
+    private static async Task AddTravelTimeEntriesAsync(
+        List<ScheduleValidationNotificationDto> entries,
+        ClientTimeline timeline,
+        string clientName,
+        Dictionary<Guid, Address?> shiftAddressLookup,
+        ITravelTimeCalculationService travelTimeService,
+        bool apiKeyConfigured,
+        CancellationToken cancellationToken)
+    {
+        var workBlocks = timeline.Blocks
+            .Where(b => b.BlockType == ScheduleBlockType.Work && b.ShiftId.HasValue)
+            .OrderBy(b => b.Start)
+            .ToList();
+
+        if (workBlocks.Count < 2) return;
+
+        var noApiKeyInfoAdded = false;
+
+        for (var i = 0; i < workBlocks.Count - 1; i++)
+        {
+            var current = workBlocks[i];
+            var next = workBlocks[i + 1];
+
+            shiftAddressLookup.TryGetValue(current.ShiftId!.Value, out var fromAddress);
+            shiftAddressLookup.TryGetValue(next.ShiftId!.Value, out var toAddress);
+
+            if (fromAddress == null || toAddress == null) continue;
+            if (IsSameAddress(fromAddress, toAddress)) continue;
+
+            if (!apiKeyConfigured)
+            {
+                if (!noApiKeyInfoAdded)
+                {
+                    entries.Add(new ScheduleValidationNotificationDto
+                    {
+                        Type = "info",
+                        ClientId = timeline.ClientId,
+                        ClientName = clientName,
+                        Date = current.OwnerDate,
+                        Comment = "schedule.error-list.travel-time-no-api-key"
+                    });
+                    noApiKeyInfoAdded = true;
+                }
+                continue;
+            }
+
+            var gap = current.GapTo(next);
+            var travelTime = await travelTimeService.CalculateTravelTimeAsync(fromAddress, toAddress, cancellationToken);
+
+            if (!travelTime.HasValue) continue;
+
+            if (gap < travelTime.Value)
+            {
+                entries.Add(new ScheduleValidationNotificationDto
+                {
+                    Type = "error",
+                    ClientId = timeline.ClientId,
+                    ClientName = clientName,
+                    Date = current.OwnerDate,
+                    Comment = "schedule.error-list.travel-time-error",
+                    CommentParams = new Dictionary<string, string>
+                    {
+                        ["gapMinutes"] = $"{gap.TotalMinutes:F0}",
+                        ["travelMinutes"] = $"{travelTime.Value.TotalMinutes:F0}"
+                    }
+                });
+            }
+            else if (gap < TimeSpan.FromTicks((long)(travelTime.Value.Ticks * TravelTimeWarningFactor)))
+            {
+                entries.Add(new ScheduleValidationNotificationDto
+                {
+                    Type = "warning",
+                    ClientId = timeline.ClientId,
+                    ClientName = clientName,
+                    Date = current.OwnerDate,
+                    Comment = "schedule.error-list.travel-time-warning",
+                    CommentParams = new Dictionary<string, string>
+                    {
+                        ["gapMinutes"] = $"{gap.TotalMinutes:F0}",
+                        ["travelMinutes"] = $"{travelTime.Value.TotalMinutes:F0}"
+                    }
+                });
+            }
+        }
+    }
+
+    private static bool IsSameAddress(Address a, Address b)
+    {
+        if (a.Id == b.Id) return true;
+        return string.Equals(a.Street, b.Street, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(a.Zip, b.Zip, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(a.City, b.City, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static Dictionary<Guid, Address?> BuildShiftAddressLookup(List<Work> works)
+    {
+        var lookup = new Dictionary<Guid, Address?>();
+        foreach (var work in works)
+        {
+            if (lookup.ContainsKey(work.ShiftId)) continue;
+            var address = work.Shift?.Client?.Addresses
+                .OrderByDescending(a => a.ValidFrom)
+                .FirstOrDefault();
+            lookup[work.ShiftId] = address;
+        }
+        return lookup;
     }
 
     private static CollisionListNotificationDto BuildLegacyCollisionNotification(

@@ -228,6 +228,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ContainerTemplateService>();
         services.AddScoped<IWorkChangeResultService, WorkChangeResultService>();
         services.AddSingleton<ITimelineCalculationService, TimelineCalculationService>();
+        services.AddScoped<ITravelTimeCalculationService, TravelTimeCalculationService>();
     }
 
     private static void AddSettingsServices(this IServiceCollection services)
