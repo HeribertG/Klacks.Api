@@ -1,5 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Repository fuer AgentMemory mit Hybrid-Suche (Vektor + Volltext), Importance-Anpassung und Cleanup.
+/// Nutzt pgvector fuer semantische Aehnlichkeitssuche und PostgreSQL Full-Text-Search als Fallback.
+/// </summary>
+/// <param name="context">Datenbank-Kontext mit AgentMemories DbSet</param>
+
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence;

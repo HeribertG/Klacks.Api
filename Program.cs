@@ -13,7 +13,6 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Middleware;
-using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Infrastructure.Services.Assistant;
 using Klacks.Api.Infrastructure.Persistence;

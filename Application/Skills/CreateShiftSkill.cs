@@ -152,17 +152,6 @@ public class CreateShiftSkill : BaseSkillImplementation
             $"Shift '{name}' ({startTime:HH:mm}-{endTime:HH:mm}, {workTime}h) created successfully with {groupItems.Count} group(s).");
     }
 
-    private static decimal CalculateWorkTime(TimeOnly start, TimeOnly end)
-    {
-        var duration = end.ToTimeSpan() - start.ToTimeSpan();
-        if (duration.TotalHours <= 0)
-        {
-            duration = duration.Add(TimeSpan.FromHours(24));
-        }
-
-        return (decimal)duration.TotalHours;
-    }
-
     private static string GenerateAbbreviation(string name)
     {
         var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);

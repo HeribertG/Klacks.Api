@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// SignalR-basierter Benachrichtigungsdienst fuer Echtzeit-Updates von Work-Eintraegen und Schedule-Validierungen.
+/// Filtert Empfaenger anhand ihrer aktiven DateRange-Subscriptions via IConnectionDateRangeTracker.
+/// </summary>
+/// <param name="hubContext">SignalR Hub-Kontext fuer typisierte Client-Aufrufe</param>
+/// <param name="dateRangeTracker">Verwaltet welche Connections welche Datumsbereiche beobachten</param>
+
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces;
 using Microsoft.AspNetCore.SignalR;
@@ -256,8 +263,6 @@ public class WorkNotificationService : IWorkNotificationService
                     methodName, targetDate);
                 return;
             }
-
-            _logger.LogDebug("SignalR SEND: {Method} to {Count} connections (DateRange contains {Date:yyyy-MM-dd})", methodName, targetConnections.Count, targetDate);
 
             _logger.LogInformation(
                 "SignalR SEND: {Method} to {Count} connections for date {Date}, ClientId={ClientId}",

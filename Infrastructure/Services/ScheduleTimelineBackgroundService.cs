@@ -7,10 +7,11 @@
 using System.Threading.Channels;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
-using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -277,7 +278,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         {
             entries.Add(new ScheduleValidationNotificationDto
             {
-                Type = "error",
+                Type = ScheduleValidationType.Error,
                 ClientId = timeline.ClientId,
                 ClientName = clientName,
                 Date = a.OwnerDate,
@@ -300,7 +301,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         {
             entries.Add(new ScheduleValidationNotificationDto
             {
-                Type = "warning",
+                Type = ScheduleValidationType.Warning,
                 ClientId = timeline.ClientId,
                 ClientName = clientName,
                 Date = violation.PreviousBlock.OwnerDate,
@@ -330,7 +331,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             {
                 entries.Add(new ScheduleValidationNotificationDto
                 {
-                    Type = "warning",
+                    Type = ScheduleValidationType.Warning,
                     ClientId = timeline.ClientId,
                     ClientName = clientName,
                     Date = date,
@@ -360,7 +361,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             {
                 entries.Add(new ScheduleValidationNotificationDto
                 {
-                    Type = "warning",
+                    Type = ScheduleValidationType.Warning,
                     ClientId = timeline.ClientId,
                     ClientName = clientName,
                     Date = date,
@@ -415,7 +416,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 {
                     entries.Add(new ScheduleValidationNotificationDto
                     {
-                        Type = "info",
+                        Type = ScheduleValidationType.Info,
                         ClientId = timeline.ClientId,
                         ClientName = clientName,
                         Date = current.OwnerDate,
@@ -435,7 +436,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             {
                 entries.Add(new ScheduleValidationNotificationDto
                 {
-                    Type = "error",
+                    Type = ScheduleValidationType.Error,
                     ClientId = timeline.ClientId,
                     ClientName = clientName,
                     Date = current.OwnerDate,
@@ -451,7 +452,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             {
                 entries.Add(new ScheduleValidationNotificationDto
                 {
-                    Type = "warning",
+                    Type = ScheduleValidationType.Warning,
                     ClientId = timeline.ClientId,
                     ClientName = clientName,
                     Date = current.OwnerDate,

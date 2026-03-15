@@ -4,8 +4,6 @@ using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Interfaces.Assistant;
 
-public record MemorySearchResult(Guid Id, string Content, string Key, string Category, int Importance, float Score, bool IsPinned);
-
 public interface IAgentMemoryRepository
 {
     Task<List<MemorySearchResult>> HybridSearchAsync(Guid agentId, string query, float[]? queryEmbedding, int limit = 10, CancellationToken cancellationToken = default);

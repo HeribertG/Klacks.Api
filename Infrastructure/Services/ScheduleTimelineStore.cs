@@ -5,7 +5,7 @@
 /// </summary>
 using System.Collections.Concurrent;
 using Klacks.Api.Domain.Models.Schedules;
-using Klacks.Api.Infrastructure.Interfaces;
+using Klacks.Api.Application.Interfaces;
 
 namespace Klacks.Api.Infrastructure.Services;
 

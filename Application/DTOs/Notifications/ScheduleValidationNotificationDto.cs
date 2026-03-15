@@ -10,11 +10,15 @@
 /// <param name="Date">Datum des Eintrags</param>
 /// <param name="Comment">Übersetzungsschlüssel für die Anzeige</param>
 /// <param name="CommentParams">Parameter für die Übersetzung</param>
+using System.Text.Json.Serialization;
+using Klacks.Api.Domain.Enums;
+
 namespace Klacks.Api.Application.DTOs.Notifications;
 
 public record ScheduleValidationNotificationDto
 {
-    public string Type { get; init; } = string.Empty;
+    [JsonConverter(typeof(JsonStringEnumConverter<ScheduleValidationType>))]
+    public ScheduleValidationType Type { get; init; }
     public Guid ClientId { get; init; }
     public string ClientName { get; init; } = string.Empty;
     public DateOnly Date { get; init; }

@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Repository fuer CalendarSelections mit Unterstuetzung fuer SelectedCalendars-Includes und zustandsbasierte Abfragen.
+/// Delegiert Update-Logik an ICalendarSelectionUpdateService.
+/// </summary>
+/// <param name="context">Datenbank-Kontext</param>
+/// <param name="updateService">Service fuer die Aktualisierung von CalendarSelections inkl. SelectedCalendars</param>
+
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Domain.Exceptions;

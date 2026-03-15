@@ -279,17 +279,6 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
                                  g.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
     }
 
-    private static decimal CalculateWorkTime(TimeOnly start, TimeOnly end)
-    {
-        var duration = end.ToTimeSpan() - start.ToTimeSpan();
-        if (duration.TotalHours <= 0)
-        {
-            duration = duration.Add(TimeSpan.FromHours(24));
-        }
-
-        return (decimal)duration.TotalHours;
-    }
-
     private static (decimal weeklyHours, string name) ParseContractType(string contractType, string canton)
     {
         return contractType.ToLower() switch

@@ -9,17 +9,13 @@ namespace Klacks.Api.Infrastructure.Repositories.Assistant;
 
 public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
 {
-    protected readonly DataBaseContext _context;
-
     public LLMRepository(DataBaseContext context, ILogger<LLMModel> logger) : base(context, logger)
     {
-        _context = context;
     }
 
-    // Provider methods
     public async Task<List<LLMProvider>> GetProvidersAsync()
     {
-        return await _context.Set<LLMProvider>()
+        return await context.Set<LLMProvider>()
             .Where(p => !p.IsDeleted)
             .Include(p => p.Models)
             .OrderBy(p => p.Priority)
@@ -28,7 +24,7 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
 
     public async Task<LLMProvider?> GetProviderByIdAsync(string providerId)
     {
-        return await _context.Set<LLMProvider>()
+        return await context.Set<LLMProvider>()
             .Where(p => !p.IsDeleted && p.ProviderId == providerId)
             .Include(p => p.Models)
             .FirstOrDefaultAsync();
@@ -36,21 +32,21 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
 
      public async Task<LLMProvider> CreateProviderAsync(LLMProvider provider)
     {
-        _context.Set<LLMProvider>().Add(provider);
-        await _context.SaveChangesAsync();
+        context.Set<LLMProvider>().Add(provider);
+        await context.SaveChangesAsync();
         return provider;
     }
 
     public async Task<LLMProvider> UpdateProviderAsync(LLMProvider provider)
     {
-        _context.Set<LLMProvider>().Update(provider);
-        await _context.SaveChangesAsync();
+        context.Set<LLMProvider>().Update(provider);
+        await context.SaveChangesAsync();
         return provider;
     }
 
     public async Task<LLMProvider?> GetProviderAsync(Guid id)
     {
-        return await _context.Set<LLMProvider>()
+        return await context.Set<LLMProvider>()
             .Where(p => !p.IsDeleted && p.Id == id)
             .FirstOrDefaultAsync();
     }
@@ -61,18 +57,17 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
         if (provider != null)
         {
             provider.IsDeleted = true;
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return true;
         }
         return false;
     }
 
-    // Model methods (erweiterte BaseRepository Funktionalität)
     public async Task<List<LLMModel>> GetModelsAsync(bool onlyEnabled = false)
     {
-        var query = _context.Set<LLMModel>()
+        var query = context.Set<LLMModel>()
             .Where(m => !m.IsDeleted)
-            .Join(_context.Set<LLMProvider>(),
+            .Join(context.Set<LLMProvider>(),
                 model => model.ProviderId,
                 provider => provider.ProviderId,
                 (model, provider) => new { Model = model, Provider = provider })
@@ -93,35 +88,35 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
 
     public async Task<LLMModel?> GetModelByIdAsync(string modelId)
     {
-        return await _context.Set<LLMModel>()
+        return await context.Set<LLMModel>()
             .Where(m => !m.IsDeleted && m.ModelId == modelId)
             .FirstOrDefaultAsync();
     }
 
     public async Task<LLMModel?> GetDefaultModelAsync()
     {
-        return await _context.Set<LLMModel>()
+        return await context.Set<LLMModel>()
             .Where(m => !m.IsDeleted && m.IsDefault && m.IsEnabled)
             .FirstOrDefaultAsync();
     }
 
     public async Task<LLMModel> CreateModelAsync(LLMModel model)
     {
-        _context.Set<LLMModel>().Add(model);
-        await _context.SaveChangesAsync();
+        context.Set<LLMModel>().Add(model);
+        await context.SaveChangesAsync();
         return model;
     }
 
     public async Task<LLMModel> UpdateModelAsync(LLMModel model)
     {
-        _context.Set<LLMModel>().Update(model);
-        await _context.SaveChangesAsync();
+        context.Set<LLMModel>().Update(model);
+        await context.SaveChangesAsync();
         return model;
     }
 
     public async Task SetDefaultModelAsync(string modelId)
     {
-        var allModels = await _context.Set<LLMModel>()
+        var allModels = await context.Set<LLMModel>()
             .Where(m => !m.IsDeleted && m.IsDefault)
             .ToListAsync();
 
@@ -130,7 +125,7 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
             model.IsDefault = false;
         }
 
-        var targetModel = await _context.Set<LLMModel>()
+        var targetModel = await context.Set<LLMModel>()
             .FirstOrDefaultAsync(m => !m.IsDeleted && m.ModelId == modelId);
 
         if (targetModel != null)
@@ -138,12 +133,12 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
             targetModel.IsDefault = true;
         }
 
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
     }
 
     public override async Task<LLMModel?> Delete(Guid id)
     {
-        var model = await _context.Set<LLMModel>()
+        var model = await context.Set<LLMModel>()
             .FirstOrDefaultAsync(m => m.Id == id);
             
         if (model == null)
@@ -159,23 +154,22 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
         model.IsDeleted = true;
         model.DeletedTime = DateTime.UtcNow;
         
-        _context.Set<LLMModel>().Update(model);
-        await _context.SaveChangesAsync();
+        context.Set<LLMModel>().Update(model);
+        await context.SaveChangesAsync();
         
         return model;
     }
 
-    // Usage tracking
     public async Task<LLMUsage> TrackUsageAsync(LLMUsage usage)
     {
-        _context.Set<LLMUsage>().Add(usage);
-        await _context.SaveChangesAsync();
+        context.Set<LLMUsage>().Add(usage);
+        await context.SaveChangesAsync();
         return usage;
     }
 
     public async Task<List<LLMUsage>> GetUserUsageAsync(string userId, DateTime fromDate, DateTime toDate)
     {
-        return await _context.Set<LLMUsage>()
+        return await context.Set<LLMUsage>()
             .Where(u => !u.IsDeleted && 
                        u.UserId == userId && 
                        u.CreateTime >= fromDate && 
@@ -189,7 +183,7 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
     {
         var fromDate = DateTime.UtcNow.AddDays(-days);
         
-        return await _context.Set<LLMUsage>()
+        return await context.Set<LLMUsage>()
             .Where(u => !u.IsDeleted && 
                        u.UserId == userId && 
                        u.CreateTime >= fromDate)
@@ -203,17 +197,16 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
     {
         var fromDate = DateTime.UtcNow.AddDays(-days);
         
-        return await _context.Set<LLMUsage>()
+        return await context.Set<LLMUsage>()
             .Where(u => !u.IsDeleted && 
                        u.UserId == userId && 
                        u.CreateTime >= fromDate)
             .SumAsync(u => u.Cost);
     }
 
-    // Conversation management
     public async Task<LLMConversation> GetOrCreateConversationAsync(string conversationId, string userId)
     {
-        var conversation = await _context.Set<LLMConversation>()
+        var conversation = await context.Set<LLMConversation>()
             .Where(c => !c.IsDeleted && c.ConversationId == conversationId)
             .FirstOrDefaultAsync();
 
@@ -229,8 +222,8 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
                 TotalCost = 0
             };
 
-            _context.Set<LLMConversation>().Add(conversation);
-            await _context.SaveChangesAsync();
+            context.Set<LLMConversation>().Add(conversation);
+            await context.SaveChangesAsync();
         }
 
         return conversation;
@@ -238,7 +231,7 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
 
     public async Task<List<LLMConversation>> GetUserConversationsAsync(string userId, int limit, int offset)
     {
-        return await _context.Set<LLMConversation>()
+        return await context.Set<LLMConversation>()
             .Where(c => !c.IsDeleted && c.UserId == userId && !c.IsArchived)
             .OrderByDescending(c => c.LastMessageAt)
             .Skip(offset)
@@ -248,35 +241,34 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
 
     public async Task<LLMConversation> UpdateConversationAsync(LLMConversation conversation)
     {
-        _context.Set<LLMConversation>().Update(conversation);
-        await _context.SaveChangesAsync();
+        context.Set<LLMConversation>().Update(conversation);
+        await context.SaveChangesAsync();
         return conversation;
     }
 
     public async Task<bool> ArchiveConversationAsync(string conversationId, string userId)
     {
-        var conversation = await _context.Set<LLMConversation>()
+        var conversation = await context.Set<LLMConversation>()
             .FirstOrDefaultAsync(c => !c.IsDeleted && c.ConversationId == conversationId && c.UserId == userId);
 
         if (conversation == null)
             return false;
 
         conversation.IsArchived = true;
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
         return true;
     }
 
-    // Message history
     public async Task<Domain.Models.Assistant.LLMMessage> SaveMessageAsync(Domain.Models.Assistant.LLMMessage message)
     {
-        _context.Set<Domain.Models.Assistant.LLMMessage>().Add(message);
-        await _context.SaveChangesAsync();
+        context.Set<Domain.Models.Assistant.LLMMessage>().Add(message);
+        await context.SaveChangesAsync();
         return message;
     }
 
     public async Task<List<Domain.Models.Assistant.LLMMessage>> GetConversationMessagesAsync(string conversationId, int limit = 20)
     {
-        var conversation = await _context.Set<LLMConversation>()
+        var conversation = await context.Set<LLMConversation>()
             .Where(c => !c.IsDeleted && c.ConversationId == conversationId)
             .FirstOrDefaultAsync();
 
@@ -285,7 +277,7 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
             return new List<Domain.Models.Assistant.LLMMessage>();
         }
 
-        var newestMessages = await _context.Set<Domain.Models.Assistant.LLMMessage>()
+        var newestMessages = await context.Set<Domain.Models.Assistant.LLMMessage>()
             .Where(m => !m.IsDeleted && m.ConversationId == conversation.Id)
             .OrderByDescending(m => m.CreateTime)
             .Take(limit)
@@ -298,7 +290,7 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
     public async Task<List<Domain.Models.Assistant.LLMMessage>> GetOldestMessagesAsync(
         string conversationId, int skipNewest, int limit = 40)
     {
-        var conversation = await _context.Set<LLMConversation>()
+        var conversation = await context.Set<LLMConversation>()
             .Where(c => !c.IsDeleted && c.ConversationId == conversationId)
             .FirstOrDefaultAsync();
 
@@ -307,7 +299,7 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
             return new List<Domain.Models.Assistant.LLMMessage>();
         }
 
-        var totalCount = await _context.Set<Domain.Models.Assistant.LLMMessage>()
+        var totalCount = await context.Set<Domain.Models.Assistant.LLMMessage>()
             .Where(m => !m.IsDeleted && m.ConversationId == conversation.Id)
             .CountAsync();
 
@@ -317,7 +309,7 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
             return new List<Domain.Models.Assistant.LLMMessage>();
         }
 
-        return await _context.Set<Domain.Models.Assistant.LLMMessage>()
+        return await context.Set<Domain.Models.Assistant.LLMMessage>()
             .Where(m => !m.IsDeleted && m.ConversationId == conversation.Id)
             .OrderBy(m => m.CreateTime)
             .Take(Math.Min(toTake, limit))
@@ -326,14 +318,14 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
 
     public async Task<LLMConversation?> GetConversationByConversationIdAsync(string conversationId)
     {
-        return await _context.Set<LLMConversation>()
+        return await context.Set<LLMConversation>()
             .Where(c => !c.IsDeleted && c.ConversationId == conversationId)
             .FirstOrDefaultAsync();
     }
 
     public async Task<int> GetConversationTokenCountAsync(string conversationId)
     {
-        var conversation = await _context.Set<LLMConversation>()
+        var conversation = await context.Set<LLMConversation>()
             .Where(c => !c.IsDeleted && c.ConversationId == conversationId)
             .FirstOrDefaultAsync();
 

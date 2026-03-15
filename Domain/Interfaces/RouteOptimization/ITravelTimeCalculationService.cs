@@ -7,7 +7,7 @@
 /// <param name="to">Zieladresse</param>
 using Klacks.Api.Domain.Models.Staffs;
 
-namespace Klacks.Api.Application.Interfaces;
+namespace Klacks.Api.Domain.Interfaces.RouteOptimization;
 
 public interface ITravelTimeCalculationService
 {

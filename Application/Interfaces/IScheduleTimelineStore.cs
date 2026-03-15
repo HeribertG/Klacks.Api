@@ -2,7 +2,7 @@
 
 using Klacks.Api.Domain.Models.Schedules;
 
-namespace Klacks.Api.Infrastructure.Interfaces;
+namespace Klacks.Api.Application.Interfaces;
 
 public interface IScheduleTimelineStore
 {

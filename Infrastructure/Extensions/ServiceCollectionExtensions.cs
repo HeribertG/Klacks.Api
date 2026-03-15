@@ -6,6 +6,7 @@ using Klacks.Api.Application.Skills;
 using Klacks.Api.Infrastructure.Scripting;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Infrastructure.Repositories.Assistant;
 using Klacks.Api.Domain.Services.Absences;
 using Klacks.Api.Domain.Services.Accounts;

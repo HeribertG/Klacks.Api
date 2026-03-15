@@ -3,6 +3,7 @@
 using System.Diagnostics;
 using System.Text;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Microsoft.Extensions.DependencyInjection;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -19,12 +20,11 @@ public class LLMService : ILLMService
     private readonly IAgentRepository _agentRepository;
     private readonly IAgentMemoryRepository _agentMemoryRepository;
     private readonly ContextAssemblyPipeline _contextAssemblyPipeline;
-    private readonly IAutoMemoryExtractionService _autoMemoryExtraction;
-    private readonly ISkillGapDetector _skillGapDetector;
-    private readonly IConversationCompactionService _compactionService;
+    private readonly IServiceScopeFactory _scopeFactory;
 
     private const int MaxHistoryMessages = 40;
     private const int ReducedHistoryMessages = 20;
+    private const int EstimatedOverheadTokens = 15_000;
 
     public LLMService(
         ILogger<LLMService> logger,
@@ -36,9 +36,7 @@ public class LLMService : ILLMService
         IAgentRepository agentRepository,
         IAgentMemoryRepository agentMemoryRepository,
         ContextAssemblyPipeline contextAssemblyPipeline,
-        IAutoMemoryExtractionService autoMemoryExtraction,
-        ISkillGapDetector skillGapDetector,
-        IConversationCompactionService compactionService)
+        IServiceScopeFactory scopeFactory)
     {
         _logger = logger;
         _providerOrchestrator = providerOrchestrator;
@@ -49,9 +47,7 @@ public class LLMService : ILLMService
         _agentRepository = agentRepository;
         _agentMemoryRepository = agentMemoryRepository;
         _contextAssemblyPipeline = contextAssemblyPipeline;
-        _autoMemoryExtraction = autoMemoryExtraction;
-        _skillGapDetector = skillGapDetector;
-        _compactionService = compactionService;
+        _scopeFactory = scopeFactory;
     }
 
     public async Task<LLMResponse> ProcessAsync(LLMContext context)
@@ -189,7 +185,9 @@ public class LLMService : ILLMService
             {
                 try
                 {
-                    await _compactionService.CompactIfNeededAsync(conversation.ConversationId);
+                    using var scope = _scopeFactory.CreateScope();
+                    var compactionService = scope.ServiceProvider.GetRequiredService<IConversationCompactionService>();
+                    await compactionService.CompactIfNeededAsync(conversation.ConversationId);
                 }
                 catch (Exception ex)
                 {
@@ -204,7 +202,9 @@ public class LLMService : ILLMService
                 {
                     try
                     {
-                        await _autoMemoryExtraction.ExtractAndStoreMemoriesAsync(
+                        using var scope = _scopeFactory.CreateScope();
+                        var autoMemoryExtraction = scope.ServiceProvider.GetRequiredService<IAutoMemoryExtractionService>();
+                        await autoMemoryExtraction.ExtractAndStoreMemoriesAsync(
                             agent.Id, context.Message, responseContent, context.UserId);
                     }
                     catch (Exception ex)
@@ -217,7 +217,9 @@ public class LLMService : ILLMService
                 {
                     try
                     {
-                        await _skillGapDetector.DetectAndSuggestAsync(
+                        using var scope = _scopeFactory.CreateScope();
+                        var skillGapDetector = scope.ServiceProvider.GetRequiredService<ISkillGapDetector>();
+                        await skillGapDetector.DetectAndSuggestAsync(
                             agent.Id, context.Message, responseContent, allFunctionCalls.Count > 0);
                     }
                     catch (Exception ex)
@@ -273,7 +275,7 @@ public class LLMService : ILLMService
             return history;
 
         var availableTokens = contextWindow - maxOutputTokens;
-        var estimatedOverheadTokens = 15000;
+        var estimatedOverheadTokens = EstimatedOverheadTokens;
         var historyBudget = availableTokens - estimatedOverheadTokens;
 
         if (hasSummary)

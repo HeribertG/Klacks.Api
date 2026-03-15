@@ -101,4 +101,15 @@ public abstract class BaseSkillImplementation : ISkillImplementation
 
         return Guid.Parse(value);
     }
+
+    protected static decimal CalculateWorkTime(TimeOnly start, TimeOnly end)
+    {
+        var duration = end.ToTimeSpan() - start.ToTimeSpan();
+        if (duration.TotalHours <= 0)
+        {
+            duration = duration.Add(TimeSpan.FromHours(24));
+        }
+
+        return (decimal)duration.TotalHours;
+    }
 }
