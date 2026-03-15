@@ -86,16 +86,11 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             {
                 try
                 {
-                    _logger.LogInformation("[TIMELINE-DEBUG] Processing request: IsRange={IsRange}, ClientId={ClientId}, Date={Date}",
-                        request.IsRangeCheck, request.ClientId, request.Date);
-
                     using var scope = _serviceProvider.CreateScope();
                     var dbContext = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
                     var notificationService = scope.ServiceProvider.GetRequiredService<IWorkNotificationService>();
                     var timelineCalculationService = scope.ServiceProvider.GetRequiredService<ITimelineCalculationService>();
                     var travelTimeService = scope.ServiceProvider.GetRequiredService<ITravelTimeCalculationService>();
-
-                    _logger.LogInformation("[TIMELINE-DEBUG] DI resolved successfully");
 
                     if (request.IsRangeCheck)
                     {
@@ -106,11 +101,10 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                         await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, request.ClientId, request.Date, stoppingToken);
                     }
 
-                    _logger.LogInformation("[TIMELINE-DEBUG] Request processed successfully");
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "[TIMELINE-DEBUG] Error processing timeline check request");
+                    _logger.LogError(ex, "Error processing timeline check request");
                 }
             }
         }
@@ -130,16 +124,12 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         DateOnly date,
         CancellationToken cancellationToken)
     {
-        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: querying ownWorks for Client {ClientId} on {Date}", clientId, date);
-
         var ownWorks = await dbContext.Work
             .AsNoTracking()
             .Include(w => w.Client)
             .Include(w => w.Shift).ThenInclude(s => s!.Client).ThenInclude(c => c!.Addresses)
             .Where(w => w.ClientId == clientId && w.CurrentDate == date && !w.IsDeleted)
             .ToListAsync(cancellationToken);
-
-        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: ownWorks={Count}", ownWorks.Count);
 
         var worksWithReplacementForClient = await dbContext.Work
             .AsNoTracking()
@@ -149,8 +139,6 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                         dbContext.WorkChange.Any(wc =>
                             wc.WorkId == w.Id && !wc.IsDeleted && wc.ReplaceClientId == clientId))
             .ToListAsync(cancellationToken);
-
-        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: replacementWorks={Count}", worksWithReplacementForClient.Count);
 
         var allWorks = ownWorks
             .Union(worksWithReplacementForClient, new WorkIdComparer())
@@ -170,15 +158,9 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             .Where(b => b.ClientId == clientId && b.CurrentDate == date && !b.IsDeleted)
             .ToListAsync(cancellationToken);
 
-        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: allWorks={Works}, workChanges={Changes}, breaks={Breaks}",
-            allWorks.Count, workChanges.Count, breaks.Count);
-
         var clientNameLookup = BuildClientNameLookup(allWorks, workChanges);
         var scheduleBlocks = timelineCalculationService.CalculateScheduleBlocks(allWorks, workChanges, breaks);
         var clientBlocks = scheduleBlocks.Where(b => b.ClientId == clientId).ToList();
-
-        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: scheduleBlocks={Total}, clientBlocks={ForClient}",
-            scheduleBlocks.Count, clientBlocks.Count);
 
         var timeline = new ClientTimeline(clientId);
         timeline.AddBlocks(clientBlocks);
@@ -190,23 +172,19 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         clientName ??= string.Empty;
 
         AddCollisionEntries(entries, timeline, clientName);
-        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: after collisions, entries={Count}", entries.Count);
         AddRestViolationEntries(entries, timeline, clientName);
-        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: after rest, entries={Count}", entries.Count);
         AddOvertimeEntries(entries, timeline, clientName, date, date);
         AddConsecutiveDayEntries(entries, timeline, clientName, date, date);
-        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: after all checks, entries={Count}", entries.Count);
 
         try
         {
             var shiftAddressLookup = BuildShiftAddressLookup(allWorks);
             var apiKeyConfigured = await travelTimeService.IsApiKeyConfiguredAsync();
             await AddTravelTimeEntriesAsync(entries, timeline, clientName, shiftAddressLookup, travelTimeService, apiKeyConfigured, cancellationToken);
-            _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: after travel time, entries={Count}", entries.Count);
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "[TIMELINE-DEBUG] Travel time check failed for Client {ClientId} on {Date}", clientId, date);
+            _logger.LogWarning(ex, "Travel time check failed for Client {ClientId} on {Date}", clientId, date);
         }
 
         var collisionNotification = BuildLegacyCollisionNotification(timeline, clientNameLookup, false, clientId, date);
@@ -219,8 +197,6 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             CheckedClientId = clientId,
             CheckedDate = date
         };
-        _logger.LogInformation("[TIMELINE-DEBUG] SingleCheck: sending notification with {Count} entries, IsFullRefresh={IsFullRefresh}",
-            entries.Count, validationNotification.IsFullRefresh);
         await notificationService.NotifyScheduleValidationsDetected(validationNotification);
     }
 
@@ -232,15 +208,11 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         DateOnly endDate,
         CancellationToken cancellationToken)
     {
-        _logger.LogInformation("[TIMELINE-DEBUG] RangeCheck: querying works for {Start} to {End}", startDate, endDate);
-
         var works = await dbContext.Work
             .AsNoTracking()
             .Include(w => w.Client)
             .Where(w => w.CurrentDate >= startDate && w.CurrentDate <= endDate && !w.IsDeleted)
             .ToListAsync(cancellationToken);
-
-        _logger.LogInformation("[TIMELINE-DEBUG] RangeCheck: works={Count}", works.Count);
 
         var workIds = works.Select(w => w.Id).ToList();
         var workChanges = workIds.Count > 0
@@ -256,13 +228,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             .Where(b => b.CurrentDate >= startDate && b.CurrentDate <= endDate && !b.IsDeleted)
             .ToListAsync(cancellationToken);
 
-        _logger.LogInformation("[TIMELINE-DEBUG] RangeCheck: works={Works}, changes={Changes}, breaks={Breaks}",
-            works.Count, workChanges.Count, breaks.Count);
-
         var clientNameLookup = BuildClientNameLookup(works, workChanges);
         var scheduleBlocks = timelineCalculationService.CalculateScheduleBlocks(works, workChanges, breaks);
-
-        _logger.LogInformation("[TIMELINE-DEBUG] RangeCheck: scheduleBlocks={Count}", scheduleBlocks.Count);
 
         var groupedByClient = scheduleBlocks.GroupBy(b => b.ClientId);
         var allEntries = new List<ScheduleValidationNotificationDto>();
@@ -298,8 +265,6 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             Entries = allEntries,
             IsFullRefresh = true
         };
-        _logger.LogInformation("[TIMELINE-DEBUG] RangeCheck: sending notification with {Count} entries, IsFullRefresh=true",
-            allEntries.Count);
         await notificationService.NotifyScheduleValidationsDetected(validationNotification);
     }
 
