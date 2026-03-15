@@ -197,6 +197,46 @@ public class WorkNotificationService : IWorkNotificationService
         }
     }
 
+    public async Task NotifyScheduleValidationsDetected(ScheduleValidationListNotificationDto notification)
+    {
+        try
+        {
+            var dates = notification.Entries.Select(e => e.Date).Distinct().ToList();
+            if (dates.Count == 0 && notification.CheckedDate.HasValue)
+            {
+                dates.Add(notification.CheckedDate.Value);
+            }
+
+            if (notification.IsFullRefresh || dates.Count == 0)
+            {
+                await _hubContext.Clients.All.ScheduleValidationsDetected(notification);
+                _logger.LogDebug("Sent ScheduleValidationsDetected (full refresh) to all connections");
+                return;
+            }
+
+            var targetConnections = new HashSet<string>();
+            foreach (var date in dates)
+            {
+                foreach (var conn in _dateRangeTracker.GetConnectionsForDate(date))
+                {
+                    targetConnections.Add(conn);
+                }
+            }
+
+            if (targetConnections.Count == 0)
+            {
+                return;
+            }
+
+            await _hubContext.Clients.Clients(targetConnections.ToList()).ScheduleValidationsDetected(notification);
+            _logger.LogDebug("Sent ScheduleValidationsDetected to {Count} connections", targetConnections.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending ScheduleValidationsDetected notification");
+        }
+    }
+
     private async Task SendWorkNotification(
         WorkNotificationDto notification,
         Func<IScheduleClient, WorkNotificationDto, Task> sendAction,

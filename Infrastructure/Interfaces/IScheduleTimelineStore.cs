@@ -6,8 +6,8 @@ namespace Klacks.Api.Infrastructure.Interfaces;
 
 public interface IScheduleTimelineStore
 {
-    void SetTimeline(Guid clientId, DateOnly date, ClientDayTimeline timeline);
-    void RemoveTimeline(Guid clientId, DateOnly date);
-    ClientDayTimeline? GetTimeline(Guid clientId, DateOnly date);
-    List<ClientDayTimeline> GetTimelinesForDateRange(DateOnly startDate, DateOnly endDate);
+    void SetTimeline(Guid clientId, ClientTimeline timeline);
+    void RemoveTimeline(Guid clientId);
+    ClientTimeline? GetTimeline(Guid clientId);
+    ScheduleBoard GetBoard();
 }

@@ -1,67 +1,40 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// In-Memory-Store für ClientTimelines. Verwaltet alle Timelines als ScheduleBoard.
+/// </summary>
 using System.Collections.Concurrent;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Interfaces;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace Klacks.Api.Infrastructure.Services;
 
 public class ScheduleTimelineStore : IScheduleTimelineStore
 {
-    private static readonly TimeSpan CacheExpiration = TimeSpan.FromHours(24);
+    private readonly ConcurrentDictionary<Guid, ClientTimeline> _timelines = new();
 
-    private readonly IMemoryCache _cache;
-    private readonly ConcurrentDictionary<string, byte> _keys = new();
-
-    public ScheduleTimelineStore(IMemoryCache cache)
+    public void SetTimeline(Guid clientId, ClientTimeline timeline)
     {
-        _cache = cache;
+        _timelines[clientId] = timeline;
     }
 
-    public void SetTimeline(Guid clientId, DateOnly date, ClientDayTimeline timeline)
+    public void RemoveTimeline(Guid clientId)
     {
-        var key = BuildKey(clientId, date);
-        var options = new MemoryCacheEntryOptions
+        _timelines.TryRemove(clientId, out _);
+    }
+
+    public ClientTimeline? GetTimeline(Guid clientId)
+    {
+        return _timelines.TryGetValue(clientId, out var timeline) ? timeline : null;
+    }
+
+    public ScheduleBoard GetBoard()
+    {
+        var board = new ScheduleBoard();
+        foreach (var (clientId, timeline) in _timelines)
         {
-            SlidingExpiration = CacheExpiration
-        };
-        options.RegisterPostEvictionCallback((evictedKey, _, _, _) =>
-        {
-            _keys.TryRemove(evictedKey.ToString()!, out _);
-        });
-        _cache.Set(key, timeline, options);
-        _keys[key] = 0;
-    }
-
-    public void RemoveTimeline(Guid clientId, DateOnly date)
-    {
-        var key = BuildKey(clientId, date);
-        _cache.Remove(key);
-        _keys.TryRemove(key, out _);
-    }
-
-    public ClientDayTimeline? GetTimeline(Guid clientId, DateOnly date)
-    {
-        var key = BuildKey(clientId, date);
-        return _cache.TryGetValue(key, out ClientDayTimeline? timeline) ? timeline : null;
-    }
-
-    public List<ClientDayTimeline> GetTimelinesForDateRange(DateOnly startDate, DateOnly endDate)
-    {
-        var result = new List<ClientDayTimeline>();
-        foreach (var key in _keys.Keys)
-        {
-            if (_cache.TryGetValue(key, out ClientDayTimeline? timeline) &&
-                timeline != null &&
-                timeline.Date >= startDate &&
-                timeline.Date <= endDate)
-            {
-                result.Add(timeline);
-            }
+            board.SetTimeline(clientId, timeline);
         }
-        return result;
+        return board;
     }
-
-    private static string BuildKey(Guid clientId, DateOnly date) => $"{clientId}_{date:yyyy-MM-dd}";
 }

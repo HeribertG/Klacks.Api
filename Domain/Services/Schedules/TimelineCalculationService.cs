@@ -1,5 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Berechnet ScheduleBlocks aus Work-, WorkChange- und Break-Einträgen.
+/// Verwendet absolute DateTime-Intervalle — kein Mitternachts-Splitting nötig.
+/// </summary>
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 
@@ -7,9 +11,9 @@ namespace Klacks.Api.Domain.Services.Schedules;
 
 public class TimelineCalculationService : ITimelineCalculationService
 {
-    public List<TimeRect> CalculateTimeRects(List<Work> works, List<WorkChange> workChanges, List<Break> breaks)
+    public List<ScheduleBlock> CalculateScheduleBlocks(List<Work> works, List<WorkChange> workChanges, List<Break> breaks)
     {
-        var result = new List<TimeRect>();
+        var result = new List<ScheduleBlock>();
         var changesByWorkId = workChanges.GroupBy(wc => wc.WorkId).ToDictionary(g => g.Key, g => g.ToList());
 
         foreach (var work in works)
@@ -41,49 +45,45 @@ public class TimelineCalculationService : ITimelineCalculationService
                 foreach (var change in changes.Where(c =>
                     c.Type is WorkChangeType.CorrectionStart or WorkChangeType.CorrectionEnd))
                 {
-                    AddRectsWithMidnightSplit(result, work.Id, TimeRectSourceType.Correction,
-                        work.ClientId, work.CurrentDate, change.StartTime, change.EndTime);
+                    result.Add(CreateBlock(work.Id, ScheduleBlockType.Correction,
+                        work.ClientId, work.CurrentDate, change.StartTime, change.EndTime));
                 }
 
                 foreach (var change in changes.Where(c =>
                     c.Type is (WorkChangeType.ReplacementStart or WorkChangeType.ReplacementEnd) &&
                     c.ReplaceClientId.HasValue))
                 {
-                    AddRectsWithMidnightSplit(result, work.Id, TimeRectSourceType.Replacement,
-                        change.ReplaceClientId!.Value, work.CurrentDate, change.StartTime, change.EndTime);
+                    result.Add(CreateBlock(work.Id, ScheduleBlockType.Replacement,
+                        change.ReplaceClientId!.Value, work.CurrentDate, change.StartTime, change.EndTime));
                 }
             }
 
-            AddRectsWithMidnightSplit(result, work.Id, TimeRectSourceType.Work,
-                work.ClientId, work.CurrentDate, effectiveStart, effectiveEnd);
+            result.Add(CreateBlock(work.Id, ScheduleBlockType.Work,
+                work.ClientId, work.CurrentDate, effectiveStart, effectiveEnd));
         }
 
         foreach (var b in breaks)
         {
-            AddRectsWithMidnightSplit(result, b.Id, TimeRectSourceType.Break,
-                b.ClientId, b.CurrentDate, b.StartTime, b.EndTime);
+            result.Add(CreateBlock(b.Id, ScheduleBlockType.Break,
+                b.ClientId, b.CurrentDate, b.StartTime, b.EndTime));
         }
 
         return result;
     }
 
-    private static void AddRectsWithMidnightSplit(
-        List<TimeRect> result,
+    private static ScheduleBlock CreateBlock(
         Guid sourceId,
-        TimeRectSourceType sourceType,
+        ScheduleBlockType blockType,
         Guid clientId,
         DateOnly date,
         TimeOnly start,
         TimeOnly end)
     {
-        if (end < start)
-        {
-            result.Add(new TimeRect(sourceId, sourceType, clientId, date, start, TimeOnly.MaxValue));
-            result.Add(new TimeRect(sourceId, sourceType, clientId, date.AddDays(1), TimeOnly.MinValue, end));
-        }
-        else
-        {
-            result.Add(new TimeRect(sourceId, sourceType, clientId, date, start, end));
-        }
+        var startDateTime = date.ToDateTime(start);
+        var endDateTime = end <= start
+            ? date.AddDays(1).ToDateTime(end)
+            : date.ToDateTime(end);
+
+        return new ScheduleBlock(sourceId, blockType, clientId, startDateTime, endDateTime);
     }
 }

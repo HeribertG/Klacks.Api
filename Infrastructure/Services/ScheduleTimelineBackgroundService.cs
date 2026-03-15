@@ -1,5 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Background-Worker für Schedule-Validierung: Kollisionen, Ruhezeiten, Arbeitszeiten.
+/// Empfängt Check-Requests via Channel und sendet Ergebnisse via SignalR.
+/// </summary>
 using System.Threading.Channels;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces;
@@ -13,6 +17,10 @@ namespace Klacks.Api.Infrastructure.Services;
 
 public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTimelineService
 {
+    private static readonly TimeSpan MinRestDuration = TimeSpan.FromHours(11);
+    private static readonly TimeSpan MaxDailyWorkDuration = TimeSpan.FromHours(10);
+    private const int MaxConsecutiveWorkDays = 6;
+
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<ScheduleTimelineBackgroundService> _logger;
     private readonly IScheduleTimelineStore _timelineStore;
@@ -144,23 +152,34 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             .ToListAsync(cancellationToken);
 
         var clientNameLookup = BuildClientNameLookup(allWorks, workChanges);
-        var timeRects = timelineCalculationService.CalculateTimeRects(allWorks, workChanges, breaks);
-        var clientRects = timeRects.Where(r => r.ClientId == clientId).ToList();
+        var scheduleBlocks = timelineCalculationService.CalculateScheduleBlocks(allWorks, workChanges, breaks);
+        var clientBlocks = scheduleBlocks.Where(b => b.ClientId == clientId).ToList();
 
-        var timeline = new ClientDayTimeline(clientId, date);
-        timeline.Rects.AddRange(clientRects);
-        _timelineStore.SetTimeline(clientId, date, timeline);
+        var timeline = new ClientTimeline(clientId);
+        timeline.AddBlocks(clientBlocks);
+        timeline.SortBlocks();
+        _timelineStore.SetTimeline(clientId, timeline);
 
-        var collisions = BuildCollisionNotifications(timeline, clientNameLookup);
+        var entries = new List<ScheduleValidationNotificationDto>();
+        clientNameLookup.TryGetValue(clientId, out var clientName);
+        clientName ??= string.Empty;
 
-        var notification = new CollisionListNotificationDto
+        AddCollisionEntries(entries, timeline, clientName);
+        AddRestViolationEntries(entries, timeline, clientName);
+        AddOvertimeEntries(entries, timeline, clientName, date, date);
+        AddConsecutiveDayEntries(entries, timeline, clientName, date, date);
+
+        var collisionNotification = BuildLegacyCollisionNotification(timeline, clientNameLookup, false, clientId, date);
+        await notificationService.NotifyCollisionsDetected(collisionNotification);
+
+        var validationNotification = new ScheduleValidationListNotificationDto
         {
-            Collisions = collisions,
+            Entries = entries,
             IsFullRefresh = false,
             CheckedClientId = clientId,
             CheckedDate = date
         };
-        await notificationService.NotifyCollisionsDetected(notification);
+        await notificationService.NotifyScheduleValidationsDetected(validationNotification);
     }
 
     private async Task ProcessRangeCheckAsync(
@@ -192,31 +211,175 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             .ToListAsync(cancellationToken);
 
         var clientNameLookup = BuildClientNameLookup(works, workChanges);
-        var timeRects = timelineCalculationService.CalculateTimeRects(works, workChanges, breaks);
+        var scheduleBlocks = timelineCalculationService.CalculateScheduleBlocks(works, workChanges, breaks);
+
+        var groupedByClient = scheduleBlocks.GroupBy(b => b.ClientId);
+        var allEntries = new List<ScheduleValidationNotificationDto>();
         var allCollisions = new List<CollisionNotificationDto>();
 
-        var groupedByClientDate = timeRects.GroupBy(r => new { r.ClientId, r.Date });
-
-        foreach (var group in groupedByClientDate)
+        foreach (var group in groupedByClient)
         {
-            var timeline = new ClientDayTimeline(group.Key.ClientId, group.Key.Date);
-            timeline.Rects.AddRange(group);
-            _timelineStore.SetTimeline(group.Key.ClientId, group.Key.Date, timeline);
+            var timeline = new ClientTimeline(group.Key);
+            timeline.AddBlocks(group);
+            timeline.SortBlocks();
+            _timelineStore.SetTimeline(group.Key, timeline);
 
-            var collisions = BuildCollisionNotifications(timeline, clientNameLookup);
-            allCollisions.AddRange(collisions);
+            clientNameLookup.TryGetValue(group.Key, out var clientName);
+            clientName ??= string.Empty;
+
+            AddCollisionEntries(allEntries, timeline, clientName);
+            AddRestViolationEntries(allEntries, timeline, clientName);
+            AddOvertimeEntries(allEntries, timeline, clientName, startDate, endDate);
+            AddConsecutiveDayEntries(allEntries, timeline, clientName, startDate, endDate);
+
+            allCollisions.AddRange(BuildLegacyCollisionList(timeline, clientNameLookup));
         }
 
-        var notification = new CollisionListNotificationDto
+        var collisionNotification = new CollisionListNotificationDto
         {
             Collisions = allCollisions,
             IsFullRefresh = true
         };
-        await notificationService.NotifyCollisionsDetected(notification);
+        await notificationService.NotifyCollisionsDetected(collisionNotification);
+
+        var validationNotification = new ScheduleValidationListNotificationDto
+        {
+            Entries = allEntries,
+            IsFullRefresh = true
+        };
+        await notificationService.NotifyScheduleValidationsDetected(validationNotification);
     }
 
-    private static List<CollisionNotificationDto> BuildCollisionNotifications(
-        ClientDayTimeline timeline,
+    private static void AddCollisionEntries(
+        List<ScheduleValidationNotificationDto> entries,
+        ClientTimeline timeline,
+        string clientName)
+    {
+        foreach (var (a, b) in timeline.GetCollisions())
+        {
+            entries.Add(new ScheduleValidationNotificationDto
+            {
+                Type = "error",
+                ClientId = timeline.ClientId,
+                ClientName = clientName,
+                Date = a.OwnerDate,
+                Comment = "schedule.error-list.collision",
+                CommentParams = new Dictionary<string, string>
+                {
+                    ["timeRange1"] = $"{a.Start:HH:mm} - {a.End:HH:mm}",
+                    ["timeRange2"] = $"{b.Start:HH:mm} - {b.End:HH:mm}"
+                }
+            });
+        }
+    }
+
+    private static void AddRestViolationEntries(
+        List<ScheduleValidationNotificationDto> entries,
+        ClientTimeline timeline,
+        string clientName)
+    {
+        foreach (var violation in timeline.GetRestViolations(MinRestDuration))
+        {
+            entries.Add(new ScheduleValidationNotificationDto
+            {
+                Type = "warning",
+                ClientId = timeline.ClientId,
+                ClientName = clientName,
+                Date = violation.PreviousBlock.OwnerDate,
+                Comment = "schedule.error-list.rest-violation",
+                CommentParams = new Dictionary<string, string>
+                {
+                    ["actualHours"] = $"{violation.ActualRest.TotalHours:F1}",
+                    ["requiredHours"] = $"{violation.RequiredRest.TotalHours:F0}",
+                    ["endTime"] = $"{violation.PreviousBlock.End:HH:mm}",
+                    ["startTime"] = $"{violation.NextBlock.Start:HH:mm}"
+                }
+            });
+        }
+    }
+
+    private static void AddOvertimeEntries(
+        List<ScheduleValidationNotificationDto> entries,
+        ClientTimeline timeline,
+        string clientName,
+        DateOnly startDate,
+        DateOnly endDate)
+    {
+        for (var date = startDate; date <= endDate; date = date.AddDays(1))
+        {
+            var duration = timeline.GetWorkDuration(date);
+            if (duration > MaxDailyWorkDuration)
+            {
+                entries.Add(new ScheduleValidationNotificationDto
+                {
+                    Type = "warning",
+                    ClientId = timeline.ClientId,
+                    ClientName = clientName,
+                    Date = date,
+                    Comment = "schedule.error-list.overtime",
+                    CommentParams = new Dictionary<string, string>
+                    {
+                        ["actualHours"] = $"{duration.TotalHours:F1}",
+                        ["maxHours"] = $"{MaxDailyWorkDuration.TotalHours:F0}"
+                    }
+                });
+            }
+        }
+    }
+
+    private static void AddConsecutiveDayEntries(
+        List<ScheduleValidationNotificationDto> entries,
+        ClientTimeline timeline,
+        string clientName,
+        DateOnly startDate,
+        DateOnly endDate)
+    {
+        var date = startDate;
+        while (date <= endDate)
+        {
+            var consecutive = timeline.GetConsecutiveWorkDays(date);
+            if (consecutive > MaxConsecutiveWorkDays)
+            {
+                entries.Add(new ScheduleValidationNotificationDto
+                {
+                    Type = "warning",
+                    ClientId = timeline.ClientId,
+                    ClientName = clientName,
+                    Date = date,
+                    Comment = "schedule.error-list.consecutive-days",
+                    CommentParams = new Dictionary<string, string>
+                    {
+                        ["actualDays"] = consecutive.ToString(),
+                        ["maxDays"] = MaxConsecutiveWorkDays.ToString()
+                    }
+                });
+                date = date.AddDays(consecutive);
+            }
+            else
+            {
+                date = date.AddDays(1);
+            }
+        }
+    }
+
+    private static CollisionListNotificationDto BuildLegacyCollisionNotification(
+        ClientTimeline timeline,
+        Dictionary<Guid, string> clientNameLookup,
+        bool isFullRefresh,
+        Guid? checkedClientId,
+        DateOnly? checkedDate)
+    {
+        return new CollisionListNotificationDto
+        {
+            Collisions = BuildLegacyCollisionList(timeline, clientNameLookup),
+            IsFullRefresh = isFullRefresh,
+            CheckedClientId = checkedClientId,
+            CheckedDate = checkedDate
+        };
+    }
+
+    private static List<CollisionNotificationDto> BuildLegacyCollisionList(
+        ClientTimeline timeline,
         Dictionary<Guid, string> clientNameLookup)
     {
         var pairs = timeline.GetCollisions();
@@ -231,7 +394,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             WorkId2 = p.B.SourceId,
             ClientId = timeline.ClientId,
             ClientName = clientName,
-            Date = timeline.Date,
+            Date = p.A.OwnerDate,
             TimeRange1 = $"{p.A.Start:HH:mm} - {p.A.End:HH:mm}",
             TimeRange2 = $"{p.B.Start:HH:mm} - {p.B.End:HH:mm}"
         }).ToList();

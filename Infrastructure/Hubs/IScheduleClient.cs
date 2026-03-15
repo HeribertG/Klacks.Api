@@ -15,4 +15,5 @@ public interface IScheduleClient
     Task PeriodHoursRecalculated(PeriodHoursRecalculatedDto notification);
     Task ScheduleChangeTracked(ScheduleChangeNotificationDto notification);
     Task CollisionsDetected(CollisionListNotificationDto notification);
+    Task ScheduleValidationsDetected(ScheduleValidationListNotificationDto notification);
 }
