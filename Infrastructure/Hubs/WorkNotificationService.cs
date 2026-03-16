@@ -2,10 +2,12 @@
 
 /// <summary>
 /// SignalR-basierter Benachrichtigungsdienst fuer Echtzeit-Updates von Work-Eintraegen und Schedule-Validierungen.
-/// Filtert Empfaenger anhand ihrer aktiven DateRange-Subscriptions via IConnectionDateRangeTracker.
+/// Filtert Empfaenger anhand ihrer aktiven DateRange-Subscriptions und SelectedGroup via IConnectionDateRangeTracker.
+/// Bei IsFullRefresh werden Notifications pro Connection-Gruppe nach SelectedGroupId gefiltert.
 /// </summary>
 /// <param name="hubContext">SignalR Hub-Kontext fuer typisierte Client-Aufrufe</param>
 /// <param name="dateRangeTracker">Verwaltet welche Connections welche Datumsbereiche beobachten</param>
+/// <param name="groupClient">Liefert Client-IDs fuer eine Gruppe (inkl. Subgruppen)</param>
 
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces;
@@ -17,15 +19,18 @@ public class WorkNotificationService : IWorkNotificationService
 {
     private readonly IHubContext<WorkNotificationHub, IScheduleClient> _hubContext;
     private readonly IConnectionDateRangeTracker _dateRangeTracker;
+    private readonly IGetAllClientIdsFromGroupAndSubgroups _groupClient;
     private readonly ILogger<WorkNotificationService> _logger;
 
     public WorkNotificationService(
         IHubContext<WorkNotificationHub, IScheduleClient> hubContext,
         IConnectionDateRangeTracker dateRangeTracker,
+        IGetAllClientIdsFromGroupAndSubgroups groupClient,
         ILogger<WorkNotificationService> logger)
     {
         _hubContext = hubContext;
         _dateRangeTracker = dateRangeTracker;
+        _groupClient = groupClient;
         _logger = logger;
     }
 
@@ -168,16 +173,21 @@ public class WorkNotificationService : IWorkNotificationService
     {
         try
         {
+            if (notification.IsFullRefresh)
+            {
+                await SendGroupFilteredCollisions(notification);
+                return;
+            }
+
             var dates = notification.Collisions.Select(c => c.Date).Distinct().ToList();
             if (dates.Count == 0 && notification.CheckedDate.HasValue)
             {
                 dates.Add(notification.CheckedDate.Value);
             }
 
-            if (notification.IsFullRefresh || dates.Count == 0)
+            if (dates.Count == 0)
             {
                 await _hubContext.Clients.All.CollisionsDetected(notification);
-                _logger.LogDebug("Sent CollisionsDetected (full refresh) to all connections");
                 return;
             }
 
@@ -190,10 +200,7 @@ public class WorkNotificationService : IWorkNotificationService
                 }
             }
 
-            if (targetConnections.Count == 0)
-            {
-                return;
-            }
+            if (targetConnections.Count == 0) return;
 
             await _hubContext.Clients.Clients(targetConnections.ToList()).CollisionsDetected(notification);
             _logger.LogDebug("Sent CollisionsDetected to {Count} connections", targetConnections.Count);
@@ -208,16 +215,21 @@ public class WorkNotificationService : IWorkNotificationService
     {
         try
         {
+            if (notification.IsFullRefresh)
+            {
+                await SendGroupFilteredValidations(notification);
+                return;
+            }
+
             var dates = notification.Entries.Select(e => e.Date).Distinct().ToList();
             if (dates.Count == 0 && notification.CheckedDate.HasValue)
             {
                 dates.Add(notification.CheckedDate.Value);
             }
 
-            if (notification.IsFullRefresh || dates.Count == 0)
+            if (dates.Count == 0)
             {
                 await _hubContext.Clients.All.ScheduleValidationsDetected(notification);
-                _logger.LogDebug("Sent ScheduleValidationsDetected (full refresh) to all connections");
                 return;
             }
 
@@ -230,10 +242,7 @@ public class WorkNotificationService : IWorkNotificationService
                 }
             }
 
-            if (targetConnections.Count == 0)
-            {
-                return;
-            }
+            if (targetConnections.Count == 0) return;
 
             await _hubContext.Clients.Clients(targetConnections.ToList()).ScheduleValidationsDetected(notification);
             _logger.LogDebug("Sent ScheduleValidationsDetected to {Count} connections", targetConnections.Count);
@@ -242,6 +251,96 @@ public class WorkNotificationService : IWorkNotificationService
         {
             _logger.LogError(ex, "Error sending ScheduleValidationsDetected notification");
         }
+    }
+
+    private async Task SendGroupFilteredCollisions(CollisionListNotificationDto notification)
+    {
+        var (allGroupConnections, groupConnections) = _dateRangeTracker.GetConnectionsGroupedBySelectedGroup();
+
+        if (allGroupConnections.Count > 0)
+        {
+            await _hubContext.Clients.Clients(allGroupConnections).CollisionsDetected(notification);
+        }
+
+        if (groupConnections.Count == 0) return;
+
+        var clientIdsByGroup = await LoadClientIdsByGroup(groupConnections.Keys.ToList());
+
+        foreach (var (groupId, connectionIds) in groupConnections)
+        {
+            if (!clientIdsByGroup.TryGetValue(groupId, out var allowedClientIds))
+            {
+                allowedClientIds = [];
+            }
+
+            var filtered = new CollisionListNotificationDto
+            {
+                IsFullRefresh = true,
+                CheckedClientId = notification.CheckedClientId,
+                CheckedDate = notification.CheckedDate,
+                Collisions = notification.Collisions
+                    .Where(c => allowedClientIds.Contains(c.ClientId))
+                    .ToList()
+            };
+
+            await _hubContext.Clients.Clients(connectionIds).CollisionsDetected(filtered);
+        }
+    }
+
+    private async Task SendGroupFilteredValidations(ScheduleValidationListNotificationDto notification)
+    {
+        var (allGroupConnections, groupConnections) = _dateRangeTracker.GetConnectionsGroupedBySelectedGroup();
+
+        var entriesWithoutUnderstaffed = notification.Entries
+            .Where(e => e.ClientId != Guid.Empty)
+            .ToList();
+
+        if (allGroupConnections.Count > 0)
+        {
+            var allGroupNotification = new ScheduleValidationListNotificationDto
+            {
+                IsFullRefresh = true,
+                CheckedClientId = notification.CheckedClientId,
+                CheckedDate = notification.CheckedDate,
+                Entries = entriesWithoutUnderstaffed
+            };
+            await _hubContext.Clients.Clients(allGroupConnections).ScheduleValidationsDetected(allGroupNotification);
+        }
+
+        if (groupConnections.Count == 0) return;
+
+        var clientIdsByGroup = await LoadClientIdsByGroup(groupConnections.Keys.ToList());
+
+        foreach (var (groupId, connectionIds) in groupConnections)
+        {
+            if (!clientIdsByGroup.TryGetValue(groupId, out var allowedClientIds))
+            {
+                allowedClientIds = [];
+            }
+
+            var filtered = new ScheduleValidationListNotificationDto
+            {
+                IsFullRefresh = true,
+                CheckedClientId = notification.CheckedClientId,
+                CheckedDate = notification.CheckedDate,
+                Entries = entriesWithoutUnderstaffed
+                    .Where(e => allowedClientIds.Contains(e.ClientId))
+                    .ToList()
+            };
+
+            await _hubContext.Clients.Clients(connectionIds).ScheduleValidationsDetected(filtered);
+        }
+    }
+
+    private async Task<Dictionary<Guid, HashSet<Guid>>> LoadClientIdsByGroup(List<Guid> groupIds)
+    {
+        var result = new Dictionary<Guid, HashSet<Guid>>();
+        foreach (var groupId in groupIds)
+        {
+            var clientIds = await _groupClient.GetAllClientIdsFromGroupAndSubgroups(groupId);
+            result[groupId] = new HashSet<Guid>(clientIds);
+        }
+        return result;
     }
 
     private async Task SendWorkNotification(

@@ -62,6 +62,20 @@ public class WorkNotificationHub : Hub<IScheduleClient>
         }
     }
 
+    public void SetSelectedGroup(string selectedGroupId)
+    {
+        Guid? parsedGroupId = null;
+        if (!string.IsNullOrEmpty(selectedGroupId) && Guid.TryParse(selectedGroupId, out var gid) && gid != Guid.Empty)
+        {
+            parsedGroupId = gid;
+        }
+
+        _dateRangeTracker.SetSelectedGroup(Context.ConnectionId, parsedGroupId);
+        _logger.LogInformation(
+            "SignalR SET GROUP: {ConnectionId} selectedGroup={GroupId}",
+            Context.ConnectionId, parsedGroupId?.ToString() ?? "(alle)");
+    }
+
     public async Task LeaveScheduleGroup(string startDate, string endDate)
     {
         var groupName = GetScheduleGroupName(startDate, endDate);
