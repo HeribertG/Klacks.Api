@@ -9,4 +9,5 @@ public interface IRouteOptimizationService
 {
     Task<DistanceMatrix> CalculateDistanceMatrixAsync(Guid containerId, int weekday, bool isHoliday, ContainerTransportMode transportMode = ContainerTransportMode.ByCar);
     Task<RouteOptimizationResult> OptimizeRouteAsync(Guid containerId, int weekday, bool isHoliday, string? startBase = null, string? endBase = null, ContainerTransportMode transportMode = ContainerTransportMode.ByCar);
+    Task<DistanceMatrix> CalculateDistanceMatrixForLocationsAsync(List<Location> locations, ContainerTransportMode transportMode);
 }

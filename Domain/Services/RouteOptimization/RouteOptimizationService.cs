@@ -305,6 +305,19 @@ public class RouteOptimizationService : IRouteOptimizationService
             totalBriefingDebriefingTime);
     }
 
+    public async Task<DistanceMatrix> CalculateDistanceMatrixForLocationsAsync(
+        List<Location> locations,
+        ContainerTransportMode transportMode)
+    {
+        if (locations.Count < 2)
+        {
+            return new DistanceMatrix(locations, new double[0, 0], new double[0, 0]);
+        }
+
+        var (distanceMatrix, durationMatrix, durationMatricesByProfile) = await BuildDistanceMatrixAsync(locations, transportMode);
+        return new DistanceMatrix(locations, distanceMatrix, durationMatrix, durationMatricesByProfile);
+    }
+
     private async Task<List<Location>> ExtractLocationsFromTemplateAsync(ContainerTemplate template)
     {
         var locations = new List<Location>();

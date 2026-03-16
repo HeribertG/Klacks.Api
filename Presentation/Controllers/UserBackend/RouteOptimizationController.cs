@@ -3,6 +3,7 @@
 using Klacks.Api.Application.DTOs.RouteOptimization;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Services.RouteOptimization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,13 +12,16 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend;
 public class RouteOptimizationController : BaseController
 {
     private readonly IRouteOptimizationService _routeOptimizationService;
+    private readonly IContainerAutofillService _containerAutofillService;
     private readonly ILogger<RouteOptimizationController> _logger;
 
     public RouteOptimizationController(
         IRouteOptimizationService routeOptimizationService,
+        IContainerAutofillService containerAutofillService,
         ILogger<RouteOptimizationController> logger)
     {
         _routeOptimizationService = routeOptimizationService;
+        _containerAutofillService = containerAutofillService;
         _logger = logger;
     }
 
@@ -145,6 +149,83 @@ public class RouteOptimizationController : BaseController
         {
             _logger.LogError(ex, "Error optimizing route");
             return StatusCode(500, "Error optimizing route");
+        }
+    }
+
+    [HttpGet("autofill")]
+    public async Task<ActionResult<ContainerAutofillResponse>> Autofill(
+        [FromQuery] Guid containerId,
+        [FromQuery] int weekday,
+        [FromQuery] bool isHoliday = false,
+        [FromQuery] string? startBase = null,
+        [FromQuery] string? endBase = null,
+        [FromQuery] ContainerTransportMode transportMode = ContainerTransportMode.ByCar)
+    {
+        if (string.IsNullOrEmpty(startBase) || string.IsNullOrEmpty(endBase))
+        {
+            return BadRequest("Start base and end base addresses are required for autofill");
+        }
+
+        _logger.LogInformation(
+            "Autofill for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}, StartBase: {StartBase}, EndBase: {EndBase}",
+            containerId, weekday, isHoliday, startBase, endBase);
+
+        try
+        {
+            var result = await _containerAutofillService.AutofillAsync(
+                containerId, weekday, isHoliday, startBase, endBase, transportMode);
+
+            var routeSteps = new List<RouteStepDto>();
+            for (int i = 0; i < result.OptimizedRoute.Count; i++)
+            {
+                var location = result.OptimizedRoute[i];
+                double distanceToNext = 0;
+                TimeSpan travelTimeToNext = TimeSpan.Zero;
+
+                if (i < result.OptimizedRoute.Count - 1 && i < result.FullRouteIndices.Count && i + 1 < result.FullRouteIndices.Count)
+                {
+                    var currentIndex = result.FullRouteIndices[i];
+                    var nextIndex = result.FullRouteIndices[i + 1];
+                    distanceToNext = result.DistanceMatrix[currentIndex, nextIndex];
+                    travelTimeToNext = TimeSpan.FromSeconds(result.DurationMatrix[currentIndex, nextIndex]);
+                }
+
+                routeSteps.Add(new RouteStepDto
+                {
+                    Order = i + 1,
+                    Name = location.Name,
+                    Address = location.Address,
+                    Latitude = location.Latitude,
+                    Longitude = location.Longitude,
+                    ShiftId = location.ShiftId,
+                    TransportMode = location.TransportMode,
+                    DistanceToNextKm = distanceToNext,
+                    TravelTimeToNext = travelTimeToNext
+                });
+            }
+
+            var response = new ContainerAutofillResponse
+            {
+                OptimizedRoute = routeSteps,
+                SelectedShiftIds = result.SelectedShiftIds,
+                TotalDistanceKm = result.TotalDistanceKm,
+                EstimatedTravelTime = result.EstimatedTravelTime,
+                TotalWorkTime = result.TotalWorkTime,
+                RemainingTime = result.RemainingTime,
+                TotalAvailableShifts = result.TotalAvailableShifts,
+                SelectedShiftCount = result.SelectedShiftCount,
+                TravelTimeFromStartBase = result.TravelTimeFromStartBase,
+                DistanceFromStartBaseKm = result.DistanceFromStartBaseKm,
+                DistanceToEndBaseKm = result.DistanceToEndBaseKm,
+                TravelTimeToEndBase = result.TravelTimeToEndBase,
+            };
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during container autofill");
+            return StatusCode(500, "Error during container autofill");
         }
     }
 

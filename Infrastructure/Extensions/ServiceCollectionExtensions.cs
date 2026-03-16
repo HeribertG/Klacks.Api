@@ -219,6 +219,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IScheduleChangeTracker, ScheduleChangeTracker>();
         services.AddScoped<IContainerAvailableTasksService, ContainerAvailableTasksService>();
         services.AddScoped<IRouteOptimizationService, RouteOptimizationService>();
+        services.AddScoped<IContainerAutofillService, ContainerAutofillService>();
         services.AddScoped<IAbsenceSortingService, AbsenceSortingService>();
         services.AddScoped<IAbsencePaginationService, AbsencePaginationService>();
         services.AddScoped<IAbsenceExportService, AbsenceExportService>();
