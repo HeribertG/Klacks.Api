@@ -159,6 +159,8 @@ public class RouteOptimizationController : BaseController
         [FromQuery] bool isHoliday = false,
         [FromQuery] string? startBase = null,
         [FromQuery] string? endBase = null,
+        [FromQuery] string? fromTime = null,
+        [FromQuery] string? untilTime = null,
         [FromQuery] ContainerTransportMode transportMode = ContainerTransportMode.ByCar)
     {
         if (string.IsNullOrEmpty(startBase) || string.IsNullOrEmpty(endBase))
@@ -166,14 +168,22 @@ public class RouteOptimizationController : BaseController
             return BadRequest("Start base and end base addresses are required for autofill");
         }
 
+        if (string.IsNullOrEmpty(fromTime) || string.IsNullOrEmpty(untilTime))
+        {
+            return BadRequest("fromTime and untilTime are required for autofill");
+        }
+
+        var parsedFromTime = TimeOnly.Parse(fromTime);
+        var parsedUntilTime = TimeOnly.Parse(untilTime);
+
         _logger.LogInformation(
-            "Autofill for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}, StartBase: {StartBase}, EndBase: {EndBase}",
-            containerId, weekday, isHoliday, startBase, endBase);
+            "Autofill for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}, StartBase: {StartBase}, EndBase: {EndBase}, FromTime: {FromTime}, UntilTime: {UntilTime}",
+            containerId, weekday, isHoliday, startBase, endBase, parsedFromTime, parsedUntilTime);
 
         try
         {
             var result = await _containerAutofillService.AutofillAsync(
-                containerId, weekday, isHoliday, startBase, endBase, transportMode);
+                containerId, weekday, isHoliday, startBase, endBase, parsedFromTime, parsedUntilTime, transportMode);
 
             var routeSteps = new List<RouteStepDto>();
             for (int i = 0; i < result.OptimizedRoute.Count; i++)

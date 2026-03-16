@@ -20,20 +20,17 @@ namespace Klacks.Api.Domain.Services.RouteOptimization;
 
 public class ContainerAutofillService : IContainerAutofillService
 {
-    private readonly IContainerTemplateRepository _containerRepository;
     private readonly IContainerAvailableTasksService _availableTasksService;
     private readonly IRouteOptimizationService _routeOptimizationService;
     private readonly IGeocodingService _geocodingService;
     private readonly ILogger<ContainerAutofillService> _logger;
 
     public ContainerAutofillService(
-        IContainerTemplateRepository containerRepository,
         IContainerAvailableTasksService availableTasksService,
         IRouteOptimizationService routeOptimizationService,
         IGeocodingService geocodingService,
         ILogger<ContainerAutofillService> logger)
     {
-        _containerRepository = containerRepository;
         _availableTasksService = availableTasksService;
         _routeOptimizationService = routeOptimizationService;
         _geocodingService = geocodingService;
@@ -46,26 +43,21 @@ public class ContainerAutofillService : IContainerAutofillService
         bool isHoliday,
         string startBase,
         string endBase,
+        TimeOnly fromTime,
+        TimeOnly untilTime,
         ContainerTransportMode transportMode = ContainerTransportMode.ByCar,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation(
-            "Autofill started for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}",
-            containerId, weekday, isHoliday);
+            "Autofill started for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}, FromTime: {FromTime}, UntilTime: {UntilTime}",
+            containerId, weekday, isHoliday, fromTime, untilTime);
 
-        var template = await GetContainerTemplateAsync(containerId, weekday, isHoliday);
-        if (template == null)
-        {
-            _logger.LogWarning("No template found for given criteria");
-            return CreateEmptyResult(transportMode);
-        }
-
-        var timeBudget = template.UntilTime - template.FromTime;
-        _logger.LogInformation("Time budget: {TimeBudget} ({From} - {Until})", timeBudget, template.FromTime, template.UntilTime);
+        var timeBudget = untilTime - fromTime;
+        _logger.LogInformation("Time budget: {TimeBudget} ({From} - {Until})", timeBudget, fromTime, untilTime);
 
         var availableTasks = await _availableTasksService.GetAvailableTasksAsync(
-            containerId, weekday, template.FromTime, template.UntilTime,
-            isHoliday: isHoliday, cancellationToken: cancellationToken);
+            containerId, weekday, fromTime, untilTime,
+            cancellationToken: cancellationToken);
 
         var timeRangeTasks = availableTasks.Where(s => s.IsTimeRange).ToList();
         _logger.LogInformation("Available tasks: {Total}, TimeRange tasks: {TimeRange}", availableTasks.Count, timeRangeTasks.Count);
@@ -129,12 +121,6 @@ public class ContainerAutofillService : IContainerAutofillService
         _logger.LogInformation("Post-insertion complete: route with {Count} stops", optimizedRoute.Count);
 
         return BuildResult(distanceMatrix, optimizedRoute, startBaseIndex, endBaseIndex, timeBudget, timeRangeTasks.Count, transportMode);
-    }
-
-    private async Task<ContainerTemplate?> GetContainerTemplateAsync(Guid containerId, int weekday, bool isHoliday)
-    {
-        var templates = await _containerRepository.GetTemplatesForContainer(containerId);
-        return templates.FirstOrDefault(t => t.Weekday == weekday && t.IsHoliday == isHoliday);
     }
 
     private async Task<List<Location>> ExtractLocationsFromShiftsAsync(List<Shift> shifts)

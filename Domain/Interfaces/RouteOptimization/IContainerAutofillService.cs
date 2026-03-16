@@ -24,6 +24,8 @@ public interface IContainerAutofillService
         bool isHoliday,
         string startBase,
         string endBase,
+        TimeOnly fromTime,
+        TimeOnly untilTime,
         ContainerTransportMode transportMode = ContainerTransportMode.ByCar,
         CancellationToken cancellationToken = default);
 }
