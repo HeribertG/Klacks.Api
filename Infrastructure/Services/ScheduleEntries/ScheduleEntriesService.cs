@@ -23,13 +23,15 @@ public class ScheduleEntriesService : IScheduleEntriesService
     public IQueryable<ScheduleCell> GetScheduleEntriesQuery(
         DateOnly startDate,
         DateOnly endDate,
-        List<Guid>? visibleGroupIds = null)
+        List<Guid>? visibleGroupIds = null,
+        Guid? analyseToken = null)
     {
         _logger.LogDebug(
-            "Building schedule entries query from {StartDate} to {EndDate}, VisibleGroups: {VisibleGroupCount}",
+            "Building schedule entries query from {StartDate} to {EndDate}, VisibleGroups: {VisibleGroupCount}, AnalyseToken: {AnalyseToken}",
             startDate,
             endDate,
-            visibleGroupIds?.Count ?? 0);
+            visibleGroupIds?.Count ?? 0,
+            analyseToken);
 
         var startDateTime = DateTime.SpecifyKind(startDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
         var endDateTime = DateTime.SpecifyKind(endDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
@@ -41,7 +43,8 @@ public class ScheduleEntriesService : IScheduleEntriesService
                 SELECT * FROM get_schedule_entries(
                     {startDateTime}::DATE,
                     {endDateTime}::DATE,
-                    {visibleGroupArray}::UUID[]
+                    {visibleGroupArray}::UUID[],
+                    {analyseToken}::UUID
                 )");
     }
 }

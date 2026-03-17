@@ -100,6 +100,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<ScheduleNote> ScheduleNotes { get; set; }
 
+    public DbSet<AnalyseScenario> AnalyseScenarios { get; set; }
+
     public DbSet<ShiftExpenses> ShiftExpenses { get; set; }
 
     public DbSet<ScheduleChange> ScheduleChange { get; set; }
@@ -305,6 +307,12 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<WorkChange>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<Expenses>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<ScheduleNote>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<AnalyseScenario>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => p.Token).IsUnique();
+            entity.HasIndex(p => new { p.GroupId, p.Status });
+        });
         modelBuilder.Entity<ShiftExpenses>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<ScheduleChange>(entity =>
         {
@@ -406,8 +414,12 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.GroupId, p.ClientId, p.IsDeleted });
         modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.ClientId, p.GroupId, p.ShiftId });
         modelBuilder.Entity<Work>().HasIndex(p => new { p.ClientId, p.ShiftId });
+        modelBuilder.Entity<Work>().HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
         modelBuilder.Entity<Break>().HasIndex(p => new { p.ClientId });
+        modelBuilder.Entity<Break>().HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
         modelBuilder.Entity<Shift>().HasIndex(p => new { p.MacroId, p.ClientId, p.Status , p.FromDate, p.UntilDate });
+        modelBuilder.Entity<Shift>().HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
+        modelBuilder.Entity<ScheduleNote>().HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
         modelBuilder.Entity<ContainerTemplate>().HasIndex(p => new { p.Id, p.ContainerId, p.Weekday, p.IsWeekdayAndHoliday, p.IsHoliday });
         modelBuilder.Entity<ClientScheduleDetail>().HasIndex(p => new { p.ClientId, p.CurrentYear, p.CurrentMonth });
         modelBuilder.Entity<AssignedGroup>().HasIndex(p => new { p.ClientId, p.GroupId });

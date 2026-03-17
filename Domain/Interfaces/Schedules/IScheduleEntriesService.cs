@@ -9,5 +9,6 @@ public interface IScheduleEntriesService
     IQueryable<ScheduleCell> GetScheduleEntriesQuery(
         DateOnly startDate,
         DateOnly endDate,
-        List<Guid>? visibleGroupIds = null);
+        List<Guid>? visibleGroupIds = null,
+        Guid? analyseToken = null);
 }

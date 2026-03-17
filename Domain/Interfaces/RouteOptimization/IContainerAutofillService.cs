@@ -27,5 +27,6 @@ public interface IContainerAutofillService
         TimeOnly fromTime,
         TimeOnly untilTime,
         ContainerTransportMode transportMode = ContainerTransportMode.ByCar,
+        double timeRangeTolerance = 0.5,
         CancellationToken cancellationToken = default);
 }

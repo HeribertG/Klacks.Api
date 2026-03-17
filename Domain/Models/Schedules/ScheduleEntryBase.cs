@@ -31,4 +31,6 @@ public abstract class ScheduleEntryBase : BaseEntity
     public DateTime? SealedAt { get; set; }
 
     public string? SealedBy { get; set; }
+
+    public Guid? AnalyseToken { get; set; }
 }

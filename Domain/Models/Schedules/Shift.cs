@@ -119,4 +119,6 @@ public class Shift : BaseEntity
     public List<GroupItem> GroupItems { get; set; } = [];
 
     #endregion Groups
+
+    public Guid? AnalyseToken { get; set; }
 }

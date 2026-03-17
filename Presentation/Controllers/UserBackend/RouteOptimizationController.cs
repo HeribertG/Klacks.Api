@@ -161,7 +161,8 @@ public class RouteOptimizationController : BaseController
         [FromQuery] string? endBase = null,
         [FromQuery] string? fromTime = null,
         [FromQuery] string? untilTime = null,
-        [FromQuery] ContainerTransportMode transportMode = ContainerTransportMode.ByCar)
+        [FromQuery] ContainerTransportMode transportMode = ContainerTransportMode.ByCar,
+        [FromQuery] double timeRangeTolerance = 0.5)
     {
         if (string.IsNullOrEmpty(startBase) || string.IsNullOrEmpty(endBase))
         {
@@ -183,7 +184,7 @@ public class RouteOptimizationController : BaseController
         try
         {
             var result = await _containerAutofillService.AutofillAsync(
-                containerId, weekday, isHoliday, startBase, endBase, parsedFromTime, parsedUntilTime, transportMode);
+                containerId, weekday, isHoliday, startBase, endBase, parsedFromTime, parsedUntilTime, transportMode, timeRangeTolerance);
 
             var routeSteps = new List<RouteStepDto>();
             for (int i = 0; i < result.OptimizedRoute.Count; i++)

@@ -1127,6 +1127,8 @@ public record Location
     public TimeSpan DebriefingTime { get; init; } = TimeSpan.Zero;
     public TimeSpan WorkTime { get; init; } = TimeSpan.Zero;
     public TimeSpan TotalOnSiteTime => BriefingTime + WorkTime + DebriefingTime;
+    public TimeOnly? TimeRangeStart { get; init; }
+    public TimeOnly? TimeRangeEnd { get; init; }
 }
 
 public record DistanceMatrix(
