@@ -69,6 +69,10 @@ namespace Klacks.Api.Application.Constants
         public const string DEEPL_API_KEY = "DEEPL_API_KEY";
         public const string OPENROUTESERVICE_API_KEY = "OPENROUTESERVICE_API_KEY";
 
+        public const string ROUTE_MIN_TRAVEL_TIME_BY_CAR = "ROUTE_MIN_TRAVEL_TIME_BY_CAR";
+        public const string ROUTE_MIN_TRAVEL_TIME_BY_BICYCLE = "ROUTE_MIN_TRAVEL_TIME_BY_BICYCLE";
+        public const string ROUTE_MIN_TRAVEL_TIME_BY_FOOT = "ROUTE_MIN_TRAVEL_TIME_BY_FOOT";
+
         public const string INSTALLED_LANGUAGE_PREFIX = "INSTALLED_LANGUAGE_";
     }
 }

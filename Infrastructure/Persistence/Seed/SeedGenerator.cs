@@ -464,6 +464,11 @@ namespace Klacks.Api.Data.Seed
                 ("1234567a-1234-1234-1234-123456789044", "SCHEDULING_MAX_WEEKLY_HOURS", "50"),
                 ("1234567a-1234-1234-1234-123456789045", "SCHEDULING_MAX_CONSECUTIVE_DAYS", "6"),
 
+                // Route Optimization Settings (min travel time in minutes)
+                ("1234567a-1234-1234-1234-123456789046", "ROUTE_MIN_TRAVEL_TIME_BY_CAR", "5"),
+                ("1234567a-1234-1234-1234-123456789047", "ROUTE_MIN_TRAVEL_TIME_BY_BICYCLE", "3"),
+                ("1234567a-1234-1234-1234-123456789048", "ROUTE_MIN_TRAVEL_TIME_BY_FOOT", "1"),
+
                 // Grid Color Settings
                 ("1234567a-1234-1234-1234-123456789033", "WORK_CHANGE_COLOR_KEY", "#FFA500"),
                 ("1234567a-1234-1234-1234-123456789034", "SURCHARGE_COLOR_KEY", "#FFFF00"),

@@ -20,22 +20,26 @@ namespace Klacks.Api.Domain.Services.RouteOptimization;
 
 public class ContainerAutofillService : IContainerAutofillService
 {
-    private const double MinTravelTimeByCarSeconds = 5 * 60;
+    private const double DefaultMinTravelTimeByCarMinutes = 5;
+    private const double SecondsPerMinute = 60;
 
     private readonly IContainerAvailableTasksService _availableTasksService;
     private readonly IRouteOptimizationService _routeOptimizationService;
     private readonly IGeocodingService _geocodingService;
+    private readonly ISettingsRepository _settingsRepository;
     private readonly ILogger<ContainerAutofillService> _logger;
 
     public ContainerAutofillService(
         IContainerAvailableTasksService availableTasksService,
         IRouteOptimizationService routeOptimizationService,
         IGeocodingService geocodingService,
+        ISettingsRepository settingsRepository,
         ILogger<ContainerAutofillService> logger)
     {
         _availableTasksService = availableTasksService;
         _routeOptimizationService = routeOptimizationService;
         _geocodingService = geocodingService;
+        _settingsRepository = settingsRepository;
         _logger = logger;
     }
 
@@ -104,6 +108,8 @@ public class ContainerAutofillService : IContainerAutofillService
 
         _logger.LogInformation("Building distance matrix for {Count} locations (including bases)", allLocations.Count);
         var distanceMatrix = await _routeOptimizationService.CalculateDistanceMatrixForLocationsAsync(allLocations, transportMode);
+        var minTravelTimeSeconds = await GetMinTravelTimeSecondsAsync(transportMode);
+        ClampDurationMatrix(distanceMatrix.DurationMatrix, minTravelTimeSeconds);
 
         var candidateCount = candidateLocations.Count;
         var selectedIndices = GreedySelection(distanceMatrix, startBaseIndex, endBaseIndex, candidateCount, timeBudget, fromTime, timeRangeTolerance);
@@ -231,9 +237,9 @@ public class ContainerAutofillService : IContainerAutofillService
 
             foreach (var candidate in remaining)
             {
-                var travelToCandidate = GetEffectiveTravelTime(distanceMatrix, currentPosition, candidate);
+                var travelToCandidate = distanceMatrix.DurationMatrix[currentPosition, candidate];
                 var onSiteTime = distanceMatrix.Locations[candidate].TotalOnSiteTime.TotalSeconds;
-                var travelToEnd = GetEffectiveTravelTime(distanceMatrix, candidate, endBaseIndex);
+                var travelToEnd = distanceMatrix.DurationMatrix[candidate, endBaseIndex];
 
                 var absoluteArrival = containerFromTimeSeconds + usedTimeSeconds + travelToCandidate;
 
@@ -260,7 +266,7 @@ public class ContainerAutofillService : IContainerAutofillService
                 break;
             }
 
-            var travelToBest = GetEffectiveTravelTime(distanceMatrix, currentPosition, bestCandidate);
+            var travelToBest = distanceMatrix.DurationMatrix[currentPosition, bestCandidate];
             var bestOnSiteTime = distanceMatrix.Locations[bestCandidate].TotalOnSiteTime.TotalSeconds;
 
             selected.Add(bestCandidate);
@@ -374,9 +380,9 @@ public class ContainerAutofillService : IContainerAutofillService
                     var prevIndex = pos == 0 ? startBaseIndex : route[pos - 1];
                     var nextIndex = pos == route.Count ? endBaseIndex : route[pos];
 
-                    var currentSegmentDuration = GetEffectiveTravelTime(distanceMatrix, prevIndex, nextIndex);
-                    var newDurationBefore = GetEffectiveTravelTime(distanceMatrix, prevIndex, candidate);
-                    var newDurationAfter = GetEffectiveTravelTime(distanceMatrix, candidate, nextIndex);
+                    var currentSegmentDuration = distanceMatrix.DurationMatrix[prevIndex, nextIndex];
+                    var newDurationBefore = distanceMatrix.DurationMatrix[prevIndex, candidate];
+                    var newDurationAfter = distanceMatrix.DurationMatrix[candidate, nextIndex];
                     var insertionCost = newDurationBefore + onSiteTime + newDurationAfter - currentSegmentDuration;
 
                     if (currentTotalTime + insertionCost > budgetSeconds || insertionCost >= bestInsertionCost)
@@ -416,14 +422,14 @@ public class ContainerAutofillService : IContainerAutofillService
                         ? currentArrivalTimes[route.Count - 1] + timeShift
                         : candidateArrival;
                     var lastOnSite = distanceMatrix.Locations[lastIndex].TotalOnSiteTime.TotalSeconds;
-                    var travelToEnd = GetEffectiveTravelTime(distanceMatrix, lastIndex, endBaseIndex);
+                    var travelToEnd = distanceMatrix.DurationMatrix[lastIndex, endBaseIndex];
 
                     if (pos == route.Count)
                     {
                         lastIndex = candidate;
                         lastArrival = candidateArrival;
                         lastOnSite = onSiteTime;
-                        travelToEnd = GetEffectiveTravelTime(distanceMatrix, candidate, endBaseIndex);
+                        travelToEnd = distanceMatrix.DurationMatrix[candidate, endBaseIndex];
                     }
 
                     if (lastArrival + lastOnSite + travelToEnd > containerEndTimeSeconds)
@@ -462,7 +468,7 @@ public class ContainerAutofillService : IContainerAutofillService
 
         double totalSeconds = 0;
 
-        totalSeconds += GetEffectiveTravelTime(distanceMatrix, startBaseIndex, route[0]);
+        totalSeconds += distanceMatrix.DurationMatrix[startBaseIndex, route[0]];
 
         for (int i = 0; i < route.Count; i++)
         {
@@ -470,11 +476,11 @@ public class ContainerAutofillService : IContainerAutofillService
 
             if (i < route.Count - 1)
             {
-                totalSeconds += GetEffectiveTravelTime(distanceMatrix, route[i], route[i + 1]);
+                totalSeconds += distanceMatrix.DurationMatrix[route[i], route[i + 1]];
             }
         }
 
-        totalSeconds += GetEffectiveTravelTime(distanceMatrix, route.Last(), endBaseIndex);
+        totalSeconds += distanceMatrix.DurationMatrix[route.Last(), endBaseIndex];
 
         return totalSeconds;
     }
@@ -517,7 +523,7 @@ public class ContainerAutofillService : IContainerAutofillService
                 var location = distanceMatrix.Locations[validRoute[i]];
                 var arrival = arrivalTimes[i];
                 var onSite = location.TotalOnSiteTime.TotalSeconds;
-                var travelToEnd = GetEffectiveTravelTime(distanceMatrix, validRoute[i], endBaseIndex);
+                var travelToEnd = distanceMatrix.DurationMatrix[validRoute[i], endBaseIndex];
                 var isLastStop = i == validRoute.Count - 1;
 
                 var timeRangeViolation = !IsTimeRangeValid(location, arrival, timeRangeTolerance);
@@ -544,7 +550,7 @@ public class ContainerAutofillService : IContainerAutofillService
 
         foreach (var stopIndex in route)
         {
-            currentTime += GetEffectiveTravelTime(distanceMatrix, prevIndex, stopIndex);
+            currentTime += distanceMatrix.DurationMatrix[prevIndex, stopIndex];
             arrivalTimes.Add(currentTime);
             currentTime += distanceMatrix.Locations[stopIndex].TotalOnSiteTime.TotalSeconds;
             prevIndex = stopIndex;
@@ -553,10 +559,39 @@ public class ContainerAutofillService : IContainerAutofillService
         return arrivalTimes;
     }
 
-    private static double GetEffectiveTravelTime(DistanceMatrix distanceMatrix, int fromIndex, int toIndex)
+    private static void ClampDurationMatrix(double[,] durationMatrix, double minTravelTimeSeconds)
     {
-        var osrmSeconds = distanceMatrix.DurationMatrix[fromIndex, toIndex];
-        return Math.Max(osrmSeconds, MinTravelTimeByCarSeconds);
+        var rows = durationMatrix.GetLength(0);
+        var cols = durationMatrix.GetLength(1);
+
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                if (i != j && durationMatrix[i, j] > 0 && durationMatrix[i, j] < minTravelTimeSeconds)
+                {
+                    durationMatrix[i, j] = minTravelTimeSeconds;
+                }
+            }
+        }
+    }
+
+    private async Task<double> GetMinTravelTimeSecondsAsync(ContainerTransportMode transportMode)
+    {
+        var settingKey = transportMode switch
+        {
+            ContainerTransportMode.ByBicycle => Application.Constants.Settings.ROUTE_MIN_TRAVEL_TIME_BY_BICYCLE,
+            ContainerTransportMode.ByFoot => Application.Constants.Settings.ROUTE_MIN_TRAVEL_TIME_BY_FOOT,
+            _ => Application.Constants.Settings.ROUTE_MIN_TRAVEL_TIME_BY_CAR
+        };
+
+        var setting = await _settingsRepository.GetSetting(settingKey);
+        if (setting != null && double.TryParse(setting.Value, out var minutes))
+        {
+            return minutes * SecondsPerMinute;
+        }
+
+        return DefaultMinTravelTimeByCarMinutes * SecondsPerMinute;
     }
 
     private ContainerAutofillResult BuildResult(
