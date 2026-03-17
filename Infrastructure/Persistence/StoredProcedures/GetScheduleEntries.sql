@@ -17,7 +17,7 @@ CREATE OR REPLACE FUNCTION get_schedule_entries(
     start_date DATE,
     end_date DATE,
     visible_group_ids UUID[] DEFAULT ARRAY[]::UUID[],
-    analyse_token UUID DEFAULT NULL
+    p_analyse_token UUID DEFAULT NULL
 )
 RETURNS TABLE (
     id UUID,
@@ -62,7 +62,7 @@ BEGIN
             ((visible_group_ids IS NULL OR array_length(visible_group_ids, 1) IS NULL)
             OR gi.shift_id IS NULL
             OR gi.group_id IN (SELECT vhi.id FROM visible_hierarchy_ids vhi))
-            AND (analyse_token IS NULL AND s.analyse_token IS NULL OR s.analyse_token = analyse_token)
+            AND (p_analyse_token IS NULL AND s.analyse_token IS NULL OR s.analyse_token = p_analyse_token)
     ),
     all_client_shift_ids AS MATERIALIZED (
         SELECT DISTINCT s.id
@@ -75,7 +75,7 @@ BEGIN
         AND w.shift_id IN (SELECT fsi.id FROM filtered_shift_ids fsi)
         AND w."current_date"::DATE >= start_date
         AND w."current_date"::DATE <= end_date
-        AND (analyse_token IS NULL AND w.analyse_token IS NULL OR w.analyse_token = analyse_token)
+        AND (p_analyse_token IS NULL AND w.analyse_token IS NULL OR w.analyse_token = p_analyse_token)
     ),
     work_group_restricted AS MATERIALIZED (
         SELECT
@@ -391,7 +391,7 @@ BEGIN
         WHERE b.is_deleted = false
         AND b."current_date"::DATE >= start_date
         AND b."current_date"::DATE <= end_date
-        AND (analyse_token IS NULL AND b.analyse_token IS NULL OR b.analyse_token = analyse_token)
+        AND (p_analyse_token IS NULL AND b.analyse_token IS NULL OR b.analyse_token = p_analyse_token)
     ),
     -- Entry Type 4: ScheduleNote entries
     schedule_note_entries AS (
@@ -422,7 +422,7 @@ BEGIN
         WHERE sn.is_deleted = false
         AND sn."current_date"::DATE >= start_date
         AND sn."current_date"::DATE <= end_date
-        AND (analyse_token IS NULL AND sn.analyse_token IS NULL OR sn.analyse_token = analyse_token)
+        AND (p_analyse_token IS NULL AND sn.analyse_token IS NULL OR sn.analyse_token = p_analyse_token)
     )
     -- Combine all entries
     SELECT * FROM (
