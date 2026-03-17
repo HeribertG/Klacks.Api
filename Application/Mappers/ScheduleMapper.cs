@@ -136,6 +136,7 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Work.DeletedTime))]
     [MapperIgnoreTarget(nameof(Work.IsDeleted))]
     [MapperIgnoreTarget(nameof(Work.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(Work.AnalyseToken))]
     public partial Work ToWorkEntity(WorkResource resource);
 
     public partial BreakResource ToBreakResource(Break @break);
@@ -147,6 +148,7 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Break.DeletedTime))]
     [MapperIgnoreTarget(nameof(Break.IsDeleted))]
     [MapperIgnoreTarget(nameof(Break.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(Break.AnalyseToken))]
     [MapperIgnoreTarget(nameof(Break.Client))]
     [MapperIgnoreTarget(nameof(Break.Absence))]
     public partial Break ToBreakEntity(BreakResource resource);
@@ -228,6 +230,7 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Shift.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(Shift.Client))]
     [MapperIgnoreTarget(nameof(Shift.GroupItems))]
+    [MapperIgnoreTarget(nameof(Shift.AnalyseToken))]
     private partial Shift ToShiftEntityBase(ShiftResource resource);
 
     public Shift ToShiftEntity(ShiftResource resource)
@@ -431,6 +434,7 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(ScheduleNote.IsDeleted))]
     [MapperIgnoreTarget(nameof(ScheduleNote.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(ScheduleNote.Client))]
+    [MapperIgnoreTarget(nameof(ScheduleNote.AnalyseToken))]
     public partial ScheduleNote ToScheduleNoteEntity(ScheduleNoteResource resource);
 
     public WorkNotificationDto ToWorkNotificationDto(
