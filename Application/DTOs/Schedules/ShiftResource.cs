@@ -112,4 +112,6 @@ public class ShiftResource
     public List<SimpleGroupResource> Groups { get; set; } = new List<SimpleGroupResource>();
 
     #endregion Groups
+
+    public Guid? AnalyseToken { get; set; }
 }

@@ -19,4 +19,6 @@ public class WorkFilter
     public List<WorkResource> Works { get; set; } = new List<WorkResource>();
 
     public Guid? SelectedGroup { get; set; }
+
+    public Guid? AnalyseToken { get; set; }
 }

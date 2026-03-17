@@ -40,4 +40,6 @@ public class ScheduleEntryResource
     public int? PaymentInterval { get; set; }
 
     public List<WorkScheduleResource> ScheduleEntries { get; set; } = [];
+
+    public Guid? AnalyseToken { get; set; }
 }

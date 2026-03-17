@@ -16,4 +16,5 @@ public class WorkScheduleFilter
     public int RowCount { get; set; } = 200;
     public int PaymentInterval { get; set; } = 2;
     public string SearchString { get; set; } = string.Empty;
+    public Guid? AnalyseToken { get; set; }
 }

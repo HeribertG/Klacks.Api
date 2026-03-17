@@ -20,7 +20,6 @@ namespace Klacks.Api.Domain.Services.RouteOptimization;
 
 public class ContainerAutofillService : IContainerAutofillService
 {
-    private const double DefaultMinTravelTimeByCarMinutes = 5;
     private const double SecondsPerMinute = 60;
 
     private readonly IContainerAvailableTasksService _availableTasksService;
@@ -591,7 +590,7 @@ public class ContainerAutofillService : IContainerAutofillService
             return minutes * SecondsPerMinute;
         }
 
-        return DefaultMinTravelTimeByCarMinutes * SecondsPerMinute;
+        return 0;
     }
 
     private ContainerAutofillResult BuildResult(

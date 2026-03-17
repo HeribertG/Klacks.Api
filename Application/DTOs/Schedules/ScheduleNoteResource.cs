@@ -11,4 +11,6 @@ public class ScheduleNoteResource
     public DateOnly CurrentDate { get; set; }
 
     public string Content { get; set; } = string.Empty;
+
+    public Guid? AnalyseToken { get; set; }
 }

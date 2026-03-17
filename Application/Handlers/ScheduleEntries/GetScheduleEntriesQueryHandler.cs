@@ -86,7 +86,8 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
         var entries = await _scheduleEntriesService.GetScheduleEntriesQuery(
             startDate,
             endDate,
-            visibleGroupIds.Count > 0 ? visibleGroupIds : null)
+            visibleGroupIds.Count > 0 ? visibleGroupIds : null,
+            request.Filter.AnalyseToken)
             .Where(e => clientIds.Contains(e.ClientId))
             .ToListAsync(cancellationToken);
 
