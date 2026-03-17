@@ -53,9 +53,12 @@ BEGIN
         FROM shift s
         LEFT JOIN group_item gi ON gi.shift_id = s.id
         WHERE
-            (visible_group_ids IS NULL OR array_length(visible_group_ids, 1) IS NULL)
-            OR (gi.shift_id IS NULL AND show_ungrouped_shifts)
-            OR gi.group_id IN (SELECT id FROM group_hierarchy)
+            s.analyse_token IS NULL
+            AND (
+                (visible_group_ids IS NULL OR array_length(visible_group_ids, 1) IS NULL)
+                OR (gi.shift_id IS NULL AND show_ungrouped_shifts)
+                OR gi.group_id IN (SELECT id FROM group_hierarchy)
+            )
     ),
     holidays AS MATERIALIZED (
         SELECT unnest(holiday_dates) AS holiday_date
@@ -142,6 +145,7 @@ BEGIN
         FROM work w
         JOIN date_series d ON d.schedule_date = w."current_date"::DATE
         WHERE w.is_deleted = false
+        AND w.analyse_token IS NULL
         GROUP BY w.shift_id, d.schedule_date
     )
     SELECT
@@ -232,6 +236,7 @@ BEGIN
         JOIN shift s ON s.id = ip.shift_id
         WHERE s.is_deleted = false
         AND s.status >= 2
+        AND s.analyse_token IS NULL
     ),
     container_lookup AS (
         SELECT DISTINCT
@@ -253,6 +258,7 @@ BEGIN
         FROM work w
         JOIN input_pairs ip ON ip.shift_id = w.shift_id AND ip.schedule_date = w."current_date"::DATE
         WHERE w.is_deleted = false
+        AND w.analyse_token IS NULL
         GROUP BY w.shift_id, w."current_date"::DATE
     )
     SELECT
