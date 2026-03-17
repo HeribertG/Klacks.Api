@@ -58,8 +58,8 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
             var groupIds = await GetGroupHierarchyIds(groupId, cancellationToken);
 
-            await CloneShifts(groupIds, token, cancellationToken);
-            await CloneWorks(groupIds, fromDate, untilDate, token, cancellationToken);
+            var shiftIdMap = await CloneShifts(groupIds, token, cancellationToken);
+            await CloneWorks(groupIds, fromDate, untilDate, token, shiftIdMap, cancellationToken);
             await CloneBreaks(groupIds, fromDate, untilDate, token, cancellationToken);
             await CloneScheduleNotes(groupIds, fromDate, untilDate, token, cancellationToken);
 
@@ -105,7 +105,7 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         return result;
     }
 
-    private async Task CloneShifts(List<Guid> groupIds, Guid token, CancellationToken ct)
+    private async Task<Dictionary<Guid, Guid>> CloneShifts(List<Guid> groupIds, Guid token, CancellationToken ct)
     {
         var shiftIds = await _context.Set<GroupItem>()
             .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
@@ -182,9 +182,11 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
             await _context.Shift.AddAsync(clone, ct);
         }
+
+        return idMap;
     }
 
-    private async Task CloneWorks(List<Guid> groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, CancellationToken ct)
+    private async Task CloneWorks(List<Guid> groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, Dictionary<Guid, Guid> shiftIdMap, CancellationToken ct)
     {
         var shiftIds = await _context.Set<GroupItem>()
             .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
@@ -202,8 +204,6 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
             .ToListAsync(ct);
 
         var workIdMap = new Dictionary<Guid, Guid>();
-
-        var shiftIdMap = await GetShiftIdMap(token, ct);
 
         foreach (var work in works)
         {
@@ -362,15 +362,4 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         }
     }
 
-    private async Task<Dictionary<Guid, Guid>> GetShiftIdMap(Guid token, CancellationToken ct)
-    {
-        var scenarioShifts = await _context.Shift
-            .Where(s => s.AnalyseToken == token && !s.IsDeleted)
-            .Select(s => new { s.Id, s.OriginalId })
-            .ToListAsync(ct);
-
-        return scenarioShifts
-            .Where(s => s.OriginalId == null)
-            .ToDictionary(s => s.Id, s => s.Id);
-    }
 }
