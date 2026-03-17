@@ -38,13 +38,24 @@ public class ScheduleEntriesService : IScheduleEntriesService
 
         var visibleGroupArray = visibleGroupIds?.ToArray() ?? [];
 
+        if (analyseToken.HasValue)
+        {
+            return _context.ScheduleCells
+                .FromSqlInterpolated($@"
+                    SELECT * FROM get_schedule_entries(
+                        {startDateTime}::DATE,
+                        {endDateTime}::DATE,
+                        {visibleGroupArray}::UUID[],
+                        {analyseToken.Value}::UUID
+                    )");
+        }
+
         return _context.ScheduleCells
             .FromSqlInterpolated($@"
                 SELECT * FROM get_schedule_entries(
                     {startDateTime}::DATE,
                     {endDateTime}::DATE,
-                    {visibleGroupArray}::UUID[],
-                    {analyseToken}::UUID
+                    {visibleGroupArray}::UUID[]
                 )");
     }
 }
