@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Application.DTOs.IdentityProviders;
+using Klacks.Api.Domain.Interfaces.Authentification;
 
 namespace Klacks.Api.Application.Services.Identity;
 
@@ -15,9 +16,8 @@ public class ClientSyncService : IClientSyncService
     private readonly ILdapService _ldapService;
     private readonly IClientRepository _clientRepository;
     private readonly IMembershipRepository _membershipRepository;
-    private readonly IAddressRepository _addressRepository;
+    private readonly IClientAddressService _clientAddressService;
     private readonly IIdentityProviderSyncLogRepository _syncLogRepository;
-    private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ClientSyncService> _logger;
 
@@ -25,18 +25,16 @@ public class ClientSyncService : IClientSyncService
         ILdapService ldapService,
         IClientRepository clientRepository,
         IMembershipRepository membershipRepository,
-        IAddressRepository addressRepository,
+        IClientAddressService clientAddressService,
         IIdentityProviderSyncLogRepository syncLogRepository,
-        ISettingsRepository settingsRepository,
         IUnitOfWork unitOfWork,
         ILogger<ClientSyncService> logger)
     {
         _ldapService = ldapService;
         _clientRepository = clientRepository;
         _membershipRepository = membershipRepository;
-        _addressRepository = addressRepository;
+        _clientAddressService = clientAddressService;
         _syncLogRepository = syncLogRepository;
-        _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -152,41 +150,7 @@ public class ClientSyncService : IClientSyncService
 
         await _membershipRepository.Add(membership);
 
-        var streetSetting = await _settingsRepository.GetSetting("APP_ADDRESS_ADDRESS");
-        var zipSetting = await _settingsRepository.GetSetting("APP_ADDRESS_ZIP");
-        var placeSetting = await _settingsRepository.GetSetting("APP_ADDRESS_PLACE");
-        var stateSetting = await _settingsRepository.GetSetting("APP_ADDRESS_STATE");
-        var countrySetting = await _settingsRepository.GetSetting("APP_ADDRESS_COUNTRY");
-
-        var street = ldapUser.StreetAddress ?? streetSetting?.Value ?? "Unbekannt";
-        var zip = ldapUser.PostalCode ?? zipSetting?.Value ?? "0000";
-        var city = ldapUser.City ?? placeSetting?.Value ?? "Unbekannt";
-        var state = ldapUser.State ?? stateSetting?.Value ?? "ZH";
-        var country = ldapUser.Country ?? countrySetting?.Value ?? "CH";
-
-        _logger.LogInformation("Creating address for {Name}: Street={Street}, Zip={Zip}, City={City}, State={State}, Country={Country}",
-            client.Name, street, zip, city, state, country);
-        _logger.LogInformation("LDAP values: Street={Street}, Zip={Zip}, City={City}, State={State}, Country={Country}",
-            ldapUser.StreetAddress ?? "(null)", ldapUser.PostalCode ?? "(null)", ldapUser.City ?? "(null)",
-            ldapUser.State ?? "(null)", ldapUser.Country ?? "(null)");
-
-        var address = new Address
-        {
-            ClientId = client.Id,
-            Type = AddressTypeEnum.Employee,
-            Street = street,
-            Zip = zip,
-            City = city,
-            State = state,
-            Country = country,
-            ValidFrom = DateTime.UtcNow,
-            AddressLine1 = string.Empty,
-            AddressLine2 = string.Empty,
-            Street2 = string.Empty,
-            Street3 = string.Empty
-        };
-
-        await _addressRepository.Add(address);
+        await _clientAddressService.CreateNewClientAddressAsync(client.Id, ldapUser);
 
         var syncLog = new IdentityProviderSyncLog
         {
@@ -218,7 +182,7 @@ public class ClientSyncService : IClientSyncService
         client.Title = ldapUser.Title ?? client.Title;
         client.Company = ldapUser.Company ?? client.Company;
 
-        await UpdateClientAddress(client.Id, ldapUser);
+        await _clientAddressService.UpdateClientAddressAsync(client.Id, ldapUser);
 
         var wasInactive = !syncLog.IsActiveInSource;
         var isNowActive = ldapUser.IsEnabled;
@@ -239,63 +203,6 @@ public class ClientSyncService : IClientSyncService
         syncLog.ExternalDn = ldapUser.DistinguishedName;
 
         _logger.LogDebug("Updated client {Name} from LDAP user {DN}", client.Name, ldapUser.DistinguishedName);
-    }
-
-    private async Task UpdateClientAddress(Guid clientId, LdapUserEntry ldapUser)
-    {
-        if (!HasAddressData(ldapUser))
-        {
-            return;
-        }
-
-        var streetSetting = await _settingsRepository.GetSetting("APP_ADDRESS_ADDRESS");
-        var zipSetting = await _settingsRepository.GetSetting("APP_ADDRESS_ZIP");
-        var placeSetting = await _settingsRepository.GetSetting("APP_ADDRESS_PLACE");
-        var stateSetting = await _settingsRepository.GetSetting("APP_ADDRESS_STATE");
-        var countrySetting = await _settingsRepository.GetSetting("APP_ADDRESS_COUNTRY");
-
-        var street = ldapUser.StreetAddress ?? streetSetting?.Value ?? "Unbekannt";
-        var zip = ldapUser.PostalCode ?? zipSetting?.Value ?? "0000";
-        var city = ldapUser.City ?? placeSetting?.Value ?? "Unbekannt";
-        var state = ldapUser.State ?? stateSetting?.Value ?? "ZH";
-        var country = ldapUser.Country ?? countrySetting?.Value ?? "CH";
-
-        var addresses = await _addressRepository.ClienList(clientId);
-        var currentAddress = addresses
-            .Where(a => a.Type == AddressTypeEnum.Employee)
-            .OrderByDescending(a => a.ValidFrom)
-            .FirstOrDefault();
-
-        if (currentAddress != null && !AddressHasChanged(currentAddress, street, zip, city, state, country))
-        {
-            return;
-        }
-
-        var newAddress = new Address
-        {
-            ClientId = clientId,
-            Type = AddressTypeEnum.Employee,
-            Street = street,
-            Zip = zip,
-            City = city,
-            State = state,
-            Country = country,
-            ValidFrom = DateTime.UtcNow,
-            AddressLine1 = string.Empty,
-            AddressLine2 = string.Empty,
-            Street2 = string.Empty,
-            Street3 = string.Empty
-        };
-        await _addressRepository.Add(newAddress);
-    }
-
-    private static bool AddressHasChanged(Address current, string street, string zip, string city, string state, string country)
-    {
-        return current.Street != street ||
-               current.Zip != zip ||
-               current.City != city ||
-               current.State != state ||
-               current.Country != country;
     }
 
     private async Task DeactivateClient(IdentityProviderSyncLog syncLog)
@@ -336,13 +243,6 @@ public class ClientSyncService : IClientSyncService
         await _syncLogRepository.Add(syncLog);
     }
 
-    private static bool HasAddressData(LdapUserEntry ldapUser)
-    {
-        return !string.IsNullOrEmpty(ldapUser.StreetAddress) ||
-               !string.IsNullOrEmpty(ldapUser.PostalCode) ||
-               !string.IsNullOrEmpty(ldapUser.City);
-    }
-
     private static GenderEnum DetermineGenderFromPersonalTitle(string? personalTitle)
     {
         if (string.IsNullOrEmpty(personalTitle))
@@ -363,31 +263,5 @@ public class ClientSyncService : IClientSyncService
         }
 
         return GenderEnum.Intersexuality;
-    }
-
-    private async Task<Address> CreateAddressFromOwnerSettings(Guid clientId)
-    {
-        var streetSetting = await _settingsRepository.GetSetting("APP_ADDRESS_ADDRESS");
-        var zipSetting = await _settingsRepository.GetSetting("APP_ADDRESS_ZIP");
-        var placeSetting = await _settingsRepository.GetSetting("APP_ADDRESS_PLACE");
-        var stateSetting = await _settingsRepository.GetSetting("APP_ADDRESS_STATE");
-        var countrySetting = await _settingsRepository.GetSetting("APP_ADDRESS_COUNTRY");
-
-        return new Address
-        {
-            Id = Guid.NewGuid(),
-            ClientId = clientId,
-            Type = AddressTypeEnum.Employee,
-            Street = streetSetting?.Value ?? string.Empty,
-            Zip = zipSetting?.Value ?? string.Empty,
-            City = placeSetting?.Value ?? string.Empty,
-            State = stateSetting?.Value ?? string.Empty,
-            Country = countrySetting?.Value ?? "CH",
-            ValidFrom = DateTime.UtcNow,
-            AddressLine1 = string.Empty,
-            AddressLine2 = string.Empty,
-            Street2 = string.Empty,
-            Street3 = string.Empty
-        };
     }
 }

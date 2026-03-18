@@ -40,38 +40,36 @@ public class ImapEmailService : IImapEmailService
 
     public async Task<List<ReceivedEmail>> FetchNewEmailsAsync(CancellationToken cancellationToken = default)
     {
-        var settings = await GetImapSettingsAsync();
-        if (settings == null)
-        {
-            _logger.LogDebug("IMAP settings not configured, skipping email fetch");
-            return [];
-        }
-
         var folderNames = await GetFolderNamesAsync();
-        var newEmails = new List<ReceivedEmail>();
-
-        using var client = new ImapClient();
 
         try
         {
-            await ConnectClientAsync(client, settings, cancellationToken);
-
-            foreach (var folderName in folderNames)
+            return await WithImapClientAsync(async (client, ct) =>
             {
-                if (cancellationToken.IsCancellationRequested) break;
+                var newEmails = new List<ReceivedEmail>();
 
-                try
+                foreach (var folderName in folderNames)
                 {
-                    var fetchedEmails = await FetchEmailsFromFolderAsync(client, folderName, cancellationToken);
-                    newEmails.AddRange(fetchedEmails);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Failed to fetch emails from folder {Folder}", folderName);
-                }
-            }
+                    if (ct.IsCancellationRequested) break;
 
-            await client.DisconnectAsync(true, cancellationToken);
+                    try
+                    {
+                        var fetchedEmails = await FetchEmailsFromFolderAsync(client, folderName, ct);
+                        newEmails.AddRange(fetchedEmails);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to fetch emails from folder {Folder}", folderName);
+                    }
+                }
+
+                if (newEmails.Count > 0)
+                {
+                    _logger.LogInformation("Fetched {Count} new emails from IMAP server", newEmails.Count);
+                }
+
+                return newEmails;
+            }, cancellationToken) ?? [];
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -79,85 +77,72 @@ public class ImapEmailService : IImapEmailService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error fetching emails from IMAP server {Server}:{Port}", settings.Server, settings.Port);
+            _logger.LogError(ex, "Error fetching emails from IMAP server");
             throw;
         }
-
-        if (newEmails.Count > 0)
-        {
-            _logger.LogInformation("Fetched {Count} new emails from {Server}", newEmails.Count, settings.Server);
-        }
-
-        return newEmails;
     }
 
     public async Task SyncFoldersAsync(CancellationToken cancellationToken = default)
     {
-        var settings = await GetImapSettingsAsync();
-        if (settings == null) return;
-
-        using var client = new ImapClient();
-
         try
         {
-            await ConnectClientAsync(client, settings, cancellationToken);
-
-            var personalNamespace = client.PersonalNamespaces[0];
-            var imapFolders = await client.GetFoldersAsync(personalNamespace, cancellationToken: cancellationToken);
-            var existingImapFolders = imapFolders.Where(f => f.Exists).ToList();
-            var imapFolderNames = existingImapFolders
-                .Select(f => f.FullName)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-            var dbFolders = await _emailFolderRepository.GetAllAsync();
-            var dbFoldersByImapName = dbFolders.ToDictionary(f => f.ImapFolderName, StringComparer.OrdinalIgnoreCase);
-            var appOnlyFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            await WithImapClientAsync(async (client, ct) =>
             {
-                EmailConstants.ClientAssignedFolder
-            };
+                var personalNamespace = client.PersonalNamespaces[0];
+                var imapFolders = await client.GetFoldersAsync(personalNamespace, cancellationToken: ct);
+                var existingImapFolders = imapFolders.Where(f => f.Exists).ToList();
+                var imapFolderNames = existingImapFolders
+                    .Select(f => f.FullName)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            var maxSortOrder = dbFolders.Count > 0 ? dbFolders.Max(f => f.SortOrder) : -1;
-
-            foreach (var imapFolder in existingImapFolders)
-            {
-                var folderName = imapFolder.FullName;
-                if (appOnlyFolders.Contains(folderName))
-                    continue;
-
-                var specialUse = GetSpecialUse(imapFolder.Attributes);
-                var sortOrder = GetSpecialUseSortOrder(specialUse, ref maxSortOrder);
-
-                if (dbFoldersByImapName.TryGetValue(folderName, out var existingFolder))
+                var dbFolders = await _emailFolderRepository.GetAllAsync();
+                var dbFoldersByImapName = dbFolders.ToDictionary(f => f.ImapFolderName, StringComparer.OrdinalIgnoreCase);
+                var appOnlyFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
                 {
-                    if (specialUse != null && string.IsNullOrEmpty(existingFolder.SpecialUse))
+                    EmailConstants.ClientAssignedFolder
+                };
+
+                var maxSortOrder = dbFolders.Count > 0 ? dbFolders.Max(f => f.SortOrder) : -1;
+
+                foreach (var imapFolder in existingImapFolders)
+                {
+                    var folderName = imapFolder.FullName;
+                    if (appOnlyFolders.Contains(folderName))
+                        continue;
+
+                    var specialUse = GetSpecialUse(imapFolder.Attributes);
+                    var sortOrder = GetSpecialUseSortOrder(specialUse, ref maxSortOrder);
+
+                    if (dbFoldersByImapName.TryGetValue(folderName, out var existingFolder))
                     {
-                        await _emailFolderRepository.UpdateSpecialUseAsync(existingFolder.Id, specialUse);
-                        await _emailFolderRepository.UpdateSortOrderAsync(existingFolder.Id, sortOrder);
+                        if (specialUse != null && string.IsNullOrEmpty(existingFolder.SpecialUse))
+                        {
+                            await _emailFolderRepository.UpdateSpecialUseAsync(existingFolder.Id, specialUse);
+                            await _emailFolderRepository.UpdateSortOrderAsync(existingFolder.Id, sortOrder);
+                        }
+
+                        if (!existingFolder.IsSystem)
+                        {
+                            await _emailFolderRepository.UpdateIsSystemAsync(existingFolder.Id, true);
+                        }
+
+                        continue;
                     }
 
-                    if (!existingFolder.IsSystem)
+                    await _emailFolderRepository.AddAsync(new EmailFolder
                     {
-                        await _emailFolderRepository.UpdateIsSystemAsync(existingFolder.Id, true);
-                    }
+                        Name = folderName,
+                        ImapFolderName = folderName,
+                        SortOrder = sortOrder,
+                        IsSystem = true,
+                        SpecialUse = specialUse
+                    });
 
-                    continue;
+                    _logger.LogInformation("Synced new IMAP folder: {Folder}", folderName);
                 }
 
-                await _emailFolderRepository.AddAsync(new EmailFolder
-                {
-                    Name = folderName,
-                    ImapFolderName = folderName,
-                    SortOrder = sortOrder,
-                    IsSystem = true,
-                    SpecialUse = specialUse
-                });
-
-                _logger.LogInformation("Synced new IMAP folder: {Folder}", folderName);
-            }
-
-            await _emailFolderRepository.DeleteNonSystemByImapNamesAsync(imapFolderNames);
-
-            await client.DisconnectAsync(true, cancellationToken);
+                await _emailFolderRepository.DeleteNonSystemByImapNamesAsync(imapFolderNames);
+            }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -165,39 +150,33 @@ public class ImapEmailService : IImapEmailService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error syncing folders from IMAP server {Server}:{Port}", settings.Server, settings.Port);
+            _logger.LogError(ex, "Error syncing folders from IMAP server");
         }
     }
 
     public async Task SyncEmailStatesAsync(CancellationToken cancellationToken = default)
     {
-        var settings = await GetImapSettingsAsync();
-        if (settings == null) return;
-
         var folderNames = await GetFolderNamesAsync();
         var inboxName = await _emailFolderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Inbox);
 
-        using var client = new ImapClient();
-
         try
         {
-            await ConnectClientAsync(client, settings, cancellationToken);
-
-            foreach (var folderName in folderNames)
+            await WithImapClientAsync(async (client, ct) =>
             {
-                if (cancellationToken.IsCancellationRequested) break;
-
-                try
+                foreach (var folderName in folderNames)
                 {
-                    await SyncFolderStatesAsync(client, folderName, inboxName, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Failed to sync email states for folder {Folder}", folderName);
-                }
-            }
+                    if (ct.IsCancellationRequested) break;
 
-            await client.DisconnectAsync(true, cancellationToken);
+                    try
+                    {
+                        await SyncFolderStatesAsync(client, folderName, inboxName, ct);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to sync email states for folder {Folder}", folderName);
+                    }
+                }
+            }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -219,23 +198,18 @@ public class ImapEmailService : IImapEmailService
             if (string.Equals(resolvedSource, resolvedTarget, StringComparison.OrdinalIgnoreCase))
                 return;
 
-            var settings = await GetImapSettingsAsync();
-            if (settings == null) return;
+            await WithImapClientAsync(async (client, ct) =>
+            {
+                var source = await client.GetFolderAsync(resolvedSource, ct);
+                await source.OpenAsync(FolderAccess.ReadWrite, ct);
 
-            using var client = new ImapClient();
-            await ConnectClientAsync(client, settings, cancellationToken);
+                var target = await client.GetFolderAsync(resolvedTarget, ct);
+                var uid = new UniqueId((uint)imapUid);
 
-            var source = await client.GetFolderAsync(resolvedSource, cancellationToken);
-            await source.OpenAsync(FolderAccess.ReadWrite, cancellationToken);
+                await source.MoveToAsync(uid, target, ct);
 
-            var target = await client.GetFolderAsync(resolvedTarget, cancellationToken);
-            var uid = new UniqueId((uint)imapUid);
-
-            await source.MoveToAsync(uid, target, cancellationToken);
-
-            _logger.LogInformation("Moved email UID {Uid} from {Source} to {Target} on IMAP", imapUid, resolvedSource, resolvedTarget);
-
-            await client.DisconnectAsync(true, cancellationToken);
+                _logger.LogInformation("Moved email UID {Uid} from {Source} to {Target} on IMAP", imapUid, resolvedSource, resolvedTarget);
+            }, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -249,29 +223,24 @@ public class ImapEmailService : IImapEmailService
         {
             var resolvedFolder = await ResolveImapFolderNameAsync(folder);
 
-            var settings = await GetImapSettingsAsync();
-            if (settings == null) return;
-
-            using var client = new ImapClient();
-            await ConnectClientAsync(client, settings, cancellationToken);
-
-            var mailFolder = await client.GetFolderAsync(resolvedFolder, cancellationToken);
-            await mailFolder.OpenAsync(FolderAccess.ReadWrite, cancellationToken);
-
-            var uid = new UniqueId((uint)imapUid);
-
-            if (isRead)
+            await WithImapClientAsync(async (client, ct) =>
             {
-                await mailFolder.AddFlagsAsync(uid, MessageFlags.Seen, true, cancellationToken);
-            }
-            else
-            {
-                await mailFolder.RemoveFlagsAsync(uid, MessageFlags.Seen, true, cancellationToken);
-            }
+                var mailFolder = await client.GetFolderAsync(resolvedFolder, ct);
+                await mailFolder.OpenAsync(FolderAccess.ReadWrite, ct);
 
-            _logger.LogDebug("Set read flag to {IsRead} for email UID {Uid} in {Folder} on IMAP", isRead, imapUid, resolvedFolder);
+                var uid = new UniqueId((uint)imapUid);
 
-            await client.DisconnectAsync(true, cancellationToken);
+                if (isRead)
+                {
+                    await mailFolder.AddFlagsAsync(uid, MessageFlags.Seen, true, ct);
+                }
+                else
+                {
+                    await mailFolder.RemoveFlagsAsync(uid, MessageFlags.Seen, true, ct);
+                }
+
+                _logger.LogDebug("Set read flag to {IsRead} for email UID {Uid} in {Folder} on IMAP", isRead, imapUid, resolvedFolder);
+            }, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -285,23 +254,18 @@ public class ImapEmailService : IImapEmailService
         {
             var resolvedFolder = await ResolveImapFolderNameAsync(folder);
 
-            var settings = await GetImapSettingsAsync();
-            if (settings == null) return;
+            await WithImapClientAsync(async (client, ct) =>
+            {
+                var mailFolder = await client.GetFolderAsync(resolvedFolder, ct);
+                await mailFolder.OpenAsync(FolderAccess.ReadWrite, ct);
 
-            using var client = new ImapClient();
-            await ConnectClientAsync(client, settings, cancellationToken);
+                var uid = new UniqueId((uint)imapUid);
 
-            var mailFolder = await client.GetFolderAsync(resolvedFolder, cancellationToken);
-            await mailFolder.OpenAsync(FolderAccess.ReadWrite, cancellationToken);
+                await mailFolder.AddFlagsAsync(uid, MessageFlags.Deleted, true, ct);
+                await mailFolder.ExpungeAsync([uid], ct);
 
-            var uid = new UniqueId((uint)imapUid);
-
-            await mailFolder.AddFlagsAsync(uid, MessageFlags.Deleted, true, cancellationToken);
-            await mailFolder.ExpungeAsync([uid], cancellationToken);
-
-            _logger.LogInformation("Permanently deleted email UID {Uid} from {Folder} on IMAP", imapUid, resolvedFolder);
-
-            await client.DisconnectAsync(true, cancellationToken);
+                _logger.LogInformation("Permanently deleted email UID {Uid} from {Folder} on IMAP", imapUid, resolvedFolder);
+            }, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -313,18 +277,13 @@ public class ImapEmailService : IImapEmailService
     {
         try
         {
-            var settings = await GetImapSettingsAsync();
-            if (settings == null) return;
+            await WithImapClientAsync(async (client, ct) =>
+            {
+                var toplevel = client.GetFolder(client.PersonalNamespaces[0]);
+                await toplevel.CreateAsync(folderName, true, ct);
 
-            using var client = new ImapClient();
-            await ConnectClientAsync(client, settings, cancellationToken);
-
-            var toplevel = client.GetFolder(client.PersonalNamespaces[0]);
-            await toplevel.CreateAsync(folderName, true, cancellationToken);
-
-            _logger.LogInformation("Created folder {Folder} on IMAP server", folderName);
-
-            await client.DisconnectAsync(true, cancellationToken);
+                _logger.LogInformation("Created folder {Folder} on IMAP server", folderName);
+            }, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -336,18 +295,13 @@ public class ImapEmailService : IImapEmailService
     {
         try
         {
-            var settings = await GetImapSettingsAsync();
-            if (settings == null) return;
+            await WithImapClientAsync(async (client, ct) =>
+            {
+                var folder = await client.GetFolderAsync(folderName, ct);
+                await folder.DeleteAsync(ct);
 
-            using var client = new ImapClient();
-            await ConnectClientAsync(client, settings, cancellationToken);
-
-            var folder = await client.GetFolderAsync(folderName, cancellationToken);
-            await folder.DeleteAsync(cancellationToken);
-
-            _logger.LogInformation("Deleted folder {Folder} on IMAP server", folderName);
-
-            await client.DisconnectAsync(true, cancellationToken);
+                _logger.LogInformation("Deleted folder {Folder} on IMAP server", folderName);
+            }, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -438,6 +392,28 @@ public class ImapEmailService : IImapEmailService
     {
         await client.ConnectAsync(settings.Server, settings.Port, settings.SocketOptions, cancellationToken);
         await client.AuthenticateAsync(settings.Username, settings.Password, cancellationToken);
+    }
+
+    private async Task WithImapClientAsync(Func<ImapClient, CancellationToken, Task> operation, CancellationToken ct)
+    {
+        var settings = await GetImapSettingsAsync();
+        if (settings == null) return;
+
+        using var client = new ImapClient();
+        await ConnectClientAsync(client, settings, ct);
+        try { await operation(client, ct); }
+        finally { await client.DisconnectAsync(true, ct); }
+    }
+
+    private async Task<T?> WithImapClientAsync<T>(Func<ImapClient, CancellationToken, Task<T>> operation, CancellationToken ct)
+    {
+        var settings = await GetImapSettingsAsync();
+        if (settings == null) return default;
+
+        using var client = new ImapClient();
+        await ConnectClientAsync(client, settings, ct);
+        try { return await operation(client, ct); }
+        finally { await client.DisconnectAsync(true, ct); }
     }
 
     private async Task<string> ResolveImapFolderNameAsync(string dbFolder)

@@ -239,9 +239,9 @@ public class UiControlSeedService
             Create(UiPageKeys.Client, "country", "country",
                 UiControlDefaults.ControlTypeSelect, "Country", "/workplace/client", 8),
 
-            CreateDynamic(UiPageKeys.Client, "table-row", "[id^='client-row-']",
-                UiControlDefaults.SelectorTypeCss, UiControlDefaults.ControlTypeContainer,
-                "Employee Row", "/workplace/client", 9, "client-row-{index}")
+            Create(UiPageKeys.Client, "table-row", "[id^='client-row-']",
+                UiControlDefaults.ControlTypeContainer, "Employee Row", "/workplace/client", 9,
+                UiControlDefaults.SelectorTypeCss, "client-row-{index}")
         ];
     }
 
@@ -279,13 +279,13 @@ public class UiControlSeedService
             Create(UiPageKeys.SettingsBranches, "modal-email", "branches-modal-email",
                 UiControlDefaults.ControlTypeInput, "Branch Email", "/workplace/settings", 9),
 
-            CreateDynamic(UiPageKeys.SettingsBranches, "row-name", "[id^='branches-row-name-']",
-                UiControlDefaults.SelectorTypeCss, UiControlDefaults.ControlTypeInput,
-                "Branch Row Name", "/workplace/settings", 10, "branches-row-name-{id}"),
+            Create(UiPageKeys.SettingsBranches, "row-name", "[id^='branches-row-name-']",
+                UiControlDefaults.ControlTypeInput, "Branch Row Name", "/workplace/settings", 10,
+                UiControlDefaults.SelectorTypeCss, "branches-row-name-{id}"),
 
-            CreateDynamic(UiPageKeys.SettingsBranches, "row-delete", "[id^='branches-row-delete-']",
-                UiControlDefaults.SelectorTypeCss, UiControlDefaults.ControlTypeButton,
-                "Delete Branch", "/workplace/settings", 11, "branches-row-delete-{id}"),
+            Create(UiPageKeys.SettingsBranches, "row-delete", "[id^='branches-row-delete-']",
+                UiControlDefaults.ControlTypeButton, "Delete Branch", "/workplace/settings", 11,
+                UiControlDefaults.SelectorTypeCss, "branches-row-delete-{id}"),
 
             Create(UiPageKeys.SettingsBranches, "delete-confirm", "modal-delete-confirm",
                 UiControlDefaults.ControlTypeButton, "Confirm Delete", "/workplace/settings", 12)
@@ -395,31 +395,9 @@ public class UiControlSeedService
         string controlType,
         string? label,
         string? route,
-        int sortOrder)
-    {
-        return new UiControl
-        {
-            PageKey = pageKey,
-            ControlKey = controlKey,
-            Selector = selector,
-            SelectorType = UiControlDefaults.DefaultSelectorType,
-            ControlType = controlType,
-            Label = label,
-            Route = route,
-            SortOrder = sortOrder
-        };
-    }
-
-    private static UiControl CreateDynamic(
-        string pageKey,
-        string controlKey,
-        string selector,
-        string selectorType,
-        string controlType,
-        string? label,
-        string? route,
         int sortOrder,
-        string selectorPattern)
+        string selectorType = UiControlDefaults.DefaultSelectorType,
+        string? selectorPattern = null)
     {
         return new UiControl
         {
@@ -431,7 +409,7 @@ public class UiControlSeedService
             Label = label,
             Route = route,
             SortOrder = sortOrder,
-            IsDynamic = true,
+            IsDynamic = selectorPattern != null,
             SelectorPattern = selectorPattern
         };
     }

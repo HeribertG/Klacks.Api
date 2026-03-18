@@ -3,7 +3,6 @@
 using System.Diagnostics;
 using System.Text;
 using Klacks.Api.Domain.Interfaces.Assistant;
-using Microsoft.Extensions.DependencyInjection;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -19,7 +18,7 @@ public class LLMService : ILLMService
     private readonly LLMSystemPromptBuilder _promptBuilder;
     private readonly IAgentRepository _agentRepository;
     private readonly ContextAssemblyPipeline _contextAssemblyPipeline;
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ILLMBackgroundTaskService _backgroundTaskService;
 
     private const int MaxHistoryMessages = 40;
     private const int ReducedHistoryMessages = 20;
@@ -34,7 +33,7 @@ public class LLMService : ILLMService
         LLMSystemPromptBuilder promptBuilder,
         IAgentRepository agentRepository,
         ContextAssemblyPipeline contextAssemblyPipeline,
-        IServiceScopeFactory scopeFactory)
+        ILLMBackgroundTaskService backgroundTaskService)
     {
         _logger = logger;
         _providerOrchestrator = providerOrchestrator;
@@ -44,7 +43,7 @@ public class LLMService : ILLMService
         _promptBuilder = promptBuilder;
         _agentRepository = agentRepository;
         _contextAssemblyPipeline = contextAssemblyPipeline;
-        _scopeFactory = scopeFactory;
+        _backgroundTaskService = backgroundTaskService;
     }
 
     public async Task<LLMResponse> ProcessAsync(LLMContext context)
@@ -81,8 +80,10 @@ public class LLMService : ILLMService
             var totalUsage = new Providers.LLMUsage();
             var truncatedHistory = TruncateHistory(llmHistory, model!.ContextWindow, model.MaxTokens, conversation.Summary);
 
+            var ctx = new MultiTurnContext(context, model, provider!, systemPrompt, truncatedHistory, totalUsage, conversation, stopwatch);
+
             var (responseContent, lastResponse, iterationsUsed, allFunctionCalls) =
-                await ExecuteMultiTurnLoopAsync(context, model, provider!, systemPrompt, truncatedHistory, totalUsage, conversation, stopwatch);
+                await ExecuteMultiTurnLoopAsync(ctx);
 
             if (lastResponse is { Success: false })
             {
@@ -96,7 +97,7 @@ public class LLMService : ILLMService
                 context.UserId, model, conversation,
                 totalUsage, stopwatch.ElapsedMilliseconds);
 
-            RunBackgroundTasks(agent, conversation, context, responseContent, allFunctionCalls);
+            _backgroundTaskService.RunBackgroundTasks(agent, conversation, context, responseContent, allFunctionCalls);
 
             return _responseBuilder.BuildSuccessResponse(
                 lastResponse!, conversation.ConversationId, responseContent, allFunctionCalls);
@@ -109,14 +110,12 @@ public class LLMService : ILLMService
     }
 
     private async Task<(string responseContent, LLMProviderResponse? lastResponse, int iterationsUsed, List<LLMFunctionCall> allFunctionCalls)> ExecuteMultiTurnLoopAsync(
-        LLMContext context, LLMModel model, ILLMProvider provider, string systemPrompt,
-        List<Providers.LLMMessage> truncatedHistory, Providers.LLMUsage totalUsage,
-        LLMConversation conversation, Stopwatch stopwatch)
+        MultiTurnContext ctx)
     {
         const int maxIterations = 3;
         var allFunctionCalls = new List<LLMFunctionCall>();
-        var runningHistory = new List<Providers.LLMMessage>(truncatedHistory);
-        var currentMessage = context.Message;
+        var runningHistory = new List<Providers.LLMMessage>(ctx.TruncatedHistory);
+        var currentMessage = ctx.Context.Message;
         string responseContent = "";
         LLMProviderResponse? lastResponse = null;
         int iterationsUsed = 0;
@@ -127,32 +126,32 @@ public class LLMService : ILLMService
             iterationsUsed = iteration + 1;
 
             var iterationFunctions = iteration == 0
-                ? context.AvailableFunctions
-                : GetReducedFunctions(context.AvailableFunctions, calledFunctionNames);
+                ? ctx.Context.AvailableFunctions
+                : GetReducedFunctions(ctx.Context.AvailableFunctions, calledFunctionNames);
 
             var providerRequest = new LLMProviderRequest
             {
                 Message = currentMessage,
-                SystemPrompt = systemPrompt,
-                ModelId = model.ApiModelId,
+                SystemPrompt = ctx.SystemPrompt,
+                ModelId = ctx.Model.ApiModelId,
                 ConversationHistory = runningHistory,
                 AvailableFunctions = iterationFunctions,
                 Temperature = 0.7,
-                MaxTokens = model.MaxTokens,
-                CostPerInputToken = model.CostPerInputToken,
-                CostPerOutputToken = model.CostPerOutputToken
+                MaxTokens = ctx.Model.MaxTokens,
+                CostPerInputToken = ctx.Model.CostPerInputToken,
+                CostPerOutputToken = ctx.Model.CostPerOutputToken
             };
 
-            lastResponse = await provider.ProcessAsync(providerRequest);
-            AccumulateUsage(totalUsage, lastResponse.Usage);
+            lastResponse = await ctx.Provider.ProcessAsync(providerRequest);
+            AccumulateUsage(ctx.TotalUsage, lastResponse.Usage);
 
             if (!lastResponse.Success)
             {
                 _logger.LogError("Provider returned error in iteration {Iteration}: {Error}",
                     iterationsUsed, lastResponse.Error);
                 await _conversationManager.TrackUsageAsync(
-                    context.UserId, model, conversation,
-                    totalUsage, stopwatch.ElapsedMilliseconds,
+                    ctx.Context.UserId, ctx.Model, ctx.Conversation,
+                    ctx.TotalUsage, ctx.Stopwatch.ElapsedMilliseconds,
                     hasError: true, errorMessage: lastResponse.Error);
                 return (lastResponse.Error ?? "An error occurred.", lastResponse, iterationsUsed, allFunctionCalls);
             }
@@ -173,7 +172,7 @@ public class LLMService : ILLMService
                 calledFunctionNames.Add(call.FunctionName);
             }
 
-            await _functionExecutor.ProcessFunctionCallsAsync(context, lastResponse.FunctionCalls);
+            await _functionExecutor.ProcessFunctionCallsAsync(ctx.Context, lastResponse.FunctionCalls);
 
             if (_functionExecutor.HasOnlyUiPassthroughCalls)
             {
@@ -201,58 +200,6 @@ public class LLMService : ILLMService
         }
 
         return (responseContent, lastResponse, iterationsUsed, allFunctionCalls);
-    }
-
-    private void RunBackgroundTasks(Agent? agent, LLMConversation conversation, LLMContext context,
-        string responseContent, List<LLMFunctionCall> allFunctionCalls)
-    {
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                using var scope = _scopeFactory.CreateScope();
-                var compactionService = scope.ServiceProvider.GetRequiredService<IConversationCompactionService>();
-                await compactionService.CompactIfNeededAsync(conversation.ConversationId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Fire-and-forget conversation compaction failed for {ConversationId}",
-                    conversation.ConversationId);
-            }
-        });
-
-        if (agent != null && !string.IsNullOrWhiteSpace(responseContent))
-        {
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    using var scope = _scopeFactory.CreateScope();
-                    var autoMemoryExtraction = scope.ServiceProvider.GetRequiredService<IAutoMemoryExtractionService>();
-                    await autoMemoryExtraction.ExtractAndStoreMemoriesAsync(
-                        agent.Id, context.Message, responseContent, context.UserId);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Fire-and-forget auto memory extraction failed for agent {AgentId}", agent.Id);
-                }
-            });
-
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    using var scope = _scopeFactory.CreateScope();
-                    var skillGapDetector = scope.ServiceProvider.GetRequiredService<ISkillGapDetector>();
-                    await skillGapDetector.DetectAndSuggestAsync(
-                        agent.Id, context.Message, responseContent, allFunctionCalls.Count > 0);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Fire-and-forget skill gap detection failed for agent {AgentId}", agent.Id);
-                }
-            });
-        }
     }
 
     private static string FormatFunctionResults(List<LLMFunctionCall> functionCalls)

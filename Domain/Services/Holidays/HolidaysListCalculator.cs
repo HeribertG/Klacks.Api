@@ -249,67 +249,65 @@ public class HolidaysListCalculator : IHolidaysListCalculator
         return calcDate;
     }
 
-    private DateOnly CalculateEasterRelatedDate(DateOnly easterDate, string ruleString)
+    private static (int dayOffset, string? weekdayCode) ParseEasterOffset(string ruleString)
     {
-        DateOnly calcDate = easterDate;
-
-        // Get the part after "EASTER"
         var offsetString = ruleString.Substring(EASTER_STRING.Length);
-        
-        if (!string.IsNullOrEmpty(offsetString))
+
+        if (string.IsNullOrEmpty(offsetString))
         {
-            // Check for +/- sign and parse the number
-            if (offsetString.StartsWith("+") || offsetString.StartsWith("-"))
+            return (0, null);
+        }
+
+        if (!offsetString.StartsWith("+") && !offsetString.StartsWith("-"))
+        {
+            return (0, null);
+        }
+
+        var sign = offsetString.StartsWith("+") ? 1 : -1;
+        var remainingString = offsetString.Substring(1);
+
+        var numberPart = "";
+        string? weekdayPart = null;
+
+        for (int i = 0; i < remainingString.Length; i++)
+        {
+            if (char.IsDigit(remainingString[i]))
             {
-                var sign = offsetString.StartsWith("+") ? 1 : -1;
-                var remainingString = offsetString.Substring(1);
-                
-                // Find where the number ends (could be followed by weekday info)
-                var numberPart = "";
-                var weekdayPart = "";
-                
-                for (int i = 0; i < remainingString.Length; i++)
-                {
-                    if (char.IsDigit(remainingString[i]))
-                    {
-                        numberPart += remainingString[i];
-                    }
-                    else
-                    {
-                        weekdayPart = remainingString.Substring(i);
-                        break;
-                    }
-                }
-                
-                if (int.TryParse(numberPart, out int dayOffset))
-                {
-                    calcDate = easterDate.AddDays(sign * dayOffset);
-                }
-                
-                // Handle weekday part if present
-                if (!string.IsNullOrEmpty(weekdayPart) && weekdayPart.Length >= 3)
-                {
-                    var weekdaySign = weekdayPart.Substring(0, 1);
-                    var weekdayName = weekdayPart.Substring(1, 2);
-                    var dayOfWeek = (WEEKDAY_NAME.IndexOf(weekdayName) / 2) + 1;
-                    var alternativeDayOfWeek = (int)calcDate.DayOfWeek + 1;
-
-                    int differenceDays;
-                    if (weekdaySign == "+")
-                    {
-                        differenceDays = dayOfWeek - alternativeDayOfWeek + 7;
-                    }
-                    else
-                    {
-                        differenceDays = dayOfWeek - alternativeDayOfWeek - 7;
-                    }
-
-                    calcDate = calcDate.AddDays(differenceDays);
-                }
+                numberPart += remainingString[i];
+            }
+            else
+            {
+                weekdayPart = remainingString.Substring(i);
+                break;
             }
         }
 
-        return calcDate;
+        var dayOffset = int.TryParse(numberPart, out int parsed) ? sign * parsed : 0;
+
+        return (dayOffset, weekdayPart);
+    }
+
+    private DateOnly CalculateEasterRelatedDate(DateOnly easterDate, string ruleString)
+    {
+        var (dayOffset, weekdayCode) = ParseEasterOffset(ruleString);
+
+        var calcDate = easterDate.AddDays(dayOffset);
+
+        if (string.IsNullOrEmpty(weekdayCode) || weekdayCode.Length < 3)
+        {
+            return calcDate;
+        }
+
+        var weekdaySign = weekdayCode.Substring(0, 1);
+        var weekdayName = weekdayCode.Substring(1, 2);
+        var dayOfWeek = (WEEKDAY_NAME.IndexOf(weekdayName) / 2) + 1;
+        var alternativeDayOfWeek = (int)calcDate.DayOfWeek + 1;
+
+        var differenceDays = weekdaySign == "+"
+            ? dayOfWeek - alternativeDayOfWeek + 7
+            : dayOfWeek - alternativeDayOfWeek - 7;
+
+        return calcDate.AddDays(differenceDays);
     }
     #endregion
 

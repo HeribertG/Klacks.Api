@@ -6,7 +6,9 @@ using Klacks.Api.Application.Skills;
 using Klacks.Api.Infrastructure.Scripting;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Authentification;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
+using Klacks.Api.Domain.Interfaces.Staffs;
 using Klacks.Api.Infrastructure.Repositories.Assistant;
 using Klacks.Api.Domain.Services.Absences;
 using Klacks.Api.Domain.Services.Accounts;
@@ -220,6 +222,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPeriodHoursService, PeriodHoursService>();
         services.AddScoped<IScheduleChangeTracker, ScheduleChangeTracker>();
         services.AddScoped<IContainerAvailableTasksService, ContainerAvailableTasksService>();
+        services.AddScoped<IDistanceMatrixBuilder, DistanceMatrixBuilder>();
+        services.AddScoped<IRouteDirectionsBuilder, RouteDirectionsBuilder>();
         services.AddScoped<IRouteOptimizationService, RouteOptimizationService>();
         services.AddScoped<IContainerAutofillService, ContainerAutofillService>();
         services.AddScoped<IAbsenceSortingService, AbsenceSortingService>();
@@ -273,11 +277,21 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ILdapService, Services.Identity.LdapService>();
         services.AddScoped<IOAuth2Service, Services.Identity.OAuth2Service>();
         services.AddScoped<IClientSyncService, ClientSyncService>();
+        services.AddScoped<IClientAddressService, ClientAddressService>();
     }
 
     private static void AddAssistantServices(this IServiceCollection services)
     {
+        services.AddLLMCoreServices();
+        services.AddLLMProviders();
+        services.AddSkillServices();
+        services.AddAssistantBackgroundServices();
+    }
+
+    private static void AddLLMCoreServices(this IServiceCollection services)
+    {
         services.AddScoped<ILLMService, LLMService>();
+        services.AddScoped<ILLMBackgroundTaskService, LLMBackgroundTaskService>();
         services.AddScoped<IAutoMemoryExtractionService, AutoMemoryExtractionService>();
         services.AddScoped<IConversationCompactionService, ConversationCompactionService>();
         services.AddScoped<IHeartbeatLLMService, Klacks.Api.Domain.Services.Assistant.HeartbeatLLMService>();
@@ -295,11 +309,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMemoryRetrievalService, MemoryRetrievalService>();
         services.AddScoped<ContextAssemblyPipeline>();
         services.AddSingleton<ISentimentAnalyzer, Domain.Services.Assistant.SentimentAnalyzer>();
-        services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.EmbeddingBackgroundService>();
-        services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.MemoryCleanupBackgroundService>();
-        services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.SkillGapSuggestionBackgroundService>();
-        services.AddScoped<ISkillGapDetector, Klacks.Api.Domain.Services.Assistant.Skills.SkillGapDetector>();
+    }
 
+    private static void AddLLMProviders(this IServiceCollection services)
+    {
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.OpenAI.OpenAIProvider>();
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Anthropic.AnthropicProvider>();
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Gemini.GeminiProvider>();
@@ -317,7 +330,10 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Cohere.CohereProvider>();
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek.DeepSeekProvider>();
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic.GenericOpenAICompatibleProvider>();
+    }
 
+    private static void AddSkillServices(this IServiceCollection services)
+    {
         services.AddSingleton<Domain.Services.Assistant.Skills.Adapters.ISkillAdapterFactory, Domain.Services.Assistant.Skills.Adapters.SkillAdapterFactory>();
         services.AddSingleton<ISkillRegistry, Domain.Services.Assistant.Skills.SkillRegistry>();
         services.AddScoped<ISkillExecutor, Domain.Services.Assistant.Skills.SkillExecutorService>();
@@ -381,6 +397,14 @@ public static class ServiceCollectionExtensions
         services.AddScoped<GenericListExecutor>();
         services.AddScoped<GenericDeleteExecutor>();
         services.AddScoped<IGenericSkillDispatcher, GenericSkillDispatcher>();
+    }
+
+    private static void AddAssistantBackgroundServices(this IServiceCollection services)
+    {
+        services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.EmbeddingBackgroundService>();
+        services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.MemoryCleanupBackgroundService>();
+        services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.SkillGapSuggestionBackgroundService>();
+        services.AddScoped<ISkillGapDetector, Klacks.Api.Domain.Services.Assistant.Skills.SkillGapDetector>();
     }
 
     private static void AddInfrastructureServices(this IServiceCollection services)
