@@ -30,28 +30,21 @@ public class Scopes
 
         for (var i = _scopes.Count - 1; i >= n; i--)
         {
-            var s = _scopes[i];
-            var renamed = s.GetVariable(name);
+            var identifier = _scopes[i].GetVariable(name);
 
-            if (renamed != null && string.Equals(renamed.Name, name, StringComparison.OrdinalIgnoreCase))
+            if (identifier != null && string.Equals(identifier.Name, name, StringComparison.OrdinalIgnoreCase))
             {
-                if (idType == Identifier.IdentifierTypes.IdNone)
-                    return true;
-
-                if (idType == Identifier.IdentifierTypes.IdIsVariableOfFunction)
-                    return renamed.IdType is Identifier.IdentifierTypes.IdVariable or Identifier.IdentifierTypes.IdFunction;
-
-                if (idType == Identifier.IdentifierTypes.IdSubOfFunction)
-                    return renamed.IdType is Identifier.IdentifierTypes.IdSub or Identifier.IdentifierTypes.IdFunction;
-
-                if (idType == Identifier.IdentifierTypes.IdFunction)
-                    return renamed.IdType is Identifier.IdentifierTypes.IdSub or Identifier.IdentifierTypes.IdFunction;
-
-                if (idType == Identifier.IdentifierTypes.IdSub)
-                    return renamed.IdType == Identifier.IdentifierTypes.IdSub;
-
-                if (idType == Identifier.IdentifierTypes.IdVariable)
-                    return renamed.IdType == Identifier.IdentifierTypes.IdVariable;
+                return idType switch
+                {
+                    Identifier.IdentifierTypes.IdNone => true,
+                    Identifier.IdentifierTypes.IdIsVariableOfFunction =>
+                        identifier.IdType is Identifier.IdentifierTypes.IdVariable or Identifier.IdentifierTypes.IdFunction,
+                    Identifier.IdentifierTypes.IdSubOfFunction or Identifier.IdentifierTypes.IdFunction =>
+                        identifier.IdType is Identifier.IdentifierTypes.IdSub or Identifier.IdentifierTypes.IdFunction,
+                    Identifier.IdentifierTypes.IdSub => identifier.IdType == Identifier.IdentifierTypes.IdSub,
+                    Identifier.IdentifierTypes.IdVariable => identifier.IdType == Identifier.IdentifierTypes.IdVariable,
+                    _ => false
+                };
             }
         }
 

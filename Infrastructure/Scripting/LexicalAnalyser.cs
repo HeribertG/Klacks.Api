@@ -1,24 +1,27 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Lexikalische Analyse: Zerlegt den Quelltext-Stream in Symbole (Tokens).
+/// <param name="source">Der Eingabe-Stream, aus dem Zeichen gelesen werden</param>
+/// <param name="predefinedIdentifiers">Statisches Dictionary mit Keywords und deren Token-Zuordnung</param>
+/// </summary>
 
 using System.Diagnostics;
 using static Klacks.Api.Infrastructure.Scripting.InterpreterError;
 
 namespace Klacks.Api.Infrastructure.Scripting
 {
-
-
-
     public class LexicalAnalyser
     {
         private const string COMMENT_CHAR = "'";
 
         private IInputStream? source;
-        private readonly Dictionary<string, int> predefinedIdentifiers;
+        private static readonly Dictionary<string, int> predefinedIdentifiers = InitializeKeywords();
         private InterpreterError? errorObject;
 
-
-
+        public LexicalAnalyser()
+        {
+        }
 
         public LexicalAnalyser Connect(IInputStream source, InterpreterError errorObject)
         {
@@ -46,7 +49,6 @@ namespace Klacks.Api.Infrastructure.Scripting
                 }
             }
         }
-
 
         public Symbol GetNextSymbol()
         {
@@ -85,100 +87,33 @@ namespace Klacks.Api.Infrastructure.Scripting
                     case "%":
                         MathOperatorOrAssignments(nextSymbol, c);
                         break;
-
                     case "^":
-                        {
-                            nextSymbol.Init(Symbol.Tokens.tokPower, c);
-                            break;
-                        }
-
+                        nextSymbol.Init(Symbol.Tokens.tokPower, c);
+                        break;
                     case "!":
-                        {
-                            nextSymbol.Init(Symbol.Tokens.tokFactorial, c);
-                            break;
-                        }
-
+                        nextSymbol.Init(Symbol.Tokens.tokFactorial, c);
+                        break;
                     case "~":
-                        {
-                            nextSymbol.Init(Symbol.Tokens.tokNot, c);
-                            break;
-                        }
-
+                        nextSymbol.Init(Symbol.Tokens.tokNot, c);
+                        break;
                     case "(":
-                        {
-                            nextSymbol.Init(Symbol.Tokens.tokLeftParent, c);
-                            break;
-                        }
-
+                        nextSymbol.Init(Symbol.Tokens.tokLeftParent, c);
+                        break;
                     case ")":
-                        {
-                            nextSymbol.Init(Symbol.Tokens.tokRightParent, c);
-                            break;
-                        }
-
+                        nextSymbol.Init(Symbol.Tokens.tokRightParent, c);
+                        break;
                     case ",":
-                        {
-                            nextSymbol.Init(Symbol.Tokens.tokComma, c);
-                            break;
-                        }
-
+                        nextSymbol.Init(Symbol.Tokens.tokComma, c);
+                        break;
                     case "=":
-                        {
-                            nextSymbol.Init(Symbol.Tokens.tokEq, c);
-                            break;
-                        }
-
+                        nextSymbol.Init(Symbol.Tokens.tokEq, c);
+                        break;
                     case "<":
-                        {
-                            c = source.GetNextChar();
-                            switch (c)
-                            {
-                                case ">":
-                                    {
-                                        nextSymbol.Init(Symbol.Tokens.tokNotEq, "<>");
-                                        break;
-                                    }
-
-                                case "=":
-                                    {
-                                        nextSymbol.Init(Symbol.Tokens.tokLEq, "<=");
-                                        break;
-                                    }
-
-                                default:
-                                    {
-                                        source.GoBack();
-
-                                        nextSymbol.Init(Symbol.Tokens.tokLt, "<");
-                                        break;
-                                    }
-                            }
-
-                            break;
-                        }
-
+                        LexLessThan(nextSymbol);
+                        break;
                     case ">":
-                        {
-                            c = source.GetNextChar();
-                            switch (c)
-                            {
-                                case "=":
-                                    {
-                                        nextSymbol.Init(Symbol.Tokens.tokGEq, ">=");
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        source.GoBack();
-
-                                        nextSymbol.Init(Symbol.Tokens.tokGt, ">");
-                                        break;
-                                    }
-                            }
-
-                            break;
-                        }
-
+                        LexGreaterThan(nextSymbol);
+                        break;
                     case "0":
                     case "1":
                     case "2":
@@ -228,67 +163,15 @@ namespace Klacks.Api.Infrastructure.Scripting
                         symbolText = this.Identifier(nextSymbol, c);
                         break;
                     case "\"":
-
-
-                        symbolText = "";
-                        var endOfEmptyChar = false;
-                        do
-                        {
-                            c = source.GetNextChar();
-                            switch (c)
-                            {
-                                case "\"":
-                                    c = source.GetNextChar();
-                                    if (c == "\"")
-                                    {
-                                        symbolText += "\"";
-                                    }
-                                    else
-                                    {
-                                        endOfEmptyChar = true;
-                                        source.GoBack();
-                                        nextSymbol.Init(Symbol.Tokens.tokString, symbolText, symbolText);
-                                    }
-                                    break;
-                                case "\n":
-                                    errorObject!.Raise((int)LexErrors.errUnexpectedEOL,
-                                      "LexAnalyser.nextSymbol", "String not closed; unexpected end of line encountered",
-                                      source.Line, source.Col, source.Index);
-                                    endOfEmptyChar = true;
-                                    break;
-
-
-                                case "":
-                                    errorObject!.Raise((int)LexErrors.errUnexpectedEOF,
-                                      "LexAnalyser.nextSymbol", "String not closed; unexpected end of source",
-                                       source.Line, source.Col, source.Index);
-                                    endOfEmptyChar = true;
-                                    break;
-                                default:
-                                    symbolText = (symbolText + c);
-
-                                    break;
-                            }
-                        }
-                        while (!endOfEmptyChar);
+                        LexString(nextSymbol);
                         break;
-
                     case ":":
-                        {
-                            nextSymbol.Init(Symbol.Tokens.tokStatementDelimiter, c);
-                            break;
-                        }
                     case "\n":
-                        {
-                            nextSymbol.Init(Symbol.Tokens.tokStatementDelimiter, c);
-                            break;
-                        }
-
+                        nextSymbol.Init(Symbol.Tokens.tokStatementDelimiter, c);
+                        break;
                     default:
-                        {
-                            errorObject!.Raise(Convert.ToInt32(LexErrors.errUnknownSymbol), "LexicalAnalyser.GetNextSymbol", "Unknown symbol starting with character ASCII " + c, nextSymbol.Line, nextSymbol.Col, nextSymbol.Index);
-                            break;
-                        }
+                        errorObject!.Raise(new InterpreterErrorInfo(Convert.ToInt32(LexErrors.errUnknownSymbol), "LexicalAnalyser.GetNextSymbol", "Unknown symbol starting with character ASCII " + c, nextSymbol.Line, nextSymbol.Col, nextSymbol.Index));
+                        break;
                 }
             }
             else
@@ -302,84 +185,158 @@ namespace Klacks.Api.Infrastructure.Scripting
             }
 
             return nextSymbol;
-
         }
 
-        public LexicalAnalyser()
+        private void LexLessThan(Symbol nextSymbol)
         {
-            predefinedIdentifiers = new System.Collections.Generic.Dictionary<string, int>();
+            var c = source!.GetNextChar();
+            switch (c)
+            {
+                case ">":
+                    nextSymbol.Init(Symbol.Tokens.tokNotEq, "<>");
+                    break;
+                case "=":
+                    nextSymbol.Init(Symbol.Tokens.tokLEq, "<=");
+                    break;
+                default:
+                    source.GoBack();
+                    nextSymbol.Init(Symbol.Tokens.tokLt, "<");
+                    break;
+            }
+        }
 
-            predefinedIdentifiers.Add("DIV", (int)Symbol.Tokens.tokDiv);
-            predefinedIdentifiers.Add("MOD", (int)Symbol.Tokens.tokMod);
-            predefinedIdentifiers.Add("AND", (int)Symbol.Tokens.tokAnd);
-            predefinedIdentifiers.Add("OR", (int)Symbol.Tokens.tokOr);
-            predefinedIdentifiers.Add("NOT", (int)Symbol.Tokens.tokNot);
-            predefinedIdentifiers.Add("ANDALSO", (int)Symbol.Tokens.tokAndAlso);
-            predefinedIdentifiers.Add("ORELSE", (int)Symbol.Tokens.tokOrElse);
-            predefinedIdentifiers.Add("SIN", (int)Symbol.Tokens.tokSin);
-            predefinedIdentifiers.Add("COS", (int)Symbol.Tokens.tokCos);
-            predefinedIdentifiers.Add("TAN", (int)Symbol.Tokens.tokTan);
-            predefinedIdentifiers.Add("ATAN", (int)Symbol.Tokens.tokATan);
-            predefinedIdentifiers.Add("IIF", (int)Symbol.Tokens.tokIif);
-            predefinedIdentifiers.Add("IF", (int)Symbol.Tokens.tokIf);
-            predefinedIdentifiers.Add("THEN", (int)Symbol.Tokens.tokThen);
-            predefinedIdentifiers.Add("ELSE", (int)Symbol.Tokens.tokElse);
-            predefinedIdentifiers.Add("END", (int)Symbol.Tokens.tokEnd);
-            predefinedIdentifiers.Add("ENDIF", (int)Symbol.Tokens.tokEndif);
-            predefinedIdentifiers.Add("DO", (int)Symbol.Tokens.tokDo);
-            predefinedIdentifiers.Add("WHILE", (int)Symbol.Tokens.tokWhile);
-            predefinedIdentifiers.Add("LOOP", (int)Symbol.Tokens.tokLoop);
-            predefinedIdentifiers.Add("UNTIL", (int)Symbol.Tokens.tokUntil);
-            predefinedIdentifiers.Add("FOR", (int)Symbol.Tokens.tokFor);
-            predefinedIdentifiers.Add("TO", (int)Symbol.Tokens.tokTo);
-            predefinedIdentifiers.Add("STEP", (int)Symbol.Tokens.tokStep);
-            predefinedIdentifiers.Add("NEXT", (int)Symbol.Tokens.tokNext);
-            predefinedIdentifiers.Add("CONST", (int)Symbol.Tokens.tokConst);
-            predefinedIdentifiers.Add("DIM", (int)Symbol.Tokens.tokDim);
-            predefinedIdentifiers.Add("FUNCTION", (int)Symbol.Tokens.tokFunction);
-            predefinedIdentifiers.Add("ENDFUNCTION", (int)Symbol.Tokens.tokEndfunction);
-            predefinedIdentifiers.Add("SUB", (int)Symbol.Tokens.tokSub);
-            predefinedIdentifiers.Add("ENDSUB", (int)Symbol.Tokens.tokEndsub);
-            predefinedIdentifiers.Add("EXIT", (int)Symbol.Tokens.tokExit);
-            predefinedIdentifiers.Add("DEBUGPRINT", (int)Symbol.Tokens.tokDebugPrint);
-            predefinedIdentifiers.Add("DEBUGCLEAR", (int)Symbol.Tokens.tokDebugClear);
-            predefinedIdentifiers.Add("DEBUGSHOW", (int)Symbol.Tokens.tokDebugShow);
-            predefinedIdentifiers.Add("DEBUGHIDE", (int)Symbol.Tokens.tokDebugHide);
-            predefinedIdentifiers.Add("MSGBOX", (int)Symbol.Tokens.tokMsgbox);
-            predefinedIdentifiers.Add("OUTPUT", (int)Symbol.Tokens.tokOutput);
-            predefinedIdentifiers.Add("DOEVENTS", (int)Symbol.Tokens.tokDoEvents);
-            predefinedIdentifiers.Add("INPUTBOX", (int)Symbol.Tokens.tokInputbox);
-            predefinedIdentifiers.Add("TRUE", (int)Symbol.Tokens.tokTrue);
-            predefinedIdentifiers.Add("FALSE", (int)Symbol.Tokens.tokFalse);
-            predefinedIdentifiers.Add("PI", (int)Symbol.Tokens.tokPi);
-            predefinedIdentifiers.Add("VBCRLF", (int)Symbol.Tokens.tokCrlf);
-            predefinedIdentifiers.Add("VBTAB", (int)Symbol.Tokens.tokTab);
-            predefinedIdentifiers.Add("VBCR", (int)Symbol.Tokens.tokCr);
-            predefinedIdentifiers.Add("VBLF", (int)Symbol.Tokens.tokLf);
-            predefinedIdentifiers.Add("IMPORT", (int)Symbol.Tokens.tokExternal);
-            // String Functions
-            predefinedIdentifiers.Add("LEN", (int)Symbol.Tokens.tokLen);
-            predefinedIdentifiers.Add("LEFT", (int)Symbol.Tokens.tokLeft);
-            predefinedIdentifiers.Add("RIGHT", (int)Symbol.Tokens.tokRight);
-            predefinedIdentifiers.Add("MID", (int)Symbol.Tokens.tokMid);
-            predefinedIdentifiers.Add("INSTR", (int)Symbol.Tokens.tokInStr);
-            predefinedIdentifiers.Add("REPLACE", (int)Symbol.Tokens.tokReplace);
-            predefinedIdentifiers.Add("TRIM", (int)Symbol.Tokens.tokTrim);
-            predefinedIdentifiers.Add("UCASE", (int)Symbol.Tokens.tokUCase);
-            predefinedIdentifiers.Add("LCASE", (int)Symbol.Tokens.tokLCase);
-            // Math Functions
-            predefinedIdentifiers.Add("ABS", (int)Symbol.Tokens.tokAbs);
-            predefinedIdentifiers.Add("ROUND", (int)Symbol.Tokens.tokRound);
-            predefinedIdentifiers.Add("SQR", (int)Symbol.Tokens.tokSqr);
-            predefinedIdentifiers.Add("RND", (int)Symbol.Tokens.tokRnd);
-            predefinedIdentifiers.Add("LOG", (int)Symbol.Tokens.tokLog);
-            predefinedIdentifiers.Add("EXP", (int)Symbol.Tokens.tokExp);
-            predefinedIdentifiers.Add("SGN", (int)Symbol.Tokens.tokSgn);
-            predefinedIdentifiers.Add("TIMETOHOURS", (int)Symbol.Tokens.tokTimeToHours);
-            predefinedIdentifiers.Add("TIMEOVERLAP", (int)Symbol.Tokens.tokTimeOverlap);
-            // Control Structures
-            predefinedIdentifiers.Add("SELECT", (int)Symbol.Tokens.tokSelect);
-            predefinedIdentifiers.Add("CASE", (int)Symbol.Tokens.tokCase);
+        private void LexGreaterThan(Symbol nextSymbol)
+        {
+            var c = source!.GetNextChar();
+            switch (c)
+            {
+                case "=":
+                    nextSymbol.Init(Symbol.Tokens.tokGEq, ">=");
+                    break;
+                default:
+                    source.GoBack();
+                    nextSymbol.Init(Symbol.Tokens.tokGt, ">");
+                    break;
+            }
+        }
+
+        private void LexString(Symbol nextSymbol)
+        {
+            var symbolText = "";
+            var endOfString = false;
+            do
+            {
+                var c = source!.GetNextChar();
+                switch (c)
+                {
+                    case "\"":
+                        c = source.GetNextChar();
+                        if (c == "\"")
+                        {
+                            symbolText += "\"";
+                        }
+                        else
+                        {
+                            endOfString = true;
+                            source.GoBack();
+                            nextSymbol.Init(Symbol.Tokens.tokString, symbolText, symbolText);
+                        }
+                        break;
+                    case "\n":
+                        errorObject!.Raise(new InterpreterErrorInfo(
+                          (int)LexErrors.errUnexpectedEOL,
+                          "LexAnalyser.nextSymbol", "String not closed; unexpected end of line encountered",
+                          source.Line, source.Col, source.Index));
+                        endOfString = true;
+                        break;
+                    case "":
+                        errorObject!.Raise(new InterpreterErrorInfo(
+                          (int)LexErrors.errUnexpectedEOF,
+                          "LexAnalyser.nextSymbol", "String not closed; unexpected end of source",
+                           source.Line, source.Col, source.Index));
+                        endOfString = true;
+                        break;
+                    default:
+                        symbolText = (symbolText + c);
+                        break;
+                }
+            }
+            while (!endOfString);
+        }
+
+        private static Dictionary<string, int> InitializeKeywords()
+        {
+            return new Dictionary<string, int>
+            {
+                { "DIV", (int)Symbol.Tokens.tokDiv },
+                { "MOD", (int)Symbol.Tokens.tokMod },
+                { "AND", (int)Symbol.Tokens.tokAnd },
+                { "OR", (int)Symbol.Tokens.tokOr },
+                { "NOT", (int)Symbol.Tokens.tokNot },
+                { "ANDALSO", (int)Symbol.Tokens.tokAndAlso },
+                { "ORELSE", (int)Symbol.Tokens.tokOrElse },
+                { "SIN", (int)Symbol.Tokens.tokSin },
+                { "COS", (int)Symbol.Tokens.tokCos },
+                { "TAN", (int)Symbol.Tokens.tokTan },
+                { "ATAN", (int)Symbol.Tokens.tokATan },
+                { "IIF", (int)Symbol.Tokens.tokIif },
+                { "IF", (int)Symbol.Tokens.tokIf },
+                { "THEN", (int)Symbol.Tokens.tokThen },
+                { "ELSE", (int)Symbol.Tokens.tokElse },
+                { "END", (int)Symbol.Tokens.tokEnd },
+                { "ENDIF", (int)Symbol.Tokens.tokEndif },
+                { "DO", (int)Symbol.Tokens.tokDo },
+                { "WHILE", (int)Symbol.Tokens.tokWhile },
+                { "LOOP", (int)Symbol.Tokens.tokLoop },
+                { "UNTIL", (int)Symbol.Tokens.tokUntil },
+                { "FOR", (int)Symbol.Tokens.tokFor },
+                { "TO", (int)Symbol.Tokens.tokTo },
+                { "STEP", (int)Symbol.Tokens.tokStep },
+                { "NEXT", (int)Symbol.Tokens.tokNext },
+                { "CONST", (int)Symbol.Tokens.tokConst },
+                { "DIM", (int)Symbol.Tokens.tokDim },
+                { "FUNCTION", (int)Symbol.Tokens.tokFunction },
+                { "ENDFUNCTION", (int)Symbol.Tokens.tokEndfunction },
+                { "SUB", (int)Symbol.Tokens.tokSub },
+                { "ENDSUB", (int)Symbol.Tokens.tokEndsub },
+                { "EXIT", (int)Symbol.Tokens.tokExit },
+                { "DEBUGPRINT", (int)Symbol.Tokens.tokDebugPrint },
+                { "DEBUGCLEAR", (int)Symbol.Tokens.tokDebugClear },
+                { "DEBUGSHOW", (int)Symbol.Tokens.tokDebugShow },
+                { "DEBUGHIDE", (int)Symbol.Tokens.tokDebugHide },
+                { "MSGBOX", (int)Symbol.Tokens.tokMsgbox },
+                { "OUTPUT", (int)Symbol.Tokens.tokOutput },
+                { "DOEVENTS", (int)Symbol.Tokens.tokDoEvents },
+                { "INPUTBOX", (int)Symbol.Tokens.tokInputbox },
+                { "TRUE", (int)Symbol.Tokens.tokTrue },
+                { "FALSE", (int)Symbol.Tokens.tokFalse },
+                { "PI", (int)Symbol.Tokens.tokPi },
+                { "VBCRLF", (int)Symbol.Tokens.tokCrlf },
+                { "VBTAB", (int)Symbol.Tokens.tokTab },
+                { "VBCR", (int)Symbol.Tokens.tokCr },
+                { "VBLF", (int)Symbol.Tokens.tokLf },
+                { "IMPORT", (int)Symbol.Tokens.tokExternal },
+                { "LEN", (int)Symbol.Tokens.tokLen },
+                { "LEFT", (int)Symbol.Tokens.tokLeft },
+                { "RIGHT", (int)Symbol.Tokens.tokRight },
+                { "MID", (int)Symbol.Tokens.tokMid },
+                { "INSTR", (int)Symbol.Tokens.tokInStr },
+                { "REPLACE", (int)Symbol.Tokens.tokReplace },
+                { "TRIM", (int)Symbol.Tokens.tokTrim },
+                { "UCASE", (int)Symbol.Tokens.tokUCase },
+                { "LCASE", (int)Symbol.Tokens.tokLCase },
+                { "ABS", (int)Symbol.Tokens.tokAbs },
+                { "ROUND", (int)Symbol.Tokens.tokRound },
+                { "SQR", (int)Symbol.Tokens.tokSqr },
+                { "RND", (int)Symbol.Tokens.tokRnd },
+                { "LOG", (int)Symbol.Tokens.tokLog },
+                { "EXP", (int)Symbol.Tokens.tokExp },
+                { "SGN", (int)Symbol.Tokens.tokSgn },
+                { "TIMETOHOURS", (int)Symbol.Tokens.tokTimeToHours },
+                { "TIMEOVERLAP", (int)Symbol.Tokens.tokTimeOverlap },
+                { "SELECT", (int)Symbol.Tokens.tokSelect },
+                { "CASE", (int)Symbol.Tokens.tokCase },
+            };
         }
 
         private void MathOperatorOrAssignments(Symbol nextSymbol, string c)
@@ -562,9 +519,4 @@ namespace Klacks.Api.Infrastructure.Scripting
             Dispose();
         }
     }
-
-
-
-
-
 }

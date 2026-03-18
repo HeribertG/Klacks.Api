@@ -33,12 +33,12 @@ namespace Klacks.Api.Infrastructure.Scripting
                 }
                 else
                 {
-                    errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                    errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameters", sym.Line, sym.Col, sym.Index, sym.Text));
                 }
             }
             else
             {
-                errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' in function call", sym.Line, sym.Col, sym.Index, sym.Text);
+                errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' in function call", sym.Line, sym.Col, sym.Index, sym.Text));
             }
 
             return operator_Renamed;
@@ -119,10 +119,10 @@ namespace Klacks.Api.Infrastructure.Scripting
                     }
                 }
                 else
-                    errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameter", sym.Line, sym.Col, sym.Index, sym.Text);
+                    errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameter", sym.Line, sym.Col, sym.Index, sym.Text));
             }
             else
-                errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function Name", sym.Line, sym.Col, sym.Index, sym.Text);
+                errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function Name", sym.Line, sym.Col, sym.Index, sym.Text));
 
             return operator_Renamed;
         }
@@ -140,10 +140,10 @@ namespace Klacks.Api.Infrastructure.Scripting
                     code!.Add(opcode);
                 }
                 else
-                    errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameter", sym.Line, sym.Col, sym.Index, sym.Text);
+                    errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameter", sym.Line, sym.Col, sym.Index, sym.Text));
             }
             else
-                errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function name", sym.Line, sym.Col, sym.Index, sym.Text);
+                errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function name", sym.Line, sym.Col, sym.Index, sym.Text));
         }
 
         private void CallBinaryFunction(Opcodes opcode)
@@ -163,13 +163,13 @@ namespace Klacks.Api.Infrastructure.Scripting
                         code!.Add(opcode);
                     }
                     else
-                        errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                        errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameters", sym.Line, sym.Col, sym.Index, sym.Text));
                 }
                 else
-                    errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                    errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text));
             }
             else
-                errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function name", sym.Line, sym.Col, sym.Index, sym.Text);
+                errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function name", sym.Line, sym.Col, sym.Index, sym.Text));
         }
 
         private void CallTernaryFunction(Opcodes opcode)
@@ -193,16 +193,16 @@ namespace Klacks.Api.Infrastructure.Scripting
                             code!.Add(opcode);
                         }
                         else
-                            errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                            errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameters", sym.Line, sym.Col, sym.Index, sym.Text));
                     }
                     else
-                        errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                        errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text));
                 }
                 else
-                    errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                    errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text));
             }
             else
-                errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function name", sym.Line, sym.Col, sym.Index, sym.Text);
+                errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function name", sym.Line, sym.Col, sym.Index, sym.Text));
         }
 
         private void CallQuaternaryFunction(Opcodes opcode)
@@ -230,19 +230,19 @@ namespace Klacks.Api.Infrastructure.Scripting
                                 code!.Add(opcode);
                             }
                             else
-                                errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                                errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameters", sym.Line, sym.Col, sym.Index, sym.Text));
                         }
                         else
-                            errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                            errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text));
                     }
                     else
-                        errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                        errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text));
                 }
                 else
-                    errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                    errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' between function parameters", sym.Line, sym.Col, sym.Index, sym.Text));
             }
             else
-                errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function name", sym.Line, sym.Col, sym.Index, sym.Text);
+                errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function name", sym.Line, sym.Col, sym.Index, sym.Text));
         }
 
         private void CallRnd()
@@ -257,10 +257,10 @@ namespace Klacks.Api.Infrastructure.Scripting
                     code!.Add(Opcodes.Rnd);
                 }
                 else
-                    errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' - Rnd() takes no parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                    errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' - Rnd() takes no parameters", sym.Line, sym.Col, sym.Index, sym.Text));
             }
             else
-                errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after Rnd", sym.Line, sym.Col, sym.Index, sym.Text);
+                errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after Rnd", sym.Line, sym.Col, sym.Index, sym.Text));
         }
 
         private void CallRoundFunction()
@@ -285,10 +285,10 @@ namespace Klacks.Api.Infrastructure.Scripting
                     code!.Add(Opcodes.Round);
                 }
                 else
-                    errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameters", sym.Line, sym.Col, sym.Index, sym.Text);
+                    errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after function parameters", sym.Line, sym.Col, sym.Index, sym.Text));
             }
             else
-                errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function name", sym.Line, sym.Col, sym.Index, sym.Text);
+                errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after function name", sym.Line, sym.Col, sym.Index, sym.Text));
         }
     }
 }

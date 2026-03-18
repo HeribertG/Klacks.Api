@@ -104,12 +104,11 @@ public sealed class ScriptExecutionContext
             if (cancellationToken.IsCancellationRequested)
             {
                 running = false;
-                errorObject!.Raise(
+                errorObject!.Raise(new InterpreterErrorInfo(
                     (int)InterpreterError.RunErrors.errCancelled,
                     "ScriptExecutionContext.Execute",
                     "Script execution cancelled",
-                    0, 0, 0
-                );
+                    0, 0, 0));
             }
         }
 
@@ -123,34 +122,15 @@ public sealed class ScriptExecutionContext
         switch (opcode)
         {
             case Opcodes.AllocConst:
-                scopes!.Allocate(operation[1]!.ToString()!, ScriptValue.FromObject(operation[2]), Identifier.IdentifierTypes.IdConst);
-                break;
-
             case Opcodes.AllocVar:
-                scopes!.Allocate(operation[1]!.ToString()!);
-                break;
-
             case Opcodes.PushValue:
-                scopes!.Push(ScriptValue.FromObject(operation[1]));
-                break;
-
             case Opcodes.PushVariable:
-                ExecutePushVariable(operation);
-                break;
-
             case Opcodes.Pop:
-                scopes!.PopScopes();
-                break;
-
             case Opcodes.PopWithIndex:
-                {
-                    var register = scopes!.Pop(Convert.ToInt32(operation[1]));
-                    scopes.Push(register?.Value ?? ScriptValue.Null);
-                }
-                break;
-
             case Opcodes.Assign:
-                ExecuteAssign(operation);
+            case Opcodes.PushScope:
+            case Opcodes.PopScope:
+                ExecuteVariableAndStackOps(opcode, operation);
                 break;
 
             case Opcodes.Add:
@@ -187,7 +167,18 @@ public sealed class ScriptExecutionContext
                 ExecuteUnaryOp(opcode);
                 break;
 
-            // Time Functions
+            case Opcodes.Jump:
+            case Opcodes.JumpTrue:
+            case Opcodes.JumpFalse:
+            case Opcodes.JumpPop:
+                ExecuteJumpOps(opcode, operation);
+                break;
+
+            case Opcodes.Call:
+            case Opcodes.Return:
+                ExecuteCallReturn(opcode, operation);
+                break;
+
             case Opcodes.TimeToHours:
                 ExecuteTimeToHours();
                 break;
@@ -195,7 +186,6 @@ public sealed class ScriptExecutionContext
                 ExecuteTimeOverlap();
                 break;
 
-            // String Functions
             case Opcodes.Len:
                 ExecuteLen();
                 break;
@@ -224,7 +214,6 @@ public sealed class ScriptExecutionContext
                 ExecuteLCase();
                 break;
 
-            // Math Functions
             case Opcodes.Rnd:
                 scopes!.Push(ScriptValue.FromNumber(_random.NextDouble()));
                 break;
@@ -233,22 +222,10 @@ public sealed class ScriptExecutionContext
                 break;
 
             case Opcodes.DebugPrint:
-                {
-                    var register = scopes!.PopScopes();
-                    DebugPrint?.Invoke(register.Value.AsString());
-                }
-                break;
-
             case Opcodes.DebugClear:
-                DebugClear?.Invoke();
-                break;
-
             case Opcodes.DebugShow:
-                DebugShow?.Invoke();
-                break;
-
             case Opcodes.DebugHide:
-                DebugHide?.Invoke();
+                ExecuteDebugOps(opcode);
                 break;
 
             case Opcodes.Message:
@@ -257,25 +234,65 @@ public sealed class ScriptExecutionContext
 
             case Opcodes.Msgbox:
             case Opcodes.Inputbox:
-                if (!AllowUi)
-                {
-                    running = false;
-                    errorObject!.Raise(
-                        (int)InterpreterError.RunErrors.errNoUIallowed,
-                        "ScriptExecutionContext.Execute",
-                        "UI statements not allowed in this context",
-                        0, 0, 0
-                    );
-                }
+                ExecuteUiOps();
                 break;
 
             case Opcodes.DoEvents:
                 break;
+        }
+    }
 
+    private void ExecuteVariableAndStackOps(Opcodes opcode, object[] operation)
+    {
+        switch (opcode)
+        {
+            case Opcodes.AllocConst:
+                scopes!.Allocate(operation[1]!.ToString()!, ScriptValue.FromObject(operation[2]), Identifier.IdentifierTypes.IdConst);
+                break;
+
+            case Opcodes.AllocVar:
+                scopes!.Allocate(operation[1]!.ToString()!);
+                break;
+
+            case Opcodes.PushValue:
+                scopes!.Push(ScriptValue.FromObject(operation[1]));
+                break;
+
+            case Opcodes.PushVariable:
+                ExecutePushVariable(operation);
+                break;
+
+            case Opcodes.Pop:
+                scopes!.PopScopes();
+                break;
+
+            case Opcodes.PopWithIndex:
+                var register = scopes!.Pop(Convert.ToInt32(operation[1]));
+                scopes.Push(register?.Value ?? ScriptValue.Null);
+                break;
+
+            case Opcodes.Assign:
+                ExecuteAssign(operation);
+                break;
+
+            case Opcodes.PushScope:
+                scopes!.PushScope();
+                break;
+
+            case Opcodes.PopScope:
+                scopes!.PopScope();
+                break;
+        }
+    }
+
+    private void ExecuteJumpOps(Opcodes opcode, object[] operation)
+    {
+        switch (opcode)
+        {
             case Opcodes.Jump:
                 if (operation.Length < 2)
                 {
-                    errorObject!.Raise(999, "ScriptExecutionContext", $"Malformed Jump instruction at PC {pc}: missing target address", 0, 0, 0);
+                    errorObject!.Raise(new InterpreterErrorInfo(999, "ScriptExecutionContext", $"Malformed Jump instruction at PC {pc}: missing target address", 0, 0, 0));
                     running = false;
                     return;
                 }
@@ -289,7 +306,7 @@ public sealed class ScriptExecutionContext
                     {
                         if (operation.Length < 2)
                         {
-                            errorObject!.Raise(999, "ScriptExecutionContext", $"Malformed JumpTrue instruction at PC {pc}: missing target address", 0, 0, 0);
+                            errorObject!.Raise(new InterpreterErrorInfo(999, "ScriptExecutionContext", $"Malformed JumpTrue instruction at PC {pc}: missing target address", 0, 0, 0));
                             running = false;
                             return;
                         }
@@ -305,7 +322,7 @@ public sealed class ScriptExecutionContext
                     {
                         if (operation.Length < 2)
                         {
-                            errorObject!.Raise(999, "ScriptExecutionContext", $"Malformed JumpFalse instruction at PC {pc}: missing target address", 0, 0, 0);
+                            errorObject!.Raise(new InterpreterErrorInfo(999, "ScriptExecutionContext", $"Malformed JumpFalse instruction at PC {pc}: missing target address", 0, 0, 0));
                             running = false;
                             return;
                         }
@@ -317,15 +334,13 @@ public sealed class ScriptExecutionContext
             case Opcodes.JumpPop:
                 pc = scopes!.PopScopes().Value.AsInt() - 1;
                 break;
+        }
+    }
 
-            case Opcodes.PushScope:
-                scopes!.PushScope();
-                break;
-
-            case Opcodes.PopScope:
-                scopes!.PopScope();
-                break;
-
+    private void ExecuteCallReturn(Opcodes opcode, object[] operation)
+    {
+        switch (opcode)
+        {
             case Opcodes.Call:
                 if (++recursionDepth > MaxRecursionDepth)
                 {
@@ -343,6 +358,42 @@ public sealed class ScriptExecutionContext
         }
     }
 
+    private void ExecuteDebugOps(Opcodes opcode)
+    {
+        switch (opcode)
+        {
+            case Opcodes.DebugPrint:
+                var register = scopes!.PopScopes();
+                DebugPrint?.Invoke(register.Value.AsString());
+                break;
+
+            case Opcodes.DebugClear:
+                DebugClear?.Invoke();
+                break;
+
+            case Opcodes.DebugShow:
+                DebugShow?.Invoke();
+                break;
+
+            case Opcodes.DebugHide:
+                DebugHide?.Invoke();
+                break;
+        }
+    }
+
+    private void ExecuteUiOps()
+    {
+        if (!AllowUi)
+        {
+            running = false;
+            errorObject!.Raise(new InterpreterErrorInfo(
+                (int)InterpreterError.RunErrors.errNoUIallowed,
+                "ScriptExecutionContext.Execute",
+                "UI statements not allowed in this context",
+                0, 0, 0));
+        }
+    }
+
     private void ExecutePushVariable(object[] operation)
     {
         try
@@ -354,12 +405,11 @@ public sealed class ScriptExecutionContext
             if (register == null)
             {
                 running = false;
-                errorObject!.Raise(
+                errorObject!.Raise(new InterpreterErrorInfo(
                     (int)InterpreterError.RunErrors.errUninitializedVar,
                     "ScriptExecutionContext.Execute",
                     $"Variable '{operation[1]}' has not been assigned a value",
-                    0, 0, 0
-                );
+                    0, 0, 0));
                 return;
             }
 
@@ -368,12 +418,11 @@ public sealed class ScriptExecutionContext
         catch
         {
             running = false;
-            errorObject!.Raise(
+            errorObject!.Raise(new InterpreterErrorInfo(
                 (int)InterpreterError.RunErrors.errUnknownVar,
                 "ScriptExecutionContext.Execute",
                 $"Unknown variable '{operation[1]}'",
-                0, 0, 0
-            );
+                0, 0, 0));
         }
     }
 
@@ -444,12 +493,11 @@ public sealed class ScriptExecutionContext
         catch (Exception ex)
         {
             running = false;
-            errorObject!.Raise(
+            errorObject!.Raise(new InterpreterErrorInfo(
                 (int)InterpreterError.RunErrors.errMath,
                 "ScriptExecutionContext.Execute",
                 $"Error during calculation (binary op {opcode}): {ex.Message}",
-                0, 0, 0
-            );
+                0, 0, 0));
         }
     }
 
@@ -483,12 +531,11 @@ public sealed class ScriptExecutionContext
         catch (Exception ex)
         {
             running = false;
-            errorObject!.Raise(
+            errorObject!.Raise(new InterpreterErrorInfo(
                 (int)InterpreterError.RunErrors.errMath,
                 "ScriptExecutionContext.Execute",
                 $"Error during calculation (unary op {opcode}): {ex.Message}",
-                0, 0, 0
-            );
+                0, 0, 0));
         }
     }
 

@@ -214,102 +214,38 @@ namespace Klacks.Api.Infrastructure.Scripting
 
         private void Terminal()
         {
-            Symbol.Tokens operator_Renamed;
-            int thenPC, elsePC;
-            string ident;
-
             switch (sym.Token)
             {
                 case Symbol.Tokens.tokMinus:
-                    GetNextSymbol();
-                    Terminal();
-                    code!.Add(Opcodes.Negate);
-                    break;
-
                 case Symbol.Tokens.tokNot:
-                    GetNextSymbol();
-                    Terminal();
-                    code!.Add(Opcodes.Not);
+                    ParseUnaryOperator();
                     break;
 
                 case Symbol.Tokens.tokNumber:
-                    code!.Add(Opcodes.PushValue, sym.Value!);
-                    GetNextSymbol();
-                    break;
-
                 case Symbol.Tokens.tokString:
-                    code!.Add(Opcodes.PushValue, sym.Value!);
-                    GetNextSymbol();
+                    ParseLiteral();
                     break;
 
                 case Symbol.Tokens.tokIdentifier:
-                    if (optionExplicit & !symboltable!.Exists(sym.Text))
-                        errorObject!.Raise((int)InterpreterError.ParsErrors.errIdentifierAlreadyExists, "SyntaxAnalyser.Terminal", "Identifier '" + sym.Text + "' has not be declared", sym.Line, sym.Col, sym.Index, sym.Text);
-
-                    bool isCurrentFunction = currentFunctionName != null &&
-                        string.Equals(sym.Text, currentFunctionName, StringComparison.OrdinalIgnoreCase);
-
-                    if (symboltable.Exists(sym.Text, null, Identifier.IdentifierTypes.IdFunction))
-                    {
-                        ident = sym.Text;
-                        GetNextSymbol();
-
-                        if (isCurrentFunction && sym.Token != Symbol.Tokens.tokLeftParent)
-                        {
-                            code!.Add(Opcodes.PushVariable, ident);
-                        }
-                        else
-                        {
-                            CallUserdefinedFunction(ident);
-                            code!.Add(Opcodes.PushVariable, ident);
-                        }
-                    }
-                    else if (symboltable.Exists(sym.Text, null, Identifier.IdentifierTypes.IdSub))
-                        errorObject!.Raise((int)InterpreterError.ParsErrors.errCannotCallSubInExpression, "SyntaxAnalyser.Terminal", "Cannot call sub '" + sym.Text + "' in expression", sym.Line, sym.Col, sym.Index);
-                    else
-                    {
-                        code!.Add(Opcodes.PushVariable, sym.Text);
-                        GetNextSymbol();
-                    }
+                    ParseIdentifierOrFunctionCall();
                     break;
 
                 case Symbol.Tokens.tokTrue:
-                    code!.Add(Opcodes.PushValue, true);
-                    GetNextSymbol();
-                    break;
-
                 case Symbol.Tokens.tokFalse:
-                    code!.Add(Opcodes.PushValue, false);
-                    GetNextSymbol();
+                    ParseBooleanLiteral();
                     break;
 
                 case Symbol.Tokens.tokPi:
-                    code!.Add(Opcodes.PushValue, 3.141592654);
-                    GetNextSymbol();
-                    break;
-
                 case Symbol.Tokens.tokCrlf:
-                    code!.Add(Opcodes.PushValue, "\r\n");
-                    GetNextSymbol();
-                    break;
-
                 case Symbol.Tokens.tokTab:
-                    code!.Add(Opcodes.PushValue, "\t");
-                    GetNextSymbol();
-                    break;
-
                 case Symbol.Tokens.tokCr:
-                    code!.Add(Opcodes.PushValue, "\r");
-                    GetNextSymbol();
-                    break;
-
                 case Symbol.Tokens.tokLf:
-                    code!.Add(Opcodes.PushValue, "\n");
-                    GetNextSymbol();
+                    ParseConstantLiteral();
                     break;
 
                 case Symbol.Tokens.tokMsgbox:
-                    operator_Renamed = Boxes(sym.Token);
+                case Symbol.Tokens.tokOutput:
+                    Boxes(sym.Token);
                     break;
 
                 case Symbol.Tokens.tokInputbox:
@@ -317,27 +253,127 @@ namespace Klacks.Api.Infrastructure.Scripting
                     GetNextSymbol();
                     break;
 
-                case Symbol.Tokens.tokOutput:
-                    operator_Renamed = Boxes(sym.Token);
-                    break;
-
                 case Symbol.Tokens.tokSin:
-                    operator_Renamed = ComplexGeometry(sym.Token);
-                    break;
-
                 case Symbol.Tokens.tokCos:
-                    operator_Renamed = ComplexGeometry(sym.Token);
-                    break;
-
                 case Symbol.Tokens.tokTan:
-                    operator_Renamed = ComplexGeometry(sym.Token);
-                    break;
-
                 case Symbol.Tokens.tokATan:
-                    operator_Renamed = ComplexGeometry(sym.Token);
+                    ComplexGeometry(sym.Token);
                     break;
 
-                // String Functions
+                case Symbol.Tokens.tokLen:
+                case Symbol.Tokens.tokLeft:
+                case Symbol.Tokens.tokRight:
+                case Symbol.Tokens.tokMid:
+                case Symbol.Tokens.tokInStr:
+                case Symbol.Tokens.tokReplace:
+                case Symbol.Tokens.tokTrim:
+                case Symbol.Tokens.tokUCase:
+                case Symbol.Tokens.tokLCase:
+                    ParseStringFunction();
+                    break;
+
+                case Symbol.Tokens.tokAbs:
+                case Symbol.Tokens.tokRound:
+                case Symbol.Tokens.tokSqr:
+                case Symbol.Tokens.tokRnd:
+                case Symbol.Tokens.tokLog:
+                case Symbol.Tokens.tokExp:
+                case Symbol.Tokens.tokSgn:
+                case Symbol.Tokens.tokTimeToHours:
+                case Symbol.Tokens.tokTimeOverlap:
+                    ParseMathFunction();
+                    break;
+
+                case Symbol.Tokens.tokIif:
+                    ParseIIfExpression();
+                    break;
+
+                case Symbol.Tokens.tokLeftParent:
+                    ParseParenthesizedExpression();
+                    break;
+
+                case Symbol.Tokens.tokEof:
+                    errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errUnexpectedSymbol, "SyntaxAnalyser.Terminal", "Identifier or function or '(' expected but end of source found", sym.Line, sym.Col, sym.Index, sym.Text));
+                    break;
+
+                default:
+                    errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errUnexpectedSymbol, "SyntaxAnalyser.Terminal", "Expected: expression; found symbol '" + sym.Text + "'", sym.Line, sym.Col, sym.Index, sym.Text));
+                    break;
+            }
+        }
+
+        private void ParseUnaryOperator()
+        {
+            var token = sym.Token;
+            GetNextSymbol();
+            Terminal();
+            code!.Add(token == Symbol.Tokens.tokMinus ? Opcodes.Negate : Opcodes.Not);
+        }
+
+        private void ParseLiteral()
+        {
+            code!.Add(Opcodes.PushValue, sym.Value!);
+            GetNextSymbol();
+        }
+
+        private void ParseIdentifierOrFunctionCall()
+        {
+            if (optionExplicit & !symboltable!.Exists(sym.Text))
+                errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errIdentifierAlreadyExists, "SyntaxAnalyser.Terminal", "Identifier '" + sym.Text + "' has not be declared", sym.Line, sym.Col, sym.Index, sym.Text));
+
+            bool isCurrentFunction = currentFunctionName != null &&
+                string.Equals(sym.Text, currentFunctionName, StringComparison.OrdinalIgnoreCase);
+
+            if (symboltable.Exists(sym.Text, null, Identifier.IdentifierTypes.IdFunction))
+            {
+                var ident = sym.Text;
+                GetNextSymbol();
+
+                if (isCurrentFunction && sym.Token != Symbol.Tokens.tokLeftParent)
+                {
+                    code!.Add(Opcodes.PushVariable, ident);
+                }
+                else
+                {
+                    CallUserdefinedFunction(ident);
+                    code!.Add(Opcodes.PushVariable, ident);
+                }
+            }
+            else if (symboltable.Exists(sym.Text, null, Identifier.IdentifierTypes.IdSub))
+                errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errCannotCallSubInExpression, "SyntaxAnalyser.Terminal", "Cannot call sub '" + sym.Text + "' in expression", sym.Line, sym.Col, sym.Index));
+            else
+            {
+                code!.Add(Opcodes.PushVariable, sym.Text);
+                GetNextSymbol();
+            }
+        }
+
+        private void ParseBooleanLiteral()
+        {
+            code!.Add(Opcodes.PushValue, sym.Token == Symbol.Tokens.tokTrue);
+            GetNextSymbol();
+        }
+
+        private void ParseConstantLiteral()
+        {
+            object value = sym.Token switch
+            {
+                Symbol.Tokens.tokPi => 3.141592654,
+                Symbol.Tokens.tokCrlf => "\r\n",
+                Symbol.Tokens.tokTab => "\t",
+                Symbol.Tokens.tokCr => "\r",
+                Symbol.Tokens.tokLf => "\n",
+                _ => throw new InvalidOperationException("Unexpected constant token: " + sym.Token)
+            };
+
+            code!.Add(Opcodes.PushValue, value);
+            GetNextSymbol();
+        }
+
+        private void ParseStringFunction()
+        {
+            switch (sym.Token)
+            {
                 case Symbol.Tokens.tokLen:
                     CallUnaryFunction(Opcodes.Len);
                     break;
@@ -365,8 +401,13 @@ namespace Klacks.Api.Infrastructure.Scripting
                 case Symbol.Tokens.tokLCase:
                     CallUnaryFunction(Opcodes.LCase);
                     break;
+            }
+        }
 
-                // Math Functions
+        private void ParseMathFunction()
+        {
+            switch (sym.Token)
+            {
                 case Symbol.Tokens.tokAbs:
                     CallUnaryFunction(Opcodes.Abs);
                     break;
@@ -394,60 +435,57 @@ namespace Klacks.Api.Infrastructure.Scripting
                 case Symbol.Tokens.tokTimeOverlap:
                     CallQuaternaryFunction(Opcodes.TimeOverlap);
                     break;
-
-                case Symbol.Tokens.tokIif:
-                    GetNextSymbol();
-                    if (sym.Token == Symbol.Tokens.tokLeftParent)
-                    {
-                        GetNextSymbol();
-                        Condition();
-                        thenPC = code!.Add(Opcodes.JumpFalse);
-
-                        if (sym.Token == Symbol.Tokens.tokComma)
-                        {
-                            GetNextSymbol();
-                            Condition();
-                            elsePC = code.Add(Opcodes.Jump);
-                            code.FixUp(thenPC - 1, code.EndOfCodePc);
-
-                            if (sym.Token == Symbol.Tokens.tokComma)
-                            {
-                                GetNextSymbol();
-                                Condition();
-                                code.FixUp(elsePC - 1, code.EndOfCodePc);
-
-                                if (sym.Token == Symbol.Tokens.tokRightParent)
-                                    GetNextSymbol();
-                                else
-                                    errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after last IIF-parameter", sym.Line, sym.Col, sym.Index, sym.Text);
-                            }
-                            else
-                                errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' after true-Value of IIF", sym.Line, sym.Col, sym.Index, sym.Text);
-                        }
-                        else
-                            errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' after IIF-condition", sym.Line, sym.Col, sym.Index, sym.Text);
-                    }
-                    else
-                        errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after IIF", sym.Line, sym.Col, sym.Index, sym.Text);
-                    break;
-
-                case Symbol.Tokens.tokLeftParent:
-                    GetNextSymbol();
-                    Condition();
-                    if (sym.Token == Symbol.Tokens.tokRightParent)
-                        GetNextSymbol();
-                    else
-                        errorObject!.Raise((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')'", sym.Line, sym.Col, sym.Index, sym.Text);
-                    break;
-
-                case Symbol.Tokens.tokEof:
-                    errorObject!.Raise((int)InterpreterError.ParsErrors.errUnexpectedSymbol, "SyntaxAnalyser.Terminal", "Identifier or function or '(' expected but end of source found", sym.Line, sym.Col, sym.Index, sym.Text);
-                    break;
-
-                default:
-                    errorObject!.Raise((int)InterpreterError.ParsErrors.errUnexpectedSymbol, "SyntaxAnalyser.Terminal", "Expected: expression; found symbol '" + sym.Text + "'", sym.Line, sym.Col, sym.Index, sym.Text);
-                    break;
             }
+        }
+
+        private void ParseIIfExpression()
+        {
+            GetNextSymbol();
+            if (sym.Token != Symbol.Tokens.tokLeftParent)
+            {
+                errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingLeftParent, "SyntaxAnalyser.Terminal", "Missing opening bracket '(' after IIF", sym.Line, sym.Col, sym.Index, sym.Text));
+                return;
+            }
+
+            GetNextSymbol();
+            Condition();
+            var thenPC = code!.Add(Opcodes.JumpFalse);
+
+            if (sym.Token != Symbol.Tokens.tokComma)
+            {
+                errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' after IIF-condition", sym.Line, sym.Col, sym.Index, sym.Text));
+                return;
+            }
+
+            GetNextSymbol();
+            Condition();
+            var elsePC = code.Add(Opcodes.Jump);
+            code.FixUp(thenPC - 1, code.EndOfCodePc);
+
+            if (sym.Token != Symbol.Tokens.tokComma)
+            {
+                errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingComma, "SyntaxAnalyser.Terminal", "Missing ',' after true-Value of IIF", sym.Line, sym.Col, sym.Index, sym.Text));
+                return;
+            }
+
+            GetNextSymbol();
+            Condition();
+            code.FixUp(elsePC - 1, code.EndOfCodePc);
+
+            if (sym.Token == Symbol.Tokens.tokRightParent)
+                GetNextSymbol();
+            else
+                errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')' after last IIF-parameter", sym.Line, sym.Col, sym.Index, sym.Text));
+        }
+
+        private void ParseParenthesizedExpression()
+        {
+            GetNextSymbol();
+            Condition();
+            if (sym.Token == Symbol.Tokens.tokRightParent)
+                GetNextSymbol();
+            else
+                errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errMissingClosingParent, "SyntaxAnalyser.Terminal", "Missing closing bracket ')'", sym.Line, sym.Col, sym.Index, sym.Text));
         }
     }
 }

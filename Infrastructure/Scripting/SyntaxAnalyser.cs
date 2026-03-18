@@ -50,7 +50,7 @@ namespace Klacks.Api.Infrastructure.Scripting
 
             if (!sym.Token.Equals(Symbol.Tokens.tokEof))
             {
-                errorObject.Raise((int)InterpreterError.ParsErrors.errUnexpectedSymbol, "SyntaxAnalyser.Parse", "Expected: end of statement", sym.Line, sym.Col, sym.Index, sym.Text);
+                errorObject.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errUnexpectedSymbol, "SyntaxAnalyser.Parse", "Expected: end of statement", sym.Line, sym.Col, sym.Index, sym.Text));
             }
 
             return this.code;

@@ -78,11 +78,11 @@ namespace Klacks.Api.Infrastructure.Scripting
                 return nextChar;
             }
 
-            ErrorObject.Raise(
+            ErrorObject.Raise(new InterpreterErrorInfo(
                 (int)InterpreterError.InputStreamErrors.errInvalidChar,
                 "StringInputStream.GetNextChar",
                 "Invalid character (ASCII " + nextChar.Substring(0, 1) + ")",
-                Line, Col, Index);
+                Line, Col, Index));
             return string.Empty;
         }
 
@@ -92,11 +92,11 @@ namespace Klacks.Api.Infrastructure.Scripting
             {
                 if (Index <= 0)
                 {
-                    ErrorObject.Raise(
+                    ErrorObject.Raise(new InterpreterErrorInfo(
                         (int)InterpreterError.InputStreamErrors.errGoBackPastStartOfSource,
                         "StringInputStream.GoBack",
                         "GoBack past start of source",
-                        0, 0, 0);
+                        0, 0, 0));
                 }
                 return;
             }
