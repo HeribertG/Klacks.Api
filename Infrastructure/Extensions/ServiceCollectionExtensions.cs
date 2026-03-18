@@ -169,6 +169,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IShiftStatusFilterService, ShiftStatusFilterService>();
         services.AddScoped<IShiftFilterService, ShiftFilterService>();
         services.AddScoped<IShiftPaginationService, ShiftPaginationService>();
+        services.AddScoped<IShiftQueryPipelineService, ShiftQueryPipelineService>();
         services.AddScoped<IShiftValidator, ShiftValidator>();
         services.AddScoped<IShiftGroupManagementService, ShiftGroupManagementService>();
         services.AddScoped<IShiftTreeService, ShiftTreeService>();
@@ -290,6 +291,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<LLMSystemPromptBuilder>();
         services.AddSingleton<IPromptTranslationProvider, PromptTranslationProvider>();
         services.AddScoped<IEmbeddingService, Klacks.Api.Infrastructure.Services.Assistant.EmbeddingService>();
+        services.AddScoped<IIdentityContextProvider, IdentityContextProvider>();
+        services.AddScoped<IMemoryRetrievalService, MemoryRetrievalService>();
         services.AddScoped<ContextAssemblyPipeline>();
         services.AddSingleton<ISentimentAnalyzer, Domain.Services.Assistant.SentimentAnalyzer>();
         services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.EmbeddingBackgroundService>();

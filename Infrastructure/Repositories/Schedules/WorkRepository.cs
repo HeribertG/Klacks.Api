@@ -6,6 +6,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
@@ -125,15 +126,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
         var workChanges = await context.WorkChange
             .Where(wc => clientIdsWithoutPeriodHours.Contains(wc.Work!.ClientId) && wc.Work.CurrentDate >= startDate && wc.Work.CurrentDate <= endDate)
-            .Select(wc => new
-            {
-                wc.Work!.ClientId,
-                wc.ChangeTime,
-                wc.Type,
-                wc.ToInvoice,
-                wc.ReplaceClientId,
-                OriginalClientId = wc.Work.ClientId
-            })
+            .Select(wc => new WorkChangeEntry(wc.Work!.ClientId, wc.ChangeTime, wc.Type, wc.ToInvoice, wc.ReplaceClientId, wc.Work.ClientId))
             .ToListAsync(cancellationToken);
 
         var worksHoursDict = worksHours.ToDictionary(x => x.ClientId, x => (Hours: x.TotalHours, Surcharges: x.TotalSurcharges));
@@ -155,45 +148,11 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             };
         }
 
-        foreach (var clientId in clientIdsWithoutPeriodHours)
+        var fallback = BuildFallbackPeriodHours(clientIdsWithoutPeriodHours, worksHoursDict, breaksHoursDict, workChanges, effectiveDataByClient);
+
+        foreach (var kvp in fallback)
         {
-            var workData = worksHoursDict.TryGetValue(clientId, out var wd) ? wd : (Hours: 0m, Surcharges: 0m);
-            var breaks = breaksHoursDict.TryGetValue(clientId, out var b) ? b : 0m;
-
-            var workChangeHours = 0m;
-            var workChangeSurcharges = 0m;
-
-            foreach (var wc in workChanges)
-            {
-                if (wc.ToInvoice == true && wc.OriginalClientId == clientId)
-                {
-                    workChangeSurcharges += wc.ChangeTime;
-                }
-
-                var isOriginalClient = wc.OriginalClientId == clientId;
-                var isReplacementClient = wc.ReplaceClientId == clientId;
-
-                if (wc.Type == WorkChangeType.CorrectionEnd || wc.Type == WorkChangeType.CorrectionStart)
-                {
-                    if (isOriginalClient) workChangeHours += wc.ChangeTime;
-                }
-                else if (wc.Type == WorkChangeType.ReplacementStart || wc.Type == WorkChangeType.ReplacementEnd)
-                {
-                    if (isOriginalClient) workChangeHours -= wc.ChangeTime;
-                    if (isReplacementClient) workChangeHours += wc.ChangeTime;
-                }
-            }
-
-            var guaranteedHours = effectiveDataByClient.TryGetValue(clientId, out var data)
-                ? data.GuaranteedHours
-                : 0m;
-
-            result[clientId] = new PeriodHoursResource
-            {
-                Hours = workData.Hours + breaks + workChangeHours,
-                Surcharges = workData.Surcharges + workChangeSurcharges,
-                GuaranteedHours = guaranteedHours
-            };
+            result[kvp.Key] = kvp.Value;
         }
 
         return result;
@@ -251,4 +210,67 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
                 .SetProperty(w => w.SealedAt, (DateTime?)null)
                 .SetProperty(w => w.SealedBy, (string?)null), cancellationToken);
     }
+
+    private static Dictionary<Guid, PeriodHoursResource> BuildFallbackPeriodHours(
+        List<Guid> clientIds,
+        Dictionary<Guid, (decimal Hours, decimal Surcharges)> worksHoursDict,
+        Dictionary<Guid, decimal> breaksHoursDict,
+        List<WorkChangeEntry> workChanges,
+        Dictionary<Guid, EffectiveContractData> effectiveDataByClient)
+    {
+        var result = new Dictionary<Guid, PeriodHoursResource>();
+
+        foreach (var clientId in clientIds)
+        {
+            var workData = worksHoursDict.TryGetValue(clientId, out var wd) ? wd : (Hours: 0m, Surcharges: 0m);
+            var breaks = breaksHoursDict.TryGetValue(clientId, out var b) ? b : 0m;
+
+            var (workChangeHours, workChangeSurcharges) = CalculateWorkChangeAdjustments(workChanges, clientId);
+
+            var guaranteedHours = effectiveDataByClient.TryGetValue(clientId, out var data)
+                ? data.GuaranteedHours
+                : 0m;
+
+            result[clientId] = new PeriodHoursResource
+            {
+                Hours = workData.Hours + breaks + workChangeHours,
+                Surcharges = workData.Surcharges + workChangeSurcharges,
+                GuaranteedHours = guaranteedHours
+            };
+        }
+
+        return result;
+    }
+
+    private static (decimal hours, decimal surcharges) CalculateWorkChangeAdjustments(
+        IEnumerable<WorkChangeEntry> workChanges, Guid clientId)
+    {
+        var hours = 0m;
+        var surcharges = 0m;
+
+        foreach (var wc in workChanges)
+        {
+            if (wc.ToInvoice == true && wc.OriginalClientId == clientId)
+            {
+                surcharges += wc.ChangeTime;
+            }
+
+            var isOriginalClient = wc.OriginalClientId == clientId;
+            var isReplacementClient = wc.ReplaceClientId == clientId;
+
+            if (wc.Type == WorkChangeType.CorrectionEnd || wc.Type == WorkChangeType.CorrectionStart)
+            {
+                if (isOriginalClient) hours += wc.ChangeTime;
+            }
+            else if (wc.Type == WorkChangeType.ReplacementStart || wc.Type == WorkChangeType.ReplacementEnd)
+            {
+                if (isOriginalClient) hours -= wc.ChangeTime;
+                if (isReplacementClient) hours += wc.ChangeTime;
+            }
+        }
+
+        return (hours, surcharges);
+    }
+
+    private record WorkChangeEntry(Guid ClientId, decimal ChangeTime, WorkChangeType Type, bool? ToInvoice, Guid? ReplaceClientId, Guid OriginalClientId);
 }

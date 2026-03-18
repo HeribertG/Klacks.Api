@@ -16,22 +16,14 @@ namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 {
     private readonly DataBaseContext context;
-    private readonly IDateRangeFilterService _dateRangeFilterService;
-    private readonly IShiftSearchService _searchService;
-    private readonly IShiftSortingService _sortingService;
-    private readonly IShiftStatusFilterService _statusFilterService;
-    private readonly IShiftPaginationService _paginationService;
+    private readonly IShiftQueryPipelineService _queryPipeline;
     private readonly IShiftGroupManagementService _groupManagementService;
     private readonly EntityCollectionUpdateService _collectionUpdateService;
     private readonly IShiftValidator _shiftValidator;
     private readonly ScheduleMapper _scheduleMapper;
 
     public ShiftRepository(DataBaseContext context, ILogger<Shift> logger,
-        IDateRangeFilterService dateRangeFilterService,
-        IShiftSearchService searchService,
-        IShiftSortingService sortingService,
-        IShiftStatusFilterService statusFilterService,
-        IShiftPaginationService paginationService,
+        IShiftQueryPipelineService queryPipeline,
         IShiftGroupManagementService groupManagementService,
         EntityCollectionUpdateService collectionUpdateService,
         IShiftValidator shiftValidator,
@@ -39,11 +31,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         : base(context, logger)
     {
         this.context = context;
-        _dateRangeFilterService = dateRangeFilterService;
-        _searchService = searchService;
-        _sortingService = sortingService;
-        _statusFilterService = statusFilterService;
-        _paginationService = paginationService;
+        _queryPipeline = queryPipeline;
         _groupManagementService = groupManagementService;
         _collectionUpdateService = collectionUpdateService;
         _shiftValidator = shiftValidator;
@@ -206,9 +194,9 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             baseQuery = baseQuery.Include(s => s.GroupItems);
         }
 
-        var query = _statusFilterService.ApplyStatusFilter(baseQuery, filter.FilterType, filter.IsSealedOrder, filter.IsTimeRange, filter.IsSporadic);
-        query = _dateRangeFilterService.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange);
-        query = _searchService.ApplySearchFilter(query, filter.SearchString, filter.IncludeClientName);
+        var query = _queryPipeline.ApplyStatusFilter(baseQuery, filter.FilterType, filter.IsSealedOrder, filter.IsTimeRange, filter.IsSporadic);
+        query = _queryPipeline.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange);
+        query = _queryPipeline.ApplySearchFilter(query, filter.SearchString, filter.IncludeClientName);
 
         if (shouldApplyGroupFilter && filter.SelectedGroup.HasValue)
         {
@@ -218,7 +206,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
                 s.GroupItems.Any(gi => gi.GroupId == filter.SelectedGroup.Value));
         }
 
-        query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder);
+        query = _queryPipeline.ApplySorting(query, filter.OrderBy, filter.SortOrder);
 
         Logger.LogInformation("Filters applied to shifts query");
         return query;
@@ -228,12 +216,12 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     {
         Logger.LogInformation("Getting filtered and paginated shifts");
         var filteredQuery = FilterShifts(filter);
-        return await _paginationService.ApplyPaginationAsync(filteredQuery, filter);
+        return await _queryPipeline.ApplyPaginationAsync(filteredQuery, filter);
     }
 
     public async Task<TruncatedShift> GetPaginatedShifts(IQueryable<Shift> filteredQuery, ShiftFilter filter)
     {
-        return await _paginationService.ApplyPaginationAsync(filteredQuery, filter);
+        return await _queryPipeline.ApplyPaginationAsync(filteredQuery, filter);
     }
 
     public async Task UpdateGroupItems(Guid shiftId, List<Guid> actualGroupIds)

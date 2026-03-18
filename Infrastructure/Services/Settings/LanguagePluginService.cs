@@ -1,5 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Fassade für die Verwaltung von Sprach-Plugins: Erkennung, Installation, Deinstallation und Übersetzungen.
+/// Delegiert Geo-Daten-Operationen an <see cref="LanguagePluginGeoDataInstaller"/>
+/// und Inhaltsoperationen an <see cref="LanguagePluginContentInstaller"/>.
+/// </summary>
+/// <param name="scopeFactory">Factory für DI-Scopes bei Datenbank-Operationen</param>
+/// <param name="configuration">App-Konfiguration für das Plugin-Verzeichnis</param>
+/// <param name="logger">Logger-Instanz für Diagnose-Ausgaben</param>
+
 using System.Collections.Concurrent;
 using System.Text.Json;
 using Klacks.Api.Application.Constants;
@@ -7,10 +16,6 @@ using Klacks.Api.Application.DTOs.Config;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.Interfaces.Settings;
-using Klacks.Api.Domain.Common;
-using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Interfaces.Assistant;
-using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +32,9 @@ public class LanguagePluginService : ILanguagePluginService
     private readonly HashSet<string> _installedCodes = new();
     private readonly object _installedLock = new();
     private bool _initialized;
+
+    private readonly LanguagePluginGeoDataInstaller _geoDataInstaller;
+    private readonly LanguagePluginContentInstaller _contentInstaller;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -47,6 +55,9 @@ public class LanguagePluginService : ILanguagePluginService
         _pluginDirectory = Path.IsPathRooted(configuredDir)
             ? configuredDir
             : Path.Combine(AppContext.BaseDirectory, configuredDir);
+
+        _geoDataInstaller = new LanguagePluginGeoDataInstaller(_pluginDirectory, _manifests, _logger);
+        _contentInstaller = new LanguagePluginContentInstaller(_pluginDirectory, _logger);
     }
 
     public void Initialize()
@@ -170,12 +181,12 @@ public class LanguagePluginService : ILanguagePluginService
             });
         }
 
-        await InstallGeoDataAsync(scope, code);
-        await InstallDocsAsync(scope, code);
-        await InstallSkillSynonymsAsync(scope, code);
-        await InstallSentimentKeywordsAsync(scope, code);
+        await _geoDataInstaller.InstallGeoDataAsync(scope, code);
+        await _contentInstaller.InstallDocsAsync(scope, code);
+        await _contentInstaller.InstallSkillSynonymsAsync(scope, code);
+        await _contentInstaller.InstallSentimentKeywordsAsync(scope, code);
         await unitOfWork.CompleteAsync();
-        await MergeNonCoreTranslationsAsync(scope, code);
+        await _contentInstaller.MergeNonCoreTranslationsAsync(scope, code);
 
         lock (_installedLock)
         {
@@ -197,10 +208,10 @@ public class LanguagePluginService : ILanguagePluginService
         var settingsRepo = scope.ServiceProvider.GetRequiredService<ISettingsRepository>();
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
-        await UninstallSkillSynonymsAsync(scope, code);
-        await UninstallSentimentKeywordsAsync(scope, code);
-        await UninstallGeoDataAsync(scope, code);
-        await UninstallDocsAsync(scope, code);
+        await _contentInstaller.UninstallSkillSynonymsAsync(scope, code);
+        await _contentInstaller.UninstallSentimentKeywordsAsync(scope, code);
+        await _geoDataInstaller.UninstallGeoDataAsync(scope, code);
+        await _contentInstaller.UninstallDocsAsync(scope, code);
 
         var existing = await settingsRepo.GetSetting(settingKey);
         if (existing != null)
@@ -280,258 +291,6 @@ public class LanguagePluginService : ILanguagePluginService
         Initialize();
     }
 
-    private Dictionary<string, string> LoadStateNamesForLanguage(string code, string languageCode)
-    {
-        var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var filePath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.StatesFileName);
-
-        if (!File.Exists(filePath))
-            return result;
-
-        try
-        {
-            var json = File.ReadAllText(filePath);
-            using var doc = JsonDocument.Parse(json);
-
-            foreach (var element in doc.RootElement.EnumerateArray())
-            {
-                var abbreviation = element.GetProperty("abbreviation").GetString();
-                if (string.IsNullOrEmpty(abbreviation))
-                    continue;
-
-                if (element.TryGetProperty("name", out var nameObj)
-                    && nameObj.TryGetProperty(languageCode, out var langValue))
-                {
-                    var name = langValue.GetString();
-                    if (!string.IsNullOrEmpty(name))
-                    {
-                        result[abbreviation] = name;
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to load state names for language '{Code}' in plugin '{PluginCode}'",
-                languageCode, code);
-        }
-
-        return result;
-    }
-
-    private List<T>? LoadPluginDataFile<T>(string code, string fileName)
-    {
-        var filePath = Path.Combine(_pluginDirectory, code, fileName);
-        if (!File.Exists(filePath))
-            return null;
-
-        try
-        {
-            var json = File.ReadAllText(filePath);
-            return JsonSerializer.Deserialize<List<T>>(json, JsonOptions);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to load plugin data file '{FileName}' for language '{Code}'", fileName, code);
-            return null;
-        }
-    }
-
-    private async Task InstallGeoDataAsync(IServiceScope scope, string code)
-    {
-        var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
-
-        var countries = LoadPluginDataFile<Countries>(code, LanguagePluginConstants.CountriesFileName);
-        if (countries != null)
-        {
-            foreach (var country in countries)
-            {
-                var existing = await db.Countries.IgnoreQueryFilters()
-                    .FirstOrDefaultAsync(c => c.Id == country.Id);
-
-                if (existing != null)
-                {
-                    existing.IsDeleted = false;
-                    existing.DeletedTime = null;
-                }
-                else
-                {
-                    db.Countries.Add(country);
-                }
-            }
-        }
-
-        var states = LoadPluginDataFile<State>(code, LanguagePluginConstants.StatesFileName);
-        if (states != null)
-        {
-            foreach (var state in states)
-            {
-                var existing = await db.State.IgnoreQueryFilters()
-                    .FirstOrDefaultAsync(s => s.Id == state.Id);
-
-                if (existing != null)
-                {
-                    existing.IsDeleted = false;
-                    existing.DeletedTime = null;
-                }
-                else
-                {
-                    db.State.Add(state);
-                }
-            }
-        }
-
-        var rules = LoadPluginDataFile<CalendarRule>(code, LanguagePluginConstants.CalendarRulesFileName);
-        if (rules != null)
-        {
-            foreach (var rule in rules)
-            {
-                if (!await db.CalendarRule.AnyAsync(r => r.Id == rule.Id))
-                {
-                    db.CalendarRule.Add(rule);
-                }
-            }
-        }
-
-        _logger.LogInformation(
-            "Installed geo data for language plugin '{Code}': {Countries} countries, {States} states, {Rules} calendar rules",
-            code, countries?.Count ?? 0, states?.Count ?? 0, rules?.Count ?? 0);
-
-        if (rules is { Count: > 0 } && states is { Count: > 0 } && countries is { Count: > 0 })
-        {
-            await InstallCalendarSelectionsAsync(db, code, countries, states, rules);
-        }
-    }
-
-    private async Task InstallCalendarSelectionsAsync(
-        DataBaseContext db,
-        string code,
-        List<Countries> countries,
-        List<State> states,
-        List<CalendarRule> rules)
-    {
-        var manifest = _manifests.GetValueOrDefault(code);
-        var languageCode = manifest?.Code ?? "en";
-
-        var stateNameOverrides = LoadStateNamesForLanguage(code, languageCode);
-
-        var regionalStateCodes = rules
-            .Where(r => r.State != r.Country)
-            .Select(r => r.State)
-            .Distinct()
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        var countryAbbreviations = countries
-            .Select(c => c.Abbreviation)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        var count = 0;
-
-        foreach (var state in states)
-        {
-            if (!countryAbbreviations.Contains(state.CountryPrefix))
-                continue;
-
-            var stateName = stateNameOverrides.GetValueOrDefault(state.Abbreviation)
-                ?? state.Name.GetValue(languageCode)
-                ?? state.Name.En
-                ?? state.Abbreviation;
-
-            var existing = await db.CalendarSelection.IgnoreQueryFilters()
-                .FirstOrDefaultAsync(cs => cs.PluginCode == code && cs.Name == stateName);
-
-            if (existing != null)
-            {
-                existing.IsDeleted = false;
-                existing.DeletedTime = null;
-                continue;
-            }
-
-            var calendarSelection = new CalendarSelection
-            {
-                Id = Guid.NewGuid(),
-                Name = stateName,
-                PluginCode = code,
-                CreateTime = DateTime.UtcNow,
-                CurrentUserCreated = "System",
-                SelectedCalendars = new List<SelectedCalendar>()
-            };
-
-            calendarSelection.SelectedCalendars.Add(new SelectedCalendar
-            {
-                Id = Guid.NewGuid(),
-                CalendarSelectionId = calendarSelection.Id,
-                Country = state.CountryPrefix,
-                State = state.CountryPrefix,
-                CreateTime = DateTime.UtcNow,
-                CurrentUserCreated = "System"
-            });
-
-            if (regionalStateCodes.Contains(state.Abbreviation))
-            {
-                calendarSelection.SelectedCalendars.Add(new SelectedCalendar
-                {
-                    Id = Guid.NewGuid(),
-                    CalendarSelectionId = calendarSelection.Id,
-                    Country = state.CountryPrefix,
-                    State = state.Abbreviation,
-                    CreateTime = DateTime.UtcNow,
-                    CurrentUserCreated = "System"
-                });
-            }
-
-            db.CalendarSelection.Add(calendarSelection);
-            count++;
-        }
-
-        _logger.LogInformation(
-            "Installed {Count} calendar selection(s) for language plugin '{Code}'",
-            count, code);
-    }
-
-    private async Task UninstallGeoDataAsync(IServiceScope scope, string code)
-    {
-        var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
-
-        var calendarSelections = await db.CalendarSelection
-            .Include(cs => cs.SelectedCalendars)
-            .Where(cs => cs.PluginCode == code)
-            .ToListAsync();
-
-        if (calendarSelections.Count > 0)
-        {
-            db.CalendarSelection.RemoveRange(calendarSelections);
-            _logger.LogInformation(
-                "Uninstalled {Count} calendar selection(s) for language plugin '{Code}'",
-                calendarSelections.Count, code);
-        }
-
-        var countries = LoadPluginDataFile<Countries>(code, LanguagePluginConstants.CountriesFileName);
-        if (countries == null || countries.Count == 0)
-            return;
-
-        var abbreviations = countries.Select(c => c.Abbreviation).ToList();
-
-        var calendarRules = await db.CalendarRule
-            .Where(r => abbreviations.Contains(r.Country))
-            .ToListAsync();
-        db.CalendarRule.RemoveRange(calendarRules);
-
-        var statesToRemove = await db.State
-            .Where(s => abbreviations.Contains(s.CountryPrefix))
-            .ToListAsync();
-        db.State.RemoveRange(statesToRemove);
-
-        var countriesToRemove = await db.Countries
-            .Where(c => abbreviations.Contains(c.Abbreviation))
-            .ToListAsync();
-        db.Countries.RemoveRange(countriesToRemove);
-
-        _logger.LogInformation(
-            "Uninstalled geo data for language plugin '{Code}': {Countries} countries, {States} states, {Rules} calendar rules",
-            code, countriesToRemove.Count, statesToRemove.Count, calendarRules.Count);
-    }
-
     private static bool IsVersionCompatible(string minVersion)
     {
         if (string.IsNullOrWhiteSpace(minVersion))
@@ -550,265 +309,6 @@ public class LanguagePluginService : ILanguagePluginService
         var requiredVersion = new Version(reqMajor, reqMinor, reqPatch);
 
         return currentVersion >= requiredVersion;
-    }
-
-    private async Task InstallDocsAsync(IServiceScope scope, string code)
-    {
-        var docsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.DocsDirectory);
-        if (!Directory.Exists(docsPath))
-            return;
-
-        var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
-        var htmlFiles = Directory.GetFiles(docsPath, "*.html");
-        var count = 0;
-
-        foreach (var filePath in htmlFiles)
-        {
-            var manualName = Path.GetFileNameWithoutExtension(filePath);
-            var htmlContent = await File.ReadAllTextAsync(filePath);
-
-            var existing = await db.PluginDocs
-                .FirstOrDefaultAsync(d => d.PluginCode == code && d.ManualName == manualName);
-
-            if (existing != null)
-            {
-                existing.HtmlContent = htmlContent;
-            }
-            else
-            {
-                db.PluginDocs.Add(new PluginDoc
-                {
-                    Id = Guid.NewGuid(),
-                    PluginCode = code,
-                    ManualName = manualName,
-                    HtmlContent = htmlContent
-                });
-            }
-
-            count++;
-        }
-
-        _logger.LogInformation("Installed {Count} doc(s) for language plugin '{Code}'", count, code);
-    }
-
-    private async Task UninstallDocsAsync(IServiceScope scope, string code)
-    {
-        var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
-        var docs = await db.PluginDocs
-            .Where(d => d.PluginCode == code)
-            .ToListAsync();
-
-        db.PluginDocs.RemoveRange(docs);
-        _logger.LogInformation("Uninstalled {Count} doc(s) for language plugin '{Code}'", docs.Count, code);
-    }
-
-    private async Task InstallSkillSynonymsAsync(IServiceScope scope, string code)
-    {
-        var synonymsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.SkillSynonymsFileName);
-        if (!File.Exists(synonymsPath))
-            return;
-
-        try
-        {
-            var json = File.ReadAllText(synonymsPath);
-            var synonymMap = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json, JsonOptions);
-            if (synonymMap == null || synonymMap.Count == 0)
-                return;
-
-            var skillRepo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
-            var allSkills = await skillRepo.GetAllEnabledAsync();
-            var count = 0;
-
-            foreach (var skill in allSkills)
-            {
-                if (!synonymMap.TryGetValue(skill.Name, out var keywords))
-                    continue;
-
-                skill.Synonyms ??= new Dictionary<string, List<string>>();
-                skill.Synonyms[code] = keywords;
-                await skillRepo.UpdateAsync(skill);
-                count++;
-            }
-
-            _logger.LogInformation(
-                "Installed skill synonyms for language plugin '{Code}': {Count} skill(s) updated",
-                code, count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to install skill synonyms for language plugin '{Code}'", code);
-        }
-    }
-
-    private async Task UninstallSkillSynonymsAsync(IServiceScope scope, string code)
-    {
-        var synonymsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.SkillSynonymsFileName);
-        if (!File.Exists(synonymsPath))
-            return;
-
-        try
-        {
-            var json = File.ReadAllText(synonymsPath);
-            var synonymMap = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json, JsonOptions);
-            if (synonymMap == null || synonymMap.Count == 0)
-                return;
-
-            var skillRepo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
-            var allSkills = await skillRepo.GetAllEnabledAsync();
-            var count = 0;
-
-            foreach (var skill in allSkills)
-            {
-                if (!synonymMap.ContainsKey(skill.Name))
-                    continue;
-
-                if (skill.Synonyms == null || !skill.Synonyms.ContainsKey(code))
-                    continue;
-
-                skill.Synonyms.Remove(code);
-                await skillRepo.UpdateAsync(skill);
-                count++;
-            }
-
-            _logger.LogInformation(
-                "Uninstalled skill synonyms for language plugin '{Code}': {Count} skill(s) updated",
-                code, count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to uninstall skill synonyms for language plugin '{Code}'", code);
-        }
-    }
-
-    private async Task InstallSentimentKeywordsAsync(IServiceScope scope, string code)
-    {
-        var keywordsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.SentimentKeywordsFileName);
-        if (!File.Exists(keywordsPath))
-            return;
-
-        try
-        {
-            var json = File.ReadAllText(keywordsPath);
-            var keywordMap = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json, JsonOptions);
-            if (keywordMap == null || keywordMap.Count == 0)
-                return;
-
-            var sentimentRepo = scope.ServiceProvider.GetRequiredService<ISentimentKeywordRepository>();
-            await sentimentRepo.UpsertAsync(code, keywordMap, SentimentKeywordSources.Plugin);
-
-            scope.ServiceProvider.GetRequiredService<ISentimentAnalyzer>().ReloadKeywords();
-
-            _logger.LogInformation(
-                "Installed sentiment keywords for language plugin '{Code}'", code);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to install sentiment keywords for language plugin '{Code}'", code);
-        }
-    }
-
-    private async Task UninstallSentimentKeywordsAsync(IServiceScope scope, string code)
-    {
-        var keywordsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.SentimentKeywordsFileName);
-        if (!File.Exists(keywordsPath))
-            return;
-
-        try
-        {
-            var sentimentRepo = scope.ServiceProvider.GetRequiredService<ISentimentKeywordRepository>();
-            await sentimentRepo.DeleteByLanguageAsync(code);
-
-            scope.ServiceProvider.GetRequiredService<ISentimentAnalyzer>().ReloadKeywords();
-
-            _logger.LogInformation(
-                "Uninstalled sentiment keywords for language plugin '{Code}'", code);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to uninstall sentiment keywords for language plugin '{Code}'", code);
-        }
-    }
-
-    private async Task MergeNonCoreTranslationsAsync(IServiceScope scope, string code)
-    {
-        var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
-
-        await MergeNonCoreJsonbTranslationsAsync(db, code,
-            LanguagePluginConstants.CalendarRulesFileName, "calendar_rule", hasDescription: true);
-        await MergeNonCoreJsonbTranslationsAsync(db, code,
-            LanguagePluginConstants.StatesFileName, "state", hasDescription: false);
-        await MergeNonCoreJsonbTranslationsAsync(db, code,
-            LanguagePluginConstants.CountriesFileName, "countries", hasDescription: false);
-    }
-
-    private async Task MergeNonCoreJsonbTranslationsAsync(
-        DataBaseContext db, string code, string fileName, string tableName, bool hasDescription)
-    {
-        var filePath = Path.Combine(_pluginDirectory, code, fileName);
-        if (!File.Exists(filePath))
-            return;
-
-        try
-        {
-            var json = File.ReadAllText(filePath);
-            using var doc = JsonDocument.Parse(json);
-            var count = 0;
-
-            foreach (var element in doc.RootElement.EnumerateArray())
-            {
-                var id = element.GetProperty("id").GetString();
-                if (string.IsNullOrEmpty(id))
-                    continue;
-
-                count += await MergeJsonbPropertyAsync(db, tableName, id, element, "name");
-
-                if (hasDescription)
-                {
-                    await MergeJsonbPropertyAsync(db, tableName, id, element, "description");
-                }
-            }
-
-            if (count > 0)
-            {
-                _logger.LogInformation(
-                    "Merged non-core translations for {Count} {Table} record(s) in language plugin '{Code}'",
-                    count, tableName, code);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex,
-                "Failed to merge non-core translations for {Table} in language plugin '{Code}'",
-                tableName, code);
-        }
-    }
-
-    private static async Task<int> MergeJsonbPropertyAsync(
-        DataBaseContext db, string tableName, string id, JsonElement element, string propertyName)
-    {
-        if (!element.TryGetProperty(propertyName, out var propObj))
-            return 0;
-
-        var nonCoreValues = new Dictionary<string, string>();
-
-        foreach (var prop in propObj.EnumerateObject())
-        {
-            if (MultiLanguage.CoreLanguages.Contains(prop.Name))
-                continue;
-
-            var val = prop.Value.GetString();
-            if (val != null)
-                nonCoreValues[prop.Name] = val;
-        }
-
-        if (nonCoreValues.Count == 0)
-            return 0;
-
-        var mergeJson = JsonSerializer.Serialize(nonCoreValues);
-        var sql = $"UPDATE {tableName} SET {propertyName} = {propertyName} || {{0}}::jsonb WHERE id = {{1}}::uuid";
-        await db.Database.ExecuteSqlRawAsync(sql, mergeJson, id);
-
-        return 1;
     }
 
     private bool IsInstalled(string code)

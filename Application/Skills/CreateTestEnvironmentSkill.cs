@@ -96,155 +96,13 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
         var (weeklyHours, contractName) = ParseContractType(contractType, canton);
         var monthlyGuaranteed = guaranteedHours > 0 ? guaranteedHours : weeklyHours * 4.33m;
 
-        var contract = new Contract
-        {
-            Id = Guid.NewGuid(),
-            Name = contractName,
-            GuaranteedHours = monthlyGuaranteed,
-            MinimumHours = 0,
-            MaximumHours = monthlyGuaranteed * 1.2m,
-            FullTime = weeklyHours,
-            ValidFrom = fromDate.ToDateTime(TimeOnly.MinValue),
-            CreateTime = DateTime.UtcNow,
-            CurrentUserCreated = context.UserName
-        };
-
-        await _contractRepository.Add(contract);
-
-        var createdEmployees = new List<object>();
-
-        for (var i = 0; i < numberOfEmployees; i++)
-        {
-            var data = testData[i];
-
-            var clientContract = new ClientContract
-            {
-                Id = Guid.NewGuid(),
-                ContractId = contract.Id,
-                FromDate = fromDate,
-                IsActive = true,
-                CreateTime = DateTime.UtcNow,
-                CurrentUserCreated = context.UserName
-            };
-
-            var client = new Client
-            {
-                Id = Guid.NewGuid(),
-                FirstName = data.FirstName,
-                Name = data.LastName,
-                Gender = data.Gender,
-                Birthdate = data.Birthdate,
-                ClientContracts = [clientContract],
-                Membership = new Membership
-                {
-                    Id = Guid.NewGuid(),
-                    Type = 0,
-                    ValidFrom = DateTime.UtcNow,
-                    CreateTime = DateTime.UtcNow,
-                    CurrentUserCreated = context.UserName
-                },
-                CreateTime = DateTime.UtcNow,
-                CurrentUserCreated = context.UserName
-            };
-
-            clientContract.ClientId = client.Id;
-            await _clientRepository.Add(client);
-
-            var address = new Address
-            {
-                Id = Guid.NewGuid(),
-                ClientId = client.Id,
-                Street = data.Street,
-                Zip = data.PostalCode,
-                City = data.City,
-                State = canton,
-                Country = "CH",
-                Type = AddressTypeEnum.Employee,
-                ValidFrom = DateTime.UtcNow,
-                CreateTime = DateTime.UtcNow,
-                CurrentUserCreated = context.UserName
-            };
-
-            await _addressRepository.Add(address);
-
-            var groupItem = new GroupItem
-            {
-                Id = Guid.NewGuid(),
-                ClientId = client.Id,
-                GroupId = group.Id,
-                ValidFrom = DateTime.UtcNow,
-                CreateTime = DateTime.UtcNow,
-                CurrentUserCreated = context.UserName
-            };
-
-            await _groupItemRepository.Add(groupItem);
-
-            createdEmployees.Add(new
-            {
-                Id = client.Id,
-                Name = $"{data.FirstName} {data.LastName}",
-                Address = $"{data.Street}, {data.PostalCode} {data.City}"
-            });
-        }
+        var contract = await CreateContractAsync(contractName, monthlyGuaranteed, weeklyHours, fromDate, context.UserName);
+        var createdEmployees = await CreateEmployeesAsync(testData, numberOfEmployees, contract, group, fromDate, canton, context.UserName);
 
         var createdShifts = new List<object>();
-
         if (createShifts)
         {
-            var shiftDefinitions = new[]
-            {
-                new { Name = $"Fruhdienst {city}", Abbr = "FD", Start = new TimeOnly(7, 0), End = new TimeOnly(15, 0) },
-                new { Name = $"Spaetdienst {city}", Abbr = "SD", Start = new TimeOnly(15, 0), End = new TimeOnly(23, 0) },
-                new { Name = $"Nachtdienst {city}", Abbr = "ND", Start = new TimeOnly(23, 0), End = new TimeOnly(7, 0) }
-            };
-
-            foreach (var def in shiftDefinitions)
-            {
-                var workTime = CalculateWorkTime(def.Start, def.End);
-
-                var shift = new Shift
-                {
-                    Id = Guid.NewGuid(),
-                    Name = def.Name,
-                    Abbreviation = def.Abbr,
-                    Status = ShiftStatus.SealedOrder,
-                    ShiftType = ShiftType.IsTask,
-                    StartShift = def.Start,
-                    EndShift = def.End,
-                    FromDate = fromDate,
-                    WorkTime = workTime,
-                    SumEmployees = sumEmployees,
-                    Quantity = 1,
-                    IsMonday = true,
-                    IsTuesday = true,
-                    IsWednesday = true,
-                    IsThursday = true,
-                    IsFriday = true,
-                    IsSaturday = true,
-                    IsSunday = true,
-                    GroupItems =
-                    [
-                        new GroupItem
-                        {
-                            GroupId = group.Id,
-                            ValidFrom = fromDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
-                        }
-                    ],
-                    CreateTime = DateTime.UtcNow,
-                    CurrentUserCreated = context.UserName
-                };
-
-                var resultShift = await _shiftRepository.AddWithSealedOrderHandling(shift);
-
-                createdShifts.Add(new
-                {
-                    Id = resultShift.Id,
-                    def.Name,
-                    Start = def.Start.ToString("HH:mm"),
-                    End = def.End.ToString("HH:mm"),
-                    WorkTime = workTime
-                });
-            }
+            createdShifts = await CreateShiftsAsync(city, group, fromDate, sumEmployees, context.UserName);
         }
 
         await _unitOfWork.CompleteAsync();
@@ -268,6 +126,169 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
         }
 
         return SkillResult.SuccessResult(resultData, message + ".");
+    }
+
+    private async Task<Contract> CreateContractAsync(string contractName, decimal monthlyGuaranteed, decimal weeklyHours, DateOnly fromDate, string userName)
+    {
+        var contract = new Contract
+        {
+            Id = Guid.NewGuid(),
+            Name = contractName,
+            GuaranteedHours = monthlyGuaranteed,
+            MinimumHours = 0,
+            MaximumHours = monthlyGuaranteed * 1.2m,
+            FullTime = weeklyHours,
+            ValidFrom = fromDate.ToDateTime(TimeOnly.MinValue),
+            CreateTime = DateTime.UtcNow,
+            CurrentUserCreated = userName
+        };
+
+        await _contractRepository.Add(contract);
+
+        return contract;
+    }
+
+    private async Task<List<object>> CreateEmployeesAsync(List<TestEmployee> testData, int count, Contract contract, Group group, DateOnly fromDate, string canton, string userName)
+    {
+        var createdEmployees = new List<object>();
+
+        for (var i = 0; i < count; i++)
+        {
+            var data = testData[i];
+
+            var clientContract = new ClientContract
+            {
+                Id = Guid.NewGuid(),
+                ContractId = contract.Id,
+                FromDate = fromDate,
+                IsActive = true,
+                CreateTime = DateTime.UtcNow,
+                CurrentUserCreated = userName
+            };
+
+            var client = new Client
+            {
+                Id = Guid.NewGuid(),
+                FirstName = data.FirstName,
+                Name = data.LastName,
+                Gender = data.Gender,
+                Birthdate = data.Birthdate,
+                ClientContracts = [clientContract],
+                Membership = new Membership
+                {
+                    Id = Guid.NewGuid(),
+                    Type = 0,
+                    ValidFrom = DateTime.UtcNow,
+                    CreateTime = DateTime.UtcNow,
+                    CurrentUserCreated = userName
+                },
+                CreateTime = DateTime.UtcNow,
+                CurrentUserCreated = userName
+            };
+
+            clientContract.ClientId = client.Id;
+            await _clientRepository.Add(client);
+
+            var address = new Address
+            {
+                Id = Guid.NewGuid(),
+                ClientId = client.Id,
+                Street = data.Street,
+                Zip = data.PostalCode,
+                City = data.City,
+                State = canton,
+                Country = "CH",
+                Type = AddressTypeEnum.Employee,
+                ValidFrom = DateTime.UtcNow,
+                CreateTime = DateTime.UtcNow,
+                CurrentUserCreated = userName
+            };
+
+            await _addressRepository.Add(address);
+
+            var groupItem = new GroupItem
+            {
+                Id = Guid.NewGuid(),
+                ClientId = client.Id,
+                GroupId = group.Id,
+                ValidFrom = DateTime.UtcNow,
+                CreateTime = DateTime.UtcNow,
+                CurrentUserCreated = userName
+            };
+
+            await _groupItemRepository.Add(groupItem);
+
+            createdEmployees.Add(new
+            {
+                Id = client.Id,
+                Name = $"{data.FirstName} {data.LastName}",
+                Address = $"{data.Street}, {data.PostalCode} {data.City}"
+            });
+        }
+
+        return createdEmployees;
+    }
+
+    private async Task<List<object>> CreateShiftsAsync(string city, Group group, DateOnly fromDate, int sumEmployees, string userName)
+    {
+        var createdShifts = new List<object>();
+
+        var shiftDefinitions = new[]
+        {
+            new { Name = $"Fruhdienst {city}", Abbr = "FD", Start = new TimeOnly(7, 0), End = new TimeOnly(15, 0) },
+            new { Name = $"Spaetdienst {city}", Abbr = "SD", Start = new TimeOnly(15, 0), End = new TimeOnly(23, 0) },
+            new { Name = $"Nachtdienst {city}", Abbr = "ND", Start = new TimeOnly(23, 0), End = new TimeOnly(7, 0) }
+        };
+
+        foreach (var def in shiftDefinitions)
+        {
+            var workTime = CalculateWorkTime(def.Start, def.End);
+
+            var shift = new Shift
+            {
+                Id = Guid.NewGuid(),
+                Name = def.Name,
+                Abbreviation = def.Abbr,
+                Status = ShiftStatus.SealedOrder,
+                ShiftType = ShiftType.IsTask,
+                StartShift = def.Start,
+                EndShift = def.End,
+                FromDate = fromDate,
+                WorkTime = workTime,
+                SumEmployees = sumEmployees,
+                Quantity = 1,
+                IsMonday = true,
+                IsTuesday = true,
+                IsWednesday = true,
+                IsThursday = true,
+                IsFriday = true,
+                IsSaturday = true,
+                IsSunday = true,
+                GroupItems =
+                [
+                    new GroupItem
+                    {
+                        GroupId = group.Id,
+                        ValidFrom = fromDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
+                    }
+                ],
+                CreateTime = DateTime.UtcNow,
+                CurrentUserCreated = userName
+            };
+
+            var resultShift = await _shiftRepository.AddWithSealedOrderHandling(shift);
+
+            createdShifts.Add(new
+            {
+                Id = resultShift.Id,
+                def.Name,
+                Start = def.Start.ToString("HH:mm"),
+                End = def.End.ToString("HH:mm"),
+                WorkTime = workTime
+            });
+        }
+
+        return createdShifts;
     }
 
     private async Task<Group?> FindGroupByName(string name)

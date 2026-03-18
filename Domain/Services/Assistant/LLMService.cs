@@ -18,7 +18,6 @@ public class LLMService : ILLMService
     private readonly LLMResponseBuilder _responseBuilder;
     private readonly LLMSystemPromptBuilder _promptBuilder;
     private readonly IAgentRepository _agentRepository;
-    private readonly IAgentMemoryRepository _agentMemoryRepository;
     private readonly ContextAssemblyPipeline _contextAssemblyPipeline;
     private readonly IServiceScopeFactory _scopeFactory;
 
@@ -34,7 +33,6 @@ public class LLMService : ILLMService
         LLMResponseBuilder responseBuilder,
         LLMSystemPromptBuilder promptBuilder,
         IAgentRepository agentRepository,
-        IAgentMemoryRepository agentMemoryRepository,
         ContextAssemblyPipeline contextAssemblyPipeline,
         IServiceScopeFactory scopeFactory)
     {
@@ -45,14 +43,12 @@ public class LLMService : ILLMService
         _responseBuilder = responseBuilder;
         _promptBuilder = promptBuilder;
         _agentRepository = agentRepository;
-        _agentMemoryRepository = agentMemoryRepository;
         _contextAssemblyPipeline = contextAssemblyPipeline;
         _scopeFactory = scopeFactory;
     }
 
     public async Task<LLMResponse> ProcessAsync(LLMContext context)
     {
-        const int maxIterations = 3;
         var stopwatch = Stopwatch.StartNew();
 
         try
@@ -82,152 +78,25 @@ public class LLMService : ILLMService
 
             var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt);
 
-            var allFunctionCalls = new List<LLMFunctionCall>();
             var totalUsage = new Providers.LLMUsage();
             var truncatedHistory = TruncateHistory(llmHistory, model!.ContextWindow, model.MaxTokens, conversation.Summary);
-            var runningHistory = new List<Providers.LLMMessage>(truncatedHistory);
-            var currentMessage = context.Message;
-            string responseContent = "";
-            LLMProviderResponse? lastResponse = null;
-            int iterationsUsed = 0;
-            var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            for (int iteration = 0; iteration < maxIterations; iteration++)
+            var (responseContent, lastResponse, iterationsUsed, allFunctionCalls) =
+                await ExecuteMultiTurnLoopAsync(context, model, provider!, systemPrompt, truncatedHistory, totalUsage, conversation, stopwatch);
+
+            if (lastResponse is { Success: false })
             {
-                iterationsUsed = iteration + 1;
-
-
-                var iterationFunctions = iteration == 0
-                    ? context.AvailableFunctions
-                    : GetReducedFunctions(context.AvailableFunctions, calledFunctionNames);
-
-
-                var providerRequest = new LLMProviderRequest
-                {
-                    Message = currentMessage,
-                    SystemPrompt = systemPrompt,
-                    ModelId = model!.ApiModelId,
-                    ConversationHistory = runningHistory,
-                    AvailableFunctions = iterationFunctions,
-                    Temperature = 0.7,
-                    MaxTokens = model.MaxTokens,
-                    CostPerInputToken = model.CostPerInputToken,
-                    CostPerOutputToken = model.CostPerOutputToken
-                };
-
-                lastResponse = await provider!.ProcessAsync(providerRequest);
-                AccumulateUsage(totalUsage, lastResponse.Usage);
-
-                if (!lastResponse.Success)
-                {
-                    _logger.LogError("Provider returned error in iteration {Iteration}: {Error}",
-                        iterationsUsed, lastResponse.Error);
-                    await _conversationManager.TrackUsageAsync(
-                        context.UserId, model, conversation,
-                        totalUsage, stopwatch.ElapsedMilliseconds,
-                        hasError: true, errorMessage: lastResponse.Error);
-                    return _responseBuilder.BuildErrorResponse(lastResponse.Error ?? "An error occurred.");
-                }
-
-                responseContent = lastResponse.Content;
-
-                if (!lastResponse.FunctionCalls.Any())
-                {
-
-                    break;
-                }
-
-
-                _logger.LogInformation("Multi-turn iteration {Iteration}: executing {Count} function calls",
-                    iterationsUsed, lastResponse.FunctionCalls.Count);
-
-                allFunctionCalls.AddRange(lastResponse.FunctionCalls);
-                foreach (var call in lastResponse.FunctionCalls)
-                {
-                    calledFunctionNames.Add(call.FunctionName);
-                }
-
-                await _functionExecutor.ProcessFunctionCallsAsync(context, lastResponse.FunctionCalls);
-
-                if (_functionExecutor.HasOnlyUiPassthroughCalls)
-                {
-                    _logger.LogInformation("All function calls are UiPassthrough - breaking multi-turn loop");
-                    break;
-                }
-
-                runningHistory.Add(new Providers.LLMMessage { Role = "user", Content = currentMessage });
-                var assistantContent = string.IsNullOrEmpty(lastResponse.Content)
-                    ? "[Executing function calls]"
-                    : lastResponse.Content;
-                runningHistory.Add(new Providers.LLMMessage { Role = "assistant", Content = assistantContent });
-                currentMessage = FormatFunctionResults(lastResponse.FunctionCalls);
-            }
-
-            if (string.IsNullOrWhiteSpace(responseContent) && allFunctionCalls.Any())
-            {
-                responseContent = string.Empty;
-            }
-
-            if (allFunctionCalls.Count > 0)
-            {
-                _logger.LogInformation("Multi-turn completed: {TotalCalls} function calls in {Iterations} iterations",
-                    allFunctionCalls.Count, iterationsUsed);
+                return _responseBuilder.BuildErrorResponse(lastResponse.Error ?? "An error occurred.");
             }
 
             await _conversationManager.SaveConversationMessagesAsync(
-                conversation, context.Message, responseContent, model!.ModelId);
+                conversation, context.Message, responseContent, model.ModelId);
 
             await _conversationManager.TrackUsageAsync(
                 context.UserId, model, conversation,
                 totalUsage, stopwatch.ElapsedMilliseconds);
 
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    using var scope = _scopeFactory.CreateScope();
-                    var compactionService = scope.ServiceProvider.GetRequiredService<IConversationCompactionService>();
-                    await compactionService.CompactIfNeededAsync(conversation.ConversationId);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Fire-and-forget conversation compaction failed for {ConversationId}",
-                        conversation.ConversationId);
-                }
-            });
-
-            if (agent != null && !string.IsNullOrWhiteSpace(responseContent))
-            {
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        using var scope = _scopeFactory.CreateScope();
-                        var autoMemoryExtraction = scope.ServiceProvider.GetRequiredService<IAutoMemoryExtractionService>();
-                        await autoMemoryExtraction.ExtractAndStoreMemoriesAsync(
-                            agent.Id, context.Message, responseContent, context.UserId);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, "Fire-and-forget auto memory extraction failed for agent {AgentId}", agent.Id);
-                    }
-                });
-
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        using var scope = _scopeFactory.CreateScope();
-                        var skillGapDetector = scope.ServiceProvider.GetRequiredService<ISkillGapDetector>();
-                        await skillGapDetector.DetectAndSuggestAsync(
-                            agent.Id, context.Message, responseContent, allFunctionCalls.Count > 0);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, "Fire-and-forget skill gap detection failed for agent {AgentId}", agent.Id);
-                    }
-                });
-            }
+            RunBackgroundTasks(agent, conversation, context, responseContent, allFunctionCalls);
 
             return _responseBuilder.BuildSuccessResponse(
                 lastResponse!, conversation.ConversationId, responseContent, allFunctionCalls);
@@ -236,6 +105,153 @@ public class LLMService : ILLMService
         {
             _logger.LogError(ex, "Error processing LLM request for user {UserId}", context.UserId);
             return _responseBuilder.BuildErrorResponse("An internal error occurred.");
+        }
+    }
+
+    private async Task<(string responseContent, LLMProviderResponse? lastResponse, int iterationsUsed, List<LLMFunctionCall> allFunctionCalls)> ExecuteMultiTurnLoopAsync(
+        LLMContext context, LLMModel model, ILLMProvider provider, string systemPrompt,
+        List<Providers.LLMMessage> truncatedHistory, Providers.LLMUsage totalUsage,
+        LLMConversation conversation, Stopwatch stopwatch)
+    {
+        const int maxIterations = 3;
+        var allFunctionCalls = new List<LLMFunctionCall>();
+        var runningHistory = new List<Providers.LLMMessage>(truncatedHistory);
+        var currentMessage = context.Message;
+        string responseContent = "";
+        LLMProviderResponse? lastResponse = null;
+        int iterationsUsed = 0;
+        var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        for (int iteration = 0; iteration < maxIterations; iteration++)
+        {
+            iterationsUsed = iteration + 1;
+
+            var iterationFunctions = iteration == 0
+                ? context.AvailableFunctions
+                : GetReducedFunctions(context.AvailableFunctions, calledFunctionNames);
+
+            var providerRequest = new LLMProviderRequest
+            {
+                Message = currentMessage,
+                SystemPrompt = systemPrompt,
+                ModelId = model.ApiModelId,
+                ConversationHistory = runningHistory,
+                AvailableFunctions = iterationFunctions,
+                Temperature = 0.7,
+                MaxTokens = model.MaxTokens,
+                CostPerInputToken = model.CostPerInputToken,
+                CostPerOutputToken = model.CostPerOutputToken
+            };
+
+            lastResponse = await provider.ProcessAsync(providerRequest);
+            AccumulateUsage(totalUsage, lastResponse.Usage);
+
+            if (!lastResponse.Success)
+            {
+                _logger.LogError("Provider returned error in iteration {Iteration}: {Error}",
+                    iterationsUsed, lastResponse.Error);
+                await _conversationManager.TrackUsageAsync(
+                    context.UserId, model, conversation,
+                    totalUsage, stopwatch.ElapsedMilliseconds,
+                    hasError: true, errorMessage: lastResponse.Error);
+                return (lastResponse.Error ?? "An error occurred.", lastResponse, iterationsUsed, allFunctionCalls);
+            }
+
+            responseContent = lastResponse.Content;
+
+            if (!lastResponse.FunctionCalls.Any())
+            {
+                break;
+            }
+
+            _logger.LogInformation("Multi-turn iteration {Iteration}: executing {Count} function calls",
+                iterationsUsed, lastResponse.FunctionCalls.Count);
+
+            allFunctionCalls.AddRange(lastResponse.FunctionCalls);
+            foreach (var call in lastResponse.FunctionCalls)
+            {
+                calledFunctionNames.Add(call.FunctionName);
+            }
+
+            await _functionExecutor.ProcessFunctionCallsAsync(context, lastResponse.FunctionCalls);
+
+            if (_functionExecutor.HasOnlyUiPassthroughCalls)
+            {
+                _logger.LogInformation("All function calls are UiPassthrough - breaking multi-turn loop");
+                break;
+            }
+
+            runningHistory.Add(new Providers.LLMMessage { Role = "user", Content = currentMessage });
+            var assistantContent = string.IsNullOrEmpty(lastResponse.Content)
+                ? "[Executing function calls]"
+                : lastResponse.Content;
+            runningHistory.Add(new Providers.LLMMessage { Role = "assistant", Content = assistantContent });
+            currentMessage = FormatFunctionResults(lastResponse.FunctionCalls);
+        }
+
+        if (string.IsNullOrWhiteSpace(responseContent) && allFunctionCalls.Any())
+        {
+            responseContent = string.Empty;
+        }
+
+        if (allFunctionCalls.Count > 0)
+        {
+            _logger.LogInformation("Multi-turn completed: {TotalCalls} function calls in {Iterations} iterations",
+                allFunctionCalls.Count, iterationsUsed);
+        }
+
+        return (responseContent, lastResponse, iterationsUsed, allFunctionCalls);
+    }
+
+    private void RunBackgroundTasks(Agent? agent, LLMConversation conversation, LLMContext context,
+        string responseContent, List<LLMFunctionCall> allFunctionCalls)
+    {
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var compactionService = scope.ServiceProvider.GetRequiredService<IConversationCompactionService>();
+                await compactionService.CompactIfNeededAsync(conversation.ConversationId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Fire-and-forget conversation compaction failed for {ConversationId}",
+                    conversation.ConversationId);
+            }
+        });
+
+        if (agent != null && !string.IsNullOrWhiteSpace(responseContent))
+        {
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var autoMemoryExtraction = scope.ServiceProvider.GetRequiredService<IAutoMemoryExtractionService>();
+                    await autoMemoryExtraction.ExtractAndStoreMemoriesAsync(
+                        agent.Id, context.Message, responseContent, context.UserId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Fire-and-forget auto memory extraction failed for agent {AgentId}", agent.Id);
+                }
+            });
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var skillGapDetector = scope.ServiceProvider.GetRequiredService<ISkillGapDetector>();
+                    await skillGapDetector.DetectAndSuggestAsync(
+                        agent.Id, context.Message, responseContent, allFunctionCalls.Count > 0);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Fire-and-forget skill gap detection failed for agent {AgentId}", agent.Id);
+                }
+            });
         }
     }
 

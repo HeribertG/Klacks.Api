@@ -149,9 +149,14 @@ public class ErrorHandlingMiddleware
 
             await context.Response.WriteAsJsonAsync(problem);
         }
-        catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
+        catch (OperationCanceledException)
         {
-            _logger.LogInformation("Request cancelled by client: {Method} {Path}", context.Request.Method, context.Request.Path);
+            _logger.LogDebug("Request cancelled: {Method} {Path}", context.Request.Method, context.Request.Path);
+            context.Response.StatusCode = 499;
+        }
+        catch (Npgsql.PostgresException ex) when (ex.SqlState == "57014")
+        {
+            _logger.LogDebug("PostgreSQL query cancelled: {Method} {Path}", context.Request.Method, context.Request.Path);
             context.Response.StatusCode = 499;
         }
         catch (Exception ex)

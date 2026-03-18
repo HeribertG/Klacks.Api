@@ -224,14 +224,20 @@ public class DataBaseContext : IdentityDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<ShiftDayAssignment>().HasNoKey();
-        modelBuilder.Entity<ScheduleCell>().HasNoKey().ToView(null);
-        modelBuilder.Entity<ClientAvailabilityScheduleEntry>().HasNoKey().ToView(null);
-
         base.OnModelCreating(modelBuilder);
-
         modelBuilder.RegisterMultiLanguageDbFunctions();
 
+        ConfigureStaffEntities(modelBuilder);
+        ConfigureScheduleEntities(modelBuilder);
+        ConfigureCalendarAndGeoEntities(modelBuilder);
+        ConfigureLLMEntities(modelBuilder);
+        ConfigureEmailEntities(modelBuilder);
+        ConfigureReportAndPluginEntities(modelBuilder);
+        ConfigureAgentArchitecture(modelBuilder);
+    }
+
+    private static void ConfigureStaffEntities(ModelBuilder modelBuilder)
+    {
         modelBuilder.HasSequence<int>("client_idnumber_seq", schema: "public")
             .StartsAt(1)
             .IncrementsBy(1);
@@ -258,71 +264,33 @@ public class DataBaseContext : IdentityDbContext
             entity.HasQueryFilter(p => !p.IsDeleted);
             entity.ConfigureMultiLanguage(m => m.Description, "description");
         });
-        modelBuilder.Entity<Absence>(entity =>
-        {
-            entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.ConfigureMultiLanguage(a => a.Name, "name");
-            entity.ConfigureMultiLanguage(a => a.Description, "description");
-            entity.ConfigureMultiLanguage(a => a.Abbreviation, "abbreviation");
-        });
-        modelBuilder.Entity<BreakPlaceholder>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<AbsenceDetail>(entity =>
-        {
-            entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.ConfigureMultiLanguage(a => a.DetailName, "detail_name");
-            entity.ConfigureMultiLanguage(a => a.Description, "description");
-        });
-        modelBuilder.Entity<Branch>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<Countries>(entity =>
-        {
-            entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.ConfigureMultiLanguage(c => c.Name, "name");
-        });
-        modelBuilder.Entity<State>(entity =>
-        {
-            entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.ConfigureMultiLanguage(s => s.Name, "name");
-        });
-        modelBuilder.Entity<SelectedCalendar>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<CalendarSelection>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<PluginDoc>(entity =>
-        {
-            entity.HasIndex(p => new { p.PluginCode, p.ManualName }).IsUnique();
-        });
+
+        modelBuilder.Entity<Address>().HasIndex(p => new { p.ClientId, p.Street, p.Street2, p.Street3, p.City, p.IsDeleted });
+        modelBuilder.Entity<Communication>().HasIndex(p => new { p.Value, p.IsDeleted });
+        modelBuilder.Entity<Annotation>().HasIndex(p => new { p.Note, p.IsDeleted });
+        modelBuilder.Entity<Membership>().HasIndex(p => new { p.ClientId, p.ValidFrom, p.ValidUntil, p.IsDeleted });
+        modelBuilder.Entity<History>().HasIndex(p => new { p.IsDeleted });
+        modelBuilder.Entity<Macro>().HasIndex(p => new { p.IsDeleted, p.Name });
+
+        modelBuilder.Entity<ClientScheduleDetail>().HasIndex(p => new { p.ClientId, p.CurrentYear, p.CurrentMonth });
+
         modelBuilder.Entity<Group>().HasQueryFilter(p => !p.IsDeleted);
         modelBuilder.Entity<GroupItem>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<Shift>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<ContainerTemplate>(entity =>
-        {
-            entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.Property(e => e.RouteInfo).HasJsonbConversion<RouteInfo>();
-        });
-        modelBuilder.Entity<ContainerTemplateItem>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<Work>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<Break>(entity =>
-        {
-            entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.ConfigureMultiLanguage(b => b.Description, "description");
-        });
-        modelBuilder.Entity<WorkChange>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<Expenses>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<ScheduleNote>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<AnalyseScenario>(entity =>
-        {
-            entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.HasIndex(p => p.Token).IsUnique();
-            entity.HasIndex(p => new { p.GroupId, p.Status });
-        });
-        modelBuilder.Entity<ShiftExpenses>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<ScheduleChange>(entity =>
-        {
-            entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.HasIndex(p => new { p.ClientId, p.ChangeDate }).IsUnique();
-        });
+        modelBuilder.Entity<Group>().HasIndex(p => new { p.Name });
+        modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.GroupId, p.ClientId, p.IsDeleted });
+        modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.ClientId, p.GroupId, p.ShiftId });
+
         modelBuilder.Entity<AssignedGroup>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<AssignedGroup>().HasIndex(p => new { p.ClientId, p.GroupId });
+
         modelBuilder.Entity<GroupVisibility>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<GroupVisibility>().HasIndex(p => new { p.AppUserId, p.GroupId });
+
         modelBuilder.Entity<Contract>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<Contract>().HasIndex(p => new { p.Name, p.ValidFrom, p.ValidUntil });
+
         modelBuilder.Entity<ClientContract>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<ClientContract>().HasIndex(p => new { p.ClientId, p.ContractId, p.FromDate, p.UntilDate });
 
         modelBuilder.Entity<ClientAvailability>(entity =>
         {
@@ -331,101 +299,6 @@ public class DataBaseContext : IdentityDbContext
             entity.HasIndex(p => new { p.IsDeleted, p.ClientId, p.Date });
         });
 
-        modelBuilder.Entity<ClientAvailability>()
-            .HasOne(ca => ca.Client)
-            .WithMany()
-            .HasForeignKey(ca => ca.ClientId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        // LLM Query Filters
-        modelBuilder.Entity<LLMProvider>(entity =>
-        {
-            entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.Property(e => e.Settings).HasJsonbConversionWithComparer<Dictionary<string, object>>();
-        });
-        modelBuilder.Entity<LLMModel>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<LLMUsage>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<LLMConversation>().HasQueryFilter(p => !p.IsDeleted);
-        modelBuilder.Entity<LLMMessage>().HasQueryFilter(p => !p.IsDeleted);
-
-        // Identity Provider Query Filters and Configuration
-        modelBuilder.Entity<IdentityProvider>(entity =>
-        {
-            entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.Property(e => e.AttributeMapping).HasJsonbConversionWithComparer<Dictionary<string, string>>();
-            entity.HasIndex(p => new { p.IsDeleted, p.IsEnabled, p.SortOrder });
-        });
-        modelBuilder.Entity<IdentityProviderSyncLog>(entity =>
-        {
-            entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.HasIndex(p => new { p.IdentityProviderId, p.ExternalId });
-            entity.HasIndex(p => new { p.ClientId, p.IdentityProviderId });
-        });
-
-        modelBuilder.Entity<IdentityProviderSyncLog>()
-            .HasOne(s => s.IdentityProvider)
-            .WithMany()
-            .HasForeignKey(s => s.IdentityProviderId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<IdentityProviderSyncLog>()
-            .HasOne(s => s.Client)
-            .WithMany()
-            .HasForeignKey(s => s.ClientId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-
-        // Heartbeat Configuration
-        modelBuilder.Entity<HeartbeatConfig>(entity =>
-        {
-            entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.HasIndex(p => new { p.IsDeleted, p.UserId });
-            entity.HasIndex(p => new { p.IsDeleted, p.IsEnabled });
-        });
-
-        // Report Templates Configuration
-        modelBuilder.Entity<ReportTemplate>(entity =>
-        {
-            entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.Property(e => e.PageSetup).HasJsonbConversion<ReportPageSetup>();
-            entity.Property(e => e.Sections).HasJsonbListConversion<ReportSection>();
-            entity.Property(e => e.DataSetIds).HasJsonbListConversion<string>();
-            entity.HasIndex(p => new { p.IsDeleted, p.Type, p.Name });
-        });
-
-        modelBuilder.Entity<Address>().HasIndex(p => new { p.ClientId, p.Street, p.Street2, p.Street3, p.City, p.IsDeleted });
-        modelBuilder.Entity<Communication>().HasIndex(p => new { p.Value, p.IsDeleted });
-        modelBuilder.Entity<Annotation>().HasIndex(p => new { p.Note, p.IsDeleted });
-        modelBuilder.Entity<Membership>().HasIndex(p => new { p.ClientId, p.ValidFrom, p.ValidUntil, p.IsDeleted });
-        modelBuilder.Entity<History>().HasIndex(p => new { p.IsDeleted });
-        modelBuilder.Entity<Macro>().HasIndex(p => new { p.IsDeleted, p.Name });
-        modelBuilder.Entity<Absence>().HasIndex(p => new { p.IsDeleted });
-        modelBuilder.Entity<BreakPlaceholder>().HasIndex(p => new { p.IsDeleted, p.AbsenceId, p.ClientId });
-        modelBuilder.Entity<BreakPlaceholder>().HasIndex(p => new { p.IsDeleted, p.ClientId, p.From, p.Until });
-        modelBuilder.Entity<AbsenceDetail>().HasIndex(p => new { p.IsDeleted, p.AbsenceId });
-        modelBuilder.Entity<CalendarRule>(entity =>
-        {
-            entity.HasIndex(p => new { p.State, p.Country });
-            entity.ConfigureMultiLanguage(c => c.Name, "name");
-            entity.ConfigureMultiLanguage(c => c.Description, "description");
-        });
-        modelBuilder.Entity<SelectedCalendar>().HasIndex(p => new { p.State, p.Country, p.CalendarSelectionId });
-        modelBuilder.Entity<Group>().HasIndex(p => new { p.Name });
-        modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.GroupId, p.ClientId, p.IsDeleted });
-        modelBuilder.Entity<GroupItem>().HasIndex(p => new { p.ClientId, p.GroupId, p.ShiftId });
-        modelBuilder.Entity<Work>().HasIndex(p => new { p.ClientId, p.ShiftId });
-        modelBuilder.Entity<Work>().HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
-        modelBuilder.Entity<Break>().HasIndex(p => new { p.ClientId });
-        modelBuilder.Entity<Break>().HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
-        modelBuilder.Entity<Shift>().HasIndex(p => new { p.MacroId, p.ClientId, p.Status , p.FromDate, p.UntilDate });
-        modelBuilder.Entity<Shift>().HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
-        modelBuilder.Entity<ScheduleNote>().HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
-        modelBuilder.Entity<ContainerTemplate>().HasIndex(p => new { p.Id, p.ContainerId, p.Weekday, p.IsWeekdayAndHoliday, p.IsHoliday });
-        modelBuilder.Entity<ClientScheduleDetail>().HasIndex(p => new { p.ClientId, p.CurrentYear, p.CurrentMonth });
-        modelBuilder.Entity<AssignedGroup>().HasIndex(p => new { p.ClientId, p.GroupId });
-        modelBuilder.Entity<GroupVisibility>().HasIndex(p => new { p.AppUserId, p.GroupId });
-        modelBuilder.Entity<Contract>().HasIndex(p => new { p.Name, p.ValidFrom, p.ValidUntil });
-        modelBuilder.Entity<ClientContract>().HasIndex(p => new { p.ClientId, p.ContractId, p.FromDate, p.UntilDate });
         modelBuilder.Entity<ClientPeriodHours>()
             .HasIndex(p => new { p.ClientId, p.StartDate, p.EndDate })
             .IsUnique();
@@ -457,12 +330,6 @@ public class DataBaseContext : IdentityDbContext
        .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Client>()
-       .HasMany(c => c.Works)
-       .WithOne(a => a.Client)
-       .HasForeignKey(a => a.ClientId)
-       .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Client>()
          .HasMany(c => c.GroupItems)
          .WithOne(a => a.Client)
          .HasForeignKey(a => a.ClientId)
@@ -487,16 +354,131 @@ public class DataBaseContext : IdentityDbContext
          .IsRequired(false)
          .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<SelectedCalendar>()
-        .HasOne(p => p.CalendarSelection)
-        .WithMany(b => b.SelectedCalendars)
-        .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<ClientAvailability>()
+            .HasOne(ca => ca.Client)
+            .WithMany()
+            .HasForeignKey(ca => ca.ClientId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Group>()
        .HasMany(g => g.GroupItems)
        .WithOne(gi => gi.Group)
        .HasForeignKey(gi => gi.GroupId)
        .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<GroupItem>()
+         .HasOne(gi => gi.Shift)
+         .WithMany(s => s.GroupItems)
+         .HasForeignKey(gi => gi.ShiftId)
+         .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<GroupVisibility>(entity =>
+        {
+          entity.Property(e => e.AppUserId)
+                .HasColumnName("app_user_id");
+
+          entity.HasIndex(p => new { p.AppUserId, p.GroupId });
+
+          entity.HasOne(p => p.AppUser)
+                .WithMany()
+                .HasForeignKey(p => p.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Contract>()
+           .HasOne(c => c.CalendarSelection)
+           .WithMany()
+           .HasForeignKey(c => c.CalendarSelectionId)
+           .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Group>()
+           .HasOne(g => g.CalendarSelection)
+           .WithMany()
+           .HasForeignKey(g => g.CalendarSelectionId)
+           .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Contract>()
+           .HasOne(c => c.SchedulingRule)
+           .WithMany()
+           .HasForeignKey(c => c.SchedulingRuleId)
+           .OnDelete(DeleteBehavior.SetNull);
+    }
+
+    private static void ConfigureScheduleEntities(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ShiftDayAssignment>().HasNoKey();
+        modelBuilder.Entity<ScheduleCell>().HasNoKey().ToView(null);
+        modelBuilder.Entity<ClientAvailabilityScheduleEntry>().HasNoKey().ToView(null);
+
+        modelBuilder.Entity<Shift>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<Shift>().HasIndex(p => new { p.MacroId, p.ClientId, p.Status , p.FromDate, p.UntilDate });
+        modelBuilder.Entity<Shift>().HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
+
+        modelBuilder.Entity<ContainerTemplate>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.Property(e => e.RouteInfo).HasJsonbConversion<RouteInfo>();
+        });
+        modelBuilder.Entity<ContainerTemplate>().HasIndex(p => new { p.Id, p.ContainerId, p.Weekday, p.IsWeekdayAndHoliday, p.IsHoliday });
+        modelBuilder.Entity<ContainerTemplateItem>().HasQueryFilter(p => !p.IsDeleted);
+
+        modelBuilder.Entity<Work>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<Work>().HasIndex(p => new { p.ClientId, p.ShiftId });
+        modelBuilder.Entity<Work>().HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
+
+        modelBuilder.Entity<Break>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.ConfigureMultiLanguage(b => b.Description, "description");
+        });
+        modelBuilder.Entity<Break>().HasIndex(p => new { p.ClientId });
+        modelBuilder.Entity<Break>().HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
+
+        modelBuilder.Entity<WorkChange>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<Expenses>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<ShiftExpenses>().HasQueryFilter(p => !p.IsDeleted);
+
+        modelBuilder.Entity<ScheduleNote>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<ScheduleNote>().HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
+
+        modelBuilder.Entity<ScheduleChange>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.ClientId, p.ChangeDate }).IsUnique();
+        });
+
+        modelBuilder.Entity<AnalyseScenario>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => p.Token).IsUnique();
+            entity.HasIndex(p => new { p.GroupId, p.Status });
+        });
+
+        modelBuilder.Entity<BreakPlaceholder>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<BreakPlaceholder>().HasIndex(p => new { p.IsDeleted, p.AbsenceId, p.ClientId });
+        modelBuilder.Entity<BreakPlaceholder>().HasIndex(p => new { p.IsDeleted, p.ClientId, p.From, p.Until });
+
+        modelBuilder.Entity<Absence>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.ConfigureMultiLanguage(a => a.Name, "name");
+            entity.ConfigureMultiLanguage(a => a.Description, "description");
+            entity.ConfigureMultiLanguage(a => a.Abbreviation, "abbreviation");
+        });
+        modelBuilder.Entity<Absence>().HasIndex(p => new { p.IsDeleted });
+
+        modelBuilder.Entity<AbsenceDetail>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.ConfigureMultiLanguage(a => a.DetailName, "detail_name");
+            entity.ConfigureMultiLanguage(a => a.Description, "description");
+        });
+        modelBuilder.Entity<AbsenceDetail>().HasIndex(p => new { p.IsDeleted, p.AbsenceId });
+
+        modelBuilder.Entity<Branch>().HasQueryFilter(p => !p.IsDeleted);
+
+        modelBuilder.Entity<Period>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<IndividualPeriod>().HasQueryFilter(p => !p.IsDeleted);
 
         modelBuilder.Entity<Shift>()
         .HasOne(s => s.Client)
@@ -516,11 +498,11 @@ public class DataBaseContext : IdentityDbContext
         .HasForeignKey(cti => cti.ContainerTemplateId)
         .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<GroupItem>()
-         .HasOne(gi => gi.Shift)
-         .WithMany(s => s.GroupItems)
-         .HasForeignKey(gi => gi.ShiftId)
-         .OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<Client>()
+       .HasMany(c => c.Works)
+       .WithOne(a => a.Client)
+       .HasForeignKey(a => a.ClientId)
+       .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Work>()
                .HasOne(p => p.Client)
@@ -576,45 +558,87 @@ public class DataBaseContext : IdentityDbContext
             .WithMany()
             .HasForeignKey(e => e.ShiftId)
             .OnDelete(DeleteBehavior.Cascade);
+    }
 
-        modelBuilder.Entity<GroupVisibility>(entity =>
+    private static void ConfigureCalendarAndGeoEntities(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<CalendarRule>(entity =>
         {
-          entity.Property(e => e.AppUserId)
-                .HasColumnName("app_user_id");
-
-          entity.HasIndex(p => new { p.AppUserId, p.GroupId });
-
-          entity.HasOne(p => p.AppUser)
-                .WithMany()
-                .HasForeignKey(p => p.AppUserId)
-                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(p => new { p.State, p.Country });
+            entity.ConfigureMultiLanguage(c => c.Name, "name");
+            entity.ConfigureMultiLanguage(c => c.Description, "description");
         });
 
+        modelBuilder.Entity<CalendarSelection>().HasQueryFilter(p => !p.IsDeleted);
 
-        modelBuilder.Entity<Contract>()
-           .HasOne(c => c.CalendarSelection)
-           .WithMany()
-           .HasForeignKey(c => c.CalendarSelectionId)
-           .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<SelectedCalendar>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<SelectedCalendar>().HasIndex(p => new { p.State, p.Country, p.CalendarSelectionId });
 
-        modelBuilder.Entity<Group>()
-           .HasOne(g => g.CalendarSelection)
-           .WithMany()
-           .HasForeignKey(g => g.CalendarSelectionId)
-           .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<SelectedCalendar>()
+        .HasOne(p => p.CalendarSelection)
+        .WithMany(b => b.SelectedCalendars)
+        .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<SchedulingRule>(entity =>
+        modelBuilder.Entity<Countries>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
-            entity.HasIndex(p => new { p.IsDeleted, p.Name });
+            entity.ConfigureMultiLanguage(c => c.Name, "name");
         });
 
-        modelBuilder.Entity<Contract>()
-           .HasOne(c => c.SchedulingRule)
-           .WithMany()
-           .HasForeignKey(c => c.SchedulingRuleId)
-           .OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<State>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.ConfigureMultiLanguage(s => s.Name, "name");
+        });
+    }
 
+    private static void ConfigureLLMEntities(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<LLMProvider>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.Property(e => e.Settings).HasJsonbConversionWithComparer<Dictionary<string, object>>();
+        });
+        modelBuilder.Entity<LLMModel>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<LLMUsage>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<LLMConversation>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<LLMMessage>().HasQueryFilter(p => !p.IsDeleted);
+
+        modelBuilder.Entity<IdentityProvider>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.Property(e => e.AttributeMapping).HasJsonbConversionWithComparer<Dictionary<string, string>>();
+            entity.HasIndex(p => new { p.IsDeleted, p.IsEnabled, p.SortOrder });
+        });
+        modelBuilder.Entity<IdentityProviderSyncLog>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.IdentityProviderId, p.ExternalId });
+            entity.HasIndex(p => new { p.ClientId, p.IdentityProviderId });
+        });
+
+        modelBuilder.Entity<IdentityProviderSyncLog>()
+            .HasOne(s => s.IdentityProvider)
+            .WithMany()
+            .HasForeignKey(s => s.IdentityProviderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<IdentityProviderSyncLog>()
+            .HasOne(s => s.Client)
+            .WithMany()
+            .HasForeignKey(s => s.ClientId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<HeartbeatConfig>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.IsDeleted, p.UserId });
+            entity.HasIndex(p => new { p.IsDeleted, p.IsEnabled });
+        });
+    }
+
+    private static void ConfigureEmailEntities(ModelBuilder modelBuilder)
+    {
         modelBuilder.Entity<ReceivedEmail>(entity =>
         {
             entity.HasQueryFilter(p => !p.IsDeleted);
@@ -637,8 +661,32 @@ public class DataBaseContext : IdentityDbContext
             entity.HasQueryFilter(p => !p.IsDeleted);
             entity.HasIndex(p => new { p.IsDeleted, p.IsActive, p.SortOrder });
         });
+    }
 
-        ConfigureAgentArchitecture(modelBuilder);
+    private static void ConfigureReportAndPluginEntities(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ReportTemplate>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.Property(e => e.PageSetup).HasJsonbConversion<ReportPageSetup>();
+            entity.Property(e => e.Sections).HasJsonbListConversion<ReportSection>();
+            entity.Property(e => e.DataSetIds).HasJsonbListConversion<string>();
+            entity.HasIndex(p => new { p.IsDeleted, p.Type, p.Name });
+        });
+
+        modelBuilder.Entity<PluginDoc>(entity =>
+        {
+            entity.HasIndex(p => new { p.PluginCode, p.ManualName }).IsUnique();
+        });
+
+        modelBuilder.Entity<SchedulingRule>(entity =>
+        {
+            entity.HasQueryFilter(p => !p.IsDeleted);
+            entity.HasIndex(p => new { p.IsDeleted, p.Name });
+        });
+
+        modelBuilder.Entity<FloorPlan>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<FloorPlanWorkMarker>().HasQueryFilter(p => !p.IsDeleted);
     }
 
     private static void ConfigureAgentArchitecture(ModelBuilder modelBuilder)
