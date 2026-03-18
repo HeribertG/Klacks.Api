@@ -173,6 +173,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddMemoryCache();
 builder.Services.AddHealthChecks();
 
+builder.Services.AddPipelineBehavior(typeof(CancellationBehavior<,>));
 builder.Services.AddPipelineBehavior(typeof(ValidationBehavior<,>));
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
