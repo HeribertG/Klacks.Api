@@ -48,11 +48,24 @@ public class WorkNotificationHub : Hub<IScheduleClient>
 
         if (DateOnly.TryParse(startDate, out var start) && DateOnly.TryParse(endDate, out var end))
         {
+            var previousRange = _dateRangeTracker.GetRegisteredDateRange(Context.ConnectionId);
             _dateRangeTracker.RegisterConnection(Context.ConnectionId, start, end);
-            _timelineService.QueueRangeCheck(start, end);
-            _logger.LogInformation(
-                "SignalR GROUP JOIN: {ConnectionId} joined '{GroupName}', registered DateRange {Start} - {End}",
-                Context.ConnectionId, groupName, start, end);
+
+            var dateRangeChanged = previousRange == null || previousRange.Value.Start != start || previousRange.Value.End != end;
+
+            if (dateRangeChanged)
+            {
+                _timelineService.QueueRangeCheck(start, end);
+                _logger.LogDebug(
+                    "[COLLISION-TRACE] JoinScheduleGroup: {ConnectionId} joined '{GroupName}', DateRange {Start} - {End}, QueueRangeCheck triggered (dateRange changed)",
+                    Context.ConnectionId, groupName, start, end);
+            }
+            else
+            {
+                _logger.LogDebug(
+                    "[COLLISION-TRACE] JoinScheduleGroup: {ConnectionId} joined '{GroupName}', DateRange {Start} - {End}, SKIPPED QueueRangeCheck (same dateRange)",
+                    Context.ConnectionId, groupName, start, end);
+            }
         }
         else
         {
@@ -70,10 +83,22 @@ public class WorkNotificationHub : Hub<IScheduleClient>
             parsedGroupId = gid;
         }
 
+        var previousGroup = _dateRangeTracker.GetSelectedGroup(Context.ConnectionId);
         _dateRangeTracker.SetSelectedGroup(Context.ConnectionId, parsedGroupId);
-        _logger.LogInformation(
-            "SignalR SET GROUP: {ConnectionId} selectedGroup={GroupId}",
-            Context.ConnectionId, parsedGroupId?.ToString() ?? "(alle)");
+
+        var groupChanged = previousGroup != parsedGroupId;
+        if (groupChanged)
+        {
+            var dateRange = _dateRangeTracker.GetRegisteredDateRange(Context.ConnectionId);
+            if (dateRange.HasValue)
+            {
+                _timelineService.QueueRangeCheck(dateRange.Value.Start, dateRange.Value.End);
+            }
+        }
+
+        _logger.LogDebug(
+            "[COLLISION-TRACE] SetSelectedGroup: {ConnectionId} selectedGroup={GroupId} groupChanged={Changed}",
+            Context.ConnectionId, parsedGroupId?.ToString() ?? "(alle)", groupChanged);
     }
 
     public async Task LeaveScheduleGroup(string startDate, string endDate)

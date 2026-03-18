@@ -173,6 +173,9 @@ public class WorkNotificationService : IWorkNotificationService
     {
         try
         {
+            _logger.LogDebug("[COLLISION-TRACE] NotifyCollisionsDetected: {Count} collisions, IsFullRefresh={IsFullRefresh}",
+                notification.Collisions.Count, notification.IsFullRefresh);
+
             if (notification.IsFullRefresh)
             {
                 await SendGroupFilteredCollisions(notification);
@@ -257,12 +260,20 @@ public class WorkNotificationService : IWorkNotificationService
     {
         var (allGroupConnections, groupConnections) = _dateRangeTracker.GetConnectionsGroupedBySelectedGroup();
 
+        _logger.LogDebug("[COLLISION-TRACE] SendGroupFiltered: {AllGroupCount} allGroup-connections, {GroupCount} group-connections, {TotalCollisions} total collisions",
+            allGroupConnections.Count, groupConnections.Count, notification.Collisions.Count);
+
         if (allGroupConnections.Count > 0)
         {
             await _hubContext.Clients.Clients(allGroupConnections).CollisionsDetected(notification);
+            _logger.LogDebug("[COLLISION-TRACE] Sent {Count} collisions to {ConnCount} allGroup-connections", notification.Collisions.Count, allGroupConnections.Count);
         }
 
-        if (groupConnections.Count == 0) return;
+        if (groupConnections.Count == 0)
+        {
+            _logger.LogDebug("[COLLISION-TRACE] No group-specific connections - skipping group filtering");
+            return;
+        }
 
         var clientIdsByGroup = await LoadClientIdsByGroup(groupConnections.Keys.ToList());
 
@@ -284,6 +295,8 @@ public class WorkNotificationService : IWorkNotificationService
             };
 
             await _hubContext.Clients.Clients(connectionIds).CollisionsDetected(filtered);
+            _logger.LogDebug("[COLLISION-TRACE] Sent {FilteredCount}/{TotalCount} collisions to group {GroupId} ({ConnCount} connections)",
+                filtered.Collisions.Count, notification.Collisions.Count, groupId, connectionIds.Count);
         }
     }
 

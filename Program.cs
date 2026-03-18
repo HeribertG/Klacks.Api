@@ -213,13 +213,17 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options => options.SignIn.Re
 
 // Registering Database
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+if (!connectionString.Contains("Command Timeout", StringComparison.OrdinalIgnoreCase))
+{
+    connectionString += ";Command Timeout=60;Timeout=30;Maximum Pool Size=200;";
+}
 var dataSourceBuilder = new Npgsql.NpgsqlDataSourceBuilder(connectionString);
 dataSourceBuilder.EnableDynamicJson();
 var dataSource = dataSourceBuilder.Build();
 
 builder.Services.AddDbContext<DataBaseContext>(options =>
 {
-    options.UseNpgsql(dataSource);
+    options.UseNpgsql(dataSource, npgsqlOptions => npgsqlOptions.CommandTimeout(60));
     options.ConfigureWarnings(warnings =>
         warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
 });

@@ -74,7 +74,7 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
             request.Filter.PaymentInterval,
             request.Filter.SearchString);
 
-        var (clients, totalClientCount) = await _workRepository.WorkList(workFilter);
+        var (clients, totalClientCount) = await _workRepository.WorkList(workFilter, cancellationToken);
         var clientResources = _scheduleMapper.ToWorkScheduleClientResourceList(clients);
         EnrichWithContractInfo(clientResources, clients, startDate, endDate, request.Filter.PaymentInterval);
 
@@ -108,7 +108,8 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
         var periodHours = await _workRepository.GetPeriodHoursForClients(
             clientIds,
             startDate,
-            endDate);
+            endDate,
+            cancellationToken);
 
         _logger.LogInformation(
             "Returned {EntryCount} schedule entries and {ClientCount} clients (total: {TotalCount})",

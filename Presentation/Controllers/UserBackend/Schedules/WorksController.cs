@@ -79,9 +79,9 @@ public class WorksController : BaseController
     }
 
     [HttpPost("Schedule")]
-    public async Task<ActionResult<WorkScheduleResponse>> GetWorkSchedule([FromBody] WorkScheduleFilter filter)
+    public async Task<ActionResult<WorkScheduleResponse>> GetWorkSchedule([FromBody] WorkScheduleFilter filter, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetScheduleEntriesQuery(filter));
+        var result = await _mediator.Send(new GetScheduleEntriesQuery(filter), cancellationToken);
         return Ok(result);
     }
 

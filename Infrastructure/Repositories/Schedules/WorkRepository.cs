@@ -47,7 +47,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         return await base.Put(work);
     }
 
-    public async Task<(List<Client> Clients, int TotalCount)> WorkList(WorkFilter filter)
+    public async Task<(List<Client> Clients, int TotalCount)> WorkList(WorkFilter filter, CancellationToken cancellationToken = default)
     {
         if (filter.StartDate == DateOnly.MinValue || filter.EndDate == DateOnly.MinValue)
         {
@@ -78,14 +78,14 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         query = query.Include(c => c.ClientContracts.Where(cc => !cc.IsDeleted && cc.IsActive))
             .ThenInclude(cc => cc.Contract);
 
-        var totalCount = await query.CountAsync();
+        var totalCount = await query.CountAsync(cancellationToken);
 
         Logger.LogWarning("[DEBUG-WR] TotalCount={Count}", totalCount);
 
         var clients = await query
             .Skip(filter.StartRow)
             .Take(filter.RowCount)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         Logger.LogWarning("[DEBUG-WR] Returned {Count} clients: {Names}",
             clients.Count, string.Join(", ", clients.Select(c => $"{c.Name} {c.FirstName}")));
@@ -93,7 +93,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         return (clients, totalCount);
     }
 
-    public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursForClients(List<Guid> clientIds, DateOnly startDate, DateOnly endDate)
+    public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursForClients(List<Guid> clientIds, DateOnly startDate, DateOnly endDate, CancellationToken cancellationToken = default)
     {
         if (clientIds.Count == 0)
         {
@@ -106,7 +106,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             .Where(m => clientIds.Contains(m.ClientId)
                 && m.StartDate == startDate
                 && m.EndDate == endDate)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         var clientIdsWithPeriodHours = periodHours.Select(m => m.ClientId).ToHashSet();
         var clientIdsWithoutPeriodHours = clientIds.Where(id => !clientIdsWithPeriodHours.Contains(id)).ToList();
@@ -115,13 +115,13 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             .Where(w => clientIdsWithoutPeriodHours.Contains(w.ClientId) && w.CurrentDate >= startDate && w.CurrentDate <= endDate)
             .GroupBy(w => w.ClientId)
             .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime), TotalSurcharges = g.Sum(w => w.Surcharges) })
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         var breaksHours = await context.Break
             .Where(b => clientIdsWithoutPeriodHours.Contains(b.ClientId) && b.CurrentDate >= startDate && b.CurrentDate <= endDate)
             .GroupBy(b => b.ClientId)
             .Select(g => new { ClientId = g.Key, TotalBreaks = g.Sum(b => b.WorkTime) })
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         var workChanges = await context.WorkChange
             .Where(wc => clientIdsWithoutPeriodHours.Contains(wc.Work!.ClientId) && wc.Work.CurrentDate >= startDate && wc.Work.CurrentDate <= endDate)
@@ -134,7 +134,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
                 wc.ReplaceClientId,
                 OriginalClientId = wc.Work.ClientId
             })
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         var worksHoursDict = worksHours.ToDictionary(x => x.ClientId, x => (Hours: x.TotalHours, Surcharges: x.TotalSurcharges));
         var breaksHoursDict = breaksHours.ToDictionary(x => x.ClientId, x => x.TotalBreaks);

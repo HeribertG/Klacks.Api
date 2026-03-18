@@ -28,6 +28,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
     private readonly ILogger<ScheduleTimelineBackgroundService> _logger;
     private readonly IScheduleTimelineStore _timelineStore;
     private readonly Channel<TimelineCheckRequest> _channel;
+    private volatile CancellationTokenSource _processingCts = new();
 
     public ScheduleTimelineBackgroundService(
         IServiceProvider serviceProvider,
@@ -62,6 +63,9 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
 
     public void QueueRangeCheck(DateOnly startDate, DateOnly endDate)
     {
+        _logger.LogDebug("[COLLISION-TRACE] QueueRangeCheck called {Start} - {End}, cancelling current", startDate, endDate);
+        CancelCurrentProcessing();
+
         var request = new TimelineCheckRequest
         {
             StartDate = startDate,
@@ -77,6 +81,12 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         }
     }
 
+    private void CancelCurrentProcessing()
+    {
+        try { _processingCts.Cancel(); }
+        catch (ObjectDisposedException) { }
+    }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("ScheduleTimelineBackgroundService started");
@@ -85,6 +95,22 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         {
             await foreach (var request in _channel.Reader.ReadAllAsync(stoppingToken))
             {
+                var latestRequest = request;
+                var skipped = 0;
+                while (_channel.Reader.TryRead(out var newer))
+                {
+                    latestRequest = newer;
+                    skipped++;
+                }
+
+                if (skipped > 0)
+                {
+                    _logger.LogDebug("[COLLISION-TRACE] Skipped {Count} stale timeline check requests", skipped);
+                }
+
+                _processingCts = new CancellationTokenSource();
+                using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, _processingCts.Token);
+
                 try
                 {
                     using var scope = _serviceProvider.CreateScope();
@@ -93,15 +119,22 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                     var timelineCalculationService = scope.ServiceProvider.GetRequiredService<ITimelineCalculationService>();
                     var travelTimeService = scope.ServiceProvider.GetRequiredService<ITravelTimeCalculationService>();
 
-                    if (request.IsRangeCheck)
+                    if (latestRequest.IsRangeCheck)
                     {
-                        await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, request.StartDate, request.EndDate, stoppingToken);
+                        _logger.LogDebug("[COLLISION-TRACE] START RangeCheck {Start} - {End}", latestRequest.StartDate, latestRequest.EndDate);
+                        await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, latestRequest.StartDate, latestRequest.EndDate, linkedCts.Token);
+                        _logger.LogDebug("[COLLISION-TRACE] DONE RangeCheck {Start} - {End}", latestRequest.StartDate, latestRequest.EndDate);
                     }
                     else
                     {
-                        await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, request.ClientId, request.Date, stoppingToken);
+                        _logger.LogDebug("[COLLISION-TRACE] START SingleCheck Client={ClientId} Date={Date}", latestRequest.ClientId, latestRequest.Date);
+                        await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, latestRequest.ClientId, latestRequest.Date, linkedCts.Token);
+                        _logger.LogDebug("[COLLISION-TRACE] DONE SingleCheck Client={ClientId}", latestRequest.ClientId);
                     }
-
+                }
+                catch (OperationCanceledException) when (!stoppingToken.IsCancellationRequested)
+                {
+                    _logger.LogDebug("[COLLISION-TRACE] CANCELLED - newer request arrived");
                 }
                 catch (Exception ex)
                 {
@@ -172,7 +205,6 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         clientNameLookup.TryGetValue(clientId, out var clientName);
         clientName ??= string.Empty;
 
-        AddCollisionEntries(entries, timeline, clientName);
         AddRestViolationEntries(entries, timeline, clientName);
         AddOvertimeEntries(entries, timeline, clientName, date, date);
         AddConsecutiveDayEntries(entries, timeline, clientName, date, date);
@@ -246,7 +278,6 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             clientNameLookup.TryGetValue(group.Key, out var clientName);
             clientName ??= string.Empty;
 
-            AddCollisionEntries(allEntries, timeline, clientName);
             AddRestViolationEntries(allEntries, timeline, clientName);
             AddOvertimeEntries(allEntries, timeline, clientName, startDate, endDate);
             AddConsecutiveDayEntries(allEntries, timeline, clientName, startDate, endDate);
@@ -254,12 +285,16 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             allCollisions.AddRange(BuildLegacyCollisionList(timeline, clientNameLookup));
         }
 
+        _logger.LogDebug("[COLLISION-TRACE] RangeCheck results: {CollisionCount} collisions, {ValidationCount} validations, {ClientCount} clients checked",
+            allCollisions.Count, allEntries.Count, groupedByClient.Count());
+
         var collisionNotification = new CollisionListNotificationDto
         {
             Collisions = allCollisions,
             IsFullRefresh = true
         };
         await notificationService.NotifyCollisionsDetected(collisionNotification);
+        _logger.LogDebug("[COLLISION-TRACE] NotifyCollisionsDetected SENT ({Count} collisions)", allCollisions.Count);
 
         var validationNotification = new ScheduleValidationListNotificationDto
         {
@@ -267,29 +302,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             IsFullRefresh = true
         };
         await notificationService.NotifyScheduleValidationsDetected(validationNotification);
-    }
-
-    private static void AddCollisionEntries(
-        List<ScheduleValidationNotificationDto> entries,
-        ClientTimeline timeline,
-        string clientName)
-    {
-        foreach (var (a, b) in timeline.GetCollisions())
-        {
-            entries.Add(new ScheduleValidationNotificationDto
-            {
-                Type = ScheduleValidationType.Error,
-                ClientId = timeline.ClientId,
-                ClientName = clientName,
-                Date = a.OwnerDate,
-                Comment = "schedule.error-list.collision",
-                CommentParams = new Dictionary<string, string>
-                {
-                    ["timeRange1"] = $"{a.Start:HH:mm} - {a.End:HH:mm}",
-                    ["timeRange2"] = $"{b.Start:HH:mm} - {b.End:HH:mm}"
-                }
-            });
-        }
+        _logger.LogDebug("[COLLISION-TRACE] NotifyScheduleValidationsDetected SENT ({Count} entries)", allEntries.Count);
     }
 
     private static void AddRestViolationEntries(

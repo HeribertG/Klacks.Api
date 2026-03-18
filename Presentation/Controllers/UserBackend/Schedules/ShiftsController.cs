@@ -57,16 +57,16 @@ public class ShiftsController : InputBaseController<ShiftResource>
     }
 
     [HttpPost("Schedule")]
-    public async Task<ActionResult<ShiftScheduleResponse>> GetShiftSchedule([FromBody] ShiftScheduleFilter filter)
+    public async Task<ActionResult<ShiftScheduleResponse>> GetShiftSchedule([FromBody] ShiftScheduleFilter filter, CancellationToken cancellationToken)
     {
-        var result = await Mediator.Send(new GetShiftScheduleQuery(filter));
+        var result = await Mediator.Send(new GetShiftScheduleQuery(filter), cancellationToken);
         return Ok(result);
     }
 
     [HttpPost("Schedule/Partial")]
-    public async Task<ActionResult<ShiftScheduleResponse>> GetShiftSchedulePartial([FromBody] ShiftSchedulePartialFilter filter)
+    public async Task<ActionResult<ShiftScheduleResponse>> GetShiftSchedulePartial([FromBody] ShiftSchedulePartialFilter filter, CancellationToken cancellationToken)
     {
-        var result = await Mediator.Send(new GetShiftSchedulePartialQuery(filter));
+        var result = await Mediator.Send(new GetShiftSchedulePartialQuery(filter), cancellationToken);
         return Ok(result);
     }
 }

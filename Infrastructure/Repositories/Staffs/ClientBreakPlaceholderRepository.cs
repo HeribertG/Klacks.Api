@@ -22,11 +22,11 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
         _baseQueryService = baseQueryService;
     }
 
-    public async Task<(List<Client> Clients, int TotalCount)> BreakList(BreakFilter filter)
+    public async Task<(List<Client> Clients, int TotalCount)> BreakList(BreakFilter filter, CancellationToken cancellationToken = default)
     {
         if (filter.StartDate.HasValue && filter.EndDate.HasValue)
         {
-            return await BreakListByDateRange(filter);
+            return await BreakListByDateRange(filter, cancellationToken);
         }
 
         if (filter.CurrentYear <= 0)
@@ -54,7 +54,7 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
 
         query = query.Include(c => c.GroupItems);
 
-        var totalCount = await query.CountAsync();
+        var totalCount = await query.CountAsync(cancellationToken);
 
         if (filter.StartRow.HasValue && filter.RowCount.HasValue)
         {
@@ -80,12 +80,12 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
                     .OrderBy(b => b.CurrentDate));
         }
 
-        var clients = await query.AsSingleQuery().ToListAsync();
+        var clients = await query.AsSingleQuery().ToListAsync(cancellationToken);
 
         return (clients, totalCount);
     }
 
-    private async Task<(List<Client> Clients, int TotalCount)> BreakListByDateRange(BreakFilter filter)
+    private async Task<(List<Client> Clients, int TotalCount)> BreakListByDateRange(BreakFilter filter, CancellationToken cancellationToken = default)
     {
         var startDate = filter.StartDate!.Value;
         var endDate = filter.EndDate!.Value;
@@ -109,7 +109,7 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
 
         query = query.Include(c => c.GroupItems);
 
-        var totalCount = await query.CountAsync();
+        var totalCount = await query.CountAsync(cancellationToken);
 
         query = query
             .Include(c => c.BreakPlaceholders
@@ -117,7 +117,7 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
                 .OrderBy(bp => bp.From)
                 .ThenBy(bp => bp.Until));
 
-        var clients = await query.AsSingleQuery().ToListAsync();
+        var clients = await query.AsSingleQuery().ToListAsync(cancellationToken);
 
         return (clients, totalCount);
     }

@@ -7,5 +7,5 @@ namespace Klacks.Api.Application.Interfaces;
 
 public interface IClientBreakPlaceholderRepository
 {
-    Task<(List<Client> Clients, int TotalCount)> BreakList(BreakFilter filter);
+    Task<(List<Client> Clients, int TotalCount)> BreakList(BreakFilter filter, CancellationToken cancellationToken = default);
 }

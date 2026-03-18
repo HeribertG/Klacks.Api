@@ -39,9 +39,13 @@ public class GetScheduleListQueryHandler : IRequestHandler<GetScheduleListQuery,
 
             var breakFilter = _filterMapper.ToBreakFilter(request.Filter);
 
-            var (clients, _) = await _clientBreakPlaceholderRepository.BreakList(breakFilter);
+            var (clients, _) = await _clientBreakPlaceholderRepository.BreakList(breakFilter, cancellationToken);
 
             return clients.Select(c => _clientMapper.ToBreakPlaceholderResource(c)).ToList();
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (InvalidRequestException)
         {

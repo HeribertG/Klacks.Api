@@ -31,9 +31,9 @@ public class BreakPlaceholdersController : InputBaseController<BreakPlaceholderR
     }
 
     [HttpPost("GetScheduleList")]
-    public async Task<ActionResult<IEnumerable<ClientBreakPlaceholderResource>>> GetScheduleList([FromBody] BreakFilter filter)
+    public async Task<ActionResult<IEnumerable<ClientBreakPlaceholderResource>>> GetScheduleList([FromBody] BreakFilter filter, CancellationToken cancellationToken)
     {
-        var clientList = await Mediator.Send(new GetScheduleListQuery(filter));
+        var clientList = await Mediator.Send(new GetScheduleListQuery(filter), cancellationToken);
         return Ok(clientList);
     }
 

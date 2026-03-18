@@ -18,15 +18,38 @@ public interface IConnectionDateRangeTracker
     IEnumerable<string> GetConnectionsForDate(DateOnly date, string? excludeConnectionId = null);
     IEnumerable<string> GetConnectionsForDateRange(DateOnly startDate, DateOnly endDate, string? excludeConnectionId = null);
     (List<string> AllGroupConnections, Dictionary<Guid, List<string>> GroupConnections) GetConnectionsGroupedBySelectedGroup();
+    (DateOnly Start, DateOnly End)? GetRegisteredDateRange(string connectionId);
+    Guid? GetSelectedGroup(string connectionId);
 }
 
 public class ConnectionDateRangeTracker : IConnectionDateRangeTracker
 {
     private readonly ConcurrentDictionary<string, (DateOnly StartDate, DateOnly EndDate, Guid? SelectedGroupId)> _connectionRanges = new();
 
+    public (DateOnly Start, DateOnly End)? GetRegisteredDateRange(string connectionId)
+    {
+        if (_connectionRanges.TryGetValue(connectionId, out var range))
+        {
+            return (range.StartDate, range.EndDate);
+        }
+        return null;
+    }
+
+    public Guid? GetSelectedGroup(string connectionId)
+    {
+        if (_connectionRanges.TryGetValue(connectionId, out var range))
+        {
+            return range.SelectedGroupId;
+        }
+        return null;
+    }
+
     public void RegisterConnection(string connectionId, DateOnly startDate, DateOnly endDate)
     {
-        _connectionRanges[connectionId] = (startDate, endDate, null);
+        var selectedGroup = _connectionRanges.TryGetValue(connectionId, out var existing)
+            ? existing.SelectedGroupId
+            : (Guid?)null;
+        _connectionRanges[connectionId] = (startDate, endDate, selectedGroup);
     }
 
     public void UnregisterConnection(string connectionId)
