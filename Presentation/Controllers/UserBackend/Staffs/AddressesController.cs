@@ -51,11 +51,6 @@ public class AddressesController : InputBaseController<AddressResource>
     public async Task<ActionResult<AddressValidationResponse>> Validate([FromBody] AddressResource resource)
     {
         var response = await ValidateAddressAsync(resource);
-        if (!response.IsValid)
-        {
-            return BadRequest(response);
-        }
-
         return Ok(response);
     }
 

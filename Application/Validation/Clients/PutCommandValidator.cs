@@ -4,13 +4,17 @@ using FluentValidation;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.DTOs.Staffs;
+using Klacks.Api.Domain.Interfaces.RouteOptimization;
 
 namespace Klacks.Api.Application.Validation.Clients;
 
 public class PutCommandValidator : AbstractValidator<PutCommand<ClientResource>>
 {
-    public PutCommandValidator()
+    public PutCommandValidator(IGeocodingService geocodingService)
     {
+        RuleFor(x => x.Resource.Addresses)
+            .SetValidator(new AddressGeocodingValidator(geocodingService));
+
         When(x => x.Resource.LegalEntity, () =>
         {
             RuleFor(x => x.Resource.Company)
