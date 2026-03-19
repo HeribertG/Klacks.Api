@@ -13,8 +13,10 @@ using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Domain.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
 
+using Klacks.Api.Domain.DTOs.Filter;
 namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 
 public class WorkRepository : BaseRepository<Work>, IWorkRepository

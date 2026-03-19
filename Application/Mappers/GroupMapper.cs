@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Models.Criteria;
 using Klacks.Api.Domain.Models.Results;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Application.DTOs.Associations;
+using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Staffs;
 using Riok.Mapperly.Abstractions;

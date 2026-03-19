@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Application.DTOs.Clients;
+using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.DTOs.Settings;

@@ -3,6 +3,7 @@
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Application.DTOs.IdentityProviders;
+using Klacks.Api.Domain.DTOs.IdentityProviders;
 
 namespace Klacks.Api.Application.Interfaces;
 

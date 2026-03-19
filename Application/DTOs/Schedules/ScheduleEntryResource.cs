@@ -3,6 +3,7 @@
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.DTOs.Staffs;
 
+using Klacks.Api.Domain.DTOs.Schedules;
 namespace Klacks.Api.Application.DTOs.Schedules;
 
 public class ScheduleEntryResource

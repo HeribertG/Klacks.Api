@@ -4,6 +4,7 @@ using Klacks.Api.Application.Commands.Accounts;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.DTOs;
+using Klacks.Api.Domain.DTOs;
 using Klacks.Api.Infrastructure.Mediator;
 using System.Collections.Generic;
 

@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Dashboard;
+using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Logging;

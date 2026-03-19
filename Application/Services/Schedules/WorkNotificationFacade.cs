@@ -13,6 +13,7 @@
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Domain.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces.Schedules;

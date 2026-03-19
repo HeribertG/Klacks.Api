@@ -1,10 +1,17 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Service fuer Adress-Geocodierung via Nominatim mit Rate-Limiting und Memory-Cache.
+/// @param httpClientFactory - Factory fuer den Nominatim HTTP-Client
+/// @param cache - In-Memory-Cache fuer Geocoding-Ergebnisse (30 Tage positive, 1 Stunde negative)
+/// @param REQUEST_DELAY_MS - Mindestabstand zwischen Nominatim-Requests (500ms)
+/// </summary>
+
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Interfaces.RouteOptimization;
 
 namespace Klacks.Api.Infrastructure.Services;
 
@@ -15,7 +22,7 @@ public class GeocodingService : IGeocodingService
     private readonly ILogger<GeocodingService> _logger;
     private readonly SemaphoreSlim _rateLimiter;
     private const string NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
-    private const int REQUEST_DELAY_MS = 1100;
+    private const int REQUEST_DELAY_MS = 500;
 
     public GeocodingService(
         IHttpClientFactory httpClientFactory,
@@ -29,7 +36,7 @@ public class GeocodingService : IGeocodingService
         _rateLimiter = new SemaphoreSlim(1, 1);
     }
 
-    public async Task<(double? Latitude, double? Longitude)> GeocodeAsync(string city, string country)
+    public async Task<(double? Latitude, double? Longitude)> GeocodeAsync(string city, string country, CancellationToken cancellationToken = default)
     {
         var cacheKey = $"geo_{city}_{country}";
 
@@ -38,23 +45,29 @@ public class GeocodingService : IGeocodingService
             return cachedCoords;
         }
 
-        await _rateLimiter.WaitAsync();
+        await _rateLimiter.WaitAsync(cancellationToken);
         try
         {
-            await Task.Delay(REQUEST_DELAY_MS);
+            if (_cache.TryGetValue(cacheKey, out cachedCoords))
+            {
+                return cachedCoords;
+            }
+
+            await Task.Delay(REQUEST_DELAY_MS, cancellationToken);
 
             var query = $"{city}, {country}";
             var url = $"{NOMINATIM_URL}?q={Uri.EscapeDataString(query)}&format=json&limit=1";
 
-            var response = await _httpClient.GetAsync(url);
+            var response = await _httpClient.GetAsync(url, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Geocoding failed for {City}, {Country}: {StatusCode}", city, country, response.StatusCode);
+                CacheNegativeResult(cacheKey);
                 return (null, null);
             }
 
-            var json = await response.Content.ReadAsStringAsync();
+            var json = await response.Content.ReadAsStringAsync(cancellationToken);
             var results = JsonSerializer.Deserialize<List<NominatimResult>>(json);
 
             if (results != null && results.Count > 0)
@@ -72,7 +85,12 @@ public class GeocodingService : IGeocodingService
             }
 
             _logger.LogWarning("No geocoding results for {City}, {Country}", city, country);
+            CacheNegativeResult(cacheKey);
             return (null, null);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -85,7 +103,7 @@ public class GeocodingService : IGeocodingService
         }
     }
 
-    public async Task<(double? Latitude, double? Longitude)> GeocodeAddressAsync(string fullAddress, string country)
+    public async Task<(double? Latitude, double? Longitude)> GeocodeAddressAsync(string fullAddress, string country, CancellationToken cancellationToken = default)
     {
         var cacheKey = $"geo_addr_{fullAddress}_{country}";
 
@@ -94,25 +112,31 @@ public class GeocodingService : IGeocodingService
             return cachedCoords;
         }
 
-        await _rateLimiter.WaitAsync();
+        await _rateLimiter.WaitAsync(cancellationToken);
         try
         {
-            await Task.Delay(REQUEST_DELAY_MS);
+            if (_cache.TryGetValue(cacheKey, out cachedCoords))
+            {
+                return cachedCoords;
+            }
+
+            await Task.Delay(REQUEST_DELAY_MS, cancellationToken);
 
             var query = $"{fullAddress}, {country}";
             var url = $"{NOMINATIM_URL}?q={Uri.EscapeDataString(query)}&format=json&limit=1&addressdetails=1";
 
             _logger.LogInformation("Geocoding full address: {Query}", query);
 
-            var response = await _httpClient.GetAsync(url);
+            var response = await _httpClient.GetAsync(url, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Geocoding failed for address {Address}: {StatusCode}", fullAddress, response.StatusCode);
+                CacheNegativeResult(cacheKey);
                 return (null, null);
             }
 
-            var json = await response.Content.ReadAsStringAsync();
+            var json = await response.Content.ReadAsStringAsync(cancellationToken);
             var results = JsonSerializer.Deserialize<List<NominatimResult>>(json);
 
             if (results != null && results.Count > 0)
@@ -131,7 +155,11 @@ public class GeocodingService : IGeocodingService
             }
 
             _logger.LogWarning("No geocoding results for full address {Address}, trying fallback with ZIP and city", fullAddress);
-            return await TryFallbackGeocoding(fullAddress, country, cacheKey);
+            return await TryFallbackGeocoding(fullAddress, country, cacheKey, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -144,7 +172,8 @@ public class GeocodingService : IGeocodingService
         }
     }
 
-    private async Task<(double? Latitude, double? Longitude)> TryFallbackGeocoding(string fullAddress, string country, string cacheKey)
+    private async Task<(double? Latitude, double? Longitude)> TryFallbackGeocoding(
+        string fullAddress, string country, string cacheKey, CancellationToken cancellationToken)
     {
         var addressMatch = System.Text.RegularExpressions.Regex.Match(fullAddress, @"^(.+?)\s*(\d+)?\s*,\s*(\d{4,5})\s+(.+)$");
 
@@ -171,6 +200,7 @@ public class GeocodingService : IGeocodingService
         if (string.IsNullOrEmpty(zip) || string.IsNullOrEmpty(city))
         {
             _logger.LogWarning("Could not extract ZIP and city from address {Address}", fullAddress);
+            CacheNegativeResult(cacheKey);
             return (null, null);
         }
 
@@ -181,28 +211,19 @@ public class GeocodingService : IGeocodingService
             fallbackQueries.Add($"{street}, {zip} {city}, {country}");
         }
 
-        fallbackQueries.Add($"railway station, {zip} {city}, {country}");
-        fallbackQueries.Add($"Bahnhof, {zip} {city}, {country}");
-        fallbackQueries.Add($"gare, {zip} {city}, {country}");
-        fallbackQueries.Add($"stazione, {zip} {city}, {country}");
-        fallbackQueries.Add($"staziun, {zip} {city}, {country}");
-        fallbackQueries.Add($"town hall, {zip} {city}, {country}");
-        fallbackQueries.Add($"Rathaus, {zip} {city}, {country}");
-        fallbackQueries.Add($"mairie, {zip} {city}, {country}");
-        fallbackQueries.Add($"hôtel de ville, {zip} {city}, {country}");
-        fallbackQueries.Add($"municipio, {zip} {city}, {country}");
-        fallbackQueries.Add($"casa communala, {zip} {city}, {country}");
         fallbackQueries.Add($"{zip} {city}, {country}");
         fallbackQueries.Add($"{city}, {country}");
 
         foreach (var fallbackQuery in fallbackQueries)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             _logger.LogInformation("Fallback geocoding attempt: {Query}", fallbackQuery);
 
-            await Task.Delay(REQUEST_DELAY_MS);
+            await Task.Delay(REQUEST_DELAY_MS, cancellationToken);
 
             var url = $"{NOMINATIM_URL}?q={Uri.EscapeDataString(fallbackQuery)}&format=json&limit=1";
-            var response = await _httpClient.GetAsync(url);
+            var response = await _httpClient.GetAsync(url, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -210,7 +231,7 @@ public class GeocodingService : IGeocodingService
                 continue;
             }
 
-            var json = await response.Content.ReadAsStringAsync();
+            var json = await response.Content.ReadAsStringAsync(cancellationToken);
             var results = JsonSerializer.Deserialize<List<NominatimResult>>(json);
 
             if (results != null && results.Count > 0)
@@ -230,6 +251,7 @@ public class GeocodingService : IGeocodingService
         }
 
         _logger.LogWarning("All fallback geocoding attempts failed for address {Address}", fullAddress);
+        CacheNegativeResult(cacheKey);
         return (null, null);
     }
 
@@ -245,6 +267,11 @@ public class GeocodingService : IGeocodingService
         await _rateLimiter.WaitAsync();
         try
         {
+            if (_cache.TryGetValue(cacheKey, out cachedResult) && cachedResult != null)
+            {
+                return cachedResult;
+            }
+
             await Task.Delay(REQUEST_DELAY_MS);
 
             var queryParams = new List<string>
@@ -358,6 +385,11 @@ public class GeocodingService : IGeocodingService
             Longitude = double.TryParse(first.lon, out var lon) ? lon : null,
             ReturnedAddress = first.display_name
         };
+    }
+
+    private void CacheNegativeResult(string cacheKey)
+    {
+        _cache.Set(cacheKey, ((double?)null, (double?)null), TimeSpan.FromHours(1));
     }
 
     private static bool ContainsStreetName(string displayName, string street)

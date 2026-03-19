@@ -6,6 +6,7 @@ using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Domain.DTOs.Schedules;
 
 namespace Klacks.Api.Application.Interfaces;
 

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Interfaces.Associations;
 
 namespace Klacks.Api.Domain.Services.Groups;
 

@@ -8,6 +8,7 @@
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Staffs;
 
+using Klacks.Api.Domain.DTOs.Filter;
 namespace Klacks.Api.Domain.Services.Common;
 
 public interface IClientBaseQueryService

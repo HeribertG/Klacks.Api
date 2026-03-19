@@ -6,6 +6,7 @@
 /// um DI-Overload und Code-Duplikation in den Works-Handlern zu reduzieren.
 /// </summary>
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Domain.DTOs.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Application.Interfaces;

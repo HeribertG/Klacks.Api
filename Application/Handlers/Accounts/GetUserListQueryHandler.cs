@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Queries.Accounts;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.DTOs.Registrations;
 using Klacks.Api.Application.DTOs.Registrations;
 using Klacks.Api.Infrastructure.Mediator;
 

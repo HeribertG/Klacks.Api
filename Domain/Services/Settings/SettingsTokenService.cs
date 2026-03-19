@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Application.DTOs.Filter;
+using Klacks.Api.Domain.DTOs.Filter;
+using Klacks.Api.Domain.DTOs.Filter;
 
 namespace Klacks.Api.Domain.Services.Settings;
 

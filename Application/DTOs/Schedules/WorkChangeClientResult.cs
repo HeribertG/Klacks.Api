@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.DTOs.Schedules;
 namespace Klacks.Api.Application.DTOs.Schedules;
 
 public class WorkChangeClientResult

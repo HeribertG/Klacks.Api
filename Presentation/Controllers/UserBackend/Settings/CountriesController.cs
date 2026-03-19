@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.DTOs.Settings;
+using Klacks.Api.Domain.DTOs.Settings;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
 

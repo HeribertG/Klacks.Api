@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Domain.Models.Authentification;
-using Klacks.Api.Application.DTOs;
-using Klacks.Api.Application.DTOs.Registrations;
+using Klacks.Api.Domain.DTOs;
+using Klacks.Api.Domain.DTOs;
+using Klacks.Api.Domain.DTOs.Registrations;
+using Klacks.Api.Domain.DTOs.Registrations;
 
 namespace Klacks.Api.Domain.Interfaces.Accounts;
 

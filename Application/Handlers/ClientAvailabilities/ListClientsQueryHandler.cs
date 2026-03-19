@@ -13,6 +13,7 @@ using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
 
+using Klacks.Api.Domain.DTOs.Filter;
 namespace Klacks.Api.Application.Handlers.ClientAvailabilities;
 
 public class ListClientsQueryHandler : BaseHandler, IRequestHandler<ListClientAvailabilityClientsQuery, ClientAvailabilityClientListResponse>

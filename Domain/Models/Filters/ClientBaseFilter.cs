@@ -5,6 +5,7 @@
 /// </summary>
 /// <param name="StartDate">Beginn des sichtbaren Zeitraums</param>
 /// <param name="EndDate">Ende des sichtbaren Zeitraums</param>
+using Klacks.Api.Domain.DTOs.Filter;
 namespace Klacks.Api.Domain.Models.Filters;
 
 public class ClientBaseFilter

@@ -3,7 +3,8 @@
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
-using Klacks.Api.Application.DTOs.Filter;
+using Klacks.Api.Domain.DTOs.Filter;
+using Klacks.Api.Domain.DTOs.Filter;
 
 namespace Klacks.Api.Domain.Services.Clients;
 

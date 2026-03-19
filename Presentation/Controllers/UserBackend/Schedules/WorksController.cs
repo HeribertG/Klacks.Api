@@ -9,8 +9,10 @@ using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.PeriodHours;
 using Klacks.Api.Application.Queries.ScheduleEntries;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Domain.DTOs.Schedules;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;

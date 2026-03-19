@@ -2,7 +2,8 @@
 
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
-using Klacks.Api.Application.DTOs.Filter;
+using Klacks.Api.Domain.DTOs.Filter;
+using Klacks.Api.Domain.DTOs.Filter;
 
 namespace Klacks.Api.Domain.Services.Shifts;
 

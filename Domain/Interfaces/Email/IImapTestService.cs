@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Application.DTOs.Email;
+using Klacks.Api.Domain.DTOs.Email;
+using Klacks.Api.Domain.DTOs.Email;
 
 namespace Klacks.Api.Domain.Interfaces.Email;
 

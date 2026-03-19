@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Queries.Clients;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Infrastructure.Mediator;

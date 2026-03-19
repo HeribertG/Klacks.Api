@@ -9,11 +9,10 @@
 /// <param name="routeOptimizationService">Service fuer Distance-Matrix-Berechnung</param>
 /// <param name="geocodingService">Service fuer Adress-Geocodierung</param>
 
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Domain.Services.RouteOptimization;
@@ -30,20 +29,20 @@ public class ContainerAutofillService : IContainerAutofillService
     private readonly IContainerAvailableTasksService _availableTasksService;
     private readonly IRouteOptimizationService _routeOptimizationService;
     private readonly IGeocodingService _geocodingService;
-    private readonly ISettingsRepository _settingsRepository;
+    private readonly ISettingsReader _settingsReader;
     private readonly ILogger<ContainerAutofillService> _logger;
 
     public ContainerAutofillService(
         IContainerAvailableTasksService availableTasksService,
         IRouteOptimizationService routeOptimizationService,
         IGeocodingService geocodingService,
-        ISettingsRepository settingsRepository,
+        ISettingsReader settingsReader,
         ILogger<ContainerAutofillService> logger)
     {
         _availableTasksService = availableTasksService;
         _routeOptimizationService = routeOptimizationService;
         _geocodingService = geocodingService;
-        _settingsRepository = settingsRepository;
+        _settingsReader = settingsReader;
         _logger = logger;
     }
 
@@ -69,15 +68,15 @@ public class ContainerAutofillService : IContainerAutofillService
             return CreateEmptyResult(request.TransportMode, availableTasks.Count);
         }
 
-        var candidateLocations = await ExtractLocationsFromShiftsAsync(timeRangeTasks);
+        var candidateLocations = await ExtractLocationsFromShiftsAsync(timeRangeTasks, request.CancellationToken);
         if (candidateLocations.Count == 0)
         {
             _logger.LogWarning("No geocodable locations found");
             return CreateEmptyResult(request.TransportMode, timeRangeTasks.Count);
         }
 
-        var startBaseLocation = await GeocodeBaseAddressAsync(request.StartBase, "StartBase");
-        var endBaseLocation = await GeocodeBaseAddressAsync(request.EndBase, "EndBase");
+        var startBaseLocation = await GeocodeBaseAddressAsync(request.StartBase, "StartBase", request.CancellationToken);
+        var endBaseLocation = await GeocodeBaseAddressAsync(request.EndBase, "EndBase", request.CancellationToken);
 
         if (startBaseLocation == null || endBaseLocation == null)
         {
@@ -145,10 +144,10 @@ public class ContainerAutofillService : IContainerAutofillService
         return BuildResult(context, optimizedRoute, timeRangeTasks.Count, request.TransportMode);
     }
 
-    private async Task<List<Location>> ExtractLocationsFromShiftsAsync(List<Shift> shifts)
+    private async Task<List<Location>> ExtractLocationsFromShiftsAsync(List<Shift> shifts, CancellationToken cancellationToken)
     {
-        var locations = new List<Location>();
         var uniqueAddresses = new HashSet<string>();
+        var geocodeRequests = new List<(Shift shift, string fullAddress, string country)>();
 
         foreach (var shift in shifts)
         {
@@ -166,14 +165,29 @@ public class ContainerAutofillService : IContainerAutofillService
                 continue;
             }
 
+            uniqueAddresses.Add(addressKey);
             var fullAddress = $"{address.Street}, {address.Zip} {address.City}";
-            var coords = await _geocodingService.GeocodeAddressAsync(fullAddress, address.Country ?? "Switzerland");
+            geocodeRequests.Add((shift, fullAddress, address.Country ?? "Switzerland"));
+        }
 
+        _logger.LogInformation("Geocoding {Count} unique addresses from {Total} shifts", geocodeRequests.Count, shifts.Count);
+
+        var geocodeTasks = geocodeRequests.Select(async req =>
+        {
+            var coords = await _geocodingService.GeocodeAddressAsync(req.fullAddress, req.country, cancellationToken);
+            return (req.shift, req.fullAddress, coords);
+        });
+
+        var results = await Task.WhenAll(geocodeTasks);
+
+        var locations = new List<Location>();
+        foreach (var (shift, fullAddress, coords) in results)
+        {
             if (coords.Latitude.HasValue && coords.Longitude.HasValue)
             {
                 locations.Add(new Location
                 {
-                    Name = shift.Client.Name ?? "Unknown",
+                    Name = shift.Client!.Name ?? "Unknown",
                     Address = fullAddress,
                     Latitude = coords.Latitude.Value,
                     Longitude = coords.Longitude.Value,
@@ -185,7 +199,6 @@ public class ContainerAutofillService : IContainerAutofillService
                     TimeRangeStart = shift.StartShift,
                     TimeRangeEnd = shift.EndShift
                 });
-                uniqueAddresses.Add(addressKey);
             }
         }
 
@@ -193,9 +206,9 @@ public class ContainerAutofillService : IContainerAutofillService
         return locations;
     }
 
-    private async Task<Location?> GeocodeBaseAddressAsync(string address, string label)
+    private async Task<Location?> GeocodeBaseAddressAsync(string address, string label, CancellationToken cancellationToken)
     {
-        var coords = await _geocodingService.GeocodeAddressAsync(address, "Switzerland");
+        var coords = await _geocodingService.GeocodeAddressAsync(address, "Switzerland", cancellationToken);
         if (!coords.Latitude.HasValue || !coords.Longitude.HasValue)
         {
             _logger.LogWarning("Could not geocode {Label} address: {Address}", label, address);
@@ -585,7 +598,7 @@ public class ContainerAutofillService : IContainerAutofillService
             _ => Application.Constants.Settings.ROUTE_MIN_TRAVEL_TIME_BY_CAR
         };
 
-        var setting = await _settingsRepository.GetSetting(settingKey);
+        var setting = await _settingsReader.GetSetting(settingKey);
         if (setting != null && double.TryParse(setting.Value, out var minutes))
         {
             return minutes * SecondsPerMinute;
@@ -617,16 +630,8 @@ public class ContainerAutofillService : IContainerAutofillService
             fullRouteIndices.Add(idx);
         }
 
-        if (context.EndBaseIndex != context.StartBaseIndex)
-        {
-            fullRoute.Add(context.DistanceMatrix.Locations[context.EndBaseIndex]);
-            fullRouteIndices.Add(context.EndBaseIndex);
-        }
-        else
-        {
-            fullRoute.Add(context.DistanceMatrix.Locations[context.EndBaseIndex]);
-            fullRouteIndices.Add(context.EndBaseIndex);
-        }
+        fullRoute.Add(context.DistanceMatrix.Locations[context.EndBaseIndex]);
+        fullRouteIndices.Add(context.EndBaseIndex);
 
         double totalDistance = 0;
         for (int i = 0; i < fullRouteIndices.Count - 1; i++)

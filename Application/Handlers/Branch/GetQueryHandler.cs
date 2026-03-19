@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Application.Queries.Settings.Branch;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Infrastructure.Mediator;

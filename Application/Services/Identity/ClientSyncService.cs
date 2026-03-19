@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Application.DTOs.IdentityProviders;
+using Klacks.Api.Domain.DTOs.IdentityProviders;
 using Klacks.Api.Domain.Interfaces.Authentification;
 
 namespace Klacks.Api.Application.Services.Identity;

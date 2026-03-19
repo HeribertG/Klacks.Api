@@ -15,6 +15,7 @@ using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
+using Klacks.Api.Domain.DTOs.Filter;
 namespace Klacks.Api.Application.Services.Clients;
 
 public class ClientBaseQueryService : IClientBaseQueryService

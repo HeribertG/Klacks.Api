@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Domain.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 

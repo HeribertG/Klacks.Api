@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Absences;
 using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Infrastructure.Mediator;
 

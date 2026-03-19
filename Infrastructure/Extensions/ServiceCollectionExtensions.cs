@@ -8,6 +8,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Authentification;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Staffs;
 using Klacks.Api.Infrastructure.Repositories.Assistant;
 using Klacks.Api.Domain.Services.Absences;
@@ -94,6 +95,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICommunicationRepository, CommunicationRepository>();
         services.AddScoped<IMembershipRepository, MembershipRepository>();
         services.AddScoped<ISettingsRepository, SettingsRepository>();
+        services.AddScoped<ISettingsReader>(sp => sp.GetRequiredService<ISettingsRepository>());
         services.AddScoped<IAbsenceRepository, AbsenceRepository>();
         services.AddScoped<IBreakPlaceholderRepository, BreakPlaceholderRepository>();
         services.AddScoped<IAbsenceDetailRepository, AbsenceDetailRepository>();

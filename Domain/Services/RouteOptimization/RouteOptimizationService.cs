@@ -9,9 +9,11 @@
 /// <param name="_distanceMatrixBuilder">Builds distance/duration matrices from locations</param>
 /// <param name="_routeDirectionsBuilder">Retrieves turn-by-turn directions for route segments</param>
 
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Staffs;
 using Klacks.Api.Domain.Models.Schedules;
 

@@ -2,8 +2,10 @@
 
 ﻿using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Application.Queries.Shifts;
 using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Infrastructure.Mediator;
 

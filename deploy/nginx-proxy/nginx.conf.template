@@ -19,12 +19,12 @@ http {
         server klacks-pgadmin:80;
     }
 
-    upstream klacks-marketplace {
-        server klacks-marketplace:80;
+    upstream devknowledge-ui {
+        server devknowledge-ui:80;
     }
 
-    upstream klacks-marketing {
-        server klacks-marketing:80;
+    upstream devknowledge-api {
+        server devknowledge-api:8080;
     }
 
     # Klacks UI + API - HTTPS Port 443
@@ -102,48 +102,6 @@ http {
         }
     }
 
-    # Klacks Marketplace - HTTPS Port 7553
-    server {
-        listen 7553 ssl;
-        server_name ${SERVER_IP};
-
-        ssl_certificate /etc/nginx/certs/server.crt;
-        ssl_certificate_key /etc/nginx/certs/server.key;
-
-        location / {
-            proxy_pass http://klacks-marketplace;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection 'upgrade';
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_cache_bypass $http_upgrade;
-        }
-    }
-
-    # Klacks Marketing - HTTPS Port 7643
-    server {
-        listen 7643 ssl;
-        server_name ${SERVER_IP};
-
-        ssl_certificate /etc/nginx/certs/server.crt;
-        ssl_certificate_key /etc/nginx/certs/server.key;
-
-        location / {
-            proxy_pass http://klacks-marketing;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection 'upgrade';
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_cache_bypass $http_upgrade;
-        }
-    }
-
     # pgAdmin - HTTPS Port 5553
     server {
         listen 5553 ssl;
@@ -159,6 +117,39 @@ http {
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+
+    # DevKnowledge - HTTPS Port 8443
+    server {
+        listen 8443 ssl;
+        server_name ${SERVER_IP};
+
+        ssl_certificate /etc/nginx/certs/server.crt;
+        ssl_certificate_key /etc/nginx/certs/server.key;
+
+        location /api/ {
+            proxy_pass http://devknowledge-api/api/;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_cache_bypass $http_upgrade;
+        }
+
+        location / {
+            proxy_pass http://devknowledge-ui;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_cache_bypass $http_upgrade;
         }
     }
 

@@ -1,13 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Application.DTOs;
+using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 
 namespace Klacks.Api.Application.Interfaces;
 
-public interface ISettingsRepository
+public interface ISettingsRepository : ISettingsReader
 {
 
     CalendarRule AddCalendarRule(CalendarRule calendarRule);
@@ -29,8 +31,6 @@ public interface ISettingsRepository
     Task<Macro> GetMacro(Guid id);
 
     Task<List<Macro>> GetMacroList();
-
-    Task<Klacks.Api.Domain.Models.Settings.Settings?> GetSetting(string type);
 
     Task<IEnumerable<Klacks.Api.Domain.Models.Settings.Settings>> GetSettingsList();
 

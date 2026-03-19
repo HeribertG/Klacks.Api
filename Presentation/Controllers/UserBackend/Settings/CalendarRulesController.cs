@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Settings;
+using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Infrastructure.Mediator;

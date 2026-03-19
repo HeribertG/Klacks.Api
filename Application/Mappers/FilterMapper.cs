@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Models.Criteria;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Results;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Staffs;
 using Riok.Mapperly.Abstractions;
@@ -92,7 +93,7 @@ public partial class FilterMapper
 
     public partial StateCountryFilter ToStateCountryFilter(StateCountryToken token);
 
-    public Domain.Models.Filters.BreakFilter ToBreakFilter(Application.DTOs.Filter.BreakFilter filter)
+    public Domain.Models.Filters.BreakFilter ToBreakFilter(Domain.DTOs.Filter.BreakFilter filter)
     {
         return new Domain.Models.Filters.BreakFilter
         {
@@ -113,8 +114,8 @@ public partial class FilterMapper
     }
 
     public partial Domain.Models.Filters.WorkFilter ToWorkFilter(Application.DTOs.Filter.WorkFilter filter);
-    public partial Domain.Models.Filters.GroupFilter ToGroupFilter(Application.DTOs.Filter.GroupFilter filter);
-    public partial Domain.Models.Filters.AbsenceFilter ToAbsenceFilter(Application.DTOs.Filter.AbsenceFilter filter);
+    public partial Domain.Models.Filters.GroupFilter ToGroupFilter(Domain.DTOs.Filter.GroupFilter filter);
+    public partial Domain.Models.Filters.AbsenceFilter ToAbsenceFilter(Domain.DTOs.Filter.AbsenceFilter filter);
 
     public PaginationParams ToPaginationParams(BaseFilter filter)
     {

@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

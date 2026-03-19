@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Commands.Settings.Branch;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Interfaces;
 

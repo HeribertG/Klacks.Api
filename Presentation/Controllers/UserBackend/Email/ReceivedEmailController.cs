@@ -5,8 +5,8 @@
 /// </summary>
 using Klacks.Api.Application.Commands.Email;
 using Klacks.Api.Application.DTOs.Email;
+using Klacks.Api.Domain.DTOs.Email;
 using Klacks.Api.Application.Queries.Email;
-using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
@@ -18,19 +18,13 @@ public class ReceivedEmailController : BaseController
 {
     private readonly IMediator _mediator;
     private readonly IImapTestService _imapTestService;
-    private readonly IImapEmailService _imapEmailService;
-    private readonly IUnitOfWork _unitOfWork;
 
     public ReceivedEmailController(
         IMediator mediator,
-        IImapTestService imapTestService,
-        IImapEmailService imapEmailService,
-        IUnitOfWork unitOfWork)
+        IImapTestService imapTestService)
     {
         _mediator = mediator;
         _imapTestService = imapTestService;
-        _imapEmailService = imapEmailService;
-        _unitOfWork = unitOfWork;
     }
 
     [HttpGet("GroupTree")]
@@ -122,25 +116,10 @@ public class ReceivedEmailController : BaseController
     }
 
     [HttpPost("FetchNow")]
-    public async Task<ActionResult> FetchNow()
+    public async Task<ActionResult<FetchEmailsResult>> FetchNow()
     {
-        try
-        {
-            await _imapEmailService.SyncFoldersAsync();
-            await _unitOfWork.CompleteAsync();
-
-            var newEmails = await _imapEmailService.FetchNewEmailsAsync();
-            if (newEmails.Count > 0)
-            {
-                await _unitOfWork.CompleteAsync();
-            }
-
-            return Ok(new { success = true, fetchedCount = newEmails.Count });
-        }
-        catch (Exception ex)
-        {
-            return Ok(new { success = false, error = ex.Message, innerError = ex.InnerException?.Message });
-        }
+        var result = await _mediator.Send(new FetchEmailsCommand());
+        return Ok(result);
     }
 
     [HttpPost("TestImapConnection")]

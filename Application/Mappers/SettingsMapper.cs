@@ -5,10 +5,12 @@ using Klacks.Api.Domain.Models.Histories;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Histories;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.DTOs.Settings;
+using Klacks.Api.Domain.DTOs.Settings;
 using Klacks.Api.Application.DTOs.Staffs;
 using Riok.Mapperly.Abstractions;
 

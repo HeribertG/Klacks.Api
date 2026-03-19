@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Domain.DTOs.Schedules;
 
 namespace Klacks.Api.Application.Handlers.Breaks;
 

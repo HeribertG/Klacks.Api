@@ -162,7 +162,8 @@ public class RouteOptimizationController : BaseController
         [FromQuery] string? fromTime = null,
         [FromQuery] string? untilTime = null,
         [FromQuery] ContainerTransportMode transportMode = ContainerTransportMode.ByCar,
-        [FromQuery] double timeRangeTolerance = 0.5)
+        [FromQuery] double timeRangeTolerance = 0.5,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(startBase) || string.IsNullOrEmpty(endBase))
         {
@@ -174,8 +175,11 @@ public class RouteOptimizationController : BaseController
             return BadRequest("fromTime and untilTime are required for autofill");
         }
 
-        var parsedFromTime = TimeOnly.Parse(fromTime);
-        var parsedUntilTime = TimeOnly.Parse(untilTime);
+        if (!TimeOnly.TryParse(fromTime, out var parsedFromTime) ||
+            !TimeOnly.TryParse(untilTime, out var parsedUntilTime))
+        {
+            return BadRequest("Invalid time format. Use HH:mm format.");
+        }
 
         _logger.LogInformation(
             "Autofill for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}, StartBase: {StartBase}, EndBase: {EndBase}, FromTime: {FromTime}, UntilTime: {UntilTime}",
@@ -185,7 +189,8 @@ public class RouteOptimizationController : BaseController
         {
             var autofillRequest = new ContainerAutofillRequest(
                 containerId, weekday, isHoliday, startBase, endBase,
-                parsedFromTime, parsedUntilTime, transportMode, timeRangeTolerance);
+                parsedFromTime, parsedUntilTime, transportMode, timeRangeTolerance,
+                cancellationToken);
 
             var result = await _containerAutofillService.AutofillAsync(autofillRequest);
 

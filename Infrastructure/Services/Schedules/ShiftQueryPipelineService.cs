@@ -8,6 +8,7 @@
 /// <param name="sortingService">Sortiert Shifts nach Spalte und Richtung</param>
 /// <param name="statusFilterService">Filtert Shifts nach Status (Original, SealedOrder etc.)</param>
 /// <param name="paginationService">Paginiert die gefilterte Query</param>
+using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;

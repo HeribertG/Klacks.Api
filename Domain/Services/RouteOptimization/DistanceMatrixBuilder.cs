@@ -3,16 +3,15 @@
 /// <summary>
 /// Builds distance and duration matrices using OSRM, OpenRouteService or Haversine fallback.
 /// </summary>
-/// <param name="_settingsRepository">Repository for reading application settings (e.g. API keys)</param>
+/// <param name="_settingsReader">Repository for reading application settings (e.g. API keys)</param>
 /// <param name="_encryptionService">Decrypts encrypted setting values</param>
 /// <param name="_cache">In-memory cache for distance/duration matrices</param>
 /// <param name="_httpClient">HTTP client for external routing API calls</param>
 
 using System.Text;
 using System.Text.Json;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Staffs;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -20,7 +19,7 @@ namespace Klacks.Api.Domain.Services.RouteOptimization;
 
 public class DistanceMatrixBuilder : IDistanceMatrixBuilder
 {
-    private readonly ISettingsRepository _settingsRepository;
+    private readonly ISettingsReader _settingsReader;
     private readonly ISettingsEncryptionService _encryptionService;
     private readonly IMemoryCache _cache;
     private readonly ILogger<DistanceMatrixBuilder> _logger;
@@ -30,13 +29,13 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
     private const string OPENROUTESERVICE_API_KEY_SETTING = Application.Constants.Settings.OPENROUTESERVICE_API_KEY;
 
     public DistanceMatrixBuilder(
-        ISettingsRepository settingsRepository,
+        ISettingsReader settingsReader,
         ISettingsEncryptionService encryptionService,
         IMemoryCache cache,
         ILogger<DistanceMatrixBuilder> logger,
         IHttpClientFactory httpClientFactory)
     {
-        _settingsRepository = settingsRepository;
+        _settingsReader = settingsReader;
         _encryptionService = encryptionService;
         _cache = cache;
         _logger = logger;
@@ -234,7 +233,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
 
     private async Task<string?> GetOpenRouteServiceApiKeyAsync()
     {
-        var setting = await _settingsRepository.GetSetting(OPENROUTESERVICE_API_KEY_SETTING);
+        var setting = await _settingsReader.GetSetting(OPENROUTESERVICE_API_KEY_SETTING);
         if (setting == null || string.IsNullOrEmpty(setting.Value))
         {
             return null;

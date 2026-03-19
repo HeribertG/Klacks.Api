@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Queries.Settings.CalendarRules;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Infrastructure.Mediator;
 
