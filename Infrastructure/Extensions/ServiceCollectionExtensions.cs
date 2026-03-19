@@ -430,6 +430,7 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient("Nominatim");
         services.AddMemoryCache();
         services.AddSingleton<IGeocodingService, GeocodingService>();
+        services.AddScoped<IAddressCoordinateWriter, AddressCoordinateWriter>();
 
         services.AddHttpClient<ITranslationService, Services.Translation.DeepLTranslationService>();
         services.AddScoped<IMultiLanguageTranslationService, MultiLanguageTranslationService>();

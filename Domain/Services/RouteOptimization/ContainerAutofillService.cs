@@ -29,6 +29,7 @@ public class ContainerAutofillService : IContainerAutofillService
     private readonly IContainerAvailableTasksService _availableTasksService;
     private readonly IRouteOptimizationService _routeOptimizationService;
     private readonly IGeocodingService _geocodingService;
+    private readonly IAddressCoordinateWriter _coordinateWriter;
     private readonly ISettingsReader _settingsReader;
     private readonly ILogger<ContainerAutofillService> _logger;
 
@@ -36,12 +37,14 @@ public class ContainerAutofillService : IContainerAutofillService
         IContainerAvailableTasksService availableTasksService,
         IRouteOptimizationService routeOptimizationService,
         IGeocodingService geocodingService,
+        IAddressCoordinateWriter coordinateWriter,
         ISettingsReader settingsReader,
         ILogger<ContainerAutofillService> logger)
     {
         _availableTasksService = availableTasksService;
         _routeOptimizationService = routeOptimizationService;
         _geocodingService = geocodingService;
+        _coordinateWriter = coordinateWriter;
         _settingsReader = settingsReader;
         _logger = logger;
     }
@@ -80,7 +83,7 @@ public class ContainerAutofillService : IContainerAutofillService
 
         if (startBaseLocation == null || endBaseLocation == null)
         {
-            _logger.LogWarning("Could not geocode base addresses");
+            _logger.LogWarning("Could not geocode base addresses. StartBase={StartBase}, EndBase={EndBase}", request.StartBase, request.EndBase);
             return CreateEmptyResult(request.TransportMode, timeRangeTasks.Count);
         }
 
@@ -146,64 +149,82 @@ public class ContainerAutofillService : IContainerAutofillService
 
     private async Task<List<Location>> ExtractLocationsFromShiftsAsync(List<Shift> shifts, CancellationToken cancellationToken)
     {
+        var locations = new List<Location>();
         var uniqueAddresses = new HashSet<string>();
-        var geocodeRequests = new List<(Shift shift, string fullAddress, string country)>();
+        var needsGeocoding = new List<(Shift shift, Klacks.Api.Domain.Models.Staffs.Address address, string fullAddress)>();
 
         foreach (var shift in shifts)
         {
             if (shift.Client?.Addresses == null || !shift.Client.Addresses.Any())
             {
-                _logger.LogDebug("Shift {ShiftId} has no client addresses, skipping", shift.Id);
                 continue;
             }
 
             var address = shift.Client.Addresses.First();
             var addressKey = $"{address.City}_{address.Zip}_{address.Street}";
 
-            if (uniqueAddresses.Contains(addressKey) || string.IsNullOrEmpty(address.City))
+            if (string.IsNullOrEmpty(address.City) || uniqueAddresses.Contains(addressKey))
             {
                 continue;
             }
 
             uniqueAddresses.Add(addressKey);
             var fullAddress = $"{address.Street}, {address.Zip} {address.City}";
-            geocodeRequests.Add((shift, fullAddress, address.Country ?? "Switzerland"));
+
+            if (address.Latitude.HasValue && address.Longitude.HasValue)
+            {
+                locations.Add(CreateLocationFromShift(shift, fullAddress, address.Latitude.Value, address.Longitude.Value));
+            }
+            else
+            {
+                needsGeocoding.Add((shift, address, fullAddress));
+            }
         }
 
-        _logger.LogInformation("Geocoding {Count} unique addresses from {Total} shifts", geocodeRequests.Count, shifts.Count);
+        _logger.LogInformation("ExtractLocations: {Stored} from DB, {NeedsGeocoding} need geocoding, from {Total} shifts",
+            locations.Count, needsGeocoding.Count, shifts.Count);
 
-        var geocodeTasks = geocodeRequests.Select(async req =>
+        if (needsGeocoding.Count > 0)
         {
-            var coords = await _geocodingService.GeocodeAddressAsync(req.fullAddress, req.country, cancellationToken);
-            return (req.shift, req.fullAddress, coords);
-        });
-
-        var results = await Task.WhenAll(geocodeTasks);
-
-        var locations = new List<Location>();
-        foreach (var (shift, fullAddress, coords) in results)
-        {
-            if (coords.Latitude.HasValue && coords.Longitude.HasValue)
+            var geocodeTasks = needsGeocoding.Select(async req =>
             {
-                locations.Add(new Location
+                var coords = await _geocodingService.GeocodeAddressAsync(req.fullAddress, req.address.Country ?? "Switzerland", cancellationToken);
+                return (req.shift, req.address, req.fullAddress, coords);
+            });
+
+            var results = await Task.WhenAll(geocodeTasks);
+
+            foreach (var (shift, address, fullAddress, coords) in results)
+            {
+                if (coords.Latitude.HasValue && coords.Longitude.HasValue)
                 {
-                    Name = shift.Client!.Name ?? "Unknown",
-                    Address = fullAddress,
-                    Latitude = coords.Latitude.Value,
-                    Longitude = coords.Longitude.Value,
-                    ShiftId = shift.Id,
-                    TransportMode = TransportMode.ByCar,
-                    BriefingTime = shift.BriefingTime.ToTimeSpan(),
-                    DebriefingTime = shift.DebriefingTime.ToTimeSpan(),
-                    WorkTime = TimeSpan.FromHours((double)shift.WorkTime),
-                    TimeRangeStart = shift.StartShift,
-                    TimeRangeEnd = shift.EndShift
-                });
+                    locations.Add(CreateLocationFromShift(shift, fullAddress, coords.Latitude.Value, coords.Longitude.Value));
+
+                    _ = _coordinateWriter.UpdateCoordinatesAsync(address.Id, coords.Latitude.Value, coords.Longitude.Value, CancellationToken.None);
+                }
             }
         }
 
         _logger.LogInformation("Extracted {Count} candidate locations from {Total} shifts", locations.Count, shifts.Count);
         return locations;
+    }
+
+    private static Location CreateLocationFromShift(Shift shift, string fullAddress, double latitude, double longitude)
+    {
+        return new Location
+        {
+            Name = shift.Client?.Name ?? "Unknown",
+            Address = fullAddress,
+            Latitude = latitude,
+            Longitude = longitude,
+            ShiftId = shift.Id,
+            TransportMode = TransportMode.ByCar,
+            BriefingTime = shift.BriefingTime.ToTimeSpan(),
+            DebriefingTime = shift.DebriefingTime.ToTimeSpan(),
+            WorkTime = TimeSpan.FromHours((double)shift.WorkTime),
+            TimeRangeStart = shift.StartShift,
+            TimeRangeEnd = shift.EndShift
+        };
     }
 
     private async Task<Location?> GeocodeBaseAddressAsync(string address, string label, CancellationToken cancellationToken)

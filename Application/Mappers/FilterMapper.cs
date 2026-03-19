@@ -113,7 +113,6 @@ public partial class FilterMapper
         };
     }
 
-    public partial Domain.Models.Filters.WorkFilter ToWorkFilter(Application.DTOs.Filter.WorkFilter filter);
     public partial Domain.Models.Filters.GroupFilter ToGroupFilter(Domain.DTOs.Filter.GroupFilter filter);
     public partial Domain.Models.Filters.AbsenceFilter ToAbsenceFilter(Domain.DTOs.Filter.AbsenceFilter filter);
 

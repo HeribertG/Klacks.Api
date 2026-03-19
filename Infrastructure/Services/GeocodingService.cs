@@ -63,7 +63,6 @@ public class GeocodingService : IGeocodingService
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Geocoding failed for {City}, {Country}: {StatusCode}", city, country, response.StatusCode);
-                CacheNegativeResult(cacheKey);
                 return (null, null);
             }
 
@@ -132,7 +131,6 @@ public class GeocodingService : IGeocodingService
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Geocoding failed for address {Address}: {StatusCode}", fullAddress, response.StatusCode);
-                CacheNegativeResult(cacheKey);
                 return (null, null);
             }
 
