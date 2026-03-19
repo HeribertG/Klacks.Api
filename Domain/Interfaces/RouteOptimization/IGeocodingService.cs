@@ -14,6 +14,7 @@ public interface IGeocodingService
     Task<(double? Latitude, double? Longitude)> GeocodeAsync(string city, string country, CancellationToken cancellationToken = default);
     Task<(double? Latitude, double? Longitude)> GeocodeAddressAsync(string fullAddress, string country, CancellationToken cancellationToken = default);
     Task<GeocodingValidationResult> ValidateExactAddressAsync(string? street, string postalCode, string city, string country);
+    Task<List<AddressSuggestion>> GetAddressSuggestionsAsync(string? street, string postalCode, string city, string country, int limit = 5);
 }
 
 public class GeocodingValidationResult
@@ -24,4 +25,11 @@ public class GeocodingValidationResult
     public double? Longitude { get; set; }
     public string? ReturnedAddress { get; set; }
     public string? MatchType { get; set; }
+}
+
+public class AddressSuggestion
+{
+    public double Latitude { get; set; }
+    public double Longitude { get; set; }
+    public string DisplayName { get; set; } = string.Empty;
 }

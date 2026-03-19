@@ -385,6 +385,109 @@ public class GeocodingService : IGeocodingService
         };
     }
 
+    public async Task<List<AddressSuggestion>> GetAddressSuggestionsAsync(
+        string? street, string postalCode, string city, string country, int limit = 5)
+    {
+        var cacheKey = $"geo_suggest_{street}_{postalCode}_{city}_{country}_{limit}";
+
+        if (_cache.TryGetValue(cacheKey, out List<AddressSuggestion>? cached) && cached != null)
+        {
+            return cached;
+        }
+
+        await _rateLimiter.WaitAsync();
+        try
+        {
+            if (_cache.TryGetValue(cacheKey, out cached) && cached != null)
+            {
+                return cached;
+            }
+
+            await Task.Delay(REQUEST_DELAY_MS);
+
+            var query = BuildSuggestionQuery(street, postalCode, city, country);
+            var url = $"{NOMINATIM_URL}?q={Uri.EscapeDataString(query)}&format=json&limit={limit}&addressdetails=1";
+
+            _logger.LogInformation("Fetching address suggestions: {Query}", query);
+
+            var response = await _httpClient.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Suggestion request failed: {StatusCode}", response.StatusCode);
+                return [];
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var results = JsonSerializer.Deserialize<List<NominatimResult>>(json);
+
+            if (results == null || results.Count == 0)
+            {
+                var fallbackSuggestions = await TryFallbackSuggestions(postalCode, city, country, limit);
+                _cache.Set(cacheKey, fallbackSuggestions, TimeSpan.FromHours(1));
+                return fallbackSuggestions;
+            }
+
+            var suggestions = results
+                .Where(r => double.TryParse(r.lat, out _) && double.TryParse(r.lon, out _))
+                .Select(r => new AddressSuggestion
+                {
+                    Latitude = double.Parse(r.lat),
+                    Longitude = double.Parse(r.lon),
+                    DisplayName = r.display_name
+                })
+                .ToList();
+
+            _cache.Set(cacheKey, suggestions, TimeSpan.FromDays(7));
+            return suggestions;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching address suggestions");
+            return [];
+        }
+        finally
+        {
+            _rateLimiter.Release();
+        }
+    }
+
+    private static string BuildSuggestionQuery(string? street, string postalCode, string city, string country)
+    {
+        var parts = new List<string>();
+        if (!string.IsNullOrWhiteSpace(street)) parts.Add(street);
+        if (!string.IsNullOrWhiteSpace(postalCode)) parts.Add(postalCode);
+        if (!string.IsNullOrWhiteSpace(city)) parts.Add(city);
+        if (!string.IsNullOrWhiteSpace(country)) parts.Add(country);
+        return string.Join(", ", parts);
+    }
+
+    private async Task<List<AddressSuggestion>> TryFallbackSuggestions(
+        string postalCode, string city, string country, int limit)
+    {
+        await Task.Delay(REQUEST_DELAY_MS);
+
+        var query = $"{postalCode} {city}, {country}";
+        var url = $"{NOMINATIM_URL}?q={Uri.EscapeDataString(query)}&format=json&limit={limit}";
+
+        var response = await _httpClient.GetAsync(url);
+        if (!response.IsSuccessStatusCode) return [];
+
+        var json = await response.Content.ReadAsStringAsync();
+        var results = JsonSerializer.Deserialize<List<NominatimResult>>(json);
+
+        if (results == null || results.Count == 0) return [];
+
+        return results
+            .Where(r => double.TryParse(r.lat, out _) && double.TryParse(r.lon, out _))
+            .Select(r => new AddressSuggestion
+            {
+                Latitude = double.Parse(r.lat),
+                Longitude = double.Parse(r.lon),
+                DisplayName = r.display_name
+            })
+            .ToList();
+    }
+
     private void CacheNegativeResult(string cacheKey)
     {
         _cache.Set(cacheKey, ((double?)null, (double?)null), TimeSpan.FromHours(1));

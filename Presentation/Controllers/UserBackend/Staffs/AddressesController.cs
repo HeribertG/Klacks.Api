@@ -47,40 +47,100 @@ public class AddressesController : InputBaseController<AddressResource>
         return Ok(addresses);
     }
 
+    [HttpPost("Validate")]
+    public async Task<ActionResult<AddressValidationResponse>> Validate([FromBody] AddressResource resource)
+    {
+        var response = await ValidateAddressAsync(resource);
+        if (!response.IsValid)
+        {
+            return BadRequest(response);
+        }
+
+        return Ok(response);
+    }
+
     public override async Task<ActionResult<AddressResource>> Post([FromBody] AddressResource resource)
     {
-        var result = await base.Post(resource);
-        _ = GeocodeAddressInBackground(resource);
-        return result;
+        var validation = await ValidateAddressAsync(resource);
+        if (!validation.IsValid)
+        {
+            return BadRequest(new { errors = new { Address = new[] { "Address could not be geocoded. Please check street, ZIP and city." } }, validation });
+        }
+
+        resource.Latitude = validation.Latitude;
+        resource.Longitude = validation.Longitude;
+
+        return await base.Post(resource);
     }
 
     public override async Task<ActionResult<AddressResource>> Put([FromBody] AddressResource resource)
     {
-        var result = await base.Put(resource);
-        _ = GeocodeAddressInBackground(resource);
-        return result;
+        var validation = await ValidateAddressAsync(resource);
+        if (!validation.IsValid)
+        {
+            return BadRequest(new { errors = new { Address = new[] { "Address could not be geocoded. Please check street, ZIP and city." } }, validation });
+        }
+
+        resource.Latitude = validation.Latitude;
+        resource.Longitude = validation.Longitude;
+
+        return await base.Put(resource);
     }
 
-    private async Task GeocodeAddressInBackground(AddressResource resource)
+    private async Task<AddressValidationResponse> ValidateAddressAsync(AddressResource resource)
     {
-        if (string.IsNullOrEmpty(resource.City) || string.IsNullOrEmpty(resource.Zip) || resource.Id == Guid.Empty)
+        if (string.IsNullOrWhiteSpace(resource.City) || string.IsNullOrWhiteSpace(resource.Zip))
         {
-            return;
+            return new AddressValidationResponse
+            {
+                IsValid = false,
+                MatchType = "missing_fields"
+            };
         }
+
+        var country = string.IsNullOrWhiteSpace(resource.Country) ? "CH" : resource.Country;
 
         try
         {
-            var fullAddress = $"{resource.Street}, {resource.Zip} {resource.City}";
-            var coords = await _geocodingService.GeocodeAddressAsync(fullAddress, resource.Country ?? "CH");
+            var validationResult = await _geocodingService.ValidateExactAddressAsync(
+                resource.Street, resource.Zip, resource.City, country);
 
-            if (coords.Latitude.HasValue && coords.Longitude.HasValue)
+            if (validationResult.Found)
             {
-                await _coordinateWriter.UpdateCoordinatesAsync(resource.Id, coords.Latitude.Value, coords.Longitude.Value);
+                return new AddressValidationResponse
+                {
+                    IsValid = true,
+                    MatchType = validationResult.MatchType ?? "exact",
+                    Latitude = validationResult.Latitude,
+                    Longitude = validationResult.Longitude,
+                    ReturnedAddress = validationResult.ReturnedAddress
+                };
             }
+
+            var suggestions = await _geocodingService.GetAddressSuggestionsAsync(
+                resource.Street, resource.Zip, resource.City, country);
+
+            return new AddressValidationResponse
+            {
+                IsValid = false,
+                MatchType = validationResult.MatchType ?? "not_found",
+                Suggestions = suggestions.Select(s => new AddressSuggestionDto
+                {
+                    Latitude = s.Latitude,
+                    Longitude = s.Longitude,
+                    DisplayName = s.DisplayName
+                }).ToList()
+            };
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Background geocoding failed for address {AddressId}", resource.Id);
+            _logger.LogWarning(ex, "Address validation failed for {Street}, {Zip} {City}", resource.Street, resource.Zip, resource.City);
+
+            return new AddressValidationResponse
+            {
+                IsValid = true,
+                MatchType = "validation_error"
+            };
         }
     }
 }
