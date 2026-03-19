@@ -183,8 +183,11 @@ public class RouteOptimizationController : BaseController
 
         try
         {
-            var result = await _containerAutofillService.AutofillAsync(
-                containerId, weekday, isHoliday, startBase, endBase, parsedFromTime, parsedUntilTime, transportMode, timeRangeTolerance);
+            var autofillRequest = new ContainerAutofillRequest(
+                containerId, weekday, isHoliday, startBase, endBase,
+                parsedFromTime, parsedUntilTime, transportMode, timeRangeTolerance);
+
+            var result = await _containerAutofillService.AutofillAsync(autofillRequest);
 
             var routeSteps = new List<RouteStepDto>();
             for (int i = 0; i < result.OptimizedRoute.Count; i++)

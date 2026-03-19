@@ -1,9 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Controller fuer Empfangene-Emails-Verwaltung (Auflisten, Lesen, Loeschen, Verschieben, IMAP-Sync).
+/// </summary>
 using Klacks.Api.Application.Commands.Email;
 using Klacks.Api.Application.DTOs.Email;
 using Klacks.Api.Application.Queries.Email;
-using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Infrastructure.Mediator;
@@ -62,27 +64,6 @@ public class ReceivedEmailController : BaseController
         [FromQuery] string? sortDirection = null)
     {
         var result = await _mediator.Send(new GetReceivedEmailsQuery(skip, take, folder, readFilter, sortDirection));
-        return Ok(result);
-    }
-
-    [HttpGet("Folders")]
-    public async Task<ActionResult<List<EmailFolderResource>>> GetFolders()
-    {
-        var result = await _mediator.Send(new GetEmailFoldersQuery());
-        return Ok(result);
-    }
-
-    [HttpPost("Folders")]
-    public async Task<ActionResult<EmailFolderResource>> CreateFolder([FromBody] CreateEmailFolderCommand command)
-    {
-        var result = await _mediator.Send(command);
-        return Ok(result);
-    }
-
-    [HttpDelete("Folders/{id:guid}")]
-    public async Task<ActionResult<bool>> DeleteFolder(Guid id)
-    {
-        var result = await _mediator.Send(new DeleteEmailFolderCommand(id));
         return Ok(result);
     }
 
@@ -179,33 +160,5 @@ public class ReceivedEmailController : BaseController
                 ErrorDetails = ex.Message
             });
         }
-    }
-
-    [HttpGet("SpamRules")]
-    public async Task<ActionResult<List<SpamRuleResource>>> GetSpamRules()
-    {
-        var result = await _mediator.Send(new GetSpamRulesQuery());
-        return Ok(result);
-    }
-
-    [HttpPost("SpamRules")]
-    public async Task<ActionResult<SpamRuleResource>> CreateSpamRule([FromBody] CreateSpamRuleCommand command)
-    {
-        var result = await _mediator.Send(command);
-        return Ok(result);
-    }
-
-    [HttpPut("SpamRules/{id:guid}")]
-    public async Task<ActionResult<SpamRuleResource>> UpdateSpamRule(Guid id, [FromBody] UpdateSpamRuleCommand command)
-    {
-        var result = await _mediator.Send(command);
-        return Ok(result);
-    }
-
-    [HttpDelete("SpamRules/{id:guid}")]
-    public async Task<ActionResult<bool>> DeleteSpamRule(Guid id)
-    {
-        var result = await _mediator.Send(new DeleteSpamRuleCommand(id));
-        return Ok(result);
     }
 }

@@ -1,7 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Commands;
-using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
@@ -16,20 +15,18 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
     private readonly IWorkRepository _workRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
-    private readonly IWorkNotificationService _notificationService;
     private readonly IScheduleCompletionService _completionService;
     private readonly IWorkChangeResultService _resultService;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IWorkNotificationFacade _notificationFacade;
 
     public PutCommandHandler(
         IWorkChangeRepository workChangeRepository,
         IWorkRepository workRepository,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
-        IWorkNotificationService notificationService,
         IScheduleCompletionService completionService,
         IWorkChangeResultService resultService,
-        IHttpContextAccessor httpContextAccessor,
+        IWorkNotificationFacade notificationFacade,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -37,10 +34,9 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         _workRepository = workRepository;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
-        _notificationService = notificationService;
         _completionService = completionService;
         _resultService = resultService;
-        _httpContextAccessor = httpContextAccessor;
+        _notificationFacade = notificationFacade;
     }
 
     public async Task<WorkChangeResource?> Handle(PutCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -103,24 +99,17 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
                 resource.ClientResults.Add(previousReplaceClientResult);
             }
 
-            var connectionId = _httpContextAccessor.HttpContext?.Request
-                .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
-            var notification = _scheduleMapper.ToScheduleNotificationDto(
-                work.ClientId, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
-            await _notificationService.NotifyScheduleUpdated(notification);
+            var connectionId = _notificationFacade.GetConnectionId();
+            await _notificationFacade.NotifyScheduleUpdatedAsync(work.ClientId, work.CurrentDate, connectionId, periodStart, periodEnd);
 
             if (updatedWorkChange.ReplaceClientId.HasValue)
             {
-                var replaceNotification = _scheduleMapper.ToScheduleNotificationDto(
-                    updatedWorkChange.ReplaceClientId.Value, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
-                await _notificationService.NotifyScheduleUpdated(replaceNotification);
+                await _notificationFacade.NotifyScheduleUpdatedAsync(updatedWorkChange.ReplaceClientId.Value, work.CurrentDate, connectionId, periodStart, periodEnd);
             }
 
             if (replaceClientChanged && previousReplaceClientId.HasValue)
             {
-                var previousReplaceNotification = _scheduleMapper.ToScheduleNotificationDto(
-                    previousReplaceClientId.Value, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
-                await _notificationService.NotifyScheduleUpdated(previousReplaceNotification);
+                await _notificationFacade.NotifyScheduleUpdatedAsync(previousReplaceClientId.Value, work.CurrentDate, connectionId, periodStart, periodEnd);
             }
 
             return resource;

@@ -1,13 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Automatische Befüllung von Container-Templates mit passenden TimeRange-Shifts.
-/// Löst ein Orienteering Problem in 3 Phasen: Greedy Selection, ACO+2-Opt, Post-Insertion.
+/// Automatische Befuellung von Container-Templates mit passenden TimeRange-Shifts.
+/// Loest ein Orienteering Problem in 3 Phasen: Greedy Selection, ACO+2-Opt, Post-Insertion.
 /// </summary>
-/// <param name="containerRepository">Repository für Container-Templates (Zeitbudget)</param>
-/// <param name="availableTasksService">Service für verfügbare Shifts</param>
-/// <param name="routeOptimizationService">Service für Distance-Matrix-Berechnung</param>
-/// <param name="geocodingService">Service für Adress-Geocodierung</param>
+/// <param name="containerRepository">Repository fuer Container-Templates (Zeitbudget)</param>
+/// <param name="availableTasksService">Service fuer verfuegbare Shifts</param>
+/// <param name="routeOptimizationService">Service fuer Distance-Matrix-Berechnung</param>
+/// <param name="geocodingService">Service fuer Adress-Geocodierung</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
@@ -47,28 +47,18 @@ public class ContainerAutofillService : IContainerAutofillService
         _logger = logger;
     }
 
-    public async Task<ContainerAutofillResult> AutofillAsync(
-        Guid containerId,
-        int weekday,
-        bool isHoliday,
-        string startBase,
-        string endBase,
-        TimeOnly fromTime,
-        TimeOnly untilTime,
-        ContainerTransportMode transportMode = ContainerTransportMode.ByCar,
-        double timeRangeTolerance = 0.5,
-        CancellationToken cancellationToken = default)
+    public async Task<ContainerAutofillResult> AutofillAsync(ContainerAutofillRequest request)
     {
         _logger.LogInformation(
             "Autofill started for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}, FromTime: {FromTime}, UntilTime: {UntilTime}",
-            containerId, weekday, isHoliday, fromTime, untilTime);
+            request.ContainerId, request.Weekday, request.IsHoliday, request.FromTime, request.UntilTime);
 
-        var timeBudget = untilTime - fromTime;
-        _logger.LogInformation("Time budget: {TimeBudget} ({From} - {Until})", timeBudget, fromTime, untilTime);
+        var timeBudget = request.UntilTime - request.FromTime;
+        _logger.LogInformation("Time budget: {TimeBudget} ({From} - {Until})", timeBudget, request.FromTime, request.UntilTime);
 
         var availableTasks = await _availableTasksService.GetAvailableTasksAsync(
-            containerId, weekday, fromTime, untilTime,
-            cancellationToken: cancellationToken);
+            request.ContainerId, request.Weekday, request.FromTime, request.UntilTime,
+            cancellationToken: request.CancellationToken);
 
         var timeRangeTasks = availableTasks.Where(s => s.IsTimeRange).ToList();
         _logger.LogInformation("Available tasks: {Total}, TimeRange tasks: {TimeRange}", availableTasks.Count, timeRangeTasks.Count);
@@ -76,23 +66,23 @@ public class ContainerAutofillService : IContainerAutofillService
         if (timeRangeTasks.Count == 0)
         {
             _logger.LogWarning("No TimeRange tasks available for autofill");
-            return CreateEmptyResult(transportMode, availableTasks.Count);
+            return CreateEmptyResult(request.TransportMode, availableTasks.Count);
         }
 
         var candidateLocations = await ExtractLocationsFromShiftsAsync(timeRangeTasks);
         if (candidateLocations.Count == 0)
         {
             _logger.LogWarning("No geocodable locations found");
-            return CreateEmptyResult(transportMode, timeRangeTasks.Count);
+            return CreateEmptyResult(request.TransportMode, timeRangeTasks.Count);
         }
 
-        var startBaseLocation = await GeocodeBaseAddressAsync(startBase, "StartBase");
-        var endBaseLocation = await GeocodeBaseAddressAsync(endBase, "EndBase");
+        var startBaseLocation = await GeocodeBaseAddressAsync(request.StartBase, "StartBase");
+        var endBaseLocation = await GeocodeBaseAddressAsync(request.EndBase, "EndBase");
 
         if (startBaseLocation == null || endBaseLocation == null)
         {
             _logger.LogWarning("Could not geocode base addresses");
-            return CreateEmptyResult(transportMode, timeRangeTasks.Count);
+            return CreateEmptyResult(request.TransportMode, timeRangeTasks.Count);
         }
 
         var allLocations = new List<Location>(candidateLocations);
@@ -100,7 +90,7 @@ public class ContainerAutofillService : IContainerAutofillService
         allLocations.Add(startBaseLocation);
 
         int endBaseIndex;
-        if (startBase == endBase)
+        if (request.StartBase == request.EndBase)
         {
             endBaseIndex = startBaseIndex;
         }
@@ -111,26 +101,26 @@ public class ContainerAutofillService : IContainerAutofillService
         }
 
         _logger.LogInformation("Building distance matrix for {Count} locations (including bases)", allLocations.Count);
-        var distanceMatrix = await _routeOptimizationService.CalculateDistanceMatrixForLocationsAsync(allLocations, transportMode);
-        var minTravelTimeSeconds = await GetMinTravelTimeSecondsAsync(transportMode);
+        var distanceMatrix = await _routeOptimizationService.CalculateDistanceMatrixForLocationsAsync(allLocations, request.TransportMode);
+        var minTravelTimeSeconds = await GetMinTravelTimeSecondsAsync(request.TransportMode);
         ClampDurationMatrix(distanceMatrix.DurationMatrix, minTravelTimeSeconds);
 
         var candidateCount = candidateLocations.Count;
-        var containerFromTimeSeconds = fromTime.ToTimeSpan().TotalSeconds;
-        var containerEndTimeSeconds = untilTime.ToTimeSpan().TotalSeconds;
+        var containerFromTimeSeconds = request.FromTime.ToTimeSpan().TotalSeconds;
+        var containerEndTimeSeconds = request.UntilTime.ToTimeSpan().TotalSeconds;
         var budgetSeconds = timeBudget.TotalSeconds;
 
         var context = new RouteEvaluationContext(
             distanceMatrix, startBaseIndex, endBaseIndex,
             containerFromTimeSeconds, containerEndTimeSeconds,
-            budgetSeconds, timeRangeTolerance);
+            budgetSeconds, request.TimeRangeTolerance);
 
         var selectedIndices = GreedySelection(context, candidateCount);
         _logger.LogInformation("Greedy selection: {Count} shifts selected", selectedIndices.Count);
 
         if (selectedIndices.Count == 0)
         {
-            return CreateEmptyResult(transportMode, timeRangeTasks.Count);
+            return CreateEmptyResult(request.TransportMode, timeRangeTasks.Count);
         }
 
         var optimizedRoute = OptimizeSelectedRoute(distanceMatrix, selectedIndices, startBaseIndex, endBaseIndex);
@@ -152,7 +142,7 @@ public class ContainerAutofillService : IContainerAutofillService
         optimizedRoute = PostOptimizationInsertion(context, optimizedRoute, remainingCandidates);
         _logger.LogInformation("Post-insertion complete: route with {Count} stops", optimizedRoute.Count);
 
-        return BuildResult(context, optimizedRoute, timeRangeTasks.Count, transportMode);
+        return BuildResult(context, optimizedRoute, timeRangeTasks.Count, request.TransportMode);
     }
 
     private async Task<List<Location>> ExtractLocationsFromShiftsAsync(List<Shift> shifts)

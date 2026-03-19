@@ -153,6 +153,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IMacroCache, MacroCache>();
         services.AddSingleton<IHolidayCalculatorCache, HolidayCalculatorCache>();
         services.AddScoped<IMacroDataProvider, MacroDataProvider>();
+        services.AddScoped<IMacroCompilationService, MacroCompilationService>();
         services.AddScoped<IClientContractDataProvider, ClientContractDataProvider>();
 
         services.AddShiftServices();
@@ -235,6 +236,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IScheduleCompletionService, ScheduleCompletionService>();
         services.AddScoped<ContainerTemplateService>();
         services.AddScoped<IWorkChangeResultService, WorkChangeResultService>();
+        services.AddScoped<IWorkNotificationFacade, WorkNotificationFacade>();
         services.AddSingleton<ITimelineCalculationService, TimelineCalculationService>();
         services.AddScoped<ITravelTimeCalculationService, TravelTimeCalculationService>();
     }
@@ -301,6 +303,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<LLMConversationManager>();
         services.AddScoped<LLMFunctionExecutor>();
         services.AddScoped<LLMResponseBuilder>();
+        services.AddScoped<LLMChatPipeline>();
         services.AddScoped<ISkillClassifierService, SkillClassifierService>();
         services.AddScoped<LLMSystemPromptBuilder>();
         services.AddSingleton<IPromptTranslationProvider, PromptTranslationProvider>();

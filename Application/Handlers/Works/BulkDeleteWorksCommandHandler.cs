@@ -1,8 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Works;
-using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
@@ -16,33 +14,24 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
 {
     private readonly IWorkRepository _workRepository;
     private readonly ScheduleMapper _scheduleMapper;
-    private readonly IWorkNotificationService _notificationService;
-    private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
-    private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleCompletionService _completionService;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IWorkNotificationFacade _notificationFacade;
 
     public BulkDeleteWorksCommandHandler(
         IWorkRepository workRepository,
         ScheduleMapper scheduleMapper,
-        IWorkNotificationService notificationService,
-        IShiftStatsNotificationService shiftStatsNotificationService,
-        IShiftScheduleService shiftScheduleService,
         IPeriodHoursService periodHoursService,
         IScheduleCompletionService completionService,
-        IHttpContextAccessor httpContextAccessor,
+        IWorkNotificationFacade notificationFacade,
         ILogger<BulkDeleteWorksCommandHandler> logger)
         : base(logger)
     {
         _workRepository = workRepository;
         _scheduleMapper = scheduleMapper;
-        _notificationService = notificationService;
-        _shiftStatsNotificationService = shiftStatsNotificationService;
-        _shiftScheduleService = shiftScheduleService;
         _periodHoursService = periodHoursService;
         _completionService = completionService;
-        _httpContextAccessor = httpContextAccessor;
+        _notificationFacade = notificationFacade;
     }
 
     public async Task<BulkWorksResponse> Handle(BulkDeleteWorksCommand command, CancellationToken cancellationToken)
@@ -77,8 +66,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
 
             if (deletedWorks.Count > 0)
             {
-                var connectionId = _httpContextAccessor.HttpContext?.Request
-                    .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
+                var connectionId = _notificationFacade.GetConnectionId();
 
                 var clientPeriods = new Dictionary<Guid, (DateOnly Start, DateOnly End)>();
 
@@ -99,8 +87,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
                         );
                     }
 
-                    var notification = _scheduleMapper.ToWorkNotificationDto(work, ScheduleEventTypes.Deleted, connectionId, start, end);
-                    await _notificationService.NotifyWorkDeleted(notification);
+                    await _notificationFacade.NotifyWorkDeletedAsync(work, connectionId, start, end);
                 }
 
                 if (affectedClients.Count > 0)
@@ -117,22 +104,12 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
                                 period.End);
                             response.PeriodHours[clientId] = periodHours;
 
-                            var periodHoursNotification = new Application.DTOs.Notifications.PeriodHoursNotificationDto
-                            {
-                                ClientId = clientId,
-                                StartDate = period.Start,
-                                EndDate = period.End,
-                                Hours = periodHours.Hours,
-                                Surcharges = periodHours.Surcharges,
-                                GuaranteedHours = periodHours.GuaranteedHours,
-                                SourceConnectionId = connectionId
-                            };
-                            await _notificationService.NotifyPeriodHoursUpdated(periodHoursNotification);
+                            await _notificationFacade.NotifyPeriodHoursUpdatedAsync(clientId, period.Start, period.End, periodHours, connectionId);
                         }
                     }
                 }
 
-                await SendShiftStatsNotificationsAsync(affectedShifts, connectionId, cancellationToken);
+                await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, cancellationToken);
             }
 
             response.AffectedShifts = affectedShifts
@@ -141,21 +118,5 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
 
             return response;
         }, "BulkDeleteWorks", new { Count = command.Request.WorkIds.Count });
-    }
-
-    private async Task SendShiftStatsNotificationsAsync(
-        HashSet<(Guid ShiftId, DateOnly Date)> affectedShifts,
-        string connectionId,
-        CancellationToken cancellationToken)
-    {
-        var shiftDatePairs = affectedShifts.ToList();
-
-        var shiftStats = await _shiftScheduleService.GetShiftSchedulePartialAsync(shiftDatePairs, cancellationToken);
-
-        foreach (var shiftData in shiftStats)
-        {
-            var shiftNotification = _scheduleMapper.ToShiftStatsNotificationDto(shiftData, connectionId);
-            await _shiftStatsNotificationService.NotifyShiftStatsUpdated(shiftNotification);
-        }
     }
 }

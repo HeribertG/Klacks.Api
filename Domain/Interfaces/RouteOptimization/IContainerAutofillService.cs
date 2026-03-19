@@ -1,32 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Service für die automatische Befüllung von Container-Templates mit passenden Shifts.
-/// Löst ein Orienteering Problem: Wähle Teilmenge von Shifts innerhalb des Zeitbudgets und optimiere die Route.
+/// Service fuer die automatische Befuellung von Container-Templates mit passenden Shifts.
+/// Loest ein Orienteering Problem: Waehle Teilmenge von Shifts innerhalb des Zeitbudgets und optimiere die Route.
 /// </summary>
-/// <param name="containerId">ID des Containers</param>
-/// <param name="weekday">Wochentag (0=So, 1=Mo, ..., 6=Sa)</param>
-/// <param name="isHoliday">Ob Feiertagsvariante</param>
-/// <param name="startBase">Startadresse der Route</param>
-/// <param name="endBase">Endadresse der Route</param>
-/// <param name="transportMode">Transportmittel für die Routenberechnung</param>
+/// <param name="request">Enthaelt Container-ID, Zeitfenster, Basis-Adressen und Transportmodus</param>
 
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Services.RouteOptimization;
 
 namespace Klacks.Api.Domain.Interfaces.RouteOptimization;
 
 public interface IContainerAutofillService
 {
-    Task<ContainerAutofillResult> AutofillAsync(
-        Guid containerId,
-        int weekday,
-        bool isHoliday,
-        string startBase,
-        string endBase,
-        TimeOnly fromTime,
-        TimeOnly untilTime,
-        ContainerTransportMode transportMode = ContainerTransportMode.ByCar,
-        double timeRangeTolerance = 0.5,
-        CancellationToken cancellationToken = default);
+    Task<ContainerAutofillResult> AutofillAsync(ContainerAutofillRequest request);
 }

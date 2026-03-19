@@ -18,6 +18,7 @@ public sealed class ScriptExecutionContext
     private readonly CompiledScript script;
     private readonly List<ResultMessage> messages = new();
     private readonly Random _random = new();
+    private readonly Dictionary<Opcodes, Action<object[]>> _instructionHandlers;
 
     private Scopes? scopes;
     private int pc;
@@ -36,6 +37,89 @@ public sealed class ScriptExecutionContext
     public ScriptExecutionContext(CompiledScript script)
     {
         this.script = script ?? throw new ArgumentNullException(nameof(script));
+        _instructionHandlers = BuildInstructionHandlers();
+    }
+
+    private Dictionary<Opcodes, Action<object[]>> BuildInstructionHandlers()
+    {
+        return new Dictionary<Opcodes, Action<object[]>>
+        {
+            [Opcodes.AllocConst] = op => ExecuteVariableAndStackOps(Opcodes.AllocConst, op),
+            [Opcodes.AllocVar] = op => ExecuteVariableAndStackOps(Opcodes.AllocVar, op),
+            [Opcodes.PushValue] = op => ExecuteVariableAndStackOps(Opcodes.PushValue, op),
+            [Opcodes.PushVariable] = op => ExecuteVariableAndStackOps(Opcodes.PushVariable, op),
+            [Opcodes.Pop] = op => ExecuteVariableAndStackOps(Opcodes.Pop, op),
+            [Opcodes.PopWithIndex] = op => ExecuteVariableAndStackOps(Opcodes.PopWithIndex, op),
+            [Opcodes.Assign] = op => ExecuteVariableAndStackOps(Opcodes.Assign, op),
+            [Opcodes.PushScope] = op => ExecuteVariableAndStackOps(Opcodes.PushScope, op),
+            [Opcodes.PopScope] = op => ExecuteVariableAndStackOps(Opcodes.PopScope, op),
+
+            [Opcodes.Add] = _ => ExecuteBinaryOp(Opcodes.Add),
+            [Opcodes.Sub] = _ => ExecuteBinaryOp(Opcodes.Sub),
+            [Opcodes.Multiplication] = _ => ExecuteBinaryOp(Opcodes.Multiplication),
+            [Opcodes.Division] = _ => ExecuteBinaryOp(Opcodes.Division),
+            [Opcodes.Div] = _ => ExecuteBinaryOp(Opcodes.Div),
+            [Opcodes.Mod] = _ => ExecuteBinaryOp(Opcodes.Mod),
+            [Opcodes.Power] = _ => ExecuteBinaryOp(Opcodes.Power),
+            [Opcodes.StringConcat] = _ => ExecuteBinaryOp(Opcodes.StringConcat),
+            [Opcodes.Or] = _ => ExecuteBinaryOp(Opcodes.Or),
+            [Opcodes.And] = _ => ExecuteBinaryOp(Opcodes.And),
+            [Opcodes.Eq] = _ => ExecuteBinaryOp(Opcodes.Eq),
+            [Opcodes.NotEq] = _ => ExecuteBinaryOp(Opcodes.NotEq),
+            [Opcodes.Lt] = _ => ExecuteBinaryOp(Opcodes.Lt),
+            [Opcodes.LEq] = _ => ExecuteBinaryOp(Opcodes.LEq),
+            [Opcodes.Gt] = _ => ExecuteBinaryOp(Opcodes.Gt),
+            [Opcodes.GEq] = _ => ExecuteBinaryOp(Opcodes.GEq),
+
+            [Opcodes.Negate] = _ => ExecuteUnaryOp(Opcodes.Negate),
+            [Opcodes.Not] = _ => ExecuteUnaryOp(Opcodes.Not),
+            [Opcodes.Factorial] = _ => ExecuteUnaryOp(Opcodes.Factorial),
+            [Opcodes.Sin] = _ => ExecuteUnaryOp(Opcodes.Sin),
+            [Opcodes.Cos] = _ => ExecuteUnaryOp(Opcodes.Cos),
+            [Opcodes.Tan] = _ => ExecuteUnaryOp(Opcodes.Tan),
+            [Opcodes.ATan] = _ => ExecuteUnaryOp(Opcodes.ATan),
+            [Opcodes.Abs] = _ => ExecuteUnaryOp(Opcodes.Abs),
+            [Opcodes.Sqr] = _ => ExecuteUnaryOp(Opcodes.Sqr),
+            [Opcodes.Log] = _ => ExecuteUnaryOp(Opcodes.Log),
+            [Opcodes.Exp] = _ => ExecuteUnaryOp(Opcodes.Exp),
+            [Opcodes.Sgn] = _ => ExecuteUnaryOp(Opcodes.Sgn),
+
+            [Opcodes.Jump] = op => ExecuteJumpOps(Opcodes.Jump, op),
+            [Opcodes.JumpTrue] = op => ExecuteJumpOps(Opcodes.JumpTrue, op),
+            [Opcodes.JumpFalse] = op => ExecuteJumpOps(Opcodes.JumpFalse, op),
+            [Opcodes.JumpPop] = op => ExecuteJumpOps(Opcodes.JumpPop, op),
+
+            [Opcodes.Call] = op => ExecuteCallReturn(Opcodes.Call, op),
+            [Opcodes.Return] = op => ExecuteCallReturn(Opcodes.Return, op),
+
+            [Opcodes.TimeToHours] = _ => ExecuteTimeToHours(),
+            [Opcodes.TimeOverlap] = _ => ExecuteTimeOverlap(),
+
+            [Opcodes.Len] = _ => ExecuteLen(),
+            [Opcodes.Left] = _ => ExecuteLeft(),
+            [Opcodes.Right] = _ => ExecuteRight(),
+            [Opcodes.Mid] = _ => ExecuteMid(),
+            [Opcodes.InStr] = _ => ExecuteInStr(),
+            [Opcodes.Replace] = _ => ExecuteReplace(),
+            [Opcodes.Trim] = _ => ExecuteTrim(),
+            [Opcodes.UCase] = _ => ExecuteUCase(),
+            [Opcodes.LCase] = _ => ExecuteLCase(),
+
+            [Opcodes.Rnd] = _ => scopes!.Push(ScriptValue.FromNumber(_random.NextDouble())),
+            [Opcodes.Round] = _ => ExecuteRound(),
+
+            [Opcodes.DebugPrint] = _ => ExecuteDebugOps(Opcodes.DebugPrint),
+            [Opcodes.DebugClear] = _ => ExecuteDebugOps(Opcodes.DebugClear),
+            [Opcodes.DebugShow] = _ => ExecuteDebugOps(Opcodes.DebugShow),
+            [Opcodes.DebugHide] = _ => ExecuteDebugOps(Opcodes.DebugHide),
+
+            [Opcodes.Message] = _ => ExecuteMessage(),
+
+            [Opcodes.Msgbox] = _ => ExecuteUiOps(),
+            [Opcodes.Inputbox] = _ => ExecuteUiOps(),
+
+            [Opcodes.DoEvents] = _ => { }
+        };
     }
 
     public ScriptResult Execute(CancellationToken cancellationToken = default)
@@ -119,127 +203,8 @@ public sealed class ScriptExecutionContext
     {
         var opcode = (Opcodes)operation[0];
 
-        switch (opcode)
-        {
-            case Opcodes.AllocConst:
-            case Opcodes.AllocVar:
-            case Opcodes.PushValue:
-            case Opcodes.PushVariable:
-            case Opcodes.Pop:
-            case Opcodes.PopWithIndex:
-            case Opcodes.Assign:
-            case Opcodes.PushScope:
-            case Opcodes.PopScope:
-                ExecuteVariableAndStackOps(opcode, operation);
-                break;
-
-            case Opcodes.Add:
-            case Opcodes.Sub:
-            case Opcodes.Multiplication:
-            case Opcodes.Division:
-            case Opcodes.Div:
-            case Opcodes.Mod:
-            case Opcodes.Power:
-            case Opcodes.StringConcat:
-            case Opcodes.Or:
-            case Opcodes.And:
-            case Opcodes.Eq:
-            case Opcodes.NotEq:
-            case Opcodes.Lt:
-            case Opcodes.LEq:
-            case Opcodes.Gt:
-            case Opcodes.GEq:
-                ExecuteBinaryOp(opcode);
-                break;
-
-            case Opcodes.Negate:
-            case Opcodes.Not:
-            case Opcodes.Factorial:
-            case Opcodes.Sin:
-            case Opcodes.Cos:
-            case Opcodes.Tan:
-            case Opcodes.ATan:
-            case Opcodes.Abs:
-            case Opcodes.Sqr:
-            case Opcodes.Log:
-            case Opcodes.Exp:
-            case Opcodes.Sgn:
-                ExecuteUnaryOp(opcode);
-                break;
-
-            case Opcodes.Jump:
-            case Opcodes.JumpTrue:
-            case Opcodes.JumpFalse:
-            case Opcodes.JumpPop:
-                ExecuteJumpOps(opcode, operation);
-                break;
-
-            case Opcodes.Call:
-            case Opcodes.Return:
-                ExecuteCallReturn(opcode, operation);
-                break;
-
-            case Opcodes.TimeToHours:
-                ExecuteTimeToHours();
-                break;
-            case Opcodes.TimeOverlap:
-                ExecuteTimeOverlap();
-                break;
-
-            case Opcodes.Len:
-                ExecuteLen();
-                break;
-            case Opcodes.Left:
-                ExecuteLeft();
-                break;
-            case Opcodes.Right:
-                ExecuteRight();
-                break;
-            case Opcodes.Mid:
-                ExecuteMid();
-                break;
-            case Opcodes.InStr:
-                ExecuteInStr();
-                break;
-            case Opcodes.Replace:
-                ExecuteReplace();
-                break;
-            case Opcodes.Trim:
-                ExecuteTrim();
-                break;
-            case Opcodes.UCase:
-                ExecuteUCase();
-                break;
-            case Opcodes.LCase:
-                ExecuteLCase();
-                break;
-
-            case Opcodes.Rnd:
-                scopes!.Push(ScriptValue.FromNumber(_random.NextDouble()));
-                break;
-            case Opcodes.Round:
-                ExecuteRound();
-                break;
-
-            case Opcodes.DebugPrint:
-            case Opcodes.DebugClear:
-            case Opcodes.DebugShow:
-            case Opcodes.DebugHide:
-                ExecuteDebugOps(opcode);
-                break;
-
-            case Opcodes.Message:
-                ExecuteMessage();
-                break;
-
-            case Opcodes.Msgbox:
-            case Opcodes.Inputbox:
-                ExecuteUiOps();
-                break;
-
-            case Opcodes.DoEvents:
-                break;
-        }
+        if (_instructionHandlers.TryGetValue(opcode, out var handler))
+            handler(operation);
     }
 
     private void ExecuteVariableAndStackOps(Opcodes opcode, object[] operation)

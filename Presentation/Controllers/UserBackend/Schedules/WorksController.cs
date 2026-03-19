@@ -1,5 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Controller fuer Dienst-Verwaltung (CRUD, Bulk-Operationen, Scheduling, Perioden-Abschluss).
+/// </summary>
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Queries;
@@ -90,53 +93,6 @@ public class WorksController : BaseController
     {
         var result = await _mediator.Send(new GetPeriodHoursQuery(request));
         return Ok(result);
-    }
-
-    [HttpGet("Changes")]
-    public async Task<ActionResult<IEnumerable<WorkChangeResource>>> GetChangesList()
-    {
-        var result = await _mediator.Send(new ListQuery<WorkChangeResource>());
-        return Ok(result);
-    }
-
-    [HttpGet("Changes/{id}")]
-    public async Task<ActionResult<WorkChangeResource>> GetChange([FromRoute] Guid id)
-    {
-        var model = await _mediator.Send(new GetQuery<WorkChangeResource>(id));
-        if (model == null)
-        {
-            return NotFound();
-        }
-        return Ok(model);
-    }
-
-    [HttpPost("Changes")]
-    public async Task<ActionResult<WorkChangeResource>> PostChange([FromBody] WorkChangeResource resource)
-    {
-        var model = await _mediator.Send(new PostCommand<WorkChangeResource>(resource));
-        return Ok(model);
-    }
-
-    [HttpPut("Changes")]
-    public async Task<ActionResult<WorkChangeResource>> PutChange([FromBody] WorkChangeResource resource)
-    {
-        var model = await _mediator.Send(new PutCommand<WorkChangeResource>(resource));
-        if (model == null)
-        {
-            return NotFound();
-        }
-        return Ok(model);
-    }
-
-    [HttpDelete("Changes/{id}")]
-    public async Task<ActionResult<WorkChangeResource>> DeleteChange(Guid id)
-    {
-        var model = await _mediator.Send(new DeleteCommand<WorkChangeResource>(id));
-        if (model == null)
-        {
-            return NotFound();
-        }
-        return Ok(model);
     }
 
     [HttpPost("{id}/Confirm")]

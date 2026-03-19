@@ -61,14 +61,8 @@ public class ClientFilterService : IClientFilterService
                 selectedCountries = countries.Select(x => x.ToLower()).ToList();
             }
 
-            System.Console.WriteLine($"StateFilter - StateTokens count: {stateTokens?.Count ?? 0}, Selected: {selectedTokens.Count}, Countries: {selectedCountries.Count}");
-            if (selectedCountries.Any())
-                System.Console.WriteLine($"StateFilter - Countries list: [{string.Join(", ", selectedCountries)}]");
-
             if (selectedTokens.Any())
             {
-                System.Console.WriteLine("StateFilter - Applying state+country pairs filter");
-
                 var validStateCountryKeys = new List<string>();
                 var validCountriesFromTokens = new HashSet<string>();
 
@@ -89,9 +83,6 @@ public class ClientFilterService : IClientFilterService
                     }
                 }
 
-                System.Console.WriteLine($"StateFilter - Valid state+country combinations: [{string.Join(", ", validStateCountryKeys)}]");
-                System.Console.WriteLine($"StateFilter - Valid countries from tokens: [{string.Join(", ", validCountriesFromTokens)}]");
-
                 if (validStateCountryKeys.Any())
                 {
                     return query.Where(co => co.Addresses.Any(ad =>
@@ -102,12 +93,10 @@ public class ClientFilterService : IClientFilterService
 
             if (selectedCountries.Any())
             {
-                System.Console.WriteLine("StateFilter - Applying country-only filter (fallback or primary)");
                 return query.Where(co => co.Addresses.Any(ad => selectedCountries.Contains(ad.Country.ToLower())));
             }
         }
 
-        System.Console.WriteLine("StateFilter - No filter applied");
         return query;
     }
 

@@ -1,14 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using System.Globalization;
-using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Models.Macros;
+/// <summary>
+/// Verarbeitet Macro-Berechnungen für Break-Einträge (Arbeitszeit aus Pausenmakros).
+/// </summary>
+/// <param name="context">Datenbankzugriff für Absence- und Break-Daten</param>
+/// <param name="macroDataProvider">Berechnet Macro-Eingabedaten aus Break-Einträgen</param>
+/// <param name="macroCompilationService">Kompiliert und führt Macros aus</param>
+/// <param name="logger">Logger für Warn- und Fehlermeldungen</param>
+
+using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Models.Schedules;
-using Klacks.Api.Domain.Models.Settings;
-using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
-using Klacks.Api.Infrastructure.Scripting;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
@@ -16,25 +18,19 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 public class BreakMacroService : IBreakMacroService
 {
     private readonly DataBaseContext _context;
-    private readonly IMacroManagementService _macroManagementService;
-    private readonly IMacroCache _macroCache;
     private readonly IMacroDataProvider _macroDataProvider;
-    private readonly IMacroEngine _macroEngine;
+    private readonly IMacroCompilationService _macroCompilationService;
     private readonly ILogger<BreakMacroService> _logger;
 
     public BreakMacroService(
         DataBaseContext context,
-        IMacroManagementService macroManagementService,
-        IMacroCache macroCache,
         IMacroDataProvider macroDataProvider,
-        IMacroEngine macroEngine,
+        IMacroCompilationService macroCompilationService,
         ILogger<BreakMacroService> logger)
     {
         _context = context;
-        _macroManagementService = macroManagementService;
-        _macroCache = macroCache;
         _macroDataProvider = macroDataProvider;
-        _macroEngine = macroEngine;
+        _macroCompilationService = macroCompilationService;
         _logger = logger;
     }
 
@@ -48,71 +44,18 @@ public class BreakMacroService : IBreakMacroService
                 return;
             }
 
-            var macro = await _macroManagementService.GetMacroAsync(absence.MacroId.Value);
-            if (macro == null)
-            {
-                _logger.LogWarning("Macro with ID {MacroId} not found for Absence {AbsenceId}", absence.MacroId.Value, absence.Id);
-                return;
-            }
-
-            var cachedScript = _macroCache.GetOrCompile(macro.Id, macro.Content);
-            if (cachedScript.HasError)
-            {
-                _logger.LogError(
-                    "Macro compilation failed for Break {BreakId}, Macro {MacroName}: {Error}",
-                    breakEntry.Id,
-                    macro.Name,
-                    cachedScript.Error?.Description);
-                return;
-            }
-
-            var compiledScript = cachedScript.CloneForExecution();
             var macroData = await _macroDataProvider.GetMacroDataForBreakAsync(breakEntry, paymentInterval);
+            var result = await _macroCompilationService.CompileAndExecuteAsync(absence.MacroId.Value, macroData);
 
-            SetImportsFromMacroData(compiledScript, macroData);
-
-            var results = _macroEngine.RunWithScript(compiledScript);
-
-            if (_macroEngine.ErrorNumber != 0)
+            if (result.Success && result.ResultValue.HasValue)
             {
-                _logger.LogError(
-                    "Macro execution failed for Break {BreakId}, Macro {MacroName}: ErrorNumber={ErrorNumber}, ErrorCode={ErrorCode}",
-                    breakEntry.Id,
-                    macro.Name,
-                    _macroEngine.ErrorNumber,
-                    _macroEngine.ErrorCode);
-                return;
-            }
-
-            foreach (var msg in results)
-            {
-                if (msg.Type == (int)MacroTypeEnum.DefaultResult &&
-                    decimal.TryParse(msg.Message, NumberStyles.Any, CultureInfo.InvariantCulture, out var workTime))
-                {
-                    breakEntry.WorkTime = workTime;
-                }
+                breakEntry.WorkTime = result.ResultValue.Value;
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error processing macro for Break {BreakId}", breakEntry.Id);
         }
-    }
-
-    private static void SetImportsFromMacroData(CompiledScript compiledScript, MacroData data)
-    {
-        compiledScript.SetExternalValue("hour", data.Hour);
-        compiledScript.SetExternalValue("fromhour", data.FromHour);
-        compiledScript.SetExternalValue("untilhour", data.UntilHour);
-        compiledScript.SetExternalValue("weekday", data.Weekday);
-        compiledScript.SetExternalValue("holiday", data.Holiday ? 1 : 0);
-        compiledScript.SetExternalValue("holidaynextday", data.HolidayNextDay ? 1 : 0);
-        compiledScript.SetExternalValue("nightrate", data.NightRate);
-        compiledScript.SetExternalValue("holidayrate", data.HolidayRate);
-        compiledScript.SetExternalValue("sarate", data.SaRate);
-        compiledScript.SetExternalValue("sorate", data.SoRate);
-        compiledScript.SetExternalValue("guaranteedhours", data.GuaranteedHours);
-        compiledScript.SetExternalValue("fulltime", data.FullTime);
     }
 
     public async Task ReprocessAllBreaksAsync(DateOnly startDate, DateOnly endDate, List<Guid>? clientIds = null)
@@ -136,5 +79,4 @@ public class BreakMacroService : IBreakMacroService
 
         await _context.SaveChangesAsync();
     }
-
 }

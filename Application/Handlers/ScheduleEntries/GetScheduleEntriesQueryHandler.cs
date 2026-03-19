@@ -60,19 +60,7 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
             request.Filter.StartRow,
             request.Filter.RowCount);
 
-        var workFilter = CreateWorkFilter(
-            startDate,
-            endDate,
-            request.Filter.SelectedGroup,
-            request.Filter.OrderBy,
-            request.Filter.SortOrder,
-            request.Filter.ShowEmployees,
-            request.Filter.ShowExtern,
-            request.Filter.HoursSortOrder,
-            request.Filter.StartRow,
-            request.Filter.RowCount,
-            request.Filter.PaymentInterval,
-            request.Filter.SearchString);
+        var workFilter = CreateWorkFilter(request.Filter, startDate, endDate);
 
         var (clients, totalClientCount) = await _workRepository.WorkList(workFilter, cancellationToken);
         var clientResources = _scheduleMapper.ToWorkScheduleClientResourceList(clients);
@@ -130,33 +118,24 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
     }
 
     private static WorkFilter CreateWorkFilter(
+        Application.DTOs.Filter.WorkScheduleFilter filter,
         DateOnly startDate,
-        DateOnly endDate,
-        Guid? selectedGroup,
-        string orderBy,
-        string sortOrder,
-        bool showEmployees,
-        bool showExtern,
-        string? hoursSortOrder,
-        int startRow,
-        int rowCount,
-        int paymentInterval,
-        string searchString)
+        DateOnly endDate)
     {
         return new WorkFilter
         {
             StartDate = startDate,
             EndDate = endDate,
-            SelectedGroup = selectedGroup,
-            SearchString = searchString,
-            OrderBy = orderBy,
-            SortOrder = sortOrder,
-            ShowEmployees = showEmployees,
-            ShowExtern = showExtern,
-            HoursSortOrder = hoursSortOrder,
-            StartRow = startRow,
-            RowCount = rowCount,
-            PaymentInterval = paymentInterval
+            SelectedGroup = filter.SelectedGroup,
+            SearchString = filter.SearchString,
+            OrderBy = filter.OrderBy,
+            SortOrder = filter.SortOrder,
+            ShowEmployees = filter.ShowEmployees,
+            ShowExtern = filter.ShowExtern,
+            HoursSortOrder = filter.HoursSortOrder,
+            StartRow = filter.StartRow,
+            RowCount = filter.RowCount,
+            PaymentInterval = filter.PaymentInterval
         };
     }
 
