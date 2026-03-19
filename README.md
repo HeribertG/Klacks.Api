@@ -1,5 +1,7 @@
 # Klacks API
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/HeribertG/Klacks.Api)
+
 A modern REST API built with .NET 10.0 using Domain-Driven Design (DDD) and Clean Architecture principles.
 
 Dieses Repository wird automatisch auf Hetzner deployed!
