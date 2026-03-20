@@ -26,7 +26,7 @@ public static class LLMSeed
             (gen_random_uuid(), 'groq', 'Groq', false, 12, 'https://api.groq.com/openai/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'together', 'Together AI', false, 13, 'https://api.together.xyz/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'fireworks', 'Fireworks AI', false, 14, 'https://api.fireworks.ai/inference/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
-            (gen_random_uuid(), 'kimi', 'Kimi (Moonshot AI)', false, 15, 'https://api.kimi.com/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false);
+            (gen_random_uuid(), 'kimi', 'Kimi (Moonshot AI)', false, 15, 'https://api.kimi.com/coding/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false);
         ");
 
         migrationBuilder.Sql($@"
@@ -62,7 +62,7 @@ public static class LLMSeed
             (gen_random_uuid(), 'llama-4-scout', 'Llama 4 Scout', 'meta-llama/Llama-4-Scout-17B-16E-Instruct', 'groq', false, false, 0.00011, 0.00034, 8192, 131072, 'balanced', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'qwen3-235b-together', 'Qwen3 235B (Together)', 'Qwen/Qwen3-235B-A22B', 'together', false, false, 0.0012, 0.0012, 8192, 131072, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'deepseek-v3-fireworks', 'DeepSeek V3 (Fireworks)', 'accounts/fireworks/models/deepseek-v3', 'fireworks', false, false, 0.0009, 0.0009, 8192, 131072, 'balanced', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
-            (gen_random_uuid(), 'kimi-for-coding', 'Kimi K2.5 for Coding', 'kimi-k2.5', 'kimi', false, false, 0.00045, 0.0022, 65535, 262144, 'coding', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false);
+            (gen_random_uuid(), 'kimi-for-coding', 'Kimi K2.5 for Coding', 'kimi-for-coding', 'kimi', false, false, 0.00045, 0.0022, 65535, 262144, 'coding', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false);
         ");
     }
 }
