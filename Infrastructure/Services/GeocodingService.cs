@@ -335,7 +335,8 @@ public class GeocodingService : IGeocodingService
                 Latitude = lat,
                 Longitude = lon,
                 ReturnedAddress = firstResult.display_name,
-                MatchType = isExact ? "exact" : "approximate"
+                MatchType = isExact ? "exact" : "approximate",
+                State = firstResult.address?.state
             };
 
             _cache.Set(cacheKey, result2, TimeSpan.FromDays(7));
@@ -359,7 +360,7 @@ public class GeocodingService : IGeocodingService
     {
         await Task.Delay(REQUEST_DELAY_MS);
 
-        var url = $"{NOMINATIM_URL}?postalcode={Uri.EscapeDataString(postalCode)}&city={Uri.EscapeDataString(city)}&country={Uri.EscapeDataString(country)}&format=json&limit=1";
+        var url = $"{NOMINATIM_URL}?postalcode={Uri.EscapeDataString(postalCode)}&city={Uri.EscapeDataString(city)}&country={Uri.EscapeDataString(country)}&format=json&limit=1&addressdetails=1";
 
         var response = await _httpClient.GetAsync(url);
         if (!response.IsSuccessStatusCode)
@@ -381,7 +382,8 @@ public class GeocodingService : IGeocodingService
             Found = true,
             Latitude = double.TryParse(first.lat, out var lat) ? lat : null,
             Longitude = double.TryParse(first.lon, out var lon) ? lon : null,
-            ReturnedAddress = first.display_name
+            ReturnedAddress = first.display_name,
+            State = first.address?.state
         };
     }
 
@@ -504,5 +506,20 @@ public class GeocodingService : IGeocodingService
         public string lat { get; set; } = string.Empty;
         public string lon { get; set; } = string.Empty;
         public string display_name { get; set; } = string.Empty;
+        public NominatimAddress? address { get; set; }
+    }
+
+    private class NominatimAddress
+    {
+        public string? state { get; set; }
+        public string? county { get; set; }
+        public string? postcode { get; set; }
+        public string? city { get; set; }
+        public string? town { get; set; }
+        public string? village { get; set; }
+        public string? road { get; set; }
+        public string? house_number { get; set; }
+        public string? country { get; set; }
+        public string? country_code { get; set; }
     }
 }

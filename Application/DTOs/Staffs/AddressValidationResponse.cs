@@ -17,6 +17,7 @@ public class AddressValidationResponse
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
     public string? ReturnedAddress { get; set; }
+    public string? ExpectedState { get; set; }
     public List<AddressSuggestionDto> Suggestions { get; set; } = [];
 }
 

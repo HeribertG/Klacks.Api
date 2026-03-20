@@ -43,16 +43,12 @@ public class CreateEmployeeSkill : BaseSkillImplementation
 
         var birthdate = GetParameter<string>(parameters, "birthdate");
         var street = GetParameter<string>(parameters, "street");
-        var postalCode = GetParameter<string>(parameters, "postalCode");
+        var zip = GetParameter<string>(parameters, "zip");
         var city = GetParameter<string>(parameters, "city");
-        var canton = GetParameter<string>(parameters, "canton");
+        var state = GetParameter<string>(parameters, "state");
         var country = GetParameter<string>(parameters, "country", "Schweiz");
         var company = GetParameter<string>(parameters, "company");
 
-        if (string.IsNullOrEmpty(canton) && !string.IsNullOrEmpty(postalCode))
-        {
-            canton = DetectCantonFromPostalCode(postalCode);
-        }
 
         var client = new Client
         {
@@ -80,9 +76,9 @@ public class CreateEmployeeSkill : BaseSkillImplementation
                 Id = Guid.NewGuid(),
                 ClientId = client.Id,
                 Street = street ?? "",
-                Zip = postalCode ?? "",
+                Zip = zip ?? "",
                 City = city ?? "",
-                State = canton ?? "",
+                State = state ?? "",
                 Country = country ?? "Schweiz",
                 Type = AddressTypeEnum.Employee,
                 ValidFrom = DateTime.UtcNow,
@@ -101,37 +97,16 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             FirstName = firstName,
             LastName = lastName,
             Gender = gender.ToString(),
-            Canton = canton,
+            State = state,
             City = city,
             Country = country
         };
 
         var message = $"Employee {firstName} {lastName}" +
-                      (!string.IsNullOrEmpty(canton) ? $" from {canton}" : "") +
+                      (!string.IsNullOrEmpty(state) ? $" from {state}" : "") +
                       " was successfully created.";
 
         return SkillResult.SuccessResult(resultData, message);
     }
 
-    private static string? DetectCantonFromPostalCode(string postalCode)
-    {
-        if (string.IsNullOrEmpty(postalCode) || postalCode.Length < 1)
-            return null;
-
-        var firstDigit = postalCode[0];
-
-        return firstDigit switch
-        {
-            '1' => postalCode.StartsWith("12") || postalCode.StartsWith("13") ? "VD" : "GE",
-            '2' => postalCode.StartsWith("25") || postalCode.StartsWith("26") || postalCode.StartsWith("27") ? "NE" : "JU",
-            '3' => "BE",
-            '4' => postalCode.StartsWith("40") || postalCode.StartsWith("41") ? "BS" : "BL",
-            '5' => "AG",
-            '6' => postalCode.StartsWith("60") || postalCode.StartsWith("61") ? "LU" : "ZG",
-            '7' => "GR",
-            '8' => postalCode.StartsWith("85") || postalCode.StartsWith("86") ? "TG" : "ZH",
-            '9' => postalCode.StartsWith("94") || postalCode.StartsWith("95") ? "SG" : "AR",
-            _ => null
-        };
-    }
 }

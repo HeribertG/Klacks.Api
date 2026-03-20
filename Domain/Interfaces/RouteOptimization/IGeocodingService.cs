@@ -25,6 +25,7 @@ public class GeocodingValidationResult
     public double? Longitude { get; set; }
     public string? ReturnedAddress { get; set; }
     public string? MatchType { get; set; }
+    public string? State { get; set; }
 }
 
 public class AddressSuggestion

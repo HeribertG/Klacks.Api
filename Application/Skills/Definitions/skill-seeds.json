@@ -880,7 +880,7 @@
     },
     {
       "name": "create_employee",
-      "description": "Creates a new employee or customer in the system with personal data (name, address, birthdate). For Swiss addresses, the canton is automatically detected from the postal code. Note: To assign a contract, use assign_contract_to_client separately. To add to a group, use add_client_to_group separately. Contact information (email, phone) can be added later via the UI.",
+      "description": "Creates a new employee or customer in the system with personal data (name, address, birthdate). Note: To assign a contract, use assign_contract_to_client separately. To add to a group, use add_client_to_group separately. Contact information (email, phone) can be added later via the UI.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -933,8 +933,8 @@
           "enumValues": null
         },
         {
-          "name": "postalCode",
-          "description": "Postal code (e.g. 3097)",
+          "name": "zip",
+          "description": "ZIP / postal code",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -949,8 +949,8 @@
           "enumValues": null
         },
         {
-          "name": "canton",
-          "description": "Swiss canton code (e.g. BE, ZH, SG). Auto-detected from postal code if not provided.",
+          "name": "state",
+          "description": "State or region abbreviation (e.g. BE, ZH). Auto-detected from ZIP code if not provided.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -3203,7 +3203,7 @@
     },
     {
       "name": "validate_address",
-      "description": "Validates an address and returns geocoding information (coordinates, formatted address). Also detects the Swiss canton from postal code. Use this before creating an employee to verify the address exists.",
+      "description": "Validates an address and returns geocoding information (coordinates, formatted address). Detects the state/region from the ZIP code. Use this before creating an employee to verify the address exists.",
       "category": "Validation",
       "executionType": "Skill",
       "requiredPermissions": [],

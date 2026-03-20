@@ -10,6 +10,7 @@
 using Klacks.Api.Application.Queries.Addresses;
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
+using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,17 +20,20 @@ public class AddressesController : InputBaseController<AddressResource>
 {
     private readonly IGeocodingService _geocodingService;
     private readonly IAddressCoordinateWriter _coordinateWriter;
+    private readonly StateAbbreviationResolver _stateResolver;
     private readonly ILogger<AddressesController> _logger;
 
     public AddressesController(
         IMediator Mediator,
         ILogger<AddressesController> logger,
         IGeocodingService geocodingService,
-        IAddressCoordinateWriter coordinateWriter)
+        IAddressCoordinateWriter coordinateWriter,
+        StateAbbreviationResolver stateResolver)
         : base(Mediator, logger)
     {
         _geocodingService = geocodingService;
         _coordinateWriter = coordinateWriter;
+        _stateResolver = stateResolver;
         _logger = logger;
     }
 
@@ -48,8 +52,16 @@ public class AddressesController : InputBaseController<AddressResource>
     }
 
     [HttpPost("Validate")]
-    public async Task<ActionResult<AddressValidationResponse>> Validate([FromBody] AddressResource resource)
+    public async Task<ActionResult<AddressValidationResponse>> Validate([FromBody] AddressValidationRequest request)
     {
+        var resource = new AddressResource
+        {
+            Street = request.Street ?? string.Empty,
+            Zip = request.Zip ?? string.Empty,
+            City = request.City ?? string.Empty,
+            State = request.State ?? string.Empty,
+            Country = request.Country ?? string.Empty
+        };
         var response = await ValidateAddressAsync(resource);
         return Ok(response);
     }
@@ -102,6 +114,28 @@ public class AddressesController : InputBaseController<AddressResource>
 
             if (validationResult.Found)
             {
+                var stateAbbreviation = await _stateResolver.ResolveAsync(validationResult.State);
+
+                if (!string.IsNullOrWhiteSpace(stateAbbreviation)
+                    && !string.IsNullOrWhiteSpace(resource.State)
+                    && !string.Equals(resource.State, stateAbbreviation, StringComparison.OrdinalIgnoreCase))
+                {
+                    return new AddressValidationResponse
+                    {
+                        IsValid = false,
+                        MatchType = "state_mismatch",
+                        ExpectedState = stateAbbreviation,
+                        Latitude = validationResult.Latitude,
+                        Longitude = validationResult.Longitude,
+                        ReturnedAddress = validationResult.ReturnedAddress
+                    };
+                }
+
+                if (string.IsNullOrWhiteSpace(resource.State) && !string.IsNullOrWhiteSpace(stateAbbreviation))
+                {
+                    resource.State = stateAbbreviation;
+                }
+
                 return new AddressValidationResponse
                 {
                     IsValid = true,

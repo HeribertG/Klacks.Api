@@ -101,6 +101,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAbsenceDetailRepository, AbsenceDetailRepository>();
         services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IStateRepository, StateRepository>();
+        services.AddScoped<Klacks.Api.Domain.Services.Common.StateAbbreviationResolver>();
         services.AddScoped<IBranchRepository, BranchRepository>();
         services.AddScoped<ICalendarSelectionRepository, CalendarSelectionRepository>();
         services.AddScoped<ISelectedCalendarRepository, SelectedCalendarRepository>();
