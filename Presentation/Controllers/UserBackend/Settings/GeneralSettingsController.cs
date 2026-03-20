@@ -69,6 +69,7 @@ public class GeneralSettingsController : BaseController
             {
                 Success = false,
                 Message = "An unexpected error occurred during the test.",
+                MessageKey = "EMAIL_TEST_UNEXPECTED",
                 ErrorDetails = ex.Message
             });
         }

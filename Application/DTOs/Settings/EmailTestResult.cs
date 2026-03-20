@@ -6,5 +6,7 @@ public class EmailTestResult
 {
     public bool Success { get; set; }
     public string Message { get; set; } = string.Empty;
+    public string? MessageKey { get; set; }
+    public Dictionary<string, string>? MessageParams { get; set; }
     public string? ErrorDetails { get; set; }
 }

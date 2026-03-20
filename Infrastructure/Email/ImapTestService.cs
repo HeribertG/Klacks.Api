@@ -1,5 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Service for testing IMAP configurations by connecting, authenticating and opening a mail folder.
+/// </summary>
 using Klacks.Api.Application.DTOs.Email;
 using Klacks.Api.Domain.DTOs.Email;
 using Klacks.Api.Domain.Interfaces.Email;
@@ -32,7 +35,8 @@ public class ImapTestService : IImapTestService
                 return new ImapTestResult
                 {
                     Success = false,
-                    Message = "Missing required fields. Please fill in all required fields."
+                    Message = "Missing required fields. Please fill in all required fields.",
+                    MessageKey = "IMAP_TEST_MISSING_FIELDS"
                 };
             }
 
@@ -67,6 +71,12 @@ public class ImapTestService : IImapTestService
             {
                 Success = true,
                 Message = $"Connection successful! Folder '{request.Folder}' contains {messageCount} messages.",
+                MessageKey = "IMAP_TEST_SUCCESS",
+                MessageParams = new Dictionary<string, string>
+                {
+                    { "folder", request.Folder },
+                    { "count", messageCount.ToString() }
+                },
                 MessageCount = messageCount
             };
         }
@@ -77,6 +87,7 @@ public class ImapTestService : IImapTestService
             {
                 Success = false,
                 Message = "Authentication failed. Please check your username and password.",
+                MessageKey = "IMAP_TEST_AUTH_FAILED",
                 ErrorDetails = authEx.Message
             };
         }
@@ -87,6 +98,7 @@ public class ImapTestService : IImapTestService
             {
                 Success = false,
                 Message = "SSL/TLS handshake failed. Please check your SSL settings and try a different port (993 or 143).",
+                MessageKey = "IMAP_TEST_SSL_FAILED",
                 ErrorDetails = sslEx.Message
             };
         }
@@ -97,6 +109,7 @@ public class ImapTestService : IImapTestService
             {
                 Success = false,
                 Message = "IMAP protocol error occurred. Please check your server settings.",
+                MessageKey = "IMAP_TEST_PROTOCOL_ERROR",
                 ErrorDetails = protocolEx.Message
             };
         }
@@ -107,6 +120,7 @@ public class ImapTestService : IImapTestService
             {
                 Success = false,
                 Message = "Network connection failed. Please check server address and port.",
+                MessageKey = "IMAP_TEST_NETWORK_ERROR",
                 ErrorDetails = socketEx.Message
             };
         }
@@ -117,6 +131,7 @@ public class ImapTestService : IImapTestService
             {
                 Success = false,
                 Message = "Connection timeout. Please check server address, port, and network connectivity.",
+                MessageKey = "IMAP_TEST_TIMEOUT",
                 ErrorDetails = timeoutEx.Message
             };
         }
@@ -127,6 +142,8 @@ public class ImapTestService : IImapTestService
             {
                 Success = false,
                 Message = $"Folder '{request.Folder}' not found on the server.",
+                MessageKey = "IMAP_TEST_FOLDER_NOT_FOUND",
+                MessageParams = new Dictionary<string, string> { { "folder", request.Folder } },
                 ErrorDetails = folderEx.Message
             };
         }
@@ -137,6 +154,7 @@ public class ImapTestService : IImapTestService
             {
                 Success = false,
                 Message = "An unexpected error occurred: " + ex.GetType().Name,
+                MessageKey = "IMAP_TEST_UNEXPECTED",
                 ErrorDetails = ex.Message
             };
         }

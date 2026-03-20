@@ -1,5 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Service for testing SMTP email configurations by connecting, authenticating and sending a test email.
+/// </summary>
 using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Application.Interfaces;
 using MailKit.Net.Smtp;
@@ -38,7 +41,8 @@ public class EmailTestService : IEmailTestService
                 return new EmailTestResult
                 {
                     Success = false,
-                    Message = "Missing required fields. Please fill in all required fields."
+                    Message = "Missing required fields. Please fill in all required fields.",
+                    MessageKey = "EMAIL_TEST_MISSING_FIELDS"
                 };
             }
 
@@ -47,7 +51,8 @@ public class EmailTestService : IEmailTestService
                 return new EmailTestResult
                 {
                     Success = false,
-                    Message = "Invalid port number."
+                    Message = "Invalid port number.",
+                    MessageKey = "EMAIL_TEST_INVALID_PORT"
                 };
             }
 
@@ -62,6 +67,7 @@ public class EmailTestService : IEmailTestService
                     {
                         Success = false,
                         Message = "Authentication required for this email provider. Please set Authentication Type to 'LOGIN' and provide valid credentials.",
+                        MessageKey = "EMAIL_TEST_AUTH_REQUIRED",
                         ErrorDetails = "Most email providers require authentication"
                     };
                 }
@@ -132,7 +138,9 @@ public class EmailTestService : IEmailTestService
             return new EmailTestResult
             {
                 Success = true,
-                Message = $"Test email sent successfully to {request.Username}! Please check your inbox to confirm delivery."
+                Message = $"Test email sent successfully to {request.Username}! Please check your inbox to confirm delivery.",
+                MessageKey = "EMAIL_TEST_SUCCESS_SENT",
+                MessageParams = new Dictionary<string, string> { { "email", request.Username } }
             };
         }
         catch (AuthenticationException authEx)
@@ -140,6 +148,7 @@ public class EmailTestService : IEmailTestService
             _logger.LogWarning("SMTP Authentication failed: {Message}", authEx.Message);
 
             string authMessage = "Authentication failed. Please check your username and password.";
+            string messageKey = "EMAIL_TEST_AUTH_FAILED";
 
             if (request.Server.Contains("gmx."))
             {
@@ -147,16 +156,19 @@ public class EmailTestService : IEmailTestService
                             "1. Use your full email address as username\n" +
                             "2. Use your GMX password\n" +
                             "3. Ensure SMTP/IMAP is enabled in your GMX account settings";
+                messageKey = "EMAIL_TEST_AUTH_FAILED_GMX";
             }
             else if (request.Server.Contains("outlook.com") || request.Server.Contains("hotmail.com"))
             {
                 authMessage = "Authentication failed. For Microsoft accounts, use an App Password instead of your regular password.";
+                messageKey = "EMAIL_TEST_AUTH_FAILED_MICROSOFT";
             }
 
             return new EmailTestResult
             {
                 Success = false,
                 Message = authMessage,
+                MessageKey = messageKey,
                 ErrorDetails = authEx.Message
             };
         }
@@ -167,6 +179,7 @@ public class EmailTestService : IEmailTestService
             {
                 Success = false,
                 Message = "SSL/TLS handshake failed. Please check your SSL settings and try a different port (587 or 465).",
+                MessageKey = "EMAIL_TEST_SSL_FAILED",
                 ErrorDetails = sslEx.Message
             };
         }
@@ -177,6 +190,7 @@ public class EmailTestService : IEmailTestService
             {
                 Success = false,
                 Message = $"SMTP error: {smtpEx.Message}",
+                MessageKey = "EMAIL_TEST_SMTP_COMMAND_ERROR",
                 ErrorDetails = $"Status: {smtpEx.StatusCode}"
             };
         }
@@ -187,6 +201,7 @@ public class EmailTestService : IEmailTestService
             {
                 Success = false,
                 Message = "SMTP protocol error occurred. Please check your server settings.",
+                MessageKey = "EMAIL_TEST_PROTOCOL_ERROR",
                 ErrorDetails = protocolEx.Message
             };
         }
@@ -197,6 +212,7 @@ public class EmailTestService : IEmailTestService
             {
                 Success = false,
                 Message = "Network connection failed. Please check server address and port.",
+                MessageKey = "EMAIL_TEST_NETWORK_ERROR",
                 ErrorDetails = socketEx.Message
             };
         }
@@ -207,6 +223,7 @@ public class EmailTestService : IEmailTestService
             {
                 Success = false,
                 Message = "Connection timeout. Please check server address, port, and network connectivity.",
+                MessageKey = "EMAIL_TEST_TIMEOUT",
                 ErrorDetails = timeoutEx.Message
             };
         }
@@ -217,6 +234,7 @@ public class EmailTestService : IEmailTestService
             {
                 Success = false,
                 Message = "An unexpected error occurred: " + ex.GetType().Name,
+                MessageKey = "EMAIL_TEST_UNEXPECTED",
                 ErrorDetails = ex.Message
             };
         }

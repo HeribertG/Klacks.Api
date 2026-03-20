@@ -136,6 +136,7 @@ public class ReceivedEmailController : BaseController
             {
                 Success = false,
                 Message = "An unexpected error occurred during the test.",
+                MessageKey = "IMAP_TEST_UNEXPECTED",
                 ErrorDetails = ex.Message
             });
         }
