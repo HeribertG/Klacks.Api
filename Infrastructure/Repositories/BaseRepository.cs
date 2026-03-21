@@ -53,6 +53,24 @@ namespace Klacks.Api.Infrastructure.Repositories
             return await this.context.Set<TEntity>().ToListAsync();
         }
 
+        public virtual async Task<List<TEntity>> List(int take)
+        {
+            return await this.context.Set<TEntity>().Take(take).ToListAsync();
+        }
+
+        public virtual async Task<List<TEntity>> List(int skip, int take)
+        {
+            return await this.context.Set<TEntity>().Skip(skip).Take(take).ToListAsync();
+        }
+
+        public virtual async Task<List<TEntity>> GetByIdsAsync(IEnumerable<Guid> ids)
+        {
+            var idList = ids.ToList();
+            return await this.context.Set<TEntity>()
+                .Where(e => idList.Contains(e.Id))
+                .ToListAsync();
+        }
+
         public virtual Task<TEntity?> Put(TEntity model)
         {
             this.context.Set<TEntity>().Update(model);

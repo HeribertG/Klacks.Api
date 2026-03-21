@@ -23,14 +23,8 @@ public class BulkDeleteWorksCommandValidator : AbstractValidator<BulkDeleteWorks
                 if (lockLevelService.CanModifyWork(WorkLockLevel.Closed, isAdmin))
                     return true;
 
-                foreach (var id in workIds)
-                {
-                    var work = await workRepository.Get(id);
-                    if (work != null && work.LockLevel != WorkLockLevel.None)
-                        return false;
-                }
-
-                return true;
+                var works = await workRepository.GetByIdsAsync(workIds);
+                return !works.Any(w => w.LockLevel != WorkLockLevel.None);
             })
             .WithMessage("Cannot delete sealed work entries.");
     }

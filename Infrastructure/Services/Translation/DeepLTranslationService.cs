@@ -96,22 +96,17 @@ public class DeepLTranslationService : ITranslationService
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceLanguage);
 
-        var results = new Dictionary<string, string>();
-
-        foreach (var targetLang in LanguageConfig.SupportedLanguages)
+        var tasks = LanguageConfig.SupportedLanguages.Select(async targetLang =>
         {
             if (targetLang.Equals(sourceLanguage, StringComparison.OrdinalIgnoreCase))
-            {
-                results[targetLang] = text;
-            }
-            else
-            {
-                var result = await TranslateAsync(text, sourceLanguage, targetLang);
-                results[targetLang] = result.TranslatedText;
-            }
-        }
+                return (targetLang, translatedText: text);
 
-        return results;
+            var result = await TranslateAsync(text, sourceLanguage, targetLang);
+            return (targetLang, translatedText: result.TranslatedText);
+        });
+
+        var results = await Task.WhenAll(tasks);
+        return results.ToDictionary(r => r.targetLang, r => r.translatedText);
     }
 
     private async Task<string?> GetApiKeyAsync()

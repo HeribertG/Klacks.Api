@@ -157,35 +157,11 @@ public class EmailPollingBackgroundService : BackgroundService
 
             if (!string.IsNullOrEmpty(inboxFolder) && !string.IsNullOrEmpty(junkFolder))
             {
-                var inboxEmails = await emailRepository.GetListByFolderAsync(inboxFolder, 0, int.MaxValue);
-                var clientAssignedEmails = await emailRepository.GetListByFolderAsync(EmailConstants.ClientAssignedFolder, 0, int.MaxValue);
                 var movedCount = 0;
-
-                foreach (var email in inboxEmails)
-                {
-                    if (stoppingToken.IsCancellationRequested) break;
-
-                    var result = await spamFilterService.ClassifyAsync(email, stoppingToken);
-                    if (result.IsSpam)
-                    {
-                        await emailRepository.MoveToFolderAsync(email.Id, junkFolder);
-                        await emailService.MoveEmailOnImapAsync(email.ImapUid, inboxFolder, junkFolder, stoppingToken);
-                        movedCount++;
-                    }
-                }
-
-                foreach (var email in clientAssignedEmails)
-                {
-                    if (stoppingToken.IsCancellationRequested) break;
-
-                    var result = await spamFilterService.ClassifyAsync(email, stoppingToken);
-                    if (result.IsSpam)
-                    {
-                        await emailRepository.MoveToFolderAsync(email.Id, junkFolder);
-                        await emailService.MoveEmailOnImapAsync(email.ImapUid, email.SourceImapFolder, junkFolder, stoppingToken);
-                        movedCount++;
-                    }
-                }
+                movedCount += await ClassifyFolderBatchedAsync(emailRepository, spamFilterService, emailService,
+                    inboxFolder, junkFolder, stoppingToken);
+                movedCount += await ClassifyFolderBatchedAsync(emailRepository, spamFilterService, emailService,
+                    EmailConstants.ClientAssignedFolder, junkFolder, stoppingToken);
 
                 if (movedCount > 0)
                 {
@@ -201,5 +177,43 @@ public class EmailPollingBackgroundService : BackgroundService
         {
             _logger.LogWarning(ex, "Error reclassifying existing emails");
         }
+    }
+
+    private async Task<int> ClassifyFolderBatchedAsync(
+        IReceivedEmailRepository emailRepository,
+        ISpamFilterService spamFilterService,
+        IImapEmailService emailService,
+        string sourceFolder,
+        string junkFolder,
+        CancellationToken stoppingToken)
+    {
+        const int batchSize = 100;
+        var movedCount = 0;
+        var skip = 0;
+
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            var emails = await emailRepository.GetListByFolderAsync(sourceFolder, skip, batchSize);
+            if (emails.Count == 0) break;
+
+            foreach (var email in emails)
+            {
+                if (stoppingToken.IsCancellationRequested) break;
+
+                var result = await spamFilterService.ClassifyAsync(email, stoppingToken);
+                if (result.IsSpam)
+                {
+                    var imapSource = string.IsNullOrEmpty(email.SourceImapFolder) ? sourceFolder : email.SourceImapFolder;
+                    await emailRepository.MoveToFolderAsync(email.Id, junkFolder);
+                    await emailService.MoveEmailOnImapAsync(email.ImapUid, imapSource, junkFolder, stoppingToken);
+                    movedCount++;
+                }
+            }
+
+            if (emails.Count < batchSize) break;
+            skip += batchSize;
+        }
+
+        return movedCount;
     }
 }

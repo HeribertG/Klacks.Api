@@ -321,7 +321,7 @@ public class ImapEmailService : IImapEmailService
             s => (long)s.UniqueId.Id,
             s => s.Flags ?? MessageFlags.None);
 
-        var dbEmails = await _receivedEmailRepository.GetListByFolderAsync(folderName, 0, int.MaxValue);
+        var dbEmails = await _receivedEmailRepository.GetListByFolderAsync(folderName, 0, 10_000);
 
         var isInboxFolder = !string.IsNullOrEmpty(inboxName)
             && string.Equals(folderName, inboxName, StringComparison.OrdinalIgnoreCase);
@@ -329,7 +329,7 @@ public class ImapEmailService : IImapEmailService
         if (isInboxFolder)
         {
             var clientAssigned = await _receivedEmailRepository.GetListByFolderAsync(
-                EmailConstants.ClientAssignedFolder, 0, int.MaxValue);
+                EmailConstants.ClientAssignedFolder, 0, 10_000);
             dbEmails.AddRange(clientAssigned);
         }
 

@@ -8,6 +8,8 @@ namespace Klacks.Api.Infrastructure.Email;
 
 public class EmailReclassificationTrigger : IEmailReclassificationTrigger
 {
+    private const int BatchSize = 100;
+
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<EmailReclassificationTrigger> _logger;
 
@@ -54,42 +56,14 @@ public class EmailReclassificationTrigger : IEmailReclassificationTrigger
         var movedToJunk = 0;
         var movedFromJunk = 0;
 
-        var inboxEmails = await emailRepository.GetListByFolderAsync(inboxFolder, 0, int.MaxValue);
-        foreach (var email in inboxEmails)
-        {
-            var result = await spamFilterService.ClassifyAsync(email, CancellationToken.None);
-            if (result.IsSpam)
-            {
-                await emailRepository.MoveToFolderAsync(email.Id, junkFolder);
-                await emailService.MoveEmailOnImapAsync(email.ImapUid, inboxFolder, junkFolder, CancellationToken.None);
-                movedToJunk++;
-            }
-        }
+        movedToJunk += await ReclassifyFolderAsync(emailRepository, spamFilterService, emailService,
+            inboxFolder, junkFolder, isSpamCheck: true);
 
-        var clientAssignedEmails = await emailRepository.GetListByFolderAsync(EmailConstants.ClientAssignedFolder, 0, int.MaxValue);
-        foreach (var email in clientAssignedEmails)
-        {
-            var result = await spamFilterService.ClassifyAsync(email, CancellationToken.None);
-            if (result.IsSpam)
-            {
-                await emailRepository.MoveToFolderAsync(email.Id, junkFolder);
-                await emailService.MoveEmailOnImapAsync(email.ImapUid, email.SourceImapFolder, junkFolder, CancellationToken.None);
-                movedToJunk++;
-            }
-        }
+        movedToJunk += await ReclassifyFolderAsync(emailRepository, spamFilterService, emailService,
+            EmailConstants.ClientAssignedFolder, junkFolder, isSpamCheck: true);
 
-        var junkEmails = await emailRepository.GetListByFolderAsync(junkFolder, 0, int.MaxValue);
-        foreach (var email in junkEmails)
-        {
-            var result = await spamFilterService.ClassifyAsync(email, CancellationToken.None);
-            if (!result.IsSpam)
-            {
-                var targetFolder = string.IsNullOrEmpty(email.SourceImapFolder) ? inboxFolder : email.SourceImapFolder;
-                await emailRepository.MoveToFolderAsync(email.Id, targetFolder);
-                await emailService.MoveEmailOnImapAsync(email.ImapUid, junkFolder, targetFolder, CancellationToken.None);
-                movedFromJunk++;
-            }
-        }
+        movedFromJunk += await ReclassifyFolderAsync(emailRepository, spamFilterService, emailService,
+            junkFolder, inboxFolder, isSpamCheck: false);
 
         if (movedToJunk > 0 || movedFromJunk > 0)
         {
@@ -105,5 +79,47 @@ public class EmailReclassificationTrigger : IEmailReclassificationTrigger
                 "Background reclassification: {ToJunk} to junk, {FromJunk} restored from junk",
                 movedToJunk, movedFromJunk);
         }
+    }
+
+    private async Task<int> ReclassifyFolderAsync(
+        IReceivedEmailRepository emailRepository,
+        ISpamFilterService spamFilterService,
+        IImapEmailService emailService,
+        string sourceFolder,
+        string targetFolder,
+        bool isSpamCheck)
+    {
+        var movedCount = 0;
+        var skip = 0;
+
+        while (true)
+        {
+            var emails = await emailRepository.GetListByFolderAsync(sourceFolder, skip, BatchSize);
+            if (emails.Count == 0) break;
+
+            foreach (var email in emails)
+            {
+                var result = await spamFilterService.ClassifyAsync(email, CancellationToken.None);
+                var shouldMove = isSpamCheck ? result.IsSpam : !result.IsSpam;
+
+                if (shouldMove)
+                {
+                    var imapSource = isSpamCheck
+                        ? (string.IsNullOrEmpty(email.SourceImapFolder) ? sourceFolder : email.SourceImapFolder)
+                        : sourceFolder;
+                    var imapTarget = isSpamCheck ? targetFolder
+                        : (string.IsNullOrEmpty(email.SourceImapFolder) ? targetFolder : email.SourceImapFolder);
+
+                    await emailRepository.MoveToFolderAsync(email.Id, isSpamCheck ? targetFolder : imapTarget);
+                    await emailService.MoveEmailOnImapAsync(email.ImapUid, imapSource, imapTarget, CancellationToken.None);
+                    movedCount++;
+                }
+            }
+
+            if (emails.Count < BatchSize) break;
+            skip += BatchSize;
+        }
+
+        return movedCount;
     }
 }

@@ -14,6 +14,7 @@ public class WorkChangeConfiguration : IEntityTypeConfiguration<WorkChange>
     public void Configure(EntityTypeBuilder<WorkChange> builder)
     {
         builder.HasQueryFilter(p => !p.IsDeleted);
+        builder.HasIndex(p => new { p.WorkId, p.IsDeleted });
 
         builder.HasOne(sc => sc.Work)
             .WithMany()

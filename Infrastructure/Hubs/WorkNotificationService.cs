@@ -347,13 +347,14 @@ public class WorkNotificationService : IWorkNotificationService
 
     private async Task<Dictionary<Guid, HashSet<Guid>>> LoadClientIdsByGroup(List<Guid> groupIds)
     {
-        var result = new Dictionary<Guid, HashSet<Guid>>();
-        foreach (var groupId in groupIds)
+        var tasks = groupIds.Select(async groupId =>
         {
             var clientIds = await _groupClient.GetAllClientIdsFromGroupAndSubgroups(groupId);
-            result[groupId] = new HashSet<Guid>(clientIds);
-        }
-        return result;
+            return (groupId, clientIds: new HashSet<Guid>(clientIds));
+        });
+
+        var results = await Task.WhenAll(tasks);
+        return results.ToDictionary(r => r.groupId, r => r.clientIds);
     }
 
     private async Task SendWorkNotification(

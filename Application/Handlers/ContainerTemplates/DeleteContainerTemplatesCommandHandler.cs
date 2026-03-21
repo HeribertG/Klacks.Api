@@ -39,7 +39,7 @@ public class DeleteContainerTemplatesCommandHandler : IRequestHandler<DeleteCont
 
         foreach (var template in templates)
         {
-            await _repository.Delete(template.Id);
+            _repository.Remove(template);
         }
 
         await _unitOfWork.CompleteAsync();

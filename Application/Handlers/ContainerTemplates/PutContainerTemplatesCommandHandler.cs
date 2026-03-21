@@ -116,7 +116,7 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
         foreach (var templateToDelete in templatesToDelete)
         {
             _logger.LogInformation("Deleting ContainerTemplate: {TemplateId}", templateToDelete.Id);
-            await _repository.Delete(templateToDelete.Id);
+            _repository.Remove(templateToDelete);
         }
 
         await _unitOfWork.CompleteAsync();

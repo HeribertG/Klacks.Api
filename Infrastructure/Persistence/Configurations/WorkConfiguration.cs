@@ -15,6 +15,7 @@ public class WorkConfiguration : IEntityTypeConfiguration<Work>
     {
         builder.HasQueryFilter(p => !p.IsDeleted);
         builder.HasIndex(p => new { p.ClientId, p.ShiftId });
+        builder.HasIndex(p => new { p.CurrentDate, p.ClientId, p.IsDeleted });
         builder.HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
 
         builder.HasOne(p => p.Client)

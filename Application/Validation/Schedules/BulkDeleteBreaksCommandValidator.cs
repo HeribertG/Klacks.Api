@@ -23,14 +23,8 @@ public class BulkDeleteBreaksCommandValidator : AbstractValidator<BulkDeleteBrea
                 if (lockLevelService.CanModifyWork(WorkLockLevel.Closed, isAdmin))
                     return true;
 
-                foreach (var id in breakIds)
-                {
-                    var breakEntry = await breakRepository.Get(id);
-                    if (breakEntry != null && breakEntry.LockLevel != WorkLockLevel.None)
-                        return false;
-                }
-
-                return true;
+                var breaks = await breakRepository.GetByIdsAsync(breakIds);
+                return !breaks.Any(b => b.LockLevel != WorkLockLevel.None);
             })
             .WithMessage("Cannot delete sealed break entries.");
     }

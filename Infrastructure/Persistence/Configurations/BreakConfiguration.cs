@@ -16,6 +16,7 @@ public class BreakConfiguration : IEntityTypeConfiguration<Break>
         builder.HasQueryFilter(p => !p.IsDeleted);
         builder.ConfigureMultiLanguage(b => b.Description, "description");
         builder.HasIndex(p => new { p.ClientId });
+        builder.HasIndex(p => new { p.CurrentDate, p.ClientId });
         builder.HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
 
         builder.HasOne(p => p.Client)
