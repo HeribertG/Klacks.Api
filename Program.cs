@@ -251,7 +251,14 @@ var dataSource = dataSourceBuilder.Build();
 
 builder.Services.AddDbContext<DataBaseContext>(options =>
 {
-    options.UseNpgsql(dataSource, npgsqlOptions => npgsqlOptions.CommandTimeout(60));
+    options.UseNpgsql(dataSource, npgsqlOptions =>
+    {
+        npgsqlOptions.CommandTimeout(60);
+        npgsqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 3,
+            maxRetryDelay: TimeSpan.FromSeconds(5),
+            errorCodesToAdd: null);
+    });
     options.ConfigureWarnings(warnings =>
         warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
 });

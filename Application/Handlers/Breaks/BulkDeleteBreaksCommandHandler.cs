@@ -35,13 +35,10 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
             var response = new BulkBreaksResponse();
             var affectedClients = new HashSet<Guid>();
 
-            var deletedBreaks = new List<Break>();
-            foreach (var breakId in command.Request.BreakIds)
+            var deletedBreaks = await _breakRepository.GetByIdsAsync(command.Request.BreakIds);
+            foreach (var breakEntry in deletedBreaks)
             {
-                var breakEntry = await _breakRepository.Get(breakId);
-                if (breakEntry == null) continue;
-                deletedBreaks.Add(breakEntry);
-                await _breakRepository.Delete(breakId);
+                _breakRepository.Remove(breakEntry);
             }
 
             var affected = deletedBreaks.Select(b => (b.ClientId, b.CurrentDate)).ToList();

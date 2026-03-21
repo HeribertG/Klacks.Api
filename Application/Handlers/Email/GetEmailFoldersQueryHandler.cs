@@ -29,15 +29,18 @@ public class GetEmailFoldersQueryHandler : BaseHandler, IRequestHandler<GetEmail
         {
             var allFolders = await _folderRepository.GetAllAsync();
             var folders = allFolders.Where(f => !string.IsNullOrEmpty(f.SpecialUse) || !f.IsSystem).ToList();
-            var resources = new List<EmailFolderResource>();
+            var folderCounts = await _emailRepository.GetAllFolderCountsAsync();
 
-            foreach (var folder in folders)
+            var resources = folders.Select(folder =>
             {
                 var resource = _mapper.ToResource(folder);
-                resource.UnreadCount = await _emailRepository.GetUnreadCountByFolderAsync(folder.ImapFolderName);
-                resource.TotalCount = await _emailRepository.GetTotalCountByFolderAsync(folder.ImapFolderName);
-                resources.Add(resource);
-            }
+                if (folderCounts.TryGetValue(folder.ImapFolderName, out var counts))
+                {
+                    resource.UnreadCount = counts.Unread;
+                    resource.TotalCount = counts.Total;
+                }
+                return resource;
+            }).ToList();
 
             return resources;
         }, nameof(GetEmailFoldersQuery));

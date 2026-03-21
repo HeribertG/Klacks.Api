@@ -43,13 +43,10 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
             var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>();
             var affectedClients = new HashSet<Guid>();
 
-            var deletedWorks = new List<Work>();
-            foreach (var workId in command.Request.WorkIds)
+            var deletedWorks = await _workRepository.GetByIdsAsync(command.Request.WorkIds);
+            foreach (var work in deletedWorks)
             {
-                var work = await _workRepository.Get(workId);
-                if (work == null) continue;
-                deletedWorks.Add(work);
-                await _workRepository.Delete(workId);
+                _workRepository.Remove(work);
             }
 
             var affected = deletedWorks.Select(w => (w.ClientId, w.CurrentDate)).ToList();

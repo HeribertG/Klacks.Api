@@ -101,14 +101,14 @@ public class SkillRegistry : ISkillRegistry
         IReadOnlyList<string> userPermissions)
     {
         var permissionsHash = string.Join(",", userPermissions.OrderBy(p => p));
-        var cacheKey = $"skills_export_v{_cacheVersion}_{provider}_{permissionsHash.GetHashCode()}";
+        var cacheKey = $"skills_export_v{_cacheVersion}_{provider}_{permissionsHash}";
 
         return _cache.GetOrCreate(cacheKey, entry =>
         {
             entry.SetOptions(_cacheOptions);
 
-            _logger.LogDebug("Cache miss for skill export: Provider={Provider}, PermissionsHash={Hash}",
-                provider, permissionsHash.GetHashCode());
+            _logger.LogDebug("Cache miss for skill export: Provider={Provider}, Permissions={Permissions}",
+                provider, permissionsHash);
 
             var adapter = _adapterFactory.GetAdapter(provider);
             var descriptors = GetSkillsForUser(userPermissions);

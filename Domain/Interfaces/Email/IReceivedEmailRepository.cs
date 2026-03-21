@@ -28,6 +28,8 @@ public interface IReceivedEmailRepository
 
     Task<int> GetTotalCountByFolderAsync(string folder);
 
+    Task<Dictionary<string, (int Total, int Unread)>> GetAllFolderCountsAsync();
+
     Task DeleteByFolderAsync(string folder);
 
     Task<List<ReceivedEmail>> GetFilteredListAsync(string? folder, bool? isRead, bool sortAsc, int skip, int take);

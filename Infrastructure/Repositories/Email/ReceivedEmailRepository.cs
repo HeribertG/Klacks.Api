@@ -94,6 +94,21 @@ public class ReceivedEmailRepository : IReceivedEmailRepository
         return await _context.ReceivedEmails.CountAsync(e => e.Folder == folder);
     }
 
+    public async Task<Dictionary<string, (int Total, int Unread)>> GetAllFolderCountsAsync()
+    {
+        return await _context.ReceivedEmails
+            .GroupBy(e => e.Folder)
+            .Select(g => new
+            {
+                Folder = g.Key,
+                Total = g.Count(),
+                Unread = g.Count(e => !e.IsRead)
+            })
+            .ToDictionaryAsync(
+                x => x.Folder,
+                x => (x.Total, x.Unread));
+    }
+
     public async Task DeleteByFolderAsync(string folder)
     {
         var emails = await _context.ReceivedEmails.Where(e => e.Folder == folder).ToListAsync();
