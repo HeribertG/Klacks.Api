@@ -488,7 +488,7 @@ public class RouteOptimizationService : IRouteOptimizationService
                     Address = fullAddress,
                     Latitude = lat.Value,
                     Longitude = lon.Value,
-                    ShiftId = item.ShiftId,
+                    ShiftId = item.ShiftId ?? Guid.Empty,
                     TransportMode = item.TransportMode,
                     BriefingTime = briefingTime,
                     DebriefingTime = debriefingTime,

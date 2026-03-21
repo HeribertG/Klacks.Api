@@ -45,6 +45,7 @@ public class PostContainerTemplatesCommandHandler : IRequestHandler<PostContaine
             foreach (var item in template.ContainerTemplateItems)
             {
                 item.Shift = null;
+                item.Absence = null;
             }
 
             await _repository.Add(template);

@@ -99,6 +99,7 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
                 foreach (var item in newTemplate.ContainerTemplateItems)
                 {
                     item.Shift = null;
+                    item.Absence = null;
                 }
 
                 await _repository.Add(newTemplate);

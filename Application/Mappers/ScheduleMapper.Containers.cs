@@ -52,6 +52,7 @@ public partial class ScheduleMapper
 
     [MapperIgnoreTarget(nameof(ContainerTemplateItemResource.Weekday))]
     [MapperIgnoreSource(nameof(ContainerTemplateItem.Shift))]
+    [MapperIgnoreSource(nameof(ContainerTemplateItem.Absence))]
     private partial ContainerTemplateItemResource ToContainerTemplateItemResourceBase(ContainerTemplateItem item);
 
     public ContainerTemplateItemResource ToContainerTemplateItemResource(ContainerTemplateItem item)
@@ -60,6 +61,10 @@ public partial class ScheduleMapper
         if (item.Shift != null)
         {
             resource.Shift = ToShiftResource(item.Shift);
+        }
+        if (item.Absence != null)
+        {
+            resource.Absence = ToAbsenceResource(item.Absence);
         }
         return resource;
     }
@@ -72,6 +77,9 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(ContainerTemplateItem.IsDeleted))]
     [MapperIgnoreTarget(nameof(ContainerTemplateItem.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(ContainerTemplateItem.Shift))]
+    [MapperIgnoreTarget(nameof(ContainerTemplateItem.Absence))]
     [MapperIgnoreTarget(nameof(ContainerTemplateItem.ContainerTemplate))]
     public partial ContainerTemplateItem ToContainerTemplateItemEntity(ContainerTemplateItemResource resource);
+
+    public partial AbsenceResource ToAbsenceResource(Absence absence);
 }

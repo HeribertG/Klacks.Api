@@ -47,6 +47,8 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
             .Include(t => t.Shift)
             .Include(t => t.ContainerTemplateItems)
                 .ThenInclude(i => i.Shift)
+            .Include(t => t.ContainerTemplateItems)
+                .ThenInclude(i => i.Absence)
             .AsSplitQuery()
             .FirstOrDefaultAsync(t => t.Id == template.Id);
 
@@ -94,6 +96,8 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
             .Include(t => t.Shift)
             .Include(t => t.ContainerTemplateItems)
                 .ThenInclude(i => i.Shift)
+            .Include(t => t.ContainerTemplateItems)
+                .ThenInclude(i => i.Absence)
             .AsSplitQuery()
             .AsNoTracking()
             .FirstOrDefaultAsync();
@@ -122,6 +126,8 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
                 .ThenInclude(i => i.Shift)
                     .ThenInclude(s => s.Client)
                         .ThenInclude(c => c.Addresses)
+            .Include(t => t.ContainerTemplateItems)
+                .ThenInclude(i => i.Absence)
             .AsSplitQuery()
             .AsNoTracking()
             .OrderBy(t => t.Weekday)
@@ -143,6 +149,8 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
             .Include(t => t.Shift)
             .Include(t => t.ContainerTemplateItems)
                 .ThenInclude(i => i.Shift)
+            .Include(t => t.ContainerTemplateItems)
+                .ThenInclude(i => i.Absence)
             .AsSplitQuery()
             .OrderBy(t => t.Weekday)
             .ThenBy(t => t.IsHoliday)
@@ -174,7 +182,8 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
         }
 
         return await query
-            .Select(cti => cti.ShiftId)
+            .Where(cti => cti.ShiftId != null)
+            .Select(cti => cti.ShiftId!.Value)
             .Distinct()
             .ToListAsync(cancellationToken);
     }
@@ -210,14 +219,15 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
         }
 
         existingItem.ShiftId = itemResource.ShiftId;
-        existingItem.StartShift = itemResource.StartShift;
-        existingItem.EndShift = itemResource.EndShift;
+        existingItem.AbsenceId = itemResource.AbsenceId;
+        existingItem.StartItem = itemResource.StartItem;
+        existingItem.EndItem = itemResource.EndItem;
         existingItem.BriefingTime = itemResource.BriefingTime;
         existingItem.DebriefingTime = itemResource.DebriefingTime;
         existingItem.TravelTimeAfter = itemResource.TravelTimeAfter;
         existingItem.TravelTimeBefore = itemResource.TravelTimeBefore;
-        existingItem.TimeRangeStartShift = itemResource.TimeRangeStartShift;
-        existingItem.TimeRangeEndShift = itemResource.TimeRangeEndShift;
+        existingItem.TimeRangeStartItem = itemResource.TimeRangeStartItem;
+        existingItem.TimeRangeEndItem = itemResource.TimeRangeEndItem;
         existingItem.TransportMode = itemResource.TransportMode;
 
         context.Entry(existingItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
@@ -233,14 +243,15 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
         {
             ContainerTemplateId = templateId,
             ShiftId = itemResource.ShiftId,
-            StartShift = itemResource.StartShift,
-            EndShift = itemResource.EndShift,
+            AbsenceId = itemResource.AbsenceId,
+            StartItem = itemResource.StartItem,
+            EndItem = itemResource.EndItem,
             BriefingTime = itemResource.BriefingTime,
             DebriefingTime = itemResource.DebriefingTime,
             TravelTimeAfter = itemResource.TravelTimeAfter,
             TravelTimeBefore = itemResource.TravelTimeBefore,
-            TimeRangeStartShift = itemResource.TimeRangeStartShift,
-            TimeRangeEndShift = itemResource.TimeRangeEndShift,
+            TimeRangeStartItem = itemResource.TimeRangeStartItem,
+            TimeRangeEndItem = itemResource.TimeRangeEndItem,
             TransportMode = itemResource.TransportMode
         };
 
