@@ -75,8 +75,7 @@ public class RouteDirectionsBuilder : IRouteDirectionsBuilder
     private async Task<RouteSegmentDirections> GetOsrmDirectionsAsync(Location from, Location to, string profile)
     {
         var coordinates = $"{from.Longitude:F6},{from.Latitude:F6};{to.Longitude:F6},{to.Latitude:F6}";
-        var useProfile = "driving";
-        var url = $"{OSRM_BASE_URL}/route/v1/{useProfile}/{coordinates}?steps=true&overview=false";
+        var url = $"{OSRM_BASE_URL}/route/v1/{profile}/{coordinates}?steps=true&overview=false";
 
         _logger.LogInformation("Requesting OSRM directions: {Url}", url);
 

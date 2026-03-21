@@ -29,4 +29,6 @@ public class Absence : BaseEntity
     public bool WithSaturday { get; set; }
 
     public bool WithSunday { get; set; }
+
+    public bool AppliesToContainer { get; set; }
 }

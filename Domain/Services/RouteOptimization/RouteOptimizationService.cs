@@ -16,6 +16,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Staffs;
 using Klacks.Api.Domain.Models.Schedules;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Domain.Services.RouteOptimization;
 
@@ -23,6 +24,7 @@ public class RouteOptimizationService : IRouteOptimizationService
 {
     private readonly IContainerTemplateRepository _containerRepository;
     private readonly IBranchRepository _branchRepository;
+    private readonly IShiftRepository _shiftRepository;
     private readonly IGeocodingService _geocodingService;
     private readonly IDistanceMatrixBuilder _distanceMatrixBuilder;
     private readonly IRouteDirectionsBuilder _routeDirectionsBuilder;
@@ -31,6 +33,7 @@ public class RouteOptimizationService : IRouteOptimizationService
     public RouteOptimizationService(
         IContainerTemplateRepository containerRepository,
         IBranchRepository branchRepository,
+        IShiftRepository shiftRepository,
         IGeocodingService geocodingService,
         IDistanceMatrixBuilder distanceMatrixBuilder,
         IRouteDirectionsBuilder routeDirectionsBuilder,
@@ -38,6 +41,7 @@ public class RouteOptimizationService : IRouteOptimizationService
     {
         _containerRepository = containerRepository;
         _branchRepository = branchRepository;
+        _shiftRepository = shiftRepository;
         _geocodingService = geocodingService;
         _distanceMatrixBuilder = distanceMatrixBuilder;
         _routeDirectionsBuilder = routeDirectionsBuilder;
@@ -185,6 +189,119 @@ public class RouteOptimizationService : IRouteOptimizationService
             transportMode,
             segmentDirections,
             totalBriefingDebriefingTime);
+    }
+
+    public async Task<RouteOptimizationResult> OptimizeRouteByShiftIdsAsync(
+        List<Guid> shiftIds,
+        string? startBase = null,
+        string? endBase = null,
+        ContainerTransportMode transportMode = ContainerTransportMode.ByCar)
+    {
+        _logger.LogInformation("OptimizeRouteByShiftIdsAsync called with {Count} shift IDs", shiftIds.Count);
+
+        var shifts = await _shiftRepository.GetQueryWithClient()
+            .Where(s => shiftIds.Contains(s.Id))
+            .ToListAsync();
+
+        _logger.LogInformation("Loaded {Count} shifts from DB", shifts.Count);
+
+        var locations = ExtractLocationsFromShifts(shifts, transportMode);
+
+        if (locations.Count < 2)
+        {
+            _logger.LogWarning("Not enough geocoded locations ({Count}). Need at least 2.", locations.Count);
+            return new RouteOptimizationResult(new List<Location>(), 0.0, TimeSpan.Zero, new double[0, 0], new double[0, 0], TimeSpan.Zero, new List<int>(), 0.0, 0.0, TimeSpan.Zero, new List<int>());
+        }
+
+        var (distMatrix, durationMatrix, durationMatricesByProfile) = await _distanceMatrixBuilder.BuildDistanceMatrixAsync(locations, transportMode);
+        var distanceMatrix = new DistanceMatrix(locations, distMatrix, durationMatrix, durationMatricesByProfile);
+
+        distanceMatrix = await AddBranchesToDistanceMatrixAsync(distanceMatrix, startBase, endBase, transportMode);
+
+        if (distanceMatrix.Locations.Count < 2)
+        {
+            return new RouteOptimizationResult(new List<Location>(), 0.0, TimeSpan.Zero, new double[0, 0], new double[0, 0], TimeSpan.Zero, new List<int>(), 0.0, 0.0, TimeSpan.Zero, new List<int>());
+        }
+
+        var optimizer = new AntColonyOptimizer(distanceMatrix, _logger);
+        var startIndex = FindLocationIndex(distanceMatrix, startBase, "startBase");
+        var endIndex = FindLocationIndex(distanceMatrix, endBase, "endBase");
+        var route = optimizer.FindOptimalRoute(startIndex, endIndex);
+
+        var totalDistance = TravelTimeCalculator.CalculateTotalDistance(route, distanceMatrix.Matrix);
+        var (distanceFromStartBase, distanceToEndBase) = CalculateBaseDistances(distanceMatrix, route, startIndex, endIndex);
+        totalDistance += distanceFromStartBase;
+        if (endIndex.HasValue && route.Count > 0 && route.Last() != endIndex.Value)
+        {
+            totalDistance += distanceToEndBase;
+        }
+
+        var estimatedTime = TravelTimeCalculator.CalculateMixedTravelTime(route, distanceMatrix, transportMode);
+        var (fullRoute, fullRouteIndices) = BuildFullRoute(distanceMatrix, route, startIndex, endIndex);
+        var (travelTimeFromStartBase, travelTimeToEndBase) = TravelTimeCalculator.CalculateBaseTravelTimes(
+            distanceMatrix, route, startIndex, endIndex, distanceFromStartBase, distanceToEndBase, transportMode);
+        var totalTravelTime = estimatedTime + travelTimeFromStartBase + travelTimeToEndBase;
+
+        var segmentDirections = await _routeDirectionsBuilder.GetRouteDirectionsAsync(fullRoute, distanceMatrix, transportMode);
+        var totalBriefingDebriefingTime = CalculateTotalBriefingDebriefingTime(fullRoute);
+        var totalTimeWithBriefing = totalTravelTime + totalBriefingDebriefingTime;
+
+        _logger.LogInformation("Route optimized: {Count} stops, {Distance:F2} km, {Time}", fullRoute.Count, totalDistance, totalTimeWithBriefing);
+
+        return new RouteOptimizationResult(
+            fullRoute, totalDistance, totalTimeWithBriefing,
+            distanceMatrix.Matrix, distanceMatrix.DurationMatrix,
+            travelTimeFromStartBase, route, distanceFromStartBase, distanceToEndBase, travelTimeToEndBase,
+            fullRouteIndices, distanceMatrix.DurationMatricesByProfile, transportMode,
+            segmentDirections, totalBriefingDebriefingTime);
+    }
+
+    private static List<Location> ExtractLocationsFromShifts(List<Shift> shifts, ContainerTransportMode transportMode)
+    {
+        var locations = new List<Location>();
+        var uniqueAddresses = new HashSet<string>();
+
+        foreach (var shift in shifts)
+        {
+            if (shift.Client?.Addresses == null || !shift.Client.Addresses.Any())
+            {
+                continue;
+            }
+
+            var address = shift.Client.Addresses.First();
+            if (string.IsNullOrEmpty(address.City) || !address.Latitude.HasValue || !address.Longitude.HasValue)
+            {
+                continue;
+            }
+
+            var addressKey = $"{address.City}_{address.Zip}_{address.Street}";
+            if (uniqueAddresses.Contains(addressKey))
+            {
+                continue;
+            }
+
+            uniqueAddresses.Add(addressKey);
+            var fullAddress = $"{address.Street}, {address.Zip} {address.City}";
+
+            locations.Add(new Location
+            {
+                Name = shift.Client.Name ?? "Unknown",
+                Address = fullAddress,
+                Latitude = address.Latitude.Value,
+                Longitude = address.Longitude.Value,
+                ShiftId = shift.Id,
+                TransportMode = transportMode == ContainerTransportMode.Mix
+                    ? TransportMode.ByCar
+                    : (TransportMode)(int)transportMode,
+                BriefingTime = shift.BriefingTime.ToTimeSpan(),
+                DebriefingTime = shift.DebriefingTime.ToTimeSpan(),
+                WorkTime = TimeSpan.FromHours((double)shift.WorkTime),
+                TimeRangeStart = shift.StartShift,
+                TimeRangeEnd = shift.EndShift
+            });
+        }
+
+        return locations;
     }
 
     public async Task<DistanceMatrix> CalculateDistanceMatrixForLocationsAsync(
@@ -345,13 +462,21 @@ public class RouteOptimizationService : IRouteOptimizationService
             }
 
             var fullAddress = $"{address.Street}, {address.Zip} {address.City}";
-            _logger.LogInformation("Geocoding full address: {FullAddress}, Country: {Country}", fullAddress, address.Country ?? "Switzerland");
 
-            var coords = await _geocodingService.GeocodeAddressAsync(
-                fullAddress,
-                address.Country ?? "Switzerland");
+            double? lat = address.Latitude;
+            double? lon = address.Longitude;
 
-            if (coords.Latitude.HasValue && coords.Longitude.HasValue)
+            if (!lat.HasValue || !lon.HasValue)
+            {
+                _logger.LogInformation("Geocoding address (no stored coordinates): {FullAddress}", fullAddress);
+                var coords = await _geocodingService.GeocodeAddressAsync(
+                    fullAddress,
+                    address.Country ?? "Switzerland");
+                lat = coords.Latitude;
+                lon = coords.Longitude;
+            }
+
+            if (lat.HasValue && lon.HasValue)
             {
                 var briefingTime = item.BriefingTime.ToTimeSpan();
                 var debriefingTime = item.DebriefingTime.ToTimeSpan();
@@ -361,8 +486,8 @@ public class RouteOptimizationService : IRouteOptimizationService
                 {
                     Name = item.Shift.Client.Name ?? "Unknown",
                     Address = fullAddress,
-                    Latitude = coords.Latitude.Value,
-                    Longitude = coords.Longitude.Value,
+                    Latitude = lat.Value,
+                    Longitude = lon.Value,
                     ShiftId = item.ShiftId,
                     TransportMode = item.TransportMode,
                     BriefingTime = briefingTime,
@@ -372,7 +497,7 @@ public class RouteOptimizationService : IRouteOptimizationService
 
                 uniqueAddresses.Add(addressKey);
                 _logger.LogInformation("Location added: {Name} at ({Lat}, {Lon}), TransportMode: {TransportMode}, TotalOnSiteTime: {TotalOnSiteTime} (Briefing: {BriefingTime}, Work: {WorkTime}, Debriefing: {DebriefingTime})",
-                    item.Shift.Client.Name, coords.Latitude.Value, coords.Longitude.Value, item.TransportMode,
+                    item.Shift.Client.Name, lat.Value, lon.Value, item.TransportMode,
                     briefingTime + workTime + debriefingTime, briefingTime, workTime, debriefingTime);
             }
             else

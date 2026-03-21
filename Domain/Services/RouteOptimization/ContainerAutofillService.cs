@@ -71,7 +71,7 @@ public class ContainerAutofillService : IContainerAutofillService
             return CreateEmptyResult(request.TransportMode, availableTasks.Count);
         }
 
-        var candidateLocations = await ExtractLocationsFromShiftsAsync(timeRangeTasks, request.CancellationToken);
+        var candidateLocations = await ExtractLocationsFromShiftsAsync(timeRangeTasks, request.TransportMode, request.CancellationToken);
         if (candidateLocations.Count == 0)
         {
             _logger.LogWarning("No geocodable locations found");
@@ -147,7 +147,7 @@ public class ContainerAutofillService : IContainerAutofillService
         return BuildResult(context, optimizedRoute, timeRangeTasks.Count, request.TransportMode);
     }
 
-    private async Task<List<Location>> ExtractLocationsFromShiftsAsync(List<Shift> shifts, CancellationToken cancellationToken)
+    private async Task<List<Location>> ExtractLocationsFromShiftsAsync(List<Shift> shifts, ContainerTransportMode containerTransportMode, CancellationToken cancellationToken)
     {
         var locations = new List<Location>();
         var uniqueAddresses = new HashSet<string>();
@@ -173,7 +173,7 @@ public class ContainerAutofillService : IContainerAutofillService
 
             if (address.Latitude.HasValue && address.Longitude.HasValue)
             {
-                locations.Add(CreateLocationFromShift(shift, fullAddress, address.Latitude.Value, address.Longitude.Value));
+                locations.Add(CreateLocationFromShift(shift, fullAddress, address.Latitude.Value, address.Longitude.Value, containerTransportMode));
             }
             else
             {
@@ -198,7 +198,7 @@ public class ContainerAutofillService : IContainerAutofillService
             {
                 if (coords.Latitude.HasValue && coords.Longitude.HasValue)
                 {
-                    locations.Add(CreateLocationFromShift(shift, fullAddress, coords.Latitude.Value, coords.Longitude.Value));
+                    locations.Add(CreateLocationFromShift(shift, fullAddress, coords.Latitude.Value, coords.Longitude.Value, containerTransportMode));
 
                     _ = _coordinateWriter.UpdateCoordinatesAsync(address.Id, coords.Latitude.Value, coords.Longitude.Value, CancellationToken.None);
                 }
@@ -209,7 +209,7 @@ public class ContainerAutofillService : IContainerAutofillService
         return locations;
     }
 
-    private static Location CreateLocationFromShift(Shift shift, string fullAddress, double latitude, double longitude)
+    private static Location CreateLocationFromShift(Shift shift, string fullAddress, double latitude, double longitude, ContainerTransportMode containerTransportMode)
     {
         return new Location
         {
@@ -218,7 +218,9 @@ public class ContainerAutofillService : IContainerAutofillService
             Latitude = latitude,
             Longitude = longitude,
             ShiftId = shift.Id,
-            TransportMode = TransportMode.ByCar,
+            TransportMode = containerTransportMode == ContainerTransportMode.Mix
+                ? TransportMode.ByCar
+                : (TransportMode)(int)containerTransportMode,
             BriefingTime = shift.BriefingTime.ToTimeSpan(),
             DebriefingTime = shift.DebriefingTime.ToTimeSpan(),
             WorkTime = TimeSpan.FromHours((double)shift.WorkTime),

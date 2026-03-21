@@ -64,23 +64,26 @@ public class RouteOptimizationController : BaseController
         }
     }
 
-    [HttpGet("optimize-route")]
+    [HttpPost("optimize-route")]
     public async Task<ActionResult<RouteOptimizationResponse>> OptimizeRoute(
-        [FromQuery] Guid containerId,
-        [FromQuery] int weekday,
-        [FromQuery] bool isHoliday = false,
+        [FromBody] List<Guid> shiftIds,
         [FromQuery] string? startBase = null,
         [FromQuery] string? endBase = null,
         [FromQuery] ContainerTransportMode transportMode = ContainerTransportMode.ByCar)
     {
         _logger.LogInformation(
-            "Optimizing route for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}, StartBase: {StartBase}, EndBase: {EndBase}, TransportMode: {TransportMode}",
-            containerId, weekday, isHoliday, startBase, endBase, transportMode);
+            "Optimizing route for {Count} shifts, StartBase: {StartBase}, EndBase: {EndBase}, TransportMode: {TransportMode}",
+            shiftIds.Count, startBase, endBase, transportMode);
+
+        if (shiftIds.Count < 2)
+        {
+            return BadRequest("At least 2 shifts are required for route optimization");
+        }
 
         try
         {
-            var result = await _routeOptimizationService.OptimizeRouteAsync(
-                containerId, weekday, isHoliday, startBase, endBase, transportMode);
+            var result = await _routeOptimizationService.OptimizeRouteByShiftIdsAsync(
+                shiftIds, startBase, endBase, transportMode);
 
             var routeSteps = new List<RouteStepDto>();
 
