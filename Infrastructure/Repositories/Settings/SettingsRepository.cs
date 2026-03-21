@@ -59,9 +59,9 @@ public class SettingsRepository : ISettingsRepository
 
     #region Macro
 
-    public Macro AddMacro(Macro macro)
+    public async Task<Macro> AddMacroAsync(Macro macro)
     {
-        return _macroManagementService.AddMacroAsync(macro).Result;
+        return await _macroManagementService.AddMacroAsync(macro);
     }
 
     public async Task<Macro> DeleteMacro(Guid id)
@@ -79,14 +79,14 @@ public class SettingsRepository : ISettingsRepository
         return await _macroManagementService.GetMacroListAsync();
     }
 
-    public bool MacroExists(Guid id)
+    public async Task<bool> MacroExistsAsync(Guid id)
     {
-        return _macroManagementService.MacroExistsAsync(id).Result;
+        return await _macroManagementService.MacroExistsAsync(id);
     }
 
-    public Macro PutMacro(Macro macro)
+    public async Task<Macro> PutMacroAsync(Macro macro)
     {
-        return _macroManagementService.UpdateMacroAsync(macro).Result;
+        return await _macroManagementService.UpdateMacroAsync(macro);
     }
 
     public void RemoveMacro(Macro macro)

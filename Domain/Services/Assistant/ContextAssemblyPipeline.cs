@@ -54,7 +54,7 @@ public class ContextAssemblyPipeline
         var identityPrompt = await _identityContextProvider.GetIdentityPromptAsync(agentId, language, cancellationToken);
         sb.Append(identityPrompt);
 
-        var sentimentResult = _sentimentAnalyzer.AnalyzeSentiment(userMessage);
+        var sentimentResult = await _sentimentAnalyzer.AnalyzeSentimentAsync(userMessage);
         if (sentimentResult.Mood != SentimentMood.Neutral && sentimentResult.Confidence > SentimentThreshold)
         {
             sb.AppendLine($"[USER_MOOD: {sentimentResult.Mood.ToString().ToUpperInvariant()}] Adjust your tone accordingly.");

@@ -58,7 +58,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Calenda
 
     private async Task TranslateMultiLanguageFieldsAsync(CalendarRuleResource resource)
     {
-        if (!_translationService.IsConfigured)
+        if (!await _translationService.IsConfiguredAsync())
         {
             return;
         }

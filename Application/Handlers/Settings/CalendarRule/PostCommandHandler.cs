@@ -49,7 +49,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand, Doma
 
     private async Task TranslateMultiLanguageFieldsAsync(CalendarRuleResource resource)
     {
-        if (!_translationService.IsConfigured)
+        if (!await _translationService.IsConfiguredAsync())
         {
             return;
         }

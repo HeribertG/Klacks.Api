@@ -6,7 +6,7 @@ namespace Klacks.Api.Application.Interfaces.Settings;
 
 public interface ILanguagePluginService
 {
-    void Initialize();
+    Task InitializeAsync();
     IReadOnlyList<LanguagePluginInfo> GetAllPlugins();
     LanguagePluginInfo? GetPlugin(string code);
     Task<bool> InstallAsync(string code);
@@ -14,5 +14,5 @@ public interface ILanguagePluginService
     Dictionary<string, string>? GetTranslations(string code);
     IReadOnlyList<string> GetInstalledPluginCodes();
     Task<string?> GetPluginDocAsync(string code, string manualName);
-    void RefreshPlugins();
+    Task RefreshPluginsAsync();
 }

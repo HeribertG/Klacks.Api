@@ -193,7 +193,7 @@ public class LanguageConfigController : ControllerBase
             }
         }
 
-        _languagePluginService.RefreshPlugins();
+        await _languagePluginService.RefreshPluginsAsync();
         await _languagePluginService.InstallAsync(code);
 
         return Ok();

@@ -6,10 +6,10 @@ namespace Klacks.Api.Infrastructure.Extensions;
 
 public static class LanguagePluginExtensions
 {
-    public static IApplicationBuilder InitializeLanguagePlugins(this IApplicationBuilder app)
+    public static async Task<IApplicationBuilder> InitializeLanguagePluginsAsync(this IApplicationBuilder app)
     {
         var service = app.ApplicationServices.GetRequiredService<ILanguagePluginService>();
-        service.Initialize();
+        await service.InitializeAsync();
 
         return app;
     }

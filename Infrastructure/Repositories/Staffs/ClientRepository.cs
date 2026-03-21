@@ -128,6 +128,13 @@ public class ClientRepository : IClientRepository
     public async Task<List<Client>> List()
     {
         return await this.context.Client
+                                        .AsNoTracking()
+                                        .ToListAsync();
+    }
+
+    public async Task<List<Client>> ListWithRelations()
+    {
+        return await this.context.Client
                                         .Include(cu => cu.Membership)
                                         .Include(cu => cu.Addresses)
                                         .Include(cu => cu.Communications)

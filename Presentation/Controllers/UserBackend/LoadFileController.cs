@@ -1,11 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Text;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend;
 
+[EnableRateLimiting(RateLimitingPolicies.Upload)]
 public class LoadFileController : BaseController
 {
     private readonly IConfiguration _configuration;

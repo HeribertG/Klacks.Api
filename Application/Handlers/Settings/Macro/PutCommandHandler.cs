@@ -30,7 +30,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Macro
         public async Task<MacroResource?> Handle(PutCommand request, CancellationToken cancellationToken)
         {
             var macro = _settingsMapper.ToMacroEntity(request.model);
-            var updatedMacro = _settingsRepository.PutMacro(macro);
+            var updatedMacro = await _settingsRepository.PutMacroAsync(macro);
             await _unitOfWork.CompleteAsync();
             return _settingsMapper.ToMacroResource(updatedMacro);
         }

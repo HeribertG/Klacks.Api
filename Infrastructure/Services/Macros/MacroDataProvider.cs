@@ -186,10 +186,10 @@ public class MacroDataProvider : IMacroDataProvider
 
     private async Task<IHolidaysListCalculator> GetHolidayCalculatorAsync(Guid calendarSelectionId, int year)
     {
-        return _holidayCache.GetOrCreate(calendarSelectionId, year, () =>
+        return await _holidayCache.GetOrCreateAsync(calendarSelectionId, year, async () =>
         {
             var calculator = new HolidaysListCalculator { CurrentYear = year };
-            var rules = LoadCalendarRulesForSelection(calendarSelectionId).Result;
+            var rules = await LoadCalendarRulesForSelection(calendarSelectionId);
             calculator.AddRange(rules);
             calculator.ComputeHolidays();
             return calculator;

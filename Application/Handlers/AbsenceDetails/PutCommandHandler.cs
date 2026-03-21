@@ -47,7 +47,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Absence
 
     private async Task TranslateMultiLanguageFieldsAsync(AbsenceDetailResource resource)
     {
-        if (!_translationService.IsConfigured)
+        if (!await _translationService.IsConfiguredAsync())
         {
             return;
         }

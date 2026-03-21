@@ -7,6 +7,7 @@ namespace Klacks.Api.Application.Interfaces;
 public interface IHolidayCalculatorCache
 {
     IHolidaysListCalculator GetOrCreate(Guid calendarSelectionId, int year, Func<IHolidaysListCalculator> factory);
+    Task<IHolidaysListCalculator> GetOrCreateAsync(Guid calendarSelectionId, int year, Func<Task<IHolidaysListCalculator>> factory);
     void Invalidate(Guid calendarSelectionId);
     void InvalidateAll();
 }

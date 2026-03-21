@@ -33,12 +33,12 @@ public class SentimentAnalyzer : ISentimentAnalyzer
         _scopeFactory = scopeFactory;
     }
 
-    public SentimentResult AnalyzeSentiment(string userMessage)
+    public async Task<SentimentResult> AnalyzeSentimentAsync(string userMessage)
     {
         if (string.IsNullOrWhiteSpace(userMessage))
             return new SentimentResult(SentimentMood.Neutral, 0f);
 
-        EnsureLoaded();
+        await EnsureLoadedAsync();
 
         var lower = userMessage.ToLowerInvariant();
 
@@ -81,27 +81,21 @@ public class SentimentAnalyzer : ISentimentAnalyzer
         }
     }
 
-    private void EnsureLoaded()
+    private async Task EnsureLoadedAsync()
     {
         if (_loaded)
             return;
 
-        lock (_loadLock)
-        {
-            if (_loaded)
-                return;
-
-            LoadKeywordsFromDatabase();
-            _loaded = true;
-        }
+        await LoadKeywordsFromDatabaseAsync();
+        _loaded = true;
     }
 
-    private void LoadKeywordsFromDatabase()
+    private async Task LoadKeywordsFromDatabaseAsync()
     {
         using var scope = _scopeFactory.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<ISentimentKeywordRepository>();
 
-        var allSets = repository.GetAllAsync().GetAwaiter().GetResult();
+        var allSets = await repository.GetAllAsync();
 
         var merged = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 

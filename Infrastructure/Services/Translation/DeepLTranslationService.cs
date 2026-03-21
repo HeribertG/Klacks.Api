@@ -31,7 +31,7 @@ public class DeepLTranslationService : ITranslationService
         _logger = logger;
     }
 
-    public bool IsConfigured => GetApiKeyAsync().GetAwaiter().GetResult() is not null;
+    public async Task<bool> IsConfiguredAsync() => await GetApiKeyAsync() is not null;
 
     public async Task<TranslationResult> TranslateAsync(string text, string sourceLanguage, string targetLanguage)
     {

@@ -14,7 +14,7 @@ public interface ISettingsRepository : ISettingsReader
 
     CalendarRule AddCalendarRule(CalendarRule calendarRule);
 
-    Macro AddMacro(Macro macro);
+    Task<Macro> AddMacroAsync(Macro macro);
 
     Task<Klacks.Api.Domain.Models.Settings.Settings> AddSetting(Klacks.Api.Domain.Models.Settings.Settings settings);
 
@@ -36,11 +36,11 @@ public interface ISettingsRepository : ISettingsReader
 
     Task<TruncatedCalendarRule> GetTruncatedCalendarRuleList(CalendarRulesFilter filter);
 
-    bool MacroExists(Guid id);
+    Task<bool> MacroExistsAsync(Guid id);
 
     CalendarRule PutCalendarRule(CalendarRule calendarRule);
 
-    Macro PutMacro(Macro macro);
+    Task<Macro> PutMacroAsync(Macro macro);
 
     Task<Klacks.Api.Domain.Models.Settings.Settings> PutSetting(Klacks.Api.Domain.Models.Settings.Settings settings);
 

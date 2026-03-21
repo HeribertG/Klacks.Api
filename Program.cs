@@ -17,6 +17,7 @@ using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Infrastructure.Services.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.Mappers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -27,6 +28,8 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 var myAllowSpecificOrigins = "CorsPolicy";
 string[] headers =["X-Operation", "X-Resource", "X-Total-Count"];
@@ -150,28 +153,52 @@ builder.Services.AddCors(options =>
                       });
 });
 
-builder.Services.AddApplicationServices();
+var bgOptions = builder.Configuration
+    .GetSection(BackgroundServiceOptions.SectionName)
+    .Get<BackgroundServiceOptions>() ?? new BackgroundServiceOptions();
+
+builder.Services.AddApplicationServices(builder.Configuration);
 
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IConnectionDateRangeTracker, ConnectionDateRangeTracker>();
 builder.Services.AddScoped<IWorkNotificationService, WorkNotificationService>();
 builder.Services.AddScoped<IShiftStatsNotificationService, ShiftStatsNotificationService>();
 builder.Services.AddSingleton<PeriodHoursBackgroundService>();
-builder.Services.AddHostedService(sp => sp.GetRequiredService<PeriodHoursBackgroundService>());
+if (bgOptions.PeriodHours)
+    builder.Services.AddHostedService(sp => sp.GetRequiredService<PeriodHoursBackgroundService>());
 builder.Services.AddSingleton<IScheduleTimelineStore, ScheduleTimelineStore>();
 builder.Services.AddSingleton<ScheduleTimelineBackgroundService>();
-builder.Services.AddHostedService(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());
+if (bgOptions.ScheduleTimeline)
+    builder.Services.AddHostedService(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());
 builder.Services.AddSingleton<IScheduleTimelineService>(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());
 builder.Services.AddSingleton<LLMMapper>();
 builder.Services.AddSingleton<IAssistantConnectionTracker, AssistantConnectionTracker>();
 builder.Services.AddScoped<IAssistantNotificationService, AssistantNotificationService>();
 builder.Services.AddScoped<Klacks.Api.Domain.Interfaces.Email.IEmailNotificationService, EmailNotificationService>();
 builder.Services.AddSingleton<HeartbeatBackgroundService>();
-builder.Services.AddHostedService(sp => sp.GetRequiredService<HeartbeatBackgroundService>());
+if (bgOptions.Heartbeat)
+    builder.Services.AddHostedService(sp => sp.GetRequiredService<HeartbeatBackgroundService>());
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddMemoryCache();
 builder.Services.AddHealthChecks();
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.AddFixedWindowLimiter(RateLimitingPolicies.Login, opt =>
+    {
+        opt.PermitLimit = RateLimitingPolicies.LoginPermitLimit;
+        opt.Window = RateLimitingPolicies.DefaultWindow;
+    });
+
+    options.AddFixedWindowLimiter(RateLimitingPolicies.Upload, opt =>
+    {
+        opt.PermitLimit = RateLimitingPolicies.UploadPermitLimit;
+        opt.Window = RateLimitingPolicies.DefaultWindow;
+    });
+});
 
 builder.Services.AddPipelineBehavior(typeof(CancellationBehavior<,>));
 builder.Services.AddPipelineBehavior(typeof(ValidationBehavior<,>));
@@ -282,6 +309,8 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+app.UseRateLimiter();
+
 app.UseEndpoints(endpoints =>
     {
         endpoints.MapRazorPages();
@@ -306,7 +335,7 @@ if (builder.Configuration.GetValue<bool>("Database:InitializeOnStartup", false))
 }
 
 // Initialize Language Plugins
-app.InitializeLanguagePlugins();
+await app.InitializeLanguagePluginsAsync();
 
 // Initialize Skills System
 await app.LoadSkillSeedsAsync();

@@ -7,9 +7,11 @@ using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Domain.DTOs.Registrations;
 using Klacks.Api.Application.DTOs.Registrations;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Authentification;
 
@@ -103,6 +105,7 @@ public class AccountsController : BaseController
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting(RateLimitingPolicies.Login)]
     [HttpPost("LoginUser")]
     public async Task<IActionResult> LoginUser([FromBody] LogInResource model)
     {

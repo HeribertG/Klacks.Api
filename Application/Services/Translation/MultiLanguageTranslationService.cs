@@ -14,11 +14,11 @@ public class MultiLanguageTranslationService : IMultiLanguageTranslationService
         _translationService = translationService;
     }
 
-    public bool IsConfigured => _translationService.IsConfigured;
+    public async Task<bool> IsConfiguredAsync() => await _translationService.IsConfiguredAsync();
 
     public async Task<MultiLanguage> TranslateEmptyFieldsAsync(MultiLanguage multiLanguage)
     {
-        if (!IsConfigured || multiLanguage == null)
+        if (!await IsConfiguredAsync() || multiLanguage == null)
         {
             return multiLanguage ?? new MultiLanguage();
         }

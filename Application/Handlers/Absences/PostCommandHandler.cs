@@ -48,7 +48,7 @@ public class PostCommandHandler : BaseTransactionHandler, IRequestHandler<PostCo
 
     private async Task TranslateMultiLanguageFieldsAsync(AbsenceResource resource)
     {
-        if (!_translationService.IsConfigured)
+        if (!await _translationService.IsConfiguredAsync())
         {
             return;
         }

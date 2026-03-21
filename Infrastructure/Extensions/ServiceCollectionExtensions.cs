@@ -65,19 +65,21 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Application.Interfaces.Settings;
 using Klacks.Api.Infrastructure.Services.Associations;
 using Klacks.Api.Infrastructure.Services.ClientAvailabilitySchedule;
+using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.Skills.Generated;
 using Klacks.Api.Application.Skills.Generic;
+using Microsoft.Extensions.Configuration;
 
 namespace Klacks.Api.Infrastructure.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddRepositories();
-        services.AddDomainServices();
+        services.AddDomainServices(configuration);
         services.AddAuthenticationServices();
-        services.AddAssistantServices();
+        services.AddAssistantServices(configuration);
         services.AddInfrastructureServices();
         return services;
     }
@@ -147,7 +149,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISentimentKeywordRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SentimentKeywordRepository>();
     }
 
-    private static void AddDomainServices(this IServiceCollection services)
+    private static void AddDomainServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IGetAllClientIdsFromGroupAndSubgroups, GroupClientService>();
         services.AddScoped<IGroupVisibilityService, GroupVisibilityService>();
@@ -163,7 +165,7 @@ public static class ServiceCollectionExtensions
         services.AddClientServices();
         services.AddGroupServices();
         services.AddScheduleServices();
-        services.AddSettingsServices();
+        services.AddSettingsServices(configuration);
     }
 
     private static void AddShiftServices(this IServiceCollection services)
@@ -244,7 +246,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITravelTimeCalculationService, TravelTimeCalculationService>();
     }
 
-    private static void AddSettingsServices(this IServiceCollection services)
+    private static void AddSettingsServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<ISettingsEncryptionService, SettingsEncryptionService>();
         services.AddSingleton<ILanguagePluginService, LanguagePluginService>();
@@ -261,7 +263,14 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISpamFilterService, SpamFilterService>();
         services.AddScoped<IEmailClientAssignmentService, EmailClientAssignmentService>();
         services.AddSingleton<IEmailReclassificationTrigger, EmailReclassificationTrigger>();
-        services.AddHostedService<EmailPollingBackgroundService>();
+
+        var bgOptions = configuration
+            .GetSection(BackgroundServiceOptions.SectionName)
+            .Get<BackgroundServiceOptions>() ?? new BackgroundServiceOptions();
+
+        if (bgOptions.EmailPolling)
+            services.AddHostedService<EmailPollingBackgroundService>();
+
         services.AddHttpClient<IMarketplaceClientService, MarketplaceClientService>();
     }
 
@@ -285,12 +294,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IClientAddressService, ClientAddressService>();
     }
 
-    private static void AddAssistantServices(this IServiceCollection services)
+    private static void AddAssistantServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddLLMCoreServices();
         services.AddLLMProviders();
         services.AddSkillServices();
-        services.AddAssistantBackgroundServices();
+        services.AddAssistantBackgroundServices(configuration);
     }
 
     private static void AddLLMCoreServices(this IServiceCollection services)
@@ -405,11 +414,21 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGenericSkillDispatcher, GenericSkillDispatcher>();
     }
 
-    private static void AddAssistantBackgroundServices(this IServiceCollection services)
+    private static void AddAssistantBackgroundServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.EmbeddingBackgroundService>();
-        services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.MemoryCleanupBackgroundService>();
-        services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.SkillGapSuggestionBackgroundService>();
+        var bgOptions = configuration
+            .GetSection(BackgroundServiceOptions.SectionName)
+            .Get<BackgroundServiceOptions>() ?? new BackgroundServiceOptions();
+
+        if (bgOptions.Embedding)
+            services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.EmbeddingBackgroundService>();
+
+        if (bgOptions.MemoryCleanup)
+            services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.MemoryCleanupBackgroundService>();
+
+        if (bgOptions.SkillGapSuggestion)
+            services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.SkillGapSuggestionBackgroundService>();
+
         services.AddScoped<ISkillGapDetector, Klacks.Api.Domain.Services.Assistant.Skills.SkillGapDetector>();
     }
 

@@ -60,12 +60,12 @@ public class LanguagePluginService : ILanguagePluginService
         _contentInstaller = new LanguagePluginContentInstaller(_pluginDirectory, _logger);
     }
 
-    public void Initialize()
+    public async Task InitializeAsync()
     {
         if (_initialized) return;
 
         DiscoverPlugins();
-        LoadInstalledCodesFromDatabase();
+        await LoadInstalledCodesFromDatabaseAsync();
         _initialized = true;
     }
 
@@ -283,12 +283,12 @@ public class LanguagePluginService : ILanguagePluginService
         return doc?.HtmlContent;
     }
 
-    public void RefreshPlugins()
+    public async Task RefreshPluginsAsync()
     {
         _manifests.Clear();
         _translationCache.Clear();
         _initialized = false;
-        Initialize();
+        await InitializeAsync();
     }
 
     private static bool IsVersionCompatible(string minVersion)
@@ -361,13 +361,13 @@ public class LanguagePluginService : ILanguagePluginService
         _logger.LogInformation("Discovered {Count} language plugin(s)", _manifests.Count);
     }
 
-    private void LoadInstalledCodesFromDatabase()
+    private async Task LoadInstalledCodesFromDatabaseAsync()
     {
         try
         {
             using var scope = _scopeFactory.CreateScope();
             var settingsRepo = scope.ServiceProvider.GetRequiredService<ISettingsRepository>();
-            var settings = settingsRepo.GetSettingsList().GetAwaiter().GetResult();
+            var settings = await settingsRepo.GetSettingsList();
 
             lock (_installedLock)
             {

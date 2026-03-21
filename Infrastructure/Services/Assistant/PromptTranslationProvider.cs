@@ -164,7 +164,7 @@ public class PromptTranslationProvider : IPromptTranslationProvider
             using var scope = _scopeFactory.CreateScope();
             var translationService = scope.ServiceProvider.GetRequiredService<ITranslationService>();
 
-            if (!translationService.IsConfigured)
+            if (!await translationService.IsConfiguredAsync())
                 return null;
 
             var result = new Dictionary<string, string>();

@@ -20,9 +20,9 @@ public class TranslationController : BaseController
     }
 
     [HttpGet("status")]
-    public ActionResult<bool> GetStatus()
+    public async Task<ActionResult<bool>> GetStatus()
     {
-        return Ok(_translationService.IsConfigured);
+        return Ok(await _translationService.IsConfiguredAsync());
     }
 
     [HttpPost("translate-all")]
@@ -43,7 +43,7 @@ public class TranslationController : BaseController
             return BadRequest($"Unsupported source language: {request.SourceLanguage}");
         }
 
-        if (!_translationService.IsConfigured)
+        if (!await _translationService.IsConfiguredAsync())
         {
             return BadRequest("Translation service is not configured. Please set the DeepL API key in settings.");
         }

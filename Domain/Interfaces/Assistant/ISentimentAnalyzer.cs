@@ -6,6 +6,6 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface ISentimentAnalyzer
 {
-    SentimentResult AnalyzeSentiment(string userMessage);
+    Task<SentimentResult> AnalyzeSentimentAsync(string userMessage);
     void ReloadKeywords();
 }
