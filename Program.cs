@@ -334,16 +334,17 @@ if (builder.Configuration.GetValue<bool>("Database:InitializeOnStartup", false))
     }
 }
 
-// Initialize Language Plugins
-await app.InitializeLanguagePluginsAsync();
+// Initialize Language Plugins + Skill Seeds parallel (independent operations)
+await Task.WhenAll(
+    app.InitializeLanguagePluginsAsync(),
+    app.LoadSkillSeedsAsync(),
+    app.SeedGlobalAgentRulesAsync(),
+    app.SeedAgentSoulSectionsAsync(),
+    app.SeedUiControlsAsync(),
+    app.SeedEmailFoldersAsync(),
+    app.SeedSentimentKeywordsAsync());
 
-// Initialize Skills System
-await app.LoadSkillSeedsAsync();
+// Skill Registry depends on LoadSkillSeeds being complete
 await app.InitializeSkillRegistryAsync();
-await app.SeedGlobalAgentRulesAsync();
-await app.SeedAgentSoulSectionsAsync();
-await app.SeedUiControlsAsync();
-await app.SeedEmailFoldersAsync();
-await app.SeedSentimentKeywordsAsync();
 
 app.Run();
