@@ -36,6 +36,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     with_holiday = table.Column<bool>(type: "boolean", nullable: false),
                     with_saturday = table.Column<bool>(type: "boolean", nullable: false),
                     with_sunday = table.Column<bool>(type: "boolean", nullable: false),
+                    applies_to_container = table.Column<bool>(type: "boolean", nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -1501,6 +1502,38 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "analyse_scenarios",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    description = table.Column<string>(type: "text", nullable: true),
+                    group_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    from_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    until_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    token = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by_user = table.Column<string>(type: "text", nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_analyse_scenarios", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_analyse_scenarios_group_group_id",
+                        column: x => x.group_id,
+                        principalTable: "group",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "group_visibility",
                 columns: table => new
                 {
@@ -1651,7 +1684,8 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     end_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     lock_level = table.Column<int>(type: "integer", nullable: false),
                     sealed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    sealed_by = table.Column<string>(type: "text", nullable: true)
+                    sealed_by = table.Column<string>(type: "text", nullable: true),
+                    analyse_token = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1926,6 +1960,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     client_id = table.Column<Guid>(type: "uuid", nullable: false),
                     current_date = table.Column<DateOnly>(type: "date", nullable: false),
                     content = table.Column<string>(type: "text", nullable: false),
+                    analyse_token = table.Column<Guid>(type: "uuid", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -1988,6 +2023,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     lft = table.Column<int>(type: "integer", nullable: true),
                     rgt = table.Column<int>(type: "integer", nullable: true),
                     client_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    analyse_token = table.Column<Guid>(type: "uuid", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -2333,7 +2369,8 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     end_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     lock_level = table.Column<int>(type: "integer", nullable: false),
                     sealed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    sealed_by = table.Column<string>(type: "text", nullable: true)
+                    sealed_by = table.Column<string>(type: "text", nullable: true),
+                    analyse_token = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -2358,15 +2395,16 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     container_template_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    shift_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    start_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
-                    end_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
+                    shift_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    absence_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    start_item = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
+                    end_item = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
                     briefing_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     debriefing_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     travel_time_after = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     travel_time_before = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
-                    time_range_start_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
-                    time_range_end_shift = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
+                    time_range_start_item = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
+                    time_range_end_item = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
                     transport_mode = table.Column<int>(type: "integer", nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
@@ -2379,6 +2417,13 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_container_template_item", x => x.id);
+                    table.CheckConstraint("CK_ContainerTemplateItem_ShiftXorAbsence", "(shift_id IS NOT NULL AND absence_id IS NULL) OR (shift_id IS NULL AND absence_id IS NOT NULL)");
+                    table.ForeignKey(
+                        name: "fk_container_template_item_absence_absence_id",
+                        column: x => x.absence_id,
+                        principalTable: "absence",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "fk_container_template_item_container_template_container_templa",
                         column: x => x.container_template_id,
@@ -2390,7 +2435,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         column: x => x.shift_id,
                         principalTable: "shift",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -2619,6 +2664,17 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 column: "template_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_analyse_scenarios_group_id_status",
+                table: "analyse_scenarios",
+                columns: new[] { "group_id", "status" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_analyse_scenarios_token",
+                table: "analyse_scenarios",
+                column: "token",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "ix_annotation_client_id",
                 table: "annotation",
                 column: "client_id");
@@ -2681,9 +2737,20 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 column: "absence_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_break_analyse_token",
+                table: "break",
+                column: "analyse_token",
+                filter: "analyse_token IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_break_client_id",
                 table: "break",
                 column: "client_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_break_current_date_client_id",
+                table: "break",
+                columns: new[] { "current_date", "client_id" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_break_placeholder_absence_id",
@@ -2802,6 +2869,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "ix_container_template_id_container_id_weekday_is_weekday_and_h",
                 table: "container_template",
                 columns: new[] { "id", "container_id", "weekday", "is_weekday_and_holiday", "is_holiday" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_container_template_item_absence_id",
+                table: "container_template_item",
+                column: "absence_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_container_template_item_container_template_id",
@@ -3028,6 +3100,12 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "ix_schedule_notes_analyse_token",
+                table: "schedule_notes",
+                column: "analyse_token",
+                filter: "analyse_token IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_schedule_notes_client_id",
                 table: "schedule_notes",
                 column: "client_id");
@@ -3053,6 +3131,12 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 column: "language",
                 unique: true,
                 filter: "is_deleted = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_shift_analyse_token",
+                table: "shift",
+                column: "analyse_token",
+                filter: "analyse_token IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "ix_shift_client_id",
@@ -3115,9 +3199,20 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 column: "parent_control_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_work_analyse_token",
+                table: "work",
+                column: "analyse_token",
+                filter: "analyse_token IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_work_client_id_shift_id",
                 table: "work",
                 columns: new[] { "client_id", "shift_id" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_work_current_date_client_id_is_deleted",
+                table: "work",
+                columns: new[] { "current_date", "client_id", "is_deleted" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_work_shift_id",
@@ -3130,9 +3225,9 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 column: "replace_client_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_work_change_work_id",
+                name: "ix_work_change_work_id_is_deleted",
                 table: "work_change",
-                column: "work_id");
+                columns: new[] { "work_id", "is_deleted" });
         }
 
         /// <inheritdoc />
@@ -3158,6 +3253,9 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "agent_soul_histories");
+
+            migrationBuilder.DropTable(
+                name: "analyse_scenarios");
 
             migrationBuilder.DropTable(
                 name: "annotation");
@@ -3334,10 +3432,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "absence");
+                name: "contract");
 
             migrationBuilder.DropTable(
-                name: "contract");
+                name: "absence");
 
             migrationBuilder.DropTable(
                 name: "container_template");
