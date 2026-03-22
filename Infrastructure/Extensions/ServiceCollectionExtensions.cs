@@ -35,6 +35,11 @@ using Klacks.Api.Infrastructure.Services.Macros;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Services.Schedules;
 using Klacks.Api.Domain.Interfaces.Email;
+using Klacks.Api.Domain.Interfaces.Messaging;
+using Klacks.Api.Application.Interfaces.Messaging;
+using Klacks.Api.Infrastructure.Repositories.Messaging;
+using Klacks.Api.Infrastructure.Services.Messaging;
+using Klacks.Api.Infrastructure.Services.Messaging.Providers;
 using Klacks.Api.Infrastructure.Email;
 using Klacks.Api.Infrastructure.FileHandling;
 using Klacks.Api.Infrastructure.Interfaces;
@@ -62,12 +67,15 @@ using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Application.Services.Translation;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Application.Interfaces.Settings;
 using Klacks.Api.Infrastructure.Services.Associations;
+using Klacks.Api.Infrastructure.Services.Plugins;
 using Klacks.Api.Infrastructure.Services.ClientAvailabilitySchedule;
 using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.Skills.Generated;
 using Klacks.Api.Application.Skills.Generic;
+using Klacks.Api.Application.Skills.Messaging;
 using Microsoft.Extensions.Configuration;
 
 namespace Klacks.Api.Infrastructure.Extensions;
@@ -147,6 +155,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFloorPlanRepository, FloorPlanRepository>();
         services.AddScoped<IFloorPlanWorkMarkerRepository, FloorPlanWorkMarkerRepository>();
         services.AddScoped<ISentimentKeywordRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SentimentKeywordRepository>();
+        services.AddScoped<IMessageRepository, MessageRepository>();
+        services.AddScoped<IMessagingProviderRepository, MessagingProviderRepository>();
     }
 
     private static void AddDomainServices(this IServiceCollection services, IConfiguration configuration)
@@ -250,6 +260,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<ISettingsEncryptionService, SettingsEncryptionService>();
         services.AddSingleton<ILanguagePluginService, LanguagePluginService>();
+        services.AddSingleton<IFeaturePluginService, FeaturePluginService>();
         services.AddScoped<ICalendarRuleFilterService, CalendarRuleFilterService>();
         services.AddScoped<ICalendarRuleSortingService, CalendarRuleSortingService>();
         services.AddScoped<ICalendarRulePaginationService, CalendarRulePaginationService>();
@@ -270,6 +281,16 @@ public static class ServiceCollectionExtensions
 
         if (bgOptions.EmailPolling)
             services.AddHostedService<EmailPollingBackgroundService>();
+
+        services.AddScoped<IMessagingService, MessagingService>();
+        services.AddScoped<MessagingProviderAdapterFactory>();
+        services.AddHttpClient<TelegramMessagingProvider>();
+        services.AddHttpClient<WhatsAppMessagingProvider>();
+        services.AddHttpClient<SignalMessagingProvider>();
+        services.AddHttpClient<SmsMessagingProvider>();
+
+        if (bgOptions.MessageRetention)
+            services.AddHostedService<MessageRetentionService>();
 
         services.AddHttpClient<IMarketplaceClientService, MarketplaceClientService>();
     }
@@ -408,6 +429,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Persistence.Seed.SkillSeedLoader>();
         services.AddScoped<Persistence.Seed.SentimentKeywordSeedService>();
         services.AddScoped<Application.Services.Assistant.SkillRegistryInitializer>();
+
+        services.AddScoped<SendMessageSkill>();
+        services.AddScoped<ReadMessagesSkill>();
+        services.AddScoped<ListMessagingProvidersSkill>();
 
         services.AddScoped<GenericListExecutor>();
         services.AddScoped<GenericDeleteExecutor>();

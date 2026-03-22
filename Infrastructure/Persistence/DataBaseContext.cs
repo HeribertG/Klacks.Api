@@ -12,6 +12,7 @@ using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Reports;
 using Klacks.Api.Domain.Models.FloorPlans;
+using Klacks.Api.Domain.Models.Messaging;
 using Klacks.Api.Domain.Models.Staffs;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -190,6 +191,11 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<FloorPlan> FloorPlan { get; set; }
 
     public DbSet<FloorPlanWorkMarker> FloorPlanWorkMarker { get; set; }
+
+    // Messaging DbSets
+    public DbSet<MessagingProvider> MessagingProviders { get; set; }
+
+    public DbSet<Message> Messages { get; set; }
 
     public override int SaveChanges()
     {

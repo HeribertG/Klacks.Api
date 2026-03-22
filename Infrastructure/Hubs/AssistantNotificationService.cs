@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.DTOs.Messaging;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Microsoft.AspNetCore.SignalR;
@@ -63,6 +64,27 @@ public class AssistantNotificationService : IAssistantNotificationService
 
         await _hubContext.Clients.Clients(connectionIds).OnboardingPrompt(dto);
         _logger.LogInformation("Sent onboarding prompt to user {UserId}", userId);
+    }
+
+    public async Task BroadcastIncomingMessageAsync(IncomingMessageDto message)
+    {
+        var connectedUserIds = _tracker.GetConnectedUserIds().ToList();
+        if (connectedUserIds.Count == 0)
+        {
+            _logger.LogDebug("No connected users, skipping incoming message broadcast");
+            return;
+        }
+
+        foreach (var userId in connectedUserIds)
+        {
+            var connectionIds = _tracker.GetConnectionIds(userId).ToList();
+            if (connectionIds.Count > 0)
+            {
+                await _hubContext.Clients.Clients(connectionIds).IncomingMessage(message);
+            }
+        }
+
+        _logger.LogInformation("Broadcast incoming message to {Count} connected user(s)", connectedUserIds.Count);
     }
 
     public bool IsUserConnected(string userId)

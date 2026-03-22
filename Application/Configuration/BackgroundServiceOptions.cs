@@ -11,6 +11,7 @@
 /// <param name="Embedding">Enables the Embedding service</param>
 /// <param name="SkillGapSuggestion">Enables the SkillGapSuggestion service</param>
 /// <param name="EmailPolling">Enables the EmailPolling service</param>
+/// <param name="MessageRetention">Enables the MessageRetention service</param>
 namespace Klacks.Api.Application.Configuration;
 
 public class BackgroundServiceOptions
@@ -24,4 +25,5 @@ public class BackgroundServiceOptions
     public bool Embedding { get; set; } = true;
     public bool SkillGapSuggestion { get; set; } = true;
     public bool EmailPolling { get; set; } = true;
+    public bool MessageRetention { get; set; } = true;
 }

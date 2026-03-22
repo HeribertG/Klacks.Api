@@ -344,6 +344,7 @@ if (builder.Configuration.GetValue<bool>("Database:InitializeOnStartup", false))
 // Initialize Language Plugins + Skill Seeds parallel (independent operations)
 await Task.WhenAll(
     app.InitializeLanguagePluginsAsync(),
+    app.InitializeFeaturePluginsAsync(),
     app.LoadSkillSeedsAsync(),
     app.SeedGlobalAgentRulesAsync(),
     app.SeedAgentSoulSectionsAsync(),

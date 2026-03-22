@@ -1,0 +1,15 @@
+{
+    "name": "messaging",
+    "displayName": "Messaging",
+    "category": "communication",
+    "version": "1.0.0",
+    "author": "Klacks",
+    "description": "Send and receive messages via WhatsApp, Telegram, Signal, and SMS",
+    "minKlacksVersion": "1.0.0",
+    "requiredPermissions": ["CanViewSettings", "CanEditSettings"],
+    "providedSkills": ["send_message", "read_messages", "list_messaging_providers"],
+    "defaultSettings": {
+        "MESSAGE_RETENTION_COUNT": "1000",
+        "MESSAGING_WEBHOOK_BASE_URL": ""
+    }
+}
