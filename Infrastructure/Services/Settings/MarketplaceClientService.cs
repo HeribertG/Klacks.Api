@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// HttpClient-basierter Service für die Kommunikation mit dem Klacks Marketplace.
+/// HttpClient-based service for communication with the Klacks Marketplace.
 /// </summary>
-/// <param name="baseUrl">Base-URL des Marketplace-Servers aus der Konfiguration</param>
-/// <param name="apiKey">API-Key für Upload-Authentifizierung</param>
+/// <param name="baseUrl">Base URL of the Marketplace server from configuration</param>
+/// <param name="apiKey">API key for upload authentication</param>
 using System.Net.Http.Json;
 using System.Text.Json;
 using Klacks.Api.Application.DTOs.Config;

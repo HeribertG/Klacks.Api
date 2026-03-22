@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die GlobalAgentRule-Entity mit QueryFilter und gefilterten eindeutigen Indizes.
+/// EF Core configuration for the GlobalAgentRule-Entity with query filter and gefilterten unique indexes.
 /// </summary>
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.EntityFrameworkCore;

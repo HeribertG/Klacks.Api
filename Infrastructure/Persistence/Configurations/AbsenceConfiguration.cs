@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die Absence-Entity mit QueryFilter, MultiLanguage-Properties und Index.
+/// EF Core configuration for the Absence entity with query filter, MultiLanguage properties and index.
 /// </summary>
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;

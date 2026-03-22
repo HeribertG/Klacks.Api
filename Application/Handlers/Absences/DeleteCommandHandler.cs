@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler zum Loeschen einer Absence mit Pruefung auf bestehende Referenzen.
-/// @param request - Enthaelt die ID der zu loeschenden Absence
+/// Handler for deleting an absence with validation of existing references.
+/// @param request - Contains the ID of the absence to delete
 /// </summary>
 
 using Klacks.Api.Application.Commands;

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die SpamRule-Entity mit QueryFilter und Index.
+/// EF Core configuration for the SpamRule entity with query filter and index.
 /// </summary>
 using Klacks.Api.Domain.Models.Email;
 using Microsoft.EntityFrameworkCore;

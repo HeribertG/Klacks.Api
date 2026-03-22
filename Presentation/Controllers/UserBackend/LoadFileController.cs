@@ -77,6 +77,12 @@ public class LoadFileController : BaseController
 
     private string GetFileFromDocumentDirectory(string type)
     {
+        var sanitized = Path.GetFileName(type);
+        if (string.IsNullOrEmpty(sanitized) || sanitized != type)
+        {
+            return null!;
+        }
+
         if (type.Contains("profile"))
         {
             var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;

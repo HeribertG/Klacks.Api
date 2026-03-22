@@ -1,12 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Filter für die Client-Availability Client-Liste mit Suchfunktion.
+/// Filter for the client availability client list with search functionality.
 /// </summary>
-/// <param name="SearchString">Suchbegriff für Client-Name/Vorname/Firma</param>
-/// <param name="SelectedGroup">Optionale Gruppen-ID zur Filterung</param>
-/// <param name="StartRow">Start-Index für Paging</param>
-/// <param name="RowCount">Anzahl der Ergebnisse pro Seite</param>
+/// <param name="SearchString">Search term for client name/first name/company</param>
+/// <param name="SelectedGroup">Optional group ID for filtering</param>
+/// <param name="StartRow">Start index for paging</param>
+/// <param name="RowCount">Number of results per page</param>
 namespace Klacks.Api.Application.DTOs.Filter;
 
 public class ClientAvailabilityClientFilter

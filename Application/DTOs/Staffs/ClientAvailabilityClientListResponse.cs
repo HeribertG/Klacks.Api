@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Response mit paginierter Client-Liste und Gesamtanzahl für Client-Availability.
+/// Response with paginated client list and total count for client availability.
 /// </summary>
-/// <param name="Clients">Liste der gefilterten Clients</param>
-/// <param name="TotalCount">Gesamtanzahl der Treffer ohne Paging</param>
+/// <param name="Clients">List of filtered clients</param>
+/// <param name="TotalCount">Total number of matches without paging</param>
 namespace Klacks.Api.Application.DTOs.Staffs;
 
 public class ClientAvailabilityClientListResponse

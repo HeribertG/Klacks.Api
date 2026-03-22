@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die Client-Entity inkl. Sequence, QueryFilter, Indizes und Beziehungen.
+/// EF Core configuration for the Client entity including sequence, query filter, indexes and relationships.
 /// </summary>
 using Klacks.Api.Domain.Models.Staffs;
 using Microsoft.EntityFrameworkCore;

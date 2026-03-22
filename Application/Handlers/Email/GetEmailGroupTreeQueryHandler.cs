@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler zum Aufbau eines Gruppen-Baums mit Email-Zahlern pro Client und Gruppe.
+/// Handler for building a group tree with email counters per client and group.
 /// </summary>
 
 using Klacks.Api.Application.DTOs.Email;

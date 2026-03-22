@@ -1,16 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Ergebnis des Container-Autofill: Enthält die optimierte Route sowie Informationen über ausgewählte Shifts.
+/// Result of container autofill: Contains the optimized route and information about selected shifts.
 /// </summary>
-/// <param name="OptimizedRoute">Optimierte Reihenfolge der Locations</param>
-/// <param name="SelectedShiftIds">IDs der ausgewählten Shifts</param>
-/// <param name="TotalDistanceKm">Gesamtdistanz in km</param>
-/// <param name="EstimatedTravelTime">Geschätzte Reisezeit</param>
-/// <param name="TotalWorkTime">Gesamte Arbeitszeit (Briefing + Work + Debriefing)</param>
-/// <param name="RemainingTime">Verbleibende Zeit im Budget</param>
-/// <param name="TotalAvailableShifts">Anzahl verfügbarer Shifts</param>
-/// <param name="SelectedShiftCount">Anzahl ausgewählter Shifts</param>
+/// <param name="OptimizedRoute">Optimized order of locations</param>
+/// <param name="SelectedShiftIds">IDs of the selected shifts</param>
+/// <param name="TotalDistanceKm">Total distance in km</param>
+/// <param name="EstimatedTravelTime">Estimated travel time</param>
+/// <param name="TotalWorkTime">Total work time (briefing + work + debriefing)</param>
+/// <param name="RemainingTime">Remaining time in the budget</param>
+/// <param name="TotalAvailableShifts">Number of available shifts</param>
+/// <param name="SelectedShiftCount">Number of selected shifts</param>
 
 using Klacks.Api.Domain.Enums;
 
@@ -36,4 +36,5 @@ public record ContainerAutofillResult(
     Dictionary<string, double[,]>? DurationMatricesByProfile = null,
     Klacks.Api.Domain.Enums.ContainerTransportMode TransportMode = Klacks.Api.Domain.Enums.ContainerTransportMode.ByCar,
     List<RouteSegmentDirections>? SegmentDirections = null,
-    TimeSpan TotalBriefingDebriefingTime = default);
+    TimeSpan TotalBriefingDebriefingTime = default,
+    List<PlacedTimeBlock>? PlacedTimeBlocks = null);

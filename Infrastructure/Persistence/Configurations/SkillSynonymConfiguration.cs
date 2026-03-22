@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die SkillSynonym-Entity mit Tabellenname, QueryFilter und Indizes.
+/// EF Core configuration for the SkillSynonym-Entity with table name, query filter and indexes.
 /// </summary>
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.EntityFrameworkCore;

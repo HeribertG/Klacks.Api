@@ -1,13 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Automatische Befuellung von Container-Templates mit passenden TimeRange-Shifts.
-/// Loest ein Orienteering Problem in 3 Phasen: Greedy Selection, ACO+2-Opt, Post-Insertion.
+/// Automatic filling of container templates with matching TimeRange shifts.
+/// Solves an Orienteering Problem in 3 phases: Greedy Selection, ACO+2-Opt, Post-Insertion.
 /// </summary>
-/// <param name="containerRepository">Repository fuer Container-Templates (Zeitbudget)</param>
-/// <param name="availableTasksService">Service fuer verfuegbare Shifts</param>
-/// <param name="routeOptimizationService">Service fuer Distance-Matrix-Berechnung</param>
-/// <param name="geocodingService">Service fuer Adress-Geocodierung</param>
+/// <param name="containerRepository">Repository for container templates (time budget)</param>
+/// <param name="availableTasksService">Service for available shifts</param>
+/// <param name="routeOptimizationService">Service for distance matrix calculation</param>
+/// <param name="geocodingService">Service for address geocoding</param>
 
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
@@ -24,7 +24,8 @@ public class ContainerAutofillService : IContainerAutofillService
     private record RouteEvaluationContext(
         DistanceMatrix DistanceMatrix, int StartBaseIndex, int EndBaseIndex,
         double ContainerFromTimeSeconds, double ContainerEndTimeSeconds,
-        double BudgetSeconds, double TimeRangeTolerance);
+        double BudgetSeconds, double TimeRangeTolerance,
+        List<TimeBlock> UnmovableBlocks, List<TimeBlock> MovableBlocks);
 
     private readonly IContainerAvailableTasksService _availableTasksService;
     private readonly IRouteOptimizationService _routeOptimizationService;
@@ -112,10 +113,19 @@ public class ContainerAutofillService : IContainerAutofillService
         var containerEndTimeSeconds = request.UntilTime.ToTimeSpan().TotalSeconds;
         var budgetSeconds = timeBudget.TotalSeconds;
 
+        var allTimeBlocks = request.TimeBlocks ?? new List<TimeBlock>();
+        var unmovableBlocks = allTimeBlocks.Where(b => !b.IsMovable).ToList();
+        var movableBlocks = allTimeBlocks.Where(b => b.IsMovable).ToList();
+
+        var effectiveBudgetSeconds = TimeBlockScheduler.CalculateEffectiveBudget(budgetSeconds, allTimeBlocks);
+        _logger.LogInformation("Time budget: {Total}s, effective (minus blocks): {Effective}s, unmovable: {Unmovable}, movable: {Movable}",
+            budgetSeconds, effectiveBudgetSeconds, unmovableBlocks.Count, movableBlocks.Count);
+
         var context = new RouteEvaluationContext(
             distanceMatrix, startBaseIndex, endBaseIndex,
             containerFromTimeSeconds, containerEndTimeSeconds,
-            budgetSeconds, request.TimeRangeTolerance);
+            effectiveBudgetSeconds, request.TimeRangeTolerance,
+            unmovableBlocks, movableBlocks);
 
         var selectedIndices = GreedySelection(context, candidateCount);
         _logger.LogInformation("Greedy selection: {Count} shifts selected", selectedIndices.Count);
@@ -144,7 +154,7 @@ public class ContainerAutofillService : IContainerAutofillService
         optimizedRoute = PostOptimizationInsertion(context, optimizedRoute, remainingCandidates);
         _logger.LogInformation("Post-insertion complete: route with {Count} stops", optimizedRoute.Count);
 
-        return BuildResult(context, optimizedRoute, timeRangeTasks.Count, request.TransportMode);
+        return BuildResult(context, optimizedRoute, timeRangeTasks.Count, request.TransportMode, allTimeBlocks);
     }
 
     private async Task<List<Location>> ExtractLocationsFromShiftsAsync(List<Shift> shifts, ContainerTransportMode containerTransportMode, CancellationToken cancellationToken)
@@ -269,13 +279,17 @@ public class ContainerAutofillService : IContainerAutofillService
                 var travelToEnd = context.DistanceMatrix.DurationMatrix[candidate, context.EndBaseIndex];
 
                 var absoluteArrival = context.ContainerFromTimeSeconds + usedTimeSeconds + travelToCandidate;
+                absoluteArrival = TimeBlockScheduler.SkipOverUnmovableBlocks(absoluteArrival, context.UnmovableBlocks);
 
                 if (!IsTimeRangeValid(context.DistanceMatrix.Locations[candidate], absoluteArrival, context.TimeRangeTolerance))
                 {
                     continue;
                 }
 
-                if (absoluteArrival + onSiteTime + travelToEnd > context.ContainerEndTimeSeconds)
+                var departureAfterCandidate = absoluteArrival + onSiteTime;
+                departureAfterCandidate = TimeBlockScheduler.SkipOverUnmovableBlocks(departureAfterCandidate, context.UnmovableBlocks);
+
+                if (departureAfterCandidate + travelToEnd > context.ContainerEndTimeSeconds)
                 {
                     continue;
                 }
@@ -296,8 +310,13 @@ public class ContainerAutofillService : IContainerAutofillService
             var travelToBest = context.DistanceMatrix.DurationMatrix[currentPosition, bestCandidate];
             var bestOnSiteTime = context.DistanceMatrix.Locations[bestCandidate].TotalOnSiteTime.TotalSeconds;
 
+            var arrivalAtBest = context.ContainerFromTimeSeconds + usedTimeSeconds + travelToBest;
+            arrivalAtBest = TimeBlockScheduler.SkipOverUnmovableBlocks(arrivalAtBest, context.UnmovableBlocks);
+            var departureFromBest = arrivalAtBest + bestOnSiteTime;
+            departureFromBest = TimeBlockScheduler.SkipOverUnmovableBlocks(departureFromBest, context.UnmovableBlocks);
+
             selected.Add(bestCandidate);
-            usedTimeSeconds += travelToBest + bestOnSiteTime;
+            usedTimeSeconds = departureFromBest - context.ContainerFromTimeSeconds;
             currentPosition = bestCandidate;
             remaining.Remove(bestCandidate);
         }
@@ -384,7 +403,7 @@ public class ContainerAutofillService : IContainerAutofillService
         {
             changed = false;
             var currentTotalTime = CalculateRouteTotalTime(context.DistanceMatrix, route, context.StartBaseIndex, context.EndBaseIndex);
-            var currentArrivalTimes = CalculateAbsoluteArrivalTimes(context.DistanceMatrix, route, context.StartBaseIndex, context.ContainerFromTimeSeconds);
+            var currentArrivalTimes = CalculateAbsoluteArrivalTimes(context.DistanceMatrix, route, context.StartBaseIndex, context.ContainerFromTimeSeconds, context.UnmovableBlocks);
 
             var (bestCandidate, bestPosition, _) = EvaluateInsertionCandidates(
                 context, route, remainingCandidates, currentTotalTime, currentArrivalTimes);
@@ -552,7 +571,7 @@ public class ContainerAutofillService : IContainerAutofillService
         while (changed)
         {
             changed = false;
-            var arrivalTimes = CalculateAbsoluteArrivalTimes(context.DistanceMatrix, validRoute, context.StartBaseIndex, context.ContainerFromTimeSeconds);
+            var arrivalTimes = CalculateAbsoluteArrivalTimes(context.DistanceMatrix, validRoute, context.StartBaseIndex, context.ContainerFromTimeSeconds, context.UnmovableBlocks);
 
             for (int i = validRoute.Count - 1; i >= 0; i--)
             {
@@ -578,8 +597,10 @@ public class ContainerAutofillService : IContainerAutofillService
     }
 
     private List<double> CalculateAbsoluteArrivalTimes(
-        DistanceMatrix distanceMatrix, List<int> route, int startBaseIndex, double containerFromTimeSeconds)
+        DistanceMatrix distanceMatrix, List<int> route, int startBaseIndex, double containerFromTimeSeconds,
+        List<TimeBlock>? unmovableBlocks = null)
     {
+        var blocks = unmovableBlocks ?? new List<TimeBlock>();
         var arrivalTimes = new List<double>();
         var currentTime = containerFromTimeSeconds;
         var prevIndex = startBaseIndex;
@@ -587,8 +608,10 @@ public class ContainerAutofillService : IContainerAutofillService
         foreach (var stopIndex in route)
         {
             currentTime += distanceMatrix.DurationMatrix[prevIndex, stopIndex];
+            currentTime = TimeBlockScheduler.SkipOverUnmovableBlocks(currentTime, blocks);
             arrivalTimes.Add(currentTime);
             currentTime += distanceMatrix.Locations[stopIndex].TotalOnSiteTime.TotalSeconds;
+            currentTime = TimeBlockScheduler.SkipOverUnmovableBlocks(currentTime, blocks);
             prevIndex = stopIndex;
         }
 
@@ -634,7 +657,8 @@ public class ContainerAutofillService : IContainerAutofillService
         RouteEvaluationContext context,
         List<int> optimizedRoute,
         int totalAvailableShifts,
-        ContainerTransportMode transportMode)
+        ContainerTransportMode transportMode,
+        List<TimeBlock>? allTimeBlocks = null)
     {
         var selectedShiftIds = optimizedRoute
             .Select(i => context.DistanceMatrix.Locations[i].ShiftId)
@@ -699,6 +723,9 @@ public class ContainerAutofillService : IContainerAutofillService
         var estimatedTravelTime = TimeSpan.FromSeconds(totalTravelSeconds) + totalWorkTime;
         var remainingTime = timeBudget - estimatedTravelTime;
 
+        var placedTimeBlocks = BuildPlacedTimeBlocks(
+            allTimeBlocks, optimizedRoute, context);
+
         return new ContainerAutofillResult(
             fullRoute,
             selectedShiftIds,
@@ -718,7 +745,33 @@ public class ContainerAutofillService : IContainerAutofillService
             fullRouteIndices,
             context.DistanceMatrix.DurationMatricesByProfile,
             transportMode,
-            TotalBriefingDebriefingTime: totalWorkTime);
+            TotalBriefingDebriefingTime: totalWorkTime,
+            PlacedTimeBlocks: placedTimeBlocks);
+    }
+
+    private static List<PlacedTimeBlock>? BuildPlacedTimeBlocks(
+        List<TimeBlock>? allTimeBlocks,
+        List<int> optimizedRoute,
+        RouteEvaluationContext context)
+    {
+        if (allTimeBlocks == null || allTimeBlocks.Count == 0)
+        {
+            return null;
+        }
+
+        var unmovable = allTimeBlocks.Where(b => !b.IsMovable).ToList();
+        var movable = allTimeBlocks.Where(b => b.IsMovable).ToList();
+
+        var placedUnmovable = TimeBlockScheduler.PlaceUnmovableBlocks(
+            unmovable, optimizedRoute, context.DistanceMatrix,
+            context.StartBaseIndex, context.ContainerFromTimeSeconds);
+
+        var placedMovable = TimeBlockScheduler.PlaceMovableBlocks(
+            movable, optimizedRoute, context.DistanceMatrix,
+            context.StartBaseIndex, context.EndBaseIndex,
+            context.ContainerFromTimeSeconds, placedUnmovable);
+
+        return placedUnmovable.Concat(placedMovable).ToList();
     }
 
     private static ContainerAutofillResult CreateEmptyResult(

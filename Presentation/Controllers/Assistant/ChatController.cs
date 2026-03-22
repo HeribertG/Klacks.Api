@@ -221,12 +221,6 @@ public class ChatController : ControllerBase
             }
         }
 
-        if (!rights.Any())
-        {
-            rights.AddRange(Permissions.GetPermissionsForRole(Roles.Admin));
-            rights.Add(Roles.Admin);
-        }
-
         return rights;
     }
 }

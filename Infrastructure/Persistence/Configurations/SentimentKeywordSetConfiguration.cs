@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die SentimentKeywordSet-Entity mit Tabellenname, JSONB-Keywords und eindeutigem Index.
+/// EF Core configuration for the SentimentKeywordSet-Entity with table name, JSONB-Keywords and unique index.
 /// </summary>
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence.Converters;

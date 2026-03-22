@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler für das Abrufen der Shift-Abdeckungs- und Versiegelungsstatistiken pro Gruppe.
+/// Handler for retrieving shift coverage and sealing statistics per group.
 /// </summary>
-/// <param name="context">Datenbankkontext für GroupItem, Group und Work Abfragen</param>
-/// <param name="shiftScheduleService">Service für Shift-Schedule-Abfragen</param>
-/// <param name="groupFilterService">Service zur Ermittlung der sichtbaren Gruppen des Users</param>
+/// <param name="context">Database context for GroupItem, Group and Work queries</param>
+/// <param name="shiftScheduleService">Service for shift schedule queries</param>
+/// <param name="groupFilterService">Service for determining the user's visible groups</param>
 using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Application.Handlers;
 using Klacks.Api.Application.Queries.Dashboard;

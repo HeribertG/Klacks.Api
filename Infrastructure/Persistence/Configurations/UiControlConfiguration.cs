@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die UiControl-Entity mit QueryFilter, Indizes und Parent-Child-Beziehung.
+/// EF Core configuration for the UiControl-Entity with query filter, indexes and parent-child relationship.
 /// </summary>
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.EntityFrameworkCore;

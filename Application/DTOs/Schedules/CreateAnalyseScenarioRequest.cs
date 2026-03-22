@@ -1,12 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Request-DTO zum Erstellen eines neuen AnalyseScenarios.
+/// Request DTO for creating a new AnalyseScenario.
 /// </summary>
-/// <param name="Name">Name des Szenarios</param>
-/// <param name="GroupId">Gruppe, fuer die das Szenario erstellt wird</param>
-/// <param name="FromDate">Startdatum des Szenario-Zeitraums</param>
-/// <param name="UntilDate">Enddatum des Szenario-Zeitraums</param>
+/// <param name="Name">Name of the scenario</param>
+/// <param name="GroupId">Group for which the scenario is created</param>
+/// <param name="FromDate">Start date of the scenario period</param>
+/// <param name="UntilDate">End date of the scenario period</param>
 
 namespace Klacks.Api.Application.DTOs.Schedules;
 

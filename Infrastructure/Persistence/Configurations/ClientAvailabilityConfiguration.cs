@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die ClientAvailability-Entity mit QueryFilter, Indizes und Client-Beziehung.
+/// EF Core configuration for the ClientAvailability entity with query filter, indexes and Client relationship.
 /// </summary>
 using Klacks.Api.Domain.Models.Staffs;
 using Microsoft.EntityFrameworkCore;

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// DTO für ein Sprachpaket aus dem Marketplace.
+/// DTO for a language package from the Marketplace.
 /// </summary>
 namespace Klacks.Api.Application.DTOs.Config;
 

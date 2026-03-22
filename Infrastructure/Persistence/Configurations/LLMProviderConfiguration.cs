@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die LLMProvider-Entity mit QueryFilter und JSONB-Settings.
+/// EF Core configuration for the LLMProvider-Entity with query filter and JSONB settings.
 /// </summary>
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence.Converters;

@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Service fuer die automatische Befuellung von Container-Templates mit passenden Shifts.
-/// Loest ein Orienteering Problem: Waehle Teilmenge von Shifts innerhalb des Zeitbudgets und optimiere die Route.
+/// Service for automatic filling of container templates with matching shifts.
+/// Solves an Orienteering Problem: select a subset of shifts within the time budget and optimize the route.
 /// </summary>
-/// <param name="request">Enthaelt Container-ID, Zeitfenster, Basis-Adressen und Transportmodus</param>
+/// <param name="request">Contains container ID, time window, base addresses and transport mode</param>
 
 using Klacks.Api.Domain.Services.RouteOptimization;
 

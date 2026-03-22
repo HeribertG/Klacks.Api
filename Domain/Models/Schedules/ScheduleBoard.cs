@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// 2D-Container für alle Clients über einen Zeitraum.
-/// Ermöglicht Cross-Client-Analysen wie Abdeckung und Unterbesetzung.
+/// 2D container for all clients over a period.
+/// Enables cross-client analyses such as coverage and understaffing.
 /// </summary>
 namespace Klacks.Api.Domain.Models.Schedules;
 

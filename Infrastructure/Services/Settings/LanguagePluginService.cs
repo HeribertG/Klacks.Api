@@ -1,13 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Fassade für die Verwaltung von Sprach-Plugins: Erkennung, Installation, Deinstallation und Übersetzungen.
-/// Delegiert Geo-Daten-Operationen an <see cref="LanguagePluginGeoDataInstaller"/>
-/// und Inhaltsoperationen an <see cref="LanguagePluginContentInstaller"/>.
+/// Facade for language plugin management: discovery, installation, uninstallation and translations.
+/// Delegates geo data operations to <see cref="LanguagePluginGeoDataInstaller"/>
+/// and content operations to <see cref="LanguagePluginContentInstaller"/>.
 /// </summary>
-/// <param name="scopeFactory">Factory für DI-Scopes bei Datenbank-Operationen</param>
-/// <param name="configuration">App-Konfiguration für das Plugin-Verzeichnis</param>
-/// <param name="logger">Logger-Instanz für Diagnose-Ausgaben</param>
+/// <param name="scopeFactory">Factory for DI scopes in database operations</param>
+/// <param name="configuration">App configuration for the plugin directory</param>
+/// <param name="logger">Logger instance for diagnostic output</param>
 
 using System.Collections.Concurrent;
 using System.Text.Json;

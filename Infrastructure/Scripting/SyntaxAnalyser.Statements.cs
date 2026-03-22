@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Statement-Parsing des SyntaxAnalysers: Dispatcher, Deklarationen, Funktionsdefinitionen und Aufrufe.
+/// Statement parsing of the SyntaxAnalyser: dispatcher, declarations, function definitions and calls.
 /// </summary>
 namespace Klacks.Api.Infrastructure.Scripting
 {

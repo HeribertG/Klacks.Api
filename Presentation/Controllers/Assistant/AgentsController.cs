@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Controller fuer Agent-Verwaltung (CRUD, Skills, Sessions).
+/// Controller for agent management (CRUD, skills, sessions).
 /// </summary>
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

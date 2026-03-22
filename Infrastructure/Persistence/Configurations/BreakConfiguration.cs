@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die Break-Entity mit QueryFilter, MultiLanguage, Indizes und Beziehungen.
+/// EF Core configuration for the Break entity with query filter, MultiLanguage, indexes and relationships.
 /// </summary>
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;

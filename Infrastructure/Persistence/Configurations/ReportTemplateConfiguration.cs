@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die ReportTemplate-Entity mit QueryFilter, JSONB-Properties und Index.
+/// EF Core configuration for the ReportTemplate-Entity with query filter, JSONB properties and Index.
 /// </summary>
 using Klacks.Api.Domain.Models.Reports;
 using Klacks.Api.Infrastructure.Persistence.Converters;

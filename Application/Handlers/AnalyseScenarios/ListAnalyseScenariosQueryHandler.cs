@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler zum Abrufen aller AnalyseScenarios einer Gruppe.
+/// Handler for retrieving all AnalyseScenarios of a group.
 /// </summary>
-/// <param name="GroupId">ID der Gruppe, deren Szenarien geladen werden</param>
+/// <param name="GroupId">ID of the group whose scenarios are loaded</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;

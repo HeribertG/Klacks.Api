@@ -125,11 +125,6 @@ public class SkillsController : ControllerBase
             permissions.Add(claim.Value);
         }
 
-        if (permissions.Count == 0)
-        {
-            permissions.AddRange(new[] { "CanViewClients", "CanCreateClients", "CanCreateContracts" });
-        }
-
         return permissions;
     }
 }

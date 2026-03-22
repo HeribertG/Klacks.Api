@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Seed-Service für mehrsprachige Sentiment-Keywords der 4 Core-Sprachen (de, en, fr, it).
-/// Befüllt die sentiment_keyword_sets-Tabelle beim ersten Start, falls noch keine Einträge vorhanden sind.
+/// Seed service for multilingual sentiment keywords of the 4 core languages (de, en, fr, it).
+/// Populates the sentiment_keyword_sets table on first start if no entries exist.
 /// </summary>
 
 using Klacks.Api.Domain.Constants;

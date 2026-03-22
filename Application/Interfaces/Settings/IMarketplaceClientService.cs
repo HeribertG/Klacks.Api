@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Service für die Kommunikation mit dem Klacks Marketplace.
+/// Service for communication with the Klacks Marketplace.
 /// </summary>
 using Klacks.Api.Application.DTOs.Config;
 

@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Service zur Berechnung von Reisezeiten zwischen Einsatzorten.
+/// Service for calculating travel times between work locations.
 /// </summary>
-/// <param name="from">Ausgangsadresse</param>
-/// <param name="to">Zieladresse</param>
+/// <param name="from">Origin address</param>
+/// <param name="to">Destination address</param>
 using Klacks.Api.Domain.Models.Staffs;
 
 namespace Klacks.Api.Domain.Interfaces.RouteOptimization;

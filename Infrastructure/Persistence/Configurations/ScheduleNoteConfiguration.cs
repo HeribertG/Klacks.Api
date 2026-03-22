@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die ScheduleNote-Entity mit QueryFilter und AnalyseToken-Index.
+/// EF Core configuration for the ScheduleNote-Entity with query filter and AnalyseToken-Index.
 /// </summary>
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;

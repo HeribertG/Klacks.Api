@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Typen von Schedule-Validierungsmeldungen.
+/// Types of schedule validation messages.
 /// </summary>
 using System.Text.Json.Serialization;
 

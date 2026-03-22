@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Hauptdatei des ScheduleMappers (Mapperly) mit Contract-, Membership-, BreakPlaceholder- und Calendar-Mappings.
-/// Weitere Mappings in partiellen Dateien: Shifts, Containers, Schedules, Notifications.
+/// Main file of the ScheduleMapper (Mapperly) with Contract, Membership, BreakPlaceholder and Calendar mappings.
+/// Additional mappings in partial files: Shifts, Containers, Schedules, Notifications.
 /// </summary>
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Associations;

@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler zum Akzeptieren eines AnalyseScenarios.
-/// Ersetzt die echten Plandaten im Zeitraum durch die Szenario-Daten.
+/// Handler for accepting an AnalyseScenario.
+/// Replaces the actual schedule data in the period with the scenario data.
 /// </summary>
-/// <param name="ScenarioId">ID des zu akzeptierenden Szenarios</param>
+/// <param name="ScenarioId">ID of the scenario to accept</param>
 
 using Klacks.Api.Application.Commands.AnalyseScenarios;
 using Klacks.Api.Application.Interfaces;

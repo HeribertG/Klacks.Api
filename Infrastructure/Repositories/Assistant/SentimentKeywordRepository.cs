@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Repository für das Lesen und Schreiben von mehrsprachigen Sentiment-Keyword-Sets in der Datenbank.
+/// Repository for reading and writing multilingual sentiment keyword sets in the database.
 /// </summary>
 
 using Klacks.Api.Domain.Interfaces.Assistant;

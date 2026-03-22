@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die EmailFolder-Entity mit QueryFilter und Indizes.
+/// EF Core configuration for the EmailFolder-Entity with query filter and indexes.
 /// </summary>
 using Klacks.Api.Domain.Models.Email;
 using Microsoft.EntityFrameworkCore;

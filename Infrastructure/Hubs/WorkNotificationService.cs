@@ -1,13 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// SignalR-basierter Benachrichtigungsdienst fuer Echtzeit-Updates von Work-Eintraegen und Schedule-Validierungen.
-/// Filtert Empfaenger anhand ihrer aktiven DateRange-Subscriptions und SelectedGroup via IConnectionDateRangeTracker.
-/// Bei IsFullRefresh werden Notifications pro Connection-Gruppe nach SelectedGroupId gefiltert.
+/// SignalR-based notification service for real-time updates of work entries and schedule validations.
+/// Filters recipients based on their active DateRange subscriptions and SelectedGroup via IConnectionDateRangeTracker.
+/// For IsFullRefresh, notifications are filtered per connection group by SelectedGroupId.
 /// </summary>
-/// <param name="hubContext">SignalR Hub-Kontext fuer typisierte Client-Aufrufe</param>
-/// <param name="dateRangeTracker">Verwaltet welche Connections welche Datumsbereiche beobachten</param>
-/// <param name="groupClient">Liefert Client-IDs fuer eine Gruppe (inkl. Subgruppen)</param>
+/// <param name="hubContext">SignalR Hub context for typed client calls</param>
+/// <param name="dateRangeTracker">Manages which connections observe which date ranges</param>
+/// <param name="groupClient">Provides client IDs for a group (including subgroups)</param>
 
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces;

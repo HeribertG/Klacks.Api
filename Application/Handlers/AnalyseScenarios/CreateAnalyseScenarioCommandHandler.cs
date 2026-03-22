@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler zum Erstellen eines neuen AnalyseScenarios mit Klon aller Schedule-Daten.
+/// Handler for creating a new AnalyseScenario by cloning all schedule data.
 /// </summary>
-/// <param name="Request">Enthält Name, Beschreibung, Gruppe und Zeitraum</param>
+/// <param name="Request">Contains name, description, group and time period</param>
 
 using Klacks.Api.Application.Commands.AnalyseScenarios;
 using Klacks.Api.Application.DTOs.Schedules;

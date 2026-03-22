@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die IdentityProviderSyncLog-Entity mit QueryFilter, Indizes und Beziehungen.
+/// EF Core configuration for the IdentityProviderSyncLog-Entity with query filter, indexes and relationshipen.
 /// </summary>
 using Klacks.Api.Domain.Models.Authentification;
 using Microsoft.EntityFrameworkCore;

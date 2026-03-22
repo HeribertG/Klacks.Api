@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Suchergebnis vom Marketplace mit Pagination.
+/// Search result from the Marketplace with pagination.
 /// </summary>
 namespace Klacks.Api.Application.DTOs.Config;
 

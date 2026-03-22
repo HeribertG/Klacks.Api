@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Installiert und deinstalliert inhaltsbezogene Daten (Docs, Skill-Synonyme, Sentiment-Keywords, Übersetzungen)
-/// für Sprach-Plugins.
+/// Installs and uninstalls content-related data (docs, skill synonyms, sentiment keywords, translations)
+/// for language plugins.
 /// </summary>
-/// <param name="pluginDirectory">Basisverzeichnis der Sprach-Plugins</param>
-/// <param name="logger">Logger-Instanz für Diagnose-Ausgaben</param>
+/// <param name="pluginDirectory">Base directory of the language plugins</param>
+/// <param name="logger">Logger instance for diagnostic output</param>
 
 using System.Text.Json;
 using Klacks.Api.Application.Constants;

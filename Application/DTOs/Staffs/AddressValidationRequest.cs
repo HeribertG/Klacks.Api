@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Request-DTO fuer die Adress-Validierung. Nur die fuer Geocoding relevanten Felder.
+/// Request DTO for address validation. Only fields relevant for geocoding.
 /// </summary>
 
 namespace Klacks.Api.Application.DTOs.Staffs;

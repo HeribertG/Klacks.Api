@@ -8,11 +8,11 @@ using Klacks.Api.Domain.Models.Staffs;
 namespace Klacks.Api.Application.Services.Identity;
 
 /// <summary>
-/// Service für die Verwaltung von Client-Adressen bei der LDAP-Synchronisierung.
+/// Service for managing client addresses during LDAP synchronization.
 /// </summary>
-/// <param name="_addressRepository">Repository für Adress-CRUD-Operationen</param>
-/// <param name="_settingsRepository">Repository zum Laden der Owner-Adress-Defaults</param>
-/// <param name="_logger">Logger für Diagnose-Informationen</param>
+/// <param name="_addressRepository">Repository for address CRUD operations</param>
+/// <param name="_settingsRepository">Repository for loading the owner address defaults</param>
+/// <param name="_logger">Logger for diagnostic information</param>
 public class ClientAddressService : IClientAddressService
 {
     private readonly IAddressRepository _addressRepository;

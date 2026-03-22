@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Analysiert nach jedem Chat-Turn User-Nachricht und Antwort des Assistants via separatem LLM-Call
-/// und speichert extrahierte Fakten, Präferenzen oder Entscheidungen als AgentMemories.
+/// Analyzes user message and assistant response after each chat turn via separate LLM call
+/// and stores extracted facts, preferences or decisions as AgentMemories.
 /// </summary>
 
 using System.Text.Json;

@@ -1,13 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Zentraler Service für Client-Base-Queries.
-/// Vereinheitlicht Membership-, Gruppen-, Such-, Typ-Filter und Sorting für alle Client-Listen.
-/// Gibt IQueryable zurück — Count, Paging und Includes werden vom Aufrufer hinzugefügt.
+/// Central service for client base queries.
+/// Unifies membership, group, search, type filters and sorting for all client lists.
+/// Returns IQueryable - Count, paging and includes are added by the caller.
 /// </summary>
-/// <param name="context">Datenbankkontext</param>
-/// <param name="groupFilterService">Service für Gruppen-Filterung</param>
-/// <param name="searchFilterService">Service für Such-Filterung</param>
+/// <param name="context">Database context</param>
+/// <param name="groupFilterService">Service for group filtering</param>
+/// <param name="searchFilterService">Service for search filtering</param>
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Staffs;

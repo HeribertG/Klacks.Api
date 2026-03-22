@@ -1,12 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Service zur automatischen Extraktion und Speicherung wichtiger Informationen aus Chat-Turns als Memories.
+/// Service for automatic extraction and storage of important information from chat turns as memories.
 /// </summary>
-/// <param name="agentId">ID des Agents, dem die Memories zugeordnet werden</param>
-/// <param name="userMessage">Nachricht des Users im abgeschlossenen Turn</param>
-/// <param name="assistantResponse">Antwort des Assistants im abgeschlossenen Turn</param>
-/// <param name="userId">ID des authentifizierten Users als string</param>
+/// <param name="agentId">ID of the agent to whom the memories are assigned</param>
+/// <param name="userMessage">User message in the completed turn</param>
+/// <param name="assistantResponse">Assistant response in the completed turn</param>
+/// <param name="userId">ID of the authenticated user as string</param>
 
 namespace Klacks.Api.Domain.Interfaces.Assistant;
 

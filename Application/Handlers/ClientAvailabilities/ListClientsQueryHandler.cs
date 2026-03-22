@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler für die Client-Availability Client-Liste.
-/// Nutzt den zentralen ClientBaseQueryService für einheitliche Filterung.
+/// Handler for the client availability client list.
+/// Uses the central ClientBaseQueryService for unified filtering.
 /// </summary>
-/// <param name="request">Query mit Filter für Suche, Gruppe und Paging</param>
+/// <param name="request">Query with filter for search, group and paging</param>
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Application.Queries.ClientAvailabilities;
 using Klacks.Api.Domain.Models.Filters;

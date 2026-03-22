@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Mehrsprachiges Wertobjekt für JSONB-Spalten.
-/// Core-Sprachen (de/en/fr/it) haben explizite Properties für Code-Zugriff.
-/// Alle Sprachen (Core + Plugin) werden dynamisch via MultiLanguageSystemTextJsonConverter serialisiert.
+/// Multilingual value object for JSONB columns.
+/// Core languages (de/en/fr/it) have explicit properties for code access.
+/// All languages (core + plugin) are serialized dynamically via MultiLanguageSystemTextJsonConverter.
 /// </summary>
 using System.Text.Json.Serialization;
 

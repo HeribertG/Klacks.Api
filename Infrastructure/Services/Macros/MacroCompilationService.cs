@@ -10,12 +10,12 @@ using Klacks.Api.Infrastructure.Scripting;
 namespace Klacks.Api.Infrastructure.Services.Macros;
 
 /// <summary>
-/// Kapselt Macro-Laden, Kompilierung (mit Cache), Import-Setzung und Ausführung.
+/// Encapsulates macro loading, compilation (with cache), import setting and execution.
 /// </summary>
-/// <param name="macroManagementService">Lädt Macro-Definitionen aus der Datenbank</param>
-/// <param name="macroCache">Cache für bereits kompilierte Macros</param>
-/// <param name="macroEngine">Scripting-Engine zur Macro-Ausführung</param>
-/// <param name="logger">Logger für Kompilierungs- und Ausführungsfehler</param>
+/// <param name="macroManagementService">Loads macro definitions from the database</param>
+/// <param name="macroCache">Cache for already compiled macros</param>
+/// <param name="macroEngine">Scripting engine for macro execution</param>
+/// <param name="logger">Logger for compilation and execution errors</param>
 public class MacroCompilationService : IMacroCompilationService
 {
     private readonly IMacroManagementService _macroManagementService;

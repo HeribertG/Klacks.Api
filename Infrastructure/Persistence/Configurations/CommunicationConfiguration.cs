@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die Communication-Entity mit QueryFilter und Index.
+/// EF Core configuration for the Communication-Entity with query filter and Index.
 /// </summary>
 using Klacks.Api.Domain.Models.Staffs;
 using Microsoft.EntityFrameworkCore;

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die BreakPlaceholder-Entity mit QueryFilter, Indizes und Absence-Beziehung.
+/// EF Core configuration for the BreakPlaceholder entity with query filter, indexes and Absence relationship.
 /// </summary>
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;

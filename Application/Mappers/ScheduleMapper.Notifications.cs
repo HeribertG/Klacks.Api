@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Partielle Klasse für Notification-DTOs (Work-, ShiftStats-, Schedule-Notifications).
+/// Partial class for notification DTOs (work, shift stats, schedule notifications).
 /// </summary>
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Application.DTOs.Notifications;

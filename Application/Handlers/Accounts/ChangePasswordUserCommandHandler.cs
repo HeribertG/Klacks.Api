@@ -56,7 +56,7 @@ public class ChangePasswordUserCommandHandler : BaseTransactionHandler, IRequest
         
         var message = changePasswordResource.Message
             .Replace("{appName}", changePasswordResource.AppName ?? "Klacks")
-            .Replace("{password}", changePasswordResource.Password);
+            .Replace("{password}", "********");
             
         var mailResult = await _accountNotificationService.SendEmailAsync(
             changePasswordResource.Title, 

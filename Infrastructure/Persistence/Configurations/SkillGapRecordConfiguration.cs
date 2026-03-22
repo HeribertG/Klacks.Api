@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die SkillGapRecord-Entity mit Tabellenname, QueryFilter und Indizes.
+/// EF Core configuration for the SkillGapRecord-Entity with table name, query filter and indexes.
 /// </summary>
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.EntityFrameworkCore;

@@ -1,12 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Zeitraum mit Unterbesetzung — weniger aktive Mitarbeiter als gefordert.
+/// Period of understaffing - fewer active employees than required.
 /// </summary>
-/// <param name="Start">Beginn der Unterbesetzung</param>
-/// <param name="End">Ende der Unterbesetzung</param>
-/// <param name="StaffCount">Tatsächliche Besetzung im Zeitraum</param>
-/// <param name="RequiredStaff">Geforderte Mindestbesetzung</param>
+/// <param name="Start">Start of understaffing</param>
+/// <param name="End">End of understaffing</param>
+/// <param name="StaffCount">Actual staffing in the period</param>
+/// <param name="RequiredStaff">Required minimum staffing</param>
 namespace Klacks.Api.Domain.Models.Schedules;
 
 public record UnderstaffedPeriod(

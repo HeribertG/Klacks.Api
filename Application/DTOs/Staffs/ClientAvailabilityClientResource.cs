@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Resource für einen Client in der Client-Availability-Liste.
+/// Resource for a client in the client availability list.
 /// </summary>
 /// <param name="Id">Client-ID</param>
-/// <param name="GroupIds">Zugehörige Gruppen-IDs</param>
+/// <param name="GroupIds">Associated group IDs</param>
 namespace Klacks.Api.Application.DTOs.Staffs;
 
 public class ClientAvailabilityClientResource

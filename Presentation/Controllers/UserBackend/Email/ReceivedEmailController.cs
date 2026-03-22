@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Controller fuer Empfangene-Emails-Verwaltung (Auflisten, Lesen, Loeschen, Verschieben, IMAP-Sync).
+/// Controller for received emails management (list, read, delete, move, IMAP sync).
 /// </summary>
 using Klacks.Api.Application.Commands.Email;
 using Klacks.Api.Application.DTOs.Email;

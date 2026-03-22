@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler zum Abrufen eines einzelnen AnalyseScenarios per ID.
+/// Handler for retrieving a single AnalyseScenario by ID.
 /// </summary>
-/// <param name="Id">ID des gesuchten Szenarios</param>
+/// <param name="Id">ID of the requested scenario</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;

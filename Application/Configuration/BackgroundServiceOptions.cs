@@ -1,16 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Konfiguration zum Aktivieren/Deaktivieren einzelner Background Services.
-/// Ermöglicht bei horizontaler Skalierung die gezielte Steuerung pro API-Instanz.
+/// Configuration for enabling/disabling individual background services.
+/// Allows targeted control per API instance during horizontal scaling.
 /// </summary>
-/// <param name="ScheduleTimeline">Aktiviert den ScheduleTimeline-Service</param>
-/// <param name="PeriodHours">Aktiviert den PeriodHours-Service</param>
-/// <param name="MemoryCleanup">Aktiviert den MemoryCleanup-Service</param>
-/// <param name="Heartbeat">Aktiviert den Heartbeat-Service</param>
-/// <param name="Embedding">Aktiviert den Embedding-Service</param>
-/// <param name="SkillGapSuggestion">Aktiviert den SkillGapSuggestion-Service</param>
-/// <param name="EmailPolling">Aktiviert den EmailPolling-Service</param>
+/// <param name="ScheduleTimeline">Enables the ScheduleTimeline service</param>
+/// <param name="PeriodHours">Enables the PeriodHours service</param>
+/// <param name="MemoryCleanup">Enables the MemoryCleanup service</param>
+/// <param name="Heartbeat">Enables the Heartbeat service</param>
+/// <param name="Embedding">Enables the Embedding service</param>
+/// <param name="SkillGapSuggestion">Enables the SkillGapSuggestion service</param>
+/// <param name="EmailPolling">Enables the EmailPolling service</param>
 namespace Klacks.Api.Application.Configuration;
 
 public class BackgroundServiceOptions

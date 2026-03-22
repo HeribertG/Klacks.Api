@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die ContainerTemplate-Entity mit QueryFilter, JSONB-Konvertierung, Index und Shift-Beziehung.
+/// EF Core configuration for the ContainerTemplate-Entity with query filter, JSONB conversion, Index and Shift-relationship.
 /// </summary>
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence.Converters;

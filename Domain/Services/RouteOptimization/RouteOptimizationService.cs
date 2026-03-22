@@ -195,7 +195,9 @@ public class RouteOptimizationService : IRouteOptimizationService
         List<Guid> shiftIds,
         string? startBase = null,
         string? endBase = null,
-        ContainerTransportMode transportMode = ContainerTransportMode.ByCar)
+        ContainerTransportMode transportMode = ContainerTransportMode.ByCar,
+        List<TimeBlock>? timeBlocks = null,
+        TimeOnly? containerFromTime = null)
     {
         _logger.LogInformation("OptimizeRouteByShiftIdsAsync called with {Count} shift IDs", shiftIds.Count);
 
@@ -248,12 +250,29 @@ public class RouteOptimizationService : IRouteOptimizationService
 
         _logger.LogInformation("Route optimized: {Count} stops, {Distance:F2} km, {Time}", fullRoute.Count, totalDistance, totalTimeWithBriefing);
 
+        List<PlacedTimeBlock>? placedTimeBlocks = null;
+        if (timeBlocks != null && timeBlocks.Count > 0)
+        {
+            var unmovable = timeBlocks.Where(b => !b.IsMovable).ToList();
+            var movable = timeBlocks.Where(b => b.IsMovable).ToList();
+            var startIdx = startIndex ?? 0;
+            var endIdx = endIndex ?? (route.Count > 0 ? route.Last() : 0);
+            var containerFromTimeSeconds = containerFromTime?.ToTimeSpan().TotalSeconds ?? 0.0;
+
+            var placedUnmovable = TimeBlockScheduler.PlaceUnmovableBlocks(
+                unmovable, route, distanceMatrix, startIdx, containerFromTimeSeconds);
+            var placedMovable = TimeBlockScheduler.PlaceMovableBlocks(
+                movable, route, distanceMatrix, startIdx, endIdx,
+                containerFromTimeSeconds, placedUnmovable);
+            placedTimeBlocks = placedUnmovable.Concat(placedMovable).ToList();
+        }
+
         return new RouteOptimizationResult(
             fullRoute, totalDistance, totalTimeWithBriefing,
             distanceMatrix.Matrix, distanceMatrix.DurationMatrix,
             travelTimeFromStartBase, route, distanceFromStartBase, distanceToEndBase, travelTimeToEndBase,
             fullRouteIndices, distanceMatrix.DurationMatricesByProfile, transportMode,
-            segmentDirections, totalBriefingDebriefingTime);
+            segmentDirections, totalBriefingDebriefingTime, placedTimeBlocks);
     }
 
     private static List<Location> ExtractLocationsFromShifts(List<Shift> shifts, ContainerTransportMode transportMode)
@@ -620,7 +639,8 @@ public record RouteOptimizationResult(
     Dictionary<string, double[,]>? DurationMatricesByProfile = null,
     ContainerTransportMode TransportMode = ContainerTransportMode.ByCar,
     List<RouteSegmentDirections>? SegmentDirections = null,
-    TimeSpan TotalBriefingDebriefingTime = default);
+    TimeSpan TotalBriefingDebriefingTime = default,
+    List<PlacedTimeBlock>? PlacedTimeBlocks = null);
 
 public record RouteSegmentDirections(
     string FromName,

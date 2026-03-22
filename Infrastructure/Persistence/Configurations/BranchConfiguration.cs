@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die Branch-Entity mit QueryFilter.
+/// EF Core configuration for the Branch entity with query filter.
 /// </summary>
 using Klacks.Api.Domain.Models.Settings;
 using Microsoft.EntityFrameworkCore;

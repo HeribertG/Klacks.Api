@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Controller fuer WorkChange-Verwaltung (CRUD-Operationen auf Dienstaenderungen).
+/// Controller for WorkChange management (CRUD operations on shift changes).
 /// </summary>
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Queries;

@@ -1,12 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Berechnet Reisezeiten zwischen Einsatzorten via OpenRouteService, OSRM oder Haversine-Fallback.
-/// Nutzt IGeocodingService für Koordinaten-Auflösung und cached API-Key-Status für 5 Minuten.
+/// Calculates travel times between work locations via OpenRouteService, OSRM or Haversine fallback.
+/// Uses IGeocodingService for coordinate resolution and caches API key status for 5 minutes.
 /// </summary>
-/// <param name="settingsRepository">Zugriff auf App-Einstellungen (API-Key)</param>
+/// <param name="settingsRepository">Access to app settings (API key)</param>
 /// <param name="encryptionService">Entschlüsselung sensibler Einstellungen</param>
-/// <param name="geocodingService">Koordinaten-Auflösung für Adressen ohne Lat/Lon</param>
+/// <param name="geocodingService">Coordinate resolution for addresses without lat/lon</param>
 using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;

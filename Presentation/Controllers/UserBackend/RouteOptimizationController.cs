@@ -66,24 +66,32 @@ public class RouteOptimizationController : BaseController
 
     [HttpPost("optimize-route")]
     public async Task<ActionResult<RouteOptimizationResponse>> OptimizeRoute(
-        [FromBody] List<Guid> shiftIds,
+        [FromBody] OptimizeRouteRequestDto request,
         [FromQuery] string? startBase = null,
         [FromQuery] string? endBase = null,
         [FromQuery] ContainerTransportMode transportMode = ContainerTransportMode.ByCar)
     {
         _logger.LogInformation(
-            "Optimizing route for {Count} shifts, StartBase: {StartBase}, EndBase: {EndBase}, TransportMode: {TransportMode}",
-            shiftIds.Count, startBase, endBase, transportMode);
+            "Optimizing route for {Count} shifts, StartBase: {StartBase}, EndBase: {EndBase}, TransportMode: {TransportMode}, TimeBlocks: {BlockCount}",
+            request.ShiftIds.Count, startBase, endBase, transportMode, request.TimeBlocks.Count);
 
-        if (shiftIds.Count < 2)
+        if (request.ShiftIds.Count < 2)
         {
             return BadRequest("At least 2 shifts are required for route optimization");
         }
 
         try
         {
+            var domainTimeBlocks = ConvertTimeBlockDtos(request.TimeBlocks);
+            TimeOnly? parsedContainerFromTime = null;
+            if (!string.IsNullOrEmpty(request.ContainerFromTime) &&
+                TimeOnly.TryParse(request.ContainerFromTime, out var fromTime))
+            {
+                parsedContainerFromTime = fromTime;
+            }
+
             var result = await _routeOptimizationService.OptimizeRouteByShiftIdsAsync(
-                shiftIds, startBase, endBase, transportMode);
+                request.ShiftIds, startBase, endBase, transportMode, domainTimeBlocks, parsedContainerFromTime);
 
             var routeSteps = new List<RouteStepDto>();
 
@@ -143,7 +151,8 @@ public class RouteOptimizationController : BaseController
                 DistanceFromStartBaseKm = result.DistanceFromStartBaseKm,
                 DistanceToEndBaseKm = result.DistanceToEndBaseKm,
                 TravelTimeToEndBase = result.TravelTimeToEndBase,
-                SegmentDirections = segmentDirections
+                SegmentDirections = segmentDirections,
+                PlacedTimeBlocks = ConvertPlacedTimeBlocks(result.PlacedTimeBlocks)
             };
 
             return Ok(response);
@@ -155,45 +164,38 @@ public class RouteOptimizationController : BaseController
         }
     }
 
-    [HttpGet("autofill")]
+    [HttpPost("autofill")]
     public async Task<ActionResult<ContainerAutofillResponse>> Autofill(
-        [FromQuery] Guid containerId,
-        [FromQuery] int weekday,
-        [FromQuery] bool isHoliday = false,
-        [FromQuery] string? startBase = null,
-        [FromQuery] string? endBase = null,
-        [FromQuery] string? fromTime = null,
-        [FromQuery] string? untilTime = null,
-        [FromQuery] ContainerTransportMode transportMode = ContainerTransportMode.ByCar,
-        [FromQuery] double timeRangeTolerance = 0.5,
+        [FromBody] AutofillRequestDto request,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(startBase) || string.IsNullOrEmpty(endBase))
+        if (string.IsNullOrEmpty(request.StartBase) || string.IsNullOrEmpty(request.EndBase))
         {
             return BadRequest("Start base and end base addresses are required for autofill");
         }
 
-        if (string.IsNullOrEmpty(fromTime) || string.IsNullOrEmpty(untilTime))
+        if (string.IsNullOrEmpty(request.FromTime) || string.IsNullOrEmpty(request.UntilTime))
         {
             return BadRequest("fromTime and untilTime are required for autofill");
         }
 
-        if (!TimeOnly.TryParse(fromTime, out var parsedFromTime) ||
-            !TimeOnly.TryParse(untilTime, out var parsedUntilTime))
+        if (!TimeOnly.TryParse(request.FromTime, out var parsedFromTime) ||
+            !TimeOnly.TryParse(request.UntilTime, out var parsedUntilTime))
         {
             return BadRequest("Invalid time format. Use HH:mm format.");
         }
 
         _logger.LogInformation(
-            "Autofill for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}, StartBase: {StartBase}, EndBase: {EndBase}, FromTime: {FromTime}, UntilTime: {UntilTime}",
-            containerId, weekday, isHoliday, startBase, endBase, parsedFromTime, parsedUntilTime);
+            "Autofill for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}, StartBase: {StartBase}, EndBase: {EndBase}, FromTime: {FromTime}, UntilTime: {UntilTime}, TimeBlocks: {BlockCount}",
+            request.ContainerId, request.Weekday, request.IsHoliday, request.StartBase, request.EndBase, parsedFromTime, parsedUntilTime, request.TimeBlocks.Count);
 
         try
         {
+            var domainTimeBlocks = ConvertTimeBlockDtos(request.TimeBlocks);
             var autofillRequest = new ContainerAutofillRequest(
-                containerId, weekday, isHoliday, startBase, endBase,
-                parsedFromTime, parsedUntilTime, transportMode, timeRangeTolerance,
-                cancellationToken);
+                request.ContainerId, request.Weekday, request.IsHoliday, request.StartBase, request.EndBase,
+                parsedFromTime, parsedUntilTime, request.TransportMode, request.TimeRangeTolerance,
+                cancellationToken, domainTimeBlocks);
 
             var result = await _containerAutofillService.AutofillAsync(autofillRequest);
 
@@ -240,6 +242,7 @@ public class RouteOptimizationController : BaseController
                 DistanceFromStartBaseKm = result.DistanceFromStartBaseKm,
                 DistanceToEndBaseKm = result.DistanceToEndBaseKm,
                 TravelTimeToEndBase = result.TravelTimeToEndBase,
+                PlacedTimeBlocks = ConvertPlacedTimeBlocks(result.PlacedTimeBlocks)
             };
 
             return Ok(response);
@@ -249,6 +252,37 @@ public class RouteOptimizationController : BaseController
             _logger.LogError(ex, "Error during container autofill");
             return StatusCode(500, "Error during container autofill");
         }
+    }
+
+    private static List<TimeBlock> ConvertTimeBlockDtos(List<TimeBlockDto> dtos)
+    {
+        return dtos.Select(dto => new TimeBlock(
+            dto.Id,
+            dto.Name,
+            string.IsNullOrEmpty(dto.FixedStartTime) ? null : TimeOnly.Parse(dto.FixedStartTime),
+            string.IsNullOrEmpty(dto.FixedEndTime) ? null : TimeOnly.Parse(dto.FixedEndTime),
+            TimeSpan.FromMinutes(dto.DurationMinutes),
+            dto.IsMovable)).ToList();
+    }
+
+    private static List<TimeBlockResultDto> ConvertPlacedTimeBlocks(List<PlacedTimeBlock>? placedBlocks)
+    {
+        if (placedBlocks == null || placedBlocks.Count == 0)
+        {
+            return new List<TimeBlockResultDto>();
+        }
+
+        const double secondsPerDay = 86400.0;
+
+        return placedBlocks.Select(p => new TimeBlockResultDto
+        {
+            Id = p.Block.Id,
+            Name = p.Block.Name,
+            StartTime = TimeSpan.FromSeconds(p.StartTimeSeconds % secondsPerDay).ToString(@"hh\:mm\:ss"),
+            EndTime = TimeSpan.FromSeconds(p.EndTimeSeconds % secondsPerDay).ToString(@"hh\:mm\:ss"),
+            InsertionPosition = p.InsertionPosition,
+            IsMovable = p.Block.IsMovable
+        }).ToList();
     }
 
     private double[][] ConvertMatrixToJaggedArray(double[,] matrix, int size)

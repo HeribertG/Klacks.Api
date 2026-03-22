@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die LLMModel-Entity mit QueryFilter.
+/// EF Core configuration for the LLMModel-Entity with query filter.
 /// </summary>
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.EntityFrameworkCore;

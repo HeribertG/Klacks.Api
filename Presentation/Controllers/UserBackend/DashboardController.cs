@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Controller fuer Dashboard-Daten: Standorte der Mitarbeiter und Schichtabdeckungs-Statistiken.
+/// Controller for dashboard data: employee locations and shift coverage statistics.
 /// </summary>
 
 using Klacks.Api.Application.Queries.Dashboard;

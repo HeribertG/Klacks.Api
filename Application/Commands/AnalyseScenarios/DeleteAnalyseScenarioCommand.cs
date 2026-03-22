@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Command zum Loeschen eines AnalyseScenarios.
+/// Command to delete an AnalyseScenario.
 /// </summary>
-/// <param name="ScenarioId">ID des zu loeschenden Szenarios</param>
+/// <param name="ScenarioId">ID of the scenario to delete</param>
 
 using Klacks.Api.Infrastructure.Mediator;
 

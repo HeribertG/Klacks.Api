@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler zum Ablehnen eines AnalyseScenarios.
-/// Löscht alle Szenario-Daten (Work, Break, Shift, ScheduleNote) mit dem Token.
+/// Handler for rejecting an AnalyseScenario.
+/// Deletes all scenario data (Work, Break, Shift, ScheduleNote) with the token.
 /// </summary>
-/// <param name="ScenarioId">ID des abzulehnenden Szenarios</param>
+/// <param name="ScenarioId">ID of the scenario to reject</param>
 
 using Klacks.Api.Application.Commands.AnalyseScenarios;
 using Klacks.Api.Application.Interfaces;

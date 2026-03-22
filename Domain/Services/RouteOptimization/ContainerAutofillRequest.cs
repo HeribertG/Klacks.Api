@@ -1,18 +1,19 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Parameter-Objekt fuer die automatische Container-Befuellung.
+/// Parameter object for automatic container filling.
 /// </summary>
-/// <param name="ContainerId">ID des Containers</param>
-/// <param name="Weekday">Wochentag (0=So, 1=Mo, ..., 6=Sa)</param>
-/// <param name="IsHoliday">Ob Feiertagsvariante</param>
-/// <param name="StartBase">Startadresse der Route</param>
-/// <param name="EndBase">Endadresse der Route</param>
-/// <param name="FromTime">Beginn des Zeitfensters</param>
-/// <param name="UntilTime">Ende des Zeitfensters</param>
-/// <param name="TransportMode">Transportmittel fuer die Routenberechnung</param>
-/// <param name="TimeRangeTolerance">Toleranz fuer TimeRange-Verletzungen (0.0 = strikt, 1.0 = keine Pruefung)</param>
-/// <param name="CancellationToken">Token zum Abbrechen der Operation</param>
+/// <param name="ContainerId">ID of the container</param>
+/// <param name="Weekday">Weekday (0=Sun, 1=Mon, ..., 6=Sat)</param>
+/// <param name="IsHoliday">Whether holiday variant</param>
+/// <param name="StartBase">Start address of the route</param>
+/// <param name="EndBase">End address of the route</param>
+/// <param name="FromTime">Start of the time window</param>
+/// <param name="UntilTime">End of the time window</param>
+/// <param name="TransportMode">Transport mode for route calculation</param>
+/// <param name="TimeRangeTolerance">Tolerance for TimeRange violations (0.0 = strict, 1.0 = no validation)</param>
+/// <param name="CancellationToken">Token for cancelling the operation</param>
+/// <param name="TimeBlocks">Optional time blocks (breaks) for route optimization</param>
 
 using Klacks.Api.Domain.Enums;
 
@@ -28,4 +29,5 @@ public record ContainerAutofillRequest(
     TimeOnly UntilTime,
     ContainerTransportMode TransportMode = ContainerTransportMode.ByCar,
     double TimeRangeTolerance = 0.5,
-    CancellationToken CancellationToken = default);
+    CancellationToken CancellationToken = default,
+    List<TimeBlock>? TimeBlocks = null);

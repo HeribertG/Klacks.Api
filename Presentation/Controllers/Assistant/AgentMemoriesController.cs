@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Controller fuer Agent-Memory-Verwaltung (CRUD und Pin-Toggle).
+/// Controller for agent memory management (CRUD and pin toggle).
 /// </summary>
-/// <param name="id">Die Agent-ID</param>
-/// <param name="memoryId">Die Memory-ID fuer Einzeloperationen</param>
+/// <param name="id">The agent ID</param>
+/// <param name="memoryId">The memory ID for single operations</param>
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

@@ -1,12 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Installiert und deinstalliert geografische Daten (Länder, Bundesländer, Kalenderregeln, Kalenderauswahlen)
-/// für Sprach-Plugins.
+/// Installs and uninstalls geographic data (countries, states, calendar rules, calendar selections)
+/// for language plugins.
 /// </summary>
-/// <param name="pluginDirectory">Basisverzeichnis der Sprach-Plugins</param>
+/// <param name="pluginDirectory">Base directory of the language plugins</param>
 /// <param name="manifests">Registry aller entdeckten Plugin-Manifeste</param>
-/// <param name="logger">Logger-Instanz für Diagnose-Ausgaben</param>
+/// <param name="logger">Logger instance for diagnostic output</param>
 
 using System.Collections.Concurrent;
 using System.Text.Json;

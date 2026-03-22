@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Composite-Skill zum Erstellen einer kompletten Testumgebung fuer Autofill-Testing.
-/// Erstellt Mitarbeiter mit Adressen, Vertraegen, Gruppenzuweisungen und Schichten in einem Aufruf.
+/// Composite skill for creating a complete test environment for autofill testing.
+/// Creates employees with addresses, contracts, group assignments and shifts in a single call.
 /// </summary>
-/// <param name="city">Stadt fuer die Mitarbeiter-Adressen (z.B. "Bern")</param>
-/// <param name="numberOfEmployees">Anzahl zu erstellender Mitarbeiter</param>
+/// <param name="city">City for the employee addresses (e.g. "Bern")</param>
+/// <param name="numberOfEmployees">Number of employees to create</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;

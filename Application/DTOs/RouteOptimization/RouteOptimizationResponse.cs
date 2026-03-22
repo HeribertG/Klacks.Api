@@ -19,4 +19,5 @@ public class RouteOptimizationResponse
     public TimeSpan TravelTimeToEndBase { get; set; }
 
     public List<RouteSegmentDirectionsDto>? SegmentDirections { get; set; }
+    public List<TimeBlockResultDto> PlacedTimeBlocks { get; set; } = new();
 }

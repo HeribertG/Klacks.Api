@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die AgentSoulHistory-Entity mit QueryFilter, Indizes und SoulSection-Beziehung.
+/// EF Core configuration for the AgentSoulHistory entity with query filter, indexes and SoulSection relationship.
 /// </summary>
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.EntityFrameworkCore;

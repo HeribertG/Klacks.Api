@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// System.Text.Json Converter für MultiLanguage.
-/// Serialisiert/deserialisiert alle Sprachen (Core + Plugin) dynamisch als flaches JSON-Objekt.
-/// Ersetzt den [JsonExtensionData]-Ansatz, der bei der Deserialisierung Plugin-Sprachen verliert.
+/// System.Text.Json converter for MultiLanguage.
+/// Serializes/deserializes all languages (core + plugin) dynamically as a flat JSON object.
+/// Replaces the [JsonExtensionData] approach which loses plugin languages during deserialization.
 /// </summary>
 using System.Text.Json;
 using System.Text.Json.Serialization;

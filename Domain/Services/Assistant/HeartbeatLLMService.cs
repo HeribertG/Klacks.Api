@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Erstellt via LLM-Call einen kurzen, freundlichen Status-Bericht auf Basis der Heartbeat-Checkliste
-/// und der aktuellen Datenpunkte aus dem System. Verwendet das günstigste verfügbare Modell.
+/// Creates a short, friendly status report via LLM call based on the heartbeat checklist
+/// and current data points from the system. Uses the cheapest available model.
 /// </summary>
 
 using System.Text;

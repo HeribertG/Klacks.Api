@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die PluginDoc-Entity mit eindeutigem Index.
+/// EF Core configuration for the PluginDoc-Entity with unique index.
 /// </summary>
 using Klacks.Api.Domain.Models.Settings;
 using Microsoft.EntityFrameworkCore;

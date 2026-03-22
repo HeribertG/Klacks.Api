@@ -6,7 +6,7 @@ using Klacks.Api.Domain.Models.Staffs;
 namespace Klacks.Api.Domain.Interfaces.Authentification;
 
 /// <summary>
-/// Service für die Verwaltung von Client-Adressen bei der LDAP-Synchronisierung.
+/// Service for managing client addresses during LDAP synchronization.
 /// </summary>
 public interface IClientAddressService
 {

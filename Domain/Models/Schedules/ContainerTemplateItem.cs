@@ -1,14 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Entity fuer ein einzelnes Item in einem ContainerTemplate (Shift oder Absence).
+/// Entity for a single item in a ContainerTemplate (shift or absence).
 /// </summary>
-/// <param name="ShiftId">Optional: Referenz auf eine Shift-Entity</param>
-/// <param name="AbsenceId">Optional: Referenz auf eine Absence-Entity</param>
-/// <param name="StartItem">Positionierte Startzeit fuer alle Items (Shifts + Absences)</param>
-/// <param name="EndItem">Positionierte Endzeit fuer alle Items (Shifts + Absences)</param>
-/// <param name="TimeRangeStartItem">Flexibles Zeitfenster Start (nur TimeRange-Shifts)</param>
-/// <param name="TimeRangeEndItem">Flexibles Zeitfenster Ende (nur TimeRange-Shifts)</param>
+/// <param name="ShiftId">Optional: Reference to a Shift entity</param>
+/// <param name="AbsenceId">Optional: Reference to an Absence entity</param>
+/// <param name="StartItem">Positioned start time for all items (shifts + absences)</param>
+/// <param name="EndItem">Positioned end time for all items (shifts + absences)</param>
+/// <param name="TimeRangeStartItem">Flexible time window start (TimeRange shifts only)</param>
+/// <param name="TimeRangeEndItem">Flexible time window end (TimeRange shifts only)</param>
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
 using System.ComponentModel.DataAnnotations.Schema;

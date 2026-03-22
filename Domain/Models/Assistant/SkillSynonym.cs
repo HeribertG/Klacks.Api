@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Sprachspezifisches Trigger-Keyword fuer einen Skill.
+/// Language-specific trigger keyword for a skill.
 /// </summary>
-/// <param name="SkillName">Technischer Name des Skills (z.B. "search_employees")</param>
-/// <param name="Language">ISO-Sprachcode (z.B. "de", "en", "fr")</param>
-/// <param name="Keyword">Das Trigger-Keyword in der jeweiligen Sprache</param>
+/// <param name="SkillName">Technical name of the skill (e.g. "search_employees")</param>
+/// <param name="Language">ISO language code (e.g. "de", "en", "fr")</param>
+/// <param name="Keyword">The trigger keyword in the respective language</param>
 using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Domain.Models.Assistant;

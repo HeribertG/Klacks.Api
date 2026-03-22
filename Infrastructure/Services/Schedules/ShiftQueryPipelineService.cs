@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Facade fuer die Shift-Query-Pipeline. Delegiert an die spezialisierten Filter-, Such-, Sortier- und Paginierungsservices.
+/// Facade for the shift query pipeline. Delegates to specialized filter, search, sorting and pagination services.
 /// </summary>
-/// <param name="dateRangeFilterService">Filtert Shifts nach Datumsbereich (aktiv, vergangen, zukuenftig)</param>
-/// <param name="searchService">Filtert Shifts nach Suchbegriff</param>
+/// <param name="dateRangeFilterService">Filters shifts by date range (active, past, future)</param>
+/// <param name="searchService">Filters shifts by search term</param>
 /// <param name="sortingService">Sortiert Shifts nach Spalte und Richtung</param>
 /// <param name="statusFilterService">Filtert Shifts nach Status (Original, SealedOrder etc.)</param>
 /// <param name="paginationService">Paginiert die gefilterte Query</param>

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die Expenses-Entity mit QueryFilter und Work-Beziehung.
+/// EF Core configuration for the Expenses-Entity with query filter and Work-relationship.
 /// </summary>
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;

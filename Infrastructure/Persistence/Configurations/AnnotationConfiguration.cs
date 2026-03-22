@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die Annotation-Entity mit QueryFilter und Index.
+/// EF Core configuration for the Annotation entity with query filter and index.
 /// </summary>
 using Klacks.Api.Domain.Models.Staffs;
 using Microsoft.EntityFrameworkCore;

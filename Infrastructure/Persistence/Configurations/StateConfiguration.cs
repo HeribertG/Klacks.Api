@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die State-Entity mit QueryFilter und MultiLanguage-Name.
+/// EF Core configuration for the State-Entity with query filter and MultiLanguage-Name.
 /// </summary>
 using Klacks.Api.Domain.Models.Settings;
 using Microsoft.EntityFrameworkCore;

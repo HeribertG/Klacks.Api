@@ -85,6 +85,7 @@ public class LanguageConfigController : ControllerBase
         return Ok(translations);
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpGet("language-plugins/{code}/docs/{manualName}")]
     public async Task<ActionResult> GetPluginDoc(string code, string manualName)
     {

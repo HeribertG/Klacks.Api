@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die CalendarRule-Entity mit Index und MultiLanguage-Properties.
+/// EF Core configuration for the CalendarRule entity with index and MultiLanguage properties.
 /// </summary>
 using Klacks.Api.Domain.Models.Settings;
 using Microsoft.EntityFrameworkCore;

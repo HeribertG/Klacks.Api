@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Statische DB-Funktionen für MultiLanguage JSONB-Spalten.
-/// Werden in LINQ-Queries verwendet und von EF Core zu PostgreSQL jsonb_extract_path_text übersetzt.
-/// @param column - Die MultiLanguage JSONB-Spalte
-/// @param key - Der Sprachschlüssel (z.B. "de", "en", "ja")
+/// Static DB functions for MultiLanguage JSONB columns.
+/// Used in LINQ queries and translated by EF Core to PostgreSQL jsonb_extract_path_text.
+/// @param column - The MultiLanguage JSONB column
+/// @param key - The language key (e.g. "de", "en", "ja")
 /// </summary>
 namespace Klacks.Api.Domain.Common;
 

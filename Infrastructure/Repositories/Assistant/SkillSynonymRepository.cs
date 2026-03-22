@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Repository fuer SkillSynonym-Entitaeten.
+/// EF Core repository for SkillSynonym entities.
 /// </summary>
-/// <param name="context">Der Datenbank-Kontext fuer den Zugriff auf die skill_synonyms Tabelle</param>
+/// <param name="context">The database context for accessing the skill_synonyms table</param>
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence;

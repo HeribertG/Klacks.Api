@@ -1,13 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Verarbeitet Macro-Berechnungen für Work- und WorkChange-Einträge (Zuschläge, Arbeitszeit).
+/// Processes macro calculations for work and WorkChange entries (surcharges, working time).
 /// </summary>
-/// <param name="shiftRepository">Lädt Shift-Daten inkl. MacroId</param>
-/// <param name="macroDataProvider">Berechnet Macro-Eingabedaten aus Work/WorkChange</param>
+/// <param name="shiftRepository">Loads shift data including MacroId</param>
+/// <param name="macroDataProvider">Calculates macro input data from Work/WorkChange</param>
 /// <param name="macroCompilationService">Kompiliert und führt Macros aus</param>
-/// <param name="context">Datenbankzugriff für WorkChange-zu-Work-Auflösung</param>
-/// <param name="logger">Logger für Warn- und Fehlermeldungen</param>
+/// <param name="context">Database access for WorkChange-to-Work resolution</param>
+/// <param name="logger">Logger for warnings and error messages</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;

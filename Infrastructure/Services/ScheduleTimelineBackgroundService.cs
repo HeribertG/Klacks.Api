@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Background-Worker für Schedule-Validierung: Kollisionen, Ruhezeiten, Arbeitszeiten, Reisezeiten.
-/// Empfängt Check-Requests via Channel und sendet Ergebnisse via SignalR.
+/// Background worker for schedule validation: collisions, rest periods, working hours, travel times.
+/// Receives check requests via Channel and sends results via SignalR.
 /// </summary>
 using System.Threading.Channels;
 using Klacks.Api.Application.DTOs.Notifications;

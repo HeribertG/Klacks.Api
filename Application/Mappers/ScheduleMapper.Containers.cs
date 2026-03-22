@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Partielle Klasse für ContainerTemplate-, Route-, RouteLocation- und RouteSegment-Mappings.
+/// Partial class for ContainerTemplate, Route, RouteLocation and RouteSegment mappings.
 /// </summary>
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;

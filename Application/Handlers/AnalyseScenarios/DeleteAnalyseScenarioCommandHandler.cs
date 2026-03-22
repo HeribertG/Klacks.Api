@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler zum Loeschen eines AnalyseScenarios.
+/// Handler for deleting an AnalyseScenario.
 /// </summary>
-/// <param name="ScenarioId">ID des zu loeschenden Szenarios</param>
+/// <param name="ScenarioId">ID of the scenario to delete</param>
 
 using Klacks.Api.Application.Commands.AnalyseScenarios;
 using Klacks.Api.Application.Interfaces;

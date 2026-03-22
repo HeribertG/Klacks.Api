@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die GroupVisibility-Entity mit QueryFilter, Spaltenname und AppUser-Beziehung.
+/// EF Core configuration for the GroupVisibility-Entity with query filter, column name and AppUser-relationship.
 /// </summary>
 using Klacks.Api.Domain.Models.Associations;
 using Microsoft.EntityFrameworkCore;

@@ -12,6 +12,7 @@ ARG KLACKS_VARIANT=DEV
 # Copy csproj files for restore
 COPY Klacks.Api/Klacks.Api.csproj Klacks.Api/
 COPY Klacks.Docs/Klacks.Docs.csproj Klacks.Docs/
+COPY Klacks.Api.SourceGenerators/Klacks.Api.SourceGenerators.csproj Klacks.Api.SourceGenerators/
 
 # Restore dependencies
 RUN dotnet restore Klacks.Api/Klacks.Api.csproj
@@ -19,6 +20,7 @@ RUN dotnet restore Klacks.Api/Klacks.Api.csproj
 # Copy everything else
 COPY Klacks.Api/ Klacks.Api/
 COPY Klacks.Docs/ Klacks.Docs/
+COPY Klacks.Api.SourceGenerators/ Klacks.Api.SourceGenerators/
 
 # Inject version into constants before build
 RUN sed -i "s/public const int CMajor = 1;/public const int CMajor = ${KLACKS_VERSION_MAJOR};/" Klacks.Api/Application/Constants/VersionConstant.cs && \
@@ -36,6 +38,13 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 EXPOSE 5000
 EXPOSE 443
+
+# Install Kerberos library required by Npgsql
+RUN apt-get update && apt-get install -y --no-install-recommends libgssapi-krb5-2 && rm -rf /var/lib/apt/lists/*
+
+# Run as non-root user
+RUN useradd --no-create-home --shell /bin/false appuser && chown -R appuser /app
+USER appuser
 
 # Copy published app
 COPY --from=build /app/publish .

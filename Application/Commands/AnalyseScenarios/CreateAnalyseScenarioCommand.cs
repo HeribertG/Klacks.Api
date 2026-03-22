@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Command zum Erstellen eines neuen AnalyseScenarios.
+/// Command to create a new AnalyseScenario.
 /// </summary>
-/// <param name="Request">Enthaelt Name, Beschreibung, Gruppe und Zeitraum des Szenarios</param>
+/// <param name="Request">Contains name, description, group and time period of the scenario</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;

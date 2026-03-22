@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Extensions für MultiLanguage JSONB-Property-Konfiguration.
-/// Ersetzt OwnsOne().ToJson() durch ValueConverter-basierte Konfiguration,
-/// die alle Sprachen (Core + Plugin) dynamisch unterstützt.
+/// EF Core extensions for MultiLanguage JSONB property configuration.
+/// Replaces OwnsOne().ToJson() with ValueConverter-based configuration
+/// that dynamically supports all languages (core + plugin).
 /// </summary>
 using System.Linq.Expressions;
 using Klacks.Api.Domain.Common;

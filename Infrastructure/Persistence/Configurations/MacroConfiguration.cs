@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die Macro-Entity mit QueryFilter, MultiLanguage und Index.
+/// EF Core configuration for the Macro-Entity with query filter, MultiLanguage and Index.
 /// </summary>
 using Klacks.Api.Domain.Models.Settings;
 using Microsoft.EntityFrameworkCore;

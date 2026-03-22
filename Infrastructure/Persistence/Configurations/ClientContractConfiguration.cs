@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die ClientContract-Entity mit QueryFilter, Index und Contract-Beziehung.
+/// EF Core configuration for the ClientContract-Entity with query filter, Index and Contract-relationship.
 /// </summary>
 using Klacks.Api.Domain.Models.Staffs;
 using Microsoft.EntityFrameworkCore;

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die Shift-Entity mit QueryFilter, Indizes und Client-Beziehung.
+/// EF Core configuration for the Shift-Entity with query filter, indexes and Client-relationship.
 /// </summary>
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;

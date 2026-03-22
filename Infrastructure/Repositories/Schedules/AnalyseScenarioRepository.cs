@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Repository-Implementierung fuer AnalyseScenario mit Gruppen- und Token-Abfragen.
+/// Repository implementation for AnalyseScenario with group and token queries.
 /// </summary>
 
 using Klacks.Api.Application.Interfaces;

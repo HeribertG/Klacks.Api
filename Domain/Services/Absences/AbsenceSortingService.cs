@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Sortierservice für Absence-Abfragen.
-/// Nutzt MultiLanguageDbFunctions.ExtractText für sprachabhängige JSONB-Sortierung,
-/// unterstützt dynamisch alle Sprachen (Core + Plugin).
+/// Sorting service for absence queries.
+/// Uses MultiLanguageDbFunctions.ExtractText for language-dependent JSONB sorting,
+/// dynamically supports all languages (core + plugin).
 /// </summary>
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;

@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Service fuer Adress-Geocodierung (Koordinaten-Aufloesung und Adress-Validierung).
+/// Service for address geocoding (coordinate resolution and address validation).
 /// </summary>
-/// <param name="city">Stadt fuer einfache Geocodierung</param>
-/// <param name="fullAddress">Vollstaendige Adresse fuer praezise Geocodierung</param>
-/// <param name="country">Land fuer die Geocodierung</param>
+/// <param name="city">City for simple geocoding</param>
+/// <param name="fullAddress">Full address for precise geocoding</param>
+/// <param name="country">Country for geocoding</param>
 
 namespace Klacks.Api.Domain.Interfaces.RouteOptimization;
 

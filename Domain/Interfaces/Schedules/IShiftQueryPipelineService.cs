@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Facade-Interface fuer die Shift-Query-Pipeline (Status-, Datums-, Such-, Sortier- und Paginierungsfilter).
+/// Facade interface for the shift query pipeline (status, date, search, sorting and pagination filters).
 /// </summary>
-/// <param name="query">Basis-Query auf die Filter angewendet werden</param>
-/// <param name="filter">Enthält alle Filterkriterien (Status, Datumsbereich, Suchbegriff, Sortierung, Paginierung)</param>
+/// <param name="query">Base query to which filters are applied</param>
+/// <param name="filter">Contains all filter criteria (status, date range, search term, sorting, pagination)</param>
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Domain.Enums;

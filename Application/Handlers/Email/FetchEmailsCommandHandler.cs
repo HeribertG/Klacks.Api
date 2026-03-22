@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler fuer den manuellen IMAP-Email-Abruf (Folder-Sync + neue Emails fetchen).
+/// Handler for manual IMAP email fetch (folder sync + fetching new emails).
 /// </summary>
-/// <param name="imapEmailService">IMAP-Service fuer Folder-Sync und Email-Abruf</param>
-/// <param name="unitOfWork">Persistiert die neuen Emails</param>
+/// <param name="imapEmailService">IMAP service for folder sync and email fetch</param>
+/// <param name="unitOfWork">Persists the new emails</param>
 
 using Klacks.Api.Application.Commands.Email;
 using Klacks.Api.Domain.Interfaces;

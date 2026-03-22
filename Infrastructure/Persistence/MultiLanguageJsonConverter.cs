@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core ValueConverter und ValueComparer für MultiLanguage JSONB-Spalten.
-/// Serialisiert alle Sprachen (Core + Plugin) dynamisch via MultiLanguageSystemTextJsonConverter.
+/// EF Core ValueConverter and ValueComparer for MultiLanguage JSONB columns.
+/// Serializes all languages (core + plugin) dynamically via MultiLanguageSystemTextJsonConverter.
 /// </summary>
 using System.Text.Json;
 using Klacks.Api.Domain.Common;

@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Service fuer Adress-Geocodierung via Nominatim mit Rate-Limiting und Memory-Cache.
-/// @param httpClientFactory - Factory fuer den Nominatim HTTP-Client
-/// @param cache - In-Memory-Cache fuer Geocoding-Ergebnisse (30 Tage positive, 1 Stunde negative)
-/// @param REQUEST_DELAY_MS - Mindestabstand zwischen Nominatim-Requests (500ms)
+/// Service for address geocoding via Nominatim with rate limiting and memory cache.
+/// @param httpClientFactory - Factory for the Nominatim HTTP client
+/// @param cache - In-memory cache for geocoding results (30 days positive, 1 hour negative)
+/// @param REQUEST_DELAY_MS - Minimum delay between Nominatim requests (500ms)
 /// </summary>
 
 using Microsoft.Extensions.Caching.Memory;

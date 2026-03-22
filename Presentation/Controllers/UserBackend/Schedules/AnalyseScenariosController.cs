@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Controller fuer CRUD-Operationen und Statusaenderungen von AnalyseScenarios.
+/// Controller for CRUD operations and status changes of AnalyseScenarios.
 /// </summary>
 
 using Klacks.Api.Application.Commands.AnalyseScenarios;

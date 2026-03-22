@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Skill zum Erstellen neuer Schichten/Aufträge (Shifts) im System.
+/// Skill for creating new shifts/tasks in the system.
 /// </summary>
-/// <param name="name">Name der Schicht (z.B. "Frühdienst Bern")</param>
-/// <param name="startTime">Startzeit der Schicht (z.B. "07:00")</param>
-/// <param name="endTime">Endzeit der Schicht (z.B. "15:00")</param>
+/// <param name="name">Name of the shift (e.g. "Early shift Bern")</param>
+/// <param name="startTime">Start time of the shift (e.g. "07:00")</param>
+/// <param name="endTime">End time of the shift (e.g. "15:00")</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;

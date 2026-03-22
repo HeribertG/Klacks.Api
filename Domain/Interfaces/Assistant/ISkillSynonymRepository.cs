@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Repository fuer sprachspezifische Skill-Synonyme.
+/// Repository for language-specific skill synonyms.
 /// </summary>
 using Klacks.Api.Domain.Models.Assistant;
 

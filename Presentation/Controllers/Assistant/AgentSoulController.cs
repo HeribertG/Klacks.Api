@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Controller fuer Agent-Soul-Verwaltung (Sektionen lesen, upserten, deaktivieren, History).
+/// Controller for agent soul management (read, upsert, deactivate sections, history).
 /// </summary>
-/// <param name="id">Die Agent-ID</param>
-/// <param name="sectionType">Der Soul-Sektions-Typ</param>
+/// <param name="id">The agent ID</param>
+/// <param name="sectionType">The soul section type</param>
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

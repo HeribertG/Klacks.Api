@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Controller fuer Adress-CRUD und Geocoding-Validierung.
+/// Controller for address CRUD and geocoding validation.
 /// </summary>
-/// <param name="Mediator">Mediator fuer Query/Command-Handling</param>
-/// <param name="_geocodingService">Service fuer Adress-Geocodierung und Validierung</param>
+/// <param name="Mediator">Mediator for query/command handling</param>
+/// <param name="_geocodingService">Service for address geocoding and validation</param>
 /// <param name="_coordinateWriter">Service zum Speichern von Koordinaten in der Address-Tabelle</param>
 
 using Klacks.Api.Application.Queries.Addresses;

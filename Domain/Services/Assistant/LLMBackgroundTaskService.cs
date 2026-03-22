@@ -8,10 +8,10 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Klacks.Api.Domain.Services.Assistant;
 
 /// <summary>
-/// Service für asynchrone Hintergrundaufgaben nach LLM-Interaktionen (Compaction, Memory-Extraktion, Skill-Gap-Erkennung).
+/// Service for asynchronous background tasks after LLM interactions (compaction, memory extraction, skill gap detection).
 /// </summary>
-/// <param name="_scopeFactory">Factory zum Erstellen neuer DI-Scopes für Background-Tasks</param>
-/// <param name="_logger">Logger für Fehler-Tracking der Fire-and-Forget-Tasks</param>
+/// <param name="_scopeFactory">Factory for creating new DI scopes for background tasks</param>
+/// <param name="_logger">Logger for error tracking of fire-and-forget tasks</param>
 public class LLMBackgroundTaskService : ILLMBackgroundTaskService
 {
     private readonly IServiceScopeFactory _scopeFactory;

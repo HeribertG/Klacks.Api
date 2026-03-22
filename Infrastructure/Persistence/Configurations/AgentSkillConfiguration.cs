@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die AgentSkill-Entity mit QueryFilter, Indizes, JSONB-Synonyms und Agent-Beziehung.
+/// EF Core configuration for the AgentSkill entity with query filter, indexes, JSONB synonyms and Agent relationship.
 /// </summary>
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence.Converters;

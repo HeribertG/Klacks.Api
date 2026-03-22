@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Query zum Abrufen der Shift-Abdeckungs- und Versiegelungsstatistiken pro Gruppe für den aktuellen Monat.
+/// Query for retrieving shift coverage and sealing statistics per group for the current month.
 /// </summary>
 using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Infrastructure.Mediator;

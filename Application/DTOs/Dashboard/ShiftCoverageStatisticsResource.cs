@@ -1,14 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Statistik-Ressource für Shift-Abdeckung und Versiegelungsstatus pro Gruppe.
+/// Statistics resource for shift coverage and sealing status per group.
 /// </summary>
-/// <param name="GroupId">ID der Gruppe</param>
-/// <param name="GroupName">Name der Gruppe</param>
-/// <param name="TotalSlots">Summe der Quantity über alle Shift-Tage</param>
-/// <param name="CoveredSlots">Summe der Engaged-Slots</param>
-/// <param name="TotalWorkEntries">Anzahl aller Work-Einträge im Zeitraum</param>
-/// <param name="SealedWorkEntries">Anzahl der Work-Einträge mit LockLevel >= Confirmed</param>
+/// <param name="GroupId">ID of the group</param>
+/// <param name="GroupName">Name of the group</param>
+/// <param name="TotalSlots">Sum of quantity across all shift days</param>
+/// <param name="CoveredSlots">Sum of engaged slots</param>
+/// <param name="TotalWorkEntries">Total number of work entries in the period</param>
+/// <param name="SealedWorkEntries">Number of work entries with LockLevel >= Confirmed</param>
 namespace Klacks.Api.Application.DTOs.Dashboard;
 
 public class ShiftCoverageStatisticsResource

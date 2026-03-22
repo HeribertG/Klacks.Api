@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// DTO fuer ein ContainerTemplateItem mit Shift- oder Absence-Referenz.
+/// DTO for a ContainerTemplateItem with shift or absence reference.
 /// </summary>
-/// <param name="ShiftId">Optional: Shift-Referenz (XOR mit AbsenceId)</param>
-/// <param name="AbsenceId">Optional: Absence-Referenz (XOR mit ShiftId)</param>
+/// <param name="ShiftId">Optional: Shift reference (XOR with AbsenceId)</param>
+/// <param name="AbsenceId">Optional: Absence reference (XOR with ShiftId)</param>
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Application.DTOs.Schedules;

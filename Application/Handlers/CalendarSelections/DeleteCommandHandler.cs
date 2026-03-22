@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler zum Loeschen einer CalendarSelection mit Pruefung auf bestehende Referenzen.
-/// @param request - Enthaelt die ID der zu loeschenden CalendarSelection
+/// Handler for deleting a CalendarSelection with validation of existing references.
+/// @param request - Contains the ID of the CalendarSelection to delete
 /// </summary>
 
 using Klacks.Api.Application.Mappers;

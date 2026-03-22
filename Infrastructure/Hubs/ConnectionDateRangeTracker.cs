@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Verwaltet SignalR-Connections mit ihren aktiven Datumsbereichen und optionaler Gruppenauswahl.
-/// Ermoeglicht gezieltes Senden von Notifications an Connections basierend auf Datum und Gruppe.
+/// Manages SignalR connections with their active date ranges and optional group selection.
+/// Enables targeted sending of notifications to connections based on date and group.
 /// </summary>
-/// <param name="_connectionRanges">Thread-sichere Map: ConnectionId → (DateRange, SelectedGroupId)</param>
+/// <param name="_connectionRanges">Thread-safe map: ConnectionId -> (DateRange, SelectedGroupId)</param>
 
 using System.Collections.Concurrent;
 

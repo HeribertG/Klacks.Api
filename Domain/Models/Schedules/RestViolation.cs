@@ -1,12 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Ruhezeit-Verletzung zwischen zwei aufeinanderfolgenden Arbeitsblöcken.
+/// Rest period violation between two consecutive work blocks.
 /// </summary>
-/// <param name="PreviousBlock">Der vorangehende Dienst</param>
-/// <param name="NextBlock">Der nachfolgende Dienst</param>
-/// <param name="ActualRest">Tatsächliche Ruhezeit zwischen den Blöcken</param>
-/// <param name="RequiredRest">Geforderte Mindest-Ruhezeit</param>
+/// <param name="PreviousBlock">The preceding shift</param>
+/// <param name="NextBlock">The following shift</param>
+/// <param name="ActualRest">Actual rest time between blocks</param>
+/// <param name="RequiredRest">Required minimum rest time</param>
 namespace Klacks.Api.Domain.Models.Schedules;
 
 public record RestViolation(

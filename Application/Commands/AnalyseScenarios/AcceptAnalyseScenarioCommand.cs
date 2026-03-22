@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Command zum Akzeptieren eines AnalyseScenarios.
+/// Command to accept an AnalyseScenario.
 /// </summary>
-/// <param name="ScenarioId">ID des zu akzeptierenden Szenarios</param>
+/// <param name="ScenarioId">ID of the scenario to accept</param>
 
 using Klacks.Api.Infrastructure.Mediator;
 

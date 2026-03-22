@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die GlobalAgentRuleHistory-Entity mit QueryFilter, Index und Rule-Beziehung.
+/// EF Core configuration for the GlobalAgentRuleHistory-Entity with query filter, Index and Rule-relationship.
 /// </summary>
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.EntityFrameworkCore;

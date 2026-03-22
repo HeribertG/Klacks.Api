@@ -71,16 +71,22 @@ public class ShiftScheduleService : IShiftScheduleService
             "Fetching partial shift schedule for {Count} shift/date pairs",
             shiftDatePairs.Count);
 
-        var pairsArrayString = string.Join(",", shiftDatePairs.Select(p =>
-            $"('{p.ShiftId}'::UUID, '{p.Date:yyyy-MM-dd}'::DATE)"));
+        var shiftIds = shiftDatePairs.Select(p => p.ShiftId).ToArray();
+        var dates = shiftDatePairs
+            .Select(p => DateTime.SpecifyKind(p.Date.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc))
+            .ToArray();
 
-        var sql = $@"
+        var shiftIdsParam = new NpgsqlParameter("shiftIds", NpgsqlDbType.Array | NpgsqlDbType.Uuid) { Value = shiftIds };
+        var datesParam = new NpgsqlParameter("dates", NpgsqlDbType.Array | NpgsqlDbType.Date) { Value = dates };
+
+        const string sql = @"
             SELECT * FROM get_shift_schedule_partial(
-                ARRAY[{pairsArrayString}]::shift_date_pair[]
+                (SELECT array_agg(ROW(s, d)::shift_date_pair)
+                 FROM unnest(@shiftIds::UUID[], @dates::DATE[]) AS t(s, d))
             )";
 
         return await _context.ShiftDayAssignments
-            .FromSqlRaw(sql)
+            .FromSqlRaw(sql, shiftIdsParam, datesParam)
             .ToListAsync(cancellationToken);
     }
 }

@@ -1,15 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Response-DTO für den Container-Autofill-Endpoint.
-/// Enthält die optimierte Route, ausgewählte Shifts und Zeitinformationen.
+/// Response DTO for the container autofill endpoint.
+/// Contains the optimized route, selected shifts and time information.
 /// </summary>
-/// <param name="OptimizedRoute">Optimierte Reihenfolge der Locations als RouteStepDto</param>
-/// <param name="SelectedShiftIds">IDs der ausgewählten Shifts</param>
-/// <param name="TotalDistanceKm">Gesamtdistanz in km</param>
-/// <param name="EstimatedTravelTime">Geschätzte Gesamtzeit (Travel + OnSite)</param>
-/// <param name="TotalWorkTime">Gesamte Vor-Ort-Zeit (Briefing + Work + Debriefing)</param>
-/// <param name="RemainingTime">Verbleibende Zeit im Container-Budget</param>
+/// <param name="OptimizedRoute">Optimized order of locations as RouteStepDto</param>
+/// <param name="SelectedShiftIds">IDs of the selected shifts</param>
+/// <param name="TotalDistanceKm">Total distance in km</param>
+/// <param name="EstimatedTravelTime">Estimated total time (travel + on-site)</param>
+/// <param name="TotalWorkTime">Total on-site time (briefing + work + debriefing)</param>
+/// <param name="RemainingTime">Remaining time in the container budget</param>
 
 namespace Klacks.Api.Application.DTOs.RouteOptimization;
 
@@ -28,4 +28,5 @@ public class ContainerAutofillResponse
     public double DistanceToEndBaseKm { get; set; }
     public TimeSpan TravelTimeToEndBase { get; set; }
     public List<RouteSegmentDirectionsDto>? SegmentDirections { get; set; }
+    public List<TimeBlockResultDto> PlacedTimeBlocks { get; set; } = new();
 }

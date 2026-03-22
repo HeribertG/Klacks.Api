@@ -1,14 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Fehler-Objekt fuer alle Klassen der myScript-Engine.
-/// Ueber Raise() werden die Fehlerparameter gesetzt und ein VB-Fehler
-/// ausgeloest. Alle Klassen der Engine sind so ausgerichtet, dass sie
-/// bei einem VB-Fehler komplett zurueckfallen zur Aufrufstelle des
-/// Parsers bzw. Interpreters, d.h. jeder Syntaxfehler usw. ist fuer
-/// den Script-Host ein trappable error.
+/// Error object for all classes of the myScript engine.
+/// Via Raise() the error parameters are set and a VB error
+/// is raised. All engine classes are designed to
+/// fall back completely to the call site of the
+/// parser or interpreter, i.e. every syntax error etc. is a
+/// trappable error for the script host.
 /// </summary>
-/// <param name="info">Enthaelt Number, Source, Description, Line, Col, Index und optionalen ErrSource</param>
+/// <param name="info">Contains Number, Source, Description, Line, Col, Index and optional ErrSource</param>
 
 namespace Klacks.Api.Infrastructure.Scripting;
 

@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Sammelt aktuelle Datenpunkte aus der Datenbank, die für den Heartbeat-Status relevant sind.
-/// Zählt neue Einträge seit einem bestimmten Zeitpunkt in relevanten Tabellen.
+/// Collects current data points from the database that are relevant for heartbeat status.
+/// Counts new entries since a specific point in time in relevant tables.
 /// </summary>
 
 using Klacks.Api.Domain.Interfaces.Assistant;

@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Regelbasierte Sentiment-Analyse für eingehende Nutzernachrichten.
-/// Erkennt Stimmungen (Frustrated, Stressed, Confused, Positive, Urgent, Neutral)
-/// anhand von DB-gespeicherten mehrsprachigen Keyword-Listen und sprachunabhängigen Pattern-Regeln.
-/// Singleton mit Lazy-Load-Cache; ReloadKeywords() nach Plugin-Install aufrufen.
+/// Rule-based sentiment analysis for incoming user messages.
+/// Detects moods (Frustrated, Stressed, Confused, Positive, Urgent, Neutral)
+/// using DB-stored multilingual keyword lists and language-independent pattern rules.
+/// Singleton with lazy-load cache; call ReloadKeywords() after plugin install.
 /// </summary>
 
 using System.Collections.Concurrent;

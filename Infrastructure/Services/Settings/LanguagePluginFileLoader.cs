@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Statische Hilfsklasse zum Laden von Plugin-Datendateien aus dem Dateisystem.
+/// Static helper class for loading plugin data files from the file system.
 /// </summary>
-/// <param name="filePath">Vollständiger Pfad zur JSON-Datei</param>
+/// <param name="filePath">Full path to the JSON file</param>
 
 using System.Text.Json;
 

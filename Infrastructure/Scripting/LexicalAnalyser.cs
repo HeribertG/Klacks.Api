@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Lexikalische Analyse: Zerlegt den Quelltext-Stream in Symbole (Tokens).
-/// <param name="source">Der Eingabe-Stream, aus dem Zeichen gelesen werden</param>
-/// <param name="predefinedIdentifiers">Statisches Dictionary mit Keywords und deren Token-Zuordnung</param>
+/// Lexical analysis: Decomposes the source text stream into symbols (tokens).
+/// <param name="source">The input stream from which characters are read</param>
+/// <param name="predefinedIdentifiers">Static dictionary with keywords and their token mappings</param>
 /// </summary>
 
 using System.Diagnostics;

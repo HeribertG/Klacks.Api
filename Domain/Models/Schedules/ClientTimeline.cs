@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Zeitstrahl eines Clients über einen beliebigen Zeitraum.
-/// Nicht tagesgebunden — Blöcke werden sortiert gehalten für effiziente Abfragen.
+/// Timeline of a client over an arbitrary period.
+/// Not day-bound - blocks are kept sorted for efficient queries.
 /// </summary>
-/// <param name="ClientId">Mitarbeiter-ID</param>
+/// <param name="ClientId">Employee ID</param>
 namespace Klacks.Api.Domain.Models.Schedules;
 
 public class ClientTimeline

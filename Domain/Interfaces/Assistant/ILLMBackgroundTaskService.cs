@@ -6,7 +6,7 @@ using Klacks.Api.Domain.Services.Assistant.Providers;
 namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 /// <summary>
-/// Service für asynchrone Hintergrundaufgaben nach LLM-Interaktionen.
+/// Service for asynchronous background tasks after LLM interactions.
 /// </summary>
 public interface ILLMBackgroundTaskService
 {

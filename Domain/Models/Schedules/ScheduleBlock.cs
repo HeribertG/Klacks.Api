@@ -1,15 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Zeitblock eines Dienstes als absolutes DateTime-Intervall.
-/// Kein Mitternachts-Splitting — ein Nachtdienst bleibt ein zusammenhängender Block.
+/// Time block of a shift as an absolute DateTime interval.
+/// No midnight splitting - a night shift remains a contiguous block.
 /// </summary>
-/// <param name="SourceId">ID des Work/Break-Eintrags</param>
-/// <param name="BlockType">Art des Blocks (Work, Break, Correction, Replacement)</param>
-/// <param name="ClientId">Zugeordneter Mitarbeiter</param>
-/// <param name="Start">Absoluter Startzeitpunkt</param>
-/// <param name="End">Absoluter Endzeitpunkt</param>
-/// <param name="ShiftId">Optionale Shift-ID für Reisezeit-Prüfung</param>
+/// <param name="SourceId">ID of the work/break entry</param>
+/// <param name="BlockType">Type of block (Work, Break, Correction, Replacement)</param>
+/// <param name="ClientId">Assigned employee</param>
+/// <param name="Start">Absolute start time</param>
+/// <param name="End">Absolute end time</param>
+/// <param name="ShiftId">Optional shift ID for travel time validation</param>
 namespace Klacks.Api.Domain.Models.Schedules;
 
 public record ScheduleBlock(

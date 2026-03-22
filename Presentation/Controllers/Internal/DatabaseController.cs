@@ -53,7 +53,7 @@ public class DatabaseController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error initializing database");
-            return StatusCode(500, new { error = "Database initialization failed", details = ex.Message });
+            return StatusCode(500, new { error = "Database operation failed" });
         }
     }
 
@@ -72,7 +72,7 @@ public class DatabaseController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error seeding database");
-            return StatusCode(500, new { error = "Database seeding failed", details = ex.Message });
+            return StatusCode(500, new { error = "Database operation failed" });
         }
     }
 }

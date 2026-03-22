@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Partielle Klasse für Work-, Break-, Shift- und CloneShift-Mappings.
+/// Partial class for Work, Break, Shift and CloneShift mappings.
 /// </summary>
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;

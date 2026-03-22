@@ -1,12 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Verarbeitet Macro-Berechnungen für Break-Einträge (Arbeitszeit aus Pausenmakros).
+/// Processes macro calculations for break entries (working time from break macros).
 /// </summary>
-/// <param name="context">Datenbankzugriff für Absence- und Break-Daten</param>
-/// <param name="macroDataProvider">Berechnet Macro-Eingabedaten aus Break-Einträgen</param>
+/// <param name="context">Database access for absence and break data</param>
+/// <param name="macroDataProvider">Calculates macro input data from break entries</param>
 /// <param name="macroCompilationService">Kompiliert und führt Macros aus</param>
-/// <param name="logger">Logger für Warn- und Fehlermeldungen</param>
+/// <param name="logger">Logger for warnings and error messages</param>
 
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Models.Schedules;

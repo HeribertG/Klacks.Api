@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// In-Memory-Store für ClientTimelines. Verwaltet alle Timelines als ScheduleBoard.
+/// In-memory store for ClientTimelines. Manages all timelines as ScheduleBoard.
 /// </summary>
 using System.Collections.Concurrent;
 using Klacks.Api.Domain.Models.Schedules;

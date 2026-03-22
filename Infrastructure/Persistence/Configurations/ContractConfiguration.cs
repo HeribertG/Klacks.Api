@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die Contract-Entity mit QueryFilter, Index und Beziehungen zu CalendarSelection/SchedulingRule.
+/// EF Core configuration for the Contract-Entity with query filter, Index and relationships to CalendarSelection/SchedulingRule.
 /// </summary>
 using Klacks.Api.Domain.Models.Associations;
 using Microsoft.EntityFrameworkCore;

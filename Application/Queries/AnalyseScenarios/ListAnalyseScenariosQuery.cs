@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Query zum Abrufen aller AnalyseScenarios einer bestimmten Gruppe.
+/// Query for retrieving all AnalyseScenarios of a specific group.
 /// </summary>
-/// <param name="GroupId">ID der Gruppe, deren Szenarien abgerufen werden</param>
+/// <param name="GroupId">ID of the group whose scenarios are retrieved</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die AnalyseScenario-Entity mit QueryFilter und Indizes.
+/// EF Core configuration for the AnalyseScenario entity with query filter and indexes.
 /// </summary>
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;

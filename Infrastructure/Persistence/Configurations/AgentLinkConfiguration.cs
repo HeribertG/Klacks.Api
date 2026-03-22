@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die AgentLink-Entity mit QueryFilter, eindeutigem Index und Beziehungen.
+/// EF Core configuration for the AgentLink entity with query filter, unique index and relationships.
 /// </summary>
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.EntityFrameworkCore;

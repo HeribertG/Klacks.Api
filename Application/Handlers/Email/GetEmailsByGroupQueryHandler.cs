@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler zum Abrufen paginierter Emails aller Clients einer Gruppe und deren Untergruppen.
-/// @param request - Enthaelt GroupId, Skip und Take fuer die Paginierung
+/// Handler for retrieving paginated emails of all clients in a group and its subgroups.
+/// @param request - Contains GroupId, Skip and Take for pagination
 /// </summary>
 
 using Klacks.Api.Application.DTOs.Email;

@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Repository-Implementierung fuer komplexe Email-Abfragen ueber mehrere Entitaeten.
-/// @param context - Der Datenbank-Kontext fuer Entity Framework Zugriffe
+/// Repository implementation for complex email queries across multiple entities.
+/// @param context - The database context for Entity Framework access
 /// </summary>
 
 using Klacks.Api.Application.Interfaces;

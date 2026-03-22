@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die GroupItem-Entity mit QueryFilter, Indizes und Shift-Beziehung.
+/// EF Core configuration for the GroupItem-Entity with query filter, indexes and Shift-relationship.
 /// </summary>
 using Klacks.Api.Domain.Models.Associations;
 using Microsoft.EntityFrameworkCore;

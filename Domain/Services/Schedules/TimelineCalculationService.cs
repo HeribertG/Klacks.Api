@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Berechnet ScheduleBlocks aus Work-, WorkChange- und Break-Einträgen.
-/// Verwendet absolute DateTime-Intervalle — kein Mitternachts-Splitting nötig.
+/// Calculates ScheduleBlocks from Work, WorkChange and Break entries.
+/// Uses absolute DateTime intervals - no midnight splitting required.
 /// </summary>
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;

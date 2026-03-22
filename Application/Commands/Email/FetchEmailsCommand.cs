@@ -7,9 +7,9 @@ namespace Klacks.Api.Application.Commands.Email;
 public record FetchEmailsCommand : IRequest<FetchEmailsResult>;
 
 /// <summary>
-/// Ergebnis des IMAP-Email-Abrufs.
+/// Result of the IMAP email fetch operation.
 /// </summary>
-/// <param name="Success">Ob der Abruf erfolgreich war</param>
-/// <param name="FetchedCount">Anzahl der neu abgerufenen Emails</param>
-/// <param name="Error">Fehlermeldung bei Misserfolg</param>
+/// <param name="Success">Whether the fetch was successful</param>
+/// <param name="FetchedCount">Number of newly fetched emails</param>
+/// <param name="Error">Error message on failure</param>
 public record FetchEmailsResult(bool Success, int FetchedCount, string? Error = null);

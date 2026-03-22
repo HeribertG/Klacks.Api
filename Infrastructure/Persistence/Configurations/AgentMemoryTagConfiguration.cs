@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die AgentMemoryTag-Entity mit zusammengesetztem Key, Index und Memory-Beziehung.
+/// EF Core configuration for the AgentMemoryTag entity with composite key, index and Memory relationship.
 /// </summary>
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.EntityFrameworkCore;

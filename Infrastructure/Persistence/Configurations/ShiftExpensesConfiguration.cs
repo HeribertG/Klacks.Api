@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die ShiftExpenses-Entity mit QueryFilter und Shift-Beziehung.
+/// EF Core configuration for the ShiftExpenses-Entity with query filter and Shift-relationship.
 /// </summary>
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;

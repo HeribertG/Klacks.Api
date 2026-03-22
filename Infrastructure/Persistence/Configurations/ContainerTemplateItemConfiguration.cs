@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die ContainerTemplateItem-Entity mit QueryFilter, Beziehungen und Check-Constraint.
+/// EF Core configuration for the ContainerTemplateItem-Entity with query filter, relationshipen and check constraint.
 /// </summary>
 /// <param name="builder">Konfiguriert ContainerTemplate-, Shift- und Absence-Beziehungen sowie XOR-Constraint</param>
 using Klacks.Api.Domain.Models.Schedules;

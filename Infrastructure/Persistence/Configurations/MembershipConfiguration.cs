@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die Membership-Entity mit QueryFilter, Index und Client-Beziehung.
+/// EF Core configuration for the Membership-Entity with query filter, Index and Client-relationship.
 /// </summary>
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;

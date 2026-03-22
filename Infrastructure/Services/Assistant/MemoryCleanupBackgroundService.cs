@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Periodischer Background-Service fuer Memory-Bereinigung: entfernt abgelaufene Memories,
-/// passt Importance basierend auf Zugriffsmustern an und archiviert inaktive Sessions.
+/// Periodic background service for memory cleanup: removes expired memories,
+/// adjusts importance based on access patterns and archives inactive sessions.
 /// </summary>
-/// <param name="scopeFactory">Factory fuer DI-Scopes in Background-Tasks</param>
+/// <param name="scopeFactory">Factory for DI scopes in background tasks</param>
 
 using Klacks.Api.Domain.Interfaces.Assistant;
 

@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Zentraler Service für Client-Base-Queries mit Membership-, Gruppen-, Such- und Typ-Filter.
-/// Gibt IQueryable zurück damit nachfolgende Operationen (Includes, Count, Paging) in der DB bleiben.
+/// Central service for client base queries with membership, group, search and type filters.
+/// Returns IQueryable so that subsequent operations (includes, count, paging) remain in the DB.
 /// </summary>
-/// <param name="filter">Gemeinsamer Filter mit Zeitraum, Suche, Gruppe und Sortierung</param>
+/// <param name="filter">Common filter with time period, search, group and sorting</param>
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Staffs;
 

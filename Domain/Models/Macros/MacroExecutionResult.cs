@@ -3,8 +3,8 @@
 namespace Klacks.Api.Domain.Models.Macros;
 
 /// <summary>
-/// Ergebnis einer Macro-Ausführung mit optionalem Surcharges/WorkTime-Wert.
+/// Result of a macro execution with optional surcharges/work time value.
 /// </summary>
-/// <param name="Success">Gibt an, ob die Macro-Ausführung erfolgreich war</param>
-/// <param name="ResultValue">Der extrahierte Dezimalwert aus dem DefaultResult-Ergebnis, oder null wenn keiner vorhanden</param>
+/// <param name="Success">Indicates whether the macro execution was successful</param>
+/// <param name="ResultValue">The extracted decimal value from the DefaultResult, or null if none exists</param>
 public record MacroExecutionResult(bool Success, decimal? ResultValue);

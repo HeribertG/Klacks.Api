@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die Work-Entity mit QueryFilter, Indizes und Beziehungen zu Client/Shift.
+/// EF Core configuration for the Work-Entity with query filter, indexes and relationships to Client/Shift.
 /// </summary>
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;

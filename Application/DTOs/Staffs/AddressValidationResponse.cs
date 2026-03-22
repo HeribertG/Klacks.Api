@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Antwort-DTO fuer die Adress-Validierung mit Geocoding-Ergebnis und Alternativ-Vorschlaegen.
+/// Response DTO for address validation with geocoding result and alternative suggestions.
 /// </summary>
-/// <param name="IsValid">Gibt an ob die Adresse geocodiert werden konnte</param>
-/// <param name="Suggestions">Liste alternativer Adressen bei ungueltigem Ergebnis</param>
+/// <param name="IsValid">Indicates whether the address could be geocoded</param>
+/// <param name="Suggestions">List of alternative addresses when the result is invalid</param>
 
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 

@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Komprimiert alte Konversationsnachrichten zu einer Zusammenfassung via LLM-Call.
-/// Nutzt das günstigste verfügbare Modell und speichert die Summary in LLMConversation.Summary.
+/// Compresses old conversation messages into a summary via LLM call.
+/// Uses the cheapest available model and stores the summary in LLMConversation.Summary.
 /// </summary>
-/// <param name="conversationId">Eindeutige Konversations-ID zur Identifikation der Konversation</param>
+/// <param name="conversationId">Unique conversation ID for identifying the conversation</param>
 
 using System.Text;
 using Klacks.Api.Domain.Interfaces.Assistant;

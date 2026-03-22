@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Gemeinsamer Filter für Client-Listen (Schedule, Availability, Absence).
+/// Common filter for client lists (schedule, availability, absence).
 /// </summary>
-/// <param name="StartDate">Beginn des sichtbaren Zeitraums</param>
-/// <param name="EndDate">Ende des sichtbaren Zeitraums</param>
+/// <param name="StartDate">Start of the visible period</param>
+/// <param name="EndDate">End of the visible period</param>
 using Klacks.Api.Domain.DTOs.Filter;
 namespace Klacks.Api.Domain.Models.Filters;
 

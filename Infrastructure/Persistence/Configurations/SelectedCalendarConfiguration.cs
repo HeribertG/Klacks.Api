@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die SelectedCalendar-Entity mit QueryFilter, Index und CalendarSelection-Beziehung.
+/// EF Core configuration for the SelectedCalendar-Entity with query filter, Index and CalendarSelection-relationship.
 /// </summary>
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Microsoft.EntityFrameworkCore;

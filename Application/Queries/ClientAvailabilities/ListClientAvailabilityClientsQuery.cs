@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Query zum Laden der Client-Liste für Client-Availability mit Filter.
+/// Query for loading the client list for client availability with filter.
 /// </summary>
-/// <param name="Filter">Filter mit SearchString, Gruppe, Paging</param>
+/// <param name="Filter">Filter with search string, group, paging</param>
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Staffs;

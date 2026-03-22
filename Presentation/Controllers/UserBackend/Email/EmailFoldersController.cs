@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Controller fuer Email-Folder-Verwaltung (Erstellen, Auflisten, Loeschen).
+/// Controller for email folder management (create, list, delete).
 /// </summary>
 using Klacks.Api.Application.Commands.Email;
 using Klacks.Api.Application.DTOs.Email;

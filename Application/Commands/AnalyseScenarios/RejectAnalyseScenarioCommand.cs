@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Command zum Ablehnen eines AnalyseScenarios.
+/// Command to reject an AnalyseScenario.
 /// </summary>
-/// <param name="ScenarioId">ID des abzulehnenden Szenarios</param>
+/// <param name="ScenarioId">ID of the scenario to reject</param>
 
 using Klacks.Api.Infrastructure.Mediator;
 

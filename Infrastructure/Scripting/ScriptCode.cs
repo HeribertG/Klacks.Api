@@ -3,9 +3,9 @@
 namespace Klacks.Api.Infrastructure.Scripting
 {
     /// <summary>
-    /// Wird gebraucht, um compilierte Code immer wieder zu gebrauchen ohne erneute Compilierung
-    /// Script enthält alle externen Variablennamen
-    /// Code ein Clone der  compilierten Code Klasse.
+    /// Used to reuse compiled code repeatedly without recompilation.
+    /// Script contains all external variable names.
+    /// Code is a clone of the compiled code class.
     /// </summary>
     internal class ScriptCode
     {

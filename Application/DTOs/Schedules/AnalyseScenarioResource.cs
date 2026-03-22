@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// DTO fuer die Darstellung eines AnalyseScenarios im Frontend.
+/// DTO for displaying an AnalyseScenario in the frontend.
 /// </summary>
 
 namespace Klacks.Api.Application.DTOs.Schedules;

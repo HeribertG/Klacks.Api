@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die IdentityProvider-Entity mit QueryFilter, JSONB-AttributeMapping und Index.
+/// EF Core configuration for the IdentityProvider-Entity with query filter, JSONB attribute mapping and Index.
 /// </summary>
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Infrastructure.Persistence.Converters;

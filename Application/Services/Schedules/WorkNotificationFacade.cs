@@ -1,15 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Facade fuer Work-bezogene Notifications. Buendelt IWorkNotificationService,
-/// IShiftStatsNotificationService, IShiftScheduleService und ScheduleMapper,
-/// um DI-Overload und Code-Duplikation in den Works-Handlern zu reduzieren.
+/// Facade for work-related notifications. Bundles IWorkNotificationService,
+/// IShiftStatsNotificationService, IShiftScheduleService and ScheduleMapper
+/// to reduce DI overload and code duplication in the Works handlers.
 /// </summary>
-/// <param name="notificationService">SignalR-Notifications fuer Work/Schedule/PeriodHours-Events</param>
-/// <param name="shiftStatsNotificationService">SignalR-Notifications fuer ShiftStats-Updates</param>
-/// <param name="shiftScheduleService">Liefert partielle ShiftSchedule-Daten fuer betroffene Shift-Date-Paare</param>
-/// <param name="scheduleMapper">Mapper fuer Notification-DTOs</param>
-/// <param name="httpContextAccessor">Zugriff auf den SignalR-ConnectionId-Header</param>
+/// <param name="notificationService">SignalR notifications for Work/Schedule/PeriodHours events</param>
+/// <param name="shiftStatsNotificationService">SignalR notifications for ShiftStats updates</param>
+/// <param name="shiftScheduleService">Provides partial ShiftSchedule data for affected shift-date pairs</param>
+/// <param name="scheduleMapper">Mapper for notification DTOs</param>
+/// <param name="httpContextAccessor">Access to the SignalR ConnectionId header</param>
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;

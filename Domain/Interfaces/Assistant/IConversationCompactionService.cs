@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Komprimiert lange Konversationen durch LLM-basierte Zusammenfassungen statt sie abzuschneiden.
+/// Compresses long conversations using LLM-based summaries instead of truncating them.
 /// </summary>
-/// <param name="conversationId">Eindeutige Konversations-ID (nicht die DB-GUID)</param>
+/// <param name="conversationId">Unique conversation ID (not the DB GUID)</param>
 
 namespace Klacks.Api.Domain.Interfaces.Assistant;
 

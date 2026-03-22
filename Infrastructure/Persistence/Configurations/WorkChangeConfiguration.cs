@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die WorkChange-Entity mit QueryFilter und Beziehungen zu Work/ReplaceClient.
+/// EF Core configuration for the WorkChange-Entity with query filter and relationships to Work/ReplaceClient.
 /// </summary>
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;

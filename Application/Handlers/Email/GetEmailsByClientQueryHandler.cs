@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler zum Abrufen paginierter Emails eines bestimmten Clients.
-/// @param request - Enthaelt ClientId, Skip und Take fuer die Paginierung
+/// Handler for retrieving paginated emails of a specific client.
+/// @param request - Contains ClientId, Skip and Take for pagination
 /// </summary>
 
 using Klacks.Api.Application.DTOs.Email;

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Controller fuer Dienst-Verwaltung (CRUD, Bulk-Operationen, Scheduling, Perioden-Abschluss).
+/// Controller for work management (CRUD, bulk operations, scheduling, period closing).
 /// </summary>
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Works;

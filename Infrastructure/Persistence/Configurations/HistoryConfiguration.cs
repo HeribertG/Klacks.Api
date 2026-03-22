@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die History-Entity mit QueryFilter und Index.
+/// EF Core configuration for the History-Entity with query filter and Index.
 /// </summary>
 using Klacks.Api.Domain.Models.Histories;
 using Microsoft.EntityFrameworkCore;

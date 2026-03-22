@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Schmales Interface fuer lesenden Settings-Zugriff in Domain-Services.
+/// Narrow interface for read-only settings access in domain services.
 /// </summary>
-/// <param name="type">Der Settings-Schluessel</param>
+/// <param name="type">The settings key</param>
 
 namespace Klacks.Api.Domain.Interfaces.Settings;
 

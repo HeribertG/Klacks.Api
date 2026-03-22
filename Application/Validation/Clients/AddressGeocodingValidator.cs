@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// FluentValidation-Validator fuer Adress-Geocoding bei Client-Commands.
-/// Validiert alle Adressen mit Zip+City via Nominatim und setzt Koordinaten bei Erfolg.
+/// FluentValidation validator for address geocoding in client commands.
+/// Validates all addresses with zip+city via Nominatim and sets coordinates on success.
 /// </summary>
-/// <param name="geocodingService">Service fuer Adress-Geocodierung</param>
+/// <param name="geocodingService">Service for address geocoding</param>
 
 using FluentValidation;
 using Klacks.Api.Application.DTOs.Staffs;

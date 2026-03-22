@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Partielle Klasse für Schedule-, WorkChange-, Expenses-, Notes- und SchedulingRule-Mappings.
+/// Partial class for Schedule, WorkChange, Expenses, Notes and SchedulingRule mappings.
 /// </summary>
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Schedules;

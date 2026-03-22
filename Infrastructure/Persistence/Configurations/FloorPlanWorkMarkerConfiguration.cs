@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die FloorPlanWorkMarker-Entity mit QueryFilter.
+/// EF Core configuration for the FloorPlanWorkMarker-Entity with query filter.
 /// </summary>
 using Klacks.Api.Domain.Models.FloorPlans;
 using Microsoft.EntityFrameworkCore;

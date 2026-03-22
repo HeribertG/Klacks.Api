@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core Konfiguration fuer die Agent-Entity mit QueryFilter, Indizes und eindeutigem Default-Filter.
+/// EF Core configuration for the Agent entity with query filter, indexes and unique default filter.
 /// </summary>
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.EntityFrameworkCore;

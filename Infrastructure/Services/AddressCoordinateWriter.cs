@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Persistiert Geocoding-Koordinaten in der Address-Tabelle via direktem DB-Update.
+/// Persists geocoding coordinates in the address table via direct DB update.
 /// </summary>
-/// <param name="context">Datenbank-Kontext fuer den direkten Zugriff auf die Address-Tabelle</param>
+/// <param name="context">Database context for direct access to the address table</param>
 
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Infrastructure.Persistence;

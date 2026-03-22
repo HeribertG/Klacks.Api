@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Control-Flow-Statements des SyntaxAnalysers: IF, FOR, DO, SELECT CASE.
+/// Control flow statements of the SyntaxAnalyser: IF, FOR, DO, SELECT CASE.
 /// </summary>
 namespace Klacks.Api.Infrastructure.Scripting
 {

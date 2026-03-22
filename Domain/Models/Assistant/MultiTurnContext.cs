@@ -8,16 +8,16 @@ using ProviderLLMUsage = Klacks.Api.Domain.Services.Assistant.Providers.LLMUsage
 namespace Klacks.Api.Domain.Models.Assistant;
 
 /// <summary>
-/// Kontext-Objekt für die Multi-Turn-Loop-Ausführung im LLM-Service.
+/// Context object for multi-turn loop execution in the LLM service.
 /// </summary>
-/// <param name="Context">Der LLM-Kontext mit User-Info und Conversation-ID</param>
-/// <param name="Model">Das verwendete LLM-Modell</param>
-/// <param name="Provider">Der LLM-Provider für API-Aufrufe</param>
-/// <param name="SystemPrompt">Der System-Prompt für die Konversation</param>
-/// <param name="TruncatedHistory">Die gekürzte Chat-Historie</param>
-/// <param name="TotalUsage">Akkumulierte Token-Usage</param>
-/// <param name="Conversation">Die aktive Konversation</param>
-/// <param name="Stopwatch">Zeitmessung für die Ausführung</param>
+/// <param name="Context">The LLM context with user info and conversation ID</param>
+/// <param name="Model">The LLM model being used</param>
+/// <param name="Provider">The LLM provider for API calls</param>
+/// <param name="SystemPrompt">The system prompt for the conversation</param>
+/// <param name="TruncatedHistory">The truncated chat history</param>
+/// <param name="TotalUsage">Accumulated token usage</param>
+/// <param name="Conversation">The active conversation</param>
+/// <param name="Stopwatch">Time measurement for execution</param>
 public record MultiTurnContext(
     LLMContext Context, LLMModel Model, ILLMProvider Provider,
     string SystemPrompt, List<ProviderLLMMessage> TruncatedHistory,
