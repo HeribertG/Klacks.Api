@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Commands.Works;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
@@ -39,6 +40,9 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
     {
         return await ExecuteAsync(async () =>
         {
+            if (command.Request.WorkIds.Count > RateLimitingPolicies.MaxBulkOperationItems)
+                throw new ArgumentException($"Maximum {RateLimitingPolicies.MaxBulkOperationItems} items allowed per bulk operation.");
+
             var response = new BulkWorksResponse();
             var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>();
             var affectedClients = new HashSet<Guid>();

@@ -122,6 +122,7 @@ public class AccountsController : BaseController
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting(RateLimitingPolicies.RefreshToken)]
     [HttpPost("RefreshToken")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshRequestResource model)
     {

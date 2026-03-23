@@ -16,45 +16,39 @@ namespace Klacks.Api.Infrastructure.FileHandling
 
         public void StoreFile(IFormFile file)
         {
+            if (file == null) return;
 
+            var safeFileName = Path.GetFileName(file.FileName);
+            if (string.IsNullOrWhiteSpace(safeFileName)) return;
 
-
-            if (file != null)
+            if (IsImage(file))
             {
+                GetDocumentDirectoryImage();
 
-                if (IsImage(file))
+                using (var filestream = new FileStream(Path.Combine(folderImage!, safeFileName), FileMode.Create, FileAccess.Write))
                 {
-                    GetDocumentDirectoryImage();
-
-                    using (var filestream = new FileStream(Path.Combine(folderImage!, file.FileName), FileMode.Create, FileAccess.Write))
-                    {
-                        file.CopyTo(filestream);
-                    }
-                }
-
-                if (IsIcon(file))
-                {
-                    GetDocumentDirectoryImage();
-
-                    using (var filestream = new FileStream(Path.Combine(folderImage!, file.FileName), FileMode.Create, FileAccess.Write))
-                    {
-                        file.CopyTo(filestream);
-                    }
-                }
-
-
-                if (IsPDF(file))
-                {
-
-                    GetDocumentDirectoryPdf();
-                    using (var filestream = new FileStream(Path.Combine(folderPdf!, file.FileName), FileMode.Create, FileAccess.Write))
-                    {
-                        file.CopyTo(filestream);
-                    }
+                    file.CopyTo(filestream);
                 }
             }
 
+            if (IsIcon(file))
+            {
+                GetDocumentDirectoryImage();
 
+                using (var filestream = new FileStream(Path.Combine(folderImage!, safeFileName), FileMode.Create, FileAccess.Write))
+                {
+                    file.CopyTo(filestream);
+                }
+            }
+
+            if (IsPDF(file))
+            {
+                GetDocumentDirectoryPdf();
+                using (var filestream = new FileStream(Path.Combine(folderPdf!, safeFileName), FileMode.Create, FileAccess.Write))
+                {
+                    file.CopyTo(filestream);
+                }
+            }
         }
 
         private bool IsPDF(IFormFile file)

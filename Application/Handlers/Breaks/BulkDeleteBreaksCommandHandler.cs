@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Commands.Breaks;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
@@ -32,6 +33,9 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
     {
         return await ExecuteAsync(async () =>
         {
+            if (command.Request.BreakIds.Count > RateLimitingPolicies.MaxBulkOperationItems)
+                throw new ArgumentException($"Maximum {RateLimitingPolicies.MaxBulkOperationItems} items allowed per bulk operation.");
+
             var response = new BulkBreaksResponse();
             var affectedClients = new HashSet<Guid>();
 

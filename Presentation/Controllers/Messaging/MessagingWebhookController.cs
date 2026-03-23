@@ -40,6 +40,7 @@ public class MessagingWebhookController : ControllerBase
     }
 
     [HttpPost("{providerName}")]
+    [RequestSizeLimit(1_048_576)]
     public async Task<IActionResult> ReceiveWebhook(string providerName)
     {
         using var reader = new StreamReader(Request.Body);
@@ -82,7 +83,7 @@ public class MessagingWebhookController : ControllerBase
     [HttpGet("{providerName}")]
     public IActionResult VerifyWebhook(string providerName, [FromQuery(Name = "hub.challenge")] string? challenge = null)
     {
-        if (!string.IsNullOrEmpty(challenge))
+        if (!string.IsNullOrEmpty(challenge) && challenge.Length <= 256)
             return Ok(challenge);
 
         return Ok("Webhook endpoint active");

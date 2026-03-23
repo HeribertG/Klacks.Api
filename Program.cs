@@ -46,6 +46,7 @@ var corsAdditional = builder.Configuration["Cors:Additional"];
 FakeSettings.WithFake = builder.Configuration["Fake:WithFake"] ?? string.Empty;
 FakeSettings.ClientsNumber = builder.Configuration["Fake:ClientNumber"] ?? string.Empty;
 FakeSettings.MaxBreaksPerClientPerYear = builder.Configuration["Fake:MaxBreaksPerClientPerYear"] ?? "30";
+FakeSettings.UseDumpFile = builder.Configuration.GetValue("Fake:UseDumpFile", true);
 
 var jwtSettings = new JwtSettings();
 builder.Configuration.Bind(nameof(jwtSettings), jwtSettings);
@@ -70,7 +71,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 {
     options.TokenValidationParameters = new TokenValidationParameters()
     {
-        ValidateActor = false,
+        ValidateActor = false, // Actor claim not used in this application
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
@@ -196,6 +197,12 @@ builder.Services.AddRateLimiter(options =>
     options.AddFixedWindowLimiter(RateLimitingPolicies.Upload, opt =>
     {
         opt.PermitLimit = RateLimitingPolicies.UploadPermitLimit;
+        opt.Window = RateLimitingPolicies.DefaultWindow;
+    });
+
+    options.AddFixedWindowLimiter(RateLimitingPolicies.RefreshToken, opt =>
+    {
+        opt.PermitLimit = RateLimitingPolicies.RefreshTokenPermitLimit;
         opt.Window = RateLimitingPolicies.DefaultWindow;
     });
 });

@@ -6,6 +6,7 @@
 /// </summary>
 /// <param name="httpClient">HTTP client for Telegram API requests</param>
 /// <param name="logger">Logger instance</param>
+using System.Security.Cryptography;
 using System.Text.Json;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Interfaces.Messaging;
@@ -86,7 +87,10 @@ public class TelegramMessagingProvider : IMessagingProviderAdapter
         if (string.IsNullOrWhiteSpace(webhookSecret))
             return new WebhookValidationResult(true);
 
-        return new WebhookValidationResult(signature == webhookSecret);
+        return new WebhookValidationResult(
+            CryptographicOperations.FixedTimeEquals(
+                System.Text.Encoding.UTF8.GetBytes(signature),
+                System.Text.Encoding.UTF8.GetBytes(webhookSecret)));
     }
 
     public IncomingMessage? ParseWebhookPayload(string body)
