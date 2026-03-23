@@ -53,6 +53,7 @@ public class StoredProcedureInitializer : IStoredProcedureInitializer
         var assembly = Assembly.GetExecutingAssembly();
         var resourceNames = assembly.GetManifestResourceNames()
             .Where(name => name.EndsWith(".sql", StringComparison.OrdinalIgnoreCase))
+            .Where(name => name.Contains("StoredProcedures"))
             .ToList();
 
         foreach (var resourceName in resourceNames)
