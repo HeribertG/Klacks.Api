@@ -51,76 +51,28 @@ namespace Klacks.Api.Infrastructure.FileHandling
             }
         }
 
-        private bool IsPDF(IFormFile file)
+        private static bool IsPDF(IFormFile file)
         {
-            //-------------------------------------------
-            //  Check the image mime types
-            //-------------------------------------------
-            if (file.ContentType.ToLower() != "application/pdf")
-            {
-                return false;
-            }
-
-            //-------------------------------------------
-            //  Check the image extension
-            //-------------------------------------------
-            if (Path.GetExtension(file.FileName)?.ToLower() != ".pdf")
-            {
-                return false;
-            }
-
-            return true;
+            return file.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase)
+                && Path.GetExtension(file.FileName)?.Equals(".pdf", StringComparison.OrdinalIgnoreCase) == true;
         }
 
-        private bool IsImage(IFormFile file)
+        private static bool IsImage(IFormFile file)
         {
+            var contentType = file.ContentType.ToLowerInvariant();
+            var allowedTypes = new[] { "image/jpg", "image/jpeg", "image/pjpeg", "image/gif", "image/x-png", "image/png" };
+            if (!allowedTypes.Contains(contentType)) return false;
 
-            if (file.ContentType.ToLower() != "image/jpg" &&
-                file.ContentType.ToLower() != "image/jpeg" &&
-                file.ContentType.ToLower() != "image/pjpeg" &&
-                file.ContentType.ToLower() != "image/gif" &&
-                file.ContentType.ToLower() != "image/x-png" &&
-                file.ContentType.ToLower() != "image/png")
-            {
-                return false;
-            }
-
-
-
-            //-------------------------------------------
-            //  Check the image extension
-            //-------------------------------------------
-            if (Path.GetExtension(file.FileName)?.ToLower() != ".jpg"
-                && Path.GetExtension(file.FileName)?.ToLower() != ".png"
-                && Path.GetExtension(file.FileName)?.ToLower() != ".gif"
-                && Path.GetExtension(file.FileName)?.ToLower() != ".jpeg")
-            {
-                return false;
-            }
-
-            return true;
+            var ext = Path.GetExtension(file.FileName)?.ToLowerInvariant();
+            return ext is ".jpg" or ".png" or ".gif" or ".jpeg";
         }
 
-        private bool IsIcon(IFormFile file)
+        private static bool IsIcon(IFormFile file)
         {
+            if (!file.ContentType.Equals("image/x-icon", StringComparison.OrdinalIgnoreCase)) return false;
 
-            if (file.ContentType.ToLower() != "image/x-icon")
-            {
-                return false;
-            }
-
-
-
-            //-------------------------------------------
-            //  Check the image extension
-            //-------------------------------------------
-            if (Path.GetExtension(file.FileName)?.ToLower() != ".ico"
-                && Path.GetExtension(file.FileName)?.ToLower() != ".png")
-            {
-                return false;
-            }
-
-            return true;
+            var ext = Path.GetExtension(file.FileName)?.ToLowerInvariant();
+            return ext is ".ico" or ".png";
         }
         private void GetDocumentDirectoryImage()
         {

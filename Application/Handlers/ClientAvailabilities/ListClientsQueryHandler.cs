@@ -34,11 +34,6 @@ public class ListClientsQueryHandler : BaseHandler, IRequestHandler<ListClientAv
     {
         return await ExecuteAsync(async () =>
         {
-            _logger.LogWarning("[DEBUG-CA] Filter: SearchString={Search}, Start={Start}, End={End}, ShowEmp={Emp}, ShowExt={Ext}, Group={Group}, StartRow={SR}, RowCount={RC}",
-                request.Filter.SearchString, request.Filter.StartDate, request.Filter.EndDate,
-                request.Filter.ShowEmployees, request.Filter.ShowExtern, request.Filter.SelectedGroup,
-                request.Filter.StartRow, request.Filter.RowCount);
-
             var baseFilter = new ClientBaseFilter
             {
                 StartDate = request.Filter.StartDate,
@@ -57,15 +52,10 @@ public class ListClientsQueryHandler : BaseHandler, IRequestHandler<ListClientAv
 
             var totalCount = await query.CountAsync(cancellationToken);
 
-            _logger.LogWarning("[DEBUG-CA] TotalCount={Count}", totalCount);
-
             var clients = await query
                 .Skip(request.Filter.StartRow)
                 .Take(request.Filter.RowCount)
                 .ToListAsync(cancellationToken);
-
-            _logger.LogWarning("[DEBUG-CA] Returned {Count} clients: {Names}",
-                clients.Count, string.Join(", ", clients.Select(c => $"{c.Name} {c.FirstName}")));
 
             return new ClientAvailabilityClientListResponse
             {

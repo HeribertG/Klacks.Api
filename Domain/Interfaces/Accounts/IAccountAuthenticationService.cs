@@ -2,7 +2,6 @@
 
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.DTOs.Registrations;
-using Klacks.Api.Domain.DTOs.Registrations;
 
 namespace Klacks.Api.Domain.Interfaces.Accounts;
 
@@ -18,5 +17,5 @@ public interface IAccountAuthenticationService
 
     Task<bool> ValidateRefreshTokenAsync(AppUser user, string refreshToken);
 
-    void SetModelErrorAsync(AuthenticatedResult model, string key, string message);
+    void SetModelError(AuthenticatedResult model, string key, string message);
 }

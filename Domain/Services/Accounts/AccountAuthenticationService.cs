@@ -4,7 +4,6 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.DTOs.Registrations;
-using Klacks.Api.Domain.DTOs.Registrations;
 
 namespace Klacks.Api.Domain.Services.Accounts;
 
@@ -139,7 +138,7 @@ public class AccountAuthenticationService : IAccountAuthenticationService
         return await _refreshTokenService.ValidateRefreshTokenAsync(user.Id, refreshToken);
     }
 
-    public void SetModelErrorAsync(AuthenticatedResult model, string key, string message)
+    public void SetModelError(AuthenticatedResult model, string key, string message)
     {
         _authenticationService.SetModelError(model, key, message);
     }

@@ -70,11 +70,6 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             HoursSortOrder = filter.HoursSortOrder,
         };
 
-        Logger.LogWarning("[DEBUG-WR] Filter: SearchString={Search}, Start={Start}, End={End}, ShowEmp={Emp}, ShowExt={Ext}, Group={Group}, StartRow={SR}, RowCount={RC}",
-            filter.SearchString, filter.StartDate, filter.EndDate,
-            filter.ShowEmployees, filter.ShowExtern, filter.SelectedGroup,
-            filter.StartRow, filter.RowCount);
-
         var query = await _baseQueryService.BuildBaseQuery(baseFilter);
 
         query = query.Include(c => c.Works.Where(w => w.CurrentDate >= filter.StartDate && w.CurrentDate <= filter.EndDate));
@@ -83,15 +78,10 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
         var totalCount = await query.CountAsync(cancellationToken);
 
-        Logger.LogWarning("[DEBUG-WR] TotalCount={Count}", totalCount);
-
         var clients = await query
             .Skip(filter.StartRow)
             .Take(filter.RowCount)
             .ToListAsync(cancellationToken);
-
-        Logger.LogWarning("[DEBUG-WR] Returned {Count} clients: {Names}",
-            clients.Count, string.Join(", ", clients.Select(c => $"{c.Name} {c.FirstName}")));
 
         return (clients, totalCount);
     }

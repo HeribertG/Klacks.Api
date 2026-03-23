@@ -74,12 +74,3 @@ public class StoredProcedureInitializer : IStoredProcedureInitializer
         return result;
     }
 }
-
-public static class StoredProcedureInitializerExtensions
-{
-    public static IServiceCollection AddStoredProcedureInitializer(this IServiceCollection services)
-    {
-        services.AddScoped<IStoredProcedureInitializer, StoredProcedureInitializer>();
-        return services;
-    }
-}

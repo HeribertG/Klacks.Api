@@ -56,6 +56,9 @@ var openRouteServiceSettings = new Klacks.Api.Domain.Models.Settings.OpenRouteSe
 builder.Configuration.Bind("OpenRouteService", openRouteServiceSettings);
 builder.Services.AddSingleton(openRouteServiceSettings);
 
+builder.Services.Configure<Klacks.Api.Domain.Models.Settings.PasswordResetSettings>(
+    builder.Configuration.GetSection("PasswordReset"));
+
 builder.Services.AddOpenApi("v1", options =>
 {
     options.AddDocumentTransformer((document, context, cancellationToken) =>

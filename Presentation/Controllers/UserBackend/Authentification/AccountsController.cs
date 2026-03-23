@@ -145,6 +145,7 @@ public class AccountsController : BaseController
         return Ok(result);
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpPost("RegisterUser")]
     public async Task<ActionResult> RegisterUser([FromBody] RegistrationResource model)
     {

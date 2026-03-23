@@ -6,11 +6,6 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Klacks.Api.Domain.Services.Accounts;
 
-public interface IUsernameGeneratorService
-{
-    Task<string> GenerateUniqueUsernameAsync(string firstName, string lastName);
-}
-
 public class UsernameGeneratorService : IUsernameGeneratorService
 {
     private readonly UserManager<AppUser> _userManager;

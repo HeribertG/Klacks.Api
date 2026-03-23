@@ -1,9 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Accounts;
 using Klacks.Api.Domain.Models.Authentification;
+using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.DTOs.Registrations;
-using Klacks.Api.Domain.DTOs.Registrations;
+using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 
 namespace Klacks.Api.Domain.Services.Accounts;
@@ -12,21 +14,21 @@ public class AccountPasswordService : IAccountPasswordService
 {
     private readonly IAuthenticationService _authenticationService;
     private readonly IUserManagementService _userManagementService;
-    private readonly IServiceProvider _serviceProvider;
-    private readonly IConfiguration _configuration;
+    private readonly IAccountNotificationService _notificationService;
+    private readonly PasswordResetSettings _settings;
     private readonly ILogger<AccountPasswordService> _logger;
 
     public AccountPasswordService(
         IAuthenticationService authenticationService,
         IUserManagementService userManagementService,
-        IServiceProvider serviceProvider,
-        IConfiguration configuration,
+        IAccountNotificationService notificationService,
+        IOptions<PasswordResetSettings> settings,
         ILogger<AccountPasswordService> logger)
     {
         _authenticationService = authenticationService;
         _userManagementService = userManagementService;
-        _serviceProvider = serviceProvider;
-        _configuration = configuration;
+        _notificationService = notificationService;
+        _settings = settings.Value;
         _logger = logger;
     }
 
@@ -121,32 +123,21 @@ public class AccountPasswordService : IAccountPasswordService
             user.PasswordResetToken = token;
             user.PasswordResetTokenExpires = DateTime.UtcNow.AddHours(24);
             
-            _logger.LogInformation("Updating user {Email} with reset token", email);
             await _userManagementService.UpdateUserAsync(user);
-            _logger.LogInformation("User {Email} updated successfully with reset token", email);
 
             try
             {
-                var notificationService = _serviceProvider.GetService<IAccountNotificationService>();
-                if (notificationService != null)
-                {
-                    var baseUrl = _configuration["PasswordReset:BaseUrl"] ?? "https://localhost:7002";
-                    var resetLink = $"{baseUrl}/reset-password?token={token}";
-                    var message = $@"
-                        <h2>Reset Password</h2>
-                        <p>You have requested to reset your password.</p>
-                        <p>Click the following link to reset your password:</p>
-                        <p><a href=""{resetLink}"">Reset Password</a></p>
-                        <p>This link is valid for 24 hours.</p>
-                        <p>If you did not make this request, please ignore this email.</p>";
+                var resetLink = $"{_settings.BaseUrl}/reset-password?token={token}";
+                var message = $@"
+                    <h2>Reset Password</h2>
+                    <p>You have requested to reset your password.</p>
+                    <p>Click the following link to reset your password:</p>
+                    <p><a href=""{resetLink}"">Reset Password</a></p>
+                    <p>This link is valid for 24 hours.</p>
+                    <p>If you did not make this request, please ignore this email.</p>";
 
-                    await notificationService.SendEmailAsync("Reset Password", email, message);
-                    _logger.LogInformation("Password reset token generated and email sent to {Email}", email);
-                }
-                else
-                {
-                    _logger.LogWarning("Password reset token generated but notification service not available to send email to {Email}", email);
-                }
+                await _notificationService.SendEmailAsync("Reset Password", email, message);
+                _logger.LogInformation("Password reset email sent to {Email}", email);
             }
             catch (Exception ex)
             {
