@@ -7,11 +7,11 @@
 /// @param REQUEST_DELAY_MS - Minimum delay between Nominatim requests (500ms)
 /// </summary>
 
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using System.Text.Json;
-
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
+using Microsoft.Extensions.Caching.Memory;
+using System.Globalization;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace Klacks.Api.Infrastructure.Services;
 
@@ -22,7 +22,7 @@ public class GeocodingService : IGeocodingService
     private readonly ILogger<GeocodingService> _logger;
     private readonly SemaphoreSlim _rateLimiter;
     private const string NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
-    private const int REQUEST_DELAY_MS = 500;
+    private const int REQUEST_DELAY_MS = 1100;
 
     public GeocodingService(
         IHttpClientFactory httpClientFactory,
@@ -71,14 +71,8 @@ public class GeocodingService : IGeocodingService
 
             if (results != null && results.Count > 0)
             {
-                var result = results[0];
-                var coords = (
-                    Latitude: double.TryParse(result.lat, out var lat) ? lat : (double?)null,
-                    Longitude: double.TryParse(result.lon, out var lon) ? lon : (double?)null
-                );
-
+                var coords = ExtractCoordinates(results[0]);
                 _cache.Set(cacheKey, coords, TimeSpan.FromDays(30));
-
                 _logger.LogInformation("Geocoded {City}, {Country}: {Latitude}, {Longitude}", city, country, coords.Latitude, coords.Longitude);
                 return coords;
             }
@@ -121,10 +115,31 @@ public class GeocodingService : IGeocodingService
 
             await Task.Delay(REQUEST_DELAY_MS, cancellationToken);
 
-            var query = $"{fullAddress}, {country}";
-            var url = $"{NOMINATIM_URL}?q={Uri.EscapeDataString(query)}&format=json&limit=1&addressdetails=1";
+            var parsed = ParseAddressComponents(fullAddress);
 
-            _logger.LogInformation("Geocoding full address: {Query}", query);
+            string url;
+            if (parsed.HasValue)
+            {
+                var queryParams = new List<string>
+                {
+                    $"street={Uri.EscapeDataString(parsed.Value.Street)}",
+                    $"city={Uri.EscapeDataString(parsed.Value.City)}",
+                    $"postalcode={Uri.EscapeDataString(parsed.Value.Zip)}",
+                    $"country={Uri.EscapeDataString(country)}",
+                    "format=json",
+                    "limit=1",
+                    "addressdetails=1"
+                };
+                url = $"{NOMINATIM_URL}?{string.Join("&", queryParams)}";
+                _logger.LogInformation("Geocoding structured: street={Street}, city={City}, zip={Zip}, country={Country}",
+                    parsed.Value.Street, parsed.Value.City, parsed.Value.Zip, country);
+            }
+            else
+            {
+                var query = $"{fullAddress}, {country}";
+                url = $"{NOMINATIM_URL}?q={Uri.EscapeDataString(query)}&format=json&limit=1&addressdetails=1";
+                _logger.LogInformation("Geocoding free-text: {Query}", fullAddress);
+            }
 
             var response = await _httpClient.GetAsync(url, cancellationToken);
 
@@ -139,20 +154,14 @@ public class GeocodingService : IGeocodingService
 
             if (results != null && results.Count > 0)
             {
-                var result = results[0];
-                var coords = (
-                    Latitude: double.TryParse(result.lat, out var lat) ? lat : (double?)null,
-                    Longitude: double.TryParse(result.lon, out var lon) ? lon : (double?)null
-                );
-
+                var coords = ExtractCoordinates(results[0]);
                 _cache.Set(cacheKey, coords, TimeSpan.FromDays(30));
-
                 _logger.LogInformation("Geocoded address {Address}: {Lat}, {Lon} ({DisplayName})",
-                    fullAddress, coords.Latitude, coords.Longitude, result.display_name);
+                    fullAddress, coords.Latitude, coords.Longitude, results[0].display_name);
                 return coords;
             }
 
-            _logger.LogWarning("No geocoding results for full address {Address}, trying fallback with ZIP and city", fullAddress);
+            _logger.LogWarning("No geocoding results for address {Address}, trying fallback", fullAddress);
             return await TryFallbackGeocoding(fullAddress, country, cacheKey, cancellationToken);
         }
         catch (OperationCanceledException)
@@ -170,28 +179,32 @@ public class GeocodingService : IGeocodingService
         }
     }
 
+    private static (string Street, string Zip, string City)? ParseAddressComponents(string fullAddress)
+    {
+        var match = Regex.Match(fullAddress, @"^(.+?)\s*,\s*(\d{4,5})\s+(.+)$");
+        if (match.Success)
+        {
+            return (match.Groups[1].Value.Trim(), match.Groups[2].Value, match.Groups[3].Value.Trim());
+        }
+
+        return null;
+    }
+
     private async Task<(double? Latitude, double? Longitude)> TryFallbackGeocoding(
         string fullAddress, string country, string cacheKey, CancellationToken cancellationToken)
     {
-        var addressMatch = System.Text.RegularExpressions.Regex.Match(fullAddress, @"^(.+?)\s*(\d+)?\s*,\s*(\d{4,5})\s+(.+)$");
+        var parsed = ParseAddressComponents(fullAddress);
+        string? street = parsed?.Street;
+        string? zip = parsed?.Zip;
+        string? city = parsed?.City;
 
-        string? street = null;
-        string? zip = null;
-        string? city = null;
-
-        if (addressMatch.Success)
+        if (string.IsNullOrEmpty(zip) || string.IsNullOrEmpty(city))
         {
-            street = addressMatch.Groups[1].Value.Trim();
-            zip = addressMatch.Groups[3].Value;
-            city = addressMatch.Groups[4].Value.Trim();
-        }
-        else
-        {
-            var zipCityMatch = System.Text.RegularExpressions.Regex.Match(fullAddress, @"(\d{4,5})\s+(\w+)");
+            var zipCityMatch = Regex.Match(fullAddress, @"(\d{4,5})\s+([\p{L}\p{M}\s\.\-'']+)");
             if (zipCityMatch.Success)
             {
                 zip = zipCityMatch.Groups[1].Value;
-                city = zipCityMatch.Groups[2].Value;
+                city = zipCityMatch.Groups[2].Value.Trim();
             }
         }
 
@@ -202,48 +215,50 @@ public class GeocodingService : IGeocodingService
             return (null, null);
         }
 
-        var fallbackQueries = new List<string>();
+        var fallbackSteps = new List<(string Type, Func<string> BuildUrl)>();
 
         if (!string.IsNullOrEmpty(street))
         {
-            fallbackQueries.Add($"{street}, {zip} {city}, {country}");
+            fallbackSteps.Add(("structured-street", () =>
+            {
+                var p = new List<string>
+                {
+                    $"street={Uri.EscapeDataString(street)}",
+                    $"city={Uri.EscapeDataString(city)}",
+                    $"country={Uri.EscapeDataString(country)}",
+                    "format=json", "limit=1"
+                };
+                return $"{NOMINATIM_URL}?{string.Join("&", p)}";
+            }));
         }
 
-        fallbackQueries.Add($"{zip} {city}, {country}");
-        fallbackQueries.Add($"{city}, {country}");
+        fallbackSteps.Add(("structured-zip", () =>
+            $"{NOMINATIM_URL}?postalcode={Uri.EscapeDataString(zip)}&city={Uri.EscapeDataString(city)}&country={Uri.EscapeDataString(country)}&format=json&limit=1"));
 
-        foreach (var fallbackQuery in fallbackQueries)
+        fallbackSteps.Add(("free-text-city", () =>
+            $"{NOMINATIM_URL}?q={Uri.EscapeDataString($"{city}, {country}")}&format=json&limit=1"));
+
+        foreach (var (type, buildUrl) in fallbackSteps)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            _logger.LogInformation("Fallback geocoding attempt: {Query}", fallbackQuery);
-
             await Task.Delay(REQUEST_DELAY_MS, cancellationToken);
 
-            var url = $"{NOMINATIM_URL}?q={Uri.EscapeDataString(fallbackQuery)}&format=json&limit=1";
-            var response = await _httpClient.GetAsync(url, cancellationToken);
+            var url = buildUrl();
+            _logger.LogInformation("Fallback geocoding ({Type}): {Url}", type, url);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.LogWarning("Fallback geocoding failed: {StatusCode}", response.StatusCode);
-                continue;
-            }
+            var response = await _httpClient.GetAsync(url, cancellationToken);
+            if (!response.IsSuccessStatusCode) continue;
 
             var json = await response.Content.ReadAsStringAsync(cancellationToken);
             var results = JsonSerializer.Deserialize<List<NominatimResult>>(json);
 
             if (results != null && results.Count > 0)
             {
-                var result = results[0];
-                var coords = (
-                    Latitude: double.TryParse(result.lat, out var lat) ? lat : (double?)null,
-                    Longitude: double.TryParse(result.lon, out var lon) ? lon : (double?)null
-                );
-
+                var coords = ExtractCoordinates(results[0]);
                 _cache.Set(cacheKey, coords, TimeSpan.FromDays(30));
-
-                _logger.LogInformation("Fallback geocoded with query '{Query}': {Lat}, {Lon} ({DisplayName})",
-                    fallbackQuery, coords.Latitude, coords.Longitude, result.display_name);
+                _logger.LogInformation("Fallback geocoded ({Type}): {Lat}, {Lon} ({DisplayName})",
+                    type, coords.Latitude, coords.Longitude, results[0].display_name);
                 return coords;
             }
         }
@@ -321,8 +336,7 @@ public class GeocodingService : IGeocodingService
             }
 
             var firstResult = results[0];
-            var lat = double.TryParse(firstResult.lat, out var parsedLat) ? parsedLat : (double?)null;
-            var lon = double.TryParse(firstResult.lon, out var parsedLon) ? parsedLon : (double?)null;
+            var (lat, lon) = ExtractCoordinates(firstResult);
 
             var isExact = !string.IsNullOrEmpty(street) &&
                          firstResult.display_name.Contains(postalCode) &&
@@ -377,11 +391,12 @@ public class GeocodingService : IGeocodingService
         }
 
         var first = results[0];
+        var (validLat, validLon) = ExtractCoordinates(first);
         return new GeocodingValidationResult
         {
             Found = true,
-            Latitude = double.TryParse(first.lat, out var lat) ? lat : null,
-            Longitude = double.TryParse(first.lon, out var lon) ? lon : null,
+            Latitude = validLat,
+            Longitude = validLon,
             ReturnedAddress = first.display_name,
             State = first.address?.state
         };
@@ -430,12 +445,13 @@ public class GeocodingService : IGeocodingService
             }
 
             var suggestions = results
-                .Where(r => double.TryParse(r.lat, out _) && double.TryParse(r.lon, out _))
-                .Select(r => new AddressSuggestion
+                .Select(r => (Result: r, Coords: ExtractCoordinates(r)))
+                .Where(x => x.Coords.Latitude.HasValue && x.Coords.Longitude.HasValue)
+                .Select(x => new AddressSuggestion
                 {
-                    Latitude = double.Parse(r.lat),
-                    Longitude = double.Parse(r.lon),
-                    DisplayName = r.display_name
+                    Latitude = x.Coords.Latitude!.Value,
+                    Longitude = x.Coords.Longitude!.Value,
+                    DisplayName = x.Result.display_name
                 })
                 .ToList();
 
@@ -480,12 +496,13 @@ public class GeocodingService : IGeocodingService
         if (results == null || results.Count == 0) return [];
 
         return results
-            .Where(r => double.TryParse(r.lat, out _) && double.TryParse(r.lon, out _))
-            .Select(r => new AddressSuggestion
+            .Select(r => (Result: r, Coords: ExtractCoordinates(r)))
+            .Where(x => x.Coords.Latitude.HasValue && x.Coords.Longitude.HasValue)
+            .Select(x => new AddressSuggestion
             {
-                Latitude = double.Parse(r.lat),
-                Longitude = double.Parse(r.lon),
-                DisplayName = r.display_name
+                Latitude = x.Coords.Latitude!.Value,
+                Longitude = x.Coords.Longitude!.Value,
+                DisplayName = x.Result.display_name
             })
             .ToList();
     }
@@ -499,6 +516,16 @@ public class GeocodingService : IGeocodingService
     {
         var streetName = street.Split(' ')[0].ToLowerInvariant();
         return displayName.ToLowerInvariant().Contains(streetName);
+    }
+
+    private static double? ParseCoordinate(string value)
+    {
+        return double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var result) ? result : null;
+    }
+
+    private static (double? Latitude, double? Longitude) ExtractCoordinates(NominatimResult result)
+    {
+        return (ParseCoordinate(result.lat), ParseCoordinate(result.lon));
     }
 
     private class NominatimResult

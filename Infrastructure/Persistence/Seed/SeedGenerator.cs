@@ -112,6 +112,26 @@ namespace Klacks.Api.Data.Seed
 
             var swissPostcodes = GenerateComprehensiveSwissPostcodes();
             PostcodeCH randomPostcode = swissPostcodes[rand.Next(swissPostcodes.Count)];
+            var fullStreet = RandomDataGenerator.GenerateRandomStreet(randomPostcode.City, rand);
+            var streetName = RandomDataGenerator.ExtractStreetName(fullStreet);
+
+            double? latitude = null;
+            double? longitude = null;
+            var streetCoords = StreetCoordinateGenerator.GetCoordinates(streetName, randomPostcode.City);
+            if (streetCoords.HasValue)
+            {
+                latitude = streetCoords.Value.Latitude + (rand.NextDouble() - 0.5) * 0.0005;
+                longitude = streetCoords.Value.Longitude + (rand.NextDouble() - 0.5) * 0.0005;
+            }
+            else
+            {
+                var postcodeCoords = PostcodeGenerator.GetPostcodeCoordinates();
+                if (postcodeCoords.TryGetValue(randomPostcode.Zip, out var fallback))
+                {
+                    latitude = fallback.Latitude + (rand.NextDouble() - 0.5) * 0.003;
+                    longitude = fallback.Longitude + (rand.NextDouble() - 0.5) * 0.003;
+                }
+            }
 
             return new List<Address>
             {
@@ -120,7 +140,7 @@ namespace Klacks.Api.Data.Seed
                     ValidFrom = start,
                     Id = Guid.NewGuid(),
                     ClientId = clientId,
-                    Street = RandomDataGenerator.GenerateRandomStreet(randomPostcode.City, rand),
+                    Street = fullStreet,
                     Street2 = string.Empty,
                     Zip = randomPostcode.Zip.ToString(),
                     City = randomPostcode.City,
@@ -129,7 +149,9 @@ namespace Klacks.Api.Data.Seed
                     Type = AddressTypeEnum.Employee,
                     IsDeleted = false,
                     CreateTime = DateTime.Now,
-                    CurrentUserCreated = user
+                    CurrentUserCreated = user,
+                    Latitude = latitude,
+                    Longitude = longitude
                 },
             };
         }
@@ -328,8 +350,10 @@ namespace Klacks.Api.Data.Seed
             StringBuilder script = new StringBuilder();
             foreach (var address in addresses)
             {
-                script.AppendLine($@"INSERT INTO public.address (id, client_id, address_line1, address_line2, street, street2, street3, zip, city, state, country, valid_from, type, is_deleted, create_time, current_user_created) 
-                    VALUES ('{address.Id}', '{address.ClientId}', '{address.AddressLine1}', '{address.AddressLine2}', '{address.Street}', '{address.Street2}', '{address.Street3}', '{address.Zip}', '{address.City}', '{address.State}', '{address.Country}', '{address.ValidFrom:yyyy-MM-dd}', {(int)address.Type}, {address.IsDeleted.ToString().ToLower()}, '{address.CreateTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{address.CurrentUserCreated}');");
+                var latStr = address.Latitude.HasValue ? address.Latitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : "NULL";
+                var lonStr = address.Longitude.HasValue ? address.Longitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : "NULL";
+                script.AppendLine($@"INSERT INTO public.address (id, client_id, address_line1, address_line2, street, street2, street3, zip, city, state, country, valid_from, type, is_deleted, create_time, current_user_created, latitude, longitude)
+                    VALUES ('{address.Id}', '{address.ClientId}', '{address.AddressLine1}', '{address.AddressLine2}', '{address.Street}', '{address.Street2}', '{address.Street3}', '{address.Zip}', '{address.City}', '{address.State}', '{address.Country}', '{address.ValidFrom:yyyy-MM-dd}', {(int)address.Type}, {address.IsDeleted.ToString().ToLower()}, '{address.CreateTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{address.CurrentUserCreated}', {latStr}, {lonStr});");
             }
 
             return script.ToString();

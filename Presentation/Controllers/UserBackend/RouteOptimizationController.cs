@@ -5,7 +5,9 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Services.RouteOptimization;
+using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend;
 
@@ -13,15 +15,24 @@ public class RouteOptimizationController : BaseController
 {
     private readonly IRouteOptimizationService _routeOptimizationService;
     private readonly IContainerAutofillService _containerAutofillService;
+    private readonly IGeocodingService _geocodingService;
+    private readonly IAddressCoordinateWriter _coordinateWriter;
+    private readonly DataBaseContext _dbContext;
     private readonly ILogger<RouteOptimizationController> _logger;
 
     public RouteOptimizationController(
         IRouteOptimizationService routeOptimizationService,
         IContainerAutofillService containerAutofillService,
+        IGeocodingService geocodingService,
+        IAddressCoordinateWriter coordinateWriter,
+        DataBaseContext dbContext,
         ILogger<RouteOptimizationController> logger)
     {
         _routeOptimizationService = routeOptimizationService;
         _containerAutofillService = containerAutofillService;
+        _geocodingService = geocodingService;
+        _coordinateWriter = coordinateWriter;
+        _dbContext = dbContext;
         _logger = logger;
     }
 
@@ -320,5 +331,52 @@ public class RouteOptimizationController : BaseController
         }
 
         return TimeSpan.FromSeconds(result.DurationMatrix[fromIndex, toIndex]);
+    }
+
+    [HttpPost("geocode-all")]
+    public async Task<ActionResult> GeocodeAllAddresses(CancellationToken cancellationToken)
+    {
+        var addresses = await _dbContext.Address
+            .Where(a => (a.Latitude == null || a.Longitude == null) && !a.IsDeleted && a.City != "")
+            .Select(a => new { a.Id, a.Street, a.Zip, a.City, a.Country })
+            .ToListAsync(cancellationToken);
+
+        _logger.LogInformation("Batch geocoding: {Count} addresses without coordinates", addresses.Count);
+
+        var geocoded = 0;
+        var failed = 0;
+
+        foreach (var address in addresses)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var fullAddress = $"{address.Street}, {address.Zip} {address.City}";
+            var country = address.Country switch
+            {
+                "CH" => "Switzerland",
+                "DE" => "Germany",
+                "AT" => "Austria",
+                "FR" => "France",
+                "IT" => "Italy",
+                _ => address.Country
+            };
+
+            var (lat, lon) = await _geocodingService.GeocodeAddressAsync(fullAddress, country, cancellationToken);
+
+            if (lat.HasValue && lon.HasValue)
+            {
+                await _coordinateWriter.UpdateCoordinatesAsync(address.Id, lat.Value, lon.Value, cancellationToken);
+                geocoded++;
+            }
+            else
+            {
+                failed++;
+                _logger.LogWarning("Batch geocoding failed for: {Address}", fullAddress);
+            }
+        }
+
+        _logger.LogInformation("Batch geocoding complete: {Geocoded} geocoded, {Failed} failed", geocoded, failed);
+
+        return Ok(new { total = addresses.Count, geocoded, failed });
     }
 }

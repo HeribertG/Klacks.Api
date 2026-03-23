@@ -14,16 +14,16 @@ namespace Klacks.Api.Data.Seed
             SwissZipSeed.SeedData(migrationBuilder);
             MacrosSeed.SeedData(migrationBuilder);
             IdentityProvidersSeed.SeedData(migrationBuilder);
+            CalendarRulesSeed.SeedData(migrationBuilder);
+            AdditionalCalendarRulesSeed.SeedData(migrationBuilder);
+            AbsencesSeed.SeedData(migrationBuilder);
+            SwissCantonCalendarSelectionsSeed.SeedCalendarSelections(migrationBuilder);
+            CountryCalendarSelectionsSeed.SeedCalendarSelections(migrationBuilder);
 
             if (withFake)
             {
-                CalendarRulesSeed.SeedData(migrationBuilder);
-                AdditionalCalendarRulesSeed.SeedData(migrationBuilder);
-                AbsencesSeed.SeedData(migrationBuilder);
-                SwissCantonCalendarSelectionsSeed.SeedCalendarSelections(migrationBuilder);
-                CountryCalendarSelectionsSeed.SeedCalendarSelections(migrationBuilder);
-                FakeDataSeed.SeedData(migrationBuilder);
                 ContractsSeed.SeedContracts(migrationBuilder);
+                FakeDataSeed.SeedData(migrationBuilder);
             }
         }
     }

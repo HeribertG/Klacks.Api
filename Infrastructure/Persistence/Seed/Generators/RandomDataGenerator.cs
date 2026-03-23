@@ -192,4 +192,15 @@ public static class RandomDataGenerator
 
         return $"{escapedStreet} {houseNumber}";
     }
+
+    public static string ExtractStreetName(string fullStreet)
+    {
+        var lastSpaceIndex = fullStreet.LastIndexOf(' ');
+        if (lastSpaceIndex > 0 && int.TryParse(fullStreet.AsSpan(lastSpaceIndex + 1), out _))
+        {
+            return fullStreet[..lastSpaceIndex];
+        }
+
+        return fullStreet;
+    }
 }
