@@ -23,4 +23,8 @@ public class OpenAIRequest
     
     [JsonPropertyName("function_call")]
     public string? FunctionCall { get; set; }
+
+    [JsonPropertyName("stream")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool Stream { get; set; }
 }

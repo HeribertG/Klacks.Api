@@ -112,37 +112,49 @@ public class DatabaseInitializer : IDatabaseInitializer
         var previousTimeout = _context.Database.GetCommandTimeout();
         _context.Database.SetCommandTimeout(TimeSpan.FromMinutes(5));
 
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        var strategy = _context.Database.CreateExecutionStrategy();
 
         try
         {
-            var activeProvider = _context.Database.ProviderName;
-            var migrationBuilder = new MigrationBuilder(activeProvider);
-
-            var withFake = _configuration.GetValue<bool>("Fake:WithFake", false);
-
-            DataSeeder.Add(migrationBuilder, withFake);
-
-            var sqlOperations = migrationBuilder.Operations.OfType<SqlOperation>();
-
-            foreach (var operation in sqlOperations)
+            await strategy.ExecuteAsync(async () =>
             {
-                if (!string.IsNullOrWhiteSpace(operation.Sql))
+                await using var transaction = await _context.Database.BeginTransactionAsync();
+
+                try
                 {
-                    _logger.LogDebug("Executing SQL: {SqlPreview}...", operation.Sql.Substring(0, Math.Min(100, operation.Sql.Length)));
-                    var sql = operation.Sql.Replace("{", "{{").Replace("}", "}}");
-                    await _context.Database.ExecuteSqlRawAsync(sql);
+                    var activeProvider = _context.Database.ProviderName;
+                    var migrationBuilder = new MigrationBuilder(activeProvider);
+
+                    var withFake = _configuration.GetValue<bool>("Fake:WithFake", false);
+
+                    DataSeeder.Add(migrationBuilder, withFake);
+
+                    var sqlOperations = migrationBuilder.Operations.OfType<SqlOperation>();
+
+                    foreach (var operation in sqlOperations)
+                    {
+                        if (!string.IsNullOrWhiteSpace(operation.Sql))
+                        {
+                            _logger.LogDebug("Executing SQL: {SqlPreview}...", operation.Sql.Substring(0, Math.Min(100, operation.Sql.Length)));
+                            var sql = operation.Sql.Replace("{", "{{").Replace("}", "}}");
+                            await _context.Database.ExecuteSqlRawAsync(sql);
+                        }
+                    }
+
+                    await transaction.CommitAsync();
+
+                    var clientCount = await _context.Client.CountAsync();
+                    _logger.LogInformation("Seed data successfully inserted. {ClientCount} clients created.", clientCount);
                 }
-            }
-
-            await transaction.CommitAsync();
-
-            var clientCount = await _context.Client.CountAsync();
-            _logger.LogInformation("Seed data successfully inserted. {ClientCount} clients created.", clientCount);
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            });
         }
         catch (Exception ex)
         {
-            await transaction.RollbackAsync();
             _logger.LogError(ex, "Error inserting seed data");
             throw;
         }

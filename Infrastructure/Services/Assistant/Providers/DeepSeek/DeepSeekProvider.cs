@@ -5,6 +5,8 @@
 /// Includes parameter normalization for malformed DeepSeek function call outputs.
 /// </summary>
 
+using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
@@ -18,6 +20,8 @@ public class DeepSeekProvider : BaseHttpProvider
     public override string ProviderId => _providerConfig!.ProviderId;
 
     public override string ProviderName => _providerConfig!.ProviderName;
+
+    public override bool SupportsStreaming => true;
 
     public DeepSeekProvider(HttpClient httpClient, ILogger<DeepSeekProvider> logger, IConfiguration configuration)
         : base(httpClient, logger)
@@ -97,6 +101,80 @@ public class DeepSeekProvider : BaseHttpProvider
         {
             _logger.LogError(ex, "Error processing {Provider} request", ProviderName);
             return CreateErrorResponse("Internal error processing request");
+        }
+    }
+
+    public override async IAsyncEnumerable<string> ProcessStreamAsync(
+        LLMProviderRequest request,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        if (!IsEnabled)
+        {
+            throw new InvalidOperationException($"{ProviderName} provider is not enabled");
+        }
+
+        if (string.IsNullOrEmpty(_apiKey))
+        {
+            throw new InvalidOperationException("The provider for the selected model is not available.");
+        }
+
+        var deepSeekRequest = new OpenAIToolsRequest
+        {
+            Model = request.ModelId,
+            Messages = BuildMessages(request),
+            Temperature = request.Temperature,
+            MaxTokens = request.MaxTokens,
+            Tools = BuildTools(request.AvailableFunctions),
+            ToolChoice = request.AvailableFunctions.Any() ? "auto" : null,
+            Stream = true
+        };
+
+        var endpoint = "chat/completions";
+
+        await foreach (var rawJson in PostStreamAsync(endpoint, deepSeekRequest, cancellationToken))
+        {
+            OpenAIStreamChunk? chunk;
+            try
+            {
+                chunk = JsonSerializer.Deserialize<OpenAIStreamChunk>(rawJson, GetJsonSerializerOptions());
+            }
+            catch
+            {
+                continue;
+            }
+
+            if (chunk?.Choices == null || chunk.Choices.Count == 0)
+            {
+                continue;
+            }
+
+            var choice = chunk.Choices[0];
+            var delta = choice.Delta;
+
+            if (delta?.Content != null)
+            {
+                yield return delta.Content;
+            }
+
+            if (delta?.ToolCalls != null)
+            {
+                foreach (var tc in delta.ToolCalls)
+                {
+                    var tcJson = JsonSerializer.Serialize(new
+                    {
+                        toolCall = true,
+                        index = tc.Index,
+                        name = tc.Function?.Name,
+                        arguments = tc.Function?.Arguments
+                    }, GetJsonSerializerOptions());
+                    yield return $"\u0000TOOL:{tcJson}";
+                }
+            }
+
+            if (choice.FinishReason == "tool_calls")
+            {
+                yield return "\u0000TOOL_END";
+            }
         }
     }
 

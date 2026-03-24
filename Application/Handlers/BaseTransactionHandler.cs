@@ -21,19 +21,8 @@ public abstract class BaseTransactionHandler : BaseHandler
         string operationName,
         object? contextData = null)
     {
-        await using var transaction = await _unitOfWork.BeginTransactionAsync();
-
-        try
-        {
-            var result = await ExecuteAsync(operation, operationName, contextData);
-            await _unitOfWork.CommitTransactionAsync(transaction);
-            return result;
-        }
-        catch
-        {
-            await _unitOfWork.RollbackTransactionAsync(transaction);
-            throw;
-        }
+        return await _unitOfWork.ExecuteInTransactionAsync(
+            () => ExecuteAsync(operation, operationName, contextData));
     }
 
     protected async Task ExecuteWithTransactionAsync(

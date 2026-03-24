@@ -13,4 +13,6 @@ public interface IUnitOfWork
     Task CommitTransactionAsync(ITransaction transaction);
 
     Task RollbackTransactionAsync(ITransaction transaction);
+
+    Task<TResult> ExecuteInTransactionAsync<TResult>(Func<Task<TResult>> operation);
 }

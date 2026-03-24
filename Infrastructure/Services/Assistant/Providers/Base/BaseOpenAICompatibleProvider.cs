@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Runtime.CompilerServices;
+using System.Text.Json;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
 using Klacks.Api.Domain.Services.Assistant.Providers;
-using System.Text.Json;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 
@@ -79,6 +80,80 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
         {
             _logger.LogError(ex, "Error processing {Provider} request", ProviderName);
             return CreateErrorResponse("Internal error processing request");
+        }
+    }
+
+    public override bool SupportsStreaming => true;
+
+    public override async IAsyncEnumerable<string> ProcessStreamAsync(
+        LLMProviderRequest request,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        if (!IsEnabled)
+        {
+            throw new InvalidOperationException($"{ProviderName} provider is not enabled");
+        }
+
+        if (string.IsNullOrEmpty(_apiKey))
+        {
+            throw new InvalidOperationException("The provider for the selected model is not available.");
+        }
+
+        var openAIRequest = new OpenAIRequest
+        {
+            Model = request.ModelId,
+            Messages = BuildMessages(request),
+            Temperature = request.Temperature,
+            MaxTokens = request.MaxTokens,
+            Functions = MapFunctions(request.AvailableFunctions),
+            FunctionCall = request.AvailableFunctions.Any() ? "auto" : null,
+            Stream = true
+        };
+
+        var endpoint = GetChatCompletionsEndpoint();
+        var jsonOptions = GetJsonSerializerOptions();
+
+        await foreach (var data in PostStreamAsync(endpoint, openAIRequest, cancellationToken))
+        {
+            OpenAIStreamChunk? chunk;
+            try
+            {
+                chunk = JsonSerializer.Deserialize<OpenAIStreamChunk>(data, jsonOptions);
+            }
+            catch (JsonException)
+            {
+                continue;
+            }
+
+            if (chunk?.Choices == null || chunk.Choices.Count == 0)
+            {
+                continue;
+            }
+
+            var choice = chunk.Choices[0];
+
+            if (choice.Delta?.Content != null)
+            {
+                yield return choice.Delta.Content;
+            }
+
+            if (choice.Delta?.FunctionCall != null)
+            {
+                var toolPayload = JsonSerializer.Serialize(new
+                {
+                    toolCall = true,
+                    index = 0,
+                    name = choice.Delta.FunctionCall.Name ?? string.Empty,
+                    arguments = choice.Delta.FunctionCall.Arguments ?? string.Empty
+                }, jsonOptions);
+
+                yield return $"\u0000TOOL:{toolPayload}";
+            }
+
+            if (choice.FinishReason == "function_call")
+            {
+                yield return "\u0000TOOL_END";
+            }
         }
     }
 

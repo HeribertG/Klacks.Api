@@ -2,6 +2,7 @@
 
 using System.Net;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using Klacks.Api.Domain.Services.Assistant.Providers;
@@ -51,6 +52,54 @@ public abstract class BaseHttpProvider : ILLMProvider
     public abstract Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request);
 
     public abstract Task<bool> ValidateApiKeyAsync(string apiKey);
+
+    public virtual bool SupportsStreaming => false;
+
+    public virtual IAsyncEnumerable<string> ProcessStreamAsync(
+        LLMProviderRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotSupportedException($"{ProviderName} does not support streaming.");
+    }
+
+    protected async IAsyncEnumerable<string> PostStreamAsync<TRequest>(
+        string endpoint,
+        TRequest request,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        var json = JsonSerializer.Serialize(request, GetJsonSerializerOptions());
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        _logger.LogDebug("{Provider} sending streaming request to {Endpoint}", ProviderName, endpoint);
+
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint) { Content = content };
+        var response = await _httpClient.SendAsync(
+            httpRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
+            _logger.LogError("{Provider} streaming API error: {StatusCode} - {Error}",
+                ProviderName, response.StatusCode, errorBody);
+            throw new InvalidOperationException($"{ProviderName} API error: {response.StatusCode}");
+        }
+
+        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        using var reader = new StreamReader(stream);
+
+        while (!reader.EndOfStream && !cancellationToken.IsCancellationRequested)
+        {
+            var line = await reader.ReadLineAsync(cancellationToken);
+            if (line == null) break;
+            if (string.IsNullOrWhiteSpace(line)) continue;
+            if (!line.StartsWith("data: ")) continue;
+
+            var data = line[6..];
+            if (data == "[DONE]") yield break;
+
+            yield return data;
+        }
+    }
 
     protected async Task<TResponse?> PostJsonAsync<TRequest, TResponse>(string endpoint, TRequest request)
     {

@@ -7,8 +7,16 @@ public interface ILLMProvider
     string ProviderId { get; }
     string ProviderName { get; }
     bool IsEnabled { get; }
-    
+    bool SupportsStreaming => false;
+
     void Configure(Models.Assistant.LLMProvider providerConfig);
     Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request);
     Task<bool> ValidateApiKeyAsync(string apiKey);
+
+    IAsyncEnumerable<string> ProcessStreamAsync(
+        LLMProviderRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotSupportedException($"{ProviderName} does not support streaming.");
+    }
 }

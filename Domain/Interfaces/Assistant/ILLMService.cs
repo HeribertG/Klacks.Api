@@ -7,4 +7,6 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 public interface ILLMService
 {
     Task<LLMResponse> ProcessAsync(LLMContext context);
+
+    IAsyncEnumerable<SseChunk> ProcessStreamAsync(LLMContext context, CancellationToken cancellationToken = default);
 }

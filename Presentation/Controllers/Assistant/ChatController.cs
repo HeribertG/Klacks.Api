@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
@@ -23,17 +24,20 @@ public class ChatController : ControllerBase
     private readonly IMediator _mediator;
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly IAgentRepository _agentRepository;
+    private readonly ILLMStreamingOrchestrator _streamingOrchestrator;
 
     public ChatController(
         ILogger<ChatController> logger,
         IMediator mediator,
         IAgentSkillRepository agentSkillRepository,
-        IAgentRepository agentRepository)
+        IAgentRepository agentRepository,
+        ILLMStreamingOrchestrator streamingOrchestrator)
     {
         this._logger = logger;
         _mediator = mediator;
         _agentSkillRepository = agentSkillRepository;
         _agentRepository = agentRepository;
+        _streamingOrchestrator = streamingOrchestrator;
     }
 
     [HttpPost]
@@ -62,6 +66,74 @@ public class ChatController : ControllerBase
         response.ConversationId = request.ConversationId ?? Guid.NewGuid().ToString();
 
         return Ok(response);
+    }
+
+    [HttpPost("stream")]
+    public async Task ProcessMessageStream([FromBody] LLMRequest request, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            Response.StatusCode = 400;
+            return;
+        }
+
+        var userId = GetCurrentUserId();
+        var userRights = GetCurrentUserRights();
+
+        _logger.LogInformation("Processing streaming assistant request for user {UserId}", userId);
+
+        Response.ContentType = "text/event-stream";
+        Response.Headers.Append("Cache-Control", "no-cache");
+        Response.Headers.Append("Connection", "keep-alive");
+        Response.Headers.Append("X-Accel-Buffering", "no");
+
+        await Response.StartAsync(cancellationToken);
+
+        var streamRequest = new LLMStreamRequest
+        {
+            Message = request.Message,
+            UserId = userId,
+            ConversationId = request.ConversationId,
+            ModelId = request.ModelId,
+            Language = request.Language,
+            UserRights = userRights
+        };
+
+        var jsonOptions = new System.Text.Json.JsonSerializerOptions
+        {
+            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        };
+
+        try
+        {
+            await foreach (var chunk in _streamingOrchestrator.ProcessStreamAsync(streamRequest, cancellationToken))
+            {
+                var eventName = chunk.Type switch
+                {
+                    SseChunkType.StreamStart => "stream_start",
+                    SseChunkType.Content => "content",
+                    SseChunkType.FunctionCall => "function_call",
+                    SseChunkType.FunctionResult => "function_result",
+                    SseChunkType.Metadata => "metadata",
+                    SseChunkType.Done => "done",
+                    SseChunkType.Error => "error",
+                    _ => "unknown"
+                };
+
+                var data = System.Text.Json.JsonSerializer.Serialize(chunk, jsonOptions);
+                await Response.WriteAsync($"event: {eventName}\ndata: {data}\n\n", cancellationToken);
+                await Response.Body.FlushAsync(cancellationToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during SSE streaming for user {UserId}", userId);
+            var errorChunk = SseChunk.Error(ex.Message);
+            var errorData = System.Text.Json.JsonSerializer.Serialize(errorChunk, jsonOptions);
+            await Response.WriteAsync($"event: error\ndata: {errorData}\n\n", cancellationToken);
+            await Response.Body.FlushAsync(cancellationToken);
+        }
     }
 
     [HttpGet("functions")]

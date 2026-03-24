@@ -338,6 +338,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<LLMResponseBuilder>();
         services.AddScoped<LLMChatPipeline>();
         services.AddScoped<ISkillClassifierService, SkillClassifierService>();
+        services.AddScoped<ILLMStreamingOrchestrator, LLMStreamingOrchestrator>();
         services.AddScoped<LLMSystemPromptBuilder>();
         services.AddSingleton<IPromptTranslationProvider, PromptTranslationProvider>();
         services.AddScoped<IEmbeddingService, Klacks.Api.Infrastructure.Services.Assistant.EmbeddingService>();

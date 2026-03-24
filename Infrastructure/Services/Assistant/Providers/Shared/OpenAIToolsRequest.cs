@@ -31,6 +31,10 @@ public class OpenAIToolsRequest
     [JsonPropertyName("tool_choice")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? ToolChoice { get; set; }
+
+    [JsonPropertyName("stream")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool Stream { get; set; }
 }
 
 public class OpenAITool

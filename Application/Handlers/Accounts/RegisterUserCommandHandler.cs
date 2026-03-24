@@ -30,10 +30,7 @@ public class RegisterUserCommandHandler : BaseHandler, IRequestHandler<RegisterU
 
     public async Task<AuthenticatedResult> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
-        using var transaction = await _unitOfWork.BeginTransactionAsync();
-        var transactionCompleted = false;
-
-        try
+        return await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
             _logger.LogInformation("Processing user registration for: {Email}", request.Registration.Email);
 
@@ -42,31 +39,13 @@ public class RegisterUserCommandHandler : BaseHandler, IRequestHandler<RegisterU
 
             if (result != null && result.Success)
             {
-                await _unitOfWork.CompleteAsync();
-                await _unitOfWork.CommitTransactionAsync(transaction);
-                transactionCompleted = true;
                 _logger.LogInformation("User registration successful: {Email}", request.Registration.Email);
                 return result;
             }
 
-            await _unitOfWork.RollbackTransactionAsync(transaction);
-            transactionCompleted = true;
             _logger.LogWarning("User registration failed: {Email}, Reason: {Reason}",
                 request.Registration.Email, result?.Message ?? "Unknown");
             throw new ConflictException(result?.Message ?? "User registration failed.");
-        }
-        catch (Exception ex) when (!transactionCompleted)
-        {
-            try
-            {
-                await _unitOfWork.RollbackTransactionAsync(transaction);
-            }
-            catch (InvalidOperationException)
-            {
-                _logger.LogWarning("Transaction already completed during error handling for: {Email}", request.Registration.Email);
-            }
-            _logger.LogError(ex, "Error processing user registration: {Email}", request.Registration.Email);
-            throw;
-        }
+        });
     }
 }

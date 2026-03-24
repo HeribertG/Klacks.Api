@@ -84,6 +84,29 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
+    public async Task<TResult> ExecuteInTransactionAsync<TResult>(Func<Task<TResult>> operation)
+    {
+        var strategy = context.Database.CreateExecutionStrategy();
+
+        return await strategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var result = await operation();
+                await context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return result;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        });
+    }
+
     private sealed class TransactionWrapper : ITransaction
     {
         public IDbContextTransaction Inner { get; }

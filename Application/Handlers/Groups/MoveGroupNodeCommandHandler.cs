@@ -30,35 +30,25 @@ public class MoveGroupNodeCommandHandler : IRequestHandler<MoveGroupNodeCommand,
 
     public async Task<GroupResource> Handle(MoveGroupNodeCommand request, CancellationToken cancellationToken)
     {
-        using var transaction = await _unitOfWork.BeginTransactionAsync();
-        try
+        return await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
             _logger.LogInformation("Move node {NodeId} to new parent {NewParentId}", request.NodeId, request.NewParentId);
-            
+
             await _groupRepository.MoveNode(request.NodeId, request.NewParentId);
-            
+
             var movedGroup = await _groupRepository.Get(request.NodeId);
             if (movedGroup == null)
             {
                 throw new KeyNotFoundException($"Group with ID {request.NodeId} not found after move");
             }
-            
+
             var depth = await _groupRepository.GetNodeDepth(request.NodeId);
             var result = _groupMapper.ToGroupResource(movedGroup);
             result.Depth = depth;
-            
-            await _unitOfWork.CompleteAsync();
-            await _unitOfWork.CommitTransactionAsync(transaction);
-            
+
             _logger.LogInformation("Node {NodeId} successfully moved to parent {NewParentId}", request.NodeId, request.NewParentId);
 
             return result;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error when moving the node {NodeId} to parent {NewParentId}", request.NodeId, request.NewParentId);
-            await _unitOfWork.RollbackTransactionAsync(transaction);
-            throw;
-        }
+        });
     }
 }
