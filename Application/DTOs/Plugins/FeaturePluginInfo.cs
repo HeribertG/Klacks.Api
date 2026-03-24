@@ -4,6 +4,8 @@
 /// DTO representing a feature plugin with its manifest data and runtime status.
 /// </summary>
 
+using Klacks.Api.Domain.Models.Plugins;
+
 namespace Klacks.Api.Application.DTOs.Plugins;
 
 public class FeaturePluginInfo
@@ -20,4 +22,5 @@ public class FeaturePluginInfo
     public Dictionary<string, string> DefaultSettings { get; set; } = new();
     public bool IsInstalled { get; set; }
     public bool IsEnabled { get; set; }
+    public PluginNavigationManifest? Navigation { get; set; }
 }

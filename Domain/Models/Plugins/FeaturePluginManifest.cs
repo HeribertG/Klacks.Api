@@ -18,4 +18,5 @@ public class FeaturePluginManifest
     public string[] RequiredPermissions { get; set; } = [];
     public string[] ProvidedSkills { get; set; } = [];
     public Dictionary<string, string> DefaultSettings { get; set; } = new();
+    public PluginNavigationManifest? Navigation { get; set; }
 }

@@ -81,7 +81,8 @@ public class FeaturePluginService : IFeaturePluginService
                 ProvidedSkills = manifest.ProvidedSkills,
                 DefaultSettings = manifest.DefaultSettings,
                 IsInstalled = IsInstalled(manifest.Name),
-                IsEnabled = IsEnabled(manifest.Name)
+                IsEnabled = IsEnabled(manifest.Name),
+                Navigation = manifest.Navigation
             });
         }
 
@@ -106,7 +107,8 @@ public class FeaturePluginService : IFeaturePluginService
             ProvidedSkills = manifest.ProvidedSkills,
             DefaultSettings = manifest.DefaultSettings,
             IsInstalled = IsInstalled(name),
-            IsEnabled = IsEnabled(name)
+            IsEnabled = IsEnabled(name),
+            Navigation = manifest.Navigation
         };
     }
 
