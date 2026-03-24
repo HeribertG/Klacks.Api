@@ -261,6 +261,17 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ISettingsEncryptionService, SettingsEncryptionService>();
         services.AddSingleton<ILanguagePluginService, LanguagePluginService>();
         services.AddSingleton<IFeaturePluginService, FeaturePluginService>();
+
+        var marketplaceBaseUrl = configuration.GetValue<string>("Marketplace:BaseUrl")
+            ?? configuration.GetValue<string>("LanguagePlugins:MarketplaceUrl");
+        if (!string.IsNullOrWhiteSpace(marketplaceBaseUrl))
+        {
+            services.AddHttpClient<IMarketplaceClient, MarketplaceClient>(client =>
+            {
+                client.BaseAddress = new Uri(marketplaceBaseUrl);
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
+        }
         services.AddScoped<ICalendarRuleFilterService, CalendarRuleFilterService>();
         services.AddScoped<ICalendarRuleSortingService, CalendarRuleSortingService>();
         services.AddScoped<ICalendarRulePaginationService, CalendarRulePaginationService>();

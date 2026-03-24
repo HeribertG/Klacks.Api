@@ -5,6 +5,7 @@
 /// </summary>
 /// <param name="featurePluginService">Service handling feature plugin lifecycle operations</param>
 
+using System.IO.Compression;
 using Klacks.Api.Application.DTOs.Plugins;
 using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Domain.Constants;
@@ -19,10 +20,14 @@ namespace Klacks.Api.Presentation.Controllers.Plugins;
 public class FeaturePluginController : ControllerBase
 {
     private readonly IFeaturePluginService _featurePluginService;
+    private readonly IMarketplaceClient? _marketplaceClient;
 
-    public FeaturePluginController(IFeaturePluginService featurePluginService)
+    public FeaturePluginController(
+        IFeaturePluginService featurePluginService,
+        IMarketplaceClient? marketplaceClient = null)
     {
         _featurePluginService = featurePluginService;
+        _marketplaceClient = marketplaceClient;
     }
 
     [HttpGet]
@@ -83,5 +88,50 @@ public class FeaturePluginController : ControllerBase
             return BadRequest("Feature plugin not installed");
 
         return Ok();
+    }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+    [HttpGet("marketplace")]
+    public async Task<ActionResult<List<MarketplacePluginInfo>>> SearchMarketplace(
+        [FromQuery] string? search,
+        [FromQuery] string? category)
+    {
+        if (_marketplaceClient is null)
+            return BadRequest("Marketplace integration not configured");
+
+        var plugins = await _marketplaceClient.SearchPluginsAsync(search, category);
+        return Ok(plugins);
+    }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+    [HttpPost("{name}/install-from-marketplace")]
+    public async Task<ActionResult> InstallFromMarketplace(string name)
+    {
+        if (_marketplaceClient is null)
+            return BadRequest("Marketplace integration not configured");
+
+        byte[] zipData;
+        try
+        {
+            zipData = await _marketplaceClient.DownloadPluginAsync(name);
+        }
+        catch (HttpRequestException ex)
+        {
+            return BadRequest($"Failed to download plugin from marketplace: {ex.Message}");
+        }
+
+        var pluginDir = Path.Combine(AppContext.BaseDirectory, "Plugins", "Features", name);
+        Directory.CreateDirectory(pluginDir);
+
+        using var stream = new MemoryStream(zipData);
+        System.IO.Compression.ZipFile.ExtractToDirectory(stream, pluginDir, overwriteFiles: true);
+
+        await _featurePluginService.RefreshPluginsAsync();
+
+        var installResult = await _featurePluginService.InstallAsync(name);
+        if (!installResult)
+            return BadRequest("Plugin downloaded but installation failed — version may be incompatible");
+
+        return Ok(new { message = $"Plugin '{name}' installed from marketplace" });
     }
 }
