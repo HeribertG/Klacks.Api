@@ -36,8 +36,8 @@ http {
         server klacks-blazor:80;
     }
 
-    upstream pgadmin {
-        server klacks-pgadmin:80;
+    upstream klacks-marketplace {
+        server klacks-marketplace:80;
     }
 
     upstream devknowledge-ui {
@@ -142,21 +142,24 @@ http {
         }
     }
 
-    # pgAdmin - HTTPS Port 5553
+    # Marketplace - HTTPS Port 7553
     server {
-        listen 5553 ssl;
+        listen 7553 ssl;
         server_name ${SERVER_IP};
 
         ssl_certificate /etc/nginx/certs/server.crt;
         ssl_certificate_key /etc/nginx/certs/server.key;
 
         location / {
-            proxy_pass http://pgadmin;
+            proxy_pass http://klacks-marketplace;
             proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_cache_bypass $http_upgrade;
         }
     }
 

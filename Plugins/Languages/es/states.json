@@ -100,5 +100,17 @@
     "abbreviation": "VC",
     "countryPrefix": "ES",
     "name": { "de": "Valencia", "en": "Valencian Community", "fr": "Communauté valencienne", "it": "Comunità Valenciana", "es": "Comunidad Valenciana", "ja": "バレンシア" }
+  },
+  {
+    "id": "51b2c3d4-e501-4000-8000-000000000018",
+    "abbreviation": "CE",
+    "countryPrefix": "ES",
+    "name": { "de": "Ceuta", "en": "Ceuta", "fr": "Ceuta", "it": "Ceuta", "es": "Ceuta", "ja": "セウタ" }
+  },
+  {
+    "id": "51b2c3d4-e501-4000-8000-000000000019",
+    "abbreviation": "ML",
+    "countryPrefix": "ES",
+    "name": { "de": "Melilla", "en": "Melilla", "fr": "Melilla", "it": "Melilla", "es": "Melilla", "ja": "メリリャ" }
   }
 ]
