@@ -161,6 +161,7 @@ var bgOptions = builder.Configuration
     .GetSection(BackgroundServiceOptions.SectionName)
     .Get<BackgroundServiceOptions>() ?? new BackgroundServiceOptions();
 
+Klacks.Api.Infrastructure.Extensions.ServiceCollectionExtensions.RegisterPlugin(new Klacks.Plugin.Messaging.MessagingPluginRegistrar());
 builder.Services.AddApplicationServices(builder.Configuration);
 
 builder.Services.AddSignalR();
@@ -232,7 +233,7 @@ builder.Services.AddDataProtection()
     .SetApplicationName("Klacks")
     .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
 
-builder.Services
+var mvcBuilder = builder.Services
     .AddControllers()
     .AddJsonOptions(opts =>
     {
@@ -243,6 +244,11 @@ builder.Services
         opts.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         opts.JsonSerializerOptions.WriteIndented = true;
     });
+
+foreach (var asm in Klacks.Api.Infrastructure.Extensions.ServiceCollectionExtensions.GetPluginRegistrars().SelectMany(r => r.GetControllerAssemblies()))
+{
+    mvcBuilder.AddApplicationPart(asm);
+}
 
 builder.Services.AddIdentity<AppUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
         .AddRoles<IdentityRole>()

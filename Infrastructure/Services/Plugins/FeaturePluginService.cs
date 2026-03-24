@@ -298,6 +298,43 @@ public class FeaturePluginService : IFeaturePluginService
         await InitializeAsync();
     }
 
+    public Dictionary<string, string>? GetTranslations(string lang)
+    {
+        var merged = new Dictionary<string, string>();
+
+        foreach (var kvp in _manifests)
+        {
+            if (!IsInstalled(kvp.Key) || !IsEnabled(kvp.Key))
+                continue;
+
+            var pluginDir = Path.Combine(_pluginDirectory, kvp.Key, FeaturePluginConstants.I18nDirectory);
+            var filePath = Path.Combine(pluginDir, $"{lang}.json");
+
+            if (!File.Exists(filePath))
+                continue;
+
+            try
+            {
+                var json = File.ReadAllText(filePath);
+                var translations = JsonSerializer.Deserialize<Dictionary<string, string>>(json, JsonOptions);
+
+                if (translations != null)
+                {
+                    foreach (var entry in translations)
+                    {
+                        merged[entry.Key] = entry.Value;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load translations for plugin '{Plugin}' lang '{Lang}'", kvp.Key, lang);
+            }
+        }
+
+        return merged.Count > 0 ? merged : null;
+    }
+
     private static bool IsVersionCompatible(string minVersion)
     {
         if (string.IsNullOrWhiteSpace(minVersion))

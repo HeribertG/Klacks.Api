@@ -35,11 +35,6 @@ using Klacks.Api.Infrastructure.Services.Macros;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Services.Schedules;
 using Klacks.Api.Domain.Interfaces.Email;
-using Klacks.Api.Domain.Interfaces.Messaging;
-using Klacks.Api.Application.Interfaces.Messaging;
-using Klacks.Api.Infrastructure.Repositories.Messaging;
-using Klacks.Api.Infrastructure.Services.Messaging;
-using Klacks.Api.Infrastructure.Services.Messaging.Providers;
 using Klacks.Api.Infrastructure.Email;
 using Klacks.Api.Infrastructure.FileHandling;
 using Klacks.Api.Infrastructure.Interfaces;
@@ -75,7 +70,6 @@ using Klacks.Api.Infrastructure.Services.ClientAvailabilitySchedule;
 using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.Skills.Generated;
 using Klacks.Api.Application.Skills.Generic;
-using Klacks.Api.Application.Skills.Messaging;
 using Microsoft.Extensions.Configuration;
 
 namespace Klacks.Api.Infrastructure.Extensions;
@@ -89,8 +83,45 @@ public static class ServiceCollectionExtensions
         services.AddAuthenticationServices();
         services.AddAssistantServices(configuration);
         services.AddInfrastructureServices();
+        services.AddFeaturePluginServices(configuration);
         return services;
     }
+
+    private static readonly List<Klacks.Plugin.Contracts.IPluginRegistrar> PluginRegistrars = [];
+
+    private static void AddFeaturePluginServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<Klacks.Plugin.Contracts.IPluginEventBus, Klacks.Api.Infrastructure.Plugins.PluginEventBus>();
+        services.AddScoped<Klacks.Plugin.Contracts.IPluginUnitOfWork, Klacks.Api.Infrastructure.Plugins.PluginUnitOfWorkBridge>();
+        services.AddScoped<Klacks.Plugin.Contracts.IPluginSettingsReader, Klacks.Api.Infrastructure.Plugins.PluginSettingsReaderBridge>();
+        services.AddScoped<Klacks.Plugin.Contracts.IPluginStateChecker, Klacks.Api.Infrastructure.Plugins.PluginStateCheckerBridge>();
+        services.AddScoped<Microsoft.EntityFrameworkCore.DbContext>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Persistence.DataBaseContext>());
+
+        var assemblies = PluginRegistrars.SelectMany(r => r.GetControllerAssemblies()).ToList();
+        foreach (var registrar in PluginRegistrars)
+        {
+            registrar.RegisterServices(services, configuration);
+            Klacks.Api.Infrastructure.Plugins.PluginModelRegistry.Register(registrar.ConfigureDbModel);
+        }
+
+        var oldRegistrars = typeof(ServiceCollectionExtensions).Assembly
+            .GetTypes()
+            .Where(t => t is { IsClass: true, IsAbstract: false } && typeof(IFeaturePluginRegistrar).IsAssignableFrom(t))
+            .Select(t => (IFeaturePluginRegistrar)Activator.CreateInstance(t)!)
+            .ToList();
+
+        foreach (var registrar in oldRegistrars)
+        {
+            registrar.RegisterServices(services, configuration);
+        }
+    }
+
+    public static void RegisterPlugin(Klacks.Plugin.Contracts.IPluginRegistrar registrar)
+    {
+        PluginRegistrars.Add(registrar);
+    }
+
+    public static IReadOnlyList<Klacks.Plugin.Contracts.IPluginRegistrar> GetPluginRegistrars() => PluginRegistrars;
 
     private static void AddRepositories(this IServiceCollection services)
     {
@@ -155,8 +186,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFloorPlanRepository, FloorPlanRepository>();
         services.AddScoped<IFloorPlanWorkMarkerRepository, FloorPlanWorkMarkerRepository>();
         services.AddScoped<ISentimentKeywordRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SentimentKeywordRepository>();
-        services.AddScoped<IMessageRepository, MessageRepository>();
-        services.AddScoped<IMessagingProviderRepository, MessagingProviderRepository>();
     }
 
     private static void AddDomainServices(this IServiceCollection services, IConfiguration configuration)
@@ -292,16 +321,6 @@ public static class ServiceCollectionExtensions
 
         if (bgOptions.EmailPolling)
             services.AddHostedService<EmailPollingBackgroundService>();
-
-        services.AddScoped<IMessagingService, MessagingService>();
-        services.AddScoped<MessagingProviderAdapterFactory>();
-        services.AddHttpClient<TelegramMessagingProvider>();
-        services.AddHttpClient<WhatsAppMessagingProvider>();
-        services.AddHttpClient<SignalMessagingProvider>();
-        services.AddHttpClient<SmsMessagingProvider>();
-
-        if (bgOptions.MessageRetention)
-            services.AddHostedService<MessageRetentionService>();
 
         services.AddHttpClient<IMarketplaceClientService, MarketplaceClientService>();
     }
@@ -441,10 +460,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Persistence.Seed.SkillSeedLoader>();
         services.AddScoped<Persistence.Seed.SentimentKeywordSeedService>();
         services.AddScoped<Application.Services.Assistant.SkillRegistryInitializer>();
-
-        services.AddScoped<SendMessageSkill>();
-        services.AddScoped<ReadMessagesSkill>();
-        services.AddScoped<ListMessagingProvidersSkill>();
 
         services.AddScoped<GenericListExecutor>();
         services.AddScoped<GenericDeleteExecutor>();

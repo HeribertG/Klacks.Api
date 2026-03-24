@@ -2,7 +2,7 @@
     "name": "messaging",
     "displayName": "Messaging",
     "category": "communication",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "author": "Klacks",
     "description": "Send and receive messages via WhatsApp, Telegram, Signal, and SMS",
     "minKlacksVersion": "1.0.0",
@@ -27,5 +27,21 @@
                 "opacity": "1"
             }
         ]
+    },
+    "backend": {
+        "registrar": "MessagingPluginRegistrar",
+        "dbTables": ["messaging_providers", "messages"],
+        "migration": "backend/migration.sql",
+        "backgroundServices": ["MessageRetentionService"]
+    },
+    "frontend": {
+        "routes": [
+            {
+                "path": "workplace/messaging",
+                "component": "MessagingHomeComponent",
+                "guards": ["AuthGuard", "featurePluginGuard(messaging)"]
+            }
+        ],
+        "settingsCards": ["MessagingProvidersComponent"]
     }
 }

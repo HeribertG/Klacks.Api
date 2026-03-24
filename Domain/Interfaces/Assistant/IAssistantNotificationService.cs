@@ -1,7 +1,5 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Application.DTOs.Messaging;
-
 namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IAssistantNotificationService
@@ -10,7 +8,7 @@ public interface IAssistantNotificationService
 
     Task SendOnboardingPromptAsync(string userId, string message);
 
-    Task BroadcastIncomingMessageAsync(IncomingMessageDto message);
+    Task BroadcastPluginEventAsync(string eventType, object payload);
 
     bool IsUserConnected(string userId);
 

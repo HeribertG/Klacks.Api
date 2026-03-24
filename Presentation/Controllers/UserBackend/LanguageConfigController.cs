@@ -4,6 +4,7 @@ using System.Text.Json;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Application.DTOs.Config;
+using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Application.Interfaces.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -17,15 +18,18 @@ public class LanguageConfigController : ControllerBase
 {
     private readonly IConfiguration _configuration;
     private readonly ILanguagePluginService _languagePluginService;
+    private readonly IFeaturePluginService _featurePluginService;
     private readonly IMarketplaceClientService _marketplaceClient;
 
     public LanguageConfigController(
         IConfiguration configuration,
         ILanguagePluginService languagePluginService,
+        IFeaturePluginService featurePluginService,
         IMarketplaceClientService marketplaceClient)
     {
         _configuration = configuration;
         _languagePluginService = languagePluginService;
+        _featurePluginService = featurePluginService;
         _marketplaceClient = marketplaceClient;
     }
 
@@ -78,11 +82,27 @@ public class LanguageConfigController : ControllerBase
     [HttpGet("translations/{lang}")]
     public ActionResult<Dictionary<string, string>> GetTranslations(string lang)
     {
-        var translations = _languagePluginService.GetTranslations(lang);
-        if (translations == null)
+        var langTranslations = _languagePluginService.GetTranslations(lang);
+        var featureTranslations = _featurePluginService.GetTranslations(lang);
+
+        if (langTranslations == null && featureTranslations == null)
             return NotFound();
 
-        return Ok(translations);
+        var merged = new Dictionary<string, string>();
+
+        if (langTranslations != null)
+        {
+            foreach (var kv in langTranslations)
+                merged[kv.Key] = kv.Value;
+        }
+
+        if (featureTranslations != null)
+        {
+            foreach (var kv in featureTranslations)
+                merged[kv.Key] = kv.Value;
+        }
+
+        return Ok(merged);
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]

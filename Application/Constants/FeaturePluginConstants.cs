@@ -13,4 +13,5 @@ public static class FeaturePluginConstants
     public const string SkillSeedsFileName = "skill-seeds.json";
     public const string SettingPrefix = "FEATURE_PLUGIN_";
     public const string EnabledSuffix = "_ENABLED";
+    public const string I18nDirectory = "i18n";
 }

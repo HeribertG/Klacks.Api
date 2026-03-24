@@ -19,4 +19,5 @@ public interface IFeaturePluginService
     Task<bool> DisableAsync(string name);
     bool IsEnabled(string name);
     Task RefreshPluginsAsync();
+    Dictionary<string, string>? GetTranslations(string lang);
 }

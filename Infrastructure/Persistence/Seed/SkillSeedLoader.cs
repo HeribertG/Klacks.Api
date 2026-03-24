@@ -7,6 +7,8 @@
 /// </summary>
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Klacks.Api.Application.Constants;
+using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -20,6 +22,7 @@ public class SkillSeedLoader
 {
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly IAgentRepository _agentRepository;
+    private readonly IFeaturePluginService _featurePluginService;
     private readonly IWebHostEnvironment _environment;
     private readonly ILogger<SkillSeedLoader> _logger;
 
@@ -40,11 +43,13 @@ public class SkillSeedLoader
     public SkillSeedLoader(
         IAgentSkillRepository agentSkillRepository,
         IAgentRepository agentRepository,
+        IFeaturePluginService featurePluginService,
         IWebHostEnvironment environment,
         ILogger<SkillSeedLoader> logger)
     {
         _agentSkillRepository = agentSkillRepository;
         _agentRepository = agentRepository;
+        _featurePluginService = featurePluginService;
         _environment = environment;
         _logger = logger;
     }
@@ -119,6 +124,71 @@ public class SkillSeedLoader
         _logger.LogInformation(
             "Skill seed completed: {Total} definitions processed (inserted: {Inserted}, updated: {Updated}, skipped: {Skipped})",
             seedFile.Skills.Count, inserted, updated, skipped);
+
+        await LoadPluginSkillSeedsAsync(agent, existingByName, cancellationToken);
+    }
+
+    private async Task LoadPluginSkillSeedsAsync(Agent agent, Dictionary<string, AgentSkill> existingByName, CancellationToken cancellationToken)
+    {
+        var plugins = _featurePluginService.GetAllPlugins();
+
+        foreach (var plugin in plugins)
+        {
+            if (!plugin.IsInstalled || !plugin.IsEnabled)
+                continue;
+
+            var pluginSeedPath = Path.Combine(
+                _environment.ContentRootPath,
+                FeaturePluginConstants.PluginDirectory,
+                plugin.Name,
+                FeaturePluginConstants.SkillSeedsFileName);
+
+            if (!File.Exists(pluginSeedPath))
+                continue;
+
+            try
+            {
+                await using var stream = File.OpenRead(pluginSeedPath);
+                var skills = await JsonSerializer.DeserializeAsync<List<SkillSeedDefinition>>(stream, JsonReadOptions, cancellationToken);
+
+                if (skills == null || skills.Count == 0)
+                    continue;
+
+                var inserted = 0;
+                var updated = 0;
+
+                foreach (var definition in skills)
+                {
+                    if (string.IsNullOrWhiteSpace(definition.Name))
+                        continue;
+
+                    if (existingByName.TryGetValue(definition.Name, out var existing))
+                    {
+                        if (definition.Version > existing.Version)
+                        {
+                            ApplyDefinitionToSkill(existing, definition);
+                            await _agentSkillRepository.UpdateAsync(existing, cancellationToken);
+                            updated++;
+                        }
+                    }
+                    else
+                    {
+                        var newSkill = CreateSkillFromDefinition(agent.Id, definition);
+                        await _agentSkillRepository.AddAsync(newSkill, cancellationToken);
+                        existingByName[definition.Name] = newSkill;
+                        inserted++;
+                    }
+                }
+
+                _logger.LogInformation(
+                    "Plugin '{Plugin}' skill seed: {Inserted} inserted, {Updated} updated",
+                    plugin.Name, inserted, updated);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load skill seeds for plugin '{Plugin}'", plugin.Name);
+            }
+        }
     }
 
     private async Task<Agent> EnsureDefaultAgentAsync(CancellationToken cancellationToken)

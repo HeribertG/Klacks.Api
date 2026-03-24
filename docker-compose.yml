@@ -113,6 +113,7 @@ services:
       - klacks-ui
       - klacks-api
       - klacks-blazor
+      - klacks-marketplace
       - pgadmin
     networks:
       - klacks_network
