@@ -27,15 +27,18 @@ public class CreateAgentSkillSkill : BaseSkillImplementation
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly IAgentRepository _agentRepository;
     private readonly SkillRegistryInitializer _skillRegistryInitializer;
+    private readonly ISkillCacheService _skillCacheService;
 
     public CreateAgentSkillSkill(
         IAgentSkillRepository agentSkillRepository,
         IAgentRepository agentRepository,
-        SkillRegistryInitializer skillRegistryInitializer)
+        SkillRegistryInitializer skillRegistryInitializer,
+        ISkillCacheService skillCacheService)
     {
         _agentSkillRepository = agentSkillRepository;
         _agentRepository = agentRepository;
         _skillRegistryInitializer = skillRegistryInitializer;
+        _skillCacheService = skillCacheService;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -110,6 +113,7 @@ public class CreateAgentSkillSkill : BaseSkillImplementation
         };
 
         await _agentSkillRepository.AddAsync(agentSkill, cancellationToken);
+        _skillCacheService.InvalidateCache();
         await _skillRegistryInitializer.InitializeAsync(cancellationToken);
 
         return SkillResult.SuccessResult(

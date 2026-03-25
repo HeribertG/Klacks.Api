@@ -25,19 +25,22 @@ public class ChatController : ControllerBase
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly IAgentRepository _agentRepository;
     private readonly ILLMStreamingOrchestrator _streamingOrchestrator;
+    private readonly ISkillCacheService _skillCacheService;
 
     public ChatController(
         ILogger<ChatController> logger,
         IMediator mediator,
         IAgentSkillRepository agentSkillRepository,
         IAgentRepository agentRepository,
-        ILLMStreamingOrchestrator streamingOrchestrator)
+        ILLMStreamingOrchestrator streamingOrchestrator,
+        ISkillCacheService skillCacheService)
     {
         this._logger = logger;
         _mediator = mediator;
         _agentSkillRepository = agentSkillRepository;
         _agentRepository = agentRepository;
         _streamingOrchestrator = streamingOrchestrator;
+        _skillCacheService = skillCacheService;
     }
 
     [HttpPost]
@@ -238,6 +241,13 @@ public class ChatController : ControllerBase
         }
 
         return Ok(results);
+    }
+
+    [HttpGet("warmup")]
+    public async Task<ActionResult> Warmup(CancellationToken cancellationToken)
+    {
+        await _skillCacheService.WarmupAsync(cancellationToken);
+        return Ok();
     }
 
     [HttpGet("help")]

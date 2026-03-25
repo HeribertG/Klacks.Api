@@ -33,9 +33,9 @@ public class LLMStreamRequest
 public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
 {
     private readonly ILLMService _llmService;
-    private readonly IAgentSkillRepository _agentSkillRepository;
-    private readonly IAgentRepository _agentRepository;
+    private readonly ISkillCacheService _skillCacheService;
     private readonly ISkillClassifierService _skillClassifierService;
+    private readonly ISynonymLearningService _synonymLearningService;
     private readonly ILogger<LLMStreamingOrchestrator> _logger;
 
     private const int MaxToolsForProvider = 30;
@@ -44,15 +44,15 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
 
     public LLMStreamingOrchestrator(
         ILLMService llmService,
-        IAgentSkillRepository agentSkillRepository,
-        IAgentRepository agentRepository,
+        ISkillCacheService skillCacheService,
         ISkillClassifierService skillClassifierService,
+        ISynonymLearningService synonymLearningService,
         ILogger<LLMStreamingOrchestrator> logger)
     {
         _llmService = llmService;
-        _agentSkillRepository = agentSkillRepository;
-        _agentRepository = agentRepository;
+        _skillCacheService = skillCacheService;
         _skillClassifierService = skillClassifierService;
+        _synonymLearningService = synonymLearningService;
         _logger = logger;
     }
 
@@ -64,7 +64,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         string? agentLoadError = null;
         try
         {
-            agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
+            agent = await _skillCacheService.GetDefaultAgentAsync(cancellationToken);
         }
         catch (Exception ex)
         {
@@ -112,7 +112,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     {
         if (agent == null) return [];
 
-        var skills = await _agentSkillRepository.GetEnabledAsync(agent.Id, ct);
+        var skills = await _skillCacheService.GetEnabledSkillsAsync(agent.Id, ct);
         var permittedSkills = skills
             .Where(s => s.RequiredPermission == null ||
                         userRights.Contains(s.RequiredPermission) ||
@@ -133,6 +133,12 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
                 keywordMatchedSkills = permittedSkills
                     .Where(s => !s.AlwaysOn && MatchesSkillKeywords(s, classifiedMessage, language))
                     .ToList();
+
+                if (keywordMatchedSkills.Count > 0)
+                {
+                    var matchedSkillNames = keywordMatchedSkills.Select(s => s.Name).ToList();
+                    _synonymLearningService.LearnFromClassifierResult(userMessage, matchedSkillNames, language, agent.Id);
+                }
             }
         }
 

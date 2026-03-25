@@ -21,15 +21,24 @@ public class NavigateToSkill : BaseSkillImplementation
     private static readonly Dictionary<string, string> FallbackRoutes = new(StringComparer.OrdinalIgnoreCase)
     {
         { "dashboard", "/workplace/dashboard" },
-        { "employees", "/workplace/client" },
-        { "employee-details", "/workplace/client" },
+        { "client-list", "/workplace/client" },
+        { "new-employee", "/workplace/edit-address" },
+        { "edit-employee", "/workplace/edit-address" },
         { "schedule", "/workplace/schedule" },
         { "absences", "/workplace/absence" },
-        { "reports", "/workplace/dashboard" },
+        { "client-availability", "/workplace/client-availability" },
         { "settings", "/workplace/settings" },
-        { "groups", "/workplace/group" },
-        { "contracts", "/workplace/client" },
-        { "holidays", "/workplace/settings" }
+        { "group-list", "/workplace/group" },
+        { "new-group", "/workplace/edit-group" },
+        { "edit-group", "/workplace/edit-group" },
+        { "group-structure", "/workplace/group-structure" },
+        { "shift-list", "/workplace/shift" },
+        { "new-shift", "/workplace/new-shift" },
+        { "edit-shift", "/workplace/edit-shift" },
+        { "inbox", "/workplace/inbox" },
+        { "messaging", "/workplace/messaging" },
+        { "floor-plan", "/workplace/floor-plan" },
+        { "profile", "/workplace/profile" }
     };
 
     public NavigateToSkill(

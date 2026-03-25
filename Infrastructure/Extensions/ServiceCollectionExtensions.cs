@@ -368,6 +368,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<LLMResponseBuilder>();
         services.AddScoped<LLMChatPipeline>();
         services.AddScoped<ISkillClassifierService, SkillClassifierService>();
+        services.AddSingleton<ISynonymLearningService, SynonymLearningService>();
         services.AddScoped<ILLMStreamingOrchestrator, LLMStreamingOrchestrator>();
         services.AddScoped<LLMSystemPromptBuilder>();
         services.AddSingleton<IPromptTranslationProvider, PromptTranslationProvider>();
@@ -401,6 +402,7 @@ public static class ServiceCollectionExtensions
 
     private static void AddSkillServices(this IServiceCollection services)
     {
+        services.AddSingleton<ISkillCacheService, SkillCacheService>();
         services.AddSingleton<Domain.Services.Assistant.Skills.Adapters.ISkillAdapterFactory, Domain.Services.Assistant.Skills.Adapters.SkillAdapterFactory>();
         services.AddSingleton<ISkillRegistry, Domain.Services.Assistant.Skills.SkillRegistry>();
         services.AddScoped<ISkillExecutor, Domain.Services.Assistant.Skills.SkillExecutorService>();

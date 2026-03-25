@@ -34,9 +34,10 @@ public class ProcessLLMMessageCommand : IRequest<LLMResponse>
 public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessageCommand, LLMResponse>
 {
     private readonly ILLMService _llmService;
-    private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly IAgentRepository _agentRepository;
+    private readonly ISkillCacheService _skillCacheService;
     private readonly ISkillClassifierService _skillClassifierService;
+    private readonly ISynonymLearningService _synonymLearningService;
 
     private const int MaxToolsForProvider = 30;
     private const int WordBoundaryThreshold = 5;
@@ -44,21 +45,23 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
 
     public ProcessLLMMessageCommandHandler(
         ILLMService llmService,
-        IAgentSkillRepository agentSkillRepository,
         IAgentRepository agentRepository,
-        ISkillClassifierService skillClassifierService)
+        ISkillCacheService skillCacheService,
+        ISkillClassifierService skillClassifierService,
+        ISynonymLearningService synonymLearningService)
     {
         _llmService = llmService;
-        _agentSkillRepository = agentSkillRepository;
         _agentRepository = agentRepository;
+        _skillCacheService = skillCacheService;
         _skillClassifierService = skillClassifierService;
+        _synonymLearningService = synonymLearningService;
     }
 
     public async Task<LLMResponse> Handle(ProcessLLMMessageCommand request, CancellationToken cancellationToken)
     {
         var agent = request.AgentId.HasValue
             ? await _agentRepository.GetByIdAsync(request.AgentId.Value, cancellationToken)
-            : await _agentRepository.GetDefaultAgentAsync(cancellationToken);
+            : await _skillCacheService.GetDefaultAgentAsync(cancellationToken);
 
         var context = new LLMContext
         {
@@ -84,7 +87,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     {
         if (agent == null) return [];
 
-        var skills = await _agentSkillRepository.GetEnabledAsync(agent.Id, cancellationToken);
+        var skills = await _skillCacheService.GetEnabledSkillsAsync(agent.Id, cancellationToken);
         var permittedSkills = FilterByPermissions(skills, userRights);
 
         var alwaysOnSkills = permittedSkills
@@ -105,6 +108,12 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
                 keywordMatchedSkills = permittedSkills
                     .Where(s => !s.AlwaysOn && MatchesSkillKeywords(s, classifiedMessage, language))
                     .ToList();
+
+                if (keywordMatchedSkills.Count > 0)
+                {
+                    var matchedSkillNames = keywordMatchedSkills.Select(s => s.Name).ToList();
+                    _synonymLearningService.LearnFromClassifierResult(userMessage, matchedSkillNames, language, agent.Id);
+                }
             }
         }
 

@@ -305,27 +305,23 @@ public class LLMService : ILLMService
         LLMConversation? conversation, string? systemPrompt, List<Providers.LLMMessage>? history)>
         PrepareContextAsync(LLMContext context, CancellationToken cancellationToken = default)
     {
-        var modelTask = _providerOrchestrator.GetModelAndProviderAsync(context.ModelId);
-        var conversationTask = _conversationManager.GetOrCreateConversationAsync(context.ConversationId, context.UserId);
-        var agentTask = _agentRepository.GetDefaultAgentAsync(cancellationToken);
-
-        await Task.WhenAll(modelTask, conversationTask, agentTask);
-
-        var (model, provider, error) = modelTask.Result;
+        var (model, provider, error) = await _providerOrchestrator.GetModelAndProviderAsync(context.ModelId);
         if (error != null) return (null, null, error, null, null, null);
 
-        var conversation = conversationTask.Result;
-        var agent = agentTask.Result;
+        var conversation = await _conversationManager.GetOrCreateConversationAsync(context.ConversationId, context.UserId);
+        var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
 
-        var historyTask = _conversationManager.GetConversationHistoryAsync(conversation.ConversationId);
-        var soulTask = agent != null
-            ? _contextAssemblyPipeline.AssembleSoulAndMemoryPromptAsync(agent.Id, context.Message, context.Language)
-            : Task.FromResult<string?>(null);
+        var llmHistory = await _conversationManager.GetConversationHistoryAsync(conversation.ConversationId);
 
-        await Task.WhenAll(historyTask, soulTask);
+        string? soulAndMemoryPrompt = null;
+        if (agent != null)
+        {
+            soulAndMemoryPrompt = await _contextAssemblyPipeline.AssembleSoulAndMemoryPromptAsync(
+                agent.Id, context.Message, context.Language);
+        }
 
-        var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulTask.Result);
-        var truncatedHistory = TruncateHistory(historyTask.Result, model!.ContextWindow, model.MaxTokens, conversation.Summary);
+        var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt);
+        var truncatedHistory = TruncateHistory(llmHistory, model!.ContextWindow, model.MaxTokens, conversation.Summary);
 
         return (model, provider, null, conversation, systemPrompt, truncatedHistory);
     }

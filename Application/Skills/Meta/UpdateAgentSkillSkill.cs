@@ -25,13 +25,16 @@ public class UpdateAgentSkillSkill : BaseSkillImplementation
 {
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly SkillRegistryInitializer _skillRegistryInitializer;
+    private readonly ISkillCacheService _skillCacheService;
 
     public UpdateAgentSkillSkill(
         IAgentSkillRepository agentSkillRepository,
-        SkillRegistryInitializer skillRegistryInitializer)
+        SkillRegistryInitializer skillRegistryInitializer,
+        ISkillCacheService skillCacheService)
     {
         _agentSkillRepository = agentSkillRepository;
         _skillRegistryInitializer = skillRegistryInitializer;
+        _skillCacheService = skillCacheService;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -102,6 +105,7 @@ public class UpdateAgentSkillSkill : BaseSkillImplementation
         skill.Version += 1;
 
         await _agentSkillRepository.UpdateAsync(skill, cancellationToken);
+        _skillCacheService.InvalidateCache();
         await _skillRegistryInitializer.InitializeAsync(cancellationToken);
 
         return SkillResult.SuccessResult(
