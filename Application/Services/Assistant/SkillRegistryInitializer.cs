@@ -14,6 +14,8 @@ using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Plugin.Contracts;
+using Klacks.Plugin.Contracts.Skills;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Services.Assistant;
@@ -84,14 +86,35 @@ public class SkillRegistryInitializer
 
     private static Dictionary<string, Type> ScanAssemblyForImplementations()
     {
-        var assembly = typeof(SkillRegistryInitializer).Assembly;
+        var assemblies = new List<Assembly> { typeof(SkillRegistryInitializer).Assembly };
 
-        return assembly.GetTypes()
-            .Where(t => t.GetCustomAttribute<SkillImplementationAttribute>() != null && !t.IsAbstract)
-            .ToDictionary(
-                t => t.GetCustomAttribute<SkillImplementationAttribute>()!.SkillName,
-                t => t,
-                StringComparer.OrdinalIgnoreCase);
+        foreach (var registrar in Infrastructure.Extensions.ServiceCollectionExtensions.GetPluginRegistrars())
+        {
+            assemblies.AddRange(registrar.GetSkillAssemblies());
+        }
+
+        var result = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var assembly in assemblies.Distinct())
+        {
+            foreach (var type in assembly.GetTypes().Where(t => !t.IsAbstract))
+            {
+                var coreAttr = type.GetCustomAttribute<Klacks.Api.Domain.Attributes.SkillImplementationAttribute>();
+                if (coreAttr != null)
+                {
+                    result.TryAdd(coreAttr.SkillName, type);
+                    continue;
+                }
+
+                var contractAttr = type.GetCustomAttribute<Klacks.Plugin.Contracts.Skills.SkillImplementationAttribute>();
+                if (contractAttr != null)
+                {
+                    result.TryAdd(contractAttr.SkillName, type);
+                }
+            }
+        }
+
+        return result;
     }
 
     private static SkillCategory ParseCategory(string category)

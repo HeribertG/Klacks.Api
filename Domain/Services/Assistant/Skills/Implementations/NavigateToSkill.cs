@@ -18,29 +18,6 @@ public class NavigateToSkill : BaseSkillImplementation
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly IAgentRepository _agentRepository;
 
-    private static readonly Dictionary<string, string> FallbackRoutes = new(StringComparer.OrdinalIgnoreCase)
-    {
-        { "dashboard", "/workplace/dashboard" },
-        { "client-list", "/workplace/client" },
-        { "new-employee", "/workplace/edit-address" },
-        { "edit-employee", "/workplace/edit-address" },
-        { "schedule", "/workplace/schedule" },
-        { "absences", "/workplace/absence" },
-        { "client-availability", "/workplace/client-availability" },
-        { "settings", "/workplace/settings" },
-        { "group-list", "/workplace/group" },
-        { "new-group", "/workplace/edit-group" },
-        { "edit-group", "/workplace/edit-group" },
-        { "group-structure", "/workplace/group-structure" },
-        { "shift-list", "/workplace/shift" },
-        { "new-shift", "/workplace/new-shift" },
-        { "edit-shift", "/workplace/edit-shift" },
-        { "inbox", "/workplace/inbox" },
-        { "messaging", "/workplace/messaging" },
-        { "floor-plan", "/workplace/floor-plan" },
-        { "profile", "/workplace/profile" }
-    };
-
     public NavigateToSkill(
         IAgentSkillRepository agentSkillRepository,
         IAgentRepository agentRepository)
@@ -93,11 +70,11 @@ public class NavigateToSkill : BaseSkillImplementation
     {
         var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
         if (agent == null)
-            return FallbackRoutes;
+            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         var skill = await _agentSkillRepository.GetByNameAsync(agent.Id, "navigate_to", cancellationToken);
         if (skill == null || string.IsNullOrEmpty(skill.HandlerConfig) || skill.HandlerConfig == "{}")
-            return FallbackRoutes;
+            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         try
         {
@@ -117,6 +94,6 @@ public class NavigateToSkill : BaseSkillImplementation
             // Fallback on malformed config
         }
 
-        return FallbackRoutes;
+        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     }
 }

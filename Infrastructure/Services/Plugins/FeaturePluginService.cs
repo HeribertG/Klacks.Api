@@ -14,6 +14,7 @@ using Klacks.Api.Application.DTOs.Plugins;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Plugins;
 
 namespace Klacks.Api.Infrastructure.Services.Plugins;
@@ -174,6 +175,8 @@ public class FeaturePluginService : IFeaturePluginService
             _enabledNames.Add(name);
         }
 
+        await RegisterPluginNavigationAsync(scope, manifest);
+
         _logger.LogInformation("Feature plugin '{Name}' installed", name);
         return true;
     }
@@ -212,6 +215,11 @@ public class FeaturePluginService : IFeaturePluginService
         lock (_enabledLock)
         {
             _enabledNames.Remove(name);
+        }
+
+        if (_manifests.TryGetValue(name, out var uninstallManifest))
+        {
+            await UnregisterPluginNavigationAsync(scope, uninstallManifest);
         }
 
         _logger.LogInformation("Feature plugin '{Name}' uninstalled", name);
@@ -462,5 +470,137 @@ public class FeaturePluginService : IFeaturePluginService
         {
             _logger.LogError(ex, "Failed to load installed feature plugins from database");
         }
+    }
+
+    private async Task RegisterPluginNavigationAsync(IServiceScope scope, FeaturePluginManifest manifest)
+    {
+        if (manifest.Navigation == null || string.IsNullOrEmpty(manifest.Navigation.Route))
+            return;
+
+        try
+        {
+            var skillRepo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
+            var agentRepo = scope.ServiceProvider.GetRequiredService<IAgentRepository>();
+            var agent = await agentRepo.GetDefaultAgentAsync();
+            if (agent == null) return;
+
+            var skill = await skillRepo.GetByNameAsync(agent.Id, "navigate_to");
+            if (skill == null) return;
+
+            var routes = ParseRoutes(skill.HandlerConfig);
+            routes[manifest.Name] = manifest.Navigation.Route;
+            skill.HandlerConfig = SerializeRoutes(routes);
+
+            UpdateEnumValues(skill, routes.Keys.ToList());
+            await skillRepo.UpdateAsync(skill);
+
+            _logger.LogInformation("Registered navigation route '{Name}' -> '{Route}' for plugin '{Plugin}'",
+                manifest.Name, manifest.Navigation.Route, manifest.Name);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to register navigation for plugin '{Name}'", manifest.Name);
+        }
+    }
+
+    private async Task UnregisterPluginNavigationAsync(IServiceScope scope, FeaturePluginManifest manifest)
+    {
+        if (manifest.Navigation == null || string.IsNullOrEmpty(manifest.Navigation.Route))
+            return;
+
+        try
+        {
+            var skillRepo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
+            var agentRepo = scope.ServiceProvider.GetRequiredService<IAgentRepository>();
+            var agent = await agentRepo.GetDefaultAgentAsync();
+            if (agent == null) return;
+
+            var skill = await skillRepo.GetByNameAsync(agent.Id, "navigate_to");
+            if (skill == null) return;
+
+            var routes = ParseRoutes(skill.HandlerConfig);
+            routes.Remove(manifest.Name);
+            skill.HandlerConfig = SerializeRoutes(routes);
+
+            UpdateEnumValues(skill, routes.Keys.ToList());
+            await skillRepo.UpdateAsync(skill);
+
+            _logger.LogInformation("Unregistered navigation route for plugin '{Name}'", manifest.Name);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to unregister navigation for plugin '{Name}'", manifest.Name);
+        }
+    }
+
+    private static Dictionary<string, string> ParseRoutes(string? handlerConfig)
+    {
+        if (string.IsNullOrEmpty(handlerConfig) || handlerConfig == "{}")
+            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        try
+        {
+            using var doc = JsonDocument.Parse(handlerConfig);
+            if (doc.RootElement.TryGetProperty("routes", out var routesElement))
+            {
+                var routes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var prop in routesElement.EnumerateObject())
+                {
+                    routes[prop.Name] = prop.Value.GetString() ?? string.Empty;
+                }
+                return routes;
+            }
+        }
+        catch (JsonException) { }
+
+        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static string SerializeRoutes(Dictionary<string, string> routes)
+    {
+        return JsonSerializer.Serialize(new { routes }, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = false
+        });
+    }
+
+    private static void UpdateEnumValues(Domain.Models.Assistant.AgentSkill skill, List<string> pageKeys)
+    {
+        try
+        {
+            var parameters = JsonSerializer.Deserialize<List<JsonElement>>(skill.ParametersJson);
+            if (parameters == null || parameters.Count == 0) return;
+
+            var updatedParams = new List<Dictionary<string, object?>>();
+            foreach (var param in parameters)
+            {
+                var dict = new Dictionary<string, object?>
+                {
+                    ["name"] = param.GetProperty("name").GetString(),
+                    ["description"] = param.GetProperty("description").GetString(),
+                    ["type"] = param.GetProperty("type").GetString(),
+                    ["required"] = param.GetProperty("required").GetBoolean(),
+                    ["defaultValue"] = param.TryGetProperty("defaultValue", out var dv) && dv.ValueKind != JsonValueKind.Null ? dv.GetString() : null,
+                    ["enumValues"] = param.TryGetProperty("enumValues", out var ev) && ev.ValueKind != JsonValueKind.Null
+                        ? ev.EnumerateArray().Select(e => e.GetString()).ToList()
+                        : null
+                };
+
+                if (dict["name"]?.ToString() == "page")
+                {
+                    dict["enumValues"] = pageKeys;
+                }
+
+                updatedParams.Add(dict);
+            }
+
+            skill.ParametersJson = JsonSerializer.Serialize(updatedParams, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+            });
+        }
+        catch (JsonException) { }
     }
 }
