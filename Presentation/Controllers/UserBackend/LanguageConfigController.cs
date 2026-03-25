@@ -86,7 +86,7 @@ public class LanguageConfigController : ControllerBase
         var featureTranslations = _featurePluginService.GetTranslations(lang);
 
         if (langTranslations == null && featureTranslations == null)
-            return NotFound();
+            return Ok(new Dictionary<string, string>());
 
         var merged = new Dictionary<string, string>();
 
