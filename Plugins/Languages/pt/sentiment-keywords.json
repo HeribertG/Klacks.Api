@@ -1,0 +1,7 @@
+{
+  "frustrated": ["não funciona", "avariado", "erro", "problema", "outra vez", "porquê", "defeito", "bug", "partido", "não consigo"],
+  "stressed": ["urgente", "imediatamente", "agora mesmo", "rápido", "prazo", "pressa", "não tenho tempo", "pressão"],
+  "confused": ["não entendo", "como funciona", "o que é", "o que significa", "não está claro", "explicar", "sem ideia", "perdido", "ajuda"],
+  "positive": ["obrigado", "perfeito", "excelente", "fantástico", "ótimo", "muito bem", "maravilhoso", "espetacular", "genial"],
+  "urgent": ["importante", "urgente", "emergência", "crítico", "imediatamente", "prioritário"]
+}

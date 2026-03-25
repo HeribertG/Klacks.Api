@@ -1,0 +1,126 @@
+<h2>Handbok för rapportdesigner</h2>
+
+<h3>Rapportstruktur</h3>
+<p>En rapport består av tre sektioner:</p>
+<ul>
+  <li><strong>Sidhuvud</strong> &ndash; skrivs ut överst på varje sida</li>
+  <li><strong>Innehåll</strong> &ndash; innehåller datatabellerna</li>
+  <li><strong>Sidfot</strong> &ndash; skrivs ut nederst på varje sida</li>
+</ul>
+<p>Varje sektion kan redigeras via fliken <em>Design</em> i rapportredigeraren.</p>
+
+<hr>
+
+<h3>Sidhuvudsektion</h3>
+<p>Sidhuvudet har tre zoner: <strong>Vänster</strong>, <strong>Mitten</strong> och <strong>Höger</strong>.</p>
+<p>Varje zon kan innehålla:</p>
+<ul>
+  <li><strong>Fält</strong> &ndash; databasfält som fylls i automatiskt</li>
+  <li><strong>Fri text</strong> &ndash; manuellt inmatad text</li>
+  <li><strong>Bilder</strong> &ndash; t.ex. en företagslogotyp (ladda upp via bildhanteraren)</li>
+</ul>
+<p>Rader kan läggas till eller tas bort via verktygsfältet.</p>
+
+<hr>
+
+<h3>Innehållstabeller</h3>
+<p>Innehållet innehåller en eller flera tabeller.</p>
+<table>
+  <tr><th>Åtgärd</th><th>Beskrivning</th></tr>
+  <tr><td>Lägg till kolumn</td><td>Via <strong>+</strong>-symbolen eller genom att dra från fältlistan</td></tr>
+  <tr><td>Kolumnbredd</td><td>Justera genom att dra kolumnkanten</td></tr>
+  <tr><td>Kolumnordning</td><td>Ändra genom att dra och släppa</td></tr>
+  <tr><td>Ta bort kolumn</td><td>I kolumnredigeraren via borttagningssymbolen</td></tr>
+</table>
+<p>Varje tabell är kopplad till en datamängd (t.ex. arbetsschema, adresser).</p>
+
+<hr>
+
+<h3>Kombinerade fält (Merged Fields)</h3>
+<p>Kombinerade fält tillåter flera datakopplingar i en enda kolumn.</p>
+<ul>
+  <li>Klicka på <strong>Lägg till fält</strong> i kolumnredigeraren för att lägga till fler fält i samma kolumn</li>
+  <li>Värdena visas under varandra eller med en separator</li>
+  <li>Separatorn kan konfigureras i fältdialogen (t.ex. komma, mellanslag, radbrytning)</li>
+</ul>
+
+<hr>
+
+<h3>Tabellsidfot</h3>
+<p>Under varje tabell kan en sidfot visas.</p>
+<ul>
+  <li><strong>SUM-fält:</strong> numeriska kolumner kan summeras automatiskt</li>
+  <li><strong>Etikett:</strong> beskrivningen av summan kan visas eller döljas</li>
+  <li>Aktiveras i kolumnredigeraren under fliken <em>Sidfot</em></li>
+</ul>
+
+<hr>
+
+<h3>Fria textrader</h3>
+<p>Fria textrader kan infogas före eller efter datatabellerna.</p>
+<table>
+  <tr><th>Egenskap</th><th>Beskrivning</th></tr>
+  <tr><td>Position</td><td>Valbar <em>Före data</em> eller <em>Efter data</em></td></tr>
+  <tr><td>Innehåll</td><td>Fri text, t.ex. anteckningar, villkor eller signaturfält</td></tr>
+  <tr><td>Stil</td><td>Teckensnitt, storlek och justering kan konfigureras</td></tr>
+</table>
+
+<hr>
+
+<h3>Formatering</h3>
+<p>Varje cell och varje fri text kan formateras individuellt:</p>
+<table>
+  <tr><th>Alternativ</th><th>Beskrivning</th></tr>
+  <tr><td>Teckensnitt</td><td>Valbara teckensnitt för cellen</td></tr>
+  <tr><td>Teckenstorlek</td><td>Storlek i punkter (pt)</td></tr>
+  <tr><td>Fet / Kursiv / Understruken</td><td>Via knapparna <strong>B</strong> / <strong>I</strong> / <strong>U</strong></td></tr>
+  <tr><td>Textfärg</td><td>Valfri färg</td></tr>
+  <tr><td>Justering</td><td>Vänster, centrerad eller höger</td></tr>
+</table>
+
+<hr>
+
+<h3>Cellkanter</h3>
+<p>Kanterna på varje cell kan konfigureras individuellt.</p>
+<table>
+  <tr><th>Egenskap</th><th>Alternativ</th></tr>
+  <tr><td>Sidor</td><td>Övre, höger, nedre, vänster (individuellt eller alla)</td></tr>
+  <tr><td>Linjestil</td><td>Tunn, medium, tjock, streckad, dubbel</td></tr>
+  <tr><td>Linjefärg</td><td>Valfri</td></tr>
+</table>
+<p>Kanter konfigureras i kolumnredigeraren under <em>Kanter</em>.</p>
+
+<hr>
+
+<h3>Sidinställningar</h3>
+<p>Under fliken <em>Allmänt</em> kan utskriftsalternativen justeras:</p>
+<ul>
+  <li><strong>Orientering:</strong> Stående (Portrait) eller liggande (Landscape)</li>
+  <li><strong>Pappersstorlek:</strong> A4, A3, B4 (JIS), B5 (JIS) eller Letter</li>
+  <li><strong>Sidmarginaler:</strong> Övre, höger, nedre, vänster i mm</li>
+</ul>
+
+<hr>
+
+<h3>Presentationsalternativ (Designer)</h3>
+<p>Under fliken <em>Design</em>, när datakällan är <strong>Arbetsschema (Schedule)</strong>, finns ytterligare alternativ tillgängliga:</p>
+<ul>
+  <li><strong>Konsolidera poster per dag:</strong> Flera poster från samma dag grupperas i en enda rad</li>
+  <li><strong>Visa hela perioden:</strong> Alla dagar i perioden visas, även om det inte finns några poster</li>
+</ul>
+
+<hr>
+
+<h3>Datakällor</h3>
+<p>Tillgängliga datakällor för rapporter:</p>
+<table>
+  <tr><th>Datakälla</th><th>Beskrivning</th></tr>
+  <tr><td>Arbetsschema (Schedule)</td><td>Skift och arbetsscheman</td></tr>
+  <tr><td>Adresser (Lista)</td><td>Alla adresser som tabell</td></tr>
+  <tr><td>Adress (Detalj)</td><td>Enskild adress</td></tr>
+  <tr><td>Frånvaro</td><td>Frånvaroöversikt</td></tr>
+  <tr><td>Skift (Shifts)</td><td>Skifttabell</td></tr>
+  <tr><td>Grupper</td><td>Gruppöversikt</td></tr>
+  <tr><td>Containermall</td><td>Mall för containerrapporter</td></tr>
+</table>
+<p><em>Datakällan väljs under fliken "Datakälla" och bestämmer de tillgängliga fälten.</em></p>

@@ -1,0 +1,82 @@
+<h2>Reguli de sărbători - Explicații</h2>
+
+<h3>Format reguli</h3>
+<p>Există două tipuri de reguli: <strong>Dată fixă</strong> și <strong>Dată bazată pe Paște</strong>.</p>
+
+<h4>Dată fixă</h4>
+<p>Format: <code>MM/DD</code></p>
+<table>
+  <tr><th>Exemplu</th><th>Semnificație</th></tr>
+  <tr><td><code>01/01</code></td><td>1 ianuarie (Anul Nou)</td></tr>
+  <tr><td><code>12/25</code></td><td>25 decembrie (Crăciun)</td></tr>
+  <tr><td><code>08/01</code></td><td>1 august (Ziua Națională a Elveției)</td></tr>
+</table>
+
+<h4>Dată fixă cu deplasare pe zi a săptămânii</h4>
+<p>Format: <code>MM/DD+XX+WW</code> sau <code>MM/DD+XX-WW</code></p>
+<ul>
+  <li><code>+XX</code> = Semn + Offset (zile) (de la 00 la 99)</li>
+  <li><code>+</code> = Următoarea zi a săptămânii de la dată</li>
+  <li><code>-</code> = Ziua precedentă a săptămânii înainte de dată</li>
+  <li><code>WW</code> = Zi a săptămânii (SU, MO, TU, WE, TH, FR, SA)</li>
+</ul>
+<table>
+  <tr><th>Exemplu</th><th>Semnificație</th></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>Prima joi din noiembrie</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>A patra joi din noiembrie (Ziua Recunoștinței)</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>Ultima luni din mai (Memorial Day)</td></tr>
+</table>
+
+<h4>Dată bazată pe Paște</h4>
+<p>Format: <code>EASTER+XX</code> sau <code>EASTER-XX</code></p>
+<table>
+  <tr><th>Exemplu</th><th>Semnificație</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>Duminica Paștelui</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>Vinerea Mare (cu 2 zile înainte de Paște)</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>Lunea Paștelui (cu 1 zi după Paște)</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>Înălțarea (la 39 de zile după Paște)</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>Rusaliile (la 49 de zile după Paște)</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>Lunea Rusaliilor (la 50 de zile după Paște)</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>Corpus Christi (la 60 de zile după Paște)</td></tr>
+</table>
+
+<hr>
+
+<h3>Format subreguli</h3>
+<p>Subregulile permit mutarea automată a sărbătorilor care cad într-o anumită zi a săptămânii.</p>
+<p>Format: <code>WW+X</code> sau <code>WW-X</code>, mai multe reguli se separă cu <code>;</code></p>
+<ul>
+  <li><code>WW</code> = Zi a săptămânii (SU, MO, TU, WE, TH, FR, SA)</li>
+  <li><code>+X</code> = Mutare cu X zile înainte</li>
+  <li><code>-X</code> = Mutare cu X zile înapoi</li>
+</ul>
+<table>
+  <tr><th>Exemplu</th><th>Semnificație</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>Sâmbătă: +2 zile (luni), Duminică: +1 zi (luni)</td></tr>
+  <tr><td><code>SU+1</code></td><td>Duminică: se mută pe luni</td></tr>
+</table>
+
+<p><em>Notă: Subregulile sunt utilizate de obicei pentru a muta sărbătorile care cad în weekend în următoarea zi lucrătoare.</em></p>
+
+<hr>
+
+<h3>Abrevieri zile ale săptămânii</h3>
+<table>
+  <tr><th>Abreviere</th><th>Zi</th></tr>
+  <tr><td>SU</td><td>Duminică (Sunday)</td></tr>
+  <tr><td>MO</td><td>Luni (Monday)</td></tr>
+  <tr><td>TU</td><td>Marți (Tuesday)</td></tr>
+  <tr><td>WE</td><td>Miercuri (Wednesday)</td></tr>
+  <tr><td>TH</td><td>Joi (Thursday)</td></tr>
+  <tr><td>FR</td><td>Vineri (Friday)</td></tr>
+  <tr><td>SA</td><td>Sâmbătă (Saturday)</td></tr>
+</table>
+
+<hr>
+
+<h3>Casete de bifat</h3>
+<table>
+  <tr><th>Casetă</th><th>Semnificație</th></tr>
+  <tr><td>Sărbătoare legală</td><td>Ziua este o sărbătoare oficială/legală</td></tr>
+  <tr><td>Plătită</td><td>Sărbătoarea este plătită (relevant pentru calcul salarial)</td></tr>
+</table>

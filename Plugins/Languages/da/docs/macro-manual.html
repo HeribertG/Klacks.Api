@@ -1,0 +1,331 @@
+<h2>Makro-scripting manual</h2>
+
+<h3>Introduktion</h3>
+<p>
+Makro-editoren gør det muligt at skrive scripts, der bruges som beregningsgrundlag
+for tjenester, arbejdsaktiviteter osv.
+</p>
+
+<p><strong>Eksempler på anvendelse:</strong></p>
+<ul>
+  <li>Præcis timeberegning for ferie eller militærtjeneste baseret på beskæftigelsesgrad</li>
+  <li>Beregning af tillæg for natarbejde, weekender og helligdage</li>
+  <li>Fleksibel tilpasning til nye krav</li>
+</ul>
+
+<p>
+<em>Bemærk: Scriptfortolkeren kører i et sikkert sandbox-miljø uden adgang
+til filsystemet eller netværket. Det er ikke muligt at udføre skadelig kode.</em>
+</p>
+
+<hr>
+
+<h3>Variabler og konstanter</h3>
+<p>Alle variabler og konstanter er typeløse.</p>
+
+<pre>
+CONST PI = 3.1415
+DIM a, b, c
+IMPORT beløb, rabat
+</pre>
+
+<h4>Importerede variabler (IMPORT)</h4>
+<p>Disse variabler genereres fra Work, Contract og CalendarSelection:</p>
+
+<table>
+  <tr><th>Variabel</th><th>Type</th><th>Beskrivelse</th></tr>
+  <tr><td>hour</td><td>Decimal</td><td>Arbejdstimer (fra Work)</td></tr>
+  <tr><td>fromhour</td><td>Decimal</td><td>Starttidspunkt i decimaltimer (8:30 → 8.5)</td></tr>
+  <tr><td>untilhour</td><td>Decimal</td><td>Sluttidspunkt i decimaltimer (17:00 → 17.0)</td></tr>
+  <tr><td>weekday</td><td>Integer</td><td>Ugedag ISO-8601 (1=Ma, 2=Ti, 3=On, 4=To, 5=Fr, 6=Lø, 7=Sø)</td></tr>
+  <tr><td>holiday</td><td>Boolean</td><td>Om den aktuelle dag er en officiel helligdag</td></tr>
+  <tr><td>holidaynextday</td><td>Boolean</td><td>Om den næste dag er en officiel helligdag</td></tr>
+  <tr><td>nightrate</td><td>Decimal</td><td>Nattillæg fra kontrakten (f.eks. 0.10 = 10%)</td></tr>
+  <tr><td>holidayrate</td><td>Decimal</td><td>Helligdagstillæg fra kontrakten (f.eks. 0.15 = 15%)</td></tr>
+  <tr><td>sarate</td><td>Decimal</td><td>Lørdagstillæg fra kontrakten</td></tr>
+  <tr><td>sorate</td><td>Decimal</td><td>Søndagstillæg fra kontrakten</td></tr>
+  <tr><td>guaranteedhours</td><td>Decimal</td><td>Garanterede månedlige timer fra kontrakten</td></tr>
+  <tr><td>fulltime</td><td>Decimal</td><td>Fuldtidstimer fra kontrakten</td></tr>
+</table>
+
+<hr>
+
+<h3>Kontrolstrukturer</h3>
+
+<p><strong>Vigtigt:</strong> Nøgleord som <code>ENDIF</code>, <code>ENDFUNCTION</code>, <code>ENDSUB</code>
+skal skrives som ét ord (ikke <code>END IF</code>).</p>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF x > 10 THEN
+    OUTPUT 1, "stor"
+ELSEIF x > 5 THEN
+    OUTPUT 1, "medium"
+ELSE
+    OUTPUT 1, "lille"
+ENDIF
+</pre>
+
+<h4>IF på én linje</h4>
+<pre>
+IF x > 10 THEN OUTPUT 1, "stor" ENDIF
+</pre>
+
+<h4>SELECT CASE</h4>
+<pre>
+SELECT CASE weekday
+    CASE 6, 7
+        OUTPUT 1, "Weekend"
+    CASE 1, 2, 3, 4, 5
+        OUTPUT 1, "Hverdag"
+    CASE ELSE
+        OUTPUT 1, "Ukendt"
+END SELECT
+</pre>
+
+<h4>FOR-NEXT-løkke</h4>
+<pre>
+FOR i = 1 TO 10
+    sum += i
+NEXT
+
+FOR i = 10 TO 1 STEP -1
+    IF x > y THEN EXIT FOR
+NEXT
+</pre>
+
+<h4>DO-LOOP-løkke</h4>
+<pre>
+DO WHILE a > 0
+    a -= 1
+LOOP
+
+DO
+    x += 1
+LOOP UNTIL x >= 10
+</pre>
+
+<hr>
+
+<h3>Funktioner og procedurer</h3>
+
+<p><strong>Vigtigt:</strong> Funktioner (FUNCTION) og procedurer (SUB) skal defineres <em>før</em> det første kald.
+Fortolkeren læser koden fra top til bund: en funktion eller procedure er først kendt, efter at dens definition er behandlet.</p>
+
+<h4>SUB (procedure uden returværdi)</h4>
+<pre>
+SUB beregn(a, b)
+    IF a = b THEN EXIT SUB ENDIF
+    OUTPUT 1, a + b
+ENDSUB
+</pre>
+
+<h4>FUNCTION (funktion med returværdi)</h4>
+<pre>
+FUNCTION fordoble(x)
+    fordoble = x * 2
+ENDFUNCTION
+
+DIM resultat
+resultat = fordoble(21)
+OUTPUT 1, resultat
+</pre>
+
+<hr>
+
+<h3>Operatorer</h3>
+
+<h4>Matematiske operatorer</h4>
+<table>
+  <tr><th>Operator</th><th>Beskrivelse</th><th>Eksempel</th></tr>
+  <tr><td>+</td><td>Addition</td><td>5 + 3 = 8</td></tr>
+  <tr><td>-</td><td>Subtraktion</td><td>5 - 3 = 2</td></tr>
+  <tr><td>*</td><td>Multiplikation</td><td>5 * 3 = 15</td></tr>
+  <tr><td>/</td><td>Division</td><td>10 / 4 = 2.5</td></tr>
+  <tr><td>\</td><td>Heltalsdivision</td><td>10 \ 4 = 2</td></tr>
+  <tr><td>MOD</td><td>Modulo (rest)</td><td>10 MOD 3 = 1</td></tr>
+  <tr><td>^</td><td>Potens</td><td>2 ^ 3 = 8</td></tr>
+</table>
+
+<h4>Sammenligningsoperatorer</h4>
+<table>
+  <tr><th>Operator</th><th>Beskrivelse</th></tr>
+  <tr><td>=</td><td>Lig med</td></tr>
+  <tr><td>&lt;&gt;</td><td>Ikke lig med</td></tr>
+  <tr><td>&lt;</td><td>Mindre end</td></tr>
+  <tr><td>&gt;</td><td>Større end</td></tr>
+  <tr><td>&lt;=</td><td>Mindre end eller lig med</td></tr>
+  <tr><td>&gt;=</td><td>Større end eller lig med</td></tr>
+</table>
+
+<h4>Logiske operatorer</h4>
+<table>
+  <tr><th>Operator</th><th>Beskrivelse</th></tr>
+  <tr><td>AND</td><td>Bitvis AND</td></tr>
+  <tr><td>OR</td><td>Bitvis OR</td></tr>
+  <tr><td>NOT</td><td>Negation</td></tr>
+  <tr><td>ANDALSO</td><td>Logisk AND (kortslutning)</td></tr>
+  <tr><td>ORELSE</td><td>Logisk OR (kortslutning)</td></tr>
+</table>
+
+<h4>Tildelingsoperatorer</h4>
+<pre>
+a = 10      ' Simpel tildeling
+a += 5      ' a = a + 5
+a -= 3      ' a = a - 3
+a *= 2      ' a = a * 2
+a /= 4      ' a = a / 4
+a &= "!"    ' Strengsammenkædning
+</pre>
+
+<hr>
+
+<h3>Indbyggede funktioner</h3>
+
+<h4>Strengfunktioner</h4>
+<table>
+  <tr><th>Funktion</th><th>Beskrivelse</th><th>Eksempel</th></tr>
+  <tr><td>Len(s)</td><td>Længde af en streng</td><td>Len("Hej") = 3</td></tr>
+  <tr><td>Left(s, n)</td><td>n tegn fra venstre</td><td>Left("Hej", 2) = "He"</td></tr>
+  <tr><td>Right(s, n)</td><td>n tegn fra højre</td><td>Right("Hej", 2) = "ej"</td></tr>
+  <tr><td>Mid(s, start, len)</td><td>Delstreng</td><td>Mid("Hej", 2, 2) = "ej"</td></tr>
+  <tr><td>InStr(s, søg)</td><td>Find position</td><td>InStr("Hej", "e") = 2</td></tr>
+  <tr><td>Replace(s, gammel, ny)</td><td>Erstat</td><td>Replace("Hej", "e", "a") = "Haj"</td></tr>
+  <tr><td>Trim(s)</td><td>Fjern mellemrum</td><td>Trim("  Hi  ") = "Hi"</td></tr>
+  <tr><td>UCase(s)</td><td>Store bogstaver</td><td>UCase("hej") = "HEJ"</td></tr>
+  <tr><td>LCase(s)</td><td>Små bogstaver</td><td>LCase("HEJ") = "hej"</td></tr>
+</table>
+
+<h4>Matematiske funktioner</h4>
+<table>
+  <tr><th>Funktion</th><th>Beskrivelse</th><th>Eksempel</th></tr>
+  <tr><td>Abs(x)</td><td>Absolut værdi</td><td>Abs(-5) = 5</td></tr>
+  <tr><td>Round(x, d)</td><td>Afrunding</td><td>Round(3.456, 2) = 3.46</td></tr>
+  <tr><td>Sqr(x)</td><td>Kvadratrod</td><td>Sqr(16) = 4</td></tr>
+  <tr><td>Log(x)</td><td>Naturlig logaritme</td><td>Log(2.718) = 1</td></tr>
+  <tr><td>Exp(x)</td><td>Eksponentialfunktion (e^x)</td><td>Exp(1) = 2.718...</td></tr>
+  <tr><td>Sgn(x)</td><td>Fortegn (-1, 0, 1)</td><td>Sgn(-5) = -1</td></tr>
+  <tr><td>Rnd()</td><td>Tilfældigt tal 0-1</td><td>Rnd() = 0.xxxxx</td></tr>
+</table>
+
+<h4>Trigonometriske funktioner</h4>
+<table>
+  <tr><th>Funktion</th><th>Beskrivelse</th></tr>
+  <tr><td>Sin(x)</td><td>Sinus</td></tr>
+  <tr><td>Cos(x)</td><td>Cosinus</td></tr>
+  <tr><td>Tan(x)</td><td>Tangens</td></tr>
+  <tr><td>Atan(x)</td><td>Arctangens</td></tr>
+</table>
+
+<h4>Tidsfunktioner</h4>
+<table>
+  <tr><th>Funktion</th><th>Beskrivelse</th><th>Eksempel</th></tr>
+  <tr><td>TimeToHours(s)</td><td>Tidsstreng til decimaltimer</td><td>TimeToHours("08:30") = 8.5</td></tr>
+  <tr><td>TimeOverlap(s1, e1, s2, e2)</td><td>Overlapning af to tidsperioder i timer</td><td>TimeOverlap("23:00", "06:00", "22:00", "07:00") = 7</td></tr>
+</table>
+
+<p><em>TimeOverlap understøtter tidsperioder, der krydser midnat (f.eks. 23:00-06:00).</em></p>
+
+<h4>Betingede funktioner</h4>
+<table>
+  <tr><th>Funktion</th><th>Beskrivelse</th><th>Eksempel</th></tr>
+  <tr><td>IIF(betingelse, sand, falsk)</td><td>Betinget udtryk (ternær operator)</td><td>IIF(x > 0, "positiv", "negativ")</td></tr>
+</table>
+
+<hr>
+
+<h3>Returnering af værdier</h3>
+
+<pre>
+OUTPUT type, værdi            ' Retur til Klacks (type svarer til MacroType)
+</pre>
+
+<hr>
+
+<h3>Debugfunktioner</h3>
+<p>Til test af makroer er følgende debugfunktioner tilgængelige:</p>
+
+<table>
+  <tr><th>Funktion</th><th>Beskrivelse</th></tr>
+  <tr><td>DEBUGPRINT værdi</td><td>Viser en værdi i testvinduet</td></tr>
+  <tr><td>DEBUGCLEAR</td><td>Rydder testvinduet</td></tr>
+</table>
+
+<h4>Eksempel</h4>
+<pre>
+DIM x
+x = 42
+DEBUGPRINT "Værdien er: " & x
+DEBUGPRINT "Beregning i gang..."
+</pre>
+
+<p><em>Debug-output vises under fanen "Test" i makro-editoren.</em></p>
+
+<hr>
+
+<h3>Eksempel: Tillægsberegning</h3>
+<p>Beregner tillæg for natarbejde, helligdage og weekender med korrekt håndtering
+af vagter, der krydser midnat (segmentopdeling).</p>
+
+<pre>
+IMPORT hour, fromhour, untilhour
+IMPORT weekday, holiday, holidaynextday
+IMPORT nightrate, holidayrate, sarate, sorate
+
+FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
+    DIM SegmentHours, NightHours, NonNightHours
+    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+
+    SegmentHours = EndHour - StartHour
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    ' Beregn nattimer (23:00-06:00)
+    NightHours = 0
+    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
+    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NonNightHours = SegmentHours - NightHours
+
+    HasHoliday = IsHoliday
+    IsSaturday = WeekdayNum = 6    ' Lø = 6 (ISO-8601)
+    IsSunday = WeekdayNum = 7      ' Sø = 7 (ISO-8601)
+
+    ' Højeste sats for nattimer
+    NRate = nightrate
+    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+
+    ' Højeste sats for dagtimer
+    DRate = 0
+    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+
+    CalcSegment = NightHours * NRate + NonNightHours * DRate
+ENDFUNCTION
+
+DIM TotalBonus, WeekdayNextDay
+
+' Beregn ugedagen for næste dag (ISO-8601)
+WeekdayNextDay = (weekday MOD 7) + 1
+
+IF untilhour &lt;= fromhour THEN
+    ' Vagt der krydser midnat - 2 segmenter
+    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
+    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+ELSE
+    ' Normal dagvagt
+    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+ENDIF
+
+OUTPUT 1, Round(TotalBonus, 2)
+</pre>
+
+<h4>Forklaring</h4>
+<ul>
+  <li><strong>Segmentopdeling:</strong> For vagter der krydser midnat (f.eks. 22:00-06:00) opdeles vagten i to segmenter</li>
+  <li><strong>CalcSegment:</strong> Beregner tillægget for et segment under hensyntagen til nat-, helligdags- og weekendtillæg</li>
+  <li><strong>Separate satser for lørdag/søndag:</strong> sarate og sorate tillader forskellige tillæg for lørdag og søndag</li>
+  <li><strong>Højeste tillæg:</strong> Det højeste gældende tillæg anvendes altid</li>
+  <li><strong>holidaynextday:</strong> Tager hensyn til om næste dag er en helligdag (vigtigt for nattevagter)</li>
+</ul>

@@ -1,0 +1,331 @@
+<h2>Εγχειρίδιο σεναρίων μακροεντολών</h2>
+
+<h3>Εισαγωγή</h3>
+<p>
+Ο επεξεργαστής μακροεντολών επιτρέπει τη συγγραφή σεναρίων που χρησιμοποιούνται ως βάση υπολογισμού
+για υπηρεσίες, εργασιακές δραστηριότητες κ.λπ.
+</p>
+
+<p><strong>Παραδείγματα χρήσης:</strong></p>
+<ul>
+  <li>Ακριβής υπολογισμός ωρών για άδεια ή στρατιωτική θητεία βάσει ποσοστού απασχόλησης</li>
+  <li>Υπολογισμός προσαυξήσεων για νυχτερινή εργασία, σαββατοκύριακα και αργίες</li>
+  <li>Ευέλικτη προσαρμογή σε νέες απαιτήσεις</li>
+</ul>
+
+<p>
+<em>Σημείωση: Ο διερμηνέας σεναρίων εκτελείται σε ασφαλές περιβάλλον sandbox χωρίς πρόσβαση
+στο σύστημα αρχείων ή στο δίκτυο. Δεν είναι δυνατή η εκτέλεση κακόβουλου κώδικα.</em>
+</p>
+
+<hr>
+
+<h3>Μεταβλητές και σταθερές</h3>
+<p>Όλες οι μεταβλητές και οι σταθερές είναι χωρίς τύπο.</p>
+
+<pre>
+CONST PI = 3.1415
+DIM a, b, c
+IMPORT poso, ekptosi
+</pre>
+
+<h4>Εισαγόμενες μεταβλητές (IMPORT)</h4>
+<p>Αυτές οι μεταβλητές δημιουργούνται από Work, Contract και CalendarSelection:</p>
+
+<table>
+  <tr><th>Μεταβλητή</th><th>Τύπος</th><th>Περιγραφή</th></tr>
+  <tr><td>hour</td><td>Decimal</td><td>Ώρες εργασίας (από Work)</td></tr>
+  <tr><td>fromhour</td><td>Decimal</td><td>Ώρα έναρξης σε δεκαδικές ώρες (8:30 → 8.5)</td></tr>
+  <tr><td>untilhour</td><td>Decimal</td><td>Ώρα λήξης σε δεκαδικές ώρες (17:00 → 17.0)</td></tr>
+  <tr><td>weekday</td><td>Integer</td><td>Ημέρα εβδομάδας ISO-8601 (1=Δε, 2=Τρ, 3=Τε, 4=Πε, 5=Πα, 6=Σα, 7=Κυ)</td></tr>
+  <tr><td>holiday</td><td>Boolean</td><td>Αν η τρέχουσα ημέρα είναι επίσημη αργία</td></tr>
+  <tr><td>holidaynextday</td><td>Boolean</td><td>Αν η επόμενη ημέρα είναι επίσημη αργία</td></tr>
+  <tr><td>nightrate</td><td>Decimal</td><td>Νυχτερινή προσαύξηση από τη σύμβαση (π.χ. 0.10 = 10%)</td></tr>
+  <tr><td>holidayrate</td><td>Decimal</td><td>Προσαύξηση αργίας από τη σύμβαση (π.χ. 0.15 = 15%)</td></tr>
+  <tr><td>sarate</td><td>Decimal</td><td>Προσαύξηση Σαββάτου από τη σύμβαση</td></tr>
+  <tr><td>sorate</td><td>Decimal</td><td>Προσαύξηση Κυριακής από τη σύμβαση</td></tr>
+  <tr><td>guaranteedhours</td><td>Decimal</td><td>Εγγυημένες μηνιαίες ώρες από τη σύμβαση</td></tr>
+  <tr><td>fulltime</td><td>Decimal</td><td>Ώρες πλήρους απασχόλησης από τη σύμβαση</td></tr>
+</table>
+
+<hr>
+
+<h3>Δομές ελέγχου</h3>
+
+<p><strong>Σημαντικό:</strong> Λέξεις-κλειδιά όπως <code>ENDIF</code>, <code>ENDFUNCTION</code>, <code>ENDSUB</code>
+πρέπει να γράφονται ενωμένα (όχι <code>END IF</code>).</p>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF x > 10 THEN
+    OUTPUT 1, "μεγάλο"
+ELSEIF x > 5 THEN
+    OUTPUT 1, "μεσαίο"
+ELSE
+    OUTPUT 1, "μικρό"
+ENDIF
+</pre>
+
+<h4>IF σε μία γραμμή</h4>
+<pre>
+IF x > 10 THEN OUTPUT 1, "μεγάλο" ENDIF
+</pre>
+
+<h4>SELECT CASE</h4>
+<pre>
+SELECT CASE weekday
+    CASE 6, 7
+        OUTPUT 1, "Σαββατοκύριακο"
+    CASE 1, 2, 3, 4, 5
+        OUTPUT 1, "Εργάσιμη ημέρα"
+    CASE ELSE
+        OUTPUT 1, "Άγνωστο"
+END SELECT
+</pre>
+
+<h4>Βρόχος FOR-NEXT</h4>
+<pre>
+FOR i = 1 TO 10
+    athroisma += i
+NEXT
+
+FOR i = 10 TO 1 STEP -1
+    IF x > y THEN EXIT FOR
+NEXT
+</pre>
+
+<h4>Βρόχος DO-LOOP</h4>
+<pre>
+DO WHILE a > 0
+    a -= 1
+LOOP
+
+DO
+    x += 1
+LOOP UNTIL x >= 10
+</pre>
+
+<hr>
+
+<h3>Συναρτήσεις και διαδικασίες</h3>
+
+<p><strong>Σημαντικό:</strong> Οι συναρτήσεις (FUNCTION) και οι διαδικασίες (SUB) πρέπει να ορίζονται <em>πριν</em> από την πρώτη κλήση.
+Ο διερμηνέας διαβάζει τον κώδικα από πάνω προς τα κάτω: μια συνάρτηση ή διαδικασία είναι γνωστή μόνο μετά την επεξεργασία του ορισμού της.</p>
+
+<h4>SUB (διαδικασία χωρίς τιμή επιστροφής)</h4>
+<pre>
+SUB ypologise(a, b)
+    IF a = b THEN EXIT SUB ENDIF
+    OUTPUT 1, a + b
+ENDSUB
+</pre>
+
+<h4>FUNCTION (συνάρτηση με τιμή επιστροφής)</h4>
+<pre>
+FUNCTION diplasiazo(x)
+    diplasiazo = x * 2
+ENDFUNCTION
+
+DIM apotelesma
+apotelesma = diplasiazo(21)
+OUTPUT 1, apotelesma
+</pre>
+
+<hr>
+
+<h3>Τελεστές</h3>
+
+<h4>Μαθηματικοί τελεστές</h4>
+<table>
+  <tr><th>Τελεστής</th><th>Περιγραφή</th><th>Παράδειγμα</th></tr>
+  <tr><td>+</td><td>Πρόσθεση</td><td>5 + 3 = 8</td></tr>
+  <tr><td>-</td><td>Αφαίρεση</td><td>5 - 3 = 2</td></tr>
+  <tr><td>*</td><td>Πολλαπλασιασμός</td><td>5 * 3 = 15</td></tr>
+  <tr><td>/</td><td>Διαίρεση</td><td>10 / 4 = 2.5</td></tr>
+  <tr><td>\</td><td>Ακέραια διαίρεση</td><td>10 \ 4 = 2</td></tr>
+  <tr><td>MOD</td><td>Υπόλοιπο</td><td>10 MOD 3 = 1</td></tr>
+  <tr><td>^</td><td>Δύναμη</td><td>2 ^ 3 = 8</td></tr>
+</table>
+
+<h4>Τελεστές σύγκρισης</h4>
+<table>
+  <tr><th>Τελεστής</th><th>Περιγραφή</th></tr>
+  <tr><td>=</td><td>Ίσο</td></tr>
+  <tr><td>&lt;&gt;</td><td>Διάφορο</td></tr>
+  <tr><td>&lt;</td><td>Μικρότερο από</td></tr>
+  <tr><td>&gt;</td><td>Μεγαλύτερο από</td></tr>
+  <tr><td>&lt;=</td><td>Μικρότερο ή ίσο</td></tr>
+  <tr><td>&gt;=</td><td>Μεγαλύτερο ή ίσο</td></tr>
+</table>
+
+<h4>Λογικοί τελεστές</h4>
+<table>
+  <tr><th>Τελεστής</th><th>Περιγραφή</th></tr>
+  <tr><td>AND</td><td>Λογικό AND σε επίπεδο bit</td></tr>
+  <tr><td>OR</td><td>Λογικό OR σε επίπεδο bit</td></tr>
+  <tr><td>NOT</td><td>Άρνηση</td></tr>
+  <tr><td>ANDALSO</td><td>Λογικό AND (βραχυκύκλωμα)</td></tr>
+  <tr><td>ORELSE</td><td>Λογικό OR (βραχυκύκλωμα)</td></tr>
+</table>
+
+<h4>Τελεστές ανάθεσης</h4>
+<pre>
+a = 10      ' Απλή ανάθεση
+a += 5      ' a = a + 5
+a -= 3      ' a = a - 3
+a *= 2      ' a = a * 2
+a /= 4      ' a = a / 4
+a &= "!"    ' Συνένωση συμβολοσειρών
+</pre>
+
+<hr>
+
+<h3>Ενσωματωμένες συναρτήσεις</h3>
+
+<h4>Συναρτήσεις συμβολοσειρών</h4>
+<table>
+  <tr><th>Συνάρτηση</th><th>Περιγραφή</th><th>Παράδειγμα</th></tr>
+  <tr><td>Len(s)</td><td>Μήκος συμβολοσειράς</td><td>Len("Γεια") = 4</td></tr>
+  <tr><td>Left(s, n)</td><td>n χαρακτήρες από αριστερά</td><td>Left("Γεια", 2) = "Γε"</td></tr>
+  <tr><td>Right(s, n)</td><td>n χαρακτήρες από δεξιά</td><td>Right("Γεια", 2) = "ια"</td></tr>
+  <tr><td>Mid(s, αρχή, μήκ)</td><td>Υποσυμβολοσειρά</td><td>Mid("Γεια", 2, 3) = "εια"</td></tr>
+  <tr><td>InStr(s, αναζήτηση)</td><td>Εύρεση θέσης</td><td>InStr("Γεια", "ε") = 2</td></tr>
+  <tr><td>Replace(s, παλιό, νέο)</td><td>Αντικατάσταση</td><td>Replace("Γεια", "ε", "α") = "Γαια"</td></tr>
+  <tr><td>Trim(s)</td><td>Αφαίρεση κενών</td><td>Trim("  Hi  ") = "Hi"</td></tr>
+  <tr><td>UCase(s)</td><td>Κεφαλαία</td><td>UCase("γεια") = "ΓΕΙΑ"</td></tr>
+  <tr><td>LCase(s)</td><td>Πεζά</td><td>LCase("ΓΕΙΑ") = "γεια"</td></tr>
+</table>
+
+<h4>Μαθηματικές συναρτήσεις</h4>
+<table>
+  <tr><th>Συνάρτηση</th><th>Περιγραφή</th><th>Παράδειγμα</th></tr>
+  <tr><td>Abs(x)</td><td>Απόλυτη τιμή</td><td>Abs(-5) = 5</td></tr>
+  <tr><td>Round(x, d)</td><td>Στρογγυλοποίηση</td><td>Round(3.456, 2) = 3.46</td></tr>
+  <tr><td>Sqr(x)</td><td>Τετραγωνική ρίζα</td><td>Sqr(16) = 4</td></tr>
+  <tr><td>Log(x)</td><td>Φυσικός λογάριθμος</td><td>Log(2.718) = 1</td></tr>
+  <tr><td>Exp(x)</td><td>Εκθετική συνάρτηση (e^x)</td><td>Exp(1) = 2.718...</td></tr>
+  <tr><td>Sgn(x)</td><td>Πρόσημο (-1, 0, 1)</td><td>Sgn(-5) = -1</td></tr>
+  <tr><td>Rnd()</td><td>Τυχαίος αριθμός 0-1</td><td>Rnd() = 0.xxxxx</td></tr>
+</table>
+
+<h4>Τριγωνομετρικές συναρτήσεις</h4>
+<table>
+  <tr><th>Συνάρτηση</th><th>Περιγραφή</th></tr>
+  <tr><td>Sin(x)</td><td>Ημίτονο</td></tr>
+  <tr><td>Cos(x)</td><td>Συνημίτονο</td></tr>
+  <tr><td>Tan(x)</td><td>Εφαπτομένη</td></tr>
+  <tr><td>Atan(x)</td><td>Αντίστροφη εφαπτομένη</td></tr>
+</table>
+
+<h4>Συναρτήσεις χρόνου</h4>
+<table>
+  <tr><th>Συνάρτηση</th><th>Περιγραφή</th><th>Παράδειγμα</th></tr>
+  <tr><td>TimeToHours(s)</td><td>Συμβολοσειρά χρόνου σε δεκαδικές ώρες</td><td>TimeToHours("08:30") = 8.5</td></tr>
+  <tr><td>TimeOverlap(s1, e1, s2, e2)</td><td>Επικάλυψη δύο χρονικών περιόδων σε ώρες</td><td>TimeOverlap("23:00", "06:00", "22:00", "07:00") = 7</td></tr>
+</table>
+
+<p><em>Η TimeOverlap υποστηρίζει χρονικές περιόδους που υπερβαίνουν τα μεσάνυχτα (π.χ. 23:00-06:00).</em></p>
+
+<h4>Συναρτήσεις υπό συνθήκη</h4>
+<table>
+  <tr><th>Συνάρτηση</th><th>Περιγραφή</th><th>Παράδειγμα</th></tr>
+  <tr><td>IIF(συνθ, αληθές, ψευδές)</td><td>Έκφραση υπό συνθήκη (τριαδικός τελεστής)</td><td>IIF(x > 0, "θετικό", "αρνητικό")</td></tr>
+</table>
+
+<hr>
+
+<h3>Επιστροφή τιμών</h3>
+
+<pre>
+OUTPUT τύπος, τιμή            ' Επιστροφή στο Klacks (τύπος αντιστοιχεί σε MacroType)
+</pre>
+
+<hr>
+
+<h3>Συναρτήσεις εντοπισμού σφαλμάτων</h3>
+<p>Για τη δοκιμή μακροεντολών είναι διαθέσιμες οι ακόλουθες συναρτήσεις εντοπισμού σφαλμάτων:</p>
+
+<table>
+  <tr><th>Συνάρτηση</th><th>Περιγραφή</th></tr>
+  <tr><td>DEBUGPRINT τιμή</td><td>Εμφανίζει μια τιμή στο παράθυρο δοκιμής</td></tr>
+  <tr><td>DEBUGCLEAR</td><td>Καθαρίζει το παράθυρο δοκιμής</td></tr>
+</table>
+
+<h4>Παράδειγμα</h4>
+<pre>
+DIM x
+x = 42
+DEBUGPRINT "Η τιμή είναι: " & x
+DEBUGPRINT "Υπολογισμός σε εξέλιξη..."
+</pre>
+
+<p><em>Η έξοδος εντοπισμού σφαλμάτων εμφανίζεται στην καρτέλα "Δοκιμή" του επεξεργαστή μακροεντολών.</em></p>
+
+<hr>
+
+<h3>Παράδειγμα: Υπολογισμός προσαυξήσεων</h3>
+<p>Υπολογίζει προσαυξήσεις για νυχτερινή εργασία, αργίες και σαββατοκύριακα με σωστή διαχείριση
+βαρδιών που υπερβαίνουν τα μεσάνυχτα (τμηματοποίηση).</p>
+
+<pre>
+IMPORT hour, fromhour, untilhour
+IMPORT weekday, holiday, holidaynextday
+IMPORT nightrate, holidayrate, sarate, sorate
+
+FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
+    DIM SegmentHours, NightHours, NonNightHours
+    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+
+    SegmentHours = EndHour - StartHour
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    ' Υπολογισμός νυχτερινών ωρών (23:00-06:00)
+    NightHours = 0
+    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
+    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NonNightHours = SegmentHours - NightHours
+
+    HasHoliday = IsHoliday
+    IsSaturday = WeekdayNum = 6    ' Σα = 6 (ISO-8601)
+    IsSunday = WeekdayNum = 7      ' Κυ = 7 (ISO-8601)
+
+    ' Υψηλότερο ποσοστό για νυχτερινές ώρες
+    NRate = nightrate
+    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+
+    ' Υψηλότερο ποσοστό για ημερήσιες ώρες
+    DRate = 0
+    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+
+    CalcSegment = NightHours * NRate + NonNightHours * DRate
+ENDFUNCTION
+
+DIM TotalBonus, WeekdayNextDay
+
+' Υπολογισμός ημέρας εβδομάδας επόμενης ημέρας (ISO-8601)
+WeekdayNextDay = (weekday MOD 7) + 1
+
+IF untilhour &lt;= fromhour THEN
+    ' Βάρδια που υπερβαίνει τα μεσάνυχτα - 2 τμήματα
+    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
+    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+ELSE
+    ' Κανονική ημερήσια βάρδια
+    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+ENDIF
+
+OUTPUT 1, Round(TotalBonus, 2)
+</pre>
+
+<h4>Επεξήγηση</h4>
+<ul>
+  <li><strong>Τμηματοποίηση:</strong> Για βάρδιες που υπερβαίνουν τα μεσάνυχτα (π.χ. 22:00-06:00), η βάρδια χωρίζεται σε δύο τμήματα</li>
+  <li><strong>CalcSegment:</strong> Υπολογίζει την προσαύξηση για ένα τμήμα λαμβάνοντας υπόψη νυχτερινές, αργιών και σαββατοκύριακου προσαυξήσεις</li>
+  <li><strong>Χωριστά ποσοστά για Σάββατο/Κυριακή:</strong> sarate και sorate επιτρέπουν διαφορετικές προσαυξήσεις για Σάββατο και Κυριακή</li>
+  <li><strong>Υψηλότερη προσαύξηση:</strong> Εφαρμόζεται πάντα η υψηλότερη ισχύουσα προσαύξηση</li>
+  <li><strong>holidaynextday:</strong> Λαμβάνει υπόψη αν η επόμενη ημέρα είναι αργία (σημαντικό για νυχτερινές βάρδιες)</li>
+</ul>

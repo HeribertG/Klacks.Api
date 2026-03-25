@@ -1,0 +1,82 @@
+<h2>Pravidla svátků - Vysvětlení</h2>
+
+<h3>Formát pravidel</h3>
+<p>Existují dva typy pravidel: <strong>pevná data</strong> a <strong>data závislá na Velikonocích</strong>.</p>
+
+<h4>Pevná data</h4>
+<p>Formát: <code>MM/DD</code></p>
+<table>
+  <tr><th>Příklad</th><th>Význam</th></tr>
+  <tr><td><code>01/01</code></td><td>1. ledna (Nový rok)</td></tr>
+  <tr><td><code>12/25</code></td><td>25. prosince (Vánoce)</td></tr>
+  <tr><td><code>08/01</code></td><td>1. srpna (Švýcarský národní den)</td></tr>
+</table>
+
+<h4>Pevná data s posunem dne v týdnu</h4>
+<p>Formát: <code>MM/DD+XX+WW</code> nebo <code>MM/DD+XX-WW</code></p>
+<ul>
+  <li><code>+XX</code> = znaménko + posun ve dnech (00 až 99)</li>
+  <li><code>+</code> = další den v týdnu po datu</li>
+  <li><code>-</code> = předchozí den v týdnu před datem</li>
+  <li><code>WW</code> = den v týdnu (SU, MO, TU, WE, TH, FR, SA)</li>
+</ul>
+<table>
+  <tr><th>Příklad</th><th>Význam</th></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>První čtvrtek v listopadu</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>Čtvrtý čtvrtek v listopadu (Den díkůvzdání)</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>Poslední pondělí v květnu (Memorial Day)</td></tr>
+</table>
+
+<h4>Data závislá na Velikonocích</h4>
+<p>Formát: <code>EASTER+XX</code> nebo <code>EASTER-XX</code></p>
+<table>
+  <tr><th>Příklad</th><th>Význam</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>Velikonoční neděle</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>Velký pátek (2 dny před Velikonocemi)</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>Velikonoční pondělí (1 den po Velikonocích)</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>Nanebevstoupení Páně (39 dní po Velikonocích)</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>Svatodušní neděle (49 dní po Velikonocích)</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>Svatodušní pondělí (50 dní po Velikonocích)</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>Těla a Krve Páně (60 dní po Velikonocích)</td></tr>
+</table>
+
+<hr>
+
+<h3>Formát podpravidel</h3>
+<p>Podpravidla umožňují automatický posun svátku, pokud připadne na určitý den v týdnu.</p>
+<p>Formát: <code>WW+X</code> nebo <code>WW-X</code>, více pravidel oddělených <code>;</code></p>
+<ul>
+  <li><code>WW</code> = den v týdnu (SU, MO, TU, WE, TH, FR, SA)</li>
+  <li><code>+X</code> = posunout o X dní dopředu</li>
+  <li><code>-X</code> = posunout o X dní dozadu</li>
+</ul>
+<table>
+  <tr><th>Příklad</th><th>Význam</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>Pokud sobota: +2 dny (pondělí), pokud neděle: +1 den (pondělí)</td></tr>
+  <tr><td><code>SU+1</code></td><td>Pokud neděle: přesunout na pondělí</td></tr>
+</table>
+
+<p><em>Poznámka: Podpravidla se typicky používají k přesunutí svátků připadajících na víkend na následující pracovní den.</em></p>
+
+<hr>
+
+<h3>Zkratky dnů v týdnu</h3>
+<table>
+  <tr><th>Zkratka</th><th>Den v týdnu</th></tr>
+  <tr><td>SU</td><td>Neděle (Sunday)</td></tr>
+  <tr><td>MO</td><td>Pondělí (Monday)</td></tr>
+  <tr><td>TU</td><td>Úterý (Tuesday)</td></tr>
+  <tr><td>WE</td><td>Středa (Wednesday)</td></tr>
+  <tr><td>TH</td><td>Čtvrtek (Thursday)</td></tr>
+  <tr><td>FR</td><td>Pátek (Friday)</td></tr>
+  <tr><td>SA</td><td>Sobota (Saturday)</td></tr>
+</table>
+
+<hr>
+
+<h3>Zaškrtávací políčka</h3>
+<table>
+  <tr><th>Políčko</th><th>Význam</th></tr>
+  <tr><td>Oficiální svátek</td><td>Den je oficiálním/zákonným svátkem</td></tr>
+  <tr><td>Placený</td><td>Svátek je placený (relevantní pro výpočet mzdy)</td></tr>
+</table>

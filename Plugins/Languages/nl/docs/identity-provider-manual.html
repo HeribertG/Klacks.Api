@@ -1,0 +1,118 @@
+<h2>Handleiding Identiteitsprovider</h2>
+
+<h3>Inleiding</h3>
+<p>
+Identiteitsproviders maken de authenticatie van gebruikers mogelijk via externe directoryservices
+zoals LDAP, Active Directory of OAuth2/OpenID Connect.
+</p>
+
+<p><strong>Ondersteunde providertypen:</strong></p>
+<ul>
+  <li><strong>LDAP</strong> - Lightweight Directory Access Protocol</li>
+  <li><strong>Active Directory</strong> - Microsoft Active Directory</li>
+  <li><strong>OAuth2</strong> - OAuth 2.0 autorisatieframework</li>
+  <li><strong>OpenID Connect</strong> - Identiteitslaag bovenop OAuth 2.0</li>
+</ul>
+
+<hr>
+
+<h3>LDAP / Active Directory</h3>
+
+<h4>Verbindingsconfiguratie</h4>
+<table>
+  <tr><th>Veld</th><th>Beschrijving</th><th>Voorbeeld</th></tr>
+  <tr><td>Host</td><td>Hostnaam of IP-adres van de LDAP-server</td><td>ldap.example.com</td></tr>
+  <tr><td>Poort</td><td>389 (LDAP) of 636 (LDAPS)</td><td>389</td></tr>
+  <tr><td>SSL gebruiken</td><td>Activeert versleutelde verbinding</td><td>-</td></tr>
+  <tr><td>Base DN</td><td>Basis Distinguished Name voor zoekopdrachten</td><td>DC=example,DC=com</td></tr>
+  <tr><td>Bind DN</td><td>DN van de gebruiker voor de verbinding</td><td>CN=admin,DC=example,DC=com</td></tr>
+  <tr><td>Bind-wachtwoord</td><td>Wachtwoord voor de Bind-gebruiker</td><td>-</td></tr>
+  <tr><td>Gebruikersfilter</td><td>LDAP-filter voor het zoeken van gebruikers</td><td>(objectClass=person)</td></tr>
+</table>
+
+<h4>Verschillen tussen LDAP en Active Directory</h4>
+<table>
+  <tr><th>Kenmerk</th><th>LDAP (OpenLDAP)</th><th>Active Directory</th></tr>
+  <tr><td>Gebruikersattribuut</td><td>uid</td><td>sAMAccountName</td></tr>
+  <tr><td>Straatattribuut</td><td>street</td><td>streetAddress</td></tr>
+  <tr><td>Aanspreekattribuut</td><td>-</td><td>personalTitle</td></tr>
+  <tr><td>Landattribuut</td><td>-</td><td>c</td></tr>
+  <tr><td>Authenticatiemethode</td><td>Simple Bind</td><td>Negotiate/Kerberos</td></tr>
+</table>
+
+<h4>Veelgebruikte gebruikersfilters</h4>
+<pre>
+LDAP:             (objectClass=person)
+                  (objectClass=inetOrgPerson)
+
+Active Directory: (&amp;(objectClass=user)(objectCategory=person))
+                  (&amp;(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+</pre>
+
+<h4>Klantimport</h4>
+<p>Wanneer "Gebruiken voor klantimport" is geactiveerd, worden de volgende gegevens geïmporteerd:</p>
+<ul>
+  <li><strong>Achternaam</strong> - sn (achternaam) of displayName</li>
+  <li><strong>Voornaam</strong> - givenName</li>
+  <li><strong>Titel</strong> - title (functietitel)</li>
+  <li><strong>Bedrijf</strong> - company</li>
+  <li><strong>Adres</strong> - street/streetAddress, postalCode, l (stad), st (provincie), c (land)</li>
+  <li><strong>Geslacht</strong> - Op basis van personalTitle (Dhr./Mevr.) in Active Directory</li>
+</ul>
+
+<p><em>Opmerking: In OpenLDAP is het geslacht standaard "Neutraal" en kan handmatig worden gecorrigeerd.</em></p>
+
+<hr>
+
+<h3>OAuth2 / OpenID Connect</h3>
+
+<h4>Configuratie</h4>
+<table>
+  <tr><th>Veld</th><th>Beschrijving</th></tr>
+  <tr><td>Client ID</td><td>De bij de provider geregistreerde client-ID</td></tr>
+  <tr><td>Client Secret</td><td>Het bijbehorende clientgeheim</td></tr>
+  <tr><td>Tenant ID</td><td>Azure AD Tenant-ID (optioneel, alleen voor Microsoft)</td></tr>
+  <tr><td>Autorisatie-URL</td><td>Eindpunt voor autorisatie</td></tr>
+  <tr><td>Token-URL</td><td>Eindpunt voor tokenuitwisseling</td></tr>
+  <tr><td>Gebruikersinfo-URL</td><td>Eindpunt voor gebruikersinformatie</td></tr>
+  <tr><td>Scopes</td><td>Gevraagde machtigingen (bijv. "openid profile email")</td></tr>
+</table>
+
+<h4>Bekende providers</h4>
+<table>
+  <tr><th>Provider</th><th>Autorisatie-URL</th><th>Token-URL</th></tr>
+  <tr><td>Google</td><td>https://accounts.google.com/o/oauth2/v2/auth</td><td>https://oauth2.googleapis.com/token</td></tr>
+  <tr><td>Microsoft</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</td></tr>
+  <tr><td>GitHub</td><td>https://github.com/login/oauth/authorize</td><td>https://github.com/login/oauth/access_token</td></tr>
+</table>
+
+<hr>
+
+<h3>Tips</h3>
+
+<h4>Synology NAS als LDAP-server</h4>
+<p>
+Een Synology NAS kan als LDAP-server worden gebruikt. Hiervoor moet het pakket
+"LDAP Server" of een Docker-container met OpenLDAP worden geïnstalleerd.
+</p>
+<ul>
+  <li>Providertype: "Active Directory" (voor fallback-authenticatie)</li>
+  <li>Gebruikersfilter: (objectClass=inetOrgPerson)</li>
+  <li>Gebruikers-DN-formaat: cn=gebruikersnaam,ou=users,dc=example,dc=com</li>
+</ul>
+
+<h4>Verbinding testen</h4>
+<p>
+Gebruik de knop "Verbinding testen" om de configuratie te controleren.
+Bij een succesvolle verbinding worden het aantal gevonden gebruikers en enkele
+voorbeeldgebruikersnamen weergegeven.
+</p>
+
+<h4>Probleemoplossing</h4>
+<table>
+  <tr><th>Probleem</th><th>Oplossing</th></tr>
+  <tr><td>Verbinding mislukt</td><td>Controleer host, poort en SSL-configuratie</td></tr>
+  <tr><td>Bind mislukt</td><td>Controleer Bind DN en wachtwoord</td></tr>
+  <tr><td>Geen gebruikers gevonden</td><td>Controleer Base DN en gebruikersfilter</td></tr>
+  <tr><td>Adressen niet geïmporteerd</td><td>OpenLDAP gebruikt "street" in plaats van "streetAddress"</td></tr>
+</table>

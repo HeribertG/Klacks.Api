@@ -1,0 +1,117 @@
+<h2>ID-udbyder manual</h2>
+
+<h3>Introduktion</h3>
+<p>
+Ved at bruge ID-udbydere kan du autentificere brugere via eksterne katalogtjenester
+som LDAP, Active Directory, OAuth2/OpenID Connect.
+</p>
+
+<p><strong>Understøttede udbydertyper:</strong></p>
+<ul>
+  <li><strong>LDAP</strong> - Standard Lightweight Directory Access Protocol</li>
+  <li><strong>Active Directory</strong> - Microsoft Active Directory</li>
+  <li><strong>OAuth2</strong> - OAuth 2.0 autorisationsramme</li>
+  <li><strong>OpenID Connect</strong> - Identitetslag oven på OAuth 2.0</li>
+</ul>
+
+<hr>
+
+<h3>LDAP / Active Directory</h3>
+
+<h4>Forbindelsesindstillinger</h4>
+<table>
+  <tr><th>Felt</th><th>Beskrivelse</th><th>Eksempel</th></tr>
+  <tr><td>Vært</td><td>LDAP-serverens værtsnavn eller IP-adresse</td><td>ldap.example.com</td></tr>
+  <tr><td>Port</td><td>389 (LDAP) eller 636 (LDAPS)</td><td>389</td></tr>
+  <tr><td>Brug SSL</td><td>Aktiverer krypteret forbindelse</td><td>-</td></tr>
+  <tr><td>Basis-DN</td><td>Basis Distinguished Name for søgning</td><td>DC=example,DC=com</td></tr>
+  <tr><td>Bind-DN</td><td>DN for brugeren, der bruges til forbindelse</td><td>CN=admin,DC=example,DC=com</td></tr>
+  <tr><td>Bind-adgangskode</td><td>Adgangskode for bind-brugeren</td><td>-</td></tr>
+  <tr><td>Brugerfilter</td><td>LDAP-filter til brugersøgning</td><td>(objectClass=person)</td></tr>
+</table>
+
+<h4>Forskelle mellem LDAP og Active Directory</h4>
+<table>
+  <tr><th>Attribut</th><th>LDAP (OpenLDAP)</th><th>Active Directory</th></tr>
+  <tr><td>Brugerattribut</td><td>uid</td><td>sAMAccountName</td></tr>
+  <tr><td>Adresseattribut</td><td>street</td><td>streetAddress</td></tr>
+  <tr><td>Titelattribut</td><td>-</td><td>personalTitle</td></tr>
+  <tr><td>Landeattribut</td><td>-</td><td>c</td></tr>
+  <tr><td>Autentificeringsmetode</td><td>Simpel bind</td><td>Negotiate/Kerberos</td></tr>
+</table>
+
+<h4>Typiske brugerfiltre</h4>
+<pre>
+LDAP:             (objectClass=person)
+                  (objectClass=inetOrgPerson)
+
+Active Directory: (&amp;(objectClass=user)(objectCategory=person))
+                  (&amp;(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+</pre>
+
+<h4>Klientimport</h4>
+<p>Hvis "Brug til klientimport" er aktiveret, importeres følgende data:</p>
+<ul>
+  <li><strong>Efternavn</strong> - sn (efternavn) eller displayName</li>
+  <li><strong>Fornavn</strong> - givenName</li>
+  <li><strong>Titel</strong> - title (jobtitel)</li>
+  <li><strong>Firma</strong> - company</li>
+  <li><strong>Adresse</strong> - street/streetAddress, postalCode, l (by), st (region), c (land)</li>
+  <li><strong>Køn</strong> - For Active Directory fra personalTitle (Herr/Frau)</li>
+</ul>
+
+<p><em>Bemærk: For OpenLDAP sættes køn som standard til "Neutral" og kan rettes manuelt.</em></p>
+
+<hr>
+
+<h3>OAuth2 / OpenID Connect</h3>
+
+<h4>Indstillinger</h4>
+<table>
+  <tr><th>Felt</th><th>Beskrivelse</th></tr>
+  <tr><td>Klient-ID</td><td>Klient-ID registreret hos udbyderen</td></tr>
+  <tr><td>Klienthemmelighed</td><td>Tilhørende klienthemmelighed</td></tr>
+  <tr><td>Lejer-ID</td><td>Azure AD lejer-ID (valgfri, kun Microsoft)</td></tr>
+  <tr><td>Autoriserings-URL</td><td>Endpoint til autorisering</td></tr>
+  <tr><td>Token-URL</td><td>Endpoint til tokenudveksling</td></tr>
+  <tr><td>Brugerinfo-URL</td><td>Endpoint til brugerinformation</td></tr>
+  <tr><td>Scopes</td><td>Ønskede rettigheder (f.eks. "openid profile email")</td></tr>
+</table>
+
+<h4>Vigtige udbydere</h4>
+<table>
+  <tr><th>Udbyder</th><th>Autoriserings-URL</th><th>Token-URL</th></tr>
+  <tr><td>Google</td><td>https://accounts.google.com/o/oauth2/v2/auth</td><td>https://oauth2.googleapis.com/token</td></tr>
+  <tr><td>Microsoft</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</td></tr>
+  <tr><td>GitHub</td><td>https://github.com/login/oauth/authorize</td><td>https://github.com/login/oauth/access_token</td></tr>
+</table>
+
+<hr>
+
+<h3>Tips</h3>
+
+<h4>Brug af Synology NAS som LDAP-server</h4>
+<p>
+Du kan bruge en Synology NAS som LDAP-server. I dette tilfælde skal du installere
+pakken "LDAP Server" eller en Docker-container med OpenLDAP.
+</p>
+<ul>
+  <li>Udbydertype: "Active Directory" (til fallback-autentificering)</li>
+  <li>Brugerfilter: (objectClass=inetOrgPerson)</li>
+  <li>Bruger-DN format: cn=brugernavn,ou=users,dc=example,dc=com</li>
+</ul>
+
+<h4>Test af forbindelse</h4>
+<p>
+Brug knappen "Test forbindelse" for at bekræfte dine indstillinger.
+Ved vellykket forbindelse vises antallet af fundne brugere og nogle eksempelbrugernavne.
+</p>
+
+<h4>Fejlfinding</h4>
+<table>
+  <tr><th>Problem</th><th>Løsning</th></tr>
+  <tr><td>Forbindelse mislykkedes</td><td>Kontrollér vært, port og SSL-indstillinger</td></tr>
+  <tr><td>Bind mislykkedes</td><td>Kontrollér Bind-DN og adgangskode</td></tr>
+  <tr><td>Ingen brugere fundet</td><td>Kontrollér Basis-DN og brugerfilter</td></tr>
+  <tr><td>Adresser importeres ikke</td><td>OpenLDAP bruger "street" i stedet for "streetAddress"</td></tr>
+</table>

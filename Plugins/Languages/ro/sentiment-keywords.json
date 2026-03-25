@@ -1,0 +1,7 @@
+{
+  "frustrated": ["nu merge", "stricat", "bug", "ciudat", "de ce", "din nou", "problemă", "eroare", "defect", "nu funcționează"],
+  "stressed": ["urgent", "repede", "imediat", "termen limită", "acum", "nu am timp", "presiune", "grabă"],
+  "confused": ["nu înțeleg", "cum", "ce înseamnă", "ce este", "nu pricep", "explică", "neclar", "ajutor"],
+  "positive": ["mulțumesc", "excelent", "perfect", "minunat", "grozav", "bine făcut", "recunoștință", "bravo", "super"],
+  "urgent": ["important", "urgent", "imediat", "criză", "acum", "critic", "prioritar"]
+}

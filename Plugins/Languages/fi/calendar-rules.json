@@ -1,0 +1,189 @@
+[
+  {
+    "id": "d1c2d3e4-ff01-4000-8000-000000000001",
+    "rule": "01/01",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "FI",
+    "country": "FI",
+    "name": { "de": "Neujahr", "en": "New Year's Day", "fr": "Jour de l'An", "it": "Capodanno", "fi": "Uudenvuodenpäivä", "ja": "元日", "es": "Año Nuevo" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "fi": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "d1c2d3e4-ff01-4000-8000-000000000002",
+    "rule": "01/06",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "FI",
+    "country": "FI",
+    "name": { "de": "Dreikönigstag", "en": "Epiphany", "fr": "Épiphanie", "it": "Epifania", "fi": "Loppiainen", "ja": "公現祭", "es": "Epifanía" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "fi": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "d1c2d3e4-ff01-4000-8000-000000000003",
+    "rule": "EASTER-02",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "FI",
+    "country": "FI",
+    "name": { "de": "Karfreitag", "en": "Good Friday", "fr": "Vendredi Saint", "it": "Venerdì Santo", "fi": "Pitkäperjantai", "ja": "聖金曜日", "es": "Viernes Santo" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "fi": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "d1c2d3e4-ff01-4000-8000-000000000004",
+    "rule": "EASTER+00",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "FI",
+    "country": "FI",
+    "name": { "de": "Ostersonntag", "en": "Easter Sunday", "fr": "Dimanche de Pâques", "it": "Domenica di Pasqua", "fi": "Pääsiäispäivä", "ja": "復活祭", "es": "Domingo de Pascua" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "fi": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "d1c2d3e4-ff01-4000-8000-000000000005",
+    "rule": "EASTER+01",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "FI",
+    "country": "FI",
+    "name": { "de": "Ostermontag", "en": "Easter Monday", "fr": "Lundi de Pâques", "it": "Lunedì di Pasqua", "fi": "Toinen pääsiäispäivä", "ja": "イースターマンデー", "es": "Lunes de Pascua" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "fi": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "d1c2d3e4-ff01-4000-8000-000000000006",
+    "rule": "05/01",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "FI",
+    "country": "FI",
+    "name": { "de": "Maifeiertag", "en": "May Day", "fr": "Fête du travail", "it": "Festa del lavoro", "fi": "Vappu", "ja": "メーデー", "es": "Día del Trabajo" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "fi": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "d1c2d3e4-ff01-4000-8000-000000000007",
+    "rule": "EASTER+39",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "FI",
+    "country": "FI",
+    "name": { "de": "Auffahrt", "en": "Ascension Day", "fr": "Ascension", "it": "Ascensione", "fi": "Helatorstai", "ja": "昇天祭", "es": "Ascensión" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "fi": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "d1c2d3e4-ff01-4000-8000-000000000008",
+    "rule": "EASTER+49",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "FI",
+    "country": "FI",
+    "name": { "de": "Pfingsten", "en": "Pentecost", "fr": "Pentecôte", "it": "Pentecoste", "fi": "Helluntaipäivä", "ja": "ペンテコステ", "es": "Pentecostés" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "fi": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "d1c2d3e4-ff01-4000-8000-000000000009",
+    "rule": "06/19+00+SA",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "FI",
+    "country": "FI",
+    "name": { "de": "Mittsommervorabend", "en": "Midsummer Eve", "fr": "Veille de la Saint-Jean", "it": "Vigilia di Mezza Estate", "fi": "Juhannusaatto", "ja": "夏至前夜", "es": "Víspera de San Juan" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "fi": "Perjantai 20.6. ja 26.6. välillä", "ja": "", "es": "" }
+  },
+  {
+    "id": "d1c2d3e4-ff01-4000-8000-000000000010",
+    "rule": "06/20+00+SA",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "FI",
+    "country": "FI",
+    "name": { "de": "Mittsommertag", "en": "Midsummer Day", "fr": "Saint-Jean", "it": "Giorno di Mezza Estate", "fi": "Juhannuspäivä", "ja": "夏至祭", "es": "Día de San Juan" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "fi": "Lauantai 20.6. ja 26.6. välillä", "ja": "", "es": "" }
+  },
+  {
+    "id": "d1c2d3e4-ff01-4000-8000-000000000011",
+    "rule": "10/31+00+SA",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "FI",
+    "country": "FI",
+    "name": { "de": "Allerheiligen", "en": "All Saints' Day", "fr": "Toussaint", "it": "Ognissanti", "fi": "Pyhäinpäivä", "ja": "万聖節", "es": "Día de Todos los Santos" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "fi": "Lauantai 31.10. ja 6.11. välillä", "ja": "", "es": "" }
+  },
+  {
+    "id": "d1c2d3e4-ff01-4000-8000-000000000012",
+    "rule": "12/06",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "FI",
+    "country": "FI",
+    "name": { "de": "Unabhängigkeitstag", "en": "Independence Day", "fr": "Jour de l'indépendance", "it": "Giorno dell'indipendenza", "fi": "Itsenäisyyspäivä", "ja": "独立記念日", "es": "Día de la Independencia" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "fi": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "d1c2d3e4-ff01-4000-8000-000000000013",
+    "rule": "12/24",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "FI",
+    "country": "FI",
+    "name": { "de": "Heiligabend", "en": "Christmas Eve", "fr": "Réveillon de Noël", "it": "Vigilia di Natale", "fi": "Jouluaatto", "ja": "クリスマスイブ", "es": "Nochebuena" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "fi": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "d1c2d3e4-ff01-4000-8000-000000000014",
+    "rule": "12/25",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "FI",
+    "country": "FI",
+    "name": { "de": "Weihnachten", "en": "Christmas Day", "fr": "Noël", "it": "Natale", "fi": "Joulupäivä", "ja": "クリスマス", "es": "Navidad" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "fi": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "d1c2d3e4-ff01-4000-8000-000000000015",
+    "rule": "12/26",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "FI",
+    "country": "FI",
+    "name": { "de": "Stephanstag", "en": "St. Stephen's Day", "fr": "Saint-Étienne", "it": "Santo Stefano", "fi": "Tapaninpäivä", "ja": "聖ステファノの日", "es": "San Esteban" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "fi": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "d1c2d3e4-ff01-4000-8000-000000000016",
+    "rule": "06/09",
+    "subRule": "",
+    "isMandatory": false,
+    "isPaid": false,
+    "state": "AL",
+    "country": "FI",
+    "name": { "de": "Åland-Autonomietag", "en": "Åland Autonomy Day", "fr": "Jour de l'autonomie d'Åland", "it": "Giorno dell'autonomia di Åland", "fi": "Ahvenanmaan itsehallintopäivä", "ja": "オーランド自治記念日", "es": "Día de la Autonomía de Åland" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "fi": "Ahvenanmaan itsehallintopäivä, juhlapäivä Ahvenanmaalla", "ja": "", "es": "" }
+  },
+  {
+    "id": "d1c2d3e4-ff01-4000-8000-000000000017",
+    "rule": "03/30",
+    "subRule": "",
+    "isMandatory": false,
+    "isPaid": false,
+    "state": "AL",
+    "country": "FI",
+    "name": { "de": "Åland-Entmilitarisierungstag", "en": "Åland Demilitarisation Day", "fr": "Jour de la démilitarisation d'Åland", "it": "Giorno della smilitarizzazione di Åland", "fi": "Ahvenanmaan demilitarisointipäivä", "ja": "オーランド非武装化記念日", "es": "Día de la Desmilitarización de Åland" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "fi": "Muistopäivä Ahvenanmaan demilitarisoinnista ja neutralisoinnista", "ja": "", "es": "" }
+  }
+]

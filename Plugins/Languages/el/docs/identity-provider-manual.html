@@ -1,0 +1,118 @@
+<h2>Εγχειρίδιο παρόχου ταυτότητας</h2>
+
+<h3>Εισαγωγή</h3>
+<p>
+Οι πάροχοι ταυτότητας επιτρέπουν την αυθεντικοποίηση χρηστών μέσω εξωτερικών υπηρεσιών καταλόγου
+όπως LDAP, Active Directory ή OAuth2/OpenID Connect.
+</p>
+
+<p><strong>Υποστηριζόμενοι τύποι παρόχων:</strong></p>
+<ul>
+  <li><strong>LDAP</strong> - Lightweight Directory Access Protocol</li>
+  <li><strong>Active Directory</strong> - Microsoft Active Directory</li>
+  <li><strong>OAuth2</strong> - Πλαίσιο εξουσιοδότησης OAuth 2.0</li>
+  <li><strong>OpenID Connect</strong> - Επίπεδο ταυτότητας πάνω από OAuth 2.0</li>
+</ul>
+
+<hr>
+
+<h3>LDAP / Active Directory</h3>
+
+<h4>Ρύθμιση σύνδεσης</h4>
+<table>
+  <tr><th>Πεδίο</th><th>Περιγραφή</th><th>Παράδειγμα</th></tr>
+  <tr><td>Κεντρικός υπολογιστής</td><td>Όνομα κεντρικού υπολογιστή ή διεύθυνση IP του διακομιστή LDAP</td><td>ldap.example.com</td></tr>
+  <tr><td>Θύρα</td><td>389 (LDAP) ή 636 (LDAPS)</td><td>389</td></tr>
+  <tr><td>Χρήση SSL</td><td>Ενεργοποιεί κρυπτογραφημένη σύνδεση</td><td>-</td></tr>
+  <tr><td>Base DN</td><td>Βασικό Distinguished Name για αναζητήσεις</td><td>DC=example,DC=com</td></tr>
+  <tr><td>Bind DN</td><td>DN του χρήστη για τη σύνδεση</td><td>CN=admin,DC=example,DC=com</td></tr>
+  <tr><td>Κωδικός Bind</td><td>Κωδικός πρόσβασης για τον χρήστη Bind</td><td>-</td></tr>
+  <tr><td>Φίλτρο χρηστών</td><td>Φίλτρο LDAP για αναζήτηση χρηστών</td><td>(objectClass=person)</td></tr>
+</table>
+
+<h4>Διαφορές μεταξύ LDAP και Active Directory</h4>
+<table>
+  <tr><th>Χαρακτηριστικό</th><th>LDAP (OpenLDAP)</th><th>Active Directory</th></tr>
+  <tr><td>Χαρακτηριστικό χρήστη</td><td>uid</td><td>sAMAccountName</td></tr>
+  <tr><td>Χαρακτηριστικό οδού</td><td>street</td><td>streetAddress</td></tr>
+  <tr><td>Χαρακτηριστικό προσφώνησης</td><td>-</td><td>personalTitle</td></tr>
+  <tr><td>Χαρακτηριστικό χώρας</td><td>-</td><td>c</td></tr>
+  <tr><td>Μέθοδος αυθεντικοποίησης</td><td>Simple Bind</td><td>Negotiate/Kerberos</td></tr>
+</table>
+
+<h4>Συνήθη φίλτρα χρηστών</h4>
+<pre>
+LDAP:             (objectClass=person)
+                  (objectClass=inetOrgPerson)
+
+Active Directory: (&amp;(objectClass=user)(objectCategory=person))
+                  (&amp;(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+</pre>
+
+<h4>Εισαγωγή πελατών</h4>
+<p>Όταν είναι ενεργοποιημένη η επιλογή "Χρήση για εισαγωγή πελατών", εισάγονται τα ακόλουθα δεδομένα:</p>
+<ul>
+  <li><strong>Επώνυμο</strong> - sn (επώνυμο) ή displayName</li>
+  <li><strong>Όνομα</strong> - givenName</li>
+  <li><strong>Τίτλος</strong> - title (τίτλος θέσης)</li>
+  <li><strong>Εταιρεία</strong> - company</li>
+  <li><strong>Διεύθυνση</strong> - street/streetAddress, postalCode, l (πόλη), st (περιφέρεια), c (χώρα)</li>
+  <li><strong>Φύλο</strong> - Από το personalTitle (Κύριος/Κυρία) στο Active Directory</li>
+</ul>
+
+<p><em>Σημείωση: Στο OpenLDAP το φύλο είναι προεπιλεγμένα "Ουδέτερο" και μπορεί να διορθωθεί χειροκίνητα.</em></p>
+
+<hr>
+
+<h3>OAuth2 / OpenID Connect</h3>
+
+<h4>Ρύθμιση</h4>
+<table>
+  <tr><th>Πεδίο</th><th>Περιγραφή</th></tr>
+  <tr><td>Client ID</td><td>Το αναγνωριστικό πελάτη που είναι καταχωρημένο στον πάροχο</td></tr>
+  <tr><td>Client Secret</td><td>Το αντίστοιχο μυστικό πελάτη</td></tr>
+  <tr><td>Tenant ID</td><td>Αναγνωριστικό ενοικιαστή Azure AD (προαιρετικό, μόνο για Microsoft)</td></tr>
+  <tr><td>URL εξουσιοδότησης</td><td>Τελικό σημείο για εξουσιοδότηση</td></tr>
+  <tr><td>URL διακριτικού</td><td>Τελικό σημείο για ανταλλαγή διακριτικών</td></tr>
+  <tr><td>URL πληροφοριών χρήστη</td><td>Τελικό σημείο για πληροφορίες χρήστη</td></tr>
+  <tr><td>Εύρη</td><td>Ζητούμενα δικαιώματα (π.χ. "openid profile email")</td></tr>
+</table>
+
+<h4>Γνωστοί πάροχοι</h4>
+<table>
+  <tr><th>Πάροχος</th><th>URL εξουσιοδότησης</th><th>URL διακριτικού</th></tr>
+  <tr><td>Google</td><td>https://accounts.google.com/o/oauth2/v2/auth</td><td>https://oauth2.googleapis.com/token</td></tr>
+  <tr><td>Microsoft</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</td></tr>
+  <tr><td>GitHub</td><td>https://github.com/login/oauth/authorize</td><td>https://github.com/login/oauth/access_token</td></tr>
+</table>
+
+<hr>
+
+<h3>Συμβουλές</h3>
+
+<h4>Synology NAS ως διακομιστής LDAP</h4>
+<p>
+Ένα Synology NAS μπορεί να χρησιμοποιηθεί ως διακομιστής LDAP. Για αυτό πρέπει να εγκατασταθεί
+το πακέτο "LDAP Server" ή ένα Docker container με OpenLDAP.
+</p>
+<ul>
+  <li>Τύπος παρόχου: "Active Directory" (για εφεδρική αυθεντικοποίηση)</li>
+  <li>Φίλτρο χρηστών: (objectClass=inetOrgPerson)</li>
+  <li>Μορφή DN χρήστη: cn=όνομα_χρήστη,ou=users,dc=example,dc=com</li>
+</ul>
+
+<h4>Δοκιμή σύνδεσης</h4>
+<p>
+Χρησιμοποιήστε το κουμπί "Δοκιμή σύνδεσης" για να επαληθεύσετε τη ρύθμιση.
+Σε περίπτωση επιτυχούς σύνδεσης, εμφανίζεται ο αριθμός των χρηστών που βρέθηκαν και μερικά
+παραδείγματα ονομάτων χρηστών.
+</p>
+
+<h4>Αντιμετώπιση προβλημάτων</h4>
+<table>
+  <tr><th>Πρόβλημα</th><th>Λύση</th></tr>
+  <tr><td>Η σύνδεση απέτυχε</td><td>Ελέγξτε τον κεντρικό υπολογιστή, τη θύρα και τη ρύθμιση SSL</td></tr>
+  <tr><td>Το Bind απέτυχε</td><td>Ελέγξτε το Bind DN και τον κωδικό πρόσβασης</td></tr>
+  <tr><td>Δεν βρέθηκαν χρήστες</td><td>Ελέγξτε το Base DN και το φίλτρο χρηστών</td></tr>
+  <tr><td>Οι διευθύνσεις δεν εισήχθησαν</td><td>Το OpenLDAP χρησιμοποιεί "street" αντί για "streetAddress"</td></tr>
+</table>

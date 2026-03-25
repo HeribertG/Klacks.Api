@@ -1,0 +1,331 @@
+<h2>Podręcznik skryptów makr</h2>
+
+<h3>Wprowadzenie</h3>
+<p>
+Edytor makr umożliwia pisanie skryptów, które służą jako podstawa obliczeniowa
+dla usług, czynności roboczych itp.
+</p>
+
+<p><strong>Przykłady zastosowania:</strong></p>
+<ul>
+  <li>Dokładne obliczanie godzin urlopu lub służby wojskowej na podstawie wymiaru zatrudnienia</li>
+  <li>Obliczanie dodatków za pracę nocną, weekendy i dni świąteczne</li>
+  <li>Elastyczne dostosowanie do nowych wymagań</li>
+</ul>
+
+<p>
+<em>Uwaga: Interpreter skryptów działa w bezpiecznym środowisku piaskownicy bez dostępu
+do systemu plików ani sieci. Wykonanie złośliwego kodu nie jest możliwe.</em>
+</p>
+
+<hr>
+
+<h3>Zmienne i stałe</h3>
+<p>Wszystkie zmienne i stałe są beztypowe.</p>
+
+<pre>
+CONST PI = 3.1415
+DIM a, b, c
+IMPORT kwota, rabat
+</pre>
+
+<h4>Zmienne importowane (IMPORT)</h4>
+<p>Te zmienne są generowane z Work, Contract i CalendarSelection:</p>
+
+<table>
+  <tr><th>Zmienna</th><th>Typ</th><th>Opis</th></tr>
+  <tr><td>hour</td><td>Decimal</td><td>Godziny pracy (z Work)</td></tr>
+  <tr><td>fromhour</td><td>Decimal</td><td>Godzina rozpoczęcia w godzinach dziesiętnych (8:30 → 8.5)</td></tr>
+  <tr><td>untilhour</td><td>Decimal</td><td>Godzina zakończenia w godzinach dziesiętnych (17:00 → 17.0)</td></tr>
+  <tr><td>weekday</td><td>Integer</td><td>Dzień tygodnia ISO-8601 (1=Pn, 2=Wt, 3=Śr, 4=Cz, 5=Pt, 6=So, 7=Nd)</td></tr>
+  <tr><td>holiday</td><td>Boolean</td><td>Czy bieżący dzień jest oficjalnym dniem świątecznym</td></tr>
+  <tr><td>holidaynextday</td><td>Boolean</td><td>Czy następny dzień jest oficjalnym dniem świątecznym</td></tr>
+  <tr><td>nightrate</td><td>Decimal</td><td>Dodatek nocny z umowy (np. 0.10 = 10%)</td></tr>
+  <tr><td>holidayrate</td><td>Decimal</td><td>Dodatek świąteczny z umowy (np. 0.15 = 15%)</td></tr>
+  <tr><td>sarate</td><td>Decimal</td><td>Dodatek sobotni z umowy</td></tr>
+  <tr><td>sorate</td><td>Decimal</td><td>Dodatek niedzielny z umowy</td></tr>
+  <tr><td>guaranteedhours</td><td>Decimal</td><td>Gwarantowane godziny miesięczne z umowy</td></tr>
+  <tr><td>fulltime</td><td>Decimal</td><td>Godziny pełnoetatowe z umowy</td></tr>
+</table>
+
+<hr>
+
+<h3>Struktury sterujące</h3>
+
+<p><strong>Ważne:</strong> Słowa kluczowe takie jak <code>ENDIF</code>, <code>ENDFUNCTION</code>, <code>ENDSUB</code>
+muszą być pisane łącznie (nie <code>END IF</code>).</p>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF x > 10 THEN
+    OUTPUT 1, "duży"
+ELSEIF x > 5 THEN
+    OUTPUT 1, "średni"
+ELSE
+    OUTPUT 1, "mały"
+ENDIF
+</pre>
+
+<h4>IF w jednej linii</h4>
+<pre>
+IF x > 10 THEN OUTPUT 1, "duży" ENDIF
+</pre>
+
+<h4>SELECT CASE</h4>
+<pre>
+SELECT CASE weekday
+    CASE 6, 7
+        OUTPUT 1, "Weekend"
+    CASE 1, 2, 3, 4, 5
+        OUTPUT 1, "Dzień roboczy"
+    CASE ELSE
+        OUTPUT 1, "Nieznany"
+END SELECT
+</pre>
+
+<h4>Pętla FOR-NEXT</h4>
+<pre>
+FOR i = 1 TO 10
+    suma += i
+NEXT
+
+FOR i = 10 TO 1 STEP -1
+    IF x > y THEN EXIT FOR
+NEXT
+</pre>
+
+<h4>Pętla DO-LOOP</h4>
+<pre>
+DO WHILE a > 0
+    a -= 1
+LOOP
+
+DO
+    x += 1
+LOOP UNTIL x >= 10
+</pre>
+
+<hr>
+
+<h3>Funkcje i procedury</h3>
+
+<p><strong>Ważne:</strong> Funkcje (FUNCTION) i procedury (SUB) muszą być zdefiniowane <em>przed</em> pierwszym wywołaniem.
+Interpreter czyta kod od góry do dołu: funkcja lub procedura jest znana dopiero po przetworzeniu jej definicji.</p>
+
+<h4>SUB (procedura bez wartości zwracanej)</h4>
+<pre>
+SUB oblicz(a, b)
+    IF a = b THEN EXIT SUB ENDIF
+    OUTPUT 1, a + b
+ENDSUB
+</pre>
+
+<h4>FUNCTION (funkcja z wartością zwracaną)</h4>
+<pre>
+FUNCTION podwoj(x)
+    podwoj = x * 2
+ENDFUNCTION
+
+DIM wynik
+wynik = podwoj(21)
+OUTPUT 1, wynik
+</pre>
+
+<hr>
+
+<h3>Operatory</h3>
+
+<h4>Operatory matematyczne</h4>
+<table>
+  <tr><th>Operator</th><th>Opis</th><th>Przykład</th></tr>
+  <tr><td>+</td><td>Dodawanie</td><td>5 + 3 = 8</td></tr>
+  <tr><td>-</td><td>Odejmowanie</td><td>5 - 3 = 2</td></tr>
+  <tr><td>*</td><td>Mnożenie</td><td>5 * 3 = 15</td></tr>
+  <tr><td>/</td><td>Dzielenie</td><td>10 / 4 = 2.5</td></tr>
+  <tr><td>\</td><td>Dzielenie całkowite</td><td>10 \ 4 = 2</td></tr>
+  <tr><td>MOD</td><td>Modulo (reszta)</td><td>10 MOD 3 = 1</td></tr>
+  <tr><td>^</td><td>Potęga</td><td>2 ^ 3 = 8</td></tr>
+</table>
+
+<h4>Operatory porównania</h4>
+<table>
+  <tr><th>Operator</th><th>Opis</th></tr>
+  <tr><td>=</td><td>Równy</td></tr>
+  <tr><td>&lt;&gt;</td><td>Nierówny</td></tr>
+  <tr><td>&lt;</td><td>Mniejszy niż</td></tr>
+  <tr><td>&gt;</td><td>Większy niż</td></tr>
+  <tr><td>&lt;=</td><td>Mniejszy lub równy</td></tr>
+  <tr><td>&gt;=</td><td>Większy lub równy</td></tr>
+</table>
+
+<h4>Operatory logiczne</h4>
+<table>
+  <tr><th>Operator</th><th>Opis</th></tr>
+  <tr><td>AND</td><td>Bitowe AND</td></tr>
+  <tr><td>OR</td><td>Bitowe OR</td></tr>
+  <tr><td>NOT</td><td>Negacja</td></tr>
+  <tr><td>ANDALSO</td><td>Logiczne AND (zwarcie)</td></tr>
+  <tr><td>ORELSE</td><td>Logiczne OR (zwarcie)</td></tr>
+</table>
+
+<h4>Operatory przypisania</h4>
+<pre>
+a = 10      ' Proste przypisanie
+a += 5      ' a = a + 5
+a -= 3      ' a = a - 3
+a *= 2      ' a = a * 2
+a /= 4      ' a = a / 4
+a &= "!"    ' Łączenie łańcuchów
+</pre>
+
+<hr>
+
+<h3>Funkcje wbudowane</h3>
+
+<h4>Funkcje łańcuchowe</h4>
+<table>
+  <tr><th>Funkcja</th><th>Opis</th><th>Przykład</th></tr>
+  <tr><td>Len(s)</td><td>Długość łańcucha</td><td>Len("Cześć") = 5</td></tr>
+  <tr><td>Left(s, n)</td><td>n znaków z lewej</td><td>Left("Cześć", 2) = "Cz"</td></tr>
+  <tr><td>Right(s, n)</td><td>n znaków z prawej</td><td>Right("Cześć", 2) = "ść"</td></tr>
+  <tr><td>Mid(s, pocz, dł)</td><td>Podłańcuch</td><td>Mid("Cześć", 2, 3) = "ześ"</td></tr>
+  <tr><td>InStr(s, szukaj)</td><td>Znajdź pozycję</td><td>InStr("Cześć", "e") = 3</td></tr>
+  <tr><td>Replace(s, stary, nowy)</td><td>Zamień</td><td>Replace("Cześć", "e", "a") = "Czasć"</td></tr>
+  <tr><td>Trim(s)</td><td>Usuń spacje</td><td>Trim("  Hi  ") = "Hi"</td></tr>
+  <tr><td>UCase(s)</td><td>Wielkie litery</td><td>UCase("cześć") = "CZEŚĆ"</td></tr>
+  <tr><td>LCase(s)</td><td>Małe litery</td><td>LCase("CZEŚĆ") = "cześć"</td></tr>
+</table>
+
+<h4>Funkcje matematyczne</h4>
+<table>
+  <tr><th>Funkcja</th><th>Opis</th><th>Przykład</th></tr>
+  <tr><td>Abs(x)</td><td>Wartość bezwzględna</td><td>Abs(-5) = 5</td></tr>
+  <tr><td>Round(x, d)</td><td>Zaokrąglenie</td><td>Round(3.456, 2) = 3.46</td></tr>
+  <tr><td>Sqr(x)</td><td>Pierwiastek kwadratowy</td><td>Sqr(16) = 4</td></tr>
+  <tr><td>Log(x)</td><td>Logarytm naturalny</td><td>Log(2.718) = 1</td></tr>
+  <tr><td>Exp(x)</td><td>Funkcja wykładnicza (e^x)</td><td>Exp(1) = 2.718...</td></tr>
+  <tr><td>Sgn(x)</td><td>Znak (-1, 0, 1)</td><td>Sgn(-5) = -1</td></tr>
+  <tr><td>Rnd()</td><td>Liczba losowa 0-1</td><td>Rnd() = 0.xxxxx</td></tr>
+</table>
+
+<h4>Funkcje trygonometryczne</h4>
+<table>
+  <tr><th>Funkcja</th><th>Opis</th></tr>
+  <tr><td>Sin(x)</td><td>Sinus</td></tr>
+  <tr><td>Cos(x)</td><td>Cosinus</td></tr>
+  <tr><td>Tan(x)</td><td>Tangens</td></tr>
+  <tr><td>Atan(x)</td><td>Arcus tangens</td></tr>
+</table>
+
+<h4>Funkcje czasowe</h4>
+<table>
+  <tr><th>Funkcja</th><th>Opis</th><th>Przykład</th></tr>
+  <tr><td>TimeToHours(s)</td><td>Łańcuch czasu na godziny dziesiętne</td><td>TimeToHours("08:30") = 8.5</td></tr>
+  <tr><td>TimeOverlap(s1, e1, s2, e2)</td><td>Nakładanie się dwóch okresów czasu w godzinach</td><td>TimeOverlap("23:00", "06:00", "22:00", "07:00") = 7</td></tr>
+</table>
+
+<p><em>TimeOverlap obsługuje okresy czasu przekraczające północ (np. 23:00-06:00).</em></p>
+
+<h4>Funkcje warunkowe</h4>
+<table>
+  <tr><th>Funkcja</th><th>Opis</th><th>Przykład</th></tr>
+  <tr><td>IIF(warunek, prawda, fałsz)</td><td>Wyrażenie warunkowe (operator trójargumentowy)</td><td>IIF(x > 0, "dodatni", "ujemny")</td></tr>
+</table>
+
+<hr>
+
+<h3>Zwracanie wartości</h3>
+
+<pre>
+OUTPUT typ, wartość            ' Zwrot do Klacks (typ odpowiada MacroType)
+</pre>
+
+<hr>
+
+<h3>Funkcje debugowania</h3>
+<p>Do testowania makr dostępne są następujące funkcje debugowania:</p>
+
+<table>
+  <tr><th>Funkcja</th><th>Opis</th></tr>
+  <tr><td>DEBUGPRINT wartość</td><td>Wyświetla wartość w oknie testowym</td></tr>
+  <tr><td>DEBUGCLEAR</td><td>Czyści okno testowe</td></tr>
+</table>
+
+<h4>Przykład</h4>
+<pre>
+DIM x
+x = 42
+DEBUGPRINT "Wartość to: " & x
+DEBUGPRINT "Obliczanie w toku..."
+</pre>
+
+<p><em>Wyjście debugowania pojawia się na karcie "Testuj" w edytorze makr.</em></p>
+
+<hr>
+
+<h3>Przykład: Obliczanie dodatków</h3>
+<p>Oblicza dodatki za pracę nocną, dni świąteczne i weekendy z prawidłową obsługą
+zmian przekraczających północ (podział na segmenty).</p>
+
+<pre>
+IMPORT hour, fromhour, untilhour
+IMPORT weekday, holiday, holidaynextday
+IMPORT nightrate, holidayrate, sarate, sorate
+
+FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
+    DIM SegmentHours, NightHours, NonNightHours
+    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+
+    SegmentHours = EndHour - StartHour
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    ' Oblicz godziny nocne (23:00-06:00)
+    NightHours = 0
+    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
+    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NonNightHours = SegmentHours - NightHours
+
+    HasHoliday = IsHoliday
+    IsSaturday = WeekdayNum = 6    ' So = 6 (ISO-8601)
+    IsSunday = WeekdayNum = 7      ' Nd = 7 (ISO-8601)
+
+    ' Najwyższa stawka dla godzin nocnych
+    NRate = nightrate
+    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+
+    ' Najwyższa stawka dla godzin dziennych
+    DRate = 0
+    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+
+    CalcSegment = NightHours * NRate + NonNightHours * DRate
+ENDFUNCTION
+
+DIM TotalBonus, WeekdayNextDay
+
+' Oblicz dzień tygodnia następnego dnia (ISO-8601)
+WeekdayNextDay = (weekday MOD 7) + 1
+
+IF untilhour &lt;= fromhour THEN
+    ' Zmiana przekraczająca północ - 2 segmenty
+    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
+    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+ELSE
+    ' Normalna zmiana dzienna
+    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+ENDIF
+
+OUTPUT 1, Round(TotalBonus, 2)
+</pre>
+
+<h4>Wyjaśnienie</h4>
+<ul>
+  <li><strong>Podział na segmenty:</strong> Dla zmian przekraczających północ (np. 22:00-06:00) zmiana jest dzielona na dwa segmenty</li>
+  <li><strong>CalcSegment:</strong> Oblicza dodatek dla segmentu z uwzględnieniem dodatków nocnych, świątecznych i weekendowych</li>
+  <li><strong>Osobne stawki dla soboty/niedzieli:</strong> sarate i sorate pozwalają na różne dodatki dla soboty i niedzieli</li>
+  <li><strong>Najwyższy dodatek:</strong> Zawsze stosowany jest najwyższy obowiązujący dodatek</li>
+  <li><strong>holidaynextday:</strong> Uwzględnia, czy następny dzień jest dniem świątecznym (ważne dla zmian nocnych)</li>
+</ul>

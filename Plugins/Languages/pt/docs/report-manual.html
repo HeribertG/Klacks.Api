@@ -1,0 +1,126 @@
+<h2>Manual do designer de relatórios</h2>
+
+<h3>Estrutura do relatório</h3>
+<p>O relatório é composto por três secções:</p>
+<ul>
+  <li><strong>Cabeçalho</strong> &ndash; Impresso no topo de cada página</li>
+  <li><strong>Corpo</strong> &ndash; Contém as tabelas de dados</li>
+  <li><strong>Rodapé</strong> &ndash; Impresso no final de cada página</li>
+</ul>
+<p>Cada secção pode ser editada no separador <em>Designer</em> do editor de relatórios.</p>
+
+<hr>
+
+<h3>Secção de cabeçalho</h3>
+<p>O cabeçalho tem três zonas: <strong>esquerda</strong>, <strong>centro</strong>, <strong>direita</strong>.</p>
+<p>Cada zona pode conter:</p>
+<ul>
+  <li><strong>Campos</strong> &ndash; Campos de base de dados preenchidos automaticamente</li>
+  <li><strong>Texto livre</strong> &ndash; Texto introduzido manualmente</li>
+  <li><strong>Imagens</strong> &ndash; Ex.: logótipo da empresa (carregado pelo gestor de imagens)</li>
+</ul>
+<p>As linhas podem ser adicionadas ou removidas através da barra de ferramentas.</p>
+
+<hr>
+
+<h3>Tabela do corpo</h3>
+<p>O corpo contém uma ou mais tabelas.</p>
+<table>
+  <tr><th>Operação</th><th>Descrição</th></tr>
+  <tr><td>Adicionar coluna</td><td>Através do ícone <strong>+</strong> ou arrastando da lista de campos</td></tr>
+  <tr><td>Largura da coluna</td><td>Arrastar a borda da coluna para ajustar</td></tr>
+  <tr><td>Ordem das colunas</td><td>Mover por arrastar e soltar</td></tr>
+  <tr><td>Remover coluna</td><td>Através do ícone de eliminar no editor de colunas</td></tr>
+</table>
+<p>Cada tabela está associada a um conjunto de dados (ex.: plano de trabalho, endereços).</p>
+
+<hr>
+
+<h3>Campos combinados (campos de junção)</h3>
+<p>Os campos de junção permitem definir múltiplas ligações de dados numa única coluna.</p>
+<ul>
+  <li>No editor de colunas, clique em <strong>Adicionar campo</strong> para adicionar mais campos à mesma coluna</li>
+  <li>Os valores são apresentados empilhados ou com separadores</li>
+  <li>O separador pode ser configurado no diálogo de campos (ex.: vírgula, espaço, nova linha)</li>
+</ul>
+
+<hr>
+
+<h3>Rodapé da tabela</h3>
+<p>Pode ser apresentado um rodapé abaixo de cada tabela.</p>
+<ul>
+  <li><strong>Campos SOMA:</strong> Colunas numéricas podem ser somadas automaticamente</li>
+  <li><strong>Rótulo:</strong> O rótulo da soma pode ser mostrado ou ocultado</li>
+  <li>Ativa-se no separador <em>Rodapé</em> do editor de colunas</li>
+</ul>
+
+<hr>
+
+<h3>Linhas de texto livre</h3>
+<p>Linhas de texto livre podem ser inseridas antes ou depois das tabelas de dados.</p>
+<table>
+  <tr><th>Propriedade</th><th>Descrição</th></tr>
+  <tr><td>Posição</td><td>Escolher <em>Antes dos dados</em> ou <em>Depois dos dados</em></td></tr>
+  <tr><td>Conteúdo</td><td>Qualquer texto, ex.: notas, condições, espaço para assinatura</td></tr>
+  <tr><td>Estilo</td><td>Fonte, tamanho e alinhamento configuráveis</td></tr>
+</table>
+
+<hr>
+
+<h3>Formatação</h3>
+<p>Cada célula e texto livre pode ser formatado individualmente:</p>
+<table>
+  <tr><th>Opção</th><th>Descrição</th></tr>
+  <tr><td>Fonte</td><td>Fonte selecionável para a célula</td></tr>
+  <tr><td>Tamanho da fonte</td><td>Tamanho em pontos (pt)</td></tr>
+  <tr><td>Negrito / Itálico / Sublinhado</td><td>Alternar com os botões <strong>B</strong> / <strong>I</strong> / <strong>U</strong></td></tr>
+  <tr><td>Cor do texto</td><td>Cor livremente selecionável</td></tr>
+  <tr><td>Alinhamento</td><td>Esquerda, centro ou direita</td></tr>
+</table>
+
+<hr>
+
+<h3>Bordas das células</h3>
+<p>As bordas de cada célula podem ser configuradas individualmente.</p>
+<table>
+  <tr><th>Propriedade</th><th>Opções</th></tr>
+  <tr><td>Lado</td><td>Superior, direita, inferior, esquerda (individual ou todas)</td></tr>
+  <tr><td>Estilo da linha</td><td>Fina, média, grossa, tracejada, dupla</td></tr>
+  <tr><td>Cor da linha</td><td>Livremente selecionável</td></tr>
+</table>
+<p>As bordas são configuradas no separador <em>Bordas</em> do editor de colunas.</p>
+
+<hr>
+
+<h3>Configuração da página</h3>
+<p>No separador <em>Geral</em> pode ajustar as configurações de impressão:</p>
+<ul>
+  <li><strong>Orientação:</strong> Retrato ou paisagem</li>
+  <li><strong>Tamanho do papel:</strong> A4, A3, B4 (JIS), B5 (JIS) ou Letter</li>
+  <li><strong>Margens da página:</strong> Superior, direita, inferior, esquerda (em mm)</li>
+</ul>
+
+<hr>
+
+<h3>Opções de visualização (Designer)</h3>
+<p>Para a fonte de dados <strong>Plano de trabalho (Schedule)</strong>, o separador <em>Designer</em> mostra opções adicionais:</p>
+<ul>
+  <li><strong>Agrupar entradas do mesmo dia:</strong> Mostra múltiplas entradas do mesmo dia numa única linha</li>
+  <li><strong>Mostrar período completo:</strong> Mostra todos os dias do período, incluindo dias sem entradas</li>
+</ul>
+
+<hr>
+
+<h3>Fontes de dados</h3>
+<p>Fontes de dados disponíveis para relatórios:</p>
+<table>
+  <tr><th>Fonte de dados</th><th>Descrição</th></tr>
+  <tr><td>Plano de trabalho (Schedule)</td><td>Turnos e horas de trabalho</td></tr>
+  <tr><td>Endereços (Lista)</td><td>Todos os endereços em formato de tabela</td></tr>
+  <tr><td>Endereço (Detalhe)</td><td>Endereço individual</td></tr>
+  <tr><td>Ausências</td><td>Lista de ausências</td></tr>
+  <tr><td>Turnos (Shifts)</td><td>Tabela de turnos</td></tr>
+  <tr><td>Grupos</td><td>Lista de grupos</td></tr>
+  <tr><td>Modelo de contentor</td><td>Modelo para relatórios de contentores</td></tr>
+</table>
+<p><em>A fonte de dados é selecionada no separador "Fonte de dados" e determina os campos disponíveis.</em></p>

@@ -1,0 +1,7 @@
+{
+  "frustrated": ["fungerar inte", "trasig", "bugg", "fel", "varför", "igen", "problem", "error", "krånglar", "fixas inte"],
+  "stressed": ["brådskande", "skynda", "deadline", "nu direkt", "har inte tid", "press", "stressad", "överväldigad"],
+  "confused": ["förstår inte", "hur gör man", "vad betyder", "vad är", "förvirrad", "hjälp", "oklar", "förklara"],
+  "positive": ["tack", "perfekt", "utmärkt", "toppen", "fantastiskt", "bra jobbat", "underbart", "kanon"],
+  "urgent": ["viktigt", "akut", "brådskande", "kris", "omedelbart", "genast", "kritiskt"]
+}

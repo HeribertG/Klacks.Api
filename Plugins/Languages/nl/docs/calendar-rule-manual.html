@@ -1,0 +1,82 @@
+<h2>Feestdagregels - Uitleg</h2>
+
+<h3>Regelformaat</h3>
+<p>Er zijn 2 soorten regels: <strong>vaste datums</strong> en <strong>op Pasen gebaseerde datums</strong>.</p>
+
+<h4>Vaste datum</h4>
+<p>Formaat: <code>MM/DD</code></p>
+<table>
+  <tr><th>Voorbeeld</th><th>Betekenis</th></tr>
+  <tr><td><code>01/01</code></td><td>1 januari (Nieuwjaarsdag)</td></tr>
+  <tr><td><code>12/25</code></td><td>25 december (Kerstmis)</td></tr>
+  <tr><td><code>08/01</code></td><td>1 augustus (Zwitserse nationale feestdag)</td></tr>
+</table>
+
+<h4>Vaste datum met weekdagverschuiving</h4>
+<p>Formaat: <code>MM/DD+XX+WW</code> of <code>MM/DD+XX-WW</code></p>
+<ul>
+  <li><code>+XX</code> = teken + offset (dagen) (00 tot 99)</li>
+  <li><code>+</code> = volgende weekdag na de datum</li>
+  <li><code>-</code> = vorige weekdag voor de datum</li>
+  <li><code>WW</code> = weekdag (SU, MO, TU, WE, TH, FR, SA)</li>
+</ul>
+<table>
+  <tr><th>Voorbeeld</th><th>Betekenis</th></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>Eerste donderdag in november</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>Vierde donderdag in november (Thanksgiving)</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>Laatste maandag in mei (Memorial Day)</td></tr>
+</table>
+
+<h4>Op Pasen gebaseerde datum</h4>
+<p>Formaat: <code>EASTER+XX</code> of <code>EASTER-XX</code></p>
+<table>
+  <tr><th>Voorbeeld</th><th>Betekenis</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>Paaszondag</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>Goede Vrijdag (2 dagen voor Pasen)</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>Paasmaandag (1 dag na Pasen)</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>Hemelvaartsdag (39 dagen na Pasen)</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>Pinksterzondag (49 dagen na Pasen)</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>Pinkstermaandag (50 dagen na Pasen)</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>Sacramentsdag (60 dagen na Pasen)</td></tr>
+</table>
+
+<hr>
+
+<h3>Subregelformaat</h3>
+<p>Subregels maken het mogelijk een feestdag automatisch te verschuiven als deze op een bepaalde weekdag valt.</p>
+<p>Formaat: <code>WW+X</code> of <code>WW-X</code>, meerdere regels gescheiden door <code>;</code></p>
+<ul>
+  <li><code>WW</code> = weekdag (SU, MO, TU, WE, TH, FR, SA)</li>
+  <li><code>+X</code> = X dagen vooruit</li>
+  <li><code>-X</code> = X dagen terug</li>
+</ul>
+<table>
+  <tr><th>Voorbeeld</th><th>Betekenis</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>Op zaterdag: +2 dagen (maandag), op zondag: +1 dag (maandag)</td></tr>
+  <tr><td><code>SU+1</code></td><td>Op zondag: verschuiving naar maandag</td></tr>
+</table>
+
+<p><em>Opmerking: Subregels worden meestal gebruikt om feestdagen die in het weekend vallen naar de volgende werkdag te verschuiven.</em></p>
+
+<hr>
+
+<h3>Weekdagafkortingen</h3>
+<table>
+  <tr><th>Afkorting</th><th>Weekdag</th></tr>
+  <tr><td>SU</td><td>Zondag (Sunday)</td></tr>
+  <tr><td>MO</td><td>Maandag (Monday)</td></tr>
+  <tr><td>TU</td><td>Dinsdag (Tuesday)</td></tr>
+  <tr><td>WE</td><td>Woensdag (Wednesday)</td></tr>
+  <tr><td>TH</td><td>Donderdag (Thursday)</td></tr>
+  <tr><td>FR</td><td>Vrijdag (Friday)</td></tr>
+  <tr><td>SA</td><td>Zaterdag (Saturday)</td></tr>
+</table>
+
+<hr>
+
+<h3>Selectievakjes</h3>
+<table>
+  <tr><th>Selectievakje</th><th>Betekenis</th></tr>
+  <tr><td>Officiële feestdag</td><td>De dag is een officiële/wettelijke feestdag</td></tr>
+  <tr><td>Betaald</td><td>De feestdag wordt betaald (relevant voor salarisberekening)</td></tr>
+</table>

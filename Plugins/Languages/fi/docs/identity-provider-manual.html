@@ -1,0 +1,118 @@
+<h2>Identiteetintarjoajan käsikirja</h2>
+
+<h3>Johdanto</h3>
+<p>
+Identiteetintarjoajat mahdollistavat käyttäjien todennuksen ulkoisten hakemistopalveluiden
+kuten LDAP:n, Active Directoryn tai OAuth2/OpenID Connectin kautta.
+</p>
+
+<p><strong>Tuetut tarjoajatyypit:</strong></p>
+<ul>
+  <li><strong>LDAP</strong> - Lightweight Directory Access Protocol</li>
+  <li><strong>Active Directory</strong> - Microsoft Active Directory</li>
+  <li><strong>OAuth2</strong> - OAuth 2.0 -valtuutuskehys</li>
+  <li><strong>OpenID Connect</strong> - Identiteettikerros OAuth 2.0:n päällä</li>
+</ul>
+
+<hr>
+
+<h3>LDAP / Active Directory</h3>
+
+<h4>Yhteysasetukset</h4>
+<table>
+  <tr><th>Kenttä</th><th>Kuvaus</th><th>Esimerkki</th></tr>
+  <tr><td>Isäntä</td><td>LDAP-palvelimen isäntänimi tai IP-osoite</td><td>ldap.example.com</td></tr>
+  <tr><td>Portti</td><td>389 (LDAP) tai 636 (LDAPS)</td><td>389</td></tr>
+  <tr><td>Käytä SSL:ää</td><td>Aktivoi salatun yhteyden</td><td>-</td></tr>
+  <tr><td>Base DN</td><td>Perus-Distinguished Name hauille</td><td>DC=example,DC=com</td></tr>
+  <tr><td>Bind DN</td><td>Yhteyskäyttäjän DN</td><td>CN=admin,DC=example,DC=com</td></tr>
+  <tr><td>Bind-salasana</td><td>Bind-käyttäjän salasana</td><td>-</td></tr>
+  <tr><td>Käyttäjäsuodatin</td><td>LDAP-suodatin käyttäjien hakuun</td><td>(objectClass=person)</td></tr>
+</table>
+
+<h4>Erot LDAP:n ja Active Directoryn välillä</h4>
+<table>
+  <tr><th>Ominaisuus</th><th>LDAP (OpenLDAP)</th><th>Active Directory</th></tr>
+  <tr><td>Käyttäjäattribuutti</td><td>uid</td><td>sAMAccountName</td></tr>
+  <tr><td>Katuattribuutti</td><td>street</td><td>streetAddress</td></tr>
+  <tr><td>Puhutteluattribuutti</td><td>-</td><td>personalTitle</td></tr>
+  <tr><td>Maa-attribuutti</td><td>-</td><td>c</td></tr>
+  <tr><td>Todennusmenetelmä</td><td>Simple Bind</td><td>Negotiate/Kerberos</td></tr>
+</table>
+
+<h4>Yleiset käyttäjäsuodattimet</h4>
+<pre>
+LDAP:             (objectClass=person)
+                  (objectClass=inetOrgPerson)
+
+Active Directory: (&amp;(objectClass=user)(objectCategory=person))
+                  (&amp;(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+</pre>
+
+<h4>Asiakastuonti</h4>
+<p>Kun "Käytä asiakastuontiin" on aktivoitu, seuraavat tiedot tuodaan:</p>
+<ul>
+  <li><strong>Sukunimi</strong> - sn (sukunimi) tai displayName</li>
+  <li><strong>Etunimi</strong> - givenName</li>
+  <li><strong>Titteli</strong> - title (ammattinimike)</li>
+  <li><strong>Yritys</strong> - company</li>
+  <li><strong>Osoite</strong> - street/streetAddress, postalCode, l (kaupunki), st (lääni), c (maa)</li>
+  <li><strong>Sukupuoli</strong> - personalTitle-kentästä (Herra/Rouva) Active Directoryssa</li>
+</ul>
+
+<p><em>Huomautus: OpenLDAP:ssa sukupuoli on oletuksena "Neutraali" ja se voidaan korjata manuaalisesti.</em></p>
+
+<hr>
+
+<h3>OAuth2 / OpenID Connect</h3>
+
+<h4>Asetukset</h4>
+<table>
+  <tr><th>Kenttä</th><th>Kuvaus</th></tr>
+  <tr><td>Client ID</td><td>Tarjoajalle rekisteröity asiakastunnus</td></tr>
+  <tr><td>Client Secret</td><td>Vastaava asiakassalaisuus</td></tr>
+  <tr><td>Tenant ID</td><td>Azure AD Tenant-tunnus (valinnainen, vain Microsoftille)</td></tr>
+  <tr><td>Valtuutus-URL</td><td>Valtuutuksen päätepiste</td></tr>
+  <tr><td>Token-URL</td><td>Tokeninvaihdon päätepiste</td></tr>
+  <tr><td>Käyttäjätietojen URL</td><td>Käyttäjätietojen päätepiste</td></tr>
+  <tr><td>Laajuudet</td><td>Pyydetyt käyttöoikeudet (esim. "openid profile email")</td></tr>
+</table>
+
+<h4>Tunnetut tarjoajat</h4>
+<table>
+  <tr><th>Tarjoaja</th><th>Valtuutus-URL</th><th>Token-URL</th></tr>
+  <tr><td>Google</td><td>https://accounts.google.com/o/oauth2/v2/auth</td><td>https://oauth2.googleapis.com/token</td></tr>
+  <tr><td>Microsoft</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</td></tr>
+  <tr><td>GitHub</td><td>https://github.com/login/oauth/authorize</td><td>https://github.com/login/oauth/access_token</td></tr>
+</table>
+
+<hr>
+
+<h3>Vinkkejä</h3>
+
+<h4>Synology NAS LDAP-palvelimena</h4>
+<p>
+Synology NAS:ia voidaan käyttää LDAP-palvelimena. Tätä varten on asennettava
+"LDAP Server" -paketti tai Docker-kontti OpenLDAP:lla.
+</p>
+<ul>
+  <li>Tarjoajatyyppi: "Active Directory" (varatodennusta varten)</li>
+  <li>Käyttäjäsuodatin: (objectClass=inetOrgPerson)</li>
+  <li>Käyttäjä-DN-muoto: cn=käyttäjänimi,ou=users,dc=example,dc=com</li>
+</ul>
+
+<h4>Yhteyden testaaminen</h4>
+<p>
+Käytä "Testaa yhteys" -painiketta asetusten tarkistamiseen.
+Onnistuneen yhteyden yhteydessä näytetään löydettyjen käyttäjien määrä ja joitakin
+esimerkkikäyttäjänimiä.
+</p>
+
+<h4>Vianmääritys</h4>
+<table>
+  <tr><th>Ongelma</th><th>Ratkaisu</th></tr>
+  <tr><td>Yhteys epäonnistui</td><td>Tarkista isäntä, portti ja SSL-asetukset</td></tr>
+  <tr><td>Bind epäonnistui</td><td>Tarkista Bind DN ja salasana</td></tr>
+  <tr><td>Käyttäjiä ei löytynyt</td><td>Tarkista Base DN ja käyttäjäsuodatin</td></tr>
+  <tr><td>Osoitteita ei tuotu</td><td>OpenLDAP käyttää "street" eikä "streetAddress"</td></tr>
+</table>

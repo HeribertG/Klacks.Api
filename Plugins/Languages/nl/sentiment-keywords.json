@@ -1,0 +1,7 @@
+{
+  "frustrated": ["werkt niet", "kapot", "bug", "raar", "waarom", "weer", "probleem", "fout", "storing", "lukt niet"],
+  "stressed": ["dringend", "snel", "spoed", "deadline", "nu meteen", "geen tijd", "druk"],
+  "confused": ["snap het niet", "hoe moet", "begrijp niet", "wat is", "help", "leg uit", "onduidelijk"],
+  "positive": ["bedankt", "geweldig", "perfect", "top", "super", "goed gedaan", "dank je"],
+  "urgent": ["belangrijk", "dringend", "spoed", "crisis", "nu meteen"]
+}

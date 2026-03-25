@@ -1,0 +1,82 @@
+<h2>Helgdagsregler - Förklaringar</h2>
+
+<h3>Regelformat</h3>
+<p>Det finns två typer av regler: <strong>fasta datum</strong> och <strong>påskrelaterade datum</strong>.</p>
+
+<h4>Fasta datum</h4>
+<p>Format: <code>MM/DD</code></p>
+<table>
+  <tr><th>Exempel</th><th>Betydelse</th></tr>
+  <tr><td><code>01/01</code></td><td>1 januari (nyårsdagen)</td></tr>
+  <tr><td><code>12/25</code></td><td>25 december (juldagen)</td></tr>
+  <tr><td><code>08/01</code></td><td>1 augusti (schweiziska nationaldagen)</td></tr>
+</table>
+
+<h4>Fasta datum med veckodagsförskjutning</h4>
+<p>Format: <code>MM/DD+XX+WW</code> eller <code>MM/DD+XX-WW</code></p>
+<ul>
+  <li><code>+XX</code> = tecken + förskjutning i dagar (00 till 99)</li>
+  <li><code>+</code> = nästa veckodag efter datumet</li>
+  <li><code>-</code> = föregående veckodag före datumet</li>
+  <li><code>WW</code> = veckodag (SU, MO, TU, WE, TH, FR, SA)</li>
+</ul>
+<table>
+  <tr><th>Exempel</th><th>Betydelse</th></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>Första torsdagen i november</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>Fjärde torsdagen i november (Thanksgiving)</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>Sista måndagen i maj (Memorial Day)</td></tr>
+</table>
+
+<h4>Påskrelaterade datum</h4>
+<p>Format: <code>EASTER+XX</code> eller <code>EASTER-XX</code></p>
+<table>
+  <tr><th>Exempel</th><th>Betydelse</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>Påskdagen</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>Långfredagen (2 dagar före påsk)</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>Annandag påsk (1 dag efter påsk)</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>Kristi himmelsfärdsdag (39 dagar efter påsk)</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>Pingstdagen (49 dagar efter påsk)</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>Annandag pingst (50 dagar efter påsk)</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>Kristi kropps och blods högtid (60 dagar efter påsk)</td></tr>
+</table>
+
+<hr>
+
+<h3>Underregelsformat</h3>
+<p>Underregler möjliggör automatisk förskjutning av en helgdag när den infaller på en viss veckodag.</p>
+<p>Format: <code>WW+X</code> eller <code>WW-X</code>, flera regler separeras med <code>;</code></p>
+<ul>
+  <li><code>WW</code> = veckodag (SU, MO, TU, WE, TH, FR, SA)</li>
+  <li><code>+X</code> = flytta X dagar framåt</li>
+  <li><code>-X</code> = flytta X dagar bakåt</li>
+</ul>
+<table>
+  <tr><th>Exempel</th><th>Betydelse</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>Om lördag: +2 dagar (måndag), om söndag: +1 dag (måndag)</td></tr>
+  <tr><td><code>SU+1</code></td><td>Om söndag: flytta till måndag</td></tr>
+</table>
+
+<p><em>Obs: Underregler används vanligtvis för att flytta helgdagar som infaller på helgen till nästa vardag.</em></p>
+
+<hr>
+
+<h3>Veckodagsförkortningar</h3>
+<table>
+  <tr><th>Förkortning</th><th>Veckodag</th></tr>
+  <tr><td>SU</td><td>Söndag (Sunday)</td></tr>
+  <tr><td>MO</td><td>Måndag (Monday)</td></tr>
+  <tr><td>TU</td><td>Tisdag (Tuesday)</td></tr>
+  <tr><td>WE</td><td>Onsdag (Wednesday)</td></tr>
+  <tr><td>TH</td><td>Torsdag (Thursday)</td></tr>
+  <tr><td>FR</td><td>Fredag (Friday)</td></tr>
+  <tr><td>SA</td><td>Lördag (Saturday)</td></tr>
+</table>
+
+<hr>
+
+<h3>Kryssrutor</h3>
+<table>
+  <tr><th>Kryssruta</th><th>Betydelse</th></tr>
+  <tr><td>Officiell helgdag</td><td>Dagen är en officiell/lagstadgad helgdag</td></tr>
+  <tr><td>Betald</td><td>Helgdagen är betald (relevant för löneberäkning)</td></tr>
+</table>

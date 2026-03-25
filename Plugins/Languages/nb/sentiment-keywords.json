@@ -1,0 +1,7 @@
+{
+  "frustrated": ["fungerer ikke", "ødelagt", "feil", "rart", "hvorfor", "igjen", "problem", "feiling", "virker ikke", "fikser ikke"],
+  "stressed": ["haster", "fort", "straks", "frist", "nå med en gang", "har ikke tid", "press"],
+  "confused": ["forstår ikke", "hvordan", "uforståelig", "hva er det", "skjønner ikke", "forklar", "uklart"],
+  "positive": ["takk", "flott", "perfekt", "utmerket", "fantastisk", "bra gjort", "takknemlig"],
+  "urgent": ["viktig", "haster", "straks", "krise", "umiddelbart"]
+}

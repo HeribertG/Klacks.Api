@@ -1,0 +1,145 @@
+[
+  {
+    "id": "c1b2c3d4-c501-4000-8000-000000000001",
+    "rule": "01/01",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "CZ",
+    "country": "CZ",
+    "name": { "de": "Neujahr / Tag der Erneuerung des tschechischen Staates", "en": "New Year's Day / Restoration Day of the Independent Czech State", "fr": "Jour de l'An / Jour de la restauration de l'État tchèque", "it": "Capodanno / Giorno della restaurazione dello Stato ceco", "cs": "Nový rok / Den obnovy samostatného českého státu", "ja": "元日／チェコ独立回復の日", "es": "Año Nuevo / Día de la Restauración del Estado Checo" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "cs": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "c1b2c3d4-c501-4000-8000-000000000002",
+    "rule": "EASTER-02",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "CZ",
+    "country": "CZ",
+    "name": { "de": "Karfreitag", "en": "Good Friday", "fr": "Vendredi saint", "it": "Venerdì Santo", "cs": "Velký pátek", "ja": "聖金曜日", "es": "Viernes Santo" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "cs": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "c1b2c3d4-c501-4000-8000-000000000003",
+    "rule": "EASTER+01",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "CZ",
+    "country": "CZ",
+    "name": { "de": "Ostermontag", "en": "Easter Monday", "fr": "Lundi de Pâques", "it": "Lunedì di Pasqua", "cs": "Velikonoční pondělí", "ja": "イースターマンデー", "es": "Lunes de Pascua" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "cs": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "c1b2c3d4-c501-4000-8000-000000000004",
+    "rule": "05/01",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "CZ",
+    "country": "CZ",
+    "name": { "de": "Tag der Arbeit", "en": "Labour Day", "fr": "Fête du Travail", "it": "Festa del Lavoro", "cs": "Svátek práce", "ja": "メーデー", "es": "Día del Trabajo" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "cs": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "c1b2c3d4-c501-4000-8000-000000000005",
+    "rule": "05/08",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "CZ",
+    "country": "CZ",
+    "name": { "de": "Tag des Sieges", "en": "Victory Day", "fr": "Jour de la Victoire", "it": "Giorno della Vittoria", "cs": "Den vítězství", "ja": "戦勝記念日", "es": "Día de la Victoria" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "cs": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "c1b2c3d4-c501-4000-8000-000000000006",
+    "rule": "07/05",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "CZ",
+    "country": "CZ",
+    "name": { "de": "Tag der Slawenapostel Kyrill und Method", "en": "Saints Cyril and Methodius Day", "fr": "Jour des saints Cyrille et Méthode", "it": "Giorno dei santi Cirillo e Metodio", "cs": "Den slovanských věrozvěstů Cyrila a Metoděje", "ja": "聖キュリロスと聖メトディオスの日", "es": "Día de los Santos Cirilo y Metodio" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "cs": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "c1b2c3d4-c501-4000-8000-000000000007",
+    "rule": "07/06",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "CZ",
+    "country": "CZ",
+    "name": { "de": "Tag der Verbrennung von Jan Hus", "en": "Jan Hus Day", "fr": "Jour de Jan Hus", "it": "Giorno di Jan Hus", "cs": "Den upálení mistra Jana Husa", "ja": "ヤン・フスの日", "es": "Día de Jan Hus" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "cs": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "c1b2c3d4-c501-4000-8000-000000000008",
+    "rule": "09/28",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "CZ",
+    "country": "CZ",
+    "name": { "de": "Tag der tschechischen Staatlichkeit", "en": "Czech Statehood Day", "fr": "Jour de la souveraineté tchèque", "it": "Giorno della statualità ceca", "cs": "Den české státnosti", "ja": "チェコ国家の日", "es": "Día de la Estatalidad Checa" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "cs": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "c1b2c3d4-c501-4000-8000-000000000009",
+    "rule": "10/28",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "CZ",
+    "country": "CZ",
+    "name": { "de": "Tag der Gründung der Tschechoslowakei", "en": "Independent Czechoslovak State Day", "fr": "Jour de la création de la Tchécoslovaquie", "it": "Giorno della nascita della Cecoslovacchia", "cs": "Den vzniku samostatného československého státu", "ja": "チェコスロバキア独立記念日", "es": "Día de la Independencia de Checoslovaquia" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "cs": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "c1b2c3d4-c501-4000-8000-000000000010",
+    "rule": "11/17",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "CZ",
+    "country": "CZ",
+    "name": { "de": "Tag des Kampfes für Freiheit und Demokratie", "en": "Struggle for Freedom and Democracy Day", "fr": "Jour de la lutte pour la liberté et la démocratie", "it": "Giorno della lotta per la libertà e la democrazia", "cs": "Den boje za svobodu a demokracii", "ja": "自由と民主主義のための闘争の日", "es": "Día de la Lucha por la Libertad y la Democracia" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "cs": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "c1b2c3d4-c501-4000-8000-000000000011",
+    "rule": "12/24",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "CZ",
+    "country": "CZ",
+    "name": { "de": "Heiligabend", "en": "Christmas Eve", "fr": "Veille de Noël", "it": "Vigilia di Natale", "cs": "Štědrý den", "ja": "クリスマスイブ", "es": "Nochebuena" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "cs": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "c1b2c3d4-c501-4000-8000-000000000012",
+    "rule": "12/25",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "CZ",
+    "country": "CZ",
+    "name": { "de": "Erster Weihnachtsfeiertag", "en": "Christmas Day", "fr": "Noël", "it": "Natale", "cs": "1. svátek vánoční", "ja": "クリスマス", "es": "Navidad" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "cs": "", "ja": "", "es": "" }
+  },
+  {
+    "id": "c1b2c3d4-c501-4000-8000-000000000013",
+    "rule": "12/26",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "CZ",
+    "country": "CZ",
+    "name": { "de": "Stephanstag", "en": "St. Stephen's Day", "fr": "Saint-Étienne", "it": "Santo Stefano", "cs": "2. svátek vánoční", "ja": "聖ステファノの日", "es": "San Esteban" },
+    "description": { "de": "", "en": "", "fr": "", "it": "", "cs": "", "ja": "", "es": "" }
+  }
+]

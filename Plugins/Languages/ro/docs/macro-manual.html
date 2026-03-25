@@ -1,0 +1,330 @@
+<h2>Manual Scripting Macro</h2>
+
+<h3>Introducere</h3>
+<p>
+Cu editorul de macrocomenzi puteți crea scripturi utilizate ca bază de calcul
+pentru muncă, tipuri de angajare și altele.
+</p>
+
+<p><strong>Exemple de utilizare:</strong></p>
+<ul>
+  <li>Calcul precis al timpului de vacanță și serviciu militar pe baza ratei de angajare</li>
+  <li>Calcul sporuri pentru muncă de noapte, weekend și sărbători</li>
+  <li>Adaptare flexibilă la cerințe noi</li>
+</ul>
+
+<p>
+<em>Notă: Interpretorul de scripturi funcționează într-un mediu sandbox securizat
+fără acces la sistemul de fișiere sau rețea. Nu poate executa cod malițios.</em>
+</p>
+
+<hr>
+
+<h3>Variabile și constante</h3>
+<p>Toate variabilele și constantele sunt fără tip.</p>
+
+<pre>
+CONST PI = 3.1415
+DIM a, b, c
+IMPORT betrag, rabatt
+</pre>
+
+<h4>Variabile de import (IMPORT)</h4>
+<p>Aceste variabile sunt generate din Work, Contract, CalendarSelection:</p>
+
+<table>
+  <tr><th>Variabilă</th><th>Tip</th><th>Descriere</th></tr>
+  <tr><td>hour</td><td>Decimal</td><td>Ore de lucru (din Work)</td></tr>
+  <tr><td>fromhour</td><td>Decimal</td><td>Oră de început (timp zecimal) (8:30 = 8.5)</td></tr>
+  <tr><td>untilhour</td><td>Decimal</td><td>Oră de sfârșit (timp zecimal) (17:00 = 17.0)</td></tr>
+  <tr><td>weekday</td><td>Integer</td><td>Zi a săptămânii ISO-8601 (1=Lu, 2=Ma, 3=Mi, 4=Jo, 5=Vi, 6=Sâ, 7=Du)</td></tr>
+  <tr><td>holiday</td><td>Boolean</td><td>Dacă ziua curentă este sărbătoare oficială</td></tr>
+  <tr><td>holidaynextday</td><td>Boolean</td><td>Dacă ziua următoare este sărbătoare oficială</td></tr>
+  <tr><td>nightrate</td><td>Decimal</td><td>Spor de noapte din Contract (ex.: 0.10 = 10%)</td></tr>
+  <tr><td>holidayrate</td><td>Decimal</td><td>Spor de sărbătoare din Contract (ex.: 0.15 = 15%)</td></tr>
+  <tr><td>sarate</td><td>Decimal</td><td>Spor de sâmbătă din Contract</td></tr>
+  <tr><td>sorate</td><td>Decimal</td><td>Spor de duminică din Contract</td></tr>
+  <tr><td>guaranteedhours</td><td>Decimal</td><td>Ore lunare garantate din Contract</td></tr>
+  <tr><td>fulltime</td><td>Decimal</td><td>Ore normă întreagă din Contract</td></tr>
+</table>
+
+<hr>
+
+<h3>Structuri de control</h3>
+
+<p><strong>Important:</strong> Cuvintele cheie precum <code>ENDIF</code>, <code>ENDFUNCTION</code>, <code>ENDSUB</code> trebuie
+scrise fără spațiu (nu <code>END IF</code>).</p>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF x > 10 THEN
+    OUTPUT 1, "mare"
+ELSEIF x > 5 THEN
+    OUTPUT 1, "mediu"
+ELSE
+    OUTPUT 1, "mic"
+ENDIF
+</pre>
+
+<h4>IF pe o singură linie</h4>
+<pre>
+IF x > 10 THEN OUTPUT 1, "mare" ENDIF
+</pre>
+
+<h4>SELECT CASE</h4>
+<pre>
+SELECT CASE weekday
+    CASE 6, 7
+        OUTPUT 1, "Weekend"
+    CASE 1, 2, 3, 4, 5
+        OUTPUT 1, "Zi lucrătoare"
+    CASE ELSE
+        OUTPUT 1, "Necunoscut"
+END SELECT
+</pre>
+
+<h4>Buclă FOR-NEXT</h4>
+<pre>
+FOR i = 1 TO 10
+    summe += i
+NEXT
+
+FOR i = 10 TO 1 STEP -1
+    IF x > y THEN EXIT FOR
+NEXT
+</pre>
+
+<h4>Buclă DO-LOOP</h4>
+<pre>
+DO WHILE a > 0
+    a -= 1
+LOOP
+
+DO
+    x += 1
+LOOP UNTIL x >= 10
+</pre>
+
+<hr>
+
+<h3>Funcții și proceduri</h3>
+
+<p><strong>Important:</strong> Funcțiile (FUNCTION) și procedurile (SUB) trebuie definite <em>înaintea</em> primului apel.
+Interpretorul citește codul de sus în jos. O funcție sau procedură poate fi utilizată doar după ce definiția sa a fost procesată.</p>
+
+<h4>SUB (procedură fără valoare returnată)</h4>
+<pre>
+SUB berechne(a, b)
+    IF a = b THEN EXIT SUB ENDIF
+    OUTPUT 1, a + b
+ENDSUB
+</pre>
+
+<h4>FUNCTION (funcție cu valoare returnată)</h4>
+<pre>
+FUNCTION verdoppeln(x)
+    verdoppeln = x * 2
+ENDFUNCTION
+
+DIM ergebnis
+ergebnis = verdoppeln(21)
+OUTPUT 1, ergebnis
+</pre>
+
+<hr>
+
+<h3>Operatori</h3>
+
+<h4>Operatori aritmetici</h4>
+<table>
+  <tr><th>Operator</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>+</td><td>Adunare</td><td>5 + 3 = 8</td></tr>
+  <tr><td>-</td><td>Scădere</td><td>5 - 3 = 2</td></tr>
+  <tr><td>*</td><td>Înmulțire</td><td>5 * 3 = 15</td></tr>
+  <tr><td>/</td><td>Împărțire</td><td>10 / 4 = 2.5</td></tr>
+  <tr><td>\</td><td>Împărțire întreagă</td><td>10 \ 4 = 2</td></tr>
+  <tr><td>MOD</td><td>Rest (modulo)</td><td>10 MOD 3 = 1</td></tr>
+  <tr><td>^</td><td>Ridicare la putere</td><td>2 ^ 3 = 8</td></tr>
+</table>
+
+<h4>Operatori de comparație</h4>
+<table>
+  <tr><th>Operator</th><th>Descriere</th></tr>
+  <tr><td>=</td><td>Egal</td></tr>
+  <tr><td>&lt;&gt;</td><td>Diferit</td></tr>
+  <tr><td>&lt;</td><td>Mai mic</td></tr>
+  <tr><td>&gt;</td><td>Mai mare</td></tr>
+  <tr><td>&lt;=</td><td>Mai mic sau egal</td></tr>
+  <tr><td>&gt;=</td><td>Mai mare sau egal</td></tr>
+</table>
+
+<h4>Operatori logici</h4>
+<table>
+  <tr><th>Operator</th><th>Descriere</th></tr>
+  <tr><td>AND</td><td>Și logic pe biți</td></tr>
+  <tr><td>OR</td><td>Sau logic pe biți</td></tr>
+  <tr><td>NOT</td><td>Negare</td></tr>
+  <tr><td>ANDALSO</td><td>Și logic (evaluare scurtcircuitată)</td></tr>
+  <tr><td>ORELSE</td><td>Sau logic (evaluare scurtcircuitată)</td></tr>
+</table>
+
+<h4>Operatori de atribuire</h4>
+<pre>
+a = 10      ' Atribuire simplă
+a += 5      ' a = a + 5
+a -= 3      ' a = a - 3
+a *= 2      ' a = a * 2
+a /= 4      ' a = a / 4
+a &= "!"    ' Concatenare șiruri
+</pre>
+
+<hr>
+
+<h3>Funcții încorporate</h3>
+
+<h4>Funcții șiruri de caractere</h4>
+<table>
+  <tr><th>Funcție</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>Len(s)</td><td>Lungimea șirului</td><td>Len("Hallo") = 5</td></tr>
+  <tr><td>Left(s, n)</td><td>n caractere de la stânga</td><td>Left("Hallo", 2) = "Ha"</td></tr>
+  <tr><td>Right(s, n)</td><td>n caractere de la dreapta</td><td>Right("Hallo", 2) = "lo"</td></tr>
+  <tr><td>Mid(s, start, len)</td><td>Subșir</td><td>Mid("Hallo", 2, 3) = "all"</td></tr>
+  <tr><td>InStr(s, search)</td><td>Căutare poziție</td><td>InStr("Hallo", "l") = 3</td></tr>
+  <tr><td>Replace(s, old, new)</td><td>Înlocuire</td><td>Replace("Hallo", "l", "x") = "Haxxo"</td></tr>
+  <tr><td>Trim(s)</td><td>Eliminare spații</td><td>Trim("  Hi  ") = "Hi"</td></tr>
+  <tr><td>UCase(s)</td><td>Transformare în majuscule</td><td>UCase("hallo") = "HALLO"</td></tr>
+  <tr><td>LCase(s)</td><td>Transformare în minuscule</td><td>LCase("HALLO") = "hallo"</td></tr>
+</table>
+
+<h4>Funcții matematice</h4>
+<table>
+  <tr><th>Funcție</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>Abs(x)</td><td>Valoare absolută</td><td>Abs(-5) = 5</td></tr>
+  <tr><td>Round(x, d)</td><td>Rotunjire</td><td>Round(3.456, 2) = 3.46</td></tr>
+  <tr><td>Sqr(x)</td><td>Rădăcină pătrată</td><td>Sqr(16) = 4</td></tr>
+  <tr><td>Log(x)</td><td>Logaritm natural</td><td>Log(2.718) = 1</td></tr>
+  <tr><td>Exp(x)</td><td>Funcție exponențială (e^x)</td><td>Exp(1) = 2.718...</td></tr>
+  <tr><td>Sgn(x)</td><td>Semn (-1, 0, 1)</td><td>Sgn(-5) = -1</td></tr>
+  <tr><td>Rnd()</td><td>Număr aleatoriu 0-1</td><td>Rnd() = 0.xxxxx</td></tr>
+</table>
+
+<h4>Funcții trigonometrice</h4>
+<table>
+  <tr><th>Funcție</th><th>Descriere</th></tr>
+  <tr><td>Sin(x)</td><td>Sinus</td></tr>
+  <tr><td>Cos(x)</td><td>Cosinus</td></tr>
+  <tr><td>Tan(x)</td><td>Tangentă</td></tr>
+  <tr><td>Atan(x)</td><td>Arctangentă</td></tr>
+</table>
+
+<h4>Funcții de timp</h4>
+<table>
+  <tr><th>Funcție</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>TimeToHours(s)</td><td>Convertește șir de timp în ore zecimale</td><td>TimeToHours("08:30") = 8.5</td></tr>
+  <tr><td>TimeOverlap(s1, e1, s2, e2)</td><td>Suprapunerea a două intervale de timp (în ore)</td><td>TimeOverlap("23:00", "06:00", "22:00", "07:00") = 7</td></tr>
+</table>
+
+<p><em>TimeOverlap suportă intervale de timp care depășesc miezul nopții (ex.: 23:00-06:00).</em></p>
+
+<h4>Funcții condiționale</h4>
+<table>
+  <tr><th>Funcție</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>IIF(cond, adevărat, fals)</td><td>Expresie condițională (operator ternar)</td><td>IIF(x > 0, "pozitiv", "negativ")</td></tr>
+</table>
+
+<hr>
+
+<h3>Valori returnate</h3>
+
+<pre>
+OUTPUT tip, valoare            ' Valoare returnată către Klacks (tip corespunde MacroType)
+</pre>
+
+<hr>
+
+<h3>Funcții de depanare</h3>
+<p>Pentru testarea macrocomenzilor sunt disponibile următoarele funcții de depanare:</p>
+
+<table>
+  <tr><th>Funcție</th><th>Descriere</th></tr>
+  <tr><td>DEBUGPRINT valoare</td><td>Afișează valoarea în fereastra de test</td></tr>
+  <tr><td>DEBUGCLEAR</td><td>Curăță fereastra de test</td></tr>
+</table>
+
+<h4>Exemplu</h4>
+<pre>
+DIM x
+x = 42
+DEBUGPRINT "Valoarea este: " & x
+DEBUGPRINT "Se execută calculul..."
+</pre>
+
+<p><em>Ieșirea de depanare este afișată în tab-ul „Test" al editorului de macrocomenzi.</em></p>
+
+<hr>
+
+<h3>Exemplu: Calcul sporuri</h3>
+<p>Calculează sporuri pentru noapte, sărbători și weekend cu gestionarea corectă a turelor care depășesc miezul nopții (segmentare).</p>
+
+<pre>
+IMPORT hour, fromhour, untilhour
+IMPORT weekday, holiday, holidaynextday
+IMPORT nightrate, holidayrate, sarate, sorate
+
+FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
+    DIM SegmentHours, NightHours, NonNightHours
+    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+
+    SegmentHours = EndHour - StartHour
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    ' Calcul ore de noapte (23:00-06:00)
+    NightHours = 0
+    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
+    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NonNightHours = SegmentHours - NightHours
+
+    HasHoliday = IsHoliday
+    IsSaturday = WeekdayNum = 6    ' Sâ = 6 (ISO-8601)
+    IsSunday = WeekdayNum = 7      ' Du = 7 (ISO-8601)
+
+    ' Cel mai mare spor pentru orele de noapte
+    NRate = nightrate
+    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+
+    ' Cel mai mare spor pentru orele de zi
+    DRate = 0
+    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+
+    CalcSegment = NightHours * NRate + NonNightHours * DRate
+ENDFUNCTION
+
+DIM TotalBonus, WeekdayNextDay
+
+' Calcul ziua următoare a săptămânii (ISO-8601)
+WeekdayNextDay = (weekday MOD 7) + 1
+
+IF untilhour &lt;= fromhour THEN
+    ' Tură care depășește miezul nopții - 2 segmente
+    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
+    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+ELSE
+    ' Tură normală de zi
+    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+ENDIF
+
+OUTPUT 1, Round(TotalBonus, 2)
+</pre>
+
+<h4>Explicație</h4>
+<ul>
+  <li><strong>Segmentare:</strong> Turele care depășesc miezul nopții (ex.: 22:00-06:00) sunt împărțite în 2 segmente</li>
+  <li><strong>CalcSegment:</strong> Calculează sporul unui segment ținând cont de noapte, sărbători și weekend</li>
+  <li><strong>Sporuri separate Sâ/Du:</strong> sarate și sorate permit sporuri diferite pentru sâmbătă și duminică</li>
+  <li><strong>Cel mai mare spor:</strong> Se aplică întotdeauna cel mai mare spor disponibil</li>
+  <li><strong>holidaynextday:</strong> Se ține cont dacă ziua următoare este sărbătoare (important pentru turele de noapte)</li>
+</ul>

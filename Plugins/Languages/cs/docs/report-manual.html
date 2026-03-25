@@ -1,0 +1,126 @@
+<h2>Příručka návrháře sestav</h2>
+
+<h3>Struktura sestavy</h3>
+<p>Sestava se skládá ze tří sekcí:</p>
+<ul>
+  <li><strong>Záhlaví</strong> &ndash; tiskne se v horní části každé stránky</li>
+  <li><strong>Obsah</strong> &ndash; obsahuje datové tabulky</li>
+  <li><strong>Zápatí</strong> &ndash; tiskne se v dolní části každé stránky</li>
+</ul>
+<p>Každou sekci lze upravit prostřednictvím karty <em>Návrh</em> v editoru sestav.</p>
+
+<hr>
+
+<h3>Sekce záhlaví</h3>
+<p>Záhlaví má tři zóny: <strong>Levá</strong>, <strong>Střed</strong> a <strong>Pravá</strong>.</p>
+<p>Každá zóna může obsahovat:</p>
+<ul>
+  <li><strong>Pole</strong> &ndash; databázová pole, která se vyplňují automaticky</li>
+  <li><strong>Volný text</strong> &ndash; ručně zadaný text</li>
+  <li><strong>Obrázky</strong> &ndash; např. logo firmy (nahrání přes správce obrázků)</li>
+</ul>
+<p>Řádky lze přidávat nebo odebírat pomocí panelu nástrojů.</p>
+
+<hr>
+
+<h3>Tabulky obsahu</h3>
+<p>Obsah obsahuje jednu nebo více tabulek.</p>
+<table>
+  <tr><th>Akce</th><th>Popis</th></tr>
+  <tr><td>Přidat sloupec</td><td>Pomocí symbolu <strong>+</strong> nebo přetažením ze seznamu polí</td></tr>
+  <tr><td>Šířka sloupce</td><td>Upravte přetažením okraje sloupce</td></tr>
+  <tr><td>Pořadí sloupců</td><td>Změňte přetažením</td></tr>
+  <tr><td>Smazat sloupec</td><td>V editoru sloupců pomocí symbolu smazání</td></tr>
+</table>
+<p>Každá tabulka je propojena s datovou sadou (např. pracovní rozvrh, adresy).</p>
+
+<hr>
+
+<h3>Sloučená pole (Merged Fields)</h3>
+<p>Sloučená pole umožňují více datových vazeb v jednom sloupci.</p>
+<ul>
+  <li>V editoru sloupců klikněte na <strong>Přidat pole</strong> pro přidání dalších polí do stejného sloupce</li>
+  <li>Hodnoty se zobrazují pod sebou nebo s oddělovačem</li>
+  <li>Oddělovač lze nastavit v dialogu pole (např. čárka, mezera, zalomení řádku)</li>
+</ul>
+
+<hr>
+
+<h3>Zápatí tabulky</h3>
+<p>Pod každou tabulkou může být zobrazeno zápatí.</p>
+<ul>
+  <li><strong>Pole SUM:</strong> číselné sloupce mohou být automaticky sečteny</li>
+  <li><strong>Popisek:</strong> popis součtu může být zobrazen nebo skryt</li>
+  <li>Aktivuje se v editoru sloupců na kartě <em>Zápatí</em></li>
+</ul>
+
+<hr>
+
+<h3>Řádky volného textu</h3>
+<p>Řádky volného textu lze vložit před nebo za datové tabulky.</p>
+<table>
+  <tr><th>Vlastnost</th><th>Popis</th></tr>
+  <tr><td>Pozice</td><td>Volitelně <em>Před daty</em> nebo <em>Za daty</em></td></tr>
+  <tr><td>Obsah</td><td>Volný text, např. poznámky, podmínky nebo pole pro podpis</td></tr>
+  <tr><td>Styl</td><td>Písmo, velikost a zarovnání nastavitelné</td></tr>
+</table>
+
+<hr>
+
+<h3>Formátování</h3>
+<p>Každá buňka a každý volný text mohou být formátovány individuálně:</p>
+<table>
+  <tr><th>Možnost</th><th>Popis</th></tr>
+  <tr><td>Písmo</td><td>Volitelná písma pro buňku</td></tr>
+  <tr><td>Velikost písma</td><td>Velikost v bodech (pt)</td></tr>
+  <tr><td>Tučné / Kurzíva / Podtržené</td><td>Pomocí tlačítek <strong>B</strong> / <strong>I</strong> / <strong>U</strong></td></tr>
+  <tr><td>Barva textu</td><td>Libovolná barva</td></tr>
+  <tr><td>Zarovnání</td><td>Vlevo, na střed nebo vpravo</td></tr>
+</table>
+
+<hr>
+
+<h3>Ohraničení buněk</h3>
+<p>Ohraničení každé buňky lze nastavit individuálně.</p>
+<table>
+  <tr><th>Vlastnost</th><th>Možnosti</th></tr>
+  <tr><td>Strany</td><td>Horní, pravá, dolní, levá (jednotlivě nebo všechny)</td></tr>
+  <tr><td>Styl čáry</td><td>Tenká, střední, tlustá, čárkovaná, dvojitá</td></tr>
+  <tr><td>Barva čáry</td><td>Libovolná</td></tr>
+</table>
+<p>Ohraničení se nastavuje v editoru sloupců pod položkou <em>Ohraničení</em>.</p>
+
+<hr>
+
+<h3>Nastavení stránky</h3>
+<p>Na kartě <em>Obecné</em> lze upravit možnosti tisku:</p>
+<ul>
+  <li><strong>Orientace:</strong> Na výšku (Portrait) nebo na šířku (Landscape)</li>
+  <li><strong>Velikost papíru:</strong> A4, A3, B4 (JIS), B5 (JIS) nebo Letter</li>
+  <li><strong>Okraje stránky:</strong> Horní, pravý, dolní, levý v mm</li>
+</ul>
+
+<hr>
+
+<h3>Možnosti prezentace (Návrhář)</h3>
+<p>Na kartě <em>Návrh</em>, když je zdroj dat <strong>Pracovní rozvrh (Schedule)</strong>, jsou k dispozici další možnosti:</p>
+<ul>
+  <li><strong>Konsolidovat záznamy za den:</strong> Více záznamů ze stejného dne se seskupí do jednoho řádku</li>
+  <li><strong>Zobrazit celé období:</strong> Zobrazí se všechny dny období, i když nejsou žádné záznamy</li>
+</ul>
+
+<hr>
+
+<h3>Zdroje dat</h3>
+<p>Dostupné zdroje dat pro sestavy:</p>
+<table>
+  <tr><th>Zdroj dat</th><th>Popis</th></tr>
+  <tr><td>Pracovní rozvrh (Schedule)</td><td>Směny a pracovní rozvrhy</td></tr>
+  <tr><td>Adresy (Seznam)</td><td>Všechny adresy jako tabulka</td></tr>
+  <tr><td>Adresa (Detail)</td><td>Jednotlivá adresa</td></tr>
+  <tr><td>Absence</td><td>Přehled absencí</td></tr>
+  <tr><td>Směny (Shifts)</td><td>Tabulka směn</td></tr>
+  <tr><td>Skupiny</td><td>Přehled skupin</td></tr>
+  <tr><td>Šablona kontejneru</td><td>Šablona pro kontejnerové sestavy</td></tr>
+</table>
+<p><em>Zdroj dat se vybírá na kartě "Zdroj dat" a určuje dostupná pole.</em></p>

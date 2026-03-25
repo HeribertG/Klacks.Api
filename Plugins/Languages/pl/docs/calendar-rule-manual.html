@@ -1,0 +1,82 @@
+<h2>Reguły dni świątecznych - Wyjaśnienia</h2>
+
+<h3>Format reguł</h3>
+<p>Istnieją dwa rodzaje reguł: <strong>stałe daty</strong> i <strong>daty zależne od Wielkanocy</strong>.</p>
+
+<h4>Stałe daty</h4>
+<p>Format: <code>MM/DD</code></p>
+<table>
+  <tr><th>Przykład</th><th>Znaczenie</th></tr>
+  <tr><td><code>01/01</code></td><td>1 stycznia (Nowy Rok)</td></tr>
+  <tr><td><code>12/25</code></td><td>25 grudnia (Boże Narodzenie)</td></tr>
+  <tr><td><code>08/01</code></td><td>1 sierpnia (Święto Narodowe Szwajcarii)</td></tr>
+</table>
+
+<h4>Stałe daty z przesunięciem dnia tygodnia</h4>
+<p>Format: <code>MM/DD+XX+WW</code> lub <code>MM/DD+XX-WW</code></p>
+<ul>
+  <li><code>+XX</code> = znak + przesunięcie w dniach (00 do 99)</li>
+  <li><code>+</code> = następny dzień tygodnia po dacie</li>
+  <li><code>-</code> = poprzedni dzień tygodnia przed datą</li>
+  <li><code>WW</code> = dzień tygodnia (SU, MO, TU, WE, TH, FR, SA)</li>
+</ul>
+<table>
+  <tr><th>Przykład</th><th>Znaczenie</th></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>Pierwszy czwartek listopada</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>Czwarty czwartek listopada (Dzień Dziękczynienia)</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>Ostatni poniedziałek maja (Dzień Pamięci)</td></tr>
+</table>
+
+<h4>Daty zależne od Wielkanocy</h4>
+<p>Format: <code>EASTER+XX</code> lub <code>EASTER-XX</code></p>
+<table>
+  <tr><th>Przykład</th><th>Znaczenie</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>Niedziela Wielkanocna</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>Wielki Piątek (2 dni przed Wielkanocą)</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>Poniedziałek Wielkanocny (1 dzień po Wielkanocy)</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>Wniebowstąpienie (39 dni po Wielkanocy)</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>Zielone Świątki (49 dni po Wielkanocy)</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>Poniedziałek Zielonych Świątek (50 dni po Wielkanocy)</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>Boże Ciało (60 dni po Wielkanocy)</td></tr>
+</table>
+
+<hr>
+
+<h3>Format podreguł</h3>
+<p>Podreguły umożliwiają automatyczne przesunięcie dnia świątecznego, gdy wypada w określony dzień tygodnia.</p>
+<p>Format: <code>WW+X</code> lub <code>WW-X</code>, kilka reguł oddzielonych <code>;</code></p>
+<ul>
+  <li><code>WW</code> = dzień tygodnia (SU, MO, TU, WE, TH, FR, SA)</li>
+  <li><code>+X</code> = przesuń o X dni do przodu</li>
+  <li><code>-X</code> = przesuń o X dni do tyłu</li>
+</ul>
+<table>
+  <tr><th>Przykład</th><th>Znaczenie</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>Jeśli sobota: +2 dni (poniedziałek), jeśli niedziela: +1 dzień (poniedziałek)</td></tr>
+  <tr><td><code>SU+1</code></td><td>Jeśli niedziela: przesuń na poniedziałek</td></tr>
+</table>
+
+<p><em>Uwaga: Podreguły są zazwyczaj używane do przenoszenia dni świątecznych wypadających w weekend na następny dzień roboczy.</em></p>
+
+<hr>
+
+<h3>Skróty dni tygodnia</h3>
+<table>
+  <tr><th>Skrót</th><th>Dzień tygodnia</th></tr>
+  <tr><td>SU</td><td>Niedziela (Sunday)</td></tr>
+  <tr><td>MO</td><td>Poniedziałek (Monday)</td></tr>
+  <tr><td>TU</td><td>Wtorek (Tuesday)</td></tr>
+  <tr><td>WE</td><td>Środa (Wednesday)</td></tr>
+  <tr><td>TH</td><td>Czwartek (Thursday)</td></tr>
+  <tr><td>FR</td><td>Piątek (Friday)</td></tr>
+  <tr><td>SA</td><td>Sobota (Saturday)</td></tr>
+</table>
+
+<hr>
+
+<h3>Pola wyboru</h3>
+<table>
+  <tr><th>Pole wyboru</th><th>Znaczenie</th></tr>
+  <tr><td>Oficjalny dzień świąteczny</td><td>Dzień jest oficjalnym/ustawowym dniem świątecznym</td></tr>
+  <tr><td>Płatny</td><td>Dzień świąteczny jest płatny (istotne dla naliczania wynagrodzenia)</td></tr>
+</table>

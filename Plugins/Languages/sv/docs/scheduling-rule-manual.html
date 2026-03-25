@@ -1,0 +1,51 @@
+<h2>Schemaläggningsregler - Förklaringar</h2>
+
+<p>Schemaläggningsregler definierar ramvillkoren för den automatiska skiftplaneringen. Varje regel fastställer hur arbetstider, viloperioder och kapaciteter fördelas för en given grupp eller konfiguration.</p>
+
+<hr>
+
+<h3>Arbetsdagar &amp; viloperioder</h3>
+<table>
+  <tr><th>Fält</th><th>Beskrivning</th></tr>
+  <tr><td><strong>Max. arbetsdagar</strong></td><td>Maximalt antal arbetsdagar per vecka.</td></tr>
+  <tr><td><strong>Min. vilodagar mellan två arbetsblock</strong></td><td>Minsta antal lediga dagar mellan två på varandra följande arbetsblock.</td></tr>
+  <tr><td><strong>Min. lediga timmar mellan två arbetsdagar</strong></td><td>Minsta vilotid (i timmar) mellan slutet av en arbetsdag och början av nästa.</td></tr>
+  <tr><td><strong>Max. optimal lucka mellan skift (t)</strong></td><td>Maximalt tidsintervall (i timmar) mellan två på varandra följande skift som anses optimalt.</td></tr>
+  <tr><td><strong>Max. på varandra följande arbetsdagar</strong></td><td>Maximalt antal arbetsdagar i rad utan vilodag.</td></tr>
+</table>
+
+<hr>
+
+<h3>Timgränser</h3>
+<table>
+  <tr><th>Fält</th><th>Beskrivning</th></tr>
+  <tr><td><strong>Max. dagliga timmar</strong></td><td>Maximala arbetstimmar per dag.</td></tr>
+  <tr><td><strong>Max. veckovisa timmar</strong></td><td>Maximala arbetstimmar per vecka.</td></tr>
+  <tr><td><strong>Dagliga arbetstimmar</strong></td><td>Standardarbetstimmar per dag (måltimmar).</td></tr>
+  <tr><td><strong>Övertidsgräns (t/vecka)</strong></td><td>Från detta antal veckovisa timmar räknas timmarna som övertid.</td></tr>
+</table>
+
+<hr>
+
+<h3>Månadstimmar</h3>
+<table>
+  <tr><th>Fält</th><th>Beskrivning</th></tr>
+  <tr><td><strong>Garanterade timmar</strong></td><td>Minsta antal timmar per månad som garanteras den anställde.</td></tr>
+  <tr><td><strong>Maximala timmar</strong></td><td>Maximalt tillåtna arbetstimmar per månad.</td></tr>
+  <tr><td><strong>Minimala timmar</strong></td><td>Minsta arbetstimmar per månad.</td></tr>
+  <tr><td><strong>Heltid (timmar)</strong></td><td>Månatligt antal timmar som motsvarar en heltidsanställning.</td></tr>
+</table>
+
+<hr>
+
+<h3>Semester</h3>
+<table>
+  <tr><th>Fält</th><th>Beskrivning</th></tr>
+  <tr><td><strong>Semesterdagar per år</strong></td><td>Antal semesterdagar som man har rätt till per kalenderår.</td></tr>
+</table>
+
+<hr>
+
+<h3>Tillämpning</h3>
+<p>Schemaläggningsregler tilldelas till ett <strong>kontrakt</strong>. Därmed gäller de definierade gränserna för alla anställda med det kontraktet vid den automatiska skiftplaneringen.</p>
+<p>Standardvärdena här kommer från <strong>Schemaläggningsregler (standardvärden)</strong> i inställningarna. Vid skapande av en ny regel övertas dessa värden automatiskt och kan justeras individuellt.</p>

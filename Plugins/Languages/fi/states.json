@@ -1,0 +1,116 @@
+[
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000001",
+    "abbreviation": "UU",
+    "countryPrefix": "FI",
+    "name": { "de": "Uusimaa", "en": "Uusimaa", "fr": "Uusimaa", "it": "Uusimaa", "fi": "Uusimaa", "ja": "ウーシマー", "es": "Uusimaa" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000002",
+    "abbreviation": "VS",
+    "countryPrefix": "FI",
+    "name": { "de": "Südwestfinnland", "en": "Southwest Finland", "fr": "Finlande du Sud-Ouest", "it": "Finlandia sud-occidentale", "fi": "Varsinais-Suomi", "ja": "南西フィンランド", "es": "Finlandia Suroccidental" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000003",
+    "abbreviation": "KH",
+    "countryPrefix": "FI",
+    "name": { "de": "Kanta-Häme", "en": "Kanta-Häme", "fr": "Kanta-Häme", "it": "Kanta-Häme", "fi": "Kanta-Häme", "ja": "カンタ＝ハメ", "es": "Kanta-Häme" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000004",
+    "abbreviation": "PH",
+    "countryPrefix": "FI",
+    "name": { "de": "Päijät-Häme", "en": "Päijät-Häme", "fr": "Päijät-Häme", "it": "Päijät-Häme", "fi": "Päijät-Häme", "ja": "パイヤト＝ハメ", "es": "Päijät-Häme" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000005",
+    "abbreviation": "KY",
+    "countryPrefix": "FI",
+    "name": { "de": "Kymenlaakso", "en": "Kymenlaakso", "fr": "Kymenlaakso", "it": "Kymenlaakso", "fi": "Kymenlaakso", "ja": "キュメンラークソ", "es": "Kymenlaakso" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000006",
+    "abbreviation": "SK",
+    "countryPrefix": "FI",
+    "name": { "de": "Satakunta", "en": "Satakunta", "fr": "Satakunta", "it": "Satakunta", "fi": "Satakunta", "ja": "サタクンタ", "es": "Satakunta" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000007",
+    "abbreviation": "PO",
+    "countryPrefix": "FI",
+    "name": { "de": "Österbotten", "en": "Ostrobothnia", "fr": "Ostrobotnie", "it": "Ostrobotnia", "fi": "Pohjanmaa", "ja": "ポフヤンマー", "es": "Ostrobotnia" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000008",
+    "abbreviation": "EP",
+    "countryPrefix": "FI",
+    "name": { "de": "Südösterbotten", "en": "South Ostrobothnia", "fr": "Ostrobotnie du Sud", "it": "Ostrobotnia meridionale", "fi": "Etelä-Pohjanmaa", "ja": "南ポフヤンマー", "es": "Ostrobotnia del Sur" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000009",
+    "abbreviation": "KP",
+    "countryPrefix": "FI",
+    "name": { "de": "Mittelösterbotten", "en": "Central Ostrobothnia", "fr": "Ostrobotnie centrale", "it": "Ostrobotnia centrale", "fi": "Keski-Pohjanmaa", "ja": "中央ポフヤンマー", "es": "Ostrobotnia Central" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000010",
+    "abbreviation": "PP",
+    "countryPrefix": "FI",
+    "name": { "de": "Nordösterbotten", "en": "North Ostrobothnia", "fr": "Ostrobotnie du Nord", "it": "Ostrobotnia settentrionale", "fi": "Pohjois-Pohjanmaa", "ja": "北ポフヤンマー", "es": "Ostrobotnia del Norte" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000011",
+    "abbreviation": "PI",
+    "countryPrefix": "FI",
+    "name": { "de": "Pirkanmaa", "en": "Pirkanmaa", "fr": "Pirkanmaa", "it": "Pirkanmaa", "fi": "Pirkanmaa", "ja": "ピルカンマー", "es": "Pirkanmaa" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000012",
+    "abbreviation": "KS",
+    "countryPrefix": "FI",
+    "name": { "de": "Mittelfinnland", "en": "Central Finland", "fr": "Finlande centrale", "it": "Finlandia centrale", "fi": "Keski-Suomi", "ja": "中央フィンランド", "es": "Finlandia Central" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000013",
+    "abbreviation": "ES",
+    "countryPrefix": "FI",
+    "name": { "de": "Südsavo", "en": "South Savo", "fr": "Savonie du Sud", "it": "Savo meridionale", "fi": "Etelä-Savo", "ja": "南サヴォ", "es": "Savo del Sur" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000014",
+    "abbreviation": "PS",
+    "countryPrefix": "FI",
+    "name": { "de": "Nordsavo", "en": "North Savo", "fr": "Savonie du Nord", "it": "Savo settentrionale", "fi": "Pohjois-Savo", "ja": "北サヴォ", "es": "Savo del Norte" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000015",
+    "abbreviation": "EK",
+    "countryPrefix": "FI",
+    "name": { "de": "Südkarelien", "en": "South Karelia", "fr": "Carélie du Sud", "it": "Carelia meridionale", "fi": "Etelä-Karjala", "ja": "南カレリア", "es": "Carelia del Sur" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000016",
+    "abbreviation": "PK",
+    "countryPrefix": "FI",
+    "name": { "de": "Nordkarelien", "en": "North Karelia", "fr": "Carélie du Nord", "it": "Carelia settentrionale", "fi": "Pohjois-Karjala", "ja": "北カレリア", "es": "Carelia del Norte" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000017",
+    "abbreviation": "KA",
+    "countryPrefix": "FI",
+    "name": { "de": "Kainuu", "en": "Kainuu", "fr": "Kainuu", "it": "Kainuu", "fi": "Kainuu", "ja": "カイヌー", "es": "Kainuu" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000018",
+    "abbreviation": "LA",
+    "countryPrefix": "FI",
+    "name": { "de": "Lappland", "en": "Lapland", "fr": "Laponie", "it": "Lapponia", "fi": "Lappi", "ja": "ラッピ", "es": "Laponia" }
+  },
+  {
+    "id": "61c2d3e4-ff01-4000-8000-000000000019",
+    "abbreviation": "AL",
+    "countryPrefix": "FI",
+    "name": { "de": "Åland", "en": "Åland", "fr": "Åland", "it": "Åland", "fi": "Ahvenanmaa", "ja": "オーランド", "es": "Åland" }
+  }
+]

@@ -1,0 +1,331 @@
+<h2>Příručka skriptování maker</h2>
+
+<h3>Úvod</h3>
+<p>
+Editor maker umožňuje psát skripty, které slouží jako výpočetní základ
+pro služby, pracovní činnosti atd.
+</p>
+
+<p><strong>Příklady použití:</strong></p>
+<ul>
+  <li>Přesný výpočet hodin pro dovolenou nebo vojenskou službu podle úvazku</li>
+  <li>Výpočet příplatků za noční práci, víkendy a svátky</li>
+  <li>Flexibilní přizpůsobení novým požadavkům</li>
+</ul>
+
+<p>
+<em>Poznámka: Interpret skriptů běží v bezpečném sandboxovém prostředí bez přístupu
+k souborovému systému nebo síti. Spuštění škodlivého kódu není možné.</em>
+</p>
+
+<hr>
+
+<h3>Proměnné a konstanty</h3>
+<p>Všechny proměnné a konstanty jsou beztypové.</p>
+
+<pre>
+CONST PI = 3.1415
+DIM a, b, c
+IMPORT castka, sleva
+</pre>
+
+<h4>Importované proměnné (IMPORT)</h4>
+<p>Tyto proměnné jsou generovány z Work, Contract a CalendarSelection:</p>
+
+<table>
+  <tr><th>Proměnná</th><th>Typ</th><th>Popis</th></tr>
+  <tr><td>hour</td><td>Decimal</td><td>Pracovní hodiny (z Work)</td></tr>
+  <tr><td>fromhour</td><td>Decimal</td><td>Čas začátku v desetinných hodinách (8:30 → 8.5)</td></tr>
+  <tr><td>untilhour</td><td>Decimal</td><td>Čas konce v desetinných hodinách (17:00 → 17.0)</td></tr>
+  <tr><td>weekday</td><td>Integer</td><td>Den v týdnu ISO-8601 (1=Po, 2=Út, 3=St, 4=Čt, 5=Pá, 6=So, 7=Ne)</td></tr>
+  <tr><td>holiday</td><td>Boolean</td><td>Zda je aktuální den oficiálním svátkem</td></tr>
+  <tr><td>holidaynextday</td><td>Boolean</td><td>Zda je následující den oficiálním svátkem</td></tr>
+  <tr><td>nightrate</td><td>Decimal</td><td>Noční příplatek ze smlouvy (např. 0.10 = 10%)</td></tr>
+  <tr><td>holidayrate</td><td>Decimal</td><td>Sváteční příplatek ze smlouvy (např. 0.15 = 15%)</td></tr>
+  <tr><td>sarate</td><td>Decimal</td><td>Sobotní příplatek ze smlouvy</td></tr>
+  <tr><td>sorate</td><td>Decimal</td><td>Nedělní příplatek ze smlouvy</td></tr>
+  <tr><td>guaranteedhours</td><td>Decimal</td><td>Garantované měsíční hodiny ze smlouvy</td></tr>
+  <tr><td>fulltime</td><td>Decimal</td><td>Hodiny plného úvazku ze smlouvy</td></tr>
+</table>
+
+<hr>
+
+<h3>Řídicí struktury</h3>
+
+<p><strong>Důležité:</strong> Klíčová slova jako <code>ENDIF</code>, <code>ENDFUNCTION</code>, <code>ENDSUB</code>
+musí být psána dohromady (ne <code>END IF</code>).</p>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF x > 10 THEN
+    OUTPUT 1, "velký"
+ELSEIF x > 5 THEN
+    OUTPUT 1, "střední"
+ELSE
+    OUTPUT 1, "malý"
+ENDIF
+</pre>
+
+<h4>IF na jednom řádku</h4>
+<pre>
+IF x > 10 THEN OUTPUT 1, "velký" ENDIF
+</pre>
+
+<h4>SELECT CASE</h4>
+<pre>
+SELECT CASE weekday
+    CASE 6, 7
+        OUTPUT 1, "Víkend"
+    CASE 1, 2, 3, 4, 5
+        OUTPUT 1, "Pracovní den"
+    CASE ELSE
+        OUTPUT 1, "Neznámý"
+END SELECT
+</pre>
+
+<h4>Smyčka FOR-NEXT</h4>
+<pre>
+FOR i = 1 TO 10
+    soucet += i
+NEXT
+
+FOR i = 10 TO 1 STEP -1
+    IF x > y THEN EXIT FOR
+NEXT
+</pre>
+
+<h4>Smyčka DO-LOOP</h4>
+<pre>
+DO WHILE a > 0
+    a -= 1
+LOOP
+
+DO
+    x += 1
+LOOP UNTIL x >= 10
+</pre>
+
+<hr>
+
+<h3>Funkce a procedury</h3>
+
+<p><strong>Důležité:</strong> Funkce (FUNCTION) a procedury (SUB) musí být definovány <em>před</em> prvním voláním.
+Interpret čte kód shora dolů: funkce nebo procedura je známa až poté, co byla její definice zpracována.</p>
+
+<h4>SUB (procedura bez návratové hodnoty)</h4>
+<pre>
+SUB vypocet(a, b)
+    IF a = b THEN EXIT SUB ENDIF
+    OUTPUT 1, a + b
+ENDSUB
+</pre>
+
+<h4>FUNCTION (funkce s návratovou hodnotou)</h4>
+<pre>
+FUNCTION zdvojnasob(x)
+    zdvojnasob = x * 2
+ENDFUNCTION
+
+DIM vysledek
+vysledek = zdvojnasob(21)
+OUTPUT 1, vysledek
+</pre>
+
+<hr>
+
+<h3>Operátory</h3>
+
+<h4>Matematické operátory</h4>
+<table>
+  <tr><th>Operátor</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>+</td><td>Sčítání</td><td>5 + 3 = 8</td></tr>
+  <tr><td>-</td><td>Odčítání</td><td>5 - 3 = 2</td></tr>
+  <tr><td>*</td><td>Násobení</td><td>5 * 3 = 15</td></tr>
+  <tr><td>/</td><td>Dělení</td><td>10 / 4 = 2.5</td></tr>
+  <tr><td>\</td><td>Celočíselné dělení</td><td>10 \ 4 = 2</td></tr>
+  <tr><td>MOD</td><td>Modulo (zbytek)</td><td>10 MOD 3 = 1</td></tr>
+  <tr><td>^</td><td>Mocnina</td><td>2 ^ 3 = 8</td></tr>
+</table>
+
+<h4>Porovnávací operátory</h4>
+<table>
+  <tr><th>Operátor</th><th>Popis</th></tr>
+  <tr><td>=</td><td>Rovno</td></tr>
+  <tr><td>&lt;&gt;</td><td>Nerovno</td></tr>
+  <tr><td>&lt;</td><td>Menší než</td></tr>
+  <tr><td>&gt;</td><td>Větší než</td></tr>
+  <tr><td>&lt;=</td><td>Menší nebo rovno</td></tr>
+  <tr><td>&gt;=</td><td>Větší nebo rovno</td></tr>
+</table>
+
+<h4>Logické operátory</h4>
+<table>
+  <tr><th>Operátor</th><th>Popis</th></tr>
+  <tr><td>AND</td><td>Bitový AND</td></tr>
+  <tr><td>OR</td><td>Bitový OR</td></tr>
+  <tr><td>NOT</td><td>Negace</td></tr>
+  <tr><td>ANDALSO</td><td>Logický AND (zkratové vyhodnocení)</td></tr>
+  <tr><td>ORELSE</td><td>Logický OR (zkratové vyhodnocení)</td></tr>
+</table>
+
+<h4>Přiřazovací operátory</h4>
+<pre>
+a = 10      ' Jednoduché přiřazení
+a += 5      ' a = a + 5
+a -= 3      ' a = a - 3
+a *= 2      ' a = a * 2
+a /= 4      ' a = a / 4
+a &= "!"    ' Zřetězení řetězců
+</pre>
+
+<hr>
+
+<h3>Vestavěné funkce</h3>
+
+<h4>Řetězcové funkce</h4>
+<table>
+  <tr><th>Funkce</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>Len(s)</td><td>Délka řetězce</td><td>Len("Ahoj") = 4</td></tr>
+  <tr><td>Left(s, n)</td><td>n znaků zleva</td><td>Left("Ahoj", 2) = "Ah"</td></tr>
+  <tr><td>Right(s, n)</td><td>n znaků zprava</td><td>Right("Ahoj", 2) = "oj"</td></tr>
+  <tr><td>Mid(s, zac, del)</td><td>Podřetězec</td><td>Mid("Ahoj", 2, 3) = "hoj"</td></tr>
+  <tr><td>InStr(s, hledej)</td><td>Najít pozici</td><td>InStr("Ahoj", "h") = 2</td></tr>
+  <tr><td>Replace(s, stary, novy)</td><td>Nahradit</td><td>Replace("Ahoj", "h", "x") = "Axoj"</td></tr>
+  <tr><td>Trim(s)</td><td>Odstranit mezery</td><td>Trim("  Hi  ") = "Hi"</td></tr>
+  <tr><td>UCase(s)</td><td>Velká písmena</td><td>UCase("ahoj") = "AHOJ"</td></tr>
+  <tr><td>LCase(s)</td><td>Malá písmena</td><td>LCase("AHOJ") = "ahoj"</td></tr>
+</table>
+
+<h4>Matematické funkce</h4>
+<table>
+  <tr><th>Funkce</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>Abs(x)</td><td>Absolutní hodnota</td><td>Abs(-5) = 5</td></tr>
+  <tr><td>Round(x, d)</td><td>Zaokrouhlení</td><td>Round(3.456, 2) = 3.46</td></tr>
+  <tr><td>Sqr(x)</td><td>Odmocnina</td><td>Sqr(16) = 4</td></tr>
+  <tr><td>Log(x)</td><td>Přirozený logaritmus</td><td>Log(2.718) = 1</td></tr>
+  <tr><td>Exp(x)</td><td>Exponenciální funkce (e^x)</td><td>Exp(1) = 2.718...</td></tr>
+  <tr><td>Sgn(x)</td><td>Znaménko (-1, 0, 1)</td><td>Sgn(-5) = -1</td></tr>
+  <tr><td>Rnd()</td><td>Náhodné číslo 0-1</td><td>Rnd() = 0.xxxxx</td></tr>
+</table>
+
+<h4>Goniometrické funkce</h4>
+<table>
+  <tr><th>Funkce</th><th>Popis</th></tr>
+  <tr><td>Sin(x)</td><td>Sinus</td></tr>
+  <tr><td>Cos(x)</td><td>Kosinus</td></tr>
+  <tr><td>Tan(x)</td><td>Tangens</td></tr>
+  <tr><td>Atan(x)</td><td>Arkustangens</td></tr>
+</table>
+
+<h4>Časové funkce</h4>
+<table>
+  <tr><th>Funkce</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>TimeToHours(s)</td><td>Časový řetězec na desetinné hodiny</td><td>TimeToHours("08:30") = 8.5</td></tr>
+  <tr><td>TimeOverlap(s1, e1, s2, e2)</td><td>Překryv dvou časových období v hodinách</td><td>TimeOverlap("23:00", "06:00", "22:00", "07:00") = 7</td></tr>
+</table>
+
+<p><em>TimeOverlap podporuje časová období přesahující půlnoc (např. 23:00-06:00).</em></p>
+
+<h4>Podmíněné funkce</h4>
+<table>
+  <tr><th>Funkce</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>IIF(podm, pravda, nepravda)</td><td>Podmíněný výraz (ternární operátor)</td><td>IIF(x > 0, "kladný", "záporný")</td></tr>
+</table>
+
+<hr>
+
+<h3>Vracení hodnot</h3>
+
+<pre>
+OUTPUT typ, hodnota            ' Návrat do Klacks (typ odpovídá MacroType)
+</pre>
+
+<hr>
+
+<h3>Ladící funkce</h3>
+<p>Pro testování maker jsou k dispozici následující ladící funkce:</p>
+
+<table>
+  <tr><th>Funkce</th><th>Popis</th></tr>
+  <tr><td>DEBUGPRINT hodnota</td><td>Zobrazí hodnotu v testovacím okně</td></tr>
+  <tr><td>DEBUGCLEAR</td><td>Vymaže testovací okno</td></tr>
+</table>
+
+<h4>Příklad</h4>
+<pre>
+DIM x
+x = 42
+DEBUGPRINT "Hodnota je: " & x
+DEBUGPRINT "Probíhá výpočet..."
+</pre>
+
+<p><em>Ladící výstup se zobrazí na kartě "Testovat" v editoru maker.</em></p>
+
+<hr>
+
+<h3>Příklad: Výpočet příplatků</h3>
+<p>Vypočítá příplatky za noční práci, svátky a víkendy se správným zpracováním
+směn přesahujících půlnoc (rozdělení na segmenty).</p>
+
+<pre>
+IMPORT hour, fromhour, untilhour
+IMPORT weekday, holiday, holidaynextday
+IMPORT nightrate, holidayrate, sarate, sorate
+
+FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
+    DIM SegmentHours, NightHours, NonNightHours
+    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+
+    SegmentHours = EndHour - StartHour
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    ' Výpočet nočních hodin (23:00-06:00)
+    NightHours = 0
+    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
+    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NonNightHours = SegmentHours - NightHours
+
+    HasHoliday = IsHoliday
+    IsSaturday = WeekdayNum = 6    ' So = 6 (ISO-8601)
+    IsSunday = WeekdayNum = 7      ' Ne = 7 (ISO-8601)
+
+    ' Nejvyšší sazba pro noční hodiny
+    NRate = nightrate
+    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+
+    ' Nejvyšší sazba pro denní hodiny
+    DRate = 0
+    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+
+    CalcSegment = NightHours * NRate + NonNightHours * DRate
+ENDFUNCTION
+
+DIM TotalBonus, WeekdayNextDay
+
+' Výpočet dne v týdnu pro další den (ISO-8601)
+WeekdayNextDay = (weekday MOD 7) + 1
+
+IF untilhour &lt;= fromhour THEN
+    ' Směna přesahující půlnoc - 2 segmenty
+    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
+    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+ELSE
+    ' Normální denní směna
+    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+ENDIF
+
+OUTPUT 1, Round(TotalBonus, 2)
+</pre>
+
+<h4>Vysvětlení</h4>
+<ul>
+  <li><strong>Rozdělení na segmenty:</strong> Pro směny přesahující půlnoc (např. 22:00-06:00) se směna rozdělí na dva segmenty</li>
+  <li><strong>CalcSegment:</strong> Vypočítá příplatek pro segment s ohledem na noční, sváteční a víkendové příplatky</li>
+  <li><strong>Oddělené sazby pro sobotu/neděli:</strong> sarate a sorate umožňují různé příplatky pro sobotu a neděli</li>
+  <li><strong>Nejvyšší příplatek:</strong> Vždy se použije nejvyšší platný příplatek</li>
+  <li><strong>holidaynextday:</strong> Zohledňuje, zda je následující den svátkem (důležité pro noční směny)</li>
+</ul>

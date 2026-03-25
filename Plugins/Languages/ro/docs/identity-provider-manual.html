@@ -1,0 +1,117 @@
+<h2>Manual Furnizor de Identitate</h2>
+
+<h3>Introducere</h3>
+<p>
+Furnizorii de identitate permit autentificarea utilizatorilor prin servicii de directoare
+externe precum LDAP, Active Directory, OAuth2/OpenID Connect.
+</p>
+
+<p><strong>Tipuri de furnizori acceptate:</strong></p>
+<ul>
+  <li><strong>LDAP</strong> - Protocol standard de acces la directoare</li>
+  <li><strong>Active Directory</strong> - Microsoft Active Directory</li>
+  <li><strong>OAuth2</strong> - Cadru de autorizare OAuth 2.0</li>
+  <li><strong>OpenID Connect</strong> - Strat de identitate peste OAuth 2.0</li>
+</ul>
+
+<hr>
+
+<h3>LDAP / Active Directory</h3>
+
+<h4>Setări de conectare</h4>
+<table>
+  <tr><th>Câmp</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>Gazdă</td><td>Numele de gazdă sau adresa IP a serverului LDAP</td><td>ldap.example.com</td></tr>
+  <tr><td>Port</td><td>389 (LDAP) sau 636 (LDAPS)</td><td>389</td></tr>
+  <tr><td>Utilizare SSL</td><td>Activează conexiunea criptată</td><td>-</td></tr>
+  <tr><td>DN de bază</td><td>Numele distinctiv de bază pentru căutare</td><td>DC=example,DC=com</td></tr>
+  <tr><td>DN de legătură</td><td>DN-ul utilizatorului pentru conectare</td><td>CN=admin,DC=example,DC=com</td></tr>
+  <tr><td>Parolă de legătură</td><td>Parola utilizatorului de legătură</td><td>-</td></tr>
+  <tr><td>Filtru utilizatori</td><td>Filtru LDAP pentru căutarea utilizatorilor</td><td>(objectClass=person)</td></tr>
+</table>
+
+<h4>Diferențe între LDAP și Active Directory</h4>
+<table>
+  <tr><th>Atribut</th><th>LDAP (OpenLDAP)</th><th>Active Directory</th></tr>
+  <tr><td>Atribut utilizator</td><td>uid</td><td>sAMAccountName</td></tr>
+  <tr><td>Atribut adresă</td><td>street</td><td>streetAddress</td></tr>
+  <tr><td>Atribut titlu</td><td>-</td><td>personalTitle</td></tr>
+  <tr><td>Atribut țară</td><td>-</td><td>c</td></tr>
+  <tr><td>Metodă autentificare</td><td>Simple Bind</td><td>Negotiate/Kerberos</td></tr>
+</table>
+
+<h4>Filtre de utilizatori tipice</h4>
+<pre>
+LDAP:             (objectClass=person)
+                  (objectClass=inetOrgPerson)
+
+Active Directory: (&amp;(objectClass=user)(objectCategory=person))
+                  (&amp;(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+</pre>
+
+<h4>Import clienți</h4>
+<p>Când „Utilizare pentru import clienți" este activat, următoarele date sunt importate:</p>
+<ul>
+  <li><strong>Nume</strong> - sn (nume de familie) sau displayName</li>
+  <li><strong>Prenume</strong> - givenName</li>
+  <li><strong>Titlu</strong> - title (funcție)</li>
+  <li><strong>Companie</strong> - company</li>
+  <li><strong>Adresă</strong> - street/streetAddress, postalCode, l (localitate), st (județ), c (țară)</li>
+  <li><strong>Gen</strong> - Pentru Active Directory, din personalTitle (Herr/Frau)</li>
+</ul>
+
+<p><em>Notă: Pentru OpenLDAP, genul implicit este „Neutru" și poate fi corectat manual.</em></p>
+
+<hr>
+
+<h3>OAuth2 / OpenID Connect</h3>
+
+<h4>Configurare</h4>
+<table>
+  <tr><th>Câmp</th><th>Descriere</th></tr>
+  <tr><td>ID Client</td><td>ID-ul clientului înregistrat la furnizor</td></tr>
+  <tr><td>Secret Client</td><td>Secretul clientului corespunzător</td></tr>
+  <tr><td>ID Tenant</td><td>ID-ul tenant-ului Azure AD (opțional, doar Microsoft)</td></tr>
+  <tr><td>URL autorizare</td><td>Endpoint pentru autorizare</td></tr>
+  <tr><td>URL token</td><td>Endpoint pentru schimb de token</td></tr>
+  <tr><td>URL informații utilizator</td><td>Endpoint pentru obținerea informațiilor despre utilizator</td></tr>
+  <tr><td>Scope-uri</td><td>Permisiuni solicitate (ex.: „openid profile email")</td></tr>
+</table>
+
+<h4>Furnizori principali</h4>
+<table>
+  <tr><th>Furnizor</th><th>URL autorizare</th><th>URL token</th></tr>
+  <tr><td>Google</td><td>https://accounts.google.com/o/oauth2/v2/auth</td><td>https://oauth2.googleapis.com/token</td></tr>
+  <tr><td>Microsoft</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</td></tr>
+  <tr><td>GitHub</td><td>https://github.com/login/oauth/authorize</td><td>https://github.com/login/oauth/access_token</td></tr>
+</table>
+
+<hr>
+
+<h3>Sfaturi</h3>
+
+<h4>Utilizarea Synology NAS ca server LDAP</h4>
+<p>
+Puteți utiliza un Synology NAS ca server LDAP. În acest caz, trebuie să instalați
+pachetul „LDAP Server" sau un container Docker cu OpenLDAP.
+</p>
+<ul>
+  <li>Tip furnizor: „Active Directory" (pentru autentificare de rezervă)</li>
+  <li>Filtru utilizatori: (objectClass=inetOrgPerson)</li>
+  <li>Format DN utilizator: cn=username,ou=users,dc=example,dc=com</li>
+</ul>
+
+<h4>Testarea conexiunii</h4>
+<p>
+Utilizați butonul „Testare conexiune" pentru a verifica configurarea.
+La o conexiune reușită, se afișează numărul de utilizatori găsiți și câteva exemple de nume de utilizatori.
+</p>
+
+<h4>Depanare</h4>
+<table>
+  <tr><th>Problemă</th><th>Soluție</th></tr>
+  <tr><td>Conexiune eșuată</td><td>Verificați gazda, portul și setările SSL</td></tr>
+  <tr><td>Legătură eșuată</td><td>Verificați DN-ul de legătură și parola</td></tr>
+  <tr><td>Utilizatori negăsiți</td><td>Verificați DN-ul de bază și filtrul de utilizatori</td></tr>
+  <tr><td>Adresele nu se importă</td><td>OpenLDAP folosește „street" nu „streetAddress"</td></tr>
+</table>

@@ -1,0 +1,126 @@
+<h2>Håndbok for rapportdesigner</h2>
+
+<h3>Rapportstruktur</h3>
+<p>En rapport består av tre seksjoner:</p>
+<ul>
+  <li><strong>Topptekst</strong> &ndash; skrives ut øverst på hver side</li>
+  <li><strong>Innhold</strong> &ndash; inneholder datatabellene</li>
+  <li><strong>Bunntekst</strong> &ndash; skrives ut nederst på hver side</li>
+</ul>
+<p>Hver seksjon kan redigeres via fanen <em>Design</em> i rapporteditoren.</p>
+
+<hr>
+
+<h3>Topptekstseksjon</h3>
+<p>Toppteksten har tre soner: <strong>Venstre</strong>, <strong>Midten</strong> og <strong>Høyre</strong>.</p>
+<p>Hver sone kan inneholde:</p>
+<ul>
+  <li><strong>Felt</strong> &ndash; databasefelt som fylles ut automatisk</li>
+  <li><strong>Fri tekst</strong> &ndash; manuelt angitt tekst</li>
+  <li><strong>Bilder</strong> &ndash; f.eks. en bedriftslogo (last opp via bildebehandler)</li>
+</ul>
+<p>Rader kan legges til eller fjernes via verktøylinjen.</p>
+
+<hr>
+
+<h3>Innholdstabeller</h3>
+<p>Innholdet inneholder en eller flere tabeller.</p>
+<table>
+  <tr><th>Handling</th><th>Beskrivelse</th></tr>
+  <tr><td>Legg til kolonne</td><td>Via <strong>+</strong>-symbolet eller ved å dra fra feltlisten</td></tr>
+  <tr><td>Kolonnebredde</td><td>Juster ved å dra kolonnekanten</td></tr>
+  <tr><td>Kolonnerekkefølge</td><td>Endre ved å dra og slippe</td></tr>
+  <tr><td>Slett kolonne</td><td>I kolonneeditoren via slettesymbolet</td></tr>
+</table>
+<p>Hver tabell er knyttet til et datasett (f.eks. arbeidsplan, adresser).</p>
+
+<hr>
+
+<h3>Kombinerte felt (Merged Fields)</h3>
+<p>Kombinerte felt tillater flere datakoblinger i en enkelt kolonne.</p>
+<ul>
+  <li>Klikk på <strong>Legg til felt</strong> i kolonneeditoren for å legge til flere felt i samme kolonne</li>
+  <li>Verdiene vises under hverandre eller med en separator</li>
+  <li>Separatoren kan konfigureres i feltdialogen (f.eks. komma, mellomrom, linjeskift)</li>
+</ul>
+
+<hr>
+
+<h3>Tabellbunntekst</h3>
+<p>Under hver tabell kan en bunntekst vises.</p>
+<ul>
+  <li><strong>SUM-felt:</strong> numeriske kolonner kan summeres automatisk</li>
+  <li><strong>Etikett:</strong> beskrivelsen av summen kan vises eller skjules</li>
+  <li>Aktiveres i kolonneeditoren under fanen <em>Bunntekst</em></li>
+</ul>
+
+<hr>
+
+<h3>Frie tekstrader</h3>
+<p>Frie tekstrader kan settes inn før eller etter datatabellene.</p>
+<table>
+  <tr><th>Egenskap</th><th>Beskrivelse</th></tr>
+  <tr><td>Posisjon</td><td>Valgbar <em>Før data</em> eller <em>Etter data</em></td></tr>
+  <tr><td>Innhold</td><td>Fri tekst, f.eks. merknader, betingelser eller signaturfelt</td></tr>
+  <tr><td>Stil</td><td>Skrifttype, størrelse og justering konfigurerbare</td></tr>
+</table>
+
+<hr>
+
+<h3>Formatering</h3>
+<p>Hver celle og hver fri tekst kan formateres individuelt:</p>
+<table>
+  <tr><th>Innstilling</th><th>Beskrivelse</th></tr>
+  <tr><td>Skrifttype</td><td>Valgbare skrifttyper for cellen</td></tr>
+  <tr><td>Skriftstørrelse</td><td>Størrelse i punkter (pt)</td></tr>
+  <tr><td>Fet / Kursiv / Understreket</td><td>Via knappene <strong>B</strong> / <strong>I</strong> / <strong>U</strong></td></tr>
+  <tr><td>Tekstfarge</td><td>Fritt valgbar farge</td></tr>
+  <tr><td>Justering</td><td>Venstre, sentrert eller høyre</td></tr>
+</table>
+
+<hr>
+
+<h3>Cellekanter</h3>
+<p>Kantene på hver celle kan konfigureres individuelt.</p>
+<table>
+  <tr><th>Egenskap</th><th>Alternativer</th></tr>
+  <tr><td>Sider</td><td>Topp, høyre, bunn, venstre (individuelt eller alle)</td></tr>
+  <tr><td>Linjestil</td><td>Tynn, medium, tykk, stiplet, dobbel</td></tr>
+  <tr><td>Linjefarge</td><td>Fritt valgbar</td></tr>
+</table>
+<p>Kanter konfigureres i kolonneeditoren under <em>Kanter</em>.</p>
+
+<hr>
+
+<h3>Sideinnstillinger</h3>
+<p>Under fanen <em>Generelt</em> kan utskriftsinnstillingene justeres:</p>
+<ul>
+  <li><strong>Orientering:</strong> Stående (Portrait) eller liggende (Landscape)</li>
+  <li><strong>Papirstørrelse:</strong> A4, A3, B4 (JIS), B5 (JIS) eller Letter</li>
+  <li><strong>Sidemarginer:</strong> Topp, høyre, bunn, venstre i mm</li>
+</ul>
+
+<hr>
+
+<h3>Presentasjonsinnstillinger (Designer)</h3>
+<p>Under fanen <em>Design</em>, når datakilden er <strong>Arbeidsplan (Schedule)</strong>, er ytterligere innstillinger tilgjengelige:</p>
+<ul>
+  <li><strong>Konsolider oppføringer per dag:</strong> Flere oppføringer fra samme dag grupperes i en enkelt rad</li>
+  <li><strong>Vis full periode:</strong> Alle dager i perioden vises, selv om det ikke er noen oppføringer</li>
+</ul>
+
+<hr>
+
+<h3>Datakilder</h3>
+<p>Tilgjengelige datakilder for rapporter:</p>
+<table>
+  <tr><th>Datakilde</th><th>Beskrivelse</th></tr>
+  <tr><td>Arbeidsplan (Schedule)</td><td>Vakter og arbeidsplaner</td></tr>
+  <tr><td>Adresser (Liste)</td><td>Alle adresser som tabell</td></tr>
+  <tr><td>Adresse (Detalj)</td><td>Individuell adresse</td></tr>
+  <tr><td>Fravær</td><td>Fraværsoversikt</td></tr>
+  <tr><td>Vakter (Shifts)</td><td>Vakttabell</td></tr>
+  <tr><td>Grupper</td><td>Gruppeoversikt</td></tr>
+  <tr><td>Containermal</td><td>Mal for containerrapporter</td></tr>
+</table>
+<p><em>Datakilden velges under fanen "Datakilde" og bestemmer de tilgjengelige feltene.</em></p>

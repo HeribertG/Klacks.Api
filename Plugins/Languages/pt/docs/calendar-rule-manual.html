@@ -1,0 +1,82 @@
+<h2>Regras de feriados - Explicações</h2>
+
+<h3>Formato das regras</h3>
+<p>Existem dois tipos de regras: <strong>Data fixa</strong> e <strong>Data baseada na Páscoa</strong>.</p>
+
+<h4>Data fixa</h4>
+<p>Formato: <code>MM/DD</code></p>
+<table>
+  <tr><th>Exemplo</th><th>Significado</th></tr>
+  <tr><td><code>01/01</code></td><td>1 de janeiro (Ano Novo)</td></tr>
+  <tr><td><code>12/25</code></td><td>25 de dezembro (Natal)</td></tr>
+  <tr><td><code>08/01</code></td><td>1 de agosto (Dia Nacional da Suíça)</td></tr>
+</table>
+
+<h4>Data fixa com deslocação de dia da semana</h4>
+<p>Formato: <code>MM/DD+XX+WW</code> ou <code>MM/DD+XX-WW</code></p>
+<ul>
+  <li><code>+XX</code> = sinal + deslocação (dias) (00 a 99)</li>
+  <li><code>+</code> = próximo dia da semana após a data</li>
+  <li><code>-</code> = dia da semana anterior à data</li>
+  <li><code>WW</code> = dia da semana (SU, MO, TU, WE, TH, FR, SA)</li>
+</ul>
+<table>
+  <tr><th>Exemplo</th><th>Significado</th></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>Primeira quinta-feira de novembro</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>Quarta quinta-feira de novembro (Ação de Graças)</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>Última segunda-feira de maio (Memorial Day)</td></tr>
+</table>
+
+<h4>Data baseada na Páscoa</h4>
+<p>Formato: <code>EASTER+XX</code> ou <code>EASTER-XX</code></p>
+<table>
+  <tr><th>Exemplo</th><th>Significado</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>Domingo de Páscoa</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>Sexta-feira Santa (2 dias antes da Páscoa)</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>Segunda-feira de Páscoa (1 dia após a Páscoa)</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>Ascensão (39 dias após a Páscoa)</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>Pentecostes (49 dias após a Páscoa)</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>Segunda-feira de Pentecostes (50 dias após a Páscoa)</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>Corpo de Deus (60 dias após a Páscoa)</td></tr>
+</table>
+
+<hr>
+
+<h3>Formato das sub-regras</h3>
+<p>As sub-regras permitem a transferência automática de feriados quando caem num determinado dia da semana.</p>
+<p>Formato: <code>WW+X</code> ou <code>WW-X</code>, múltiplas regras separadas por <code>;</code></p>
+<ul>
+  <li><code>WW</code> = dia da semana (SU, MO, TU, WE, TH, FR, SA)</li>
+  <li><code>+X</code> = mover X dias para a frente</li>
+  <li><code>-X</code> = mover X dias para trás</li>
+</ul>
+<table>
+  <tr><th>Exemplo</th><th>Significado</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>Se sábado: +2 dias (segunda-feira), se domingo: +1 dia (segunda-feira)</td></tr>
+  <tr><td><code>SU+1</code></td><td>Se domingo: transferir para segunda-feira</td></tr>
+</table>
+
+<p><em>Nota: As sub-regras são normalmente usadas para transferir feriados que caem ao fim de semana para o dia útil seguinte.</em></p>
+
+<hr>
+
+<h3>Abreviaturas dos dias da semana</h3>
+<table>
+  <tr><th>Abreviatura</th><th>Dia da semana</th></tr>
+  <tr><td>SU</td><td>Domingo (Sunday)</td></tr>
+  <tr><td>MO</td><td>Segunda-feira (Monday)</td></tr>
+  <tr><td>TU</td><td>Terça-feira (Tuesday)</td></tr>
+  <tr><td>WE</td><td>Quarta-feira (Wednesday)</td></tr>
+  <tr><td>TH</td><td>Quinta-feira (Thursday)</td></tr>
+  <tr><td>FR</td><td>Sexta-feira (Friday)</td></tr>
+  <tr><td>SA</td><td>Sábado (Saturday)</td></tr>
+</table>
+
+<hr>
+
+<h3>Caixas de verificação</h3>
+<table>
+  <tr><th>Caixa de verificação</th><th>Significado</th></tr>
+  <tr><td>Feriado oficial</td><td>O dia é um feriado oficial/legal</td></tr>
+  <tr><td>Remunerado</td><td>O feriado é remunerado (relevante para o cálculo salarial)</td></tr>
+</table>

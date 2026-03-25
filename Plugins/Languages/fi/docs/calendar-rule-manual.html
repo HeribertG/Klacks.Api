@@ -1,0 +1,82 @@
+<h2>Juhlapyhäsäännöt - Selitykset</h2>
+
+<h3>Sääntömuoto</h3>
+<p>Sääntöjä on kahdenlaisia: <strong>kiinteät päivämäärät</strong> ja <strong>pääsiäiseen sidotut päivämäärät</strong>.</p>
+
+<h4>Kiinteät päivämäärät</h4>
+<p>Muoto: <code>MM/DD</code></p>
+<table>
+  <tr><th>Esimerkki</th><th>Merkitys</th></tr>
+  <tr><td><code>01/01</code></td><td>1. tammikuuta (uudenvuodenpäivä)</td></tr>
+  <tr><td><code>12/25</code></td><td>25. joulukuuta (joulupäivä)</td></tr>
+  <tr><td><code>08/01</code></td><td>1. elokuuta (Sveitsin kansallispäivä)</td></tr>
+</table>
+
+<h4>Kiinteät päivämäärät viikonpäiväsiirrolla</h4>
+<p>Muoto: <code>MM/DD+XX+WW</code> tai <code>MM/DD+XX-WW</code></p>
+<ul>
+  <li><code>+XX</code> = merkki + siirros päivissä (00-99)</li>
+  <li><code>+</code> = seuraava viikonpäivä päivämäärän jälkeen</li>
+  <li><code>-</code> = edellinen viikonpäivä ennen päivämäärää</li>
+  <li><code>WW</code> = viikonpäivä (SU, MO, TU, WE, TH, FR, SA)</li>
+</ul>
+<table>
+  <tr><th>Esimerkki</th><th>Merkitys</th></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>Marraskuun ensimmäinen torstai</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>Marraskuun neljäs torstai (kiitospäivä)</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>Toukokuun viimeinen maanantai (muistopäivä)</td></tr>
+</table>
+
+<h4>Pääsiäiseen sidotut päivämäärät</h4>
+<p>Muoto: <code>EASTER+XX</code> tai <code>EASTER-XX</code></p>
+<table>
+  <tr><th>Esimerkki</th><th>Merkitys</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>Pääsiäissunnuntai</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>Pitkäperjantai (2 päivää ennen pääsiäistä)</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>Toinen pääsiäispäivä (1 päivä pääsiäisen jälkeen)</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>Helatorstai (39 päivää pääsiäisen jälkeen)</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>Helluntaisunnuntai (49 päivää pääsiäisen jälkeen)</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>Helluntaimaanantai (50 päivää pääsiäisen jälkeen)</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>Kristuksen ruumiin ja veren juhla (60 päivää pääsiäisen jälkeen)</td></tr>
+</table>
+
+<hr>
+
+<h3>Alisääntöjen muoto</h3>
+<p>Alisäännöt mahdollistavat juhlapyhän automaattisen siirtämisen, kun se osuu tietylle viikonpäivälle.</p>
+<p>Muoto: <code>WW+X</code> tai <code>WW-X</code>, useita sääntöjä erotetaan <code>;</code>-merkillä</p>
+<ul>
+  <li><code>WW</code> = viikonpäivä (SU, MO, TU, WE, TH, FR, SA)</li>
+  <li><code>+X</code> = siirrä X päivää eteenpäin</li>
+  <li><code>-X</code> = siirrä X päivää taaksepäin</li>
+</ul>
+<table>
+  <tr><th>Esimerkki</th><th>Merkitys</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>Jos lauantai: +2 päivää (maanantai), jos sunnuntai: +1 päivä (maanantai)</td></tr>
+  <tr><td><code>SU+1</code></td><td>Jos sunnuntai: siirrä maanantaille</td></tr>
+</table>
+
+<p><em>Huomautus: Alisääntöjä käytetään tyypillisesti siirtämään viikonloppuun osuvat juhlapyhät seuraavalle arkipäivälle.</em></p>
+
+<hr>
+
+<h3>Viikonpäivälyhenteet</h3>
+<table>
+  <tr><th>Lyhenne</th><th>Viikonpäivä</th></tr>
+  <tr><td>SU</td><td>Sunnuntai (Sunday)</td></tr>
+  <tr><td>MO</td><td>Maanantai (Monday)</td></tr>
+  <tr><td>TU</td><td>Tiistai (Tuesday)</td></tr>
+  <tr><td>WE</td><td>Keskiviikko (Wednesday)</td></tr>
+  <tr><td>TH</td><td>Torstai (Thursday)</td></tr>
+  <tr><td>FR</td><td>Perjantai (Friday)</td></tr>
+  <tr><td>SA</td><td>Lauantai (Saturday)</td></tr>
+</table>
+
+<hr>
+
+<h3>Valintaruudut</h3>
+<table>
+  <tr><th>Valintaruutu</th><th>Merkitys</th></tr>
+  <tr><td>Virallinen juhlapyhä</td><td>Päivä on virallinen/lakisääteinen juhlapyhä</td></tr>
+  <tr><td>Palkallinen</td><td>Juhlapyhä on palkallinen (merkityksellinen palkkalaskennassa)</td></tr>
+</table>

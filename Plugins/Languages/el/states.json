@@ -1,0 +1,80 @@
+[
+  {
+    "id": "62c3d4e5-bb01-4000-8000-000000000001",
+    "abbreviation": "AT",
+    "countryPrefix": "GR",
+    "name": { "de": "Attika", "en": "Attica", "fr": "Attique", "it": "Attica", "el": "Αττική", "ja": "アッティカ", "es": "Ática" }
+  },
+  {
+    "id": "62c3d4e5-bb01-4000-8000-000000000002",
+    "abbreviation": "CG",
+    "countryPrefix": "GR",
+    "name": { "de": "Mittelgriechenland", "en": "Central Greece", "fr": "Grèce-Centrale", "it": "Grecia Centrale", "el": "Στερεά Ελλάδα", "ja": "中央ギリシャ", "es": "Grecia Central" }
+  },
+  {
+    "id": "62c3d4e5-bb01-4000-8000-000000000003",
+    "abbreviation": "CM",
+    "countryPrefix": "GR",
+    "name": { "de": "Zentralmakedonien", "en": "Central Macedonia", "fr": "Macédoine-Centrale", "it": "Macedonia Centrale", "el": "Κεντρική Μακεδονία", "ja": "中央マケドニア", "es": "Macedonia Central" }
+  },
+  {
+    "id": "62c3d4e5-bb01-4000-8000-000000000004",
+    "abbreviation": "CR",
+    "countryPrefix": "GR",
+    "name": { "de": "Kreta", "en": "Crete", "fr": "Crète", "it": "Creta", "el": "Κρήτη", "ja": "クレタ", "es": "Creta" }
+  },
+  {
+    "id": "62c3d4e5-bb01-4000-8000-000000000005",
+    "abbreviation": "EM",
+    "countryPrefix": "GR",
+    "name": { "de": "Ostmakedonien und Thrakien", "en": "Eastern Macedonia and Thrace", "fr": "Macédoine-Orientale-et-Thrace", "it": "Macedonia Orientale e Tracia", "el": "Ανατολική Μακεδονία και Θράκη", "ja": "東マケドニア・トラキア", "es": "Macedonia Oriental y Tracia" }
+  },
+  {
+    "id": "62c3d4e5-bb01-4000-8000-000000000006",
+    "abbreviation": "EP",
+    "countryPrefix": "GR",
+    "name": { "de": "Epirus", "en": "Epirus", "fr": "Épire", "it": "Epiro", "el": "Ήπειρος", "ja": "イピロス", "es": "Epiro" }
+  },
+  {
+    "id": "62c3d4e5-bb01-4000-8000-000000000007",
+    "abbreviation": "II",
+    "countryPrefix": "GR",
+    "name": { "de": "Ionische Inseln", "en": "Ionian Islands", "fr": "Îles Ioniennes", "it": "Isole Ionie", "el": "Ιόνια Νησιά", "ja": "イオニア諸島", "es": "Islas Jónicas" }
+  },
+  {
+    "id": "62c3d4e5-bb01-4000-8000-000000000008",
+    "abbreviation": "NA",
+    "countryPrefix": "GR",
+    "name": { "de": "Nördliche Ägäis", "en": "North Aegean", "fr": "Égée-Septentrionale", "it": "Egeo Settentrionale", "el": "Βόρειο Αιγαίο", "ja": "北エーゲ", "es": "Egeo Septentrional" }
+  },
+  {
+    "id": "62c3d4e5-bb01-4000-8000-000000000009",
+    "abbreviation": "PE",
+    "countryPrefix": "GR",
+    "name": { "de": "Peloponnes", "en": "Peloponnese", "fr": "Péloponnèse", "it": "Peloponneso", "el": "Πελοπόννησος", "ja": "ペロポネソス", "es": "Peloponeso" }
+  },
+  {
+    "id": "62c3d4e5-bb01-4000-8000-000000000010",
+    "abbreviation": "SA",
+    "countryPrefix": "GR",
+    "name": { "de": "Südliche Ägäis", "en": "South Aegean", "fr": "Égée-Méridionale", "it": "Egeo Meridionale", "el": "Νότιο Αιγαίο", "ja": "南エーゲ", "es": "Egeo Meridional" }
+  },
+  {
+    "id": "62c3d4e5-bb01-4000-8000-000000000011",
+    "abbreviation": "TH",
+    "countryPrefix": "GR",
+    "name": { "de": "Thessalien", "en": "Thessaly", "fr": "Thessalie", "it": "Tessaglia", "el": "Θεσσαλία", "ja": "テッサリア", "es": "Tesalia" }
+  },
+  {
+    "id": "62c3d4e5-bb01-4000-8000-000000000012",
+    "abbreviation": "WG",
+    "countryPrefix": "GR",
+    "name": { "de": "Westgriechenland", "en": "Western Greece", "fr": "Grèce-Occidentale", "it": "Grecia Occidentale", "el": "Δυτική Ελλάδα", "ja": "西ギリシャ", "es": "Grecia Occidental" }
+  },
+  {
+    "id": "62c3d4e5-bb01-4000-8000-000000000013",
+    "abbreviation": "WM",
+    "countryPrefix": "GR",
+    "name": { "de": "Westmakedonien", "en": "Western Macedonia", "fr": "Macédoine-Occidentale", "it": "Macedonia Occidentale", "el": "Δυτική Μακεδονία", "ja": "西マケドニア", "es": "Macedonia Occidental" }
+  }
+]

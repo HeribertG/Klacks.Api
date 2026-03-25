@@ -1,0 +1,8 @@
+[
+  {
+    "id": "a1b2c3d4-5e01-4000-8000-000000000001",
+    "abbreviation": "SE",
+    "name": { "de": "Schweden", "en": "Sweden", "fr": "Suède", "it": "Svezia", "sv": "Sverige", "ja": "スウェーデン", "es": "Suecia" },
+    "prefix": "+46"
+  }
+]

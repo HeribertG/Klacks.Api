@@ -1,0 +1,74 @@
+[
+  {
+    "id": "51b2c3d4-6e01-4000-8000-000000000001",
+    "abbreviation": "DR",
+    "countryPrefix": "NL",
+    "name": { "de": "Drenthe", "en": "Drenthe", "fr": "Drenthe", "it": "Drenthe", "nl": "Drenthe", "ja": "ドレンテ", "es": "Drente" }
+  },
+  {
+    "id": "51b2c3d4-6e01-4000-8000-000000000002",
+    "abbreviation": "FL",
+    "countryPrefix": "NL",
+    "name": { "de": "Flevoland", "en": "Flevoland", "fr": "Flevoland", "it": "Flevoland", "nl": "Flevoland", "ja": "フレヴォラント", "es": "Flevoland" }
+  },
+  {
+    "id": "51b2c3d4-6e01-4000-8000-000000000003",
+    "abbreviation": "FR",
+    "countryPrefix": "NL",
+    "name": { "de": "Friesland", "en": "Friesland", "fr": "Frise", "it": "Frisia", "nl": "Fryslân", "ja": "フリースラント", "es": "Frisia" }
+  },
+  {
+    "id": "51b2c3d4-6e01-4000-8000-000000000004",
+    "abbreviation": "GE",
+    "countryPrefix": "NL",
+    "name": { "de": "Gelderland", "en": "Gelderland", "fr": "Gueldre", "it": "Gheldria", "nl": "Gelderland", "ja": "ヘルダーラント", "es": "Güeldres" }
+  },
+  {
+    "id": "51b2c3d4-6e01-4000-8000-000000000005",
+    "abbreviation": "GR",
+    "countryPrefix": "NL",
+    "name": { "de": "Groningen", "en": "Groningen", "fr": "Groningue", "it": "Groninga", "nl": "Groningen", "ja": "フローニンゲン", "es": "Groninga" }
+  },
+  {
+    "id": "51b2c3d4-6e01-4000-8000-000000000006",
+    "abbreviation": "LI",
+    "countryPrefix": "NL",
+    "name": { "de": "Limburg", "en": "Limburg", "fr": "Limbourg", "it": "Limburgo", "nl": "Limburg", "ja": "リンブルフ", "es": "Limburgo" }
+  },
+  {
+    "id": "51b2c3d4-6e01-4000-8000-000000000007",
+    "abbreviation": "NB",
+    "countryPrefix": "NL",
+    "name": { "de": "Nordbrabant", "en": "North Brabant", "fr": "Brabant-Septentrional", "it": "Brabante Settentrionale", "nl": "Noord-Brabant", "ja": "北ブラバント", "es": "Brabante Septentrional" }
+  },
+  {
+    "id": "51b2c3d4-6e01-4000-8000-000000000008",
+    "abbreviation": "NH",
+    "countryPrefix": "NL",
+    "name": { "de": "Nordholland", "en": "North Holland", "fr": "Hollande-Septentrionale", "it": "Olanda Settentrionale", "nl": "Noord-Holland", "ja": "北ホラント", "es": "Holanda Septentrional" }
+  },
+  {
+    "id": "51b2c3d4-6e01-4000-8000-000000000009",
+    "abbreviation": "OV",
+    "countryPrefix": "NL",
+    "name": { "de": "Overijssel", "en": "Overijssel", "fr": "Overijssel", "it": "Overijssel", "nl": "Overijssel", "ja": "オーファーアイセル", "es": "Overijssel" }
+  },
+  {
+    "id": "51b2c3d4-6e01-4000-8000-000000000010",
+    "abbreviation": "ZH",
+    "countryPrefix": "NL",
+    "name": { "de": "Südholland", "en": "South Holland", "fr": "Hollande-Méridionale", "it": "Olanda Meridionale", "nl": "Zuid-Holland", "ja": "南ホラント", "es": "Holanda Meridional" }
+  },
+  {
+    "id": "51b2c3d4-6e01-4000-8000-000000000011",
+    "abbreviation": "UT",
+    "countryPrefix": "NL",
+    "name": { "de": "Utrecht", "en": "Utrecht", "fr": "Utrecht", "it": "Utrecht", "nl": "Utrecht", "ja": "ユトレヒト", "es": "Utrecht" }
+  },
+  {
+    "id": "51b2c3d4-6e01-4000-8000-000000000012",
+    "abbreviation": "ZE",
+    "countryPrefix": "NL",
+    "name": { "de": "Zeeland", "en": "Zeeland", "fr": "Zélande", "it": "Zelanda", "nl": "Zeeland", "ja": "ゼーラント", "es": "Zelanda" }
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "frustrated": ["nefunguje", "rozbité", "chyba", "bug", "problém", "proč", "zase", "pořád ne", "špatně", "nefunkční"],
+  "stressed": ["naléhavé", "hned", "okamžitě", "rychle", "termín", "spěchám", "nemám čas", "tlak"],
+  "confused": ["nechápu", "jak to funguje", "co je", "co znamená", "není jasné", "vysvětlete", "nerozumím", "ztracený"],
+  "positive": ["děkuji", "perfektní", "skvělé", "výborné", "fantastické", "bravo", "úžasné", "paráda"],
+  "urgent": ["důležité", "naléhavé", "nouzové", "kritické", "okamžitě"]
+}

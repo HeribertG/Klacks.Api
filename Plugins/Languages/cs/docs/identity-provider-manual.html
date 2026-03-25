@@ -1,0 +1,118 @@
+<h2>Příručka poskytovatele identity</h2>
+
+<h3>Úvod</h3>
+<p>
+Poskytovatelé identity umožňují ověřování uživatelů prostřednictvím externích adresářových služeb,
+jako jsou LDAP, Active Directory nebo OAuth2/OpenID Connect.
+</p>
+
+<p><strong>Podporované typy poskytovatelů:</strong></p>
+<ul>
+  <li><strong>LDAP</strong> - Lightweight Directory Access Protocol</li>
+  <li><strong>Active Directory</strong> - Microsoft Active Directory</li>
+  <li><strong>OAuth2</strong> - Autorizační framework OAuth 2.0</li>
+  <li><strong>OpenID Connect</strong> - Vrstva identity nad OAuth 2.0</li>
+</ul>
+
+<hr>
+
+<h3>LDAP / Active Directory</h3>
+
+<h4>Konfigurace připojení</h4>
+<table>
+  <tr><th>Pole</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>Hostitel</td><td>Název hostitele nebo IP adresa LDAP serveru</td><td>ldap.example.com</td></tr>
+  <tr><td>Port</td><td>389 (LDAP) nebo 636 (LDAPS)</td><td>389</td></tr>
+  <tr><td>Použít SSL</td><td>Aktivuje šifrované připojení</td><td>-</td></tr>
+  <tr><td>Base DN</td><td>Základní Distinguished Name pro vyhledávání</td><td>DC=example,DC=com</td></tr>
+  <tr><td>Bind DN</td><td>DN uživatele pro připojení</td><td>CN=admin,DC=example,DC=com</td></tr>
+  <tr><td>Heslo Bind</td><td>Heslo pro uživatele Bind</td><td>-</td></tr>
+  <tr><td>Filtr uživatelů</td><td>LDAP filtr pro vyhledávání uživatelů</td><td>(objectClass=person)</td></tr>
+</table>
+
+<h4>Rozdíly mezi LDAP a Active Directory</h4>
+<table>
+  <tr><th>Vlastnost</th><th>LDAP (OpenLDAP)</th><th>Active Directory</th></tr>
+  <tr><td>Atribut uživatele</td><td>uid</td><td>sAMAccountName</td></tr>
+  <tr><td>Atribut ulice</td><td>street</td><td>streetAddress</td></tr>
+  <tr><td>Atribut oslovení</td><td>-</td><td>personalTitle</td></tr>
+  <tr><td>Atribut země</td><td>-</td><td>c</td></tr>
+  <tr><td>Metoda ověření</td><td>Simple Bind</td><td>Negotiate/Kerberos</td></tr>
+</table>
+
+<h4>Běžné filtry uživatelů</h4>
+<pre>
+LDAP:             (objectClass=person)
+                  (objectClass=inetOrgPerson)
+
+Active Directory: (&amp;(objectClass=user)(objectCategory=person))
+                  (&amp;(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+</pre>
+
+<h4>Import klientů</h4>
+<p>Když je aktivováno "Použít pro import klientů", importují se následující údaje:</p>
+<ul>
+  <li><strong>Příjmení</strong> - sn (příjmení) nebo displayName</li>
+  <li><strong>Jméno</strong> - givenName</li>
+  <li><strong>Titul</strong> - title (pracovní pozice)</li>
+  <li><strong>Firma</strong> - company</li>
+  <li><strong>Adresa</strong> - street/streetAddress, postalCode, l (město), st (kraj), c (země)</li>
+  <li><strong>Pohlaví</strong> - Z personalTitle (Pan/Paní) v Active Directory</li>
+</ul>
+
+<p><em>Poznámka: V OpenLDAP je pohlaví standardně nastaveno na "Neutrální" a může být ručně opraveno.</em></p>
+
+<hr>
+
+<h3>OAuth2 / OpenID Connect</h3>
+
+<h4>Konfigurace</h4>
+<table>
+  <tr><th>Pole</th><th>Popis</th></tr>
+  <tr><td>Client ID</td><td>ID klienta registrované u poskytovatele</td></tr>
+  <tr><td>Client Secret</td><td>Odpovídající tajný klíč klienta</td></tr>
+  <tr><td>Tenant ID</td><td>ID tenanta Azure AD (volitelné, pouze pro Microsoft)</td></tr>
+  <tr><td>URL autorizace</td><td>Koncový bod pro autorizaci</td></tr>
+  <tr><td>URL tokenu</td><td>Koncový bod pro výměnu tokenů</td></tr>
+  <tr><td>URL informací o uživateli</td><td>Koncový bod pro informace o uživateli</td></tr>
+  <tr><td>Rozsahy</td><td>Požadovaná oprávnění (např. "openid profile email")</td></tr>
+</table>
+
+<h4>Známí poskytovatelé</h4>
+<table>
+  <tr><th>Poskytovatel</th><th>URL autorizace</th><th>URL tokenu</th></tr>
+  <tr><td>Google</td><td>https://accounts.google.com/o/oauth2/v2/auth</td><td>https://oauth2.googleapis.com/token</td></tr>
+  <tr><td>Microsoft</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</td></tr>
+  <tr><td>GitHub</td><td>https://github.com/login/oauth/authorize</td><td>https://github.com/login/oauth/access_token</td></tr>
+</table>
+
+<hr>
+
+<h3>Tipy</h3>
+
+<h4>Synology NAS jako LDAP server</h4>
+<p>
+Synology NAS lze použít jako LDAP server. K tomu je nutné nainstalovat balíček
+"LDAP Server" nebo Docker kontejner s OpenLDAP.
+</p>
+<ul>
+  <li>Typ poskytovatele: "Active Directory" (pro záložní ověření)</li>
+  <li>Filtr uživatelů: (objectClass=inetOrgPerson)</li>
+  <li>Formát DN uživatele: cn=uživatelské_jméno,ou=users,dc=example,dc=com</li>
+</ul>
+
+<h4>Testování připojení</h4>
+<p>
+Použijte tlačítko "Testovat připojení" pro ověření konfigurace.
+Při úspěšném připojení se zobrazí počet nalezených uživatelů a několik
+ukázkových uživatelských jmen.
+</p>
+
+<h4>Řešení problémů</h4>
+<table>
+  <tr><th>Problém</th><th>Řešení</th></tr>
+  <tr><td>Připojení selhalo</td><td>Zkontrolujte hostitele, port a konfiguraci SSL</td></tr>
+  <tr><td>Bind selhal</td><td>Zkontrolujte Bind DN a heslo</td></tr>
+  <tr><td>Uživatelé nenalezeni</td><td>Zkontrolujte Base DN a filtr uživatelů</td></tr>
+  <tr><td>Adresy neimportovány</td><td>OpenLDAP používá "street" místo "streetAddress"</td></tr>
+</table>

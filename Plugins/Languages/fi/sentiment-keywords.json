@@ -1,0 +1,7 @@
+{
+  "frustrated": ["ei toimi", "ei pelitä", "taas", "miksi", "rikki", "ongelma", "virhe", "bugi", "vika", "puute"],
+  "stressed": ["kiireellinen", "heti", "nyt heti", "nopeasti", "määräaika", "kiire", "ei ole aikaa"],
+  "confused": ["en ymmärrä", "miten toimii", "mikä on", "mitä tarkoittaa", "ei ole selvää", "selittää", "ei aavistustakaan", "hukassa"],
+  "positive": ["kiitos", "täydellinen", "loistava", "erinomainen", "fantastinen", "hienoa", "mahtava", "upea"],
+  "urgent": ["tärkeä", "kiireellinen", "hätätilanne", "kriittinen", "välittömästi"]
+}

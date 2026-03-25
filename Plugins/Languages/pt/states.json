@@ -1,0 +1,122 @@
+[
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000001",
+    "abbreviation": "AV",
+    "countryPrefix": "PT",
+    "name": { "de": "Aveiro", "en": "Aveiro", "fr": "Aveiro", "it": "Aveiro", "pt": "Aveiro", "ja": "アヴェイロ", "es": "Aveiro" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000002",
+    "abbreviation": "BJ",
+    "countryPrefix": "PT",
+    "name": { "de": "Beja", "en": "Beja", "fr": "Beja", "it": "Beja", "pt": "Beja", "ja": "ベージャ", "es": "Beja" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000003",
+    "abbreviation": "BR",
+    "countryPrefix": "PT",
+    "name": { "de": "Braga", "en": "Braga", "fr": "Braga", "it": "Braga", "pt": "Braga", "ja": "ブラガ", "es": "Braga" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000004",
+    "abbreviation": "BG",
+    "countryPrefix": "PT",
+    "name": { "de": "Braganca", "en": "Braganca", "fr": "Bragance", "it": "Braganza", "pt": "Bragança", "ja": "ブラガンサ", "es": "Braganza" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000005",
+    "abbreviation": "CB",
+    "countryPrefix": "PT",
+    "name": { "de": "Castelo Branco", "en": "Castelo Branco", "fr": "Castelo Branco", "it": "Castelo Branco", "pt": "Castelo Branco", "ja": "カステロ・ブランコ", "es": "Castelo Branco" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000006",
+    "abbreviation": "CO",
+    "countryPrefix": "PT",
+    "name": { "de": "Coimbra", "en": "Coimbra", "fr": "Coimbra", "it": "Coimbra", "pt": "Coimbra", "ja": "コインブラ", "es": "Coimbra" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000007",
+    "abbreviation": "EV",
+    "countryPrefix": "PT",
+    "name": { "de": "Evora", "en": "Evora", "fr": "Évora", "it": "Evora", "pt": "Évora", "ja": "エヴォラ", "es": "Évora" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000008",
+    "abbreviation": "FA",
+    "countryPrefix": "PT",
+    "name": { "de": "Faro", "en": "Faro", "fr": "Faro", "it": "Faro", "pt": "Faro", "ja": "ファーロ", "es": "Faro" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000009",
+    "abbreviation": "GU",
+    "countryPrefix": "PT",
+    "name": { "de": "Guarda", "en": "Guarda", "fr": "Guarda", "it": "Guarda", "pt": "Guarda", "ja": "グアルダ", "es": "Guarda" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000010",
+    "abbreviation": "LE",
+    "countryPrefix": "PT",
+    "name": { "de": "Leiria", "en": "Leiria", "fr": "Leiria", "it": "Leiria", "pt": "Leiria", "ja": "レイリア", "es": "Leiria" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000011",
+    "abbreviation": "LI",
+    "countryPrefix": "PT",
+    "name": { "de": "Lissabon", "en": "Lisbon", "fr": "Lisbonne", "it": "Lisbona", "pt": "Lisboa", "ja": "リスボン", "es": "Lisboa" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000012",
+    "abbreviation": "PA",
+    "countryPrefix": "PT",
+    "name": { "de": "Portalegre", "en": "Portalegre", "fr": "Portalegre", "it": "Portalegre", "pt": "Portalegre", "ja": "ポルタレグレ", "es": "Portalegre" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000013",
+    "abbreviation": "PO",
+    "countryPrefix": "PT",
+    "name": { "de": "Porto", "en": "Porto", "fr": "Porto", "it": "Porto", "pt": "Porto", "ja": "ポルト", "es": "Oporto" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000014",
+    "abbreviation": "SA",
+    "countryPrefix": "PT",
+    "name": { "de": "Santarem", "en": "Santarem", "fr": "Santarém", "it": "Santarém", "pt": "Santarém", "ja": "サンタレン", "es": "Santarém" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000015",
+    "abbreviation": "SE",
+    "countryPrefix": "PT",
+    "name": { "de": "Setubal", "en": "Setubal", "fr": "Setúbal", "it": "Setúbal", "pt": "Setúbal", "ja": "セトゥーバル", "es": "Setúbal" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000016",
+    "abbreviation": "VC",
+    "countryPrefix": "PT",
+    "name": { "de": "Viana do Castelo", "en": "Viana do Castelo", "fr": "Viana do Castelo", "it": "Viana do Castelo", "pt": "Viana do Castelo", "ja": "ヴィアナ・ド・カステロ", "es": "Viana do Castelo" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000017",
+    "abbreviation": "VR",
+    "countryPrefix": "PT",
+    "name": { "de": "Vila Real", "en": "Vila Real", "fr": "Vila Real", "it": "Vila Real", "pt": "Vila Real", "ja": "ヴィラ・レアル", "es": "Vila Real" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000018",
+    "abbreviation": "VI",
+    "countryPrefix": "PT",
+    "name": { "de": "Viseu", "en": "Viseu", "fr": "Viseu", "it": "Viseu", "pt": "Viseu", "ja": "ヴィゼウ", "es": "Viseu" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000019",
+    "abbreviation": "AC",
+    "countryPrefix": "PT",
+    "name": { "de": "Azoren", "en": "Azores", "fr": "Açores", "it": "Azzorre", "pt": "Açores", "ja": "アゾレス", "es": "Azores" }
+  },
+  {
+    "id": "51b2c3d4-7001-4000-8000-000000000020",
+    "abbreviation": "MA",
+    "countryPrefix": "PT",
+    "name": { "de": "Madeira", "en": "Madeira", "fr": "Madère", "it": "Madera", "pt": "Madeira", "ja": "マデイラ", "es": "Madeira" }
+  }
+]

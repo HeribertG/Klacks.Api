@@ -1,0 +1,254 @@
+[
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000001",
+    "abbreviation": "AB",
+    "countryPrefix": "RO",
+    "name": { "de": "Alba", "en": "Alba", "fr": "Alba", "it": "Alba", "ro": "Alba", "ja": "アルバ", "es": "Alba" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000002",
+    "abbreviation": "AR",
+    "countryPrefix": "RO",
+    "name": { "de": "Arad", "en": "Arad", "fr": "Arad", "it": "Arad", "ro": "Arad", "ja": "アラド", "es": "Arad" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000003",
+    "abbreviation": "AG",
+    "countryPrefix": "RO",
+    "name": { "de": "Argeș", "en": "Argeș", "fr": "Argeș", "it": "Argeș", "ro": "Argeș", "ja": "アルジェシュ", "es": "Argeș" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000004",
+    "abbreviation": "BC",
+    "countryPrefix": "RO",
+    "name": { "de": "Bacău", "en": "Bacău", "fr": "Bacău", "it": "Bacău", "ro": "Bacău", "ja": "バカウ", "es": "Bacău" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000005",
+    "abbreviation": "BH",
+    "countryPrefix": "RO",
+    "name": { "de": "Bihor", "en": "Bihor", "fr": "Bihor", "it": "Bihor", "ro": "Bihor", "ja": "ビホル", "es": "Bihor" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000006",
+    "abbreviation": "BN",
+    "countryPrefix": "RO",
+    "name": { "de": "Bistrița-Năsăud", "en": "Bistrița-Năsăud", "fr": "Bistrița-Năsăud", "it": "Bistrița-Năsăud", "ro": "Bistrița-Năsăud", "ja": "ビストリツァ＝ナサウド", "es": "Bistrița-Năsăud" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000007",
+    "abbreviation": "BT",
+    "countryPrefix": "RO",
+    "name": { "de": "Botoșani", "en": "Botoșani", "fr": "Botoșani", "it": "Botoșani", "ro": "Botoșani", "ja": "ボトシャニ", "es": "Botoșani" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000008",
+    "abbreviation": "BV",
+    "countryPrefix": "RO",
+    "name": { "de": "Brașov", "en": "Brașov", "fr": "Brașov", "it": "Brașov", "ro": "Brașov", "ja": "ブラショフ", "es": "Brașov" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000009",
+    "abbreviation": "BR",
+    "countryPrefix": "RO",
+    "name": { "de": "Brăila", "en": "Brăila", "fr": "Brăila", "it": "Brăila", "ro": "Brăila", "ja": "ブライラ", "es": "Brăila" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000010",
+    "abbreviation": "BZ",
+    "countryPrefix": "RO",
+    "name": { "de": "Buzău", "en": "Buzău", "fr": "Buzău", "it": "Buzău", "ro": "Buzău", "ja": "ブザウ", "es": "Buzău" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000011",
+    "abbreviation": "CS",
+    "countryPrefix": "RO",
+    "name": { "de": "Caraș-Severin", "en": "Caraș-Severin", "fr": "Caraș-Severin", "it": "Caraș-Severin", "ro": "Caraș-Severin", "ja": "カラシュ＝セヴェリン", "es": "Caraș-Severin" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000012",
+    "abbreviation": "CL",
+    "countryPrefix": "RO",
+    "name": { "de": "Călărași", "en": "Călărași", "fr": "Călărași", "it": "Călărași", "ro": "Călărași", "ja": "カララシ", "es": "Călărași" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000013",
+    "abbreviation": "CJ",
+    "countryPrefix": "RO",
+    "name": { "de": "Cluj", "en": "Cluj", "fr": "Cluj", "it": "Cluj", "ro": "Cluj", "ja": "クルージュ", "es": "Cluj" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000014",
+    "abbreviation": "CT",
+    "countryPrefix": "RO",
+    "name": { "de": "Constanța", "en": "Constanța", "fr": "Constanța", "it": "Constanța", "ro": "Constanța", "ja": "コンスタンツァ", "es": "Constanța" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000015",
+    "abbreviation": "CV",
+    "countryPrefix": "RO",
+    "name": { "de": "Covasna", "en": "Covasna", "fr": "Covasna", "it": "Covasna", "ro": "Covasna", "ja": "コヴァスナ", "es": "Covasna" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000016",
+    "abbreviation": "DB",
+    "countryPrefix": "RO",
+    "name": { "de": "Dâmbovița", "en": "Dâmbovița", "fr": "Dâmbovița", "it": "Dâmbovița", "ro": "Dâmbovița", "ja": "ドゥンボヴィツァ", "es": "Dâmbovița" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000017",
+    "abbreviation": "DJ",
+    "countryPrefix": "RO",
+    "name": { "de": "Dolj", "en": "Dolj", "fr": "Dolj", "it": "Dolj", "ro": "Dolj", "ja": "ドルジュ", "es": "Dolj" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000018",
+    "abbreviation": "GL",
+    "countryPrefix": "RO",
+    "name": { "de": "Galați", "en": "Galați", "fr": "Galați", "it": "Galați", "ro": "Galați", "ja": "ガラツィ", "es": "Galați" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000019",
+    "abbreviation": "GR",
+    "countryPrefix": "RO",
+    "name": { "de": "Giurgiu", "en": "Giurgiu", "fr": "Giurgiu", "it": "Giurgiu", "ro": "Giurgiu", "ja": "ジュルジュ", "es": "Giurgiu" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000020",
+    "abbreviation": "GJ",
+    "countryPrefix": "RO",
+    "name": { "de": "Gorj", "en": "Gorj", "fr": "Gorj", "it": "Gorj", "ro": "Gorj", "ja": "ゴルジュ", "es": "Gorj" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000021",
+    "abbreviation": "HR",
+    "countryPrefix": "RO",
+    "name": { "de": "Harghita", "en": "Harghita", "fr": "Harghita", "it": "Harghita", "ro": "Harghita", "ja": "ハルギタ", "es": "Harghita" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000022",
+    "abbreviation": "HD",
+    "countryPrefix": "RO",
+    "name": { "de": "Hunedoara", "en": "Hunedoara", "fr": "Hunedoara", "it": "Hunedoara", "ro": "Hunedoara", "ja": "フネドアラ", "es": "Hunedoara" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000023",
+    "abbreviation": "IL",
+    "countryPrefix": "RO",
+    "name": { "de": "Ialomița", "en": "Ialomița", "fr": "Ialomița", "it": "Ialomița", "ro": "Ialomița", "ja": "ヤロミツァ", "es": "Ialomița" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000024",
+    "abbreviation": "IS",
+    "countryPrefix": "RO",
+    "name": { "de": "Iași", "en": "Iași", "fr": "Iași", "it": "Iași", "ro": "Iași", "ja": "ヤシ", "es": "Iași" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000025",
+    "abbreviation": "IF",
+    "countryPrefix": "RO",
+    "name": { "de": "Ilfov", "en": "Ilfov", "fr": "Ilfov", "it": "Ilfov", "ro": "Ilfov", "ja": "イルフォフ", "es": "Ilfov" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000026",
+    "abbreviation": "MM",
+    "countryPrefix": "RO",
+    "name": { "de": "Maramureș", "en": "Maramureș", "fr": "Maramureș", "it": "Maramureș", "ro": "Maramureș", "ja": "マラムレシュ", "es": "Maramureș" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000027",
+    "abbreviation": "MH",
+    "countryPrefix": "RO",
+    "name": { "de": "Mehedinți", "en": "Mehedinți", "fr": "Mehedinți", "it": "Mehedinți", "ro": "Mehedinți", "ja": "メヘディンツィ", "es": "Mehedinți" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000028",
+    "abbreviation": "MS",
+    "countryPrefix": "RO",
+    "name": { "de": "Mureș", "en": "Mureș", "fr": "Mureș", "it": "Mureș", "ro": "Mureș", "ja": "ムレシュ", "es": "Mureș" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000029",
+    "abbreviation": "NT",
+    "countryPrefix": "RO",
+    "name": { "de": "Neamț", "en": "Neamț", "fr": "Neamț", "it": "Neamț", "ro": "Neamț", "ja": "ネアムツ", "es": "Neamț" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000030",
+    "abbreviation": "OT",
+    "countryPrefix": "RO",
+    "name": { "de": "Olt", "en": "Olt", "fr": "Olt", "it": "Olt", "ro": "Olt", "ja": "オルト", "es": "Olt" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000031",
+    "abbreviation": "PH",
+    "countryPrefix": "RO",
+    "name": { "de": "Prahova", "en": "Prahova", "fr": "Prahova", "it": "Prahova", "ro": "Prahova", "ja": "プラホヴァ", "es": "Prahova" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000032",
+    "abbreviation": "SM",
+    "countryPrefix": "RO",
+    "name": { "de": "Satu Mare", "en": "Satu Mare", "fr": "Satu Mare", "it": "Satu Mare", "ro": "Satu Mare", "ja": "サトゥ・マーレ", "es": "Satu Mare" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000033",
+    "abbreviation": "SJ",
+    "countryPrefix": "RO",
+    "name": { "de": "Sălaj", "en": "Sălaj", "fr": "Sălaj", "it": "Sălaj", "ro": "Sălaj", "ja": "サラージュ", "es": "Sălaj" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000034",
+    "abbreviation": "SB",
+    "countryPrefix": "RO",
+    "name": { "de": "Hermannstadt", "en": "Sibiu", "fr": "Sibiu", "it": "Sibiu", "ro": "Sibiu", "ja": "シビウ", "es": "Sibiu" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000035",
+    "abbreviation": "SV",
+    "countryPrefix": "RO",
+    "name": { "de": "Suceava", "en": "Suceava", "fr": "Suceava", "it": "Suceava", "ro": "Suceava", "ja": "スチャヴァ", "es": "Suceava" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000036",
+    "abbreviation": "TR",
+    "countryPrefix": "RO",
+    "name": { "de": "Teleorman", "en": "Teleorman", "fr": "Teleorman", "it": "Teleorman", "ro": "Teleorman", "ja": "テレオルマン", "es": "Teleorman" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000037",
+    "abbreviation": "TM",
+    "countryPrefix": "RO",
+    "name": { "de": "Timiș", "en": "Timiș", "fr": "Timiș", "it": "Timiș", "ro": "Timiș", "ja": "ティミシュ", "es": "Timiș" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000038",
+    "abbreviation": "TL",
+    "countryPrefix": "RO",
+    "name": { "de": "Tulcea", "en": "Tulcea", "fr": "Tulcea", "it": "Tulcea", "ro": "Tulcea", "ja": "トゥルチャ", "es": "Tulcea" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000039",
+    "abbreviation": "VS",
+    "countryPrefix": "RO",
+    "name": { "de": "Vaslui", "en": "Vaslui", "fr": "Vaslui", "it": "Vaslui", "ro": "Vaslui", "ja": "ヴァスルイ", "es": "Vaslui" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000040",
+    "abbreviation": "VL",
+    "countryPrefix": "RO",
+    "name": { "de": "Vâlcea", "en": "Vâlcea", "fr": "Vâlcea", "it": "Vâlcea", "ro": "Vâlcea", "ja": "ヴァルチャ", "es": "Vâlcea" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000041",
+    "abbreviation": "VN",
+    "countryPrefix": "RO",
+    "name": { "de": "Vrancea", "en": "Vrancea", "fr": "Vrancea", "it": "Vrancea", "ro": "Vrancea", "ja": "ヴランチャ", "es": "Vrancea" }
+  },
+  {
+    "id": "61b2c3d4-bb01-4000-8000-000000000042",
+    "abbreviation": "B",
+    "countryPrefix": "RO",
+    "name": { "de": "Bukarest", "en": "Bucharest", "fr": "Bucarest", "it": "Bucarest", "ro": "București", "ja": "ブカレスト", "es": "Bucarest" }
+  }
+]

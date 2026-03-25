@@ -1,0 +1,118 @@
+<h2>Handbok för identitetsleverantör</h2>
+
+<h3>Inledning</h3>
+<p>
+Identitetsleverantörer möjliggör autentisering av användare via externa katalogtjänster
+som LDAP, Active Directory eller OAuth2/OpenID Connect.
+</p>
+
+<p><strong>Stödda leverantörstyper:</strong></p>
+<ul>
+  <li><strong>LDAP</strong> - Lightweight Directory Access Protocol</li>
+  <li><strong>Active Directory</strong> - Microsoft Active Directory</li>
+  <li><strong>OAuth2</strong> - OAuth 2.0-auktoriseringsramverk</li>
+  <li><strong>OpenID Connect</strong> - Identitetslager ovanpå OAuth 2.0</li>
+</ul>
+
+<hr>
+
+<h3>LDAP / Active Directory</h3>
+
+<h4>Anslutningskonfiguration</h4>
+<table>
+  <tr><th>Fält</th><th>Beskrivning</th><th>Exempel</th></tr>
+  <tr><td>Värd</td><td>Värdnamn eller IP-adress för LDAP-servern</td><td>ldap.example.com</td></tr>
+  <tr><td>Port</td><td>389 (LDAP) eller 636 (LDAPS)</td><td>389</td></tr>
+  <tr><td>Använd SSL</td><td>Aktiverar krypterad anslutning</td><td>-</td></tr>
+  <tr><td>Base DN</td><td>Bas-Distinguished Name för sökningar</td><td>DC=example,DC=com</td></tr>
+  <tr><td>Bind DN</td><td>DN för anslutningsanvändaren</td><td>CN=admin,DC=example,DC=com</td></tr>
+  <tr><td>Bind-lösenord</td><td>Lösenord för Bind-användaren</td><td>-</td></tr>
+  <tr><td>Användarfilter</td><td>LDAP-filter för användarsökning</td><td>(objectClass=person)</td></tr>
+</table>
+
+<h4>Skillnader mellan LDAP och Active Directory</h4>
+<table>
+  <tr><th>Egenskap</th><th>LDAP (OpenLDAP)</th><th>Active Directory</th></tr>
+  <tr><td>Användarattribut</td><td>uid</td><td>sAMAccountName</td></tr>
+  <tr><td>Gatuattribut</td><td>street</td><td>streetAddress</td></tr>
+  <tr><td>Tilltalattribut</td><td>-</td><td>personalTitle</td></tr>
+  <tr><td>Landattribut</td><td>-</td><td>c</td></tr>
+  <tr><td>Autentiseringsmetod</td><td>Simple Bind</td><td>Negotiate/Kerberos</td></tr>
+</table>
+
+<h4>Vanliga användarfilter</h4>
+<pre>
+LDAP:             (objectClass=person)
+                  (objectClass=inetOrgPerson)
+
+Active Directory: (&amp;(objectClass=user)(objectCategory=person))
+                  (&amp;(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+</pre>
+
+<h4>Kundimport</h4>
+<p>När "Använd för kundimport" är aktiverat importeras följande data:</p>
+<ul>
+  <li><strong>Efternamn</strong> - sn (efternamn) eller displayName</li>
+  <li><strong>Förnamn</strong> - givenName</li>
+  <li><strong>Titel</strong> - title (jobbtitel)</li>
+  <li><strong>Företag</strong> - company</li>
+  <li><strong>Adress</strong> - street/streetAddress, postalCode, l (stad), st (län), c (land)</li>
+  <li><strong>Kön</strong> - Från personalTitle (Herr/Fru) i Active Directory</li>
+</ul>
+
+<p><em>Obs: I OpenLDAP är könet som standard "Neutralt" och kan korrigeras manuellt.</em></p>
+
+<hr>
+
+<h3>OAuth2 / OpenID Connect</h3>
+
+<h4>Konfiguration</h4>
+<table>
+  <tr><th>Fält</th><th>Beskrivning</th></tr>
+  <tr><td>Client ID</td><td>Det hos leverantören registrerade klient-ID:t</td></tr>
+  <tr><td>Client Secret</td><td>Motsvarande klienthemlighet</td></tr>
+  <tr><td>Tenant ID</td><td>Azure AD Tenant-ID (valfritt, endast för Microsoft)</td></tr>
+  <tr><td>Auktoriserings-URL</td><td>Slutpunkt för auktorisering</td></tr>
+  <tr><td>Token-URL</td><td>Slutpunkt för tokenutbyte</td></tr>
+  <tr><td>Användarinfo-URL</td><td>Slutpunkt för användarinformation</td></tr>
+  <tr><td>Omfång</td><td>Begärda behörigheter (t.ex. "openid profile email")</td></tr>
+</table>
+
+<h4>Kända leverantörer</h4>
+<table>
+  <tr><th>Leverantör</th><th>Auktoriserings-URL</th><th>Token-URL</th></tr>
+  <tr><td>Google</td><td>https://accounts.google.com/o/oauth2/v2/auth</td><td>https://oauth2.googleapis.com/token</td></tr>
+  <tr><td>Microsoft</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</td></tr>
+  <tr><td>GitHub</td><td>https://github.com/login/oauth/authorize</td><td>https://github.com/login/oauth/access_token</td></tr>
+</table>
+
+<hr>
+
+<h3>Tips</h3>
+
+<h4>Synology NAS som LDAP-server</h4>
+<p>
+En Synology NAS kan användas som LDAP-server. För detta måste paketet
+"LDAP Server" eller en Docker-container med OpenLDAP installeras.
+</p>
+<ul>
+  <li>Leverantörstyp: "Active Directory" (för reservautentisering)</li>
+  <li>Användarfilter: (objectClass=inetOrgPerson)</li>
+  <li>Användar-DN-format: cn=användarnamn,ou=users,dc=example,dc=com</li>
+</ul>
+
+<h4>Testa anslutningen</h4>
+<p>
+Använd knappen "Testa anslutning" för att verifiera konfigurationen.
+Vid en lyckad anslutning visas antalet hittade användare och några
+exempelanvändarnamn.
+</p>
+
+<h4>Felsökning</h4>
+<table>
+  <tr><th>Problem</th><th>Lösning</th></tr>
+  <tr><td>Anslutningen misslyckades</td><td>Kontrollera värd, port och SSL-konfiguration</td></tr>
+  <tr><td>Bind misslyckades</td><td>Kontrollera Bind DN och lösenord</td></tr>
+  <tr><td>Inga användare hittades</td><td>Kontrollera Base DN och användarfilter</td></tr>
+  <tr><td>Adresser inte importerade</td><td>OpenLDAP använder "street" istället för "streetAddress"</td></tr>
+</table>
