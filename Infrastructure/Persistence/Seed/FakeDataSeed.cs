@@ -35,7 +35,10 @@ namespace Klacks.Api.Data.Seed
             migrationBuilder.Sql(scriptForGroups);
 
             var dumpSql = StaticFakeDataLoader.LoadSeedDump("fake_seed_5000.sql");
-            migrationBuilder.Sql(dumpSql);
+            foreach (var chunk in SplitSqlIntoChunks(dumpSql, 1000))
+            {
+                migrationBuilder.Sql(chunk);
+            }
 
             var scriptForBreakPlaceholders = GenerateBreakPlaceholdersSql();
             migrationBuilder.Sql(scriptForBreakPlaceholders);
@@ -129,6 +132,34 @@ END $$;");
             migrationBuilder.Sql(scriptForContainers);
             migrationBuilder.Sql(scriptForTimeRangeShifts);
             migrationBuilder.Sql(scriptForShiftGroupItems);
+        }
+        private static IEnumerable<string> SplitSqlIntoChunks(string sql, int statementsPerChunk)
+        {
+            var lines = sql.Split('\n');
+            var chunk = new System.Text.StringBuilder();
+            var statementCount = 0;
+
+            foreach (var line in lines)
+            {
+                chunk.AppendLine(line);
+
+                if (line.TrimEnd().EndsWith(";"))
+                {
+                    statementCount++;
+
+                    if (statementCount >= statementsPerChunk)
+                    {
+                        yield return chunk.ToString();
+                        chunk.Clear();
+                        statementCount = 0;
+                    }
+                }
+            }
+
+            if (chunk.Length > 0)
+            {
+                yield return chunk.ToString();
+            }
         }
     }
 }

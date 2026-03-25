@@ -110,7 +110,7 @@ public class DatabaseInitializer : IDatabaseInitializer
         _logger.LogInformation("Starting seed data insertion...");
 
         var previousTimeout = _context.Database.GetCommandTimeout();
-        _context.Database.SetCommandTimeout(TimeSpan.FromMinutes(5));
+        _context.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
 
         var strategy = _context.Database.CreateExecutionStrategy();
 

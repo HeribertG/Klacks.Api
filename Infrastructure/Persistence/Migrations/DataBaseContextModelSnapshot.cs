@@ -3277,149 +3277,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("history", (string)null);
                 });
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Messaging.Message", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("content");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("content_type");
-
-                    b.Property<int>("Direction")
-                        .HasColumnType("integer")
-                        .HasColumnName("direction");
-
-                    b.Property<string>("ErrorMessage")
-                        .HasColumnType("text")
-                        .HasColumnName("error_message");
-
-                    b.Property<string>("ExternalMessageId")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("external_message_id");
-
-                    b.Property<string>("MediaUrl")
-                        .HasColumnType("text")
-                        .HasColumnName("media_url");
-
-                    b.Property<Guid>("ProviderId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("provider_id");
-
-                    b.Property<string>("Recipient")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("recipient");
-
-                    b.Property<string>("RecipientDisplayName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("recipient_display_name");
-
-                    b.Property<string>("Sender")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("sender");
-
-                    b.Property<string>("SenderDisplayName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("sender_display_name");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("status");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("timestamp");
-
-                    b.HasKey("Id")
-                        .HasName("pk_messages");
-
-                    b.HasIndex("Direction")
-                        .HasDatabaseName("ix_messages_direction");
-
-                    b.HasIndex("ProviderId", "Timestamp")
-                        .IsDescending(false, true)
-                        .HasDatabaseName("ix_messages_provider_id_timestamp");
-
-                    b.ToTable("messages", (string)null);
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Messaging.MessagingProvider", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("ConfigJson")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("config_json");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("display_name");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_enabled");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("ProviderType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("provider_type");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("WebhookSecret")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("webhook_secret");
-
-                    b.HasKey("Id")
-                        .HasName("pk_messaging_providers");
-
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasDatabaseName("ix_messaging_providers_name");
-
-                    b.ToTable("messaging_providers", (string)null);
-                });
-
             modelBuilder.Entity("Klacks.Api.Domain.Models.Reports.ReportTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -6303,6 +6160,149 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("communication", (string)null);
                 });
 
+            modelBuilder.Entity("Klacks.Plugin.Messaging.Domain.Models.Message", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("content_type");
+
+                    b.Property<int>("Direction")
+                        .HasColumnType("integer")
+                        .HasColumnName("direction");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("text")
+                        .HasColumnName("error_message");
+
+                    b.Property<string>("ExternalMessageId")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("external_message_id");
+
+                    b.Property<string>("MediaUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("media_url");
+
+                    b.Property<Guid>("ProviderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("provider_id");
+
+                    b.Property<string>("Recipient")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("recipient");
+
+                    b.Property<string>("RecipientDisplayName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("recipient_display_name");
+
+                    b.Property<string>("Sender")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("sender");
+
+                    b.Property<string>("SenderDisplayName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("sender_display_name");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("timestamp");
+
+                    b.HasKey("Id")
+                        .HasName("pk_messages");
+
+                    b.HasIndex("Direction")
+                        .HasDatabaseName("ix_messages_direction");
+
+                    b.HasIndex("ProviderId", "Timestamp")
+                        .IsDescending(false, true)
+                        .HasDatabaseName("ix_messages_provider_id_timestamp");
+
+                    b.ToTable("messages", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Plugin.Messaging.Domain.Models.MessagingProvider", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ConfigJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("config_json");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("display_name");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("ProviderType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("provider_type");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("WebhookSecret")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("webhook_secret");
+
+                    b.HasKey("Id")
+                        .HasName("pk_messaging_providers");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_messaging_providers_name");
+
+                    b.ToTable("messaging_providers", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -6949,18 +6949,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Navigation("Client");
                 });
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Messaging.Message", b =>
-                {
-                    b.HasOne("Klacks.Api.Domain.Models.Messaging.MessagingProvider", "Provider")
-                        .WithMany()
-                        .HasForeignKey("ProviderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_messages_messaging_providers_provider_id");
-
-                    b.Navigation("Provider");
-                });
-
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.AbsenceDetail", b =>
                 {
                     b.HasOne("Klacks.Api.Domain.Models.Schedules.Absence", "Absence")
@@ -7295,6 +7283,18 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_communication_client_client_id");
 
                     b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("Klacks.Plugin.Messaging.Domain.Models.Message", b =>
+                {
+                    b.HasOne("Klacks.Plugin.Messaging.Domain.Models.MessagingProvider", "Provider")
+                        .WithMany()
+                        .HasForeignKey("ProviderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_messages_messaging_provider_provider_id");
+
+                    b.Navigation("Provider");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
