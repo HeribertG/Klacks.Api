@@ -309,18 +309,12 @@ services:
       - ./Klacks.Api/deploy/nginx-proxy/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
       - ./Klacks.Api/deploy/nginx-proxy/certs:/etc/nginx/certs:ro
     depends_on:
-      klacks-api:
-        condition: service_healthy
-      klacks-ui:
-        condition: service_healthy
-      klacks-blazor:
-        condition: service_healthy
-      klacks-marketing:
-        condition: service_started
-      pgadmin:
-        condition: service_started
-      devknowledge-ui:
-        condition: service_started
+      - klacks-api
+      - klacks-ui
+      - klacks-blazor
+      - klacks-marketing
+      - pgadmin
+      - devknowledge-ui
     networks:
       - klacks_network
     healthcheck:
