@@ -78,13 +78,13 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=Klacks;Username=admin;Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
-      - ServerIp=${SERVER_IP:?SERVER_IP must be set}
+      - ServerIp=${SERVER_IP:-157.180.42.127}
       - JwtSettings__Secret=${JWT_SECRET:?JWT_SECRET must be set}
-      - JwtSettings__ValidAudience=https://${SERVER_IP:?SERVER_IP must be set}
-      - JwtSettings__ValidIssuer=https://${SERVER_IP:?SERVER_IP must be set}:5443
-      - PasswordReset__BaseUrl=https://${SERVER_IP:?SERVER_IP must be set}:7443
-      - Cors__Host=https://${SERVER_IP:?SERVER_IP must be set}
-      - Cors__Home=https://${SERVER_IP:?SERVER_IP must be set}
+      - JwtSettings__ValidAudience=https://${SERVER_IP:-157.180.42.127}
+      - JwtSettings__ValidIssuer=https://${SERVER_IP:-157.180.42.127}:5443
+      - PasswordReset__BaseUrl=https://${SERVER_IP:-157.180.42.127}:7443
+      - Cors__Host=https://${SERVER_IP:-157.180.42.127}
+      - Cors__Home=https://${SERVER_IP:-157.180.42.127}
     volumes:
       - api-uploads:/app/Images
       - api-documents:/app/Documents
