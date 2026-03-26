@@ -1,0 +1,356 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: klacks-postgres
+    restart: unless-stopped
+    command: >
+      postgres
+      -c max_connections=200
+      -c shared_buffers=512MB
+      -c effective_cache_size=1GB
+      -c work_mem=16MB
+      -c maintenance_work_mem=128MB
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+    environment:
+      POSTGRES_DB: Klacks
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    expose:
+      - "5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d Klacks"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: klacks-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@klacks.app}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:?PGADMIN_PASSWORD must be set}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    expose:
+      - "80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:80/misc/ping || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+
+  klacks-api:
+    build:
+      context: .
+      dockerfile: ./Klacks.Api/Dockerfile
+    container_name: klacks-api
+    restart: unless-stopped
+    expose:
+      - "5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=Klacks;Username=admin;Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      - ServerIp=${SERVER_IP:?SERVER_IP must be set}
+      - JwtSettings__Secret=${JWT_SECRET:?JWT_SECRET must be set}
+      - JwtSettings__ValidAudience=https://${SERVER_IP:?SERVER_IP must be set}
+      - JwtSettings__ValidIssuer=https://${SERVER_IP:?SERVER_IP must be set}:5443
+      - PasswordReset__BaseUrl=https://${SERVER_IP:?SERVER_IP must be set}:7443
+      - Cors__Host=https://${SERVER_IP:?SERVER_IP must be set}
+      - Cors__Home=https://${SERVER_IP:?SERVER_IP must be set}
+    volumes:
+      - api-uploads:/app/Images
+      - api-documents:/app/Documents
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+      start_period: 600s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.5'
+
+  klacks-ui:
+    build: ./Klacks.Ui
+    container_name: klacks-ui
+    restart: unless-stopped
+    expose:
+      - "80"
+    depends_on:
+      klacks-api:
+        condition: service_healthy
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
+  klacks-blazor:
+    build: ./Klacks.Blazor
+    container_name: klacks-blazor
+    restart: unless-stopped
+    expose:
+      - "80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+    depends_on:
+      klacks-api:
+        condition: service_healthy
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+
+  klacks-marketing:
+    build: ./Klacks.Marketing
+    container_name: klacks-marketing
+    restart: unless-stopped
+    expose:
+      - "80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+
+  klacks-marketplace:
+    build: ./Klacks.Marketplace
+    container_name: klacks-marketplace
+    restart: unless-stopped
+    expose:
+      - "80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+    volumes:
+      - marketplace_data:/app/data
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+
+  devknowledge-postgres:
+    image: pgvector/pgvector:pg16
+    container_name: devknowledge-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: devknowledge
+      POSTGRES_USER: devknowledge
+      POSTGRES_PASSWORD: ${DEVKNOWLEDGE_DB_PASSWORD:?DEVKNOWLEDGE_DB_PASSWORD must be set}
+    expose:
+      - "5432"
+    volumes:
+      - devknowledge_postgres_data:/var/lib/postgresql/data
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devknowledge -d devknowledge"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+
+  devknowledge-api:
+    build:
+      context: ./DevKnowledge
+      dockerfile: backend/DevKnowledge.API/Dockerfile
+    container_name: devknowledge-api
+    restart: unless-stopped
+    expose:
+      - "8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__Default=Host=devknowledge-postgres;Database=devknowledge;Username=devknowledge;Password=${DEVKNOWLEDGE_DB_PASSWORD:?DEVKNOWLEDGE_DB_PASSWORD must be set}
+      - Anthropic__ApiKey=${ANTHROPIC_API_KEY}
+      - OpenAI__ApiKey=${OPENAI_API_KEY:-}
+      - KnowledgeBase__SourcePath=/data/knowledge
+    volumes:
+      - devknowledge_data:/data/knowledge
+    depends_on:
+      devknowledge-postgres:
+        condition: service_healthy
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+
+  devknowledge-ui:
+    build:
+      context: ./DevKnowledge
+      dockerfile: frontend/Dockerfile
+    container_name: devknowledge-ui
+    restart: unless-stopped
+    expose:
+      - "80"
+    depends_on:
+      devknowledge-api:
+        condition: service_healthy
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: klacks-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "3000:3000"
+      - "5000:5000"
+      - "5443:5443"
+      - "7443:7443"
+      - "5553:5553"
+      - "7553:7553"
+      - "7643:7643"
+      - "8443:8443"
+    environment:
+      - SERVER_IP=${SERVER_IP:-157.180.42.127}
+    command: /bin/sh -c "envsubst '$$SERVER_IP' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+    volumes:
+      - ./Klacks.Api/deploy/nginx-proxy/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
+      - ./Klacks.Api/deploy/nginx-proxy/certs:/etc/nginx/certs:ro
+    depends_on:
+      klacks-api:
+        condition: service_healthy
+      klacks-ui:
+        condition: service_healthy
+      klacks-blazor:
+        condition: service_healthy
+      klacks-marketing:
+        condition: service_started
+      pgadmin:
+        condition: service_started
+      devknowledge-ui:
+        condition: service_started
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
+networks:
+  klacks_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+  marketplace_data:
+    driver: local
+  devknowledge_postgres_data:
+    driver: local
+  devknowledge_data:
+    driver: local
+  api-uploads:
+    driver: local
+  api-documents:
+    driver: local

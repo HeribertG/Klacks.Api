@@ -197,6 +197,12 @@ jobs:
           echo "✅ All repositories updated"
           echo ""
 
+          # Sync docker-compose from repo to server root
+          echo "📋 Syncing docker-compose-server.yml..."
+          cp Klacks.Api/deploy/docker-compose-server.yml docker-compose.yml
+          echo "✅ docker-compose.yml updated"
+          echo ""
+
           # ==========================================
           # STEP 4: Build all images
           # ==========================================

@@ -65,6 +65,9 @@ jobs:
             fi
           done
 
+          # Sync docker-compose from repo to server root
+          cp Klacks.Api/deploy/docker-compose-server.yml docker-compose.yml
+
           # Check Docker Compose version
           if command -v docker-compose &> /dev/null; then
             COMPOSE_CMD="docker-compose"
@@ -83,9 +86,10 @@ jobs:
             --build-arg KLACKS_BUILD_TIMESTAMP=$(date -u +%Y-%m-%d) \
             --build-arg KLACKS_VARIANT=RELEASE
           
-          echo "🔄 Restarting Klacks.Api..."
+          echo "🔄 Restarting Klacks.Api + Nginx Proxy..."
           $COMPOSE_CMD up -d klacks-api
-          
+          $COMPOSE_CMD restart nginx-proxy 2>/dev/null || $COMPOSE_CMD up -d nginx-proxy
+
           echo "✅ Klacks.Api deployment completed!"
           
           # Status check
