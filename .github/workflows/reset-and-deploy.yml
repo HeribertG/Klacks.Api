@@ -73,7 +73,8 @@ jobs:
           echo "=============================================="
           echo "📦 STEP 1: Stopping all containers..."
           echo "=============================================="
-          $COMPOSE_CMD down
+          $COMPOSE_CMD down --remove-orphans || true
+          docker rm -f $(docker ps -aq) 2>/dev/null || true
           echo "✅ All containers stopped"
           echo ""
 
