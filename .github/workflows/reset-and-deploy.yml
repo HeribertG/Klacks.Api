@@ -86,8 +86,8 @@ jobs:
             echo "🗑️  STEP 2: Deleting database volumes..."
             echo "=============================================="
 
-            # Find and remove postgres volumes
-            POSTGRES_VOLUMES=$(docker volume ls -q | grep -E "postgres|klacks.*data" || true)
+            # Find and remove ONLY Klacks postgres volume (not devknowledge, marketplace etc.)
+            POSTGRES_VOLUMES=$(docker volume ls -q | grep -E "^[^_]*postgres_data$" || true)
             if [ -n "$POSTGRES_VOLUMES" ]; then
               echo "Found volumes to delete:"
               echo "$POSTGRES_VOLUMES"
