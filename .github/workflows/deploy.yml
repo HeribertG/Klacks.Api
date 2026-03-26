@@ -51,6 +51,20 @@ jobs:
             git clone https://github.com/HeribertG/Klacks.Api.git
           fi
           
+          # Update Plugin projects (required by Klacks.Api)
+          for PLUGIN_REPO in Klacks.Plugin.Contracts Klacks.Plugin.Messaging; do
+            if [ -d "$PLUGIN_REPO" ]; then
+              echo "📦 Updating $PLUGIN_REPO..."
+              cd $PLUGIN_REPO
+              git fetch origin
+              git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)
+              cd ..
+            else
+              echo "📦 Cloning $PLUGIN_REPO..."
+              git clone https://github.com/HeribertG/$PLUGIN_REPO.git
+            fi
+          done
+
           # Check Docker Compose version
           if command -v docker-compose &> /dev/null; then
             COMPOSE_CMD="docker-compose"

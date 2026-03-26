@@ -13,6 +13,8 @@ ARG KLACKS_VARIANT=DEV
 COPY Klacks.Api/Klacks.Api.csproj Klacks.Api/
 COPY Klacks.Docs/Klacks.Docs.csproj Klacks.Docs/
 COPY Klacks.Api.SourceGenerators/Klacks.Api.SourceGenerators.csproj Klacks.Api.SourceGenerators/
+COPY Klacks.Plugin.Contracts/Klacks.Plugin.Contracts.csproj Klacks.Plugin.Contracts/
+COPY Klacks.Plugin.Messaging/Klacks.Plugin.Messaging.csproj Klacks.Plugin.Messaging/
 
 # Restore dependencies
 RUN dotnet restore Klacks.Api/Klacks.Api.csproj
@@ -21,6 +23,8 @@ RUN dotnet restore Klacks.Api/Klacks.Api.csproj
 COPY Klacks.Api/ Klacks.Api/
 COPY Klacks.Docs/ Klacks.Docs/
 COPY Klacks.Api.SourceGenerators/ Klacks.Api.SourceGenerators/
+COPY Klacks.Plugin.Contracts/ Klacks.Plugin.Contracts/
+COPY Klacks.Plugin.Messaging/ Klacks.Plugin.Messaging/
 
 # Inject version into constants before build
 RUN sed -i "s/public const int CMajor = 1;/public const int CMajor = ${KLACKS_VERSION_MAJOR};/" Klacks.Api/Application/Constants/VersionConstant.cs && \

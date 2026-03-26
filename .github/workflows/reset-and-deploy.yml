@@ -169,6 +169,30 @@ jobs:
             git clone https://github.com/HeribertG/Klacks.Docs.git
           fi
 
+          # Update Klacks.Plugin.Contracts (required by Klacks.Api)
+          if [ -d "Klacks.Plugin.Contracts" ]; then
+            echo "📦 Updating Klacks.Plugin.Contracts..."
+            cd Klacks.Plugin.Contracts
+            git fetch origin
+            git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)
+            cd ..
+          else
+            echo "📦 Cloning Klacks.Plugin.Contracts..."
+            git clone https://github.com/HeribertG/Klacks.Plugin.Contracts.git
+          fi
+
+          # Update Klacks.Plugin.Messaging (required by Klacks.Api)
+          if [ -d "Klacks.Plugin.Messaging" ]; then
+            echo "📦 Updating Klacks.Plugin.Messaging..."
+            cd Klacks.Plugin.Messaging
+            git fetch origin
+            git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)
+            cd ..
+          else
+            echo "📦 Cloning Klacks.Plugin.Messaging..."
+            git clone https://github.com/HeribertG/Klacks.Plugin.Messaging.git
+          fi
+
           echo "✅ All repositories updated"
           echo ""
 
