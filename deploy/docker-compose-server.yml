@@ -98,7 +98,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 20
-      start_period: 600s
+      start_period: 180s
     deploy:
       resources:
         limits:
@@ -112,8 +112,7 @@ services:
     expose:
       - "80"
     depends_on:
-      klacks-api:
-        condition: service_healthy
+      - klacks-api
     networks:
       - klacks_network
     healthcheck:
@@ -138,8 +137,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
     depends_on:
-      klacks-api:
-        condition: service_healthy
+      - klacks-api
     networks:
       - klacks_network
     healthcheck:
@@ -246,16 +244,15 @@ services:
     volumes:
       - devknowledge_data:/data/knowledge
     depends_on:
-      devknowledge-postgres:
-        condition: service_healthy
+      - devknowledge-postgres
     networks:
       - klacks_network
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 60s
+      retries: 5
+      start_period: 120s
     deploy:
       resources:
         limits:
@@ -271,8 +268,7 @@ services:
     expose:
       - "80"
     depends_on:
-      devknowledge-api:
-        condition: service_healthy
+      - devknowledge-api
     networks:
       - klacks_network
     healthcheck:
