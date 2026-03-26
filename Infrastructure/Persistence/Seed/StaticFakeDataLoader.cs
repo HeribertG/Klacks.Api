@@ -6,6 +6,7 @@
 
 using System.IO.Compression;
 using System.Reflection;
+using System.Text;
 
 namespace Klacks.Api.Data.Seed;
 
@@ -24,11 +25,11 @@ public static class StaticFakeDataLoader
         if (fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase))
         {
             using var gzip = new GZipStream(stream, CompressionMode.Decompress);
-            using var reader = new StreamReader(gzip);
+            using var reader = new StreamReader(gzip, Encoding.UTF8);
             return reader.ReadToEnd();
         }
 
-        using var directReader = new StreamReader(stream);
+        using var directReader = new StreamReader(stream, Encoding.UTF8);
         return directReader.ReadToEnd();
     }
 }
