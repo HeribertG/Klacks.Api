@@ -22,11 +22,28 @@ public class SkillClassifierService : ISkillClassifierService
     private const int ClassificationMaxTokens = 50;
 
     private const string SystemPrompt =
-        "You are a domain classifier. Respond with only lowercase German domain keywords from this list, " +
-        "comma-separated, no explanation: " +
-        "mitarbeiter, email, kalender, filiale, benutzer, vertrag, gruppe, einstellung, llm, skill, " +
-        "erinnerung, richtlinie, seele, dienstplan, suche, adresse, spam, heartbeat, web. " +
-        "If the message has no relation to any domain, respond with: none";
+        "You are a domain classifier for a workforce management app. " +
+        "Respond with only lowercase German domain keywords from this list, comma-separated, no explanation:\n" +
+        "mitarbeiter (employees, staff, team, contacts, phone list, supervisor), " +
+        "email (email settings, SMTP, IMAP), " +
+        "kalender (calendar, holidays, appointments, meetings, scheduling dates), " +
+        "filiale (branches, offices, locations, opening hours), " +
+        "benutzer (user accounts, login, permissions), " +
+        "vertrag (contracts, employment agreements), " +
+        "gruppe (teams, departments, groups), " +
+        "einstellung (app settings, configuration), " +
+        "llm (AI models, providers, API keys), " +
+        "skill (chatbot skills, functions, capabilities), " +
+        "erinnerung (AI memory, notes, remember preferences), " +
+        "richtlinie (AI guidelines, behavioral rules), " +
+        "seele (chatbot personality configuration ONLY — NOT philosophy or life questions), " +
+        "dienstplan (shift planning, rosters, schedules, tasks, work assignments, duty), " +
+        "suche (search, find, lookup), " +
+        "adresse (postal addresses, geocoding, street validation), " +
+        "spam (spam filter settings), " +
+        "heartbeat (system monitoring, health checks), " +
+        "web (web search settings).\n" +
+        "If the message is general conversation, jokes, philosophy, math, greetings, or has no relation to any domain above, respond with: none";
 
     public SkillClassifierService(
         LLMProviderOrchestrator orchestrator,
