@@ -8,7 +8,6 @@
 
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -39,7 +38,6 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     private readonly ILogger<LLMStreamingOrchestrator> _logger;
 
     private const int MaxToolsForProvider = 30;
-    private const int WordBoundaryThreshold = 5;
     private const int MinMessageLengthForClassification = 20;
 
     public LLMStreamingOrchestrator(
@@ -121,7 +119,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
 
         var alwaysOnSkills = permittedSkills.Where(s => s.AlwaysOn).ToList();
         var keywordMatchedSkills = permittedSkills
-            .Where(s => !s.AlwaysOn && MatchesSkillKeywords(s, userMessage, language))
+            .Where(s => !s.AlwaysOn && SkillMatchingEngine.MatchesSkillKeywords(s, userMessage, language))
             .ToList();
 
         if (keywordMatchedSkills.Count == 0 && userMessage.Length > MinMessageLengthForClassification)
@@ -131,7 +129,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             {
                 var classifiedMessage = string.Join(" ", classifiedKeywords);
                 keywordMatchedSkills = permittedSkills
-                    .Where(s => !s.AlwaysOn && MatchesSkillKeywords(s, classifiedMessage, language))
+                    .Where(s => !s.AlwaysOn && SkillMatchingEngine.MatchesSkillKeywords(s, classifiedMessage, language))
                     .ToList();
 
                 if (keywordMatchedSkills.Count > 0)
@@ -157,57 +155,6 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         }
 
         return selectedSkills.Select(ConvertToLLMFunction).ToList();
-    }
-
-    private static bool MatchesSkillKeywords(AgentSkill skill, string userMessage, string? language)
-    {
-        var messageLower = userMessage.ToLowerInvariant();
-        if (MatchesSynonyms(skill.Synonyms, messageLower, language)) return true;
-        return MatchesLegacyTriggerKeywords(skill.TriggerKeywords, messageLower);
-    }
-
-    private static bool MatchesSynonyms(Dictionary<string, List<string>>? synonyms, string messageLower, string? language)
-    {
-        if (synonyms == null || synonyms.Count == 0) return false;
-        var langs = GetLanguagePriority(language);
-        foreach (var lang in langs)
-        {
-            if (!synonyms.TryGetValue(lang, out var keywords) || keywords.Count == 0) continue;
-            if (keywords.Any(kw => MatchesKeyword(messageLower, kw.ToLowerInvariant()))) return true;
-        }
-        return false;
-    }
-
-    private static bool MatchesLegacyTriggerKeywords(string triggerKeywords, string messageLower)
-    {
-        if (string.IsNullOrWhiteSpace(triggerKeywords) || triggerKeywords == "[]") return false;
-        try
-        {
-            var keywords = JsonSerializer.Deserialize<List<string>>(triggerKeywords);
-            if (keywords == null || keywords.Count == 0) return false;
-            return keywords.Any(kw => MatchesKeyword(messageLower, kw.ToLowerInvariant()));
-        }
-        catch { return false; }
-    }
-
-    private static bool MatchesKeyword(string message, string keyword)
-    {
-        if (keyword.Length < WordBoundaryThreshold)
-            return Regex.IsMatch(message, $@"\b{Regex.Escape(keyword)}\b", RegexOptions.IgnoreCase);
-        return message.Contains(keyword);
-    }
-
-    private static List<string> GetLanguagePriority(string? language)
-    {
-        var lang = (language ?? "de").ToLowerInvariant();
-        return lang switch
-        {
-            "de" => ["de", "en"],
-            "en" => ["en", "de"],
-            "fr" => ["fr", "en", "de"],
-            "it" => ["it", "en", "de"],
-            _ => [lang, "en", "de"]
-        };
     }
 
     private static LLMFunction ConvertToLLMFunction(AgentSkill skill)

@@ -115,7 +115,18 @@
           "ostern",
           "kalender",
           "feiertagsregel",
-          "datumsregel"
+          "datumsregel",
+          "besprechungstermin",
+          "terminplanung",
+          "kalenderereignis",
+          "meetingbeginn",
+          "veranstaltungsdatum",
+          "besprechungsstart",
+          "nächster termin",
+          "meetingstart",
+          "besprechungsbeginn",
+          "terminbeginn",
+          "besprechung"
         ],
         "en": [
           "calendar rule",
@@ -1652,7 +1663,17 @@
           "klient",
           "person",
           "belegschaft",
-          "personalverwaltung"
+          "personalverwaltung",
+          "mannschaft",
+          "team",
+          "crew",
+          "mitarbeiterstab",
+          "personalbestand",
+          "vorgesetzter",
+          "chef",
+          "leitung",
+          "manager",
+          "fuehrungskraft"
         ],
         "en": [
           "employee",
@@ -1663,7 +1684,12 @@
           "client",
           "customer",
           "person",
-          "workforce"
+          "workforce",
+          "supervisor",
+          "manager",
+          "boss",
+          "lead",
+          "team lead"
         ],
         "fr": [
           "employe",
@@ -1759,7 +1785,12 @@
           "geschäftsstelle",
           "zweigstelle",
           "aussenstelle",
-          "büro"
+          "büro",
+          "öffnungszeiten",
+          "geschäftszeiten",
+          "öffnungszeit",
+          "betriebszeiten",
+          "öffnung"
         ],
         "en": [
           "branch",
@@ -2228,7 +2259,19 @@
           "arbeitsplan",
           "einsatzplanung",
           "überstunden",
-          "planungsregel"
+          "planungsregel",
+          "vertretung",
+          "einspringen",
+          "schichtvertretung",
+          "dienstvertretung",
+          "aushelfen",
+          "aufgabenliste",
+          "tagesplan",
+          "arbeitsaufträge",
+          "tagesaufgaben",
+          "offene aufgaben",
+          "zu erledigende aufgaben",
+          "heutige aufgaben"
         ],
         "en": [
           "scheduling",
@@ -2254,7 +2297,18 @@
           "turno",
           "piano di lavoro",
           "straordinari",
-          "regola pianificazione"
+          "regola pianificazione",
+          "programmazione",
+          "calendario",
+          "assegnazione turni",
+          "organizzazione del lavoro",
+          "disponibilità",
+          "personale in servizio",
+          "turni di domani",
+          "assegnazioni giornaliere",
+          "presenze lavorative",
+          "copertura turni",
+          "lavora"
         ]
       },
       "version": 4
@@ -2468,7 +2522,17 @@
           "klient",
           "person",
           "belegschaft",
-          "personalverwaltung"
+          "personalverwaltung",
+          "mannschaft",
+          "team",
+          "crew",
+          "gruppe",
+          "mitarbeiterstab",
+          "vorgesetzter",
+          "chef",
+          "leitung",
+          "manager",
+          "führungskraft"
         ],
         "en": [
           "employee",
@@ -2479,7 +2543,12 @@
           "client",
           "customer",
           "person",
-          "workforce"
+          "workforce",
+          "supervisor",
+          "boss",
+          "manager",
+          "lead",
+          "superior"
         ],
         "fr": [
           "employe",
@@ -2499,7 +2568,18 @@
           "cliente",
           "clientela",
           "persona",
-          "forza lavoro"
+          "forza lavoro",
+          "personale turno",
+          "addetto",
+          "impiegato",
+          "operatore",
+          "staff",
+          "turno di domani",
+          "chi è in servizio",
+          "presenze domani",
+          "personale di domani",
+          "lavoratori di domani",
+          "lavora"
         ]
       },
       "version": 4
@@ -7913,7 +7993,12 @@
           "werktage",
           "arbeitsstunden",
           "wochenarbeitszeit",
-          "feiertag"
+          "feiertag",
+          "öffnungszeiten",
+          "geschäftszeiten",
+          "betriebszeiten",
+          "öffnungszeit",
+          "öffnungszeitraum"
         ],
         "en": [
           "working hours",
@@ -7981,7 +8066,17 @@
           "arbeitsplan",
           "einsatzplanung",
           "überstunden",
-          "planungsregel"
+          "planungsregel",
+          "arbeitsaufträge",
+          "aufgaben",
+          "tagesplan",
+          "tagesaufgaben",
+          "arbeitsliste",
+          "tägliche aufgaben",
+          "heutige aufgaben",
+          "arbeitsaufträge für heute",
+          "tagesplanung",
+          "aufgabenliste"
         ],
         "en": [
           "scheduling",
@@ -8658,6 +8753,19 @@
           "leave types",
           "absence categories",
           "types of absence"
+        ],
+        "fr": [
+          "types d'absence",
+          "catégories d'absence",
+          "liste des congés",
+          "modèles d'absence",
+          "absences disponibles",
+          "périodes de congé autorisées",
+          "jours de repos possibles",
+          "planification des vacances",
+          "calendrier des absences",
+          "congés éligibles",
+          "vacances"
         ]
       },
       "version": 4
@@ -8756,6 +8864,19 @@
           "search absences",
           "who is off",
           "absence search"
+        ],
+        "fr": [
+          "quand prendre congé",
+          "disponibilités vacances",
+          "planifier absence",
+          "dates de disponibilité",
+          "calendrier des absences",
+          "quand prendre vacances",
+          "dates de vacances disponibles",
+          "planifier mes vacances",
+          "calendrier des congés",
+          "périodes de disponibilité pour congés",
+          "vacances"
         ]
       },
       "version": 4
@@ -8875,7 +8996,12 @@
           "arbeitsschicht",
           "fruhdienst",
           "spatdienst",
-          "nachtdienst"
+          "nachtdienst",
+          "einspringen",
+          "vertretung",
+          "schichtvertretung",
+          "dienstvertretung",
+          "auftragsvertretung"
         ],
         "en": [
           "shift",
