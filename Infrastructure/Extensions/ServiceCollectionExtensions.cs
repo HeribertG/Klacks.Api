@@ -156,6 +156,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGroupRepository, GroupRepository>();
         services.AddScoped<IAssignedGroupRepository, AssignedGroupRepository>();
         services.AddScoped<IGroupItemRepository, GroupItemRepository>();
+        services.AddScoped<IClientShiftPreferenceRepository, ClientShiftPreferenceRepository>();
         services.AddScoped<IGroupVisibilityRepository, GroupVisibilityRepository>();
         services.AddScoped<IContractRepository, ContractRepository>();
         services.AddScoped<ISchedulingRuleRepository, SchedulingRuleRepository>();

@@ -83,4 +83,27 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
             .Select(g => new { GroupId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.GroupId, x => x.Count, cancellationToken);
     }
+
+    public async Task<List<Guid>> GetGroupTreeIdsForClientAsync(Guid clientId, CancellationToken cancellationToken = default)
+    {
+        var clientGroupIds = await context.GroupItem
+            .Where(gi => gi.ClientId == clientId)
+            .Select(gi => gi.GroupId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        if (clientGroupIds.Count == 0)
+            return [];
+
+        var rootIds = await context.Group
+            .Where(g => clientGroupIds.Contains(g.Id))
+            .Select(g => g.Root ?? g.Id)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        return await context.Group
+            .Where(g => rootIds.Contains(g.Id) || (g.Root != null && rootIds.Contains(g.Root.Value)))
+            .Select(g => g.Id)
+            .ToListAsync(cancellationToken);
+    }
 }

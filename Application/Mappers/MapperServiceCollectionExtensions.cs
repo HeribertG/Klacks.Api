@@ -22,6 +22,7 @@ public static class MapperServiceCollectionExtensions
         services.AddSingleton<ReceivedEmailMapper>();
         services.AddSingleton<ClientAvailabilityMapper>();
         services.AddSingleton<FloorPlanMapper>();
+        services.AddSingleton<ClientShiftPreferenceMapper>();
 
         return services;
     }

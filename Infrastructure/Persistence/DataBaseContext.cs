@@ -56,7 +56,9 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<Group> Group { get; set; }  
 
-    public DbSet<GroupItem> GroupItem { get; set; }  
+    public DbSet<GroupItem> GroupItem { get; set; }
+
+    public DbSet<ClientShiftPreference> ClientShiftPreference { get; set; }
 
     public DbSet<History> History { get; set; }  
 
