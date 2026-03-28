@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Dashboard;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
+using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Logging;
@@ -13,15 +14,18 @@ public class GetClientLocationsQueryHandler : IRequestHandler<GetClientLocations
 {
     private readonly IClientRepository _clientRepository;
     private readonly IGeocodingService _geocodingService;
+    private readonly IGroupVisibilityService _groupVisibilityService;
     private readonly ILogger<GetClientLocationsQueryHandler> _logger;
 
     public GetClientLocationsQueryHandler(
         IClientRepository clientRepository,
         IGeocodingService geocodingService,
+        IGroupVisibilityService groupVisibilityService,
         ILogger<GetClientLocationsQueryHandler> logger)
     {
         _clientRepository = clientRepository;
         _geocodingService = geocodingService;
+        _groupVisibilityService = groupVisibilityService;
         _logger = logger;
     }
 
@@ -31,7 +35,23 @@ public class GetClientLocationsQueryHandler : IRequestHandler<GetClientLocations
 
         try
         {
-            var clients = await _clientRepository.GetActiveClientsWithAddressesAsync(cancellationToken);
+            var isAdmin = await _groupVisibilityService.IsAdmin();
+            List<Domain.Models.Staffs.Client> clients;
+
+            if (isAdmin)
+            {
+                clients = await _clientRepository.GetActiveClientsWithAddressesAsync(cancellationToken);
+            }
+            else
+            {
+                var visibleRootIds = await _groupVisibilityService.ReadVisibleRootIdList();
+                if (visibleRootIds.Count == 0)
+                {
+                    _logger.LogWarning("Non-admin user has no visible groups for dashboard locations");
+                    return [];
+                }
+                clients = await _clientRepository.GetActiveClientsWithAddressesForGroupsAsync(visibleRootIds, cancellationToken);
+            }
 
             var clientsWithAddresses = clients
                 .Select(client =>

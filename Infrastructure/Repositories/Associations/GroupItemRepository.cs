@@ -65,4 +65,22 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
             .Select(g => new { GroupId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.GroupId, x => x.Count, cancellationToken);
     }
+
+    public async Task<Dictionary<Guid, int>> GetEmployeeCountsPerGroupAsync(CancellationToken cancellationToken = default)
+    {
+        return await context.GroupItem
+            .Where(gi => gi.ClientId.HasValue && gi.Client != null && gi.Client.Type == EntityTypeEnum.Employee)
+            .GroupBy(gi => gi.GroupId)
+            .Select(g => new { GroupId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.GroupId, x => x.Count, cancellationToken);
+    }
+
+    public async Task<Dictionary<Guid, int>> GetExternEmpCountsPerGroupAsync(CancellationToken cancellationToken = default)
+    {
+        return await context.GroupItem
+            .Where(gi => gi.ClientId.HasValue && gi.Client != null && gi.Client.Type == EntityTypeEnum.ExternEmp)
+            .GroupBy(gi => gi.GroupId)
+            .Select(g => new { GroupId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.GroupId, x => x.Count, cancellationToken);
+    }
 }

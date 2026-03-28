@@ -37,6 +37,8 @@ namespace Klacks.Api.Application.Handlers.Groups
 
                 var shiftCounts = await _groupItemRepository.GetShiftCountsPerGroupAsync(cancellationToken);
                 var customerCounts = await _groupItemRepository.GetCustomerCountsPerGroupAsync(cancellationToken);
+                var employeeCounts = await _groupItemRepository.GetEmployeeCountsPerGroupAsync(cancellationToken);
+                var externEmpCounts = await _groupItemRepository.GetExternEmpCountsPerGroupAsync(cancellationToken);
 
                 foreach (var node in nodeDict.Values)
                 {
@@ -48,6 +50,16 @@ namespace Klacks.Api.Application.Handlers.Groups
                     if (customerCounts.TryGetValue(node.Id, out var customerCount))
                     {
                         node.CustomersCount = customerCount;
+                    }
+
+                    if (employeeCounts.TryGetValue(node.Id, out var employeeCount))
+                    {
+                        node.EmployeesCount = employeeCount;
+                    }
+
+                    if (externEmpCounts.TryGetValue(node.Id, out var externEmpCount))
+                    {
+                        node.ExternEmpsCount = externEmpCount;
                     }
 
                     if (node.Parent == null || !nodeDict.ContainsKey(node.Parent.Value))

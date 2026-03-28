@@ -36,6 +36,8 @@ public partial class GroupMapper
     [MapperIgnoreTarget(nameof(GroupResource.Depth))]
     [MapperIgnoreTarget(nameof(GroupResource.ShiftsCount))]
     [MapperIgnoreTarget(nameof(GroupResource.CustomersCount))]
+    [MapperIgnoreTarget(nameof(GroupResource.EmployeesCount))]
+    [MapperIgnoreTarget(nameof(GroupResource.ExternEmpsCount))]
     public partial GroupResource ToGroupResource(Group group);
     public partial List<GroupResource> ToGroupResources(List<Group> groups);
 

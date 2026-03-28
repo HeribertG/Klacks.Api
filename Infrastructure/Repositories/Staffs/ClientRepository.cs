@@ -269,6 +269,16 @@ public class ClientRepository : IClientRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<Client>> GetActiveClientsWithAddressesForGroupsAsync(List<Guid> visibleRootIds, CancellationToken cancellationToken = default)
+    {
+        return await context.Client
+            .Include(c => c.Addresses)
+            .Where(c => !c.IsDeleted)
+            .Where(c => c.GroupItems.Any(gi => gi.Group != null && visibleRootIds.Contains(gi.Group.Root ?? gi.Group.Id)))
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<Client>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
     {
         var idList = ids.ToList();

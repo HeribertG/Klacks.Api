@@ -37,4 +37,8 @@ public class GroupResource : SimpleGroupResource
     public int ShiftsCount { get; set; }
 
     public int CustomersCount { get; set; }
+
+    public int EmployeesCount { get; set; }
+
+    public int ExternEmpsCount { get; set; }
 }
