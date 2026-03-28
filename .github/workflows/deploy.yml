@@ -127,3 +127,29 @@ jobs:
           else
             echo "✅ No database connection errors detected"
           fi
+
+          # Check native library availability
+          echo "🔍 Checking native library check..."
+          if $COMPOSE_CMD logs klacks-api --tail=50 | grep -q "Native library check passed"; then
+            echo "✅ Native libraries verified (LDAP)"
+          elif $COMPOSE_CMD logs klacks-api --tail=50 | grep -q "FATAL: Required native libraries missing"; then
+            echo "❌ Native libraries missing — LDAP authentication will not work!"
+            $COMPOSE_CMD logs klacks-api --tail=30
+            exit 1
+          else
+            echo "⚠️  Native library check not found in logs (still initializing?)"
+          fi
+
+          # Auth smoke test — verify login actually works
+          echo "🔍 Auth smoke test..."
+          sleep 10
+          AUTH_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://klacks-api:5000/api/backend/account/login \
+            -H "Content-Type: application/json" \
+            -d '{"email":"smoke-test@invalid","password":"invalid"}' 2>/dev/null || echo "000")
+          if [ "$AUTH_RESPONSE" = "401" ]; then
+            echo "✅ Auth endpoint responding correctly (401 for invalid credentials)"
+          elif [ "$AUTH_RESPONSE" = "000" ]; then
+            echo "⚠️  Auth endpoint not reachable yet (API still starting)"
+          else
+            echo "⚠️  Auth endpoint returned unexpected status: $AUTH_RESPONSE"
+          fi

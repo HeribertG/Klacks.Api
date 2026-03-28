@@ -16,6 +16,7 @@ using Klacks.Api.Infrastructure.Middleware;
 using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Infrastructure.Services.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.StartupChecks;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.Mappers;
@@ -302,6 +303,8 @@ var app = builder.Build();
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 Console.WriteLine("Version {0}", MyVersion.Get(true));
+
+NativeLibraryCheck.Verify();
 
 if (app.Environment.IsDevelopment())
 {

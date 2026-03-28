@@ -1,5 +1,5 @@
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0.5 AS build
 WORKDIR /src
 
 ARG KLACKS_VERSION_MAJOR=1
@@ -37,14 +37,14 @@ RUN sed -i "s/public const int CMajor = 1;/public const int CMajor = ${KLACKS_VE
 # Build and publish
 RUN dotnet publish Klacks.Api/Klacks.Api.csproj -c Release -o /app/publish
 
-# Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:10.0
+# Runtime stage — pinned version to prevent breaking changes from base image updates
+FROM mcr.microsoft.com/dotnet/aspnet:10.0.5-noble
 WORKDIR /app
 EXPOSE 5000
 EXPOSE 443
 
-# Install Kerberos library required by Npgsql
-RUN apt-get update && apt-get install -y --no-install-recommends libgssapi-krb5-2 && rm -rf /var/lib/apt/lists/*
+# Install Kerberos library required by Npgsql and LDAP library for authentication
+RUN apt-get update && apt-get install -y --no-install-recommends libgssapi-krb5-2 libldap2 && rm -rf /var/lib/apt/lists/*
 
 # Run as non-root user
 RUN useradd --no-create-home --shell /bin/false appuser && chown -R appuser /app
