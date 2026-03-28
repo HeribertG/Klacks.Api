@@ -128,4 +128,5 @@ volumes:
   pgadmin_data:
     driver: local
   marketplace_data:
-    driver: local
+    name: apps_marketplace_data
+    external: true
