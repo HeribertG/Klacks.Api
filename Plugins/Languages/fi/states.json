@@ -3,114 +3,437 @@
     "id": "61c2d3e4-ff01-4000-8000-000000000001",
     "abbreviation": "UU",
     "countryPrefix": "FI",
-    "name": { "de": "Uusimaa", "en": "Uusimaa", "fr": "Uusimaa", "it": "Uusimaa", "fi": "Uusimaa", "ja": "ウーシマー", "es": "Uusimaa" }
+    "name": {
+      "de": "Uusimaa",
+      "en": "Uusimaa",
+      "fr": "Uusimaa",
+      "it": "Uusimaa",
+      "cs": "Uusimaa",
+      "da": "Uusimaa",
+      "el": "Ουσιμάα",
+      "es": "Uusimaa",
+      "fi": "Uusimaa",
+      "ja": "ウーシマー",
+      "nb": "Uusimaa",
+      "nl": "Uusimaa",
+      "pl": "Uusimaa",
+      "pt": "Uusimaa",
+      "ro": "Uusimaa",
+      "sv": "Nyland"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000002",
     "abbreviation": "VS",
     "countryPrefix": "FI",
-    "name": { "de": "Südwestfinnland", "en": "Southwest Finland", "fr": "Finlande du Sud-Ouest", "it": "Finlandia sud-occidentale", "fi": "Varsinais-Suomi", "ja": "南西フィンランド", "es": "Finlandia Suroccidental" }
+    "name": {
+      "de": "Südwestfinnland",
+      "en": "Southwest Finland",
+      "fr": "Finlande du Sud-Ouest",
+      "it": "Finlandia sud-occidentale",
+      "cs": "Jihozápadní Finsko",
+      "da": "Sydvestfinland",
+      "el": "Νοτιοδυτική Φινλανδία",
+      "es": "Finlandia Suroccidental",
+      "fi": "Varsinais-Suomi",
+      "ja": "南西フィンランド",
+      "nb": "Sørvest-Finland",
+      "nl": "Zuidwest-Finland",
+      "pl": "Finlandia Południowo-Zachodnia",
+      "pt": "Finlândia Sudoeste",
+      "ro": "Finlanda de Sud-Vest",
+      "sv": "Egentliga Finland"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000003",
     "abbreviation": "KH",
     "countryPrefix": "FI",
-    "name": { "de": "Kanta-Häme", "en": "Kanta-Häme", "fr": "Kanta-Häme", "it": "Kanta-Häme", "fi": "Kanta-Häme", "ja": "カンタ＝ハメ", "es": "Kanta-Häme" }
+    "name": {
+      "de": "Kanta-Häme",
+      "en": "Kanta-Häme",
+      "fr": "Kanta-Häme",
+      "it": "Kanta-Häme",
+      "cs": "Kanta-Häme",
+      "da": "Kanta-Häme",
+      "el": "Κάντα-Χάμε",
+      "es": "Kanta-Häme",
+      "fi": "Kanta-Häme",
+      "ja": "カンタ＝ハメ",
+      "nb": "Kanta-Häme",
+      "nl": "Kanta-Häme",
+      "pl": "Kanta-Häme",
+      "pt": "Kanta-Häme",
+      "ro": "Kanta-Häme",
+      "sv": "Egentliga Tavastland"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000004",
     "abbreviation": "PH",
     "countryPrefix": "FI",
-    "name": { "de": "Päijät-Häme", "en": "Päijät-Häme", "fr": "Päijät-Häme", "it": "Päijät-Häme", "fi": "Päijät-Häme", "ja": "パイヤト＝ハメ", "es": "Päijät-Häme" }
+    "name": {
+      "de": "Päijät-Häme",
+      "en": "Päijät-Häme",
+      "fr": "Päijät-Häme",
+      "it": "Päijät-Häme",
+      "cs": "Päijät-Häme",
+      "da": "Päijät-Häme",
+      "el": "Πάιγιατ-Χάμε",
+      "es": "Päijät-Häme",
+      "fi": "Päijät-Häme",
+      "ja": "パイヤト＝ハメ",
+      "nb": "Päijät-Häme",
+      "nl": "Päijät-Häme",
+      "pl": "Päijät-Häme",
+      "pt": "Päijät-Häme",
+      "ro": "Päijät-Häme",
+      "sv": "Päijänne-Tavastland"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000005",
     "abbreviation": "KY",
     "countryPrefix": "FI",
-    "name": { "de": "Kymenlaakso", "en": "Kymenlaakso", "fr": "Kymenlaakso", "it": "Kymenlaakso", "fi": "Kymenlaakso", "ja": "キュメンラークソ", "es": "Kymenlaakso" }
+    "name": {
+      "de": "Kymenlaakso",
+      "en": "Kymenlaakso",
+      "fr": "Kymenlaakso",
+      "it": "Kymenlaakso",
+      "cs": "Kymenlaakso",
+      "da": "Kymenlaakso",
+      "el": "Κυμενλάακσο",
+      "es": "Kymenlaakso",
+      "fi": "Kymenlaakso",
+      "ja": "キュメンラークソ",
+      "nb": "Kymenlaakso",
+      "nl": "Kymenlaakso",
+      "pl": "Kymenlaakso",
+      "pt": "Kymenlaakso",
+      "ro": "Kymenlaakso",
+      "sv": "Kymmenedalen"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000006",
     "abbreviation": "SK",
     "countryPrefix": "FI",
-    "name": { "de": "Satakunta", "en": "Satakunta", "fr": "Satakunta", "it": "Satakunta", "fi": "Satakunta", "ja": "サタクンタ", "es": "Satakunta" }
+    "name": {
+      "de": "Satakunta",
+      "en": "Satakunta",
+      "fr": "Satakunta",
+      "it": "Satakunta",
+      "cs": "Satakunta",
+      "da": "Satakunta",
+      "el": "Σατακούντα",
+      "es": "Satakunta",
+      "fi": "Satakunta",
+      "ja": "サタクンタ",
+      "nb": "Satakunta",
+      "nl": "Satakunta",
+      "pl": "Satakunta",
+      "pt": "Satakunta",
+      "ro": "Satakunta",
+      "sv": "Satakunda"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000007",
     "abbreviation": "PO",
     "countryPrefix": "FI",
-    "name": { "de": "Österbotten", "en": "Ostrobothnia", "fr": "Ostrobotnie", "it": "Ostrobotnia", "fi": "Pohjanmaa", "ja": "ポフヤンマー", "es": "Ostrobotnia" }
+    "name": {
+      "de": "Österbotten",
+      "en": "Ostrobothnia",
+      "fr": "Ostrobotnie",
+      "it": "Ostrobotnia",
+      "cs": "Pohjanmaa",
+      "da": "Østerbotten",
+      "el": "Οστροβοθνία",
+      "es": "Ostrobotnia",
+      "fi": "Pohjanmaa",
+      "ja": "ポフヤンマー",
+      "nb": "Østerbotten",
+      "nl": "Österbotten",
+      "pl": "Ostrobotnia",
+      "pt": "Ostrobótnia",
+      "ro": "Ostrobotnia",
+      "sv": "Österbotten"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000008",
     "abbreviation": "EP",
     "countryPrefix": "FI",
-    "name": { "de": "Südösterbotten", "en": "South Ostrobothnia", "fr": "Ostrobotnie du Sud", "it": "Ostrobotnia meridionale", "fi": "Etelä-Pohjanmaa", "ja": "南ポフヤンマー", "es": "Ostrobotnia del Sur" }
+    "name": {
+      "de": "Südösterbotten",
+      "en": "South Ostrobothnia",
+      "fr": "Ostrobotnie du Sud",
+      "it": "Ostrobotnia meridionale",
+      "cs": "Jižní Pohjanmaa",
+      "da": "Sydøsterbotten",
+      "el": "Νότια Οστροβοθνία",
+      "es": "Ostrobotnia del Sur",
+      "fi": "Etelä-Pohjanmaa",
+      "ja": "南ポフヤンマー",
+      "nb": "Sør-Østerbotten",
+      "nl": "Zuid-Österbotten",
+      "pl": "Ostrobotnia Południowa",
+      "pt": "Ostrobótnia do Sul",
+      "ro": "Ostrobotnia de Sud",
+      "sv": "Södra Österbotten"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000009",
     "abbreviation": "KP",
     "countryPrefix": "FI",
-    "name": { "de": "Mittelösterbotten", "en": "Central Ostrobothnia", "fr": "Ostrobotnie centrale", "it": "Ostrobotnia centrale", "fi": "Keski-Pohjanmaa", "ja": "中央ポフヤンマー", "es": "Ostrobotnia Central" }
+    "name": {
+      "de": "Mittelösterbotten",
+      "en": "Central Ostrobothnia",
+      "fr": "Ostrobotnie centrale",
+      "it": "Ostrobotnia centrale",
+      "cs": "Střední Pohjanmaa",
+      "da": "Mellemøsterbotten",
+      "el": "Κεντρική Οστροβοθνία",
+      "es": "Ostrobotnia Central",
+      "fi": "Keski-Pohjanmaa",
+      "ja": "中央ポフヤンマー",
+      "nb": "Mellom-Østerbotten",
+      "nl": "Midden-Österbotten",
+      "pl": "Ostrobotnia Środkowa",
+      "pt": "Ostrobótnia Central",
+      "ro": "Ostrobotnia Centrală",
+      "sv": "Mellersta Österbotten"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000010",
     "abbreviation": "PP",
     "countryPrefix": "FI",
-    "name": { "de": "Nordösterbotten", "en": "North Ostrobothnia", "fr": "Ostrobotnie du Nord", "it": "Ostrobotnia settentrionale", "fi": "Pohjois-Pohjanmaa", "ja": "北ポフヤンマー", "es": "Ostrobotnia del Norte" }
+    "name": {
+      "de": "Nordösterbotten",
+      "en": "North Ostrobothnia",
+      "fr": "Ostrobotnie du Nord",
+      "it": "Ostrobotnia settentrionale",
+      "cs": "Severní Pohjanmaa",
+      "da": "Nordøsterbotten",
+      "el": "Βόρεια Οστροβοθνία",
+      "es": "Ostrobotnia del Norte",
+      "fi": "Pohjois-Pohjanmaa",
+      "ja": "北ポフヤンマー",
+      "nb": "Nord-Østerbotten",
+      "nl": "Noord-Österbotten",
+      "pl": "Ostrobotnia Północna",
+      "pt": "Ostrobótnia do Norte",
+      "ro": "Ostrobotnia de Nord",
+      "sv": "Norra Österbotten"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000011",
     "abbreviation": "PI",
     "countryPrefix": "FI",
-    "name": { "de": "Pirkanmaa", "en": "Pirkanmaa", "fr": "Pirkanmaa", "it": "Pirkanmaa", "fi": "Pirkanmaa", "ja": "ピルカンマー", "es": "Pirkanmaa" }
+    "name": {
+      "de": "Pirkanmaa",
+      "en": "Pirkanmaa",
+      "fr": "Pirkanmaa",
+      "it": "Pirkanmaa",
+      "cs": "Pirkanmaa",
+      "da": "Pirkanmaa",
+      "el": "Πιρκανμάα",
+      "es": "Pirkanmaa",
+      "fi": "Pirkanmaa",
+      "ja": "ピルカンマー",
+      "nb": "Pirkanmaa",
+      "nl": "Pirkanmaa",
+      "pl": "Pirkanmaa",
+      "pt": "Pirkanmaa",
+      "ro": "Pirkanmaa",
+      "sv": "Birkaland"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000012",
     "abbreviation": "KS",
     "countryPrefix": "FI",
-    "name": { "de": "Mittelfinnland", "en": "Central Finland", "fr": "Finlande centrale", "it": "Finlandia centrale", "fi": "Keski-Suomi", "ja": "中央フィンランド", "es": "Finlandia Central" }
+    "name": {
+      "de": "Mittelfinnland",
+      "en": "Central Finland",
+      "fr": "Finlande centrale",
+      "it": "Finlandia centrale",
+      "cs": "Střední Finsko",
+      "da": "Mellemfinland",
+      "el": "Κεντρική Φινλανδία",
+      "es": "Finlandia Central",
+      "fi": "Keski-Suomi",
+      "ja": "中央フィンランド",
+      "nb": "Mellom-Finland",
+      "nl": "Midden-Finland",
+      "pl": "Finlandia Środkowa",
+      "pt": "Finlândia Central",
+      "ro": "Finlanda Centrală",
+      "sv": "Mellersta Finland"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000013",
     "abbreviation": "ES",
     "countryPrefix": "FI",
-    "name": { "de": "Südsavo", "en": "South Savo", "fr": "Savonie du Sud", "it": "Savo meridionale", "fi": "Etelä-Savo", "ja": "南サヴォ", "es": "Savo del Sur" }
+    "name": {
+      "de": "Südsavo",
+      "en": "South Savo",
+      "fr": "Savonie du Sud",
+      "it": "Savo meridionale",
+      "cs": "Jižní Savo",
+      "da": "Sydsavo",
+      "el": "Νότιο Σάβο",
+      "es": "Savo del Sur",
+      "fi": "Etelä-Savo",
+      "ja": "南サヴォ",
+      "nb": "Sør-Savo",
+      "nl": "Zuid-Savo",
+      "pl": "Savo Południowe",
+      "pt": "Savo do Sul",
+      "ro": "Savo de Sud",
+      "sv": "Södra Savolax"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000014",
     "abbreviation": "PS",
     "countryPrefix": "FI",
-    "name": { "de": "Nordsavo", "en": "North Savo", "fr": "Savonie du Nord", "it": "Savo settentrionale", "fi": "Pohjois-Savo", "ja": "北サヴォ", "es": "Savo del Norte" }
+    "name": {
+      "de": "Nordsavo",
+      "en": "North Savo",
+      "fr": "Savonie du Nord",
+      "it": "Savo settentrionale",
+      "cs": "Severní Savo",
+      "da": "Nordsavo",
+      "el": "Βόρειο Σάβο",
+      "es": "Savo del Norte",
+      "fi": "Pohjois-Savo",
+      "ja": "北サヴォ",
+      "nb": "Nord-Savo",
+      "nl": "Noord-Savo",
+      "pl": "Savo Północne",
+      "pt": "Savo do Norte",
+      "ro": "Savo de Nord",
+      "sv": "Norra Savolax"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000015",
     "abbreviation": "EK",
     "countryPrefix": "FI",
-    "name": { "de": "Südkarelien", "en": "South Karelia", "fr": "Carélie du Sud", "it": "Carelia meridionale", "fi": "Etelä-Karjala", "ja": "南カレリア", "es": "Carelia del Sur" }
+    "name": {
+      "de": "Südkarelien",
+      "en": "South Karelia",
+      "fr": "Carélie du Sud",
+      "it": "Carelia meridionale",
+      "cs": "Jižní Karélie",
+      "da": "Sydkarelen",
+      "el": "Νότια Καρελία",
+      "es": "Carelia del Sur",
+      "fi": "Etelä-Karjala",
+      "ja": "南カレリア",
+      "nb": "Sør-Karelen",
+      "nl": "Zuid-Karelië",
+      "pl": "Karelia Południowa",
+      "pt": "Carélia do Sul",
+      "ro": "Carelia de Sud",
+      "sv": "Södra Karelen"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000016",
     "abbreviation": "PK",
     "countryPrefix": "FI",
-    "name": { "de": "Nordkarelien", "en": "North Karelia", "fr": "Carélie du Nord", "it": "Carelia settentrionale", "fi": "Pohjois-Karjala", "ja": "北カレリア", "es": "Carelia del Norte" }
+    "name": {
+      "de": "Nordkarelien",
+      "en": "North Karelia",
+      "fr": "Carélie du Nord",
+      "it": "Carelia settentrionale",
+      "cs": "Severní Karélie",
+      "da": "Nordkarelen",
+      "el": "Βόρεια Καρελία",
+      "es": "Carelia del Norte",
+      "fi": "Pohjois-Karjala",
+      "ja": "北カレリア",
+      "nb": "Nord-Karelen",
+      "nl": "Noord-Karelië",
+      "pl": "Karelia Północna",
+      "pt": "Carélia do Norte",
+      "ro": "Carelia de Nord",
+      "sv": "Norra Karelen"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000017",
     "abbreviation": "KA",
     "countryPrefix": "FI",
-    "name": { "de": "Kainuu", "en": "Kainuu", "fr": "Kainuu", "it": "Kainuu", "fi": "Kainuu", "ja": "カイヌー", "es": "Kainuu" }
+    "name": {
+      "de": "Kainuu",
+      "en": "Kainuu",
+      "fr": "Kainuu",
+      "it": "Kainuu",
+      "cs": "Kainuu",
+      "da": "Kainuu",
+      "el": "Κάινου",
+      "es": "Kainuu",
+      "fi": "Kainuu",
+      "ja": "カイヌー",
+      "nb": "Kainuu",
+      "nl": "Kainuu",
+      "pl": "Kainuu",
+      "pt": "Kainuu",
+      "ro": "Kainuu",
+      "sv": "Kajanaland"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000018",
     "abbreviation": "LA",
     "countryPrefix": "FI",
-    "name": { "de": "Lappland", "en": "Lapland", "fr": "Laponie", "it": "Lapponia", "fi": "Lappi", "ja": "ラッピ", "es": "Laponia" }
+    "name": {
+      "de": "Lappland",
+      "en": "Lapland",
+      "fr": "Laponie",
+      "it": "Lapponia",
+      "cs": "Laponsko",
+      "da": "Lapland",
+      "el": "Λαπωνία",
+      "es": "Laponia",
+      "fi": "Lappi",
+      "ja": "ラッピ",
+      "nb": "Lappland",
+      "nl": "Lapland",
+      "pl": "Laponia",
+      "pt": "Lapónia",
+      "ro": "Laponia",
+      "sv": "Lappland"
+    }
   },
   {
     "id": "61c2d3e4-ff01-4000-8000-000000000019",
     "abbreviation": "AL",
     "countryPrefix": "FI",
-    "name": { "de": "Åland", "en": "Åland", "fr": "Åland", "it": "Åland", "fi": "Ahvenanmaa", "ja": "オーランド", "es": "Åland" }
+    "name": {
+      "de": "Åland",
+      "en": "Åland",
+      "fr": "Åland",
+      "it": "Åland",
+      "cs": "Ålandy",
+      "da": "Åland",
+      "el": "Ώλαντ",
+      "es": "Åland",
+      "fi": "Ahvenanmaa",
+      "ja": "オーランド",
+      "nb": "Åland",
+      "nl": "Åland",
+      "pl": "Wyspy Alandzkie",
+      "pt": "Ilhas Åland",
+      "ro": "Åland",
+      "sv": "Åland"
+    }
   }
 ]

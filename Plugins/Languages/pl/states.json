@@ -3,96 +3,368 @@
     "id": "61c2d3e4-bb01-4000-8000-000000000001",
     "abbreviation": "DS",
     "countryPrefix": "PL",
-    "name": { "de": "Niederschlesien", "en": "Lower Silesia", "fr": "Basse-Silésie", "it": "Bassa Slesia", "pl": "Dolnośląskie", "ja": "ドルノシロンスク県", "es": "Baja Silesia" }
+    "name": {
+      "de": "Niederschlesien",
+      "en": "Lower Silesia",
+      "fr": "Basse-Silésie",
+      "it": "Bassa Slesia",
+      "cs": "Dolní Slezsko",
+      "da": "Nedre Schlesien",
+      "el": "Κάτω Σιλεσία",
+      "es": "Baja Silesia",
+      "fi": "Ala-Sleesia",
+      "ja": "ドルノシロンスク県",
+      "nb": "Nedre Silesia",
+      "nl": "Neder-Silezië",
+      "pl": "Dolnośląskie",
+      "pt": "Baixa Silésia",
+      "ro": "Silezia Inferioară",
+      "sv": "Nedre Schlesien"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000002",
     "abbreviation": "KP",
     "countryPrefix": "PL",
-    "name": { "de": "Kujawien-Pommern", "en": "Kuyavia-Pomerania", "fr": "Couïavie-Poméranie", "it": "Cuiavia-Pomerania", "pl": "Kujawsko-Pomorskie", "ja": "クヤヴィ・ポモージェ県", "es": "Cuyavia-Pomerania" }
+    "name": {
+      "de": "Kujawien-Pommern",
+      "en": "Kuyavia-Pomerania",
+      "fr": "Couïavie-Poméranie",
+      "it": "Cuiavia-Pomerania",
+      "cs": "Kujavsko-pomořské",
+      "da": "Kujawien-Pommern",
+      "el": "Κουγιαβία-Πομερανία",
+      "es": "Cuyavia-Pomerania",
+      "fi": "Kujavia-Pommeri",
+      "ja": "クヤヴィ・ポモージェ県",
+      "nb": "Kujawia-Pommern",
+      "nl": "Koejavië-Pommeren",
+      "pl": "Kujawsko-Pomorskie",
+      "pt": "Cujávia-Pomerânia",
+      "ro": "Cuiavia-Pomerania",
+      "sv": "Kujavien-Pommern"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000003",
     "abbreviation": "LU",
     "countryPrefix": "PL",
-    "name": { "de": "Lublin", "en": "Lublin", "fr": "Lublin", "it": "Lublino", "pl": "Lubelskie", "ja": "ルブリン県", "es": "Lublin" }
+    "name": {
+      "de": "Lublin",
+      "en": "Lublin",
+      "fr": "Lublin",
+      "it": "Lublino",
+      "cs": "Lublinské",
+      "da": "Lublin",
+      "el": "Λούμπλιν",
+      "es": "Lublin",
+      "fi": "Lublin",
+      "ja": "ルブリン県",
+      "nb": "Lublin",
+      "nl": "Lublin",
+      "pl": "Lubelskie",
+      "pt": "Lublin",
+      "ro": "Lublin",
+      "sv": "Lublin"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000004",
     "abbreviation": "LB",
     "countryPrefix": "PL",
-    "name": { "de": "Lebus", "en": "Lubusz", "fr": "Lubusz", "it": "Lubusz", "pl": "Lubuskie", "ja": "ルブシュ県", "es": "Lubusz" }
+    "name": {
+      "de": "Lebus",
+      "en": "Lubusz",
+      "fr": "Lubusz",
+      "it": "Lubusz",
+      "cs": "Lubušské",
+      "da": "Lebus",
+      "el": "Λεμπούς",
+      "es": "Lubusz",
+      "fi": "Lubusz",
+      "ja": "ルブシュ県",
+      "nb": "Lubusz",
+      "nl": "Lubusz",
+      "pl": "Lubuskie",
+      "pt": "Lubusz",
+      "ro": "Lubusz",
+      "sv": "Lebus"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000005",
     "abbreviation": "LD",
     "countryPrefix": "PL",
-    "name": { "de": "Lodsch", "en": "Lodz", "fr": "Lodz", "it": "Lodz", "pl": "Łódzkie", "ja": "ウッチ県", "es": "Lodz" }
+    "name": {
+      "de": "Lodsch",
+      "en": "Lodz",
+      "fr": "Lodz",
+      "it": "Lodz",
+      "cs": "Lodžské",
+      "da": "Łódź",
+      "el": "Λοτζ",
+      "es": "Lodz",
+      "fi": "Łódź",
+      "ja": "ウッチ県",
+      "nb": "Łódź",
+      "nl": "Łódź",
+      "pl": "Łódzkie",
+      "pt": "Łódź",
+      "ro": "Łódź",
+      "sv": "Łódź"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000006",
     "abbreviation": "MA",
     "countryPrefix": "PL",
-    "name": { "de": "Kleinpolen", "en": "Lesser Poland", "fr": "Petite-Pologne", "it": "Piccola Polonia", "pl": "Małopolskie", "ja": "マウォポルスカ県", "es": "Pequeña Polonia" }
+    "name": {
+      "de": "Kleinpolen",
+      "en": "Lesser Poland",
+      "fr": "Petite-Pologne",
+      "it": "Piccola Polonia",
+      "cs": "Malopolské",
+      "da": "Lillenpolen",
+      "el": "Μικρή Πολωνία",
+      "es": "Pequeña Polonia",
+      "fi": "Pikku-Puola",
+      "ja": "マウォポルスカ県",
+      "nb": "Lille-Polen",
+      "nl": "Klein-Polen",
+      "pl": "Małopolskie",
+      "pt": "Pequena Polónia",
+      "ro": "Mica Polonie",
+      "sv": "Lillpolen"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000007",
     "abbreviation": "MZ",
     "countryPrefix": "PL",
-    "name": { "de": "Masowien", "en": "Masovia", "fr": "Mazovie", "it": "Masovia", "pl": "Mazowieckie", "ja": "マゾフシェ県", "es": "Masovia" }
+    "name": {
+      "de": "Masowien",
+      "en": "Masovia",
+      "fr": "Mazovie",
+      "it": "Masovia",
+      "cs": "Mazovské",
+      "da": "Masovien",
+      "el": "Μαζοβία",
+      "es": "Masovia",
+      "fi": "Masovia",
+      "ja": "マゾフシェ県",
+      "nb": "Masovia",
+      "nl": "Mazovië",
+      "pl": "Mazowieckie",
+      "pt": "Masóvia",
+      "ro": "Masovia",
+      "sv": "Masovien"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000008",
     "abbreviation": "OP",
     "countryPrefix": "PL",
-    "name": { "de": "Oppeln", "en": "Opole", "fr": "Opole", "it": "Opole", "pl": "Opolskie", "ja": "オポーレ県", "es": "Opole" }
+    "name": {
+      "de": "Oppeln",
+      "en": "Opole",
+      "fr": "Opole",
+      "it": "Opole",
+      "cs": "Opolské",
+      "da": "Opole",
+      "el": "Οπόλε",
+      "es": "Opole",
+      "fi": "Opole",
+      "ja": "オポーレ県",
+      "nb": "Opole",
+      "nl": "Opole",
+      "pl": "Opolskie",
+      "pt": "Opole",
+      "ro": "Opole",
+      "sv": "Opole"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000009",
     "abbreviation": "PK",
     "countryPrefix": "PL",
-    "name": { "de": "Karpatenvorland", "en": "Subcarpathia", "fr": "Basses-Carpates", "it": "Precarpazia", "pl": "Podkarpackie", "ja": "ポトカルパチェ県", "es": "Subcarpacia" }
+    "name": {
+      "de": "Karpatenvorland",
+      "en": "Subcarpathia",
+      "fr": "Basses-Carpates",
+      "it": "Precarpazia",
+      "cs": "Podkarpatské",
+      "da": "Subkarpatien",
+      "el": "Υποκαρπαθία",
+      "es": "Subcarpacia",
+      "fi": "Alankarpatia",
+      "ja": "ポトカルパチェ県",
+      "nb": "Subkarpatia",
+      "nl": "Subkarpaten",
+      "pl": "Podkarpackie",
+      "pt": "Subcarpácia",
+      "ro": "Subcarpatia",
+      "sv": "Subkarpatien"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000010",
     "abbreviation": "PD",
     "countryPrefix": "PL",
-    "name": { "de": "Podlachien", "en": "Podlasie", "fr": "Podlachie", "it": "Podlachia", "pl": "Podlaskie", "ja": "ポドラシェ県", "es": "Podlaquia" }
+    "name": {
+      "de": "Podlachien",
+      "en": "Podlasie",
+      "fr": "Podlachie",
+      "it": "Podlachia",
+      "cs": "Podleské",
+      "da": "Podlasien",
+      "el": "Ποντλασία",
+      "es": "Podlaquia",
+      "fi": "Podlasie",
+      "ja": "ポドラシェ県",
+      "nb": "Podlasie",
+      "nl": "Podlachië",
+      "pl": "Podlaskie",
+      "pt": "Podláquia",
+      "ro": "Podlasia",
+      "sv": "Podlasien"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000011",
     "abbreviation": "PM",
     "countryPrefix": "PL",
-    "name": { "de": "Pommern", "en": "Pomerania", "fr": "Poméranie", "it": "Pomerania", "pl": "Pomorskie", "ja": "ポモージェ県", "es": "Pomerania" }
+    "name": {
+      "de": "Pommern",
+      "en": "Pomerania",
+      "fr": "Poméranie",
+      "it": "Pomerania",
+      "cs": "Pomořské",
+      "da": "Pommern",
+      "el": "Πομερανία",
+      "es": "Pomerania",
+      "fi": "Pommeri",
+      "ja": "ポモージェ県",
+      "nb": "Pommern",
+      "nl": "Pommeren",
+      "pl": "Pomorskie",
+      "pt": "Pomerânia",
+      "ro": "Pomerania",
+      "sv": "Pommern"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000012",
     "abbreviation": "SL",
     "countryPrefix": "PL",
-    "name": { "de": "Schlesien", "en": "Silesia", "fr": "Silésie", "it": "Slesia", "pl": "Śląskie", "ja": "シロンスク県", "es": "Silesia" }
+    "name": {
+      "de": "Schlesien",
+      "en": "Silesia",
+      "fr": "Silésie",
+      "it": "Slesia",
+      "cs": "Slezské",
+      "da": "Schlesien",
+      "el": "Σιλεσία",
+      "es": "Silesia",
+      "fi": "Sleesia",
+      "ja": "シロンスク県",
+      "nb": "Silesia",
+      "nl": "Silezië",
+      "pl": "Śląskie",
+      "pt": "Silésia",
+      "ro": "Silezia",
+      "sv": "Schlesien"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000013",
     "abbreviation": "SK",
     "countryPrefix": "PL",
-    "name": { "de": "Heiligkreuz", "en": "Holy Cross", "fr": "Sainte-Croix", "it": "Santa Croce", "pl": "Świętokrzyskie", "ja": "シフィエントクシスキェ県", "es": "Santa Cruz" }
+    "name": {
+      "de": "Heiligkreuz",
+      "en": "Holy Cross",
+      "fr": "Sainte-Croix",
+      "it": "Santa Croce",
+      "cs": "Svatokřížské",
+      "da": "Helligkors",
+      "el": "Σταυρός",
+      "es": "Santa Cruz",
+      "fi": "Pyhän Ristin",
+      "ja": "シフィエントクシスキェ県",
+      "nb": "Helligkors",
+      "nl": "Heilig Kruis",
+      "pl": "Świętokrzyskie",
+      "pt": "Santa Cruz",
+      "ro": "Sfânta Cruce",
+      "sv": "Helga Korset"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000014",
     "abbreviation": "WN",
     "countryPrefix": "PL",
-    "name": { "de": "Ermland-Masuren", "en": "Warmia-Masuria", "fr": "Varmie-Mazurie", "it": "Varmia-Masuria", "pl": "Warmińsko-Mazurskie", "ja": "ヴァルミア・マズールィ県", "es": "Varmia-Masuria" }
+    "name": {
+      "de": "Ermland-Masuren",
+      "en": "Warmia-Masuria",
+      "fr": "Varmie-Mazurie",
+      "it": "Varmia-Masuria",
+      "cs": "Varmijsko-mazurské",
+      "da": "Ermland-Masuren",
+      "el": "Βαρμία-Μαζουρία",
+      "es": "Varmia-Masuria",
+      "fi": "Warmia-Masuria",
+      "ja": "ヴァルミア・マズールィ県",
+      "nb": "Ermland-Masuria",
+      "nl": "Ermland-Mazurië",
+      "pl": "Warmińsko-Mazurskie",
+      "pt": "Vármia-Masúria",
+      "ro": "Varmia-Masuria",
+      "sv": "Ermland-Masuren"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000015",
     "abbreviation": "WP",
     "countryPrefix": "PL",
-    "name": { "de": "Grosspolen", "en": "Greater Poland", "fr": "Grande-Pologne", "it": "Grande Polonia", "pl": "Wielkopolskie", "ja": "ヴィエルコポルスカ県", "es": "Gran Polonia" }
+    "name": {
+      "de": "Grosspolen",
+      "en": "Greater Poland",
+      "fr": "Grande-Pologne",
+      "it": "Grande Polonia",
+      "cs": "Velkopolské",
+      "da": "Storpolen",
+      "el": "Μεγάλη Πολωνία",
+      "es": "Gran Polonia",
+      "fi": "Suur-Puola",
+      "ja": "ヴィエルコポルスカ県",
+      "nb": "Stor-Polen",
+      "nl": "Groot-Polen",
+      "pl": "Wielkopolskie",
+      "pt": "Grande Polónia",
+      "ro": "Polonia Mare",
+      "sv": "Storpolen"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000016",
     "abbreviation": "ZP",
     "countryPrefix": "PL",
-    "name": { "de": "Westpommern", "en": "West Pomerania", "fr": "Poméranie-Occidentale", "it": "Pomerania Occidentale", "pl": "Zachodniopomorskie", "ja": "ザホドニオポモルスキェ県", "es": "Pomerania Occidental" }
+    "name": {
+      "de": "Westpommern",
+      "en": "West Pomerania",
+      "fr": "Poméranie-Occidentale",
+      "it": "Pomerania Occidentale",
+      "cs": "Západopomořské",
+      "da": "Vestpommern",
+      "el": "Δυτική Πομερανία",
+      "es": "Pomerania Occidental",
+      "fi": "Länsi-Pommeri",
+      "ja": "ザホドニオポモルスキェ県",
+      "nb": "Vest-Pommern",
+      "nl": "West-Pommeren",
+      "pl": "Zachodniopomorskie",
+      "pt": "Pomerânia Ocidental",
+      "ro": "Pomerania de Vest",
+      "sv": "Västpommern"
+    }
   }
 ]

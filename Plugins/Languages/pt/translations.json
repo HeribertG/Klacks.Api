@@ -1045,6 +1045,7 @@
   "setting.microphone-test.headline": "Teste de microfone e reconhecimento de voz",
   "setting.microphone-test.description": "Teste aqui o seu microfone e a função de reconhecimento de voz. O teste verifica todos os pré-requisitos necessários.",
   "setting.microphone-test.default-microphone": "Microfone ativo",
+  "setting.microphone-test.web-speech-device-info": "Nota: O reconhecimento de voz integrado do navegador utiliza sempre o microfone padrão do sistema.",
   "setting.report.defaults.headline": "Modelos predefinidos (impressão rápida)",
   "setting.report.defaults.none": "-- Não definido --",
   "setting.report.headline": "Modelos de relatório",

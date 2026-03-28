@@ -3,114 +3,437 @@
     "id": "51b2c3d4-e501-4000-8000-000000000001",
     "abbreviation": "AN",
     "countryPrefix": "ES",
-    "name": { "de": "Andalusien", "en": "Andalusia", "fr": "Andalousie", "it": "Andalusia", "es": "Andalucía", "ja": "アンダルシア" }
+    "name": {
+      "de": "Andalusien",
+      "en": "Andalusia",
+      "fr": "Andalousie",
+      "it": "Andalusia",
+      "cs": "Andalusie",
+      "da": "Andalusien",
+      "el": "Ανδαλουσία",
+      "es": "Andalucía",
+      "fi": "Andalusia",
+      "ja": "アンダルシア",
+      "nb": "Andalucia",
+      "nl": "Andalusië",
+      "pl": "Andaluzja",
+      "pt": "Andaluzia",
+      "ro": "Andaluzia",
+      "sv": "Andalusien"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000002",
     "abbreviation": "AR",
     "countryPrefix": "ES",
-    "name": { "de": "Aragonien", "en": "Aragon", "fr": "Aragon", "it": "Aragona", "es": "Aragón", "ja": "アラゴン" }
+    "name": {
+      "de": "Aragonien",
+      "en": "Aragon",
+      "fr": "Aragon",
+      "it": "Aragona",
+      "cs": "Aragonie",
+      "da": "Aragonien",
+      "el": "Αραγονία",
+      "es": "Aragón",
+      "fi": "Aragonia",
+      "ja": "アラゴン",
+      "nb": "Aragón",
+      "nl": "Aragón",
+      "pl": "Aragonia",
+      "pt": "Aragão",
+      "ro": "Aragon",
+      "sv": "Aragonien"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000003",
     "abbreviation": "AS",
     "countryPrefix": "ES",
-    "name": { "de": "Asturien", "en": "Asturias", "fr": "Asturies", "it": "Asturie", "es": "Asturias", "ja": "アストゥリアス" }
+    "name": {
+      "de": "Asturien",
+      "en": "Asturias",
+      "fr": "Asturies",
+      "it": "Asturie",
+      "cs": "Asturie",
+      "da": "Asturien",
+      "el": "Αστούριες",
+      "es": "Asturias",
+      "fi": "Asturia",
+      "ja": "アストゥリアス",
+      "nb": "Asturias",
+      "nl": "Asturië",
+      "pl": "Asturia",
+      "pt": "Astúrias",
+      "ro": "Asturia",
+      "sv": "Asturien"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000004",
     "abbreviation": "IB",
     "countryPrefix": "ES",
-    "name": { "de": "Balearen", "en": "Balearic Islands", "fr": "Îles Baléares", "it": "Isole Baleari", "es": "Islas Baleares", "ja": "バレアレス諸島" }
+    "name": {
+      "de": "Balearen",
+      "en": "Balearic Islands",
+      "fr": "Îles Baléares",
+      "it": "Isole Baleari",
+      "cs": "Baleáry",
+      "da": "Balearerne",
+      "el": "Βαλεαρίδες Νήσοι",
+      "es": "Islas Baleares",
+      "fi": "Baleaarit",
+      "ja": "バレアレス諸島",
+      "nb": "Balearene",
+      "nl": "Balearen",
+      "pl": "Baleary",
+      "pt": "Ilhas Baleares",
+      "ro": "Insulele Baleare",
+      "sv": "Balearerna"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000005",
     "abbreviation": "CN",
     "countryPrefix": "ES",
-    "name": { "de": "Kanarische Inseln", "en": "Canary Islands", "fr": "Îles Canaries", "it": "Isole Canarie", "es": "Canarias", "ja": "カナリア諸島" }
+    "name": {
+      "de": "Kanarische Inseln",
+      "en": "Canary Islands",
+      "fr": "Îles Canaries",
+      "it": "Isole Canarie",
+      "cs": "Kanárské ostrovy",
+      "da": "Kanarieøerne",
+      "el": "Κανάριοι Νήσοι",
+      "es": "Canarias",
+      "fi": "Kanariansaaret",
+      "ja": "カナリア諸島",
+      "nb": "Kanariøyene",
+      "nl": "Canarische Eilanden",
+      "pl": "Wyspy Kanaryjskie",
+      "pt": "Ilhas Canárias",
+      "ro": "Insulele Canare",
+      "sv": "Kanarieöarna"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000006",
     "abbreviation": "CB",
     "countryPrefix": "ES",
-    "name": { "de": "Kantabrien", "en": "Cantabria", "fr": "Cantabrie", "it": "Cantabria", "es": "Cantabria", "ja": "カンタブリア" }
+    "name": {
+      "de": "Kantabrien",
+      "en": "Cantabria",
+      "fr": "Cantabrie",
+      "it": "Cantabria",
+      "cs": "Kantábrie",
+      "da": "Cantabrien",
+      "el": "Κανταβρία",
+      "es": "Cantabria",
+      "fi": "Kantabria",
+      "ja": "カンタブリア",
+      "nb": "Cantabria",
+      "nl": "Cantabrië",
+      "pl": "Kantabria",
+      "pt": "Cantábria",
+      "ro": "Cantabria",
+      "sv": "Kantabrien"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000007",
     "abbreviation": "CL",
     "countryPrefix": "ES",
-    "name": { "de": "Kastilien und León", "en": "Castile and León", "fr": "Castille-et-León", "it": "Castiglia e León", "es": "Castilla y León", "ja": "カスティーリャ・イ・レオン" }
+    "name": {
+      "de": "Kastilien und León",
+      "en": "Castile and León",
+      "fr": "Castille-et-León",
+      "it": "Castiglia e León",
+      "cs": "Kastilie a León",
+      "da": "Castilien og León",
+      "el": "Καστίλλη και Λεόν",
+      "es": "Castilla y León",
+      "fi": "Kastilia ja León",
+      "ja": "カスティーリャ・イ・レオン",
+      "nb": "Castilla y León",
+      "nl": "Castilië en León",
+      "pl": "Kastylia i León",
+      "pt": "Castela e Leão",
+      "ro": "Castilia și León",
+      "sv": "Kastilien och León"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000008",
     "abbreviation": "CM",
     "countryPrefix": "ES",
-    "name": { "de": "Kastilien-La Mancha", "en": "Castilla-La Mancha", "fr": "Castille-La Manche", "it": "Castiglia-La Mancia", "es": "Castilla-La Mancha", "ja": "カスティーリャ＝ラ・マンチャ" }
+    "name": {
+      "de": "Kastilien-La Mancha",
+      "en": "Castilla-La Mancha",
+      "fr": "Castille-La Manche",
+      "it": "Castiglia-La Mancia",
+      "cs": "Kastilie-La Mancha",
+      "da": "Castilla-La Mancha",
+      "el": "Καστίλλη-Λα Μάντσα",
+      "es": "Castilla-La Mancha",
+      "fi": "Kastilia-La Mancha",
+      "ja": "カスティーリャ＝ラ・マンチャ",
+      "nb": "Castilla-La Mancha",
+      "nl": "Castilië-La Mancha",
+      "pl": "Kastylia-La Mancha",
+      "pt": "Castela-La Mancha",
+      "ro": "Castilia-La Mancha",
+      "sv": "Kastilien-La Mancha"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000009",
     "abbreviation": "CT",
     "countryPrefix": "ES",
-    "name": { "de": "Katalonien", "en": "Catalonia", "fr": "Catalogne", "it": "Catalogna", "es": "Cataluña", "ja": "カタルーニャ" }
+    "name": {
+      "de": "Katalonien",
+      "en": "Catalonia",
+      "fr": "Catalogne",
+      "it": "Catalogna",
+      "cs": "Katalánsko",
+      "da": "Catalonien",
+      "el": "Καταλονία",
+      "es": "Cataluña",
+      "fi": "Katalonia",
+      "ja": "カタルーニャ",
+      "nb": "Catalonia",
+      "nl": "Catalonië",
+      "pl": "Katalonia",
+      "pt": "Catalunha",
+      "ro": "Catalonia",
+      "sv": "Katalonien"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000010",
     "abbreviation": "EX",
     "countryPrefix": "ES",
-    "name": { "de": "Extremadura", "en": "Extremadura", "fr": "Estrémadure", "it": "Estremadura", "es": "Extremadura", "ja": "エストレマドゥーラ" }
+    "name": {
+      "de": "Extremadura",
+      "en": "Extremadura",
+      "fr": "Estrémadure",
+      "it": "Estremadura",
+      "cs": "Extremadura",
+      "da": "Extremadura",
+      "el": "Εξτρεμαδούρα",
+      "es": "Extremadura",
+      "fi": "Extremadura",
+      "ja": "エストレマドゥーラ",
+      "nb": "Extremadura",
+      "nl": "Extremadura",
+      "pl": "Estremadura",
+      "pt": "Estremadura",
+      "ro": "Extremadura",
+      "sv": "Extremadura"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000011",
     "abbreviation": "GA",
     "countryPrefix": "ES",
-    "name": { "de": "Galicien", "en": "Galicia", "fr": "Galice", "it": "Galizia", "es": "Galicia", "ja": "ガリシア" }
+    "name": {
+      "de": "Galicien",
+      "en": "Galicia",
+      "fr": "Galice",
+      "it": "Galizia",
+      "cs": "Galicie",
+      "da": "Galicien",
+      "el": "Γαλικία",
+      "es": "Galicia",
+      "fi": "Galicia",
+      "ja": "ガリシア",
+      "nb": "Galicia",
+      "nl": "Galicië",
+      "pl": "Galicja",
+      "pt": "Galiza",
+      "ro": "Galicia",
+      "sv": "Galicien"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000012",
     "abbreviation": "MD",
     "countryPrefix": "ES",
-    "name": { "de": "Madrid", "en": "Madrid", "fr": "Madrid", "it": "Madrid", "es": "Madrid", "ja": "マドリード" }
+    "name": {
+      "de": "Madrid",
+      "en": "Madrid",
+      "fr": "Madrid",
+      "it": "Madrid",
+      "cs": "Madrid",
+      "da": "Madrid",
+      "el": "Μαδρίτη",
+      "es": "Madrid",
+      "fi": "Madrid",
+      "ja": "マドリード",
+      "nb": "Madrid",
+      "nl": "Madrid",
+      "pl": "Madryt",
+      "pt": "Madrid",
+      "ro": "Madrid",
+      "sv": "Madrid"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000013",
     "abbreviation": "MC",
     "countryPrefix": "ES",
-    "name": { "de": "Murcia", "en": "Murcia", "fr": "Murcie", "it": "Murcia", "es": "Murcia", "ja": "ムルシア" }
+    "name": {
+      "de": "Murcia",
+      "en": "Murcia",
+      "fr": "Murcie",
+      "it": "Murcia",
+      "cs": "Murcie",
+      "da": "Murcia",
+      "el": "Μούρθια",
+      "es": "Murcia",
+      "fi": "Murcia",
+      "ja": "ムルシア",
+      "nb": "Murcia",
+      "nl": "Murcia",
+      "pl": "Murcja",
+      "pt": "Múrcia",
+      "ro": "Murcia",
+      "sv": "Murcia"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000014",
     "abbreviation": "NC",
     "countryPrefix": "ES",
-    "name": { "de": "Navarra", "en": "Navarre", "fr": "Navarre", "it": "Navarra", "es": "Navarra", "ja": "ナバラ" }
+    "name": {
+      "de": "Navarra",
+      "en": "Navarre",
+      "fr": "Navarre",
+      "it": "Navarra",
+      "cs": "Navarra",
+      "da": "Navarra",
+      "el": "Ναβάρρα",
+      "es": "Navarra",
+      "fi": "Navarra",
+      "ja": "ナバラ",
+      "nb": "Navarra",
+      "nl": "Navarra",
+      "pl": "Nawarra",
+      "pt": "Navarra",
+      "ro": "Navarra",
+      "sv": "Navarra"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000015",
     "abbreviation": "PV",
     "countryPrefix": "ES",
-    "name": { "de": "Baskenland", "en": "Basque Country", "fr": "Pays basque", "it": "Paesi Baschi", "es": "País Vasco", "ja": "バスク" }
+    "name": {
+      "de": "Baskenland",
+      "en": "Basque Country",
+      "fr": "Pays basque",
+      "it": "Paesi Baschi",
+      "cs": "Baskicko",
+      "da": "Baskerlandet",
+      "el": "Χώρα των Βάσκων",
+      "es": "País Vasco",
+      "fi": "Baskimaa",
+      "ja": "バスク",
+      "nb": "Baskerland",
+      "nl": "Baskenland",
+      "pl": "Kraj Basków",
+      "pt": "País Basco",
+      "ro": "Țara Bascilor",
+      "sv": "Baskien"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000016",
     "abbreviation": "LR",
     "countryPrefix": "ES",
-    "name": { "de": "La Rioja", "en": "La Rioja", "fr": "La Rioja", "it": "La Rioja", "es": "La Rioja", "ja": "ラ・リオハ" }
+    "name": {
+      "de": "La Rioja",
+      "en": "La Rioja",
+      "fr": "La Rioja",
+      "it": "La Rioja",
+      "cs": "La Rioja",
+      "da": "La Rioja",
+      "el": "Λα Ριόχα",
+      "es": "La Rioja",
+      "fi": "La Rioja",
+      "ja": "ラ・リオハ",
+      "nb": "La Rioja",
+      "nl": "La Rioja",
+      "pl": "La Rioja",
+      "pt": "La Rioja",
+      "ro": "La Rioja",
+      "sv": "La Rioja"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000017",
     "abbreviation": "VC",
     "countryPrefix": "ES",
-    "name": { "de": "Valencia", "en": "Valencian Community", "fr": "Communauté valencienne", "it": "Comunità Valenciana", "es": "Comunidad Valenciana", "ja": "バレンシア" }
+    "name": {
+      "de": "Valencia",
+      "en": "Valencian Community",
+      "fr": "Communauté valencienne",
+      "it": "Comunità Valenciana",
+      "cs": "Valencie",
+      "da": "Valencia",
+      "el": "Βαλένθια",
+      "es": "Comunidad Valenciana",
+      "fi": "Valencia",
+      "ja": "バレンシア",
+      "nb": "Valencia",
+      "nl": "Valencia",
+      "pl": "Walencja",
+      "pt": "Comunidade Valenciana",
+      "ro": "Comunitatea Valenciană",
+      "sv": "Valencia"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000018",
     "abbreviation": "CE",
     "countryPrefix": "ES",
-    "name": { "de": "Ceuta", "en": "Ceuta", "fr": "Ceuta", "it": "Ceuta", "es": "Ceuta", "ja": "セウタ" }
+    "name": {
+      "de": "Ceuta",
+      "en": "Ceuta",
+      "fr": "Ceuta",
+      "it": "Ceuta",
+      "cs": "Ceuta",
+      "da": "Ceuta",
+      "el": "Θέουτα",
+      "es": "Ceuta",
+      "fi": "Ceuta",
+      "ja": "セウタ",
+      "nb": "Ceuta",
+      "nl": "Ceuta",
+      "pl": "Ceuta",
+      "pt": "Ceuta",
+      "ro": "Ceuta",
+      "sv": "Ceuta"
+    }
   },
   {
     "id": "51b2c3d4-e501-4000-8000-000000000019",
     "abbreviation": "ML",
     "countryPrefix": "ES",
-    "name": { "de": "Melilla", "en": "Melilla", "fr": "Melilla", "it": "Melilla", "es": "Melilla", "ja": "メリリャ" }
+    "name": {
+      "de": "Melilla",
+      "en": "Melilla",
+      "fr": "Melilla",
+      "it": "Melilla",
+      "cs": "Melilla",
+      "da": "Melilla",
+      "el": "Μελίγια",
+      "es": "Melilla",
+      "fi": "Melilla",
+      "ja": "メリリャ",
+      "nb": "Melilla",
+      "nl": "Melilla",
+      "pl": "Melilla",
+      "pt": "Melilla",
+      "ro": "Melilla",
+      "sv": "Melilla"
+    }
   }
 ]

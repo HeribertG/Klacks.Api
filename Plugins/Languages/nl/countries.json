@@ -2,7 +2,24 @@
   {
     "id": "a1b2c3d4-6e01-4000-8000-000000000001",
     "abbreviation": "NL",
-    "name": { "de": "Niederlande", "en": "Netherlands", "fr": "Pays-Bas", "it": "Paesi Bassi", "nl": "Nederland", "ja": "オランダ", "es": "Países Bajos" },
+    "name": {
+      "de": "Niederlande",
+      "en": "Netherlands",
+      "fr": "Pays-Bas",
+      "it": "Paesi Bassi",
+      "cs": "Nizozemsko",
+      "da": "Holland",
+      "el": "Ολλανδία",
+      "es": "Países Bajos",
+      "fi": "Alankomaat",
+      "ja": "オランダ",
+      "nb": "Nederland",
+      "nl": "Nederland",
+      "pl": "Holandia",
+      "pt": "Países Baixos",
+      "ro": "Țările de Jos",
+      "sv": "Nederländerna"
+    },
     "prefix": "+31"
   }
 ]

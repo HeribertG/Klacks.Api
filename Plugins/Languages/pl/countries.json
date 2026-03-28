@@ -2,7 +2,24 @@
   {
     "id": "b1c2d3e4-bb01-4000-8000-000000000001",
     "abbreviation": "PL",
-    "name": { "de": "Polen", "en": "Poland", "fr": "Pologne", "it": "Polonia", "pl": "Polska", "ja": "ポーランド", "es": "Polonia" },
+    "name": {
+      "de": "Polen",
+      "en": "Poland",
+      "fr": "Pologne",
+      "it": "Polonia",
+      "cs": "Polsko",
+      "da": "Polen",
+      "el": "Πολωνία",
+      "es": "Polonia",
+      "fi": "Puola",
+      "ja": "ポーランド",
+      "nb": "Polen",
+      "nl": "Polen",
+      "pl": "Polska",
+      "pt": "Polónia",
+      "ro": "Polonia",
+      "sv": "Polen"
+    },
     "prefix": "+48"
   }
 ]

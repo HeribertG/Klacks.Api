@@ -2,7 +2,24 @@
   {
     "id": "a1b2c3d4-e501-4000-8000-000000000001",
     "abbreviation": "ES",
-    "name": { "de": "Spanien", "en": "Spain", "fr": "Espagne", "it": "Spagna", "es": "España", "ja": "スペイン" },
+    "name": {
+      "de": "Spanien",
+      "en": "Spain",
+      "fr": "Espagne",
+      "it": "Spagna",
+      "cs": "Španělsko",
+      "da": "Spanien",
+      "el": "Ισπανία",
+      "es": "España",
+      "fi": "Espanja",
+      "ja": "スペイン",
+      "nb": "Spania",
+      "nl": "Spanje",
+      "pl": "Hiszpania",
+      "pt": "Espanha",
+      "ro": "Spania",
+      "sv": "Spanien"
+    },
     "prefix": "+34"
   }
 ]

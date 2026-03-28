@@ -3,7 +3,7 @@
   "name": "Finnish",
   "displayName": "Suomi",
   "speechLocale": "fi-FI",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Klacks Community",
   "coverage": 100.0,
   "minKlacksVersion": "1.0.0"

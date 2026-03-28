@@ -2,7 +2,24 @@
   {
     "id": "a1b2c3d4-bb01-4000-8000-000000000001",
     "abbreviation": "RO",
-    "name": { "de": "Rumänien", "en": "Romania", "fr": "Roumanie", "it": "Romania", "ro": "România", "ja": "ルーマニア", "es": "Rumanía" },
+    "name": {
+      "de": "Rumänien",
+      "en": "Romania",
+      "fr": "Roumanie",
+      "it": "Romania",
+      "cs": "Rumunsko",
+      "da": "Rumænien",
+      "el": "Ρουμανία",
+      "es": "Rumanía",
+      "fi": "Romania",
+      "ja": "ルーマニア",
+      "nb": "Romania",
+      "nl": "Roemenië",
+      "pl": "Rumunia",
+      "pt": "Roménia",
+      "ro": "România",
+      "sv": "Rumänien"
+    },
     "prefix": "+40"
   }
 ]

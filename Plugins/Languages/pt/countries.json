@@ -2,7 +2,24 @@
   {
     "id": "a1b2c3d4-7001-4000-8000-000000000001",
     "abbreviation": "PT",
-    "name": { "de": "Portugal", "en": "Portugal", "fr": "Portugal", "it": "Portogallo", "pt": "Portugal", "ja": "ポルトガル", "es": "Portugal" },
+    "name": {
+      "de": "Portugal",
+      "en": "Portugal",
+      "fr": "Portugal",
+      "it": "Portogallo",
+      "cs": "Portugalsko",
+      "da": "Portugal",
+      "el": "Πορτογαλία",
+      "es": "Portugal",
+      "fi": "Portugali",
+      "ja": "ポルトガル",
+      "nb": "Portugal",
+      "nl": "Portugal",
+      "pl": "Portugalia",
+      "pt": "Portugal",
+      "ro": "Portugalia",
+      "sv": "Portugal"
+    },
     "prefix": "+351"
   }
 ]

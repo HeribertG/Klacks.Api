@@ -1045,6 +1045,7 @@
   "setting.microphone-test.headline": "Test microfon și recunoaștere vocală",
   "setting.microphone-test.description": "Testați aici microfonul și funcția de recunoaștere vocală. Testul verifică toate cerințele necesare.",
   "setting.microphone-test.default-microphone": "Microfon activ",
+  "setting.microphone-test.web-speech-device-info": "Notă: Recunoașterea vocală integrată a browserului utilizează întotdeauna microfonul implicit al sistemului.",
   "setting.report.defaults.headline": "Șabloane standard (Tipărire rapidă)",
   "setting.report.defaults.none": "-- Nesetat --",
   "setting.report.headline": "Șabloane rapoarte",

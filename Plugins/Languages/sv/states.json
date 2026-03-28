@@ -3,126 +3,483 @@
     "id": "51b2c3d4-5e01-4000-8000-000000000001",
     "abbreviation": "AB",
     "countryPrefix": "SE",
-    "name": { "de": "Stockholm", "en": "Stockholm", "fr": "Stockholm", "it": "Stoccolma", "sv": "Stockholms län", "ja": "ストックホルム", "es": "Estocolmo" }
+    "name": {
+      "de": "Stockholm",
+      "en": "Stockholm",
+      "fr": "Stockholm",
+      "it": "Stoccolma",
+      "cs": "Stockholm",
+      "da": "Stockholm",
+      "el": "Στοκχόλμη",
+      "es": "Estocolmo",
+      "fi": "Tukholma",
+      "ja": "ストックホルム",
+      "nb": "Stockholm",
+      "nl": "Stockholm",
+      "pl": "Sztokholm",
+      "pt": "Estocolmo",
+      "ro": "Stockholm",
+      "sv": "Stockholms län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000002",
     "abbreviation": "C",
     "countryPrefix": "SE",
-    "name": { "de": "Uppsala", "en": "Uppsala", "fr": "Uppsala", "it": "Uppsala", "sv": "Uppsala län", "ja": "ウプサラ", "es": "Upsala" }
+    "name": {
+      "de": "Uppsala",
+      "en": "Uppsala",
+      "fr": "Uppsala",
+      "it": "Uppsala",
+      "cs": "Uppsala",
+      "da": "Uppsala",
+      "el": "Ουψάλα",
+      "es": "Upsala",
+      "fi": "Uppsala",
+      "ja": "ウプサラ",
+      "nb": "Uppsala",
+      "nl": "Uppsala",
+      "pl": "Uppsala",
+      "pt": "Uppsala",
+      "ro": "Uppsala",
+      "sv": "Uppsala län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000003",
     "abbreviation": "D",
     "countryPrefix": "SE",
-    "name": { "de": "Södermanland", "en": "Södermanland", "fr": "Södermanland", "it": "Södermanland", "sv": "Södermanlands län", "ja": "セーデルマンランド", "es": "Södermanland" }
+    "name": {
+      "de": "Södermanland",
+      "en": "Södermanland",
+      "fr": "Södermanland",
+      "it": "Södermanland",
+      "cs": "Södermanland",
+      "da": "Södermanland",
+      "el": "Σέντερμανλαντ",
+      "es": "Södermanland",
+      "fi": "Södermanland",
+      "ja": "セーデルマンランド",
+      "nb": "Södermanland",
+      "nl": "Södermanland",
+      "pl": "Södermanland",
+      "pt": "Södermanland",
+      "ro": "Södermanland",
+      "sv": "Södermanlands län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000004",
     "abbreviation": "E",
     "countryPrefix": "SE",
-    "name": { "de": "Östergötland", "en": "Östergötland", "fr": "Östergötland", "it": "Östergötland", "sv": "Östergötlands län", "ja": "エステルイェートランド", "es": "Östergötland" }
+    "name": {
+      "de": "Östergötland",
+      "en": "Östergötland",
+      "fr": "Östergötland",
+      "it": "Östergötland",
+      "cs": "Östergötland",
+      "da": "Östergötland",
+      "el": "Έστεργκέτλαντ",
+      "es": "Östergötland",
+      "fi": "Östergötland",
+      "ja": "エステルイェートランド",
+      "nb": "Östergötland",
+      "nl": "Östergötland",
+      "pl": "Östergötland",
+      "pt": "Östergötland",
+      "ro": "Östergötland",
+      "sv": "Östergötlands län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000005",
     "abbreviation": "F",
     "countryPrefix": "SE",
-    "name": { "de": "Jönköping", "en": "Jönköping", "fr": "Jönköping", "it": "Jönköping", "sv": "Jönköpings län", "ja": "ヨンショーピング", "es": "Jönköping" }
+    "name": {
+      "de": "Jönköping",
+      "en": "Jönköping",
+      "fr": "Jönköping",
+      "it": "Jönköping",
+      "cs": "Jönköping",
+      "da": "Jönköping",
+      "el": "Γιένσεπινγκ",
+      "es": "Jönköping",
+      "fi": "Jönköping",
+      "ja": "ヨンショーピング",
+      "nb": "Jönköping",
+      "nl": "Jönköping",
+      "pl": "Jönköping",
+      "pt": "Jönköping",
+      "ro": "Jönköping",
+      "sv": "Jönköpings län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000006",
     "abbreviation": "G",
     "countryPrefix": "SE",
-    "name": { "de": "Kronoberg", "en": "Kronoberg", "fr": "Kronoberg", "it": "Kronoberg", "sv": "Kronobergs län", "ja": "クロノベリ", "es": "Kronoberg" }
+    "name": {
+      "de": "Kronoberg",
+      "en": "Kronoberg",
+      "fr": "Kronoberg",
+      "it": "Kronoberg",
+      "cs": "Kronoberg",
+      "da": "Kronoberg",
+      "el": "Κρόνομπεργκ",
+      "es": "Kronoberg",
+      "fi": "Kronoberg",
+      "ja": "クロノベリ",
+      "nb": "Kronoberg",
+      "nl": "Kronoberg",
+      "pl": "Kronoberg",
+      "pt": "Kronoberg",
+      "ro": "Kronoberg",
+      "sv": "Kronobergs län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000007",
     "abbreviation": "H",
     "countryPrefix": "SE",
-    "name": { "de": "Kalmar", "en": "Kalmar", "fr": "Kalmar", "it": "Kalmar", "sv": "Kalmar län", "ja": "カルマル", "es": "Kalmar" }
+    "name": {
+      "de": "Kalmar",
+      "en": "Kalmar",
+      "fr": "Kalmar",
+      "it": "Kalmar",
+      "cs": "Kalmar",
+      "da": "Kalmar",
+      "el": "Κάλμαρ",
+      "es": "Kalmar",
+      "fi": "Kalmar",
+      "ja": "カルマル",
+      "nb": "Kalmar",
+      "nl": "Kalmar",
+      "pl": "Kalmar",
+      "pt": "Kalmar",
+      "ro": "Kalmar",
+      "sv": "Kalmar län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000008",
     "abbreviation": "I",
     "countryPrefix": "SE",
-    "name": { "de": "Gotland", "en": "Gotland", "fr": "Gotland", "it": "Gotland", "sv": "Gotlands län", "ja": "ゴットランド", "es": "Gotland" }
+    "name": {
+      "de": "Gotland",
+      "en": "Gotland",
+      "fr": "Gotland",
+      "it": "Gotland",
+      "cs": "Gotland",
+      "da": "Gotland",
+      "el": "Γκότλαντ",
+      "es": "Gotland",
+      "fi": "Gotlanti",
+      "ja": "ゴットランド",
+      "nb": "Gotland",
+      "nl": "Gotland",
+      "pl": "Gotlandia",
+      "pt": "Gotlândia",
+      "ro": "Gotland",
+      "sv": "Gotlands län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000009",
     "abbreviation": "K",
     "countryPrefix": "SE",
-    "name": { "de": "Blekinge", "en": "Blekinge", "fr": "Blekinge", "it": "Blekinge", "sv": "Blekinge län", "ja": "ブレーキンゲ", "es": "Blekinge" }
+    "name": {
+      "de": "Blekinge",
+      "en": "Blekinge",
+      "fr": "Blekinge",
+      "it": "Blekinge",
+      "cs": "Blekinge",
+      "da": "Blekinge",
+      "el": "Μπλέκινγκε",
+      "es": "Blekinge",
+      "fi": "Blekinge",
+      "ja": "ブレーキンゲ",
+      "nb": "Blekinge",
+      "nl": "Blekinge",
+      "pl": "Blekinge",
+      "pt": "Blekinge",
+      "ro": "Blekinge",
+      "sv": "Blekinge län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000010",
     "abbreviation": "M",
     "countryPrefix": "SE",
-    "name": { "de": "Schonen", "en": "Skåne", "fr": "Scanie", "it": "Scania", "sv": "Skåne län", "ja": "スコーネ", "es": "Escania" }
+    "name": {
+      "de": "Schonen",
+      "en": "Skåne",
+      "fr": "Scanie",
+      "it": "Scania",
+      "cs": "Skåne",
+      "da": "Skåne",
+      "el": "Σκόνε",
+      "es": "Escania",
+      "fi": "Skoone",
+      "ja": "スコーネ",
+      "nb": "Skåne",
+      "nl": "Skåne",
+      "pl": "Skania",
+      "pt": "Escânia",
+      "ro": "Scania",
+      "sv": "Skåne län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000011",
     "abbreviation": "N",
     "countryPrefix": "SE",
-    "name": { "de": "Halland", "en": "Halland", "fr": "Halland", "it": "Halland", "sv": "Hallands län", "ja": "ハッランド", "es": "Halland" }
+    "name": {
+      "de": "Halland",
+      "en": "Halland",
+      "fr": "Halland",
+      "it": "Halland",
+      "cs": "Halland",
+      "da": "Halland",
+      "el": "Χάλαντ",
+      "es": "Halland",
+      "fi": "Halland",
+      "ja": "ハッランド",
+      "nb": "Halland",
+      "nl": "Halland",
+      "pl": "Halland",
+      "pt": "Halland",
+      "ro": "Halland",
+      "sv": "Hallands län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000012",
     "abbreviation": "O",
     "countryPrefix": "SE",
-    "name": { "de": "Västra Götaland", "en": "Västra Götaland", "fr": "Västra Götaland", "it": "Västra Götaland", "sv": "Västra Götalands län", "ja": "ヴェストラ・イェータランド", "es": "Västra Götaland" }
+    "name": {
+      "de": "Västra Götaland",
+      "en": "Västra Götaland",
+      "fr": "Västra Götaland",
+      "it": "Västra Götaland",
+      "cs": "Västra Götaland",
+      "da": "Västra Götaland",
+      "el": "Βέστρα Γκέταλαντ",
+      "es": "Västra Götaland",
+      "fi": "Västra Götaland",
+      "ja": "ヴェストラ・イェータランド",
+      "nb": "Västra Götaland",
+      "nl": "Västra Götaland",
+      "pl": "Västra Götaland",
+      "pt": "Västra Götaland",
+      "ro": "Västra Götaland",
+      "sv": "Västra Götalands län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000013",
     "abbreviation": "S",
     "countryPrefix": "SE",
-    "name": { "de": "Värmland", "en": "Värmland", "fr": "Värmland", "it": "Värmland", "sv": "Värmlands län", "ja": "ヴェルムランド", "es": "Värmland" }
+    "name": {
+      "de": "Värmland",
+      "en": "Värmland",
+      "fr": "Värmland",
+      "it": "Värmland",
+      "cs": "Värmland",
+      "da": "Värmland",
+      "el": "Βέρμλαντ",
+      "es": "Värmland",
+      "fi": "Värmland",
+      "ja": "ヴェルムランド",
+      "nb": "Värmland",
+      "nl": "Värmland",
+      "pl": "Värmland",
+      "pt": "Värmland",
+      "ro": "Värmland",
+      "sv": "Värmlands län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000014",
     "abbreviation": "T",
     "countryPrefix": "SE",
-    "name": { "de": "Örebro", "en": "Örebro", "fr": "Örebro", "it": "Örebro", "sv": "Örebro län", "ja": "エレブルー", "es": "Örebro" }
+    "name": {
+      "de": "Örebro",
+      "en": "Örebro",
+      "fr": "Örebro",
+      "it": "Örebro",
+      "cs": "Örebro",
+      "da": "Örebro",
+      "el": "Έρεμπρο",
+      "es": "Örebro",
+      "fi": "Örebro",
+      "ja": "エレブルー",
+      "nb": "Örebro",
+      "nl": "Örebro",
+      "pl": "Örebro",
+      "pt": "Örebro",
+      "ro": "Örebro",
+      "sv": "Örebro län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000015",
     "abbreviation": "U",
     "countryPrefix": "SE",
-    "name": { "de": "Västmanland", "en": "Västmanland", "fr": "Västmanland", "it": "Västmanland", "sv": "Västmanlands län", "ja": "ヴェストマンランド", "es": "Västmanland" }
+    "name": {
+      "de": "Västmanland",
+      "en": "Västmanland",
+      "fr": "Västmanland",
+      "it": "Västmanland",
+      "cs": "Västmanland",
+      "da": "Västmanland",
+      "el": "Βέστμανλαντ",
+      "es": "Västmanland",
+      "fi": "Västmanland",
+      "ja": "ヴェストマンランド",
+      "nb": "Västmanland",
+      "nl": "Västmanland",
+      "pl": "Västmanland",
+      "pt": "Västmanland",
+      "ro": "Västmanland",
+      "sv": "Västmanlands län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000016",
     "abbreviation": "W",
     "countryPrefix": "SE",
-    "name": { "de": "Dalarna", "en": "Dalarna", "fr": "Dalécarlie", "it": "Dalarna", "sv": "Dalarnas län", "ja": "ダーラナ", "es": "Dalarna" }
+    "name": {
+      "de": "Dalarna",
+      "en": "Dalarna",
+      "fr": "Dalécarlie",
+      "it": "Dalarna",
+      "cs": "Dalarna",
+      "da": "Dalarna",
+      "el": "Νταλάρνα",
+      "es": "Dalarna",
+      "fi": "Taalainmaa",
+      "ja": "ダーラナ",
+      "nb": "Dalarna",
+      "nl": "Dalarna",
+      "pl": "Dalarna",
+      "pt": "Dalarna",
+      "ro": "Dalarna",
+      "sv": "Dalarnas län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000017",
     "abbreviation": "X",
     "countryPrefix": "SE",
-    "name": { "de": "Gävleborg", "en": "Gävleborg", "fr": "Gävleborg", "it": "Gävleborg", "sv": "Gävleborgs län", "ja": "イェヴレボリ", "es": "Gävleborg" }
+    "name": {
+      "de": "Gävleborg",
+      "en": "Gävleborg",
+      "fr": "Gävleborg",
+      "it": "Gävleborg",
+      "cs": "Gävleborg",
+      "da": "Gävleborg",
+      "el": "Γιέβλεμποργκ",
+      "es": "Gävleborg",
+      "fi": "Gävleborg",
+      "ja": "イェヴレボリ",
+      "nb": "Gävleborg",
+      "nl": "Gävleborg",
+      "pl": "Gävleborg",
+      "pt": "Gävleborg",
+      "ro": "Gävleborg",
+      "sv": "Gävleborgs län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000018",
     "abbreviation": "Y",
     "countryPrefix": "SE",
-    "name": { "de": "Västernorrland", "en": "Västernorrland", "fr": "Västernorrland", "it": "Västernorrland", "sv": "Västernorrlands län", "ja": "ヴェステルノールランド", "es": "Västernorrland" }
+    "name": {
+      "de": "Västernorrland",
+      "en": "Västernorrland",
+      "fr": "Västernorrland",
+      "it": "Västernorrland",
+      "cs": "Västernorrland",
+      "da": "Västernorrland",
+      "el": "Βέστερνορλαντ",
+      "es": "Västernorrland",
+      "fi": "Västernorrland",
+      "ja": "ヴェステルノールランド",
+      "nb": "Västernorrland",
+      "nl": "Västernorrland",
+      "pl": "Västernorrland",
+      "pt": "Västernorrland",
+      "ro": "Västernorrland",
+      "sv": "Västernorrlands län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000019",
     "abbreviation": "Z",
     "countryPrefix": "SE",
-    "name": { "de": "Jämtland", "en": "Jämtland", "fr": "Jämtland", "it": "Jämtland", "sv": "Jämtlands län", "ja": "イェムトランド", "es": "Jämtland" }
+    "name": {
+      "de": "Jämtland",
+      "en": "Jämtland",
+      "fr": "Jämtland",
+      "it": "Jämtland",
+      "cs": "Jämtland",
+      "da": "Jämtland",
+      "el": "Γιάμτλαντ",
+      "es": "Jämtland",
+      "fi": "Jämtland",
+      "ja": "イェムトランド",
+      "nb": "Jämtland",
+      "nl": "Jämtland",
+      "pl": "Jämtland",
+      "pt": "Jämtland",
+      "ro": "Jämtland",
+      "sv": "Jämtlands län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000020",
     "abbreviation": "AC",
     "countryPrefix": "SE",
-    "name": { "de": "Västerbotten", "en": "Västerbotten", "fr": "Västerbotten", "it": "Västerbotten", "sv": "Västerbottens län", "ja": "ヴェステルボッテン", "es": "Västerbotten" }
+    "name": {
+      "de": "Västerbotten",
+      "en": "Västerbotten",
+      "fr": "Västerbotten",
+      "it": "Västerbotten",
+      "cs": "Västerbotten",
+      "da": "Västerbotten",
+      "el": "Βέστερμποτεν",
+      "es": "Västerbotten",
+      "fi": "Västerbotten",
+      "ja": "ヴェステルボッテン",
+      "nb": "Västerbotten",
+      "nl": "Västerbotten",
+      "pl": "Västerbotten",
+      "pt": "Västerbotten",
+      "ro": "Västerbotten",
+      "sv": "Västerbottens län"
+    }
   },
   {
     "id": "51b2c3d4-5e01-4000-8000-000000000021",
     "abbreviation": "BD",
     "countryPrefix": "SE",
-    "name": { "de": "Norrbotten", "en": "Norrbotten", "fr": "Norrbotten", "it": "Norrbotten", "sv": "Norrbottens län", "ja": "ノールボッテン", "es": "Norrbotten" }
+    "name": {
+      "de": "Norrbotten",
+      "en": "Norrbotten",
+      "fr": "Norrbotten",
+      "it": "Norrbotten",
+      "cs": "Norrbotten",
+      "da": "Norrbotten",
+      "el": "Νόρρμποτεν",
+      "es": "Norrbotten",
+      "fi": "Norrbotten",
+      "ja": "ノールボッテン",
+      "nb": "Norrbotten",
+      "nl": "Norrbotten",
+      "pl": "Norrbotten",
+      "pt": "Norrbotten",
+      "ro": "Norrbotten",
+      "sv": "Norrbottens län"
+    }
   }
 ]

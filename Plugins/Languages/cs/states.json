@@ -3,84 +3,322 @@
     "id": "51b2c3d4-c501-4000-8000-000000000001",
     "abbreviation": "PHA",
     "countryPrefix": "CZ",
-    "name": { "de": "Prag", "en": "Prague", "fr": "Prague", "it": "Praga", "cs": "Hlavní město Praha", "ja": "プラハ", "es": "Praga" }
+    "name": {
+      "de": "Prag",
+      "en": "Prague",
+      "fr": "Prague",
+      "it": "Praga",
+      "cs": "Hlavní město Praha",
+      "da": "Prag",
+      "el": "Πράγα",
+      "es": "Praga",
+      "fi": "Praha",
+      "ja": "プラハ",
+      "nb": "Praha",
+      "nl": "Praag",
+      "pl": "Praga",
+      "pt": "Praga",
+      "ro": "Praga",
+      "sv": "Prag"
+    }
   },
   {
     "id": "51b2c3d4-c501-4000-8000-000000000002",
     "abbreviation": "STC",
     "countryPrefix": "CZ",
-    "name": { "de": "Mittelböhmen", "en": "Central Bohemia", "fr": "Bohême-Centrale", "it": "Boemia Centrale", "cs": "Středočeský kraj", "ja": "中央ボヘミア", "es": "Bohemia Central" }
+    "name": {
+      "de": "Mittelböhmen",
+      "en": "Central Bohemia",
+      "fr": "Bohême-Centrale",
+      "it": "Boemia Centrale",
+      "cs": "Středočeský kraj",
+      "da": "Centralbøhmen",
+      "el": "Κεντρική Βοημία",
+      "es": "Bohemia Central",
+      "fi": "Keski-Böhmi",
+      "ja": "中央ボヘミア",
+      "nb": "Mellom-Böhmen",
+      "nl": "Midden-Bohemen",
+      "pl": "Środkowe Czechy",
+      "pt": "Boémia Central",
+      "ro": "Boemia Centrală",
+      "sv": "Mellanböhmen"
+    }
   },
   {
     "id": "51b2c3d4-c501-4000-8000-000000000003",
     "abbreviation": "JHC",
     "countryPrefix": "CZ",
-    "name": { "de": "Südböhmen", "en": "South Bohemia", "fr": "Bohême-du-Sud", "it": "Boemia Meridionale", "cs": "Jihočeský kraj", "ja": "南ボヘミア", "es": "Bohemia del Sur" }
+    "name": {
+      "de": "Südböhmen",
+      "en": "South Bohemia",
+      "fr": "Bohême-du-Sud",
+      "it": "Boemia Meridionale",
+      "cs": "Jihočeský kraj",
+      "da": "Sydbøhmen",
+      "el": "Νότια Βοημία",
+      "es": "Bohemia del Sur",
+      "fi": "Etelä-Böhmi",
+      "ja": "南ボヘミア",
+      "nb": "Sør-Böhmen",
+      "nl": "Zuid-Bohemen",
+      "pl": "Południowe Czechy",
+      "pt": "Boémia do Sul",
+      "ro": "Boemia de Sud",
+      "sv": "Sydböhmen"
+    }
   },
   {
     "id": "51b2c3d4-c501-4000-8000-000000000004",
     "abbreviation": "PLK",
     "countryPrefix": "CZ",
-    "name": { "de": "Pilsen", "en": "Plzeň", "fr": "Plzeň", "it": "Plzeň", "cs": "Plzeňský kraj", "ja": "プルゼニ", "es": "Pilsen" }
+    "name": {
+      "de": "Pilsen",
+      "en": "Plzeň",
+      "fr": "Plzeň",
+      "it": "Plzeň",
+      "cs": "Plzeňský kraj",
+      "da": "Plzeň",
+      "el": "Πίλζεν",
+      "es": "Pilsen",
+      "fi": "Plzeň",
+      "ja": "プルゼニ",
+      "nb": "Plzeň",
+      "nl": "Pilsen",
+      "pl": "Pilzno",
+      "pt": "Plzeň",
+      "ro": "Plzeň",
+      "sv": "Plzeň"
+    }
   },
   {
     "id": "51b2c3d4-c501-4000-8000-000000000005",
     "abbreviation": "KVK",
     "countryPrefix": "CZ",
-    "name": { "de": "Karlsbad", "en": "Karlovy Vary", "fr": "Karlovy Vary", "it": "Karlovy Vary", "cs": "Karlovarský kraj", "ja": "カルロヴィ・ヴァリ", "es": "Karlovy Vary" }
+    "name": {
+      "de": "Karlsbad",
+      "en": "Karlovy Vary",
+      "fr": "Karlovy Vary",
+      "it": "Karlovy Vary",
+      "cs": "Karlovarský kraj",
+      "da": "Karlovy Vary",
+      "el": "Κάρλοβυ Βάρυ",
+      "es": "Karlovy Vary",
+      "fi": "Karlovy Vary",
+      "ja": "カルロヴィ・ヴァリ",
+      "nb": "Karlovy Vary",
+      "nl": "Karlsbad",
+      "pl": "Karlowe Wary",
+      "pt": "Karlovy Vary",
+      "ro": "Karlovy Vary",
+      "sv": "Karlovy Vary"
+    }
   },
   {
     "id": "51b2c3d4-c501-4000-8000-000000000006",
     "abbreviation": "ULK",
     "countryPrefix": "CZ",
-    "name": { "de": "Aussig", "en": "Ústí nad Labem", "fr": "Ústí nad Labem", "it": "Ústí nad Labem", "cs": "Ústecký kraj", "ja": "ウースチー・ナド・ラベム", "es": "Ústí nad Labem" }
+    "name": {
+      "de": "Aussig",
+      "en": "Ústí nad Labem",
+      "fr": "Ústí nad Labem",
+      "it": "Ústí nad Labem",
+      "cs": "Ústecký kraj",
+      "da": "Ústí nad Labem",
+      "el": "Ούστι ναντ Λάμπεμ",
+      "es": "Ústí nad Labem",
+      "fi": "Ústí nad Labem",
+      "ja": "ウースチー・ナド・ラベム",
+      "nb": "Ústí nad Labem",
+      "nl": "Ústí nad Labem",
+      "pl": "Uście nad Łabą",
+      "pt": "Ústí nad Labem",
+      "ro": "Ústí nad Labem",
+      "sv": "Ústí nad Labem"
+    }
   },
   {
     "id": "51b2c3d4-c501-4000-8000-000000000007",
     "abbreviation": "LBK",
     "countryPrefix": "CZ",
-    "name": { "de": "Reichenberg", "en": "Liberec", "fr": "Liberec", "it": "Liberec", "cs": "Liberecký kraj", "ja": "リベレツ", "es": "Liberec" }
+    "name": {
+      "de": "Reichenberg",
+      "en": "Liberec",
+      "fr": "Liberec",
+      "it": "Liberec",
+      "cs": "Liberecký kraj",
+      "da": "Liberec",
+      "el": "Λίμπερετς",
+      "es": "Liberec",
+      "fi": "Liberec",
+      "ja": "リベレツ",
+      "nb": "Liberec",
+      "nl": "Liberec",
+      "pl": "Liberec",
+      "pt": "Liberec",
+      "ro": "Liberec",
+      "sv": "Liberec"
+    }
   },
   {
     "id": "51b2c3d4-c501-4000-8000-000000000008",
     "abbreviation": "HKK",
     "countryPrefix": "CZ",
-    "name": { "de": "Königgrätz", "en": "Hradec Králové", "fr": "Hradec Králové", "it": "Hradec Králové", "cs": "Královéhradecký kraj", "ja": "フラデツ・クラーロヴェー", "es": "Hradec Králové" }
+    "name": {
+      "de": "Königgrätz",
+      "en": "Hradec Králové",
+      "fr": "Hradec Králové",
+      "it": "Hradec Králové",
+      "cs": "Královéhradecký kraj",
+      "da": "Hradec Králové",
+      "el": "Χράντεκ Κράλοβε",
+      "es": "Hradec Králové",
+      "fi": "Hradec Králové",
+      "ja": "フラデツ・クラーロヴェー",
+      "nb": "Hradec Králové",
+      "nl": "Hradec Králové",
+      "pl": "Hradec Králové",
+      "pt": "Hradec Králové",
+      "ro": "Hradec Králové",
+      "sv": "Hradec Králové"
+    }
   },
   {
     "id": "51b2c3d4-c501-4000-8000-000000000009",
     "abbreviation": "PAK",
     "countryPrefix": "CZ",
-    "name": { "de": "Pardubitz", "en": "Pardubice", "fr": "Pardubice", "it": "Pardubice", "cs": "Pardubický kraj", "ja": "パルドゥビツェ", "es": "Pardubice" }
+    "name": {
+      "de": "Pardubitz",
+      "en": "Pardubice",
+      "fr": "Pardubice",
+      "it": "Pardubice",
+      "cs": "Pardubický kraj",
+      "da": "Pardubice",
+      "el": "Πάρντουμπιτσε",
+      "es": "Pardubice",
+      "fi": "Pardubice",
+      "ja": "パルドゥビツェ",
+      "nb": "Pardubice",
+      "nl": "Pardubice",
+      "pl": "Pardubice",
+      "pt": "Pardubice",
+      "ro": "Pardubice",
+      "sv": "Pardubice"
+    }
   },
   {
     "id": "51b2c3d4-c501-4000-8000-000000000010",
     "abbreviation": "VYS",
     "countryPrefix": "CZ",
-    "name": { "de": "Hochland", "en": "Vysočina", "fr": "Vysočina", "it": "Vysočina", "cs": "Kraj Vysočina", "ja": "ヴィソチナ", "es": "Vysočina" }
+    "name": {
+      "de": "Hochland",
+      "en": "Vysočina",
+      "fr": "Vysočina",
+      "it": "Vysočina",
+      "cs": "Kraj Vysočina",
+      "da": "Vysočina",
+      "el": "Βισότσινα",
+      "es": "Vysočina",
+      "fi": "Vysočina",
+      "ja": "ヴィソチナ",
+      "nb": "Vysočina",
+      "nl": "Vysočina",
+      "pl": "Wysoczyzna",
+      "pt": "Vysočina",
+      "ro": "Vysočina",
+      "sv": "Vysočina"
+    }
   },
   {
     "id": "51b2c3d4-c501-4000-8000-000000000011",
     "abbreviation": "JHM",
     "countryPrefix": "CZ",
-    "name": { "de": "Südmähren", "en": "South Moravia", "fr": "Moravie-du-Sud", "it": "Moravia Meridionale", "cs": "Jihomoravský kraj", "ja": "南モラヴィア", "es": "Moravia del Sur" }
+    "name": {
+      "de": "Südmähren",
+      "en": "South Moravia",
+      "fr": "Moravie-du-Sud",
+      "it": "Moravia Meridionale",
+      "cs": "Jihomoravský kraj",
+      "da": "Sydmähren",
+      "el": "Νότια Μοραβία",
+      "es": "Moravia del Sur",
+      "fi": "Etelä-Morava",
+      "ja": "南モラヴィア",
+      "nb": "Sør-Moravia",
+      "nl": "Zuid-Moravië",
+      "pl": "Morawy Południowe",
+      "pt": "Morávia do Sul",
+      "ro": "Moravia de Sud",
+      "sv": "Sydmähren"
+    }
   },
   {
     "id": "51b2c3d4-c501-4000-8000-000000000012",
     "abbreviation": "OLK",
     "countryPrefix": "CZ",
-    "name": { "de": "Olmütz", "en": "Olomouc", "fr": "Olomouc", "it": "Olomouc", "cs": "Olomoucký kraj", "ja": "オロモウツ", "es": "Olomouc" }
+    "name": {
+      "de": "Olmütz",
+      "en": "Olomouc",
+      "fr": "Olomouc",
+      "it": "Olomouc",
+      "cs": "Olomoucký kraj",
+      "da": "Olomouc",
+      "el": "Ολομούτς",
+      "es": "Olomouc",
+      "fi": "Olomouc",
+      "ja": "オロモウツ",
+      "nb": "Olomouc",
+      "nl": "Olomouc",
+      "pl": "Ołomuniec",
+      "pt": "Olomouc",
+      "ro": "Olomouc",
+      "sv": "Olomouc"
+    }
   },
   {
     "id": "51b2c3d4-c501-4000-8000-000000000013",
     "abbreviation": "ZLK",
     "countryPrefix": "CZ",
-    "name": { "de": "Zlín", "en": "Zlín", "fr": "Zlín", "it": "Zlín", "cs": "Zlínský kraj", "ja": "ズリーン", "es": "Zlín" }
+    "name": {
+      "de": "Zlín",
+      "en": "Zlín",
+      "fr": "Zlín",
+      "it": "Zlín",
+      "cs": "Zlínský kraj",
+      "da": "Zlín",
+      "el": "Ζλίν",
+      "es": "Zlín",
+      "fi": "Zlín",
+      "ja": "ズリーン",
+      "nb": "Zlín",
+      "nl": "Zlín",
+      "pl": "Zlín",
+      "pt": "Zlín",
+      "ro": "Zlín",
+      "sv": "Zlín"
+    }
   },
   {
     "id": "51b2c3d4-c501-4000-8000-000000000014",
     "abbreviation": "MSK",
     "countryPrefix": "CZ",
-    "name": { "de": "Mährisch-Schlesien", "en": "Moravia-Silesia", "fr": "Moravie-Silésie", "it": "Moravia-Slesia", "cs": "Moravskoslezský kraj", "ja": "モラヴィア・シレジア", "es": "Moravia-Silesia" }
+    "name": {
+      "de": "Mährisch-Schlesien",
+      "en": "Moravia-Silesia",
+      "fr": "Moravie-Silésie",
+      "it": "Moravia-Slesia",
+      "cs": "Moravskoslezský kraj",
+      "da": "Mährisk-Schlesien",
+      "el": "Μοραβία-Σιλεσία",
+      "es": "Moravia-Silesia",
+      "fi": "Morava-Sleesia",
+      "ja": "モラヴィア・シレジア",
+      "nb": "Moravia-Silesia",
+      "nl": "Moravië-Silezië",
+      "pl": "Morawy-Śląsk",
+      "pt": "Morávia-Silésia",
+      "ro": "Moravia-Silezia",
+      "sv": "Mähren-Schlesien"
+    }
   }
 ]

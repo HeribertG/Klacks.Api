@@ -2,7 +2,24 @@
   {
     "id": "a1b2c3d4-c501-4000-8000-000000000001",
     "abbreviation": "CZ",
-    "name": { "de": "Tschechien", "en": "Czech Republic", "fr": "Tchéquie", "it": "Cechia", "cs": "Česko", "ja": "チェコ", "es": "Chequia" },
+    "name": {
+      "de": "Tschechien",
+      "en": "Czech Republic",
+      "fr": "Tchéquie",
+      "it": "Cechia",
+      "cs": "Česko",
+      "da": "Tjekkiet",
+      "el": "Τσεχία",
+      "es": "Chequia",
+      "fi": "Tšekki",
+      "ja": "チェコ",
+      "nb": "Tsjekkia",
+      "nl": "Tsjechië",
+      "pl": "Czechy",
+      "pt": "Chéquia",
+      "ro": "Cehia",
+      "sv": "Tjeckien"
+    },
     "prefix": "+420"
   }
 ]

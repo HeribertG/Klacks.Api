@@ -3,72 +3,276 @@
     "id": "51b2c3d4-6e01-4000-8000-000000000001",
     "abbreviation": "DR",
     "countryPrefix": "NL",
-    "name": { "de": "Drenthe", "en": "Drenthe", "fr": "Drenthe", "it": "Drenthe", "nl": "Drenthe", "ja": "ドレンテ", "es": "Drente" }
+    "name": {
+      "de": "Drenthe",
+      "en": "Drenthe",
+      "fr": "Drenthe",
+      "it": "Drenthe",
+      "cs": "Drenthe",
+      "da": "Drenthe",
+      "el": "Ντρέντε",
+      "es": "Drente",
+      "fi": "Drenthe",
+      "ja": "ドレンテ",
+      "nb": "Drenthe",
+      "nl": "Drenthe",
+      "pl": "Drenthe",
+      "pt": "Drente",
+      "ro": "Drenthe",
+      "sv": "Drenthe"
+    }
   },
   {
     "id": "51b2c3d4-6e01-4000-8000-000000000002",
     "abbreviation": "FL",
     "countryPrefix": "NL",
-    "name": { "de": "Flevoland", "en": "Flevoland", "fr": "Flevoland", "it": "Flevoland", "nl": "Flevoland", "ja": "フレヴォラント", "es": "Flevoland" }
+    "name": {
+      "de": "Flevoland",
+      "en": "Flevoland",
+      "fr": "Flevoland",
+      "it": "Flevoland",
+      "cs": "Flevoland",
+      "da": "Flevoland",
+      "el": "Φλέβολαντ",
+      "es": "Flevoland",
+      "fi": "Flevoland",
+      "ja": "フレヴォラント",
+      "nb": "Flevoland",
+      "nl": "Flevoland",
+      "pl": "Flevoland",
+      "pt": "Flevolândia",
+      "ro": "Flevoland",
+      "sv": "Flevoland"
+    }
   },
   {
     "id": "51b2c3d4-6e01-4000-8000-000000000003",
     "abbreviation": "FR",
     "countryPrefix": "NL",
-    "name": { "de": "Friesland", "en": "Friesland", "fr": "Frise", "it": "Frisia", "nl": "Fryslân", "ja": "フリースラント", "es": "Frisia" }
+    "name": {
+      "de": "Friesland",
+      "en": "Friesland",
+      "fr": "Frise",
+      "it": "Frisia",
+      "cs": "Frísko",
+      "da": "Frisland",
+      "el": "Φρισλανδία",
+      "es": "Frisia",
+      "fi": "Friesland",
+      "ja": "フリースラント",
+      "nb": "Friesland",
+      "nl": "Fryslân",
+      "pl": "Fryzja",
+      "pt": "Frísia",
+      "ro": "Frisia",
+      "sv": "Friesland"
+    }
   },
   {
     "id": "51b2c3d4-6e01-4000-8000-000000000004",
     "abbreviation": "GE",
     "countryPrefix": "NL",
-    "name": { "de": "Gelderland", "en": "Gelderland", "fr": "Gueldre", "it": "Gheldria", "nl": "Gelderland", "ja": "ヘルダーラント", "es": "Güeldres" }
+    "name": {
+      "de": "Gelderland",
+      "en": "Gelderland",
+      "fr": "Gueldre",
+      "it": "Gheldria",
+      "cs": "Gelderland",
+      "da": "Gelderland",
+      "el": "Γκέλντερλαντ",
+      "es": "Güeldres",
+      "fi": "Gelderland",
+      "ja": "ヘルダーラント",
+      "nb": "Gelderland",
+      "nl": "Gelderland",
+      "pl": "Geldria",
+      "pt": "Guéldria",
+      "ro": "Gelderland",
+      "sv": "Gelderland"
+    }
   },
   {
     "id": "51b2c3d4-6e01-4000-8000-000000000005",
     "abbreviation": "GR",
     "countryPrefix": "NL",
-    "name": { "de": "Groningen", "en": "Groningen", "fr": "Groningue", "it": "Groninga", "nl": "Groningen", "ja": "フローニンゲン", "es": "Groninga" }
+    "name": {
+      "de": "Groningen",
+      "en": "Groningen",
+      "fr": "Groningue",
+      "it": "Groninga",
+      "cs": "Groningen",
+      "da": "Groningen",
+      "el": "Γκρόνινγκεν",
+      "es": "Groninga",
+      "fi": "Groningen",
+      "ja": "フローニンゲン",
+      "nb": "Groningen",
+      "nl": "Groningen",
+      "pl": "Groningen",
+      "pt": "Groninga",
+      "ro": "Groningen",
+      "sv": "Groningen"
+    }
   },
   {
     "id": "51b2c3d4-6e01-4000-8000-000000000006",
     "abbreviation": "LI",
     "countryPrefix": "NL",
-    "name": { "de": "Limburg", "en": "Limburg", "fr": "Limbourg", "it": "Limburgo", "nl": "Limburg", "ja": "リンブルフ", "es": "Limburgo" }
+    "name": {
+      "de": "Limburg",
+      "en": "Limburg",
+      "fr": "Limbourg",
+      "it": "Limburgo",
+      "cs": "Limburk",
+      "da": "Limburg",
+      "el": "Λίμπουργκ",
+      "es": "Limburgo",
+      "fi": "Limburg",
+      "ja": "リンブルフ",
+      "nb": "Limburg",
+      "nl": "Limburg",
+      "pl": "Limburgia",
+      "pt": "Limburgo",
+      "ro": "Limburg",
+      "sv": "Limburg"
+    }
   },
   {
     "id": "51b2c3d4-6e01-4000-8000-000000000007",
     "abbreviation": "NB",
     "countryPrefix": "NL",
-    "name": { "de": "Nordbrabant", "en": "North Brabant", "fr": "Brabant-Septentrional", "it": "Brabante Settentrionale", "nl": "Noord-Brabant", "ja": "北ブラバント", "es": "Brabante Septentrional" }
+    "name": {
+      "de": "Nordbrabant",
+      "en": "North Brabant",
+      "fr": "Brabant-Septentrional",
+      "it": "Brabante Settentrionale",
+      "cs": "Severní Brabantsko",
+      "da": "Nordbrabant",
+      "el": "Βόρειο Μπραμπάντ",
+      "es": "Brabante Septentrional",
+      "fi": "Pohjois-Brabant",
+      "ja": "北ブラバント",
+      "nb": "Nord-Brabant",
+      "nl": "Noord-Brabant",
+      "pl": "Brabancja Północna",
+      "pt": "Brabante do Norte",
+      "ro": "Brabantul de Nord",
+      "sv": "Nordbrabant"
+    }
   },
   {
     "id": "51b2c3d4-6e01-4000-8000-000000000008",
     "abbreviation": "NH",
     "countryPrefix": "NL",
-    "name": { "de": "Nordholland", "en": "North Holland", "fr": "Hollande-Septentrionale", "it": "Olanda Settentrionale", "nl": "Noord-Holland", "ja": "北ホラント", "es": "Holanda Septentrional" }
+    "name": {
+      "de": "Nordholland",
+      "en": "North Holland",
+      "fr": "Hollande-Septentrionale",
+      "it": "Olanda Settentrionale",
+      "cs": "Severní Holandsko",
+      "da": "Nordholland",
+      "el": "Βόρεια Ολλανδία",
+      "es": "Holanda Septentrional",
+      "fi": "Pohjois-Hollanti",
+      "ja": "北ホラント",
+      "nb": "Nord-Holland",
+      "nl": "Noord-Holland",
+      "pl": "Holandia Północna",
+      "pt": "Holanda do Norte",
+      "ro": "Olanda de Nord",
+      "sv": "Nordholland"
+    }
   },
   {
     "id": "51b2c3d4-6e01-4000-8000-000000000009",
     "abbreviation": "OV",
     "countryPrefix": "NL",
-    "name": { "de": "Overijssel", "en": "Overijssel", "fr": "Overijssel", "it": "Overijssel", "nl": "Overijssel", "ja": "オーファーアイセル", "es": "Overijssel" }
+    "name": {
+      "de": "Overijssel",
+      "en": "Overijssel",
+      "fr": "Overijssel",
+      "it": "Overijssel",
+      "cs": "Overijssel",
+      "da": "Overijssel",
+      "el": "Όβεραϊσελ",
+      "es": "Overijssel",
+      "fi": "Overijssel",
+      "ja": "オーファーアイセル",
+      "nb": "Overijssel",
+      "nl": "Overijssel",
+      "pl": "Overijssel",
+      "pt": "Overijssel",
+      "ro": "Overijssel",
+      "sv": "Overijssel"
+    }
   },
   {
     "id": "51b2c3d4-6e01-4000-8000-000000000010",
     "abbreviation": "ZH",
     "countryPrefix": "NL",
-    "name": { "de": "Südholland", "en": "South Holland", "fr": "Hollande-Méridionale", "it": "Olanda Meridionale", "nl": "Zuid-Holland", "ja": "南ホラント", "es": "Holanda Meridional" }
+    "name": {
+      "de": "Südholland",
+      "en": "South Holland",
+      "fr": "Hollande-Méridionale",
+      "it": "Olanda Meridionale",
+      "cs": "Jižní Holandsko",
+      "da": "Sydholland",
+      "el": "Νότια Ολλανδία",
+      "es": "Holanda Meridional",
+      "fi": "Etelä-Hollanti",
+      "ja": "南ホラント",
+      "nb": "Sør-Holland",
+      "nl": "Zuid-Holland",
+      "pl": "Holandia Południowa",
+      "pt": "Holanda do Sul",
+      "ro": "Olanda de Sud",
+      "sv": "Sydholland"
+    }
   },
   {
     "id": "51b2c3d4-6e01-4000-8000-000000000011",
     "abbreviation": "UT",
     "countryPrefix": "NL",
-    "name": { "de": "Utrecht", "en": "Utrecht", "fr": "Utrecht", "it": "Utrecht", "nl": "Utrecht", "ja": "ユトレヒト", "es": "Utrecht" }
+    "name": {
+      "de": "Utrecht",
+      "en": "Utrecht",
+      "fr": "Utrecht",
+      "it": "Utrecht",
+      "cs": "Utrecht",
+      "da": "Utrecht",
+      "el": "Ουτρέχτη",
+      "es": "Utrecht",
+      "fi": "Utrecht",
+      "ja": "ユトレヒト",
+      "nb": "Utrecht",
+      "nl": "Utrecht",
+      "pl": "Utrecht",
+      "pt": "Utrecht",
+      "ro": "Utrecht",
+      "sv": "Utrecht"
+    }
   },
   {
     "id": "51b2c3d4-6e01-4000-8000-000000000012",
     "abbreviation": "ZE",
     "countryPrefix": "NL",
-    "name": { "de": "Zeeland", "en": "Zeeland", "fr": "Zélande", "it": "Zelanda", "nl": "Zeeland", "ja": "ゼーラント", "es": "Zelanda" }
+    "name": {
+      "de": "Zeeland",
+      "en": "Zeeland",
+      "fr": "Zélande",
+      "it": "Zelanda",
+      "cs": "Zeeland",
+      "da": "Zeeland",
+      "el": "Ζεελανδία",
+      "es": "Zelanda",
+      "fi": "Zeeland",
+      "ja": "ゼーラント",
+      "nb": "Zeeland",
+      "nl": "Zeeland",
+      "pl": "Zelandia",
+      "pt": "Zelândia",
+      "ro": "Zeeland",
+      "sv": "Zeeland"
+    }
   }
 ]

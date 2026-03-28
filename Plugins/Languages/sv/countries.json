@@ -2,7 +2,24 @@
   {
     "id": "a1b2c3d4-5e01-4000-8000-000000000001",
     "abbreviation": "SE",
-    "name": { "de": "Schweden", "en": "Sweden", "fr": "Suède", "it": "Svezia", "sv": "Sverige", "ja": "スウェーデン", "es": "Suecia" },
+    "name": {
+      "de": "Schweden",
+      "en": "Sweden",
+      "fr": "Suède",
+      "it": "Svezia",
+      "cs": "Švédsko",
+      "da": "Sverige",
+      "el": "Σουηδία",
+      "es": "Suecia",
+      "fi": "Ruotsi",
+      "ja": "スウェーデン",
+      "nb": "Sverige",
+      "nl": "Zweden",
+      "pl": "Szwecja",
+      "pt": "Suécia",
+      "ro": "Suedia",
+      "sv": "Sverige"
+    },
     "prefix": "+46"
   }
 ]

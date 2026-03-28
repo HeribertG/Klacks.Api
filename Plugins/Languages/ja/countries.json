@@ -2,7 +2,24 @@
   {
     "id": "a1b2c3d4-aa01-4000-8000-000000000001",
     "abbreviation": "JP",
-    "name": { "de": "Japan", "en": "Japan", "fr": "Japon", "it": "Giappone", "ja": "日本", "es": "Japón" },
+    "name": {
+      "de": "Japan",
+      "en": "Japan",
+      "fr": "Japon",
+      "it": "Giappone",
+      "cs": "Japonsko",
+      "da": "Japan",
+      "el": "Ιαπωνία",
+      "es": "Japón",
+      "fi": "Japani",
+      "ja": "日本",
+      "nb": "Japan",
+      "nl": "Japan",
+      "pl": "Japonia",
+      "pt": "Japão",
+      "ro": "Japonia",
+      "sv": "Japan"
+    },
     "prefix": "+81"
   }
 ]

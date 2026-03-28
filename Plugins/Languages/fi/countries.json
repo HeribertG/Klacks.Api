@@ -2,7 +2,24 @@
   {
     "id": "b1c2d3e4-ff01-4000-8000-000000000001",
     "abbreviation": "FI",
-    "name": { "de": "Finnland", "en": "Finland", "fr": "Finlande", "it": "Finlandia", "fi": "Suomi", "ja": "フィンランド", "es": "Finlandia" },
+    "name": {
+      "de": "Finnland",
+      "en": "Finland",
+      "fr": "Finlande",
+      "it": "Finlandia",
+      "cs": "Finsko",
+      "da": "Finland",
+      "el": "Φινλανδία",
+      "es": "Finlandia",
+      "fi": "Suomi",
+      "ja": "フィンランド",
+      "nb": "Finland",
+      "nl": "Finland",
+      "pl": "Finlandia",
+      "pt": "Finlândia",
+      "ro": "Finlanda",
+      "sv": "Finland"
+    },
     "prefix": "+358"
   }
 ]

@@ -1045,6 +1045,7 @@
   "setting.microphone-test.headline": "Mikrofon & Spracherkennung Test",
   "setting.microphone-test.description": "Testen Sie hier Ihr Mikrofon und die Spracherkennungsfunktion. Der Test prüft alle notwendigen Voraussetzungen.",
   "setting.microphone-test.default-microphone": "Aktives Mikrofon",
+  "setting.microphone-test.web-speech-device-info": "Obs: Webbläsarens inbyggda taligenkänning använder alltid systemets standardmikrofon.",
   "setting.report.defaults.headline": "Standard-Templates (Quick Print)",
   "setting.report.defaults.none": "-- Nicht gesetzt --",
   "setting.report.headline": "Report Vorlagen",

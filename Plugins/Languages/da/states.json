@@ -3,30 +3,115 @@
     "id": "61c2d3e4-da01-4000-8000-000000000001",
     "abbreviation": "HO",
     "countryPrefix": "DK",
-    "name": { "de": "Hauptstadtregion", "en": "Capital Region", "fr": "Région de la capitale", "it": "Regione della capitale", "da": "Region Hovedstaden", "ja": "首都地域", "es": "Región Capital" }
+    "name": {
+      "de": "Hauptstadtregion",
+      "en": "Capital Region",
+      "fr": "Région de la capitale",
+      "it": "Regione della capitale",
+      "cs": "Hlavní město",
+      "da": "Region Hovedstaden",
+      "el": "Περιφέρεια Πρωτεύουσας",
+      "es": "Región Capital",
+      "fi": "Pääkaupunkiseutu",
+      "ja": "首都地域",
+      "nb": "Hovedstaden",
+      "nl": "Hoofdstedelijke regio",
+      "pl": "Region Stołeczny",
+      "pt": "Região da Capital",
+      "ro": "Regiunea Capitalei",
+      "sv": "Huvudstadsregionen"
+    }
   },
   {
     "id": "61c2d3e4-da01-4000-8000-000000000002",
     "abbreviation": "SJ",
     "countryPrefix": "DK",
-    "name": { "de": "Seeland", "en": "Zealand", "fr": "Zélande", "it": "Zelanda", "da": "Region Sjælland", "ja": "シェラン地域", "es": "Región de Selandia" }
+    "name": {
+      "de": "Seeland",
+      "en": "Zealand",
+      "fr": "Zélande",
+      "it": "Zelanda",
+      "cs": "Sjælland",
+      "da": "Region Sjælland",
+      "el": "Ζηλανδία",
+      "es": "Región de Selandia",
+      "fi": "Sjælland",
+      "ja": "シェラン地域",
+      "nb": "Sjælland",
+      "nl": "Seeland",
+      "pl": "Zelandia",
+      "pt": "Zelândia",
+      "ro": "Zelanda",
+      "sv": "Själland"
+    }
   },
   {
     "id": "61c2d3e4-da01-4000-8000-000000000003",
     "abbreviation": "SD",
     "countryPrefix": "DK",
-    "name": { "de": "Süddänemark", "en": "Southern Denmark", "fr": "Danemark du Sud", "it": "Danimarca meridionale", "da": "Region Syddanmark", "ja": "南デンマーク地域", "es": "Región de Dinamarca Meridional" }
+    "name": {
+      "de": "Süddänemark",
+      "en": "Southern Denmark",
+      "fr": "Danemark du Sud",
+      "it": "Danimarca meridionale",
+      "cs": "Jižní Dánsko",
+      "da": "Region Syddanmark",
+      "el": "Νότια Δανία",
+      "es": "Región de Dinamarca Meridional",
+      "fi": "Etelä-Tanska",
+      "ja": "南デンマーク地域",
+      "nb": "Sør-Danmark",
+      "nl": "Zuid-Denemarken",
+      "pl": "Dania Południowa",
+      "pt": "Dinamarca do Sul",
+      "ro": "Danemarca de Sud",
+      "sv": "Sydsverige"
+    }
   },
   {
     "id": "61c2d3e4-da01-4000-8000-000000000004",
     "abbreviation": "MJ",
     "countryPrefix": "DK",
-    "name": { "de": "Mitteljütland", "en": "Central Jutland", "fr": "Jutland central", "it": "Jutland centrale", "da": "Region Midtjylland", "ja": "中央ユトランド地域", "es": "Región de Jutlandia Central" }
+    "name": {
+      "de": "Mitteljütland",
+      "en": "Central Jutland",
+      "fr": "Jutland central",
+      "it": "Jutland centrale",
+      "cs": "Střední Jutsko",
+      "da": "Region Midtjylland",
+      "el": "Κεντρική Γιουτλάνδη",
+      "es": "Región de Jutlandia Central",
+      "fi": "Keski-Jyllanti",
+      "ja": "中央ユトランド地域",
+      "nb": "Midtjylland",
+      "nl": "Midden-Jutland",
+      "pl": "Jutlandia Środkowa",
+      "pt": "Jutlândia Central",
+      "ro": "Iutlanda Centrală",
+      "sv": "Mellersta Jylland"
+    }
   },
   {
     "id": "61c2d3e4-da01-4000-8000-000000000005",
     "abbreviation": "NJ",
     "countryPrefix": "DK",
-    "name": { "de": "Nordjütland", "en": "North Jutland", "fr": "Jutland du Nord", "it": "Jutland settentrionale", "da": "Region Nordjylland", "ja": "北ユトランド地域", "es": "Región de Jutlandia Septentrional" }
+    "name": {
+      "de": "Nordjütland",
+      "en": "North Jutland",
+      "fr": "Jutland du Nord",
+      "it": "Jutland settentrionale",
+      "cs": "Severní Jutsko",
+      "da": "Region Nordjylland",
+      "el": "Βόρεια Γιουτλάνδη",
+      "es": "Región de Jutlandia Septentrional",
+      "fi": "Pohjois-Jyllanti",
+      "ja": "北ユトランド地域",
+      "nb": "Nordjylland",
+      "nl": "Noord-Jutland",
+      "pl": "Jutlandia Północna",
+      "pt": "Jutlândia do Norte",
+      "ro": "Iutlanda de Nord",
+      "sv": "Norra Jylland"
+    }
   }
 ]

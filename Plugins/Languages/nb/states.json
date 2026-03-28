@@ -3,90 +3,345 @@
     "id": "61c2d3e4-bb01-4000-8000-000000000001",
     "abbreviation": "OS",
     "countryPrefix": "NO",
-    "name": { "de": "Oslo", "en": "Oslo", "fr": "Oslo", "it": "Oslo", "nb": "Oslo", "ja": "オスロ", "es": "Oslo" }
+    "name": {
+      "de": "Oslo",
+      "en": "Oslo",
+      "fr": "Oslo",
+      "it": "Oslo",
+      "cs": "Oslo",
+      "da": "Oslo",
+      "el": "Όσλο",
+      "es": "Oslo",
+      "fi": "Oslo",
+      "ja": "オスロ",
+      "nb": "Oslo",
+      "nl": "Oslo",
+      "pl": "Oslo",
+      "pt": "Oslo",
+      "ro": "Oslo",
+      "sv": "Oslo"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000002",
     "abbreviation": "AK",
     "countryPrefix": "NO",
-    "name": { "de": "Akershus", "en": "Akershus", "fr": "Akershus", "it": "Akershus", "nb": "Akershus", "ja": "アーケシュフース", "es": "Akershus" }
+    "name": {
+      "de": "Akershus",
+      "en": "Akershus",
+      "fr": "Akershus",
+      "it": "Akershus",
+      "cs": "Akershus",
+      "da": "Akershus",
+      "el": "Άκερσχους",
+      "es": "Akershus",
+      "fi": "Akershus",
+      "ja": "アーケシュフース",
+      "nb": "Akershus",
+      "nl": "Akershus",
+      "pl": "Akershus",
+      "pt": "Akershus",
+      "ro": "Akershus",
+      "sv": "Akershus"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000003",
     "abbreviation": "BU",
     "countryPrefix": "NO",
-    "name": { "de": "Buskerud", "en": "Buskerud", "fr": "Buskerud", "it": "Buskerud", "nb": "Buskerud", "ja": "ブスケルー", "es": "Buskerud" }
+    "name": {
+      "de": "Buskerud",
+      "en": "Buskerud",
+      "fr": "Buskerud",
+      "it": "Buskerud",
+      "cs": "Buskerud",
+      "da": "Buskerud",
+      "el": "Μπούσκερουντ",
+      "es": "Buskerud",
+      "fi": "Buskerud",
+      "ja": "ブスケルー",
+      "nb": "Buskerud",
+      "nl": "Buskerud",
+      "pl": "Buskerud",
+      "pt": "Buskerud",
+      "ro": "Buskerud",
+      "sv": "Buskerud"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000004",
     "abbreviation": "OF",
     "countryPrefix": "NO",
-    "name": { "de": "Østfold", "en": "Østfold", "fr": "Østfold", "it": "Østfold", "nb": "Østfold", "ja": "エストフォル", "es": "Østfold" }
+    "name": {
+      "de": "Østfold",
+      "en": "Østfold",
+      "fr": "Østfold",
+      "it": "Østfold",
+      "cs": "Østfold",
+      "da": "Østfold",
+      "el": "Έστφολντ",
+      "es": "Østfold",
+      "fi": "Østfold",
+      "ja": "エストフォル",
+      "nb": "Østfold",
+      "nl": "Østfold",
+      "pl": "Østfold",
+      "pt": "Østfold",
+      "ro": "Østfold",
+      "sv": "Østfold"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000005",
     "abbreviation": "IN",
     "countryPrefix": "NO",
-    "name": { "de": "Innlandet", "en": "Innlandet", "fr": "Innlandet", "it": "Innlandet", "nb": "Innlandet", "ja": "インランデ", "es": "Innlandet" }
+    "name": {
+      "de": "Innlandet",
+      "en": "Innlandet",
+      "fr": "Innlandet",
+      "it": "Innlandet",
+      "cs": "Innlandet",
+      "da": "Innlandet",
+      "el": "Ίνλαντετ",
+      "es": "Innlandet",
+      "fi": "Innlandet",
+      "ja": "インランデ",
+      "nb": "Innlandet",
+      "nl": "Innlandet",
+      "pl": "Innlandet",
+      "pt": "Innlandet",
+      "ro": "Innlandet",
+      "sv": "Innlandet"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000006",
     "abbreviation": "VF",
     "countryPrefix": "NO",
-    "name": { "de": "Vestfold", "en": "Vestfold", "fr": "Vestfold", "it": "Vestfold", "nb": "Vestfold", "ja": "ヴェストフォル", "es": "Vestfold" }
+    "name": {
+      "de": "Vestfold",
+      "en": "Vestfold",
+      "fr": "Vestfold",
+      "it": "Vestfold",
+      "cs": "Vestfold",
+      "da": "Vestfold",
+      "el": "Βέστφολντ",
+      "es": "Vestfold",
+      "fi": "Vestfold",
+      "ja": "ヴェストフォル",
+      "nb": "Vestfold",
+      "nl": "Vestfold",
+      "pl": "Vestfold",
+      "pt": "Vestfold",
+      "ro": "Vestfold",
+      "sv": "Vestfold"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000007",
     "abbreviation": "TM",
     "countryPrefix": "NO",
-    "name": { "de": "Telemark", "en": "Telemark", "fr": "Telemark", "it": "Telemark", "nb": "Telemark", "ja": "テレマルク", "es": "Telemark" }
+    "name": {
+      "de": "Telemark",
+      "en": "Telemark",
+      "fr": "Telemark",
+      "it": "Telemark",
+      "cs": "Telemark",
+      "da": "Telemark",
+      "el": "Τέλεμαρκ",
+      "es": "Telemark",
+      "fi": "Telemark",
+      "ja": "テレマルク",
+      "nb": "Telemark",
+      "nl": "Telemark",
+      "pl": "Telemark",
+      "pt": "Telemark",
+      "ro": "Telemark",
+      "sv": "Telemark"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000008",
     "abbreviation": "AG",
     "countryPrefix": "NO",
-    "name": { "de": "Agder", "en": "Agder", "fr": "Agder", "it": "Agder", "nb": "Agder", "ja": "アグデル", "es": "Agder" }
+    "name": {
+      "de": "Agder",
+      "en": "Agder",
+      "fr": "Agder",
+      "it": "Agder",
+      "cs": "Agder",
+      "da": "Agder",
+      "el": "Άγκντερ",
+      "es": "Agder",
+      "fi": "Agder",
+      "ja": "アグデル",
+      "nb": "Agder",
+      "nl": "Agder",
+      "pl": "Agder",
+      "pt": "Agder",
+      "ro": "Agder",
+      "sv": "Agder"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000009",
     "abbreviation": "RO",
     "countryPrefix": "NO",
-    "name": { "de": "Rogaland", "en": "Rogaland", "fr": "Rogaland", "it": "Rogaland", "nb": "Rogaland", "ja": "ローガラン", "es": "Rogaland" }
+    "name": {
+      "de": "Rogaland",
+      "en": "Rogaland",
+      "fr": "Rogaland",
+      "it": "Rogaland",
+      "cs": "Rogaland",
+      "da": "Rogaland",
+      "el": "Ρόγκαλαντ",
+      "es": "Rogaland",
+      "fi": "Rogaland",
+      "ja": "ローガラン",
+      "nb": "Rogaland",
+      "nl": "Rogaland",
+      "pl": "Rogaland",
+      "pt": "Rogaland",
+      "ro": "Rogaland",
+      "sv": "Rogaland"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000010",
     "abbreviation": "VL",
     "countryPrefix": "NO",
-    "name": { "de": "Vestland", "en": "Vestland", "fr": "Vestland", "it": "Vestland", "nb": "Vestland", "ja": "ヴェストラン", "es": "Vestland" }
+    "name": {
+      "de": "Vestland",
+      "en": "Vestland",
+      "fr": "Vestland",
+      "it": "Vestland",
+      "cs": "Vestland",
+      "da": "Vestland",
+      "el": "Βέστλαντ",
+      "es": "Vestland",
+      "fi": "Vestland",
+      "ja": "ヴェストラン",
+      "nb": "Vestland",
+      "nl": "Vestland",
+      "pl": "Vestland",
+      "pt": "Vestland",
+      "ro": "Vestland",
+      "sv": "Vestland"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000011",
     "abbreviation": "MR",
     "countryPrefix": "NO",
-    "name": { "de": "Møre og Romsdal", "en": "Møre og Romsdal", "fr": "Møre og Romsdal", "it": "Møre og Romsdal", "nb": "Møre og Romsdal", "ja": "ムーレ・オ・ロムスダール", "es": "Møre og Romsdal" }
+    "name": {
+      "de": "Møre og Romsdal",
+      "en": "Møre og Romsdal",
+      "fr": "Møre og Romsdal",
+      "it": "Møre og Romsdal",
+      "cs": "Møre og Romsdal",
+      "da": "Møre og Romsdal",
+      "el": "Μέρε ογκ Ρόμσνταλ",
+      "es": "Møre og Romsdal",
+      "fi": "Møre og Romsdal",
+      "ja": "ムーレ・オ・ロムスダール",
+      "nb": "Møre og Romsdal",
+      "nl": "Møre og Romsdal",
+      "pl": "Møre og Romsdal",
+      "pt": "Møre og Romsdal",
+      "ro": "Møre og Romsdal",
+      "sv": "Møre og Romsdal"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000012",
     "abbreviation": "TL",
     "countryPrefix": "NO",
-    "name": { "de": "Trøndelag", "en": "Trøndelag", "fr": "Trøndelag", "it": "Trøndelag", "nb": "Trøndelag", "ja": "トロンデラーグ", "es": "Trøndelag" }
+    "name": {
+      "de": "Trøndelag",
+      "en": "Trøndelag",
+      "fr": "Trøndelag",
+      "it": "Trøndelag",
+      "cs": "Trøndelag",
+      "da": "Trøndelag",
+      "el": "Τρένντελαγκ",
+      "es": "Trøndelag",
+      "fi": "Trøndelag",
+      "ja": "トロンデラーグ",
+      "nb": "Trøndelag",
+      "nl": "Trøndelag",
+      "pl": "Trøndelag",
+      "pt": "Trøndelag",
+      "ro": "Trøndelag",
+      "sv": "Tröndelag"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000013",
     "abbreviation": "NL",
     "countryPrefix": "NO",
-    "name": { "de": "Nordland", "en": "Nordland", "fr": "Nordland", "it": "Nordland", "nb": "Nordland", "ja": "ヌールラン", "es": "Nordland" }
+    "name": {
+      "de": "Nordland",
+      "en": "Nordland",
+      "fr": "Nordland",
+      "it": "Nordland",
+      "cs": "Nordland",
+      "da": "Nordland",
+      "el": "Νόρντλαντ",
+      "es": "Nordland",
+      "fi": "Nordland",
+      "ja": "ヌールラン",
+      "nb": "Nordland",
+      "nl": "Nordland",
+      "pl": "Nordland",
+      "pt": "Nordland",
+      "ro": "Nordland",
+      "sv": "Nordland"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000014",
     "abbreviation": "TR",
     "countryPrefix": "NO",
-    "name": { "de": "Troms", "en": "Troms", "fr": "Troms", "it": "Troms", "nb": "Troms", "ja": "トロムス", "es": "Troms" }
+    "name": {
+      "de": "Troms",
+      "en": "Troms",
+      "fr": "Troms",
+      "it": "Troms",
+      "cs": "Troms",
+      "da": "Troms",
+      "el": "Τρομς",
+      "es": "Troms",
+      "fi": "Troms",
+      "ja": "トロムス",
+      "nb": "Troms",
+      "nl": "Troms",
+      "pl": "Troms",
+      "pt": "Troms",
+      "ro": "Troms",
+      "sv": "Troms"
+    }
   },
   {
     "id": "61c2d3e4-bb01-4000-8000-000000000015",
     "abbreviation": "FI",
     "countryPrefix": "NO",
-    "name": { "de": "Finnmark", "en": "Finnmark", "fr": "Finnmark", "it": "Finnmark", "nb": "Finnmark", "ja": "フィンマルク", "es": "Finnmark" }
+    "name": {
+      "de": "Finnmark",
+      "en": "Finnmark",
+      "fr": "Finnmark",
+      "it": "Finnmark",
+      "cs": "Finnmark",
+      "da": "Finnmark",
+      "el": "Φίνμαρκ",
+      "es": "Finnmark",
+      "fi": "Finnmark",
+      "ja": "フィンマルク",
+      "nb": "Finnmark",
+      "nl": "Finnmark",
+      "pl": "Finnmark",
+      "pt": "Finnmark",
+      "ro": "Finnmark",
+      "sv": "Finnmark"
+    }
   }
 ]

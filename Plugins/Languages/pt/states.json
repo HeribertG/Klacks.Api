@@ -3,120 +3,460 @@
     "id": "51b2c3d4-7001-4000-8000-000000000001",
     "abbreviation": "AV",
     "countryPrefix": "PT",
-    "name": { "de": "Aveiro", "en": "Aveiro", "fr": "Aveiro", "it": "Aveiro", "pt": "Aveiro", "ja": "アヴェイロ", "es": "Aveiro" }
+    "name": {
+      "de": "Aveiro",
+      "en": "Aveiro",
+      "fr": "Aveiro",
+      "it": "Aveiro",
+      "cs": "Aveiro",
+      "da": "Aveiro",
+      "el": "Αβέιρο",
+      "es": "Aveiro",
+      "fi": "Aveiro",
+      "ja": "アヴェイロ",
+      "nb": "Aveiro",
+      "nl": "Aveiro",
+      "pl": "Aveiro",
+      "pt": "Aveiro",
+      "ro": "Aveiro",
+      "sv": "Aveiro"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000002",
     "abbreviation": "BJ",
     "countryPrefix": "PT",
-    "name": { "de": "Beja", "en": "Beja", "fr": "Beja", "it": "Beja", "pt": "Beja", "ja": "ベージャ", "es": "Beja" }
+    "name": {
+      "de": "Beja",
+      "en": "Beja",
+      "fr": "Beja",
+      "it": "Beja",
+      "cs": "Beja",
+      "da": "Beja",
+      "el": "Μπέζα",
+      "es": "Beja",
+      "fi": "Beja",
+      "ja": "ベージャ",
+      "nb": "Beja",
+      "nl": "Beja",
+      "pl": "Beja",
+      "pt": "Beja",
+      "ro": "Beja",
+      "sv": "Beja"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000003",
     "abbreviation": "BR",
     "countryPrefix": "PT",
-    "name": { "de": "Braga", "en": "Braga", "fr": "Braga", "it": "Braga", "pt": "Braga", "ja": "ブラガ", "es": "Braga" }
+    "name": {
+      "de": "Braga",
+      "en": "Braga",
+      "fr": "Braga",
+      "it": "Braga",
+      "cs": "Braga",
+      "da": "Braga",
+      "el": "Μπράγκα",
+      "es": "Braga",
+      "fi": "Braga",
+      "ja": "ブラガ",
+      "nb": "Braga",
+      "nl": "Braga",
+      "pl": "Braga",
+      "pt": "Braga",
+      "ro": "Braga",
+      "sv": "Braga"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000004",
     "abbreviation": "BG",
     "countryPrefix": "PT",
-    "name": { "de": "Braganca", "en": "Braganca", "fr": "Bragance", "it": "Braganza", "pt": "Bragança", "ja": "ブラガンサ", "es": "Braganza" }
+    "name": {
+      "de": "Braganca",
+      "en": "Braganca",
+      "fr": "Bragance",
+      "it": "Braganza",
+      "cs": "Bragança",
+      "da": "Bragança",
+      "el": "Μπραγκάνσα",
+      "es": "Braganza",
+      "fi": "Bragança",
+      "ja": "ブラガンサ",
+      "nb": "Bragança",
+      "nl": "Bragança",
+      "pl": "Bragança",
+      "pt": "Bragança",
+      "ro": "Bragança",
+      "sv": "Bragança"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000005",
     "abbreviation": "CB",
     "countryPrefix": "PT",
-    "name": { "de": "Castelo Branco", "en": "Castelo Branco", "fr": "Castelo Branco", "it": "Castelo Branco", "pt": "Castelo Branco", "ja": "カステロ・ブランコ", "es": "Castelo Branco" }
+    "name": {
+      "de": "Castelo Branco",
+      "en": "Castelo Branco",
+      "fr": "Castelo Branco",
+      "it": "Castelo Branco",
+      "cs": "Castelo Branco",
+      "da": "Castelo Branco",
+      "el": "Καστέλο Μπράνκο",
+      "es": "Castelo Branco",
+      "fi": "Castelo Branco",
+      "ja": "カステロ・ブランコ",
+      "nb": "Castelo Branco",
+      "nl": "Castelo Branco",
+      "pl": "Castelo Branco",
+      "pt": "Castelo Branco",
+      "ro": "Castelo Branco",
+      "sv": "Castelo Branco"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000006",
     "abbreviation": "CO",
     "countryPrefix": "PT",
-    "name": { "de": "Coimbra", "en": "Coimbra", "fr": "Coimbra", "it": "Coimbra", "pt": "Coimbra", "ja": "コインブラ", "es": "Coimbra" }
+    "name": {
+      "de": "Coimbra",
+      "en": "Coimbra",
+      "fr": "Coimbra",
+      "it": "Coimbra",
+      "cs": "Coimbra",
+      "da": "Coimbra",
+      "el": "Κοΐμπρα",
+      "es": "Coimbra",
+      "fi": "Coimbra",
+      "ja": "コインブラ",
+      "nb": "Coimbra",
+      "nl": "Coimbra",
+      "pl": "Coimbra",
+      "pt": "Coimbra",
+      "ro": "Coimbra",
+      "sv": "Coimbra"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000007",
     "abbreviation": "EV",
     "countryPrefix": "PT",
-    "name": { "de": "Evora", "en": "Evora", "fr": "Évora", "it": "Evora", "pt": "Évora", "ja": "エヴォラ", "es": "Évora" }
+    "name": {
+      "de": "Evora",
+      "en": "Evora",
+      "fr": "Évora",
+      "it": "Evora",
+      "cs": "Évora",
+      "da": "Évora",
+      "el": "Έβορα",
+      "es": "Évora",
+      "fi": "Évora",
+      "ja": "エヴォラ",
+      "nb": "Évora",
+      "nl": "Évora",
+      "pl": "Évora",
+      "pt": "Évora",
+      "ro": "Évora",
+      "sv": "Évora"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000008",
     "abbreviation": "FA",
     "countryPrefix": "PT",
-    "name": { "de": "Faro", "en": "Faro", "fr": "Faro", "it": "Faro", "pt": "Faro", "ja": "ファーロ", "es": "Faro" }
+    "name": {
+      "de": "Faro",
+      "en": "Faro",
+      "fr": "Faro",
+      "it": "Faro",
+      "cs": "Faro",
+      "da": "Faro",
+      "el": "Φάρο",
+      "es": "Faro",
+      "fi": "Faro",
+      "ja": "ファーロ",
+      "nb": "Faro",
+      "nl": "Faro",
+      "pl": "Faro",
+      "pt": "Faro",
+      "ro": "Faro",
+      "sv": "Faro"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000009",
     "abbreviation": "GU",
     "countryPrefix": "PT",
-    "name": { "de": "Guarda", "en": "Guarda", "fr": "Guarda", "it": "Guarda", "pt": "Guarda", "ja": "グアルダ", "es": "Guarda" }
+    "name": {
+      "de": "Guarda",
+      "en": "Guarda",
+      "fr": "Guarda",
+      "it": "Guarda",
+      "cs": "Guarda",
+      "da": "Guarda",
+      "el": "Γκουάρντα",
+      "es": "Guarda",
+      "fi": "Guarda",
+      "ja": "グアルダ",
+      "nb": "Guarda",
+      "nl": "Guarda",
+      "pl": "Guarda",
+      "pt": "Guarda",
+      "ro": "Guarda",
+      "sv": "Guarda"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000010",
     "abbreviation": "LE",
     "countryPrefix": "PT",
-    "name": { "de": "Leiria", "en": "Leiria", "fr": "Leiria", "it": "Leiria", "pt": "Leiria", "ja": "レイリア", "es": "Leiria" }
+    "name": {
+      "de": "Leiria",
+      "en": "Leiria",
+      "fr": "Leiria",
+      "it": "Leiria",
+      "cs": "Leiria",
+      "da": "Leiria",
+      "el": "Λεϊρία",
+      "es": "Leiria",
+      "fi": "Leiria",
+      "ja": "レイリア",
+      "nb": "Leiria",
+      "nl": "Leiria",
+      "pl": "Leiria",
+      "pt": "Leiria",
+      "ro": "Leiria",
+      "sv": "Leiria"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000011",
     "abbreviation": "LI",
     "countryPrefix": "PT",
-    "name": { "de": "Lissabon", "en": "Lisbon", "fr": "Lisbonne", "it": "Lisbona", "pt": "Lisboa", "ja": "リスボン", "es": "Lisboa" }
+    "name": {
+      "de": "Lissabon",
+      "en": "Lisbon",
+      "fr": "Lisbonne",
+      "it": "Lisbona",
+      "cs": "Lisabon",
+      "da": "Lissabon",
+      "el": "Λισαβόνα",
+      "es": "Lisboa",
+      "fi": "Lissabon",
+      "ja": "リスボン",
+      "nb": "Lisboa",
+      "nl": "Lissabon",
+      "pl": "Lizbona",
+      "pt": "Lisboa",
+      "ro": "Lisabona",
+      "sv": "Lissabon"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000012",
     "abbreviation": "PA",
     "countryPrefix": "PT",
-    "name": { "de": "Portalegre", "en": "Portalegre", "fr": "Portalegre", "it": "Portalegre", "pt": "Portalegre", "ja": "ポルタレグレ", "es": "Portalegre" }
+    "name": {
+      "de": "Portalegre",
+      "en": "Portalegre",
+      "fr": "Portalegre",
+      "it": "Portalegre",
+      "cs": "Portalegre",
+      "da": "Portalegre",
+      "el": "Πορταλέγκρε",
+      "es": "Portalegre",
+      "fi": "Portalegre",
+      "ja": "ポルタレグレ",
+      "nb": "Portalegre",
+      "nl": "Portalegre",
+      "pl": "Portalegre",
+      "pt": "Portalegre",
+      "ro": "Portalegre",
+      "sv": "Portalegre"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000013",
     "abbreviation": "PO",
     "countryPrefix": "PT",
-    "name": { "de": "Porto", "en": "Porto", "fr": "Porto", "it": "Porto", "pt": "Porto", "ja": "ポルト", "es": "Oporto" }
+    "name": {
+      "de": "Porto",
+      "en": "Porto",
+      "fr": "Porto",
+      "it": "Porto",
+      "cs": "Porto",
+      "da": "Porto",
+      "el": "Πόρτο",
+      "es": "Oporto",
+      "fi": "Porto",
+      "ja": "ポルト",
+      "nb": "Porto",
+      "nl": "Porto",
+      "pl": "Porto",
+      "pt": "Porto",
+      "ro": "Porto",
+      "sv": "Porto"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000014",
     "abbreviation": "SA",
     "countryPrefix": "PT",
-    "name": { "de": "Santarem", "en": "Santarem", "fr": "Santarém", "it": "Santarém", "pt": "Santarém", "ja": "サンタレン", "es": "Santarém" }
+    "name": {
+      "de": "Santarem",
+      "en": "Santarem",
+      "fr": "Santarém",
+      "it": "Santarém",
+      "cs": "Santarém",
+      "da": "Santarém",
+      "el": "Σανταρέμ",
+      "es": "Santarém",
+      "fi": "Santarém",
+      "ja": "サンタレン",
+      "nb": "Santarém",
+      "nl": "Santarém",
+      "pl": "Santarém",
+      "pt": "Santarém",
+      "ro": "Santarém",
+      "sv": "Santarém"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000015",
     "abbreviation": "SE",
     "countryPrefix": "PT",
-    "name": { "de": "Setubal", "en": "Setubal", "fr": "Setúbal", "it": "Setúbal", "pt": "Setúbal", "ja": "セトゥーバル", "es": "Setúbal" }
+    "name": {
+      "de": "Setubal",
+      "en": "Setubal",
+      "fr": "Setúbal",
+      "it": "Setúbal",
+      "cs": "Setúbal",
+      "da": "Setúbal",
+      "el": "Σετούμπαλ",
+      "es": "Setúbal",
+      "fi": "Setúbal",
+      "ja": "セトゥーバル",
+      "nb": "Setúbal",
+      "nl": "Setúbal",
+      "pl": "Setúbal",
+      "pt": "Setúbal",
+      "ro": "Setúbal",
+      "sv": "Setúbal"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000016",
     "abbreviation": "VC",
     "countryPrefix": "PT",
-    "name": { "de": "Viana do Castelo", "en": "Viana do Castelo", "fr": "Viana do Castelo", "it": "Viana do Castelo", "pt": "Viana do Castelo", "ja": "ヴィアナ・ド・カステロ", "es": "Viana do Castelo" }
+    "name": {
+      "de": "Viana do Castelo",
+      "en": "Viana do Castelo",
+      "fr": "Viana do Castelo",
+      "it": "Viana do Castelo",
+      "cs": "Viana do Castelo",
+      "da": "Viana do Castelo",
+      "el": "Βιάνα ντο Καστέλο",
+      "es": "Viana do Castelo",
+      "fi": "Viana do Castelo",
+      "ja": "ヴィアナ・ド・カステロ",
+      "nb": "Viana do Castelo",
+      "nl": "Viana do Castelo",
+      "pl": "Viana do Castelo",
+      "pt": "Viana do Castelo",
+      "ro": "Viana do Castelo",
+      "sv": "Viana do Castelo"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000017",
     "abbreviation": "VR",
     "countryPrefix": "PT",
-    "name": { "de": "Vila Real", "en": "Vila Real", "fr": "Vila Real", "it": "Vila Real", "pt": "Vila Real", "ja": "ヴィラ・レアル", "es": "Vila Real" }
+    "name": {
+      "de": "Vila Real",
+      "en": "Vila Real",
+      "fr": "Vila Real",
+      "it": "Vila Real",
+      "cs": "Vila Real",
+      "da": "Vila Real",
+      "el": "Βίλα Ρεάλ",
+      "es": "Vila Real",
+      "fi": "Vila Real",
+      "ja": "ヴィラ・レアル",
+      "nb": "Vila Real",
+      "nl": "Vila Real",
+      "pl": "Vila Real",
+      "pt": "Vila Real",
+      "ro": "Vila Real",
+      "sv": "Vila Real"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000018",
     "abbreviation": "VI",
     "countryPrefix": "PT",
-    "name": { "de": "Viseu", "en": "Viseu", "fr": "Viseu", "it": "Viseu", "pt": "Viseu", "ja": "ヴィゼウ", "es": "Viseu" }
+    "name": {
+      "de": "Viseu",
+      "en": "Viseu",
+      "fr": "Viseu",
+      "it": "Viseu",
+      "cs": "Viseu",
+      "da": "Viseu",
+      "el": "Βιζέου",
+      "es": "Viseu",
+      "fi": "Viseu",
+      "ja": "ヴィゼウ",
+      "nb": "Viseu",
+      "nl": "Viseu",
+      "pl": "Viseu",
+      "pt": "Viseu",
+      "ro": "Viseu",
+      "sv": "Viseu"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000019",
     "abbreviation": "AC",
     "countryPrefix": "PT",
-    "name": { "de": "Azoren", "en": "Azores", "fr": "Açores", "it": "Azzorre", "pt": "Açores", "ja": "アゾレス", "es": "Azores" }
+    "name": {
+      "de": "Azoren",
+      "en": "Azores",
+      "fr": "Açores",
+      "it": "Azzorre",
+      "cs": "Azory",
+      "da": "Azorerne",
+      "el": "Αζόρες",
+      "es": "Azores",
+      "fi": "Azorit",
+      "ja": "アゾレス",
+      "nb": "Azorene",
+      "nl": "Azoren",
+      "pl": "Azory",
+      "pt": "Açores",
+      "ro": "Azore",
+      "sv": "Azorerna"
+    }
   },
   {
     "id": "51b2c3d4-7001-4000-8000-000000000020",
     "abbreviation": "MA",
     "countryPrefix": "PT",
-    "name": { "de": "Madeira", "en": "Madeira", "fr": "Madère", "it": "Madera", "pt": "Madeira", "ja": "マデイラ", "es": "Madeira" }
+    "name": {
+      "de": "Madeira",
+      "en": "Madeira",
+      "fr": "Madère",
+      "it": "Madera",
+      "cs": "Madeira",
+      "da": "Madeira",
+      "el": "Μαδέρα",
+      "es": "Madeira",
+      "fi": "Madeira",
+      "ja": "マデイラ",
+      "nb": "Madeira",
+      "nl": "Madeira",
+      "pl": "Madera",
+      "pt": "Madeira",
+      "ro": "Madeira",
+      "sv": "Madeira"
+    }
   }
 ]

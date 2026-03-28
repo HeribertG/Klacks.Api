@@ -2,7 +2,24 @@
   {
     "id": "b2c3d4e5-bb01-4000-8000-000000000001",
     "abbreviation": "GR",
-    "name": { "de": "Griechenland", "en": "Greece", "fr": "Grèce", "it": "Grecia", "el": "Ελλάδα", "ja": "ギリシャ", "es": "Grecia" },
+    "name": {
+      "de": "Griechenland",
+      "en": "Greece",
+      "fr": "Grèce",
+      "it": "Grecia",
+      "cs": "Řecko",
+      "da": "Grækenland",
+      "el": "Ελλάδα",
+      "es": "Grecia",
+      "fi": "Kreikka",
+      "ja": "ギリシャ",
+      "nb": "Hellas",
+      "nl": "Griekenland",
+      "pl": "Grecja",
+      "pt": "Grécia",
+      "ro": "Grecia",
+      "sv": "Grekland"
+    },
     "prefix": "+30"
   }
 ]
