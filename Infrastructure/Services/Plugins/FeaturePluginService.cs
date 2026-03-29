@@ -16,6 +16,7 @@ using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Plugins;
+using Klacks.Plugin.Contracts;
 
 namespace Klacks.Api.Infrastructure.Services.Plugins;
 
@@ -61,13 +62,16 @@ public class FeaturePluginService : IFeaturePluginService
         _initialized = true;
     }
 
-    public IReadOnlyList<FeaturePluginInfo> GetAllPlugins()
+    public async Task<IReadOnlyList<FeaturePluginInfo>> GetAllPluginsAsync()
     {
+        var operationalChecks = await GetOperationalChecksAsync();
         var plugins = new List<FeaturePluginInfo>();
 
         foreach (var kvp in _manifests)
         {
             var manifest = kvp.Value;
+            var isInstalled = IsInstalled(manifest.Name);
+            var isEnabled = IsEnabled(manifest.Name);
 
             plugins.Add(new FeaturePluginInfo
             {
@@ -81,8 +85,11 @@ public class FeaturePluginService : IFeaturePluginService
                 RequiredPermissions = manifest.RequiredPermissions,
                 ProvidedSkills = manifest.ProvidedSkills,
                 DefaultSettings = manifest.DefaultSettings,
-                IsInstalled = IsInstalled(manifest.Name),
-                IsEnabled = IsEnabled(manifest.Name),
+                IsInstalled = isInstalled,
+                IsEnabled = isEnabled,
+                IsOperational = isInstalled && isEnabled
+                    ? operationalChecks.GetValueOrDefault(manifest.Name, true)
+                    : true,
                 Navigation = manifest.Navigation
             });
         }
@@ -90,10 +97,20 @@ public class FeaturePluginService : IFeaturePluginService
         return plugins;
     }
 
-    public FeaturePluginInfo? GetPlugin(string name)
+    public async Task<FeaturePluginInfo?> GetPluginAsync(string name)
     {
         if (!_manifests.TryGetValue(name, out var manifest))
             return null;
+
+        var isInstalled = IsInstalled(name);
+        var isEnabled = IsEnabled(name);
+        var isOperational = true;
+
+        if (isInstalled && isEnabled)
+        {
+            var operationalChecks = await GetOperationalChecksAsync();
+            isOperational = operationalChecks.GetValueOrDefault(name, true);
+        }
 
         return new FeaturePluginInfo
         {
@@ -107,8 +124,9 @@ public class FeaturePluginService : IFeaturePluginService
             RequiredPermissions = manifest.RequiredPermissions,
             ProvidedSkills = manifest.ProvidedSkills,
             DefaultSettings = manifest.DefaultSettings,
-            IsInstalled = IsInstalled(name),
-            IsEnabled = IsEnabled(name),
+            IsInstalled = isInstalled,
+            IsEnabled = isEnabled,
+            IsOperational = isOperational,
             Navigation = manifest.Navigation
         };
     }
@@ -602,5 +620,35 @@ public class FeaturePluginService : IFeaturePluginService
             });
         }
         catch (JsonException) { }
+    }
+
+    private async Task<Dictionary<string, bool>> GetOperationalChecksAsync()
+    {
+        var results = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var checks = scope.ServiceProvider.GetServices<IPluginOperationalCheck>();
+
+            foreach (var check in checks)
+            {
+                try
+                {
+                    results[check.PluginName] = await check.IsOperationalAsync();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Operational check failed for plugin '{Name}', assuming not operational", check.PluginName);
+                    results[check.PluginName] = false;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to resolve plugin operational checks");
+        }
+
+        return results;
     }
 }

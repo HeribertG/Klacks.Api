@@ -130,7 +130,7 @@ public class SkillSeedLoader
 
     private async Task LoadPluginSkillSeedsAsync(Agent agent, Dictionary<string, AgentSkill> existingByName, CancellationToken cancellationToken)
     {
-        var plugins = _featurePluginService.GetAllPlugins();
+        var plugins = await _featurePluginService.GetAllPluginsAsync();
 
         foreach (var plugin in plugins)
         {

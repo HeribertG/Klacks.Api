@@ -22,5 +22,6 @@ public class FeaturePluginInfo
     public Dictionary<string, string> DefaultSettings { get; set; } = new();
     public bool IsInstalled { get; set; }
     public bool IsEnabled { get; set; }
+    public bool IsOperational { get; set; } = true;
     public PluginNavigationManifest? Navigation { get; set; }
 }

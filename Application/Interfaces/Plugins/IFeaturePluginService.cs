@@ -11,8 +11,8 @@ namespace Klacks.Api.Application.Interfaces.Plugins;
 public interface IFeaturePluginService
 {
     Task InitializeAsync();
-    IReadOnlyList<FeaturePluginInfo> GetAllPlugins();
-    FeaturePluginInfo? GetPlugin(string name);
+    Task<IReadOnlyList<FeaturePluginInfo>> GetAllPluginsAsync();
+    Task<FeaturePluginInfo?> GetPluginAsync(string name);
     Task<bool> InstallAsync(string name);
     Task<bool> UninstallAsync(string name);
     Task<bool> EnableAsync(string name);

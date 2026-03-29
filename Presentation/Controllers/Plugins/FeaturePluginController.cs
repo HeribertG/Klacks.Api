@@ -31,15 +31,15 @@ public class FeaturePluginController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IReadOnlyList<FeaturePluginInfo>> GetAllPlugins()
+    public async Task<ActionResult<IReadOnlyList<FeaturePluginInfo>>> GetAllPlugins()
     {
-        return Ok(_featurePluginService.GetAllPlugins());
+        return Ok(await _featurePluginService.GetAllPluginsAsync());
     }
 
     [HttpGet("{name}")]
-    public ActionResult<FeaturePluginInfo> GetPlugin(string name)
+    public async Task<ActionResult<FeaturePluginInfo>> GetPlugin(string name)
     {
-        var plugin = _featurePluginService.GetPlugin(name);
+        var plugin = await _featurePluginService.GetPluginAsync(name);
         if (plugin == null)
             return NotFound();
 
