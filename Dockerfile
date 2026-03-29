@@ -1,5 +1,5 @@
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:10.0.5 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 ARG KLACKS_VERSION_MAJOR=1
@@ -38,7 +38,7 @@ RUN sed -i "s/public const int CMajor = 1;/public const int CMajor = ${KLACKS_VE
 RUN dotnet publish Klacks.Api/Klacks.Api.csproj -c Release -o /app/publish
 
 # Runtime stage — pinned version to prevent breaking changes from base image updates
-FROM mcr.microsoft.com/dotnet/aspnet:10.0.5-noble
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble
 WORKDIR /app
 EXPOSE 5000
 EXPOSE 443
