@@ -68,4 +68,6 @@ public class ClientResource
     public ICollection<ClientGroupItemResource> GroupItems { get; set; }
 
     public ClientImageResource? ClientImage { get; set; }
+
+    public bool SkipAddressValidation { get; set; }
 }

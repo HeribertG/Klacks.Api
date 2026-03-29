@@ -13,8 +13,11 @@ public class PostCommandValidator : AbstractValidator<PostCommand<ClientResource
 {
     public PostCommandValidator(IGeocodingService geocodingService, StateAbbreviationResolver stateResolver)
     {
-        RuleFor(x => x.Resource.Addresses)
-            .SetValidator(new AddressGeocodingValidator(geocodingService, stateResolver));
+        When(x => !x.Resource.SkipAddressValidation, () =>
+        {
+            RuleFor(x => x.Resource.Addresses)
+                .SetValidator(new AddressGeocodingValidator(geocodingService, stateResolver));
+        });
 
         When(x => x.Resource.LegalEntity, () =>
         {
