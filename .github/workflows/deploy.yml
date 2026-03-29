@@ -87,6 +87,7 @@ jobs:
             --build-arg KLACKS_VARIANT=RELEASE
           
           echo "🔄 Restarting Klacks.Api + Nginx Proxy..."
+          $COMPOSE_CMD rm -f -s klacks-api 2>/dev/null || true
           $COMPOSE_CMD up -d klacks-api
           $COMPOSE_CMD restart nginx-proxy 2>/dev/null || $COMPOSE_CMD up -d nginx-proxy
 
