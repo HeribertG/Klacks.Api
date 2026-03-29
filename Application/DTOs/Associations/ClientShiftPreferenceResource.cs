@@ -5,7 +5,7 @@
 /// </summary>
 /// <param name="ClientId">The client this preference belongs to</param>
 /// <param name="ShiftId">The referenced shift</param>
-/// <param name="PreferenceType">Category: Whitelist, Preferred, or Blacklist</param>
+/// <param name="PreferenceType">Category: Preferred or Blacklist</param>
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Application.DTOs.Associations;

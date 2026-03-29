@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// API controller for managing client shift preferences (whitelist, preferred, blacklist).
+/// API controller for managing client shift preferences (preferred, blacklist).
 /// </summary>
 /// <param name="clientId">The client whose preferences to query or update</param>
 using Klacks.Api.Application.Commands.ClientShiftPreferences;

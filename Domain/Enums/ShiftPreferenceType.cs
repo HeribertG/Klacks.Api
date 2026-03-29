@@ -4,7 +4,6 @@ namespace Klacks.Api.Domain.Enums;
 
 public enum ShiftPreferenceType
 {
-    Whitelist = 0,
-    Preferred = 1,
-    Blacklist = 2,
+    Preferred = 0,
+    Blacklist = 1,
 }

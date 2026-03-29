@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Junction entity linking a client to a shift with a preference type (whitelist, preferred, blacklist).
+/// Junction entity linking a client to a shift with a preference type (preferred, blacklist).
 /// </summary>
 /// <param name="ClientId">The client this preference belongs to</param>
 /// <param name="ShiftId">The shift being categorized</param>
-/// <param name="PreferenceType">The preference category (Whitelist, Preferred, Blacklist)</param>
+/// <param name="PreferenceType">The preference category (Preferred, Blacklist)</param>
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
