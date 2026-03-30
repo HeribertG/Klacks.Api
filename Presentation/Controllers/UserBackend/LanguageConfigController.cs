@@ -65,7 +65,8 @@ public class LanguageConfigController : ControllerBase
                     {
                         Name = plugin.Name,
                         DisplayName = plugin.DisplayName,
-                        SpeechLocale = plugin.SpeechLocale
+                        SpeechLocale = plugin.SpeechLocale,
+                        Direction = plugin.Direction
                     };
                 }
             }

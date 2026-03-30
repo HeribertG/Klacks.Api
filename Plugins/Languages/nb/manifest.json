@@ -6,5 +6,6 @@
   "version": "1.0.1",
   "author": "Klacks Community",
   "coverage": 100.0,
-  "minKlacksVersion": "1.0.0"
+  "minKlacksVersion": "1.0.0",
+  "direction": "ltr"
 }

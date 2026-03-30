@@ -80,6 +80,7 @@ public class LanguagePluginService : ILanguagePluginService
                 Code = coreCode,
                 Name = coreCode,
                 DisplayName = coreCode.ToUpperInvariant(),
+                Direction = "ltr",
                 IsCore = true,
                 IsInstalled = true
             });
@@ -100,6 +101,7 @@ public class LanguagePluginService : ILanguagePluginService
                 Author = manifest.Author,
                 Coverage = manifest.Coverage,
                 MinKlacksVersion = manifest.MinKlacksVersion,
+                Direction = manifest.Direction,
                 IsCore = false,
                 IsInstalled = IsInstalled(manifest.Code),
                 TranslationCount = translations?.Count ?? 0
@@ -118,6 +120,7 @@ public class LanguagePluginService : ILanguagePluginService
                 Code = code,
                 Name = code,
                 DisplayName = code.ToUpperInvariant(),
+                Direction = "ltr",
                 IsCore = true,
                 IsInstalled = true
             };
@@ -138,6 +141,7 @@ public class LanguagePluginService : ILanguagePluginService
             Author = manifest.Author,
             Coverage = manifest.Coverage,
             MinKlacksVersion = manifest.MinKlacksVersion,
+            Direction = manifest.Direction,
             IsCore = false,
             IsInstalled = IsInstalled(code),
             TranslationCount = translations?.Count ?? 0
