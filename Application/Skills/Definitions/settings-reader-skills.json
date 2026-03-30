@@ -143,6 +143,20 @@
       "sensitiveFields": [
         { "constant": "Constants.Settings.WEB_SEARCH_API_KEY", "resultName": "HasApiKey" }
       ]
+    },
+    {
+      "name": "get_company_registration",
+      "className": "GetCompanyRegistrationSkill",
+      "description": "Retrieves company registration details used for invoice exports: tax ID, VAT ID and commercial register number.",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "Company registration settings retrieved successfully.",
+      "fields": [
+        { "constant": "Constants.Settings.COMPANY_TAX_ID", "resultName": "TaxId" },
+        { "constant": "Constants.Settings.COMPANY_VAT_ID", "resultName": "VatId" },
+        { "constant": "Constants.Settings.COMPANY_COMMERCIAL_REGISTER", "resultName": "CommercialRegister" }
+      ],
+      "sensitiveFields": []
     }
   ]
 }

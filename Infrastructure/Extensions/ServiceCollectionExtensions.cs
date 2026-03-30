@@ -510,5 +510,12 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<ITranslationService, Services.Translation.DeepLTranslationService>();
         services.AddScoped<IMultiLanguageTranslationService, MultiLanguageTranslationService>();
 
+        services.AddScoped<Application.Interfaces.Exports.IOrderExportDataLoader, Services.Exports.OrderExportDataLoader>();
+        services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.CsvExportFormatter>();
+        services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.JsonExportFormatter>();
+        services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.XmlExportFormatter>();
+        services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.DatevExportFormatter>();
+        services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.ZugferdExportFormatter>();
+        services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.BmdExportFormatter>();
     }
 }

@@ -74,6 +74,10 @@ namespace Klacks.Api.Application.Constants
         public const string ROUTE_MIN_TRAVEL_TIME_BY_FOOT = "ROUTE_MIN_TRAVEL_TIME_BY_FOOT";
 
         public const string INSTALLED_LANGUAGE_PREFIX = "INSTALLED_LANGUAGE_";
+
+        public const string COMPANY_TAX_ID = "COMPANY_TAX_ID";
+        public const string COMPANY_VAT_ID = "COMPANY_VAT_ID";
+        public const string COMPANY_COMMERCIAL_REGISTER = "COMPANY_COMMERCIAL_REGISTER";
     }
 }
 
