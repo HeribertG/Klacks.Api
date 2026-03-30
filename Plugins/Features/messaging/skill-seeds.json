@@ -1,7 +1,7 @@
 [
   {
     "name": "send_message",
-    "description": "Send a message via a configured messaging provider (WhatsApp, Telegram, Signal, SMS). Use list_messaging_providers first to see available providers.",
+    "description": "Send a message to a person by name via a configured messaging provider (WhatsApp, Telegram, Signal, SMS). Automatically resolves the recipient's phone number from Klacks contacts. Use list_messaging_providers first to see available providers.",
     "category": "Communication",
     "executionType": "Skill",
     "requiredPermissions": ["CanEditSettings"],
@@ -14,7 +14,7 @@
       },
       {
         "name": "recipient",
-        "description": "Recipient phone number or user ID",
+        "description": "Recipient name (e.g., 'Max Muster') or phone number. Names are automatically resolved to phone numbers from Klacks contacts.",
         "type": "String",
         "required": true
       },
@@ -38,8 +38,8 @@
     "isEnabled": true,
     "alwaysOn": false,
     "maxCallsPerSession": null,
-    "triggerKeywords": ["nachricht", "message", "senden", "send", "whatsapp", "telegram", "signal", "sms", "schreiben", "schick"],
-    "version": 4
+    "triggerKeywords": ["nachricht", "message", "senden", "send", "whatsapp", "telegram", "signal", "sms", "schreiben", "schick", "benachrichtigen", "notify", "mitteilen", "inform"],
+    "version": 5
   },
   {
     "name": "read_messages",
@@ -82,7 +82,7 @@
     "alwaysOn": false,
     "maxCallsPerSession": null,
     "triggerKeywords": ["nachrichten", "messages", "lesen", "read", "inbox", "eingehend", "posteingang"],
-    "version": 4
+    "version": 5
   },
   {
     "name": "list_messaging_providers",
@@ -97,6 +97,6 @@
     "alwaysOn": false,
     "maxCallsPerSession": null,
     "triggerKeywords": ["messaging", "provider", "dienste", "services", "kanäle", "channels"],
-    "version": 4
+    "version": 5
   }
 ]
