@@ -11,6 +11,8 @@ public class HolidaysListCalculator : IHolidaysListCalculator
     #region Constants
     private const string WEEKDAY_NAME = "SUMOTUWETHFRSA"; // Sunday (SU),Monday (MO),Tuesday (TU),Wednesday (WE),Thursday (TH),Friday (FR),Saturday (SA)
     private const string EASTER_STRING = "EASTER";
+    private const string HIJRI_PREFIX = "HIJRI_";
+    private const string LUNAR_PREFIX = "LUNAR_";
     private const int MONTH_START_INDEX = 0;
     private const int DAY_START_INDEX = 3;
     #endregion
@@ -183,6 +185,14 @@ public class HolidaysListCalculator : IHolidaysListCalculator
         {
             calcDate = CalculateEasterRelatedDate(easterDate, ruleString);
         }
+        else if (ruleString.StartsWith(HIJRI_PREFIX))
+        {
+            calcDate = CalculateHijriRelatedDate(year, ruleString);
+        }
+        else if (ruleString.StartsWith(LUNAR_PREFIX))
+        {
+            calcDate = CalculateLunarRelatedDate(year, ruleString);
+        }
         else
         {
             var month = int.Parse(ruleString.Substring(MONTH_START_INDEX, 2)); // 2 characters for month
@@ -285,6 +295,49 @@ public class HolidaysListCalculator : IHolidaysListCalculator
         var dayOffset = int.TryParse(numberPart, out int parsed) ? sign * parsed : 0;
 
         return (dayOffset, weekdayPart);
+    }
+
+    private static (int day, int month, int offset) ParseCalendarPrefix(string ruleString, string prefix)
+    {
+        var remainder = ruleString.Substring(prefix.Length);
+        var parts = remainder.Split('_');
+
+        if (parts.Length < 2)
+        {
+            throw new FormatException($"Invalid calendar rule format: {ruleString}. Expected {prefix}DD_MM or {prefix}DD_MM+/-OFFSET");
+        }
+
+        var day = int.Parse(parts[0]);
+
+        var monthPart = parts[1];
+        var offset = 0;
+        var plusIndex = monthPart.IndexOf('+');
+        var minusIndex = monthPart.IndexOf('-');
+        var operatorIndex = plusIndex >= 0 ? plusIndex : minusIndex;
+
+        if (operatorIndex >= 0)
+        {
+            offset = int.Parse(monthPart.Substring(operatorIndex));
+            monthPart = monthPart.Substring(0, operatorIndex);
+        }
+
+        var month = int.Parse(monthPart);
+
+        return (day, month, offset);
+    }
+
+    private static DateOnly CalculateHijriRelatedDate(int year, string ruleString)
+    {
+        var (day, month, offset) = ParseCalendarPrefix(ruleString, HIJRI_PREFIX);
+        var baseDate = HijriCalendar.GetGregorianDateForHijriInYear(day, month, year);
+        return offset != 0 ? baseDate.AddDays(offset) : baseDate;
+    }
+
+    private static DateOnly CalculateLunarRelatedDate(int year, string ruleString)
+    {
+        var (day, month, offset) = ParseCalendarPrefix(ruleString, LUNAR_PREFIX);
+        var baseDate = LunarCalendar.GetGregorianDateForLunarInYear(day, month, year);
+        return offset != 0 ? baseDate.AddDays(offset) : baseDate;
     }
 
     private DateOnly CalculateEasterRelatedDate(DateOnly easterDate, string ruleString)
