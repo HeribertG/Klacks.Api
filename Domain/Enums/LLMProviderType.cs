@@ -16,5 +16,6 @@ public enum LLMProviderType
     Mistral,
     Cohere,
     HuggingFace,
-    DeepSeek
+    DeepSeek,
+    Apertus
 }

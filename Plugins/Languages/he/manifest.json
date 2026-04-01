@@ -1,0 +1,11 @@
+{
+  "code": "he",
+  "name": "Hebrew",
+  "displayName": "עברית",
+  "speechLocale": "he-IL",
+  "version": "1.0.0",
+  "author": "Klacks Community",
+  "coverage": 100.0,
+  "minKlacksVersion": "1.0.0",
+  "direction": "rtl"
+}

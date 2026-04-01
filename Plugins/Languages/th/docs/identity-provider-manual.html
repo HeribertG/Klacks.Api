@@ -1,0 +1,117 @@
+<h2>คู่มือผู้ให้บริการยืนยันตัวตน</h2>
+
+<h3>บทนำ</h3>
+<p>
+ผู้ให้บริการยืนยันตัวตนช่วยให้สามารถยืนยันตัวตนผู้ใช้ผ่านบริการไดเรกทอรีภายนอก เช่น
+LDAP, Active Directory, OAuth2/OpenID Connect
+</p>
+
+<p><strong>ประเภทผู้ให้บริการที่รองรับ:</strong></p>
+<ul>
+  <li><strong>LDAP</strong> - โปรโตคอลเข้าถึงไดเรกทอรีน้ำหนักเบามาตรฐาน</li>
+  <li><strong>Active Directory</strong> - Microsoft Active Directory</li>
+  <li><strong>OAuth2</strong> - กรอบการทำงานการอนุญาต OAuth 2.0</li>
+  <li><strong>OpenID Connect</strong> - ชั้นยืนยันตัวตนบน OAuth 2.0</li>
+</ul>
+
+<hr>
+
+<h3>LDAP / Active Directory</h3>
+
+<h4>การตั้งค่าการเชื่อมต่อ</h4>
+<table>
+  <tr><th>ฟิลด์</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+  <tr><td>โฮสต์</td><td>ชื่อโฮสต์หรือที่อยู่ IP ของเซิร์ฟเวอร์ LDAP</td><td>ldap.example.com</td></tr>
+  <tr><td>พอร์ต</td><td>389 (LDAP) หรือ 636 (LDAPS)</td><td>389</td></tr>
+  <tr><td>ใช้ SSL</td><td>เปิดใช้งานการเชื่อมต่อแบบเข้ารหัส</td><td>-</td></tr>
+  <tr><td>Base DN</td><td>ชื่อเฉพาะฐานสำหรับการค้นหา</td><td>DC=example,DC=com</td></tr>
+  <tr><td>Bind DN</td><td>DN ของผู้ใช้สำหรับการเชื่อมต่อ</td><td>CN=admin,DC=example,DC=com</td></tr>
+  <tr><td>รหัสผ่าน Bind</td><td>รหัสผ่านของผู้ใช้ Bind</td><td>-</td></tr>
+  <tr><td>ตัวกรองผู้ใช้</td><td>ตัวกรอง LDAP สำหรับค้นหาผู้ใช้</td><td>(objectClass=person)</td></tr>
+</table>
+
+<h4>ความแตกต่างระหว่าง LDAP และ Active Directory</h4>
+<table>
+  <tr><th>แอตทริบิวต์</th><th>LDAP (OpenLDAP)</th><th>Active Directory</th></tr>
+  <tr><td>แอตทริบิวต์ผู้ใช้</td><td>uid</td><td>sAMAccountName</td></tr>
+  <tr><td>แอตทริบิวต์ที่อยู่</td><td>street</td><td>streetAddress</td></tr>
+  <tr><td>แอตทริบิวต์คำนำหน้า</td><td>-</td><td>personalTitle</td></tr>
+  <tr><td>แอตทริบิวต์ประเทศ</td><td>-</td><td>c</td></tr>
+  <tr><td>วิธีการยืนยันตัวตน</td><td>Simple Bind</td><td>Negotiate/Kerberos</td></tr>
+</table>
+
+<h4>ตัวกรองผู้ใช้ทั่วไป</h4>
+<pre>
+LDAP:             (objectClass=person)
+                  (objectClass=inetOrgPerson)
+
+Active Directory: (&amp;(objectClass=user)(objectCategory=person))
+                  (&amp;(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+</pre>
+
+<h4>การนำเข้าลูกค้า</h4>
+<p>หากเปิดใช้งาน "ใช้สำหรับนำเข้าลูกค้า" ข้อมูลต่อไปนี้จะถูกนำเข้า:</p>
+<ul>
+  <li><strong>นามสกุล</strong> - sn (นามสกุล) หรือ displayName</li>
+  <li><strong>ชื่อ</strong> - givenName</li>
+  <li><strong>ตำแหน่ง</strong> - title (ตำแหน่งงาน)</li>
+  <li><strong>บริษัท</strong> - company</li>
+  <li><strong>ที่อยู่</strong> - street/streetAddress, postalCode, l (เมือง), st (จังหวัด), c (ประเทศ)</li>
+  <li><strong>เพศ</strong> - สำหรับ Active Directory จะดึงจาก personalTitle (Herr/Frau)</li>
+</ul>
+
+<p><em>หมายเหตุ: สำหรับ OpenLDAP เพศจะเป็น "กลาง" โดยค่าเริ่มต้น และสามารถแก้ไขด้วยตนเองได้</em></p>
+
+<hr>
+
+<h3>OAuth2 / OpenID Connect</h3>
+
+<h4>การตั้งค่า</h4>
+<table>
+  <tr><th>ฟิลด์</th><th>คำอธิบาย</th></tr>
+  <tr><td>Client ID</td><td>Client ID ที่ลงทะเบียนกับผู้ให้บริการ</td></tr>
+  <tr><td>Client Secret</td><td>Client Secret ที่เกี่ยวข้อง</td></tr>
+  <tr><td>Tenant ID</td><td>Azure AD Tenant ID (ไม่บังคับ สำหรับ Microsoft เท่านั้น)</td></tr>
+  <tr><td>URL การอนุญาต</td><td>จุดปลายทางสำหรับการอนุญาต</td></tr>
+  <tr><td>URL โทเค็น</td><td>จุดปลายทางสำหรับแลกเปลี่ยนโทเค็น</td></tr>
+  <tr><td>URL ข้อมูลผู้ใช้</td><td>จุดปลายทางสำหรับดึงข้อมูลผู้ใช้</td></tr>
+  <tr><td>ขอบเขต</td><td>สิทธิ์ที่ร้องขอ (เช่น "openid profile email")</td></tr>
+</table>
+
+<h4>ผู้ให้บริการหลัก</h4>
+<table>
+  <tr><th>ผู้ให้บริการ</th><th>URL การอนุญาต</th><th>URL โทเค็น</th></tr>
+  <tr><td>Google</td><td>https://accounts.google.com/o/oauth2/v2/auth</td><td>https://oauth2.googleapis.com/token</td></tr>
+  <tr><td>Microsoft</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</td></tr>
+  <tr><td>GitHub</td><td>https://github.com/login/oauth/authorize</td><td>https://github.com/login/oauth/access_token</td></tr>
+</table>
+
+<hr>
+
+<h3>เคล็ดลับ</h3>
+
+<h4>ใช้ Synology NAS เป็นเซิร์ฟเวอร์ LDAP</h4>
+<p>
+คุณสามารถใช้ Synology NAS เป็นเซิร์ฟเวอร์ LDAP ได้ ในกรณีนี้ คุณต้องติดตั้ง
+แพ็กเกจ "LDAP Server" หรือคอนเทนเนอร์ Docker ที่ใช้ OpenLDAP
+</p>
+<ul>
+  <li>ประเภทผู้ให้บริการ: "Active Directory" (สำหรับการยืนยันตัวตนสำรอง)</li>
+  <li>ตัวกรองผู้ใช้: (objectClass=inetOrgPerson)</li>
+  <li>รูปแบบ User DN: cn=username,ou=users,dc=example,dc=com</li>
+</ul>
+
+<h4>ทดสอบการเชื่อมต่อ</h4>
+<p>
+ใช้ปุ่ม "ทดสอบการเชื่อมต่อ" เพื่อตรวจสอบการตั้งค่า
+เมื่อเชื่อมต่อสำเร็จ จะแสดงจำนวนผู้ใช้ที่พบและชื่อผู้ใช้ตัวอย่างบางส่วน
+</p>
+
+<h4>การแก้ไขปัญหา</h4>
+<table>
+  <tr><th>ปัญหา</th><th>วิธีแก้ไข</th></tr>
+  <tr><td>เชื่อมต่อไม่สำเร็จ</td><td>ตรวจสอบโฮสต์ พอร์ต และการตั้งค่า SSL</td></tr>
+  <tr><td>Bind ไม่สำเร็จ</td><td>ตรวจสอบ Bind DN และรหัสผ่าน</td></tr>
+  <tr><td>ไม่พบผู้ใช้</td><td>ตรวจสอบ Base DN และตัวกรองผู้ใช้</td></tr>
+  <tr><td>ที่อยู่ไม่ถูกนำเข้า</td><td>OpenLDAP ใช้ "street" ไม่ใช่ "streetAddress"</td></tr>
+</table>

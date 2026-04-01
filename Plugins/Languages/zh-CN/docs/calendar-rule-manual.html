@@ -1,0 +1,82 @@
+<h2>日历规则 - 说明</h2>
+
+<h3>规则格式</h3>
+<p>规则分为两种类型：<strong>固定日期</strong>和<strong>基于复活节的日期</strong>。</p>
+
+<h4>固定日期</h4>
+<p>格式：<code>MM/DD</code></p>
+<table>
+  <tr><th>示例</th><th>含义</th></tr>
+  <tr><td><code>01/01</code></td><td>1月1日（元旦）</td></tr>
+  <tr><td><code>12/25</code></td><td>12月25日（圣诞节）</td></tr>
+  <tr><td><code>08/01</code></td><td>8月1日（瑞士国庆日）</td></tr>
+</table>
+
+<h4>带星期偏移的固定日期</h4>
+<p>格式：<code>MM/DD+XX+WW</code> 或 <code>MM/DD+XX-WW</code></p>
+<ul>
+  <li><code>+XX</code> = 符号 + 偏移量（天数）（00至99）</li>
+  <li><code>+</code> = 该日期之后的下一个星期几</li>
+  <li><code>-</code> = 该日期之前的上一个星期几</li>
+  <li><code>WW</code> = 星期几（SU、MO、TU、WE、TH、FR、SA）</li>
+</ul>
+<table>
+  <tr><th>示例</th><th>含义</th></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>11月的第1个星期四</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>11月的第4个星期四（感恩节）</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>5月最后一个星期一（阵亡将士纪念日）</td></tr>
+</table>
+
+<h4>基于复活节的日期</h4>
+<p>格式：<code>EASTER+XX</code> 或 <code>EASTER-XX</code></p>
+<table>
+  <tr><th>示例</th><th>含义</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>复活节星期日</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>耶稣受难日（复活节前2天）</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>复活节星期一（复活节后1天）</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>耶稣升天节（复活节后39天）</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>五旬节（复活节后49天）</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>圣灵降临节次日（复活节后50天）</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>基督圣体节（复活节后60天）</td></tr>
+</table>
+
+<hr>
+
+<h3>子规则格式</h3>
+<p>子规则允许在节假日落在特定星期几时自动进行调休。</p>
+<p>格式：<code>WW+X</code> 或 <code>WW-X</code>，多个规则用 <code>;</code> 分隔</p>
+<ul>
+  <li><code>WW</code> = 星期几（SU、MO、TU、WE、TH、FR、SA）</li>
+  <li><code>+X</code> = 向后移动X天</li>
+  <li><code>-X</code> = 向前移动X天</li>
+</ul>
+<table>
+  <tr><th>示例</th><th>含义</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>如遇星期六：+2天（星期一）；如遇星期日：+1天（星期一）</td></tr>
+  <tr><td><code>SU+1</code></td><td>如遇星期日：调休至星期一</td></tr>
+</table>
+
+<p><em>注意：子规则通常用于将落在周末的节假日调休至下一个工作日。</em></p>
+
+<hr>
+
+<h3>星期几缩写</h3>
+<table>
+  <tr><th>缩写</th><th>星期</th></tr>
+  <tr><td>SU</td><td>星期日（Sunday）</td></tr>
+  <tr><td>MO</td><td>星期一（Monday）</td></tr>
+  <tr><td>TU</td><td>星期二（Tuesday）</td></tr>
+  <tr><td>WE</td><td>星期三（Wednesday）</td></tr>
+  <tr><td>TH</td><td>星期四（Thursday）</td></tr>
+  <tr><td>FR</td><td>星期五（Friday）</td></tr>
+  <tr><td>SA</td><td>星期六（Saturday）</td></tr>
+</table>
+
+<hr>
+
+<h3>复选框</h3>
+<table>
+  <tr><th>复选框</th><th>含义</th></tr>
+  <tr><td>法定节假日</td><td>该日为官方法定节假日</td></tr>
+  <tr><td>带薪</td><td>该节假日为带薪假（与薪资计算相关）</td></tr>
+</table>

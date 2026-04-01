@@ -1,0 +1,51 @@
+<h2>계획 규칙 - 설명</h2>
+
+<p>계획 규칙은 자동 교대 스케줄링의 프레임워크를 정의합니다. 각 규칙은 특정 그룹 또는 구성에 대해 근무 시간, 휴식 시간 및 역량을 어떻게 배분할지를 결정합니다.</p>
+
+<hr>
+
+<h3>근무일 &amp; 휴식 시간</h3>
+<table>
+  <tr><th>필드</th><th>설명</th></tr>
+  <tr><td><strong>최대 근무일 수</strong></td><td>주당 최대 근무일 수.</td></tr>
+  <tr><td><strong>두 근무 블록 간 최소 휴일 수</strong></td><td>연속하는 두 근무 블록 사이에 필요한 최소 휴일 수.</td></tr>
+  <tr><td><strong>두 근무일 간 최소 휴식 시간</strong></td><td>한 근무일 종료부터 다음 근무일 시작까지의 최소 휴식 시간(시간 단위).</td></tr>
+  <tr><td><strong>교대 간 최대 최적 간격(시간)</strong></td><td>연속하는 두 교대 사이에서 최적으로 간주되는 최대 시간 간격(시간 단위).</td></tr>
+  <tr><td><strong>최대 연속 근무일 수</strong></td><td>휴일 없이 연속하여 근무할 수 있는 최대 일수.</td></tr>
+</table>
+
+<hr>
+
+<h3>시간 제한</h3>
+<table>
+  <tr><th>필드</th><th>설명</th></tr>
+  <tr><td><strong>최대 일일 시간</strong></td><td>하루당 최대 근무 시간.</td></tr>
+  <tr><td><strong>최대 주간 시간</strong></td><td>1주일당 최대 근무 시간.</td></tr>
+  <tr><td><strong>1일 표준 근무 시간</strong></td><td>하루당 표준 근무 시간(목표 시간).</td></tr>
+  <tr><td><strong>초과근무 기준(시간/주)</strong></td><td>이 주간 시간을 초과한 부분이 초과근무로 처리됩니다.</td></tr>
+</table>
+
+<hr>
+
+<h3>월간 시간</h3>
+<table>
+  <tr><th>필드</th><th>설명</th></tr>
+  <tr><td><strong>보장 시간 수</strong></td><td>직원에게 월간으로 보장되는 최소 시간 수.</td></tr>
+  <tr><td><strong>최대 시간 수</strong></td><td>월당 최대 허용 근무 시간.</td></tr>
+  <tr><td><strong>최소 시간 수</strong></td><td>월당 최소 근무 시간.</td></tr>
+  <tr><td><strong>풀타임(시간 수)</strong></td><td>풀타임 고용에 해당하는 월간 시간 수.</td></tr>
+</table>
+
+<hr>
+
+<h3>휴가</h3>
+<table>
+  <tr><th>필드</th><th>설명</th></tr>
+  <tr><td><strong>연간 휴가 일수</strong></td><td>역년마다 부여되는 휴가 일수.</td></tr>
+</table>
+
+<hr>
+
+<h3>적용</h3>
+<p>계획 규칙은 <strong>계약</strong>에 할당됩니다. 이를 통해 정의된 제한값이 자동 교대 스케줄링 시 해당 계약을 가진 모든 직원에게 적용됩니다.</p>
+<p>여기서 설정되는 기본값은 설정의 <strong>계획 규칙(기본값)</strong>에서 가져옵니다. 새 규칙을 생성할 때 이 값들이 자동으로 적용되며 개별적으로 조정할 수 있습니다.</p>

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "a1b2c3d4-bb01-4000-8000-000000000001",
+    "abbreviation": "MY",
+    "name": {
+      "de": "Malaysia",
+      "en": "Malaysia",
+      "fr": "Malaisie",
+      "it": "Malesia",
+      "ms": "Malaysia",
+      "cs": "Malajsie",
+      "da": "Malaysia",
+      "el": "\u039c\u03b1\u03bb\u03b1\u03b9\u03c3\u03af\u03b1",
+      "es": "Malasia",
+      "fi": "Malesia",
+      "ja": "\u30de\u30ec\u30fc\u30b7\u30a2",
+      "nb": "Malaysia",
+      "nl": "Maleisi\u00eb",
+      "pl": "Malezja",
+      "pt": "Mal\u00e1sia",
+      "ro": "Malaezia",
+      "sv": "Malaysia"
+    },
+    "prefix": "+60"
+  }
+]

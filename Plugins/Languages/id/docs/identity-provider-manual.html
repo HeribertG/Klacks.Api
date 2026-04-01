@@ -1,0 +1,117 @@
+<h2>Panduan Identity Provider</h2>
+
+<h3>Pendahuluan</h3>
+<p>
+Dengan menggunakan Identity Provider, Anda dapat melakukan autentikasi pengguna melalui
+layanan direktori eksternal seperti LDAP, Active Directory, OAuth2/OpenID Connect.
+</p>
+
+<p><strong>Jenis penyedia yang didukung:</strong></p>
+<ul>
+  <li><strong>LDAP</strong> - Protokol Akses Direktori Ringan Standar</li>
+  <li><strong>Active Directory</strong> - Microsoft Active Directory</li>
+  <li><strong>OAuth2</strong> - Kerangka Otorisasi OAuth 2.0</li>
+  <li><strong>OpenID Connect</strong> - Lapisan identitas di atas OAuth 2.0</li>
+</ul>
+
+<hr>
+
+<h3>LDAP / Active Directory</h3>
+
+<h4>Pengaturan Koneksi</h4>
+<table>
+  <tr><th>Bidang</th><th>Deskripsi</th><th>Contoh</th></tr>
+  <tr><td>Host</td><td>Nama host atau alamat IP server LDAP</td><td>ldap.example.com</td></tr>
+  <tr><td>Port</td><td>389 (LDAP) atau 636 (LDAPS)</td><td>389</td></tr>
+  <tr><td>Gunakan SSL</td><td>Mengaktifkan koneksi terenkripsi</td><td>-</td></tr>
+  <tr><td>Basis DN</td><td>Distinguished Name dasar untuk pencarian</td><td>DC=example,DC=com</td></tr>
+  <tr><td>Bind DN</td><td>DN pengguna yang digunakan untuk koneksi</td><td>CN=admin,DC=example,DC=com</td></tr>
+  <tr><td>Kata Sandi Bind</td><td>Kata sandi pengguna bind</td><td>-</td></tr>
+  <tr><td>Filter Pengguna</td><td>Filter LDAP untuk pencarian pengguna</td><td>(objectClass=person)</td></tr>
+</table>
+
+<h4>Perbedaan LDAP dan Active Directory</h4>
+<table>
+  <tr><th>Atribut</th><th>LDAP (OpenLDAP)</th><th>Active Directory</th></tr>
+  <tr><td>Atribut pengguna</td><td>uid</td><td>sAMAccountName</td></tr>
+  <tr><td>Atribut alamat</td><td>street</td><td>streetAddress</td></tr>
+  <tr><td>Atribut sapaan</td><td>-</td><td>personalTitle</td></tr>
+  <tr><td>Atribut negara</td><td>-</td><td>c</td></tr>
+  <tr><td>Metode autentikasi</td><td>Simple Bind</td><td>Negotiate/Kerberos</td></tr>
+</table>
+
+<h4>Filter Pengguna Umum</h4>
+<pre>
+LDAP:             (objectClass=person)
+                  (objectClass=inetOrgPerson)
+
+Active Directory: (&amp;(objectClass=user)(objectCategory=person))
+                  (&amp;(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+</pre>
+
+<h4>Impor Klien</h4>
+<p>Jika "Gunakan untuk impor klien" diaktifkan, data berikut akan diimpor:</p>
+<ul>
+  <li><strong>Nama belakang</strong> - sn (nama keluarga) atau displayName</li>
+  <li><strong>Nama depan</strong> - givenName</li>
+  <li><strong>Jabatan</strong> - title (nama jabatan)</li>
+  <li><strong>Perusahaan</strong> - company</li>
+  <li><strong>Alamat</strong> - street/streetAddress, postalCode, l (kota), st (provinsi), c (negara)</li>
+  <li><strong>Jenis kelamin</strong> - Untuk Active Directory, diambil dari personalTitle (Herr/Frau)</li>
+</ul>
+
+<p><em>Catatan: Untuk OpenLDAP, jenis kelamin secara default ditetapkan "Netral" dan dapat diperbaiki secara manual.</em></p>
+
+<hr>
+
+<h3>OAuth2 / OpenID Connect</h3>
+
+<h4>Pengaturan</h4>
+<table>
+  <tr><th>Bidang</th><th>Deskripsi</th></tr>
+  <tr><td>Client ID</td><td>Client ID yang terdaftar di penyedia</td></tr>
+  <tr><td>Client Secret</td><td>Client Secret yang sesuai</td></tr>
+  <tr><td>Tenant ID</td><td>Azure AD Tenant ID (opsional, hanya Microsoft)</td></tr>
+  <tr><td>URL Otorisasi</td><td>Endpoint untuk otorisasi</td></tr>
+  <tr><td>URL Token</td><td>Endpoint untuk pertukaran token</td></tr>
+  <tr><td>URL Info Pengguna</td><td>Endpoint untuk mengambil informasi pengguna</td></tr>
+  <tr><td>Scopes</td><td>Izin yang diminta (misalnya: "openid profile email")</td></tr>
+</table>
+
+<h4>Penyedia Utama</h4>
+<table>
+  <tr><th>Penyedia</th><th>URL Otorisasi</th><th>URL Token</th></tr>
+  <tr><td>Google</td><td>https://accounts.google.com/o/oauth2/v2/auth</td><td>https://oauth2.googleapis.com/token</td></tr>
+  <tr><td>Microsoft</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</td></tr>
+  <tr><td>GitHub</td><td>https://github.com/login/oauth/authorize</td><td>https://github.com/login/oauth/access_token</td></tr>
+</table>
+
+<hr>
+
+<h3>Tips</h3>
+
+<h4>Menggunakan Synology NAS sebagai Server LDAP</h4>
+<p>
+Anda dapat menggunakan Synology NAS sebagai server LDAP. Dalam hal ini, Anda perlu menginstal
+paket "LDAP Server" atau container Docker dengan OpenLDAP.
+</p>
+<ul>
+  <li>Jenis penyedia: "Active Directory" (untuk autentikasi fallback)</li>
+  <li>Filter pengguna: (objectClass=inetOrgPerson)</li>
+  <li>Format DN pengguna: cn=username,ou=users,dc=example,dc=com</li>
+</ul>
+
+<h4>Menguji Koneksi</h4>
+<p>
+Gunakan tombol "Uji koneksi" untuk memverifikasi pengaturan.
+Jika koneksi berhasil, jumlah pengguna yang ditemukan dan beberapa contoh nama pengguna akan ditampilkan.
+</p>
+
+<h4>Pemecahan Masalah</h4>
+<table>
+  <tr><th>Masalah</th><th>Solusi</th></tr>
+  <tr><td>Koneksi gagal</td><td>Periksa host, port, dan pengaturan SSL</td></tr>
+  <tr><td>Bind gagal</td><td>Periksa Bind DN dan kata sandi</td></tr>
+  <tr><td>Pengguna tidak ditemukan</td><td>Periksa Basis DN dan filter pengguna</td></tr>
+  <tr><td>Alamat tidak diimpor</td><td>OpenLDAP menggunakan "street" bukan "streetAddress"</td></tr>
+</table>

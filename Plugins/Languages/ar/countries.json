@@ -1,0 +1,34 @@
+[
+  {
+    "id": "a1b2c3d4-ab01-4000-8000-000000000001",
+    "abbreviation": "SA",
+    "name": {
+      "de": "Saudi-Arabien",
+      "en": "Saudi Arabia",
+      "fr": "Arabie saoudite",
+      "it": "Arabia Saudita",
+      "ar": "المملكة العربية السعودية",
+      "cs": "Saúdská Arábie",
+      "da": "Saudi-Arabien",
+      "el": "Σαουδική Αραβία",
+      "es": "Arabia Saudita",
+      "fi": "Saudi-Arabia",
+      "he": "ערב הסעודית",
+      "id": "Arab Saudi",
+      "ja": "サウジアラビア",
+      "ko": "사우디아라비아",
+      "ms": "Arab Saudi",
+      "nb": "Saudi-Arabia",
+      "nl": "Saoedi-Arabië",
+      "pl": "Arabia Saudyjska",
+      "pt": "Arábia Saudita",
+      "ro": "Arabia Saudită",
+      "sv": "Saudiarabien",
+      "th": "ซาอุดีอาระเบีย",
+      "vi": "Ả Rập Xê Út",
+      "zh-CN": "沙特阿拉伯",
+      "zh-TW": "沙烏地阿拉伯"
+    },
+    "prefix": "+966"
+  }
+]

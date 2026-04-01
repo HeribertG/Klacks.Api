@@ -1,0 +1,26 @@
+[
+  {
+    "id": "a1b2c3d4-ab01-4000-8000-000000000001",
+    "abbreviation": "KR",
+    "name": {
+      "de": "Südkorea",
+      "en": "South Korea",
+      "fr": "Corée du Sud",
+      "it": "Corea del Sud",
+      "ko": "대한민국",
+      "cs": "Jižní Korea",
+      "da": "Sydkorea",
+      "el": "Νότια Κορέα",
+      "es": "Corea del Sur",
+      "fi": "Etelä-Korea",
+      "ja": "韓国",
+      "nb": "Sør-Korea",
+      "nl": "Zuid-Korea",
+      "pl": "Korea Południowa",
+      "pt": "Coreia do Sul",
+      "ro": "Coreea de Sud",
+      "sv": "Sydkorea"
+    },
+    "prefix": "+82"
+  }
+]

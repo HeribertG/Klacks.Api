@@ -1,0 +1,26 @@
+[
+  {
+    "id": "a1b2c3d4-bb01-4000-8000-000000000001",
+    "abbreviation": "TH",
+    "name": {
+      "de": "Thailand",
+      "en": "Thailand",
+      "fr": "Thaïlande",
+      "it": "Thailandia",
+      "cs": "Thajsko",
+      "da": "Thailand",
+      "el": "Ταϊλάνδη",
+      "es": "Tailandia",
+      "fi": "Thaimaa",
+      "ja": "タイ",
+      "nb": "Thailand",
+      "nl": "Thailand",
+      "pl": "Tajlandia",
+      "pt": "Tailândia",
+      "ro": "Thailanda",
+      "sv": "Thailand",
+      "th": "ประเทศไทย"
+    },
+    "prefix": "+66"
+  }
+]

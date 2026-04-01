@@ -1,0 +1,759 @@
+[
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000001",
+    "rule": "01/01",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "ID",
+    "country": "ID",
+    "name": {
+      "de": "Neujahr",
+      "en": "New Year's Day",
+      "fr": "Jour de l'An",
+      "it": "Capodanno",
+      "id": "Tahun Baru Masehi",
+      "cs": "Nov\u00fd rok",
+      "da": "Nyt\u00e5rsdag",
+      "el": "\u03a0\u03c1\u03c9\u03c4\u03bf\u03c7\u03c1\u03bf\u03bd\u03b9\u03ac",
+      "es": "A\u00f1o Nuevo",
+      "fi": "Uudenvuodenp\u00e4iv\u00e4",
+      "ja": "\u5143\u65e5",
+      "nb": "Nytt\u00e5rsdag",
+      "nl": "Nieuwjaarsdag",
+      "pl": "Nowy Rok",
+      "pt": "Ano Novo",
+      "ro": "Anul Nou",
+      "sv": "Ny\u00e5rsdagen"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000002",
+    "rule": "02/16",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "ID",
+    "country": "ID",
+    "name": {
+      "de": "Chinesisches Neujahr",
+      "en": "Chinese New Year",
+      "fr": "Nouvel An chinois",
+      "it": "Capodanno cinese",
+      "id": "Tahun Baru Imlek",
+      "cs": "\u010c\u00ednsk\u00fd Nov\u00fd rok",
+      "da": "Kinesisk nyt\u00e5r",
+      "el": "\u039a\u03b9\u03bd\u03b5\u03b6\u03b9\u03ba\u03ae \u03a0\u03c1\u03c9\u03c4\u03bf\u03c7\u03c1\u03bf\u03bd\u03b9\u03ac",
+      "es": "A\u00f1o Nuevo Chino",
+      "fi": "Kiinalainen uusivuosi",
+      "ja": "\u65e7\u6b63\u6708",
+      "nb": "Kinesisk nytt\u00e5r",
+      "nl": "Chinees Nieuwjaar",
+      "pl": "Chi\u0144ski Nowy Rok",
+      "pt": "Ano Novo Chin\u00eas",
+      "ro": "Anul Nou Chinezesc",
+      "sv": "Kinesiskt ny\u00e5r"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000003",
+    "rule": "03/19",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "ID",
+    "country": "ID",
+    "name": {
+      "de": "Nyepi - Balinesisches Neujahr",
+      "en": "Nyepi - Balinese Day of Silence",
+      "fr": "Nyepi - Jour du silence balinais",
+      "it": "Nyepi - Giorno del silenzio balinese",
+      "id": "Hari Raya Nyepi (Tahun Baru Saka)",
+      "cs": "Nyepi - Balijsk\u00fd den ticha",
+      "da": "Nyepi - Balinesisk stilhedsdag",
+      "el": "\u039d\u03c5\u03ad\u03c0\u03b9",
+      "es": "Nyepi - D\u00eda del Silencio Balin\u00e9s",
+      "fi": "Nyepi - Balin hiljaisuuden p\u00e4iv\u00e4",
+      "ja": "\u30cb\u30e5\u30d4",
+      "nb": "Nyepi - Balinesisk stillhetsdag",
+      "nl": "Nyepi - Balinese stiltedag",
+      "pl": "Nyepi - Balijskie \u015awi\u0119to Ciszy",
+      "pt": "Nyepi - Dia do Sil\u00eancio Balin\u00eas",
+      "ro": "Nyepi - Ziua t\u0103cerii balineze",
+      "sv": "Nyepi - Balinesisk tystnadens dag"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000004",
+    "rule": "03/21",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "ID",
+    "country": "ID",
+    "name": {
+      "de": "Eid al-Fitr - 1. Tag",
+      "en": "Eid al-Fitr - Day 1",
+      "fr": "A\u00efd el-Fitr - 1er jour",
+      "it": "Eid al-Fitr - 1\u00b0 giorno",
+      "id": "Hari Raya Idul Fitri 1447 H - Hari 1",
+      "cs": "\u00cdd al-fitr - 1. den",
+      "da": "Eid al-Fitr - 1. dag",
+      "el": "\u0395\u03af\u03bd\u03c4 \u03b1\u03bb-\u03a6\u03b9\u03c4\u03c1 - 1\u03b7 \u03b7\u03bc\u03ad\u03c1\u03b1",
+      "es": "Eid al-Fitr - D\u00eda 1",
+      "fi": "Eid al-Fitr - 1. p\u00e4iv\u00e4",
+      "ja": "\u30a4\u30c9\u30a5\u30eb\u30fb\u30d5\u30a3\u30c8\u30ea 1\u65e5\u76ee",
+      "nb": "Eid al-Fitr - 1. dag",
+      "nl": "Suikerfeest - dag 1",
+      "pl": "Id al-Fitr - dzie\u0144 1",
+      "pt": "Eid al-Fitr - Dia 1",
+      "ro": "Eid al-Fitr - Ziua 1",
+      "sv": "Eid al-Fitr - dag 1"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000005",
+    "rule": "03/22",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "ID",
+    "country": "ID",
+    "name": {
+      "de": "Eid al-Fitr - 2. Tag",
+      "en": "Eid al-Fitr - Day 2",
+      "fr": "A\u00efd el-Fitr - 2e jour",
+      "it": "Eid al-Fitr - 2\u00b0 giorno",
+      "id": "Hari Raya Idul Fitri 1447 H - Hari 2",
+      "cs": "\u00cdd al-fitr - 2. den",
+      "da": "Eid al-Fitr - 2. dag",
+      "el": "\u0395\u03af\u03bd\u03c4 \u03b1\u03bb-\u03a6\u03b9\u03c4\u03c1 - 2\u03b7 \u03b7\u03bc\u03ad\u03c1\u03b1",
+      "es": "Eid al-Fitr - D\u00eda 2",
+      "fi": "Eid al-Fitr - 2. p\u00e4iv\u00e4",
+      "ja": "\u30a4\u30c9\u30a5\u30eb\u30fb\u30d5\u30a3\u30c8\u30ea 2\u65e5\u76ee",
+      "nb": "Eid al-Fitr - 2. dag",
+      "nl": "Suikerfeest - dag 2",
+      "pl": "Id al-Fitr - dzie\u0144 2",
+      "pt": "Eid al-Fitr - Dia 2",
+      "ro": "Eid al-Fitr - Ziua 2",
+      "sv": "Eid al-Fitr - dag 2"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000006",
+    "rule": "EASTER-02",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "ID",
+    "country": "ID",
+    "name": {
+      "de": "Karfreitag",
+      "en": "Good Friday",
+      "fr": "Vendredi Saint",
+      "it": "Venerd\u00ec Santo",
+      "id": "Wafat Isa Al-Masih",
+      "cs": "Velk\u00fd p\u00e1tek",
+      "da": "Langfredag",
+      "el": "\u039c\u03b5\u03b3\u03ac\u03bb\u03b7 \u03a0\u03b1\u03c1\u03b1\u03c3\u03ba\u03b5\u03c5\u03ae",
+      "es": "Viernes Santo",
+      "fi": "Pitk\u00e4perjantai",
+      "ja": "\u8056\u91d1\u66dc\u65e5",
+      "nb": "Langfredag",
+      "nl": "Goede Vrijdag",
+      "pl": "Wielki Pi\u0105tek",
+      "pt": "Sexta-feira Santa",
+      "ro": "Vinerea Mare",
+      "sv": "L\u00e5ngfredagen"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000007",
+    "rule": "05/01",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "ID",
+    "country": "ID",
+    "name": {
+      "de": "Tag der Arbeit",
+      "en": "International Labour Day",
+      "fr": "F\u00eate du Travail",
+      "it": "Festa del Lavoro",
+      "id": "Hari Buruh Internasional",
+      "cs": "Sv\u00e1tek pr\u00e1ce",
+      "da": "Arbejdernes kampdag",
+      "el": "\u0395\u03c1\u03b3\u03b1\u03c4\u03b9\u03ba\u03ae \u03a0\u03c1\u03c9\u03c4\u03bf\u03bc\u03b1\u03b3\u03b9\u03ac",
+      "es": "D\u00eda del Trabajo",
+      "fi": "Vappu",
+      "ja": "\u30e1\u30fc\u30c7\u30fc",
+      "nb": "Arbeidernes dag",
+      "nl": "Dag van de Arbeid",
+      "pl": "\u015awi\u0119to Pracy",
+      "pt": "Dia do Trabalho",
+      "ro": "Ziua Muncii",
+      "sv": "F\u00f6rsta maj"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000008",
+    "rule": "EASTER+39",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "ID",
+    "country": "ID",
+    "name": {
+      "de": "Christi Himmelfahrt",
+      "en": "Ascension Day of Jesus Christ",
+      "fr": "Ascension",
+      "it": "Ascensione",
+      "id": "Kenaikan Isa Al-Masih",
+      "cs": "Nanebevstoupen\u00ed P\u00e1n\u011b",
+      "da": "Kristi himmelfartsdag",
+      "el": "\u0391\u03bd\u03ac\u03bb\u03b7\u03c8\u03b7",
+      "es": "Ascensi\u00f3n",
+      "fi": "Helatorstai",
+      "ja": "\u30ad\u30ea\u30b9\u30c8\u6607\u5929\u65e5",
+      "nb": "Kristi himmelfartsdag",
+      "nl": "Hemelvaartsdag",
+      "pl": "Wniebowst\u0105pienie",
+      "pt": "Ascens\u00e3o",
+      "ro": "\u00cen\u0103l\u021barea",
+      "sv": "Kristi himmelf\u00e4rdsdag"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000009",
+    "rule": "05/27",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "ID",
+    "country": "ID",
+    "name": {
+      "de": "Eid al-Adha",
+      "en": "Eid al-Adha",
+      "fr": "A\u00efd al-Adha",
+      "it": "Eid al-Adha",
+      "id": "Hari Raya Idul Adha 1447 H",
+      "cs": "\u00cdd al-adh\u00e1",
+      "da": "Eid al-Adha",
+      "el": "\u0395\u03af\u03bd\u03c4 \u03b1\u03bb-\u0386\u03bd\u03c4\u03c7\u03b1",
+      "es": "Eid al-Adha",
+      "fi": "Eid al-Adha",
+      "ja": "\u30a4\u30c9\u30a5\u30eb\u30fb\u30a2\u30c9\u30cf",
+      "nb": "Eid al-Adha",
+      "nl": "Offerfeest",
+      "pl": "Id al-Adha",
+      "pt": "Eid al-Adha",
+      "ro": "Eid al-Adha",
+      "sv": "Eid al-Adha"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000010",
+    "rule": "05/31",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "ID",
+    "country": "ID",
+    "name": {
+      "de": "Vesakh-Tag",
+      "en": "Vesak Day",
+      "fr": "Jour du Vesak",
+      "it": "Giorno del Vesak",
+      "id": "Hari Raya Waisak 2570 BE",
+      "cs": "V\u00e9sak",
+      "da": "Vesak-dag",
+      "el": "\u0397\u03bc\u03ad\u03c1\u03b1 \u0392\u03b5\u03c3\u03ac\u03ba",
+      "es": "D\u00eda de Vesak",
+      "fi": "Vesak-p\u00e4iv\u00e4",
+      "ja": "\u30f4\u30a7\u30b5\u30c3\u30af",
+      "nb": "Vesak-dag",
+      "nl": "Vesak-dag",
+      "pl": "Dzie\u0144 Wesak",
+      "pt": "Dia de Vesak",
+      "ro": "Ziua Vesak",
+      "sv": "Vesak-dagen"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000011",
+    "rule": "06/01",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "ID",
+    "country": "ID",
+    "name": {
+      "de": "Pancasila-Tag",
+      "en": "Pancasila Day",
+      "fr": "Jour du Pancasila",
+      "it": "Giorno del Pancasila",
+      "id": "Hari Lahir Pancasila",
+      "cs": "Den Pancasila",
+      "da": "Pancasila-dag",
+      "el": "\u0397\u03bc\u03ad\u03c1\u03b1 \u03a0\u03b1\u03bd\u03c4\u03c3\u03b1\u03c3\u03af\u03bb\u03b1",
+      "es": "D\u00eda de Pancasila",
+      "fi": "Pancasila-p\u00e4iv\u00e4",
+      "ja": "\u30d1\u30f3\u30c1\u30e3\u30b7\u30e9\u306e\u65e5",
+      "nb": "Pancasila-dag",
+      "nl": "Pancasila-dag",
+      "pl": "Dzie\u0144 Pancasila",
+      "pt": "Dia do Pancasila",
+      "ro": "Ziua Pancasila",
+      "sv": "Pancasila-dagen"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000012",
+    "rule": "06/16",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "ID",
+    "country": "ID",
+    "name": {
+      "de": "Islamisches Neujahr",
+      "en": "Islamic New Year",
+      "fr": "Nouvel An islamique",
+      "it": "Capodanno islamico",
+      "id": "Tahun Baru Islam 1448 H",
+      "cs": "Islámský Nový rok",
+      "da": "Islamisk nytår",
+      "el": "\u0399\u03c3\u03bb\u03b1\u03bc\u03b9\u03ba\u03ae \u03a0\u03c1\u03c9\u03c4\u03bf\u03c7\u03c1\u03bf\u03bd\u03b9\u03ac",
+      "es": "A\u00f1o Nuevo Isl\u00e1mico",
+      "fi": "Islamilainen uusivuosi",
+      "ja": "\u30a4\u30b9\u30e9\u30e0\u66a6\u65b0\u5e74",
+      "nb": "Islamsk nytt\u00e5r",
+      "nl": "Islamitisch Nieuwjaar",
+      "pl": "Islamski Nowy Rok",
+      "pt": "Ano Novo Isl\u00e2mico",
+      "ro": "Anul Nou Islamic",
+      "sv": "Islamiskt ny\u00e5r"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000013",
+    "rule": "08/17",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "ID",
+    "country": "ID",
+    "name": {
+      "de": "Unabh\u00e4ngigkeitstag",
+      "en": "Independence Day",
+      "fr": "Jour de l'Ind\u00e9pendance",
+      "it": "Giorno dell'Indipendenza",
+      "id": "Hari Kemerdekaan Republik Indonesia",
+      "cs": "Den nez\u00e1vislosti",
+      "da": "Uafh\u00e6ngighedsdag",
+      "el": "\u0397\u03bc\u03ad\u03c1\u03b1 \u0391\u03bd\u03b5\u03be\u03b1\u03c1\u03c4\u03b7\u03c3\u03af\u03b1\u03c2",
+      "es": "D\u00eda de la Independencia",
+      "fi": "Itsen\u00e4isyysp\u00e4iv\u00e4",
+      "ja": "\u72ec\u7acb\u8a18\u5ff5\u65e5",
+      "nb": "Uavhengighetsdag",
+      "nl": "Onafhankelijkheidsdag",
+      "pl": "Dzie\u0144 Niepodleg\u0142o\u015bci",
+      "pt": "Dia da Independ\u00eancia",
+      "ro": "Ziua Independen\u021bei",
+      "sv": "Sj\u00e4lvst\u00e4ndighetsdagen"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000014",
+    "rule": "08/25",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "ID",
+    "country": "ID",
+    "name": {
+      "de": "Geburtstag des Propheten Mohammed",
+      "en": "Prophet Muhammad's Birthday",
+      "fr": "Anniversaire du Proph\u00e8te Mahomet",
+      "it": "Compleanno del Profeta Maometto",
+      "id": "Maulid Nabi Muhammad SAW",
+      "cs": "Narozeniny proroka Mohameda",
+      "da": "Profeten Muhammeds f\u00f8dselsdag",
+      "el": "\u0393\u03b5\u03bd\u03ad\u03b8\u03bb\u03b9\u03b1 \u03c4\u03bf\u03c5 \u03a0\u03c1\u03bf\u03c6\u03ae\u03c4\u03b7 \u039c\u03c9\u03ac\u03bc\u03b5\u03b8",
+      "es": "Cumplea\u00f1os del Profeta Mahoma",
+      "fi": "Profeetta Muhammedin syntym\u00e4p\u00e4iv\u00e4",
+      "ja": "\u9810\u8a00\u8005\u30e0\u30cf\u30f3\u30de\u30c9\u751f\u8a95\u7948",
+      "nb": "Profeten Muhammeds f\u00f8dselsdag",
+      "nl": "Geboortedag van de Profeet Mohammed",
+      "pl": "Urodziny Proroka Mahometa",
+      "pt": "Anivers\u00e1rio do Profeta Maom\u00e9",
+      "ro": "Ziua de na\u0219tere a Profetului Mahomed",
+      "sv": "Profeten Muhammeds f\u00f6delsedag"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000015",
+    "rule": "12/25",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "ID",
+    "country": "ID",
+    "name": {
+      "de": "Weihnachten",
+      "en": "Christmas Day",
+      "fr": "No\u00ebl",
+      "it": "Natale",
+      "id": "Hari Raya Natal",
+      "cs": "V\u00e1noce",
+      "da": "Juledag",
+      "el": "\u03a7\u03c1\u03b9\u03c3\u03c4\u03bf\u03cd\u03b3\u03b5\u03bd\u03bd\u03b1",
+      "es": "Navidad",
+      "fi": "Joulup\u00e4iv\u00e4",
+      "ja": "\u30af\u30ea\u30b9\u30de\u30b9",
+      "nb": "F\u00f8rste juledag",
+      "nl": "Eerste Kerstdag",
+      "pl": "Bo\u017ce Narodzenie",
+      "pt": "Natal",
+      "ro": "Cr\u0103ciun",
+      "sv": "Juldagen"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000016",
+    "rule": "03/27",
+    "subRule": "",
+    "isMandatory": true,
+    "isPaid": true,
+    "state": "ID",
+    "country": "ID",
+    "name": {
+      "de": "Isra Mi'raj",
+      "en": "Isra Mi'raj",
+      "fr": "Isra Mi'raj",
+      "it": "Isra Mi'raj",
+      "id": "Isra Mi'raj Nabi Muhammad SAW",
+      "cs": "Isr\u00e1 a Mi'r\u00e1d\u017e",
+      "da": "Isra Mi'raj",
+      "el": "\u0399\u03c3\u03c1\u03ac \u039c\u03b9'\u03c1\u03ac\u03c4\u03b6",
+      "es": "Isra Mi'ray",
+      "fi": "Isra Mi'raj",
+      "ja": "\u30a4\u30b9\u30e9\u30fb\u30df\u30a5\u30e9\u30fc\u30b8\u30e5",
+      "nb": "Isra Mi'raj",
+      "nl": "Isra Mi'raj",
+      "pl": "Isra Mi'rad\u017c",
+      "pt": "Isra Mi'raj",
+      "ro": "Isra Mi'raj",
+      "sv": "Isra Mi'raj"
+    },
+    "description": {
+      "de": "Nachtreise und Himmelfahrt des Propheten Mohammed",
+      "en": "Night Journey and Ascension of Prophet Muhammad",
+      "fr": "Voyage nocturne et ascension du Proph\u00e8te Mahomet",
+      "it": "Viaggio notturno e ascensione del Profeta Maometto",
+      "id": "Peringatan Perjalanan Malam dan Mi'raj Nabi Muhammad SAW",
+      "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000020",
+    "rule": "06/22",
+    "subRule": "",
+    "isMandatory": false,
+    "isPaid": false,
+    "state": "JK",
+    "country": "ID",
+    "name": {
+      "de": "Jahrestag von Jakarta",
+      "en": "Jakarta Anniversary",
+      "fr": "Anniversaire de Jakarta",
+      "it": "Anniversario di Giacarta",
+      "id": "Hari Jadi Kota Jakarta",
+      "cs": "V\u00fdro\u010d\u00ed Jakarty",
+      "da": "Jakartas \u00e5rsdag",
+      "el": "\u0395\u03c0\u03ad\u03c4\u03b5\u03b9\u03bf\u03c2 \u03a4\u03b6\u03b1\u03ba\u03ac\u03c1\u03c4\u03b1\u03c2",
+      "es": "Aniversario de Yakarta",
+      "fi": "Jakartan vuosip\u00e4iv\u00e4",
+      "ja": "\u30b8\u30e3\u30ab\u30eb\u30bf\u8a18\u5ff5\u65e5",
+      "nb": "Jakartas \u00e5rsdag",
+      "nl": "Verjaardag van Jakarta",
+      "pl": "Rocznica D\u017cakarty",
+      "pt": "Anivers\u00e1rio de Jacarta",
+      "ro": "Aniversarea Jakartei",
+      "sv": "Jakartas \u00e5rsdag"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000021",
+    "rule": "11/10",
+    "subRule": "",
+    "isMandatory": false,
+    "isPaid": false,
+    "state": "JI",
+    "country": "ID",
+    "name": {
+      "de": "Heldentag",
+      "en": "Heroes' Day",
+      "fr": "Jour des H\u00e9ros",
+      "it": "Giorno degli Eroi",
+      "id": "Hari Pahlawan",
+      "cs": "Den hrdin\u016f",
+      "da": "Heltedag",
+      "el": "\u0397\u03bc\u03ad\u03c1\u03b1 \u0397\u03c1\u03ce\u03c9\u03bd",
+      "es": "D\u00eda de los H\u00e9roes",
+      "fi": "Sankarip\u00e4iv\u00e4",
+      "ja": "\u82f1\u96c4\u306e\u65e5",
+      "nb": "Heltedag",
+      "nl": "Heldendag",
+      "pl": "Dzie\u0144 Bohater\u00f3w",
+      "pt": "Dia dos Her\u00f3is",
+      "ro": "Ziua Eroilor",
+      "sv": "Hj\u00e4ltedagen"
+    },
+    "description": {
+      "de": "Gedenktag der Schlacht von Surabaya 1945",
+      "en": "Commemoration of the Battle of Surabaya 1945",
+      "fr": "Comm\u00e9moration de la bataille de Surabaya 1945",
+      "it": "Commemorazione della battaglia di Surabaya 1945",
+      "id": "Peringatan Pertempuran Surabaya 1945",
+      "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000022",
+    "rule": "10/28",
+    "subRule": "",
+    "isMandatory": false,
+    "isPaid": false,
+    "state": "JT",
+    "country": "ID",
+    "name": {
+      "de": "Tag des Jugendgelöbnisses",
+      "en": "Youth Pledge Day",
+      "fr": "Jour du Serment de la Jeunesse",
+      "it": "Giorno del Giuramento dei Giovani",
+      "id": "Hari Sumpah Pemuda",
+      "cs": "Den p\u0159\u00edsahy ml\u00e1de\u017ee",
+      "da": "Ungdoms\u00eddsdag",
+      "el": "\u0397\u03bc\u03ad\u03c1\u03b1 \u039d\u03b5\u03b1\u03bd\u03b9\u03ba\u03bf\u03cd \u038c\u03c1\u03ba\u03bf\u03c5",
+      "es": "D\u00eda del Juramento de la Juventud",
+      "fi": "Nuorten lupauksen p\u00e4iv\u00e4",
+      "ja": "\u9752\u5e74\u306e\u8a93\u3044\u306e\u65e5",
+      "nb": "Ungdomsl\u00f8ftets dag",
+      "nl": "Dag van de Jeugdbelofte",
+      "pl": "Dzie\u0144 Przysi\u0119gi M\u0142odzie\u017cy",
+      "pt": "Dia do Juramento da Juventude",
+      "ro": "Ziua Jur\u0103m\u00e2ntului Tineretului",
+      "sv": "Ungdomsl\u00f6ftets dag"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000023",
+    "rule": "04/21",
+    "subRule": "",
+    "isMandatory": false,
+    "isPaid": false,
+    "state": "JB",
+    "country": "ID",
+    "name": {
+      "de": "Kartini-Tag",
+      "en": "Kartini Day",
+      "fr": "Jour de Kartini",
+      "it": "Giorno di Kartini",
+      "id": "Hari Kartini",
+      "cs": "Den Kartini",
+      "da": "Kartini-dag",
+      "el": "\u0397\u03bc\u03ad\u03c1\u03b1 \u039a\u03b1\u03c1\u03c4\u03af\u03bd\u03b9",
+      "es": "D\u00eda de Kartini",
+      "fi": "Kartini-p\u00e4iv\u00e4",
+      "ja": "\u30ab\u30eb\u30c6\u30a3\u30cb\u306e\u65e5",
+      "nb": "Kartini-dag",
+      "nl": "Kartini-dag",
+      "pl": "Dzie\u0144 Kartini",
+      "pt": "Dia de Kartini",
+      "ro": "Ziua Kartini",
+      "sv": "Kartini-dagen"
+    },
+    "description": {
+      "de": "Gedenktag der Frauenemanzipation",
+      "en": "Women's emancipation commemoration day",
+      "fr": "Jour de comm\u00e9moration de l'\u00e9mancipation des femmes",
+      "it": "Giorno commemorativo dell'emancipazione femminile",
+      "id": "Hari peringatan emansipasi perempuan",
+      "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000024",
+    "rule": "08/14",
+    "subRule": "",
+    "isMandatory": false,
+    "isPaid": false,
+    "state": "BA",
+    "country": "ID",
+    "name": {
+      "de": "Jahrestag der Provinz Bali",
+      "en": "Bali Province Anniversary",
+      "fr": "Anniversaire de la province de Bali",
+      "it": "Anniversario della provincia di Bali",
+      "id": "Hari Jadi Provinsi Bali",
+      "cs": "V\u00fdro\u010d\u00ed provincie Bali",
+      "da": "Bali-provinsens \u00e5rsdag",
+      "el": "\u0395\u03c0\u03ad\u03c4\u03b5\u03b9\u03bf\u03c2 \u03c4\u03b7\u03c2 \u03b5\u03c0\u03b1\u03c1\u03c7\u03af\u03b1\u03c2 \u039c\u03c0\u03b1\u03bb\u03af",
+      "es": "Aniversario de la provincia de Bali",
+      "fi": "Balin maakunnan vuosip\u00e4iv\u00e4",
+      "ja": "\u30d0\u30ea\u5dde\u8a18\u5ff5\u65e5",
+      "nb": "Bali-provinsens \u00e5rsdag",
+      "nl": "Verjaardag van de provincie Bali",
+      "pl": "Rocznica prowincji Bali",
+      "pt": "Anivers\u00e1rio da prov\u00edncia de Bali",
+      "ro": "Aniversarea provinciei Bali",
+      "sv": "Bali-provinsens \u00e5rsdag"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000025",
+    "rule": "12/01",
+    "subRule": "",
+    "isMandatory": false,
+    "isPaid": false,
+    "state": "AC",
+    "country": "ID",
+    "name": {
+      "de": "Jahrestag der Provinz Aceh",
+      "en": "Aceh Province Anniversary",
+      "fr": "Anniversaire de la province d'Aceh",
+      "it": "Anniversario della provincia di Aceh",
+      "id": "Hari Jadi Provinsi Aceh",
+      "cs": "V\u00fdro\u010d\u00ed provincie Aceh",
+      "da": "Aceh-provinsens \u00e5rsdag",
+      "el": "\u0395\u03c0\u03ad\u03c4\u03b5\u03b9\u03bf\u03c2 \u03c4\u03b7\u03c2 \u03b5\u03c0\u03b1\u03c1\u03c7\u03af\u03b1\u03c2 \u0386\u03c4\u03c3\u03b5\u03c7",
+      "es": "Aniversario de la provincia de Aceh",
+      "fi": "Acehin maakunnan vuosip\u00e4iv\u00e4",
+      "ja": "\u30a2\u30c1\u30a7\u5dde\u8a18\u5ff5\u65e5",
+      "nb": "Aceh-provinsens \u00e5rsdag",
+      "nl": "Verjaardag van de provincie Atjeh",
+      "pl": "Rocznica prowincji Aceh",
+      "pt": "Anivers\u00e1rio da prov\u00edncia de Aceh",
+      "ro": "Aniversarea provinciei Aceh",
+      "sv": "Aceh-provinsens \u00e5rsdag"
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000026",
+    "rule": "04/15",
+    "subRule": "",
+    "isMandatory": false,
+    "isPaid": false,
+    "state": "SU",
+    "country": "ID",
+    "name": {
+      "de": "Jahrestag der Provinz Nordsumatra",
+      "en": "North Sumatra Province Anniversary",
+      "fr": "Anniversaire de la province de Sumatra du Nord",
+      "it": "Anniversario della provincia di Sumatra Settentrionale",
+      "id": "Hari Jadi Provinsi Sumatera Utara",
+      "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000027",
+    "rule": "10/07",
+    "subRule": "",
+    "isMandatory": false,
+    "isPaid": false,
+    "state": "SB",
+    "country": "ID",
+    "name": {
+      "de": "Jahrestag der Provinz Westsumatra",
+      "en": "West Sumatra Province Anniversary",
+      "fr": "Anniversaire de la province de Sumatra occidental",
+      "it": "Anniversario della provincia di Sumatra Occidentale",
+      "id": "Hari Jadi Provinsi Sumatera Barat",
+      "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  },
+  {
+    "id": "d1b2c3d4-bb01-4000-8000-000000000028",
+    "rule": "10/07",
+    "subRule": "",
+    "isMandatory": false,
+    "isPaid": false,
+    "state": "YO",
+    "country": "ID",
+    "name": {
+      "de": "Jahrestag der Sonderregion Yogyakarta",
+      "en": "Yogyakarta Special Region Anniversary",
+      "fr": "Anniversaire de la r\u00e9gion sp\u00e9ciale de Yogyakarta",
+      "it": "Anniversario della regione speciale di Yogyakarta",
+      "id": "Hari Jadi DIY Yogyakarta",
+      "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    },
+    "description": {
+      "de": "", "en": "", "fr": "", "it": "", "id": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "ja": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": ""
+    }
+  }
+]

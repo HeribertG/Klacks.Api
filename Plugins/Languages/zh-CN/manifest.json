@@ -1,0 +1,11 @@
+{
+  "code": "zh-CN",
+  "name": "Chinese Simplified",
+  "displayName": "简体中文",
+  "speechLocale": "zh-CN",
+  "version": "1.0.0",
+  "author": "Klacks Community",
+  "coverage": 100.0,
+  "minKlacksVersion": "1.0.0",
+  "direction": "ltr"
+}

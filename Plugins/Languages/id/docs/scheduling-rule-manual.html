@@ -1,0 +1,51 @@
+<h2>Aturan Perencanaan - Penjelasan</h2>
+
+<p>Aturan perencanaan menentukan kerangka kerja untuk penjadwalan shift otomatis. Setiap aturan menentukan bagaimana jam kerja, waktu istirahat, dan kapasitas didistribusikan untuk grup atau konfigurasi tertentu.</p>
+
+<hr>
+
+<h3>Hari Kerja &amp; Waktu Istirahat</h3>
+<table>
+  <tr><th>Bidang</th><th>Deskripsi</th></tr>
+  <tr><td><strong>Maks. hari kerja</strong></td><td>Jumlah maksimum hari kerja per minggu.</td></tr>
+  <tr><td><strong>Min. hari istirahat antar dua blok kerja</strong></td><td>Jumlah minimum hari istirahat yang diperlukan antara dua blok kerja berturut-turut.</td></tr>
+  <tr><td><strong>Min. waktu istirahat antar dua hari kerja</strong></td><td>Waktu istirahat minimum (dalam jam) dari akhir satu hari kerja hingga awal hari kerja berikutnya.</td></tr>
+  <tr><td><strong>Maks. jeda optimal antar shift (jam)</strong></td><td>Jeda waktu maksimum (dalam jam) yang dianggap optimal antara dua shift berturut-turut.</td></tr>
+  <tr><td><strong>Maks. hari kerja berturut-turut</strong></td><td>Jumlah maksimum hari kerja berturut-turut tanpa hari istirahat.</td></tr>
+</table>
+
+<hr>
+
+<h3>Batas Waktu</h3>
+<table>
+  <tr><th>Bidang</th><th>Deskripsi</th></tr>
+  <tr><td><strong>Maks. jam harian</strong></td><td>Jam kerja maksimum per hari.</td></tr>
+  <tr><td><strong>Maks. jam mingguan</strong></td><td>Jam kerja maksimum per minggu.</td></tr>
+  <tr><td><strong>Jam kerja standar per hari</strong></td><td>Jam kerja standar per hari (target jam).</td></tr>
+  <tr><td><strong>Ambang batas lembur (jam/minggu)</strong></td><td>Jam mingguan di atas ambang batas ini dihitung sebagai lembur.</td></tr>
+</table>
+
+<hr>
+
+<h3>Jam Bulanan</h3>
+<table>
+  <tr><th>Bidang</th><th>Deskripsi</th></tr>
+  <tr><td><strong>Jam yang dijamin</strong></td><td>Jumlah jam minimum yang dijamin kepada karyawan per bulan.</td></tr>
+  <tr><td><strong>Jam maksimum</strong></td><td>Jam kerja maksimum yang diizinkan per bulan.</td></tr>
+  <tr><td><strong>Jam minimum</strong></td><td>Jam kerja minimum per bulan.</td></tr>
+  <tr><td><strong>Penuh waktu (jam)</strong></td><td>Jam bulanan yang setara dengan pekerjaan penuh waktu.</td></tr>
+</table>
+
+<hr>
+
+<h3>Cuti</h3>
+<table>
+  <tr><th>Bidang</th><th>Deskripsi</th></tr>
+  <tr><td><strong>Hari cuti per tahun</strong></td><td>Jumlah hari cuti yang diberikan per tahun kalender.</td></tr>
+</table>
+
+<hr>
+
+<h3>Penerapan</h3>
+<p>Aturan perencanaan ditetapkan ke <strong>kontrak</strong>. Dengan demikian, batas yang ditentukan diterapkan pada semua karyawan dengan kontrak tersebut selama penjadwalan shift otomatis.</p>
+<p>Nilai default yang diatur di sini diambil dari <strong>Aturan Perencanaan (Nilai Default)</strong> di pengaturan. Saat membuat aturan baru, nilai-nilai ini secara otomatis diadopsi dan dapat disesuaikan secara individual.</p>

@@ -1,0 +1,51 @@
+<h2>排班规则 - 说明</h2>
+
+<p>排班规则定义了自动班次排班的框架。每条规则决定了特定分组或配置中如何分配工作时间、休息时间和人员能力。</p>
+
+<hr>
+
+<h3>工作日 &amp; 休息时间</h3>
+<table>
+  <tr><th>字段</th><th>说明</th></tr>
+  <tr><td><strong>每周最大工作天数</strong></td><td>每周允许的最大工作天数。</td></tr>
+  <tr><td><strong>两个工作周期之间的最少休息天数</strong></td><td>两个连续工作周期之间所需的最少休息天数。</td></tr>
+  <tr><td><strong>两个工作日之间的最短休息时间</strong></td><td>从一个工作日结束到下一个工作日开始之间的最短休息时间（小时）。</td></tr>
+  <tr><td><strong>班次之间的最大最优间隔（小时）</strong></td><td>两个连续班次之间被视为最优的最大时间间隔（小时）。</td></tr>
+  <tr><td><strong>最大连续工作天数</strong></td><td>不休息可连续工作的最大天数。</td></tr>
+</table>
+
+<hr>
+
+<h3>时间限制</h3>
+<table>
+  <tr><th>字段</th><th>说明</th></tr>
+  <tr><td><strong>每日最大工时</strong></td><td>每天允许的最大工作时间。</td></tr>
+  <tr><td><strong>每周最大工时</strong></td><td>每周允许的最大工作时间。</td></tr>
+  <tr><td><strong>每日标准工时</strong></td><td>每天的标准工作时间（目标时间）。</td></tr>
+  <tr><td><strong>加班基准（小时/周）</strong></td><td>超过此每周工时的部分将被视为加班。</td></tr>
+</table>
+
+<hr>
+
+<h3>月度工时</h3>
+<table>
+  <tr><th>字段</th><th>说明</th></tr>
+  <tr><td><strong>保障工时</strong></td><td>每月为员工保障的最低工时。</td></tr>
+  <tr><td><strong>最大工时</strong></td><td>每月允许的最大工作时间。</td></tr>
+  <tr><td><strong>最低工时</strong></td><td>每月的最低工作时间。</td></tr>
+  <tr><td><strong>全职工时</strong></td><td>相当于全职雇佣的月度工时。</td></tr>
+</table>
+
+<hr>
+
+<h3>假期</h3>
+<table>
+  <tr><th>字段</th><th>说明</th></tr>
+  <tr><td><strong>年假天数</strong></td><td>每个日历年度授予的假期天数。</td></tr>
+</table>
+
+<hr>
+
+<h3>应用</h3>
+<p>排班规则分配给<strong>合同</strong>。这样，在自动排班时，定义的限制值将应用于持有该合同的所有员工。</p>
+<p>此处设置的默认值来自设置中的<strong>排班规则（默认值）</strong>。创建新规则时，这些值将自动继承，并可单独调整。</p>

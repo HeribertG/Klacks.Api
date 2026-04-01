@@ -1,0 +1,117 @@
+<h2>Manual Pembekal ID</h2>
+
+<h3>Pengenalan</h3>
+<p>
+Dengan menggunakan Pembekal ID, anda boleh melaksanakan pengesahan pengguna melalui
+perkhidmatan direktori luaran seperti LDAP, Active Directory, OAuth2/OpenID Connect.
+</p>
+
+<p><strong>Jenis pembekal yang disokong:</strong></p>
+<ul>
+  <li><strong>LDAP</strong> - Protokol Akses Direktori Ringan Standard</li>
+  <li><strong>Active Directory</strong> - Microsoft Active Directory</li>
+  <li><strong>OAuth2</strong> - Rangka Kerja Kebenaran OAuth 2.0</li>
+  <li><strong>OpenID Connect</strong> - Lapisan Identiti di atas OAuth 2.0</li>
+</ul>
+
+<hr>
+
+<h3>LDAP / Active Directory</h3>
+
+<h4>Tetapan Sambungan</h4>
+<table>
+  <tr><th>Medan</th><th>Penerangan</th><th>Contoh</th></tr>
+  <tr><td>Hos</td><td>Nama hos atau alamat IP pelayan LDAP</td><td>ldap.example.com</td></tr>
+  <tr><td>Port</td><td>389 (LDAP) atau 636 (LDAPS)</td><td>389</td></tr>
+  <tr><td>Guna SSL</td><td>Dayakan sambungan yang disulitkan</td><td>-</td></tr>
+  <tr><td>DN Asas</td><td>Nama Terbeza Asas untuk carian</td><td>DC=example,DC=com</td></tr>
+  <tr><td>DN Ikatan</td><td>DN pengguna yang digunakan untuk sambungan</td><td>CN=admin,DC=example,DC=com</td></tr>
+  <tr><td>Kata Laluan Ikatan</td><td>Kata laluan pengguna ikatan</td><td>-</td></tr>
+  <tr><td>Penapis Pengguna</td><td>Penapis LDAP untuk carian pengguna</td><td>(objectClass=person)</td></tr>
+</table>
+
+<h4>Perbezaan antara LDAP dan Active Directory</h4>
+<table>
+  <tr><th>Atribut</th><th>LDAP (OpenLDAP)</th><th>Active Directory</th></tr>
+  <tr><td>Atribut pengguna</td><td>uid</td><td>sAMAccountName</td></tr>
+  <tr><td>Atribut alamat</td><td>street</td><td>streetAddress</td></tr>
+  <tr><td>Atribut gelaran</td><td>-</td><td>personalTitle</td></tr>
+  <tr><td>Atribut negara</td><td>-</td><td>c</td></tr>
+  <tr><td>Kaedah pengesahan</td><td>Ikatan mudah</td><td>Negotiate/Kerberos</td></tr>
+</table>
+
+<h4>Penapis Pengguna Biasa</h4>
+<pre>
+LDAP:             (objectClass=person)
+                  (objectClass=inetOrgPerson)
+
+Active Directory: (&amp;(objectClass=user)(objectCategory=person))
+                  (&amp;(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+</pre>
+
+<h4>Import Klien</h4>
+<p>Jika "Guna untuk import klien" diaktifkan, data berikut akan diimport:</p>
+<ul>
+  <li><strong>Nama keluarga</strong> - sn (nama keluarga) atau displayName</li>
+  <li><strong>Nama pertama</strong> - givenName</li>
+  <li><strong>Jawatan</strong> - title (jawatan)</li>
+  <li><strong>Syarikat</strong> - company</li>
+  <li><strong>Alamat</strong> - street/streetAddress, postalCode, l (bandar), st (negeri), c (negara)</li>
+  <li><strong>Jantina</strong> - Untuk Active Directory, diambil dari personalTitle (Herr/Frau)</li>
+</ul>
+
+<p><em>Nota: Untuk OpenLDAP, jantina lalai ialah "Neutral" dan boleh diperbetulkan secara manual.</em></p>
+
+<hr>
+
+<h3>OAuth2 / OpenID Connect</h3>
+
+<h4>Tetapan</h4>
+<table>
+  <tr><th>Medan</th><th>Penerangan</th></tr>
+  <tr><td>ID Klien</td><td>ID klien yang didaftarkan dengan pembekal</td></tr>
+  <tr><td>Rahsia Klien</td><td>Rahsia klien yang sepadan</td></tr>
+  <tr><td>ID Penyewa</td><td>ID penyewa Azure AD (pilihan, Microsoft sahaja)</td></tr>
+  <tr><td>URL Kebenaran</td><td>Titik akhir untuk kebenaran</td></tr>
+  <tr><td>URL Token</td><td>Titik akhir untuk pertukaran token</td></tr>
+  <tr><td>URL Maklumat Pengguna</td><td>Titik akhir untuk mendapatkan maklumat pengguna</td></tr>
+  <tr><td>Skop</td><td>Kebenaran yang diminta (cth: "openid profile email")</td></tr>
+</table>
+
+<h4>Pembekal Utama</h4>
+<table>
+  <tr><th>Pembekal</th><th>URL Kebenaran</th><th>URL Token</th></tr>
+  <tr><td>Google</td><td>https://accounts.google.com/o/oauth2/v2/auth</td><td>https://oauth2.googleapis.com/token</td></tr>
+  <tr><td>Microsoft</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</td></tr>
+  <tr><td>GitHub</td><td>https://github.com/login/oauth/authorize</td><td>https://github.com/login/oauth/access_token</td></tr>
+</table>
+
+<hr>
+
+<h3>Petua</h3>
+
+<h4>Menggunakan Synology NAS sebagai Pelayan LDAP</h4>
+<p>
+Anda boleh menggunakan Synology NAS sebagai pelayan LDAP. Dalam kes ini, anda perlu memasang
+pakej "Pelayan LDAP" atau kontena Docker dengan OpenLDAP.
+</p>
+<ul>
+  <li>Jenis pembekal: "Active Directory" (untuk pengesahan fallback)</li>
+  <li>Penapis pengguna: (objectClass=inetOrgPerson)</li>
+  <li>Format DN pengguna: cn=username,ou=users,dc=example,dc=com</li>
+</ul>
+
+<h4>Menguji Sambungan</h4>
+<p>
+Gunakan butang "Uji Sambungan" untuk mengesahkan tetapan anda.
+Jika sambungan berjaya, bilangan pengguna yang ditemui dan beberapa contoh nama pengguna akan dipaparkan.
+</p>
+
+<h4>Penyelesaian Masalah</h4>
+<table>
+  <tr><th>Masalah</th><th>Penyelesaian</th></tr>
+  <tr><td>Sambungan gagal</td><td>Semak hos, port dan tetapan SSL</td></tr>
+  <tr><td>Ikatan gagal</td><td>Semak DN ikatan dan kata laluan</td></tr>
+  <tr><td>Pengguna tidak ditemui</td><td>Semak DN asas dan penapis pengguna</td></tr>
+  <tr><td>Alamat tidak diimport</td><td>OpenLDAP menggunakan "street" bukan "streetAddress"</td></tr>
+</table>

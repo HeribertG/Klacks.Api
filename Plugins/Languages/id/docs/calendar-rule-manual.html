@@ -1,0 +1,82 @@
+<h2>Aturan Hari Libur - Penjelasan</h2>
+
+<h3>Format Aturan</h3>
+<p>Ada dua jenis aturan: <strong>Tanggal tetap</strong> dan <strong>Tanggal berbasis Paskah</strong>.</p>
+
+<h4>Tanggal Tetap</h4>
+<p>Format: <code>MM/DD</code></p>
+<table>
+  <tr><th>Contoh</th><th>Arti</th></tr>
+  <tr><td><code>01/01</code></td><td>1 Januari (Tahun Baru)</td></tr>
+  <tr><td><code>12/25</code></td><td>25 Desember (Natal)</td></tr>
+  <tr><td><code>08/01</code></td><td>1 Agustus (Hari Nasional Swiss)</td></tr>
+</table>
+
+<h4>Tanggal Tetap dengan Pergeseran Hari</h4>
+<p>Format: <code>MM/DD+XX+WW</code> atau <code>MM/DD+XX-WW</code></p>
+<ul>
+  <li><code>+XX</code> = Tanda + Offset (hari) (00 sampai 99)</li>
+  <li><code>+</code> = Hari berikutnya setelah tanggal</li>
+  <li><code>-</code> = Hari sebelumnya sebelum tanggal</li>
+  <li><code>WW</code> = Hari dalam seminggu (SU, MO, TU, WE, TH, FR, SA)</li>
+</ul>
+<table>
+  <tr><th>Contoh</th><th>Arti</th></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>Kamis pertama di bulan November</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>Kamis keempat di bulan November (Thanksgiving)</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>Senin terakhir di bulan Mei (Memorial Day)</td></tr>
+</table>
+
+<h4>Tanggal Berbasis Paskah</h4>
+<p>Format: <code>EASTER+XX</code> atau <code>EASTER-XX</code></p>
+<table>
+  <tr><th>Contoh</th><th>Arti</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>Minggu Paskah</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>Jumat Agung (2 hari sebelum Paskah)</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>Senin Paskah (1 hari setelah Paskah)</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>Kenaikan Isa Almasih (39 hari setelah Paskah)</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>Pentakosta (49 hari setelah Paskah)</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>Senin Pentakosta (50 hari setelah Paskah)</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>Corpus Christi (60 hari setelah Paskah)</td></tr>
+</table>
+
+<hr>
+
+<h3>Format Sub-Aturan</h3>
+<p>Sub-aturan memungkinkan penggantian otomatis jika hari libur jatuh pada hari tertentu dalam seminggu.</p>
+<p>Format: <code>WW+X</code> atau <code>WW-X</code>, beberapa aturan dipisahkan dengan <code>;</code></p>
+<ul>
+  <li><code>WW</code> = Hari dalam seminggu (SU, MO, TU, WE, TH, FR, SA)</li>
+  <li><code>+X</code> = Pindahkan X hari ke depan</li>
+  <li><code>-X</code> = Pindahkan X hari ke belakang</li>
+</ul>
+<table>
+  <tr><th>Contoh</th><th>Arti</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>Jika Sabtu: +2 hari (Senin), jika Minggu: +1 hari (Senin)</td></tr>
+  <tr><td><code>SU+1</code></td><td>Jika Minggu: pindahkan ke Senin</td></tr>
+</table>
+
+<p><em>Catatan: Sub-aturan biasanya digunakan untuk memindahkan hari libur yang jatuh pada akhir pekan ke hari kerja berikutnya.</em></p>
+
+<hr>
+
+<h3>Singkatan Hari</h3>
+<table>
+  <tr><th>Singkatan</th><th>Hari</th></tr>
+  <tr><td>SU</td><td>Minggu (Sunday)</td></tr>
+  <tr><td>MO</td><td>Senin (Monday)</td></tr>
+  <tr><td>TU</td><td>Selasa (Tuesday)</td></tr>
+  <tr><td>WE</td><td>Rabu (Wednesday)</td></tr>
+  <tr><td>TH</td><td>Kamis (Thursday)</td></tr>
+  <tr><td>FR</td><td>Jumat (Friday)</td></tr>
+  <tr><td>SA</td><td>Sabtu (Saturday)</td></tr>
+</table>
+
+<hr>
+
+<h3>Kotak Centang</h3>
+<table>
+  <tr><th>Kotak Centang</th><th>Arti</th></tr>
+  <tr><td>Hari libur resmi</td><td>Hari tersebut adalah hari libur resmi/yang ditetapkan undang-undang</td></tr>
+  <tr><td>Dibayar</td><td>Hari libur dibayar (relevan untuk perhitungan gaji)</td></tr>
+</table>

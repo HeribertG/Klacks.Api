@@ -1,0 +1,7 @@
+{
+  "frustrated": ["không hoạt động", "hỏng", "lỗi", "sai", "tại sao", "lại nữa", "vấn đề", "trục trặc", "không sửa được", "bực mình", "khó chịu", "phiền"],
+  "stressed": ["khẩn cấp", "nhanh lên", "gấp", "hạn chót", "ngay bây giờ", "không có thời gian", "áp lực", "quá tải", "deadline"],
+  "confused": ["không hiểu", "làm sao", "thế nào", "là gì", "không rõ", "giải thích", "bối rối", "lạ", "tại sao lại"],
+  "positive": ["cảm ơn", "tuyệt vời", "hoàn hảo", "tốt lắm", "giỏi", "xuất sắc", "cảm kích", "tuyệt", "hay quá"],
+  "urgent": ["quan trọng", "khẩn cấp", "gấp", "khủng hoảng", "ngay lập tức", "cấp bách", "ưu tiên"]
+}

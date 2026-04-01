@@ -1,0 +1,7 @@
+{
+  "frustrated": ["tak berfungsi", "rosak", "bug", "pelik", "kenapa", "lagi", "masalah", "ralat", "gagal", "tak boleh"],
+  "stressed": ["segera", "cepat", "penting", "tarikh akhir", "sekarang", "tiada masa", "tekanan", "mendesak"],
+  "confused": ["tak faham", "macam mana", "apa maksud", "apa itu", "saya keliru", "tolong jelaskan", "tak jelas"],
+  "positive": ["terima kasih", "bagus", "sempurna", "hebat", "cantik", "syabas", "terbaik", "mantap"],
+  "urgent": ["penting", "segera", "mendesak", "kritikal", "sekarang juga", "kecemasan"]
+}

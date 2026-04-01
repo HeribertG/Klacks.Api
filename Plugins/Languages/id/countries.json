@@ -1,0 +1,26 @@
+[
+  {
+    "id": "a1b2c3d4-bb01-4000-8000-000000000001",
+    "abbreviation": "ID",
+    "name": {
+      "de": "Indonesien",
+      "en": "Indonesia",
+      "fr": "Indon\u00e9sie",
+      "it": "Indonesia",
+      "id": "Indonesia",
+      "cs": "Indon\u00e9sie",
+      "da": "Indonesien",
+      "el": "\u0399\u03bd\u03b4\u03bf\u03bd\u03b7\u03c3\u03af\u03b1",
+      "es": "Indonesia",
+      "fi": "Indonesia",
+      "ja": "\u30a4\u30f3\u30c9\u30cd\u30b7\u30a2",
+      "nb": "Indonesia",
+      "nl": "Indonesi\u00eb",
+      "pl": "Indonezja",
+      "pt": "Indon\u00e9sia",
+      "ro": "Indonezia",
+      "sv": "Indonesien"
+    },
+    "prefix": "+62"
+  }
+]

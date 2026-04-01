@@ -1,0 +1,11 @@
+{
+  "code": "ms",
+  "name": "Malay",
+  "displayName": "Bahasa Melayu",
+  "speechLocale": "ms-MY",
+  "version": "1.0.0",
+  "author": "Klacks Community",
+  "coverage": 100.0,
+  "minKlacksVersion": "1.0.0",
+  "direction": "ltr"
+}

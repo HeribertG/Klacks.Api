@@ -1,0 +1,26 @@
+[
+  {
+    "id": "b1c2d3e4-aa01-4000-8000-000000000001",
+    "abbreviation": "TW",
+    "name": {
+      "de": "Taiwan",
+      "en": "Taiwan",
+      "fr": "Taïwan",
+      "it": "Taiwan",
+      "cs": "Tchaj-wan",
+      "da": "Taiwan",
+      "el": "Ταϊβάν",
+      "es": "Taiwán",
+      "fi": "Taiwan",
+      "ja": "台湾",
+      "nb": "Taiwan",
+      "nl": "Taiwan",
+      "pl": "Tajwan",
+      "pt": "Taiwan",
+      "ro": "Taiwan",
+      "sv": "Taiwan",
+      "zh-TW": "臺灣"
+    },
+    "prefix": "+886"
+  }
+]

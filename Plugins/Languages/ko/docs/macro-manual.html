@@ -1,0 +1,330 @@
+<h2>매크로 스크립팅 매뉴얼</h2>
+
+<h3>소개</h3>
+<p>
+매크로 편집기를 사용하여 업무, 고용 형태 등의 계산 기반으로 사용되는 스크립트를
+작성할 수 있습니다.
+</p>
+
+<p><strong>사용 예:</strong></p>
+<ul>
+  <li>고용률에 기반한 휴가 및 군복무 시간의 정확한 계산</li>
+  <li>야간 근무, 주말, 공휴일 할증 수당 계산</li>
+  <li>새로운 요구사항에 대한 유연한 대응</li>
+</ul>
+
+<p>
+<em>참고: 스크립트 인터프리터는 파일 시스템이나 네트워크에 접근할 수 없는
+안전한 샌드박스 환경에서 동작합니다. 악성 코드를 실행할 수 없습니다.</em>
+</p>
+
+<hr>
+
+<h3>변수와 상수</h3>
+<p>모든 변수와 상수는 타입이 없습니다.</p>
+
+<pre>
+CONST PI = 3.1415
+DIM a, b, c
+IMPORT betrag, rabatt
+</pre>
+
+<h4>가져오기 변수 (IMPORT)</h4>
+<p>이 변수들은 Work, Contract, CalendarSelection에서 생성됩니다:</p>
+
+<table>
+  <tr><th>변수</th><th>타입</th><th>설명</th></tr>
+  <tr><td>hour</td><td>Decimal</td><td>근무 시간 (Work에서 가져옴)</td></tr>
+  <tr><td>fromhour</td><td>Decimal</td><td>시작 시각 (10진 시간) (8:30 → 8.5)</td></tr>
+  <tr><td>untilhour</td><td>Decimal</td><td>종료 시각 (10진 시간) (17:00 → 17.0)</td></tr>
+  <tr><td>weekday</td><td>Integer</td><td>요일 ISO-8601 (1=월, 2=화, 3=수, 4=목, 5=금, 6=토, 7=일)</td></tr>
+  <tr><td>holiday</td><td>Boolean</td><td>해당일이 공식 공휴일인지 여부</td></tr>
+  <tr><td>holidaynextday</td><td>Boolean</td><td>다음 날이 공식 공휴일인지 여부</td></tr>
+  <tr><td>nightrate</td><td>Decimal</td><td>Contract의 야간 할증률 (예: 0.10 = 10%)</td></tr>
+  <tr><td>holidayrate</td><td>Decimal</td><td>Contract의 공휴일 할증률 (예: 0.15 = 15%)</td></tr>
+  <tr><td>sarate</td><td>Decimal</td><td>Contract의 토요일 할증률</td></tr>
+  <tr><td>sorate</td><td>Decimal</td><td>Contract의 일요일 할증률</td></tr>
+  <tr><td>guaranteedhours</td><td>Decimal</td><td>Contract의 보장 월간 시간 수</td></tr>
+  <tr><td>fulltime</td><td>Decimal</td><td>Contract의 풀타임 시간 수</td></tr>
+</table>
+
+<hr>
+
+<h3>제어 구조</h3>
+
+<p><strong>중요:</strong> <code>ENDIF</code>, <code>ENDFUNCTION</code>, <code>ENDSUB</code> 등의 키워드는
+이어서 기술해야 합니다 (<code>END IF</code>처럼 분리하여 기술하지 마세요).</p>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF x > 10 THEN
+    OUTPUT 1, "큼"
+ELSEIF x > 5 THEN
+    OUTPUT 1, "중간"
+ELSE
+    OUTPUT 1, "작음"
+ENDIF
+</pre>
+
+<h4>한 줄 IF</h4>
+<pre>
+IF x > 10 THEN OUTPUT 1, "큼" ENDIF
+</pre>
+
+<h4>SELECT CASE</h4>
+<pre>
+SELECT CASE weekday
+    CASE 6, 7
+        OUTPUT 1, "주말"
+    CASE 1, 2, 3, 4, 5
+        OUTPUT 1, "평일"
+    CASE ELSE
+        OUTPUT 1, "불명"
+END SELECT
+</pre>
+
+<h4>FOR-NEXT 반복문</h4>
+<pre>
+FOR i = 1 TO 10
+    summe += i
+NEXT
+
+FOR i = 10 TO 1 STEP -1
+    IF x > y THEN EXIT FOR
+NEXT
+</pre>
+
+<h4>DO-LOOP 반복문</h4>
+<pre>
+DO WHILE a > 0
+    a -= 1
+LOOP
+
+DO
+    x += 1
+LOOP UNTIL x >= 10
+</pre>
+
+<hr>
+
+<h3>함수와 프로시저</h3>
+
+<p><strong>중요:</strong> 함수(FUNCTION)와 프로시저(SUB)는 최초 호출보다 <em>앞에</em> 정의해야 합니다.
+인터프리터는 코드를 위에서 아래로 읽습니다. 함수 또는 프로시저는 정의가 처리된 후에만 사용할 수 있습니다.</p>
+
+<h4>SUB (반환값 없는 프로시저)</h4>
+<pre>
+SUB berechne(a, b)
+    IF a = b THEN EXIT SUB ENDIF
+    OUTPUT 1, a + b
+ENDSUB
+</pre>
+
+<h4>FUNCTION (반환값 있는 함수)</h4>
+<pre>
+FUNCTION verdoppeln(x)
+    verdoppeln = x * 2
+ENDFUNCTION
+
+DIM ergebnis
+ergebnis = verdoppeln(21)
+OUTPUT 1, ergebnis
+</pre>
+
+<hr>
+
+<h3>연산자</h3>
+
+<h4>산술 연산자</h4>
+<table>
+  <tr><th>연산자</th><th>설명</th><th>예</th></tr>
+  <tr><td>+</td><td>덧셈</td><td>5 + 3 = 8</td></tr>
+  <tr><td>-</td><td>뺄셈</td><td>5 - 3 = 2</td></tr>
+  <tr><td>*</td><td>곱셈</td><td>5 * 3 = 15</td></tr>
+  <tr><td>/</td><td>나눗셈</td><td>10 / 4 = 2.5</td></tr>
+  <tr><td>\</td><td>정수 나눗셈</td><td>10 \ 4 = 2</td></tr>
+  <tr><td>MOD</td><td>나머지</td><td>10 MOD 3 = 1</td></tr>
+  <tr><td>^</td><td>거듭제곱</td><td>2 ^ 3 = 8</td></tr>
+</table>
+
+<h4>비교 연산자</h4>
+<table>
+  <tr><th>연산자</th><th>설명</th></tr>
+  <tr><td>=</td><td>같음</td></tr>
+  <tr><td>&lt;&gt;</td><td>같지 않음</td></tr>
+  <tr><td>&lt;</td><td>보다 작음</td></tr>
+  <tr><td>&gt;</td><td>보다 큼</td></tr>
+  <tr><td>&lt;=</td><td>이하</td></tr>
+  <tr><td>&gt;=</td><td>이상</td></tr>
+</table>
+
+<h4>논리 연산자</h4>
+<table>
+  <tr><th>연산자</th><th>설명</th></tr>
+  <tr><td>AND</td><td>비트 논리곱</td></tr>
+  <tr><td>OR</td><td>비트 논리합</td></tr>
+  <tr><td>NOT</td><td>부정</td></tr>
+  <tr><td>ANDALSO</td><td>논리곱 (단축 평가)</td></tr>
+  <tr><td>ORELSE</td><td>논리합 (단축 평가)</td></tr>
+</table>
+
+<h4>대입 연산자</h4>
+<pre>
+a = 10      ' 단순 대입
+a += 5      ' a = a + 5
+a -= 3      ' a = a - 3
+a *= 2      ' a = a * 2
+a /= 4      ' a = a / 4
+a &= "!"    ' 문자열 연결
+</pre>
+
+<hr>
+
+<h3>내장 함수</h3>
+
+<h4>문자열 함수</h4>
+<table>
+  <tr><th>함수</th><th>설명</th><th>예</th></tr>
+  <tr><td>Len(s)</td><td>문자열 길이</td><td>Len("Hallo") = 5</td></tr>
+  <tr><td>Left(s, n)</td><td>왼쪽에서 n자</td><td>Left("Hallo", 2) = "Ha"</td></tr>
+  <tr><td>Right(s, n)</td><td>오른쪽에서 n자</td><td>Right("Hallo", 2) = "lo"</td></tr>
+  <tr><td>Mid(s, start, len)</td><td>부분 문자열</td><td>Mid("Hallo", 2, 3) = "all"</td></tr>
+  <tr><td>InStr(s, search)</td><td>위치 검색</td><td>InStr("Hallo", "l") = 3</td></tr>
+  <tr><td>Replace(s, old, new)</td><td>치환</td><td>Replace("Hallo", "l", "x") = "Haxxo"</td></tr>
+  <tr><td>Trim(s)</td><td>공백 제거</td><td>Trim("  Hi  ") = "Hi"</td></tr>
+  <tr><td>UCase(s)</td><td>대문자로 변환</td><td>UCase("hallo") = "HALLO"</td></tr>
+  <tr><td>LCase(s)</td><td>소문자로 변환</td><td>LCase("HALLO") = "hallo"</td></tr>
+</table>
+
+<h4>수학 함수</h4>
+<table>
+  <tr><th>함수</th><th>설명</th><th>예</th></tr>
+  <tr><td>Abs(x)</td><td>절대값</td><td>Abs(-5) = 5</td></tr>
+  <tr><td>Round(x, d)</td><td>반올림</td><td>Round(3.456, 2) = 3.46</td></tr>
+  <tr><td>Sqr(x)</td><td>제곱근</td><td>Sqr(16) = 4</td></tr>
+  <tr><td>Log(x)</td><td>자연로그</td><td>Log(2.718) = 1</td></tr>
+  <tr><td>Exp(x)</td><td>지수 함수 (e^x)</td><td>Exp(1) = 2.718...</td></tr>
+  <tr><td>Sgn(x)</td><td>부호 (-1, 0, 1)</td><td>Sgn(-5) = -1</td></tr>
+  <tr><td>Rnd()</td><td>난수 0-1</td><td>Rnd() = 0.xxxxx</td></tr>
+</table>
+
+<h4>삼각 함수</h4>
+<table>
+  <tr><th>함수</th><th>설명</th></tr>
+  <tr><td>Sin(x)</td><td>사인</td></tr>
+  <tr><td>Cos(x)</td><td>코사인</td></tr>
+  <tr><td>Tan(x)</td><td>탄젠트</td></tr>
+  <tr><td>Atan(x)</td><td>아크탄젠트</td></tr>
+</table>
+
+<h4>시간 함수</h4>
+<table>
+  <tr><th>함수</th><th>설명</th><th>예</th></tr>
+  <tr><td>TimeToHours(s)</td><td>시각 문자열을 10진 시간으로 변환</td><td>TimeToHours("08:30") = 8.5</td></tr>
+  <tr><td>TimeOverlap(s1, e1, s2, e2)</td><td>두 시간대의 겹치는 시간 (시간 단위)</td><td>TimeOverlap("23:00", "06:00", "22:00", "07:00") = 7</td></tr>
+</table>
+
+<p><em>TimeOverlap은 자정을 넘는 시간대를 지원합니다 (예: 23:00-06:00).</em></p>
+
+<h4>조건 함수</h4>
+<table>
+  <tr><th>함수</th><th>설명</th><th>예</th></tr>
+  <tr><td>IIF(bed, wahr, falsch)</td><td>조건식 (삼항 연산자)</td><td>IIF(x > 0, "양수", "음수")</td></tr>
+</table>
+
+<hr>
+
+<h3>반환값</h3>
+
+<pre>
+OUTPUT typ, wert            ' Klacks로의 반환값 (typ은 MacroType에 대응)
+</pre>
+
+<hr>
+
+<h3>디버그 함수</h3>
+<p>매크로 테스트용으로 다음 디버그 함수를 사용할 수 있습니다:</p>
+
+<table>
+  <tr><th>함수</th><th>설명</th></tr>
+  <tr><td>DEBUGPRINT wert</td><td>테스트 창에 값을 출력합니다</td></tr>
+  <tr><td>DEBUGCLEAR</td><td>테스트 창을 지웁니다</td></tr>
+</table>
+
+<h4>예</h4>
+<pre>
+DIM x
+x = 42
+DEBUGPRINT "값은: " & x
+DEBUGPRINT "계산 실행 중..."
+</pre>
+
+<p><em>디버그 출력은 매크로 편집기의 "테스트" 탭에 표시됩니다.</em></p>
+
+<hr>
+
+<h3>예: 할증 수당 계산</h3>
+<p>자정을 넘는 교대근무를 올바르게 처리한 (세그먼트 분할) 야간, 공휴일, 주말 할증 수당을 계산합니다.</p>
+
+<pre>
+IMPORT hour, fromhour, untilhour
+IMPORT weekday, holiday, holidaynextday
+IMPORT nightrate, holidayrate, sarate, sorate
+
+FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
+    DIM SegmentHours, NightHours, NonNightHours
+    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+
+    SegmentHours = EndHour - StartHour
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    ' 야간 시간 계산 (23:00-06:00)
+    NightHours = 0
+    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
+    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NonNightHours = SegmentHours - NightHours
+
+    HasHoliday = IsHoliday
+    IsSaturday = WeekdayNum = 6    ' 토 = 6 (ISO-8601)
+    IsSunday = WeekdayNum = 7      ' 일 = 7 (ISO-8601)
+
+    ' 야간 시간의 최고 할증률
+    NRate = nightrate
+    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+
+    ' 주간 시간의 최고 할증률
+    DRate = 0
+    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+
+    CalcSegment = NightHours * NRate + NonNightHours * DRate
+ENDFUNCTION
+
+DIM TotalBonus, WeekdayNextDay
+
+' 다음 날의 요일 계산 (ISO-8601)
+WeekdayNextDay = (weekday MOD 7) + 1
+
+IF untilhour &lt;= fromhour THEN
+    ' 자정을 넘는 교대근무 - 2개 세그먼트
+    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
+    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+ELSE
+    ' 일반 주간 교대근무
+    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+ENDIF
+
+OUTPUT 1, Round(TotalBonus, 2)
+</pre>
+
+<h4>설명</h4>
+<ul>
+  <li><strong>세그먼트 분할:</strong> 자정을 넘는 교대근무 (예: 22:00-06:00)의 경우 교대를 2개 세그먼트로 분할합니다</li>
+  <li><strong>CalcSegment:</strong> 야간, 공휴일, 주말 할증 수당을 고려하여 세그먼트의 할증액을 계산합니다</li>
+  <li><strong>토/일 별도 할증률:</strong> sarate와 sorate를 통해 토요일과 일요일에 다른 할증률을 설정할 수 있습니다</li>
+  <li><strong>최고 할증률:</strong> 항상 적용 가능한 최고의 할증률이 사용됩니다</li>
+  <li><strong>holidaynextday:</strong> 다음 날이 공휴일인지 고려합니다 (야간 교대근무에 중요)</li>
+</ul>

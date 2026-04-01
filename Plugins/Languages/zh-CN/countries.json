@@ -1,0 +1,26 @@
+[
+  {
+    "id": "b1c2d3e4-aa01-4000-8000-000000000001",
+    "abbreviation": "CN",
+    "name": {
+      "de": "China",
+      "en": "China",
+      "fr": "Chine",
+      "it": "Cina",
+      "cs": "Čína",
+      "da": "Kina",
+      "el": "Κίνα",
+      "es": "China",
+      "fi": "Kiina",
+      "ja": "中国",
+      "nb": "Kina",
+      "nl": "China",
+      "pl": "Chiny",
+      "pt": "China",
+      "ro": "China",
+      "sv": "Kina",
+      "zh-CN": "中国"
+    },
+    "prefix": "+86"
+  }
+]

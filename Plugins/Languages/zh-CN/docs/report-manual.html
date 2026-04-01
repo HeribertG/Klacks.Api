@@ -1,0 +1,126 @@
+<h2>报表设计器手册</h2>
+
+<h3>报表结构</h3>
+<p>报表由三个部分组成：</p>
+<ul>
+  <li><strong>页眉</strong> &ndash; 打印在每页顶部</li>
+  <li><strong>正文</strong> &ndash; 包含数据表格</li>
+  <li><strong>页脚</strong> &ndash; 打印在每页底部</li>
+</ul>
+<p>每个部分可以通过报表编辑器的<em>设计</em>选项卡进行编辑。</p>
+
+<hr>
+
+<h3>页眉部分</h3>
+<p>页眉包含三个区域：<strong>左</strong>、<strong>中</strong>、<strong>右</strong>。</p>
+<p>每个区域可以包含：</p>
+<ul>
+  <li><strong>字段</strong> &ndash; 自动填充的数据库字段</li>
+  <li><strong>自由文本</strong> &ndash; 手动输入的文本</li>
+  <li><strong>图片</strong> &ndash; 例如：公司标志（通过图片管理器上传）</li>
+</ul>
+<p>可以通过工具栏添加或删除行。</p>
+
+<hr>
+
+<h3>正文表格</h3>
+<p>正文包含一个或多个表格。</p>
+<table>
+  <tr><th>操作</th><th>说明</th></tr>
+  <tr><td>添加列</td><td>通过 <strong>+</strong> 图标或从字段列表拖放添加</td></tr>
+  <tr><td>列宽</td><td>拖动列边框进行调整</td></tr>
+  <tr><td>列顺序</td><td>通过拖放移动</td></tr>
+  <tr><td>删除列</td><td>通过列编辑器中的删除图标删除</td></tr>
+</table>
+<p>每个表格关联一个数据集（例如：工作排班、地址）。</p>
+
+<hr>
+
+<h3>字段合并（合并字段）</h3>
+<p>合并字段允许在一列中设置多个数据绑定。</p>
+<ul>
+  <li>在列编辑器中点击<strong>添加字段</strong>，在同一列中添加更多字段</li>
+  <li>值将纵向排列或以分隔符连接显示</li>
+  <li>分隔符可在字段对话框中设置（例如：逗号、空格、换行）</li>
+</ul>
+
+<hr>
+
+<h3>表格页脚</h3>
+<p>可以在每个表格下方显示页脚。</p>
+<ul>
+  <li><strong>SUM 字段：</strong> 可自动汇总数值列</li>
+  <li><strong>标签：</strong> 可显示或隐藏合计标签</li>
+  <li>在列编辑器的<em>页脚</em>选项卡中启用</li>
+</ul>
+
+<hr>
+
+<h3>自由文本行</h3>
+<p>自由文本行可以插入在数据表格前方或后方。</p>
+<table>
+  <tr><th>属性</th><th>说明</th></tr>
+  <tr><td>位置</td><td>可选择<em>数据之前</em>或<em>数据之后</em></td></tr>
+  <tr><td>内容</td><td>任意文本，例如：注意事项、条款、签名栏</td></tr>
+  <tr><td>样式</td><td>可设置字体、大小、对齐方式</td></tr>
+</table>
+
+<hr>
+
+<h3>格式设置</h3>
+<p>每个单元格和自由文本可以单独设置格式：</p>
+<table>
+  <tr><th>选项</th><th>说明</th></tr>
+  <tr><td>字体</td><td>可为单元格选择字体</td></tr>
+  <tr><td>字号</td><td>以磅（pt）为单位的大小</td></tr>
+  <tr><td>粗体 / 斜体 / 下划线</td><td>通过 <strong>B</strong> / <strong>I</strong> / <strong>U</strong> 按钮切换</td></tr>
+  <tr><td>文字颜色</td><td>可自由选择颜色</td></tr>
+  <tr><td>对齐</td><td>左对齐、居中对齐或右对齐</td></tr>
+</table>
+
+<hr>
+
+<h3>单元格边框</h3>
+<p>每个单元格的边框可以单独设置。</p>
+<table>
+  <tr><th>属性</th><th>选项</th></tr>
+  <tr><td>边</td><td>上、右、下、左（单独或全部）</td></tr>
+  <tr><td>线条样式</td><td>细线、中线、粗线、虚线、双线</td></tr>
+  <tr><td>线条颜色</td><td>可自由选择</td></tr>
+</table>
+<p>边框在列编辑器的<em>边框</em>中设置。</p>
+
+<hr>
+
+<h3>页面设置</h3>
+<p>在<em>常规</em>选项卡中可调整打印设置：</p>
+<ul>
+  <li><strong>方向：</strong> 纵向（竖版）或横向（横版）</li>
+  <li><strong>纸张大小：</strong> A4、A3、B4（JIS）、B5（JIS）或 Letter</li>
+  <li><strong>页边距：</strong> 上、右、下、左（毫米）</li>
+</ul>
+
+<hr>
+
+<h3>显示选项（设计器）</h3>
+<p>当数据源为<strong>工作排班（Schedule）</strong>时，<em>设计</em>选项卡中会显示附加选项：</p>
+<ul>
+  <li><strong>合并同日条目：</strong> 将同一天的多个条目合并为一行显示</li>
+  <li><strong>显示完整时段：</strong> 显示时段内的所有日期，包括没有条目的日期</li>
+</ul>
+
+<hr>
+
+<h3>数据源</h3>
+<p>报表中可用的数据源：</p>
+<table>
+  <tr><th>数据源</th><th>说明</th></tr>
+  <tr><td>工作排班（Schedule）</td><td>班次和工作时间</td></tr>
+  <tr><td>地址（列表）</td><td>以表格形式显示所有地址</td></tr>
+  <tr><td>地址（详细）</td><td>单个地址</td></tr>
+  <tr><td>缺勤</td><td>缺勤列表</td></tr>
+  <tr><td>班次（Shifts）</td><td>班次表格</td></tr>
+  <tr><td>分组</td><td>分组列表</td></tr>
+  <tr><td>容器模板</td><td>用于容器报表的模板</td></tr>
+</table>
+<p><em>数据源在"数据源"选项卡中选择，它决定了可用的字段。</em></p>

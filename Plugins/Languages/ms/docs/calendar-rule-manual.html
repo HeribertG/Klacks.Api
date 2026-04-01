@@ -1,0 +1,82 @@
+<h2>Peraturan Hari Kelepasan - Penerangan</h2>
+
+<h3>Format Peraturan</h3>
+<p>Terdapat 2 jenis peraturan: <strong>Tarikh Tetap</strong> dan <strong>Tarikh Berasaskan Easter</strong>.</p>
+
+<h4>Tarikh Tetap</h4>
+<p>Format: <code>MM/DD</code></p>
+<table>
+  <tr><th>Contoh</th><th>Maksud</th></tr>
+  <tr><td><code>01/01</code></td><td>1 Januari (Tahun Baru)</td></tr>
+  <tr><td><code>12/25</code></td><td>25 Disember (Krismas)</td></tr>
+  <tr><td><code>08/01</code></td><td>1 Ogos (Hari Kebangsaan Switzerland)</td></tr>
+</table>
+
+<h4>Tarikh Tetap dengan Anjakan Hari</h4>
+<p>Format: <code>MM/DD+XX+WW</code> atau <code>MM/DD+XX-WW</code></p>
+<ul>
+  <li><code>+XX</code> = Tanda + Ofset (bilangan hari) (00 hingga 99)</li>
+  <li><code>+</code> = Hari minggu seterusnya selepas tarikh</li>
+  <li><code>-</code> = Hari minggu sebelumnya sebelum tarikh</li>
+  <li><code>WW</code> = Hari minggu (SU, MO, TU, WE, TH, FR, SA)</li>
+</ul>
+<table>
+  <tr><th>Contoh</th><th>Maksud</th></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>Khamis pertama bulan November</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>Khamis keempat bulan November (Kesyukuran)</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>Isnin terakhir bulan Mei (Hari Peringatan)</td></tr>
+</table>
+
+<h4>Tarikh Berasaskan Easter</h4>
+<p>Format: <code>EASTER+XX</code> atau <code>EASTER-XX</code></p>
+<table>
+  <tr><th>Contoh</th><th>Maksud</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>Ahad Easter (Hari Kebangkitan)</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>Jumaat Agung (2 hari sebelum Easter)</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>Isnin Easter (1 hari selepas Easter)</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>Kenaikan (39 hari selepas Easter)</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>Pentakosta (49 hari selepas Easter)</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>Isnin Pentakosta (50 hari selepas Easter)</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>Corpus Christi (60 hari selepas Easter)</td></tr>
+</table>
+
+<hr>
+
+<h3>Format Sub-Peraturan</h3>
+<p>Sub-peraturan membolehkan pemindahan automatik apabila hari kelepasan jatuh pada hari tertentu dalam minggu.</p>
+<p>Format: <code>WW+X</code> atau <code>WW-X</code>, beberapa peraturan dipisahkan dengan <code>;</code></p>
+<ul>
+  <li><code>WW</code> = Hari minggu (SU, MO, TU, WE, TH, FR, SA)</li>
+  <li><code>+X</code> = Alih ke hadapan X hari</li>
+  <li><code>-X</code> = Alih ke belakang X hari</li>
+</ul>
+<table>
+  <tr><th>Contoh</th><th>Maksud</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>Jika Sabtu: +2 hari (Isnin), jika Ahad: +1 hari (Isnin)</td></tr>
+  <tr><td><code>SU+1</code></td><td>Jika Ahad: pindah ke Isnin</td></tr>
+</table>
+
+<p><em>Nota: Sub-peraturan biasanya digunakan untuk memindahkan hari kelepasan yang jatuh pada hujung minggu ke hari bekerja seterusnya.</em></p>
+
+<hr>
+
+<h3>Singkatan Hari Minggu</h3>
+<table>
+  <tr><th>Singkatan</th><th>Hari Minggu</th></tr>
+  <tr><td>SU</td><td>Ahad (Sunday)</td></tr>
+  <tr><td>MO</td><td>Isnin (Monday)</td></tr>
+  <tr><td>TU</td><td>Selasa (Tuesday)</td></tr>
+  <tr><td>WE</td><td>Rabu (Wednesday)</td></tr>
+  <tr><td>TH</td><td>Khamis (Thursday)</td></tr>
+  <tr><td>FR</td><td>Jumaat (Friday)</td></tr>
+  <tr><td>SA</td><td>Sabtu (Saturday)</td></tr>
+</table>
+
+<hr>
+
+<h3>Kotak Semak</h3>
+<table>
+  <tr><th>Kotak Semak</th><th>Maksud</th></tr>
+  <tr><td>Hari kelepasan rasmi</td><td>Hari tersebut ialah hari kelepasan rasmi/sah</td></tr>
+  <tr><td>Bergaji</td><td>Hari kelepasan ialah cuti bergaji (berkaitan pengiraan gaji)</td></tr>
+</table>

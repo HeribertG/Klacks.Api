@@ -1,0 +1,26 @@
+[
+  {
+    "id": "a1b2c3d4-bb01-4000-8000-000000000001",
+    "abbreviation": "IL",
+    "name": {
+      "de": "Israel",
+      "en": "Israel",
+      "fr": "Israël",
+      "it": "Israele",
+      "cs": "Izrael",
+      "da": "Israel",
+      "el": "Ισραήλ",
+      "es": "Israel",
+      "fi": "Israel",
+      "he": "ישראל",
+      "ja": "イスラエル",
+      "nb": "Israel",
+      "nl": "Israël",
+      "pl": "Izrael",
+      "pt": "Israel",
+      "ro": "Israel",
+      "sv": "Israel"
+    },
+    "prefix": "+972"
+  }
+]

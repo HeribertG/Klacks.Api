@@ -1,0 +1,26 @@
+[
+  {
+    "id": "b1c2d3e4-vi01-4000-8000-000000000001",
+    "abbreviation": "VN",
+    "name": {
+      "de": "Vietnam",
+      "en": "Vietnam",
+      "fr": "Viêt Nam",
+      "it": "Vietnam",
+      "cs": "Vietnam",
+      "da": "Vietnam",
+      "el": "Βιετνάμ",
+      "es": "Vietnam",
+      "fi": "Vietnam",
+      "ja": "ベトナム",
+      "nb": "Vietnam",
+      "nl": "Vietnam",
+      "pl": "Wietnam",
+      "pt": "Vietnã",
+      "ro": "Vietnam",
+      "sv": "Vietnam",
+      "vi": "Việt Nam"
+    },
+    "prefix": "+84"
+  }
+]

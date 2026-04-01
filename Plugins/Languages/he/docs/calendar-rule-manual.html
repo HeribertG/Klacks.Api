@@ -1,0 +1,82 @@
+<h2>כללי חגים - הסבר</h2>
+
+<h3>פורמט כללים</h3>
+<p>ישנם שני סוגי כללים: <strong>תאריך קבוע</strong> ו<strong>תאריך יחסי לפסחא</strong>.</p>
+
+<h4>תאריך קבוע</h4>
+<p>פורמט: <code>MM/DD</code></p>
+<table>
+  <tr><th>דוגמה</th><th>משמעות</th></tr>
+  <tr><td><code>01/01</code></td><td>1 בינואר (ראש השנה האזרחי)</td></tr>
+  <tr><td><code>12/25</code></td><td>25 בדצמבר (חג המולד)</td></tr>
+  <tr><td><code>08/01</code></td><td>1 באוגוסט (יום העצמאות השוויצרי)</td></tr>
+</table>
+
+<h4>תאריך קבוע עם הזזת יום בשבוע</h4>
+<p>פורמט: <code>MM/DD+XX+WW</code> או <code>MM/DD+XX-WW</code></p>
+<ul>
+  <li><code>+XX</code> = סימן + היסט (ימים) (00 עד 99)</li>
+  <li><code>+</code> = יום השבוע הבא אחרי התאריך</li>
+  <li><code>-</code> = יום השבוע הקודם לפני התאריך</li>
+  <li><code>WW</code> = יום בשבוע (SU, MO, TU, WE, TH, FR, SA)</li>
+</ul>
+<table>
+  <tr><th>דוגמה</th><th>משמעות</th></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>יום חמישי הראשון בנובמבר</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>יום חמישי הרביעי בנובמבר (חג ההודיה)</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>יום שני האחרון במאי (יום הזיכרון)</td></tr>
+</table>
+
+<h4>תאריך יחסי לפסחא</h4>
+<p>פורמט: <code>EASTER+XX</code> או <code>EASTER-XX</code></p>
+<table>
+  <tr><th>דוגמה</th><th>משמעות</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>יום ראשון של פסחא (תחייה)</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>יום שישי הטוב (יומיים לפני פסחא)</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>שני של פסחא (יום אחרי פסחא)</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>חג העלייה (39 ימים אחרי פסחא)</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>שבועות (פנטקוסט) (49 ימים אחרי פסחא)</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>שני של שבועות (50 ימים אחרי פסחא)</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>חג הגוף הקדוש (60 ימים אחרי פסחא)</td></tr>
+</table>
+
+<hr>
+
+<h3>פורמט כלל משנה</h3>
+<p>כללי משנה מאפשרים העברה אוטומטית של חג שחל ביום מסוים בשבוע.</p>
+<p>פורמט: <code>WW+X</code> או <code>WW-X</code>, כללים מרובים מופרדים ב-<code>;</code></p>
+<ul>
+  <li><code>WW</code> = יום בשבוע (SU, MO, TU, WE, TH, FR, SA)</li>
+  <li><code>+X</code> = הזז X ימים קדימה</li>
+  <li><code>-X</code> = הזז X ימים אחורה</li>
+</ul>
+<table>
+  <tr><th>דוגמה</th><th>משמעות</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>אם חל בשבת: +2 ימים (שני), אם חל בראשון: +1 יום (שני)</td></tr>
+  <tr><td><code>SU+1</code></td><td>אם חל בראשון: מועבר לשני</td></tr>
+</table>
+
+<p><em>הערה: כללי משנה משמשים בדרך כלל להעברת חגים שחלים בסוף שבוע ליום העבודה הבא.</em></p>
+
+<hr>
+
+<h3>קיצורי ימי שבוע</h3>
+<table>
+  <tr><th>קיצור</th><th>יום בשבוע</th></tr>
+  <tr><td>SU</td><td>ראשון (Sunday)</td></tr>
+  <tr><td>MO</td><td>שני (Monday)</td></tr>
+  <tr><td>TU</td><td>שלישי (Tuesday)</td></tr>
+  <tr><td>WE</td><td>רביעי (Wednesday)</td></tr>
+  <tr><td>TH</td><td>חמישי (Thursday)</td></tr>
+  <tr><td>FR</td><td>שישי (Friday)</td></tr>
+  <tr><td>SA</td><td>שבת (Saturday)</td></tr>
+</table>
+
+<hr>
+
+<h3>תיבות סימון</h3>
+<table>
+  <tr><th>תיבת סימון</th><th>משמעות</th></tr>
+  <tr><td>חג רשמי</td><td>היום הוא חג רשמי/חוקי</td></tr>
+  <tr><td>בתשלום</td><td>החג הוא בתשלום (רלוונטי לחישוב שכר)</td></tr>
+</table>

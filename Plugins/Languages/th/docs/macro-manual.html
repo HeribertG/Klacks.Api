@@ -1,0 +1,329 @@
+<h2>คู่มือมาโครสคริปต์</h2>
+
+<h3>บทนำ</h3>
+<p>
+ตัวแก้ไขมาโครช่วยให้คุณสร้างสคริปต์ที่ใช้เป็นพื้นฐานการคำนวณสำหรับงาน รูปแบบการจ้างงาน ฯลฯ
+</p>
+
+<p><strong>ตัวอย่างการใช้งาน:</strong></p>
+<ul>
+  <li>การคำนวณเวลาพักร้อนและราชการทหารที่แม่นยำตามอัตราการจ้างงาน</li>
+  <li>การคำนวณค่าล่วงเวลาสำหรับกะกลางคืน วันหยุดสุดสัปดาห์ และวันหยุดราชการ</li>
+  <li>การปรับตัวอย่างยืดหยุ่นตามข้อกำหนดใหม่</li>
+</ul>
+
+<p>
+<em>หมายเหตุ: ตัวแปลสคริปต์ทำงานในสภาพแวดล้อมแซนด์บ็อกซ์ที่ปลอดภัย
+ไม่สามารถเข้าถึงระบบไฟล์หรือเครือข่ายได้ ไม่สามารถรันโค้ดที่เป็นอันตรายได้</em>
+</p>
+
+<hr>
+
+<h3>ตัวแปรและค่าคงที่</h3>
+<p>ตัวแปรและค่าคงที่ทั้งหมดไม่มีชนิดข้อมูล</p>
+
+<pre>
+CONST PI = 3.1415
+DIM a, b, c
+IMPORT betrag, rabatt
+</pre>
+
+<h4>ตัวแปรนำเข้า (IMPORT)</h4>
+<p>ตัวแปรเหล่านี้ถูกสร้างจาก Work, Contract, CalendarSelection:</p>
+
+<table>
+  <tr><th>ตัวแปร</th><th>ชนิด</th><th>คำอธิบาย</th></tr>
+  <tr><td>hour</td><td>Decimal</td><td>ชั่วโมงทำงาน (จาก Work)</td></tr>
+  <tr><td>fromhour</td><td>Decimal</td><td>เวลาเริ่มต้น (ทศนิยม) (8:30 = 8.5)</td></tr>
+  <tr><td>untilhour</td><td>Decimal</td><td>เวลาสิ้นสุด (ทศนิยม) (17:00 = 17.0)</td></tr>
+  <tr><td>weekday</td><td>Integer</td><td>วันในสัปดาห์ ISO-8601 (1=จ, 2=อ, 3=พ, 4=พฤ, 5=ศ, 6=ส, 7=อา)</td></tr>
+  <tr><td>holiday</td><td>Boolean</td><td>วันนั้นเป็นวันหยุดราชการหรือไม่</td></tr>
+  <tr><td>holidaynextday</td><td>Boolean</td><td>วันถัดไปเป็นวันหยุดราชการหรือไม่</td></tr>
+  <tr><td>nightrate</td><td>Decimal</td><td>อัตราค่าล่วงเวลากลางคืนของสัญญา (เช่น 0.10 = 10%)</td></tr>
+  <tr><td>holidayrate</td><td>Decimal</td><td>อัตราค่าล่วงเวลาวันหยุดของสัญญา (เช่น 0.15 = 15%)</td></tr>
+  <tr><td>sarate</td><td>Decimal</td><td>อัตราค่าล่วงเวลาวันเสาร์ของสัญญา</td></tr>
+  <tr><td>sorate</td><td>Decimal</td><td>อัตราค่าล่วงเวลาวันอาทิตย์ของสัญญา</td></tr>
+  <tr><td>guaranteedhours</td><td>Decimal</td><td>ชั่วโมงรับประกันต่อเดือนของสัญญา</td></tr>
+  <tr><td>fulltime</td><td>Decimal</td><td>ชั่วโมงเต็มเวลาของสัญญา</td></tr>
+</table>
+
+<hr>
+
+<h3>โครงสร้างควบคุม</h3>
+
+<p><strong>สำคัญ:</strong> คำสำคัญเช่น <code>ENDIF</code>, <code>ENDFUNCTION</code>, <code>ENDSUB</code>
+ต้องเขียนติดกัน (ห้ามเขียนแยกเป็น <code>END IF</code>)</p>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF x > 10 THEN
+    OUTPUT 1, "ใหญ่"
+ELSEIF x > 5 THEN
+    OUTPUT 1, "กลาง"
+ELSE
+    OUTPUT 1, "เล็ก"
+ENDIF
+</pre>
+
+<h4>IF บรรทัดเดียว</h4>
+<pre>
+IF x > 10 THEN OUTPUT 1, "ใหญ่" ENDIF
+</pre>
+
+<h4>SELECT CASE</h4>
+<pre>
+SELECT CASE weekday
+    CASE 6, 7
+        OUTPUT 1, "วันหยุดสุดสัปดาห์"
+    CASE 1, 2, 3, 4, 5
+        OUTPUT 1, "วันทำงาน"
+    CASE ELSE
+        OUTPUT 1, "ไม่ทราบ"
+END SELECT
+</pre>
+
+<h4>ลูป FOR-NEXT</h4>
+<pre>
+FOR i = 1 TO 10
+    summe += i
+NEXT
+
+FOR i = 10 TO 1 STEP -1
+    IF x > y THEN EXIT FOR
+NEXT
+</pre>
+
+<h4>ลูป DO-LOOP</h4>
+<pre>
+DO WHILE a > 0
+    a -= 1
+LOOP
+
+DO
+    x += 1
+LOOP UNTIL x >= 10
+</pre>
+
+<hr>
+
+<h3>ฟังก์ชันและโพรซีเจอร์</h3>
+
+<p><strong>สำคัญ:</strong> ฟังก์ชัน (FUNCTION) และโพรซีเจอร์ (SUB) ต้องถูกกำหนด<em>ก่อน</em>การเรียกใช้ครั้งแรก
+ตัวแปลจะอ่านโค้ดจากบนลงล่าง ฟังก์ชันหรือโพรซีเจอร์จะใช้งานได้หลังจากที่คำจำกัดความถูกประมวลผลแล้วเท่านั้น</p>
+
+<h4>SUB (โพรซีเจอร์ไม่มีค่าส่งกลับ)</h4>
+<pre>
+SUB berechne(a, b)
+    IF a = b THEN EXIT SUB ENDIF
+    OUTPUT 1, a + b
+ENDSUB
+</pre>
+
+<h4>FUNCTION (ฟังก์ชันมีค่าส่งกลับ)</h4>
+<pre>
+FUNCTION verdoppeln(x)
+    verdoppeln = x * 2
+ENDFUNCTION
+
+DIM ergebnis
+ergebnis = verdoppeln(21)
+OUTPUT 1, ergebnis
+</pre>
+
+<hr>
+
+<h3>ตัวดำเนินการ</h3>
+
+<h4>ตัวดำเนินการทางคณิตศาสตร์</h4>
+<table>
+  <tr><th>ตัวดำเนินการ</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+  <tr><td>+</td><td>บวก</td><td>5 + 3 = 8</td></tr>
+  <tr><td>-</td><td>ลบ</td><td>5 - 3 = 2</td></tr>
+  <tr><td>*</td><td>คูณ</td><td>5 * 3 = 15</td></tr>
+  <tr><td>/</td><td>หาร</td><td>10 / 4 = 2.5</td></tr>
+  <tr><td>\</td><td>หารจำนวนเต็ม</td><td>10 \ 4 = 2</td></tr>
+  <tr><td>MOD</td><td>เศษ (ส่วนที่เหลือ)</td><td>10 MOD 3 = 1</td></tr>
+  <tr><td>^</td><td>ยกกำลัง</td><td>2 ^ 3 = 8</td></tr>
+</table>
+
+<h4>ตัวดำเนินการเปรียบเทียบ</h4>
+<table>
+  <tr><th>ตัวดำเนินการ</th><th>คำอธิบาย</th></tr>
+  <tr><td>=</td><td>เท่ากับ</td></tr>
+  <tr><td>&lt;&gt;</td><td>ไม่เท่ากับ</td></tr>
+  <tr><td>&lt;</td><td>น้อยกว่า</td></tr>
+  <tr><td>&gt;</td><td>มากกว่า</td></tr>
+  <tr><td>&lt;=</td><td>น้อยกว่าหรือเท่ากับ</td></tr>
+  <tr><td>&gt;=</td><td>มากกว่าหรือเท่ากับ</td></tr>
+</table>
+
+<h4>ตัวดำเนินการทางตรรกะ</h4>
+<table>
+  <tr><th>ตัวดำเนินการ</th><th>คำอธิบาย</th></tr>
+  <tr><td>AND</td><td>และ (บิต)</td></tr>
+  <tr><td>OR</td><td>หรือ (บิต)</td></tr>
+  <tr><td>NOT</td><td>ไม่ (ปฏิเสธ)</td></tr>
+  <tr><td>ANDALSO</td><td>และ (ลัดวงจร)</td></tr>
+  <tr><td>ORELSE</td><td>หรือ (ลัดวงจร)</td></tr>
+</table>
+
+<h4>ตัวดำเนินการกำหนดค่า</h4>
+<pre>
+a = 10      ' กำหนดค่าอย่างง่าย
+a += 5      ' a = a + 5
+a -= 3      ' a = a - 3
+a *= 2      ' a = a * 2
+a /= 4      ' a = a / 4
+a &= "!"    ' ต่อสตริง
+</pre>
+
+<hr>
+
+<h3>ฟังก์ชันในตัว</h3>
+
+<h4>ฟังก์ชันสตริง</h4>
+<table>
+  <tr><th>ฟังก์ชัน</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+  <tr><td>Len(s)</td><td>ความยาวสตริง</td><td>Len("Hallo") = 5</td></tr>
+  <tr><td>Left(s, n)</td><td>อักขระ n ตัวจากซ้าย</td><td>Left("Hallo", 2) = "Ha"</td></tr>
+  <tr><td>Right(s, n)</td><td>อักขระ n ตัวจากขวา</td><td>Right("Hallo", 2) = "lo"</td></tr>
+  <tr><td>Mid(s, start, len)</td><td>สตริงย่อย</td><td>Mid("Hallo", 2, 3) = "all"</td></tr>
+  <tr><td>InStr(s, search)</td><td>ค้นหาตำแหน่ง</td><td>InStr("Hallo", "l") = 3</td></tr>
+  <tr><td>Replace(s, old, new)</td><td>แทนที่</td><td>Replace("Hallo", "l", "x") = "Haxxo"</td></tr>
+  <tr><td>Trim(s)</td><td>ลบช่องว่าง</td><td>Trim("  Hi  ") = "Hi"</td></tr>
+  <tr><td>UCase(s)</td><td>แปลงเป็นตัวพิมพ์ใหญ่</td><td>UCase("hallo") = "HALLO"</td></tr>
+  <tr><td>LCase(s)</td><td>แปลงเป็นตัวพิมพ์เล็ก</td><td>LCase("HALLO") = "hallo"</td></tr>
+</table>
+
+<h4>ฟังก์ชันทางคณิตศาสตร์</h4>
+<table>
+  <tr><th>ฟังก์ชัน</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+  <tr><td>Abs(x)</td><td>ค่าสัมบูรณ์</td><td>Abs(-5) = 5</td></tr>
+  <tr><td>Round(x, d)</td><td>ปัดเศษ</td><td>Round(3.456, 2) = 3.46</td></tr>
+  <tr><td>Sqr(x)</td><td>รากที่สอง</td><td>Sqr(16) = 4</td></tr>
+  <tr><td>Log(x)</td><td>ลอการิทึมธรรมชาติ</td><td>Log(2.718) = 1</td></tr>
+  <tr><td>Exp(x)</td><td>ฟังก์ชันเอ็กซ์โพเนนเชียล (e^x)</td><td>Exp(1) = 2.718...</td></tr>
+  <tr><td>Sgn(x)</td><td>เครื่องหมาย (-1, 0, 1)</td><td>Sgn(-5) = -1</td></tr>
+  <tr><td>Rnd()</td><td>สุ่ม 0-1</td><td>Rnd() = 0.xxxxx</td></tr>
+</table>
+
+<h4>ฟังก์ชันตรีโกณมิติ</h4>
+<table>
+  <tr><th>ฟังก์ชัน</th><th>คำอธิบาย</th></tr>
+  <tr><td>Sin(x)</td><td>ไซน์</td></tr>
+  <tr><td>Cos(x)</td><td>โคไซน์</td></tr>
+  <tr><td>Tan(x)</td><td>แทนเจนต์</td></tr>
+  <tr><td>Atan(x)</td><td>อาร์กแทนเจนต์</td></tr>
+</table>
+
+<h4>ฟังก์ชันเวลา</h4>
+<table>
+  <tr><th>ฟังก์ชัน</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+  <tr><td>TimeToHours(s)</td><td>แปลงสตริงเวลาเป็นชั่วโมงทศนิยม</td><td>TimeToHours("08:30") = 8.5</td></tr>
+  <tr><td>TimeOverlap(s1, e1, s2, e2)</td><td>เวลาทับซ้อนของช่วงเวลาสองช่วง (หน่วยชั่วโมง)</td><td>TimeOverlap("23:00", "06:00", "22:00", "07:00") = 7</td></tr>
+</table>
+
+<p><em>TimeOverlap รองรับช่วงเวลาข้ามเที่ยงคืน (เช่น 23:00-06:00)</em></p>
+
+<h4>ฟังก์ชันเงื่อนไข</h4>
+<table>
+  <tr><th>ฟังก์ชัน</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+  <tr><td>IIF(cond, true, false)</td><td>นิพจน์เงื่อนไข (ตัวดำเนินการสามส่วน)</td><td>IIF(x > 0, "บวก", "ลบ")</td></tr>
+</table>
+
+<hr>
+
+<h3>ค่าส่งกลับ</h3>
+
+<pre>
+OUTPUT typ, wert            ' ค่าส่งกลับไปยัง Klacks (typ ตรงกับ MacroType)
+</pre>
+
+<hr>
+
+<h3>ฟังก์ชันดีบัก</h3>
+<p>ฟังก์ชันดีบักต่อไปนี้สามารถใช้ทดสอบมาโครได้:</p>
+
+<table>
+  <tr><th>ฟังก์ชัน</th><th>คำอธิบาย</th></tr>
+  <tr><td>DEBUGPRINT wert</td><td>แสดงค่าในหน้าต่างทดสอบ</td></tr>
+  <tr><td>DEBUGCLEAR</td><td>ล้างหน้าต่างทดสอบ</td></tr>
+</table>
+
+<h4>ตัวอย่าง</h4>
+<pre>
+DIM x
+x = 42
+DEBUGPRINT "ค่าคือ: " & x
+DEBUGPRINT "กำลังคำนวณ..."
+</pre>
+
+<p><em>ผลลัพธ์ดีบักจะแสดงในแท็บ "ทดสอบ" ของตัวแก้ไขมาโคร</em></p>
+
+<hr>
+
+<h3>ตัวอย่าง: การคำนวณค่าล่วงเวลา</h3>
+<p>คำนวณค่าล่วงเวลากลางคืน วันหยุด และวันหยุดสุดสัปดาห์ โดยจัดการกะข้ามเที่ยงคืนอย่างถูกต้อง (แบ่งเป็นช่วง)</p>
+
+<pre>
+IMPORT hour, fromhour, untilhour
+IMPORT weekday, holiday, holidaynextday
+IMPORT nightrate, holidayrate, sarate, sorate
+
+FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
+    DIM SegmentHours, NightHours, NonNightHours
+    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+
+    SegmentHours = EndHour - StartHour
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    ' คำนวณชั่วโมงกลางคืน (23:00-06:00)
+    NightHours = 0
+    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
+    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NonNightHours = SegmentHours - NightHours
+
+    HasHoliday = IsHoliday
+    IsSaturday = WeekdayNum = 6    ' ส = 6 (ISO-8601)
+    IsSunday = WeekdayNum = 7      ' อา = 7 (ISO-8601)
+
+    ' อัตราสูงสุดสำหรับชั่วโมงกลางคืน
+    NRate = nightrate
+    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+
+    ' อัตราสูงสุดสำหรับชั่วโมงกลางวัน
+    DRate = 0
+    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+
+    CalcSegment = NightHours * NRate + NonNightHours * DRate
+ENDFUNCTION
+
+DIM TotalBonus, WeekdayNextDay
+
+' คำนวณวันถัดไป (ISO-8601)
+WeekdayNextDay = (weekday MOD 7) + 1
+
+IF untilhour &lt;= fromhour THEN
+    ' กะข้ามเที่ยงคืน - 2 ช่วง
+    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
+    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+ELSE
+    ' กะกลางวันปกติ
+    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+ENDIF
+
+OUTPUT 1, Round(TotalBonus, 2)
+</pre>
+
+<h4>คำอธิบาย</h4>
+<ul>
+  <li><strong>การแบ่งช่วง:</strong> สำหรับกะข้ามเที่ยงคืน (เช่น 22:00-06:00) กะจะถูกแบ่งเป็น 2 ช่วง</li>
+  <li><strong>CalcSegment:</strong> คำนวณค่าล่วงเวลาของแต่ละช่วง โดยพิจารณาอัตรากลางคืน วันหยุด และวันหยุดสุดสัปดาห์</li>
+  <li><strong>อัตราวันเสาร์/อาทิตย์แยกกัน:</strong> sarate และ sorate ช่วยให้กำหนดอัตราที่แตกต่างกันสำหรับวันเสาร์และวันอาทิตย์ได้</li>
+  <li><strong>อัตราสูงสุด:</strong> ใช้อัตราค่าล่วงเวลาสูงสุดที่ใช้ได้เสมอ</li>
+  <li><strong>holidaynextday:</strong> พิจารณาว่าวันถัดไปเป็นวันหยุดหรือไม่ (สำคัญสำหรับกะกลางคืน)</li>
+</ul>

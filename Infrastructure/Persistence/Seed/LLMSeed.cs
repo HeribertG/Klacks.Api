@@ -22,7 +22,7 @@ public static class LLMSeed
             (gen_random_uuid(), 'qwen', 'Qwen (Alibaba)', false, 8, 'https://dashscope.aliyuncs.com/api/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'baidu', 'Baidu Ernie', false, 9, 'https://aip.baidubce.com/rpc/2.0/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'zhipu', 'Zhipu AI (GLM)', false, 10, 'https://open.bigmodel.cn/api/paas/v4/', 'v4', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
-            (gen_random_uuid(), 'apertus', 'Apertus (Swiss AI)', false, 11, 'https://app.apertus.ai/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'apertus', 'Apertus (Swiss AI)', false, 11, 'https://api.apertus.ai/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'groq', 'Groq', false, 12, 'https://api.groq.com/openai/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'together', 'Together AI', false, 13, 'https://api.together.xyz/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'fireworks', 'Fireworks AI', false, 14, 'https://api.fireworks.ai/inference/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),

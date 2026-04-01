@@ -1,0 +1,117 @@
+<h2>מדריך ספק זהות</h2>
+
+<h3>מבוא</h3>
+<p>
+באמצעות ספקי זהות ניתן לבצע אימות משתמשים דרך שירותי ספרייה חיצוניים
+כגון LDAP, Active Directory, OAuth2/OpenID Connect.
+</p>
+
+<p><strong>סוגי ספקים נתמכים:</strong></p>
+<ul>
+  <li><strong>LDAP</strong> - פרוטוקול גישה קלת משקל לספרייה</li>
+  <li><strong>Active Directory</strong> - Microsoft Active Directory</li>
+  <li><strong>OAuth2</strong> - מסגרת הרשאות OAuth 2.0</li>
+  <li><strong>OpenID Connect</strong> - שכבת זהות מעל OAuth 2.0</li>
+</ul>
+
+<hr>
+
+<h3>LDAP / Active Directory</h3>
+
+<h4>הגדרות חיבור</h4>
+<table>
+  <tr><th>שדה</th><th>תיאור</th><th>דוגמה</th></tr>
+  <tr><td>מארח</td><td>שם מארח או כתובת IP של שרת LDAP</td><td>ldap.example.com</td></tr>
+  <tr><td>פורט</td><td>389 (LDAP) או 636 (LDAPS)</td><td>389</td></tr>
+  <tr><td>שימוש ב-SSL</td><td>הפעלת חיבור מוצפן</td><td>-</td></tr>
+  <tr><td>DN בסיסי</td><td>שם מזהה בסיסי לחיפוש</td><td>DC=example,DC=com</td></tr>
+  <tr><td>DN חיבור</td><td>DN של המשתמש לחיבור</td><td>CN=admin,DC=example,DC=com</td></tr>
+  <tr><td>סיסמת חיבור</td><td>סיסמת משתמש החיבור</td><td>-</td></tr>
+  <tr><td>מסנן משתמשים</td><td>מסנן LDAP לחיפוש משתמשים</td><td>(objectClass=person)</td></tr>
+</table>
+
+<h4>הבדלים בין LDAP ל-Active Directory</h4>
+<table>
+  <tr><th>תכונה</th><th>LDAP (OpenLDAP)</th><th>Active Directory</th></tr>
+  <tr><td>תכונת משתמש</td><td>uid</td><td>sAMAccountName</td></tr>
+  <tr><td>תכונת כתובת</td><td>street</td><td>streetAddress</td></tr>
+  <tr><td>תכונת תואר</td><td>-</td><td>personalTitle</td></tr>
+  <tr><td>תכונת מדינה</td><td>-</td><td>c</td></tr>
+  <tr><td>שיטת אימות</td><td>חיבור פשוט</td><td>Negotiate/Kerberos</td></tr>
+</table>
+
+<h4>מסנני משתמשים נפוצים</h4>
+<pre>
+LDAP:             (objectClass=person)
+                  (objectClass=inetOrgPerson)
+
+Active Directory: (&amp;(objectClass=user)(objectCategory=person))
+                  (&amp;(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+</pre>
+
+<h4>ייבוא לקוחות</h4>
+<p>כאשר "השתמש לייבוא לקוחות" מופעל, הנתונים הבאים מיובאים:</p>
+<ul>
+  <li><strong>שם משפחה</strong> - sn (שם משפחה) או displayName</li>
+  <li><strong>שם פרטי</strong> - givenName</li>
+  <li><strong>תפקיד</strong> - title (שם התפקיד)</li>
+  <li><strong>חברה</strong> - company</li>
+  <li><strong>כתובת</strong> - street/streetAddress, postalCode, l (עיר), st (מדינה/מחוז), c (מדינה)</li>
+  <li><strong>מין</strong> - ב-Active Directory, נלקח מ-personalTitle (Herr/Frau)</li>
+</ul>
+
+<p><em>הערה: ב-OpenLDAP, המין מוגדר כברירת מחדל כ"ניטרלי" וניתן לתקן ידנית.</em></p>
+
+<hr>
+
+<h3>OAuth2 / OpenID Connect</h3>
+
+<h4>הגדרות</h4>
+<table>
+  <tr><th>שדה</th><th>תיאור</th></tr>
+  <tr><td>מזהה לקוח</td><td>מזהה לקוח הרשום אצל הספק</td></tr>
+  <tr><td>סוד לקוח</td><td>סוד הלקוח המתאים</td></tr>
+  <tr><td>מזהה דייר</td><td>מזהה דייר Azure AD (אופציונלי, Microsoft בלבד)</td></tr>
+  <tr><td>כתובת URL לאימות</td><td>נקודת קצה לאימות</td></tr>
+  <tr><td>כתובת URL לטוקן</td><td>נקודת קצה להחלפת טוקנים</td></tr>
+  <tr><td>כתובת URL למידע משתמש</td><td>נקודת קצה לקבלת מידע משתמש</td></tr>
+  <tr><td>היקפים</td><td>הרשאות מבוקשות (למשל: "openid profile email")</td></tr>
+</table>
+
+<h4>ספקים עיקריים</h4>
+<table>
+  <tr><th>ספק</th><th>כתובת URL לאימות</th><th>כתובת URL לטוקן</th></tr>
+  <tr><td>Google</td><td>https://accounts.google.com/o/oauth2/v2/auth</td><td>https://oauth2.googleapis.com/token</td></tr>
+  <tr><td>Microsoft</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</td></tr>
+  <tr><td>GitHub</td><td>https://github.com/login/oauth/authorize</td><td>https://github.com/login/oauth/access_token</td></tr>
+</table>
+
+<hr>
+
+<h3>טיפים</h3>
+
+<h4>שימוש ב-Synology NAS כשרת LDAP</h4>
+<p>
+ניתן להשתמש ב-Synology NAS כשרת LDAP. במקרה זה, יש להתקין את חבילת
+"שרת LDAP" או מכולת Docker עם OpenLDAP.
+</p>
+<ul>
+  <li>סוג ספק: "Active Directory" (לאימות חלופי)</li>
+  <li>מסנן משתמשים: (objectClass=inetOrgPerson)</li>
+  <li>פורמט DN משתמש: cn=username,ou=users,dc=example,dc=com</li>
+</ul>
+
+<h4>בדיקת חיבור</h4>
+<p>
+השתמש בכפתור "בדוק חיבור" כדי לאמת את ההגדרות.
+אם החיבור מצליח, יוצגו מספר המשתמשים שנמצאו ומספר שמות משתמשים לדוגמה.
+</p>
+
+<h4>פתרון בעיות</h4>
+<table>
+  <tr><th>בעיה</th><th>פתרון</th></tr>
+  <tr><td>חיבור נכשל</td><td>בדוק מארח, פורט והגדרות SSL</td></tr>
+  <tr><td>חיבור BIND נכשל</td><td>בדוק DN חיבור וסיסמה</td></tr>
+  <tr><td>משתמשים לא נמצאו</td><td>בדוק DN בסיסי ומסנן משתמשים</td></tr>
+  <tr><td>כתובת לא מיובאת</td><td>OpenLDAP משתמש ב-"street" ולא ב-"streetAddress"</td></tr>
+</table>
