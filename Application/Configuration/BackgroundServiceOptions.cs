@@ -26,4 +26,5 @@ public class BackgroundServiceOptions
     public bool SkillGapSuggestion { get; set; } = true;
     public bool EmailPolling { get; set; } = true;
     public bool MessageRetention { get; set; } = true;
+    public bool DataRetention { get; set; } = true;
 }

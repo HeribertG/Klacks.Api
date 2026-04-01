@@ -78,6 +78,9 @@ namespace Klacks.Api.Application.Constants
         public const string COMPANY_TAX_ID = "COMPANY_TAX_ID";
         public const string COMPANY_VAT_ID = "COMPANY_VAT_ID";
         public const string COMPANY_COMMERCIAL_REGISTER = "COMPANY_COMMERCIAL_REGISTER";
+
+        public const string DATA_RETENTION_DAYS = "DATA_RETENTION_DAYS";
+        public const int DATA_RETENTION_DAYS_DEFAULT = 3650;
     }
 }
 

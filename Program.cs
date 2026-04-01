@@ -184,6 +184,8 @@ builder.Services.AddScoped<Klacks.Api.Domain.Interfaces.Email.IEmailNotification
 builder.Services.AddSingleton<HeartbeatBackgroundService>();
 if (bgOptions.Heartbeat)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<HeartbeatBackgroundService>());
+if (bgOptions.DataRetention)
+    builder.Services.AddHostedService<DataRetentionBackgroundService>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddMemoryCache();
