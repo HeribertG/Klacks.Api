@@ -37,5 +37,21 @@ public class ContractResource
 
     public Guid? CalendarSelectionId { get; set; }
 
+    public bool WorkOnMonday { get; set; } = true;
+
+    public bool WorkOnTuesday { get; set; } = true;
+
+    public bool WorkOnWednesday { get; set; } = true;
+
+    public bool WorkOnThursday { get; set; } = true;
+
+    public bool WorkOnFriday { get; set; } = true;
+
+    public bool WorkOnSaturday { get; set; }
+
+    public bool WorkOnSunday { get; set; }
+
+    public bool PerformsShiftWork { get; set; }
+
     public Guid? SchedulingRuleId { get; set; }
 }

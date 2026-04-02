@@ -43,6 +43,22 @@ public class Contract : BaseEntity
     [JsonIgnore]
     public CalendarSelection? CalendarSelection { get; set; }
 
+    public bool WorkOnMonday { get; set; } = true;
+
+    public bool WorkOnTuesday { get; set; } = true;
+
+    public bool WorkOnWednesday { get; set; } = true;
+
+    public bool WorkOnThursday { get; set; } = true;
+
+    public bool WorkOnFriday { get; set; } = true;
+
+    public bool WorkOnSaturday { get; set; }
+
+    public bool WorkOnSunday { get; set; }
+
+    public bool PerformsShiftWork { get; set; }
+
     [ForeignKey("SchedulingRule")]
     public Guid? SchedulingRuleId { get; set; }
 

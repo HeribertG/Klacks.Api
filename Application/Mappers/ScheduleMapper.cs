@@ -55,6 +55,14 @@ public partial class ScheduleMapper
         target.ValidUntil = source.ValidUntil;
         target.CalendarSelectionId = source.CalendarSelectionId;
         target.SchedulingRuleId = source.SchedulingRuleId;
+        target.WorkOnMonday = source.WorkOnMonday;
+        target.WorkOnTuesday = source.WorkOnTuesday;
+        target.WorkOnWednesday = source.WorkOnWednesday;
+        target.WorkOnThursday = source.WorkOnThursday;
+        target.WorkOnFriday = source.WorkOnFriday;
+        target.WorkOnSaturday = source.WorkOnSaturday;
+        target.WorkOnSunday = source.WorkOnSunday;
+        target.PerformsShiftWork = source.PerformsShiftWork;
     }
 
     public partial MembershipResource ToMembershipResource(Membership membership);

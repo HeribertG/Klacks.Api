@@ -121,5 +121,13 @@ public partial class ScheduleMapper
         target.HolidayRate = source.HolidayRate;
         target.SaRate = source.SaRate;
         target.SoRate = source.SoRate;
+        target.WorkOnMonday = source.WorkOnMonday;
+        target.WorkOnTuesday = source.WorkOnTuesday;
+        target.WorkOnWednesday = source.WorkOnWednesday;
+        target.WorkOnThursday = source.WorkOnThursday;
+        target.WorkOnFriday = source.WorkOnFriday;
+        target.WorkOnSaturday = source.WorkOnSaturday;
+        target.WorkOnSunday = source.WorkOnSunday;
+        target.PerformsShiftWork = source.PerformsShiftWork;
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260402075413_AddContractWorkDaysAndShiftWork")]
+    partial class AddContractWorkDaysAndShiftWork
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -5222,10 +5225,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("overtime_threshold");
 
-                    b.Property<bool?>("PerformsShiftWork")
-                        .HasColumnType("boolean")
-                        .HasColumnName("performs_shift_work");
-
                     b.Property<decimal?>("SaRate")
                         .HasColumnType("numeric")
                         .HasColumnName("sa_rate");
@@ -5241,34 +5240,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<int?>("VacationDaysPerYear")
                         .HasColumnType("integer")
                         .HasColumnName("vacation_days_per_year");
-
-                    b.Property<bool?>("WorkOnFriday")
-                        .HasColumnType("boolean")
-                        .HasColumnName("work_on_friday");
-
-                    b.Property<bool?>("WorkOnMonday")
-                        .HasColumnType("boolean")
-                        .HasColumnName("work_on_monday");
-
-                    b.Property<bool?>("WorkOnSaturday")
-                        .HasColumnType("boolean")
-                        .HasColumnName("work_on_saturday");
-
-                    b.Property<bool?>("WorkOnSunday")
-                        .HasColumnType("boolean")
-                        .HasColumnName("work_on_sunday");
-
-                    b.Property<bool?>("WorkOnThursday")
-                        .HasColumnType("boolean")
-                        .HasColumnName("work_on_thursday");
-
-                    b.Property<bool?>("WorkOnTuesday")
-                        .HasColumnType("boolean")
-                        .HasColumnName("work_on_tuesday");
-
-                    b.Property<bool?>("WorkOnWednesday")
-                        .HasColumnType("boolean")
-                        .HasColumnName("work_on_wednesday");
 
                     b.HasKey("Id")
                         .HasName("pk_scheduling_rules");
