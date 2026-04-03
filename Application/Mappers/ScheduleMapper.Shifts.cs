@@ -55,6 +55,15 @@ public partial class ScheduleMapper
             ValidUntil = gi.ValidUntil
         }).ToList() ?? [];
 
+        resource.DefaultExpenses = shift.ShiftExpenses?.Select(e => new ShiftExpensesResource
+        {
+            Id = e.Id,
+            ShiftId = e.ShiftId,
+            Amount = e.Amount,
+            Description = e.Description,
+            Taxable = e.Taxable
+        }).ToList() ?? [];
+
         if (shift.Client != null)
         {
             resource.Client = ToShiftClientResource(shift.Client);
@@ -108,7 +117,9 @@ public partial class ScheduleMapper
     }
 
     [MapperIgnoreTarget(nameof(ShiftResource.Groups))]
+    [MapperIgnoreTarget(nameof(ShiftResource.DefaultExpenses))]
     [MapperIgnoreSource(nameof(Shift.Client))]
+    [MapperIgnoreSource(nameof(Shift.ShiftExpenses))]
     private partial ShiftResource ToShiftResourceBase(Shift shift);
 
     [MapperIgnoreTarget(nameof(Shift.CreateTime))]
@@ -120,6 +131,7 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Shift.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(Shift.Client))]
     [MapperIgnoreTarget(nameof(Shift.GroupItems))]
+    [MapperIgnoreTarget(nameof(Shift.ShiftExpenses))]
     [MapperIgnoreTarget(nameof(Shift.AnalyseToken))]
     private partial Shift ToShiftEntityBase(ShiftResource resource);
 
@@ -131,6 +143,14 @@ public partial class ScheduleMapper
             GroupId = g.Id,
             ValidFrom = g.ValidFrom,
             ValidUntil = g.ValidUntil
+        }).ToList() ?? [];
+        entity.ShiftExpenses = resource.DefaultExpenses?.Select(e => new ShiftExpenses
+        {
+            Id = e.Id,
+            ShiftId = e.ShiftId,
+            Amount = e.Amount,
+            Description = e.Description,
+            Taxable = e.Taxable
         }).ToList() ?? [];
         return entity;
     }
@@ -186,6 +206,14 @@ public partial class ScheduleMapper
                 GroupId = gi.GroupId,
                 ValidFrom = gi.ValidFrom,
                 ValidUntil = gi.ValidUntil,
+                ShiftId = Guid.Empty
+            }).ToList(),
+            ShiftExpenses = source.ShiftExpenses.Select(e => new ShiftExpenses
+            {
+                Id = Guid.Empty,
+                Amount = e.Amount,
+                Description = e.Description,
+                Taxable = e.Taxable,
                 ShiftId = Guid.Empty
             }).ToList()
         };

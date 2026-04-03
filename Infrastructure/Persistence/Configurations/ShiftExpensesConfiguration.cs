@@ -16,7 +16,7 @@ public class ShiftExpensesConfiguration : IEntityTypeConfiguration<ShiftExpenses
         builder.HasQueryFilter(p => !p.IsDeleted);
 
         builder.HasOne(e => e.Shift)
-            .WithMany()
+            .WithMany(s => s.ShiftExpenses)
             .HasForeignKey(e => e.ShiftId)
             .OnDelete(DeleteBehavior.Cascade);
     }

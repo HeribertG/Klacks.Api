@@ -121,4 +121,9 @@ public class Shift : BaseEntity
     #endregion Groups
 
     public Guid? AnalyseToken { get; set; }
+
+    #region Expenses
+    public List<ShiftExpenses> ShiftExpenses { get; set; } = [];
+    
+    #endregion Expenses
 }

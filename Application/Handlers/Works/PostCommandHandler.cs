@@ -18,6 +18,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IScheduleCompletionService _completionService;
     private readonly IWorkNotificationFacade _notificationFacade;
+    private readonly IShiftExpensesRepository _shiftExpensesRepository;
+    private readonly IExpensesRepository _expensesRepository;
 
     public PostCommandHandler(
         IWorkRepository workRepository,
@@ -26,6 +28,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         IScheduleEntriesService scheduleEntriesService,
         IScheduleCompletionService completionService,
         IWorkNotificationFacade notificationFacade,
+        IShiftExpensesRepository shiftExpensesRepository,
+        IExpensesRepository expensesRepository,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -35,6 +39,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         _scheduleEntriesService = scheduleEntriesService;
         _completionService = completionService;
         _notificationFacade = notificationFacade;
+        _shiftExpensesRepository = shiftExpensesRepository;
+        _expensesRepository = expensesRepository;
     }
 
     public async Task<WorkResource?> Handle(PostCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -57,6 +63,20 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
             }
 
             await _workRepository.Add(work);
+
+            var defaultExpenses = await _shiftExpensesRepository.GetByShiftId(work.ShiftId);
+            foreach (var defaultExpense in defaultExpenses)
+            {
+                var expense = new Domain.Models.Schedules.Expenses
+                {
+                    WorkId = work.Id,
+                    Amount = defaultExpense.Amount,
+                    Description = defaultExpense.Description,
+                    Taxable = defaultExpense.Taxable
+                };
+                await _expensesRepository.Add(expense);
+            }
+
             var periodHours = await _completionService.SaveAndTrackAsync(
                 work.ClientId, work.CurrentDate, periodStart, periodEnd);
 

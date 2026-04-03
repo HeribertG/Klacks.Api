@@ -375,3 +375,4 @@ appsettings.*.json
 
 # Claude Code agent memory (auto-generated)
 .claude/
+/Application/Handlers/ShiftExpenses

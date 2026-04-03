@@ -114,4 +114,6 @@ public class ShiftResource
     #endregion Groups
 
     public Guid? AnalyseToken { get; set; }
+
+    public List<ShiftExpensesResource> DefaultExpenses { get; set; } = [];
 }

@@ -49,8 +49,14 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             groupItem.ShiftId = shift.Id;
         }
 
+        foreach (var expense in shift.ShiftExpenses)
+        {
+            expense.ShiftId = shift.Id;
+        }
+
         await context.Shift.AddAsync(shift);
-        Logger.LogInformation("Shift added: {ShiftId}, GroupItems count: {Count}", shift.Id, shift.GroupItems.Count);
+        Logger.LogInformation("Shift added: {ShiftId}, GroupItems count: {Count}, ShiftExpenses count: {ExpenseCount}",
+            shift.Id, shift.GroupItems.Count, shift.ShiftExpenses.Count);
     }
 
     public new async Task<Shift?> Put(Shift shift)
@@ -60,6 +66,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
                 .ThenInclude(c => c.Addresses)
             .Include(s => s.GroupItems)
                 .ThenInclude(gi => gi.Group)
+            .Include(s => s.ShiftExpenses)
             .AsSplitQuery()
             .FirstOrDefaultAsync(s => s.Id == shift.Id);
 
@@ -81,7 +88,14 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
         _shiftValidator.EnsureUniqueGroupItems(existingShift.GroupItems);
 
-        Logger.LogInformation("Shift updated: {ShiftId}, GroupItems count: {Count}", shift.Id, existingShift.GroupItems.Count);
+        _collectionUpdateService.UpdateCollection(
+            existingShift.ShiftExpenses,
+            shift.ShiftExpenses,
+            existingShift.Id,
+            (expense, shiftId) => expense.ShiftId = shiftId);
+
+        Logger.LogInformation("Shift updated: {ShiftId}, GroupItems count: {Count}, ShiftExpenses count: {ExpenseCount}",
+            shift.Id, existingShift.GroupItems.Count, existingShift.ShiftExpenses.Count);
         return existingShift;
     }
 
@@ -94,6 +108,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
                 .ThenInclude(x => x.Addresses!)
             .Include(x => x.GroupItems)
                 .ThenInclude(gi => gi.Group)
+            .Include(x => x.ShiftExpenses)
             .AsSplitQuery()
             .AsNoTracking()
             .FirstOrDefaultAsync();

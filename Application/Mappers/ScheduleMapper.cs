@@ -139,4 +139,16 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(SelectedCalendar.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(SelectedCalendar.CalendarSelection))]
     public partial SelectedCalendar ToSelectedCalendarEntity(SelectedCalendarResource resource);
+
+    public partial ShiftExpensesResource ToShiftExpensesResource(ShiftExpenses entity);
+
+    [MapperIgnoreTarget(nameof(ShiftExpenses.CreateTime))]
+    [MapperIgnoreTarget(nameof(ShiftExpenses.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(ShiftExpenses.UpdateTime))]
+    [MapperIgnoreTarget(nameof(ShiftExpenses.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(ShiftExpenses.DeletedTime))]
+    [MapperIgnoreTarget(nameof(ShiftExpenses.IsDeleted))]
+    [MapperIgnoreTarget(nameof(ShiftExpenses.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(ShiftExpenses.Shift))]
+    public partial ShiftExpenses ToShiftExpensesEntity(ShiftExpensesResource resource);
 }
