@@ -1,5 +1,5 @@
-# .github/workflows/deploy.yml für Klacks.Api
-name: Deploy Klacks.Api to Hetzner
+# .github/workflows/deploy.yml for Klacks.Api
+name: Test & Deploy Klacks.Api to Hetzner
 
 on:
   push:
@@ -14,9 +14,117 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  unit-tests:
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 15
+
+    steps:
+    - name: Checkout Klacks.Api
+      uses: actions/checkout@v4
+      with:
+        path: Klacks.Api
+
+    - name: Checkout Klacks.Plugin.Contracts
+      uses: actions/checkout@v4
+      with:
+        repository: HeribertG/Klacks.Plugin.Contracts
+        path: Klacks.Plugin.Contracts
+        token: ${{ secrets.GH_PAT || github.token }}
+
+    - name: Checkout Klacks.Plugin.Messaging
+      uses: actions/checkout@v4
+      with:
+        repository: HeribertG/Klacks.Plugin.Messaging
+        path: Klacks.Plugin.Messaging
+        token: ${{ secrets.GH_PAT || github.token }}
+
+    - name: Checkout Klacks.UnitTest
+      uses: actions/checkout@v4
+      with:
+        repository: HeribertG/Klacks.UnitTest
+        path: Klacks.UnitTest
+        token: ${{ secrets.GH_PAT || github.token }}
+
+    - name: Setup .NET 10
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore Klacks.UnitTest/Klacks.UnitTest.csproj
+
+    - name: Build
+      run: dotnet build Klacks.UnitTest/Klacks.UnitTest.csproj --no-restore
+
+    - name: Run unit tests
+      run: dotnet test Klacks.UnitTest/Klacks.UnitTest.csproj --no-build --verbosity normal
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: admin
+          POSTGRES_DB: klacks
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout Klacks.Api
+      uses: actions/checkout@v4
+      with:
+        path: Klacks.Api
+
+    - name: Checkout Klacks.Plugin.Contracts
+      uses: actions/checkout@v4
+      with:
+        repository: HeribertG/Klacks.Plugin.Contracts
+        path: Klacks.Plugin.Contracts
+        token: ${{ secrets.GH_PAT || github.token }}
+
+    - name: Checkout Klacks.Plugin.Messaging
+      uses: actions/checkout@v4
+      with:
+        repository: HeribertG/Klacks.Plugin.Messaging
+        path: Klacks.Plugin.Messaging
+        token: ${{ secrets.GH_PAT || github.token }}
+
+    - name: Checkout Klacks.IntegrationTest
+      uses: actions/checkout@v4
+      with:
+        repository: HeribertG/Klacks.IntegrationTest
+        path: Klacks.IntegrationTest
+        token: ${{ secrets.GH_PAT || github.token }}
+
+    - name: Setup .NET 10
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore Klacks.IntegrationTest/Klacks.IntegrationTest.csproj
+
+    - name: Build
+      run: dotnet build Klacks.IntegrationTest/Klacks.IntegrationTest.csproj --no-restore
+
+    - name: Run integration tests
+      run: dotnet test Klacks.IntegrationTest/Klacks.IntegrationTest.csproj --no-build --verbosity normal
+      env:
+        KLACKS_TEST_CONNECTION: "Host=localhost;Port=5434;Database=klacks;Username=postgres;Password=admin"
+
+  deploy:
+    needs: [unit-tests, integration-tests]
+    runs-on: ubuntu-latest
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -31,10 +139,10 @@ jobs:
         script: |
           set -e
           echo "🚀 Deploying Klacks.Api..."
-          
+
           # Navigate to correct directory
           cd /root/apps
-          
+
           # Update Klacks.Api Repository
           if [ -d "Klacks.Api" ]; then
             echo "📦 Updating Klacks.Api..."
@@ -42,7 +150,7 @@ jobs:
             # Get current branch name
             CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
             echo "Current branch: $CURRENT_BRANCH"
-            # Force pull - überschreibt lokale Änderungen
+            # Force pull
             git fetch origin
             git reset --hard origin/$CURRENT_BRANCH
             cd ..
@@ -50,7 +158,7 @@ jobs:
             echo "📦 Cloning Klacks.Api..."
             git clone https://github.com/HeribertG/Klacks.Api.git
           fi
-          
+
           # Update Plugin projects (required by Klacks.Api)
           for PLUGIN_REPO in Klacks.Plugin.Contracts Klacks.Plugin.Messaging; do
             if [ -d "$PLUGIN_REPO" ]; then
@@ -75,7 +183,7 @@ jobs:
             COMPOSE_CMD="docker compose"
           fi
           echo "Using: $COMPOSE_CMD"
-          
+
           # Rebuild and restart only API service with version injection
           echo "🔨 Building Klacks.Api..."
           $COMPOSE_CMD build klacks-api --no-cache \
@@ -85,7 +193,7 @@ jobs:
             --build-arg KLACKS_BUILD_KEY=$(git rev-parse --short HEAD) \
             --build-arg KLACKS_BUILD_TIMESTAMP=$(date -u +%Y-%m-%d) \
             --build-arg KLACKS_VARIANT=RELEASE
-          
+
           echo "🔄 Restarting Klacks.Api + Nginx Proxy..."
           docker stop klacks-api 2>/dev/null || true
           docker rm klacks-api 2>/dev/null || true
@@ -93,15 +201,15 @@ jobs:
           $COMPOSE_CMD restart nginx-proxy 2>/dev/null || $COMPOSE_CMD up -d nginx-proxy
 
           echo "✅ Klacks.Api deployment completed!"
-          
+
           # Status check
           echo "📊 Service status:"
           $COMPOSE_CMD ps klacks-api
-          
+
           # Health Check
           sleep 15
           echo "🏥 Health Check for Klacks.Api..."
-          
+
           # Check if service is running
           if $COMPOSE_CMD ps klacks-api | grep -q "Up"; then
             echo "✅ Container is running"
@@ -110,7 +218,7 @@ jobs:
             $COMPOSE_CMD logs klacks-api --tail=20
             exit 1
           fi
-          
+
           # Check HTTP response via Nginx proxy
           if curl -f -s -o /dev/null -w "%{http_code}" http://localhost:5000/api/values 2>/dev/null | grep -qE "200|401|404"; then
             echo "✅ Klacks.Api is responding via Nginx (port 5000)"
@@ -119,7 +227,7 @@ jobs:
           else
             echo "⚠️  API endpoints not yet accessible via Nginx (might still be initializing)"
           fi
-          
+
           # Check database connectivity via container logs
           echo "🔍 Checking for database connection errors..."
           if $COMPOSE_CMD logs klacks-api --tail=50 | grep -i "error\|exception" | grep -i "database\|postgres"; then
