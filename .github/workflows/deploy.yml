@@ -74,84 +74,11 @@ jobs:
     - name: Run unit tests
       run: dotnet test Klacks.UnitTest/Klacks.UnitTest.csproj --no-build --verbosity normal
 
-  integration-tests:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    services:
-      postgres:
-        image: postgres:17-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: admin
-          POSTGRES_DB: klacks
-        ports:
-          - 5434:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    steps:
-    - name: Checkout Klacks.Api
-      uses: actions/checkout@v4
-      with:
-        path: Klacks.Api
-
-    - name: Checkout Klacks.Plugin.Contracts
-      uses: actions/checkout@v4
-      with:
-        repository: HeribertG/Klacks.Plugin.Contracts
-        path: Klacks.Plugin.Contracts
-        token: ${{ secrets.GH_PAT || github.token }}
-
-    - name: Checkout Klacks.Plugin.Messaging
-      uses: actions/checkout@v4
-      with:
-        repository: HeribertG/Klacks.Plugin.Messaging
-        path: Klacks.Plugin.Messaging
-        token: ${{ secrets.GH_PAT || github.token }}
-
-    - name: Checkout Klacks.Docs
-      uses: actions/checkout@v4
-      with:
-        repository: HeribertG/Klacks.Docs
-        path: Klacks.Docs
-        token: ${{ secrets.GH_PAT || github.token }}
-
-    - name: Checkout Klacks.Api.SourceGenerators
-      uses: actions/checkout@v4
-      with:
-        repository: HeribertG/Klacks.Api.SourceGenerators
-        path: Klacks.Api.SourceGenerators
-        token: ${{ secrets.GH_PAT || github.token }}
-
-    - name: Checkout Klacks.IntegrationTest
-      uses: actions/checkout@v4
-      with:
-        repository: HeribertG/Klacks.IntegrationTest
-        path: Klacks.IntegrationTest
-        token: ${{ secrets.GH_PAT || github.token }}
-
-    - name: Setup .NET 10
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '10.0.x'
-
-    - name: Restore dependencies
-      run: dotnet restore Klacks.IntegrationTest/Klacks.IntegrationTest.csproj
-
-    - name: Build
-      run: dotnet build Klacks.IntegrationTest/Klacks.IntegrationTest.csproj --no-restore
-
-    - name: Run integration tests
-      run: dotnet test Klacks.IntegrationTest/Klacks.IntegrationTest.csproj --no-build --verbosity normal
-      env:
-        KLACKS_TEST_CONNECTION: "Host=localhost;Port=5434;Database=klacks;Username=postgres;Password=admin"
+  # Integration tests require a fully migrated + seeded database.
+  # They run locally against the dev DB (port 5434), not in CI.
 
   deploy:
-    needs: [unit-tests, integration-tests]
+    needs: [unit-tests]
     runs-on: ubuntu-latest
 
     steps:
