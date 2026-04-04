@@ -285,6 +285,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IWorkNotificationFacade, WorkNotificationFacade>();
         services.AddSingleton<ITimelineCalculationService, TimelineCalculationService>();
         services.AddScoped<ITravelTimeCalculationService, TravelTimeCalculationService>();
+        services.AddScoped<IContainerWorkExpansionService, ContainerWorkExpansionService>();
+        services.AddScoped<IContainerWorkCascadeService, ContainerWorkCascadeService>();
     }
 
     private static void AddSettingsServices(this IServiceCollection services, IConfiguration configuration)
