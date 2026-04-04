@@ -4,6 +4,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IScheduleCompletionService _completionService;
     private readonly IWorkNotificationFacade _notificationFacade;
+    private readonly IContainerWorkCascadeService _cascadeService;
 
     public DeleteCommandHandler(
         IWorkRepository workRepository,
@@ -24,6 +26,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         IScheduleEntriesService scheduleEntriesService,
         IScheduleCompletionService completionService,
         IWorkNotificationFacade notificationFacade,
+        IContainerWorkCascadeService cascadeService,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
@@ -32,6 +35,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         _scheduleEntriesService = scheduleEntriesService;
         _completionService = completionService;
         _notificationFacade = notificationFacade;
+        _cascadeService = cascadeService;
     }
 
     public async Task<WorkResource?> Handle(DeleteWorkCommand request, CancellationToken cancellationToken)
@@ -47,6 +51,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
             var shiftId = work.ShiftId;
             var workDate = work.CurrentDate;
 
+            await _cascadeService.DeleteChildrenAsync(request.Id);
             await _workRepository.Delete(request.Id);
             var periodHours = await _completionService.SaveAndTrackAsync(
                 work.ClientId, work.CurrentDate, request.PeriodStart, request.PeriodEnd);

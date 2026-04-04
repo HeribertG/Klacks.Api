@@ -4,6 +4,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IScheduleCompletionService _completionService;
     private readonly IWorkNotificationFacade _notificationFacade;
+    private readonly IContainerWorkCascadeService _cascadeService;
 
     public PutCommandHandler(
         IWorkRepository workRepository,
@@ -26,6 +28,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         IScheduleEntriesService scheduleEntriesService,
         IScheduleCompletionService completionService,
         IWorkNotificationFacade notificationFacade,
+        IContainerWorkCascadeService cascadeService,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -35,6 +38,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         _scheduleEntriesService = scheduleEntriesService;
         _completionService = completionService;
         _notificationFacade = notificationFacade;
+        _cascadeService = cascadeService;
     }
 
     public async Task<WorkResource?> Handle(PutCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -44,6 +48,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
             var existingWork = await _workRepository.GetNoTracking(request.Resource.Id);
             var oldShiftId = existingWork?.ShiftId;
             var oldDate = existingWork?.CurrentDate;
+            var oldLockLevel = existingWork?.LockLevel;
 
             var work = _scheduleMapper.ToWorkEntity(request.Resource);
 
@@ -62,6 +67,16 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
 
             var updatedWork = await _workRepository.Put(work);
             if (updatedWork == null) return null;
+
+            if (oldDate.HasValue && oldDate.Value != updatedWork.CurrentDate)
+            {
+                await _cascadeService.MoveChildrenAsync(updatedWork.Id, updatedWork.CurrentDate);
+            }
+
+            if (oldLockLevel.HasValue && oldLockLevel.Value != updatedWork.LockLevel)
+            {
+                await _cascadeService.UpdateLockLevelAsync(updatedWork.Id, updatedWork.LockLevel, updatedWork.SealedBy);
+            }
 
             var periodHours = await _completionService.SaveAndTrackMoveAsync(
                 updatedWork.ClientId, updatedWork.CurrentDate, periodStart, periodEnd,

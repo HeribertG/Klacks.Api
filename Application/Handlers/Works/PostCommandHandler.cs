@@ -4,6 +4,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
     private readonly IWorkNotificationFacade _notificationFacade;
     private readonly IShiftExpensesRepository _shiftExpensesRepository;
     private readonly IExpensesRepository _expensesRepository;
+    private readonly IContainerWorkExpansionService _expansionService;
 
     public PostCommandHandler(
         IWorkRepository workRepository,
@@ -30,6 +32,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         IWorkNotificationFacade notificationFacade,
         IShiftExpensesRepository shiftExpensesRepository,
         IExpensesRepository expensesRepository,
+        IContainerWorkExpansionService expansionService,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -41,6 +44,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         _notificationFacade = notificationFacade;
         _shiftExpensesRepository = shiftExpensesRepository;
         _expensesRepository = expensesRepository;
+        _expansionService = expansionService;
     }
 
     public async Task<WorkResource?> Handle(PostCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -63,6 +67,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
             }
 
             await _workRepository.Add(work);
+            await _expansionService.ExpandAsync(work, work.CurrentDate);
 
             var defaultExpenses = await _shiftExpensesRepository.GetByShiftId(work.ShiftId);
             foreach (var defaultExpense in defaultExpenses)

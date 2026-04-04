@@ -4,6 +4,7 @@ using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -18,6 +19,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleCompletionService _completionService;
     private readonly IWorkNotificationFacade _notificationFacade;
+    private readonly IContainerWorkExpansionService _expansionService;
 
     public BulkAddWorksCommandHandler(
         IWorkRepository workRepository,
@@ -25,6 +27,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         IPeriodHoursService periodHoursService,
         IScheduleCompletionService completionService,
         IWorkNotificationFacade notificationFacade,
+        IContainerWorkExpansionService expansionService,
         ILogger<BulkAddWorksCommandHandler> logger)
         : base(logger)
     {
@@ -33,6 +36,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         _periodHoursService = periodHoursService;
         _completionService = completionService;
         _notificationFacade = notificationFacade;
+        _expansionService = expansionService;
     }
 
     public async Task<BulkWorksResponse> Handle(BulkAddWorksCommand command, CancellationToken cancellationToken)
@@ -77,6 +81,11 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                 foreach (var work in works)
                 {
                     await _workRepository.Add(work);
+                }
+
+                foreach (var work in works)
+                {
+                    await _expansionService.ExpandAsync(work, work.CurrentDate);
                 }
 
                 var affected = works.Select(w => (w.ClientId, w.CurrentDate)).ToList();
