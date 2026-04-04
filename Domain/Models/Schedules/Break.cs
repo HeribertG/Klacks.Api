@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Domain.Models.Schedules;
@@ -9,6 +11,12 @@ public class Break : ScheduleEntryBase
     public Guid AbsenceId { get; set; }
 
     public virtual Absence? Absence { get; set; }
+
+    [ForeignKey("ParentWork")]
+    public Guid? ParentWorkId { get; set; }
+
+    [JsonIgnore]
+    public virtual Work? ParentWork { get; set; }
 
     /// <summary>
     /// Multilingual description stored as JSONB in database.
