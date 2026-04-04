@@ -8,6 +8,7 @@ on:
       - '**'
       - '!README.md'
       - '!docs/**'
+  workflow_dispatch:
 
 concurrency:
   group: deploy-klacks-api-${{ github.ref }}
