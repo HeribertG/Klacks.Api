@@ -38,6 +38,20 @@ jobs:
         path: Klacks.Plugin.Messaging
         token: ${{ secrets.GH_PAT || github.token }}
 
+    - name: Checkout Klacks.Docs
+      uses: actions/checkout@v4
+      with:
+        repository: HeribertG/Klacks.Docs
+        path: Klacks.Docs
+        token: ${{ secrets.GH_PAT || github.token }}
+
+    - name: Checkout Klacks.Api.SourceGenerators
+      uses: actions/checkout@v4
+      with:
+        repository: HeribertG/Klacks.Api.SourceGenerators
+        path: Klacks.Api.SourceGenerators
+        token: ${{ secrets.GH_PAT || github.token }}
+
     - name: Checkout Klacks.UnitTest
       uses: actions/checkout@v4
       with:
@@ -96,6 +110,20 @@ jobs:
       with:
         repository: HeribertG/Klacks.Plugin.Messaging
         path: Klacks.Plugin.Messaging
+        token: ${{ secrets.GH_PAT || github.token }}
+
+    - name: Checkout Klacks.Docs
+      uses: actions/checkout@v4
+      with:
+        repository: HeribertG/Klacks.Docs
+        path: Klacks.Docs
+        token: ${{ secrets.GH_PAT || github.token }}
+
+    - name: Checkout Klacks.Api.SourceGenerators
+      uses: actions/checkout@v4
+      with:
+        repository: HeribertG/Klacks.Api.SourceGenerators
+        path: Klacks.Api.SourceGenerators
         token: ${{ secrets.GH_PAT || github.token }}
 
     - name: Checkout Klacks.IntegrationTest
@@ -160,7 +188,7 @@ jobs:
           fi
 
           # Update Plugin projects (required by Klacks.Api)
-          for PLUGIN_REPO in Klacks.Plugin.Contracts Klacks.Plugin.Messaging; do
+          for PLUGIN_REPO in Klacks.Plugin.Contracts Klacks.Plugin.Messaging Klacks.Docs Klacks.Api.SourceGenerators; do
             if [ -d "$PLUGIN_REPO" ]; then
               echo "📦 Updating $PLUGIN_REPO..."
               cd $PLUGIN_REPO
