@@ -72,6 +72,7 @@ BEGIN
         SELECT w.*
         FROM work w
         WHERE w.is_deleted = false
+        AND w.parent_work_id IS NULL
         AND w.shift_id IN (SELECT fsi.id FROM filtered_shift_ids fsi)
         AND w."current_date"::DATE >= start_date
         AND w."current_date"::DATE <= end_date
@@ -389,6 +390,7 @@ BEGIN
             false AS is_group_restricted
         FROM break b
         WHERE b.is_deleted = false
+        AND b.parent_work_id IS NULL
         AND b."current_date"::DATE >= start_date
         AND b."current_date"::DATE <= end_date
         AND (p_analyse_token IS NULL OR b.analyse_token = p_analyse_token)
