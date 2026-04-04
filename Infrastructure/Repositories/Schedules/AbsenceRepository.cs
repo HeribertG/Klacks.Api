@@ -14,7 +14,6 @@ namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 
 public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
 {
-    private readonly DataBaseContext context;
     private readonly IAbsenceSortingService _sortingService;
     private readonly IAbsencePaginationService _paginationService;
     private readonly IAbsenceExportService _exportService;
@@ -25,7 +24,6 @@ public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
         IAbsenceExportService exportService)
         : base(context, logger)
     {
-        this.context = context;
         _sortingService = sortingService;
         _paginationService = paginationService;
         _exportService = exportService;

@@ -11,12 +11,9 @@ namespace Klacks.Api.Infrastructure.Repositories.Settings;
 
 public class BranchRepository : BaseRepository<Branch>, IBranchRepository
 {
-    private readonly DataBaseContext context;
-
     public BranchRepository(DataBaseContext context, ILogger<Branch> logger)
         : base(context, logger)
     {
-        this.context = context;
     }
 
     public async Task<bool> ExistsByNameAsync(string name, Guid? excludeId = null)

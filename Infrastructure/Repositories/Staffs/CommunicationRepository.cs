@@ -11,12 +11,9 @@ namespace Klacks.Api.Infrastructure.Repositories.Staffs;
 
 public class CommunicationRepository : BaseRepository<Communication>, ICommunicationRepository
 {
-    private readonly DataBaseContext context;
-
     public CommunicationRepository(DataBaseContext context, ILogger<Communication> logger)
       : base(context, logger)
     {
-        this.context = context;
     }
 
     public async Task<List<Communication>> GetClient(Guid id)

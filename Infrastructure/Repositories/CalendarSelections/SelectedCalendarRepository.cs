@@ -11,12 +11,9 @@ namespace Klacks.Api.Infrastructure.Repositories.CalendarSelections;
 
 public class SelectedCalendarRepository : BaseRepository<SelectedCalendar>, ISelectedCalendarRepository
 {
-    private readonly DataBaseContext context;
-
     public SelectedCalendarRepository(DataBaseContext context, ILogger<SelectedCalendar> logger)
       : base(context, logger)
     {
-        this.context = context;
     }
 
     public async Task AddPulk(SelectedCalendar[] models)

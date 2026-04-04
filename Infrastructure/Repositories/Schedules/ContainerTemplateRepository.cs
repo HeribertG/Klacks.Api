@@ -13,7 +13,6 @@ namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 
 public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IContainerTemplateRepository
 {
-    private readonly DataBaseContext context;
     private readonly EntityCollectionUpdateService _collectionUpdateService;
     private readonly ContainerTemplateService _templateService;
 
@@ -24,7 +23,6 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
         ContainerTemplateService templateService)
         : base(context, logger)
     {
-        this.context = context;
         _collectionUpdateService = collectionUpdateService;
         _templateService = templateService;
     }

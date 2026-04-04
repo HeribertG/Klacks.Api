@@ -12,12 +12,9 @@ namespace Klacks.Api.Infrastructure.Repositories.Associations;
 
 public class ClientShiftPreferenceRepository : BaseRepository<ClientShiftPreference>, IClientShiftPreferenceRepository
 {
-    private readonly DataBaseContext context;
-
     public ClientShiftPreferenceRepository(DataBaseContext context, ILogger<ClientShiftPreference> logger)
         : base(context, logger)
     {
-        this.context = context;
     }
 
     public async Task<List<ClientShiftPreference>> GetByClientIdAsync(Guid clientId, CancellationToken ct = default)

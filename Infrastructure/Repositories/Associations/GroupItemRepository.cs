@@ -11,12 +11,9 @@ namespace Klacks.Api.Infrastructure.Repositories.Associations;
 
 public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemRepository
 {
-    private readonly DataBaseContext context;
-
     public GroupItemRepository(DataBaseContext context, ILogger<GroupItem> logger)
         : base(context, logger)
     {
-        this.context = context;
     }
 
     public async Task<GroupItem?> GetByClientAndGroup(Guid clientId, Guid groupId)

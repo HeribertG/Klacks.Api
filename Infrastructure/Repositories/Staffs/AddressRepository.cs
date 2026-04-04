@@ -11,12 +11,9 @@ namespace Klacks.Api.Infrastructure.Repositories.Staffs;
 
 public class AddressRepository : BaseRepository<Address>, IAddressRepository
 {
-    private readonly DataBaseContext context;
-
     public AddressRepository(DataBaseContext context, ILogger<Address> logger)
       : base(context, logger)
     {
-        this.context = context;
     }
 
     public async Task<List<Address>> AddressList(Guid id)

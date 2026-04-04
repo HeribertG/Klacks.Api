@@ -9,11 +9,8 @@ namespace Klacks.Api.Infrastructure.Repositories.Staffs;
 
 public class MembershipRepository : BaseRepository<Membership>, IMembershipRepository
 {
-    private readonly DataBaseContext context;
-
     public MembershipRepository(DataBaseContext context, ILogger<Membership> logger)
       : base(context, logger)
     {
-        this.context = context;
     }
 }

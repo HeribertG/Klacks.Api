@@ -9,12 +9,9 @@ namespace Klacks.Api.Infrastructure.Repositories.Authentification;
 
 public class IdentityProviderSyncLogRepository : BaseRepository<IdentityProviderSyncLog>, IIdentityProviderSyncLogRepository
 {
-    private readonly DataBaseContext context;
-
     public IdentityProviderSyncLogRepository(DataBaseContext context, ILogger<IdentityProviderSyncLog> logger)
         : base(context, logger)
     {
-        this.context = context;
     }
 
     public async Task<IdentityProviderSyncLog?> GetByExternalId(Guid providerId, string externalId)

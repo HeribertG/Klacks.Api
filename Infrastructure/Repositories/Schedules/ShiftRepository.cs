@@ -17,7 +17,6 @@ namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 
 public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 {
-    private readonly DataBaseContext context;
     private readonly IShiftQueryPipelineService _queryPipeline;
     private readonly IShiftGroupManagementService _groupManagementService;
     private readonly EntityCollectionUpdateService _collectionUpdateService;
@@ -32,7 +31,6 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         ScheduleMapper scheduleMapper)
         : base(context, logger)
     {
-        this.context = context;
         _queryPipeline = queryPipeline;
         _groupManagementService = groupManagementService;
         _collectionUpdateService = collectionUpdateService;

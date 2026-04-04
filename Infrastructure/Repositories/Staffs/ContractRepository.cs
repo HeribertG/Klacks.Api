@@ -9,12 +9,9 @@ namespace Klacks.Api.Infrastructure.Repositories.Staffs;
 
 public class ContractRepository : BaseRepository<Contract>, IContractRepository
 {
-    private readonly DataBaseContext context;
-
-    public ContractRepository(DataBaseContext context, ILogger<Contract> logger) 
+    public ContractRepository(DataBaseContext context, ILogger<Contract> logger)
         : base(context, logger)
     {
-        this.context = context;
     }
 
     public override async Task<Contract?> Get(Guid id)

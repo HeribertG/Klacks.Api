@@ -10,12 +10,9 @@ namespace Klacks.Api.Infrastructure.Repositories
 {
     public class AnnotationRepository : BaseRepository<Annotation>, IAnnotationRepository
     {
-        private readonly DataBaseContext context;
-
         public AnnotationRepository(DataBaseContext context, ILogger<Annotation> logger)
             : base(context, logger)
         {
-            this.context = context;
         }
 
         public async Task<List<Annotation>> SimpleList(Guid id)

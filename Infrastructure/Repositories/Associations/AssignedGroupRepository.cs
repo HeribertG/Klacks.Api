@@ -12,13 +12,11 @@ namespace Klacks.Api.Infrastructure.Repositories.Associations;
 
 public class AssignedGroupRepository : BaseRepository<AssignedGroup>, IAssignedGroupRepository
 {
-    private readonly DataBaseContext context;
     private readonly IUserService userService;
 
     public AssignedGroupRepository(DataBaseContext context, IUserService userService, ILogger<AssignedGroup> logger)
         : base(context, logger)
     {
-        this.context = context;
         this.userService = userService;
     }
 

@@ -21,14 +21,12 @@ namespace Klacks.Api.Infrastructure.Repositories.CalendarSelections;
 
 public class CalendarSelectionRepository : BaseRepository<CalendarSelection>, ICalendarSelectionRepository
 {
-    private readonly DataBaseContext context;
     private readonly ICalendarSelectionUpdateService _updateService;
 
     public CalendarSelectionRepository(DataBaseContext context, ILogger<CalendarSelection> logger,
         ICalendarSelectionUpdateService updateService)
       : base(context, logger)
     {
-        this.context = context;
         _updateService = updateService;
     }
 

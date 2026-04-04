@@ -12,13 +12,11 @@ namespace Klacks.Api.Infrastructure.Repositories.Associations;
 
 public class GroupVisibilityRepository : BaseRepository<GroupVisibility>, IGroupVisibilityRepository
 {
-    private readonly DataBaseContext context;
     private readonly IGroupVisibilityService groupVisibility;
 
     public GroupVisibilityRepository(DataBaseContext context, IGroupVisibilityService groupVisibility, ILogger<GroupVisibility> logger)
       : base(context, logger)
     {
-        this.context = context;
         this.groupVisibility = groupVisibility;
     }
 

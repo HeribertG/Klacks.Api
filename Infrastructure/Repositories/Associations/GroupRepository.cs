@@ -15,7 +15,6 @@ namespace Klacks.Api.Infrastructure.Repositories.Associations;
 
 public class GroupRepository : BaseRepository<Group>, IGroupRepository
 {
-    private readonly DataBaseContext context;
     private readonly IGroupServiceFacade groupServices;
     private readonly IGroupCacheService _groupCacheService;
 
@@ -26,7 +25,6 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         ILogger<Group> logger)
        : base(context, logger)
     {
-        this.context = context;
         this.groupServices = groupServices;
         _groupCacheService = groupCacheService;
     }
