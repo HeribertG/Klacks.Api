@@ -43,4 +43,6 @@ public class ScheduleEntryResource
     public List<WorkScheduleResource> ScheduleEntries { get; set; } = [];
 
     public Guid? AnalyseToken { get; set; }
+
+    public Guid? ParentWorkId { get; set; }
 }
