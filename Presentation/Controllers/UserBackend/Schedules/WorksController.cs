@@ -8,6 +8,7 @@ using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.PeriodHours;
 using Klacks.Api.Application.Queries.ScheduleEntries;
+using Klacks.Api.Application.Queries.Works;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
@@ -151,6 +152,20 @@ public class WorksController : BaseController
     public async Task<ActionResult<bool>> RecalculatePeriodHours([FromBody] RecalculatePeriodHoursCommand command)
     {
         var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    [HttpGet("{workId}/Children")]
+    public async Task<ActionResult<ContainerWorkChildrenResource>> GetChildren(Guid workId)
+    {
+        var result = await _mediator.Send(new GetContainerWorkChildrenQuery(workId));
+        return Ok(result);
+    }
+
+    [HttpPut("{workId}/Children")]
+    public async Task<ActionResult<ContainerWorkChildrenResource>> UpdateChildren(Guid workId, [FromBody] UpdateContainerWorkChildrenResource resource)
+    {
+        var result = await _mediator.Send(new UpdateContainerWorkChildrenCommand(workId, resource));
         return Ok(result);
     }
 }
