@@ -38,9 +38,11 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
         var resultShift = await _shiftRepository.AddWithSealedOrderHandling(shift);
         await _unitOfWork.CompleteAsync();
 
+        var freshShift = await _shiftRepository.Get(resultShift.Id);
+
         _logger.LogInformation("Shift created successfully: Id={ShiftId}, Name={Name}, Status={Status}",
             resultShift.Id, resultShift.Name, resultShift.Status);
 
-        return _scheduleMapper.ToShiftResource(resultShift);
+        return _scheduleMapper.ToShiftResource(freshShift ?? resultShift);
     }
 }

@@ -45,9 +45,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
 
         await _unitOfWork.CompleteAsync();
 
+        var freshShift = await _shiftRepository.Get(resultShift.Id);
+
         _logger.LogInformation("Shift updated successfully: Id={ShiftId}, Name={Name}, Status={Status}",
             resultShift.Id, resultShift.Name, resultShift.Status);
 
-        return _scheduleMapper.ToShiftResource(resultShift);
+        return _scheduleMapper.ToShiftResource(freshShift ?? resultShift);
     }
 }
