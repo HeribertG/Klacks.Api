@@ -47,9 +47,10 @@ public class AcquireContainerLockCommandHandler : BaseHandler, IRequestHandler<A
 
         var existing = await _repository.GetByResource(request.ResourceType, request.ResourceId, cancellationToken);
 
-        if (existing != null && existing.UserId != currentUserId)
+        if (existing != null && (existing.UserId != currentUserId || existing.InstanceId != request.InstanceId))
         {
-            return ToResource(existing, acquired: false);
+            var isSelf = existing.UserId == currentUserId;
+            return ToResource(existing, acquired: false, isSelfConflict: isSelf);
         }
 
         if (existing != null)
@@ -57,7 +58,7 @@ public class AcquireContainerLockCommandHandler : BaseHandler, IRequestHandler<A
             existing.LastHeartbeatAt = now;
             await _repository.Update(existing, cancellationToken);
             await _unitOfWork.CompleteAsync();
-            return ToResource(existing, acquired: true);
+            return ToResource(existing, acquired: true, isSelfConflict: false);
         }
 
         var newLock = new ContainerLock
@@ -67,6 +68,7 @@ public class AcquireContainerLockCommandHandler : BaseHandler, IRequestHandler<A
             ResourceId = request.ResourceId,
             UserId = currentUserId,
             UserName = currentUserName,
+            InstanceId = request.InstanceId,
             AcquiredAt = now,
             LastHeartbeatAt = now,
         };
@@ -74,18 +76,20 @@ public class AcquireContainerLockCommandHandler : BaseHandler, IRequestHandler<A
         await _repository.Add(newLock, cancellationToken);
         await _unitOfWork.CompleteAsync();
 
-        return ToResource(newLock, acquired: true);
+        return ToResource(newLock, acquired: true, isSelfConflict: false);
     }
 
-    private static ContainerLockResource ToResource(ContainerLock l, bool acquired) => new()
+    private static ContainerLockResource ToResource(ContainerLock l, bool acquired, bool isSelfConflict) => new()
     {
         Id = l.Id,
         ResourceType = l.ResourceType,
         ResourceId = l.ResourceId,
         UserId = l.UserId,
         UserName = l.UserName,
+        InstanceId = l.InstanceId,
         AcquiredAt = l.AcquiredAt,
         LastHeartbeatAt = l.LastHeartbeatAt,
         Acquired = acquired,
+        IsSelfConflict = isSelfConflict,
     };
 }

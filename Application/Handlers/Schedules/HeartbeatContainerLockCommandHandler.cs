@@ -51,6 +51,7 @@ public class HeartbeatContainerLockCommandHandler : BaseHandler, IRequestHandler
             ResourceId = existing.ResourceId,
             UserId = existing.UserId,
             UserName = existing.UserName,
+            InstanceId = existing.InstanceId,
             AcquiredAt = existing.AcquiredAt,
             LastHeartbeatAt = existing.LastHeartbeatAt,
             Acquired = true,

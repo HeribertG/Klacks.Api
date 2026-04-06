@@ -19,7 +19,7 @@ public class ContainerLocksController : BaseController
     [HttpPost("Acquire")]
     public async Task<ActionResult<ContainerLockResource>> Acquire([FromBody] AcquireContainerLockRequest request)
     {
-        var result = await _mediator.Send(new AcquireContainerLockCommand(request.ResourceType, request.ResourceId));
+        var result = await _mediator.Send(new AcquireContainerLockCommand(request.ResourceType, request.ResourceId, request.InstanceId));
         return Ok(result);
     }
 

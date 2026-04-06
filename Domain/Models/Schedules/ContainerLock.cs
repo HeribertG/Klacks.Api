@@ -27,6 +27,10 @@ public class ContainerLock
     [MaxLength(256)]
     public string UserName { get; set; } = string.Empty;
 
+    [Required]
+    [MaxLength(64)]
+    public string InstanceId { get; set; } = string.Empty;
+
     public DateTime AcquiredAt { get; set; }
 
     public DateTime LastHeartbeatAt { get; set; }
