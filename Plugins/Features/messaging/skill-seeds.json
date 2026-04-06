@@ -1,7 +1,7 @@
 [
   {
     "name": "send_message",
-    "description": "Send a message to a phone number, chat ID, or contact name via a configured messaging provider like Telegram, WhatsApp, Signal or SMS. Pass the provider name or type ('telegram', 'whatsapp' etc.) in the provider parameter. Call this directly when the user asks to send a message - do not ask for confirmation.",
+    "description": "Send a message via Telegram, WhatsApp, Signal or SMS. ALWAYS call this directly when the user says 'send/schick' + a messaging provider — do not ask for confirmation, do not first check the provider list. Recipient values: 'mir' / 'me' / 'myself' (sends to the Klacks owner via Settings -> Adresse Sekretariat — works without any further info), or a phone number / Telegram chat ID / contact name. Provider parameter: 'telegram' / 'whatsapp' / 'signal' / 'sms'.",
     "category": "Communication",
     "executionType": "Skill",
     "requiredPermissions": ["CanEditSettings"],
@@ -14,7 +14,7 @@
       },
       {
         "name": "recipient",
-        "description": "Recipient identifier: phone number (e.g. '+41791234567'), Telegram chat ID (numeric, e.g. '8559310736'), or contact name (e.g. 'Max Muster') which is then resolved against Klacks contacts.",
+        "description": "Recipient identifier. Use 'mir' / 'me' / 'myself' to send to the Klacks owner (looks up Settings -> Adresse Sekretariat). Otherwise: phone number (e.g. '+41791234567'), Telegram chat ID (numeric, e.g. '8559310736'), or contact name (e.g. 'Max Muster') which is then resolved against Klacks contacts.",
         "type": "String",
         "required": true
       },
@@ -38,8 +38,8 @@
     "isEnabled": true,
     "alwaysOn": false,
     "maxCallsPerSession": null,
-    "triggerKeywords": ["nachricht", "message", "senden", "send", "whatsapp", "telegram", "signal", "sms", "schreiben", "schick", "benachrichtigen", "notify", "mitteilen", "inform"],
-    "version": 6
+    "triggerKeywords": ["nachricht", "message", "senden", "send", "whatsapp", "telegram", "signal", "sms", "schreiben", "schick", "benachrichtigen", "notify", "mitteilen", "inform", "mir", "me", "myself"],
+    "version": 8
   },
   {
     "name": "read_messages",
