@@ -56,4 +56,13 @@ public class ContainerLockRepository : IContainerLockRepository
             _context.ContainerLock.RemoveRange(stale);
         }
     }
+
+    public async Task<bool> IsHeldBy(string resourceType, Guid resourceId, Guid userId, string instanceId, CancellationToken cancellationToken)
+    {
+        var existing = await _context.ContainerLock
+            .AsNoTracking()
+            .FirstOrDefaultAsync(l => l.ResourceType == resourceType && l.ResourceId == resourceId, cancellationToken);
+
+        return existing != null && existing.UserId == userId && existing.InstanceId == instanceId;
+    }
 }

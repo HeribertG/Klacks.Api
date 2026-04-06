@@ -7,7 +7,9 @@ using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Persistence;
@@ -18,11 +20,15 @@ namespace Klacks.Api.Application.Handlers.Works;
 
 public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHandler<UpdateContainerWorkChildrenCommand, ContainerWorkChildrenResource>
 {
+    private const string LockResourceType = "ContainerWork";
+
     private readonly DataBaseContext _context;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly EntityCollectionUpdateService _collectionUpdateService;
     private readonly IWorkNotificationFacade _notificationFacade;
+    private readonly IContainerLockRepository _lockRepository;
+    private readonly IUserService _userService;
 
     public UpdateContainerWorkChildrenCommandHandler(
         DataBaseContext context,
@@ -30,6 +36,8 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         IUnitOfWork unitOfWork,
         EntityCollectionUpdateService collectionUpdateService,
         IWorkNotificationFacade notificationFacade,
+        IContainerLockRepository lockRepository,
+        IUserService userService,
         ILogger<UpdateContainerWorkChildrenCommandHandler> logger)
         : base(logger)
     {
@@ -38,12 +46,22 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         _unitOfWork = unitOfWork;
         _collectionUpdateService = collectionUpdateService;
         _notificationFacade = notificationFacade;
+        _lockRepository = lockRepository;
+        _userService = userService;
     }
 
     public async Task<ContainerWorkChildrenResource> Handle(UpdateContainerWorkChildrenCommand request, CancellationToken cancellationToken)
     {
         return await ExecuteAsync(async () =>
         {
+            var userId = _userService.GetId() ?? Guid.Empty;
+            var instanceId = _userService.GetInstanceId() ?? string.Empty;
+            var holdsLock = await _lockRepository.IsHeldBy(LockResourceType, request.WorkId, userId, instanceId, cancellationToken);
+            if (!holdsLock)
+            {
+                throw new ContainerLockedException("Cannot save: container work is not locked by this session.");
+            }
+
             var parentWork = await _context.Work
                 .FirstOrDefaultAsync(w => w.Id == request.WorkId && !w.IsDeleted, cancellationToken);
 

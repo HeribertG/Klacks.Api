@@ -89,6 +89,21 @@ public class ErrorHandlingMiddleware
             // In development, you might want to expose more details
             await context.Response.WriteAsJsonAsync(problem);
         }
+        catch (ContainerLockedException ex)
+        {
+            _logger.LogWarning(ex, "ContainerLockedException caught by middleware: {Message}", ex.Message);
+            context.Response.StatusCode = StatusCodes.Status423Locked;
+            context.Response.ContentType = "application/problem+json";
+
+            var problem = new ProblemDetails
+            {
+                Title = "Container Locked",
+                Status = StatusCodes.Status423Locked,
+                Detail = ex.Message
+            };
+
+            await context.Response.WriteAsJsonAsync(problem);
+        }
         catch (ConflictException ex)
         {
             _logger.LogWarning(ex, "ConflictException caught by middleware: {Message}", ex.Message);

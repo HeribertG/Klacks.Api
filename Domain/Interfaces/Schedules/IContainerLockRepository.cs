@@ -17,4 +17,6 @@ public interface IContainerLockRepository
     Task Delete(ContainerLock containerLock, CancellationToken cancellationToken);
 
     Task DeleteStale(string resourceType, Guid resourceId, DateTime threshold, CancellationToken cancellationToken);
+
+    Task<bool> IsHeldBy(string resourceType, Guid resourceId, Guid userId, string instanceId, CancellationToken cancellationToken);
 }

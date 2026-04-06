@@ -61,6 +61,20 @@ public class UserService : IUserService
         }
     }
 
+    public string? GetInstanceId()
+    {
+        try
+        {
+            var header = httpContextAccessor.HttpContext?.Request?.Headers["X-Instance-Id"].ToString();
+            return string.IsNullOrWhiteSpace(header) ? null : header;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving instance id from headers");
+            return null;
+        }
+    }
+
     public async Task<bool> IsAdmin()
     {
         var userId = GetIdString();

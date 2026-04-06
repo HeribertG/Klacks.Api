@@ -10,5 +10,7 @@ public interface IUserService
 
     string GetUserName();
 
+    string? GetInstanceId();
+
     Task<bool> IsAdmin();
 }
