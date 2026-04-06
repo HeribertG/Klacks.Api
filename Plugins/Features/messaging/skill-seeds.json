@@ -1,7 +1,7 @@
 [
   {
     "name": "send_message",
-    "description": "Send a message to a person by name via a configured messaging provider (WhatsApp, Telegram, Signal, SMS). Automatically resolves the recipient's phone number from Klacks contacts. Use list_messaging_providers first to see available providers.",
+    "description": "Send a message to a phone number, chat ID, or contact name via a configured messaging provider like Telegram, WhatsApp, Signal or SMS. Pass the provider name or type ('telegram', 'whatsapp' etc.) in the provider parameter. Call this directly when the user asks to send a message - do not ask for confirmation.",
     "category": "Communication",
     "executionType": "Skill",
     "requiredPermissions": ["CanEditSettings"],
@@ -14,7 +14,7 @@
       },
       {
         "name": "recipient",
-        "description": "Recipient name (e.g., 'Max Muster') or phone number. Names are automatically resolved to phone numbers from Klacks contacts.",
+        "description": "Recipient identifier: phone number (e.g. '+41791234567'), Telegram chat ID (numeric, e.g. '8559310736'), or contact name (e.g. 'Max Muster') which is then resolved against Klacks contacts.",
         "type": "String",
         "required": true
       },
@@ -39,7 +39,7 @@
     "alwaysOn": false,
     "maxCallsPerSession": null,
     "triggerKeywords": ["nachricht", "message", "senden", "send", "whatsapp", "telegram", "signal", "sms", "schreiben", "schick", "benachrichtigen", "notify", "mitteilen", "inform"],
-    "version": 5
+    "version": 6
   },
   {
     "name": "read_messages",
@@ -82,7 +82,7 @@
     "alwaysOn": false,
     "maxCallsPerSession": null,
     "triggerKeywords": ["nachrichten", "messages", "lesen", "read", "inbox", "eingehend", "posteingang"],
-    "version": 5
+    "version": 6
   },
   {
     "name": "list_messaging_providers",
@@ -96,7 +96,7 @@
     "isEnabled": true,
     "alwaysOn": false,
     "maxCallsPerSession": null,
-    "triggerKeywords": ["messaging", "provider", "dienste", "services", "kanäle", "channels"],
-    "version": 5
+    "triggerKeywords": ["messaging", "provider", "dienste", "services", "kanäle", "channels", "telegram", "whatsapp", "signal", "sms", "nachricht", "message", "schick", "senden", "send"],
+    "version": 6
   }
 ]
