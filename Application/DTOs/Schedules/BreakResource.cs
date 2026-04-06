@@ -8,5 +8,7 @@ public class BreakResource : ScheduleEntryResource
 {
     public Guid AbsenceId { get; set; }
 
+    public AbsenceResource? Absence { get; set; }
+
     public MultiLanguage? Description { get; set; }
 }

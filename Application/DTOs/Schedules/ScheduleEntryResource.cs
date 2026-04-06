@@ -45,4 +45,10 @@ public class ScheduleEntryResource
     public Guid? AnalyseToken { get; set; }
 
     public Guid? ParentWorkId { get; set; }
+
+    public TransportMode? TransportMode { get; set; }
+
+    public string? StartBase { get; set; }
+
+    public string? EndBase { get; set; }
 }

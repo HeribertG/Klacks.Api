@@ -2,6 +2,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Models.Schedules;
 
@@ -17,4 +18,10 @@ public class Work : ScheduleEntryBase
 
     [JsonIgnore]
     public virtual Work? ParentWork { get; set; }
+
+    public TransportMode? TransportMode { get; set; }
+
+    public string? StartBase { get; set; }
+
+    public string? EndBase { get; set; }
 }

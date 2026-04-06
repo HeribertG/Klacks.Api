@@ -58,7 +58,6 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
 
         var entry = context.Entry(existingTemplate);
         entry.CurrentValues.SetValues(template);
-        entry.State = EntityState.Modified;
 
         _collectionUpdateService.UpdateCollection(
             existingTemplate.ContainerTemplateItems,
@@ -122,7 +121,7 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
             .Include(t => t.Shift)
             .Include(t => t.ContainerTemplateItems)
                 .ThenInclude(i => i.Shift)
-                    .ThenInclude(s => s.Client)
+                    .ThenInclude(s => s!.Client)
                         .ThenInclude(c => c.Addresses)
             .Include(t => t.ContainerTemplateItems)
                 .ThenInclude(i => i.Absence)
@@ -227,8 +226,6 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
         existingItem.TimeRangeStartItem = itemResource.TimeRangeStartItem;
         existingItem.TimeRangeEndItem = itemResource.TimeRangeEndItem;
         existingItem.TransportMode = itemResource.TransportMode;
-
-        context.Entry(existingItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 
         Logger.LogInformation("ContainerTemplateItem updated: {ItemId}", itemResource.Id);
     }
