@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -33,6 +34,25 @@ public class SkillExecutorService : ISkillExecutor
         _serviceProvider = serviceProvider;
         _genericDispatcher = genericDispatcher;
         _logger = logger;
+    }
+
+    private static SkillResult MapPluginSkillResult(Klacks.Plugin.Contracts.Skills.SkillResult pluginResult)
+    {
+        return new SkillResult
+        {
+            Success = pluginResult.Success,
+            Data = pluginResult.Data,
+            Message = pluginResult.Message,
+            Type = pluginResult.Type switch
+            {
+                Klacks.Plugin.Contracts.Skills.SkillResultType.Data => SkillResultType.Data,
+                Klacks.Plugin.Contracts.Skills.SkillResultType.Error => SkillResultType.Error,
+                Klacks.Plugin.Contracts.Skills.SkillResultType.Navigation => SkillResultType.Navigation,
+                Klacks.Plugin.Contracts.Skills.SkillResultType.Cancelled => SkillResultType.Cancelled,
+                Klacks.Plugin.Contracts.Skills.SkillResultType.Confirmation => SkillResultType.Confirmation,
+                _ => SkillResultType.Data
+            }
+        };
     }
 
     public async Task<SkillResult> ExecuteAsync(
@@ -88,6 +108,18 @@ public class SkillExecutorService : ISkillExecutor
                 if (instance is ISkillImplementation impl)
                 {
                     result = await impl.ExecuteAsync(context, invocation.Parameters, cancellationToken);
+                }
+                else if (instance is Klacks.Plugin.Contracts.Skills.ISkillImplementation pluginImpl)
+                {
+                    var pluginContext = new Klacks.Plugin.Contracts.Skills.SkillExecutionContext
+                    {
+                        UserId = context.UserId,
+                        TenantId = context.TenantId,
+                        UserName = context.UserName,
+                        UserPermissions = context.UserPermissions
+                    };
+                    var pluginResult = await pluginImpl.ExecuteAsync(pluginContext, invocation.Parameters, cancellationToken);
+                    result = MapPluginSkillResult(pluginResult);
                 }
                 else if (instance is ISkill skill)
                 {
