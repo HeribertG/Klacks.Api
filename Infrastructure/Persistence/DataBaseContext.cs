@@ -88,6 +88,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<ContainerTemplateItem> ContainerTemplateItem { get; set; }
 
+    public DbSet<ContainerLock> ContainerLock { get; set; }
+
     public DbSet<State> State { get; set; }
 
     public DbSet<Work> Work { get; set; }
@@ -232,6 +234,11 @@ public class DataBaseContext : IdentityDbContext
             .IncrementsBy(1);
 
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        modelBuilder.Entity<ContainerLock>(entity =>
+        {
+            entity.HasIndex(e => new { e.ResourceType, e.ResourceId }).IsUnique();
+        });
 
         Plugins.PluginModelRegistry.Apply(modelBuilder);
     }
