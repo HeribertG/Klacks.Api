@@ -44,3 +44,21 @@ CREATE INDEX IF NOT EXISTS ix_messages_direction
 
 CREATE INDEX IF NOT EXISTS ix_messages_provider_id_timestamp
     ON messages (provider_id, "timestamp" DESC);
+
+CREATE TABLE IF NOT EXISTS messenger_contact (
+    id UUID NOT NULL,
+    client_id UUID NOT NULL,
+    type INTEGER NOT NULL,
+    value VARCHAR(200) NOT NULL,
+    description VARCHAR(200),
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    create_time TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    update_time TIMESTAMP WITH TIME ZONE,
+    CONSTRAINT pk_messenger_contact PRIMARY KEY (id)
+);
+
+CREATE INDEX IF NOT EXISTS ix_messenger_contact_client_id
+    ON messenger_contact (client_id);
+
+CREATE INDEX IF NOT EXISTS ix_messenger_contact_client_id_type
+    ON messenger_contact (client_id, type);

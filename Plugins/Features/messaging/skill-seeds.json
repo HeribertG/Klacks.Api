@@ -1,7 +1,7 @@
 [
   {
     "name": "send_message",
-    "description": "Send a message via Telegram, WhatsApp, Signal or SMS. ALWAYS call this directly when the user says 'send/schick' + a messaging provider — do not ask for confirmation, do not first check the provider list. Recipient values: 'mir' / 'me' / 'myself' (sends to the Klacks owner via Settings -> Adresse Sekretariat — works without any further info), or a phone number / Telegram chat ID / contact name. Provider parameter: 'telegram' / 'whatsapp' / 'signal' / 'sms'.",
+    "description": "Send a message via Telegram, WhatsApp, Signal, SMS or any other configured messenger provider. ALWAYS call this directly when the user says 'send/schick' + a messaging provider — do not ask for confirmation, do not first check the provider list. Recipient values: 'mir' / 'ich' / 'me' / 'myself' (sends to the Klacks owner — looked up in Settings -> Owner-Messenger card), or a contact name like 'Heribert' (looked up in the Mitarbeiter Messenger tab for the requested provider type), or a literal phone number / Telegram chat ID. Provider parameter: 'telegram' / 'whatsapp' / 'signal' / 'sms' / 'threema' etc.",
     "category": "Communication",
     "executionType": "Skill",
     "requiredPermissions": ["CanEditSettings"],
@@ -14,7 +14,7 @@
       },
       {
         "name": "recipient",
-        "description": "Recipient identifier. Use 'mir' / 'me' / 'myself' to send to the Klacks owner (looks up Settings -> Adresse Sekretariat). Otherwise: phone number (e.g. '+41791234567'), Telegram chat ID (numeric, e.g. '8559310736'), or contact name (e.g. 'Max Muster') which is then resolved against Klacks contacts.",
+        "description": "Recipient identifier. Use 'mir' / 'ich' / 'me' / 'myself' to send to the Klacks owner — the skill looks up the Owner-Messenger jsonb setting and resolves the requested provider type to a chat ID / phone. Otherwise pass a contact name (e.g. 'Max Muster') which is resolved against the Klacks Mitarbeiter Messenger tab for the requested provider type, or a literal phone number / Telegram chat ID that is sent through unchanged.",
         "type": "String",
         "required": true
       },
@@ -38,8 +38,8 @@
     "isEnabled": true,
     "alwaysOn": false,
     "maxCallsPerSession": null,
-    "triggerKeywords": ["nachricht", "message", "senden", "send", "whatsapp", "telegram", "signal", "sms", "schreiben", "schick", "benachrichtigen", "notify", "mitteilen", "inform", "mir", "me", "myself"],
-    "version": 8
+    "triggerKeywords": ["nachricht", "message", "senden", "send", "whatsapp", "telegram", "signal", "sms", "threema", "schreiben", "schick", "benachrichtigen", "notify", "mitteilen", "inform", "mir", "me", "myself"],
+    "version": 9
   },
   {
     "name": "read_messages",

@@ -14,9 +14,6 @@ namespace Klacks.Api.Application.Constants
         public const string APP_ADDRESS_COUNTRY = "APP_ADDRESS_COUNTRY";
         public const string APP_ADDRESS_PHONE = "APP_ADDRESS_PHONE";
         public const string APP_ADDRESS_MAIL = "APP_ADDRESS_MAIL";
-        public const string APP_ADDRESS_TELEGRAM = "APP_ADDRESS_TELEGRAM";
-        public const string APP_ADDRESS_WHATSAPP = "APP_ADDRESS_WHATSAPP";
-        public const string APP_ADDRESS_SIGNAL = "APP_ADDRESS_SIGNAL";
 
         public const string APP_AUTHENTICATION_TYPE = "authenticationType";
         public const string APP_ENABLE_SSL = "enabledSSL";
