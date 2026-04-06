@@ -2,7 +2,7 @@
     "name": "messaging",
     "displayName": "Messaging",
     "category": "communication",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "author": "Klacks",
     "description": "Send and receive messages via WhatsApp, Telegram, Signal, and SMS",
     "minKlacksVersion": "1.0.0",
