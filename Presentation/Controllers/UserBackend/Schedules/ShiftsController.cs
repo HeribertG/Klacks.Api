@@ -57,6 +57,13 @@ public class ShiftsController : InputBaseController<ShiftResource>
         return Ok(result);
     }
 
+    [HttpPost("ByIds")]
+    public async Task<ActionResult<List<ShiftResource>>> GetShiftsByIds([FromBody] List<Guid> ids)
+    {
+        var result = await Mediator.Send(new GetShiftsByIdsQuery(ids));
+        return Ok(result);
+    }
+
     [HttpPost("Schedule")]
     public async Task<ActionResult<ShiftScheduleResponse>> GetShiftSchedule([FromBody] ShiftScheduleFilter filter, CancellationToken cancellationToken)
     {

@@ -10,4 +10,10 @@ public class UpdateContainerWorkChildrenResource
     public List<WorkResource> SubWorks { get; set; } = new();
 
     public List<BreakResource> SubBreaks { get; set; } = new();
+
+    public List<WorkChangeResource> SubWorkChanges { get; set; } = new();
+
+    public string? ParentStartBase { get; set; }
+
+    public string? ParentEndBase { get; set; }
 }
