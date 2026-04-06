@@ -94,4 +94,13 @@
 	  </None>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Content Update="Plugins\Features\**\*">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <None Include="Plugins\Features\**\*.md">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
 </Project>
