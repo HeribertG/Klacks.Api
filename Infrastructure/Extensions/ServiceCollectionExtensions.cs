@@ -95,6 +95,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Plugin.Contracts.IPluginUnitOfWork, Klacks.Api.Infrastructure.Plugins.PluginUnitOfWorkBridge>();
         services.AddScoped<Klacks.Plugin.Contracts.IPluginSettingsReader, Klacks.Api.Infrastructure.Plugins.PluginSettingsReaderBridge>();
         services.AddScoped<Klacks.Plugin.Contracts.IPluginSettingsWriter, Klacks.Api.Infrastructure.Plugins.PluginSettingsWriterBridge>();
+        services.AddScoped<Klacks.Plugin.Contracts.IClientGroupReader, Klacks.Api.Infrastructure.Plugins.ClientGroupReaderBridge>();
+        services.AddScoped<Klacks.Plugin.Contracts.IClientPhoneReader, Klacks.Api.Infrastructure.Plugins.ClientPhoneReaderBridge>();
         services.AddScoped<Klacks.Plugin.Contracts.IPluginStateChecker, Klacks.Api.Infrastructure.Plugins.PluginStateCheckerBridge>();
         services.AddScoped<Microsoft.EntityFrameworkCore.DbContext>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Persistence.DataBaseContext>());
 

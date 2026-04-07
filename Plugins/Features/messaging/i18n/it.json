@@ -74,5 +74,13 @@
   "messaging.nav.direction.outbound": "In uscita",
   "messaging.nav.providers": "Provider",
   "messaging.nav.reset": "Reimposta filtro",
-  "messaging.nav.show-all": "Mostra tutto"
+  "messaging.nav.show-all": "Mostra tutto",
+  "messaging.chat.broadcast-mode": "Trasmissione",
+  "messaging.chat.broadcast-summary": "{{contact}} con contatto + {{phone}} via telefono = {{total}} (saltati: {{skipped}})",
+  "messaging.chat.broadcast-placeholder": "Messaggio a tutto il gruppo...",
+  "messaging.chat.broadcast-no-recipients": "Nessun destinatario raggiungibile in questo gruppo",
+  "messaging.chat.broadcast-confirm": "Il messaggio sarà inviato a {{count}} destinatari. Continuare?",
+  "messaging.chat.broadcast-result-title": "Trasmissione inviata",
+  "messaging.chat.broadcast-result": "Inviati: {{sent}}, falliti: {{failed}}, saltati: {{skipped}}",
+  "messaging.chat.broadcast-error": "La trasmissione non è stata inviata"
 }

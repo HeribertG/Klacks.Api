@@ -74,5 +74,13 @@
   "messaging.nav.direction.outbound": "Outbound",
   "messaging.nav.providers": "Providers",
   "messaging.nav.reset": "Reset filter",
-  "messaging.nav.show-all": "Show all"
+  "messaging.nav.show-all": "Show all",
+  "messaging.chat.broadcast-mode": "Broadcast",
+  "messaging.chat.broadcast-summary": "{{contact}} with contact + {{phone}} via phone = {{total}} (skipped: {{skipped}})",
+  "messaging.chat.broadcast-placeholder": "Message to the whole group...",
+  "messaging.chat.broadcast-no-recipients": "No reachable recipients in this group",
+  "messaging.chat.broadcast-confirm": "Message will be sent to {{count}} recipients. Continue?",
+  "messaging.chat.broadcast-result-title": "Broadcast sent",
+  "messaging.chat.broadcast-result": "Sent: {{sent}}, failed: {{failed}}, skipped: {{skipped}}",
+  "messaging.chat.broadcast-error": "Broadcast could not be sent"
 }

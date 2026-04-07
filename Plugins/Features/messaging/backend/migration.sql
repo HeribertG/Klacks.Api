@@ -50,6 +50,11 @@ ALTER TABLE messages ADD COLUMN IF NOT EXISTS client_id UUID NULL;
 CREATE INDEX IF NOT EXISTS ix_messages_client_id
     ON messages (client_id);
 
+ALTER TABLE messages ADD COLUMN IF NOT EXISTS broadcast_id UUID NULL;
+
+CREATE INDEX IF NOT EXISTS ix_messages_broadcast_id
+    ON messages (broadcast_id);
+
 CREATE TABLE IF NOT EXISTS messenger_contact (
     id UUID NOT NULL,
     client_id UUID NOT NULL,

@@ -74,5 +74,13 @@
   "messaging.nav.direction.outbound": "Ausgehend",
   "messaging.nav.providers": "Anbieter",
   "messaging.nav.reset": "Filter zurücksetzen",
-  "messaging.nav.show-all": "Alle anzeigen"
+  "messaging.nav.show-all": "Alle anzeigen",
+  "messaging.chat.broadcast-mode": "Broadcast",
+  "messaging.chat.broadcast-summary": "{{contact}} mit Kontakt + {{phone}} via Telefon = {{total}} (übersprungen: {{skipped}})",
+  "messaging.chat.broadcast-placeholder": "Nachricht an die ganze Gruppe...",
+  "messaging.chat.broadcast-no-recipients": "Keine erreichbaren Empfänger in dieser Gruppe",
+  "messaging.chat.broadcast-confirm": "Nachricht wird an {{count}} Empfänger gesendet. Fortfahren?",
+  "messaging.chat.broadcast-result-title": "Broadcast versendet",
+  "messaging.chat.broadcast-result": "Gesendet: {{sent}}, fehlgeschlagen: {{failed}}, übersprungen: {{skipped}}",
+  "messaging.chat.broadcast-error": "Broadcast konnte nicht gesendet werden"
 }

@@ -74,5 +74,13 @@
   "messaging.nav.direction.outbound": "Sortant",
   "messaging.nav.providers": "Fournisseurs",
   "messaging.nav.reset": "Réinitialiser le filtre",
-  "messaging.nav.show-all": "Tout afficher"
+  "messaging.nav.show-all": "Tout afficher",
+  "messaging.chat.broadcast-mode": "Diffusion",
+  "messaging.chat.broadcast-summary": "{{contact}} avec contact + {{phone}} via téléphone = {{total}} (ignorés: {{skipped}})",
+  "messaging.chat.broadcast-placeholder": "Message au groupe entier...",
+  "messaging.chat.broadcast-no-recipients": "Aucun destinataire joignable dans ce groupe",
+  "messaging.chat.broadcast-confirm": "Le message sera envoyé à {{count}} destinataires. Continuer?",
+  "messaging.chat.broadcast-result-title": "Diffusion envoyée",
+  "messaging.chat.broadcast-result": "Envoyés: {{sent}}, échoués: {{failed}}, ignorés: {{skipped}}",
+  "messaging.chat.broadcast-error": "La diffusion n'a pas pu être envoyée"
 }
