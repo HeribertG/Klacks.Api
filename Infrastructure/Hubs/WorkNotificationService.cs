@@ -203,7 +203,13 @@ public class WorkNotificationService : IWorkNotificationService
                 }
             }
 
-            if (targetConnections.Count == 0) return;
+            if (targetConnections.Count == 0)
+            {
+                _logger.LogWarning(
+                    "[COLLISION-TRACE] Dropping {Count} collisions: no client connection subscribed to dates {Dates}",
+                    notification.Collisions.Count, string.Join(",", dates));
+                return;
+            }
 
             await _hubContext.Clients.Clients(targetConnections.ToList()).CollisionsDetected(notification);
             _logger.LogDebug("Sent CollisionsDetected to {Count} connections", targetConnections.Count);
@@ -245,7 +251,13 @@ public class WorkNotificationService : IWorkNotificationService
                 }
             }
 
-            if (targetConnections.Count == 0) return;
+            if (targetConnections.Count == 0)
+            {
+                _logger.LogWarning(
+                    "[COLLISION-TRACE] Dropping {Count} validations: no client connection subscribed to dates {Dates}",
+                    notification.Entries.Count, string.Join(",", dates));
+                return;
+            }
 
             await _hubContext.Clients.Clients(targetConnections.ToList()).ScheduleValidationsDetected(notification);
             _logger.LogDebug("Sent ScheduleValidationsDetected to {Count} connections", targetConnections.Count);
@@ -271,7 +283,16 @@ public class WorkNotificationService : IWorkNotificationService
 
         if (groupConnections.Count == 0)
         {
-            _logger.LogDebug("[COLLISION-TRACE] No group-specific connections - skipping group filtering");
+            if (allGroupConnections.Count == 0 && notification.Collisions.Count > 0)
+            {
+                _logger.LogWarning(
+                    "[COLLISION-TRACE] Dropping full refresh with {Count} collisions: no connections subscribed at all",
+                    notification.Collisions.Count);
+            }
+            else
+            {
+                _logger.LogDebug("[COLLISION-TRACE] No group-specific connections - skipping group filtering");
+            }
             return;
         }
 

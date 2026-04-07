@@ -4,6 +4,7 @@
 /// Background worker for schedule validation: collisions, rest periods, working hours, travel times.
 /// Receives check requests via Channel and sends results via SignalR.
 /// </summary>
+using System.Net.Sockets;
 using System.Threading.Channels;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces;
@@ -14,6 +15,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Klacks.Api.Infrastructure.Services;
 
@@ -24,11 +26,24 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
     private const int MaxConsecutiveWorkDays = 6;
     private const double TravelTimeWarningFactor = 1.5;
 
+    private const int MaxTransientRetries = 1;
+    private static readonly TimeSpan TransientRetryBaseDelay = TimeSpan.FromMilliseconds(500);
+    private static readonly TimeSpan TransientRetryJitter = TimeSpan.FromMilliseconds(250);
+    private static readonly HashSet<string> TransientPostgresSqlStates = new(StringComparer.Ordinal)
+    {
+        "40001", // serialization_failure
+        "40P01", // deadlock_detected
+        "08000", // connection_exception
+        "08003", // connection_does_not_exist
+        "08006", // connection_failure
+        "08004", // sqlclient_unable_to_establish_sqlconnection
+        "57P03", // cannot_connect_now
+    };
+
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<ScheduleTimelineBackgroundService> _logger;
     private readonly IScheduleTimelineStore _timelineStore;
     private readonly Channel<TimelineCheckRequest> _channel;
-    private volatile CancellationTokenSource _processingCts = new();
 
     public ScheduleTimelineBackgroundService(
         IServiceProvider serviceProvider,
@@ -63,8 +78,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
 
     public void QueueRangeCheck(DateOnly startDate, DateOnly endDate)
     {
-        _logger.LogDebug("[COLLISION-TRACE] QueueRangeCheck called {Start} - {End}, cancelling current", startDate, endDate);
-        CancelCurrentProcessing();
+        _logger.LogDebug("[COLLISION-TRACE] QueueRangeCheck queued {Start} - {End}", startDate, endDate);
 
         var request = new TimelineCheckRequest
         {
@@ -81,12 +95,6 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         }
     }
 
-    private void CancelCurrentProcessing()
-    {
-        try { _processingCts.Cancel(); }
-        catch (ObjectDisposedException) { }
-    }
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("ScheduleTimelineBackgroundService started");
@@ -95,50 +103,32 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         {
             await foreach (var request in _channel.Reader.ReadAllAsync(stoppingToken))
             {
-                var latestRequest = request;
-                var skipped = 0;
+                // Drain the channel and deduplicate by semantic key. Different semantic keys
+                // (e.g. SingleCheck Client A/Date X and RangeCheck 1.-14. April) MUST both run;
+                // only requests that share the exact same key collapse (latest wins).
+                var pending = new Dictionary<string, TimelineCheckRequest>(StringComparer.Ordinal)
+                {
+                    [BuildRequestKey(request)] = request
+                };
+
+                var totalRead = 1;
                 while (_channel.Reader.TryRead(out var newer))
                 {
-                    latestRequest = newer;
-                    skipped++;
+                    pending[BuildRequestKey(newer)] = newer;
+                    totalRead++;
                 }
 
-                if (skipped > 0)
+                var deduped = totalRead - pending.Count;
+                if (deduped > 0)
                 {
-                    _logger.LogDebug("[COLLISION-TRACE] Skipped {Count} stale timeline check requests", skipped);
+                    _logger.LogDebug("[COLLISION-TRACE] Drained {Total} requests, {Deduped} deduplicated, {Unique} unique to process",
+                        totalRead, deduped, pending.Count);
                 }
 
-                _processingCts = new CancellationTokenSource();
-                using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, _processingCts.Token);
-
-                try
+                foreach (var job in pending.Values)
                 {
-                    using var scope = _serviceProvider.CreateScope();
-                    var dbContext = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
-                    var notificationService = scope.ServiceProvider.GetRequiredService<IWorkNotificationService>();
-                    var timelineCalculationService = scope.ServiceProvider.GetRequiredService<ITimelineCalculationService>();
-                    var travelTimeService = scope.ServiceProvider.GetRequiredService<ITravelTimeCalculationService>();
-
-                    if (latestRequest.IsRangeCheck)
-                    {
-                        _logger.LogDebug("[COLLISION-TRACE] START RangeCheck {Start} - {End}", latestRequest.StartDate, latestRequest.EndDate);
-                        await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, latestRequest.StartDate, latestRequest.EndDate, linkedCts.Token);
-                        _logger.LogDebug("[COLLISION-TRACE] DONE RangeCheck {Start} - {End}", latestRequest.StartDate, latestRequest.EndDate);
-                    }
-                    else
-                    {
-                        _logger.LogDebug("[COLLISION-TRACE] START SingleCheck Client={ClientId} Date={Date}", latestRequest.ClientId, latestRequest.Date);
-                        await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, latestRequest.ClientId, latestRequest.Date, linkedCts.Token);
-                        _logger.LogDebug("[COLLISION-TRACE] DONE SingleCheck Client={ClientId}", latestRequest.ClientId);
-                    }
-                }
-                catch (OperationCanceledException) when (!stoppingToken.IsCancellationRequested)
-                {
-                    _logger.LogDebug("[COLLISION-TRACE] CANCELLED - newer request arrived");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error processing timeline check request");
+                    if (stoppingToken.IsCancellationRequested) break;
+                    await ProcessJobWithRetryAsync(job, stoppingToken);
                 }
             }
         }
@@ -147,6 +137,96 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         }
 
         _logger.LogInformation("ScheduleTimelineBackgroundService stopped");
+    }
+
+    private static string BuildRequestKey(TimelineCheckRequest r)
+        => r.IsRangeCheck
+            ? $"range:{r.StartDate:O}:{r.EndDate:O}"
+            : $"single:{r.ClientId}:{r.Date:O}";
+
+    private async Task ProcessJobWithRetryAsync(TimelineCheckRequest job, CancellationToken stoppingToken)
+    {
+        var attempt = 0;
+        while (true)
+        {
+            try
+            {
+                using var scope = _serviceProvider.CreateScope();
+                var dbContext = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+                var notificationService = scope.ServiceProvider.GetRequiredService<IWorkNotificationService>();
+                var timelineCalculationService = scope.ServiceProvider.GetRequiredService<ITimelineCalculationService>();
+                var travelTimeService = scope.ServiceProvider.GetRequiredService<ITravelTimeCalculationService>();
+
+                if (job.IsRangeCheck)
+                {
+                    _logger.LogDebug("[COLLISION-TRACE] START RangeCheck {Start} - {End}", job.StartDate, job.EndDate);
+                    await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, job.StartDate, job.EndDate, stoppingToken);
+                    _logger.LogDebug("[COLLISION-TRACE] DONE RangeCheck {Start} - {End}", job.StartDate, job.EndDate);
+                }
+                else
+                {
+                    _logger.LogDebug("[COLLISION-TRACE] START SingleCheck Client={ClientId} Date={Date}", job.ClientId, job.Date);
+                    await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, job.ClientId, job.Date, stoppingToken);
+                    _logger.LogDebug("[COLLISION-TRACE] DONE SingleCheck Client={ClientId}", job.ClientId);
+                }
+
+                return;
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex) when (attempt < MaxTransientRetries && IsTransientException(ex))
+            {
+                attempt++;
+                var delay = TransientRetryBaseDelay + TimeSpan.FromMilliseconds(Random.Shared.Next(0, (int)TransientRetryJitter.TotalMilliseconds));
+                _logger.LogWarning(ex,
+                    "[COLLISION-TRACE] Transient failure on {Key} (attempt {Attempt}/{Max}), retrying in {Delay}ms",
+                    BuildRequestKey(job), attempt, MaxTransientRetries, (int)delay.TotalMilliseconds);
+
+                try
+                {
+                    await Task.Delay(delay, stoppingToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                if (job.IsRangeCheck)
+                {
+                    _logger.LogError(ex, "[COLLISION-TRACE] FAILED RangeCheck {Start} - {End} after {Attempts} attempt(s): {Message}",
+                        job.StartDate, job.EndDate, attempt + 1, ex.Message);
+                }
+                else
+                {
+                    _logger.LogError(ex, "[COLLISION-TRACE] FAILED SingleCheck Client={ClientId} Date={Date} after {Attempts} attempt(s): {Message}",
+                        job.ClientId, job.Date, attempt + 1, ex.Message);
+                }
+                return;
+            }
+        }
+    }
+
+    private static bool IsTransientException(Exception ex)
+    {
+        for (var current = ex; current is not null; current = current.InnerException)
+        {
+            switch (current)
+            {
+                case TimeoutException:
+                case DbUpdateConcurrencyException:
+                case SocketException:
+                    return true;
+                case PostgresException pg when TransientPostgresSqlStates.Contains(pg.SqlState):
+                    return true;
+                case NpgsqlException:
+                    return true;
+            }
+        }
+        return false;
     }
 
     private async Task ProcessSingleCheckAsync(
@@ -162,14 +242,14 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             .AsNoTracking()
             .Include(w => w.Client)
             .Include(w => w.Shift).ThenInclude(s => s!.Client).ThenInclude(c => c!.Addresses)
-            .Where(w => w.ClientId == clientId && w.CurrentDate == date && !w.IsDeleted)
+            .Where(w => w.ClientId == clientId && w.CurrentDate == date && !w.IsDeleted && w.ParentWorkId == null)
             .ToListAsync(cancellationToken);
 
         var worksWithReplacementForClient = await dbContext.Work
             .AsNoTracking()
             .Include(w => w.Client)
             .Include(w => w.Shift).ThenInclude(s => s!.Client).ThenInclude(c => c!.Addresses)
-            .Where(w => w.CurrentDate == date && !w.IsDeleted &&
+            .Where(w => w.CurrentDate == date && !w.IsDeleted && w.ParentWorkId == null &&
                         dbContext.WorkChange.Any(wc =>
                             wc.WorkId == w.Id && !wc.IsDeleted && wc.ReplaceClientId == clientId))
             .ToListAsync(cancellationToken);
@@ -189,7 +269,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
 
         var breaks = await dbContext.Break
             .AsNoTracking()
-            .Where(b => b.ClientId == clientId && b.CurrentDate == date && !b.IsDeleted)
+            .Where(b => b.ClientId == clientId && b.CurrentDate == date && !b.IsDeleted && b.ParentWorkId == null)
             .ToListAsync(cancellationToken);
 
         var clientNameLookup = BuildClientNameLookup(allWorks, workChanges);
@@ -244,7 +324,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         var works = await dbContext.Work
             .AsNoTracking()
             .Include(w => w.Client)
-            .Where(w => w.CurrentDate >= startDate && w.CurrentDate <= endDate && !w.IsDeleted)
+            .Where(w => w.CurrentDate >= startDate && w.CurrentDate <= endDate && !w.IsDeleted && w.ParentWorkId == null)
             .ToListAsync(cancellationToken);
 
         var workIds = works.Select(w => w.Id).ToList();
@@ -258,7 +338,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
 
         var breaks = await dbContext.Break
             .AsNoTracking()
-            .Where(b => b.CurrentDate >= startDate && b.CurrentDate <= endDate && !b.IsDeleted)
+            .Where(b => b.CurrentDate >= startDate && b.CurrentDate <= endDate && !b.IsDeleted && b.ParentWorkId == null)
             .ToListAsync(cancellationToken);
 
         var clientNameLookup = BuildClientNameLookup(works, workChanges);
@@ -285,8 +365,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             allCollisions.AddRange(BuildLegacyCollisionList(timeline, clientNameLookup));
         }
 
-        _logger.LogDebug("[COLLISION-TRACE] RangeCheck results: {CollisionCount} collisions, {ValidationCount} validations, {ClientCount} clients checked",
-            allCollisions.Count, allEntries.Count, groupedByClient.Count());
+        _logger.LogDebug("[COLLISION-TRACE] RangeCheck results: {CollisionCount} collisions, {ValidationCount} validations, {ClientCount} clients checked, {WorkCount} works, {BreakCount} breaks",
+            allCollisions.Count, allEntries.Count, groupedByClient.Count(), works.Count, breaks.Count);
 
         var collisionNotification = new CollisionListNotificationDto
         {

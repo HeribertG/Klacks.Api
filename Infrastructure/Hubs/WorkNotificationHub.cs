@@ -63,8 +63,8 @@ public class WorkNotificationHub : Hub<IScheduleClient>
             else
             {
                 _logger.LogDebug(
-                    "[COLLISION-TRACE] JoinScheduleGroup: {ConnectionId} joined '{GroupName}', DateRange {Start} - {End}, SKIPPED QueueRangeCheck (same dateRange)",
-                    Context.ConnectionId, groupName, start, end);
+                    "[COLLISION-TRACE] JoinScheduleGroup: {ConnectionId} joined '{GroupName}', DateRange {Start} - {End}, SKIPPED QueueRangeCheck (same dateRange) - previousRange={PrevStart} - {PrevEnd}",
+                    Context.ConnectionId, groupName, start, end, previousRange?.Start, previousRange?.End);
             }
         }
         else

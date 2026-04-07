@@ -207,7 +207,7 @@ public static class ServiceCollectionExtensions
         services.AddShiftServices();
         services.AddClientServices();
         services.AddGroupServices();
-        services.AddScheduleServices();
+        services.AddScheduleServices(configuration);
         services.AddSettingsServices(configuration);
     }
 
@@ -263,8 +263,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGroupServiceFacade, GroupServiceFacade>();
     }
 
-    private static void AddScheduleServices(this IServiceCollection services)
+    private static void AddScheduleServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<ScheduleTimeOptions>(configuration.GetSection(ScheduleTimeOptions.SectionName));
         services.AddScoped<IScheduleEntriesService, ScheduleEntriesService>();
         services.AddScoped<IClientAvailabilityScheduleService, ClientAvailabilityScheduleService>();
         services.AddScoped<IWorkLockLevelService, WorkLockLevelService>();
