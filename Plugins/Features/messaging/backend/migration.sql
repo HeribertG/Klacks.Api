@@ -45,6 +45,11 @@ CREATE INDEX IF NOT EXISTS ix_messages_direction
 CREATE INDEX IF NOT EXISTS ix_messages_provider_id_timestamp
     ON messages (provider_id, "timestamp" DESC);
 
+ALTER TABLE messages ADD COLUMN IF NOT EXISTS client_id UUID NULL;
+
+CREATE INDEX IF NOT EXISTS ix_messages_client_id
+    ON messages (client_id);
+
 CREATE TABLE IF NOT EXISTS messenger_contact (
     id UUID NOT NULL,
     client_id UUID NOT NULL,

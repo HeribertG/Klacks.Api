@@ -60,11 +60,19 @@
   "messaging.chat.select-contact-hint": "Seleziona prima un contatto dalla ricerca",
   "messaging.chat.placeholder": "Scrivi un messaggio...",
   "messaging.chat.empty": "Nessun messaggio",
+  "messaging.chat.inbox-title": "Tutti i messaggi",
+  "messaging.chat.home-tooltip": "Torna a tutti i messaggi",
+  "messaging.chat.recipient-label": "A:",
+  "messaging.chat.recipient-placeholder": "Destinatario (ID chat, telefono o nome)",
+  "messaging.chat.recipient-clear": "Cancella destinatario",
+  "messaging.chat.recipient-required-hint": "Inserisci prima un destinatario",
+  "messaging.chat.provider-required": "Seleziona esattamente un provider nel filtro",
   "messaging.chat.send-error": "Impossibile inviare il messaggio",
   "messaging.nav.direction": "Direzione",
   "messaging.nav.direction.all": "Tutti",
   "messaging.nav.direction.inbound": "In entrata",
   "messaging.nav.direction.outbound": "In uscita",
   "messaging.nav.providers": "Provider",
-  "messaging.nav.reset": "Reimposta filtro"
+  "messaging.nav.reset": "Reimposta filtro",
+  "messaging.nav.show-all": "Mostra tutto"
 }
