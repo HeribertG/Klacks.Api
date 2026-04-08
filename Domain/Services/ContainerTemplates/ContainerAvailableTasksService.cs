@@ -91,6 +91,11 @@ public class ContainerAvailableTasksService : IContainerAvailableTasksService
 
         if (additionalAvailableWorkIds is { Count: > 0 })
         {
+            _logger.LogInformation(
+                "Override request: {Count} additional work ids provided: [{Ids}]",
+                additionalAvailableWorkIds.Count,
+                string.Join(", ", additionalAvailableWorkIds));
+
             var overrideIds = additionalAvailableWorkIds
                 .Where(id => availableTasks.All(t => t.Id != id))
                 .ToList();
@@ -105,8 +110,9 @@ public class ContainerAvailableTasksService : IContainerAvailableTasksService
                     .ToListAsync(cancellationToken);
 
                 _logger.LogInformation(
-                    "Added {Count} override shifts (hard override, ignoring weekday/timeframe filters)",
-                    overrideShifts.Count);
+                    "Added {Count} override shifts (hard override): [{Abbrevs}]",
+                    overrideShifts.Count,
+                    string.Join(", ", overrideShifts.Select(s => s.Abbreviation)));
 
                 availableTasks.AddRange(overrideShifts);
             }

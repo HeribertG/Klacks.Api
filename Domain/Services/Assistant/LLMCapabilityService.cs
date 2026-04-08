@@ -21,7 +21,8 @@ public static class LLMCapabilityService
         { "mistral", LLMProviderType.Mistral },
         { "cohere", LLMProviderType.Cohere },
         { "huggingface", LLMProviderType.HuggingFace },
-        { "deepseek", LLMProviderType.DeepSeek }
+        { "deepseek", LLMProviderType.DeepSeek },
+        { "apertus", LLMProviderType.Apertus }
     };
 
     public static LLMCapability[] GetCapabilities(LLMModel model)
@@ -70,6 +71,9 @@ public static class LLMCapabilityService
                 break;
             case LLMProviderType.DeepSeek:
                 AddDeepSeekCapabilities(capabilities, model);
+                break;
+            case LLMProviderType.Apertus:
+                AddApertusCapabilities(capabilities, model);
                 break;
             case LLMProviderType.Local:
                 AddLocalCapabilities(capabilities, model);
@@ -186,6 +190,12 @@ public static class LLMCapabilityService
     }
 
     private static void AddDeepSeekCapabilities(List<LLMCapability> capabilities, LLMModel model)
+    {
+        capabilities.Add(LLMCapability.FunctionCalling);
+        capabilities.Add(LLMCapability.CodeGeneration);
+    }
+
+    private static void AddApertusCapabilities(List<LLMCapability> capabilities, LLMModel model)
     {
         capabilities.Add(LLMCapability.FunctionCalling);
         capabilities.Add(LLMCapability.CodeGeneration);
