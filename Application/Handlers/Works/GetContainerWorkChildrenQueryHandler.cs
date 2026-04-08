@@ -59,15 +59,42 @@ public class GetContainerWorkChildrenQueryHandler : BaseHandler, IRequestHandler
                     .ToListAsync(cancellationToken)
                 : new List<WorkChange>();
 
+            var startBase = parentWork?.StartBase;
+            var endBase = parentWork?.EndBase;
+            int? transportMode = parentWork?.TransportMode.HasValue == true ? (int)parentWork.TransportMode.Value : null;
+
+            var needsFallback = parentWork != null
+                && parentWork.ShiftId != Guid.Empty
+                && (string.IsNullOrEmpty(startBase) || string.IsNullOrEmpty(endBase) || transportMode == null);
+
+            if (needsFallback)
+            {
+                var weekday = (int)parentWork!.CurrentDate.DayOfWeek;
+                var template = await _context.ContainerTemplate
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(
+                        t => t.ContainerId == parentWork.ShiftId
+                            && t.Weekday == weekday
+                            && t.IsHoliday == request.IsHoliday,
+                        cancellationToken);
+
+                if (template != null)
+                {
+                    if (string.IsNullOrEmpty(startBase)) startBase = template.StartBase;
+                    if (string.IsNullOrEmpty(endBase)) endBase = template.EndBase;
+                    if (transportMode == null) transportMode = (int)template.TransportMode;
+                }
+            }
+
             return new ContainerWorkChildrenResource
             {
                 SubWorks = subWorks.Select(_scheduleMapper.ToWorkResource).ToList(),
                 SubBreaks = subBreaks.Select(_scheduleMapper.ToBreakResource).ToList(),
                 SubWorkChanges = subWorkChanges.Select(_scheduleMapper.ToWorkChangeResource).ToList(),
-                ParentStartBase = parentWork?.StartBase,
-                ParentEndBase = parentWork?.EndBase,
-                ParentTransportMode = parentWork?.TransportMode.HasValue == true ? (int)parentWork.TransportMode.Value : null
+                ParentStartBase = startBase,
+                ParentEndBase = endBase,
+                ParentTransportMode = transportMode
             };
-        }, nameof(Handle), new { request.WorkId });
+        }, nameof(Handle), new { request.WorkId, request.IsHoliday });
     }
 }
