@@ -128,8 +128,14 @@ public class ContainerAutofillService : IContainerAutofillService
             effectiveBudgetSeconds, request.TimeRangeTolerance,
             unmovableBlocks, movableBlocks);
 
-        var selectedIndices = GreedySelection(context, candidateCount);
-        _logger.LogInformation("Greedy selection: {Count} shifts selected", selectedIndices.Count);
+        var lockedIndices = ResolveLockedIndices(request.AdditionalAvailableWorkIds, candidateLocations);
+        if (lockedIndices.Count > 0)
+        {
+            _logger.LogInformation("Lock-in: {Count} shifts must be included in route", lockedIndices.Count);
+        }
+
+        var selectedIndices = GreedySelection(context, candidateCount, lockedIndices);
+        _logger.LogInformation("Greedy selection: {Count} shifts selected ({Locked} locked)", selectedIndices.Count, lockedIndices.Count);
 
         if (selectedIndices.Count == 0)
         {
@@ -139,7 +145,7 @@ public class ContainerAutofillService : IContainerAutofillService
         var optimizedRoute = OptimizeSelectedRoute(distanceMatrix, selectedIndices, startBaseIndex, endBaseIndex);
         _logger.LogInformation("ACO optimization complete: route with {Count} stops", optimizedRoute.Count);
 
-        var validatedRoute = ValidateRouteTimeRanges(context, optimizedRoute);
+        var validatedRoute = ValidateRouteTimeRanges(context, optimizedRoute, lockedIndices);
 
         if (validatedRoute.Count < optimizedRoute.Count)
         {
@@ -259,14 +265,69 @@ public class ContainerAutofillService : IContainerAutofillService
         };
     }
 
+    private List<int> ResolveLockedIndices(
+        IReadOnlyCollection<Guid>? additionalAvailableWorkIds,
+        List<Location> candidateLocations)
+    {
+        if (additionalAvailableWorkIds == null || additionalAvailableWorkIds.Count == 0)
+        {
+            return new List<int>();
+        }
+
+        var lockedSet = new HashSet<Guid>(additionalAvailableWorkIds);
+        var result = new List<int>();
+        var foundIds = new HashSet<Guid>();
+
+        for (int i = 0; i < candidateLocations.Count; i++)
+        {
+            if (lockedSet.Contains(candidateLocations[i].ShiftId))
+            {
+                result.Add(i);
+                foundIds.Add(candidateLocations[i].ShiftId);
+            }
+        }
+
+        var missing = lockedSet.Except(foundIds).ToList();
+        if (missing.Count > 0)
+        {
+            _logger.LogWarning("Lock-in: {Count} requested shift IDs not found in candidate locations (no geocoding or filtered out): {Ids}",
+                missing.Count, string.Join(", ", missing));
+        }
+
+        return result;
+    }
+
     private List<int> GreedySelection(
         RouteEvaluationContext context,
-        int candidateCount)
+        int candidateCount,
+        IReadOnlyList<int> lockedIndices)
     {
         var selected = new List<int>();
-        var remaining = Enumerable.Range(0, candidateCount).ToList();
+        var lockedSet = new HashSet<int>(lockedIndices);
+        var remaining = Enumerable.Range(0, candidateCount).Where(i => !lockedSet.Contains(i)).ToList();
         var currentPosition = context.StartBaseIndex;
         var usedTimeSeconds = 0.0;
+
+        foreach (var locked in lockedIndices)
+        {
+            var travelToLocked = context.DistanceMatrix.DurationMatrix[currentPosition, locked];
+            var lockedOnSite = context.DistanceMatrix.Locations[locked].TotalOnSiteTime.TotalSeconds;
+
+            var arrivalAtLocked = context.ContainerFromTimeSeconds + usedTimeSeconds + travelToLocked;
+            arrivalAtLocked = TimeBlockScheduler.SkipOverUnmovableBlocks(arrivalAtLocked, context.UnmovableBlocks);
+            var departureFromLocked = arrivalAtLocked + lockedOnSite;
+            departureFromLocked = TimeBlockScheduler.SkipOverUnmovableBlocks(departureFromLocked, context.UnmovableBlocks);
+
+            if (!IsTimeRangeValid(context.DistanceMatrix.Locations[locked], arrivalAtLocked, context.TimeRangeTolerance))
+            {
+                _logger.LogWarning("Lock-in: shift {ShiftId} has TimeRange violation but will be included anyway",
+                    context.DistanceMatrix.Locations[locked].ShiftId);
+            }
+
+            selected.Add(locked);
+            usedTimeSeconds = departureFromLocked - context.ContainerFromTimeSeconds;
+            currentPosition = locked;
+        }
 
         while (remaining.Count > 0)
         {
@@ -564,8 +625,10 @@ public class ContainerAutofillService : IContainerAutofillService
 
     private List<int> ValidateRouteTimeRanges(
         RouteEvaluationContext context,
-        List<int> route)
+        List<int> route,
+        IReadOnlyList<int>? lockedIndices = null)
     {
+        var lockedSet = lockedIndices != null ? new HashSet<int>(lockedIndices) : new HashSet<int>();
         var validRoute = new List<int>(route);
         var changed = true;
 
@@ -587,6 +650,10 @@ public class ContainerAutofillService : IContainerAutofillService
 
                 if (timeRangeViolation || containerEndViolation)
                 {
+                    if (lockedSet.Contains(validRoute[i]))
+                    {
+                        continue;
+                    }
                     validRoute.RemoveAt(i);
                     changed = true;
                     break;
