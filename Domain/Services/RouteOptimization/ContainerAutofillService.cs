@@ -276,25 +276,37 @@ public class ContainerAutofillService : IContainerAutofillService
 
         var lockedSet = new HashSet<Guid>(additionalAvailableWorkIds);
         var result = new List<int>();
-        var foundIds = new HashSet<Guid>();
 
         for (int i = 0; i < candidateLocations.Count; i++)
         {
             if (lockedSet.Contains(candidateLocations[i].ShiftId))
             {
                 result.Add(i);
-                foundIds.Add(candidateLocations[i].ShiftId);
             }
         }
 
-        var missing = lockedSet.Except(foundIds).ToList();
-        if (missing.Count > 0)
+        if (result.Count < lockedSet.Count)
         {
+            var foundIds = result.Select(i => candidateLocations[i].ShiftId);
+            var missing = lockedSet.Except(foundIds);
             _logger.LogWarning("Lock-in: {Count} requested shift IDs not found in candidate locations (no geocoding or filtered out): {Ids}",
-                missing.Count, string.Join(", ", missing));
+                lockedSet.Count - result.Count, string.Join(", ", missing));
         }
 
         return result;
+    }
+
+    private (double arrival, double departure) AdvanceToCandidate(
+        RouteEvaluationContext context, int fromIndex, int toIndex, double usedTimeSeconds)
+    {
+        var travel = context.DistanceMatrix.DurationMatrix[fromIndex, toIndex];
+        var onSite = context.DistanceMatrix.Locations[toIndex].TotalOnSiteTime.TotalSeconds;
+
+        var arrival = context.ContainerFromTimeSeconds + usedTimeSeconds + travel;
+        arrival = TimeBlockScheduler.SkipOverUnmovableBlocks(arrival, context.UnmovableBlocks);
+        var departure = TimeBlockScheduler.SkipOverUnmovableBlocks(arrival + onSite, context.UnmovableBlocks);
+
+        return (arrival, departure);
     }
 
     private List<int> GreedySelection(
@@ -303,29 +315,22 @@ public class ContainerAutofillService : IContainerAutofillService
         IReadOnlyList<int> lockedIndices)
     {
         var selected = new List<int>();
-        var lockedSet = new HashSet<int>(lockedIndices);
-        var remaining = Enumerable.Range(0, candidateCount).Where(i => !lockedSet.Contains(i)).ToList();
+        var remaining = Enumerable.Range(0, candidateCount).Except(lockedIndices).ToList();
         var currentPosition = context.StartBaseIndex;
         var usedTimeSeconds = 0.0;
 
         foreach (var locked in lockedIndices)
         {
-            var travelToLocked = context.DistanceMatrix.DurationMatrix[currentPosition, locked];
-            var lockedOnSite = context.DistanceMatrix.Locations[locked].TotalOnSiteTime.TotalSeconds;
+            var (arrival, departure) = AdvanceToCandidate(context, currentPosition, locked, usedTimeSeconds);
 
-            var arrivalAtLocked = context.ContainerFromTimeSeconds + usedTimeSeconds + travelToLocked;
-            arrivalAtLocked = TimeBlockScheduler.SkipOverUnmovableBlocks(arrivalAtLocked, context.UnmovableBlocks);
-            var departureFromLocked = arrivalAtLocked + lockedOnSite;
-            departureFromLocked = TimeBlockScheduler.SkipOverUnmovableBlocks(departureFromLocked, context.UnmovableBlocks);
-
-            if (!IsTimeRangeValid(context.DistanceMatrix.Locations[locked], arrivalAtLocked, context.TimeRangeTolerance))
+            if (!IsTimeRangeValid(context.DistanceMatrix.Locations[locked], arrival, context.TimeRangeTolerance))
             {
                 _logger.LogWarning("Lock-in: shift {ShiftId} has TimeRange violation but will be included anyway",
                     context.DistanceMatrix.Locations[locked].ShiftId);
             }
 
             selected.Add(locked);
-            usedTimeSeconds = departureFromLocked - context.ContainerFromTimeSeconds;
+            usedTimeSeconds = departure - context.ContainerFromTimeSeconds;
             currentPosition = locked;
         }
 
@@ -369,13 +374,7 @@ public class ContainerAutofillService : IContainerAutofillService
                 break;
             }
 
-            var travelToBest = context.DistanceMatrix.DurationMatrix[currentPosition, bestCandidate];
-            var bestOnSiteTime = context.DistanceMatrix.Locations[bestCandidate].TotalOnSiteTime.TotalSeconds;
-
-            var arrivalAtBest = context.ContainerFromTimeSeconds + usedTimeSeconds + travelToBest;
-            arrivalAtBest = TimeBlockScheduler.SkipOverUnmovableBlocks(arrivalAtBest, context.UnmovableBlocks);
-            var departureFromBest = arrivalAtBest + bestOnSiteTime;
-            departureFromBest = TimeBlockScheduler.SkipOverUnmovableBlocks(departureFromBest, context.UnmovableBlocks);
+            var (_, departureFromBest) = AdvanceToCandidate(context, currentPosition, bestCandidate, usedTimeSeconds);
 
             selected.Add(bestCandidate);
             usedTimeSeconds = departureFromBest - context.ContainerFromTimeSeconds;
