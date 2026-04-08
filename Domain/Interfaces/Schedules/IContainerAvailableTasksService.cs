@@ -15,5 +15,6 @@ public interface IContainerAvailableTasksService
         Guid? excludeContainerId = null,
         bool? isHoliday = null,
         bool? isWeekdayAndHoliday = null,
+        IReadOnlyCollection<Guid>? additionalAvailableWorkIds = null,
         CancellationToken cancellationToken = default);
 }

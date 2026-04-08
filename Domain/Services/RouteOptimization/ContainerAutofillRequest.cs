@@ -30,4 +30,5 @@ public record ContainerAutofillRequest(
     ContainerTransportMode TransportMode = ContainerTransportMode.ByCar,
     double TimeRangeTolerance = 0.5,
     CancellationToken CancellationToken = default,
-    List<TimeBlock>? TimeBlocks = null);
+    List<TimeBlock>? TimeBlocks = null,
+    IReadOnlyCollection<Guid>? AdditionalAvailableWorkIds = null);

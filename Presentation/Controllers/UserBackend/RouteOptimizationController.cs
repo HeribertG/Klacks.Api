@@ -82,6 +82,11 @@ public class RouteOptimizationController : BaseController
         [FromQuery] string? endBase = null,
         [FromQuery] ContainerTransportMode transportMode = ContainerTransportMode.ByCar)
     {
+        if (request == null)
+        {
+            return BadRequest("OptimizeRoute request body is missing");
+        }
+
         _logger.LogInformation(
             "Optimizing route for {Count} shifts, StartBase: {StartBase}, EndBase: {EndBase}, TransportMode: {TransportMode}, TimeBlocks: {BlockCount}",
             request.ShiftIds.Count, startBase, endBase, transportMode, request.TimeBlocks.Count);
@@ -180,6 +185,11 @@ public class RouteOptimizationController : BaseController
         [FromBody] AutofillRequestDto request,
         CancellationToken cancellationToken = default)
     {
+        if (request == null)
+        {
+            return BadRequest("Autofill request body is missing");
+        }
+
         if (string.IsNullOrEmpty(request.StartBase) || string.IsNullOrEmpty(request.EndBase))
         {
             return BadRequest("Start base and end base addresses are required for autofill");
@@ -206,7 +216,7 @@ public class RouteOptimizationController : BaseController
             var autofillRequest = new ContainerAutofillRequest(
                 request.ContainerId, request.Weekday, request.IsHoliday, request.StartBase, request.EndBase,
                 parsedFromTime, parsedUntilTime, request.TransportMode, request.TimeRangeTolerance,
-                cancellationToken, domainTimeBlocks);
+                cancellationToken, domainTimeBlocks, request.AdditionalAvailableWorkIds);
 
             var result = await _containerAutofillService.AutofillAsync(autofillRequest);
 

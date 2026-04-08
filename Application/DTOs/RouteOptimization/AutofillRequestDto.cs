@@ -30,4 +30,5 @@ public class AutofillRequestDto
     public ContainerTransportMode TransportMode { get; set; } = ContainerTransportMode.ByCar;
     public double TimeRangeTolerance { get; set; } = 0.5;
     public List<TimeBlockDto> TimeBlocks { get; set; } = new();
+    public List<Guid> AdditionalAvailableWorkIds { get; set; } = new();
 }

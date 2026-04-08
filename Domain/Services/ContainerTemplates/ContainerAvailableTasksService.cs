@@ -37,6 +37,7 @@ public class ContainerAvailableTasksService : IContainerAvailableTasksService
         Guid? excludeContainerId = null,
         bool? isHoliday = null,
         bool? isWeekdayAndHoliday = null,
+        IReadOnlyCollection<Guid>? additionalAvailableWorkIds = null,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation(
@@ -87,6 +88,29 @@ public class ContainerAvailableTasksService : IContainerAvailableTasksService
             .ToListAsync(cancellationToken);
 
         _logger.LogInformation("Found {Count} available tasks", availableTasks.Count);
+
+        if (additionalAvailableWorkIds is { Count: > 0 })
+        {
+            var overrideIds = additionalAvailableWorkIds
+                .Where(id => availableTasks.All(t => t.Id != id))
+                .ToList();
+
+            if (overrideIds.Count > 0)
+            {
+                var overrideShifts = await _shiftRepository.GetQuery()
+                    .Where(s => overrideIds.Contains(s.Id) && s.ShiftType == ShiftType.IsTask)
+                    .Include(s => s.Client)
+                        .ThenInclude(c => c.Addresses)
+                    .AsNoTracking()
+                    .ToListAsync(cancellationToken);
+
+                _logger.LogInformation(
+                    "Added {Count} override shifts (hard override, ignoring weekday/timeframe filters)",
+                    overrideShifts.Count);
+
+                availableTasks.AddRange(overrideShifts);
+            }
+        }
 
         return availableTasks;
     }
