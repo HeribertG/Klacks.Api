@@ -96,6 +96,18 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
             var updatedWorks = request.Resource.SubWorks.Select(_scheduleMapper.ToWorkEntity).ToList();
             var updatedBreaks = request.Resource.SubBreaks.Select(_scheduleMapper.ToBreakEntity).ToList();
 
+            if (parentWork != null)
+            {
+                foreach (var b in updatedBreaks)
+                {
+                    b.ClientId = parentWork.ClientId;
+                    if (b.CurrentDate == default)
+                    {
+                        b.CurrentDate = parentWork.CurrentDate;
+                    }
+                }
+            }
+
             _collectionUpdateService.UpdateCollection(
                 existingWorks,
                 updatedWorks,
