@@ -27,8 +27,8 @@ public static class KnowledgeIndexConstants
     public const string RerankerModelName = "mmarco-mMiniLMv2-L12-H384-v1";
     public const string RerankerModelFileName = "model.onnx";
     public const string RerankerTokenizerFileName = "tokenizer.json";
-    public const string RerankerModelSha256 = "";
-    public const string RerankerTokenizerSha256 = "";
+    public const string RerankerModelSha256 = "3e9a03ed1e966f7c5288dd4230e3d6a9bf5e3a170a06f1f4241c5bca12c6487c";
+    public const string RerankerTokenizerSha256 = "62c24cdc13d4c9952d63718d6c9fa4c287974249e16b7ade6d5a85e7bbb75626";
     public const string RerankerModelUrl =
         "https://huggingface.co/cross-encoder/mmarco-mMiniLMv2-L12-H384-v1/resolve/main/onnx/model.onnx";
     public const string RerankerTokenizerUrl =
