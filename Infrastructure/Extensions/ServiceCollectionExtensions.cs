@@ -70,7 +70,14 @@ using Klacks.Api.Infrastructure.Services.ClientAvailabilitySchedule;
 using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.Skills.Generated;
 using Klacks.Api.Application.Skills.Generic;
+using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Constants;
+using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Interfaces;
+using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Services;
+using Klacks.Api.Infrastructure.KnowledgeIndex.Infrastructure.Onnx;
+using Klacks.Api.Infrastructure.KnowledgeIndex.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 
 namespace Klacks.Api.Infrastructure.Extensions;
 
@@ -361,6 +368,7 @@ public static class ServiceCollectionExtensions
         services.AddLLMCoreServices();
         services.AddLLMProviders();
         services.AddSkillServices();
+        services.AddKnowledgeIndexServices();
         services.AddAssistantBackgroundServices(configuration);
     }
 
@@ -476,6 +484,39 @@ public static class ServiceCollectionExtensions
         services.AddScoped<GenericListExecutor>();
         services.AddScoped<GenericDeleteExecutor>();
         services.AddScoped<IGenericSkillDispatcher, GenericSkillDispatcher>();
+    }
+
+    private static void AddKnowledgeIndexServices(this IServiceCollection services)
+    {
+        services.AddHttpClient(KnowledgeIndexConstants.HttpClientName);
+
+        var modelsRoot = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            KnowledgeIndexConstants.ModelsCacheSubdirectory);
+
+        services.AddSingleton<ModelLoader>(sp =>
+            new ModelLoader(sp.GetRequiredService<IHttpClientFactory>().CreateClient(KnowledgeIndexConstants.HttpClientName)));
+
+        services.AddSingleton<IEmbeddingProvider>(sp => new OnnxEmbeddingProvider(
+            sp.GetRequiredService<ModelLoader>(),
+            Path.Combine(modelsRoot, KnowledgeIndexConstants.EmbeddingModelName)));
+
+        services.AddSingleton<IRerankerProvider>(sp => new OnnxRerankerProvider(
+            sp.GetRequiredService<ModelLoader>(),
+            Path.Combine(modelsRoot, KnowledgeIndexConstants.RerankerModelName)));
+
+        services.AddScoped<IKnowledgeIndexRepository>(sp =>
+        {
+            var context = sp.GetRequiredService<DataBaseContext>();
+            var conn = (NpgsqlConnection)context.Database.GetDbConnection();
+            if (conn.State == System.Data.ConnectionState.Closed)
+                conn.Open();
+            return new KnowledgeIndexRepository(conn);
+        });
+
+        services.AddScoped<IKnowledgeIndexSynchronizer, KnowledgeIndexSynchronizer>();
+        services.AddScoped<IKnowledgeRetrievalService, KnowledgeRetrievalService>();
+        services.AddHostedService<KnowledgeIndexStartupService>();
     }
 
     private static void AddAssistantBackgroundServices(this IServiceCollection services, IConfiguration configuration)
