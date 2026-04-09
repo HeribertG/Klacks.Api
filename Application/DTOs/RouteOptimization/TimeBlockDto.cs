@@ -15,7 +15,7 @@ namespace Klacks.Api.Application.DTOs.RouteOptimization;
 public class TimeBlockDto
 {
     public Guid Id { get; set; }
-    public string Name { get; set; } = string.Empty;
+    public string? Name { get; set; }
     public string? FixedStartTime { get; set; }
     public string? FixedEndTime { get; set; }
     public double DurationMinutes { get; set; }

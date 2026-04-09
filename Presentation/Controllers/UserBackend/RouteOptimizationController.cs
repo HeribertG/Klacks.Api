@@ -279,7 +279,7 @@ public class RouteOptimizationController : BaseController
     {
         return dtos.Select(dto => new TimeBlock(
             dto.Id,
-            dto.Name,
+            dto.Name ?? string.Empty,
             string.IsNullOrEmpty(dto.FixedStartTime) ? null : TimeOnly.Parse(dto.FixedStartTime),
             string.IsNullOrEmpty(dto.FixedEndTime) ? null : TimeOnly.Parse(dto.FixedEndTime),
             TimeSpan.FromMinutes(dto.DurationMinutes),

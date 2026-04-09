@@ -54,6 +54,11 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
     {
         return await ExecuteAsync(async () =>
         {
+            if (request.Resource == null)
+            {
+                throw new ArgumentException("UpdateContainerWorkChildren request body is missing or could not be deserialized.");
+            }
+
             var userId = _userService.GetId() ?? Guid.Empty;
             var instanceId = _userService.GetInstanceId() ?? string.Empty;
             var holdsLock = await _lockRepository.IsHeldBy(LockResourceType, request.WorkId, userId, instanceId, cancellationToken);
