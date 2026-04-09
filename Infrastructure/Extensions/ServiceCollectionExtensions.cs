@@ -379,7 +379,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<LLMResponseBuilder>();
         services.AddScoped<LLMChatPipeline>();
         services.AddScoped<ISkillClassifierService, SkillClassifierService>();
-        services.AddSingleton<ISynonymLearningService, SynonymLearningService>();
         services.AddScoped<ILLMStreamingOrchestrator, LLMStreamingOrchestrator>();
         services.AddScoped<LLMSystemPromptBuilder>();
         services.AddSingleton<IPromptTranslationProvider, PromptTranslationProvider>();
