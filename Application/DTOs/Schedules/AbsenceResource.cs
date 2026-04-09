@@ -33,4 +33,6 @@ public class AbsenceResource
     public bool WithSunday { get; set; }
 
     public bool AppliesToContainer { get; set; }
+
+    public bool IsUnpaid { get; set; }
 }
