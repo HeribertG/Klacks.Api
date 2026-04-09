@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Orchestrates LLM streaming by preparing the context (agent, skill filtering) and delegating to ILLMService.
+/// Orchestrates LLM streaming by preparing the context (agent, skill filtering via knowledge index) and delegating to ILLMService.
 /// Bypasses the Mediator pipeline since it does not support IAsyncEnumerable.
 /// </summary>
 /// <param name="request">Contains message, userId, modelId, language and user rights</param>
@@ -35,23 +35,19 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
 {
     private readonly ILLMService _llmService;
     private readonly ISkillCacheService _skillCacheService;
-    private readonly ISkillClassifierService _skillClassifierService;
     private readonly IKnowledgeRetrievalService _knowledgeRetrieval;
     private readonly ILogger<LLMStreamingOrchestrator> _logger;
 
     private const int MaxToolsForProvider = 30;
-    private const int MinMessageLengthForClassification = 20;
 
     public LLMStreamingOrchestrator(
         ILLMService llmService,
         ISkillCacheService skillCacheService,
-        ISkillClassifierService skillClassifierService,
         IKnowledgeRetrievalService knowledgeRetrieval,
         ILogger<LLMStreamingOrchestrator> logger)
     {
         _llmService = llmService;
         _skillCacheService = skillCacheService;
-        _skillClassifierService = skillClassifierService;
         _knowledgeRetrieval = knowledgeRetrieval;
         _logger = logger;
     }
@@ -135,22 +131,6 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             retrievedSkills = permittedSkills
                 .Where(s => !s.AlwaysOn && retrievedNames.Contains(s.Name))
                 .ToList();
-        }
-        else if (userMessage.Length > MinMessageLengthForClassification)
-        {
-            _logger.LogDebug("Knowledge retrieval returned empty result, falling back to Tier2 classifier.");
-            var classifiedKeywords = await _skillClassifierService.ClassifyMessageAsync(userMessage, language, ct);
-            if (classifiedKeywords.Count > 0)
-            {
-                var classifiedMessage = string.Join(" ", classifiedKeywords);
-                retrievedSkills = permittedSkills
-                    .Where(s => !s.AlwaysOn && SkillMatchingEngine.MatchesSkillKeywords(s, classifiedMessage, language))
-                    .ToList();
-            }
-            else
-            {
-                retrievedSkills = [];
-            }
         }
         else
         {

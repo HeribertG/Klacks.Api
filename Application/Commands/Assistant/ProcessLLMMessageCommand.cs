@@ -2,12 +2,12 @@
 
 /// <summary>
 /// Command to process an LLM chat message with intelligent skill filtering.
-/// Uses the knowledge index for semantic retrieval with a Tier2 LLM-classifier fallback.
+/// Uses the knowledge index for semantic retrieval to select relevant skills.
 /// </summary>
 /// <param name="Message">User's chat message.</param>
 /// <param name="UserRights">User's permissions for skill access control.</param>
 /// <param name="ModelId">Optional specific LLM model to use.</param>
-/// <param name="Language">User's UI language (de, en, fr, it) for Tier2 fallback synonym matching.</param>
+/// <param name="Language">User's UI language (de, en, fr, it).</param>
 
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
@@ -37,23 +37,19 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     private readonly ILLMService _llmService;
     private readonly IAgentRepository _agentRepository;
     private readonly ISkillCacheService _skillCacheService;
-    private readonly ISkillClassifierService _skillClassifierService;
     private readonly IKnowledgeRetrievalService _knowledgeRetrieval;
 
     private const int MaxToolsForProvider = 30;
-    private const int MinMessageLengthForClassification = 20;
 
     public ProcessLLMMessageCommandHandler(
         ILLMService llmService,
         IAgentRepository agentRepository,
         ISkillCacheService skillCacheService,
-        ISkillClassifierService skillClassifierService,
         IKnowledgeRetrievalService knowledgeRetrieval)
     {
         _llmService = llmService;
         _agentRepository = agentRepository;
         _skillCacheService = skillCacheService;
-        _skillClassifierService = skillClassifierService;
         _knowledgeRetrieval = knowledgeRetrieval;
     }
 
@@ -108,22 +104,6 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             retrievedSkills = permittedSkills
                 .Where(s => !s.AlwaysOn && retrievedNames.Contains(s.Name))
                 .ToList();
-        }
-        else if (userMessage.Length > MinMessageLengthForClassification)
-        {
-            var classifiedKeywords = await _skillClassifierService.ClassifyMessageAsync(userMessage, language, cancellationToken);
-
-            if (classifiedKeywords.Count > 0)
-            {
-                var classifiedMessage = string.Join(" ", classifiedKeywords);
-                retrievedSkills = permittedSkills
-                    .Where(s => !s.AlwaysOn && SkillMatchingEngine.MatchesSkillKeywords(s, classifiedMessage, language))
-                    .ToList();
-            }
-            else
-            {
-                retrievedSkills = [];
-            }
         }
         else
         {
