@@ -163,8 +163,13 @@ public class WorksController : BaseController
     }
 
     [HttpPut("{workId}/Children")]
-    public async Task<ActionResult<ContainerWorkChildrenResource>> UpdateChildren(Guid workId, [FromBody] UpdateContainerWorkChildrenResource resource)
+    public async Task<ActionResult<ContainerWorkChildrenResource>> UpdateChildren(Guid workId, [FromBody] UpdateContainerWorkChildrenResource? resource)
     {
+        if (resource == null)
+        {
+            return BadRequest("Request body is missing or could not be deserialized. Verify Content-Type is application/json and all TimeOnly/DateOnly fields are well-formed.");
+        }
+
         var result = await _mediator.Send(new UpdateContainerWorkChildrenCommand(workId, resource));
         return Ok(result);
     }
