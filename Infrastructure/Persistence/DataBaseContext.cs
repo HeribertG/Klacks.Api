@@ -13,6 +13,7 @@ using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Reports;
 using Klacks.Api.Domain.Models.FloorPlans;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Infrastructure.KnowledgeIndex.Domain;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
@@ -190,6 +191,9 @@ public class DataBaseContext : IdentityDbContext
     // Sentiment DbSets
     public DbSet<SentimentKeywordSet> SentimentKeywordSets { get; set; }
 
+    // Knowledge Index DbSets
+    public DbSet<KnowledgeEntry> KnowledgeEntries { get; set; }
+
     // FloorPlan DbSets
     public DbSet<FloorPlan> FloorPlan { get; set; }
 
@@ -238,6 +242,20 @@ public class DataBaseContext : IdentityDbContext
         modelBuilder.Entity<ContainerLock>(entity =>
         {
             entity.HasIndex(e => new { e.ResourceType, e.ResourceId }).IsUnique();
+        });
+
+        modelBuilder.Entity<KnowledgeEntry>(entity =>
+        {
+            entity.ToTable(KnowledgeIndex.Application.Constants.KnowledgeIndexConstants.TableName);
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Kind).HasColumnName("kind");
+            entity.Property(e => e.SourceId).HasColumnName("source_id");
+            entity.Property(e => e.Text).HasColumnName("text");
+            entity.Property(e => e.TextHash).HasColumnName("text_hash");
+            entity.Property(e => e.RequiredPermission).HasColumnName("required_permission");
+            entity.Property(e => e.ExposedEndpointKey).HasColumnName("exposed_endpoint_key");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+            entity.HasIndex(e => new { e.Kind, e.SourceId }).IsUnique().HasDatabaseName("knowledge_index_kind_source_unique");
         });
 
         Plugins.PluginModelRegistry.Apply(modelBuilder);
