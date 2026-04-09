@@ -156,9 +156,9 @@ public class WorksController : BaseController
     }
 
     [HttpGet("{workId}/Children")]
-    public async Task<ActionResult<ContainerWorkChildrenResource>> GetChildren(Guid workId)
+    public async Task<ActionResult<ContainerWorkChildrenResource>> GetChildren(Guid workId, [FromQuery] bool isHoliday = false)
     {
-        var result = await _mediator.Send(new GetContainerWorkChildrenQuery(workId));
+        var result = await _mediator.Send(new GetContainerWorkChildrenQuery(workId, isHoliday));
         return Ok(result);
     }
 
