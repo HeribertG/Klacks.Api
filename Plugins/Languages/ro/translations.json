@@ -753,6 +753,7 @@
   "setting.absence.modal.description": "Descriere",
   "setting.absence.modal.edit": "Editare absență",
   "setting.absence.modal.internal": "Doar pentru uz intern",
+  "setting.absence.modal.is-unpaid": "Unpaid",
   "setting.absence.modal.name": "Nume",
   "setting.absence.modal.abbreviation": "Abreviere",
   "setting.absence.modal.sum-day": "Implicit număr de zile",

@@ -753,6 +753,7 @@
   "setting.absence.modal.description": "Περιγραφή",
   "setting.absence.modal.edit": "Επεξεργασία απουσίας",
   "setting.absence.modal.internal": "Μόνο για εσωτερική χρήση",
+  "setting.absence.modal.is-unpaid": "Unpaid",
   "setting.absence.modal.name": "Όνομα",
   "setting.absence.modal.abbreviation": "Συντομογραφία",
   "setting.absence.modal.sum-day": "Προεπιλεγμένος αριθμός ημερών",

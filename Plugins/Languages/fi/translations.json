@@ -753,6 +753,7 @@
   "setting.absence.modal.description": "Kuvaus",
   "setting.absence.modal.edit": "Muokkaa poissaoloa",
   "setting.absence.modal.internal": "Vain sisäiseen käyttöön",
+  "setting.absence.modal.is-unpaid": "Unpaid",
   "setting.absence.modal.name": "Nimi",
   "setting.absence.modal.abbreviation": "Lyhenne",
   "setting.absence.modal.sum-day": "Päivien oletusmäärä",

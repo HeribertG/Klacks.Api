@@ -753,6 +753,7 @@
   "setting.absence.modal.description": "Beskrivelse",
   "setting.absence.modal.edit": "Rediger fravær",
   "setting.absence.modal.internal": "Kun til internt brug",
+  "setting.absence.modal.is-unpaid": "Unpaid",
   "setting.absence.modal.name": "Navn",
   "setting.absence.modal.abbreviation": "Forkortelse",
   "setting.absence.modal.sum-day": "Standardantal dage",

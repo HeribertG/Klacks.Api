@@ -765,6 +765,7 @@
   "setting.absence.modal.description": "Deskripsi",
   "setting.absence.modal.edit": "Edit ketidakhadiran",
   "setting.absence.modal.internal": "Hanya untuk penggunaan internal",
+  "setting.absence.modal.is-unpaid": "Unpaid",
   "setting.absence.modal.name": "Nama",
   "setting.absence.modal.abbreviation": "Singkatan",
   "setting.absence.modal.sum-day": "Jumlah hari default",

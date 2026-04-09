@@ -753,6 +753,7 @@
   "setting.absence.modal.description": "Descrição",
   "setting.absence.modal.edit": "Editar ausência",
   "setting.absence.modal.internal": "Apenas para uso interno",
+  "setting.absence.modal.is-unpaid": "Unpaid",
   "setting.absence.modal.name": "Nome",
   "setting.absence.modal.abbreviation": "Abreviatura",
   "setting.absence.modal.sum-day": "Número de dias por defeito",

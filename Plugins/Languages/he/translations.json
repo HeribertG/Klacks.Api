@@ -765,6 +765,7 @@
   "setting.absence.modal.description": "תיאור",
   "setting.absence.modal.edit": "ערוך היעדרות",
   "setting.absence.modal.internal": "לשימוש פנימי בלבד",
+  "setting.absence.modal.is-unpaid": "Unpaid",
   "setting.absence.modal.name": "שם",
   "setting.absence.modal.abbreviation": "קיצור",
   "setting.absence.modal.sum-day": "ברירת מחדל: מספר ימים",

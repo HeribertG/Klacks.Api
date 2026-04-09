@@ -692,6 +692,7 @@
   "setting.absence.modal.description": "説明",
   "setting.absence.modal.edit": "休暇を編集",
   "setting.absence.modal.internal": "内部使用のみ",
+  "setting.absence.modal.is-unpaid": "Unpaid",
   "setting.absence.modal.name": "名称",
   "setting.absence.modal.abbreviation": "略称",
   "setting.absence.modal.sum-day": "デフォルト日数",

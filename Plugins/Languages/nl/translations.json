@@ -753,6 +753,7 @@
   "setting.absence.modal.description": "Omschrijving",
   "setting.absence.modal.edit": "Afwezigheid bewerken",
   "setting.absence.modal.internal": "Alleen voor intern gebruik",
+  "setting.absence.modal.is-unpaid": "Unpaid",
   "setting.absence.modal.name": "Naam",
   "setting.absence.modal.abbreviation": "Afkorting",
   "setting.absence.modal.sum-day": "Standaard aantal dagen",

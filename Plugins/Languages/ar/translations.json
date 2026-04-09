@@ -765,6 +765,7 @@
   "setting.absence.modal.description": "الوصف",
   "setting.absence.modal.edit": "تعديل الغياب",
   "setting.absence.modal.internal": "للاستخدام الداخلي فقط",
+  "setting.absence.modal.is-unpaid": "Unpaid",
   "setting.absence.modal.name": "الاسم",
   "setting.absence.modal.abbreviation": "الاختصار",
   "setting.absence.modal.sum-day": "عدد الأيام افتراضياً",

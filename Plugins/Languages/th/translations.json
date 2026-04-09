@@ -765,6 +765,7 @@
   "setting.absence.modal.description": "คำอธิบาย",
   "setting.absence.modal.edit": "แก้ไขการลา",
   "setting.absence.modal.internal": "สำหรับใช้ภายในเท่านั้น",
+  "setting.absence.modal.is-unpaid": "Unpaid",
   "setting.absence.modal.name": "ชื่อ",
   "setting.absence.modal.abbreviation": "ตัวย่อ",
   "setting.absence.modal.sum-day": "จำนวนวันเริ่มต้น",

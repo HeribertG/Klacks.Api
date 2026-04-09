@@ -921,6 +921,7 @@
   "setting.absence.modal.description": "Descripción",
   "setting.absence.modal.edit": "Editar ausencia",
   "setting.absence.modal.internal": "Solo para uso interno",
+  "setting.absence.modal.is-unpaid": "Unpaid",
   "setting.absence.modal.name": "Nombre",
   "setting.absence.modal.sum-day": "Cantidad de días por defecto",
   "setting.absence.modal.value-day": "Valor calculado por día",

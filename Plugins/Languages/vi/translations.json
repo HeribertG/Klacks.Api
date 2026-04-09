@@ -765,6 +765,7 @@
   "setting.absence.modal.description": "Mô tả",
   "setting.absence.modal.edit": "Chỉnh sửa nghỉ phép",
   "setting.absence.modal.internal": "Chỉ sử dụng nội bộ",
+  "setting.absence.modal.is-unpaid": "Unpaid",
   "setting.absence.modal.name": "Tên",
   "setting.absence.modal.abbreviation": "Viết tắt",
   "setting.absence.modal.sum-day": "Mặc định số ngày",

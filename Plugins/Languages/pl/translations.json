@@ -753,6 +753,7 @@
   "setting.absence.modal.description": "Opis",
   "setting.absence.modal.edit": "Edytuj nieobecność",
   "setting.absence.modal.internal": "Tylko do użytku wewnętrznego",
+  "setting.absence.modal.is-unpaid": "Unpaid",
   "setting.absence.modal.name": "Nazwa",
   "setting.absence.modal.abbreviation": "Skrót",
   "setting.absence.modal.sum-day": "Domyślnie liczba dni",

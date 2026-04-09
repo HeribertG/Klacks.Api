@@ -765,6 +765,7 @@
   "setting.absence.modal.description": "설명",
   "setting.absence.modal.edit": "부재 편집",
   "setting.absence.modal.internal": "내부용으로만 사용",
+  "setting.absence.modal.is-unpaid": "Unpaid",
   "setting.absence.modal.name": "이름",
   "setting.absence.modal.abbreviation": "약어",
   "setting.absence.modal.sum-day": "기본 일수",

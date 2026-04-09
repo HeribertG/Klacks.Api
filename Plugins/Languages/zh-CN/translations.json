@@ -765,6 +765,7 @@
   "setting.absence.modal.description": "描述",
   "setting.absence.modal.edit": "编辑缺勤",
   "setting.absence.modal.internal": "仅供内部使用",
+  "setting.absence.modal.is-unpaid": "Unpaid",
   "setting.absence.modal.name": "名称",
   "setting.absence.modal.abbreviation": "缩写",
   "setting.absence.modal.sum-day": "默认天数",

@@ -753,6 +753,7 @@
   "setting.absence.modal.description": "Popis",
   "setting.absence.modal.edit": "Upravit absenci",
   "setting.absence.modal.internal": "Pouze pro interní použití",
+  "setting.absence.modal.is-unpaid": "Unpaid",
   "setting.absence.modal.name": "Název",
   "setting.absence.modal.abbreviation": "Zkratka",
   "setting.absence.modal.sum-day": "Standardně počet dnů",
