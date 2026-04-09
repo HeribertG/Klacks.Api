@@ -38,6 +38,10 @@ public class PostCommandHandler : BaseTransactionHandler, IRequestHandler<PostCo
         return await ExecuteWithTransactionAsync(async () =>
         {
             var absence = _settingsMapper.ToAbsenceEntity(request.Resource);
+            if (!(absence.HideInGantt && absence.AppliesToContainer))
+            {
+                absence.IsUnpaid = false;
+            }
             await _absenceRepository.Add(absence);
             await _unitOfWork.CompleteAsync();
             return _settingsMapper.ToAbsenceResource(absence);

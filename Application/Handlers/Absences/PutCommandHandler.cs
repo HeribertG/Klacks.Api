@@ -43,6 +43,10 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Absence
             }
 
             _settingsMapper.UpdateAbsenceEntity(request.Resource, dbAbsence);
+            if (!(dbAbsence.HideInGantt && dbAbsence.AppliesToContainer))
+            {
+                dbAbsence.IsUnpaid = false;
+            }
             await _unitOfWork.CompleteAsync();
 
             return _settingsMapper.ToAbsenceResource(dbAbsence);
