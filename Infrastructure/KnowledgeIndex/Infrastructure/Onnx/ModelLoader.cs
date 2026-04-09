@@ -16,7 +16,9 @@ public sealed class ModelLoader
 
     public async Task EnsureFileAsync(string localPath, string url, string expectedSha256, CancellationToken ct)
     {
-        if (File.Exists(localPath) && await HashMatchesAsync(localPath, expectedSha256, ct))
+        var verifyHash = !string.IsNullOrEmpty(expectedSha256);
+
+        if (File.Exists(localPath) && (!verifyHash || await HashMatchesAsync(localPath, expectedSha256, ct)))
         {
             return;
         }
@@ -30,7 +32,7 @@ public sealed class ModelLoader
             await response.CopyToAsync(file, ct);
         }
 
-        if (!await HashMatchesAsync(tempPath, expectedSha256, ct))
+        if (verifyHash && !await HashMatchesAsync(tempPath, expectedSha256, ct))
         {
             File.Delete(tempPath);
             throw new InvalidOperationException($"SHA256 mismatch after downloading {url}");

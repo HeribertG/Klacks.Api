@@ -49,6 +49,8 @@
 		<PackageReference Include="Scalar.AspNetCore" Version="2.13.10" />
 		<PackageReference Include="System.DirectoryServices.Protocols" Version="10.0.5" />
 		<PackageReference Include="System.IO.Packaging" Version="10.0.5" />
+		<PackageReference Include="Tokenizers.DotNet" Version="1.4.0" />
+		<PackageReference Include="Tokenizers.DotNet.runtime.win-arm64" Version="1.4.0" />
 	</ItemGroup>
 
 	<ItemGroup>
