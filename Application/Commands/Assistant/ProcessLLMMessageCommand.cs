@@ -2,12 +2,12 @@
 
 /// <summary>
 /// Command to process an LLM chat message with intelligent skill filtering.
-/// Uses language-specific synonyms (JSONB) and word-boundary matching for precise skill selection.
-/// @param Message - User's chat message
-/// @param UserRights - User's permissions for skill access control
-/// @param ModelId - Optional specific LLM model to use
-/// @param Language - User's UI language (de, en, fr, it) for synonym matching
+/// Uses the knowledge index for semantic retrieval with a Tier2 LLM-classifier fallback.
 /// </summary>
+/// <param name="Message">User's chat message.</param>
+/// <param name="UserRights">User's permissions for skill access control.</param>
+/// <param name="ModelId">Optional specific LLM model to use.</param>
+/// <param name="Language">User's UI language (de, en, fr, it) for Tier2 fallback synonym matching.</param>
 
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
@@ -16,6 +16,8 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Application.Services.Assistant;
+using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Constants;
+using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Interfaces;
 
 namespace Klacks.Api.Application.Commands.Assistant;
 
@@ -36,7 +38,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     private readonly IAgentRepository _agentRepository;
     private readonly ISkillCacheService _skillCacheService;
     private readonly ISkillClassifierService _skillClassifierService;
-    private readonly ISynonymLearningService _synonymLearningService;
+    private readonly IKnowledgeRetrievalService _knowledgeRetrieval;
 
     private const int MaxToolsForProvider = 30;
     private const int MinMessageLengthForClassification = 20;
@@ -46,13 +48,13 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         IAgentRepository agentRepository,
         ISkillCacheService skillCacheService,
         ISkillClassifierService skillClassifierService,
-        ISynonymLearningService synonymLearningService)
+        IKnowledgeRetrievalService knowledgeRetrieval)
     {
         _llmService = llmService;
         _agentRepository = agentRepository;
         _skillCacheService = skillCacheService;
         _skillClassifierService = skillClassifierService;
-        _synonymLearningService = synonymLearningService;
+        _knowledgeRetrieval = knowledgeRetrieval;
     }
 
     public async Task<LLMResponse> Handle(ProcessLLMMessageCommand request, CancellationToken cancellationToken)
@@ -92,36 +94,49 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             .Where(s => s.AlwaysOn)
             .ToList();
 
-        var keywordMatchedSkills = permittedSkills
-            .Where(s => !s.AlwaysOn && SkillMatchingEngine.MatchesSkillKeywords(s, userMessage, language))
-            .ToList();
+        var isAdmin = userRights.Contains(Roles.Admin);
+        var retrieval = await _knowledgeRetrieval.RetrieveAsync(
+            userMessage, userRights, isAdmin, KnowledgeIndexConstants.DefaultTopK, cancellationToken);
 
-        if (keywordMatchedSkills.Count == 0 && userMessage.Length > MinMessageLengthForClassification)
+        List<AgentSkill> retrievedSkills;
+        if (!retrieval.IsEmpty)
+        {
+            var retrievedNames = retrieval.Candidates
+                .Select(c => c.Entry.SourceId)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            retrievedSkills = permittedSkills
+                .Where(s => !s.AlwaysOn && retrievedNames.Contains(s.Name))
+                .ToList();
+        }
+        else if (userMessage.Length > MinMessageLengthForClassification)
         {
             var classifiedKeywords = await _skillClassifierService.ClassifyMessageAsync(userMessage, language, cancellationToken);
 
             if (classifiedKeywords.Count > 0)
             {
                 var classifiedMessage = string.Join(" ", classifiedKeywords);
-                keywordMatchedSkills = permittedSkills
+                retrievedSkills = permittedSkills
                     .Where(s => !s.AlwaysOn && SkillMatchingEngine.MatchesSkillKeywords(s, classifiedMessage, language))
                     .ToList();
-
-                if (keywordMatchedSkills.Count > 0)
-                {
-                    var matchedSkillNames = keywordMatchedSkills.Select(s => s.Name).ToList();
-                    _synonymLearningService.LearnFromClassifierResult(userMessage, matchedSkillNames, language, agent.Id);
-                }
+            }
+            else
+            {
+                retrievedSkills = [];
             }
         }
+        else
+        {
+            retrievedSkills = [];
+        }
 
-        if (keywordMatchedSkills.Count == 0)
+        if (retrievedSkills.Count == 0)
         {
             return alwaysOnSkills.Select(ConvertToLLMFunction).ToList();
         }
 
         var selectedSkills = alwaysOnSkills
-            .Concat(keywordMatchedSkills)
+            .Concat(retrievedSkills)
             .DistinctBy(s => s.Name)
             .ToList();
 

@@ -11,6 +11,8 @@ using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Constants;
+using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Interfaces;
 
 namespace Klacks.Api.Application.Services.Assistant;
 
@@ -34,7 +36,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     private readonly ILLMService _llmService;
     private readonly ISkillCacheService _skillCacheService;
     private readonly ISkillClassifierService _skillClassifierService;
-    private readonly ISynonymLearningService _synonymLearningService;
+    private readonly IKnowledgeRetrievalService _knowledgeRetrieval;
     private readonly ILogger<LLMStreamingOrchestrator> _logger;
 
     private const int MaxToolsForProvider = 30;
@@ -44,13 +46,13 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         ILLMService llmService,
         ISkillCacheService skillCacheService,
         ISkillClassifierService skillClassifierService,
-        ISynonymLearningService synonymLearningService,
+        IKnowledgeRetrievalService knowledgeRetrieval,
         ILogger<LLMStreamingOrchestrator> logger)
     {
         _llmService = llmService;
         _skillCacheService = skillCacheService;
         _skillClassifierService = skillClassifierService;
-        _synonymLearningService = synonymLearningService;
+        _knowledgeRetrieval = knowledgeRetrieval;
         _logger = logger;
     }
 
@@ -118,32 +120,47 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             .ToList();
 
         var alwaysOnSkills = permittedSkills.Where(s => s.AlwaysOn).ToList();
-        var keywordMatchedSkills = permittedSkills
-            .Where(s => !s.AlwaysOn && SkillMatchingEngine.MatchesSkillKeywords(s, userMessage, language))
-            .ToList();
 
-        if (keywordMatchedSkills.Count == 0 && userMessage.Length > MinMessageLengthForClassification)
+        var isAdmin = userRights.Contains(Roles.Admin);
+        var retrieval = await _knowledgeRetrieval.RetrieveAsync(
+            userMessage, userRights, isAdmin, KnowledgeIndexConstants.DefaultTopK, ct);
+
+        List<AgentSkill> retrievedSkills;
+        if (!retrieval.IsEmpty)
         {
+            var retrievedNames = retrieval.Candidates
+                .Select(c => c.Entry.SourceId)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            retrievedSkills = permittedSkills
+                .Where(s => !s.AlwaysOn && retrievedNames.Contains(s.Name))
+                .ToList();
+        }
+        else if (userMessage.Length > MinMessageLengthForClassification)
+        {
+            _logger.LogDebug("Knowledge retrieval returned empty result, falling back to Tier2 classifier.");
             var classifiedKeywords = await _skillClassifierService.ClassifyMessageAsync(userMessage, language, ct);
             if (classifiedKeywords.Count > 0)
             {
                 var classifiedMessage = string.Join(" ", classifiedKeywords);
-                keywordMatchedSkills = permittedSkills
+                retrievedSkills = permittedSkills
                     .Where(s => !s.AlwaysOn && SkillMatchingEngine.MatchesSkillKeywords(s, classifiedMessage, language))
                     .ToList();
-
-                if (keywordMatchedSkills.Count > 0)
-                {
-                    var matchedSkillNames = keywordMatchedSkills.Select(s => s.Name).ToList();
-                    _synonymLearningService.LearnFromClassifierResult(userMessage, matchedSkillNames, language, agent.Id);
-                }
+            }
+            else
+            {
+                retrievedSkills = [];
             }
         }
+        else
+        {
+            retrievedSkills = [];
+        }
 
-        if (keywordMatchedSkills.Count == 0)
+        if (retrievedSkills.Count == 0)
             return alwaysOnSkills.Select(ConvertToLLMFunction).ToList();
 
-        var selectedSkills = alwaysOnSkills.Concat(keywordMatchedSkills).DistinctBy(s => s.Name).ToList();
+        var selectedSkills = alwaysOnSkills.Concat(retrievedSkills).DistinctBy(s => s.Name).ToList();
 
         if (selectedSkills.Count > MaxToolsForProvider)
         {
