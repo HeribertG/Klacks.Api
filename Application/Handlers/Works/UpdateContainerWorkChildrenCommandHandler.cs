@@ -13,6 +13,7 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -107,6 +108,34 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
                 request.WorkId,
                 (b, parentId) => b.ParentWorkId = parentId);
 
+            if (parentWork != null)
+            {
+                var breakAbsenceIds = updatedBreaks
+                    .Select(b => b.AbsenceId)
+                    .Where(id => id != Guid.Empty)
+                    .Distinct()
+                    .ToList();
+
+                var unpaidAbsenceIds = breakAbsenceIds.Count > 0
+                    ? await _context.Absence
+                        .Where(a => breakAbsenceIds.Contains(a.Id) && a.IsUnpaid && !a.IsDeleted)
+                        .Select(a => a.Id)
+                        .ToListAsync(cancellationToken)
+                    : new List<Guid>();
+
+                var unpaidSet = unpaidAbsenceIds.ToHashSet();
+
+                var unpaidBreakSpans = updatedBreaks
+                    .Where(b => unpaidSet.Contains(b.AbsenceId))
+                    .Select(b => (b.StartTime, b.EndTime))
+                    .ToList();
+
+                parentWork.WorkTime = ContainerWorkTimeCalculator.CalculatePaidHours(
+                    parentWork.StartTime,
+                    parentWork.EndTime,
+                    unpaidBreakSpans);
+            }
+
             var updatedWorkChanges = request.Resource.SubWorkChanges
                 .Select(_scheduleMapper.ToWorkChangeEntity)
                 .ToList();
@@ -174,7 +203,8 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
                 SubWorkChanges = reloadedWorkChanges.Select(_scheduleMapper.ToWorkChangeResource).ToList(),
                 ParentStartBase = parentWork?.StartBase,
                 ParentEndBase = parentWork?.EndBase,
-                ParentTransportMode = parentWork?.TransportMode.HasValue == true ? (int)parentWork.TransportMode.Value : null
+                ParentTransportMode = parentWork?.TransportMode.HasValue == true ? (int)parentWork.TransportMode.Value : null,
+                ParentWorkTime = parentWork?.WorkTime ?? 0m
             };
         }, nameof(Handle), new { request.WorkId });
     }

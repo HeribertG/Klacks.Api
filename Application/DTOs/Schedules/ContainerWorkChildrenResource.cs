@@ -18,4 +18,6 @@ public class ContainerWorkChildrenResource
     public string? ParentEndBase { get; set; }
 
     public int? ParentTransportMode { get; set; }
+
+    public decimal ParentWorkTime { get; set; }
 }
