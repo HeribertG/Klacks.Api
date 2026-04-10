@@ -35,20 +35,19 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
         _logger = logger;
     }
 
-    public async Task<string> EnhanceTranscriptionAsync(string rawText, string locale, CancellationToken ct = default)
+    public async Task<string> EnhanceTranscriptionAsync(string rawText, string locale, string? modelId = null, CancellationToken ct = default)
     {
         try
         {
-            var modelSetting = await _settingsRepository.GetSetting(SettingsConstants.ASSISTANT_TRANSCRIPTION_MODEL);
-            var modelId = string.IsNullOrWhiteSpace(modelSetting?.Value)
-                ? TranscriptionConstants.DefaultModelId
-                : modelSetting.Value;
+            var effectiveModelId = !string.IsNullOrWhiteSpace(modelId)
+                ? modelId
+                : await GetModelIdFromSettingsAsync();
 
-            var provider = await _providerFactory.GetProviderForModelAsync(modelId);
+            var provider = await _providerFactory.GetProviderForModelAsync(effectiveModelId);
 
             if (provider == null || !provider.IsEnabled)
             {
-                _logger.LogWarning("No enabled LLM provider found for model {ModelId}", modelId);
+                _logger.LogWarning("No enabled LLM provider found for model {ModelId}", effectiveModelId);
                 return rawText;
             }
 
@@ -64,14 +63,14 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
 
             var request = new LLMProviderRequest
             {
-                ModelId = modelId,
+                ModelId = effectiveModelId,
                 SystemPrompt = systemPrompt + localeHint,
                 Message = rawText,
                 Temperature = TranscriptionConstants.Temperature,
                 MaxTokens = TranscriptionConstants.MaxTokens
             };
 
-            _logger.LogInformation("Sending transcription enhancement request using model {ModelId}", modelId);
+            _logger.LogInformation("Sending transcription enhancement request using model {ModelId}", effectiveModelId);
 
             var response = await provider.ProcessAsync(request);
 
@@ -88,5 +87,13 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
             _logger.LogError(ex, "Transcription enhancement failed, returning raw text");
             return rawText;
         }
+    }
+
+    private async Task<string> GetModelIdFromSettingsAsync()
+    {
+        var modelSetting = await _settingsRepository.GetSetting(SettingsConstants.ASSISTANT_TRANSCRIPTION_MODEL);
+        return string.IsNullOrWhiteSpace(modelSetting?.Value)
+            ? TranscriptionConstants.DefaultModelId
+            : modelSetting.Value;
     }
 }
