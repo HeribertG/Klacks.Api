@@ -16,4 +16,8 @@ public class UpdateContainerWorkChildrenResource
     public string? ParentStartBase { get; set; }
 
     public string? ParentEndBase { get; set; }
+
+    public TimeOnly? ParentStartTime { get; set; }
+
+    public TimeOnly? ParentEndTime { get; set; }
 }

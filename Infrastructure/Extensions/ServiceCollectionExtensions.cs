@@ -292,6 +292,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAbsenceExportService, AbsenceExportService>();
         services.AddScoped<IWorkMacroService, WorkMacroService>();
         services.AddScoped<IBreakMacroService, BreakMacroService>();
+        services.AddScoped<IContainerWorkChildrenManager, ContainerWorkChildrenManager>();
         services.AddScoped<ICalendarSelectionUpdateService, CalendarSelectionUpdateService>();
         services.AddScoped<IScheduleCompletionService, ScheduleCompletionService>();
         services.AddScoped<ContainerTemplateService>();
