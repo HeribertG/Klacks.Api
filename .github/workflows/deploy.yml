@@ -115,6 +115,29 @@ jobs:
             git clone https://github.com/HeribertG/Klacks.Api.git
           fi
 
+          # Update Klacks.Ui
+          UI_CHANGED=false
+          if [ -d "Klacks.Ui" ]; then
+            echo "📦 Updating Klacks.Ui..."
+            cd Klacks.Ui
+            OLD_HEAD=$(git rev-parse HEAD)
+            git fetch origin
+            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            git reset --hard origin/$CURRENT_BRANCH
+            NEW_HEAD=$(git rev-parse HEAD)
+            if [ "$OLD_HEAD" != "$NEW_HEAD" ]; then
+              UI_CHANGED=true
+              echo "📝 Klacks.Ui has changes ($OLD_HEAD → $NEW_HEAD)"
+            else
+              echo "✅ Klacks.Ui is already up to date"
+            fi
+            cd ..
+          else
+            echo "📦 Cloning Klacks.Ui..."
+            git clone https://github.com/HeribertG/Klacks.Ui.git
+            UI_CHANGED=true
+          fi
+
           # Update Plugin projects (required by Klacks.Api)
           for PLUGIN_REPO in Klacks.Plugin.Contracts Klacks.Plugin.Messaging Klacks.Docs Klacks.Api.SourceGenerators; do
             EXPECTED_URL="https://github.com/HeribertG/$PLUGIN_REPO.git"
@@ -166,13 +189,26 @@ jobs:
             --build-arg KLACKS_BUILD_TIMESTAMP=$(date -u +%Y-%m-%d) \
             --build-arg KLACKS_VARIANT=RELEASE
 
+          # Build and restart Klacks.Ui if changed
+          if [ "$UI_CHANGED" = true ]; then
+            echo "🔨 Building Klacks.Ui..."
+            $COMPOSE_CMD build klacks-ui --no-cache --memory=2g
+
+            echo "🔄 Restarting Klacks.Ui..."
+            docker stop klacks-ui 2>/dev/null || true
+            docker rm klacks-ui 2>/dev/null || true
+            $COMPOSE_CMD up -d klacks-ui
+          else
+            echo "⏭️  Klacks.Ui unchanged, skipping rebuild"
+          fi
+
           echo "🔄 Restarting Klacks.Api + Nginx Proxy..."
           docker stop klacks-api 2>/dev/null || true
           docker rm klacks-api 2>/dev/null || true
           $COMPOSE_CMD up -d klacks-api
           $COMPOSE_CMD restart nginx-proxy 2>/dev/null || $COMPOSE_CMD up -d nginx-proxy
 
-          echo "✅ Klacks.Api deployment completed!"
+          echo "✅ Deployment completed!"
 
           # Status check
           echo "📊 Service status:"
@@ -220,6 +256,16 @@ jobs:
             exit 1
           else
             echo "⚠️  Native library check not found in logs (still initializing?)"
+          fi
+
+          # Check Klacks.Ui if it was rebuilt
+          if [ "$UI_CHANGED" = true ]; then
+            if $COMPOSE_CMD ps klacks-ui | grep -q "Up"; then
+              echo "✅ Klacks.Ui container is running"
+            else
+              echo "❌ Klacks.Ui container is not running"
+              $COMPOSE_CMD logs klacks-ui --tail=20
+            fi
           fi
 
           # Auth smoke test — verify login actually works
