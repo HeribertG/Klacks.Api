@@ -28,6 +28,7 @@ using Scalar.AspNetCore;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
@@ -189,7 +190,8 @@ if (bgOptions.DataRetention)
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddMemoryCache();
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks()
+    .AddCheck<PlatformDependencyHealthCheck>("platform-dependencies", tags: ["deep"]);
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -347,7 +349,15 @@ app.UseEndpoints(endpoints =>
         endpoints.MapHub<WorkNotificationHub>("/hubs/work-notifications");
         endpoints.MapHub<AssistantNotificationHub>(SignalRConstants.AssistantHubPath);
         endpoints.MapHub<EmailNotificationHub>(SignalRConstants.EmailHubPath);
-        endpoints.MapHealthChecks("/health");
+        endpoints.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+        {
+            Predicate = check => !check.Tags.Contains("deep")
+        });
+        endpoints.MapHealthChecks("/health/deep", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+        {
+            Predicate = check => check.Tags.Contains("deep"),
+            ResponseWriter = WriteDeepHealthResponse
+        }).RequireAuthorization();
     }
 );
 
@@ -377,3 +387,25 @@ await Task.WhenAll(
 await app.InitializeSkillRegistryAsync();
 
 app.Run();
+
+static async Task WriteDeepHealthResponse(HttpContext httpContext, HealthReport report)
+{
+    httpContext.Response.ContentType = "application/json";
+
+    var checks = new Dictionary<string, string>();
+    foreach (var entry in report.Entries)
+    {
+        foreach (var item in entry.Value.Data)
+        {
+            checks[item.Key] = item.Value?.ToString() ?? "Unknown";
+        }
+    }
+
+    var response = new
+    {
+        status = report.Status.ToString(),
+        checks
+    };
+
+    await httpContext.Response.WriteAsJsonAsync(response);
+}
