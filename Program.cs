@@ -328,6 +328,8 @@ app.UseHttpsRedirection();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
+app.UseWebSockets();
+
 // SignalR auth middleware must be before UseRouting and UseAuthentication
 app.UseMiddleware<SignalRQueryStringAuthMiddleware>();
 
