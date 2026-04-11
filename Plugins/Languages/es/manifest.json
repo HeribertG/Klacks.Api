@@ -3,9 +3,9 @@
   "name": "Spanish",
   "displayName": "Español",
   "speechLocale": "es-ES",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "author": "Klacks Community",
-  "coverage": 100.0,
+  "coverage": 100,
   "minKlacksVersion": "1.0.0",
   "direction": "ltr"
 }

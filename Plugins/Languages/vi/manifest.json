@@ -3,9 +3,9 @@
   "name": "Vietnamese",
   "displayName": "Tiếng Việt",
   "speechLocale": "vi-VN",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Klacks Community",
-  "coverage": 100.0,
+  "coverage": 100,
   "minKlacksVersion": "1.0.0",
   "direction": "ltr"
 }
