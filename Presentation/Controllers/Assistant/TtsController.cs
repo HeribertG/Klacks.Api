@@ -55,8 +55,8 @@ public class TtsController : ControllerBase
 
         try
         {
-            var voiceId = request.VoiceId ?? "auto";
-            var locale = request.Locale ?? "en";
+            var voiceId = request.VoiceId ?? TtsProviderConstants.AutoVoice;
+            var locale = request.Locale ?? TtsProviderConstants.DefaultLocale;
             var audioBytes = await provider.SynthesizeAsync(request.Text, voiceId, locale, ct);
             return File(audioBytes, "audio/mpeg");
         }

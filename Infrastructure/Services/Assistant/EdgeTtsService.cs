@@ -58,7 +58,7 @@ public class EdgeTtsService : ITtsProvider
     public async Task<byte[]> SynthesizeAsync(string text, string voiceId, string locale, CancellationToken ct = default)
     {
         var truncatedText = text.Length > MaxTextLength ? text[..MaxTextLength] : text;
-        var voiceShortName = (string.IsNullOrWhiteSpace(voiceId) || voiceId == "auto")
+        var voiceShortName = (string.IsNullOrWhiteSpace(voiceId) || voiceId == TtsProviderConstants.AutoVoice)
             ? ResolveVoice(locale)
             : voiceId;
 
