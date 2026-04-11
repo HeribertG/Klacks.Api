@@ -5,7 +5,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Infrastructure.Repositories.PeriodClosing;
+namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 
 /// <summary>
 /// EF Core backed implementation of IPeriodAuditLogRepository.

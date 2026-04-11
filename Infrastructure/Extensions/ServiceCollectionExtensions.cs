@@ -50,7 +50,6 @@ using Klacks.Api.Infrastructure.Repositories.Scheduling;
 using Klacks.Api.Infrastructure.Repositories.Settings;
 using Klacks.Api.Infrastructure.Repositories.Exports;
 using Klacks.Api.Infrastructure.Repositories.FloorPlans;
-using Klacks.Api.Infrastructure.Repositories.PeriodClosing;
 using Klacks.Api.Infrastructure.Repositories.Staffs;
 using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Infrastructure.Services.Groups;
