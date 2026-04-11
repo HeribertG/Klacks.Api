@@ -44,8 +44,8 @@ public class SttController : ControllerBase
     [HttpGet("providers")]
     public IActionResult GetProviders()
     {
-        var providers = _sttProviders.Select(p => new { p.ProviderId }).ToList();
-        providers.Add(new { ProviderId = SttProviderConstants.Browser });
+        var providers = _sttProviders.Select(p => new SttProviderDto(p.ProviderId)).ToList();
+        providers.Add(new SttProviderDto(SttProviderConstants.Browser));
         return Ok(providers);
     }
 
