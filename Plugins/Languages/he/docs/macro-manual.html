@@ -1,0 +1,331 @@
+<h2>מדריך סקריפטים של מאקרו</h2>
+
+<h3>מבוא</h3>
+<p>
+עורך המאקרו מאפשר לכתוב סקריפטים המשמשים כבסיס חישוב
+עבור שירותים, פעילויות עבודה וכו'.
+</p>
+
+<p><strong>דוגמאות שימוש:</strong></p>
+<ul>
+  <li>חישוב מדויק של שעות לחופשה או שירות צבאי לפי דרגת התעסוקה</li>
+  <li>חישוב תוספות לעבודת לילה, סופי שבוע וימי חג</li>
+  <li>התאמה גמישה לדרישות חדשות</li>
+</ul>
+
+<p>
+<em>הערה: פרשן הסקריפטים רץ בסביבת sandbox מאובטחת ללא גישה
+למערכת הקבצים או לרשת. לא ניתן להריץ קוד זדוני.</em>
+</p>
+
+<hr>
+
+<h3>משתנים וקבועים</h3>
+<p>לכל המשתנים והקבועים אין סוג.</p>
+
+<pre>
+CONST PI = 3.1415
+DIM a, b, c
+IMPORT importe, descuento
+</pre>
+
+<h4>משתנים מיובאים (IMPORT)</h4>
+<p>משתנים אלה נוצרים מ-Work, Contract ו-CalendarSelection:</p>
+
+<table>
+  <tr><th>משתנה</th><th>סוג</th><th>תיאור</th></tr>
+  <tr><td>hour</td><td>Decimal</td><td>שעות עבודה (מתוך Work)</td></tr>
+  <tr><td>fromhour</td><td>Decimal</td><td>שעת התחלה בשעות עשרוניות (8:30 ← 8.5)</td></tr>
+  <tr><td>untilhour</td><td>Decimal</td><td>שעת סיום בשעות עשרוניות (17:00 ← 17.0)</td></tr>
+  <tr><td>weekday</td><td>Integer</td><td>יום בשבוע ISO-8601 (1=שני, 2=שלישי, 3=רביעי, 4=חמישי, 5=שישי, 6=שבת, 7=ראשון)</td></tr>
+  <tr><td>holiday</td><td>Boolean</td><td>האם היום הנוכחי הוא חג רשמי</td></tr>
+  <tr><td>holidaynextday</td><td>Boolean</td><td>האם היום הבא הוא חג רשמי</td></tr>
+  <tr><td>nightrate</td><td>Decimal</td><td>תעריף תוספת לילה מהחוזה (למשל, 0.10 = 10%)</td></tr>
+  <tr><td>holidayrate</td><td>Decimal</td><td>תעריף תוספת לחג מהחוזה (למשל, 0.15 = 15%)</td></tr>
+  <tr><td>sarate</td><td>Decimal</td><td>תעריף תוספת לשבת מהחוזה</td></tr>
+  <tr><td>sorate</td><td>Decimal</td><td>תעריף תוספת ליום ראשון מהחוזה</td></tr>
+  <tr><td>guaranteedhours</td><td>Decimal</td><td>שעות חודשיות מובטחות מהחוזה</td></tr>
+  <tr><td>fulltime</td><td>Decimal</td><td>שעות משרה מלאה מהחוזה</td></tr>
+</table>
+
+<hr>
+
+<h3>מבני בקרה</h3>
+
+<p><strong>חשוב:</strong> מילות מפתח כמו <code>ENDIF</code>, <code>ENDFUNCTION</code>, <code>ENDSUB</code>
+חייבות להיכתב מחוברות (לא <code>END IF</code>).</p>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF x > 10 THEN
+    OUTPUT 1, "גדול"
+ELSEIF x > 5 THEN
+    OUTPUT 1, "בינוני"
+ELSE
+    OUTPUT 1, "קטן"
+ENDIF
+</pre>
+
+<h4>IF בשורה אחת</h4>
+<pre>
+IF x > 10 THEN OUTPUT 1, "גדול" ENDIF
+</pre>
+
+<h4>SELECT CASE</h4>
+<pre>
+SELECT CASE weekday
+    CASE 6, 7
+        OUTPUT 1, "סוף שבוע"
+    CASE 1, 2, 3, 4, 5
+        OUTPUT 1, "יום עבודה"
+    CASE ELSE
+        OUTPUT 1, "לא ידוע"
+END SELECT
+</pre>
+
+<h4>לולאת FOR-NEXT</h4>
+<pre>
+FOR i = 1 TO 10
+    suma += i
+NEXT
+
+FOR i = 10 TO 1 STEP -1
+    IF x > y THEN EXIT FOR
+NEXT
+</pre>
+
+<h4>לולאת DO-LOOP</h4>
+<pre>
+DO WHILE a > 0
+    a -= 1
+LOOP
+
+DO
+    x += 1
+LOOP UNTIL x >= 10
+</pre>
+
+<hr>
+
+<h3>פונקציות ופרוצדורות</h3>
+
+<p><strong>חשוב:</strong> פונקציות (FUNCTION) ופרוצדורות (SUB) חייבות להיות מוגדרות <em>לפני</em> הקריאה הראשונה.
+הפרשן קורא את הקוד מלמעלה למטה: פונקציה או פרוצדורה ידועה רק אחרי שהגדרתה עובדה.</p>
+
+<h4>SUB (פרוצדורה ללא ערך החזרה)</h4>
+<pre>
+SUB calcular(a, b)
+    IF a = b THEN EXIT SUB ENDIF
+    OUTPUT 1, a + b
+ENDSUB
+</pre>
+
+<h4>FUNCTION (פונקציה עם ערך החזרה)</h4>
+<pre>
+FUNCTION duplicar(x)
+    duplicar = x * 2
+ENDFUNCTION
+
+DIM resultado
+resultado = duplicar(21)
+OUTPUT 1, resultado
+</pre>
+
+<hr>
+
+<h3>אופרטורים</h3>
+
+<h4>אופרטורים מתמטיים</h4>
+<table>
+  <tr><th>אופרטור</th><th>תיאור</th><th>דוגמה</th></tr>
+  <tr><td>+</td><td>חיבור</td><td>5 + 3 = 8</td></tr>
+  <tr><td>-</td><td>חיסור</td><td>5 - 3 = 2</td></tr>
+  <tr><td>*</td><td>כפל</td><td>5 * 3 = 15</td></tr>
+  <tr><td>/</td><td>חילוק</td><td>10 / 4 = 2.5</td></tr>
+  <tr><td>\</td><td>חילוק שלם</td><td>10 \ 4 = 2</td></tr>
+  <tr><td>MOD</td><td>מודולו (שארית)</td><td>10 MOD 3 = 1</td></tr>
+  <tr><td>^</td><td>חזקה</td><td>2 ^ 3 = 8</td></tr>
+</table>
+
+<h4>אופרטורי השוואה</h4>
+<table>
+  <tr><th>אופרטור</th><th>תיאור</th></tr>
+  <tr><td>=</td><td>שווה</td></tr>
+  <tr><td>&lt;&gt;</td><td>שונה</td></tr>
+  <tr><td>&lt;</td><td>קטן מ</td></tr>
+  <tr><td>&gt;</td><td>גדול מ</td></tr>
+  <tr><td>&lt;=</td><td>קטן או שווה</td></tr>
+  <tr><td>&gt;=</td><td>גדול או שווה</td></tr>
+</table>
+
+<h4>אופרטורים לוגיים</h4>
+<table>
+  <tr><th>אופרטור</th><th>תיאור</th></tr>
+  <tr><td>AND</td><td>AND ברמת הביט</td></tr>
+  <tr><td>OR</td><td>OR ברמת הביט</td></tr>
+  <tr><td>NOT</td><td>שלילה</td></tr>
+  <tr><td>ANDALSO</td><td>AND לוגי (קצר חשמלי)</td></tr>
+  <tr><td>ORELSE</td><td>OR לוגי (קצר חשמלי)</td></tr>
+</table>
+
+<h4>אופרטורי השמה</h4>
+<pre>
+a = 10      ' השמה פשוטה
+a += 5      ' a = a + 5
+a -= 3      ' a = a - 3
+a *= 2      ' a = a * 2
+a /= 4      ' a = a / 4
+a &= "!"    ' שרשור מחרוזות
+</pre>
+
+<hr>
+
+<h3>פונקציות מובנות</h3>
+
+<h4>פונקציות מחרוזת</h4>
+<table>
+  <tr><th>פונקציה</th><th>תיאור</th><th>דוגמה</th></tr>
+  <tr><td>Len(s)</td><td>אורך מחרוזת</td><td>Len("Hola") = 4</td></tr>
+  <tr><td>Left(s, n)</td><td>n תווים משמאל</td><td>Left("Hola", 2) = "Ho"</td></tr>
+  <tr><td>Right(s, n)</td><td>n תווים מימין</td><td>Right("Hola", 2) = "la"</td></tr>
+  <tr><td>Mid(s, inicio, lon)</td><td>תת-מחרוזת</td><td>Mid("Hola", 2, 3) = "ola"</td></tr>
+  <tr><td>InStr(s, buscar)</td><td>חיפוש מיקום</td><td>InStr("Hola", "l") = 3</td></tr>
+  <tr><td>Replace(s, antiguo, nuevo)</td><td>החלפה</td><td>Replace("Hola", "l", "x") = "Hoxa"</td></tr>
+  <tr><td>Trim(s)</td><td>הסרת רווחים</td><td>Trim("  Hi  ") = "Hi"</td></tr>
+  <tr><td>UCase(s)</td><td>אותיות גדולות</td><td>UCase("hola") = "HOLA"</td></tr>
+  <tr><td>LCase(s)</td><td>אותיות קטנות</td><td>LCase("HOLA") = "hola"</td></tr>
+</table>
+
+<h4>פונקציות מתמטיות</h4>
+<table>
+  <tr><th>פונקציה</th><th>תיאור</th><th>דוגמה</th></tr>
+  <tr><td>Abs(x)</td><td>ערך מוחלט</td><td>Abs(-5) = 5</td></tr>
+  <tr><td>Round(x, d)</td><td>עיגול</td><td>Round(3.456, 2) = 3.46</td></tr>
+  <tr><td>Sqr(x)</td><td>שורש ריבועי</td><td>Sqr(16) = 4</td></tr>
+  <tr><td>Log(x)</td><td>לוגריתם טבעי</td><td>Log(2.718) = 1</td></tr>
+  <tr><td>Exp(x)</td><td>אקספוננט (e^x)</td><td>Exp(1) = 2.718...</td></tr>
+  <tr><td>Sgn(x)</td><td>סימן (-1, 0, 1)</td><td>Sgn(-5) = -1</td></tr>
+  <tr><td>Rnd()</td><td>מספר אקראי 0-1</td><td>Rnd() = 0.xxxxx</td></tr>
+</table>
+
+<h4>פונקציות טריגונומטריות</h4>
+<table>
+  <tr><th>פונקציה</th><th>תיאור</th></tr>
+  <tr><td>Sin(x)</td><td>סינוס</td></tr>
+  <tr><td>Cos(x)</td><td>קוסינוס</td></tr>
+  <tr><td>Tan(x)</td><td>טנגנס</td></tr>
+  <tr><td>Atan(x)</td><td>ארקטנגנס</td></tr>
+</table>
+
+<h4>פונקציות זמן</h4>
+<table>
+  <tr><th>פונקציה</th><th>תיאור</th><th>דוגמה</th></tr>
+  <tr><td>TimeToHours(s)</td><td>מחרוזת זמן לשעות עשרוניות</td><td>TimeToHours("08:30") = 8.5</td></tr>
+  <tr><td>TimeOverlap(s1, e1, s2, e2)</td><td>חפיפה של שתי תקופות זמן בשעות</td><td>TimeOverlap("23:00", "06:00", "22:00", "07:00") = 7</td></tr>
+</table>
+
+<p><em>TimeOverlap תומך בתקופות זמן שחוצות את חצות (למשל, 23:00-06:00).</em></p>
+
+<h4>פונקציות תנאי</h4>
+<table>
+  <tr><th>פונקציה</th><th>תיאור</th><th>דוגמה</th></tr>
+  <tr><td>IIF(cond, verdadero, falso)</td><td>ביטוי תנאי (אופרטור טרנרי)</td><td>IIF(x > 0, "חיובי", "שלילי")</td></tr>
+</table>
+
+<hr>
+
+<h3>החזרת ערכים</h3>
+
+<pre>
+OUTPUT tipo, valor            ' החזרה ל-Klacks (tipo תואם ל-MacroType)
+</pre>
+
+<hr>
+
+<h3>פונקציות איתור באגים</h3>
+<p>לבדיקת מאקרו, זמינות פונקציות איתור הבאגים הבאות:</p>
+
+<table>
+  <tr><th>פונקציה</th><th>תיאור</th></tr>
+  <tr><td>DEBUGPRINT valor</td><td>מציג ערך בחלון הבדיקה</td></tr>
+  <tr><td>DEBUGCLEAR</td><td>מנקה את חלון הבדיקה</td></tr>
+</table>
+
+<h4>דוגמה</h4>
+<pre>
+DIM x
+x = 42
+DEBUGPRINT "הערך הוא: " & x
+DEBUGPRINT "חישוב בתהליך..."
+</pre>
+
+<p><em>פלטי איתור הבאגים מופיעים בלשונית "בדיקה" של עורך המאקרו.</em></p>
+
+<hr>
+
+<h3>דוגמה: חישוב תוספות</h3>
+<p>מחשב תוספות לעבודת לילה, ימי חג וסופי שבוע עם טיפול נכון
+במשמרות שחוצות את חצות (חלוקה לקטעים).</p>
+
+<pre>
+IMPORT hour, fromhour, untilhour
+IMPORT weekday, holiday, holidaynextday
+IMPORT nightrate, holidayrate, sarate, sorate
+
+FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
+    DIM SegmentHours, NightHours, NonNightHours
+    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+
+    SegmentHours = EndHour - StartHour
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    ' חישוב שעות לילה (23:00-06:00)
+    NightHours = 0
+    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
+    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NonNightHours = SegmentHours - NightHours
+
+    HasHoliday = IsHoliday
+    IsSaturday = WeekdayNum = 6    ' שבת = 6 (ISO-8601)
+    IsSunday = WeekdayNum = 7      ' ראשון = 7 (ISO-8601)
+
+    ' תעריף גבוה יותר לשעות לילה
+    NRate = nightrate
+    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+
+    ' תעריף גבוה יותר לשעות יום
+    DRate = 0
+    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+
+    CalcSegment = NightHours * NRate + NonNightHours * DRate
+ENDFUNCTION
+
+DIM TotalBonus, WeekdayNextDay
+
+' חישוב יום השבוע של היום הבא (ISO-8601)
+WeekdayNextDay = (weekday MOD 7) + 1
+
+IF untilhour &lt;= fromhour THEN
+    ' משמרת שחוצה את חצות - 2 קטעים
+    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
+    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+ELSE
+    ' משמרת יום רגילה
+    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+ENDIF
+
+OUTPUT 1, Round(TotalBonus, 2)
+</pre>
+
+<h4>הסבר</h4>
+<ul>
+  <li><strong>חלוקה לקטעים:</strong> עבור משמרות שחוצות את חצות (למשל, 22:00-06:00), המשמרת מחולקת לשני קטעים</li>
+  <li><strong>CalcSegment:</strong> מחשב את התוספת עבור קטע תוך התחשבות בתוספות לילה, חג וסוף שבוע</li>
+  <li><strong>תעריפים נפרדים לשבת/ראשון:</strong> sarate ו-sorate מאפשרים תוספות שונות עבור שבת וראשון</li>
+  <li><strong>תוספת גבוהה יותר:</strong> תמיד מיושמת התוספת הגבוהה ביותר הישימה</li>
+  <li><strong>holidaynextday:</strong> מתחשב בכך שהיום הבא הוא חג (חשוב למשמרות לילה)</li>
+</ul>
