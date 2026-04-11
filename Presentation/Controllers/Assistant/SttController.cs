@@ -54,27 +54,27 @@ public class SttController : ControllerBase
     {
         var provider = _sttProviders.FirstOrDefault(p => p.ProviderId == request.ProviderId);
         if (provider == null)
-            return BadRequest($"Unknown provider: {request.ProviderId}");
+            return BadRequest(new SttTestResult(false, $"Unknown provider: {request.ProviderId}"));
 
         var apiKeySetting = await _settingsRepository.GetSetting(Settings.ASSISTANT_STT_API_KEY);
         if (string.IsNullOrWhiteSpace(apiKeySetting?.Value))
-            return Ok(new { success = false, error = "No API key configured" });
+            return Ok(new SttTestResult(false, "No API key configured"));
 
         try
         {
             var config = new SttConfig(apiKeySetting.Value, "en");
             await using var session = await provider.CreateSessionAsync(config);
-            return Ok(new { success = true });
+            return Ok(new SttTestResult(true, null));
         }
         catch (Exception ex)
         {
-            return Ok(new { success = false, error = ex.Message });
+            return Ok(new SttTestResult(false, ex.Message));
         }
     }
 
     [HttpGet]
     [Route("stream")]
-    public async Task Stream()
+    public async Task Stream([FromQuery] string? locale = null)
     {
         if (!HttpContext.WebSockets.IsWebSocketRequest)
         {
@@ -109,7 +109,8 @@ public class SttController : ControllerBase
                 return;
             }
 
-            var config = new SttConfig(apiKeySetting.Value, "de");
+            var effectiveLocale = string.IsNullOrWhiteSpace(locale) ? "de" : locale;
+            var config = new SttConfig(apiKeySetting.Value, effectiveLocale);
 
             await using var session = await provider.CreateSessionAsync(config);
 

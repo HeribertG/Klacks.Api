@@ -30,14 +30,10 @@ public sealed class AssemblyAiSttSession : ISttSession
 
     public async Task<SttResult?> ReceiveAsync(CancellationToken ct = default)
     {
-        var buffer = new byte[4096];
-        var result = await _ws.ReceiveAsync(new ArraySegment<byte>(buffer), ct);
-
-        if (result.MessageType == WebSocketMessageType.Close)
+        var (type, text) = await SttWebSocketHelper.ReceiveFullMessageAsync(_ws, ct);
+        if (type == WebSocketMessageType.Close)
             return null;
-
-        var json = Encoding.UTF8.GetString(buffer, 0, result.Count);
-        return AssemblyAiSttProvider.ParseResult(json);
+        return AssemblyAiSttProvider.ParseResult(text);
     }
 
     public async ValueTask DisposeAsync()
