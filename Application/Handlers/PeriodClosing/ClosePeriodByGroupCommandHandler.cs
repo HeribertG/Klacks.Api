@@ -45,7 +45,7 @@ public class ClosePeriodByGroupCommandHandler : BaseHandler, IRequestHandler<Clo
         return await ExecuteAsync(async () =>
         {
             if (request.StartDate > request.EndDate)
-                throw new Domain.Exceptions.InvalidRequestException("StartDate must be less than or equal to EndDate.");
+                throw new Domain.Exceptions.InvalidRequestException("Start date must be before or equal to end date.");
 
             var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
             var isAuthorised = _httpContextAccessor.HttpContext?.User?.HasClaim(ClaimNames.IsAuthorised, "true") == true;
