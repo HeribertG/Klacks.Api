@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
 
@@ -53,6 +54,16 @@ public class EdgeTtsService : ITtsProvider
     public EdgeTtsService(ILogger<EdgeTtsService> logger)
     {
         _logger = logger;
+    }
+
+    public Task<IReadOnlyList<TtsVoice>> GetVoicesAsync(CancellationToken ct = default)
+    {
+        var voices = VoiceMap.Select(kvp => new TtsVoice(
+            VoiceId: kvp.Value,
+            Locale: kvp.Key,
+            DisplayName: kvp.Value.Replace("Neural", "").Trim()
+        )).ToList();
+        return Task.FromResult<IReadOnlyList<TtsVoice>>(voices);
     }
 
     public async Task<byte[]> SynthesizeAsync(string text, string voiceId, string locale, CancellationToken ct = default)

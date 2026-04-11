@@ -33,6 +33,18 @@ public class TtsController : ControllerBase
         _ttsProviders = ttsProviders;
     }
 
+    [HttpGet("voices")]
+    public async Task<IActionResult> GetVoices([FromQuery] string? providerId = null, CancellationToken ct = default)
+    {
+        var effectiveProviderId = providerId ?? TtsProviderConstants.Edge;
+        var provider = _ttsProviders.FirstOrDefault(p => p.ProviderId == effectiveProviderId);
+        if (provider == null)
+            return BadRequest($"Unknown TTS provider: {effectiveProviderId}");
+
+        var voices = await provider.GetVoicesAsync(ct);
+        return Ok(voices);
+    }
+
     [HttpPost("synthesize")]
     public async Task<IActionResult> Synthesize([FromBody] TtsSynthesizeRequest request, CancellationToken ct)
     {
