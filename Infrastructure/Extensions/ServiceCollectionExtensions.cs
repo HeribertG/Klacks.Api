@@ -395,7 +395,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMemoryRetrievalService, MemoryRetrievalService>();
         services.AddScoped<ContextAssemblyPipeline>();
         services.AddSingleton<ISentimentAnalyzer, Domain.Services.Assistant.SentimentAnalyzer>();
-        services.AddSingleton<ITextToSpeechService, Klacks.Api.Infrastructure.Services.Assistant.EdgeTtsService>();
+        services.AddSingleton<Klacks.Api.Infrastructure.Services.Assistant.EdgeTtsService>();
+        services.AddSingleton<ITtsProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.EdgeTtsService>());
         services.AddScoped<ITranscriptionEnhancerService, TranscriptionEnhancerService>();
 
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.DeepgramSttProvider>();
@@ -407,7 +408,6 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IDictionaryService, Klacks.Api.Infrastructure.Services.Assistant.DictionaryService>();
 
-        services.AddSingleton<ITtsProvider>(sp => (Klacks.Api.Infrastructure.Services.Assistant.EdgeTtsService)sp.GetRequiredService<ITextToSpeechService>());
     }
 
     private static void AddLLMProviders(this IServiceCollection services)

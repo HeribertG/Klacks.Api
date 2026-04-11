@@ -17,6 +17,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Presentation.DTOs.Assistant;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -167,5 +168,3 @@ public class SttController : ControllerBase
         await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, message, CancellationToken.None);
     }
 }
-
-public record SttTestRequest(string ProviderId);

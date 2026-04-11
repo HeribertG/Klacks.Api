@@ -8,6 +8,7 @@
 /// <param name="logger">Logger for diagnostic output</param>
 
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Presentation.DTOs.Assistant;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,16 +48,4 @@ public class TranscriptionController : ControllerBase
 
         return Ok(new TranscriptionEnhanceResponse { EnhancedText = enhancedText });
     }
-}
-
-public class TranscriptionEnhanceRequest
-{
-    public string RawText { get; set; } = string.Empty;
-    public string Locale { get; set; } = string.Empty;
-    public string? ModelId { get; set; }
-}
-
-public class TranscriptionEnhanceResponse
-{
-    public string EnhancedText { get; set; } = string.Empty;
 }

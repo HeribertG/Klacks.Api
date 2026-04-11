@@ -12,7 +12,7 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
 
-public class EdgeTtsService : ITextToSpeechService, ITtsProvider
+public class EdgeTtsService : ITtsProvider
 {
     private readonly ILogger<EdgeTtsService> _logger;
 
@@ -54,9 +54,6 @@ public class EdgeTtsService : ITextToSpeechService, ITtsProvider
     {
         _logger = logger;
     }
-
-    public Task<byte[]> SynthesizeAsync(string text, string locale, CancellationToken ct = default)
-        => SynthesizeAsync(text, "auto", locale, ct);
 
     public async Task<byte[]> SynthesizeAsync(string text, string voiceId, string locale, CancellationToken ct = default)
     {

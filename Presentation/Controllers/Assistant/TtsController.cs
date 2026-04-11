@@ -2,10 +2,13 @@
 
 /// <summary>
 /// Controller for text-to-speech synthesis endpoints.
+/// Routes synthesis requests to the appropriate ITtsProvider based on ProviderId.
 /// </summary>
-/// <param name="text">The text to convert to speech</param>
-/// <param name="locale">The locale code for voice selection</param>
+/// <param name="ttsProviders">All registered ITtsProvider implementations</param>
+/// <param name="logger">Logger for diagnostics and error tracking</param>
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Presentation.DTOs.Assistant;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,16 +21,16 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 public class TtsController : ControllerBase
 {
     private readonly ILogger<TtsController> _logger;
-    private readonly ITextToSpeechService _textToSpeechService;
+    private readonly IEnumerable<ITtsProvider> _ttsProviders;
 
     private const int MaxTextLength = 5000;
 
     public TtsController(
         ILogger<TtsController> logger,
-        ITextToSpeechService textToSpeechService)
+        IEnumerable<ITtsProvider> ttsProviders)
     {
         _logger = logger;
-        _textToSpeechService = textToSpeechService;
+        _ttsProviders = ttsProviders;
     }
 
     [HttpPost("synthesize")]
@@ -43,10 +46,18 @@ public class TtsController : ControllerBase
             return BadRequest($"Text exceeds maximum length of {MaxTextLength} characters");
         }
 
+        var providerId = request.ProviderId ?? TtsProviderConstants.Edge;
+        var provider = _ttsProviders.FirstOrDefault(p => p.ProviderId == providerId);
+        if (provider == null)
+        {
+            return BadRequest($"Unknown TTS provider: {providerId}");
+        }
+
         try
         {
             var voiceId = request.VoiceId ?? "auto";
-            var audioBytes = await _textToSpeechService.SynthesizeAsync(request.Text, voiceId, request.Locale ?? "en", ct);
+            var locale = request.Locale ?? "en";
+            var audioBytes = await provider.SynthesizeAsync(request.Text, voiceId, locale, ct);
             return File(audioBytes, "audio/mpeg");
         }
         catch (Exception ex)
@@ -55,6 +66,4 @@ public class TtsController : ControllerBase
             return StatusCode(500, "Text-to-speech synthesis failed");
         }
     }
-
-    public record TtsSynthesizeRequest(string Text, string? Locale, string? ProviderId = null, string? VoiceId = null);
 }
