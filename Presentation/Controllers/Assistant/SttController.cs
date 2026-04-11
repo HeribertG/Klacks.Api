@@ -68,6 +68,7 @@ public class SttController : ControllerBase
         }
     }
 
+    [HttpGet]
     [Route("stream")]
     public async Task Stream()
     {

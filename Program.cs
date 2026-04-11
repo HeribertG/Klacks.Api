@@ -93,7 +93,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
             var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("JwtBearer");
 
-            logger.LogDebug("OnMessageReceived: Path={Path}, IsHubPath={IsHubPath}", path, path.StartsWithSegments("/hubs"));
+            var isSttPath = path.StartsWithSegments("/api/backend/assistant/stt/stream");
+            logger.LogDebug("OnMessageReceived: Path={Path}, IsHubPath={IsHubPath}, IsSttPath={IsSttPath}", path, path.StartsWithSegments("/hubs"), isSttPath);
 
             if (path.StartsWithSegments("/hubs"))
             {
@@ -117,6 +118,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
                     logger.LogWarning("No token found for hub path. QueryToken={HasQueryToken}, AuthHeader={HasAuthHeader}",
                         !string.IsNullOrEmpty(accessToken), !string.IsNullOrEmpty(authHeader));
                 }
+            }
+            else if (isSttPath && !string.IsNullOrEmpty(accessToken))
+            {
+                context.Token = Uri.UnescapeDataString(accessToken);
+                logger.LogDebug("Token set from query string for STT WebSocket (length: {TokenLength})", context.Token?.Length);
             }
             return Task.CompletedTask;
         },
