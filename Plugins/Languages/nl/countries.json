@@ -7,18 +7,27 @@
       "en": "Netherlands",
       "fr": "Pays-Bas",
       "it": "Paesi Bassi",
+      "ar": "هولندا",
       "cs": "Nizozemsko",
       "da": "Holland",
       "el": "Ολλανδία",
       "es": "Países Bajos",
       "fi": "Alankomaat",
+      "he": "הולנד",
+      "id": "Belanda",
       "ja": "オランダ",
+      "ko": "네덜란드",
+      "ms": "Belanda",
       "nb": "Nederland",
       "nl": "Nederland",
       "pl": "Holandia",
       "pt": "Países Baixos",
       "ro": "Țările de Jos",
-      "sv": "Nederländerna"
+      "sv": "Nederländerna",
+      "th": "เนเธอร์แลนด์",
+      "vi": "Hà Lan",
+      "zh-CN": "荷兰",
+      "zh-TW": "荷蘭"
     },
     "prefix": "+31"
   }

@@ -7,18 +7,27 @@
       "en": "Czech Republic",
       "fr": "Tchéquie",
       "it": "Cechia",
+      "ar": "جمهورية التشيك",
       "cs": "Česko",
       "da": "Tjekkiet",
       "el": "Τσεχία",
       "es": "Chequia",
       "fi": "Tšekki",
+      "he": "צ'כיה",
+      "id": "Republik Ceko",
       "ja": "チェコ",
+      "ko": "체코",
+      "ms": "Republik Czech",
       "nb": "Tsjekkia",
       "nl": "Tsjechië",
       "pl": "Czechy",
       "pt": "Chéquia",
       "ro": "Cehia",
-      "sv": "Tjeckien"
+      "sv": "Tjeckien",
+      "th": "สาธารณรัฐเช็ก",
+      "vi": "Cộng hòa Séc",
+      "zh-CN": "捷克",
+      "zh-TW": "捷克"
     },
     "prefix": "+420"
   }

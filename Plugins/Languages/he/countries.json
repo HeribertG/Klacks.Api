@@ -7,19 +7,27 @@
       "en": "Israel",
       "fr": "Israël",
       "it": "Israele",
+      "ar": "إسرائيل",
       "cs": "Izrael",
       "da": "Israel",
       "el": "Ισραήλ",
       "es": "Israel",
       "fi": "Israel",
       "he": "ישראל",
+      "id": "Israel",
       "ja": "イスラエル",
+      "ko": "이스라엘",
+      "ms": "Israel",
       "nb": "Israel",
       "nl": "Israël",
       "pl": "Izrael",
       "pt": "Israel",
       "ro": "Israel",
-      "sv": "Israel"
+      "sv": "Israel",
+      "th": "อิสราเอล",
+      "vi": "Israel",
+      "zh-CN": "以色列",
+      "zh-TW": "以色列"
     },
     "prefix": "+972"
   }

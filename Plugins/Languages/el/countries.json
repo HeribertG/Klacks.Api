@@ -7,18 +7,27 @@
       "en": "Greece",
       "fr": "Grèce",
       "it": "Grecia",
+      "ar": "اليونان",
       "cs": "Řecko",
       "da": "Grækenland",
       "el": "Ελλάδα",
       "es": "Grecia",
       "fi": "Kreikka",
+      "he": "יוון",
+      "id": "Yunani",
       "ja": "ギリシャ",
+      "ko": "그리스",
+      "ms": "Greece",
       "nb": "Hellas",
       "nl": "Griekenland",
       "pl": "Grecja",
       "pt": "Grécia",
       "ro": "Grecia",
-      "sv": "Grekland"
+      "sv": "Grekland",
+      "th": "กรีซ",
+      "vi": "Hy Lạp",
+      "zh-CN": "希腊",
+      "zh-TW": "希臘"
     },
     "prefix": "+30"
   }

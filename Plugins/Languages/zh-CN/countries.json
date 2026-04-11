@@ -7,19 +7,27 @@
       "en": "China",
       "fr": "Chine",
       "it": "Cina",
+      "ar": "الصين",
       "cs": "Čína",
       "da": "Kina",
       "el": "Κίνα",
       "es": "China",
       "fi": "Kiina",
+      "he": "סין",
+      "id": "Tiongkok",
       "ja": "中国",
+      "ko": "중국",
+      "ms": "China",
       "nb": "Kina",
       "nl": "China",
       "pl": "Chiny",
       "pt": "China",
       "ro": "China",
       "sv": "Kina",
-      "zh-CN": "中国"
+      "th": "จีน",
+      "vi": "Trung Quốc",
+      "zh-CN": "中国",
+      "zh-TW": "中國"
     },
     "prefix": "+86"
   }

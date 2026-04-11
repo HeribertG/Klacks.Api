@@ -7,18 +7,27 @@
       "en": "Romania",
       "fr": "Roumanie",
       "it": "Romania",
+      "ar": "رومانيا",
       "cs": "Rumunsko",
       "da": "Rumænien",
       "el": "Ρουμανία",
       "es": "Rumanía",
       "fi": "Romania",
+      "he": "רומניה",
+      "id": "Rumania",
       "ja": "ルーマニア",
+      "ko": "루마니아",
+      "ms": "Romania",
       "nb": "Romania",
       "nl": "Roemenië",
       "pl": "Rumunia",
       "pt": "Roménia",
       "ro": "România",
-      "sv": "Rumänien"
+      "sv": "Rumänien",
+      "th": "โรมาเนีย",
+      "vi": "Romania",
+      "zh-CN": "罗马尼亚",
+      "zh-TW": "羅馬尼亞"
     },
     "prefix": "+40"
   }

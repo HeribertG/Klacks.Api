@@ -7,19 +7,27 @@
       "en": "Vietnam",
       "fr": "Viêt Nam",
       "it": "Vietnam",
+      "ar": "فيتنام",
       "cs": "Vietnam",
       "da": "Vietnam",
       "el": "Βιετνάμ",
       "es": "Vietnam",
       "fi": "Vietnam",
+      "he": "וייטנאם",
+      "id": "Vietnam",
       "ja": "ベトナム",
+      "ko": "베트남",
+      "ms": "Vietnam",
       "nb": "Vietnam",
       "nl": "Vietnam",
       "pl": "Wietnam",
       "pt": "Vietnã",
       "ro": "Vietnam",
       "sv": "Vietnam",
-      "vi": "Việt Nam"
+      "th": "เวียดนาม",
+      "vi": "Việt Nam",
+      "zh-CN": "越南",
+      "zh-TW": "越南"
     },
     "prefix": "+84"
   }

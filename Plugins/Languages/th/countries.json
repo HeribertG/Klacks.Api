@@ -7,19 +7,27 @@
       "en": "Thailand",
       "fr": "Thaïlande",
       "it": "Thailandia",
+      "ar": "تايلاند",
       "cs": "Thajsko",
       "da": "Thailand",
       "el": "Ταϊλάνδη",
       "es": "Tailandia",
       "fi": "Thaimaa",
+      "he": "תאילנד",
+      "id": "Thailand",
       "ja": "タイ",
+      "ko": "태국",
+      "ms": "Thailand",
       "nb": "Thailand",
       "nl": "Thailand",
       "pl": "Tajlandia",
       "pt": "Tailândia",
       "ro": "Thailanda",
       "sv": "Thailand",
-      "th": "ประเทศไทย"
+      "th": "ประเทศไทย",
+      "vi": "Thái Lan",
+      "zh-CN": "泰国",
+      "zh-TW": "泰國"
     },
     "prefix": "+66"
   }

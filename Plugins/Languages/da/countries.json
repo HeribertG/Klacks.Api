@@ -7,18 +7,27 @@
       "en": "Denmark",
       "fr": "Danemark",
       "it": "Danimarca",
+      "ar": "الدنمارك",
       "cs": "Dánsko",
       "da": "Danmark",
       "el": "Δανία",
       "es": "Dinamarca",
       "fi": "Tanska",
+      "he": "דנמרק",
+      "id": "Denmark",
       "ja": "デンマーク",
+      "ko": "덴마크",
+      "ms": "Denmark",
       "nb": "Danmark",
       "nl": "Denemarken",
       "pl": "Dania",
       "pt": "Dinamarca",
       "ro": "Danemarca",
-      "sv": "Danmark"
+      "sv": "Danmark",
+      "th": "เดนมาร์ก",
+      "vi": "Đan Mạch",
+      "zh-CN": "丹麦",
+      "zh-TW": "丹麥"
     },
     "prefix": "+45"
   }

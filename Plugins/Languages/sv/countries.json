@@ -7,18 +7,27 @@
       "en": "Sweden",
       "fr": "Suède",
       "it": "Svezia",
+      "ar": "السويد",
       "cs": "Švédsko",
       "da": "Sverige",
       "el": "Σουηδία",
       "es": "Suecia",
       "fi": "Ruotsi",
+      "he": "שוודיה",
+      "id": "Swedia",
       "ja": "スウェーデン",
+      "ko": "스웨덴",
+      "ms": "Sweden",
       "nb": "Sverige",
       "nl": "Zweden",
       "pl": "Szwecja",
       "pt": "Suécia",
       "ro": "Suedia",
-      "sv": "Sverige"
+      "sv": "Sverige",
+      "th": "สวีเดน",
+      "vi": "Thụy Điển",
+      "zh-CN": "瑞典",
+      "zh-TW": "瑞典"
     },
     "prefix": "+46"
   }

@@ -7,18 +7,27 @@
       "en": "Spain",
       "fr": "Espagne",
       "it": "Spagna",
+      "ar": "إسبانيا",
       "cs": "Španělsko",
       "da": "Spanien",
       "el": "Ισπανία",
       "es": "España",
       "fi": "Espanja",
+      "he": "ספרד",
+      "id": "Spanyol",
       "ja": "スペイン",
+      "ko": "스페인",
+      "ms": "Sepanyol",
       "nb": "Spania",
       "nl": "Spanje",
       "pl": "Hiszpania",
       "pt": "Espanha",
       "ro": "Spania",
-      "sv": "Spanien"
+      "sv": "Spanien",
+      "th": "สเปน",
+      "vi": "Tây Ban Nha",
+      "zh-CN": "西班牙",
+      "zh-TW": "西班牙"
     },
     "prefix": "+34"
   }

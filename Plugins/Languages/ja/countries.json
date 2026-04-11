@@ -7,18 +7,27 @@
       "en": "Japan",
       "fr": "Japon",
       "it": "Giappone",
+      "ar": "اليابان",
       "cs": "Japonsko",
       "da": "Japan",
       "el": "Ιαπωνία",
       "es": "Japón",
       "fi": "Japani",
+      "he": "יפן",
+      "id": "Jepang",
       "ja": "日本",
+      "ko": "일본",
+      "ms": "Jepun",
       "nb": "Japan",
       "nl": "Japan",
       "pl": "Japonia",
       "pt": "Japão",
       "ro": "Japonia",
-      "sv": "Japan"
+      "sv": "Japan",
+      "th": "ญี่ปุ่น",
+      "vi": "Nhật Bản",
+      "zh-CN": "日本",
+      "zh-TW": "日本"
     },
     "prefix": "+81"
   }

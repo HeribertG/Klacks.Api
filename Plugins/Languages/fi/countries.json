@@ -7,18 +7,27 @@
       "en": "Finland",
       "fr": "Finlande",
       "it": "Finlandia",
+      "ar": "فنلندا",
       "cs": "Finsko",
       "da": "Finland",
       "el": "Φινλανδία",
       "es": "Finlandia",
       "fi": "Suomi",
+      "he": "פינלנד",
+      "id": "Finlandia",
       "ja": "フィンランド",
+      "ko": "핀란드",
+      "ms": "Finland",
       "nb": "Finland",
       "nl": "Finland",
       "pl": "Finlandia",
       "pt": "Finlândia",
       "ro": "Finlanda",
-      "sv": "Finland"
+      "sv": "Finland",
+      "th": "ฟินแลนด์",
+      "vi": "Phần Lan",
+      "zh-CN": "芬兰",
+      "zh-TW": "芬蘭"
     },
     "prefix": "+358"
   }
