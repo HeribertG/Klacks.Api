@@ -24,12 +24,12 @@ public class PeriodAuditLogRepository : IPeriodAuditLogRepository
     {
         entry.Id = entry.Id == Guid.Empty ? Guid.NewGuid() : entry.Id;
         await _context.PeriodAuditLog.AddAsync(entry, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<List<PeriodAuditLog>> GetRangeAsync(DateOnly from, DateOnly to, CancellationToken cancellationToken = default)
     {
         return await _context.PeriodAuditLog
+            .AsNoTracking()
             .Where(e => !e.IsDeleted && e.StartDate <= to && e.EndDate >= from)
             .OrderByDescending(e => e.PerformedAt)
             .ToListAsync(cancellationToken);

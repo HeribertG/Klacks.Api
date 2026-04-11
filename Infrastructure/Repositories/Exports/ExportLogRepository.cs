@@ -24,12 +24,12 @@ public class ExportLogRepository : IExportLogRepository
     {
         entry.Id = entry.Id == Guid.Empty ? Guid.NewGuid() : entry.Id;
         await _context.ExportLog.AddAsync(entry, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<List<ExportLog>> GetRangeAsync(DateOnly from, DateOnly to, CancellationToken cancellationToken = default)
     {
         return await _context.ExportLog
+            .AsNoTracking()
             .Where(e => !e.IsDeleted && e.StartDate <= to && e.EndDate >= from)
             .OrderByDescending(e => e.ExportedAt)
             .ToListAsync(cancellationToken);
@@ -38,6 +38,7 @@ public class ExportLogRepository : IExportLogRepository
     public async Task<bool> HasExportForPeriodAsync(DateOnly startDate, DateOnly endDate, Guid? groupId, CancellationToken cancellationToken = default)
     {
         return await _context.ExportLog
+            .AsNoTracking()
             .AnyAsync(e => !e.IsDeleted
                 && e.StartDate <= endDate
                 && e.EndDate >= startDate
