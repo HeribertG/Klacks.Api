@@ -6,8 +6,11 @@
 /// <param name="ProviderId">Unique provider identifier (e.g. "edge", "openai")</param>
 namespace Klacks.Api.Domain.Interfaces.Assistant;
 
+using Klacks.Api.Domain.Models.Assistant;
+
 public interface ITtsProvider
 {
     string ProviderId { get; }
     Task<byte[]> SynthesizeAsync(string text, string voiceId, string locale, CancellationToken ct = default);
+    Task<IReadOnlyList<TtsVoice>> GetVoicesAsync(CancellationToken ct = default);
 }
