@@ -203,6 +203,28 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
                 .SetProperty(w => w.SealedBy, (string?)null), cancellationToken);
     }
 
+    public async Task<int> SealByPeriodAndGroup(DateOnly startDate, DateOnly endDate, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
+    {
+        return await context.Work
+            .Where(w => !w.IsDeleted && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.LockLevel < level)
+            .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(w => w.LockLevel, level)
+                .SetProperty(w => w.SealedAt, DateTime.UtcNow)
+                .SetProperty(w => w.SealedBy, sealedBy), cancellationToken);
+    }
+
+    public async Task<int> UnsealByPeriodAndGroup(DateOnly startDate, DateOnly endDate, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default)
+    {
+        return await context.Work
+            .Where(w => !w.IsDeleted && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.LockLevel == level)
+            .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(w => w.LockLevel, WorkLockLevel.None)
+                .SetProperty(w => w.SealedAt, (DateTime?)null)
+                .SetProperty(w => w.SealedBy, (string?)null), cancellationToken);
+    }
+
     private static Dictionary<Guid, PeriodHoursResource> BuildFallbackPeriodHours(
         List<Guid> clientIds,
         Dictionary<Guid, (decimal Hours, decimal Surcharges)> worksHoursDict,
