@@ -46,6 +46,19 @@ public class GetExportLogQueryHandler : BaseHandler, IRequestHandler<GetExportLo
                     .ToDictionaryAsync(g => g.Id, g => g.Name, cancellationToken)
                 : new Dictionary<Guid, string>();
 
+            var userIds = entries
+                .Select(e => e.ExportedBy)
+                .Where(id => !string.IsNullOrEmpty(id))
+                .Distinct()
+                .ToList();
+
+            var userNames = userIds.Count > 0
+                ? await _context.AppUser
+                    .AsNoTracking()
+                    .Where(u => userIds.Contains(u.Id))
+                    .ToDictionaryAsync(u => u.Id, u => $"{u.FirstName} {u.LastName}".Trim(), cancellationToken)
+                : new Dictionary<string, string>();
+
             return entries.Select(e => new ExportLogDto
             {
                 Id = e.Id,
@@ -60,7 +73,10 @@ public class GetExportLogQueryHandler : BaseHandler, IRequestHandler<GetExportLo
                 FileSize = e.FileSize,
                 RecordCount = e.RecordCount,
                 ExportedAt = e.ExportedAt,
-                ExportedBy = e.ExportedBy
+                ExportedBy = e.ExportedBy,
+                ExportedByName = userNames.TryGetValue(e.ExportedBy, out var userName) && !string.IsNullOrWhiteSpace(userName)
+                    ? userName
+                    : null
             }).ToList();
         },
         "loading export log",

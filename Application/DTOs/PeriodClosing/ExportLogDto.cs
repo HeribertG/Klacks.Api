@@ -32,4 +32,6 @@ public class ExportLogDto
     public DateTime ExportedAt { get; set; }
 
     public string ExportedBy { get; set; } = string.Empty;
+
+    public string? ExportedByName { get; set; }
 }

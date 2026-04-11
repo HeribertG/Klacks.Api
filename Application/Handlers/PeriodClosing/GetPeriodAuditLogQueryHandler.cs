@@ -46,6 +46,19 @@ public class GetPeriodAuditLogQueryHandler : BaseHandler, IRequestHandler<GetPer
                     .ToDictionaryAsync(g => g.Id, g => g.Name, cancellationToken)
                 : new Dictionary<Guid, string>();
 
+            var userIds = entries
+                .Select(e => e.PerformedBy)
+                .Where(id => !string.IsNullOrEmpty(id))
+                .Distinct()
+                .ToList();
+
+            var userNames = userIds.Count > 0
+                ? await _context.AppUser
+                    .AsNoTracking()
+                    .Where(u => userIds.Contains(u.Id))
+                    .ToDictionaryAsync(u => u.Id, u => $"{u.FirstName} {u.LastName}".Trim(), cancellationToken)
+                : new Dictionary<string, string>();
+
             return entries.Select(e => new PeriodAuditLogDto
             {
                 Id = e.Id,
@@ -57,7 +70,10 @@ public class GetPeriodAuditLogQueryHandler : BaseHandler, IRequestHandler<GetPer
                 Reason = e.Reason,
                 AffectedCount = e.AffectedCount,
                 PerformedAt = e.PerformedAt,
-                PerformedBy = e.PerformedBy
+                PerformedBy = e.PerformedBy,
+                PerformedByName = userNames.TryGetValue(e.PerformedBy, out var userName) && !string.IsNullOrWhiteSpace(userName)
+                    ? userName
+                    : null
             }).ToList();
         },
         "loading period audit log",

@@ -28,4 +28,6 @@ public class PeriodAuditLogDto
     public DateTime PerformedAt { get; set; }
 
     public string PerformedBy { get; set; } = string.Empty;
+
+    public string? PerformedByName { get; set; }
 }
