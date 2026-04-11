@@ -1,0 +1,82 @@
+<h2>Quy tắc ngày lễ - Giải thích</h2>
+
+<h3>Định dạng quy tắc</h3>
+<p>Có hai loại quy tắc: <strong>ngày cố định</strong> và <strong>ngày tương đối với Lễ Phục Sinh</strong>.</p>
+
+<h4>Ngày cố định</h4>
+<p>Định dạng: <code>MM/DD</code></p>
+<table>
+  <tr><th>Ví dụ</th><th>Ý nghĩa</th></tr>
+  <tr><td><code>01/01</code></td><td>Ngày 1 tháng 1 (Tết Dương lịch)</td></tr>
+  <tr><td><code>12/25</code></td><td>Ngày 25 tháng 12 (Lễ Giáng sinh)</td></tr>
+  <tr><td><code>08/01</code></td><td>Ngày 1 tháng 8 (Quốc khánh Thụy Sĩ)</td></tr>
+</table>
+
+<h4>Ngày cố định với độ lệch theo thứ trong tuần</h4>
+<p>Định dạng: <code>MM/DD+XX+WW</code> hoặc <code>MM/DD+XX-WW</code></p>
+<ul>
+  <li><code>+XX</code> = dấu + độ lệch tính theo ngày (00 đến 99)</li>
+  <li><code>+</code> = ngày tiếp theo trong tuần sau ngày đã cho</li>
+  <li><code>-</code> = ngày trong tuần trước ngày đã cho</li>
+  <li><code>WW</code> = thứ trong tuần (SU, MO, TU, WE, TH, FR, SA)</li>
+</ul>
+<table>
+  <tr><th>Ví dụ</th><th>Ý nghĩa</th></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>Thứ Năm đầu tiên của tháng 11</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>Thứ Năm thứ tư của tháng 11 (Lễ Tạ ơn)</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>Thứ Hai cuối cùng của tháng 5 (Ngày Tưởng niệm)</td></tr>
+</table>
+
+<h4>Ngày tương đối với Lễ Phục Sinh</h4>
+<p>Định dạng: <code>EASTER+XX</code> hoặc <code>EASTER-XX</code></p>
+<table>
+  <tr><th>Ví dụ</th><th>Ý nghĩa</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>Chủ Nhật Phục Sinh</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>Thứ Sáu Tuần Thánh (2 ngày trước Lễ Phục Sinh)</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>Thứ Hai Phục Sinh (1 ngày sau Lễ Phục Sinh)</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>Lễ Chúa Thăng Thiên (39 ngày sau Lễ Phục Sinh)</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>Chủ Nhật Lễ Hiện Xuống (49 ngày sau Lễ Phục Sinh)</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>Thứ Hai Lễ Hiện Xuống (50 ngày sau Lễ Phục Sinh)</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>Lễ Mình Máu Thánh Chúa (60 ngày sau Lễ Phục Sinh)</td></tr>
+</table>
+
+<hr>
+
+<h3>Định dạng Quy tắc phụ</h3>
+<p>Quy tắc phụ cho phép tự động dịch chuyển một ngày lễ khi nó rơi vào một thứ nhất định trong tuần.</p>
+<p>Định dạng: <code>WW+X</code> hoặc <code>WW-X</code>, nhiều quy tắc được phân tách bằng <code>;</code></p>
+<ul>
+  <li><code>WW</code> = thứ trong tuần (SU, MO, TU, WE, TH, FR, SA)</li>
+  <li><code>+X</code> = dịch X ngày về phía trước</li>
+  <li><code>-X</code> = dịch X ngày về phía sau</li>
+</ul>
+<table>
+  <tr><th>Ví dụ</th><th>Ý nghĩa</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>Nếu là Thứ Bảy: +2 ngày (Thứ Hai), nếu là Chủ Nhật: +1 ngày (Thứ Hai)</td></tr>
+  <tr><td><code>SU+1</code></td><td>Nếu là Chủ Nhật: chuyển sang Thứ Hai</td></tr>
+</table>
+
+<p><em>Lưu ý: Quy tắc phụ thường được dùng để chuyển các ngày lễ rơi vào cuối tuần sang ngày làm việc tiếp theo.</em></p>
+
+<hr>
+
+<h3>Viết tắt các thứ trong tuần</h3>
+<table>
+  <tr><th>Viết tắt</th><th>Thứ trong tuần</th></tr>
+  <tr><td>SU</td><td>Chủ Nhật (Sunday)</td></tr>
+  <tr><td>MO</td><td>Thứ Hai (Monday)</td></tr>
+  <tr><td>TU</td><td>Thứ Ba (Tuesday)</td></tr>
+  <tr><td>WE</td><td>Thứ Tư (Wednesday)</td></tr>
+  <tr><td>TH</td><td>Thứ Năm (Thursday)</td></tr>
+  <tr><td>FR</td><td>Thứ Sáu (Friday)</td></tr>
+  <tr><td>SA</td><td>Thứ Bảy (Saturday)</td></tr>
+</table>
+
+<hr>
+
+<h3>Hộp kiểm</h3>
+<table>
+  <tr><th>Hộp kiểm</th><th>Ý nghĩa</th></tr>
+  <tr><td>Ngày lễ chính thức</td><td>Ngày này là ngày lễ chính thức/pháp định</td></tr>
+  <tr><td>Được trả lương</td><td>Ngày lễ được trả lương (liên quan đến việc tính lương)</td></tr>
+</table>

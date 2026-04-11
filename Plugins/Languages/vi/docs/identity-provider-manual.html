@@ -1,0 +1,118 @@
+<h2>Hướng dẫn Nhà cung cấp Danh tính</h2>
+
+<h3>Giới thiệu</h3>
+<p>
+Các nhà cung cấp danh tính cho phép xác thực người dùng thông qua các dịch vụ thư mục bên ngoài
+như LDAP, Active Directory hoặc OAuth2/OpenID Connect.
+</p>
+
+<p><strong>Các loại nhà cung cấp được hỗ trợ:</strong></p>
+<ul>
+  <li><strong>LDAP</strong> - Giao thức truy cập thư mục nhẹ tiêu chuẩn</li>
+  <li><strong>Active Directory</strong> - Microsoft Active Directory</li>
+  <li><strong>OAuth2</strong> - Khung ủy quyền OAuth 2.0</li>
+  <li><strong>OpenID Connect</strong> - Lớp danh tính trên OAuth 2.0</li>
+</ul>
+
+<hr>
+
+<h3>LDAP / Active Directory</h3>
+
+<h4>Cấu hình kết nối</h4>
+<table>
+  <tr><th>Trường</th><th>Mô tả</th><th>Ví dụ</th></tr>
+  <tr><td>Host</td><td>Tên host hoặc địa chỉ IP của máy chủ LDAP</td><td>ldap.example.com</td></tr>
+  <tr><td>Cổng</td><td>389 (LDAP) hoặc 636 (LDAPS)</td><td>389</td></tr>
+  <tr><td>Sử dụng SSL</td><td>Bật kết nối được mã hóa</td><td>-</td></tr>
+  <tr><td>Base DN</td><td>Tên phân biệt cơ sở cho các tìm kiếm</td><td>DC=example,DC=com</td></tr>
+  <tr><td>Bind DN</td><td>DN của người dùng cho kết nối</td><td>CN=admin,DC=example,DC=com</td></tr>
+  <tr><td>Mật khẩu Bind</td><td>Mật khẩu cho người dùng Bind</td><td>-</td></tr>
+  <tr><td>Bộ lọc người dùng</td><td>Bộ lọc LDAP để tìm kiếm người dùng</td><td>(objectClass=person)</td></tr>
+</table>
+
+<h4>Sự khác biệt giữa LDAP và Active Directory</h4>
+<table>
+  <tr><th>Đặc điểm</th><th>LDAP (OpenLDAP)</th><th>Active Directory</th></tr>
+  <tr><td>Thuộc tính người dùng</td><td>uid</td><td>sAMAccountName</td></tr>
+  <tr><td>Thuộc tính đường phố</td><td>street</td><td>streetAddress</td></tr>
+  <tr><td>Thuộc tính xưng hô</td><td>-</td><td>personalTitle</td></tr>
+  <tr><td>Thuộc tính quốc gia</td><td>-</td><td>c</td></tr>
+  <tr><td>Phương thức xác thực</td><td>Simple Bind</td><td>Negotiate/Kerberos</td></tr>
+</table>
+
+<h4>Các bộ lọc người dùng thông dụng</h4>
+<pre>
+LDAP:             (objectClass=person)
+                  (objectClass=inetOrgPerson)
+
+Active Directory: (&amp;(objectClass=user)(objectCategory=person))
+                  (&amp;(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+</pre>
+
+<h4>Nhập khẩu khách hàng</h4>
+<p>Khi "Sử dụng để nhập khẩu khách hàng" được kích hoạt, các dữ liệu sau sẽ được nhập:</p>
+<ul>
+  <li><strong>Họ</strong> - sn (họ) hoặc displayName</li>
+  <li><strong>Tên</strong> - givenName</li>
+  <li><strong>Chức danh</strong> - title (chức danh công việc)</li>
+  <li><strong>Công ty</strong> - company</li>
+  <li><strong>Địa chỉ</strong> - street/streetAddress, postalCode, l (thành phố), st (tỉnh), c (quốc gia)</li>
+  <li><strong>Giới tính</strong> - Dựa trên personalTitle (Ông/Bà) trong Active Directory</li>
+</ul>
+
+<p><em>Lưu ý: Trong OpenLDAP, giới tính mặc định là "Trung tính" và có thể được chỉnh sửa thủ công.</em></p>
+
+<hr>
+
+<h3>OAuth2 / OpenID Connect</h3>
+
+<h4>Cấu hình</h4>
+<table>
+  <tr><th>Trường</th><th>Mô tả</th></tr>
+  <tr><td>Client ID</td><td>ID khách hàng đã đăng ký với nhà cung cấp</td></tr>
+  <tr><td>Client Secret</td><td>Khóa bí mật khách hàng tương ứng</td></tr>
+  <tr><td>Tenant ID</td><td>ID tenant của Azure AD (tùy chọn, chỉ dành cho Microsoft)</td></tr>
+  <tr><td>URL ủy quyền</td><td>Điểm cuối cho việc ủy quyền</td></tr>
+  <tr><td>URL token</td><td>Điểm cuối cho việc trao đổi token</td></tr>
+  <tr><td>URL thông tin người dùng</td><td>Điểm cuối cho thông tin người dùng</td></tr>
+  <tr><td>Phạm vi</td><td>Các quyền được yêu cầu (ví dụ: "openid profile email")</td></tr>
+</table>
+
+<h4>Các nhà cung cấp phổ biến</h4>
+<table>
+  <tr><th>Nhà cung cấp</th><th>URL ủy quyền</th><th>URL token</th></tr>
+  <tr><td>Google</td><td>https://accounts.google.com/o/oauth2/v2/auth</td><td>https://oauth2.googleapis.com/token</td></tr>
+  <tr><td>Microsoft</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</td></tr>
+  <tr><td>GitHub</td><td>https://github.com/login/oauth/authorize</td><td>https://github.com/login/oauth/access_token</td></tr>
+</table>
+
+<hr>
+
+<h3>Mẹo</h3>
+
+<h4>NAS Synology làm máy chủ LDAP</h4>
+<p>
+Một NAS Synology có thể được sử dụng như máy chủ LDAP. Để làm điều này, cần cài đặt gói
+"LDAP Server" hoặc một container Docker với OpenLDAP.
+</p>
+<ul>
+  <li>Loại nhà cung cấp: "Active Directory" (để xác thực dự phòng)</li>
+  <li>Bộ lọc người dùng: (objectClass=inetOrgPerson)</li>
+  <li>Định dạng DN người dùng: cn=tên_người_dùng,ou=users,dc=example,dc=com</li>
+</ul>
+
+<h4>Kiểm tra kết nối</h4>
+<p>
+Sử dụng nút "Kiểm tra kết nối" để xác minh cấu hình.
+Nếu kết nối thành công, số lượng người dùng tìm thấy và một số
+tên người dùng mẫu sẽ được hiển thị.
+</p>
+
+<h4>Xử lý sự cố</h4>
+<table>
+  <tr><th>Vấn đề</th><th>Giải pháp</th></tr>
+  <tr><td>Kết nối thất bại</td><td>Kiểm tra host, cổng và cấu hình SSL</td></tr>
+  <tr><td>Bind thất bại</td><td>Kiểm tra Bind DN và mật khẩu</td></tr>
+  <tr><td>Không tìm thấy người dùng</td><td>Kiểm tra Base DN và bộ lọc người dùng</td></tr>
+  <tr><td>Địa chỉ không được nhập</td><td>OpenLDAP sử dụng "street" thay vì "streetAddress"</td></tr>
+</table>

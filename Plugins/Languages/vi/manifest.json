@@ -3,7 +3,7 @@
   "name": "Vietnamese",
   "displayName": "Tiếng Việt",
   "speechLocale": "vi-VN",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Klacks Community",
   "coverage": 100,
   "minKlacksVersion": "1.0.0",

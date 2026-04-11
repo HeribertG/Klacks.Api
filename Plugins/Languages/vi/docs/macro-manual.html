@@ -1,0 +1,331 @@
+<h2>Hướng dẫn Scripting Macro</h2>
+
+<h3>Giới thiệu</h3>
+<p>
+Trình soạn thảo macro cho phép viết các script được sử dụng làm cơ sở tính toán
+cho dịch vụ, hoạt động lao động, v.v.
+</p>
+
+<p><strong>Ví dụ sử dụng:</strong></p>
+<ul>
+  <li>Tính toán chính xác số giờ cho kỳ nghỉ hoặc nghĩa vụ quân sự theo mức độ làm việc</li>
+  <li>Tính toán phụ cấp cho làm việc ban đêm, cuối tuần và ngày lễ</li>
+  <li>Tùy chỉnh linh hoạt theo các yêu cầu mới</li>
+</ul>
+
+<p>
+<em>Lưu ý: Trình thông dịch script chạy trong môi trường sandbox an toàn mà không có quyền truy cập
+hệ thống tệp hay mạng. Không thể thực thi mã độc.</em>
+</p>
+
+<hr>
+
+<h3>Biến và hằng số</h3>
+<p>Tất cả các biến và hằng số đều không có kiểu.</p>
+
+<pre>
+CONST PI = 3.1415
+DIM a, b, c
+IMPORT importe, descuento
+</pre>
+
+<h4>Biến được nhập khẩu (IMPORT)</h4>
+<p>Các biến này được tạo từ Work, Contract và CalendarSelection:</p>
+
+<table>
+  <tr><th>Biến</th><th>Kiểu</th><th>Mô tả</th></tr>
+  <tr><td>hour</td><td>Decimal</td><td>Số giờ làm việc (từ Work)</td></tr>
+  <tr><td>fromhour</td><td>Decimal</td><td>Giờ bắt đầu dưới dạng giờ thập phân (8:30 → 8.5)</td></tr>
+  <tr><td>untilhour</td><td>Decimal</td><td>Giờ kết thúc dưới dạng giờ thập phân (17:00 → 17.0)</td></tr>
+  <tr><td>weekday</td><td>Integer</td><td>Thứ trong tuần ISO-8601 (1=Thứ Hai, 2=Thứ Ba, 3=Thứ Tư, 4=Thứ Năm, 5=Thứ Sáu, 6=Thứ Bảy, 7=Chủ Nhật)</td></tr>
+  <tr><td>holiday</td><td>Boolean</td><td>Ngày hiện tại có phải là ngày lễ chính thức hay không</td></tr>
+  <tr><td>holidaynextday</td><td>Boolean</td><td>Ngày hôm sau có phải là ngày lễ chính thức hay không</td></tr>
+  <tr><td>nightrate</td><td>Decimal</td><td>Tỷ lệ phụ cấp ban đêm của hợp đồng (ví dụ: 0.10 = 10%)</td></tr>
+  <tr><td>holidayrate</td><td>Decimal</td><td>Tỷ lệ phụ cấp ngày lễ của hợp đồng (ví dụ: 0.15 = 15%)</td></tr>
+  <tr><td>sarate</td><td>Decimal</td><td>Tỷ lệ phụ cấp Thứ Bảy của hợp đồng</td></tr>
+  <tr><td>sorate</td><td>Decimal</td><td>Tỷ lệ phụ cấp Chủ Nhật của hợp đồng</td></tr>
+  <tr><td>guaranteedhours</td><td>Decimal</td><td>Số giờ hàng tháng được đảm bảo theo hợp đồng</td></tr>
+  <tr><td>fulltime</td><td>Decimal</td><td>Số giờ toàn thời gian theo hợp đồng</td></tr>
+</table>
+
+<hr>
+
+<h3>Cấu trúc điều khiển</h3>
+
+<p><strong>Quan trọng:</strong> Các từ khóa như <code>ENDIF</code>, <code>ENDFUNCTION</code>, <code>ENDSUB</code>
+phải được viết liền nhau (không phải <code>END IF</code>).</p>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF x > 10 THEN
+    OUTPUT 1, "lớn"
+ELSEIF x > 5 THEN
+    OUTPUT 1, "trung bình"
+ELSE
+    OUTPUT 1, "nhỏ"
+ENDIF
+</pre>
+
+<h4>IF trên một dòng</h4>
+<pre>
+IF x > 10 THEN OUTPUT 1, "lớn" ENDIF
+</pre>
+
+<h4>SELECT CASE</h4>
+<pre>
+SELECT CASE weekday
+    CASE 6, 7
+        OUTPUT 1, "Cuối tuần"
+    CASE 1, 2, 3, 4, 5
+        OUTPUT 1, "Ngày làm việc"
+    CASE ELSE
+        OUTPUT 1, "Không xác định"
+END SELECT
+</pre>
+
+<h4>Vòng lặp FOR-NEXT</h4>
+<pre>
+FOR i = 1 TO 10
+    suma += i
+NEXT
+
+FOR i = 10 TO 1 STEP -1
+    IF x > y THEN EXIT FOR
+NEXT
+</pre>
+
+<h4>Vòng lặp DO-LOOP</h4>
+<pre>
+DO WHILE a > 0
+    a -= 1
+LOOP
+
+DO
+    x += 1
+LOOP UNTIL x >= 10
+</pre>
+
+<hr>
+
+<h3>Hàm và thủ tục</h3>
+
+<p><strong>Quan trọng:</strong> Các hàm (FUNCTION) và thủ tục (SUB) phải được định nghĩa <em>trước</em> lần gọi đầu tiên.
+Trình thông dịch đọc mã từ trên xuống dưới: một hàm hoặc thủ tục chỉ được nhận biết sau khi định nghĩa của nó đã được xử lý.</p>
+
+<h4>SUB (thủ tục không có giá trị trả về)</h4>
+<pre>
+SUB calcular(a, b)
+    IF a = b THEN EXIT SUB ENDIF
+    OUTPUT 1, a + b
+ENDSUB
+</pre>
+
+<h4>FUNCTION (hàm có giá trị trả về)</h4>
+<pre>
+FUNCTION duplicar(x)
+    duplicar = x * 2
+ENDFUNCTION
+
+DIM resultado
+resultado = duplicar(21)
+OUTPUT 1, resultado
+</pre>
+
+<hr>
+
+<h3>Toán tử</h3>
+
+<h4>Toán tử toán học</h4>
+<table>
+  <tr><th>Toán tử</th><th>Mô tả</th><th>Ví dụ</th></tr>
+  <tr><td>+</td><td>Cộng</td><td>5 + 3 = 8</td></tr>
+  <tr><td>-</td><td>Trừ</td><td>5 - 3 = 2</td></tr>
+  <tr><td>*</td><td>Nhân</td><td>5 * 3 = 15</td></tr>
+  <tr><td>/</td><td>Chia</td><td>10 / 4 = 2.5</td></tr>
+  <tr><td>\</td><td>Chia nguyên</td><td>10 \ 4 = 2</td></tr>
+  <tr><td>MOD</td><td>Phép modulo (số dư)</td><td>10 MOD 3 = 1</td></tr>
+  <tr><td>^</td><td>Lũy thừa</td><td>2 ^ 3 = 8</td></tr>
+</table>
+
+<h4>Toán tử so sánh</h4>
+<table>
+  <tr><th>Toán tử</th><th>Mô tả</th></tr>
+  <tr><td>=</td><td>Bằng</td></tr>
+  <tr><td>&lt;&gt;</td><td>Khác</td></tr>
+  <tr><td>&lt;</td><td>Nhỏ hơn</td></tr>
+  <tr><td>&gt;</td><td>Lớn hơn</td></tr>
+  <tr><td>&lt;=</td><td>Nhỏ hơn hoặc bằng</td></tr>
+  <tr><td>&gt;=</td><td>Lớn hơn hoặc bằng</td></tr>
+</table>
+
+<h4>Toán tử logic</h4>
+<table>
+  <tr><th>Toán tử</th><th>Mô tả</th></tr>
+  <tr><td>AND</td><td>AND theo bit</td></tr>
+  <tr><td>OR</td><td>OR theo bit</td></tr>
+  <tr><td>NOT</td><td>Phủ định</td></tr>
+  <tr><td>ANDALSO</td><td>AND logic (ngắn mạch)</td></tr>
+  <tr><td>ORELSE</td><td>OR logic (ngắn mạch)</td></tr>
+</table>
+
+<h4>Toán tử gán</h4>
+<pre>
+a = 10      ' Gán đơn giản
+a += 5      ' a = a + 5
+a -= 3      ' a = a - 3
+a *= 2      ' a = a * 2
+a /= 4      ' a = a / 4
+a &= "!"    ' Nối chuỗi
+</pre>
+
+<hr>
+
+<h3>Các hàm tích hợp</h3>
+
+<h4>Hàm chuỗi</h4>
+<table>
+  <tr><th>Hàm</th><th>Mô tả</th><th>Ví dụ</th></tr>
+  <tr><td>Len(s)</td><td>Độ dài của một chuỗi</td><td>Len("Xin") = 3</td></tr>
+  <tr><td>Left(s, n)</td><td>n ký tự từ bên trái</td><td>Left("Xin chào", 3) = "Xin"</td></tr>
+  <tr><td>Right(s, n)</td><td>n ký tự từ bên phải</td><td>Right("Xin chào", 4) = "chào"</td></tr>
+  <tr><td>Mid(s, đầu, dài)</td><td>Chuỗi con</td><td>Mid("Xin chào", 2, 3) = "in "</td></tr>
+  <tr><td>InStr(s, tìm)</td><td>Tìm vị trí</td><td>InStr("Xin chào", "c") = 5</td></tr>
+  <tr><td>Replace(s, cũ, mới)</td><td>Thay thế</td><td>Replace("Xin", "X", "T") = "Tin"</td></tr>
+  <tr><td>Trim(s)</td><td>Loại bỏ khoảng trắng</td><td>Trim("  Hi  ") = "Hi"</td></tr>
+  <tr><td>UCase(s)</td><td>Chữ hoa</td><td>UCase("xin") = "XIN"</td></tr>
+  <tr><td>LCase(s)</td><td>Chữ thường</td><td>LCase("XIN") = "xin"</td></tr>
+</table>
+
+<h4>Hàm toán học</h4>
+<table>
+  <tr><th>Hàm</th><th>Mô tả</th><th>Ví dụ</th></tr>
+  <tr><td>Abs(x)</td><td>Giá trị tuyệt đối</td><td>Abs(-5) = 5</td></tr>
+  <tr><td>Round(x, d)</td><td>Làm tròn</td><td>Round(3.456, 2) = 3.46</td></tr>
+  <tr><td>Sqr(x)</td><td>Căn bậc hai</td><td>Sqr(16) = 4</td></tr>
+  <tr><td>Log(x)</td><td>Logarit tự nhiên</td><td>Log(2.718) = 1</td></tr>
+  <tr><td>Exp(x)</td><td>Hàm mũ (e^x)</td><td>Exp(1) = 2.718...</td></tr>
+  <tr><td>Sgn(x)</td><td>Dấu (-1, 0, 1)</td><td>Sgn(-5) = -1</td></tr>
+  <tr><td>Rnd()</td><td>Số ngẫu nhiên 0-1</td><td>Rnd() = 0.xxxxx</td></tr>
+</table>
+
+<h4>Hàm lượng giác</h4>
+<table>
+  <tr><th>Hàm</th><th>Mô tả</th></tr>
+  <tr><td>Sin(x)</td><td>Sin</td></tr>
+  <tr><td>Cos(x)</td><td>Cos</td></tr>
+  <tr><td>Tan(x)</td><td>Tang</td></tr>
+  <tr><td>Atan(x)</td><td>Arctang</td></tr>
+</table>
+
+<h4>Hàm thời gian</h4>
+<table>
+  <tr><th>Hàm</th><th>Mô tả</th><th>Ví dụ</th></tr>
+  <tr><td>TimeToHours(s)</td><td>Chuỗi thời gian sang giờ thập phân</td><td>TimeToHours("08:30") = 8.5</td></tr>
+  <tr><td>TimeOverlap(s1, e1, s2, e2)</td><td>Phần chồng lấn của hai khoảng thời gian tính bằng giờ</td><td>TimeOverlap("23:00", "06:00", "22:00", "07:00") = 7</td></tr>
+</table>
+
+<p><em>TimeOverlap hỗ trợ các khoảng thời gian vượt qua nửa đêm (ví dụ: 23:00-06:00).</em></p>
+
+<h4>Hàm điều kiện</h4>
+<table>
+  <tr><th>Hàm</th><th>Mô tả</th><th>Ví dụ</th></tr>
+  <tr><td>IIF(đk, đúng, sai)</td><td>Biểu thức điều kiện (toán tử ba ngôi)</td><td>IIF(x > 0, "dương", "âm")</td></tr>
+</table>
+
+<hr>
+
+<h3>Trả về giá trị</h3>
+
+<pre>
+OUTPUT tipo, valor            ' Trả về Klacks (tipo tương ứng với MacroType)
+</pre>
+
+<hr>
+
+<h3>Hàm gỡ lỗi</h3>
+<p>Để kiểm tra macro, các hàm gỡ lỗi sau có sẵn:</p>
+
+<table>
+  <tr><th>Hàm</th><th>Mô tả</th></tr>
+  <tr><td>DEBUGPRINT giá_trị</td><td>Hiển thị một giá trị trong cửa sổ kiểm tra</td></tr>
+  <tr><td>DEBUGCLEAR</td><td>Xóa cửa sổ kiểm tra</td></tr>
+</table>
+
+<h4>Ví dụ</h4>
+<pre>
+DIM x
+x = 42
+DEBUGPRINT "Giá trị là: " & x
+DEBUGPRINT "Đang tính toán..."
+</pre>
+
+<p><em>Các kết quả gỡ lỗi xuất hiện trong tab "Kiểm tra" của trình soạn thảo macro.</em></p>
+
+<hr>
+
+<h3>Ví dụ: Tính toán phụ cấp</h3>
+<p>Tính phụ cấp cho làm việc ban đêm, ngày lễ và cuối tuần với việc xử lý chính xác
+các ca vượt qua nửa đêm (chia thành các phân đoạn).</p>
+
+<pre>
+IMPORT hour, fromhour, untilhour
+IMPORT weekday, holiday, holidaynextday
+IMPORT nightrate, holidayrate, sarate, sorate
+
+FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
+    DIM SegmentHours, NightHours, NonNightHours
+    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+
+    SegmentHours = EndHour - StartHour
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    ' Tính số giờ ban đêm (23:00-06:00)
+    NightHours = 0
+    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
+    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NonNightHours = SegmentHours - NightHours
+
+    HasHoliday = IsHoliday
+    IsSaturday = WeekdayNum = 6    ' Thứ Bảy = 6 (ISO-8601)
+    IsSunday = WeekdayNum = 7      ' Chủ Nhật = 7 (ISO-8601)
+
+    ' Tỷ lệ cao nhất cho giờ ban đêm
+    NRate = nightrate
+    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+
+    ' Tỷ lệ cao nhất cho giờ ban ngày
+    DRate = 0
+    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+
+    CalcSegment = NightHours * NRate + NonNightHours * DRate
+ENDFUNCTION
+
+DIM TotalBonus, WeekdayNextDay
+
+' Tính thứ trong tuần của ngày hôm sau (ISO-8601)
+WeekdayNextDay = (weekday MOD 7) + 1
+
+IF untilhour &lt;= fromhour THEN
+    ' Ca vượt qua nửa đêm - 2 phân đoạn
+    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
+    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+ELSE
+    ' Ca ban ngày bình thường
+    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+ENDIF
+
+OUTPUT 1, Round(TotalBonus, 2)
+</pre>
+
+<h4>Giải thích</h4>
+<ul>
+  <li><strong>Chia thành phân đoạn:</strong> Đối với các ca vượt qua nửa đêm (ví dụ: 22:00-06:00), ca được chia thành hai phân đoạn</li>
+  <li><strong>CalcSegment:</strong> Tính phụ cấp cho một phân đoạn có tính đến phụ cấp ban đêm, ngày lễ và cuối tuần</li>
+  <li><strong>Tỷ lệ riêng cho Thứ Bảy/Chủ Nhật:</strong> sarate và sorate cho phép có các mức phụ cấp khác nhau cho Thứ Bảy và Chủ Nhật</li>
+  <li><strong>Phụ cấp cao nhất:</strong> Luôn áp dụng mức phụ cấp cao nhất có thể</li>
+  <li><strong>holidaynextday:</strong> Tính đến việc ngày hôm sau có phải là ngày lễ hay không (quan trọng đối với các ca ban đêm)</li>
+</ul>
