@@ -87,4 +87,31 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
                 .SetProperty(b => b.SealedAt, (DateTime?)null)
                 .SetProperty(b => b.SealedBy, (string?)null), cancellationToken);
     }
+
+    public async Task<List<(DateOnly Date, int Total, int Sealed)>> GetSealingSummaryAsync(DateOnly from, DateOnly to, Guid? groupId, CancellationToken cancellationToken = default)
+    {
+        var query = _context.Break.AsNoTracking().Where(b => !b.IsDeleted && b.CurrentDate >= from && b.CurrentDate <= to);
+
+        if (groupId.HasValue)
+        {
+            var gid = groupId.Value;
+            query = query.Where(b => _context.Work.Any(w =>
+                !w.IsDeleted &&
+                w.ClientId == b.ClientId &&
+                w.CurrentDate == b.CurrentDate &&
+                _context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == gid && !gi.IsDeleted)));
+        }
+
+        var grouped = await query
+            .GroupBy(b => b.CurrentDate)
+            .Select(g => new
+            {
+                Date = g.Key,
+                Total = g.Count(),
+                Sealed = g.Count(b => b.LockLevel == WorkLockLevel.Closed)
+            })
+            .ToListAsync(cancellationToken);
+
+        return grouped.Select(x => (x.Date, x.Total, x.Sealed)).ToList();
+    }
 }

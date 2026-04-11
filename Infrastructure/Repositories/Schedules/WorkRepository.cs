@@ -286,5 +286,28 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         return (hours, surcharges);
     }
 
+    public async Task<List<(DateOnly Date, int Total, int Sealed)>> GetSealingSummaryAsync(DateOnly from, DateOnly to, Guid? groupId, CancellationToken cancellationToken = default)
+    {
+        var query = context.Work.AsNoTracking().Where(w => !w.IsDeleted && w.CurrentDate >= from && w.CurrentDate <= to);
+
+        if (groupId.HasValue)
+        {
+            var gid = groupId.Value;
+            query = query.Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == gid && !gi.IsDeleted));
+        }
+
+        var grouped = await query
+            .GroupBy(w => w.CurrentDate)
+            .Select(g => new
+            {
+                Date = g.Key,
+                Total = g.Count(),
+                Sealed = g.Count(w => w.LockLevel == WorkLockLevel.Closed)
+            })
+            .ToListAsync(cancellationToken);
+
+        return grouped.Select(x => (x.Date, x.Total, x.Sealed)).ToList();
+    }
+
     private record WorkChangeEntry(Guid ClientId, decimal ChangeTime, WorkChangeType Type, bool? ToInvoice, Guid? ReplaceClientId, Guid OriginalClientId);
 }
