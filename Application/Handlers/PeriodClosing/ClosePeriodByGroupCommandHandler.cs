@@ -9,6 +9,7 @@ using Klacks.Api.Application.Commands.PeriodClosing;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -16,7 +17,7 @@ using System.Security.Claims;
 
 namespace Klacks.Api.Application.Handlers.PeriodClosing;
 
-public class ClosePeriodByGroupCommandHandler : BaseHandler, IRequestHandler<ClosePeriodByGroupCommand, int>
+public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequestHandler<ClosePeriodByGroupCommand, int>
 {
     private readonly IWorkRepository _workRepository;
     private readonly IBreakRepository _breakRepository;
@@ -30,8 +31,9 @@ public class ClosePeriodByGroupCommandHandler : BaseHandler, IRequestHandler<Clo
         IWorkLockLevelService lockLevelService,
         IHttpContextAccessor httpContextAccessor,
         IPeriodAuditLogRepository auditLogRepository,
+        IUnitOfWork unitOfWork,
         ILogger<ClosePeriodByGroupCommandHandler> logger)
-        : base(logger)
+        : base(unitOfWork, logger)
     {
         _workRepository = workRepository;
         _breakRepository = breakRepository;
@@ -42,7 +44,7 @@ public class ClosePeriodByGroupCommandHandler : BaseHandler, IRequestHandler<Clo
 
     public async Task<int> Handle(ClosePeriodByGroupCommand request, CancellationToken cancellationToken)
     {
-        return await ExecuteAsync(async () =>
+        return await ExecuteWithTransactionAsync(async () =>
         {
             if (request.StartDate > request.EndDate)
                 throw new Domain.Exceptions.InvalidRequestException("Start date must be before or equal to end date.");

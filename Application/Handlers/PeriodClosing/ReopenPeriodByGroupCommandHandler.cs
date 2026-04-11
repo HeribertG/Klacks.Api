@@ -10,6 +10,7 @@ using Klacks.Api.Application.Commands.PeriodClosing;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -17,7 +18,7 @@ using System.Security.Claims;
 
 namespace Klacks.Api.Application.Handlers.PeriodClosing;
 
-public class ReopenPeriodByGroupCommandHandler : BaseHandler, IRequestHandler<ReopenPeriodByGroupCommand, int>
+public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IRequestHandler<ReopenPeriodByGroupCommand, int>
 {
     private readonly IWorkRepository _workRepository;
     private readonly IBreakRepository _breakRepository;
@@ -31,8 +32,9 @@ public class ReopenPeriodByGroupCommandHandler : BaseHandler, IRequestHandler<Re
         IWorkLockLevelService lockLevelService,
         IHttpContextAccessor httpContextAccessor,
         IPeriodAuditLogRepository auditLogRepository,
+        IUnitOfWork unitOfWork,
         ILogger<ReopenPeriodByGroupCommandHandler> logger)
-        : base(logger)
+        : base(unitOfWork, logger)
     {
         _workRepository = workRepository;
         _breakRepository = breakRepository;
@@ -43,7 +45,7 @@ public class ReopenPeriodByGroupCommandHandler : BaseHandler, IRequestHandler<Re
 
     public async Task<int> Handle(ReopenPeriodByGroupCommand request, CancellationToken cancellationToken)
     {
-        return await ExecuteAsync(async () =>
+        return await ExecuteWithTransactionAsync(async () =>
         {
             if (string.IsNullOrWhiteSpace(request.Reason))
                 throw new Domain.Exceptions.InvalidRequestException("A reason must be provided when reopening a period.");
