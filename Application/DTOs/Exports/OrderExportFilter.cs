@@ -19,4 +19,6 @@ public class OrderExportFilter
     public string Language { get; set; } = "de";
 
     public string CurrencyCode { get; set; } = "EUR";
+
+    public Guid? GroupId { get; set; }
 }
