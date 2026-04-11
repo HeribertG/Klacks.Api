@@ -398,10 +398,12 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ITextToSpeechService, Klacks.Api.Infrastructure.Services.Assistant.EdgeTtsService>();
         services.AddScoped<ITranscriptionEnhancerService, TranscriptionEnhancerService>();
 
-        services.AddScoped<ISttProvider, Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.DeepgramSttProvider>();
-        services.AddScoped<ISttProvider, Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.AssemblyAiSttProvider>();
-        services.AddScoped<ISttProvider, Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.GroqWhisperSttProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.DeepgramSttProvider>();
+        services.AddScoped<ISttProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.DeepgramSttProvider>());
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.AssemblyAiSttProvider>();
+        services.AddScoped<ISttProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.AssemblyAiSttProvider>());
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.GroqWhisperSttProvider>();
+        services.AddScoped<ISttProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.GroqWhisperSttProvider>());
 
         services.AddScoped<IDictionaryService, Klacks.Api.Infrastructure.Services.Assistant.DictionaryService>();
 

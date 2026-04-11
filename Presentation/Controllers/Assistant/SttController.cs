@@ -55,11 +55,14 @@ public class SttController : ControllerBase
         if (provider == null)
             return BadRequest($"Unknown provider: {request.ProviderId}");
 
+        var apiKeySetting = await _settingsRepository.GetSetting(Settings.ASSISTANT_STT_API_KEY);
+        if (string.IsNullOrWhiteSpace(apiKeySetting?.Value))
+            return Ok(new { success = false, error = "No API key configured" });
+
         try
         {
-            var config = new SttConfig(request.ApiKey, "en");
-            var ws = await provider.ConnectAsync(config);
-            await provider.DisconnectAsync(ws);
+            var config = new SttConfig(apiKeySetting.Value, "en");
+            await using var session = await provider.CreateSessionAsync(config);
             return Ok(new { success = true });
         }
         catch (Exception ex)
@@ -106,17 +109,16 @@ public class SttController : ControllerBase
             }
 
             var config = new SttConfig(apiKeySetting.Value, "de");
-            var providerWs = await provider.ConnectAsync(config);
 
-            var cts = new CancellationTokenSource();
+            await using var session = await provider.CreateSessionAsync(config);
 
-            var forwardTask = ForwardAudioToProvider(browserWs, provider, providerWs, cts.Token);
-            var receiveTask = ForwardResultsToBrowser(browserWs, provider, providerWs, cts.Token);
+            using var cts = new CancellationTokenSource();
+
+            var forwardTask = ForwardAudioToProvider(browserWs, session, cts.Token);
+            var receiveTask = ForwardResultsToBrowser(browserWs, session, cts.Token);
 
             await Task.WhenAny(forwardTask, receiveTask);
             cts.Cancel();
-
-            await provider.DisconnectAsync(providerWs);
         }
         catch (WebSocketException ex)
         {
@@ -128,7 +130,7 @@ public class SttController : ControllerBase
         }
     }
 
-    private static async Task ForwardAudioToProvider(WebSocket browserWs, ISttProvider provider, WebSocket providerWs, CancellationToken ct)
+    private static async Task ForwardAudioToProvider(WebSocket browserWs, ISttSession session, CancellationToken ct)
     {
         var buffer = new byte[8192];
         while (!ct.IsCancellationRequested && browserWs.State == WebSocketState.Open)
@@ -139,15 +141,15 @@ public class SttController : ControllerBase
 
             var chunk = new byte[result.Count];
             Array.Copy(buffer, chunk, result.Count);
-            await provider.SendAudioAsync(providerWs, chunk, ct);
+            await session.SendAudioAsync(chunk, ct);
         }
     }
 
-    private static async Task ForwardResultsToBrowser(WebSocket browserWs, ISttProvider provider, WebSocket providerWs, CancellationToken ct)
+    private static async Task ForwardResultsToBrowser(WebSocket browserWs, ISttSession session, CancellationToken ct)
     {
         while (!ct.IsCancellationRequested && browserWs.State == WebSocketState.Open)
         {
-            var sttResult = await provider.ReceiveAsync(providerWs, ct);
+            var sttResult = await session.ReceiveAsync(ct);
             if (sttResult == null)
                 continue;
 
@@ -166,4 +168,4 @@ public class SttController : ControllerBase
     }
 }
 
-public record SttTestRequest(string ProviderId, string ApiKey);
+public record SttTestRequest(string ProviderId);
