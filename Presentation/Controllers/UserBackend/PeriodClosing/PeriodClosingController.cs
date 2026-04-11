@@ -1,8 +1,5 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/// <summary>
-/// Admin-only endpoints for sealing and unsealing work periods and reviewing audit trails.
-/// </summary>
 using Klacks.Api.Application.Commands.PeriodClosing;
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Queries.PeriodClosing;
@@ -13,6 +10,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.PeriodClosing;
 
+/// <summary>
+/// Admin-only endpoints for sealing and unsealing work periods and reviewing audit trails.
+/// </summary>
 [Authorize(Roles = Roles.Admin)]
 public class PeriodClosingController : BaseController
 {
