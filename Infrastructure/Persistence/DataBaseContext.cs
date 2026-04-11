@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Email;
 using Klacks.Api.Domain.Models.Histories;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Exports;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Settings;
@@ -94,6 +95,10 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<State> State { get; set; }
 
     public DbSet<Work> Work { get; set; }
+
+    public DbSet<PeriodAuditLog> PeriodAuditLog { get; set; }
+
+    public DbSet<ExportLog> ExportLog { get; set; }
 
     public DbSet<Break> Break { get; set; }
 
