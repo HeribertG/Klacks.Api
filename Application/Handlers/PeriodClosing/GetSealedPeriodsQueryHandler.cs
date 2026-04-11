@@ -1,10 +1,5 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/// <summary>
-/// Handler for building a per-day sealed-period summary by merging work and break sealing counts.
-/// </summary>
-/// <param name="request">Contains From, To date range and optional GroupId scope</param>
-
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.PeriodClosing;
@@ -12,6 +7,9 @@ using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.PeriodClosing;
 
+/// <summary>
+/// Handler for building a per-day sealed-period summary by merging work and break sealing counts.
+/// </summary>
 public class GetSealedPeriodsQueryHandler : BaseHandler, IRequestHandler<GetSealedPeriodsQuery, List<SealedPeriodSummaryDto>>
 {
     private readonly IWorkRepository _workRepository;

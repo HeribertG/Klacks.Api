@@ -1,11 +1,5 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/// <summary>
-/// Handler for unsealing a period by group, or the entire period when no group is specified.
-/// A non-empty reason is mandatory for every reopen operation.
-/// </summary>
-/// <param name="request">Contains StartDate, EndDate, optional GroupId and mandatory Reason</param>
-
 using Klacks.Api.Application.Commands.PeriodClosing;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
@@ -18,6 +12,10 @@ using System.Security.Claims;
 
 namespace Klacks.Api.Application.Handlers.PeriodClosing;
 
+/// <summary>
+/// Handler for unsealing a period by group, or the entire period when no group is specified.
+/// A non-empty reason is mandatory for every reopen operation.
+/// </summary>
 public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IRequestHandler<ReopenPeriodByGroupCommand, int>
 {
     private readonly IWorkRepository _workRepository;
@@ -43,6 +41,10 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
         _auditLogRepository = auditLogRepository;
     }
 
+    /// <summary>
+    /// Validates the request, checks permissions, performs the unseal operation, and writes the audit log entry.
+    /// </summary>
+    /// <param name="request">Contains StartDate, EndDate, optional GroupId and mandatory Reason</param>
     public async Task<int> Handle(ReopenPeriodByGroupCommand request, CancellationToken cancellationToken)
     {
         return await ExecuteWithTransactionAsync(async () =>

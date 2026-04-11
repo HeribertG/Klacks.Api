@@ -1,10 +1,5 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/// <summary>
-/// Handler for loading period audit log entries enriched with group display names.
-/// </summary>
-/// <param name="request">Contains From and To date range for filtering audit entries</param>
-
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.PeriodClosing;
@@ -14,6 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.PeriodClosing;
 
+/// <summary>
+/// Handler for loading period audit log entries enriched with group display names.
+/// </summary>
 public class GetPeriodAuditLogQueryHandler : BaseHandler, IRequestHandler<GetPeriodAuditLogQuery, List<PeriodAuditLogDto>>
 {
     private readonly IPeriodAuditLogRepository _auditLogRepository;

@@ -1,10 +1,5 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/// <summary>
-/// Handler for sealing a period by group, or the entire period when no group is specified.
-/// </summary>
-/// <param name="request">Contains StartDate, EndDate, optional GroupId and optional Reason</param>
-
 using Klacks.Api.Application.Commands.PeriodClosing;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
@@ -17,6 +12,9 @@ using System.Security.Claims;
 
 namespace Klacks.Api.Application.Handlers.PeriodClosing;
 
+/// <summary>
+/// Handler for sealing a period by group, or the entire period when no group is specified.
+/// </summary>
 public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequestHandler<ClosePeriodByGroupCommand, int>
 {
     private readonly IWorkRepository _workRepository;
@@ -42,6 +40,10 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
         _auditLogRepository = auditLogRepository;
     }
 
+    /// <summary>
+    /// Validates the request, checks permissions, performs the seal operation, and writes the audit log entry.
+    /// </summary>
+    /// <param name="request">Contains StartDate, EndDate, optional GroupId and optional Reason</param>
     public async Task<int> Handle(ClosePeriodByGroupCommand request, CancellationToken cancellationToken)
     {
         return await ExecuteWithTransactionAsync(async () =>
