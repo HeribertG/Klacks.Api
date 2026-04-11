@@ -1,0 +1,126 @@
+<h2>報表設計器手冊</h2>
+
+<h3>報表結構</h3>
+<p>報表由三個部分組成：</p>
+<ul>
+  <li><strong>頁首</strong> &ndash; 列印在每頁頂部</li>
+  <li><strong>內文</strong> &ndash; 包含資料表格</li>
+  <li><strong>頁尾</strong> &ndash; 列印在每頁底部</li>
+</ul>
+<p>每個部分可以透過報表編輯器的<em>設計</em>索引標籤進行編輯。</p>
+
+<hr>
+
+<h3>頁首部分</h3>
+<p>頁首包含三個區域：<strong>左</strong>、<strong>中</strong>、<strong>右</strong>。</p>
+<p>每個區域可以包含：</p>
+<ul>
+  <li><strong>欄位</strong> &ndash; 自動填入的資料庫欄位</li>
+  <li><strong>自由文字</strong> &ndash; 手動輸入的文字</li>
+  <li><strong>圖片</strong> &ndash; 例如：公司標誌（透過圖片管理員上傳）</li>
+</ul>
+<p>可以透過工具列新增或刪除列。</p>
+
+<hr>
+
+<h3>內文表格</h3>
+<p>內文包含一個或多個表格。</p>
+<table>
+  <tr><th>操作</th><th>說明</th></tr>
+  <tr><td>新增欄</td><td>透過 <strong>+</strong> 圖示或從欄位列表拖放新增</td></tr>
+  <tr><td>欄寬</td><td>拖曳欄框線進行調整</td></tr>
+  <tr><td>欄順序</td><td>透過拖放移動</td></tr>
+  <tr><td>刪除欄</td><td>透過欄編輯器中的刪除圖示刪除</td></tr>
+</table>
+<p>每個表格關聯一個資料集（例如：工作排班、地址）。</p>
+
+<hr>
+
+<h3>欄位合併（合併欄位）</h3>
+<p>合併欄位允許在一欄中設定多個資料繫結。</p>
+<ul>
+  <li>在欄編輯器中點擊<strong>新增欄位</strong>，在同一欄中新增更多欄位</li>
+  <li>值將縱向排列或以分隔符號連接顯示</li>
+  <li>分隔符號可在欄位對話方塊中設定（例如：逗號、空格、換行）</li>
+</ul>
+
+<hr>
+
+<h3>表格頁尾</h3>
+<p>可以在每個表格下方顯示頁尾。</p>
+<ul>
+  <li><strong>SUM 欄位：</strong> 可自動彙總數值欄</li>
+  <li><strong>標籤：</strong> 可顯示或隱藏合計標籤</li>
+  <li>在欄編輯器的<em>頁尾</em>索引標籤中啟用</li>
+</ul>
+
+<hr>
+
+<h3>自由文字列</h3>
+<p>自由文字列可以插入在資料表格前方或後方。</p>
+<table>
+  <tr><th>屬性</th><th>說明</th></tr>
+  <tr><td>位置</td><td>可選擇<em>資料之前</em>或<em>資料之後</em></td></tr>
+  <tr><td>內容</td><td>任意文字，例如：注意事項、條款、簽名欄</td></tr>
+  <tr><td>樣式</td><td>可設定字型、大小、對齊方式</td></tr>
+</table>
+
+<hr>
+
+<h3>格式設定</h3>
+<p>每個儲存格和自由文字可以單獨設定格式：</p>
+<table>
+  <tr><th>選項</th><th>說明</th></tr>
+  <tr><td>字型</td><td>可為儲存格選擇字型</td></tr>
+  <tr><td>字型大小</td><td>以磅（pt）為單位的大小</td></tr>
+  <tr><td>粗體 / 斜體 / 底線</td><td>透過 <strong>B</strong> / <strong>I</strong> / <strong>U</strong> 按鈕切換</td></tr>
+  <tr><td>文字色彩</td><td>可自由選擇色彩</td></tr>
+  <tr><td>對齊</td><td>靠左對齊、置中對齊或靠右對齊</td></tr>
+</table>
+
+<hr>
+
+<h3>儲存格框線</h3>
+<p>每個儲存格的框線可以單獨設定。</p>
+<table>
+  <tr><th>屬性</th><th>選項</th></tr>
+  <tr><td>邊</td><td>上、右、下、左（單獨或全部）</td></tr>
+  <tr><td>線條樣式</td><td>細線、中線、粗線、虛線、雙線</td></tr>
+  <tr><td>線條色彩</td><td>可自由選擇</td></tr>
+</table>
+<p>框線在欄編輯器的<em>框線</em>中設定。</p>
+
+<hr>
+
+<h3>頁面設定</h3>
+<p>在<em>一般</em>索引標籤中可調整列印設定：</p>
+<ul>
+  <li><strong>方向：</strong> 縱向（直式）或橫向（橫式）</li>
+  <li><strong>紙張大小：</strong> A4、A3、B4（JIS）、B5（JIS）或 Letter</li>
+  <li><strong>頁面邊界：</strong> 上、右、下、左（公釐）</li>
+</ul>
+
+<hr>
+
+<h3>顯示選項（設計器）</h3>
+<p>當資料來源為<strong>工作排班（Schedule）</strong>時，<em>設計</em>索引標籤中會顯示附加選項：</p>
+<ul>
+  <li><strong>合併同日項目：</strong> 將同一天的多個項目合併為一列顯示</li>
+  <li><strong>顯示完整時段：</strong> 顯示時段內的所有日期，包括沒有項目的日期</li>
+</ul>
+
+<hr>
+
+<h3>資料來源</h3>
+<p>報表中可用的資料來源：</p>
+<table>
+  <tr><th>資料來源</th><th>說明</th></tr>
+  <tr><td>工作排班（Schedule）</td><td>班次和工作時間</td></tr>
+  <tr><td>地址（列表）</td><td>以表格形式顯示所有地址</td></tr>
+  <tr><td>地址（詳細）</td><td>單一地址</td></tr>
+  <tr><td>缺勤</td><td>缺勤列表</td></tr>
+  <tr><td>班次（Shifts）</td><td>班次表格</td></tr>
+  <tr><td>分組</td><td>分組列表</td></tr>
+  <tr><td>容器範本</td><td>用於容器報表的範本</td></tr>
+</table>
+<p><em>資料來源在「資料來源」索引標籤中選擇，它決定了可用的欄位。</em></p>

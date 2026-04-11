@@ -1,0 +1,117 @@
+<h2>身分提供者手冊</h2>
+
+<h3>簡介</h3>
+<p>
+透過使用身分提供者，您可以透過LDAP、Active Directory、OAuth2/OpenID Connect等
+外部目錄服務進行使用者身分驗證。
+</p>
+
+<p><strong>支援的提供者類型：</strong></p>
+<ul>
+  <li><strong>LDAP</strong> - 標準輕量級目錄存取協定</li>
+  <li><strong>Active Directory</strong> - Microsoft Active Directory</li>
+  <li><strong>OAuth2</strong> - OAuth 2.0 授權框架</li>
+  <li><strong>OpenID Connect</strong> - 基於OAuth 2.0的身分層</li>
+</ul>
+
+<hr>
+
+<h3>LDAP / Active Directory</h3>
+
+<h4>連線設定</h4>
+<table>
+  <tr><th>欄位</th><th>說明</th><th>範例</th></tr>
+  <tr><td>主機</td><td>LDAP伺服器的主機名稱或IP位址</td><td>ldap.example.com</td></tr>
+  <tr><td>連接埠</td><td>389（LDAP）或636（LDAPS）</td><td>389</td></tr>
+  <tr><td>使用SSL</td><td>啟用加密連線</td><td>-</td></tr>
+  <tr><td>基礎DN</td><td>搜尋的基礎識別名稱</td><td>DC=example,DC=com</td></tr>
+  <tr><td>繫結DN</td><td>用於連線的使用者DN</td><td>CN=admin,DC=example,DC=com</td></tr>
+  <tr><td>繫結密碼</td><td>繫結使用者的密碼</td><td>-</td></tr>
+  <tr><td>使用者篩選器</td><td>用於搜尋使用者的LDAP篩選器</td><td>(objectClass=person)</td></tr>
+</table>
+
+<h4>LDAP與Active Directory的區別</h4>
+<table>
+  <tr><th>屬性</th><th>LDAP（OpenLDAP）</th><th>Active Directory</th></tr>
+  <tr><td>使用者屬性</td><td>uid</td><td>sAMAccountName</td></tr>
+  <tr><td>地址屬性</td><td>street</td><td>streetAddress</td></tr>
+  <tr><td>稱謂屬性</td><td>-</td><td>personalTitle</td></tr>
+  <tr><td>國家屬性</td><td>-</td><td>c</td></tr>
+  <tr><td>認證方式</td><td>簡單繫結</td><td>Negotiate/Kerberos</td></tr>
+</table>
+
+<h4>典型使用者篩選器</h4>
+<pre>
+LDAP:             (objectClass=person)
+                  (objectClass=inetOrgPerson)
+
+Active Directory: (&amp;(objectClass=user)(objectCategory=person))
+                  (&amp;(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+</pre>
+
+<h4>客戶匯入</h4>
+<p>啟用「用於客戶匯入」後，將匯入以下資料：</p>
+<ul>
+  <li><strong>姓名</strong> - sn（姓氏）或 displayName</li>
+  <li><strong>名字</strong> - givenName</li>
+  <li><strong>職位</strong> - title（職位名稱）</li>
+  <li><strong>公司</strong> - company</li>
+  <li><strong>地址</strong> - street/streetAddress、postalCode、l（城市）、st（省/州）、c（國家）</li>
+  <li><strong>性別</strong> - Active Directory情況下，從personalTitle（Herr/Frau）取得</li>
+</ul>
+
+<p><em>注意：使用OpenLDAP時，性別預設為「中性」，可手動修正。</em></p>
+
+<hr>
+
+<h3>OAuth2 / OpenID Connect</h3>
+
+<h4>設定</h4>
+<table>
+  <tr><th>欄位</th><th>說明</th></tr>
+  <tr><td>用戶端ID</td><td>在提供者處註冊的用戶端ID</td></tr>
+  <tr><td>用戶端密鑰</td><td>對應的用戶端密鑰</td></tr>
+  <tr><td>租戶ID</td><td>Azure AD租戶ID（選填，僅限Microsoft）</td></tr>
+  <tr><td>授權URL</td><td>授權端點</td></tr>
+  <tr><td>權杖URL</td><td>權杖交換端點</td></tr>
+  <tr><td>使用者資訊URL</td><td>使用者資訊取得端點</td></tr>
+  <tr><td>範圍</td><td>要求的權限（例如：「openid profile email」）</td></tr>
+</table>
+
+<h4>主要提供者</h4>
+<table>
+  <tr><th>提供者</th><th>授權URL</th><th>權杖URL</th></tr>
+  <tr><td>Google</td><td>https://accounts.google.com/o/oauth2/v2/auth</td><td>https://oauth2.googleapis.com/token</td></tr>
+  <tr><td>Microsoft</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</td></tr>
+  <tr><td>GitHub</td><td>https://github.com/login/oauth/authorize</td><td>https://github.com/login/oauth/access_token</td></tr>
+</table>
+
+<hr>
+
+<h3>提示</h3>
+
+<h4>使用Synology NAS作為LDAP伺服器</h4>
+<p>
+您可以使用Synology NAS作為LDAP伺服器。在這種情況下，需要安裝「LDAP Server」軟體套件
+或使用基於OpenLDAP的Docker容器。
+</p>
+<ul>
+  <li>提供者類型：「Active Directory」（用於備援認證）</li>
+  <li>使用者篩選器：(objectClass=inetOrgPerson)</li>
+  <li>使用者DN格式：cn=username,ou=users,dc=example,dc=com</li>
+</ul>
+
+<h4>測試連線</h4>
+<p>
+請使用「測試連線」按鈕來驗證設定。
+連線成功後，將顯示找到的使用者數量和一些範例使用者名稱。
+</p>
+
+<h4>疑難排解</h4>
+<table>
+  <tr><th>問題</th><th>解決方案</th></tr>
+  <tr><td>連線失敗</td><td>請檢查主機、連接埠和SSL設定</td></tr>
+  <tr><td>繫結失敗</td><td>請檢查繫結DN和密碼</td></tr>
+  <tr><td>找不到使用者</td><td>請檢查基礎DN和使用者篩選器</td></tr>
+  <tr><td>地址未匯入</td><td>OpenLDAP使用「street」而非「streetAddress」</td></tr>
+</table>

@@ -1,0 +1,118 @@
+<h2>دليل مزود الهوية</h2>
+
+<h3>مقدمة</h3>
+<p>
+تتيح مزودات الهوية مصادقة المستخدمين عبر خدمات الدليل الخارجية
+مثل LDAP وActive Directory أو OAuth2/OpenID Connect.
+</p>
+
+<p><strong>أنواع المزودات المدعومة:</strong></p>
+<ul>
+  <li><strong>LDAP</strong> - بروتوكول الوصول الخفيف للدليل القياسي</li>
+  <li><strong>Active Directory</strong> - Microsoft Active Directory</li>
+  <li><strong>OAuth2</strong> - إطار تفويض OAuth 2.0</li>
+  <li><strong>OpenID Connect</strong> - طبقة هوية فوق OAuth 2.0</li>
+</ul>
+
+<hr>
+
+<h3>LDAP / Active Directory</h3>
+
+<h4>إعدادات الاتصال</h4>
+<table>
+  <tr><th>الحقل</th><th>الوصف</th><th>مثال</th></tr>
+  <tr><td>Host</td><td>اسم المضيف أو عنوان IP لخادم LDAP</td><td>ldap.example.com</td></tr>
+  <tr><td>المنفذ</td><td>389 (LDAP) أو 636 (LDAPS)</td><td>389</td></tr>
+  <tr><td>استخدام SSL</td><td>تفعيل الاتصال المشفّر</td><td>-</td></tr>
+  <tr><td>Base DN</td><td>الاسم المميز الأساسي لعمليات البحث</td><td>DC=example,DC=com</td></tr>
+  <tr><td>Bind DN</td><td>الاسم المميز للمستخدم المستخدم للاتصال</td><td>CN=admin,DC=example,DC=com</td></tr>
+  <tr><td>كلمة مرور Bind</td><td>كلمة المرور لمستخدم Bind</td><td>-</td></tr>
+  <tr><td>مرشح المستخدم</td><td>مرشح LDAP للبحث عن المستخدمين</td><td>(objectClass=person)</td></tr>
+</table>
+
+<h4>الفروقات بين LDAP وActive Directory</h4>
+<table>
+  <tr><th>الخاصية</th><th>LDAP (OpenLDAP)</th><th>Active Directory</th></tr>
+  <tr><td>سمة المستخدم</td><td>uid</td><td>sAMAccountName</td></tr>
+  <tr><td>سمة الشارع</td><td>street</td><td>streetAddress</td></tr>
+  <tr><td>سمة لقب المخاطبة</td><td>-</td><td>personalTitle</td></tr>
+  <tr><td>سمة الدولة</td><td>-</td><td>c</td></tr>
+  <tr><td>طريقة المصادقة</td><td>Simple Bind</td><td>Negotiate/Kerberos</td></tr>
+</table>
+
+<h4>مرشحات المستخدم الشائعة</h4>
+<pre>
+LDAP:             (objectClass=person)
+                  (objectClass=inetOrgPerson)
+
+Active Directory: (&amp;(objectClass=user)(objectCategory=person))
+                  (&amp;(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+</pre>
+
+<h4>استيراد العملاء</h4>
+<p>عند تفعيل "استخدام لاستيراد العملاء"، يتم استيراد البيانات التالية:</p>
+<ul>
+  <li><strong>اسم العائلة</strong> - sn (اسم العائلة) أو displayName</li>
+  <li><strong>الاسم الأول</strong> - givenName</li>
+  <li><strong>المسمى الوظيفي</strong> - title (المسمى الوظيفي)</li>
+  <li><strong>الشركة</strong> - company</li>
+  <li><strong>العنوان</strong> - street/streetAddress وpostalCode وl (المدينة) وst (الولاية) وc (الدولة)</li>
+  <li><strong>الجنس</strong> - من خلال personalTitle (السيد/السيدة) في Active Directory</li>
+</ul>
+
+<p><em>ملاحظة: في OpenLDAP يكون الجنس افتراضياً "محايد" ويمكن تصحيحه يدوياً.</em></p>
+
+<hr>
+
+<h3>OAuth2 / OpenID Connect</h3>
+
+<h4>الإعدادات</h4>
+<table>
+  <tr><th>الحقل</th><th>الوصف</th></tr>
+  <tr><td>Client ID</td><td>معرف العميل المسجل لدى المزود</td></tr>
+  <tr><td>Client Secret</td><td>كلمة سر العميل المقابلة</td></tr>
+  <tr><td>Tenant ID</td><td>معرف المستأجر لـ Azure AD (اختياري، خاص بـ Microsoft فقط)</td></tr>
+  <tr><td>رابط التفويض</td><td>نقطة الاتصال الخاصة بالتفويض</td></tr>
+  <tr><td>رابط الرمز المميز</td><td>نقطة الاتصال لتبادل الرموز المميزة</td></tr>
+  <tr><td>رابط معلومات المستخدم</td><td>نقطة الاتصال للحصول على معلومات المستخدم</td></tr>
+  <tr><td>النطاقات (Scopes)</td><td>الأذونات المطلوبة (مثل "openid profile email")</td></tr>
+</table>
+
+<h4>المزودات المعروفة</h4>
+<table>
+  <tr><th>المزود</th><th>رابط التفويض</th><th>رابط الرمز المميز</th></tr>
+  <tr><td>Google</td><td>https://accounts.google.com/o/oauth2/v2/auth</td><td>https://oauth2.googleapis.com/token</td></tr>
+  <tr><td>Microsoft</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</td></tr>
+  <tr><td>GitHub</td><td>https://github.com/login/oauth/authorize</td><td>https://github.com/login/oauth/access_token</td></tr>
+</table>
+
+<hr>
+
+<h3>نصائح</h3>
+
+<h4>استخدام Synology NAS كخادم LDAP</h4>
+<p>
+يمكن استخدام جهاز Synology NAS كخادم LDAP. لهذا الغرض، يجب تثبيت حزمة
+"LDAP Server" أو حاوية Docker تحتوي على OpenLDAP.
+</p>
+<ul>
+  <li>نوع المزود: "Active Directory" (للمصادقة الاحتياطية)</li>
+  <li>مرشح المستخدم: (objectClass=inetOrgPerson)</li>
+  <li>صيغة DN للمستخدم: cn=اسم_المستخدم,ou=users,dc=example,dc=com</li>
+</ul>
+
+<h4>اختبار الاتصال</h4>
+<p>
+استخدم زر "اختبار الاتصال" للتحقق من الإعدادات.
+إذا نجح الاتصال، يظهر عدد المستخدمين الذين تم العثور عليهم وبعض
+أسماء المستخدمين كأمثلة.
+</p>
+
+<h4>حل المشكلات</h4>
+<table>
+  <tr><th>المشكلة</th><th>الحل</th></tr>
+  <tr><td>فشل الاتصال</td><td>تحقق من المضيف والمنفذ وإعدادات SSL</td></tr>
+  <tr><td>فشل Bind</td><td>تحقق من Bind DN وكلمة المرور</td></tr>
+  <tr><td>لم يتم العثور على مستخدمين</td><td>تحقق من Base DN ومرشح المستخدم</td></tr>
+  <tr><td>العناوين لم تُستورد</td><td>OpenLDAP يستخدم "street" بدلاً من "streetAddress"</td></tr>
+</table>

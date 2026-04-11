@@ -1,0 +1,82 @@
+<h2>قواعد أيام العطل - شروحات</h2>
+
+<h3>صيغة القواعد</h3>
+<p>يوجد نوعان من القواعد: <strong>التواريخ الثابتة</strong> و<strong>التواريخ المرتبطة بعيد الفصح</strong>.</p>
+
+<h4>التواريخ الثابتة</h4>
+<p>الصيغة: <code>MM/DD</code></p>
+<table>
+  <tr><th>مثال</th><th>المعنى</th></tr>
+  <tr><td><code>01/01</code></td><td>1 يناير (رأس السنة الجديدة)</td></tr>
+  <tr><td><code>12/25</code></td><td>25 ديسمبر (عيد الميلاد)</td></tr>
+  <tr><td><code>08/01</code></td><td>1 أغسطس (العيد الوطني السويسري)</td></tr>
+</table>
+
+<h4>التواريخ الثابتة مع إزاحة حسب يوم الأسبوع</h4>
+<p>الصيغة: <code>MM/DD+XX+WW</code> أو <code>MM/DD+XX-WW</code></p>
+<ul>
+  <li><code>+XX</code> = إشارة + إزاحة بالأيام (من 00 إلى 99)</li>
+  <li><code>+</code> = يوم الأسبوع التالي بعد التاريخ</li>
+  <li><code>-</code> = يوم الأسبوع السابق للتاريخ</li>
+  <li><code>WW</code> = يوم الأسبوع (SU, MO, TU, WE, TH, FR, SA)</li>
+</ul>
+<table>
+  <tr><th>مثال</th><th>المعنى</th></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>أول خميس من نوفمبر</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>رابع خميس من نوفمبر (عيد الشكر)</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>آخر اثنين من مايو (يوم الذكرى)</td></tr>
+</table>
+
+<h4>التواريخ المرتبطة بعيد الفصح</h4>
+<p>الصيغة: <code>EASTER+XX</code> أو <code>EASTER-XX</code></p>
+<table>
+  <tr><th>مثال</th><th>المعنى</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>أحد الفصح</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>الجمعة العظيمة (قبل الفصح بيومين)</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>اثنين الفصح (بعد الفصح بيوم واحد)</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>عيد صعود المسيح (بعد الفصح بـ 39 يوماً)</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>أحد العنصرة (بعد الفصح بـ 49 يوماً)</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>اثنين العنصرة (بعد الفصح بـ 50 يوماً)</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>عيد جسد الرب (بعد الفصح بـ 60 يوماً)</td></tr>
+</table>
+
+<hr>
+
+<h3>صيغة القواعد الفرعية</h3>
+<p>تسمح القواعد الفرعية بالإزاحة التلقائية ليوم العطلة عندما يصادف يوماً محدداً من أيام الأسبوع.</p>
+<p>الصيغة: <code>WW+X</code> أو <code>WW-X</code>، وتُفصل عدة قواعد بواسطة <code>;</code></p>
+<ul>
+  <li><code>WW</code> = يوم الأسبوع (SU, MO, TU, WE, TH, FR, SA)</li>
+  <li><code>+X</code> = إزاحة X أيام إلى الأمام</li>
+  <li><code>-X</code> = إزاحة X أيام إلى الخلف</li>
+</ul>
+<table>
+  <tr><th>مثال</th><th>المعنى</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>إذا كان السبت: +2 أيام (الاثنين)، إذا كان الأحد: +1 يوم (الاثنين)</td></tr>
+  <tr><td><code>SU+1</code></td><td>إذا كان الأحد: انقل إلى الاثنين</td></tr>
+</table>
+
+<p><em>ملاحظة: تُستخدم القواعد الفرعية عادةً لنقل أيام العطل التي تصادف عطلة نهاية الأسبوع إلى يوم العمل التالي.</em></p>
+
+<hr>
+
+<h3>اختصارات أيام الأسبوع</h3>
+<table>
+  <tr><th>الاختصار</th><th>يوم الأسبوع</th></tr>
+  <tr><td>SU</td><td>الأحد (Sunday)</td></tr>
+  <tr><td>MO</td><td>الاثنين (Monday)</td></tr>
+  <tr><td>TU</td><td>الثلاثاء (Tuesday)</td></tr>
+  <tr><td>WE</td><td>الأربعاء (Wednesday)</td></tr>
+  <tr><td>TH</td><td>الخميس (Thursday)</td></tr>
+  <tr><td>FR</td><td>الجمعة (Friday)</td></tr>
+  <tr><td>SA</td><td>السبت (Saturday)</td></tr>
+</table>
+
+<hr>
+
+<h3>مربعات الاختيار</h3>
+<table>
+  <tr><th>المربع</th><th>المعنى</th></tr>
+  <tr><td>عطلة رسمية</td><td>اليوم هو عطلة رسمية/قانونية</td></tr>
+  <tr><td>مدفوعة الأجر</td><td>العطلة مدفوعة الأجر (مهم لحساب الرواتب)</td></tr>
+</table>
