@@ -7,6 +7,7 @@ public interface ISettingsEncryptionService
     string Encrypt(string value);
     string Decrypt(string encryptedValue);
     bool IsSensitiveSettingType(string type);
+    bool IsServerOnlySettingType(string type);
     string ProcessForStorage(string type, string value);
     string ProcessForReading(string type, string value);
 }

@@ -39,7 +39,11 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
                     var originalValue = setting.Value;
                     setting.Value = _encryptionService.ProcessForReading(setting.Type, setting.Value);
 
-                    if (_encryptionService.IsSensitiveSettingType(setting.Type))
+                    if (_encryptionService.IsServerOnlySettingType(setting.Type))
+                    {
+                        setting.Value = string.IsNullOrEmpty(setting.Value) ? string.Empty : "***";
+                    }
+                    else if (_encryptionService.IsSensitiveSettingType(setting.Type))
                     {
                         _logger.LogInformation("Setting {Type}: Original starts with ENC: {IsEncrypted}, Decrypted length: {Length}",
                             setting.Type,

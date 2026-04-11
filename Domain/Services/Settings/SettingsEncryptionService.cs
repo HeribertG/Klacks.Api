@@ -15,8 +15,19 @@ public class SettingsEncryptionService : ISettingsEncryptionService
         "outgoingserverPassword",
         "incomingServerPassword",
         "OPENROUTESERVICE_API_KEY",
-        "DEEPL_API_KEY"
+        "DEEPL_API_KEY",
+        "ASSISTANT_STT_API_KEY"
     };
+
+    private static readonly HashSet<string> ServerOnlySettingTypes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "ASSISTANT_STT_API_KEY"
+    };
+
+    public bool IsServerOnlySettingType(string type)
+    {
+        return ServerOnlySettingTypes.Contains(type);
+    }
 
     private const string EncryptedPrefix = "ENC:";
 
