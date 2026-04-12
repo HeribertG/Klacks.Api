@@ -312,6 +312,20 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
     public async Task<List<UsedPeriodDto>> GetUsedPeriodsAsync(CancellationToken cancellationToken = default)
     {
+        var allPeriods = from cph in context.ClientPeriodHours.AsNoTracking()
+                         where !cph.IsDeleted
+                         join client in context.Client.AsNoTracking() on cph.ClientId equals client.Id
+                         where !client.IsDeleted
+                         where context.Work.AsNoTracking().Any(w => !w.IsDeleted
+                                     && w.ClientId == cph.ClientId
+                                     && w.CurrentDate >= cph.StartDate
+                                     && w.CurrentDate <= cph.EndDate)
+                               || context.Break.AsNoTracking().Any(b => !b.IsDeleted
+                                     && b.ClientId == cph.ClientId
+                                     && b.CurrentDate >= cph.StartDate
+                                     && b.CurrentDate <= cph.EndDate)
+                         select new { cph.StartDate, cph.EndDate, cph.PaymentInterval, GroupId = (Guid?)null, GroupName = (string?)null };
+
         var withGroup = from cph in context.ClientPeriodHours.AsNoTracking()
                         where !cph.IsDeleted
                         join client in context.Client.AsNoTracking() on cph.ClientId equals client.Id
@@ -330,22 +344,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
                                     && b.CurrentDate <= cph.EndDate)
                         select new { cph.StartDate, cph.EndDate, cph.PaymentInterval, GroupId = (Guid?)g.Id, GroupName = (string?)g.Description };
 
-        var withoutGroup = from cph in context.ClientPeriodHours.AsNoTracking()
-                           where !cph.IsDeleted
-                           join client in context.Client.AsNoTracking() on cph.ClientId equals client.Id
-                           where !client.IsDeleted
-                           where !context.GroupItem.AsNoTracking().Any(gi => !gi.IsDeleted && gi.ClientId == client.Id)
-                           where context.Work.AsNoTracking().Any(w => !w.IsDeleted
-                                       && w.ClientId == cph.ClientId
-                                       && w.CurrentDate >= cph.StartDate
-                                       && w.CurrentDate <= cph.EndDate)
-                                 || context.Break.AsNoTracking().Any(b => !b.IsDeleted
-                                       && b.ClientId == cph.ClientId
-                                       && b.CurrentDate >= cph.StartDate
-                                       && b.CurrentDate <= cph.EndDate)
-                           select new { cph.StartDate, cph.EndDate, cph.PaymentInterval, GroupId = (Guid?)null, GroupName = (string?)null };
-
-        var combined = await withGroup.Union(withoutGroup)
+        var combined = await allPeriods.Union(withGroup)
             .Distinct()
             .OrderByDescending(p => p.StartDate)
             .ThenBy(p => p.EndDate)
