@@ -179,6 +179,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IClientAvailabilityRepository, ClientAvailabilityRepository>();
         services.AddScoped<IClientImageRepository, ClientImageRepository>();
         services.AddScoped<IContainerTemplateRepository, ContainerTemplateRepository>();
+        services.AddScoped<IContainerShiftOverrideRepository, ContainerShiftOverrideRepository>();
         services.AddScoped<IPostcodeChRepository, PostcodeChRepository>();
         services.AddScoped<IIdentityProviderRepository, IdentityProviderRepository>();
         services.AddScoped<IIdentityProviderSyncLogRepository, IdentityProviderSyncLogRepository>();
