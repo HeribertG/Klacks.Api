@@ -108,6 +108,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<ScheduleNote> ScheduleNotes { get; set; }
 
+    public DbSet<ScheduleCommand> ScheduleCommands { get; set; }
+
     public DbSet<AnalyseScenario> AnalyseScenarios { get; set; }
 
     public DbSet<ShiftExpenses> ShiftExpenses { get; set; }

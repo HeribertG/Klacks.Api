@@ -89,6 +89,20 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(ScheduleNote.AnalyseToken))]
     public partial ScheduleNote ToScheduleNoteEntity(ScheduleNoteResource resource);
 
+    public partial ScheduleCommandResource ToScheduleCommandResource(ScheduleCommand scheduleCommand);
+    public partial List<ScheduleCommandResource> ToScheduleCommandResourceList(List<ScheduleCommand> scheduleCommands);
+
+    [MapperIgnoreTarget(nameof(ScheduleCommand.CreateTime))]
+    [MapperIgnoreTarget(nameof(ScheduleCommand.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(ScheduleCommand.UpdateTime))]
+    [MapperIgnoreTarget(nameof(ScheduleCommand.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(ScheduleCommand.DeletedTime))]
+    [MapperIgnoreTarget(nameof(ScheduleCommand.IsDeleted))]
+    [MapperIgnoreTarget(nameof(ScheduleCommand.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(ScheduleCommand.Client))]
+    [MapperIgnoreTarget(nameof(ScheduleCommand.AnalyseToken))]
+    public partial ScheduleCommand ToScheduleCommandEntity(ScheduleCommandResource resource);
+
     public partial SchedulingRuleResource ToSchedulingRuleResource(SchedulingRule rule);
 
     [MapperIgnoreTarget(nameof(SchedulingRule.CreateTime))]

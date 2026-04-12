@@ -4,7 +4,7 @@
 --   end_date: End of the period
 --   visible_group_ids: Optional array of visible group IDs for filtering (includes subgroups)
 -- Returns: Combined entries from Work, WorkChange, Expenses, Break, and ScheduleNote with calculated times
--- Entry Types: 0 = Work, 1 = WorkChange, 2 = Expenses, 3 = Break, 4 = ScheduleNote
+-- Entry Types: 0 = Work, 1 = WorkChange, 2 = Expenses, 3 = Break, 4 = ScheduleNote, 5 = ScheduleCommand
 -- Lock Levels: 0 = None, 1 = Confirmed, 2 = Approved, 3 = Closed
 
 DROP FUNCTION IF EXISTS get_work_schedule(DATE, DATE, UUID[]);
@@ -425,6 +425,37 @@ BEGIN
         AND sn."current_date"::DATE >= start_date
         AND sn."current_date"::DATE <= end_date
         AND (p_analyse_token IS NULL OR sn.analyse_token = p_analyse_token)
+    ),
+    -- Entry Type 5: ScheduleCommand entries
+    schedule_command_entries AS (
+        SELECT
+            sc.id,
+            5 AS entry_type,
+            sc.id AS source_id,
+            sc.client_id,
+            sc."current_date"::DATE AS entry_date,
+            '23:59:59'::TIME AS start_time,
+            '23:59:59'::TIME AS end_time,
+            NULL::NUMERIC AS change_time,
+            NULL::NUMERIC AS surcharges,
+            NULL::INTEGER AS work_change_type,
+            sc.command_keyword AS description,
+            NULL::TEXT AS information,
+            NULL::NUMERIC AS amount,
+            NULL::BOOLEAN AS to_invoice,
+            NULL::BOOLEAN AS taxable,
+            '00000000-0000-0000-0000-000000000000'::UUID AS entry_id,
+            NULL::TEXT AS entry_name,
+            NULL::TEXT AS abbreviation,
+            NULL::UUID AS replace_client_id,
+            false AS is_replacement_entry,
+            0 AS lock_level,
+            false AS is_group_restricted
+        FROM schedule_commands sc
+        WHERE sc.is_deleted = false
+        AND sc."current_date"::DATE >= start_date
+        AND sc."current_date"::DATE <= end_date
+        AND (p_analyse_token IS NULL OR sc.analyse_token = p_analyse_token)
     )
     -- Combine all entries
     SELECT * FROM (
@@ -447,6 +478,8 @@ BEGIN
         SELECT * FROM break_entries
         UNION ALL
         SELECT * FROM schedule_note_entries
+        UNION ALL
+        SELECT * FROM schedule_command_entries
     ) AS combined
     ORDER BY combined.client_id, combined.entry_date, combined.start_time,
         CASE combined.entry_type
@@ -454,7 +487,8 @@ BEGIN
             WHEN 2 THEN 1  -- Expenses second
             WHEN 1 THEN 2  -- WorkChange third
             WHEN 3 THEN 3  -- Break fourth
-            WHEN 4 THEN 4  -- ScheduleNote last
+            WHEN 4 THEN 4  -- ScheduleNote fifth
+            WHEN 5 THEN 5  -- ScheduleCommand last
         END;
 END;
 $$ LANGUAGE plpgsql;
