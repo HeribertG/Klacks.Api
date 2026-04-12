@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "Ưu tiên ca làm...",
   "contextMenu.noScheduleTemplates": "Không có mẫu lịch trực",
   "contextMenu.deleteBreakPlaceholder": "Xóa",
+  "contextMenu.editContainerShift": "Edit shift",
+  "contextMenu.resetContainerShift": "Reset shift",
   "contextMenu.adoptAbsence": "Tiếp nhận nghỉ phép",
   "contextMenu.email.markRead": "Đánh dấu đã đọc",
   "contextMenu.email.markUnread": "Đánh dấu chưa đọc",

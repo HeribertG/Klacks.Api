@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "Keutamaan syif...",
   "contextMenu.noScheduleTemplates": "Tiada templat jadual syif",
   "contextMenu.deleteBreakPlaceholder": "Padam",
+  "contextMenu.editContainerShift": "Edit shift",
+  "contextMenu.resetContainerShift": "Reset shift",
   "contextMenu.adoptAbsence": "Terima ketidakhadiran",
   "contextMenu.email.markRead": "Tanda sebagai dibaca",
   "contextMenu.email.markUnread": "Tanda sebagai belum dibaca",

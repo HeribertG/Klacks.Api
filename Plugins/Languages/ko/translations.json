@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "근무 선호도...",
   "contextMenu.noScheduleTemplates": "근무표 템플릿이 없습니다",
   "contextMenu.deleteBreakPlaceholder": "삭제",
+  "contextMenu.editContainerShift": "Edit shift",
+  "contextMenu.resetContainerShift": "Reset shift",
   "contextMenu.adoptAbsence": "부재 적용",
   "contextMenu.email.markRead": "읽음으로 표시",
   "contextMenu.email.markUnread": "읽지 않음으로 표시",

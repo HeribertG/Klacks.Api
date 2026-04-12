@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "Vagtpræferencer...",
   "contextMenu.noScheduleTemplates": "Ingen vagtplanskabelon tilgængelig",
   "contextMenu.deleteBreakPlaceholder": "Slet",
+  "contextMenu.editContainerShift": "Edit shift",
+  "contextMenu.resetContainerShift": "Reset shift",
   "contextMenu.adoptAbsence": "Overtag fravær",
   "contextMenu.email.markRead": "Markér som læst",
   "contextMenu.email.markUnread": "Markér som ulæst",

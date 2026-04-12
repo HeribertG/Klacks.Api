@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "Preference směn...",
   "contextMenu.noScheduleTemplates": "Žádná šablona rozpisu služeb",
   "contextMenu.deleteBreakPlaceholder": "Smazat",
+  "contextMenu.editContainerShift": "Edit shift",
+  "contextMenu.resetContainerShift": "Reset shift",
   "contextMenu.adoptAbsence": "Převzít absenci",
   "contextMenu.email.markRead": "Označit jako přečtené",
   "contextMenu.email.markUnread": "Označit jako nepřečtené",

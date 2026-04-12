@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "Vuoroasetukset...",
   "contextMenu.noScheduleTemplates": "Ei työvuoropohjaa saatavilla",
   "contextMenu.deleteBreakPlaceholder": "Poista",
+  "contextMenu.editContainerShift": "Edit shift",
+  "contextMenu.resetContainerShift": "Reset shift",
   "contextMenu.adoptAbsence": "Hyväksy poissaolo",
   "contextMenu.email.markRead": "Merkitse luetuksi",
   "contextMenu.email.markUnread": "Merkitse lukemattomaksi",

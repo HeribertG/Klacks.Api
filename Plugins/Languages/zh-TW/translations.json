@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "班次偏好...",
   "contextMenu.noScheduleTemplates": "沒有可用的排班模板",
   "contextMenu.deleteBreakPlaceholder": "刪除",
+  "contextMenu.editContainerShift": "Edit shift",
+  "contextMenu.resetContainerShift": "Reset shift",
   "contextMenu.adoptAbsence": "接受缺勤",
   "contextMenu.email.markRead": "標記為已讀",
   "contextMenu.email.markUnread": "標記為未讀",

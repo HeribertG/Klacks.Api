@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "Dienstvoorkeuren...",
   "contextMenu.noScheduleTemplates": "Geen dienstrooster-sjabloon beschikbaar",
   "contextMenu.deleteBreakPlaceholder": "Verwijderen",
+  "contextMenu.editContainerShift": "Edit shift",
+  "contextMenu.resetContainerShift": "Reset shift",
   "contextMenu.adoptAbsence": "Afwezigheid overnemen",
   "contextMenu.email.markRead": "Als gelezen markeren",
   "contextMenu.email.markUnread": "Als ongelezen markeren",

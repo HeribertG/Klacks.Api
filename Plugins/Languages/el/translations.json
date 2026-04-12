@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "Προτιμήσεις βάρδιας...",
   "contextMenu.noScheduleTemplates": "Δεν υπάρχει πρότυπο προγράμματος",
   "contextMenu.deleteBreakPlaceholder": "Διαγραφή",
+  "contextMenu.editContainerShift": "Edit shift",
+  "contextMenu.resetContainerShift": "Reset shift",
   "contextMenu.adoptAbsence": "Αποδοχή απουσίας",
   "contextMenu.email.markRead": "Σήμανση ως αναγνωσμένο",
   "contextMenu.email.markUnread": "Σήμανση ως μη αναγνωσμένο",

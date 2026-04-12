@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "העדפות משמרת...",
   "contextMenu.noScheduleTemplates": "אין תבנית תוכנית משמרות",
   "contextMenu.deleteBreakPlaceholder": "מחק",
+  "contextMenu.editContainerShift": "Edit shift",
+  "contextMenu.resetContainerShift": "Reset shift",
   "contextMenu.adoptAbsence": "אמץ היעדרות",
   "contextMenu.email.markRead": "סמן כנקרא",
   "contextMenu.email.markUnread": "סמן כלא נקרא",

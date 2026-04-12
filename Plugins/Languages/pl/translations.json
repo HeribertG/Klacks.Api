@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "Preferencje dyżurów...",
   "contextMenu.noScheduleTemplates": "Brak szablonu grafiku",
   "contextMenu.deleteBreakPlaceholder": "Usuń",
+  "contextMenu.editContainerShift": "Edit shift",
+  "contextMenu.resetContainerShift": "Reset shift",
   "contextMenu.adoptAbsence": "Przejmij nieobecność",
   "contextMenu.email.markRead": "Oznacz jako przeczytane",
   "contextMenu.email.markUnread": "Oznacz jako nieprzeczytane",

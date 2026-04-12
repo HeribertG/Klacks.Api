@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "การตั้งค่ากะ...",
   "contextMenu.noScheduleTemplates": "ไม่มีเทมเพลตตารางกะ",
   "contextMenu.deleteBreakPlaceholder": "ลบ",
+  "contextMenu.editContainerShift": "Edit shift",
+  "contextMenu.resetContainerShift": "Reset shift",
   "contextMenu.adoptAbsence": "รับการลา",
   "contextMenu.email.markRead": "ทำเครื่องหมายว่าอ่านแล้ว",
   "contextMenu.email.markUnread": "ทำเครื่องหมายว่ายังไม่ได้อ่าน",

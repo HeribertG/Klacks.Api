@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "シフト設定...",
   "contextMenu.noScheduleTemplates": "スケジュールテンプレートがありません",
   "contextMenu.deleteBreakPlaceholder": "削除",
+  "contextMenu.editContainerShift": "Edit shift",
+  "contextMenu.resetContainerShift": "Reset shift",
   "contextMenu.adoptAbsence": "休暇を引き継ぐ",
   "contextMenu.email.markRead": "既読にする",
   "contextMenu.email.markUnread": "未読にする",

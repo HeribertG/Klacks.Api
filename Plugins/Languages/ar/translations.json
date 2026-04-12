@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "تفضيلات المناوبة...",
   "contextMenu.noScheduleTemplates": "لا يوجد قالب جدول مناوبات",
   "contextMenu.deleteBreakPlaceholder": "حذف",
+  "contextMenu.editContainerShift": "Edit shift",
+  "contextMenu.resetContainerShift": "Reset shift",
   "contextMenu.adoptAbsence": "قبول الغياب",
   "contextMenu.email.markRead": "وضع علامة مقروء",
   "contextMenu.email.markUnread": "وضع علامة غير مقروء",

@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "Preferințe de tură...",
   "contextMenu.noScheduleTemplates": "Nu există șablon de plan de ture",
   "contextMenu.deleteBreakPlaceholder": "Ștergere",
+  "contextMenu.editContainerShift": "Edit shift",
+  "contextMenu.resetContainerShift": "Reset shift",
   "contextMenu.adoptAbsence": "Preluare absență",
   "contextMenu.email.markRead": "Marcare ca citit",
   "contextMenu.email.markUnread": "Marcare ca necitit",

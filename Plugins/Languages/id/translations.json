@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "Preferensi dinas...",
   "contextMenu.noScheduleTemplates": "Tidak ada template jadwal dinas",
   "contextMenu.deleteBreakPlaceholder": "Hapus",
+  "contextMenu.editContainerShift": "Edit shift",
+  "contextMenu.resetContainerShift": "Reset shift",
   "contextMenu.adoptAbsence": "Ambil alih ketidakhadiran",
   "contextMenu.email.markRead": "Tandai sudah dibaca",
   "contextMenu.email.markUnread": "Tandai belum dibaca",
