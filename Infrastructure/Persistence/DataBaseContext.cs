@@ -90,6 +90,10 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<ContainerTemplateItem> ContainerTemplateItem { get; set; }
 
+    public DbSet<ContainerShiftOverride> ContainerShiftOverrides { get; set; }
+
+    public DbSet<ContainerShiftOverrideItem> ContainerShiftOverrideItems { get; set; }
+
     public DbSet<ContainerLock> ContainerLock { get; set; }
 
     public DbSet<State> State { get; set; }
