@@ -312,31 +312,55 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
     public async Task<List<UsedPeriodDto>> GetUsedPeriodsAsync(CancellationToken cancellationToken = default)
     {
-        var query = from cph in context.ClientPeriodHours.AsNoTracking()
-                    where !cph.IsDeleted
-                    join client in context.Client.AsNoTracking() on cph.ClientId equals client.Id
-                    where !client.IsDeleted
-                    where context.Work.AsNoTracking().Any(w => !w.IsDeleted
-                                && w.ClientId == cph.ClientId
-                                && w.CurrentDate >= cph.StartDate
-                                && w.CurrentDate <= cph.EndDate)
-                          || context.Break.AsNoTracking().Any(b => !b.IsDeleted
-                                && b.ClientId == cph.ClientId
-                                && b.CurrentDate >= cph.StartDate
-                                && b.CurrentDate <= cph.EndDate)
-                    select new UsedPeriodDto
-                    {
-                        StartDate = cph.StartDate,
-                        EndDate = cph.EndDate,
-                        PaymentInterval = cph.PaymentInterval
-                    };
+        var withGroup = from cph in context.ClientPeriodHours.AsNoTracking()
+                        where !cph.IsDeleted
+                        join client in context.Client.AsNoTracking() on cph.ClientId equals client.Id
+                        where !client.IsDeleted
+                        join gi in context.GroupItem.AsNoTracking() on client.Id equals gi.ClientId
+                        where !gi.IsDeleted
+                        join g in context.Group.AsNoTracking() on gi.GroupId equals g.Id
+                        where !g.IsDeleted
+                        where context.Work.AsNoTracking().Any(w => !w.IsDeleted
+                                    && w.ClientId == cph.ClientId
+                                    && w.CurrentDate >= cph.StartDate
+                                    && w.CurrentDate <= cph.EndDate)
+                              || context.Break.AsNoTracking().Any(b => !b.IsDeleted
+                                    && b.ClientId == cph.ClientId
+                                    && b.CurrentDate >= cph.StartDate
+                                    && b.CurrentDate <= cph.EndDate)
+                        select new { cph.StartDate, cph.EndDate, cph.PaymentInterval, GroupId = (Guid?)g.Id, GroupName = (string?)g.Description };
 
-        return await query
+        var withoutGroup = from cph in context.ClientPeriodHours.AsNoTracking()
+                           where !cph.IsDeleted
+                           join client in context.Client.AsNoTracking() on cph.ClientId equals client.Id
+                           where !client.IsDeleted
+                           where !context.GroupItem.AsNoTracking().Any(gi => !gi.IsDeleted && gi.ClientId == client.Id)
+                           where context.Work.AsNoTracking().Any(w => !w.IsDeleted
+                                       && w.ClientId == cph.ClientId
+                                       && w.CurrentDate >= cph.StartDate
+                                       && w.CurrentDate <= cph.EndDate)
+                                 || context.Break.AsNoTracking().Any(b => !b.IsDeleted
+                                       && b.ClientId == cph.ClientId
+                                       && b.CurrentDate >= cph.StartDate
+                                       && b.CurrentDate <= cph.EndDate)
+                           select new { cph.StartDate, cph.EndDate, cph.PaymentInterval, GroupId = (Guid?)null, GroupName = (string?)null };
+
+        var combined = await withGroup.Union(withoutGroup)
             .Distinct()
             .OrderByDescending(p => p.StartDate)
             .ThenBy(p => p.EndDate)
             .ThenBy(p => p.PaymentInterval)
+            .ThenBy(p => p.GroupName)
             .ToListAsync(cancellationToken);
+
+        return combined.Select(p => new UsedPeriodDto
+        {
+            StartDate = p.StartDate,
+            EndDate = p.EndDate,
+            PaymentInterval = p.PaymentInterval,
+            GroupId = p.GroupId,
+            GroupName = p.GroupName
+        }).ToList();
     }
 
     private record WorkChangeEntry(Guid ClientId, decimal ChangeTime, WorkChangeType Type, bool? ToInvoice, Guid? ReplaceClientId, Guid OriginalClientId);
