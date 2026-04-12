@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.DTOs.Schedules;
 
@@ -24,4 +25,6 @@ public interface IWorkRepository : IBaseRepository<Work>
     Task<int> UnsealByPeriodAndGroup(DateOnly startDate, DateOnly endDate, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default);
 
     Task<List<(DateOnly Date, int Total, int Sealed)>> GetSealingSummaryAsync(DateOnly from, DateOnly to, Guid? groupId, CancellationToken cancellationToken = default);
+
+    Task<List<UsedPeriodDto>> GetUsedPeriodsAsync(CancellationToken cancellationToken = default);
 }

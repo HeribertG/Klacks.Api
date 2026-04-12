@@ -12,6 +12,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -307,6 +308,35 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             .ToListAsync(cancellationToken);
 
         return grouped.Select(x => (x.Date, x.Total, x.Sealed)).ToList();
+    }
+
+    public async Task<List<UsedPeriodDto>> GetUsedPeriodsAsync(CancellationToken cancellationToken = default)
+    {
+        var query = from cph in context.ClientPeriodHours.AsNoTracking()
+                    where !cph.IsDeleted
+                    join client in context.Client.AsNoTracking() on cph.ClientId equals client.Id
+                    where !client.IsDeleted
+                    where context.Work.AsNoTracking().Any(w => !w.IsDeleted
+                                && w.ClientId == cph.ClientId
+                                && w.CurrentDate >= cph.StartDate
+                                && w.CurrentDate <= cph.EndDate)
+                          || context.Break.AsNoTracking().Any(b => !b.IsDeleted
+                                && b.ClientId == cph.ClientId
+                                && b.CurrentDate >= cph.StartDate
+                                && b.CurrentDate <= cph.EndDate)
+                    select new UsedPeriodDto
+                    {
+                        StartDate = cph.StartDate,
+                        EndDate = cph.EndDate,
+                        PaymentInterval = cph.PaymentInterval
+                    };
+
+        return await query
+            .Distinct()
+            .OrderByDescending(p => p.StartDate)
+            .ThenBy(p => p.EndDate)
+            .ThenBy(p => p.PaymentInterval)
+            .ToListAsync(cancellationToken);
     }
 
     private record WorkChangeEntry(Guid ClientId, decimal ChangeTime, WorkChangeType Type, bool? ToInvoice, Guid? ReplaceClientId, Guid OriginalClientId);
