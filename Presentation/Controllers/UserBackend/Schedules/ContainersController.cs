@@ -2,6 +2,8 @@
 
 using Klacks.Api.Application.Commands.ContainerTemplates;
 using Klacks.Api.Application.Queries.ContainerTemplates;
+using Klacks.Api.Application.Commands.ContainerShiftOverrides;
+using Klacks.Api.Application.Queries.ContainerShiftOverrides;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
@@ -85,5 +87,54 @@ public class ContainersController : InputBaseController<ContainerTemplateResourc
     {
         var templates = await Mediator.Send(new DeleteContainerTemplatesCommand(containerId));
         return Ok(templates);
+    }
+
+    [HttpGet("{containerId}/overrides")]
+    public async Task<ActionResult<IEnumerable<ContainerShiftOverrideResource>>> GetOverridesForRange(
+        [FromRoute] Guid containerId,
+        [FromQuery] DateOnly from,
+        [FromQuery] DateOnly to)
+    {
+        var overrides = await Mediator.Send(new GetContainerShiftOverridesForRangeQuery(containerId, from, to));
+        return Ok(overrides);
+    }
+
+    [HttpGet("{containerId}/overrides/{date}")]
+    public async Task<ActionResult<ContainerShiftOverrideResource>> GetOverride(
+        [FromRoute] Guid containerId,
+        [FromRoute] DateOnly date)
+    {
+        var result = await Mediator.Send(new GetContainerShiftOverrideQuery(containerId, date));
+        if (result is null) return NotFound();
+        return Ok(result);
+    }
+
+    [HttpPost("{containerId}/overrides")]
+    public async Task<ActionResult<ContainerShiftOverrideResource>> PostOverride(
+        [FromRoute] Guid containerId,
+        [FromBody] ContainerShiftOverrideResource resource)
+    {
+        var result = await Mediator.Send(new PostContainerShiftOverrideCommand(containerId, resource));
+        return Ok(result);
+    }
+
+    [HttpPut("{containerId}/overrides/{overrideId}")]
+    public async Task<ActionResult<ContainerShiftOverrideResource>> PutOverride(
+        [FromRoute] Guid containerId,
+        [FromRoute] Guid overrideId,
+        [FromBody] ContainerShiftOverrideResource resource)
+    {
+        var result = await Mediator.Send(new PutContainerShiftOverrideCommand(containerId, overrideId, resource));
+        return Ok(result);
+    }
+
+    [HttpDelete("{containerId}/overrides/{overrideId}")]
+    public async Task<ActionResult> DeleteOverride(
+        [FromRoute] Guid containerId,
+        [FromRoute] Guid overrideId)
+    {
+        var result = await Mediator.Send(new DeleteContainerShiftOverrideCommand(containerId, overrideId));
+        if (!result) return NotFound();
+        return Ok();
     }
 }
