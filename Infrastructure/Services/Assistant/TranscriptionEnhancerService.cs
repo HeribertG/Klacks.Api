@@ -57,7 +57,8 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
                 ? string.Empty
                 : string.Format(TranscriptionConstants.DictionaryPromptSection, dictionaryContext);
 
-            var systemPrompt = string.Format(TranscriptionConstants.SystemPromptTemplate, dictionarySection);
+            var promptTemplate = await GetPromptFromSettingsAsync();
+            var systemPrompt = string.Format(promptTemplate, dictionarySection);
 
             var localeHint = string.IsNullOrWhiteSpace(locale) ? string.Empty : $" The input language is: {locale}.";
 
@@ -95,5 +96,13 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
         return string.IsNullOrWhiteSpace(modelSetting?.Value)
             ? TranscriptionConstants.DefaultModelId
             : modelSetting.Value;
+    }
+
+    private async Task<string> GetPromptFromSettingsAsync()
+    {
+        var promptSetting = await _settingsRepository.GetSetting(SettingsConstants.ASSISTANT_TRANSCRIPTION_PROMPT);
+        return string.IsNullOrWhiteSpace(promptSetting?.Value)
+            ? TranscriptionConstants.SystemPromptTemplate
+            : promptSetting.Value;
     }
 }

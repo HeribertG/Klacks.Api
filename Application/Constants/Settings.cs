@@ -103,6 +103,7 @@ namespace Klacks.Api.Application.Constants
         public const string ASSISTANT_STT_PROVIDER = "ASSISTANT_STT_PROVIDER";
         public const string ASSISTANT_STT_API_KEY = "ASSISTANT_STT_API_KEY";
         public const string ASSISTANT_TRANSCRIPTION_MODEL = "ASSISTANT_TRANSCRIPTION_MODEL";
+        public const string ASSISTANT_TRANSCRIPTION_PROMPT = "ASSISTANT_TRANSCRIPTION_PROMPT";
         public const string ASSISTANT_ENHANCEMENT_ENABLED = "ASSISTANT_ENHANCEMENT_ENABLED";
         public const string ASSISTANT_OUTPUT_MODE = "ASSISTANT_OUTPUT_MODE";
         public const string ASSISTANT_TTS_PROVIDER = "ASSISTANT_TTS_PROVIDER";
