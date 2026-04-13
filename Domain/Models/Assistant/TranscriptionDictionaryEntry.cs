@@ -5,11 +5,12 @@
 /// </summary>
 /// <param name="CorrectTerm">The correct spelling of the term</param>
 /// <param name="PhoneticVariants">Common misrecognitions by STT engines</param>
+using Klacks.Api.Domain.Common;
+
 namespace Klacks.Api.Domain.Models.Assistant;
 
-public class TranscriptionDictionaryEntry
+public class TranscriptionDictionaryEntry : BaseEntity
 {
-    public Guid Id { get; set; }
     public string CorrectTerm { get; set; } = string.Empty;
     public string? Category { get; set; }
     public List<string> PhoneticVariants { get; set; } = [];

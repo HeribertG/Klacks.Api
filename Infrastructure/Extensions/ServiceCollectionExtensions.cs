@@ -412,6 +412,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISttProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.GroqWhisperSttProvider>());
 
         services.AddScoped<IDictionaryService, Klacks.Api.Infrastructure.Services.Assistant.DictionaryService>();
+        services.AddScoped<ITranscriptionDictionaryRepository, Klacks.Api.Infrastructure.Repositories.Assistant.TranscriptionDictionaryRepository>();
 
     }
 
@@ -433,7 +434,18 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Mistral.MistralProvider>();
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Cohere.CohereProvider>();
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek.DeepSeekProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic.GenericOpenAICompatibleProvider>();
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic.GenericOpenAICompatibleProvider>()
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
+                {
+                    if (errors == System.Net.Security.SslPolicyErrors.None)
+                        return true;
+
+                    var host = message.RequestUri?.Host ?? string.Empty;
+                    return host.EndsWith("apertus.ai", StringComparison.OrdinalIgnoreCase);
+                }
+            });
     }
 
     private static void AddSkillServices(this IServiceCollection services)

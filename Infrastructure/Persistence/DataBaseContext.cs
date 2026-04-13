@@ -205,6 +205,9 @@ public class DataBaseContext : IdentityDbContext
     // Knowledge Index DbSets
     public DbSet<KnowledgeEntry> KnowledgeEntries { get; set; }
 
+    // Transcription Dictionary DbSets
+    public DbSet<TranscriptionDictionaryEntry> TranscriptionDictionaryEntries { get; set; }
+
     // FloorPlan DbSets
     public DbSet<FloorPlan> FloorPlan { get; set; }
 
@@ -267,6 +270,17 @@ public class DataBaseContext : IdentityDbContext
             entity.Property(e => e.ExposedEndpointKey).HasColumnName("exposed_endpoint_key");
             entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
             entity.HasIndex(e => new { e.Kind, e.SourceId }).IsUnique().HasDatabaseName("knowledge_index_kind_source_unique");
+        });
+
+        modelBuilder.Entity<TranscriptionDictionaryEntry>(entity =>
+        {
+            entity.ToTable("transcription_dictionary_entries");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.CorrectTerm).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.Category).HasMaxLength(50);
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.PhoneticVariants).HasColumnType("jsonb").HasDefaultValueSql("'[]'::jsonb");
+            entity.HasQueryFilter(e => !e.IsDeleted);
         });
 
         Plugins.PluginModelRegistry.Apply(modelBuilder);
