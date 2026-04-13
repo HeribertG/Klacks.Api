@@ -230,6 +230,19 @@ public class RouteOptimizationService : IRouteOptimizationService
         var endIndex = FindLocationIndex(distanceMatrix, endBase, "endBase");
         var route = optimizer.FindOptimalRoute(startIndex, endIndex);
 
+        if (timeBlocks is { Count: > 0 } && containerFromTime.HasValue)
+        {
+            var unmovable = timeBlocks.Where(b => !b.IsMovable).ToList();
+            if (unmovable.Count > 0 && route.Count >= 2)
+            {
+                var startBaseIdx = startIndex ?? (route.Count > 0 ? route[0] : 0);
+                route = ApplyTimeAwareImprovement(
+                    route, distanceMatrix, startBaseIdx,
+                    containerFromTime.Value.ToTimeSpan().TotalSeconds, unmovable);
+                _logger.LogInformation("Time-aware improvement applied. New route: [{Indices}]", string.Join(", ", route));
+            }
+        }
+
         var totalDistance = TravelTimeCalculator.CalculateTotalDistance(route, distanceMatrix.Matrix);
         var (distanceFromStartBase, distanceToEndBase) = CalculateBaseDistances(distanceMatrix, route, startIndex, endIndex);
         totalDistance += distanceFromStartBase;
@@ -273,6 +286,58 @@ public class RouteOptimizationService : IRouteOptimizationService
             travelTimeFromStartBase, route, distanceFromStartBase, distanceToEndBase, travelTimeToEndBase,
             fullRouteIndices, distanceMatrix.DurationMatricesByProfile, transportMode,
             segmentDirections, totalBriefingDebriefingTime, placedTimeBlocks);
+    }
+
+    private static List<int> ApplyTimeAwareImprovement(
+        List<int> route,
+        DistanceMatrix distanceMatrix,
+        int startBaseIndex,
+        double containerFromTimeSeconds,
+        List<TimeBlock> unmovableBlocks)
+    {
+        var bestRoute = new List<int>(route);
+        var bestFinishTime = CalculateFinishTime(bestRoute, distanceMatrix, startBaseIndex, containerFromTimeSeconds, unmovableBlocks);
+
+        var improved = true;
+        while (improved)
+        {
+            improved = false;
+            for (int i = 0; i < bestRoute.Count - 1; i++)
+            {
+                for (int j = i + 1; j < bestRoute.Count; j++)
+                {
+                    var candidate = new List<int>(bestRoute);
+                    candidate.Reverse(i, j - i + 1);
+                    var candidateFinish = CalculateFinishTime(candidate, distanceMatrix, startBaseIndex, containerFromTimeSeconds, unmovableBlocks);
+                    if (candidateFinish < bestFinishTime)
+                    {
+                        bestRoute = candidate;
+                        bestFinishTime = candidateFinish;
+                        improved = true;
+                    }
+                }
+            }
+        }
+
+        return bestRoute;
+    }
+
+    private static double CalculateFinishTime(
+        List<int> route,
+        DistanceMatrix distanceMatrix,
+        int startBaseIndex,
+        double containerFromTimeSeconds,
+        List<TimeBlock> unmovableBlocks)
+    {
+        if (route.Count == 0)
+        {
+            return containerFromTimeSeconds;
+        }
+
+        var arrivalTimes = TimeBlockScheduler.CalculateArrivalTimesWithBlocks(
+            distanceMatrix, route, startBaseIndex, containerFromTimeSeconds, unmovableBlocks);
+
+        return arrivalTimes.Last() + distanceMatrix.Locations[route.Last()].TotalOnSiteTime.TotalSeconds;
     }
 
     private static List<Location> ExtractLocationsFromShifts(List<Shift> shifts, ContainerTransportMode transportMode)
