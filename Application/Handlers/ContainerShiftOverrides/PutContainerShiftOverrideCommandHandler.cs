@@ -7,8 +7,10 @@
 /// <param name="resource">Updated override data with items</param>
 using Klacks.Api.Application.Commands.ContainerShiftOverrides;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -50,19 +52,19 @@ public class PutContainerShiftOverrideCommandHandler : IRequestHandler<PutContai
         var holdsLock = await _lockRepository.IsHeldBy(LockResourceType, request.ContainerId, userId, instanceId, cancellationToken);
         if (!holdsLock)
         {
-            throw new Exception("Cannot save: container shift override is not locked by this session.");
+            throw new ContainerLockedException("Container shift override is not locked by this session.");
         }
 
         var existing = await _repository.GetWithTracking(request.OverrideId, cancellationToken);
         if (existing is null)
         {
-            throw new Exception($"ContainerShiftOverride {request.OverrideId} not found.");
+            throw new NotFoundException($"ContainerShiftOverride {request.OverrideId} not found.");
         }
 
         var hasWork = await _repository.HasWorkForOverride(existing.ContainerId, existing.Date, cancellationToken);
         if (hasWork)
         {
-            throw new Exception("Cannot update override: work entries already exist for this date.");
+            throw new ConflictException("Cannot update override: work entries already exist for this date.");
         }
 
         existing.FromTime = request.Resource.FromTime;
@@ -84,10 +86,13 @@ public class PutContainerShiftOverrideCommandHandler : IRequestHandler<PutContai
             .Select(i => i.Id)
             .ToHashSet();
 
-        foreach (var itemToRemove in existing.ContainerShiftOverrideItems.Where(i => !i.IsDeleted && !incomingItemIds.Contains(i.Id)))
+        var itemsToRemove = existing.ContainerShiftOverrideItems
+            .Where(i => !i.IsDeleted && !incomingItemIds.Contains(i.Id))
+            .ToList();
+
+        foreach (var itemToRemove in itemsToRemove)
         {
-            itemToRemove.IsDeleted = true;
-            itemToRemove.DeletedTime = DateTime.UtcNow;
+            existing.ContainerShiftOverrideItems.Remove(itemToRemove);
         }
 
         foreach (var incomingItem in request.Resource.ContainerShiftOverrideItems)

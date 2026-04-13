@@ -9,6 +9,7 @@ using Klacks.Api.Application.Commands.ContainerShiftOverrides;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -50,7 +51,7 @@ public class PostContainerShiftOverrideCommandHandler : IRequestHandler<PostCont
         var holdsLock = await _lockRepository.IsHeldBy(LockResourceType, request.ContainerId, userId, instanceId, cancellationToken);
         if (!holdsLock)
         {
-            throw new Exception("Cannot save: container shift override is not locked by this session.");
+            throw new ContainerLockedException("Container shift override is not locked by this session.");
         }
 
         request.Resource.ContainerId = request.ContainerId;

@@ -5,6 +5,7 @@
 /// </summary>
 /// <param name="overrideId">The override to delete</param>
 using Klacks.Api.Application.Commands.ContainerShiftOverrides;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -36,7 +37,7 @@ public class DeleteContainerShiftOverrideCommandHandler : IRequestHandler<Delete
         var hasWork = await _repository.HasWorkForOverride(existing.ContainerId, existing.Date, cancellationToken);
         if (hasWork)
         {
-            throw new Exception("Cannot delete override: work entries already exist for this date.");
+            throw new ConflictException("Cannot delete override: work entries already exist for this date.");
         }
 
         await _repository.Delete(existing);

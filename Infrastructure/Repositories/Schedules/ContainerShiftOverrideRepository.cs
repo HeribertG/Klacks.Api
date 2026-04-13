@@ -67,7 +67,6 @@ public class ContainerShiftOverrideRepository : IContainerShiftOverrideRepositor
     {
         return await _context.Work
             .AnyAsync(w => w.ShiftId == containerId
-                && w.CurrentDate == date
-                && !w.ParentWorkId.HasValue, ct);
+                && w.CurrentDate == date, ct);
     }
 }

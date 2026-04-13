@@ -30,6 +30,14 @@ public class GetContainerShiftOverridesForRangeQueryHandler : IRequestHandler<Ge
     public async Task<List<ContainerShiftOverrideResource>> Handle(GetContainerShiftOverridesForRangeQuery request, CancellationToken cancellationToken)
     {
         var entities = await _repository.GetByContainerAndDateRange(request.ContainerId, request.FromDate, request.ToDate, cancellationToken);
-        return entities.Select(e => _mapper.ToContainerShiftOverrideResource(e)).ToList();
+        var result = new List<ContainerShiftOverrideResource>(entities.Count);
+
+        foreach (var entity in entities)
+        {
+            var hasWork = await _repository.HasWorkForOverride(entity.ContainerId, entity.Date, cancellationToken);
+            result.Add(_mapper.ToContainerShiftOverrideResource(entity, hasWork));
+        }
+
+        return result;
     }
 }
