@@ -361,7 +361,7 @@ public class ContainerAutofillService : IContainerAutofillService
                     continue;
                 }
 
-                var totalCost = travelToCandidate + onSiteTime + travelToEnd;
+                var totalCost = travelToCandidate + ContainerAutofillAlgorithm.GREEDY_ONSITE_COST_WEIGHT * onSiteTime + travelToEnd;
                 if (totalCost < bestCost)
                 {
                     bestCost = totalCost;
