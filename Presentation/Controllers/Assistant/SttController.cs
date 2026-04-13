@@ -29,23 +29,33 @@ public class SttController : ControllerBase
 {
     private readonly IEnumerable<ISttProvider> _sttProviders;
     private readonly ISettingsRepository _settingsRepository;
+    private readonly ICustomSttProviderRepository _customSttProviderRepository;
     private readonly ILogger<SttController> _logger;
 
     public SttController(
         IEnumerable<ISttProvider> sttProviders,
         ISettingsRepository settingsRepository,
+        ICustomSttProviderRepository customSttProviderRepository,
         ILogger<SttController> logger)
     {
         _sttProviders = sttProviders;
         _settingsRepository = settingsRepository;
+        _customSttProviderRepository = customSttProviderRepository;
         _logger = logger;
     }
 
     [HttpGet("providers")]
-    public IActionResult GetProviders()
+    public async Task<IActionResult> GetProviders()
     {
         var providers = _sttProviders.Select(p => new SttProviderDto(p.ProviderId)).ToList();
         providers.Add(new SttProviderDto(SttProviderConstants.Browser));
+
+        var customProviders = await _customSttProviderRepository.GetEnabledAsync();
+        foreach (var cp in customProviders)
+        {
+            providers.Add(new SttProviderDto($"custom:{cp.Id}"));
+        }
+
         return Ok(providers);
     }
 

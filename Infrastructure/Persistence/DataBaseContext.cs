@@ -208,6 +208,9 @@ public class DataBaseContext : IdentityDbContext
     // Transcription Dictionary DbSets
     public DbSet<TranscriptionDictionaryEntry> TranscriptionDictionaryEntries { get; set; }
 
+    // Custom STT Provider DbSets
+    public DbSet<CustomSttProvider> CustomSttProviders { get; set; }
+
     // FloorPlan DbSets
     public DbSet<FloorPlan> FloorPlan { get; set; }
 
@@ -280,6 +283,18 @@ public class DataBaseContext : IdentityDbContext
             entity.Property(e => e.Category).HasMaxLength(50);
             entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.PhoneticVariants).HasColumnType("jsonb").HasDefaultValueSql("'[]'::jsonb");
+            entity.HasQueryFilter(e => !e.IsDeleted);
+        });
+
+        modelBuilder.Entity<CustomSttProvider>(entity =>
+        {
+            entity.ToTable("custom_stt_providers");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.ConnectionType).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.ApiUrl).HasMaxLength(500).IsRequired();
+            entity.Property(e => e.ApiKey).HasMaxLength(500);
+            entity.Property(e => e.LanguageModel).HasMaxLength(200);
             entity.HasQueryFilter(e => !e.IsDeleted);
         });
 

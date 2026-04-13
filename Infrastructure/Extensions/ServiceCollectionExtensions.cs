@@ -413,6 +413,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IDictionaryService, Klacks.Api.Infrastructure.Services.Assistant.DictionaryService>();
         services.AddScoped<ITranscriptionDictionaryRepository, Klacks.Api.Infrastructure.Repositories.Assistant.TranscriptionDictionaryRepository>();
+        services.AddScoped<ICustomSttProviderRepository, Klacks.Api.Infrastructure.Repositories.Assistant.CustomSttProviderRepository>();
 
     }
 
