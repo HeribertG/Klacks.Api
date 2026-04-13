@@ -9,7 +9,7 @@ namespace Klacks.Api.Domain.Services.RouteOptimization;
 
 public static class ContainerAutofillAlgorithm
 {
-    public const double GREEDY_ONSITE_COST_WEIGHT = 1.0;
+    public const double GREEDY_ONSITE_COST_WEIGHT = -1.0;
 
     public static List<int> GreedySelect(
         double[,] durationMatrix,
