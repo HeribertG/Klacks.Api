@@ -20,6 +20,7 @@ using Klacks.Api.Infrastructure.StartupChecks;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.Klacksy;
+using Klacks.Api.Infrastructure.Repositories.Klacksy;
 using Klacks.Api.Application.Mappers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -194,7 +195,8 @@ builder.Services.AddSingleton<INavigationTargetCacheService>(sp =>
     return new NavigationTargetCacheService(manifest, Directory.Exists(plugins) ? plugins : null);
 });
 builder.Services.AddScoped<INavigationTargetMatcher, NavigationTargetMatcher>();
-builder.Services.AddScoped<INavigationFeedbackLogger, NoopNavigationFeedbackLogger>();
+builder.Services.AddScoped<IKlacksyNavigationFeedbackRepository, KlacksyNavigationFeedbackRepository>();
+builder.Services.AddScoped<INavigationFeedbackLogger, NavigationFeedbackLogger>();
 builder.Services.AddSingleton<LLMMapper>();
 builder.Services.AddSingleton<IAssistantConnectionTracker, AssistantConnectionTracker>();
 builder.Services.AddScoped<IAssistantNotificationService, AssistantNotificationService>();
