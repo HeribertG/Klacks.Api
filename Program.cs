@@ -194,6 +194,7 @@ builder.Services.AddSingleton<INavigationTargetCacheService>(sp =>
     return new NavigationTargetCacheService(manifest, Directory.Exists(plugins) ? plugins : null);
 });
 builder.Services.AddScoped<INavigationTargetMatcher, NavigationTargetMatcher>();
+builder.Services.AddScoped<INavigationFeedbackLogger, NoopNavigationFeedbackLogger>();
 builder.Services.AddSingleton<LLMMapper>();
 builder.Services.AddSingleton<IAssistantConnectionTracker, AssistantConnectionTracker>();
 builder.Services.AddScoped<IAssistantNotificationService, AssistantNotificationService>();

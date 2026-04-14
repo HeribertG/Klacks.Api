@@ -3,6 +3,8 @@
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Application.Klacksy;
+using Klacks.Api.Application.Klacksy.Models;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
@@ -26,6 +28,10 @@ public class ChatController : ControllerBase
     private readonly IAgentRepository _agentRepository;
     private readonly ILLMStreamingOrchestrator _streamingOrchestrator;
     private readonly ISkillCacheService _skillCacheService;
+    private readonly IUtteranceNormalizer _normalizer;
+    private readonly INavigationTargetMatcher _navMatcher;
+    private readonly INavigationTargetCacheService _navCache;
+    private readonly INavigationFeedbackLogger _navLogger;
 
     public ChatController(
         ILogger<ChatController> logger,
@@ -33,7 +39,11 @@ public class ChatController : ControllerBase
         IAgentSkillRepository agentSkillRepository,
         IAgentRepository agentRepository,
         ILLMStreamingOrchestrator streamingOrchestrator,
-        ISkillCacheService skillCacheService)
+        ISkillCacheService skillCacheService,
+        IUtteranceNormalizer normalizer,
+        INavigationTargetMatcher navMatcher,
+        INavigationTargetCacheService navCache,
+        INavigationFeedbackLogger navLogger)
     {
         this._logger = logger;
         _mediator = mediator;
@@ -41,6 +51,10 @@ public class ChatController : ControllerBase
         _agentRepository = agentRepository;
         _streamingOrchestrator = streamingOrchestrator;
         _skillCacheService = skillCacheService;
+        _normalizer = normalizer;
+        _navMatcher = navMatcher;
+        _navCache = navCache;
+        _navLogger = navLogger;
     }
 
     [HttpPost]
@@ -53,6 +67,29 @@ public class ChatController : ControllerBase
 
         var userId = GetCurrentUserId();
         var userRights = GetCurrentUserRights();
+        var locale = request.Language ?? "en";
+        var currentUserGuid = Guid.TryParse(userId, out var parsedGuid) ? parsedGuid : (Guid?)null;
+
+        var normalized = _normalizer.Normalize(request.Message, locale);
+
+        if (normalized.IsEmptyAfterNormalization)
+        {
+            await _navLogger.LogAsync(request.Message, locale, null, 0, null, currentUserGuid, HttpContext.RequestAborted);
+            return Ok(new LLMResponse { Message = NavigationResponseKeys.EmptyUtteranceGreeting });
+        }
+
+        var navMatch = _navMatcher.Match(normalized.Normalized, locale, userRights);
+        await _navLogger.LogAsync(request.Message, locale, navMatch.TargetId, navMatch.Score, navMatch.Route, currentUserGuid, HttpContext.RequestAborted);
+
+        if (navMatch.IsFastPath)
+        {
+            return Ok(new LLMResponse
+            {
+                Message = NavigationResponseKeys.SuccessRouted,
+                NavigateTo = navMatch.Route,
+                ActionPerformed = true
+            });
+        }
 
         _logger.LogInformation("Processing assistant request for user {UserId}: {Message}", userId, request.Message);
 
@@ -82,8 +119,10 @@ public class ChatController : ControllerBase
 
         var userId = GetCurrentUserId();
         var userRights = GetCurrentUserRights();
+        var locale = request.Language ?? "en";
+        var currentUserGuid = Guid.TryParse(userId, out var parsedGuid) ? parsedGuid : (Guid?)null;
 
-        _logger.LogInformation("Processing streaming assistant request for user {UserId}", userId);
+        var normalized = _normalizer.Normalize(request.Message, locale);
 
         Response.ContentType = "text/event-stream";
         Response.Headers.Append("Cache-Control", "no-cache");
@@ -91,6 +130,45 @@ public class ChatController : ControllerBase
         Response.Headers.Append("X-Accel-Buffering", "no");
 
         await Response.StartAsync(cancellationToken);
+
+        var jsonOptions = new System.Text.Json.JsonSerializerOptions
+        {
+            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        };
+
+        if (normalized.IsEmptyAfterNormalization)
+        {
+            await _navLogger.LogAsync(request.Message, locale, null, 0, null, currentUserGuid, cancellationToken);
+            var greetingContent = SseChunk.Content(NavigationResponseKeys.EmptyUtteranceGreeting);
+            var greetingData = System.Text.Json.JsonSerializer.Serialize(greetingContent, jsonOptions);
+            await Response.WriteAsync($"event: content\ndata: {greetingData}\n\n", cancellationToken);
+            var doneSse = System.Text.Json.JsonSerializer.Serialize(SseChunk.Done(), jsonOptions);
+            await Response.WriteAsync($"event: done\ndata: {doneSse}\n\n", cancellationToken);
+            await Response.Body.FlushAsync(cancellationToken);
+            return;
+        }
+
+        var navMatch = _navMatcher.Match(normalized.Normalized, locale, userRights);
+        await _navLogger.LogAsync(request.Message, locale, navMatch.TargetId, navMatch.Score, navMatch.Route, currentUserGuid, cancellationToken);
+
+        if (navMatch.IsFastPath)
+        {
+            var navMetadata = new SseChunk
+            {
+                Type = SseChunkType.Metadata,
+                NavigateTo = navMatch.Route,
+                ActionPerformed = true
+            };
+            var navData = System.Text.Json.JsonSerializer.Serialize(navMetadata, jsonOptions);
+            await Response.WriteAsync($"event: metadata\ndata: {navData}\n\n", cancellationToken);
+            var fastDone = System.Text.Json.JsonSerializer.Serialize(SseChunk.Done(), jsonOptions);
+            await Response.WriteAsync($"event: done\ndata: {fastDone}\n\n", cancellationToken);
+            await Response.Body.FlushAsync(cancellationToken);
+            return;
+        }
+
+        _logger.LogInformation("Processing streaming assistant request for user {UserId}", userId);
 
         var streamRequest = new LLMStreamRequest
         {
@@ -100,12 +178,6 @@ public class ChatController : ControllerBase
             ModelId = request.ModelId,
             Language = request.Language,
             UserRights = userRights
-        };
-
-        var jsonOptions = new System.Text.Json.JsonSerializerOptions
-        {
-            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
         };
 
         try
