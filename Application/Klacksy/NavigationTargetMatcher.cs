@@ -10,6 +10,10 @@ using Klacks.Api.Application.Klacksy.Models;
 /// </summary>
 public sealed class NavigationTargetMatcher : INavigationTargetMatcher
 {
+    private const int MaxCandidates = 3;
+    private const double MaxTokenOverlapScore = 0.85;
+    private const double MinScoreForMatch = 0.5;
+
     private readonly INavigationTargetCacheService _cache;
 
     public NavigationTargetMatcher(INavigationTargetCacheService cache) => _cache = cache;
@@ -38,23 +42,24 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
         {
             foreach (var hit in _cache.FindBySynonym(token, locale).Where(t => IsAllowed(t, userPermissions)))
             {
-                if (!scored.TryGetValue(hit.TargetId, out var current))
-                    scored[hit.TargetId] = (hit, 0);
-                scored[hit.TargetId] = (hit, current.Score + 1.0 / tokens.Length);
+                if (scored.TryGetValue(hit.TargetId, out var current))
+                    scored[hit.TargetId] = (current.Target, current.Score + 1.0 / tokens.Length);
+                else
+                    scored[hit.TargetId] = (hit, 1.0 / tokens.Length);
             }
         }
 
         var candidates = scored.Values
-            .Select(v => new NavigationCandidate(v.Target.TargetId, v.Target.Route, Math.Min(v.Score, 0.85)))
+            .Select(v => new NavigationCandidate(v.Target.TargetId, v.Target.Route, Math.Min(v.Score, MaxTokenOverlapScore)))
             .OrderByDescending(c => c.Score)
-            .Take(3)
+            .Take(MaxCandidates)
             .ToList();
 
         var top = candidates.FirstOrDefault();
         return new NavigationMatchResult
         {
-            TargetId = top?.Score > 0.5 ? top.TargetId : null,
-            Route = top?.Score > 0.5 ? top.Route : null,
+            TargetId = top?.Score > MinScoreForMatch ? top.TargetId : null,
+            Route = top?.Score > MinScoreForMatch ? top.Route : null,
             Score = top?.Score ?? 0,
             Candidates = candidates
         };
