@@ -15,6 +15,6 @@ public sealed class NavigationTarget
     public string? SourceFile { get; init; }
     public DateTime LastScannedAt { get; init; }
     public Dictionary<string, string[]> Synonyms { get; set; } = new();
-    public string SynonymStatus { get; init; } = "pending";
+    public string SynonymStatus { get; set; } = "pending";
     public bool Obsolete { get; init; }
 }

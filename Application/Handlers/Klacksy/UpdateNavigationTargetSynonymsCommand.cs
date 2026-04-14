@@ -36,6 +36,7 @@ public sealed class UpdateNavigationTargetSynonymsCommandHandler : IRequestHandl
             var idx = list.FindIndex(x => x.TargetId == command.TargetId);
             if (idx < 0) throw new KeyNotFoundException(command.TargetId);
             list[idx].Synonyms[command.Locale] = command.Synonyms;
+            list[idx].SynonymStatus = command.Status;
             File.WriteAllText(manifest, JsonSerializer.Serialize(list, options));
         }
         else
