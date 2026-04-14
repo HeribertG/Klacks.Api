@@ -1,0 +1,17 @@
+{
+  "canonical": "klacksy",
+  "variants": ["klaxy", "klaxi", "klacksie", "klax", "klaxie", "klacky", "klacksi"],
+  "universalSalutations": ["hey", "hi", "ok", "yo"],
+  "localeSalutations": {
+    "de": ["hallo", "hey", "moin"],
+    "en": ["hey", "hi", "ok"],
+    "fr": ["salut", "bonjour", "coucou"],
+    "it": ["ciao", "ehi", "salve"]
+  },
+  "fillerWords": {
+    "de": ["bitte", "mal", "doch"],
+    "en": ["please", "pls"],
+    "fr": ["s'il te plaît", "stp"],
+    "it": ["per favore", "pf"]
+  }
+}
