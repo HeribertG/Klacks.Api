@@ -189,6 +189,8 @@ public class LanguagePluginService : ILanguagePluginService
         await _contentInstaller.InstallDocsAsync(scope, code);
         await _contentInstaller.InstallSkillSynonymsAsync(scope, code);
         await _contentInstaller.InstallSentimentKeywordsAsync(scope, code);
+        await _contentInstaller.InstallWakeWordsAsync(code);
+        await _contentInstaller.InstallNavigationTargetsAsync(code);
         await unitOfWork.CompleteAsync();
         await _contentInstaller.MergeNonCoreTranslationsAsync(scope, code);
 

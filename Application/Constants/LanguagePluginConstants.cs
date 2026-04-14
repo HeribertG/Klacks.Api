@@ -13,6 +13,8 @@ public static class LanguagePluginConstants
     public const string CalendarRulesFileName = "calendar-rules.json";
     public const string SkillSynonymsFileName = "skill-synonyms.json";
     public const string SentimentKeywordsFileName = "sentiment-keywords.json";
+    public const string WakeWordsFileName = "wake-words.json";
+    public const string NavigationTargetsFileName = "navigation-targets.json";
     public const string SettingPrefix = "INSTALLED_LANGUAGE_";
 
     public static readonly string[] CoreLanguages = ["de", "en", "fr", "it"];

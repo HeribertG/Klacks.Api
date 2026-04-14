@@ -213,6 +213,28 @@ public class LanguagePluginContentInstaller
         }
     }
 
+    public Task InstallWakeWordsAsync(string code)
+    {
+        var wakeWordsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.WakeWordsFileName);
+        if (File.Exists(wakeWordsPath))
+            _logger.LogInformation("Wake-words file registered for language plugin '{Code}'", code);
+        else
+            _logger.LogWarning("Wake-words file not found for language plugin '{Code}' at '{Path}'", code, wakeWordsPath);
+
+        return Task.CompletedTask;
+    }
+
+    public Task InstallNavigationTargetsAsync(string code)
+    {
+        var navTargetsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.NavigationTargetsFileName);
+        if (File.Exists(navTargetsPath))
+            _logger.LogInformation("Navigation-targets file registered for language plugin '{Code}'", code);
+        else
+            _logger.LogDebug("No navigation-targets file for language plugin '{Code}'", code);
+
+        return Task.CompletedTask;
+    }
+
     public async Task MergeNonCoreTranslationsAsync(IServiceScope scope, string code)
     {
         var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
