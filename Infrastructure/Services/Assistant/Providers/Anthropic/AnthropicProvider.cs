@@ -15,6 +15,9 @@ public class AnthropicProvider : ILLMProvider
     private readonly HttpClient _httpClient;
     private readonly ILogger<AnthropicProvider> _logger;
     private readonly IConfiguration _configuration;
+    private const string AdvisorBetaHeader = "advisor-tool-2026-03-01";
+    private const string AdvisorModelId = "claude-opus-4-6";
+
     private string _apiKey = string.Empty;
     private Domain.Models.Assistant.LLMProvider? _providerConfig;
 
@@ -35,15 +38,17 @@ public class AnthropicProvider : ILLMProvider
     {
         _providerConfig = providerConfig;
         _apiKey = providerConfig.ApiKey!;
-        
+
         if (!string.IsNullOrEmpty(_apiKey))
         {
             _httpClient.DefaultRequestHeaders.Remove("x-api-key");
             _httpClient.DefaultRequestHeaders.Add("x-api-key", _apiKey);
             _httpClient.DefaultRequestHeaders.Remove("anthropic-version");
             _httpClient.DefaultRequestHeaders.Add("anthropic-version", providerConfig.ApiVersion!);
+            _httpClient.DefaultRequestHeaders.Remove("anthropic-beta");
+            _httpClient.DefaultRequestHeaders.Add("anthropic-beta", AdvisorBetaHeader);
         }
-        
+
         _httpClient.BaseAddress = new Uri(providerConfig.BaseUrl!);
     }
 
@@ -203,21 +208,28 @@ public class AnthropicProvider : ILLMProvider
         return messages;
     }
 
-    private List<AnthropicTool>? MapTools(List<LLMFunction> functions)
+    private List<object>? MapTools(List<LLMFunction> functions)
     {
-        if (!functions.Any()) return null;
+        var tools = new List<object>();
 
-        return functions.Select(f => new AnthropicTool
+        tools.Add(new AnthropicAdvisorTool { Model = AdvisorModelId });
+
+        foreach (var f in functions)
         {
-            Name = f.Name,
-            Description = f.Description,
-            InputSchema = new AnthropicInputSchema
+            tools.Add(new AnthropicTool
             {
-                Type = "object",
-                Properties = f.Parameters,
-                Required = f.RequiredParameters
-            }
-        }).ToList();
+                Name = f.Name,
+                Description = f.Description,
+                InputSchema = new AnthropicInputSchema
+                {
+                    Type = "object",
+                    Properties = f.Parameters,
+                    Required = f.RequiredParameters
+                }
+            });
+        }
+
+        return tools;
     }
 
     private string ExtractContent(AnthropicResponse response)

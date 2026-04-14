@@ -22,5 +22,5 @@ public class AnthropicRequest
     public int MaxTokens { get; set; }
     
     [JsonPropertyName("tools")]
-    public List<AnthropicTool>? Tools { get; set; }
+    public List<object>? Tools { get; set; }
 }
