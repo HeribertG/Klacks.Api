@@ -1,0 +1,10 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+namespace Klacks.Api.Application.Klacksy;
+
+using Klacks.Api.Application.Klacksy.Models;
+
+public interface IUtteranceNormalizer
+{
+    NormalizedUtterance Normalize(string raw, string locale);
+}
