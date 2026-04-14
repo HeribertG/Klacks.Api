@@ -1,1 +1,35 @@
-[]
+[
+  {
+    "targetId": "email-config",
+    "route": "/workplace/settings",
+    "labelKey": "settings.email",
+    "category": "settings.admin",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
+    "lastScannedAt": "2026-04-14T20:59:18.134Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
+    "targetId": "llm-provider",
+    "route": "/workplace/settings",
+    "labelKey": "settings.llmProvider",
+    "category": "settings.ai",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
+    "lastScannedAt": "2026-04-14T20:59:18.134Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
+    "targetId": "user-management",
+    "route": "/workplace/settings",
+    "labelKey": "settings.userManagement",
+    "category": "settings.admin",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
+    "lastScannedAt": "2026-04-14T20:59:18.133Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  }
+]
