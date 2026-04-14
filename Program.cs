@@ -19,6 +19,7 @@ using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.StartupChecks;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Configuration;
+using Klacks.Api.Application.Klacksy;
 using Klacks.Api.Application.Mappers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -184,6 +185,15 @@ builder.Services.AddSingleton<ScheduleTimelineBackgroundService>();
 if (bgOptions.ScheduleTimeline)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());
 builder.Services.AddSingleton<IScheduleTimelineService>(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());
+builder.Services.AddSingleton<IUtteranceNormalizer, UtteranceNormalizer>();
+builder.Services.AddSingleton<INavigationTargetCacheService>(sp =>
+{
+    var baseDir = AppContext.BaseDirectory;
+    var manifest = Path.Combine(baseDir, "Application", "Skills", "Definitions", "navigation-targets.json");
+    var plugins = Path.Combine(baseDir, "Plugins", "Languages");
+    return new NavigationTargetCacheService(manifest, Directory.Exists(plugins) ? plugins : null);
+});
+builder.Services.AddScoped<INavigationTargetMatcher, NavigationTargetMatcher>();
 builder.Services.AddSingleton<LLMMapper>();
 builder.Services.AddSingleton<IAssistantConnectionTracker, AssistantConnectionTracker>();
 builder.Services.AddScoped<IAssistantNotificationService, AssistantNotificationService>();

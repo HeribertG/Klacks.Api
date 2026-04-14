@@ -157,7 +157,7 @@
     },
     {
       "name": "navigate_to",
-      "description": "Navigate to a specific page in Klacks. Pages: dashboard, client-list (employee overview), new-employee (create employee form), edit-employee (edit with entityId), schedule, absences, client-availability, settings, group-list, new-group, edit-group, group-structure, shift-list, new-shift, edit-shift, inbox, messaging, profile. Additional pages may be added by feature plugins. For finding a person by name use search_and_navigate instead.",
+      "description": "Navigate to a page and optionally scroll to a specific section on that page. Pages: dashboard, client-list (employee overview), new-employee (create employee form), edit-employee (edit with entityId), schedule, absences, client-availability, settings, group-list, new-group, edit-group, group-structure, shift-list, new-shift, edit-shift, inbox, messaging, profile. Additional pages may be added by feature plugins. For finding a person by name use search_and_navigate instead.",
       "category": "UI",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -205,6 +205,12 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "required": false,
+          "description": "Optional sub-target ID on the destination page. Must match a data-klacksy-target attribute."
         }
       ],
       "handlerConfig": null,
