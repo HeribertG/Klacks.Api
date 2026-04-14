@@ -14,7 +14,7 @@ public sealed class NavigationTarget
     public string? RequiredPermission { get; init; }
     public string? SourceFile { get; init; }
     public DateTime LastScannedAt { get; init; }
-    public Dictionary<string, string[]> Synonyms { get; init; } = new();
+    public Dictionary<string, string[]> Synonyms { get; set; } = new();
     public string SynonymStatus { get; init; } = "pending";
     public bool Obsolete { get; init; }
 }
