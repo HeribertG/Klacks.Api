@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Text;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -9,6 +10,16 @@ namespace Klacks.Api.Domain.Services.Assistant;
 public class LLMSystemPromptBuilder
 {
     private readonly IPromptTranslationProvider _translationProvider;
+
+    private const string NavigationResponseGuide = """
+
+NAVIGATION RESPONSE GUIDE:
+- Speak in first person as Klacksy.
+- Confirm the destination by name, keep 1-2 short sentences.
+- On failure: be honest (permission / not loaded / renamed).
+- Never use passive voice.
+- Respond in the user's locale.
+""";
 
     public LLMSystemPromptBuilder(IPromptTranslationProvider translationProvider)
     {
@@ -33,13 +44,27 @@ public class LLMSystemPromptBuilder
             ? soulAndMemoryPrompt.Trim() + "\n\n"
             : "";
 
-        return $@"{identitySection}{t["Intro"]}
+        var sb = new StringBuilder();
+        sb.Append($@"{identitySection}{t["Intro"]}
 
 {t["ToolUsageRules"]}
 
 {t["HeaderUserContext"]}:
 - {t["LabelUserId"]}: {context.UserId}
-- {t["LabelPermissions"]}: {string.Join(", ", context.UserRights)}{settingsNote}";
+- {t["LabelPermissions"]}: {string.Join(", ", context.UserRights)}{settingsNote}");
+
+        if (HasNavigateToSkill(context))
+        {
+            sb.Append(NavigationResponseGuide);
+        }
+
+        return sb.ToString();
+    }
+
+    private static bool HasNavigateToSkill(LLMContext context)
+    {
+        return context.AvailableFunctions.Any(f =>
+            string.Equals(f.Name, SkillNames.NavigateTo, StringComparison.OrdinalIgnoreCase));
     }
 
     private static bool HasPermission(LLMContext context, string permission)
