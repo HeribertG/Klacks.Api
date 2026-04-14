@@ -18,12 +18,16 @@ public class AnalyseScenarioRepository : BaseRepository<AnalyseScenario>, IAnaly
     {
     }
 
-    public async Task<List<AnalyseScenario>> GetByGroupAsync(Guid groupId, CancellationToken ct = default)
+    public async Task<List<AnalyseScenario>> GetByGroupAsync(Guid? groupId, CancellationToken ct = default)
     {
-        return await context.Set<AnalyseScenario>()
-            .Where(s => s.GroupId == groupId && !s.IsDeleted)
-            .OrderByDescending(s => s.CreateTime)
-            .ToListAsync(ct);
+        var query = context.Set<AnalyseScenario>().Where(s => !s.IsDeleted);
+
+        if (groupId.HasValue)
+        {
+            query = query.Where(s => s.GroupId == groupId.Value);
+        }
+
+        return await query.OrderByDescending(s => s.CreateTime).ToListAsync(ct);
     }
 
     public async Task<AnalyseScenario?> GetByTokenAsync(Guid token, CancellationToken ct = default)

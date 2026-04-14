@@ -45,19 +45,26 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
             var token = scenario.Token;
             var fromDate = scenario.FromDate;
             var untilDate = scenario.UntilDate;
-            var groupIds = await GetGroupHierarchyIds(scenario.GroupId, cancellationToken);
 
-            var shiftIds = await _context.Set<GroupItem>()
-                .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
-                .Select(gi => gi.ShiftId!.Value)
-                .Distinct()
-                .ToListAsync(cancellationToken);
+            List<Guid>? shiftIds = null;
+            List<Guid>? clientIds = null;
 
-            var clientIds = await _context.Set<GroupItem>()
-                .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ClientId != null)
-                .Select(gi => gi.ClientId!.Value)
-                .Distinct()
-                .ToListAsync(cancellationToken);
+            if (scenario.GroupId.HasValue)
+            {
+                var groupIds = await GetGroupHierarchyIds(scenario.GroupId.Value, cancellationToken);
+
+                shiftIds = await _context.Set<GroupItem>()
+                    .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
+                    .Select(gi => gi.ShiftId!.Value)
+                    .Distinct()
+                    .ToListAsync(cancellationToken);
+
+                clientIds = await _context.Set<GroupItem>()
+                    .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ClientId != null)
+                    .Select(gi => gi.ClientId!.Value)
+                    .Distinct()
+                    .ToListAsync(cancellationToken);
+            }
 
             await SoftDeleteRealWorks(shiftIds, fromDate, untilDate, cancellationToken);
             await SoftDeleteRealBreaks(clientIds, fromDate, untilDate, cancellationToken);
@@ -72,14 +79,18 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         }, nameof(Handle), new { command.ScenarioId });
     }
 
-    private async Task SoftDeleteRealWorks(List<Guid> shiftIds, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
+    private async Task SoftDeleteRealWorks(List<Guid>? shiftIds, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
     {
-        var realWorks = await _context.Work
+        IQueryable<Domain.Models.Schedules.Work> workQuery = _context.Work
             .Where(w => !w.IsDeleted && w.AnalyseToken == null
-                && shiftIds.Contains(w.ShiftId)
-                && w.CurrentDate >= fromDate && w.CurrentDate <= untilDate)
-            .ToListAsync(ct);
+                && w.CurrentDate >= fromDate && w.CurrentDate <= untilDate);
 
+        if (shiftIds != null)
+        {
+            workQuery = workQuery.Where(w => shiftIds.Contains(w.ShiftId));
+        }
+
+        var realWorks = await workQuery.ToListAsync(ct);
         var realWorkIds = realWorks.Select(w => w.Id).ToList();
 
         var workChanges = await _context.WorkChange
@@ -95,24 +106,34 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         foreach (var work in realWorks) { work.IsDeleted = true; work.DeletedTime = DateTime.UtcNow; }
     }
 
-    private async Task SoftDeleteRealBreaks(List<Guid> clientIds, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
+    private async Task SoftDeleteRealBreaks(List<Guid>? clientIds, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
     {
-        var realBreaks = await _context.Break
+        IQueryable<Domain.Models.Schedules.Break> breakQuery = _context.Break
             .Where(b => !b.IsDeleted && b.AnalyseToken == null
-                && clientIds.Contains(b.ClientId)
-                && b.CurrentDate >= fromDate && b.CurrentDate <= untilDate)
-            .ToListAsync(ct);
+                && b.CurrentDate >= fromDate && b.CurrentDate <= untilDate);
+
+        if (clientIds != null)
+        {
+            breakQuery = breakQuery.Where(b => clientIds.Contains(b.ClientId));
+        }
+
+        var realBreaks = await breakQuery.ToListAsync(ct);
 
         foreach (var brk in realBreaks) { brk.IsDeleted = true; brk.DeletedTime = DateTime.UtcNow; }
     }
 
-    private async Task SoftDeleteRealScheduleNotes(List<Guid> clientIds, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
+    private async Task SoftDeleteRealScheduleNotes(List<Guid>? clientIds, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
     {
-        var realNotes = await _context.ScheduleNotes
+        IQueryable<Domain.Models.Schedules.ScheduleNote> noteQuery = _context.ScheduleNotes
             .Where(sn => !sn.IsDeleted && sn.AnalyseToken == null
-                && clientIds.Contains(sn.ClientId)
-                && sn.CurrentDate >= fromDate && sn.CurrentDate <= untilDate)
-            .ToListAsync(ct);
+                && sn.CurrentDate >= fromDate && sn.CurrentDate <= untilDate);
+
+        if (clientIds != null)
+        {
+            noteQuery = noteQuery.Where(sn => clientIds.Contains(sn.ClientId));
+        }
+
+        var realNotes = await noteQuery.ToListAsync(ct);
 
         foreach (var note in realNotes) { note.IsDeleted = true; note.DeletedTime = DateTime.UtcNow; }
     }

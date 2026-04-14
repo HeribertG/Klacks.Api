@@ -3,7 +3,7 @@
 /// <summary>
 /// Handler for creating a new AnalyseScenario by cloning all schedule data.
 /// </summary>
-/// <param name="Request">Contains name, description, group and time period</param>
+/// <param name="Request">Contains name, description, optional group and time period</param>
 
 using Klacks.Api.Application.Commands.AnalyseScenarios;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -56,7 +56,9 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
             await _repository.Add(scenario);
 
-            var groupIds = await GetGroupHierarchyIds(groupId, cancellationToken);
+            var groupIds = groupId.HasValue
+                ? await GetGroupHierarchyIds(groupId.Value, cancellationToken)
+                : null;
 
             var shiftIdMap = await CloneShifts(groupIds, token, cancellationToken);
             await CloneWorks(groupIds, fromDate, untilDate, token, shiftIdMap, cancellationToken);
@@ -105,16 +107,23 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         return result;
     }
 
-    private async Task<Dictionary<Guid, Guid>> CloneShifts(List<Guid> groupIds, Guid token, CancellationToken ct)
+    private async Task<Dictionary<Guid, Guid>> CloneShifts(List<Guid>? groupIds, Guid token, CancellationToken ct)
     {
-        var shiftIds = await _context.Set<GroupItem>()
-            .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
-            .Select(gi => gi.ShiftId!.Value)
-            .Distinct()
-            .ToListAsync(ct);
+        IQueryable<Shift> shiftQuery = _context.Shift
+            .Where(s => !s.IsDeleted && s.AnalyseToken == null);
 
-        var shifts = await _context.Shift
-            .Where(s => !s.IsDeleted && shiftIds.Contains(s.Id) && s.AnalyseToken == null)
+        if (groupIds != null)
+        {
+            var shiftIds = await _context.Set<GroupItem>()
+                .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
+                .Select(gi => gi.ShiftId!.Value)
+                .Distinct()
+                .ToListAsync(ct);
+
+            shiftQuery = shiftQuery.Where(s => shiftIds.Contains(s.Id));
+        }
+
+        var shifts = await shiftQuery
             .Include(s => s.GroupItems.Where(gi => !gi.IsDeleted))
             .AsNoTracking()
             .ToListAsync(ct);
@@ -186,22 +195,26 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         return idMap;
     }
 
-    private async Task CloneWorks(List<Guid> groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, Dictionary<Guid, Guid> shiftIdMap, CancellationToken ct)
+    private async Task CloneWorks(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, Dictionary<Guid, Guid> shiftIdMap, CancellationToken ct)
     {
-        var shiftIds = await _context.Set<GroupItem>()
-            .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
-            .Select(gi => gi.ShiftId!.Value)
-            .Distinct()
-            .ToListAsync(ct);
-
-        var works = await _context.Work
+        IQueryable<Work> workQuery = _context.Work
             .Where(w => !w.IsDeleted
                 && w.AnalyseToken == null
-                && shiftIds.Contains(w.ShiftId)
                 && w.CurrentDate >= fromDate
-                && w.CurrentDate <= untilDate)
-            .AsNoTracking()
-            .ToListAsync(ct);
+                && w.CurrentDate <= untilDate);
+
+        if (groupIds != null)
+        {
+            var shiftIds = await _context.Set<GroupItem>()
+                .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
+                .Select(gi => gi.ShiftId!.Value)
+                .Distinct()
+                .ToListAsync(ct);
+
+            workQuery = workQuery.Where(w => shiftIds.Contains(w.ShiftId));
+        }
+
+        var works = await workQuery.AsNoTracking().ToListAsync(ct);
 
         var workIdMap = new Dictionary<Guid, Guid>();
 
@@ -289,22 +302,26 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         }
     }
 
-    private async Task CloneBreaks(List<Guid> groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, CancellationToken ct)
+    private async Task CloneBreaks(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, CancellationToken ct)
     {
-        var clientIds = await _context.Set<GroupItem>()
-            .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ClientId != null)
-            .Select(gi => gi.ClientId!.Value)
-            .Distinct()
-            .ToListAsync(ct);
-
-        var breaks = await _context.Break
+        IQueryable<Break> breakQuery = _context.Break
             .Where(b => !b.IsDeleted
                 && b.AnalyseToken == null
-                && clientIds.Contains(b.ClientId)
                 && b.CurrentDate >= fromDate
-                && b.CurrentDate <= untilDate)
-            .AsNoTracking()
-            .ToListAsync(ct);
+                && b.CurrentDate <= untilDate);
+
+        if (groupIds != null)
+        {
+            var clientIds = await _context.Set<GroupItem>()
+                .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ClientId != null)
+                .Select(gi => gi.ClientId!.Value)
+                .Distinct()
+                .ToListAsync(ct);
+
+            breakQuery = breakQuery.Where(b => clientIds.Contains(b.ClientId));
+        }
+
+        var breaks = await breakQuery.AsNoTracking().ToListAsync(ct);
 
         foreach (var brk in breaks)
         {
@@ -330,22 +347,26 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         }
     }
 
-    private async Task CloneScheduleNotes(List<Guid> groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, CancellationToken ct)
+    private async Task CloneScheduleNotes(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, CancellationToken ct)
     {
-        var clientIds = await _context.Set<GroupItem>()
-            .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ClientId != null)
-            .Select(gi => gi.ClientId!.Value)
-            .Distinct()
-            .ToListAsync(ct);
-
-        var notes = await _context.ScheduleNotes
+        IQueryable<ScheduleNote> noteQuery = _context.ScheduleNotes
             .Where(sn => !sn.IsDeleted
                 && sn.AnalyseToken == null
-                && clientIds.Contains(sn.ClientId)
                 && sn.CurrentDate >= fromDate
-                && sn.CurrentDate <= untilDate)
-            .AsNoTracking()
-            .ToListAsync(ct);
+                && sn.CurrentDate <= untilDate);
+
+        if (groupIds != null)
+        {
+            var clientIds = await _context.Set<GroupItem>()
+                .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ClientId != null)
+                .Select(gi => gi.ClientId!.Value)
+                .Distinct()
+                .ToListAsync(ct);
+
+            noteQuery = noteQuery.Where(sn => clientIds.Contains(sn.ClientId));
+        }
+
+        var notes = await noteQuery.AsNoTracking().ToListAsync(ct);
 
         foreach (var note in notes)
         {

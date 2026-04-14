@@ -4,7 +4,7 @@
 /// Represents a what-if analysis scenario for schedule planning.
 /// </summary>
 /// <param name="Token">Unique token used to tag all cloned schedule data belonging to this scenario</param>
-/// <param name="GroupId">The group this scenario belongs to</param>
+/// <param name="GroupId">The group this scenario belongs to, or null for a group-unfiltered scenario</param>
 /// <param name="FromDate">Start of the scenario time range</param>
 /// <param name="UntilDate">End of the scenario time range</param>
 
@@ -20,7 +20,7 @@ public class AnalyseScenario : BaseEntity
 
     public string? Description { get; set; }
 
-    public Guid GroupId { get; set; }
+    public Guid? GroupId { get; set; }
 
     public Group? Group { get; set; }
 

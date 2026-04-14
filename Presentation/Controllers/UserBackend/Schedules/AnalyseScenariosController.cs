@@ -23,7 +23,7 @@ public class AnalyseScenariosController : BaseController
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<AnalyseScenarioResource>>> GetList([FromQuery] Guid groupId)
+    public async Task<ActionResult<List<AnalyseScenarioResource>>> GetList([FromQuery] Guid? groupId)
     {
         var result = await _mediator.Send(new ListAnalyseScenariosQuery(groupId));
         return Ok(result);

@@ -14,7 +14,7 @@ public class AnalyseScenarioResource
 
     public string? Description { get; set; }
 
-    public Guid GroupId { get; set; }
+    public Guid? GroupId { get; set; }
 
     public DateOnly FromDate { get; set; }
 
