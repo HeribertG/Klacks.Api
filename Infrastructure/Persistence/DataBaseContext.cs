@@ -13,6 +13,7 @@ using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Reports;
 using Klacks.Api.Domain.Models.FloorPlans;
+using Klacks.Api.Domain.Models.Klacksy;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.KnowledgeIndex.Domain;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -215,6 +216,9 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<FloorPlan> FloorPlan { get; set; }
 
     public DbSet<FloorPlanWorkMarker> FloorPlanWorkMarker { get; set; }
+
+    // Klacksy DbSets
+    public DbSet<KlacksyNavigationFeedback> KlacksyNavigationFeedback => Set<KlacksyNavigationFeedback>();
 
     public override int SaveChanges()
     {
