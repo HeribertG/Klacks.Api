@@ -5,7 +5,7 @@
     "labelKey": "settings.absenceDetail",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "abwesenheitsdetails",
@@ -105,7 +105,7 @@
     "labelKey": "settings.absence",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.975Z",
     "synonyms": {
       "de": [
         "abwesenheit einstellen",
@@ -205,7 +205,7 @@
     "labelKey": "nav.addresses",
     "category": "data.people",
     "sourceFile": "src/app/presentation/workplace/address/all-address/all-address-home/all-address-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:12.110Z",
+    "lastScannedAt": "2026-04-15T19:35:07.139Z",
     "synonyms": {
       "de": [
         "adressen",
@@ -304,7 +304,7 @@
     "labelKey": "settings.assistantSpeech",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "assistenten sprache ändern",
@@ -404,7 +404,7 @@
     "labelKey": "settings.branches",
     "category": "settings.organization",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.652Z",
+    "lastScannedAt": "2026-04-15T19:35:06.975Z",
     "synonyms": {
       "de": [
         "filialen",
@@ -504,7 +504,7 @@
     "labelKey": "settings.calendarRules",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "arbeitsplanregeln",
@@ -604,7 +604,7 @@
     "labelKey": "settings.calendarSelection",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "kalender auswahl",
@@ -704,7 +704,7 @@
     "labelKey": "settings.contracts",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.652Z",
+    "lastScannedAt": "2026-04-15T19:35:06.975Z",
     "synonyms": {
       "de": [
         "arbeitsverträge verwalten",
@@ -804,7 +804,7 @@
     "labelKey": "settings.countries",
     "category": "settings.geography",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.975Z",
     "synonyms": {
       "de": [
         "länder",
@@ -904,7 +904,7 @@
     "labelKey": "nav.dashboard",
     "category": "overview",
     "sourceFile": "src/app/presentation/workplace/dashboard/dashboard-home/dashboard-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:11.175Z",
+    "lastScannedAt": "2026-04-15T19:35:07.053Z",
     "synonyms": {
       "de": [
         "übersicht",
@@ -1004,7 +1004,7 @@
     "labelKey": "settings.dataRetention",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.652Z",
+    "lastScannedAt": "2026-04-15T19:35:06.974Z",
     "synonyms": {
       "de": [
         "datenaufbewahrung",
@@ -1104,7 +1104,7 @@
     "labelKey": "settings.deepl",
     "category": "settings.integrations",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "deepl einrichten",
@@ -1197,7 +1197,7 @@
     "labelKey": "settings.email",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "e-mail einstellungen",
@@ -1297,7 +1297,7 @@
     "labelKey": "settings.featurePlugins",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "feature-plugins",
@@ -1397,7 +1397,7 @@
     "labelKey": "nav.floorPlan",
     "category": "data.organization",
     "sourceFile": "src/app/presentation/workplace/floor-plan/floor-plan-home/floor-plan-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:11.172Z",
+    "lastScannedAt": "2026-04-15T19:35:07.050Z",
     "synonyms": {
       "de": [
         "arbeitsplan",
@@ -1497,7 +1497,7 @@
     "labelKey": "settings.floorPlan",
     "category": "settings.ui",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "arbeitsplan einstellen",
@@ -1596,7 +1596,7 @@
     "labelKey": "settings.gridColor",
     "category": "settings.ui",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "gitterfarbe anpassen",
@@ -1696,7 +1696,7 @@
     "labelKey": "settings.groupScope",
     "category": "settings.organization",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.652Z",
+    "lastScannedAt": "2026-04-15T19:35:06.974Z",
     "synonyms": {
       "de": [
         "gruppenbereich",
@@ -1796,7 +1796,7 @@
     "labelKey": "nav.groups",
     "category": "data.organization",
     "sourceFile": "src/app/presentation/workplace/group/all-group/all-group-home/all-group-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:11.969Z",
+    "lastScannedAt": "2026-04-15T19:35:07.127Z",
     "synonyms": {
       "de": [
         "arbeitsgruppen",
@@ -1896,7 +1896,7 @@
     "labelKey": "settings.identityProviders",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.652Z",
+    "lastScannedAt": "2026-04-15T19:35:06.975Z",
     "synonyms": {
       "de": [
         "identitätsanbieter verwalten",
@@ -1996,7 +1996,7 @@
     "labelKey": "settings.imap",
     "category": "settings.integrations",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "imap einrichten",
@@ -2096,7 +2096,7 @@
     "labelKey": "nav.inbox",
     "category": "communication",
     "sourceFile": "src/app/presentation/workplace/inbox/inbox-home/inbox-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:11.102Z",
+    "lastScannedAt": "2026-04-15T19:35:07.042Z",
     "synonyms": {
       "de": [
         "meine nachrichten",
@@ -2196,7 +2196,7 @@
     "labelKey": "klacksyTraining.title",
     "category": "settings.assistant",
     "sourceFile": "src/app/presentation/workplace/klacksy-training/klacksy-training-review-home/klacksy-training-review-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:11.116Z",
+    "lastScannedAt": "2026-04-15T19:35:07.037Z",
     "synonyms": {
       "de": [
         "einstellungen für assistenten",
@@ -2296,7 +2296,7 @@
     "labelKey": "settings.languagePlugins",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "sprache einstellungen",
@@ -2395,7 +2395,7 @@
     "labelKey": "settings.llmModels",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "ki-modelle",
@@ -2495,7 +2495,7 @@
     "labelKey": "settings.llmProvider",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "ki-anbieter",
@@ -2595,7 +2595,7 @@
     "labelKey": "settings.macros",
     "category": "settings.ui",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "einstellungen für automatisierte abläufe",
@@ -2695,7 +2695,7 @@
     "labelKey": "settings.messagingProviders",
     "category": "settings.integrations",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "nachrichten-dienste",
@@ -2795,7 +2795,7 @@
     "labelKey": "settings.openroute",
     "category": "settings.integrations",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "integrationen öffnen",
@@ -2895,7 +2895,7 @@
     "labelKey": "settings.ownerAddress",
     "category": "settings.general",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.652Z",
+    "lastScannedAt": "2026-04-15T19:35:06.974Z",
     "synonyms": {
       "de": [
         "adresse des kontoinhabers",
@@ -2995,7 +2995,7 @@
     "labelKey": "settings.ownerMessengers",
     "category": "settings.integrations",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "eigene messenger einstellungen",
@@ -3095,7 +3095,7 @@
     "labelKey": "nav.periodClosing",
     "category": "scheduling.closing",
     "sourceFile": "src/app/presentation/workplace/period-closing/period-closing-home/period-closing-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:11.027Z",
+    "lastScannedAt": "2026-04-15T19:35:07.023Z",
     "synonyms": {
       "de": [
         "abschluss der abrechnungsperiode",
@@ -3195,7 +3195,7 @@
     "labelKey": "settings.reportDefaults",
     "category": "settings.reports",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "berichtsvoreinstellungen",
@@ -3295,7 +3295,7 @@
     "labelKey": "settings.reports",
     "category": "settings.reports",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "berichte anzeigen",
@@ -3395,7 +3395,7 @@
     "labelKey": "settings.schedulingDefaults",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.975Z",
     "synonyms": {
       "de": [
         "arbeitsplan standardeinstellungen",
@@ -3495,7 +3495,7 @@
     "labelKey": "settings.schedulingRules",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.975Z",
     "synonyms": {
       "de": [
         "arbeitsplanregeln",
@@ -3595,7 +3595,7 @@
     "labelKey": "settings.general",
     "category": "settings.general",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.650Z",
+    "lastScannedAt": "2026-04-15T19:35:06.973Z",
     "synonyms": {
       "de": [
         "allgemeine einstellungen",
@@ -3694,7 +3694,7 @@
     "labelKey": "nav.shifts",
     "category": "scheduling.shifts",
     "sourceFile": "src/app/presentation/workplace/shift/all-shift/all-shift-home/all-shift-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:11.405Z",
+    "lastScannedAt": "2026-04-15T19:35:07.078Z",
     "synonyms": {
       "de": [
         "arbeitszeiten",
@@ -3794,7 +3794,7 @@
     "labelKey": "settings.spamRules",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.976Z",
     "synonyms": {
       "de": [
         "spam-regeln verwalten",
@@ -3894,7 +3894,7 @@
     "labelKey": "settings.states",
     "category": "settings.geography",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.652Z",
+    "lastScannedAt": "2026-04-15T19:35:06.975Z",
     "synonyms": {
       "de": [
         "arbeitsorte verwalten",
@@ -3994,7 +3994,7 @@
     "labelKey": "settings.userManagement",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.652Z",
+    "lastScannedAt": "2026-04-15T19:35:06.974Z",
     "synonyms": {
       "de": [
         "benutzer verwalten",
@@ -4094,7 +4094,7 @@
     "labelKey": "settings.workSetting",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-04-15T19:01:10.653Z",
+    "lastScannedAt": "2026-04-15T19:35:06.975Z",
     "synonyms": {
       "de": [
         "arbeitszeiten einstellen",
