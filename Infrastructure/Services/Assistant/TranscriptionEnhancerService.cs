@@ -37,6 +37,8 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
 
     public async Task<string> EnhanceTranscriptionAsync(string rawText, string locale, string? modelId = null, CancellationToken ct = default)
     {
+        var preprocessed = await _dictionaryService.ApplyReplacementsAsync(rawText, ct);
+
         try
         {
             var effectiveModelId = !string.IsNullOrWhiteSpace(modelId)
@@ -48,7 +50,7 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
             if (provider == null || !provider.IsEnabled)
             {
                 _logger.LogWarning("No enabled LLM provider found for model {ModelId}", effectiveModelId);
-                return rawText;
+                return preprocessed;
             }
 
             var dictionaryContext = await _dictionaryService.BuildContextAsync(ct);
@@ -66,7 +68,7 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
             {
                 ModelId = effectiveModelId,
                 SystemPrompt = systemPrompt + localeHint,
-                Message = rawText,
+                Message = preprocessed,
                 Temperature = TranscriptionConstants.Temperature,
                 MaxTokens = TranscriptionConstants.MaxTokens
             };
@@ -78,15 +80,15 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
             if (!response.Success || string.IsNullOrWhiteSpace(response.Content))
             {
                 _logger.LogWarning("LLM provider returned empty or failed response for transcription enhancement");
-                return rawText;
+                return preprocessed;
             }
 
             return response.Content.Trim();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Transcription enhancement failed, returning raw text");
-            return rawText;
+            _logger.LogError(ex, "Transcription enhancement failed, returning preprocessed text");
+            return preprocessed;
         }
     }
 

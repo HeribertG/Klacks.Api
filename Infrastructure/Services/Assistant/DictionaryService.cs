@@ -1,14 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Builds transcription dictionary context from DB-stored entries.
-/// Uses IMemoryCache with 5 minute TTL to avoid rebuilding on every request.
+/// Builds transcription dictionary context from DB-stored entries and applies deterministic
+/// phonetic-variant replacements. Uses IMemoryCache with 5 minute TTL to avoid hitting the DB
+/// on every request.
 /// </summary>
 /// <param name="repository">Repository for transcription dictionary entries</param>
-/// <param name="cache">In-memory cache for dictionary context</param>
+/// <param name="cache">In-memory cache for dictionary entries</param>
 /// <param name="logger">Logger instance</param>
 namespace Klacks.Api.Infrastructure.Services.Assistant;
 
+using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.Extensions.Caching.Memory;
@@ -19,7 +21,7 @@ public class DictionaryService : IDictionaryService
     private readonly ITranscriptionDictionaryRepository _repository;
     private readonly IMemoryCache _cache;
     private readonly ILogger<DictionaryService> _logger;
-    private const string CacheKey = "TranscriptionDictionary";
+    private const string EntriesCacheKey = "TranscriptionDictionary.Entries";
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
 
     public DictionaryService(
@@ -34,16 +36,37 @@ public class DictionaryService : IDictionaryService
 
     public async Task<string> BuildContextAsync(CancellationToken ct = default)
     {
-        if (_cache.TryGetValue(CacheKey, out string? cached) && cached != null)
+        var entries = await GetCachedEntriesAsync(ct);
+        return BuildContextString(entries);
+    }
+
+    public async Task<string> ApplyReplacementsAsync(string text, CancellationToken ct = default)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return text;
+        }
+
+        var entries = await GetCachedEntriesAsync(ct);
+        return ApplyDeterministicReplacements(text, entries);
+    }
+
+    public void InvalidateCache()
+    {
+        _cache.Remove(EntriesCacheKey);
+    }
+
+    private async Task<List<TranscriptionDictionaryEntry>> GetCachedEntriesAsync(CancellationToken ct)
+    {
+        if (_cache.TryGetValue(EntriesCacheKey, out List<TranscriptionDictionaryEntry>? cached) && cached != null)
+        {
             return cached;
+        }
 
         var entries = await _repository.GetAllAsync(ct);
-        var context = BuildContextString(entries);
-
-        _cache.Set(CacheKey, context, CacheDuration);
-        _logger.LogDebug("Built transcription dictionary context with {Count} entries", entries.Count);
-
-        return context;
+        _cache.Set(EntriesCacheKey, entries, CacheDuration);
+        _logger.LogDebug("Loaded transcription dictionary into cache with {Count} entries", entries.Count);
+        return entries;
     }
 
     private static string BuildContextString(List<TranscriptionDictionaryEntry> entries)
@@ -58,5 +81,28 @@ public class DictionaryService : IDictionaryService
         });
 
         return string.Join("\n", lines);
+    }
+
+    private static string ApplyDeterministicReplacements(string text, List<TranscriptionDictionaryEntry> entries)
+    {
+        var pairs = entries
+            .SelectMany(e => e.PhoneticVariants
+                .Where(v => !string.IsNullOrWhiteSpace(v))
+                .Select(v => new { Variant = v, Correct = e.CorrectTerm }))
+            .OrderByDescending(p => p.Variant.Length)
+            .ToList();
+
+        if (pairs.Count == 0)
+        {
+            return text;
+        }
+
+        var result = text;
+        foreach (var pair in pairs)
+        {
+            var pattern = $@"(?<!\w){Regex.Escape(pair.Variant)}(?!\w)";
+            result = Regex.Replace(result, pattern, pair.Correct, RegexOptions.IgnoreCase);
+        }
+        return result;
     }
 }

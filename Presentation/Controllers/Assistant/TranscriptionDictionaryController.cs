@@ -6,7 +6,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Caching.Memory;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Presentation.DTOs.Assistant;
@@ -19,13 +18,12 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 public class TranscriptionDictionaryController : ControllerBase
 {
     private readonly ITranscriptionDictionaryRepository _repository;
-    private readonly IMemoryCache _cache;
-    private const string CacheKey = "TranscriptionDictionary";
+    private readonly IDictionaryService _dictionaryService;
 
-    public TranscriptionDictionaryController(ITranscriptionDictionaryRepository repository, IMemoryCache cache)
+    public TranscriptionDictionaryController(ITranscriptionDictionaryRepository repository, IDictionaryService dictionaryService)
     {
         _repository = repository;
-        _cache = cache;
+        _dictionaryService = dictionaryService;
     }
 
     [HttpGet]
@@ -50,7 +48,7 @@ public class TranscriptionDictionaryController : ControllerBase
         };
 
         await _repository.AddAsync(entry, ct);
-        _cache.Remove(CacheKey);
+        _dictionaryService.InvalidateCache();
 
         var result = new TranscriptionDictionaryDto(
             entry.Id, entry.CorrectTerm, entry.Category, entry.PhoneticVariants, entry.Description);
@@ -69,7 +67,7 @@ public class TranscriptionDictionaryController : ControllerBase
         existing.Description = dto.Description;
 
         await _repository.UpdateAsync(existing, ct);
-        _cache.Remove(CacheKey);
+        _dictionaryService.InvalidateCache();
 
         var result = new TranscriptionDictionaryDto(
             existing.Id, existing.CorrectTerm, existing.Category, existing.PhoneticVariants, existing.Description);
@@ -83,7 +81,7 @@ public class TranscriptionDictionaryController : ControllerBase
         if (existing == null) return NotFound();
 
         await _repository.DeleteAsync(id, ct);
-        _cache.Remove(CacheKey);
+        _dictionaryService.InvalidateCache();
 
         return NoContent();
     }
