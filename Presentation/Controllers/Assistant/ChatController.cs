@@ -201,13 +201,24 @@ public class ChatController : ControllerBase
                 await Response.Body.FlushAsync(cancellationToken);
             }
         }
+        catch (Exception) when (cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogInformation("SSE stream cancelled by client for user {UserId}", userId);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during SSE streaming for user {UserId}", userId);
-            var errorChunk = SseChunk.Error(ex.Message);
-            var errorData = System.Text.Json.JsonSerializer.Serialize(errorChunk, jsonOptions);
-            await Response.WriteAsync($"event: error\ndata: {errorData}\n\n", cancellationToken);
-            await Response.Body.FlushAsync(cancellationToken);
+            try
+            {
+                var errorChunk = SseChunk.Error(ex.Message);
+                var errorData = System.Text.Json.JsonSerializer.Serialize(errorChunk, jsonOptions);
+                await Response.WriteAsync($"event: error\ndata: {errorData}\n\n", cancellationToken);
+                await Response.Body.FlushAsync(cancellationToken);
+            }
+            catch (Exception writeEx)
+            {
+                _logger.LogDebug(writeEx, "Failed to send error chunk to disconnected client for user {UserId}", userId);
+            }
         }
     }
 
