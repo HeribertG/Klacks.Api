@@ -24,6 +24,7 @@ using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Infrastructure.Services.ShiftSchedule;
 using Klacks.Api.Infrastructure.Services.ScheduleEntries;
+using Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 using Klacks.Api.Infrastructure.Services.PeriodHours;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Services.Assistant;
@@ -167,6 +168,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IScheduleNoteRepository, ScheduleNoteRepository>();
         services.AddScoped<IScheduleCommandRepository, ScheduleCommandRepository>();
         services.AddScoped<IAnalyseScenarioRepository, AnalyseScenarioRepository>();
+        services.AddScoped<IAnalyseScenarioService, AnalyseScenarioService>();
         services.AddScoped<IShiftRepository, ShiftRepository>();
         services.AddScoped<IContainerLockRepository, ContainerLockRepository>();
         services.AddScoped<IGroupRepository, GroupRepository>();
