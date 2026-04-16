@@ -54,7 +54,8 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
                         StartTime = item.StartTime,
                         EndTime = item.EndTime,
                         Information = item.Information,
-                        Description = item.Description
+                        Description = item.Description,
+                        AnalyseToken = item.AnalyseToken
                     };
 
                     breaks.Add(breakEntry);

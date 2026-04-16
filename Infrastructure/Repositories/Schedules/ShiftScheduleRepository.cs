@@ -60,7 +60,8 @@ public class ShiftScheduleRepository : IShiftScheduleRepository
             endDate,
             holidayDates,
             visibleGroupIds,
-            filter.ShowUngroupedShifts);
+            filter.ShowUngroupedShifts,
+            filter.AnalyseToken);
 
         query = _shiftScheduleFilterService.ApplyAllFilters(query, filter);
 
@@ -110,6 +111,7 @@ public class ShiftScheduleRepository : IShiftScheduleRepository
 
         return await _shiftScheduleService.GetShiftSchedulePartialAsync(
             shiftDatePairs,
+            filter.AnalyseToken,
             cancellationToken);
     }
 }

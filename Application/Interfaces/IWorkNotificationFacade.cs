@@ -27,11 +27,11 @@ public interface IWorkNotificationFacade
 
     Task NotifyShiftStatsAsync(
         HashSet<(Guid ShiftId, DateOnly Date)> affectedShifts,
-        string connectionId, CancellationToken cancellationToken);
+        string connectionId, Guid? analyseToken, CancellationToken cancellationToken);
 
     Task NotifyShiftStatsAsync(
         Guid shiftId, DateOnly date,
-        string connectionId, CancellationToken cancellationToken);
+        string connectionId, Guid? analyseToken, CancellationToken cancellationToken);
 
     Task NotifyScheduleUpdatedAsync(
         Guid clientId, DateOnly currentDate,

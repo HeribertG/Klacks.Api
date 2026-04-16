@@ -61,8 +61,8 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
                 : null;
 
             var shiftIdMap = await CloneShifts(groupIds, token, cancellationToken);
-            await CloneWorks(groupIds, fromDate, untilDate, token, shiftIdMap, cancellationToken);
-            await CloneBreaks(groupIds, fromDate, untilDate, token, cancellationToken);
+            var workIdMap = await CloneWorks(groupIds, fromDate, untilDate, token, shiftIdMap, cancellationToken);
+            await CloneBreaks(groupIds, fromDate, untilDate, token, workIdMap, cancellationToken);
             await CloneScheduleNotes(groupIds, fromDate, untilDate, token, cancellationToken);
 
             await _unitOfWork.CompleteAsync();
@@ -195,11 +195,12 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         return idMap;
     }
 
-    private async Task CloneWorks(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, Dictionary<Guid, Guid> shiftIdMap, CancellationToken ct)
+    private async Task<Dictionary<Guid, Guid>> CloneWorks(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, Dictionary<Guid, Guid> shiftIdMap, CancellationToken ct)
     {
-        IQueryable<Work> workQuery = _context.Work
+        IQueryable<Work> topLevelQuery = _context.Work
             .Where(w => !w.IsDeleted
                 && w.AnalyseToken == null
+                && w.ParentWorkId == null
                 && w.CurrentDate >= fromDate
                 && w.CurrentDate <= untilDate);
 
@@ -211,21 +212,36 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
                 .Distinct()
                 .ToListAsync(ct);
 
-            workQuery = workQuery.Where(w => shiftIds.Contains(w.ShiftId));
+            topLevelQuery = topLevelQuery.Where(w => shiftIds.Contains(w.ShiftId));
         }
 
-        var works = await workQuery.AsNoTracking().ToListAsync(ct);
+        var topLevelWorks = await topLevelQuery.AsNoTracking().ToListAsync(ct);
+        var topLevelIds = topLevelWorks.Select(w => w.Id).ToList();
+
+        var subWorks = topLevelIds.Count == 0
+            ? new List<Work>()
+            : await _context.Work
+                .Where(w => !w.IsDeleted
+                    && w.AnalyseToken == null
+                    && w.ParentWorkId.HasValue
+                    && topLevelIds.Contains(w.ParentWorkId.Value))
+                .AsNoTracking()
+                .ToListAsync(ct);
+
+        var works = topLevelWorks.Concat(subWorks).ToList();
 
         var workIdMap = new Dictionary<Guid, Guid>();
 
         foreach (var work in works)
         {
-            var newWorkId = Guid.NewGuid();
-            workIdMap[work.Id] = newWorkId;
+            workIdMap[work.Id] = Guid.NewGuid();
+        }
 
+        foreach (var work in works)
+        {
             var clone = new Work
             {
-                Id = newWorkId,
+                Id = workIdMap[work.Id],
                 AnalyseToken = token,
                 ClientId = work.ClientId,
                 CurrentDate = work.CurrentDate,
@@ -237,7 +253,11 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
                 LockLevel = work.LockLevel,
                 SealedAt = work.SealedAt,
                 SealedBy = work.SealedBy,
-                ShiftId = shiftIdMap.TryGetValue(work.ShiftId, out var newShiftId) ? newShiftId : work.ShiftId
+                ShiftId = shiftIdMap.TryGetValue(work.ShiftId, out var newShiftId) ? newShiftId : work.ShiftId,
+                ParentWorkId = work.ParentWorkId.HasValue && workIdMap.TryGetValue(work.ParentWorkId.Value, out var newParentId)
+                    ? newParentId
+                    : null,
+                TransportMode = work.TransportMode
             };
 
             await _context.Work.AddAsync(clone, ct);
@@ -245,6 +265,8 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
         await CloneWorkChanges(workIdMap, ct);
         await CloneExpenses(workIdMap, ct);
+
+        return workIdMap;
     }
 
     private async Task CloneWorkChanges(Dictionary<Guid, Guid> workIdMap, CancellationToken ct)
@@ -302,7 +324,7 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         }
     }
 
-    private async Task CloneBreaks(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, CancellationToken ct)
+    private async Task CloneBreaks(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, Dictionary<Guid, Guid> workIdMap, CancellationToken ct)
     {
         IQueryable<Break> breakQuery = _context.Break
             .Where(b => !b.IsDeleted
@@ -318,7 +340,10 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
                 .Distinct()
                 .ToListAsync(ct);
 
-            breakQuery = breakQuery.Where(b => clientIds.Contains(b.ClientId));
+            var parentWorkIds = workIdMap.Keys.ToList();
+            breakQuery = breakQuery.Where(b =>
+                clientIds.Contains(b.ClientId)
+                || (b.ParentWorkId.HasValue && parentWorkIds.Contains(b.ParentWorkId.Value)));
         }
 
         var breaks = await breakQuery.AsNoTracking().ToListAsync(ct);
@@ -340,7 +365,10 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
                 SealedAt = brk.SealedAt,
                 SealedBy = brk.SealedBy,
                 AbsenceId = brk.AbsenceId,
-                Description = brk.Description
+                Description = brk.Description,
+                ParentWorkId = brk.ParentWorkId.HasValue && workIdMap.TryGetValue(brk.ParentWorkId.Value, out var newParentId)
+                    ? newParentId
+                    : null
             };
 
             await _context.Break.AddAsync(clone, ct);

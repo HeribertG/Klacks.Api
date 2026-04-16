@@ -35,4 +35,6 @@ public class ShiftScheduleFilter
     public DateTime? SpecificDate { get; set; }
 
     public Guid? ShiftId { get; set; }
+
+    public Guid? AnalyseToken { get; set; }
 }

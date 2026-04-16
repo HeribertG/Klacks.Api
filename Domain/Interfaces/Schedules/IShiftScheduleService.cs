@@ -11,9 +11,11 @@ public interface IShiftScheduleService
         DateOnly endDate,
         List<DateOnly>? holidayDates = null,
         List<Guid>? visibleGroupIds = null,
-        bool showUngroupedShifts = false);
+        bool showUngroupedShifts = false,
+        Guid? analyseToken = null);
 
     Task<List<ShiftDayAssignment>> GetShiftSchedulePartialAsync(
         List<(Guid ShiftId, DateOnly Date)> shiftDatePairs,
+        Guid? analyseToken = null,
         CancellationToken cancellationToken = default);
 }

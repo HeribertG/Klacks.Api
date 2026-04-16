@@ -137,7 +137,8 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
             StartTime = startTime,
             EndTime = endTime,
             WorkTime = duration,
-            TransportMode = item.TransportMode
+            TransportMode = item.TransportMode,
+            AnalyseToken = containerWork.AnalyseToken
         };
 
         await _workRepository.Add(subWork);
@@ -157,7 +158,8 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
             ClientId = containerWork.ClientId,
             CurrentDate = date,
             StartTime = startTime,
-            EndTime = endTime
+            EndTime = endTime,
+            AnalyseToken = containerWork.AnalyseToken
         };
 
         await _breakRepository.Add(subBreak);
@@ -273,7 +275,8 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
             StartTime = startTime,
             EndTime = endTime,
             WorkTime = duration,
-            TransportMode = item.TransportMode
+            TransportMode = item.TransportMode,
+            AnalyseToken = containerWork.AnalyseToken
         };
 
         await _workRepository.Add(subWork);
@@ -293,7 +296,8 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
             ClientId = containerWork.ClientId,
             CurrentDate = date,
             StartTime = startTime,
-            EndTime = endTime
+            EndTime = endTime,
+            AnalyseToken = containerWork.AnalyseToken
         };
 
         await _breakRepository.Add(subBreak);

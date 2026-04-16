@@ -60,7 +60,8 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                         WorkTime = item.WorkTime,
                         StartTime = item.StartTime,
                         EndTime = item.EndTime,
-                        Information = item.Information
+                        Information = item.Information,
+                        AnalyseToken = item.AnalyseToken
                     };
 
                     works.Add(work);
@@ -118,7 +119,8 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                     }
                 }
 
-                await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, cancellationToken);
+                var bulkToken = works.Select(w => w.AnalyseToken).Distinct().Count() == 1 ? works[0].AnalyseToken : null;
+                await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, bulkToken, cancellationToken);
             }
 
             response.AffectedShifts = affectedShifts

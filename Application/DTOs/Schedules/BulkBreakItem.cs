@@ -21,4 +21,6 @@ public class BulkBreakItem
     public string? Information { get; set; }
 
     public MultiLanguage? Description { get; set; }
+
+    public Guid? AnalyseToken { get; set; }
 }

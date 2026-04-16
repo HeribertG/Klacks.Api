@@ -13,13 +13,15 @@ DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[], UUID);
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[], UUID, UUID[]);
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[], UUID[]);
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[], UUID[], BOOLEAN);
+DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[], UUID[], BOOLEAN, UUID);
 
 CREATE OR REPLACE FUNCTION get_shift_schedule(
     start_date DATE,
     end_date DATE,
     holiday_dates DATE[] DEFAULT ARRAY[]::DATE[],
     visible_group_ids UUID[] DEFAULT ARRAY[]::UUID[],
-    show_ungrouped_shifts BOOLEAN DEFAULT FALSE
+    show_ungrouped_shifts BOOLEAN DEFAULT FALSE,
+    p_analyse_token UUID DEFAULT NULL
 )
 RETURNS TABLE (
     shift_id UUID,
@@ -53,7 +55,7 @@ BEGIN
         FROM shift s
         LEFT JOIN group_item gi ON gi.shift_id = s.id
         WHERE
-            s.analyse_token IS NULL
+            s.analyse_token IS NOT DISTINCT FROM p_analyse_token
             AND (
                 (visible_group_ids IS NULL OR array_length(visible_group_ids, 1) IS NULL)
                 OR (gi.shift_id IS NULL AND show_ungrouped_shifts)
@@ -145,7 +147,8 @@ BEGIN
         FROM work w
         JOIN date_series d ON d.schedule_date = w."current_date"::DATE
         WHERE w.is_deleted = false
-        AND w.analyse_token IS NULL
+        AND w.parent_work_id IS NULL
+        AND w.analyse_token IS NOT DISTINCT FROM p_analyse_token
         GROUP BY w.shift_id, d.schedule_date
     )
     SELECT
@@ -187,9 +190,11 @@ CREATE TYPE shift_date_pair AS (
 );
 
 DROP FUNCTION IF EXISTS get_shift_schedule_partial(shift_date_pair[]);
+DROP FUNCTION IF EXISTS get_shift_schedule_partial(shift_date_pair[], UUID);
 
 CREATE OR REPLACE FUNCTION get_shift_schedule_partial(
-    shift_date_pairs shift_date_pair[]
+    shift_date_pairs shift_date_pair[],
+    p_analyse_token UUID DEFAULT NULL
 )
 RETURNS TABLE (
     shift_id UUID,
@@ -236,7 +241,7 @@ BEGIN
         JOIN shift s ON s.id = ip.shift_id
         WHERE s.is_deleted = false
         AND s.status >= 2
-        AND s.analyse_token IS NULL
+        AND s.analyse_token IS NOT DISTINCT FROM p_analyse_token
     ),
     container_lookup AS (
         SELECT DISTINCT
@@ -258,7 +263,8 @@ BEGIN
         FROM work w
         JOIN input_pairs ip ON ip.shift_id = w.shift_id AND ip.schedule_date = w."current_date"::DATE
         WHERE w.is_deleted = false
-        AND w.analyse_token IS NULL
+        AND w.parent_work_id IS NULL
+        AND w.analyse_token IS NOT DISTINCT FROM p_analyse_token
         GROUP BY w.shift_id, w."current_date"::DATE
     )
     SELECT

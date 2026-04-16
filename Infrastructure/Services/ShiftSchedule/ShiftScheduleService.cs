@@ -27,15 +27,17 @@ public class ShiftScheduleService : IShiftScheduleService
         DateOnly endDate,
         List<DateOnly>? holidayDates = null,
         List<Guid>? visibleGroupIds = null,
-        bool showUngroupedShifts = false)
+        bool showUngroupedShifts = false,
+        Guid? analyseToken = null)
     {
         _logger.LogDebug(
-            "Building shift schedule query from {StartDate} to {EndDate} with {HolidayCount} holidays, VisibleGroups: {VisibleGroupCount}, ShowUngrouped: {ShowUngrouped}",
+            "Building shift schedule query from {StartDate} to {EndDate} with {HolidayCount} holidays, VisibleGroups: {VisibleGroupCount}, ShowUngrouped: {ShowUngrouped}, AnalyseToken: {AnalyseToken}",
             startDate,
             endDate,
             holidayDates?.Count ?? 0,
             visibleGroupIds?.Count ?? 0,
-            showUngroupedShifts);
+            showUngroupedShifts,
+            analyseToken);
 
         var holidays = holidayDates ?? [];
         var holidayArray = holidays
@@ -46,6 +48,20 @@ public class ShiftScheduleService : IShiftScheduleService
         var endDateTime = DateTime.SpecifyKind(endDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
 
         var visibleGroupArray = visibleGroupIds?.ToArray() ?? [];
+
+        if (analyseToken.HasValue)
+        {
+            return _context.ShiftDayAssignments
+                .FromSqlInterpolated($@"
+                    SELECT * FROM get_shift_schedule(
+                        {startDateTime}::DATE,
+                        {endDateTime}::DATE,
+                        {holidayArray}::DATE[],
+                        {visibleGroupArray}::UUID[],
+                        {showUngroupedShifts},
+                        {analyseToken.Value}::UUID
+                    )");
+        }
 
         return _context.ShiftDayAssignments
             .FromSqlInterpolated($@"
@@ -60,6 +76,7 @@ public class ShiftScheduleService : IShiftScheduleService
 
     public async Task<List<ShiftDayAssignment>> GetShiftSchedulePartialAsync(
         List<(Guid ShiftId, DateOnly Date)> shiftDatePairs,
+        Guid? analyseToken = null,
         CancellationToken cancellationToken = default)
     {
         if (shiftDatePairs.Count == 0)
@@ -68,8 +85,9 @@ public class ShiftScheduleService : IShiftScheduleService
         }
 
         _logger.LogDebug(
-            "Fetching partial shift schedule for {Count} shift/date pairs",
-            shiftDatePairs.Count);
+            "Fetching partial shift schedule for {Count} shift/date pairs, AnalyseToken: {AnalyseToken}",
+            shiftDatePairs.Count,
+            analyseToken);
 
         var shiftIds = shiftDatePairs.Select(p => p.ShiftId).ToArray();
         var dates = shiftDatePairs
@@ -78,15 +96,20 @@ public class ShiftScheduleService : IShiftScheduleService
 
         var shiftIdsParam = new NpgsqlParameter("shiftIds", NpgsqlDbType.Array | NpgsqlDbType.Uuid) { Value = shiftIds };
         var datesParam = new NpgsqlParameter("dates", NpgsqlDbType.Array | NpgsqlDbType.Date) { Value = dates };
+        var tokenParam = new NpgsqlParameter("analyseToken", NpgsqlDbType.Uuid)
+        {
+            Value = (object?)analyseToken ?? DBNull.Value
+        };
 
         const string sql = @"
             SELECT * FROM get_shift_schedule_partial(
                 (SELECT array_agg(ROW(s, d)::shift_date_pair)
-                 FROM unnest(@shiftIds::UUID[], @dates::DATE[]) AS t(s, d))
+                 FROM unnest(@shiftIds::UUID[], @dates::DATE[]) AS t(s, d)),
+                @analyseToken::UUID
             )";
 
         return await _context.ShiftDayAssignments
-            .FromSqlRaw(sql, shiftIdsParam, datesParam)
+            .FromSqlRaw(sql, shiftIdsParam, datesParam, tokenParam)
             .ToListAsync(cancellationToken);
     }
 }

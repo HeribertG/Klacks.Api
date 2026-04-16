@@ -88,13 +88,14 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
             var connectionId = _notificationFacade.GetConnectionId();
             await _notificationFacade.NotifyWorkCreatedAsync(work, connectionId, periodStart, periodEnd);
             await _notificationFacade.NotifyPeriodHoursUpdatedAsync(work.ClientId, periodStart, periodEnd, periodHours, connectionId);
-            await _notificationFacade.NotifyShiftStatsAsync(work.ShiftId, work.CurrentDate, connectionId, cancellationToken);
+            await _notificationFacade.NotifyShiftStatsAsync(work.ShiftId, work.CurrentDate, connectionId, work.AnalyseToken, cancellationToken);
 
             var currentDate = work.CurrentDate;
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
 
-            var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd)
+            var scheduleEntries = await _scheduleEntriesService
+                .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, null, work.AnalyseToken)
                 .Where(e => e.ClientId == work.ClientId)
                 .ToListAsync(cancellationToken);
 

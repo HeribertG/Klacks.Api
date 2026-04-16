@@ -97,13 +97,14 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
                 affectedShifts.Add((oldShiftId.Value, oldDate.Value));
             }
 
-            await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, cancellationToken);
+            await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, updatedWork.AnalyseToken, cancellationToken);
 
             var currentDate = updatedWork.CurrentDate;
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
 
-            var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd)
+            var scheduleEntries = await _scheduleEntriesService
+                .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, null, updatedWork.AnalyseToken)
                 .Where(e => e.ClientId == updatedWork.ClientId)
                 .ToListAsync(cancellationToken);
 

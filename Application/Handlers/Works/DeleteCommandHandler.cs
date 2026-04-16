@@ -59,13 +59,14 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
             var connectionId = _notificationFacade.GetConnectionId();
             await _notificationFacade.NotifyWorkDeletedAsync(work, connectionId, request.PeriodStart, request.PeriodEnd);
             await _notificationFacade.NotifyPeriodHoursUpdatedAsync(work.ClientId, request.PeriodStart, request.PeriodEnd, periodHours, connectionId);
-            await _notificationFacade.NotifyShiftStatsAsync(shiftId, workDate, connectionId, cancellationToken);
+            await _notificationFacade.NotifyShiftStatsAsync(shiftId, workDate, connectionId, work.AnalyseToken, cancellationToken);
 
             var currentDate = work.CurrentDate;
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
 
-            var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd)
+            var scheduleEntries = await _scheduleEntriesService
+                .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, null, work.AnalyseToken)
                 .Where(e => e.ClientId == work.ClientId)
                 .ToListAsync(cancellationToken);
 

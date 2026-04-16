@@ -5,6 +5,8 @@ namespace Klacks.Api.Application.DTOs.Filter;
 public class ShiftSchedulePartialFilter
 {
     public List<ShiftDatePairFilter> ShiftDatePairs { get; set; } = [];
+
+    public Guid? AnalyseToken { get; set; }
 }
 
 public class ShiftDatePairFilter

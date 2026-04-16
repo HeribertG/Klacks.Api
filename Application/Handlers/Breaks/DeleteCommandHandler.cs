@@ -56,7 +56,8 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
 
-            var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd)
+            var scheduleEntries = await _scheduleEntriesService
+                .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, null, breakEntry.AnalyseToken)
                 .Where(e => e.ClientId == breakEntry.ClientId)
                 .ToListAsync(cancellationToken);
 

@@ -111,7 +111,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
                     }
                 }
 
-                await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, cancellationToken);
+                await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, analyseToken: null, cancellationToken);
             }
 
             response.AffectedShifts = affectedShifts

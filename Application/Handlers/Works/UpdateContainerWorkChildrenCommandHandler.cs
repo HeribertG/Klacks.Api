@@ -105,7 +105,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         };
 
         var connectionId = _notificationFacade.GetConnectionId();
-        await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, cancellationToken);
+        await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, parentWork.AnalyseToken, cancellationToken);
     }
 
     private async Task<ContainerWorkChildrenResource> BuildResponseAsync(

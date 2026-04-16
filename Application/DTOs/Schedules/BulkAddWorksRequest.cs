@@ -26,4 +26,6 @@ public class BulkWorkItem
     public TimeOnly EndTime { get; set; }
 
     public string? Information { get; set; }
+
+    public Guid? AnalyseToken { get; set; }
 }

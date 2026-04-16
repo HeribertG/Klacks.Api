@@ -86,7 +86,6 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(ScheduleNote.IsDeleted))]
     [MapperIgnoreTarget(nameof(ScheduleNote.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(ScheduleNote.Client))]
-    [MapperIgnoreTarget(nameof(ScheduleNote.AnalyseToken))]
     public partial ScheduleNote ToScheduleNoteEntity(ScheduleNoteResource resource);
 
     public partial ScheduleCommandResource ToScheduleCommandResource(ScheduleCommand scheduleCommand);
@@ -100,7 +99,6 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(ScheduleCommand.IsDeleted))]
     [MapperIgnoreTarget(nameof(ScheduleCommand.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(ScheduleCommand.Client))]
-    [MapperIgnoreTarget(nameof(ScheduleCommand.AnalyseToken))]
     public partial ScheduleCommand ToScheduleCommandEntity(ScheduleCommandResource resource);
 
     public partial SchedulingRuleResource ToSchedulingRuleResource(SchedulingRule rule);
