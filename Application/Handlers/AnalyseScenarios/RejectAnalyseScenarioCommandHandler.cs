@@ -59,19 +59,38 @@ public class RejectAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
             .Where(w => w.AnalyseToken == token && !w.IsDeleted).ToListAsync(ct);
         var workIds = works.Select(w => w.Id).ToList();
 
+        var orphanSubWorks = workIds.Count == 0
+            ? new List<Domain.Models.Schedules.Work>()
+            : await _context.Work.IgnoreQueryFilters()
+                .Where(w => !w.IsDeleted
+                    && w.ParentWorkId.HasValue
+                    && workIds.Contains(w.ParentWorkId.Value))
+                .ToListAsync(ct);
+        var allWorkIds = workIds.Concat(orphanSubWorks.Select(w => w.Id)).ToList();
+
         var workChanges = await _context.WorkChange
-            .Where(wc => !wc.IsDeleted && workIds.Contains(wc.WorkId)).ToListAsync(ct);
+            .Where(wc => !wc.IsDeleted && allWorkIds.Contains(wc.WorkId)).ToListAsync(ct);
         foreach (var wc in workChanges) { wc.IsDeleted = true; wc.DeletedTime = DateTime.UtcNow; }
 
         var expenses = await _context.Expenses
-            .Where(e => !e.IsDeleted && workIds.Contains(e.WorkId)).ToListAsync(ct);
+            .Where(e => !e.IsDeleted && allWorkIds.Contains(e.WorkId)).ToListAsync(ct);
         foreach (var exp in expenses) { exp.IsDeleted = true; exp.DeletedTime = DateTime.UtcNow; }
 
         foreach (var w in works) { w.IsDeleted = true; w.DeletedTime = DateTime.UtcNow; }
+        foreach (var w in orphanSubWorks) { w.IsDeleted = true; w.DeletedTime = DateTime.UtcNow; }
 
         var breaks = await _context.Break.IgnoreQueryFilters()
             .Where(b => b.AnalyseToken == token && !b.IsDeleted).ToListAsync(ct);
         foreach (var b in breaks) { b.IsDeleted = true; b.DeletedTime = DateTime.UtcNow; }
+
+        var orphanSubBreaks = workIds.Count == 0
+            ? new List<Domain.Models.Schedules.Break>()
+            : await _context.Break.IgnoreQueryFilters()
+                .Where(b => !b.IsDeleted
+                    && b.ParentWorkId.HasValue
+                    && workIds.Contains(b.ParentWorkId.Value))
+                .ToListAsync(ct);
+        foreach (var b in orphanSubBreaks) { b.IsDeleted = true; b.DeletedTime = DateTime.UtcNow; }
 
         var shifts = await _context.Shift.IgnoreQueryFilters()
             .Where(s => s.AnalyseToken == token && !s.IsDeleted).ToListAsync(ct);
