@@ -164,7 +164,7 @@ BEGIN
             wc.work_id AS source_id,
             w.client_id,
             CASE
-                WHEN s.end_shift < s.start_shift AND wc.start_time < s.start_shift
+                WHEN s.end_shift < s.start_shift AND wc.start_time < s.end_shift
                 THEN (w."current_date" + INTERVAL '1 day')::DATE
                 ELSE w."current_date"::DATE
             END AS entry_date,
@@ -199,7 +199,7 @@ BEGIN
             wc.work_id AS source_id,
             w.client_id,
             CASE
-                WHEN s.end_shift < s.start_shift AND wc.start_time < s.start_shift
+                WHEN s.end_shift < s.start_shift AND wc.start_time < s.end_shift
                 THEN (w."current_date" + INTERVAL '1 day')::DATE
                 ELSE w."current_date"::DATE
             END AS entry_date,
@@ -234,7 +234,7 @@ BEGIN
             wc.work_id AS source_id,
             wc.replace_client_id AS client_id,
             CASE
-                WHEN s.end_shift < s.start_shift AND wc.start_time < s.start_shift
+                WHEN s.end_shift < s.start_shift AND wc.start_time < s.end_shift
                 THEN (w."current_date" + INTERVAL '1 day')::DATE
                 ELSE w."current_date"::DATE
             END AS entry_date,
