@@ -8,4 +8,5 @@ public record ShiftStatsNotificationDto
     public DateTime Date { get; init; }
     public int Engaged { get; init; }
     public string SourceConnectionId { get; init; } = string.Empty;
+    public Guid? AnalyseToken { get; init; }
 }

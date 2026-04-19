@@ -67,7 +67,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
             await _breakMacroService.ProcessBreakMacroAsync(entity, request.Resource.PaymentInterval);
             await _breakRepository.Add(entity);
             var periodHours = await _completionService.SaveAndTrackAsync(
-                entity.ClientId, entity.CurrentDate, periodStart, periodEnd);
+                entity.ClientId, entity.CurrentDate, periodStart, periodEnd, entity.AnalyseToken);
 
             var currentDate = entity.CurrentDate;
             var threeDayStart = currentDate.AddDays(-1);
@@ -85,7 +85,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
             var notification = _scheduleMapper.ToScheduleNotificationDto(
-                entity.ClientId, entity.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
+                entity.ClientId, entity.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd, entity.AnalyseToken);
             await _notificationService.NotifyScheduleUpdated(notification);
 
             return breakResource;

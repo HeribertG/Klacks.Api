@@ -81,7 +81,7 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
                     await _breakRepository.Add(b);
                 }
 
-                var affected = breaks.Select(b => (b.ClientId, b.CurrentDate)).ToList();
+                var affected = breaks.Select(b => (b.ClientId, b.CurrentDate, b.AnalyseToken)).ToList();
                 await _completionService.SaveBulkAndTrackAsync(affected);
 
                 var periodStart = command.Request.PeriodStart;

@@ -64,9 +64,11 @@ public class PeriodHoursBackgroundService : BackgroundService
                         request.StartDate,
                         request.EndDate);
 
+                    // Queued full recalculation is a system-wide background task: no entity-level AnalyseToken.
                     await notificationService.NotifyPeriodHoursRecalculated(
                         request.StartDate,
-                        request.EndDate);
+                        request.EndDate,
+                        analyseToken: null);
                 }
                 catch (Exception ex)
                 {

@@ -71,7 +71,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(currentDate);
 
             await _completionService.SaveAndTrackWithReplaceClientAsync(
-                work.ClientId, work.CurrentDate, periodStart, periodEnd, replaceClientId);
+                work.ClientId, work.CurrentDate, periodStart, periodEnd, replaceClientId, work.AnalyseToken);
 
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
@@ -91,13 +91,13 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
             var notification = _scheduleMapper.ToScheduleNotificationDto(
-                work.ClientId, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
+                work.ClientId, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd, work.AnalyseToken);
             await _notificationService.NotifyScheduleUpdated(notification);
 
             if (replaceClientId.HasValue)
             {
                 var replaceNotification = _scheduleMapper.ToScheduleNotificationDto(
-                    replaceClientId.Value, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
+                    replaceClientId.Value, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd, work.AnalyseToken);
                 await _notificationService.NotifyScheduleUpdated(replaceNotification);
             }
 

@@ -54,11 +54,11 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
             await _cascadeService.DeleteChildrenAsync(request.Id);
             await _workRepository.Delete(request.Id);
             var periodHours = await _completionService.SaveAndTrackAsync(
-                work.ClientId, work.CurrentDate, request.PeriodStart, request.PeriodEnd);
+                work.ClientId, work.CurrentDate, request.PeriodStart, request.PeriodEnd, work.AnalyseToken);
 
             var connectionId = _notificationFacade.GetConnectionId();
             await _notificationFacade.NotifyWorkDeletedAsync(work, connectionId, request.PeriodStart, request.PeriodEnd);
-            await _notificationFacade.NotifyPeriodHoursUpdatedAsync(work.ClientId, request.PeriodStart, request.PeriodEnd, periodHours, connectionId);
+            await _notificationFacade.NotifyPeriodHoursUpdatedAsync(work.ClientId, request.PeriodStart, request.PeriodEnd, periodHours, connectionId, work.AnalyseToken);
             await _notificationFacade.NotifyShiftStatsAsync(shiftId, workDate, connectionId, work.AnalyseToken, cancellationToken);
 
             var currentDate = work.CurrentDate;

@@ -63,16 +63,16 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
                 if (expensesWithWork?.Work != null)
                 {
                     var work = expensesWithWork.Work;
-                    await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate);
+                    await _scheduleChangeTracker.TrackChangeAsync(work.ClientId, work.CurrentDate, work.AnalyseToken);
                     var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
                     var connectionId = _httpContextAccessor.HttpContext?.Request
                         .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
 
                     var notification = _scheduleMapper.ToScheduleNotificationDto(
-                        work.ClientId, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
+                        work.ClientId, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd, work.AnalyseToken);
                     await _notificationService.NotifyScheduleUpdated(notification);
 
-                    await _periodHoursService.RecalculateAndNotifyAsync(work.ClientId, periodStart, periodEnd, connectionId);
+                    await _periodHoursService.RecalculateAndNotifyAsync(work.ClientId, periodStart, periodEnd, work.AnalyseToken, connectionId);
                 }
             }
 

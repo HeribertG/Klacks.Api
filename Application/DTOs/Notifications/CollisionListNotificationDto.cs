@@ -8,4 +8,5 @@ public record CollisionListNotificationDto
     public bool IsFullRefresh { get; init; }
     public Guid? CheckedClientId { get; init; }
     public DateOnly? CheckedDate { get; init; }
+    public Guid? AnalyseToken { get; init; }
 }

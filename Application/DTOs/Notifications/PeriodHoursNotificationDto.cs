@@ -11,4 +11,5 @@ public record PeriodHoursNotificationDto
     public decimal Surcharges { get; init; }
     public decimal GuaranteedHours { get; init; }
     public string SourceConnectionId { get; init; } = string.Empty;
+    public Guid? AnalyseToken { get; init; }
 }

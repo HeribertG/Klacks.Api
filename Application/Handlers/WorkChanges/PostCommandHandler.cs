@@ -61,7 +61,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(currentDate);
 
             await _completionService.SaveAndTrackWithReplaceClientAsync(
-                work.ClientId, work.CurrentDate, periodStart, periodEnd, workChange.ReplaceClientId);
+                work.ClientId, work.CurrentDate, periodStart, periodEnd, workChange.ReplaceClientId, work.AnalyseToken);
 
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
@@ -82,13 +82,13 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
             var notification = _scheduleMapper.ToScheduleNotificationDto(
-                work.ClientId, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
+                work.ClientId, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd, work.AnalyseToken);
             await _notificationService.NotifyScheduleUpdated(notification);
 
             if (workChange.ReplaceClientId.HasValue)
             {
                 var replaceNotification = _scheduleMapper.ToScheduleNotificationDto(
-                    workChange.ReplaceClientId.Value, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
+                    workChange.ReplaceClientId.Value, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd, work.AnalyseToken);
                 await _notificationService.NotifyScheduleUpdated(replaceNotification);
             }
 

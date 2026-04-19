@@ -9,4 +9,5 @@ public class TimelineCheckRequest
     public DateOnly StartDate { get; init; }
     public DateOnly EndDate { get; init; }
     public bool IsRangeCheck { get; init; }
+    public Guid? AnalyseToken { get; init; }
 }

@@ -45,7 +45,7 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
                 _breakRepository.Remove(breakEntry);
             }
 
-            var affected = deletedBreaks.Select(b => (b.ClientId, b.CurrentDate)).ToList();
+            var affected = deletedBreaks.Select(b => (b.ClientId, b.CurrentDate, b.AnalyseToken)).ToList();
             await _completionService.SaveBulkAndTrackAsync(affected);
 
             foreach (var breakEntry in deletedBreaks)

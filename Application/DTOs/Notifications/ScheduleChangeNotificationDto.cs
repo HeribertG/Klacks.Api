@@ -7,4 +7,5 @@ public record ScheduleChangeNotificationDto
     public Guid ClientId { get; init; }
     public DateOnly ChangeDate { get; init; }
     public string SourceConnectionId { get; init; } = string.Empty;
+    public Guid? AnalyseToken { get; init; }
 }

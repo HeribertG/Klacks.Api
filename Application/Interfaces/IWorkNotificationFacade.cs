@@ -23,7 +23,7 @@ public interface IWorkNotificationFacade
 
     Task NotifyPeriodHoursUpdatedAsync(
         Guid clientId, DateOnly periodStart, DateOnly periodEnd,
-        PeriodHoursResource periodHours, string connectionId);
+        PeriodHoursResource periodHours, string connectionId, Guid? analyseToken);
 
     Task NotifyShiftStatsAsync(
         HashSet<(Guid ShiftId, DateOnly Date)> affectedShifts,
@@ -35,5 +35,5 @@ public interface IWorkNotificationFacade
 
     Task NotifyScheduleUpdatedAsync(
         Guid clientId, DateOnly currentDate,
-        string connectionId, DateOnly periodStart, DateOnly periodEnd);
+        string connectionId, DateOnly periodStart, DateOnly periodEnd, Guid? analyseToken);
 }

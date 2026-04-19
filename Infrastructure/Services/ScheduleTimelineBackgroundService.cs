@@ -60,38 +60,44 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         });
     }
 
-    public void QueueCheck(Guid clientId, DateOnly date)
+    public void QueueCheck(Guid clientId, DateOnly date, Guid? analyseToken)
     {
+        _logger.LogDebug("[COLLISION-TRACE] QueueCheck queued Client={ClientId} Date={Date} token={Token}",
+            clientId, date, analyseToken?.ToString() ?? "null");
+
         var request = new TimelineCheckRequest
         {
             ClientId = clientId,
-            Date = date
+            Date = date,
+            AnalyseToken = analyseToken
         };
 
         if (!_channel.Writer.TryWrite(request))
         {
             _logger.LogWarning(
-                "Failed to queue timeline check for Client {ClientId} on {Date}",
-                clientId, date);
+                "Failed to queue timeline check for Client {ClientId} on {Date} token={Token}",
+                clientId, date, analyseToken?.ToString() ?? "null");
         }
     }
 
-    public void QueueRangeCheck(DateOnly startDate, DateOnly endDate)
+    public void QueueRangeCheck(DateOnly startDate, DateOnly endDate, Guid? analyseToken)
     {
-        _logger.LogDebug("[COLLISION-TRACE] QueueRangeCheck queued {Start} - {End}", startDate, endDate);
+        _logger.LogDebug("[COLLISION-TRACE] QueueRangeCheck queued {Start} - {End} token={Token}",
+            startDate, endDate, analyseToken?.ToString() ?? "null");
 
         var request = new TimelineCheckRequest
         {
             StartDate = startDate,
             EndDate = endDate,
-            IsRangeCheck = true
+            IsRangeCheck = true,
+            AnalyseToken = analyseToken
         };
 
         if (!_channel.Writer.TryWrite(request))
         {
             _logger.LogWarning(
-                "Failed to queue timeline range check for {StartDate} to {EndDate}",
-                startDate, endDate);
+                "Failed to queue timeline range check for {StartDate} to {EndDate} token={Token}",
+                startDate, endDate, analyseToken?.ToString() ?? "null");
         }
     }
 
@@ -141,8 +147,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
 
     private static string BuildRequestKey(TimelineCheckRequest r)
         => r.IsRangeCheck
-            ? $"range:{r.StartDate:O}:{r.EndDate:O}"
-            : $"single:{r.ClientId}:{r.Date:O}";
+            ? $"range:{r.StartDate:O}:{r.EndDate:O}:{(r.AnalyseToken?.ToString() ?? "null")}"
+            : $"single:{r.ClientId}:{r.Date:O}:{(r.AnalyseToken?.ToString() ?? "null")}";
 
     private async Task ProcessJobWithRetryAsync(TimelineCheckRequest job, CancellationToken stoppingToken)
     {
@@ -159,15 +165,19 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
 
                 if (job.IsRangeCheck)
                 {
-                    _logger.LogDebug("[COLLISION-TRACE] START RangeCheck {Start} - {End}", job.StartDate, job.EndDate);
-                    await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, job.StartDate, job.EndDate, stoppingToken);
-                    _logger.LogDebug("[COLLISION-TRACE] DONE RangeCheck {Start} - {End}", job.StartDate, job.EndDate);
+                    _logger.LogDebug("[COLLISION-TRACE] START RangeCheck {Start} - {End} token={Token}",
+                        job.StartDate, job.EndDate, job.AnalyseToken?.ToString() ?? "null");
+                    await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, job.StartDate, job.EndDate, job.AnalyseToken, stoppingToken);
+                    _logger.LogDebug("[COLLISION-TRACE] DONE RangeCheck {Start} - {End} token={Token}",
+                        job.StartDate, job.EndDate, job.AnalyseToken?.ToString() ?? "null");
                 }
                 else
                 {
-                    _logger.LogDebug("[COLLISION-TRACE] START SingleCheck Client={ClientId} Date={Date}", job.ClientId, job.Date);
-                    await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, job.ClientId, job.Date, stoppingToken);
-                    _logger.LogDebug("[COLLISION-TRACE] DONE SingleCheck Client={ClientId}", job.ClientId);
+                    _logger.LogDebug("[COLLISION-TRACE] START SingleCheck Client={ClientId} Date={Date} token={Token}",
+                        job.ClientId, job.Date, job.AnalyseToken?.ToString() ?? "null");
+                    await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, job.ClientId, job.Date, job.AnalyseToken, stoppingToken);
+                    _logger.LogDebug("[COLLISION-TRACE] DONE SingleCheck Client={ClientId} token={Token}",
+                        job.ClientId, job.AnalyseToken?.ToString() ?? "null");
                 }
 
                 return;
@@ -197,13 +207,13 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             {
                 if (job.IsRangeCheck)
                 {
-                    _logger.LogError(ex, "[COLLISION-TRACE] FAILED RangeCheck {Start} - {End} after {Attempts} attempt(s): {Message}",
-                        job.StartDate, job.EndDate, attempt + 1, ex.Message);
+                    _logger.LogError(ex, "[COLLISION-TRACE] FAILED RangeCheck {Start} - {End} token={Token} after {Attempts} attempt(s): {Message}",
+                        job.StartDate, job.EndDate, job.AnalyseToken?.ToString() ?? "null", attempt + 1, ex.Message);
                 }
                 else
                 {
-                    _logger.LogError(ex, "[COLLISION-TRACE] FAILED SingleCheck Client={ClientId} Date={Date} after {Attempts} attempt(s): {Message}",
-                        job.ClientId, job.Date, attempt + 1, ex.Message);
+                    _logger.LogError(ex, "[COLLISION-TRACE] FAILED SingleCheck Client={ClientId} Date={Date} token={Token} after {Attempts} attempt(s): {Message}",
+                        job.ClientId, job.Date, job.AnalyseToken?.ToString() ?? "null", attempt + 1, ex.Message);
                 }
                 return;
             }
@@ -236,20 +246,21 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         ITravelTimeCalculationService travelTimeService,
         Guid clientId,
         DateOnly date,
+        Guid? analyseToken,
         CancellationToken cancellationToken)
     {
         var ownWorks = await dbContext.Work
             .AsNoTracking()
             .Include(w => w.Client)
             .Include(w => w.Shift).ThenInclude(s => s!.Client).ThenInclude(c => c!.Addresses)
-            .Where(w => w.ClientId == clientId && w.CurrentDate == date && !w.IsDeleted && w.ParentWorkId == null)
+            .Where(w => w.ClientId == clientId && w.CurrentDate == date && !w.IsDeleted && w.ParentWorkId == null && w.AnalyseToken == analyseToken)
             .ToListAsync(cancellationToken);
 
         var worksWithReplacementForClient = await dbContext.Work
             .AsNoTracking()
             .Include(w => w.Client)
             .Include(w => w.Shift).ThenInclude(s => s!.Client).ThenInclude(c => c!.Addresses)
-            .Where(w => w.CurrentDate == date && !w.IsDeleted && w.ParentWorkId == null &&
+            .Where(w => w.CurrentDate == date && !w.IsDeleted && w.ParentWorkId == null && w.AnalyseToken == analyseToken &&
                         dbContext.WorkChange.Any(wc =>
                             wc.WorkId == w.Id && !wc.IsDeleted && wc.ReplaceClientId == clientId))
             .ToListAsync(cancellationToken);
@@ -269,7 +280,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
 
         var breaks = await dbContext.Break
             .AsNoTracking()
-            .Where(b => b.ClientId == clientId && b.CurrentDate == date && !b.IsDeleted && b.ParentWorkId == null)
+            .Where(b => b.ClientId == clientId && b.CurrentDate == date && !b.IsDeleted && b.ParentWorkId == null && b.AnalyseToken == analyseToken)
             .ToListAsync(cancellationToken);
 
         var clientNameLookup = BuildClientNameLookup(allWorks, workChanges);
@@ -300,7 +311,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             _logger.LogWarning(ex, "Travel time check failed for Client {ClientId} on {Date}", clientId, date);
         }
 
-        var collisionNotification = BuildLegacyCollisionNotification(timeline, clientNameLookup, false, clientId, date);
+        var collisionNotification = BuildLegacyCollisionNotification(timeline, clientNameLookup, false, clientId, date, analyseToken);
         await notificationService.NotifyCollisionsDetected(collisionNotification);
 
         var validationNotification = new ScheduleValidationListNotificationDto
@@ -308,7 +319,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             Entries = entries,
             IsFullRefresh = false,
             CheckedClientId = clientId,
-            CheckedDate = date
+            CheckedDate = date,
+            AnalyseToken = analyseToken
         };
         await notificationService.NotifyScheduleValidationsDetected(validationNotification);
     }
@@ -319,12 +331,13 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         ITimelineCalculationService timelineCalculationService,
         DateOnly startDate,
         DateOnly endDate,
+        Guid? analyseToken,
         CancellationToken cancellationToken)
     {
         var works = await dbContext.Work
             .AsNoTracking()
             .Include(w => w.Client)
-            .Where(w => w.CurrentDate >= startDate && w.CurrentDate <= endDate && !w.IsDeleted && w.ParentWorkId == null)
+            .Where(w => w.CurrentDate >= startDate && w.CurrentDate <= endDate && !w.IsDeleted && w.ParentWorkId == null && w.AnalyseToken == analyseToken)
             .ToListAsync(cancellationToken);
 
         var workIds = works.Select(w => w.Id).ToList();
@@ -338,7 +351,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
 
         var breaks = await dbContext.Break
             .AsNoTracking()
-            .Where(b => b.CurrentDate >= startDate && b.CurrentDate <= endDate && !b.IsDeleted && b.ParentWorkId == null)
+            .Where(b => b.CurrentDate >= startDate && b.CurrentDate <= endDate && !b.IsDeleted && b.ParentWorkId == null && b.AnalyseToken == analyseToken)
             .ToListAsync(cancellationToken);
 
         var clientNameLookup = BuildClientNameLookup(works, workChanges);
@@ -371,7 +384,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         var collisionNotification = new CollisionListNotificationDto
         {
             Collisions = allCollisions,
-            IsFullRefresh = true
+            IsFullRefresh = true,
+            AnalyseToken = analyseToken
         };
         await notificationService.NotifyCollisionsDetected(collisionNotification);
         _logger.LogDebug("[COLLISION-TRACE] NotifyCollisionsDetected SENT ({Count} collisions)", allCollisions.Count);
@@ -379,7 +393,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         var validationNotification = new ScheduleValidationListNotificationDto
         {
             Entries = allEntries,
-            IsFullRefresh = true
+            IsFullRefresh = true,
+            AnalyseToken = analyseToken
         };
         await notificationService.NotifyScheduleValidationsDetected(validationNotification);
         _logger.LogDebug("[COLLISION-TRACE] NotifyScheduleValidationsDetected SENT ({Count} entries)", allEntries.Count);
@@ -587,14 +602,16 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         Dictionary<Guid, string> clientNameLookup,
         bool isFullRefresh,
         Guid? checkedClientId,
-        DateOnly? checkedDate)
+        DateOnly? checkedDate,
+        Guid? analyseToken)
     {
         return new CollisionListNotificationDto
         {
             Collisions = BuildLegacyCollisionList(timeline, clientNameLookup),
             IsFullRefresh = isFullRefresh,
             CheckedClientId = checkedClientId,
-            CheckedDate = checkedDate
+            CheckedDate = checkedDate,
+            AnalyseToken = analyseToken
         };
     }
 

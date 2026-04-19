@@ -80,11 +80,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
 
             var periodHours = await _completionService.SaveAndTrackMoveAsync(
                 updatedWork.ClientId, updatedWork.CurrentDate, periodStart, periodEnd,
-                existingWork?.ClientId, existingWork?.CurrentDate);
+                existingWork?.ClientId, existingWork?.CurrentDate, updatedWork.AnalyseToken);
 
             var connectionId = _notificationFacade.GetConnectionId();
             await _notificationFacade.NotifyWorkUpdatedAsync(updatedWork, connectionId, periodStart, periodEnd);
-            await _notificationFacade.NotifyPeriodHoursUpdatedAsync(updatedWork.ClientId, periodStart, periodEnd, periodHours, connectionId);
+            await _notificationFacade.NotifyPeriodHoursUpdatedAsync(updatedWork.ClientId, periodStart, periodEnd, periodHours, connectionId, updatedWork.AnalyseToken);
 
             var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>
             {

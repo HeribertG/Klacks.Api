@@ -6,4 +6,5 @@ public record PeriodHoursRecalculatedDto
 {
     public DateOnly StartDate { get; init; }
     public DateOnly EndDate { get; init; }
+    public Guid? AnalyseToken { get; init; }
 }

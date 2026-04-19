@@ -6,6 +6,6 @@ namespace Klacks.Api.Application.Interfaces;
 
 public interface IScheduleChangeTracker
 {
-    Task TrackChangeAsync(Guid clientId, DateOnly changeDate);
+    Task TrackChangeAsync(Guid clientId, DateOnly changeDate, Guid? analyseToken);
     Task<List<ScheduleChange>> GetChangesAsync(DateOnly startDate, DateOnly endDate);
 }

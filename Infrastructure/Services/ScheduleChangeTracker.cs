@@ -26,7 +26,7 @@ public class ScheduleChangeTracker : IScheduleChangeTracker
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task TrackChangeAsync(Guid clientId, DateOnly changeDate)
+    public async Task TrackChangeAsync(Guid clientId, DateOnly changeDate, Guid? analyseToken)
     {
         var existing = await _context.ScheduleChange
             .IgnoreQueryFilters()
@@ -57,7 +57,8 @@ public class ScheduleChangeTracker : IScheduleChangeTracker
         {
             ClientId = clientId,
             ChangeDate = changeDate,
-            SourceConnectionId = connectionId
+            SourceConnectionId = connectionId,
+            AnalyseToken = analyseToken
         };
         await _notificationService.NotifyScheduleChangeTracked(notification);
     }

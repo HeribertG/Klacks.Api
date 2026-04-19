@@ -73,7 +73,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
             }
 
             var periodHours = await _completionService.SaveAndTrackAsync(
-                updated.ClientId, updated.CurrentDate, periodStart, periodEnd);
+                updated.ClientId, updated.CurrentDate, periodStart, periodEnd, updated.AnalyseToken);
 
             var currentDate = updated.CurrentDate;
             var threeDayStart = currentDate.AddDays(-1);
@@ -91,7 +91,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
             var notification = _scheduleMapper.ToScheduleNotificationDto(
-                updated.ClientId, updated.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
+                updated.ClientId, updated.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd, updated.AnalyseToken);
             await _notificationService.NotifyScheduleUpdated(notification);
 
             return breakResource;

@@ -26,18 +26,20 @@ public partial class ScheduleMapper
             PeriodStartDate = periodStartDate,
             PeriodEndDate = periodEndDate,
             OperationType = operationType,
-            SourceConnectionId = sourceConnectionId
+            SourceConnectionId = sourceConnectionId,
+            AnalyseToken = work.AnalyseToken
         };
     }
 
-    public ShiftStatsNotificationDto ToShiftStatsNotificationDto(ShiftDayAssignment shiftData, string sourceConnectionId)
+    public ShiftStatsNotificationDto ToShiftStatsNotificationDto(ShiftDayAssignment shiftData, string sourceConnectionId, Guid? analyseToken)
     {
         return new ShiftStatsNotificationDto
         {
             ShiftId = shiftData.ShiftId,
             Date = shiftData.Date.ToDateTime(TimeOnly.MinValue),
             Engaged = shiftData.Engaged,
-            SourceConnectionId = sourceConnectionId
+            SourceConnectionId = sourceConnectionId,
+            AnalyseToken = analyseToken
         };
     }
 
@@ -47,7 +49,8 @@ public partial class ScheduleMapper
         string operationType,
         string sourceConnectionId,
         DateOnly periodStartDate,
-        DateOnly periodEndDate)
+        DateOnly periodEndDate,
+        Guid? analyseToken)
     {
         return new ScheduleNotificationDto
         {
@@ -56,7 +59,8 @@ public partial class ScheduleMapper
             PeriodStartDate = periodStartDate,
             PeriodEndDate = periodEndDate,
             OperationType = operationType,
-            SourceConnectionId = sourceConnectionId
+            SourceConnectionId = sourceConnectionId,
+            AnalyseToken = analyseToken
         };
     }
 }

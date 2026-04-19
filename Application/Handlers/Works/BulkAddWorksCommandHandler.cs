@@ -89,7 +89,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                     await _expansionService.ExpandAsync(work, work.CurrentDate);
                 }
 
-                var affected = works.Select(w => (w.ClientId, w.CurrentDate)).ToList();
+                var affected = works.Select(w => (w.ClientId, w.CurrentDate, w.AnalyseToken)).ToList();
                 await _completionService.SaveBulkAndTrackAsync(affected);
 
                 var connectionId = _notificationFacade.GetConnectionId();
@@ -103,6 +103,8 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                     await _notificationFacade.NotifyWorkCreatedAsync(work, connectionId, periodStart, periodEnd);
                 }
 
+                var bulkToken = works.Select(w => w.AnalyseToken).Distinct().Count() == 1 ? works[0].AnalyseToken : null;
+
                 if (affectedClients.Count > 0)
                 {
                     response.PeriodHours = new Dictionary<Guid, PeriodHoursResource>();
@@ -115,11 +117,13 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                             periodEnd);
                         response.PeriodHours[clientId] = periodHours;
 
-                        await _notificationFacade.NotifyPeriodHoursUpdatedAsync(clientId, periodStart, periodEnd, periodHours, connectionId);
+                        var clientTokens = works.Where(w => w.ClientId == clientId).Select(w => w.AnalyseToken).Distinct().ToList();
+                        var clientToken = clientTokens.Count == 1 ? clientTokens[0] : null;
+
+                        await _notificationFacade.NotifyPeriodHoursUpdatedAsync(clientId, periodStart, periodEnd, periodHours, connectionId, clientToken);
                     }
                 }
 
-                var bulkToken = works.Select(w => w.AnalyseToken).Distinct().Count() == 1 ? works[0].AnalyseToken : null;
                 await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, bulkToken, cancellationToken);
             }
 

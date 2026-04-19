@@ -4,6 +4,6 @@ namespace Klacks.Api.Application.Interfaces;
 
 public interface IScheduleTimelineService
 {
-    void QueueCheck(Guid clientId, DateOnly date);
-    void QueueRangeCheck(DateOnly startDate, DateOnly endDate);
+    void QueueCheck(Guid clientId, DateOnly date, Guid? analyseToken);
+    void QueueRangeCheck(DateOnly startDate, DateOnly endDate, Guid? analyseToken);
 }

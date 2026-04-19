@@ -32,42 +32,44 @@ public class ScheduleCompletionService : IScheduleCompletionService
 
     public async Task<PeriodHoursResource> SaveAndTrackAsync(
         Guid clientId, DateOnly currentDate,
-        DateOnly periodStart, DateOnly periodEnd)
+        DateOnly periodStart, DateOnly periodEnd,
+        Guid? analyseToken)
     {
         await _unitOfWork.CompleteAsync();
-        await _scheduleChangeTracker.TrackChangeAsync(clientId, currentDate);
-        _timelineService.QueueCheck(clientId, currentDate);
-        return await RecalculateAndGetPeriodHoursAsync(clientId, periodStart, periodEnd);
+        await _scheduleChangeTracker.TrackChangeAsync(clientId, currentDate, analyseToken);
+        _timelineService.QueueCheck(clientId, currentDate, analyseToken);
+        return await RecalculateAndGetPeriodHoursAsync(clientId, periodStart, periodEnd, analyseToken);
     }
 
     public async Task<PeriodHoursResource> SaveAndTrackMoveAsync(
         Guid clientId, DateOnly currentDate,
         DateOnly periodStart, DateOnly periodEnd,
-        Guid? previousClientId, DateOnly? previousDate)
+        Guid? previousClientId, DateOnly? previousDate,
+        Guid? analyseToken)
     {
         await _unitOfWork.CompleteAsync();
-        await _scheduleChangeTracker.TrackChangeAsync(clientId, currentDate);
-        _timelineService.QueueCheck(clientId, currentDate);
+        await _scheduleChangeTracker.TrackChangeAsync(clientId, currentDate, analyseToken);
+        _timelineService.QueueCheck(clientId, currentDate, analyseToken);
 
         if (previousClientId.HasValue && previousDate.HasValue &&
             (previousClientId.Value != clientId || previousDate.Value != currentDate))
         {
-            await _scheduleChangeTracker.TrackChangeAsync(previousClientId.Value, previousDate.Value);
-            _timelineService.QueueCheck(previousClientId.Value, previousDate.Value);
+            await _scheduleChangeTracker.TrackChangeAsync(previousClientId.Value, previousDate.Value, analyseToken);
+            _timelineService.QueueCheck(previousClientId.Value, previousDate.Value, analyseToken);
         }
 
-        return await RecalculateAndGetPeriodHoursAsync(clientId, periodStart, periodEnd);
+        return await RecalculateAndGetPeriodHoursAsync(clientId, periodStart, periodEnd, analyseToken);
     }
 
     public async Task SaveBulkAndTrackAsync(
-        List<(Guid ClientId, DateOnly CurrentDate)> affectedEntries)
+        List<(Guid ClientId, DateOnly CurrentDate, Guid? AnalyseToken)> affectedEntries)
     {
         await _unitOfWork.CompleteAsync();
 
-        foreach (var (clientId, currentDate) in affectedEntries)
+        foreach (var (clientId, currentDate, analyseToken) in affectedEntries)
         {
-            await _scheduleChangeTracker.TrackChangeAsync(clientId, currentDate);
-            _timelineService.QueueCheck(clientId, currentDate);
+            await _scheduleChangeTracker.TrackChangeAsync(clientId, currentDate, analyseToken);
+            _timelineService.QueueCheck(clientId, currentDate, analyseToken);
         }
     }
 
@@ -75,36 +77,37 @@ public class ScheduleCompletionService : IScheduleCompletionService
         Guid clientId, DateOnly currentDate,
         DateOnly periodStart, DateOnly periodEnd,
         Guid? replaceClientId,
+        Guid? analyseToken,
         Guid? previousReplaceClientId = null)
     {
         await _unitOfWork.CompleteAsync();
 
-        await _scheduleChangeTracker.TrackChangeAsync(clientId, currentDate);
-        _timelineService.QueueCheck(clientId, currentDate);
-        await RecalculateAndGetPeriodHoursAsync(clientId, periodStart, periodEnd);
+        await _scheduleChangeTracker.TrackChangeAsync(clientId, currentDate, analyseToken);
+        _timelineService.QueueCheck(clientId, currentDate, analyseToken);
+        await RecalculateAndGetPeriodHoursAsync(clientId, periodStart, periodEnd, analyseToken);
 
         if (replaceClientId.HasValue)
         {
-            await _scheduleChangeTracker.TrackChangeAsync(replaceClientId.Value, currentDate);
-            _timelineService.QueueCheck(replaceClientId.Value, currentDate);
-            await RecalculateAndGetPeriodHoursAsync(replaceClientId.Value, periodStart, periodEnd);
+            await _scheduleChangeTracker.TrackChangeAsync(replaceClientId.Value, currentDate, analyseToken);
+            _timelineService.QueueCheck(replaceClientId.Value, currentDate, analyseToken);
+            await RecalculateAndGetPeriodHoursAsync(replaceClientId.Value, periodStart, periodEnd, analyseToken);
         }
 
         if (previousReplaceClientId.HasValue && previousReplaceClientId != replaceClientId)
         {
-            await _scheduleChangeTracker.TrackChangeAsync(previousReplaceClientId.Value, currentDate);
-            _timelineService.QueueCheck(previousReplaceClientId.Value, currentDate);
-            await RecalculateAndGetPeriodHoursAsync(previousReplaceClientId.Value, periodStart, periodEnd);
+            await _scheduleChangeTracker.TrackChangeAsync(previousReplaceClientId.Value, currentDate, analyseToken);
+            _timelineService.QueueCheck(previousReplaceClientId.Value, currentDate, analyseToken);
+            await RecalculateAndGetPeriodHoursAsync(previousReplaceClientId.Value, periodStart, periodEnd, analyseToken);
         }
     }
 
     private async Task<PeriodHoursResource> RecalculateAndGetPeriodHoursAsync(
-        Guid clientId, DateOnly periodStart, DateOnly periodEnd)
+        Guid clientId, DateOnly periodStart, DateOnly periodEnd, Guid? analyseToken)
     {
         var connectionId = _httpContextAccessor.HttpContext?.Request
             .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault();
 
         return await _periodHoursService.RecalculateAndNotifyAsync(
-            clientId, periodStart, periodEnd, connectionId);
+            clientId, periodStart, periodEnd, analyseToken, connectionId);
     }
 }

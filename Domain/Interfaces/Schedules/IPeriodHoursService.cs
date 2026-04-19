@@ -36,6 +36,7 @@ public interface IPeriodHoursService
         Guid clientId,
         DateOnly startDate,
         DateOnly endDate,
+        Guid? analyseToken,
         string? excludeConnectionId = null);
 
     (DateOnly StartDate, DateOnly EndDate) GetPeriodBoundaries(DateOnly date);

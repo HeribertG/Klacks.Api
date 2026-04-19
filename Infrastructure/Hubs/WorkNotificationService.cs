@@ -55,7 +55,7 @@ public class WorkNotificationService : IWorkNotificationService
         {
             var targetDate = notification.CurrentDate;
             var targetConnections = _dateRangeTracker
-                .GetConnectionsForDate(targetDate, notification.SourceConnectionId)
+                .GetConnectionsForDate(targetDate, notification.AnalyseToken, notification.SourceConnectionId)
                 .ToList();
 
             if (targetConnections.Count == 0)
@@ -83,7 +83,7 @@ public class WorkNotificationService : IWorkNotificationService
         try
         {
             var targetConnections = _dateRangeTracker
-                .GetConnectionsForDateRange(notification.StartDate, notification.EndDate, notification.SourceConnectionId)
+                .GetConnectionsForDateRange(notification.StartDate, notification.EndDate, notification.AnalyseToken, notification.SourceConnectionId)
                 .ToList();
 
             if (targetConnections.Count == 0)
@@ -108,12 +108,12 @@ public class WorkNotificationService : IWorkNotificationService
         }
     }
 
-    public async Task NotifyPeriodHoursRecalculated(DateOnly startDate, DateOnly endDate)
+    public async Task NotifyPeriodHoursRecalculated(DateOnly startDate, DateOnly endDate, Guid? analyseToken)
     {
         try
         {
             var targetConnections = _dateRangeTracker
-                .GetConnectionsForDateRange(startDate, endDate)
+                .GetConnectionsForDateRange(startDate, endDate, analyseToken)
                 .ToList();
 
             if (targetConnections.Count == 0)
@@ -127,7 +127,8 @@ public class WorkNotificationService : IWorkNotificationService
             var notification = new PeriodHoursRecalculatedDto
             {
                 StartDate = startDate,
-                EndDate = endDate
+                EndDate = endDate,
+                AnalyseToken = analyseToken
             };
             await _hubContext.Clients.Clients(targetConnections).PeriodHoursRecalculated(notification);
 
@@ -146,7 +147,7 @@ public class WorkNotificationService : IWorkNotificationService
         try
         {
             var targetConnections = _dateRangeTracker
-                .GetConnectionsForDate(notification.ChangeDate)
+                .GetConnectionsForDate(notification.ChangeDate, notification.AnalyseToken)
                 .ToList();
 
             if (targetConnections.Count == 0)
@@ -197,7 +198,7 @@ public class WorkNotificationService : IWorkNotificationService
             var targetConnections = new HashSet<string>();
             foreach (var date in dates)
             {
-                foreach (var conn in _dateRangeTracker.GetConnectionsForDate(date))
+                foreach (var conn in _dateRangeTracker.GetConnectionsForDate(date, notification.AnalyseToken))
                 {
                     targetConnections.Add(conn);
                 }
@@ -206,8 +207,8 @@ public class WorkNotificationService : IWorkNotificationService
             if (targetConnections.Count == 0)
             {
                 _logger.LogWarning(
-                    "[COLLISION-TRACE] Dropping {Count} collisions: no client connection subscribed to dates {Dates}",
-                    notification.Collisions.Count, string.Join(",", dates));
+                    "[COLLISION-TRACE] Dropping {Count} collisions: no client connection subscribed to dates {Dates} token={Token}",
+                    notification.Collisions.Count, string.Join(",", dates), notification.AnalyseToken?.ToString() ?? "null");
                 return;
             }
 
@@ -245,7 +246,7 @@ public class WorkNotificationService : IWorkNotificationService
             var targetConnections = new HashSet<string>();
             foreach (var date in dates)
             {
-                foreach (var conn in _dateRangeTracker.GetConnectionsForDate(date))
+                foreach (var conn in _dateRangeTracker.GetConnectionsForDate(date, notification.AnalyseToken))
                 {
                     targetConnections.Add(conn);
                 }
@@ -254,8 +255,8 @@ public class WorkNotificationService : IWorkNotificationService
             if (targetConnections.Count == 0)
             {
                 _logger.LogWarning(
-                    "[COLLISION-TRACE] Dropping {Count} validations: no client connection subscribed to dates {Dates}",
-                    notification.Entries.Count, string.Join(",", dates));
+                    "[COLLISION-TRACE] Dropping {Count} validations: no client connection subscribed to dates {Dates} token={Token}",
+                    notification.Entries.Count, string.Join(",", dates), notification.AnalyseToken?.ToString() ?? "null");
                 return;
             }
 
@@ -270,10 +271,10 @@ public class WorkNotificationService : IWorkNotificationService
 
     private async Task SendGroupFilteredCollisions(CollisionListNotificationDto notification)
     {
-        var (allGroupConnections, groupConnections) = _dateRangeTracker.GetConnectionsGroupedBySelectedGroup();
+        var (allGroupConnections, groupConnections) = _dateRangeTracker.GetConnectionsGroupedBySelectedGroup(notification.AnalyseToken);
 
-        _logger.LogDebug("[COLLISION-TRACE] SendGroupFiltered: {AllGroupCount} allGroup-connections, {GroupCount} group-connections, {TotalCollisions} total collisions",
-            allGroupConnections.Count, groupConnections.Count, notification.Collisions.Count);
+        _logger.LogDebug("[COLLISION-TRACE] SendGroupFiltered: {AllGroupCount} allGroup-connections, {GroupCount} group-connections, {TotalCollisions} total collisions token={Token}",
+            allGroupConnections.Count, groupConnections.Count, notification.Collisions.Count, notification.AnalyseToken?.ToString() ?? "null");
 
         if (allGroupConnections.Count > 0)
         {
@@ -310,6 +311,7 @@ public class WorkNotificationService : IWorkNotificationService
                 IsFullRefresh = true,
                 CheckedClientId = notification.CheckedClientId,
                 CheckedDate = notification.CheckedDate,
+                AnalyseToken = notification.AnalyseToken,
                 Collisions = notification.Collisions
                     .Where(c => allowedClientIds.Contains(c.ClientId))
                     .ToList()
@@ -323,7 +325,7 @@ public class WorkNotificationService : IWorkNotificationService
 
     private async Task SendGroupFilteredValidations(ScheduleValidationListNotificationDto notification)
     {
-        var (allGroupConnections, groupConnections) = _dateRangeTracker.GetConnectionsGroupedBySelectedGroup();
+        var (allGroupConnections, groupConnections) = _dateRangeTracker.GetConnectionsGroupedBySelectedGroup(notification.AnalyseToken);
 
         var entriesWithoutUnderstaffed = notification.Entries
             .Where(e => e.ClientId != Guid.Empty)
@@ -336,6 +338,7 @@ public class WorkNotificationService : IWorkNotificationService
                 IsFullRefresh = true,
                 CheckedClientId = notification.CheckedClientId,
                 CheckedDate = notification.CheckedDate,
+                AnalyseToken = notification.AnalyseToken,
                 Entries = entriesWithoutUnderstaffed
             };
             await _hubContext.Clients.Clients(allGroupConnections).ScheduleValidationsDetected(allGroupNotification);
@@ -357,6 +360,7 @@ public class WorkNotificationService : IWorkNotificationService
                 IsFullRefresh = true,
                 CheckedClientId = notification.CheckedClientId,
                 CheckedDate = notification.CheckedDate,
+                AnalyseToken = notification.AnalyseToken,
                 Entries = entriesWithoutUnderstaffed
                     .Where(e => allowedClientIds.Contains(e.ClientId))
                     .ToList()
@@ -387,7 +391,7 @@ public class WorkNotificationService : IWorkNotificationService
         {
             var targetDate = notification.CurrentDate;
             var targetConnections = _dateRangeTracker
-                .GetConnectionsForDate(targetDate, notification.SourceConnectionId)
+                .GetConnectionsForDate(targetDate, notification.AnalyseToken, notification.SourceConnectionId)
                 .ToList();
 
             if (targetConnections.Count == 0)

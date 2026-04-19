@@ -9,19 +9,22 @@ public interface IScheduleCompletionService
 {
     Task<PeriodHoursResource> SaveAndTrackAsync(
         Guid clientId, DateOnly currentDate,
-        DateOnly periodStart, DateOnly periodEnd);
+        DateOnly periodStart, DateOnly periodEnd,
+        Guid? analyseToken);
 
     Task<PeriodHoursResource> SaveAndTrackMoveAsync(
         Guid clientId, DateOnly currentDate,
         DateOnly periodStart, DateOnly periodEnd,
-        Guid? previousClientId, DateOnly? previousDate);
+        Guid? previousClientId, DateOnly? previousDate,
+        Guid? analyseToken);
 
     Task SaveBulkAndTrackAsync(
-        List<(Guid ClientId, DateOnly CurrentDate)> affectedEntries);
+        List<(Guid ClientId, DateOnly CurrentDate, Guid? AnalyseToken)> affectedEntries);
 
     Task SaveAndTrackWithReplaceClientAsync(
         Guid clientId, DateOnly currentDate,
         DateOnly periodStart, DateOnly periodEnd,
         Guid? replaceClientId,
+        Guid? analyseToken,
         Guid? previousReplaceClientId = null);
 }

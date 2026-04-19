@@ -53,7 +53,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
                 _workRepository.Remove(work);
             }
 
-            var affected = deletedWorks.Select(w => (w.ClientId, w.CurrentDate)).ToList();
+            var affected = deletedWorks.Select(w => (w.ClientId, w.CurrentDate, w.AnalyseToken)).ToList();
             await _completionService.SaveBulkAndTrackAsync(affected);
 
             foreach (var work in deletedWorks)
@@ -106,12 +106,16 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
                                 period.End);
                             response.PeriodHours[clientId] = periodHours;
 
-                            await _notificationFacade.NotifyPeriodHoursUpdatedAsync(clientId, period.Start, period.End, periodHours, connectionId);
+                            var clientTokens = deletedWorks.Where(w => w.ClientId == clientId).Select(w => w.AnalyseToken).Distinct().ToList();
+                            var clientToken = clientTokens.Count == 1 ? clientTokens[0] : null;
+
+                            await _notificationFacade.NotifyPeriodHoursUpdatedAsync(clientId, period.Start, period.End, periodHours, connectionId, clientToken);
                         }
                     }
                 }
 
-                await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, analyseToken: null, cancellationToken);
+                var bulkToken = deletedWorks.Select(w => w.AnalyseToken).Distinct().Count() == 1 ? deletedWorks[0].AnalyseToken : null;
+                await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, bulkToken, cancellationToken);
             }
 
             response.AffectedShifts = affectedShifts

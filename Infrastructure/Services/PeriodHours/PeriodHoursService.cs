@@ -443,6 +443,7 @@ public class PeriodHoursService : IPeriodHoursService
         Guid clientId,
         DateOnly startDate,
         DateOnly endDate,
+        Guid? analyseToken,
         string? excludeConnectionId = null)
     {
         _logger.LogDebug(
@@ -500,7 +501,8 @@ public class PeriodHoursService : IPeriodHoursService
             Hours = calculated.Hours,
             Surcharges = calculated.Surcharges,
             GuaranteedHours = calculated.GuaranteedHours,
-            SourceConnectionId = excludeConnectionId ?? string.Empty
+            SourceConnectionId = excludeConnectionId ?? string.Empty,
+            AnalyseToken = analyseToken
         };
 
         await _notificationService.NotifyPeriodHoursUpdated(notification);

@@ -17,11 +17,13 @@ public static class SignalRConstants
 
     public static class Groups
     {
-        public static string Schedule(string startDate, string endDate)
-            => $"schedule_{startDate}_{endDate}";
+        public const string NullAnalyseToken = "null";
 
-        public static string Schedule(DateOnly startDate, DateOnly endDate)
-            => $"schedule_{startDate:yyyy-MM-dd}_{endDate:yyyy-MM-dd}";
+        public static string Schedule(string startDate, string endDate, string? analyseToken)
+            => $"schedule_{startDate}_{endDate}_{(string.IsNullOrWhiteSpace(analyseToken) ? NullAnalyseToken : analyseToken)}";
+
+        public static string Schedule(DateOnly startDate, DateOnly endDate, Guid? analyseToken)
+            => $"schedule_{startDate:yyyy-MM-dd}_{endDate:yyyy-MM-dd}_{(analyseToken?.ToString() ?? NullAnalyseToken)}";
 
         public static string Client(string clientId)
             => $"client_{clientId}";

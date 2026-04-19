@@ -41,30 +41,44 @@ public class WorkNotificationHub : Hub<IScheduleClient>
         return Context.ConnectionId;
     }
 
-    public async Task JoinScheduleGroup(string startDate, string endDate)
+    public async Task JoinScheduleGroup(string startDate, string endDate, string? analyseToken)
     {
-        var groupName = GetScheduleGroupName(startDate, endDate);
+        var token = ParseAnalyseToken(analyseToken);
+        var groupName = GetScheduleGroupName(startDate, endDate, analyseToken);
+
+        var previousRange = _dateRangeTracker.GetRegisteredDateRange(Context.ConnectionId);
+        var previousToken = _dateRangeTracker.GetAnalyseToken(Context.ConnectionId);
+
+        if (previousRange.HasValue && previousToken != token)
+        {
+            var previousGroupName = SignalRConstants.Groups.Schedule(previousRange.Value.Start, previousRange.Value.End, previousToken);
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, previousGroupName);
+            _logger.LogDebug(
+                "[COLLISION-TRACE] JoinScheduleGroup: {ConnectionId} left previous group '{PrevGroupName}' (token changed {PrevToken} -> {NewToken})",
+                Context.ConnectionId, previousGroupName, previousToken?.ToString() ?? "null", token?.ToString() ?? "null");
+        }
+
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
         if (DateOnly.TryParse(startDate, out var start) && DateOnly.TryParse(endDate, out var end))
         {
-            var previousRange = _dateRangeTracker.GetRegisteredDateRange(Context.ConnectionId);
-            _dateRangeTracker.RegisterConnection(Context.ConnectionId, start, end);
+            _dateRangeTracker.RegisterConnection(Context.ConnectionId, start, end, token);
 
             var dateRangeChanged = previousRange == null || previousRange.Value.Start != start || previousRange.Value.End != end;
+            var tokenChanged = previousToken != token;
 
-            if (dateRangeChanged)
+            if (dateRangeChanged || tokenChanged)
             {
-                _timelineService.QueueRangeCheck(start, end);
+                _timelineService.QueueRangeCheck(start, end, token);
                 _logger.LogDebug(
-                    "[COLLISION-TRACE] JoinScheduleGroup: {ConnectionId} joined '{GroupName}', DateRange {Start} - {End}, QueueRangeCheck triggered (dateRange changed)",
-                    Context.ConnectionId, groupName, start, end);
+                    "[COLLISION-TRACE] JoinScheduleGroup: {ConnectionId} joined '{GroupName}', DateRange {Start} - {End} token={Token}, QueueRangeCheck triggered (dateRangeChanged={DateRangeChanged} tokenChanged={TokenChanged})",
+                    Context.ConnectionId, groupName, start, end, token?.ToString() ?? "null", dateRangeChanged, tokenChanged);
             }
             else
             {
                 _logger.LogDebug(
-                    "[COLLISION-TRACE] JoinScheduleGroup: {ConnectionId} joined '{GroupName}', DateRange {Start} - {End}, SKIPPED QueueRangeCheck (same dateRange) - previousRange={PrevStart} - {PrevEnd}",
-                    Context.ConnectionId, groupName, start, end, previousRange?.Start, previousRange?.End);
+                    "[COLLISION-TRACE] JoinScheduleGroup: {ConnectionId} joined '{GroupName}', DateRange {Start} - {End} token={Token}, SKIPPED QueueRangeCheck (same dateRange and token)",
+                    Context.ConnectionId, groupName, start, end, token?.ToString() ?? "null");
             }
         }
         else
@@ -92,7 +106,8 @@ public class WorkNotificationHub : Hub<IScheduleClient>
             var dateRange = _dateRangeTracker.GetRegisteredDateRange(Context.ConnectionId);
             if (dateRange.HasValue)
             {
-                _timelineService.QueueRangeCheck(dateRange.Value.Start, dateRange.Value.End);
+                var token = _dateRangeTracker.GetAnalyseToken(Context.ConnectionId);
+                _timelineService.QueueRangeCheck(dateRange.Value.Start, dateRange.Value.End, token);
             }
         }
 
@@ -101,9 +116,9 @@ public class WorkNotificationHub : Hub<IScheduleClient>
             Context.ConnectionId, parsedGroupId?.ToString() ?? "(alle)", groupChanged);
     }
 
-    public async Task LeaveScheduleGroup(string startDate, string endDate)
+    public async Task LeaveScheduleGroup(string startDate, string endDate, string? analyseToken)
     {
-        var groupName = GetScheduleGroupName(startDate, endDate);
+        var groupName = GetScheduleGroupName(startDate, endDate, analyseToken);
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
         _logger.LogInformation("SignalR GROUP LEAVE: {ConnectionId} left '{GroupName}'", Context.ConnectionId, groupName);
     }
@@ -166,15 +181,21 @@ public class WorkNotificationHub : Hub<IScheduleClient>
         _logger.LogInformation("SignalR CLIENT GROUPS LEAVE: {ConnectionId} left {Count} client groups", Context.ConnectionId, ids.Count);
     }
 
-    public static string GetScheduleGroupName(string startDate, string endDate)
-        => SignalRConstants.Groups.Schedule(startDate, endDate);
+    public static string GetScheduleGroupName(string startDate, string endDate, string? analyseToken)
+        => SignalRConstants.Groups.Schedule(startDate, endDate, analyseToken);
 
-    public static string GetScheduleGroupName(DateOnly startDate, DateOnly endDate)
-        => SignalRConstants.Groups.Schedule(startDate, endDate);
+    public static string GetScheduleGroupName(DateOnly startDate, DateOnly endDate, Guid? analyseToken)
+        => SignalRConstants.Groups.Schedule(startDate, endDate, analyseToken);
 
     public static string GetClientGroupName(string clientId)
         => SignalRConstants.Groups.Client(clientId);
 
     public static string GetClientGroupName(Guid clientId)
         => SignalRConstants.Groups.Client(clientId);
+
+    private static Guid? ParseAnalyseToken(string? analyseToken)
+    {
+        if (string.IsNullOrWhiteSpace(analyseToken)) return null;
+        return Guid.TryParse(analyseToken, out var g) ? g : (Guid?)null;
+    }
 }

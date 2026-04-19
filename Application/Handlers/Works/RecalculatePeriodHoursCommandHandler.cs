@@ -32,7 +32,8 @@ public class RecalculatePeriodHoursCommandHandler : BaseHandler, IRequestHandler
         {
             await _breakMacroService.ReprocessAllBreaksAsync(request.StartDate, request.EndDate);
             await _periodHoursService.RecalculateAllClientsAsync(request.StartDate, request.EndDate, request.SelectedGroup);
-            await _notificationService.NotifyPeriodHoursRecalculated(request.StartDate, request.EndDate);
+            // System-wide group-scoped recalculation: no entity-level AnalyseToken association possible.
+            await _notificationService.NotifyPeriodHoursRecalculated(request.StartDate, request.EndDate, analyseToken: null);
             return true;
         },
         "recalculating period hours",

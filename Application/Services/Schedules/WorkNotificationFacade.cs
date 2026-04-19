@@ -69,7 +69,7 @@ public class WorkNotificationFacade : IWorkNotificationFacade
 
     public async Task NotifyPeriodHoursUpdatedAsync(
         Guid clientId, DateOnly periodStart, DateOnly periodEnd,
-        PeriodHoursResource periodHours, string connectionId)
+        PeriodHoursResource periodHours, string connectionId, Guid? analyseToken)
     {
         var periodHoursNotification = new PeriodHoursNotificationDto
         {
@@ -79,7 +79,8 @@ public class WorkNotificationFacade : IWorkNotificationFacade
             Hours = periodHours.Hours,
             Surcharges = periodHours.Surcharges,
             GuaranteedHours = periodHours.GuaranteedHours,
-            SourceConnectionId = connectionId
+            SourceConnectionId = connectionId,
+            AnalyseToken = analyseToken
         };
         await _notificationService.NotifyPeriodHoursUpdated(periodHoursNotification);
     }
@@ -93,7 +94,7 @@ public class WorkNotificationFacade : IWorkNotificationFacade
 
         foreach (var shiftData in shiftStats)
         {
-            var shiftNotification = _scheduleMapper.ToShiftStatsNotificationDto(shiftData, connectionId);
+            var shiftNotification = _scheduleMapper.ToShiftStatsNotificationDto(shiftData, connectionId, analyseToken);
             await _shiftStatsNotificationService.NotifyShiftStatsUpdated(shiftNotification);
         }
     }
@@ -108,17 +109,17 @@ public class WorkNotificationFacade : IWorkNotificationFacade
 
         if (shiftData != null)
         {
-            var shiftNotification = _scheduleMapper.ToShiftStatsNotificationDto(shiftData, connectionId);
+            var shiftNotification = _scheduleMapper.ToShiftStatsNotificationDto(shiftData, connectionId, analyseToken);
             await _shiftStatsNotificationService.NotifyShiftStatsUpdated(shiftNotification);
         }
     }
 
     public async Task NotifyScheduleUpdatedAsync(
         Guid clientId, DateOnly currentDate,
-        string connectionId, DateOnly periodStart, DateOnly periodEnd)
+        string connectionId, DateOnly periodStart, DateOnly periodEnd, Guid? analyseToken)
     {
         var notification = _scheduleMapper.ToScheduleNotificationDto(
-            clientId, currentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);
+            clientId, currentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd, analyseToken);
         await _notificationService.NotifyScheduleUpdated(notification);
     }
 }

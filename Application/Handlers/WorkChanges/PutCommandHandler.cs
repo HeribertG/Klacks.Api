@@ -75,6 +75,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
             await _completionService.SaveAndTrackWithReplaceClientAsync(
                 work.ClientId, work.CurrentDate, periodStart, periodEnd,
                 updatedWorkChange.ReplaceClientId,
+                work.AnalyseToken,
                 replaceClientChanged ? previousReplaceClientId : null);
 
             var threeDayStart = currentDate.AddDays(-1);
@@ -100,16 +101,16 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
             }
 
             var connectionId = _notificationFacade.GetConnectionId();
-            await _notificationFacade.NotifyScheduleUpdatedAsync(work.ClientId, work.CurrentDate, connectionId, periodStart, periodEnd);
+            await _notificationFacade.NotifyScheduleUpdatedAsync(work.ClientId, work.CurrentDate, connectionId, periodStart, periodEnd, work.AnalyseToken);
 
             if (updatedWorkChange.ReplaceClientId.HasValue)
             {
-                await _notificationFacade.NotifyScheduleUpdatedAsync(updatedWorkChange.ReplaceClientId.Value, work.CurrentDate, connectionId, periodStart, periodEnd);
+                await _notificationFacade.NotifyScheduleUpdatedAsync(updatedWorkChange.ReplaceClientId.Value, work.CurrentDate, connectionId, periodStart, periodEnd, work.AnalyseToken);
             }
 
             if (replaceClientChanged && previousReplaceClientId.HasValue)
             {
-                await _notificationFacade.NotifyScheduleUpdatedAsync(previousReplaceClientId.Value, work.CurrentDate, connectionId, periodStart, periodEnd);
+                await _notificationFacade.NotifyScheduleUpdatedAsync(previousReplaceClientId.Value, work.CurrentDate, connectionId, periodStart, periodEnd, work.AnalyseToken);
             }
 
             return resource;

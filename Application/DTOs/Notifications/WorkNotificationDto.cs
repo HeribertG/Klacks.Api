@@ -12,4 +12,5 @@ public record WorkNotificationDto
     public DateOnly PeriodEndDate { get; init; }
     public string OperationType { get; init; } = string.Empty;
     public string SourceConnectionId { get; init; } = string.Empty;
+    public Guid? AnalyseToken { get; init; }
 }
