@@ -64,12 +64,18 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
 
                 response.PeriodHours = new Dictionary<Guid, PeriodHoursResource>();
 
+                var tokenByClient = deletedBreaks
+                    .GroupBy(b => b.ClientId)
+                    .ToDictionary(g => g.Key, g => g.First().AnalyseToken);
+
                 foreach (var clientId in affectedClients)
                 {
+                    var analyseToken = tokenByClient.TryGetValue(clientId, out var t) ? t : null;
                     var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(
                         clientId,
                         periodStart,
-                        periodEnd);
+                        periodEnd,
+                        analyseToken);
                     response.PeriodHours[clientId] = periodHours;
                 }
             }

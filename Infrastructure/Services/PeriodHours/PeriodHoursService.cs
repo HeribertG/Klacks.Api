@@ -40,7 +40,8 @@ public class PeriodHoursService : IPeriodHoursService
     public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursAsync(
         List<Guid> clientIds,
         DateOnly startDate,
-        DateOnly endDate)
+        DateOnly endDate,
+        Guid? analyseToken = null)
     {
         if (clientIds.Count == 0)
         {
@@ -52,7 +53,8 @@ public class PeriodHoursService : IPeriodHoursService
         var cachedPeriodHours = await _context.ClientPeriodHours
             .Where(p => clientIds.Contains(p.ClientId)
                 && p.StartDate == startDate
-                && p.EndDate == endDate)
+                && p.EndDate == endDate
+                && p.AnalyseToken == analyseToken)
             .ToListAsync();
 
         var clientIdsWithCache = cachedPeriodHours.Select(p => p.ClientId).ToHashSet();
@@ -79,7 +81,8 @@ public class PeriodHoursService : IPeriodHoursService
             var calculatedHours = await CalculatePeriodHoursForClientsAsync(
                 clientIdsWithoutCache,
                 startDate,
-                endDate);
+                endDate,
+                analyseToken);
 
             foreach (var (clientId, hours) in calculatedHours)
             {
@@ -102,12 +105,14 @@ public class PeriodHoursService : IPeriodHoursService
     public async Task<PeriodHoursResource> CalculatePeriodHoursAsync(
         Guid clientId,
         DateOnly startDate,
-        DateOnly endDate)
+        DateOnly endDate,
+        Guid? analyseToken = null)
     {
         var results = await CalculatePeriodHoursForClientsAsync(
             new List<Guid> { clientId },
             startDate,
-            endDate);
+            endDate,
+            analyseToken);
 
         var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, startDate);
 
@@ -128,18 +133,21 @@ public class PeriodHoursService : IPeriodHoursService
     public async Task RecalculatePeriodHoursAsync(
         Guid clientId,
         DateOnly startDate,
-        DateOnly endDate)
+        DateOnly endDate,
+        Guid? analyseToken = null)
     {
         _logger.LogDebug(
-            "Recalculating period hours for client {ClientId} from {StartDate} to {EndDate}",
+            "Recalculating period hours for client {ClientId} from {StartDate} to {EndDate} (scenario={Token})",
             clientId,
             startDate,
-            endDate);
+            endDate,
+            analyseToken);
 
-        var calculated = await CalculatePeriodHoursAsync(clientId, startDate, endDate);
+        var calculated = await CalculatePeriodHoursAsync(clientId, startDate, endDate, analyseToken);
 
         var otherCacheEntries = await _context.ClientPeriodHours
             .Where(p => p.ClientId == clientId
+                && p.AnalyseToken == analyseToken
                 && (p.StartDate != startDate || p.EndDate != endDate))
             .ToListAsync();
 
@@ -152,7 +160,8 @@ public class PeriodHoursService : IPeriodHoursService
             .FirstOrDefaultAsync(p =>
                 p.ClientId == clientId
                 && p.StartDate == startDate
-                && p.EndDate == endDate);
+                && p.EndDate == endDate
+                && p.AnalyseToken == analyseToken);
 
         if (existing != null)
         {
@@ -170,6 +179,7 @@ public class PeriodHoursService : IPeriodHoursService
                 EndDate = endDate,
                 Hours = calculated.Hours,
                 Surcharges = calculated.Surcharges,
+                AnalyseToken = analyseToken,
                 CalculatedAt = DateTime.UtcNow
             };
             _context.ClientPeriodHours.Add(newEntry);
@@ -181,7 +191,8 @@ public class PeriodHoursService : IPeriodHoursService
     public async Task RecalculateAllClientsAsync(
         DateOnly startDate,
         DateOnly endDate,
-        Guid? groupId = null)
+        Guid? groupId = null,
+        Guid? analyseToken = null)
     {
         _logger.LogInformation(
             "Recalculating period hours for {Scope} from {StartDate} to {EndDate}",
@@ -207,12 +218,14 @@ public class PeriodHoursService : IPeriodHoursService
         var calculatedHours = await CalculatePeriodHoursForClientsAsync(
             clientIds,
             startDate,
-            endDate);
+            endDate,
+            analyseToken);
 
         var existingEntries = await _context.ClientPeriodHours
             .Where(p => clientIds.Contains(p.ClientId)
                 && p.StartDate == startDate
-                && p.EndDate == endDate)
+                && p.EndDate == endDate
+                && p.AnalyseToken == analyseToken)
             .ToDictionaryAsync(p => p.ClientId);
 
         foreach (var (clientId, hours) in calculatedHours)
@@ -233,6 +246,7 @@ public class PeriodHoursService : IPeriodHoursService
                     EndDate = endDate,
                     Hours = hours.Hours,
                     Surcharges = hours.Surcharges,
+                    AnalyseToken = analyseToken,
                     CalculatedAt = DateTime.UtcNow
                 };
                 _context.ClientPeriodHours.Add(newEntry);
@@ -248,10 +262,12 @@ public class PeriodHoursService : IPeriodHoursService
 
     public async Task InvalidateCacheAsync(
         Guid clientId,
-        DateOnly date)
+        DateOnly date,
+        Guid? analyseToken = null)
     {
         var affectedEntries = await _context.ClientPeriodHours
             .Where(p => p.ClientId == clientId
+                && p.AnalyseToken == analyseToken
                 && p.StartDate <= date
                 && p.EndDate >= date)
             .ToListAsync();
@@ -262,16 +278,18 @@ public class PeriodHoursService : IPeriodHoursService
             await _context.SaveChangesAsync();
 
             _logger.LogDebug(
-                "Invalidated {Count} cached period hours entries for client {ClientId}",
+                "Invalidated {Count} cached period hours entries for client {ClientId} (scenario={Token})",
                 affectedEntries.Count,
-                clientId);
+                clientId,
+                analyseToken);
         }
     }
 
     private async Task<Dictionary<Guid, PeriodHoursResource>> CalculatePeriodHoursForClientsAsync(
         List<Guid> clientIds,
         DateOnly startDate,
-        DateOnly endDate)
+        DateOnly endDate,
+        Guid? analyseToken = null)
     {
         var result = new Dictionary<Guid, PeriodHoursResource>();
 
@@ -283,15 +301,17 @@ public class PeriodHoursService : IPeriodHoursService
         var allWorks = await _context.Work
             .Where(w => clientIds.Contains(w.ClientId)
                 && w.CurrentDate >= startDate
-                && w.CurrentDate <= endDate)
+                && w.CurrentDate <= endDate
+                && w.AnalyseToken == analyseToken)
             .Select(w => new { w.ClientId, w.WorkTime, w.Surcharges, w.CurrentDate })
             .ToListAsync();
 
         _logger.LogInformation(
-            "CalculatePeriodHours for clients {ClientIds} from {Start} to {End}: Found {Count} works",
+            "CalculatePeriodHours for clients {ClientIds} from {Start} to {End} (scenario={Token}): Found {Count} works",
             string.Join(", ", clientIds),
             startDate,
             endDate,
+            analyseToken,
             allWorks.Count);
 
         foreach (var work in allWorks)
@@ -312,7 +332,8 @@ public class PeriodHoursService : IPeriodHoursService
         var breaksHours = await _context.Break
             .Where(b => clientIds.Contains(b.ClientId)
                 && b.CurrentDate >= startDate
-                && b.CurrentDate <= endDate)
+                && b.CurrentDate <= endDate
+                && b.AnalyseToken == analyseToken)
             .GroupBy(b => b.ClientId)
             .Select(g => new { ClientId = g.Key, TotalBreaks = g.Sum(b => b.WorkTime), TotalBreakSurcharges = g.Sum(b => b.Surcharges) })
             .ToListAsync();
@@ -321,7 +342,8 @@ public class PeriodHoursService : IPeriodHoursService
             .Where(wc => (clientIds.Contains(wc.Work!.ClientId) ||
                          (wc.ReplaceClientId.HasValue && clientIds.Contains(wc.ReplaceClientId.Value)))
                 && wc.Work.CurrentDate >= startDate
-                && wc.Work.CurrentDate <= endDate)
+                && wc.Work.CurrentDate <= endDate
+                && wc.Work.AnalyseToken == analyseToken)
             .Select(wc => new
             {
                 wc.Work!.ClientId,
@@ -447,15 +469,17 @@ public class PeriodHoursService : IPeriodHoursService
         string? excludeConnectionId = null)
     {
         _logger.LogDebug(
-            "Recalculating period hours for client {ClientId} for period {StartDate} to {EndDate}",
+            "Recalculating period hours for client {ClientId} for period {StartDate} to {EndDate} (scenario={Token})",
             clientId,
             startDate,
-            endDate);
+            endDate,
+            analyseToken);
 
-        var calculated = await CalculatePeriodHoursAsync(clientId, startDate, endDate);
+        var calculated = await CalculatePeriodHoursAsync(clientId, startDate, endDate, analyseToken);
 
         var otherCacheEntries = await _context.ClientPeriodHours
             .Where(p => p.ClientId == clientId
+                && p.AnalyseToken == analyseToken
                 && (p.StartDate != startDate || p.EndDate != endDate))
             .ToListAsync();
 
@@ -468,7 +492,8 @@ public class PeriodHoursService : IPeriodHoursService
             .FirstOrDefaultAsync(p =>
                 p.ClientId == clientId
                 && p.StartDate == startDate
-                && p.EndDate == endDate);
+                && p.EndDate == endDate
+                && p.AnalyseToken == analyseToken);
 
         if (existing != null)
         {
@@ -486,6 +511,7 @@ public class PeriodHoursService : IPeriodHoursService
                 EndDate = endDate,
                 Hours = calculated.Hours,
                 Surcharges = calculated.Surcharges,
+                AnalyseToken = analyseToken,
                 CalculatedAt = DateTime.UtcNow
             };
             _context.ClientPeriodHours.Add(newEntry);

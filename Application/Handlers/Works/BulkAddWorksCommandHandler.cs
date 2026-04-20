@@ -111,14 +111,15 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
 
                     foreach (var clientId in affectedClients)
                     {
+                        var clientTokens = works.Where(w => w.ClientId == clientId).Select(w => w.AnalyseToken).Distinct().ToList();
+                        var clientToken = clientTokens.Count == 1 ? clientTokens[0] : null;
+
                         var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(
                             clientId,
                             periodStart,
-                            periodEnd);
+                            periodEnd,
+                            clientToken);
                         response.PeriodHours[clientId] = periodHours;
-
-                        var clientTokens = works.Where(w => w.ClientId == clientId).Select(w => w.AnalyseToken).Distinct().ToList();
-                        var clientToken = clientTokens.Count == 1 ? clientTokens[0] : null;
 
                         await _notificationFacade.NotifyPeriodHoursUpdatedAsync(clientId, periodStart, periodEnd, periodHours, connectionId, clientToken);
                     }

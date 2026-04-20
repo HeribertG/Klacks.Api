@@ -30,11 +30,12 @@ public class WorkChangeResultService : IWorkChangeResultService
         DateOnly periodEnd,
         DateOnly threeDayStart,
         DateOnly threeDayEnd,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Guid? analyseToken = null)
     {
-        var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(clientId, periodStart, periodEnd);
+        var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(clientId, periodStart, periodEnd, analyseToken);
 
-        var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd)
+        var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd, null, analyseToken)
             .Where(e => e.ClientId == clientId)
             .ToListAsync(cancellationToken);
 

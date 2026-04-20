@@ -13,7 +13,7 @@ public class ClientPeriodHoursConfiguration : IEntityTypeConfiguration<ClientPer
 {
     public void Configure(EntityTypeBuilder<ClientPeriodHours> builder)
     {
-        builder.HasIndex(p => new { p.ClientId, p.StartDate, p.EndDate })
+        builder.HasIndex(p => new { p.ClientId, p.StartDate, p.EndDate, p.AnalyseToken })
             .IsUnique();
 
         builder.HasQueryFilter(p => !p.Client!.IsDeleted);

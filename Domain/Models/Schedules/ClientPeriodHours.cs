@@ -23,6 +23,12 @@ public class ClientPeriodHours : BaseEntity
 
     public Guid? IndividualPeriodId { get; set; }
 
+    /// <summary>
+    /// Scopes the cached period-hours to a specific What-If scenario.
+    /// Null means the production schedule (original).
+    /// </summary>
+    public Guid? AnalyseToken { get; set; }
+
     public DateTime CalculatedAt { get; set; }
 
     [JsonIgnore]

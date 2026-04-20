@@ -85,18 +85,18 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
             resource.PeriodStart = periodStart;
             resource.PeriodEnd = periodEnd;
 
-            var clientResult = await _resultService.GetClientResultAsync(work.ClientId, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken);
+            var clientResult = await _resultService.GetClientResultAsync(work.ClientId, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken, work.AnalyseToken);
             resource.ClientResults.Add(clientResult);
 
             if (updatedWorkChange.ReplaceClientId.HasValue)
             {
-                var replaceClientResult = await _resultService.GetClientResultAsync(updatedWorkChange.ReplaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken);
+                var replaceClientResult = await _resultService.GetClientResultAsync(updatedWorkChange.ReplaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken, work.AnalyseToken);
                 resource.ClientResults.Add(replaceClientResult);
             }
 
             if (replaceClientChanged && previousReplaceClientId.HasValue)
             {
-                var previousReplaceClientResult = await _resultService.GetClientResultAsync(previousReplaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken);
+                var previousReplaceClientResult = await _resultService.GetClientResultAsync(previousReplaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken, work.AnalyseToken);
                 resource.ClientResults.Add(previousReplaceClientResult);
             }
 

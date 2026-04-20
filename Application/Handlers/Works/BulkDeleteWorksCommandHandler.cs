@@ -100,14 +100,15 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
                     {
                         if (clientPeriods.TryGetValue(clientId, out var period))
                         {
+                            var clientTokens = deletedWorks.Where(w => w.ClientId == clientId).Select(w => w.AnalyseToken).Distinct().ToList();
+                            var clientToken = clientTokens.Count == 1 ? clientTokens[0] : null;
+
                             var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(
                                 clientId,
                                 period.Start,
-                                period.End);
+                                period.End,
+                                clientToken);
                             response.PeriodHours[clientId] = periodHours;
-
-                            var clientTokens = deletedWorks.Where(w => w.ClientId == clientId).Select(w => w.AnalyseToken).Distinct().ToList();
-                            var clientToken = clientTokens.Count == 1 ? clientTokens[0] : null;
 
                             await _notificationFacade.NotifyPeriodHoursUpdatedAsync(clientId, period.Start, period.End, periodHours, connectionId, clientToken);
                         }

@@ -70,12 +70,12 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
             resource.PeriodStart = periodStart;
             resource.PeriodEnd = periodEnd;
 
-            var clientResult = await _resultService.GetClientResultAsync(work.ClientId, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken);
+            var clientResult = await _resultService.GetClientResultAsync(work.ClientId, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken, work.AnalyseToken);
             resource.ClientResults.Add(clientResult);
 
             if (workChange.ReplaceClientId.HasValue)
             {
-                var replaceClientResult = await _resultService.GetClientResultAsync(workChange.ReplaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken);
+                var replaceClientResult = await _resultService.GetClientResultAsync(workChange.ReplaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken, work.AnalyseToken);
                 resource.ClientResults.Add(replaceClientResult);
             }
 

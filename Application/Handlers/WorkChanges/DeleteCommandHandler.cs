@@ -79,12 +79,12 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
             workChangeResource.PeriodStart = periodStart;
             workChangeResource.PeriodEnd = periodEnd;
 
-            var clientResult = await _resultService.GetClientResultAsync(work.ClientId, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken);
+            var clientResult = await _resultService.GetClientResultAsync(work.ClientId, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken, work.AnalyseToken);
             workChangeResource.ClientResults.Add(clientResult);
 
             if (replaceClientId.HasValue)
             {
-                var replaceClientResult = await _resultService.GetClientResultAsync(replaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken);
+                var replaceClientResult = await _resultService.GetClientResultAsync(replaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken, work.AnalyseToken);
                 workChangeResource.ClientResults.Add(replaceClientResult);
             }
 

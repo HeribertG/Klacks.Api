@@ -22,6 +22,7 @@ public class GetPeriodHoursQueryHandler : IRequestHandler<GetPeriodHoursQuery, D
         return await _periodHoursService.GetPeriodHoursAsync(
             query.Request.ClientIds,
             query.Request.StartDate,
-            query.Request.EndDate);
+            query.Request.EndDate,
+            query.Request.AnalyseToken);
     }
 }

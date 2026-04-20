@@ -12,5 +12,6 @@ public interface IWorkChangeResultService
         DateOnly periodEnd,
         DateOnly threeDayStart,
         DateOnly threeDayEnd,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken,
+        Guid? analyseToken = null);
 }

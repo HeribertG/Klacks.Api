@@ -11,26 +11,31 @@ public interface IPeriodHoursService
     Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursAsync(
         List<Guid> clientIds,
         DateOnly startDate,
-        DateOnly endDate);
+        DateOnly endDate,
+        Guid? analyseToken = null);
 
     Task<PeriodHoursResource> CalculatePeriodHoursAsync(
         Guid clientId,
         DateOnly startDate,
-        DateOnly endDate);
+        DateOnly endDate,
+        Guid? analyseToken = null);
 
     Task RecalculatePeriodHoursAsync(
         Guid clientId,
         DateOnly startDate,
-        DateOnly endDate);
+        DateOnly endDate,
+        Guid? analyseToken = null);
 
     Task RecalculateAllClientsAsync(
         DateOnly startDate,
         DateOnly endDate,
-        Guid? groupId = null);
+        Guid? groupId = null,
+        Guid? analyseToken = null);
 
     Task InvalidateCacheAsync(
         Guid clientId,
-        DateOnly date);
+        DateOnly date,
+        Guid? analyseToken = null);
 
     Task<PeriodHoursResource> RecalculateAndNotifyAsync(
         Guid clientId,
