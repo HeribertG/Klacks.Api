@@ -35,6 +35,12 @@ public static class SignalRConstants
     public const string HubPath = "/hubs/work-notifications";
     public const string AssistantHubPath = "/hubs/assistant-notifications";
     public const string EmailHubPath = "/hubs/email-notifications";
+    public const string WizardHubPath = "/hubs/wizard";
+
+    public static class WizardGroups
+    {
+        public static string WizardJob(Guid jobId) => $"wizard-{jobId:N}";
+    }
 
     public static class AssistantEvents
     {

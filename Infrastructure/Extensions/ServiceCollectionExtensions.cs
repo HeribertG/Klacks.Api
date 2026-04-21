@@ -230,6 +230,13 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Application.Services.Schedules.IWizardShiftBuilder,
                            Klacks.Api.Infrastructure.Services.Schedules.WizardShiftBuilder>();
 
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules.WizardJobRegistry>();
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules.WizardResultCache>();
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules.IWizardJobRunner,
+                              Klacks.Api.Infrastructure.Services.Schedules.WizardJobRunner>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.IWizardApplyService,
+                           Klacks.Api.Infrastructure.Services.Schedules.WizardApplyService>();
+
         services.AddShiftServices();
         services.AddClientServices();
         services.AddGroupServices();

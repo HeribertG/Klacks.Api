@@ -370,6 +370,7 @@ app.UseEndpoints(endpoints =>
         endpoints.MapHub<WorkNotificationHub>("/hubs/work-notifications");
         endpoints.MapHub<AssistantNotificationHub>(SignalRConstants.AssistantHubPath);
         endpoints.MapHub<EmailNotificationHub>(SignalRConstants.EmailHubPath);
+        endpoints.MapHub<WizardJobHub>(SignalRConstants.WizardHubPath);
         endpoints.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
         {
             Predicate = check => !check.Tags.Contains("deep")
