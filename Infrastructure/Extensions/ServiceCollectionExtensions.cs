@@ -224,6 +224,9 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<Klacks.Api.Application.Services.Schedules.IWizardContextBuilder,
                            Klacks.Api.Application.Services.Schedules.WizardContextBuilder>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.WizardAgentSnapshotBuilder>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.IWizardHardConstraintBuilder,
+                           Klacks.Api.Infrastructure.Services.Schedules.WizardHardConstraintBuilder>();
 
         services.AddShiftServices();
         services.AddClientServices();
