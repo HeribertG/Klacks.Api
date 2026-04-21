@@ -222,6 +222,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMacroCompilationService, MacroCompilationService>();
         services.AddScoped<IClientContractDataProvider, ClientContractDataProvider>();
 
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.IWizardContextBuilder,
+                           Klacks.Api.Application.Services.Schedules.WizardContextBuilder>();
+
         services.AddShiftServices();
         services.AddClientServices();
         services.AddGroupServices();

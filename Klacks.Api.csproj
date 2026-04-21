@@ -67,6 +67,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Klacks.Docs\Klacks.Docs.csproj" />
+		<ProjectReference Include="..\Klacks.ScheduleOptimizer\Klacks.ScheduleOptimizer.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
