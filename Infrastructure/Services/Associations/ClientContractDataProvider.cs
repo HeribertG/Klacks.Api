@@ -141,7 +141,16 @@ public class ClientContractDataProvider : IClientContractDataProvider
 
             HasActiveContract = true,
             ContractId = contract.Id,
-            SchedulingRuleId = contract.SchedulingRuleId
+            SchedulingRuleId = contract.SchedulingRuleId,
+
+            WorkOnMonday = contract.WorkOnMonday,
+            WorkOnTuesday = contract.WorkOnTuesday,
+            WorkOnWednesday = contract.WorkOnWednesday,
+            WorkOnThursday = contract.WorkOnThursday,
+            WorkOnFriday = contract.WorkOnFriday,
+            WorkOnSaturday = contract.WorkOnSaturday,
+            WorkOnSunday = contract.WorkOnSunday,
+            PerformsShiftWork = contract.PerformsShiftWork
         };
     }
 

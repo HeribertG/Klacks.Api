@@ -29,4 +29,13 @@ public sealed record EffectiveContractData
     public bool HasActiveContract { get; init; }
     public Guid? ContractId { get; init; }
     public Guid? SchedulingRuleId { get; init; }
+
+    public bool WorkOnMonday { get; init; } = true;
+    public bool WorkOnTuesday { get; init; } = true;
+    public bool WorkOnWednesday { get; init; } = true;
+    public bool WorkOnThursday { get; init; } = true;
+    public bool WorkOnFriday { get; init; } = true;
+    public bool WorkOnSaturday { get; init; }
+    public bool WorkOnSunday { get; init; }
+    public bool PerformsShiftWork { get; init; }
 }
