@@ -53,42 +53,79 @@ public class TimelineCalculationService : ITimelineCalculationService
 
             if (changesByWorkId.TryGetValue(work.Id, out var changes))
             {
-                foreach (var change in changes)
+                var beforeChanges = changes
+                    .Where(c => c.Type is WorkChangeType.CorrectionStart or WorkChangeType.Briefing or WorkChangeType.TravelStart)
+                    .OrderBy(c => GetBeforePriority(c.Type)).ThenBy(c => c.Id)
+                    .ToList();
+
+                var afterChanges = changes
+                    .Where(c => c.Type is WorkChangeType.CorrectionEnd or WorkChangeType.Debriefing or WorkChangeType.TravelEnd)
+                    .OrderBy(c => GetAfterPriority(c.Type)).ThenBy(c => c.Id)
+                    .ToList();
+
+                var totalBeforeOffset = TimeSpan.FromHours((double)beforeChanges.Sum(c => c.ChangeTime));
+                var totalAfterOffset = TimeSpan.FromHours((double)afterChanges.Sum(c => c.ChangeTime));
+
+                if (totalBeforeOffset > TimeSpan.Zero)
+                    effectiveStart = work.StartTime.Add(-totalBeforeOffset);
+                if (totalAfterOffset > TimeSpan.Zero)
+                    effectiveEnd = work.EndTime.Add(totalAfterOffset);
+
+                var beforeRunning = TimeSpan.Zero;
+                foreach (var change in beforeChanges)
                 {
-                    switch (change.Type)
+                    var duration = TimeSpan.FromHours((double)change.ChangeTime);
+                    var blockEnd = work.StartTime.Add(-beforeRunning);
+                    var blockStart = blockEnd.Add(-duration);
+                    result.Add(CreateBlock(change.Id, ScheduleBlockType.Correction,
+                        work.ClientId, work.CurrentDate, blockStart, blockEnd));
+                    beforeRunning = beforeRunning.Add(duration);
+                }
+
+                var afterRunning = TimeSpan.Zero;
+                foreach (var change in afterChanges)
+                {
+                    var duration = TimeSpan.FromHours((double)change.ChangeTime);
+                    var blockStart = work.EndTime.Add(afterRunning);
+                    var blockEnd = blockStart.Add(duration);
+                    result.Add(CreateBlock(change.Id, ScheduleBlockType.Correction,
+                        work.ClientId, work.CurrentDate, blockStart, blockEnd));
+                    afterRunning = afterRunning.Add(duration);
+                }
+
+                foreach (var change in changes.Where(c =>
+                    c.Type is WorkChangeType.ReplacementStart or WorkChangeType.ReplacementEnd))
+                {
+                    TimeOnly rStart, rEnd;
+                    if (change.Type == WorkChangeType.ReplacementStart)
                     {
-                        case WorkChangeType.CorrectionStart:
-                        case WorkChangeType.TravelStart:
-                        case WorkChangeType.Briefing:
-                            effectiveStart = change.StartTime;
-                            break;
-                        case WorkChangeType.CorrectionEnd:
-                        case WorkChangeType.TravelEnd:
-                        case WorkChangeType.Debriefing:
-                            effectiveEnd = change.EndTime;
-                            break;
-                        case WorkChangeType.ReplacementStart:
-                            effectiveStart = change.EndTime;
-                            break;
-                        case WorkChangeType.ReplacementEnd:
-                            effectiveEnd = change.StartTime;
-                            break;
+                        rStart = work.StartTime;
+                        rEnd = work.StartTime.Add(TimeSpan.FromHours((double)change.ChangeTime));
+                        effectiveStart = rEnd;
+                    }
+                    else
+                    {
+                        var dur = TimeSpan.FromHours((double)change.ChangeTime);
+                        rEnd = work.EndTime;
+                        rStart = work.EndTime.Add(-dur);
+                        effectiveEnd = rStart;
+                    }
+
+                    if (change.ReplaceClientId.HasValue)
+                    {
+                        result.Add(CreateBlock(change.Id, ScheduleBlockType.Replacement,
+                            change.ReplaceClientId.Value, work.CurrentDate, rStart, rEnd));
                     }
                 }
 
                 foreach (var change in changes.Where(c =>
-                    c.Type is WorkChangeType.CorrectionStart or WorkChangeType.CorrectionEnd))
+                    c.Type is WorkChangeType.ReplacementWithin or WorkChangeType.TravelWithin))
                 {
-                    result.Add(CreateBlock(work.Id, ScheduleBlockType.Correction,
-                        work.ClientId, work.CurrentDate, change.StartTime, change.EndTime));
-                }
-
-                foreach (var change in changes.Where(c =>
-                    c.Type is (WorkChangeType.ReplacementStart or WorkChangeType.ReplacementEnd) &&
-                    c.ReplaceClientId.HasValue))
-                {
-                    result.Add(CreateBlock(work.Id, ScheduleBlockType.Replacement,
-                        change.ReplaceClientId!.Value, work.CurrentDate, change.StartTime, change.EndTime));
+                    if (change.Type == WorkChangeType.ReplacementWithin && change.ReplaceClientId.HasValue)
+                    {
+                        result.Add(CreateBlock(change.Id, ScheduleBlockType.Replacement,
+                            change.ReplaceClientId.Value, work.CurrentDate, change.StartTime, change.EndTime));
+                    }
                 }
             }
 
@@ -104,6 +141,22 @@ public class TimelineCalculationService : ITimelineCalculationService
 
         return result;
     }
+
+    private static int GetBeforePriority(WorkChangeType type) => type switch
+    {
+        WorkChangeType.CorrectionStart => 0,
+        WorkChangeType.Briefing => 1,
+        WorkChangeType.TravelStart => 2,
+        _ => 99
+    };
+
+    private static int GetAfterPriority(WorkChangeType type) => type switch
+    {
+        WorkChangeType.CorrectionEnd => 0,
+        WorkChangeType.Debriefing => 1,
+        WorkChangeType.TravelEnd => 2,
+        _ => 99
+    };
 
     private ScheduleBlock CreateBlock(
         Guid sourceId,

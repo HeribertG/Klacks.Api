@@ -13,4 +13,5 @@ public enum WorkChangeType
     TravelWithin = 6,
     Briefing = 7,
     Debriefing = 8,
+    ReplacementWithin = 9,
 }
