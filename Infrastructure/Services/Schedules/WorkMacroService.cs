@@ -10,6 +10,7 @@
 /// <param name="logger">Logger for warnings and error messages</param>
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Models.Schedules;
@@ -132,6 +133,11 @@ public class WorkMacroService : IWorkMacroService
 
     private static void CalculateChangeTime(WorkChange workChange)
     {
+        if (workChange.Type != WorkChangeType.TravelWithin && workChange.Type != WorkChangeType.ReplacementWithin)
+        {
+            return;
+        }
+
         var start = workChange.StartTime.ToTimeSpan();
         var end = workChange.EndTime.ToTimeSpan();
 
