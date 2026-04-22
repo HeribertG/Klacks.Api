@@ -6,5 +6,6 @@ public interface IEmbeddingProvider
 {
     Task<float[]> EmbedAsync(string text, CancellationToken cancellationToken);
     Task<float[][]> EmbedBatchAsync(IReadOnlyList<string> texts, CancellationToken cancellationToken);
+    Task<float[]> EmbedQueryAsync(string query, CancellationToken cancellationToken);
     int Dimension { get; }
 }

@@ -3,7 +3,7 @@
   "skills": [
     {
       "name": "get_current_time",
-      "description": "Get the current date and time in the user's timezone",
+      "description": "Get the current date and time in the user's timezone. Answers questions like: what time is it, what is today's date, current time, current date, tell me the time, Wie spät ist es, aktuelle Uhrzeit, welches Datum haben wir, Uhrzeit jetzt, Datum und Uhrzeit, quelle heure est-il, date et heure actuelle, che ora è, data e ora corrente",
       "category": "System",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -28,7 +28,7 @@
       "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_system_info",

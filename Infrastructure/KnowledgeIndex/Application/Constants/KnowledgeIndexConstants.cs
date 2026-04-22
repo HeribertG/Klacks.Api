@@ -12,7 +12,7 @@ public static class KnowledgeIndexConstants
     public const int EmbeddingDimension = 384;
     public const int KnnTopN = 30;
     public const int DefaultTopK = 5;
-    public const double DefaultScoreCutoff = 0.3;
+    public const double DefaultScoreCutoff = 0.0;
 
     public const string EmbeddingModelName = "multilingual-e5-small";
     public const string EmbeddingModelFileName = "model.onnx";

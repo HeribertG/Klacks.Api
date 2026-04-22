@@ -39,7 +39,7 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         if (string.IsNullOrWhiteSpace(userQuery))
             return new RetrievalResult([]);
 
-        var queryVec = await _embeddingProvider.EmbedAsync("query: " + userQuery, cancellationToken);
+        var queryVec = await _embeddingProvider.EmbedQueryAsync(userQuery, cancellationToken);
 
         var candidates = await _repository.FindNearestAsync(
             queryVec, userPermissions, isAdmin, KnowledgeIndexConstants.KnnTopN, cancellationToken);
