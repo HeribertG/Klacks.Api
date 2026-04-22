@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Services.Schedules;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +13,7 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 /// Apply materialises the cached scenario into Work entities. Cancel aborts a running job.
 /// </summary>
 [ApiController]
-[Authorize]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Route("api/backend/[controller]")]
 public sealed class WizardController : ControllerBase
 {
