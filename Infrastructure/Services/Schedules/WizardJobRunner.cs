@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Infrastructure.Hubs;
+using Klacks.ScheduleOptimizer.Models;
 using Klacks.ScheduleOptimizer.TokenEvolution;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
@@ -88,23 +89,12 @@ public sealed class WizardJobRunner : IWizardJobRunner
             var best = loop.Run(wizardContext, config, progress, ct);
             _resultCache.Store(jobId, best, request.AnalyseToken);
 
-            var tokens = best.Tokens
-                .Where(t => !t.IsLocked)
-                .Select(t => new WizardTokenDto(
-                    AgentId: t.AgentId,
-                    ShiftId: t.ShiftRefId.ToString(),
-                    Date: t.Date.ToString("yyyy-MM-dd"),
-                    StartTime: t.StartAt.ToString("HH:mm"),
-                    EndTime: t.EndAt.ToString("HH:mm"),
-                    Hours: t.TotalHours))
-                .ToList();
-
             await group.OnCompleted(new WizardJobResultDto(
                 JobId: jobId,
                 FinalHardViolations: best.FitnessStage0,
                 FinalStage1Completion: best.FitnessStage1,
                 TokenCount: best.Tokens.Count,
-                Tokens: tokens));
+                Tokens: MapTokens(best.Tokens)));
         }
         catch (OperationCanceledException)
         {
@@ -135,4 +125,16 @@ public sealed class WizardJobRunner : IWizardJobRunner
             _registry.Remove(jobId);
         }
     }
+
+    internal static IReadOnlyList<WizardTokenDto> MapTokens(IEnumerable<CoreToken> tokens) =>
+        tokens
+            .Where(t => !t.IsLocked)
+            .Select(t => new WizardTokenDto(
+                AgentId: t.AgentId,
+                ShiftId: t.ShiftRefId.ToString(),
+                Date: t.Date.ToString("yyyy-MM-dd"),
+                StartTime: t.StartAt.ToString("HH:mm"),
+                EndTime: t.EndAt.ToString("HH:mm"),
+                Hours: t.TotalHours))
+            .ToList();
 }
