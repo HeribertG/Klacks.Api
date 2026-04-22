@@ -58,9 +58,13 @@ public class TimelineCalculationService : ITimelineCalculationService
                     switch (change.Type)
                     {
                         case WorkChangeType.CorrectionStart:
+                        case WorkChangeType.TravelStart:
+                        case WorkChangeType.Briefing:
                             effectiveStart = change.StartTime;
                             break;
                         case WorkChangeType.CorrectionEnd:
+                        case WorkChangeType.TravelEnd:
+                        case WorkChangeType.Debriefing:
                             effectiveEnd = change.EndTime;
                             break;
                         case WorkChangeType.ReplacementStart:
