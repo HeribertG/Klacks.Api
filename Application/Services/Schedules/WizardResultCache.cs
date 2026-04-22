@@ -8,6 +8,7 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// <summary>
 /// Short-lived cache of completed wizard scenarios. The Apply endpoint retrieves results by JobId.
 /// Entries expire after <see cref="TtlMinutes"/> minutes to bound memory.
+/// Also stores the AnalyseToken so Apply can propagate it through Work creation.
 /// </summary>
 public sealed class WizardResultCache
 {
@@ -15,22 +16,24 @@ public sealed class WizardResultCache
 
     public int TtlMinutes { get; init; } = 15;
 
-    public void Store(Guid jobId, CoreScenario scenario)
+    public void Store(Guid jobId, CoreScenario scenario, Guid? analyseToken)
     {
         EvictExpired();
-        _entries[jobId] = new CacheEntry(scenario, DateTime.UtcNow.AddMinutes(TtlMinutes));
+        _entries[jobId] = new CacheEntry(scenario, analyseToken, DateTime.UtcNow.AddMinutes(TtlMinutes));
     }
 
-    public bool TryGet(Guid jobId, out CoreScenario? scenario)
+    public bool TryGet(Guid jobId, out CoreScenario? scenario, out Guid? analyseToken)
     {
         EvictExpired();
         if (_entries.TryGetValue(jobId, out var entry) && entry.ExpiresAt > DateTime.UtcNow)
         {
             scenario = entry.Scenario;
+            analyseToken = entry.AnalyseToken;
             return true;
         }
 
         scenario = null;
+        analyseToken = null;
         return false;
     }
 
@@ -48,5 +51,5 @@ public sealed class WizardResultCache
         }
     }
 
-    private sealed record CacheEntry(CoreScenario Scenario, DateTime ExpiresAt);
+    private sealed record CacheEntry(CoreScenario Scenario, Guid? AnalyseToken, DateTime ExpiresAt);
 }

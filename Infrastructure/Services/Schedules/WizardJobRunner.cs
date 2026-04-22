@@ -86,7 +86,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
             });
 
             var best = loop.Run(wizardContext, config, progress, ct);
-            _resultCache.Store(jobId, best);
+            _resultCache.Store(jobId, best, request.AnalyseToken);
 
             await group.OnCompleted(new WizardJobResultDto(
                 JobId: jobId,
