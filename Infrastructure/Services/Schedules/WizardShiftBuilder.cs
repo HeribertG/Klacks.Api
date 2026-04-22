@@ -50,6 +50,8 @@ public sealed class WizardShiftBuilder : IWizardShiftBuilder
                 lastActive = until;
             }
 
+            var slotCount = shift.Quantity > 0 ? shift.Quantity : 1;
+
             for (var date = firstActive; date <= lastActive; date = date.AddDays(1))
             {
                 if (!IsShiftActiveOnWeekday(shift, date.DayOfWeek))
@@ -57,15 +59,18 @@ public sealed class WizardShiftBuilder : IWizardShiftBuilder
                     continue;
                 }
 
-                result.Add(new CoreShift(
-                    Id: shift.Id.ToString(),
-                    Name: string.IsNullOrWhiteSpace(shift.Name) ? shift.Abbreviation : shift.Name,
-                    Date: date.ToString("yyyy-MM-dd"),
-                    StartTime: shift.StartShift.ToString("HH:mm"),
-                    EndTime: shift.EndShift.ToString("HH:mm"),
-                    Hours: (double)shift.WorkTime,
-                    RequiredAssignments: shift.Quantity > 0 ? shift.Quantity : 1,
-                    Priority: 0));
+                for (var i = 0; i < slotCount; i++)
+                {
+                    result.Add(new CoreShift(
+                        Id: shift.Id.ToString(),
+                        Name: string.IsNullOrWhiteSpace(shift.Name) ? shift.Abbreviation : shift.Name,
+                        Date: date.ToString("yyyy-MM-dd"),
+                        StartTime: shift.StartShift.ToString("HH:mm"),
+                        EndTime: shift.EndShift.ToString("HH:mm"),
+                        Hours: (double)shift.WorkTime,
+                        RequiredAssignments: 1,
+                        Priority: 0));
+                }
             }
         }
 
