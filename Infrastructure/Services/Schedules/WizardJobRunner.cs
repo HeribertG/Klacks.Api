@@ -88,11 +88,23 @@ public sealed class WizardJobRunner : IWizardJobRunner
             var best = loop.Run(wizardContext, config, progress, ct);
             _resultCache.Store(jobId, best, request.AnalyseToken);
 
+            var tokens = best.Tokens
+                .Where(t => !t.IsLocked)
+                .Select(t => new WizardTokenDto(
+                    AgentId: t.AgentId,
+                    ShiftId: t.ShiftRefId.ToString(),
+                    Date: t.Date.ToString("yyyy-MM-dd"),
+                    StartTime: t.StartAt.ToString("HH:mm"),
+                    EndTime: t.EndAt.ToString("HH:mm"),
+                    Hours: t.TotalHours))
+                .ToList();
+
             await group.OnCompleted(new WizardJobResultDto(
                 JobId: jobId,
                 FinalHardViolations: best.FitnessStage0,
                 FinalStage1Completion: best.FitnessStage1,
-                TokenCount: best.Tokens.Count));
+                TokenCount: best.Tokens.Count,
+                Tokens: tokens));
         }
         catch (OperationCanceledException)
         {

@@ -36,14 +36,33 @@ public sealed record WizardJobProgressDto(
     bool EarlyStopping);
 
 /// <summary>
+/// One planned assignment token sent in the final result.
+/// </summary>
+/// <param name="AgentId">Client GUID as string</param>
+/// <param name="ShiftId">Shift GUID as string</param>
+/// <param name="Date">ISO date (yyyy-MM-dd)</param>
+/// <param name="StartTime">HH:mm</param>
+/// <param name="EndTime">HH:mm</param>
+/// <param name="Hours">Duration in hours</param>
+public sealed record WizardTokenDto(
+    string AgentId,
+    string ShiftId,
+    string Date,
+    string StartTime,
+    string EndTime,
+    decimal Hours);
+
+/// <summary>
 /// Final result broadcast when the GA loop finishes normally.
 /// </summary>
 /// <param name="JobId">Unique job identifier</param>
 /// <param name="FinalHardViolations">Stage-0 value of the final best scenario</param>
 /// <param name="FinalStage1Completion">Stage-1 completion rate</param>
 /// <param name="TokenCount">Number of tokens in the final scenario</param>
+/// <param name="Tokens">Non-locked planned assignment tokens</param>
 public sealed record WizardJobResultDto(
     Guid JobId,
     int FinalHardViolations,
     double FinalStage1Completion,
-    int TokenCount);
+    int TokenCount,
+    IReadOnlyList<WizardTokenDto> Tokens);
