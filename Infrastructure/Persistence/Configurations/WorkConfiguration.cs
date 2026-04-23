@@ -18,6 +18,11 @@ public class WorkConfiguration : IEntityTypeConfiguration<Work>
         builder.HasIndex(p => new { p.CurrentDate, p.ClientId, p.IsDeleted });
         builder.HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
 
+        // Remap CurrentDate to a non-reserved column name. "current_date" is a SQL reserved
+        // identifier in PostgreSQL; Npgsql 10.x silently replaces parameter values bound to
+        // such a column with CURRENT_DATE on INSERT/UPDATE. See RenameCurrentDateToWorkday migration.
+        builder.Property(p => p.CurrentDate).HasColumnName("workday");
+
         builder.HasOne(p => p.Client)
             .WithMany(b => b.Works)
             .OnDelete(DeleteBehavior.Cascade);

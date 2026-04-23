@@ -74,8 +74,8 @@ BEGIN
         WHERE w.is_deleted = false
         AND w.parent_work_id IS NULL
         AND w.shift_id IN (SELECT fsi.id FROM filtered_shift_ids fsi)
-        AND w."current_date"::DATE >= start_date
-        AND w."current_date"::DATE <= end_date
+        AND w.workday::DATE >= start_date
+        AND w.workday::DATE <= end_date
         AND w.analyse_token IS NOT DISTINCT FROM p_analyse_token
     ),
     work_group_restricted AS MATERIALIZED (
@@ -143,7 +143,7 @@ BEGIN
             0 AS entry_type,
             w.id AS source_id,
             w.client_id,
-            w."current_date"::DATE AS entry_date,
+            w.workday::DATE AS entry_date,
             w.start_time,
             w.end_time,
             w.work_time AS change_time,
@@ -172,8 +172,8 @@ BEGIN
             CASE
                 WHEN s.end_shift < s.start_shift AND
                      (w.end_time + aso.before_offset * INTERVAL '1 hour')::TIME < s.start_shift
-                THEN (w."current_date" + INTERVAL '1 day')::DATE
-                ELSE w."current_date"::DATE
+                THEN (w.workday + INTERVAL '1 day')::DATE
+                ELSE w.workday::DATE
             END AS entry_date,
             (w.end_time + aso.before_offset * INTERVAL '1 hour')::TIME AS start_time,
             (w.end_time + aso.after_offset * INTERVAL '1 hour')::TIME AS end_time,
@@ -192,7 +192,7 @@ BEGIN
     correction_start_entries AS (
         SELECT
             wc.id, 1 AS entry_type, wc.work_id AS source_id, w.client_id,
-            w."current_date"::DATE AS entry_date,
+            w.workday::DATE AS entry_date,
             (w.start_time - bso.after_offset * INTERVAL '1 hour')::TIME AS start_time,
             (w.start_time - bso.before_offset * INTERVAL '1 hour')::TIME AS end_time,
             wc.change_time, wc.surcharges, wc.type AS work_change_type, wc.description,
@@ -210,7 +210,7 @@ BEGIN
     travel_start_entries AS (
         SELECT
             wc.id, 1 AS entry_type, wc.work_id AS source_id, w.client_id,
-            w."current_date"::DATE AS entry_date,
+            w.workday::DATE AS entry_date,
             (w.start_time - bso.after_offset * INTERVAL '1 hour')::TIME AS start_time,
             (w.start_time - bso.before_offset * INTERVAL '1 hour')::TIME AS end_time,
             wc.change_time, wc.surcharges, wc.type AS work_change_type, wc.description,
@@ -231,8 +231,8 @@ BEGIN
             CASE
                 WHEN s.end_shift < s.start_shift AND
                      (w.end_time + aso.before_offset * INTERVAL '1 hour')::TIME < s.start_shift
-                THEN (w."current_date" + INTERVAL '1 day')::DATE
-                ELSE w."current_date"::DATE
+                THEN (w.workday + INTERVAL '1 day')::DATE
+                ELSE w.workday::DATE
             END AS entry_date,
             (w.end_time + aso.before_offset * INTERVAL '1 hour')::TIME AS start_time,
             (w.end_time + aso.after_offset * INTERVAL '1 hour')::TIME AS end_time,
@@ -253,8 +253,8 @@ BEGIN
             wc.id, 1 AS entry_type, wc.work_id AS source_id, w.client_id,
             CASE
                 WHEN s.end_shift < s.start_shift AND wc.start_time < s.end_shift
-                THEN (w."current_date" + INTERVAL '1 day')::DATE
-                ELSE w."current_date"::DATE
+                THEN (w.workday + INTERVAL '1 day')::DATE
+                ELSE w.workday::DATE
             END AS entry_date,
             wc.start_time, wc.end_time, wc.change_time, wc.surcharges,
             wc.type AS work_change_type, wc.description,
@@ -271,7 +271,7 @@ BEGIN
     briefing_entries AS (
         SELECT
             wc.id, 1 AS entry_type, wc.work_id AS source_id, w.client_id,
-            w."current_date"::DATE AS entry_date,
+            w.workday::DATE AS entry_date,
             (w.start_time - bso.after_offset * INTERVAL '1 hour')::TIME AS start_time,
             (w.start_time - bso.before_offset * INTERVAL '1 hour')::TIME AS end_time,
             wc.change_time, wc.surcharges, wc.type AS work_change_type, wc.description,
@@ -292,8 +292,8 @@ BEGIN
             CASE
                 WHEN s.end_shift < s.start_shift AND
                      (w.end_time + aso.before_offset * INTERVAL '1 hour')::TIME < s.start_shift
-                THEN (w."current_date" + INTERVAL '1 day')::DATE
-                ELSE w."current_date"::DATE
+                THEN (w.workday + INTERVAL '1 day')::DATE
+                ELSE w.workday::DATE
             END AS entry_date,
             (w.end_time + aso.before_offset * INTERVAL '1 hour')::TIME AS start_time,
             (w.end_time + aso.after_offset * INTERVAL '1 hour')::TIME AS end_time,
@@ -312,7 +312,7 @@ BEGIN
     replacement_start_original AS (
         SELECT
             wc.id, 1 AS entry_type, wc.work_id AS source_id, w.client_id,
-            w."current_date"::DATE AS entry_date,
+            w.workday::DATE AS entry_date,
             w.start_time AS start_time,
             (w.start_time + wc.change_time * INTERVAL '1 hour')::TIME AS end_time,
             wc.change_time * -1 AS change_time, wc.surcharges * -1 AS surcharges,
@@ -330,7 +330,7 @@ BEGIN
     replacement_start_replacement AS (
         SELECT
             wc.id, 1 AS entry_type, wc.work_id AS source_id, wc.replace_client_id AS client_id,
-            w."current_date"::DATE AS entry_date,
+            w.workday::DATE AS entry_date,
             w.start_time AS start_time,
             (w.start_time + wc.change_time * INTERVAL '1 hour')::TIME AS end_time,
             wc.change_time, wc.surcharges,
@@ -351,8 +351,8 @@ BEGIN
             CASE
                 WHEN s.end_shift < s.start_shift AND
                      (w.end_time - wc.change_time * INTERVAL '1 hour')::TIME < s.start_shift
-                THEN (w."current_date" + INTERVAL '1 day')::DATE
-                ELSE w."current_date"::DATE
+                THEN (w.workday + INTERVAL '1 day')::DATE
+                ELSE w.workday::DATE
             END AS entry_date,
             (w.end_time - wc.change_time * INTERVAL '1 hour')::TIME AS start_time,
             w.end_time AS end_time,
@@ -374,8 +374,8 @@ BEGIN
             CASE
                 WHEN s.end_shift < s.start_shift AND
                      (w.end_time - wc.change_time * INTERVAL '1 hour')::TIME < s.start_shift
-                THEN (w."current_date" + INTERVAL '1 day')::DATE
-                ELSE w."current_date"::DATE
+                THEN (w.workday + INTERVAL '1 day')::DATE
+                ELSE w.workday::DATE
             END AS entry_date,
             (w.end_time - wc.change_time * INTERVAL '1 hour')::TIME AS start_time,
             w.end_time AS end_time,
@@ -396,8 +396,8 @@ BEGIN
             wc.id, 1 AS entry_type, wc.work_id AS source_id, w.client_id,
             CASE
                 WHEN s.end_shift < s.start_shift AND wc.start_time < s.start_shift
-                THEN (w."current_date" + INTERVAL '1 day')::DATE
-                ELSE w."current_date"::DATE
+                THEN (w.workday + INTERVAL '1 day')::DATE
+                ELSE w.workday::DATE
             END AS entry_date,
             wc.start_time, wc.end_time,
             wc.change_time * -1 AS change_time, wc.surcharges * -1 AS surcharges,
@@ -417,8 +417,8 @@ BEGIN
             wc.id, 1 AS entry_type, wc.work_id AS source_id, wc.replace_client_id AS client_id,
             CASE
                 WHEN s.end_shift < s.start_shift AND wc.start_time < s.start_shift
-                THEN (w."current_date" + INTERVAL '1 day')::DATE
-                ELSE w."current_date"::DATE
+                THEN (w.workday + INTERVAL '1 day')::DATE
+                ELSE w.workday::DATE
             END AS entry_date,
             wc.start_time, wc.end_time, wc.change_time, wc.surcharges,
             wc.type AS work_change_type, wc.description,
@@ -438,7 +438,7 @@ BEGIN
             2 AS entry_type,
             e.work_id AS source_id,
             w.client_id,
-            w."current_date"::DATE AS entry_date,
+            w.workday::DATE AS entry_date,
             w.start_time AS start_time,
             (w.start_time + INTERVAL '1 minute')::TIME AS end_time,
             NULL::NUMERIC AS change_time,
@@ -470,7 +470,7 @@ BEGIN
             3 AS entry_type,
             b.id AS source_id,
             b.client_id,
-            b."current_date"::DATE AS entry_date,
+            b.workday::DATE AS entry_date,
             b.start_time,
             b.end_time,
             b.work_time AS change_time,
@@ -491,8 +491,8 @@ BEGIN
         FROM break b
         WHERE b.is_deleted = false
         AND b.parent_work_id IS NULL
-        AND b."current_date"::DATE >= start_date
-        AND b."current_date"::DATE <= end_date
+        AND b.workday::DATE >= start_date
+        AND b.workday::DATE <= end_date
         AND b.analyse_token IS NOT DISTINCT FROM p_analyse_token
     ),
     -- Entry Type 4: ScheduleNote entries
@@ -502,7 +502,7 @@ BEGIN
             4 AS entry_type,
             sn.id AS source_id,
             sn.client_id,
-            sn."current_date"::DATE AS entry_date,
+            sn.workday::DATE AS entry_date,
             '23:59:59'::TIME AS start_time,
             '23:59:59'::TIME AS end_time,
             NULL::NUMERIC AS change_time,
@@ -522,8 +522,8 @@ BEGIN
             false AS is_group_restricted
         FROM schedule_notes sn
         WHERE sn.is_deleted = false
-        AND sn."current_date"::DATE >= start_date
-        AND sn."current_date"::DATE <= end_date
+        AND sn.workday::DATE >= start_date
+        AND sn.workday::DATE <= end_date
         AND sn.analyse_token IS NOT DISTINCT FROM p_analyse_token
     ),
     -- Entry Type 5: ScheduleCommand entries
@@ -533,7 +533,7 @@ BEGIN
             5 AS entry_type,
             sc.id AS source_id,
             sc.client_id,
-            sc."current_date"::DATE AS entry_date,
+            sc.workday::DATE AS entry_date,
             '23:59:59'::TIME AS start_time,
             '23:59:59'::TIME AS end_time,
             NULL::NUMERIC AS change_time,
@@ -553,8 +553,8 @@ BEGIN
             false AS is_group_restricted
         FROM schedule_commands sc
         WHERE sc.is_deleted = false
-        AND sc."current_date"::DATE >= start_date
-        AND sc."current_date"::DATE <= end_date
+        AND sc.workday::DATE >= start_date
+        AND sc.workday::DATE <= end_date
         AND sc.analyse_token IS NOT DISTINCT FROM p_analyse_token
     )
     -- Combine all entries

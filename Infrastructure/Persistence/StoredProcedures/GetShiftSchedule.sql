@@ -145,7 +145,7 @@ BEGIN
             d.schedule_date,
             COUNT(*)::INTEGER AS engaged_count
         FROM work w
-        JOIN date_series d ON d.schedule_date = w."current_date"::DATE
+        JOIN date_series d ON d.schedule_date = w.workday::DATE
         WHERE w.is_deleted = false
         AND w.parent_work_id IS NULL
         AND w.analyse_token IS NOT DISTINCT FROM p_analyse_token
@@ -258,14 +258,14 @@ BEGIN
     work_counts AS (
         SELECT
             w.shift_id,
-            w."current_date"::DATE AS schedule_date,
+            w.workday::DATE AS schedule_date,
             COUNT(*)::INTEGER AS engaged_count
         FROM work w
-        JOIN input_pairs ip ON ip.shift_id = w.shift_id AND ip.schedule_date = w."current_date"::DATE
+        JOIN input_pairs ip ON ip.shift_id = w.shift_id AND ip.schedule_date = w.workday::DATE
         WHERE w.is_deleted = false
         AND w.parent_work_id IS NULL
         AND w.analyse_token IS NOT DISTINCT FROM p_analyse_token
-        GROUP BY w.shift_id, w."current_date"::DATE
+        GROUP BY w.shift_id, w.workday::DATE
     )
     SELECT
         sd.shift_id,

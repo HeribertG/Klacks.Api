@@ -19,6 +19,9 @@ public class BreakConfiguration : IEntityTypeConfiguration<Break>
         builder.HasIndex(p => new { p.CurrentDate, p.ClientId });
         builder.HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
 
+        // See WorkConfiguration: "current_date" is a reserved PostgreSQL identifier.
+        builder.Property(p => p.CurrentDate).HasColumnName("workday");
+
         builder.HasOne(p => p.Client)
             .WithMany(b => b.Breaks)
             .OnDelete(DeleteBehavior.Cascade);

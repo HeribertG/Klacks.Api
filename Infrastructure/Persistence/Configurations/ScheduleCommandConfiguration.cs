@@ -15,5 +15,8 @@ public class ScheduleCommandConfiguration : IEntityTypeConfiguration<ScheduleCom
     {
         builder.HasQueryFilter(p => !p.IsDeleted);
         builder.HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
+
+        // See WorkConfiguration: "current_date" is a reserved PostgreSQL identifier.
+        builder.Property(p => p.CurrentDate).HasColumnName("workday");
     }
 }
