@@ -16,6 +16,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// </summary>
 public sealed class WizardJobRunner : IWizardJobRunner
 {
+    private const int ClientJoinDelayMs = 500;
+
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IHubContext<WizardJobHub, IWizardJobClient> _hubContext;
     private readonly WizardJobRegistry _registry;
@@ -56,14 +58,26 @@ public sealed class WizardJobRunner : IWizardJobRunner
 
         try
         {
+            await Task.Delay(ClientJoinDelayMs, ct);
+
             using var scope = _scopeFactory.CreateScope();
             var builder = scope.ServiceProvider.GetRequiredService<IWizardContextBuilder>();
             var wizardContext = await builder.BuildContextAsync(request, ct);
 
-            var config = new TokenEvolutionConfig
+            var baseline = new TokenEvolutionConfig
             {
                 RandomSeed = Guid.NewGuid().GetHashCode(),
             };
+            var config = request.TrainingOverrides?.Apply(baseline) ?? baseline;
+
+            await group.OnProgress(new WizardJobProgressDto(
+                JobId: jobId,
+                Generation: 0,
+                MaxGenerations: config.MaxGenerations,
+                BestHardViolations: 0,
+                BestStage1Completion: 0d,
+                BestStage2Score: 0d,
+                EarlyStopping: false));
 
             var loop = TokenEvolutionLoop.Create();
 

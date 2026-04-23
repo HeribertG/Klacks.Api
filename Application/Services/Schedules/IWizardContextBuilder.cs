@@ -27,9 +27,11 @@ public interface IWizardContextBuilder
 /// <param name="AgentIds">Subset of agents to plan for (Client IDs)</param>
 /// <param name="ShiftIds">Optional subset of shifts to consider; null = all shifts of the groups</param>
 /// <param name="AnalyseToken">Scenario isolation token — propagates to all writes after apply</param>
+/// <param name="TrainingOverrides">Optional per-run overrides for the TokenEvolution config (training/benchmark use)</param>
 public sealed record WizardContextRequest(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
     IReadOnlyList<Guid> AgentIds,
     IReadOnlyList<Guid>? ShiftIds,
-    Guid? AnalyseToken);
+    Guid? AnalyseToken,
+    WizardTrainingOverrides? TrainingOverrides = null);
