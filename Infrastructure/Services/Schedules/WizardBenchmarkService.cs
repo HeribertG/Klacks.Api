@@ -151,36 +151,13 @@ public sealed class WizardBenchmarkService : IWizardBenchmarkService
             .GroupBy(t => (t.ShiftRefId.ToString(), t.Date.ToString("yyyy-MM-dd")))
             .ToDictionary(g => g.Key, g => g.Count());
 
-        var covered = 0;
-        var overstaffing = 0;
-        var undersupply = 0;
-        foreach (var slot in capacityPerSlot)
-        {
-            var assigned = tokensPerSlot.GetValueOrDefault(slot.Key, 0);
-            covered += Math.Min(slot.Value, assigned);
-            if (assigned > slot.Value)
-            {
-                overstaffing += assigned - slot.Value;
-            }
-            else
-            {
-                undersupply += slot.Value - assigned;
-            }
-        }
-
-        foreach (var orphan in tokensPerSlot)
-        {
-            if (!capacityPerSlot.ContainsKey(orphan.Key))
-            {
-                overstaffing += orphan.Value;
-            }
-        }
-
-        var shiftCoverage = availableSlots == 0 ? 0d : (double)covered / availableSlots;
+        var metrics = ComputeSlotMetrics(capacityPerSlot, tokensPerSlot);
+        var shiftCoverage = availableSlots == 0 ? 0d : (double)metrics.Covered / availableSlots;
 
         var agentsInContext = context.Agents.Count;
         var agentsShiftCapable = context.Agents.Count(a => a.PerformsShiftWork);
-        var slotsFillableByData = context.Shifts.Count(s => SlotLooksFillable(s, agentsShiftCapable, agentsInContext));
+        var slotsFillableByData = context.Shifts.Count(s =>
+            SlotLooksFillable(s, agentsShiftCapable, agentsInContext));
         var theoreticalMax = availableSlots == 0 ? 0d : (double)slotsFillableByData / availableSlots;
 
         return new WizardBenchmarkResponse(
@@ -195,29 +172,61 @@ public sealed class WizardBenchmarkService : IWizardBenchmarkService
             DistinctAgents: nonLocked.Select(t => t.AgentId).Distinct().Count(),
             DistinctShifts: nonLocked.Select(t => t.ShiftRefId).Distinct().Count(),
             DistinctDates: nonLocked.Select(t => t.Date).Distinct().Count(),
-            CoveredShiftSlots: covered,
-            OverstaffingCount: overstaffing,
-            UndersupplyCount: undersupply,
+            CoveredShiftSlots: metrics.Covered,
+            OverstaffingCount: metrics.Overstaffing,
+            UndersupplyCount: metrics.Undersupply,
             ShiftCoverageRatio: shiftCoverage,
             AgentsInContext: agentsInContext,
             AgentsShiftCapable: agentsShiftCapable,
             SlotsFillableByData: slotsFillableByData,
             TheoreticalMaxCoverage: theoreticalMax,
-            EffectiveConfig: new WizardEffectiveConfigDto(
-                PopulationSize: config.PopulationSize,
-                MaxGenerations: config.MaxGenerations,
-                TournamentK: config.TournamentK,
-                MutationRate: config.MutationRate,
-                CrossoverRate: config.CrossoverRate,
-                ElitismCount: config.ElitismCount,
-                MutationWeightSwap: config.MutationWeightSwap,
-                MutationWeightSplit: config.MutationWeightSplit,
-                MutationWeightMerge: config.MutationWeightMerge,
-                MutationWeightReassign: config.MutationWeightReassign,
-                MutationWeightRepair: config.MutationWeightRepair,
-                EarlyStopNoImprovementGenerations: config.EarlyStopNoImprovementGenerations,
-                RandomSeed: config.RandomSeed));
+            EffectiveConfig: BuildEffectiveConfigDto(config));
     }
+
+    private record SlotMetrics(int Covered, int Overstaffing, int Undersupply);
+
+    private static SlotMetrics ComputeSlotMetrics(
+        Dictionary<(string, string), int> capacityPerSlot,
+        Dictionary<(string, string), int> tokensPerSlot)
+    {
+        var covered = 0;
+        var overstaffing = 0;
+        var undersupply = 0;
+
+        foreach (var slot in capacityPerSlot)
+        {
+            var assigned = tokensPerSlot.GetValueOrDefault(slot.Key, 0);
+            covered += Math.Min(slot.Value, assigned);
+            if (assigned > slot.Value)
+                overstaffing += assigned - slot.Value;
+            else
+                undersupply += slot.Value - assigned;
+        }
+
+        foreach (var orphan in tokensPerSlot)
+        {
+            if (!capacityPerSlot.ContainsKey(orphan.Key))
+                overstaffing += orphan.Value;
+        }
+
+        return new SlotMetrics(covered, overstaffing, undersupply);
+    }
+
+    private static WizardEffectiveConfigDto BuildEffectiveConfigDto(TokenEvolutionConfig config) =>
+        new(
+            PopulationSize: config.PopulationSize,
+            MaxGenerations: config.MaxGenerations,
+            TournamentK: config.TournamentK,
+            MutationRate: config.MutationRate,
+            CrossoverRate: config.CrossoverRate,
+            ElitismCount: config.ElitismCount,
+            MutationWeightSwap: config.MutationWeightSwap,
+            MutationWeightSplit: config.MutationWeightSplit,
+            MutationWeightMerge: config.MutationWeightMerge,
+            MutationWeightReassign: config.MutationWeightReassign,
+            MutationWeightRepair: config.MutationWeightRepair,
+            EarlyStopNoImprovementGenerations: config.EarlyStopNoImprovementGenerations,
+            RandomSeed: config.RandomSeed);
 
     /// <summary>
     /// Lightweight upper-bound heuristic: a slot is fillable if at least one agent in the context
