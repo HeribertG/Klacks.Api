@@ -63,14 +63,6 @@ public class TimelineCalculationService : ITimelineCalculationService
                     .OrderBy(c => GetAfterPriority(c.Type)).ThenBy(c => c.Id)
                     .ToList();
 
-                var totalBeforeOffset = TimeSpan.FromHours((double)beforeChanges.Sum(c => c.ChangeTime));
-                var totalAfterOffset = TimeSpan.FromHours((double)afterChanges.Sum(c => c.ChangeTime));
-
-                if (totalBeforeOffset > TimeSpan.Zero)
-                    effectiveStart = work.StartTime.Add(-totalBeforeOffset);
-                if (totalAfterOffset > TimeSpan.Zero)
-                    effectiveEnd = work.EndTime.Add(totalAfterOffset);
-
                 var beforeRunning = TimeSpan.Zero;
                 foreach (var change in beforeChanges)
                 {
