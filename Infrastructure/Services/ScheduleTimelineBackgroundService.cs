@@ -633,7 +633,9 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             ClientName = clientName,
             Date = p.A.OwnerDate,
             TimeRange1 = $"{p.A.Start:HH:mm} - {p.A.End:HH:mm}",
-            TimeRange2 = $"{p.B.Start:HH:mm} - {p.B.End:HH:mm}"
+            TimeRange2 = $"{p.B.Start:HH:mm} - {p.B.End:HH:mm}",
+            BlockType1 = p.A.BlockType.ToString(),
+            BlockType2 = p.B.BlockType.ToString()
         }).ToList();
     }
 

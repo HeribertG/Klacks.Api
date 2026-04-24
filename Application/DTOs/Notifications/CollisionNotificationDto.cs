@@ -11,4 +11,6 @@ public record CollisionNotificationDto
     public DateOnly Date { get; init; }
     public string TimeRange1 { get; init; } = string.Empty;
     public string TimeRange2 { get; init; } = string.Empty;
+    public string BlockType1 { get; init; } = string.Empty;
+    public string BlockType2 { get; init; } = string.Empty;
 }
