@@ -62,6 +62,8 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         var texts = filtered.Select(f => f.Text).ToList();
         var scores = await _rerankerProvider.ScoreAsync(userQuery, texts, cancellationToken);
 
+        Console.WriteLine($"Q={userQuery} scores: {string.Join(", ", filtered.Zip(scores).Select(p => $"{p.First.SourceId}:{p.Second:F3}"))}");
+
         var ranked = filtered
             .Zip(scores, (e, s) => new RetrievalCandidate(e, s))
             .Where(c => c.Score >= KnowledgeIndexConstants.DefaultScoreCutoff)
