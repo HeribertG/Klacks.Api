@@ -95,6 +95,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<ContainerShiftOverrideItem> ContainerShiftOverrideItems { get; set; }
 
+    public DbSet<WizardTrainingRun> WizardTrainingRuns { get; set; }
+
     public DbSet<ContainerLock> ContainerLock { get; set; }
 
     public DbSet<State> State { get; set; }

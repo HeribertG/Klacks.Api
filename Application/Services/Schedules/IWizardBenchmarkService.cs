@@ -12,7 +12,31 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 public interface IWizardBenchmarkService
 {
+    /// <summary>
+    /// Run a single benchmark with the supplied context. No DB persistence by default.
+    /// </summary>
     Task<WizardBenchmarkResponse> RunAsync(WizardContextRequest request, CancellationToken ct);
+
+    /// <summary>
+    /// Run a single benchmark and persist the result as a WizardTrainingRun with the given source tag.
+    /// Used by ad-hoc training runs and the background autotraining service.
+    /// </summary>
+    Task<WizardBenchmarkResponse> RunAndPersistAsync(
+        WizardContextRequest request, string source, CancellationToken ct);
+
+    /// <summary>
+    /// Build a realistic context from the current Dev DB (first N clients / M shifts active
+    /// in the period) and run a benchmark against it. Used by the background autotraining service
+    /// so callers need no IDs. Returns null if the DB lacks data for a meaningful run.
+    /// </summary>
+    Task<WizardBenchmarkResponse?> RunAutoPopulatedAsync(
+        int maxAgents,
+        int maxShifts,
+        DateOnly periodFrom,
+        DateOnly periodUntil,
+        WizardTrainingOverrides? overrides,
+        string source,
+        CancellationToken ct);
 }
 
 /// <summary>
@@ -26,11 +50,19 @@ public interface IWizardBenchmarkService
 /// <param name="FinalStage2Score">Stage 2 - soft-constraint score (higher = better)</param>
 /// <param name="TokenCount">Number of non-locked tokens in the best solution</param>
 /// <param name="AvailableShiftSlots">Total shift slots the algorithm could have filled</param>
-/// <param name="CoverageRatio">TokenCount / AvailableShiftSlots, capped at 1.0</param>
+/// <param name="CoverageRatio">TokenCount / AvailableShiftSlots, capped at 1.0 (legacy metric; does not account for overstaffing)</param>
 /// <param name="ClientDayDuplicates">Count of (ClientId, Date) pairs with more than one assignment (lower = better)</param>
 /// <param name="DistinctAgents">How many agents received at least one token</param>
 /// <param name="DistinctShifts">How many distinct shift definitions the tokens cover</param>
 /// <param name="DistinctDates">How many calendar days the tokens cover</param>
+/// <param name="CoveredShiftSlots">Number of shift slots (ShiftId, Date) that received at least one assignment (capped per slot by its capacity)</param>
+/// <param name="OverstaffingCount">Sum of surplus assignments over slot capacity across all slots (tokens assigned beyond what the slot needs)</param>
+/// <param name="UndersupplyCount">Sum of missing assignments across all slots (slots still needing agents)</param>
+/// <param name="ShiftCoverageRatio">CoveredShiftSlots / AvailableShiftSlots — real percentage of required shift slots that are filled</param>
+/// <param name="AgentsInContext">Number of agents that actually reached the wizard context (may be less than requested if contract data is missing)</param>
+/// <param name="AgentsShiftCapable">Subset of AgentsInContext with PerformsShiftWork=true (only these can cover Spät/Nacht slots)</param>
+/// <param name="SlotsFillableByData">Number of slots that at least one agent in the context could theoretically fill, considering the shift-work flag</param>
+/// <param name="TheoreticalMaxCoverage">SlotsFillableByData / AvailableShiftSlots — upper bound on ShiftCoverageRatio given the current agent pool</param>
 /// <param name="EffectiveConfig">The TokenEvolutionConfig that was actually applied (baseline merged with overrides)</param>
 public sealed record WizardBenchmarkResponse(
     long DurationMs,
@@ -44,6 +76,14 @@ public sealed record WizardBenchmarkResponse(
     int DistinctAgents,
     int DistinctShifts,
     int DistinctDates,
+    int CoveredShiftSlots,
+    int OverstaffingCount,
+    int UndersupplyCount,
+    double ShiftCoverageRatio,
+    int AgentsInContext,
+    int AgentsShiftCapable,
+    int SlotsFillableByData,
+    double TheoreticalMaxCoverage,
     WizardEffectiveConfigDto EffectiveConfig);
 
 /// <summary>
