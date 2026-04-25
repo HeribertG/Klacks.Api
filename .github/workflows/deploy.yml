@@ -60,6 +60,13 @@ jobs:
         path: Klacks.UnitTest
         token: ${{ secrets.GH_PAT || github.token }}
 
+    - name: Checkout Klacks.ScheduleOptimizer
+      uses: actions/checkout@v4
+      with:
+        repository: HeribertG/Klacks.ScheduleOptimizer
+        path: Klacks.ScheduleOptimizer
+        token: ${{ secrets.GH_PAT || github.token }}
+
     - name: Setup .NET 10
       uses: actions/setup-dotnet@v4
       with:
