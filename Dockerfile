@@ -45,8 +45,9 @@ WORKDIR /app
 EXPOSE 5000
 EXPOSE 443
 
-# Install Kerberos library required by Npgsql and LDAP library for authentication
-RUN apt-get update && apt-get install -y --no-install-recommends libgssapi-krb5-2 libldap2 && rm -rf /var/lib/apt/lists/*
+# Install Kerberos library required by Npgsql, LDAP library for authentication,
+# and curl so the docker-compose healthcheck can probe http://localhost:5000/health.
+RUN apt-get update && apt-get install -y --no-install-recommends libgssapi-krb5-2 libldap2 curl && rm -rf /var/lib/apt/lists/*
 
 # Run as non-root user
 RUN useradd --no-create-home --shell /bin/false appuser && chown -R appuser /app
