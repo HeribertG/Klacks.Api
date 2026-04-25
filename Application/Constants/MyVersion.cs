@@ -21,8 +21,8 @@ public static class MyVersion
         string version = BuildVariantConstant.CVar + "-" + VersionConstant.CMajor + "." + VersionConstant.CMinor + "." + VersionConstant.CPatch;
         if (includeBuildInformations)
         {
-            var d = DateTime.Parse(VersionConstant.CBuildTimestamp);
-            version += " (" + VersionConstant.CBuildKey + " / " + d.ToString("dd.MM.yyyy") + ")";
+            var timestamp = DateTime.TryParse(VersionConstant.CBuildTimestamp, out var d) ? d.ToString("dd.MM.yyyy") : VersionConstant.CBuildTimestamp;
+            version += " (" + VersionConstant.CBuildKey + " / " + timestamp + ")";
         }
 
         return version;

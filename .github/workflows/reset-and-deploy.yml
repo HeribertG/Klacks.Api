@@ -223,7 +223,10 @@ jobs:
           echo "=============================================="
 
           echo "Building klacks-api..."
-          $COMPOSE_CMD build klacks-api --no-cache
+          $COMPOSE_CMD build klacks-api --no-cache \
+            --build-arg KLACKS_BUILD_KEY=$(cd Klacks.Api && git rev-parse --short HEAD) \
+            --build-arg KLACKS_BUILD_TIMESTAMP=$(date -u +%Y-%m-%d) \
+            --build-arg KLACKS_VARIANT=RELEASE
 
           echo "Building klacks-ui..."
           $COMPOSE_CMD build klacks-ui --memory=2g
