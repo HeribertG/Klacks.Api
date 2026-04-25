@@ -145,7 +145,7 @@ jobs:
           fi
 
           # Update Plugin projects (required by Klacks.Api)
-          for PLUGIN_REPO in Klacks.Plugin.Contracts Klacks.Plugin.Messaging Klacks.Docs Klacks.Api.SourceGenerators; do
+          for PLUGIN_REPO in Klacks.Plugin.Contracts Klacks.Plugin.Messaging Klacks.Docs Klacks.Api.SourceGenerators Klacks.ScheduleOptimizer; do
             EXPECTED_URL="https://github.com/HeribertG/$PLUGIN_REPO.git"
             NEEDS_CLONE=false
 
