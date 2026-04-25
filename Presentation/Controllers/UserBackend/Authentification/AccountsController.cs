@@ -9,6 +9,7 @@ using Klacks.Api.Domain.DTOs.Registrations;
 using Klacks.Api.Application.DTOs.Registrations;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -89,6 +90,7 @@ public class AccountsController : BaseController
         return Ok(username);
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpGet("ValidateToken")]
     public IActionResult ValidateToken()
     {

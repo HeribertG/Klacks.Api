@@ -1,11 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Klacks.Api.Infrastructure.Hubs;
 
-[Authorize]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class EmailNotificationHub : Hub<IEmailClient>
 {
     private readonly ILogger<EmailNotificationHub> _logger;
