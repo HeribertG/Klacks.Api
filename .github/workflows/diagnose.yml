@@ -1,0 +1,29 @@
+# .github/workflows/diagnose.yml
+name: Diagnose Server
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check container logs
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SSH_PORT || 22 }}
+        script: |
+          cd /root/apps
+          if command -v docker-compose &> /dev/null; then
+            COMPOSE_CMD="docker-compose"
+          else
+            COMPOSE_CMD="docker compose"
+          fi
+          echo "=== Container Status ==="
+          $COMPOSE_CMD ps
+          echo ""
+          echo "=== klacks-api logs (last 100 lines) ==="
+          $COMPOSE_CMD logs klacks-api --tail=100
