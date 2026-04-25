@@ -194,6 +194,18 @@ jobs:
             git clone https://github.com/HeribertG/Klacks.Plugin.Messaging.git
           fi
 
+          # Update Klacks.ScheduleOptimizer (required by Klacks.Api)
+          if [ -d "Klacks.ScheduleOptimizer" ]; then
+            echo "📦 Updating Klacks.ScheduleOptimizer..."
+            cd Klacks.ScheduleOptimizer
+            git fetch origin
+            git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)
+            cd ..
+          else
+            echo "📦 Cloning Klacks.ScheduleOptimizer..."
+            git clone https://github.com/HeribertG/Klacks.ScheduleOptimizer.git
+          fi
+
           echo "✅ All repositories updated"
           echo ""
 
