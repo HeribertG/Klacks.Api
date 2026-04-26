@@ -53,7 +53,7 @@ BEGIN
     filtered_shift_ids AS MATERIALIZED (
         SELECT DISTINCT s.id
         FROM shift s
-        LEFT JOIN group_item gi ON gi.shift_id = s.id
+        LEFT JOIN group_item gi ON gi.shift_id = s.id AND gi.is_deleted = false
         WHERE
             s.analyse_token IS NOT DISTINCT FROM p_analyse_token
             AND (

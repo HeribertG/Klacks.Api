@@ -2547,11 +2547,21 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.HasIndex("ShiftId")
                         .HasDatabaseName("ix_group_item_shift_id");
 
+                    b.HasIndex("ClientId", "GroupId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_group_item_client_id_group_id")
+                        .HasFilter("\"client_id\" IS NOT NULL AND \"is_deleted\" = false");
+
                     b.HasIndex("ClientId", "GroupId", "ShiftId")
                         .HasDatabaseName("ix_group_item_client_id_group_id_shift_id");
 
                     b.HasIndex("GroupId", "ClientId", "IsDeleted")
                         .HasDatabaseName("ix_group_item_group_id_client_id_is_deleted");
+
+                    b.HasIndex("ShiftId", "GroupId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_group_item_shift_id_group_id")
+                        .HasFilter("\"shift_id\" IS NOT NULL AND \"is_deleted\" = false");
 
                     b.ToTable("group_item", (string)null);
                 });
@@ -7892,7 +7902,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.HasOne("Klacks.Api.Domain.Models.Schedules.Shift", "Shift")
                         .WithMany("GroupItems")
                         .HasForeignKey("ShiftId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("fk_group_item_shift_shift_id");
 
                     b.Navigation("Client");

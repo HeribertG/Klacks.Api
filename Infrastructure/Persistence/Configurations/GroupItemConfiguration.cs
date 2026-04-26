@@ -17,9 +17,17 @@ public class GroupItemConfiguration : IEntityTypeConfiguration<GroupItem>
         builder.HasIndex(p => new { p.GroupId, p.ClientId, p.IsDeleted });
         builder.HasIndex(p => new { p.ClientId, p.GroupId, p.ShiftId });
 
+        builder.HasIndex(p => new { p.ShiftId, p.GroupId })
+            .IsUnique()
+            .HasFilter("\"shift_id\" IS NOT NULL AND \"is_deleted\" = false");
+
+        builder.HasIndex(p => new { p.ClientId, p.GroupId })
+            .IsUnique()
+            .HasFilter("\"client_id\" IS NOT NULL AND \"is_deleted\" = false");
+
         builder.HasOne(gi => gi.Shift)
             .WithMany(s => s.GroupItems)
             .HasForeignKey(gi => gi.ShiftId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

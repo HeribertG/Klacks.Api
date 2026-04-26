@@ -78,13 +78,14 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         entry.CurrentValues.SetValues(shift);
         entry.State = EntityState.Modified;
 
+        _shiftValidator.EnsureUniqueGroupItems(shift.GroupItems);
+
         _collectionUpdateService.UpdateCollection(
             existingShift.GroupItems,
             shift.GroupItems,
             existingShift.Id,
-            (groupItem, shiftId) => groupItem.ShiftId = shiftId);
-
-        _shiftValidator.EnsureUniqueGroupItems(existingShift.GroupItems);
+            (groupItem, shiftId) => groupItem.ShiftId = shiftId,
+            gi => gi.GroupId);
 
         _collectionUpdateService.UpdateCollection(
             existingShift.ShiftExpenses,

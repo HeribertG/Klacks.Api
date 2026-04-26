@@ -22,26 +22,70 @@ public class EntityCollectionUpdateService
         Action<TEntity, Guid> setParentId)
         where TEntity : BaseEntity
     {
+        UpdateCollection(existingCollection, updatedCollection, parentId, setParentId, e => (object)e.Id);
+    }
+
+    public void UpdateCollection<TEntity, TKey>(
+        ICollection<TEntity> existingCollection,
+        ICollection<TEntity> updatedCollection,
+        Guid parentId,
+        Action<TEntity, Guid> setParentId,
+        Func<TEntity, TKey> keySelector)
+        where TEntity : BaseEntity
+    {
         var existingList = existingCollection.ToList();
         var updatedList = updatedCollection.ToList();
+        var emptyIdSentinel = (object)Guid.Empty;
 
         foreach (var existingEntity in existingList)
         {
-            var updatedEntity = updatedList.FirstOrDefault(e => e.Id == existingEntity.Id);
+            var existingKey = (object?)keySelector(existingEntity);
+            var updatedEntity = updatedList.FirstOrDefault(e =>
+            {
+                var candidateKey = (object?)keySelector(e);
+                if (candidateKey is null || candidateKey.Equals(emptyIdSentinel))
+                {
+                    return false;
+                }
+                return candidateKey.Equals(existingKey);
+            });
+
             if (updatedEntity == null)
             {
                 _context.Entry(existingEntity).State = EntityState.Deleted;
+                existingCollection.Remove(existingEntity);
             }
             else
             {
+                var preservedId = existingEntity.Id;
                 var entry = _context.Entry(existingEntity);
                 entry.CurrentValues.SetValues(updatedEntity);
+                existingEntity.Id = preservedId;
                 entry.State = EntityState.Modified;
             }
         }
 
-        foreach (var newEntity in updatedList.Where(e => e.Id == Guid.Empty || !existingList.Any(ex => ex.Id == e.Id)))
+        foreach (var newEntity in updatedList)
         {
+            var key = (object?)keySelector(newEntity);
+            var matched = existingList.Any(ex =>
+            {
+                var existingKey = (object?)keySelector(ex);
+                if (existingKey is null || key is null)
+                {
+                    return false;
+                }
+                if (key.Equals(emptyIdSentinel))
+                {
+                    return false;
+                }
+                return existingKey.Equals(key);
+            });
+            if (matched)
+            {
+                continue;
+            }
+
             setParentId(newEntity, parentId);
             _context.Entry(newEntity).State = EntityState.Added;
             existingCollection.Add(newEntity);

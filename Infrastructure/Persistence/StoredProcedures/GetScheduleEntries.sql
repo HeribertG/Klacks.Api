@@ -59,7 +59,8 @@ BEGIN
         FROM shift s
         LEFT JOIN group_item gi ON gi.shift_id = s.id AND gi.is_deleted = false
         WHERE
-            ((visible_group_ids IS NULL OR array_length(visible_group_ids, 1) IS NULL)
+            s.is_deleted = false
+            AND ((visible_group_ids IS NULL OR array_length(visible_group_ids, 1) IS NULL)
             OR gi.shift_id IS NULL
             OR gi.group_id IN (SELECT vhi.id FROM visible_hierarchy_ids vhi))
             AND s.analyse_token IS NOT DISTINCT FROM p_analyse_token
@@ -67,6 +68,7 @@ BEGIN
     all_client_shift_ids AS MATERIALIZED (
         SELECT DISTINCT s.id
         FROM shift s
+        WHERE s.is_deleted = false
     ),
     valid_works AS MATERIALIZED (
         SELECT w.*
