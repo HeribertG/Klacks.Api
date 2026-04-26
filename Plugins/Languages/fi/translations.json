@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "Hyväksy",
   "wizard.dialog.applying": "Hyväksytään...",
   "wizard.dialog.applied": "Määräykset hyväksytty onnistuneesti.",
+  "wizard.dialog.error.noData": "Ei ajoituksen vuoroja tai työntekijöitä saatavilla.",
+  "wizard.dialog.error.tooLarge": "Nykyinen näkymä sisältää {{agents}} työntekijää ja {{shifts}} vuoroa. Automaattisen täytön avustaja voi käsitellä enintään {{maxAgents}} työntekijää ja {{maxShifts}} vuoroa per ajo. Rajaa työvuorolista pienempään laajuuteen (ryhmä, tiimi tai lyhyempi ajanjakso) ja yritä uudelleen.",
   "shared.row-header.headline": "Nimi",
   "floor-plan.title": "Pohjapiirrokset",
   "floor-plan.new": "Uusi pohjapiirros",

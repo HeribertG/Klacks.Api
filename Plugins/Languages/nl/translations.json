@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "Overnemen",
   "wizard.dialog.applying": "Wordt overgenomen...",
   "wizard.dialog.applied": "Toewijzingen succesvol overgenomen.",
+  "wizard.dialog.error.noData": "Geen diensten of medewerkers beschikbaar voor planning.",
+  "wizard.dialog.error.tooLarge": "De huidige weergave bevat {{agents}} medewerkers en {{shifts}} diensten. De auto-invul-assistent kan per uitvoering maximaal {{maxAgents}} medewerkers en {{maxShifts}} diensten verwerken. Beperk het rooster tot een kleinere reikwijdte (groep, team of kortere periode) en probeer het opnieuw.",
   "shared.row-header.headline": "Naam",
   "floor-plan.title": "Plattegronden",
   "floor-plan.new": "Nieuwe plattegrond",

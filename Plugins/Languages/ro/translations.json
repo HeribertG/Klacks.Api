@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "Aplicare",
   "wizard.dialog.applying": "Se aplică...",
   "wizard.dialog.applied": "Atribuirile au fost aplicate cu succes.",
+  "wizard.dialog.error.noData": "Nu există ture sau angajați disponibili pentru programare.",
+  "wizard.dialog.error.tooLarge": "Vizualizarea curentă conține {{agents}} angajați și {{shifts}} ture. Asistentul de completare automată poate procesa cel mult {{maxAgents}} angajați și {{maxShifts}} ture per execuție. Restrângeți programul la un domeniu mai mic (grup, echipă sau perioadă mai scurtă) și încercați din nou.",
   "shared.row-header.headline": "Nume",
   "floor-plan.title": "Planuri de etaj",
   "floor-plan.new": "Plan nou",

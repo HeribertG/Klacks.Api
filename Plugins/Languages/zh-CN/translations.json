@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "应用",
   "wizard.dialog.applying": "正在应用...",
   "wizard.dialog.applied": "分配已成功应用。",
+  "wizard.dialog.error.noData": "没有可用于排班的班次或员工。",
+  "wizard.dialog.error.tooLarge": "当前视图包含 {{agents}} 名员工和 {{shifts}} 个班次。自动填充助手每次运行最多可处理 {{maxAgents}} 名员工和 {{maxShifts}} 个班次。请将排班缩小到更小的范围(组、团队或更短的时间段)后重试。",
   "shared.row-header.headline": "姓名",
   "floor-plan.title": "平面图",
   "floor-plan.new": "新平面图",

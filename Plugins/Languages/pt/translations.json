@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "Aplicar",
   "wizard.dialog.applying": "A aplicar...",
   "wizard.dialog.applied": "Atribuições aplicadas com sucesso.",
+  "wizard.dialog.error.noData": "Não há turnos ou colaboradores disponíveis para o agendamento.",
+  "wizard.dialog.error.tooLarge": "A visualização atual contém {{agents}} colaboradores e {{shifts}} turnos. O assistente de preenchimento automático só consegue processar até {{maxAgents}} colaboradores e {{maxShifts}} turnos por execução. Restrinja a escala a um escopo menor (grupo, equipa ou período mais curto) e tente novamente.",
   "shared.row-header.headline": "Nome",
   "floor-plan.title": "Plantas",
   "floor-plan.new": "Nova planta",

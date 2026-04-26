@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "適用",
   "wizard.dialog.applying": "適用中...",
   "wizard.dialog.applied": "割り当てが正常に適用されました。",
+  "wizard.dialog.error.noData": "スケジュール対象のシフトまたは従業員がありません。",
+  "wizard.dialog.error.tooLarge": "現在のビューには{{agents}}名の従業員と{{shifts}}件のシフトが含まれています。自動入力ウィザードは1回の実行で最大{{maxAgents}}名の従業員と{{maxShifts}}件のシフトのみ処理できます。スケジュールをより小さな範囲(グループ、チーム、または短い期間)に絞り込んで再度お試しください。",
   "shared.row-header.headline": "名称",
   "floor-plan.title": "フロアプラン",
   "floor-plan.new": "新規フロアプラン",

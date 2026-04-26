@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "Overta",
   "wizard.dialog.applying": "Overtar...",
   "wizard.dialog.applied": "Tildelinger overtatt.",
+  "wizard.dialog.error.noData": "Ingen vakter eller ansatte tilgjengelig for planlegging.",
+  "wizard.dialog.error.tooLarge": "Gjeldende visning inneholder {{agents}} ansatte og {{shifts}} vakter. Auto-fyll-assistenten kan håndtere maksimalt {{maxAgents}} ansatte og {{maxShifts}} vakter per kjøring. Begrens vaktplanen til et mindre omfang (gruppe, team eller kortere periode) og prøv igjen.",
   "shared.row-header.headline": "Navn",
   "floor-plan.title": "Plantegninger",
   "floor-plan.new": "Ny plantegning",

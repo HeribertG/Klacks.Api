@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "تطبيق",
   "wizard.dialog.applying": "جاري التطبيق...",
   "wizard.dialog.applied": "تم تطبيق التعيينات بنجاح.",
+  "wizard.dialog.error.noData": "لا توجد ورديات أو موظفون متاحون للجدولة.",
+  "wizard.dialog.error.tooLarge": "تحتوي الطريقة الحالية على {{agents}} موظفًا و {{shifts}} وردية. يمكن لمساعد التعبئة التلقائية معالجة ما يصل إلى {{maxAgents}} موظفًا و {{maxShifts}} وردية في كل تشغيل. يرجى تضييق الجدول إلى نطاق أصغر (مجموعة، فريق، أو فترة أقصر) والمحاولة مرة أخرى.",
   "shared.row-header.headline": "الاسم",
   "floor-plan.title": "مخططات الطوابق",
   "floor-plan.new": "مخطط جديد",

@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "Overtag",
   "wizard.dialog.applying": "Overtages...",
   "wizard.dialog.applied": "Tildelinger overtaget.",
+  "wizard.dialog.error.noData": "Ingen vagter eller medarbejdere tilgængelige til planlægning.",
+  "wizard.dialog.error.tooLarge": "Den aktuelle visning indeholder {{agents}} medarbejdere og {{shifts}} vagter. Auto-fill-assistenten kan højst behandle {{maxAgents}} medarbejdere og {{maxShifts}} vagter pr. kørsel. Begræns vagtplanen til et mindre omfang (gruppe, team eller kortere periode) og prøv igen.",
   "shared.row-header.headline": "Navn",
   "floor-plan.title": "Grundrids",
   "floor-plan.new": "Nyt grundrids",

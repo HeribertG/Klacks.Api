@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "Übernehmen",
   "wizard.dialog.applying": "Wird übernommen...",
   "wizard.dialog.applied": "Zuweisungen erfolgreich übernommen.",
+  "wizard.dialog.error.noData": "Inga skift eller medarbetare tillgängliga för schemaläggning.",
+  "wizard.dialog.error.tooLarge": "Den aktuella vyn innehåller {{agents}} medarbetare och {{shifts}} skift. Auto-fyll-assistenten kan hantera högst {{maxAgents}} medarbetare och {{maxShifts}} skift per körning. Begränsa schemat till ett mindre omfång (grupp, team eller kortare period) och försök igen.",
   "shared.row-header.headline": "Name",
   "floor-plan.title": "Grundrisse",
   "floor-plan.new": "Neuer Grundriss",

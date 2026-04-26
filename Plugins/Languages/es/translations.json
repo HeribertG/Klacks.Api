@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "Aplicar",
   "wizard.dialog.applying": "Aplicando...",
   "wizard.dialog.applied": "Asignaciones aplicadas correctamente.",
+  "wizard.dialog.error.noData": "No hay turnos ni colaboradores disponibles para la programación.",
+  "wizard.dialog.error.tooLarge": "La vista actual contiene {{agents}} colaboradores y {{shifts}} turnos. El asistente de relleno automático puede procesar como máximo {{maxAgents}} colaboradores y {{maxShifts}} turnos por ejecución. Restrinja la planificación a un alcance más pequeño (grupo, equipo o período más corto) e inténtelo de nuevo.",
   "shared.row-header.headline": "Nombre",
   "floor-plan.title": "Planos",
   "floor-plan.new": "Nuevo plano",

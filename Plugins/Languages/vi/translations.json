@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "Áp dụng",
   "wizard.dialog.applying": "Đang áp dụng...",
   "wizard.dialog.applied": "Phân công đã được áp dụng thành công.",
+  "wizard.dialog.error.noData": "Không có ca làm việc hoặc nhân viên nào để lập lịch.",
+  "wizard.dialog.error.tooLarge": "Chế độ xem hiện tại chứa {{agents}} nhân viên và {{shifts}} ca. Trợ lý điền tự động chỉ có thể xử lý tối đa {{maxAgents}} nhân viên và {{maxShifts}} ca mỗi lần chạy. Vui lòng thu hẹp lịch trình về phạm vi nhỏ hơn (nhóm, đội hoặc thời gian ngắn hơn) và thử lại.",
   "shared.row-header.headline": "Tên",
   "floor-plan.title": "Sơ đồ mặt bằng",
   "floor-plan.new": "Sơ đồ mới",

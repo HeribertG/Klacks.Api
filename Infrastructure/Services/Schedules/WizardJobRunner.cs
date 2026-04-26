@@ -17,6 +17,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 public sealed class WizardJobRunner : IWizardJobRunner
 {
     private const int ClientJoinDelayMs = 500;
+    private static readonly TimeSpan WizardTimeBudget = TimeSpan.FromSeconds(90);
 
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IHubContext<WizardJobHub, IWizardJobClient> _hubContext;
@@ -42,6 +43,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
     {
         var jobId = Guid.NewGuid();
         var cts = _registry.Register(jobId, externalCt);
+        cts.CancelAfter(WizardTimeBudget);
 
         _ = Task.Run(() => RunJobAsync(jobId, request, cts.Token));
 
@@ -55,14 +57,19 @@ public sealed class WizardJobRunner : IWizardJobRunner
     private async Task RunJobAsync(Guid jobId, WizardContextRequest request, CancellationToken ct)
     {
         var group = _hubContext.Clients.Group(SignalRConstants.WizardGroups.WizardJob(jobId));
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
         try
         {
+            _logger.LogInformation("Wizard job {JobId} starting (period {From} - {Until}, {AgentCount} agents, {ShiftCount} shifts, budget {BudgetSec}s)",
+                jobId, request.PeriodFrom, request.PeriodUntil, request.AgentIds.Count, request.ShiftIds?.Count ?? 0, WizardTimeBudget.TotalSeconds);
+
             await Task.Delay(ClientJoinDelayMs, ct);
 
             using var scope = _scopeFactory.CreateScope();
             var builder = scope.ServiceProvider.GetRequiredService<IWizardContextBuilder>();
             var wizardContext = await builder.BuildContextAsync(request, ct);
+            _logger.LogInformation("Wizard job {JobId} context built", jobId);
 
             var baseline = new TokenEvolutionConfig
             {
@@ -81,26 +88,45 @@ public sealed class WizardJobRunner : IWizardJobRunner
 
             var loop = TokenEvolutionLoop.Create();
 
+            var lastLoggedGeneration = 0;
+            var lastLoggedAtMs = stopwatch.ElapsedMilliseconds;
             var progress = new Progress<TokenEvolutionProgress>(p =>
             {
-                try
+                // Per-generation tracing so a slow GA shows where time goes.
+                // Throttled to every 10th generation to keep the log readable.
+                if (p.Generation - lastLoggedGeneration >= 10 || p.EarlyStopping)
                 {
-                    _ = group.OnProgress(new WizardJobProgressDto(
-                        JobId: jobId,
-                        Generation: p.Generation,
-                        MaxGenerations: p.MaxGenerations,
-                        BestHardViolations: p.BestHardViolations,
-                        BestStage1Completion: p.BestStage1Completion,
-                        BestStage2Score: p.BestStage2Score,
-                        EarlyStopping: p.EarlyStopping));
+                    var dtMs = stopwatch.ElapsedMilliseconds - lastLoggedAtMs;
+                    _logger.LogInformation(
+                        "Wizard job {JobId} gen={Generation}/{MaxGen} viol={Viol} stage1={Stage1:F1}% +{DeltaMs}ms",
+                        jobId, p.Generation, p.MaxGenerations, p.BestHardViolations, p.BestStage1Completion * 100, dtMs);
+                    lastLoggedGeneration = p.Generation;
+                    lastLoggedAtMs = stopwatch.ElapsedMilliseconds;
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Failed to broadcast wizard progress for job {JobId}", jobId);
-                }
+                var sendTask = group.OnProgress(new WizardJobProgressDto(
+                    JobId: jobId,
+                    Generation: p.Generation,
+                    MaxGenerations: p.MaxGenerations,
+                    BestHardViolations: p.BestHardViolations,
+                    BestStage1Completion: p.BestStage1Completion,
+                    BestStage2Score: p.BestStage2Score,
+                    EarlyStopping: p.EarlyStopping));
+                sendTask.ContinueWith(
+                    t => _logger.LogWarning(t.Exception, "Failed to broadcast wizard progress for job {JobId} gen {Generation}", jobId, p.Generation),
+                    TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
             });
 
-            var best = loop.Run(wizardContext, config, progress, ct);
+            _logger.LogInformation(
+                "Wizard job {JobId} entering GA loop (population={Pop}, maxGen={MaxGen}, agents={Agents}, demandSlots={DemandSlots})",
+                jobId, config.PopulationSize, config.MaxGenerations,
+                wizardContext.Agents.Count, wizardContext.Shifts.Count);
+            var loopStartMs = stopwatch.ElapsedMilliseconds;
+            void Trace(string msg) => _logger.LogInformation("Wizard job {JobId} [GA] {Message}", jobId, msg);
+            var best = loop.Run(wizardContext, config, progress, ct, Trace);
+            _logger.LogInformation(
+                "Wizard job {JobId} GA loop finished in {LoopMs}ms (tokens={TokenCount}, hardViol={Viol}, stage1={Stage1:F1}%)",
+                jobId, stopwatch.ElapsedMilliseconds - loopStartMs, best.Tokens.Count, best.FitnessStage0, best.FitnessStage1 * 100);
+
             _resultCache.Store(jobId, best, request.AnalyseToken);
 
             await group.OnCompleted(new WizardJobResultDto(
@@ -112,14 +138,20 @@ public sealed class WizardJobRunner : IWizardJobRunner
         }
         catch (OperationCanceledException)
         {
-            _logger.LogInformation("Wizard job {JobId} cancelled", jobId);
-            try
+            // Distinguish user cancel from time-budget timeout: when the budget
+            // elapses we surface OnFailed so the modal shows that the GA could
+            // not finish in the allotted time instead of silently appearing as
+            // a normal cancellation.
+            if (stopwatch.Elapsed >= WizardTimeBudget)
             {
-                await group.OnCancelled();
+                var msg = $"GA loop exceeded the {WizardTimeBudget.TotalSeconds:F0}s time budget; reduce the agent or shift selection or shorten the period.";
+                _logger.LogWarning("Wizard job {JobId} timed out after {Elapsed}: {Message}", jobId, stopwatch.Elapsed, msg);
+                try { await group.OnFailed(msg); } catch { /* notification best-effort */ }
             }
-            catch
+            else
             {
-                // Swallow notification errors during cancellation.
+                _logger.LogInformation("Wizard job {JobId} cancelled by user after {Elapsed}", jobId, stopwatch.Elapsed);
+                try { await group.OnCancelled(); } catch { /* notification best-effort */ }
             }
         }
         catch (Exception ex)

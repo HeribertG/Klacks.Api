@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "Převzít",
   "wizard.dialog.applying": "Přebírání...",
   "wizard.dialog.applied": "Přiřazení úspěšně převzata.",
+  "wizard.dialog.error.noData": "Nejsou k dispozici žádné směny ani zaměstnanci pro plánování.",
+  "wizard.dialog.error.tooLarge": "Aktuální zobrazení obsahuje {{agents}} zaměstnanců a {{shifts}} směn. Asistent automatického vyplnění zvládne maximálně {{maxAgents}} zaměstnanců a {{maxShifts}} směn na běh. Zužte prosím rozvrh na menší rozsah (skupina, tým nebo kratší období) a zkuste to znovu.",
   "shared.row-header.headline": "Jméno",
   "floor-plan.title": "Půdorysy",
   "floor-plan.new": "Nový půdorys",

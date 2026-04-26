@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "Terima",
   "wizard.dialog.applying": "Sedang diterima...",
   "wizard.dialog.applied": "Penetapan berjaya diterima.",
+  "wizard.dialog.error.noData": "Tiada syif atau pekerja tersedia untuk penjadualan.",
+  "wizard.dialog.error.tooLarge": "Paparan semasa mengandungi {{agents}} pekerja dan {{shifts}} syif. Pembantu isian automatik hanya boleh mengendalikan sehingga {{maxAgents}} pekerja dan {{maxShifts}} syif setiap larian. Sila hadkan jadual kepada skop yang lebih kecil (kumpulan, pasukan, atau tempoh lebih pendek) dan cuba lagi.",
   "shared.row-header.headline": "Nama",
   "floor-plan.title": "Pelan lantai",
   "floor-plan.new": "Pelan lantai baharu",

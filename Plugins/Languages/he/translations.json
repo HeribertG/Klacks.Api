@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "אמץ",
   "wizard.dialog.applying": "מיושם...",
   "wizard.dialog.applied": "השיבוצים אומצו בהצלחה.",
+  "wizard.dialog.error.noData": "אין משמרות או עובדים זמינים לתכנון.",
+  "wizard.dialog.error.tooLarge": "התצוגה הנוכחית מכילה {{agents}} עובדים ו-{{shifts}} משמרות. אשף המילוי האוטומטי יכול לעבד עד {{maxAgents}} עובדים ו-{{maxShifts}} משמרות בכל הרצה. צמצם את לוח הזמנים להיקף קטן יותר (קבוצה, צוות או תקופה קצרה יותר) ונסה שוב.",
   "shared.row-header.headline": "שם",
   "floor-plan.title": "תוכניות קומה",
   "floor-plan.new": "תוכנית קומה חדשה",

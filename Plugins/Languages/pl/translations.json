@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "Zastosuj",
   "wizard.dialog.applying": "Stosowanie...",
   "wizard.dialog.applied": "Przypisania pomyślnie zastosowane.",
+  "wizard.dialog.error.noData": "Brak zmian lub pracowników dostępnych do planowania.",
+  "wizard.dialog.error.tooLarge": "Bieżący widok zawiera {{agents}} pracowników i {{shifts}} zmian. Asystent automatycznego wypełniania może obsłużyć maksymalnie {{maxAgents}} pracowników i {{maxShifts}} zmian na uruchomienie. Zawęź harmonogram do mniejszego zakresu (grupa, zespół lub krótszy okres) i spróbuj ponownie.",
   "shared.row-header.headline": "Nazwisko",
   "floor-plan.title": "Plany pięter",
   "floor-plan.new": "Nowy plan piętra",

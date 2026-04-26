@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "นำไปใช้",
   "wizard.dialog.applying": "กำลังนำไปใช้...",
   "wizard.dialog.applied": "นำการจัดสรรไปใช้สำเร็จ",
+  "wizard.dialog.error.noData": "ไม่มีกะหรือพนักงานที่พร้อมสำหรับการจัดตาราง",
+  "wizard.dialog.error.tooLarge": "มุมมองปัจจุบันมีพนักงาน {{agents}} คนและกะ {{shifts}} กะ ตัวช่วยเติมอัตโนมัติสามารถประมวลผลได้สูงสุด {{maxAgents}} คนและ {{maxShifts}} กะต่อการรัน กรุณาจำกัดตารางเป็นขอบเขตที่เล็กลง (กลุ่ม ทีม หรือช่วงเวลาที่สั้นกว่า) แล้วลองอีกครั้ง",
   "shared.row-header.headline": "ชื่อ",
   "floor-plan.title": "แปลนอาคาร",
   "floor-plan.new": "แปลนใหม่",

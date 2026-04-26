@@ -1900,6 +1900,8 @@
   "wizard.dialog.apply": "Terapkan",
   "wizard.dialog.applying": "Sedang diterapkan...",
   "wizard.dialog.applied": "Penetapan berhasil diterapkan.",
+  "wizard.dialog.error.noData": "Tidak ada shift atau karyawan tersedia untuk penjadwalan.",
+  "wizard.dialog.error.tooLarge": "Tampilan saat ini berisi {{agents}} karyawan dan {{shifts}} shift. Asisten isi otomatis hanya dapat memproses hingga {{maxAgents}} karyawan dan {{maxShifts}} shift per eksekusi. Persempit jadwal ke cakupan yang lebih kecil (grup, tim, atau periode lebih pendek) dan coba lagi.",
   "shared.row-header.headline": "Nama",
   "floor-plan.title": "Denah Lantai",
   "floor-plan.new": "Denah baru",
