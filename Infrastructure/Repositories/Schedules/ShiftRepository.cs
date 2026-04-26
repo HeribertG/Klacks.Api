@@ -279,6 +279,12 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     public async Task<Shift?> PutWithSealedOrderHandling(Shift shift)
     {
+        var previousStatus = await context.Shift
+            .AsNoTracking()
+            .Where(s => s.Id == shift.Id)
+            .Select(s => (ShiftStatus?)s.Status)
+            .FirstOrDefaultAsync();
+
         var updatedShift = await Put(shift);
 
         if (updatedShift == null)
@@ -286,14 +292,17 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             return null;
         }
 
-        if (updatedShift.Status != ShiftStatus.SealedOrder)
+        var isSealingTransition = updatedShift.Status == ShiftStatus.SealedOrder
+            && previousStatus != ShiftStatus.SealedOrder;
+
+        if (!isSealingTransition)
         {
             return updatedShift;
         }
 
         Logger.LogInformation(
-            "Creating OriginalShift from SealedOrder after update: SealedOrderId={SealedOrderId}",
-            updatedShift.Id);
+            "Creating OriginalShift on sealing transition: SealedOrderId={SealedOrderId}, PreviousStatus={PreviousStatus}",
+            updatedShift.Id, previousStatus);
 
         await _shiftValidator.EnsureNoOriginalShiftCopyExists(updatedShift.Id, this);
 
