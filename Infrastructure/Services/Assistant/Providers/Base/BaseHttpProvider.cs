@@ -5,7 +5,9 @@ using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
+using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 
@@ -98,6 +100,38 @@ public abstract class BaseHttpProvider : ILLMProvider
             if (data == "[DONE]") yield break;
 
             yield return data;
+        }
+    }
+
+    public virtual Task<List<LLMModelDiscovery>?> GetAvailableModelsAsync() =>
+        Task.FromResult<List<LLMModelDiscovery>?>(null);
+
+    protected async Task<List<LLMModelDiscovery>?> GetModelsFromOpenAIApiAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_apiKey))
+            return null;
+
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_httpClient.BaseAddress!, "models"));
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+            var result = System.Text.Json.JsonSerializer.Deserialize<OpenAIModelsResponse>(
+                json, GetJsonSerializerOptions());
+
+            return result?.Data
+                .Where(m => !string.IsNullOrWhiteSpace(m.Id))
+                .Select(m => new LLMModelDiscovery(m.Id, m.Name ?? m.Id))
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch models from {Provider}", ProviderName);
+            return null;
         }
     }
 

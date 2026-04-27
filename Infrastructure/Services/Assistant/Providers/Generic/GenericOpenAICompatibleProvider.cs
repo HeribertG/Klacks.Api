@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
+using LLMModelDiscovery = Klacks.Api.Domain.Models.Assistant.LLMModelDiscovery;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic;
@@ -128,6 +129,8 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
             return false;
         }
     }
+
+    public override Task<List<LLMModelDiscovery>?> GetAvailableModelsAsync() => GetModelsFromOpenAIApiAsync();
 
     private List<OpenAIMessage> BuildMessages(LLMProviderRequest request)
     {

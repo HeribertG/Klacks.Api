@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 using Microsoft.Extensions.Configuration;
 
@@ -17,4 +18,6 @@ public class OpenAIProvider : BaseOpenAICompatibleProvider
     {
         _configuration = configuration;
     }
+
+    public override Task<List<LLMModelDiscovery>?> GetAvailableModelsAsync() => GetModelsFromOpenAIApiAsync();
 }
