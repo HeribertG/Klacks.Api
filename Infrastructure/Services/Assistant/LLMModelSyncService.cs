@@ -65,6 +65,8 @@ public partial class LLMModelSyncService : ILLMModelSyncService
 
         var newNames = new List<string>();
         var deactivatedNames = new List<string>();
+        var failedCount = 0;
+        var modelTestResults = new List<LLMModelTestResult>();
 
         foreach (var apiModel in discovered)
         {
@@ -73,6 +75,10 @@ public partial class LLMModelSyncService : ILLMModelSyncService
 
             if (existing is null)
             {
+                var testResult = await provider.TestModelAsync(apiModel.ApiModelId);
+                var resultWithName = testResult with { ModelName = apiModel.ModelName };
+                modelTestResults.Add(resultWithName);
+
                 var newModel = new LLMModel
                 {
                     Id = Guid.NewGuid(),
@@ -80,7 +86,7 @@ public partial class LLMModelSyncService : ILLMModelSyncService
                     ModelName = apiModel.ModelName,
                     ApiModelId = apiModel.ApiModelId,
                     ProviderId = provider.ProviderId,
-                    IsEnabled = true,
+                    IsEnabled = testResult.Passed,
                     IsDefault = false,
                     MaxTokens = 4096,
                     ContextWindow = 128000,
@@ -93,8 +99,19 @@ public partial class LLMModelSyncService : ILLMModelSyncService
                 await _repository.CreateModelAsync(newModel);
                 newNames.Add(apiModel.ModelName);
 
-                _logger.LogInformation("LLMModelSyncService - {Provider}: inserted new model {ModelId}",
-                    provider.ProviderName, apiModel.ApiModelId);
+                if (testResult.Passed)
+                {
+                    _logger.LogInformation(
+                        "LLMModelSyncService - {Provider}: inserted {ModelId} (test passed in {Ms}ms)",
+                        provider.ProviderName, apiModel.ApiModelId, testResult.DurationMs);
+                }
+                else
+                {
+                    failedCount++;
+                    _logger.LogWarning(
+                        "LLMModelSyncService - {Provider}: inserted {ModelId} as DISABLED (test failed: {Error})",
+                        provider.ProviderName, apiModel.ApiModelId, testResult.ErrorMessage);
+                }
             }
         }
 
@@ -122,8 +139,9 @@ public partial class LLMModelSyncService : ILLMModelSyncService
             return;
         }
 
-        _logger.LogInformation("LLMModelSyncService - {Provider} sync: {New} new, {Deactivated} deactivated",
-            provider.ProviderName, newNames.Count, deactivatedNames.Count);
+        _logger.LogInformation(
+            "LLMModelSyncService - {Provider} sync: {New} new ({Failed} disabled), {Deactivated} deactivated",
+            provider.ProviderName, newNames.Count, failedCount, deactivatedNames.Count);
 
         await _repository.CreateSyncNotificationAsync(new LLMSyncNotification
         {
@@ -131,9 +149,11 @@ public partial class LLMModelSyncService : ILLMModelSyncService
             ProviderId = provider.ProviderId,
             ProviderName = provider.ProviderName,
             NewModelsCount = newNames.Count,
+            FailedModelsCount = failedCount,
             DeactivatedModelsCount = deactivatedNames.Count,
             NewModelNames = newNames,
             DeactivatedModelNames = deactivatedNames,
+            ModelTestResults = modelTestResults,
             SyncedAt = DateTime.UtcNow,
             IsRead = false,
             CreateTime = DateTime.UtcNow,
