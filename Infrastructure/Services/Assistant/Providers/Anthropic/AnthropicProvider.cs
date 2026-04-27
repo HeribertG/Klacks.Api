@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
-using Klacks.Api.Domain.Models.Assistant;
 using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
@@ -189,7 +188,7 @@ public class AnthropicProvider : ILLMProvider
         }
     }
 
-    public async Task<List<LLMModelDiscovery>?> GetAvailableModelsAsync()
+    public async Task<List<Domain.Models.Assistant.LLMModelDiscovery>?> GetAvailableModelsAsync()
     {
         if (string.IsNullOrWhiteSpace(_apiKey))
             return null;
@@ -213,7 +212,7 @@ public class AnthropicProvider : ILLMProvider
 
             return result?.Data
                 .Where(m => !string.IsNullOrWhiteSpace(m.Id))
-                .Select(m => new LLMModelDiscovery(m.Id, m.DisplayName ?? m.Id))
+                .Select(m => new Domain.Models.Assistant.LLMModelDiscovery(m.Id, m.DisplayName ?? m.Id))
                 .ToList();
         }
         catch (Exception ex)
