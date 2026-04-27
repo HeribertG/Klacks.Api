@@ -5,8 +5,10 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
+using Klacks.Api.Domain.Models.Assistant;
 using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
 using Klacks.Api.Domain.Services.Assistant.Providers;
+using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Anthropic;
 
@@ -184,6 +186,40 @@ public class AnthropicProvider : ILLMProvider
         catch
         {
             return false;
+        }
+    }
+
+    public async Task<List<LLMModelDiscovery>?> GetAvailableModelsAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_apiKey))
+            return null;
+
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_httpClient.BaseAddress!, "models"));
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                PropertyNameCaseInsensitive = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+            var result = JsonSerializer.Deserialize<AnthropicModelsResponse>(json, options);
+
+            return result?.Data
+                .Where(m => !string.IsNullOrWhiteSpace(m.Id))
+                .Select(m => new LLMModelDiscovery(m.Id, m.DisplayName ?? m.Id))
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch models from Anthropic");
+            return null;
         }
     }
 
