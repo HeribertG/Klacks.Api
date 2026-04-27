@@ -360,4 +360,12 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
 
         await context.SaveChangesAsync();
     }
+
+    public async Task<List<LLMSyncNotification>> GetSyncNotificationsHistoryAsync()
+    {
+        return await context.Set<LLMSyncNotification>()
+            .Where(n => !n.IsDeleted)
+            .OrderByDescending(n => n.SyncedAt)
+            .ToListAsync();
+    }
 }

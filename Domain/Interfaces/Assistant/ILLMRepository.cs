@@ -39,4 +39,5 @@ public interface ILLMRepository : IBaseRepository<LLMModel>
     Task<List<LLMSyncNotification>> GetUnreadSyncNotificationsAsync();
     Task<LLMSyncNotification> CreateSyncNotificationAsync(LLMSyncNotification notification);
     Task MarkAllSyncNotificationsReadAsync();
+    Task<List<LLMSyncNotification>> GetSyncNotificationsHistoryAsync();
 }

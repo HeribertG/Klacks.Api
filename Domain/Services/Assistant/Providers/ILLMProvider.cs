@@ -22,4 +22,8 @@ public interface ILLMProvider
 
     Task<List<Models.Assistant.LLMModelDiscovery>?> GetAvailableModelsAsync() =>
         Task.FromResult<List<Models.Assistant.LLMModelDiscovery>?>(null);
+
+    Task<Models.Assistant.LLMModelTestResult> TestModelAsync(string apiModelId) =>
+        Task.FromResult(new Models.Assistant.LLMModelTestResult(
+            apiModelId, apiModelId, false, "Provider does not support testing", 0));
 }

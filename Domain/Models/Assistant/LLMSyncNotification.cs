@@ -6,6 +6,8 @@
 /// <param name="ProviderId">Identifier of the provider that was synced</param>
 /// <param name="NewModelNames">Names of models added during this sync</param>
 /// <param name="DeactivatedModelNames">Names of models disabled during this sync</param>
+/// <param name="FailedModelsCount">Number of models that failed testing during sync</param>
+/// <param name="ModelTestResults">Detailed test results for each model tested during sync</param>
 using System.ComponentModel.DataAnnotations;
 using Klacks.Api.Domain.Common;
 
@@ -28,6 +30,10 @@ public class LLMSyncNotification : BaseEntity
     public List<string> NewModelNames { get; set; } = [];
 
     public List<string> DeactivatedModelNames { get; set; } = [];
+
+    public int FailedModelsCount { get; set; }
+
+    public List<LLMModelTestResult> ModelTestResults { get; set; } = [];
 
     public DateTime SyncedAt { get; set; }
 
