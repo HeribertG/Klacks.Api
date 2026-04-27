@@ -1,5 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Base class for OpenAI-compatible LLM providers using the legacy function_call API format.
+/// </summary>
+
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
