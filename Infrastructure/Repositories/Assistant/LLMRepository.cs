@@ -331,4 +331,33 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
 
         return conversation?.TotalTokens ?? 0;
     }
+
+    public async Task<LLMSyncNotification> CreateSyncNotificationAsync(LLMSyncNotification notification)
+    {
+        context.Set<LLMSyncNotification>().Add(notification);
+        await context.SaveChangesAsync();
+        return notification;
+    }
+
+    public async Task<List<LLMSyncNotification>> GetUnreadSyncNotificationsAsync()
+    {
+        return await context.Set<LLMSyncNotification>()
+            .Where(n => !n.IsDeleted && !n.IsRead)
+            .OrderByDescending(n => n.SyncedAt)
+            .ToListAsync();
+    }
+
+    public async Task MarkAllSyncNotificationsReadAsync()
+    {
+        var unread = await context.Set<LLMSyncNotification>()
+            .Where(n => !n.IsDeleted && !n.IsRead)
+            .ToListAsync();
+
+        foreach (var notification in unread)
+        {
+            notification.IsRead = true;
+        }
+
+        await context.SaveChangesAsync();
+    }
 }

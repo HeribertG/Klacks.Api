@@ -152,6 +152,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<LLMMessage> LLMMessages { get; set; }
 
+    public DbSet<LLMSyncNotification> LLMSyncNotifications { get; set; }
+
     // Skill DbSets
     public DbSet<SkillUsageRecord> SkillUsageRecords { get; set; }
 
@@ -302,6 +304,21 @@ public class DataBaseContext : IdentityDbContext
             entity.Property(e => e.ApiKey).HasMaxLength(500);
             entity.Property(e => e.LanguageModel).HasMaxLength(200);
             entity.HasQueryFilter(e => !e.IsDeleted);
+        });
+
+        modelBuilder.Entity<LLMSyncNotification>(entity =>
+        {
+            entity.ToTable("llm_sync_notifications");
+            entity.Property(e => e.NewModelNames)
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                    v => System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<string>());
+            entity.Property(e => e.DeactivatedModelNames)
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                    v => System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<string>());
         });
 
         Plugins.PluginModelRegistry.Apply(modelBuilder);
