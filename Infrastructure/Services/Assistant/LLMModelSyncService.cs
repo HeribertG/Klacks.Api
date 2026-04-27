@@ -1,14 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Text.RegularExpressions;
+using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Providers;
+
+namespace Klacks.Api.Infrastructure.Services.Assistant;
+
 /// <summary>
 /// Synchronizes LLM models by querying each enabled provider's discovery API,
 /// inserting new models and disabling removed ones.
 /// </summary>
-using System.Text.RegularExpressions;
-using Klacks.Api.Domain.Interfaces.Assistant;
-using Klacks.Api.Domain.Models.Assistant;
-
-namespace Klacks.Api.Infrastructure.Services.Assistant;
 
 public partial class LLMModelSyncService : ILLMModelSyncService
 {
@@ -48,7 +50,7 @@ public partial class LLMModelSyncService : ILLMModelSyncService
     }
 
     private async Task SyncProviderAsync(
-        Domain.Services.Assistant.Providers.ILLMProvider provider,
+        ILLMProvider provider,
         CancellationToken cancellationToken)
     {
         var discovered = await provider.GetAvailableModelsAsync();
@@ -56,7 +58,7 @@ public partial class LLMModelSyncService : ILLMModelSyncService
         if (discovered is null)
             return;
 
-        var existingModels = await _repository.GetModelsAsync();
+        var existingModels = await _repository.GetModelsAsync(false);
         var providerModels = existingModels
             .Where(m => m.ProviderId == provider.ProviderId)
             .ToList();
