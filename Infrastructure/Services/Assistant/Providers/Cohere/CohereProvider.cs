@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
+using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Microsoft.Extensions.Configuration;
@@ -109,6 +110,35 @@ public class CohereProvider : BaseHttpProvider
         catch
         {
             return false;
+        }
+    }
+
+    public override async Task<List<Domain.Models.Assistant.LLMModelDiscovery>?> GetAvailableModelsAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_apiKey))
+            return null;
+
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_httpClient.BaseAddress!, "models"));
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+            var result = System.Text.Json.JsonSerializer.Deserialize<CohereModelsResponse>(
+                json, GetJsonSerializerOptions());
+
+            return result?.Models
+                .Where(m => !string.IsNullOrWhiteSpace(m.Name))
+                .Select(m => new Domain.Models.Assistant.LLMModelDiscovery(m.Name, m.Name))
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch models from Cohere");
+            return null;
         }
     }
 }
