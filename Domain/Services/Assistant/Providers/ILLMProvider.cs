@@ -19,4 +19,7 @@ public interface ILLMProvider
     {
         throw new NotSupportedException($"{ProviderName} does not support streaming.");
     }
+
+    Task<List<Models.Assistant.LLMModelDiscovery>?> GetAvailableModelsAsync() =>
+        Task.FromResult<List<Models.Assistant.LLMModelDiscovery>?>(null);
 }
