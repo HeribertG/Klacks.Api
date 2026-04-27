@@ -35,6 +35,7 @@ public class ModelSyncController : ControllerBase
             providerId = n.ProviderId,
             providerName = n.ProviderName,
             newModelsCount = n.NewModelsCount,
+            failedModelsCount = n.FailedModelsCount,
             deactivatedModelsCount = n.DeactivatedModelsCount,
             newModelNames = n.NewModelNames,
             deactivatedModelNames = n.DeactivatedModelNames,
@@ -49,5 +50,32 @@ public class ModelSyncController : ControllerBase
     {
         await _repository.MarkAllSyncNotificationsReadAsync();
         return NoContent();
+    }
+
+    [HttpGet("history")]
+    public async Task<ActionResult<object>> GetHistory()
+    {
+        var notifications = await _repository.GetSyncNotificationsHistoryAsync();
+
+        var response = notifications.Select(n => new
+        {
+            id = n.Id.ToString(),
+            providerId = n.ProviderId,
+            providerName = n.ProviderName,
+            newModelsCount = n.NewModelsCount,
+            failedModelsCount = n.FailedModelsCount,
+            deactivatedModelsCount = n.DeactivatedModelsCount,
+            syncedAt = n.SyncedAt,
+            modelTestResults = n.ModelTestResults.Select(r => new
+            {
+                apiModelId = r.ApiModelId,
+                modelName = r.ModelName,
+                passed = r.Passed,
+                errorMessage = r.ErrorMessage,
+                durationMs = r.DurationMs,
+            }),
+        });
+
+        return Ok(response);
     }
 }
