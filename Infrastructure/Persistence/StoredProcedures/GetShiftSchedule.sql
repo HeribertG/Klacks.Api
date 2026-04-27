@@ -45,10 +45,14 @@ RETURNS TABLE (
 BEGIN
     RETURN QUERY
     WITH RECURSIVE group_hierarchy AS (
-        SELECT g.id FROM "group" g WHERE g.id = ANY(visible_group_ids) AND array_length(visible_group_ids, 1) > 0
+        SELECT g.id FROM "group" g
+        WHERE g.id = ANY(visible_group_ids)
+          AND array_length(visible_group_ids, 1) > 0
+          AND g.is_deleted = false
         UNION ALL
         SELECT g.id FROM "group" g
         INNER JOIN group_hierarchy gh ON g.parent = gh.id
+        WHERE g.is_deleted = false
     ),
     filtered_shift_ids AS MATERIALIZED (
         SELECT DISTINCT s.id
