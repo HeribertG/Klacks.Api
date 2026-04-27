@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
+using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Microsoft.Extensions.Configuration;
@@ -114,6 +116,44 @@ public class GeminiProvider : BaseHttpProvider
         catch
         {
             return false;
+        }
+    }
+
+    private const string GeminiModelPrefix = "models/";
+
+    public override async Task<List<LLMModelDiscovery>?> GetAvailableModelsAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_apiKey))
+            return null;
+
+        try
+        {
+            var url = $"models?key={_apiKey}";
+            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_httpClient.BaseAddress!, url));
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+            var result = System.Text.Json.JsonSerializer.Deserialize<GeminiModelsResponse>(
+                json, GetJsonSerializerOptions());
+
+            return result?.Models
+                .Where(m => !string.IsNullOrWhiteSpace(m.Name))
+                .Select(m =>
+                {
+                    var apiId = m.Name.StartsWith(GeminiModelPrefix, StringComparison.OrdinalIgnoreCase)
+                        ? m.Name[GeminiModelPrefix.Length..]
+                        : m.Name;
+                    return new LLMModelDiscovery(apiId, m.DisplayName ?? apiId);
+                })
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch models from Gemini");
+            return null;
         }
     }
 
