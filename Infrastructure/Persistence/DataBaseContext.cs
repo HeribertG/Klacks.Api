@@ -319,6 +319,11 @@ public class DataBaseContext : IdentityDbContext
                 .HasConversion(
                     v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
                     v => System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<string>());
+            entity.Property(e => e.ModelTestResults)
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                    v => System.Text.Json.JsonSerializer.Deserialize<List<LLMModelTestResult>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<LLMModelTestResult>());
         });
 
         Plugins.PluginModelRegistry.Apply(modelBuilder);
