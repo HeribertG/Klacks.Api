@@ -12,6 +12,8 @@
 /// <param name="SkillGapSuggestion">Enables the SkillGapSuggestion service</param>
 /// <param name="EmailPolling">Enables the EmailPolling service</param>
 /// <param name="MessageRetention">Enables the MessageRetention service</param>
+/// <param name="LLMModelSync">Enables the LLM model sync service</param>
+/// <param name="LLMModelSyncIntervalHours">Interval in hours between sync runs</param>
 namespace Klacks.Api.Application.Configuration;
 
 public class BackgroundServiceOptions
@@ -27,4 +29,6 @@ public class BackgroundServiceOptions
     public bool EmailPolling { get; set; } = true;
     public bool MessageRetention { get; set; } = true;
     public bool DataRetention { get; set; } = true;
+    public bool LLMModelSync { get; set; } = true;
+    public int LLMModelSyncIntervalHours { get; set; } = 24;
 }
