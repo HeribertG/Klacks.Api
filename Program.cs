@@ -204,6 +204,9 @@ builder.Services.AddScoped<Klacks.Api.Domain.Interfaces.Email.IEmailNotification
 builder.Services.AddSingleton<HeartbeatBackgroundService>();
 if (bgOptions.Heartbeat)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<HeartbeatBackgroundService>());
+builder.Services.AddSingleton<LLMModelSyncBackgroundService>();
+if (bgOptions.LLMModelSync)
+    builder.Services.AddHostedService(sp => sp.GetRequiredService<LLMModelSyncBackgroundService>());
 if (bgOptions.DataRetention)
     builder.Services.AddHostedService<DataRetentionBackgroundService>();
 builder.Services.AddHttpContextAccessor();

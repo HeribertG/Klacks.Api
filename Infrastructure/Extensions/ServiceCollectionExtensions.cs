@@ -406,6 +406,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IHeartbeatLLMService, Klacks.Api.Domain.Services.Assistant.HeartbeatLLMService>();
         services.AddScoped<IHeartbeatDataCollector, Klacks.Api.Infrastructure.Services.Assistant.HeartbeatDataCollector>();
         services.AddScoped<ILLMProviderFactory, LLMProviderFactory>();
+        services.AddScoped<ILLMModelSyncService, LLMModelSyncService>();
         services.AddScoped<LLMProviderOrchestrator>();
         services.AddScoped<LLMConversationManager>();
         services.AddScoped<LLMFunctionExecutor>();
