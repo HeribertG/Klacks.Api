@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
@@ -121,7 +120,7 @@ public class GeminiProvider : BaseHttpProvider
 
     private const string GeminiModelPrefix = "models/";
 
-    public override async Task<List<LLMModelDiscovery>?> GetAvailableModelsAsync()
+    public override async Task<List<Domain.Models.Assistant.LLMModelDiscovery>?> GetAvailableModelsAsync()
     {
         if (string.IsNullOrWhiteSpace(_apiKey))
             return null;
@@ -146,7 +145,7 @@ public class GeminiProvider : BaseHttpProvider
                     var apiId = m.Name.StartsWith(GeminiModelPrefix, StringComparison.OrdinalIgnoreCase)
                         ? m.Name[GeminiModelPrefix.Length..]
                         : m.Name;
-                    return new LLMModelDiscovery(apiId, m.DisplayName ?? apiId);
+                    return new Domain.Models.Assistant.LLMModelDiscovery(apiId, m.DisplayName ?? apiId);
                 })
                 .ToList();
         }
