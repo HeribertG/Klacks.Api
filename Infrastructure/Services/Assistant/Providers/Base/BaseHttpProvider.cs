@@ -106,6 +106,43 @@ public abstract class BaseHttpProvider : ILLMProvider
     public virtual Task<List<LLMModelDiscovery>?> GetAvailableModelsAsync() =>
         Task.FromResult<List<LLMModelDiscovery>?>(null);
 
+    public virtual async Task<LLMModelTestResult> TestModelAsync(string apiModelId)
+    {
+        if (string.IsNullOrWhiteSpace(_apiKey))
+            return new LLMModelTestResult(apiModelId, apiModelId, false, "No API key configured", 0);
+
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        try
+        {
+            var request = new LLMProviderRequest
+            {
+                ModelId = apiModelId,
+                Message = "Reply with 'ok'",
+                MaxTokens = 5,
+                Temperature = 0.0,
+            };
+
+            var responseTask = ProcessAsync(request);
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(15));
+            var completed = await Task.WhenAny(responseTask, timeoutTask);
+            sw.Stop();
+
+            if (completed == timeoutTask)
+                return new LLMModelTestResult(apiModelId, apiModelId, false, "Timeout after 15s", 15000);
+
+            var response = await responseTask;
+            return response.Success
+                ? new LLMModelTestResult(apiModelId, apiModelId, true, null, (int)sw.ElapsedMilliseconds)
+                : new LLMModelTestResult(apiModelId, apiModelId, false, response.Error, (int)sw.ElapsedMilliseconds);
+        }
+        catch (Exception ex)
+        {
+            sw.Stop();
+            _logger.LogWarning(ex, "TestModelAsync failed for {ModelId}: {Error}", apiModelId, ex.Message);
+            return new LLMModelTestResult(apiModelId, apiModelId, false, ex.Message, (int)sw.ElapsedMilliseconds);
+        }
+    }
+
     protected async Task<List<LLMModelDiscovery>?> GetModelsFromOpenAIApiAsync()
     {
         if (string.IsNullOrWhiteSpace(_apiKey))
