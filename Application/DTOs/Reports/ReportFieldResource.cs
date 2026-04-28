@@ -20,4 +20,5 @@ public class ReportFieldResource
     public bool HideLabel { get; set; }
     public List<string>? AdditionalBindings { get; set; }
     public string? BindingSeparator { get; set; }
+    public string? SortDirection { get; set; }
 }
