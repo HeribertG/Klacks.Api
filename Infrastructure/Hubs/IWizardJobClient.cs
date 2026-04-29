@@ -53,6 +53,34 @@ public sealed record WizardTokenDto(
     decimal Hours);
 
 /// <summary>
+/// Auction telemetry per planned token (one entry per non-locked token).
+/// Round 1 = clean award, Round 2 = Stage-1 escalation accepted.
+/// </summary>
+/// <param name="AgentId">Winner agent id</param>
+/// <param name="Date">Slot date</param>
+/// <param name="ShiftId">Slot shift id</param>
+/// <param name="Round">Auction round (1 or 2)</param>
+/// <param name="WinningScore">Fuzzy bid score that won the slot</param>
+/// <param name="FiredRules">Top-3 rule names that contributed (Phase 2 fuzzy)</param>
+public sealed record WizardAuctionAwardDto(
+    string AgentId,
+    string Date,
+    string ShiftId,
+    int Round,
+    double WinningScore,
+    IReadOnlyList<string> FiredRules);
+
+/// <summary>
+/// One Stage-1 escalation entry: an agent had to be assigned despite a soft-rule violation
+/// (e.g. MaxWorkDays exceeded) because no Stage-1-clean alternative existed.
+/// </summary>
+/// <param name="AgentId">Agent that received the slot</param>
+/// <param name="Date">Date of the affected slot</param>
+/// <param name="RuleName">Stage-1 rule that was relaxed</param>
+/// <param name="Hint">Human-readable explanation for UI display</param>
+public sealed record WizardEscalationDto(string AgentId, string Date, string RuleName, string Hint);
+
+/// <summary>
 /// Final result broadcast when the GA loop finishes normally.
 /// </summary>
 /// <param name="JobId">Unique job identifier</param>
@@ -61,10 +89,14 @@ public sealed record WizardTokenDto(
 /// <param name="TokenCount">Number of assigned tokens in the final scenario</param>
 /// <param name="AvailableShiftSlots">Total number of shift slots requested for the period (denominator for slot coverage)</param>
 /// <param name="Tokens">Non-locked planned assignment tokens</param>
+/// <param name="Awards">Auction awards per slot (Phase 3 telemetry, may be empty if auction did not seed the best scenario)</param>
+/// <param name="Escalations">Stage-1 escalations recorded during the auction seed</param>
 public sealed record WizardJobResultDto(
     Guid JobId,
     int FinalHardViolations,
     double FinalStage1Completion,
     int TokenCount,
     int AvailableShiftSlots,
-    IReadOnlyList<WizardTokenDto> Tokens);
+    IReadOnlyList<WizardTokenDto> Tokens,
+    IReadOnlyList<WizardAuctionAwardDto> Awards,
+    IReadOnlyList<WizardEscalationDto> Escalations);

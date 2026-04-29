@@ -4,6 +4,9 @@ using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Infrastructure.Hubs;
 using Klacks.ScheduleOptimizer.Models;
 using Klacks.ScheduleOptimizer.TokenEvolution;
+using Klacks.ScheduleOptimizer.TokenEvolution.Auction.Agent;
+using Klacks.ScheduleOptimizer.TokenEvolution.Auction.Conductor;
+using Klacks.ScheduleOptimizer.TokenEvolution.Auction.Controller;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -129,13 +132,17 @@ public sealed class WizardJobRunner : IWizardJobRunner
 
             _resultCache.Store(jobId, best, request.AnalyseToken);
 
+            var (awards, escalations) = BuildAuctionTelemetry(wizardContext, config.RandomSeed);
+
             await group.OnCompleted(new WizardJobResultDto(
                 JobId: jobId,
                 FinalHardViolations: best.FitnessStage0,
                 FinalStage1Completion: best.FitnessStage1,
                 TokenCount: best.Tokens.Count,
                 AvailableShiftSlots: wizardContext.Shifts.Count,
-                Tokens: MapTokens(best.Tokens)));
+                Tokens: MapTokens(best.Tokens),
+                Awards: awards,
+                Escalations: escalations));
         }
         catch (OperationCanceledException)
         {
@@ -184,4 +191,58 @@ public sealed class WizardJobRunner : IWizardJobRunner
                 EndTime: t.EndAt.ToString("HH:mm"),
                 Hours: t.TotalHours))
             .ToList();
+
+    /// <summary>
+    /// Run the auction once outside the GA loop to capture awards + escalations for UI display.
+    /// The GA may have mutated the actual best scenario, but the auction telemetry shows what the
+    /// rule-based seed produced — useful for explainability ("why did Coline get this slot?").
+    /// </summary>
+    internal static (IReadOnlyList<WizardAuctionAwardDto> Awards, IReadOnlyList<WizardEscalationDto> Escalations)
+        BuildAuctionTelemetry(CoreWizardContext context, int seed)
+    {
+        try
+        {
+            var auctioneer = new SlotAuctioneer(
+                new FuzzyBiddingAgent(),
+                new Stage0HardConstraintChecker(),
+                new Stage1SoftConstraintChecker());
+            var outcome = auctioneer.Run(context, new Random(seed));
+
+            var awards = outcome.Results
+                .Where(r => r.WinnerAgentId is not null)
+                .Select(r => MapAward(r, outcome.Scenario.Tokens))
+                .ToList();
+
+            var escalations = outcome.Escalation.Entries
+                .Select(e => new WizardEscalationDto(e.AgentId, e.Date.ToString("yyyy-MM-dd"), e.RuleName, e.Hint))
+                .ToList();
+
+            return (awards, escalations);
+        }
+        catch
+        {
+            return (Array.Empty<WizardAuctionAwardDto>(), Array.Empty<WizardEscalationDto>());
+        }
+    }
+
+    private static WizardAuctionAwardDto MapAward(
+        Klacks.ScheduleOptimizer.TokenEvolution.Auction.Conductor.AuctionResult result,
+        IReadOnlyList<CoreToken> tokens)
+    {
+        var winningBid = result.Bids.FirstOrDefault(b => b.AgentId == result.WinnerAgentId);
+        var winningScore = winningBid?.Score ?? 0.0;
+        var firedRules = winningBid?.FiredRules ?? Array.Empty<string>();
+
+        var slotParts = result.SlotId.Split('/', 2);
+        var date = slotParts.Length == 2 ? slotParts[0] : "";
+        var shiftId = slotParts.Length == 2 ? slotParts[1] : result.SlotId;
+
+        return new WizardAuctionAwardDto(
+            AgentId: result.WinnerAgentId ?? "",
+            Date: date,
+            ShiftId: shiftId,
+            Round: result.Round,
+            WinningScore: winningScore,
+            FiredRules: firedRules);
+    }
 }
