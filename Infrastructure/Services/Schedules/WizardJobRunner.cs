@@ -134,6 +134,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
                 FinalHardViolations: best.FitnessStage0,
                 FinalStage1Completion: best.FitnessStage1,
                 TokenCount: best.Tokens.Count,
+                AvailableShiftSlots: wizardContext.Shifts.Count,
                 Tokens: MapTokens(best.Tokens)));
         }
         catch (OperationCanceledException)

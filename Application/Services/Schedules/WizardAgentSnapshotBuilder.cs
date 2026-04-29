@@ -98,6 +98,8 @@ public sealed class WizardAgentSnapshotBuilder
             FullTime = (double)data.FullTime,
             MaximumHours = (double)data.MaximumHours,
             MinimumHours = (double)data.MinimumHours,
+            MaxWorkDays = data.MaxWorkDays > 0 ? data.MaxWorkDays : 5,
+            MinRestDays = data.MinRestDays > 0 ? data.MinRestDays : 2,
             PerformsShiftWork = data.PerformsShiftWork,
             WorkOnMonday = data.WorkOnMonday,
             WorkOnTuesday = data.WorkOnTuesday,

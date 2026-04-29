@@ -57,12 +57,14 @@ public sealed record WizardTokenDto(
 /// </summary>
 /// <param name="JobId">Unique job identifier</param>
 /// <param name="FinalHardViolations">Stage-0 value of the final best scenario</param>
-/// <param name="FinalStage1Completion">Stage-1 completion rate</param>
-/// <param name="TokenCount">Number of tokens in the final scenario</param>
+/// <param name="FinalStage1Completion">Stage-1 completion rate (agents who reached GuaranteedHours)</param>
+/// <param name="TokenCount">Number of assigned tokens in the final scenario</param>
+/// <param name="AvailableShiftSlots">Total number of shift slots requested for the period (denominator for slot coverage)</param>
 /// <param name="Tokens">Non-locked planned assignment tokens</param>
 public sealed record WizardJobResultDto(
     Guid JobId,
     int FinalHardViolations,
     double FinalStage1Completion,
     int TokenCount,
+    int AvailableShiftSlots,
     IReadOnlyList<WizardTokenDto> Tokens);
