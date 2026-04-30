@@ -15,6 +15,7 @@
  * @param MutationWeightRepair - Overrides TokenEvolutionConfig.MutationWeightRepair if set
  * @param EarlyStopNoImprovementGenerations - Overrides TokenEvolutionConfig.EarlyStopNoImprovementGenerations if set
  * @param RandomSeed - Overrides TokenEvolutionConfig.RandomSeed if set (null = random per run)
+ * @param InitAuctionRatio - Overrides TokenEvolutionConfig.InitAuctionRatio if set (0..1; clamped)
  */
 
 using Klacks.ScheduleOptimizer.TokenEvolution;
@@ -34,7 +35,8 @@ public sealed record WizardTrainingOverrides(
     double? MutationWeightReassign = null,
     double? MutationWeightRepair = null,
     int? EarlyStopNoImprovementGenerations = null,
-    int? RandomSeed = null)
+    int? RandomSeed = null,
+    double? InitAuctionRatio = null)
 {
     public TokenEvolutionConfig Apply(TokenEvolutionConfig baseline) => baseline with
     {
@@ -51,5 +53,6 @@ public sealed record WizardTrainingOverrides(
         MutationWeightRepair = MutationWeightRepair ?? baseline.MutationWeightRepair,
         EarlyStopNoImprovementGenerations = EarlyStopNoImprovementGenerations ?? baseline.EarlyStopNoImprovementGenerations,
         RandomSeed = RandomSeed ?? baseline.RandomSeed,
+        InitAuctionRatio = InitAuctionRatio is { } r ? Math.Clamp(r, 0d, 1d) : baseline.InitAuctionRatio,
     };
 }
