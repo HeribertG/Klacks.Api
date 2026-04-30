@@ -28,6 +28,7 @@ public interface IConnectionDateRangeTracker
 public class ConnectionDateRangeTracker : IConnectionDateRangeTracker
 {
     private readonly ConcurrentDictionary<string, (DateOnly StartDate, DateOnly EndDate, Guid? SelectedGroupId, Guid? AnalyseToken)> _connectionRanges = new();
+    private readonly ConcurrentDictionary<string, Guid?> _pendingSelectedGroups = new();
 
     public (DateOnly Start, DateOnly End)? GetRegisteredDateRange(string connectionId)
     {
@@ -58,15 +59,26 @@ public class ConnectionDateRangeTracker : IConnectionDateRangeTracker
 
     public void RegisterConnection(string connectionId, DateOnly startDate, DateOnly endDate, Guid? analyseToken)
     {
-        var selectedGroup = _connectionRanges.TryGetValue(connectionId, out var existing)
-            ? existing.SelectedGroupId
-            : (Guid?)null;
+        Guid? selectedGroup;
+        if (_connectionRanges.TryGetValue(connectionId, out var existing))
+        {
+            selectedGroup = existing.SelectedGroupId;
+        }
+        else if (_pendingSelectedGroups.TryRemove(connectionId, out var pending))
+        {
+            selectedGroup = pending;
+        }
+        else
+        {
+            selectedGroup = null;
+        }
         _connectionRanges[connectionId] = (startDate, endDate, selectedGroup, analyseToken);
     }
 
     public void UnregisterConnection(string connectionId)
     {
         _connectionRanges.TryRemove(connectionId, out _);
+        _pendingSelectedGroups.TryRemove(connectionId, out _);
     }
 
     public void SetSelectedGroup(string connectionId, Guid? selectedGroupId)
@@ -74,6 +86,10 @@ public class ConnectionDateRangeTracker : IConnectionDateRangeTracker
         if (_connectionRanges.TryGetValue(connectionId, out var current))
         {
             _connectionRanges[connectionId] = (current.StartDate, current.EndDate, selectedGroupId, current.AnalyseToken);
+        }
+        else
+        {
+            _pendingSelectedGroups[connectionId] = selectedGroupId;
         }
     }
 
