@@ -38,8 +38,9 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
         var preferences = await BuildShiftPreferencesAsync(agentIdList, ct);
         var blockers = await BuildBreakBlockersAsync(agentIdList, from, until, analyseToken, ct);
         var lockedWorks = await BuildLockedWorksAsync(agentIdList, from, until, analyseToken, ct);
+        var existingBlockers = await BuildExistingWorkBlockersAsync(agentIdList, from, until, analyseToken, ct);
 
-        return new HardConstraintResult(commands, preferences, blockers, lockedWorks);
+        return new HardConstraintResult(commands, preferences, blockers, lockedWorks, existingBlockers);
     }
 
     private async Task<IReadOnlyList<CoreScheduleCommand>> BuildScheduleCommandsAsync(
@@ -101,6 +102,34 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                 b.CurrentDate,
                 b.CurrentDate,
                 b.Absence?.Name?.De ?? "Break"))
+            .ToList();
+    }
+
+    private async Task<IReadOnlyList<CoreExistingWorkBlocker>> BuildExistingWorkBlockersAsync(
+        List<Guid> agentIds, DateOnly from, DateOnly until, Guid? analyseToken, CancellationToken ct)
+    {
+        var rawWorks = await _context.Work
+            .AsNoTracking()
+            .Where(w => agentIds.Contains(w.ClientId)
+                        && w.CurrentDate >= from
+                        && w.CurrentDate <= until
+                        && w.LockLevel == WorkLockLevel.None
+                        && (w.AnalyseToken == analyseToken || (w.AnalyseToken == null && analyseToken == null)))
+            .ToListAsync(ct);
+
+        return rawWorks
+            .Select(w =>
+            {
+                var startAt = w.CurrentDate.ToDateTime(w.StartTime);
+                var endAt = w.EndTime <= w.StartTime
+                    ? w.CurrentDate.AddDays(1).ToDateTime(w.EndTime)
+                    : w.CurrentDate.ToDateTime(w.EndTime);
+                return new CoreExistingWorkBlocker(
+                    AgentId: w.ClientId.ToString(),
+                    Date: w.CurrentDate,
+                    StartAt: startAt,
+                    EndAt: endAt);
+            })
             .ToList();
     }
 

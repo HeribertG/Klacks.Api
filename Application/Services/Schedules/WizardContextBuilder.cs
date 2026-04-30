@@ -59,6 +59,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
             ShiftPreferences = hardConstraints.ShiftPreferences,
             BreakBlockers = hardConstraints.BreakBlockers,
             LockedWorks = hardConstraints.LockedWorks,
+            ExistingWorkBlockers = hardConstraints.ExistingWorkBlockers,
             SchedulingMaxConsecutiveDays = firstAgent?.MaxConsecutiveDays ?? 6,
             SchedulingMinPauseHours = firstAgent?.MinRestHours ?? 11,
             SchedulingMaxOptimalGap = firstAgent?.MaxOptimalGap ?? 2,

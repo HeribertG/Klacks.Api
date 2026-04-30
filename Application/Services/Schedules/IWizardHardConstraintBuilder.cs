@@ -33,9 +33,11 @@ public interface IWizardHardConstraintBuilder
 /// <param name="ScheduleCommands">Per-day planning keywords (FREE/EARLY/LATE/NIGHT and their negations)</param>
 /// <param name="ShiftPreferences">Master-data preferences per client and shift</param>
 /// <param name="BreakBlockers">Absence/break blockers (one entry per affected day)</param>
-/// <param name="LockedWorks">Existing Work entities with LockLevel > 0</param>
+/// <param name="LockedWorks">Existing Work entities with LockLevel &gt; 0 (lifted into the genome as locked tokens)</param>
+/// <param name="ExistingWorkBlockers">Existing Work entities with LockLevel = None — veto source only, never lifted into the genome</param>
 public sealed record HardConstraintResult(
     IReadOnlyList<CoreScheduleCommand> ScheduleCommands,
     IReadOnlyList<CoreShiftPreference> ShiftPreferences,
     IReadOnlyList<CoreBreakBlocker> BreakBlockers,
-    IReadOnlyList<CoreLockedWork> LockedWorks);
+    IReadOnlyList<CoreLockedWork> LockedWorks,
+    IReadOnlyList<CoreExistingWorkBlocker> ExistingWorkBlockers);
