@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.DTOs.Schedules;
+
 namespace Klacks.Api.Application.Services.Schedules;
 
 /// <summary>
@@ -12,4 +14,11 @@ public interface IWizardApplyService
     /// newly created Work ids. Throws <see cref="InvalidOperationException"/> when no scenario is cached.
     /// </summary>
     Task<IReadOnlyList<Guid>> ApplyAsync(Guid jobId, CancellationToken ct);
+
+    /// <summary>
+    /// Creates a new AnalyseScenario with a full schedule clone, then writes the wizard's
+    /// non-locked tokens into it. Returns the created scenario resource and the new Work ids.
+    /// Throws <see cref="InvalidOperationException"/> when no scenario is cached for <paramref name="jobId"/>.
+    /// </summary>
+    Task<(AnalyseScenarioResource Scenario, IReadOnlyList<Guid> CreatedWorkIds)> ApplyAsScenarioAsync(Guid jobId, Guid? groupId, CancellationToken ct);
 }

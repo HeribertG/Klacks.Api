@@ -97,7 +97,7 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         foreach (var sn in notes) { sn.IsDeleted = true; sn.DeletedTime = DateTime.UtcNow; }
     }
 
-    public async Task CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, CancellationToken ct)
+    public async Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, CancellationToken ct)
     {
         var groupIds = groupId.HasValue
             ? await GetGroupHierarchyIdsAsync(groupId.Value, ct)
@@ -107,6 +107,8 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         var workIdMap = await CloneWorks(groupIds, fromDate, untilDate, token, shiftIdMap, ct);
         await CloneBreaks(groupIds, fromDate, untilDate, token, workIdMap, ct);
         await CloneScheduleNotes(groupIds, fromDate, untilDate, token, ct);
+
+        return shiftIdMap;
     }
 
     public async Task SoftDeleteRealScheduleDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
