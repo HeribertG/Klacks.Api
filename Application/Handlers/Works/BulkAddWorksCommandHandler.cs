@@ -90,20 +90,20 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                 }
 
                 var affected = works.Select(w => (w.ClientId, w.CurrentDate, w.AnalyseToken)).ToList();
-                await _completionService.SaveBulkAndTrackAsync(affected);
+                var periodStart = command.Request.PeriodStart;
+                var periodEnd = command.Request.PeriodEnd;
+                var bulkToken = works.Select(w => w.AnalyseToken).Distinct().Count() == 1 ? works[0].AnalyseToken : null;
+
+                await _completionService.SaveBulkAndTrackRangeAsync(affected, periodStart, periodEnd, bulkToken);
 
                 var connectionId = _notificationFacade.GetConnectionId();
 
                 var affectedClients = works.Select(w => w.ClientId).Distinct().ToList();
-                var periodStart = command.Request.PeriodStart;
-                var periodEnd = command.Request.PeriodEnd;
 
                 foreach (var work in works)
                 {
                     await _notificationFacade.NotifyWorkCreatedAsync(work, connectionId, periodStart, periodEnd);
                 }
-
-                var bulkToken = works.Select(w => w.AnalyseToken).Distinct().Count() == 1 ? works[0].AnalyseToken : null;
 
                 if (affectedClients.Count > 0)
                 {
@@ -114,14 +114,13 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                         var clientTokens = works.Where(w => w.ClientId == clientId).Select(w => w.AnalyseToken).Distinct().ToList();
                         var clientToken = clientTokens.Count == 1 ? clientTokens[0] : null;
 
-                        var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(
+                        var periodHours = await _periodHoursService.RecalculateAndNotifyAsync(
                             clientId,
                             periodStart,
                             periodEnd,
-                            clientToken);
+                            clientToken,
+                            connectionId);
                         response.PeriodHours[clientId] = periodHours;
-
-                        await _notificationFacade.NotifyPeriodHoursUpdatedAsync(clientId, periodStart, periodEnd, periodHours, connectionId, clientToken);
                     }
                 }
 

@@ -73,6 +73,37 @@ public class ScheduleCompletionService : IScheduleCompletionService
         }
     }
 
+    public async Task SaveBulkAndTrackRangeAsync(
+        List<(Guid ClientId, DateOnly CurrentDate, Guid? AnalyseToken)> affectedEntries,
+        DateOnly periodStart,
+        DateOnly periodEnd,
+        Guid? bulkAnalyseToken)
+    {
+        await _unitOfWork.CompleteAsync();
+
+        foreach (var (clientId, currentDate, analyseToken) in affectedEntries)
+        {
+            await _scheduleChangeTracker.TrackChangeAsync(clientId, currentDate, analyseToken);
+        }
+
+        var distinctTokens = affectedEntries
+            .Select(e => e.AnalyseToken)
+            .Distinct()
+            .ToList();
+
+        if (distinctTokens.Count <= 1)
+        {
+            _timelineService.QueueRangeCheck(periodStart, periodEnd, bulkAnalyseToken);
+        }
+        else
+        {
+            foreach (var token in distinctTokens)
+            {
+                _timelineService.QueueRangeCheck(periodStart, periodEnd, token);
+            }
+        }
+    }
+
     public async Task SaveAndTrackWithReplaceClientAsync(
         Guid clientId, DateOnly currentDate,
         DateOnly periodStart, DateOnly periodEnd,

@@ -21,6 +21,12 @@ public interface IScheduleCompletionService
     Task SaveBulkAndTrackAsync(
         List<(Guid ClientId, DateOnly CurrentDate, Guid? AnalyseToken)> affectedEntries);
 
+    Task SaveBulkAndTrackRangeAsync(
+        List<(Guid ClientId, DateOnly CurrentDate, Guid? AnalyseToken)> affectedEntries,
+        DateOnly periodStart,
+        DateOnly periodEnd,
+        Guid? bulkAnalyseToken);
+
     Task SaveAndTrackWithReplaceClientAsync(
         Guid clientId, DateOnly currentDate,
         DateOnly periodStart, DateOnly periodEnd,
