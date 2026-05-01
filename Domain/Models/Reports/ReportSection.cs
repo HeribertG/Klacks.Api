@@ -15,4 +15,5 @@ public class ReportSection
     public string? BackgroundColor { get; set; }
     public List<ReportField>? TableFooterFields { get; set; }
     public List<FreeTextRow>? FreeTextRows { get; set; }
+    public bool? ShowFullPeriod { get; set; }
 }
