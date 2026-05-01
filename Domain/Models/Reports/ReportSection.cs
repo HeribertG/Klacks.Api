@@ -16,4 +16,6 @@ public class ReportSection
     public List<ReportField>? TableFooterFields { get; set; }
     public List<FreeTextRow>? FreeTextRows { get; set; }
     public bool? ShowFullPeriod { get; set; }
+    public int? WidthPercent { get; set; }
+    public string? Title { get; set; }
 }
