@@ -8,10 +8,12 @@ using System.Net.Sockets;
 using System.Threading.Channels;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -21,9 +23,6 @@ namespace Klacks.Api.Infrastructure.Services;
 
 public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTimelineService
 {
-    private static readonly TimeSpan MinRestDuration = TimeSpan.FromHours(11);
-    private static readonly TimeSpan MaxDailyWorkDuration = TimeSpan.FromHours(10);
-    private const int MaxConsecutiveWorkDays = 6;
     private const double TravelTimeWarningFactor = 1.5;
 
     private const int MaxTransientRetries = 1;
@@ -162,12 +161,13 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 var notificationService = scope.ServiceProvider.GetRequiredService<IWorkNotificationService>();
                 var timelineCalculationService = scope.ServiceProvider.GetRequiredService<ITimelineCalculationService>();
                 var travelTimeService = scope.ServiceProvider.GetRequiredService<ITravelTimeCalculationService>();
+                var policyResolver = scope.ServiceProvider.GetRequiredService<ISchedulingPolicyResolver>();
 
                 if (job.IsRangeCheck)
                 {
                     _logger.LogDebug("[COLLISION-TRACE] START RangeCheck {Start} - {End} token={Token}",
                         job.StartDate, job.EndDate, job.AnalyseToken?.ToString() ?? "null");
-                    await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, job.StartDate, job.EndDate, job.AnalyseToken, stoppingToken);
+                    await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, policyResolver, job.StartDate, job.EndDate, job.AnalyseToken, stoppingToken);
                     _logger.LogDebug("[COLLISION-TRACE] DONE RangeCheck {Start} - {End} token={Token}",
                         job.StartDate, job.EndDate, job.AnalyseToken?.ToString() ?? "null");
                 }
@@ -175,7 +175,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 {
                     _logger.LogDebug("[COLLISION-TRACE] START SingleCheck Client={ClientId} Date={Date} token={Token}",
                         job.ClientId, job.Date, job.AnalyseToken?.ToString() ?? "null");
-                    await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, job.ClientId, job.Date, job.AnalyseToken, stoppingToken);
+                    await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, job.ClientId, job.Date, job.AnalyseToken, stoppingToken);
                     _logger.LogDebug("[COLLISION-TRACE] DONE SingleCheck Client={ClientId} token={Token}",
                         job.ClientId, job.AnalyseToken?.ToString() ?? "null");
                 }
@@ -244,6 +244,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         IWorkNotificationService notificationService,
         ITimelineCalculationService timelineCalculationService,
         ITravelTimeCalculationService travelTimeService,
+        ISchedulingPolicyResolver policyResolver,
         Guid clientId,
         DateOnly date,
         Guid? analyseToken,
@@ -296,9 +297,10 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         clientNameLookup.TryGetValue(clientId, out var clientName);
         clientName ??= string.Empty;
 
-        AddRestViolationEntries(entries, timeline, clientName);
-        AddOvertimeEntries(entries, timeline, clientName, date, date);
-        AddConsecutiveDayEntries(entries, timeline, clientName, date, date);
+        var policy = await policyResolver.GetForClientAsync(clientId, date);
+        AddRestViolationEntries(entries, timeline, clientName, policy);
+        AddOvertimeEntries(entries, timeline, clientName, date, date, policy);
+        AddConsecutiveDayEntries(entries, timeline, clientName, date, date, policy);
 
         try
         {
@@ -329,6 +331,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         DataBaseContext dbContext,
         IWorkNotificationService notificationService,
         ITimelineCalculationService timelineCalculationService,
+        ISchedulingPolicyResolver policyResolver,
         DateOnly startDate,
         DateOnly endDate,
         Guid? analyseToken,
@@ -357,9 +360,12 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         var clientNameLookup = BuildClientNameLookup(works, workChanges);
         var scheduleBlocks = timelineCalculationService.CalculateScheduleBlocks(works, workChanges, breaks);
 
-        var groupedByClient = scheduleBlocks.GroupBy(b => b.ClientId);
+        var groupedByClient = scheduleBlocks.GroupBy(b => b.ClientId).ToList();
         var allEntries = new List<ScheduleValidationNotificationDto>();
         var allCollisions = new List<CollisionNotificationDto>();
+
+        var clientIds = groupedByClient.Select(g => g.Key).ToList();
+        var policies = await policyResolver.GetForClientsAsync(clientIds, startDate);
 
         foreach (var group in groupedByClient)
         {
@@ -371,9 +377,13 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             clientNameLookup.TryGetValue(group.Key, out var clientName);
             clientName ??= string.Empty;
 
-            AddRestViolationEntries(allEntries, timeline, clientName);
-            AddOvertimeEntries(allEntries, timeline, clientName, startDate, endDate);
-            AddConsecutiveDayEntries(allEntries, timeline, clientName, startDate, endDate);
+            var policy = policies.TryGetValue(group.Key, out var found)
+                ? found
+                : await policyResolver.GetForClientAsync(group.Key, startDate);
+
+            AddRestViolationEntries(allEntries, timeline, clientName, policy);
+            AddOvertimeEntries(allEntries, timeline, clientName, startDate, endDate, policy);
+            AddConsecutiveDayEntries(allEntries, timeline, clientName, startDate, endDate, policy);
 
             allCollisions.AddRange(BuildLegacyCollisionList(timeline, clientNameLookup));
         }
@@ -403,9 +413,10 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
     private static void AddRestViolationEntries(
         List<ScheduleValidationNotificationDto> entries,
         ClientTimeline timeline,
-        string clientName)
+        string clientName,
+        SchedulingPolicy policy)
     {
-        foreach (var violation in timeline.GetRestViolations(MinRestDuration))
+        foreach (var violation in timeline.GetRestViolations(policy.MinRestHours))
         {
             entries.Add(new ScheduleValidationNotificationDto
             {
@@ -430,12 +441,13 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         ClientTimeline timeline,
         string clientName,
         DateOnly startDate,
-        DateOnly endDate)
+        DateOnly endDate,
+        SchedulingPolicy policy)
     {
         for (var date = startDate; date <= endDate; date = date.AddDays(1))
         {
             var duration = timeline.GetWorkDuration(date);
-            if (duration > MaxDailyWorkDuration)
+            if (duration > policy.MaxDailyHours)
             {
                 entries.Add(new ScheduleValidationNotificationDto
                 {
@@ -447,7 +459,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                     CommentParams = new Dictionary<string, string>
                     {
                         ["actualHours"] = $"{duration.TotalHours:F1}",
-                        ["maxHours"] = $"{MaxDailyWorkDuration.TotalHours:F0}"
+                        ["maxHours"] = $"{policy.MaxDailyHours.TotalHours:F0}"
                     }
                 });
             }
@@ -459,13 +471,14 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         ClientTimeline timeline,
         string clientName,
         DateOnly startDate,
-        DateOnly endDate)
+        DateOnly endDate,
+        SchedulingPolicy policy)
     {
         var date = startDate;
         while (date <= endDate)
         {
             var consecutive = timeline.GetConsecutiveWorkDays(date);
-            if (consecutive > MaxConsecutiveWorkDays)
+            if (consecutive > policy.MaxConsecutiveDays)
             {
                 entries.Add(new ScheduleValidationNotificationDto
                 {
@@ -477,7 +490,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                     CommentParams = new Dictionary<string, string>
                     {
                         ["actualDays"] = consecutive.ToString(),
-                        ["maxDays"] = MaxConsecutiveWorkDays.ToString()
+                        ["maxDays"] = policy.MaxConsecutiveDays.ToString()
                     }
                 });
                 date = date.AddDays(consecutive);

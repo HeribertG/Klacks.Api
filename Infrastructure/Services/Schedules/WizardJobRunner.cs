@@ -74,6 +74,17 @@ public sealed class WizardJobRunner : IWizardJobRunner
             var wizardContext = await builder.BuildContextAsync(request, ct);
             _logger.LogInformation("Wizard job {JobId} context built", jobId);
 
+            var firstAgentForCapDump = wizardContext.Agents.FirstOrDefault();
+            _logger.LogInformation(
+                "Wizard job {JobId} effective caps: SchedulingMinPauseHours={MinRest}h, SchedulingMaxDailyHours={MaxDaily}h, SchedulingMaxConsecutiveDays={MaxDays}; firstAgent.MinRestHours={A1}h, firstAgent.MaxDailyHours={A2}h, firstAgent.MaxConsecutiveDays={A3}",
+                jobId,
+                wizardContext.SchedulingMinPauseHours,
+                wizardContext.SchedulingMaxDailyHours,
+                wizardContext.SchedulingMaxConsecutiveDays,
+                firstAgentForCapDump?.MinRestHours,
+                firstAgentForCapDump?.MaxDailyHours,
+                firstAgentForCapDump?.MaxConsecutiveDays);
+
             var baseline = new TokenEvolutionConfig
             {
                 RandomSeed = Guid.NewGuid().GetHashCode(),
