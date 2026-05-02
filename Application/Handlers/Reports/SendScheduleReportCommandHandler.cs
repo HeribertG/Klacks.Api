@@ -14,15 +14,18 @@ public class SendScheduleReportCommandHandler : BaseHandler,
 {
     private readonly ICommunicationRepository _communicationRepository;
     private readonly IScheduleEmailService _scheduleEmailService;
+    private readonly IScheduleChangeTracker _scheduleChangeTracker;
 
     public SendScheduleReportCommandHandler(
         ICommunicationRepository communicationRepository,
         IScheduleEmailService scheduleEmailService,
+        IScheduleChangeTracker scheduleChangeTracker,
         ILogger<SendScheduleReportCommandHandler> logger)
         : base(logger)
     {
         _communicationRepository = communicationRepository;
         _scheduleEmailService = scheduleEmailService;
+        _scheduleChangeTracker = scheduleChangeTracker;
     }
 
     public async Task<SendScheduleReportResponse> Handle(
@@ -54,6 +57,17 @@ public class SendScheduleReportCommandHandler : BaseHandler,
 
             if (result)
             {
+                try
+                {
+                    var startDate = DateOnly.ParseExact(request.StartDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+                    var endDate = DateOnly.ParseExact(request.EndDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+                    await _scheduleChangeTracker.ClearChangesAsync(request.ClientId, startDate, endDate);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to clear schedule changes after sending report for client {ClientId}", request.ClientId);
+                }
+
                 return new SendScheduleReportResponse
                 {
                     Success = true,

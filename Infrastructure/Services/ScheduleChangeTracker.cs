@@ -69,4 +69,22 @@ public class ScheduleChangeTracker : IScheduleChangeTracker
             .Where(sc => sc.ChangeDate >= startDate && sc.ChangeDate <= endDate)
             .ToListAsync();
     }
+
+    public async Task ClearChangesAsync(Guid clientId, DateOnly startDate, DateOnly endDate)
+    {
+        var entries = await _context.ScheduleChange
+            .IgnoreQueryFilters()
+            .Where(sc => sc.ClientId == clientId
+                && sc.ChangeDate >= startDate
+                && sc.ChangeDate <= endDate
+                && !sc.IsDeleted)
+            .ToListAsync();
+
+        foreach (var entry in entries)
+        {
+            _context.ScheduleChange.Remove(entry);
+        }
+
+        await _context.SaveChangesAsync();
+    }
 }
