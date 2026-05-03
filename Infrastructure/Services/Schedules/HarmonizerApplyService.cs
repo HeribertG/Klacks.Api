@@ -83,6 +83,14 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
         var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(groupId, periodFrom, periodUntil, token, ct);
         await _unitOfWork.CompleteAsync();
 
+        // CloneScenarioDataAsync clones existing schedule entries (Works/Breaks/Expenses/WorkChanges)
+        // into the new scenario. The harmonizer replaces those with rearranged Works derived from the
+        // best bitmap, so we must soft-delete the cloned schedule entries first — otherwise both the
+        // cloned originals and the harmonised replacements would coexist in the new scenario, leading
+        // to duplicate work entries on every day after the user accepts the scenario.
+        await DeleteClonedScheduleEntriesAsync(token, periodFrom, periodUntil, ct);
+        await _unitOfWork.CompleteAsync();
+
         var bulkItems = BuildBulkItems(bestBitmap, originalWorks, shiftIdMap, token);
 
         IReadOnlyList<Guid> createdIds = [];
@@ -143,6 +151,41 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
             .Where(w => ids.Contains(w.Id))
             .ToListAsync(ct);
         return works.ToDictionary(w => w.Id);
+    }
+
+    private async Task DeleteClonedScheduleEntriesAsync(Guid token, DateOnly from, DateOnly until, CancellationToken ct)
+    {
+        var clonedWorks = await _context.Work.IgnoreQueryFilters()
+            .Where(w => w.AnalyseToken == token && w.CurrentDate >= from && w.CurrentDate <= until && !w.IsDeleted)
+            .ToListAsync(ct);
+        var workIds = clonedWorks.Select(w => w.Id).ToList();
+
+        var now = DateTime.UtcNow;
+
+        var clonedBreaks = await _context.Break.IgnoreQueryFilters()
+            .Where(b => b.AnalyseToken == token && b.CurrentDate >= from && b.CurrentDate <= until && !b.IsDeleted)
+            .ToListAsync(ct);
+        foreach (var b in clonedBreaks) { b.IsDeleted = true; b.DeletedTime = now; }
+
+        if (workIds.Count > 0)
+        {
+            var orphanSubBreaks = await _context.Break.IgnoreQueryFilters()
+                .Where(b => !b.IsDeleted && b.ParentWorkId.HasValue && workIds.Contains(b.ParentWorkId.Value))
+                .ToListAsync(ct);
+            foreach (var b in orphanSubBreaks) { b.IsDeleted = true; b.DeletedTime = now; }
+
+            var clonedWorkChanges = await _context.WorkChange
+                .Where(wc => !wc.IsDeleted && workIds.Contains(wc.WorkId))
+                .ToListAsync(ct);
+            foreach (var wc in clonedWorkChanges) { wc.IsDeleted = true; wc.DeletedTime = now; }
+
+            var clonedExpenses = await _context.Expenses
+                .Where(e => !e.IsDeleted && workIds.Contains(e.WorkId))
+                .ToListAsync(ct);
+            foreach (var e in clonedExpenses) { e.IsDeleted = true; e.DeletedTime = now; }
+        }
+
+        foreach (var w in clonedWorks) { w.IsDeleted = true; w.DeletedTime = now; }
     }
 
     private static List<BulkWorkItem> BuildBulkItems(
