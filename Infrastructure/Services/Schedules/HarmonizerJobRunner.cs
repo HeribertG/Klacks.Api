@@ -95,25 +95,20 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
             var loop = new HarmonizerEvolutionLoop(fitness, stochasticMutation, BuildConductor, config);
             var initialFitness = fitness.Evaluate(sortedBitmap);
 
-            await group.OnProgress(new HarmonizerJobProgressDto(
-                JobId: jobId,
-                Generation: 0,
-                MaxGenerations: config.MaxGenerations,
-                BestFitness: initialFitness.Fitness,
-                EarlyStopping: false));
-
-            var result = await Task.Run(() => loop.Run(sortedBitmap), ct);
-
-            for (var g = 1; g < result.GenerationFitness.Count; g++)
+            var progress = new Progress<EvolutionGenerationProgress>(p =>
             {
-                ct.ThrowIfCancellationRequested();
-                await group.OnProgress(new HarmonizerJobProgressDto(
+                var sendTask = group.OnProgress(new HarmonizerJobProgressDto(
                     JobId: jobId,
-                    Generation: g,
-                    MaxGenerations: config.MaxGenerations,
-                    BestFitness: result.GenerationFitness[g],
-                    EarlyStopping: g == result.GenerationFitness.Count - 1));
-            }
+                    Generation: p.Generation,
+                    MaxGenerations: p.MaxGenerations,
+                    BestFitness: p.BestFitness,
+                    EarlyStopping: p.EarlyStopping));
+                sendTask.ContinueWith(
+                    t => _logger.LogWarning(t.Exception, "Failed to broadcast harmonizer progress for job {JobId} gen {Generation}", jobId, p.Generation),
+                    TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
+            });
+
+            var result = await Task.Run(() => loop.Run(sortedBitmap, progress, ct), ct);
 
             _resultCache.Store(jobId, originalForCache, result.Best.Bitmap, request.AnalyseToken);
 
