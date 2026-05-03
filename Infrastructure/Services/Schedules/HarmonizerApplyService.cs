@@ -203,13 +203,14 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
         foreach (var w in clonedWorks) { w.IsDeleted = true; w.DeletedTime = now; }
     }
 
-    private static List<BulkWorkItem> BuildBulkItems(
+    private List<BulkWorkItem> BuildBulkItems(
         HarmonyBitmap bitmap,
         IReadOnlyDictionary<Guid, Work> originalWorks,
         IReadOnlyDictionary<Guid, Guid> shiftIdMap,
         Guid analyseToken)
     {
         var items = new List<BulkWorkItem>();
+        var unmappedShifts = new HashSet<Guid>();
         for (var r = 0; r < bitmap.RowCount; r++)
         {
             var newAgentId = Guid.Parse(bitmap.Rows[r].Id);
@@ -226,11 +227,24 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
                     {
                         continue;
                     }
-                    var shiftId = shiftIdMap.TryGetValue(original.ShiftId, out var mapped) ? mapped : original.ShiftId;
+
+                    // The cloned scenario only contains shifts mapped by CloneScenarioDataAsync.
+                    // Falling back to the unmapped main-scenario shift_id sets the new Work's
+                    // shift onto a Shift whose analyse_token is null instead of the new scenario
+                    // token. get_schedule_entries.sql filters works through filtered_shift_ids
+                    // (s.analyse_token IS NOT DISTINCT FROM p_analyse_token) and drops the work,
+                    // making the schedule appear empty. Skip such items and surface them via the
+                    // log so the missing-clone data issue is diagnosable.
+                    if (!shiftIdMap.TryGetValue(original.ShiftId, out var mappedShiftId))
+                    {
+                        unmappedShifts.Add(original.ShiftId);
+                        continue;
+                    }
+
                     items.Add(new BulkWorkItem
                     {
                         ClientId = newAgentId,
-                        ShiftId = shiftId,
+                        ShiftId = mappedShiftId,
                         CurrentDate = bitmap.Days[d],
                         StartTime = original.StartTime,
                         EndTime = original.EndTime,
@@ -241,6 +255,15 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
                 }
             }
         }
+
+        if (unmappedShifts.Count > 0)
+        {
+            _logger.LogWarning(
+                "HarmonizerApply: {Count} original shifts had no entry in the cloned-scenario shiftIdMap and were skipped: {ShiftIds}. CloneScenarioDataAsync did not clone these shifts into the new scenario.",
+                unmappedShifts.Count,
+                string.Join(",", unmappedShifts));
+        }
+
         return items;
     }
 
