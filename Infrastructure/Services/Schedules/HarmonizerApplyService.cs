@@ -10,6 +10,7 @@ using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
 
@@ -34,6 +35,7 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
     private readonly IAnalyseScenarioService _scenarioService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly DataBaseContext _context;
+    private readonly ILogger<HarmonizerApplyService> _logger;
 
     public HarmonizerApplyService(
         HarmonizerResultCache resultCache,
@@ -41,7 +43,8 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
         IAnalyseScenarioRepository scenarioRepository,
         IAnalyseScenarioService scenarioService,
         IUnitOfWork unitOfWork,
-        DataBaseContext context)
+        DataBaseContext context,
+        ILogger<HarmonizerApplyService> logger)
     {
         _resultCache = resultCache;
         _mediator = mediator;
@@ -49,6 +52,7 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
         _scenarioService = scenarioService;
         _unitOfWork = unitOfWork;
         _context = context;
+        _logger = logger;
     }
 
     public async Task<(AnalyseScenarioResource Scenario, IReadOnlyList<Guid> CreatedWorkIds)> ApplyAsScenarioAsync(
@@ -56,7 +60,7 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
         Guid? groupId,
         CancellationToken ct)
     {
-        if (!_resultCache.TryGet(jobId, out _, out var bestBitmap, out _) || bestBitmap is null)
+        if (!_resultCache.TryGet(jobId, out var originalBitmap, out var bestBitmap, out _) || bestBitmap is null)
         {
             throw new InvalidOperationException($"No cached harmonizer result for job id {jobId}.");
         }
@@ -66,6 +70,10 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
 
         var periodFrom = bestBitmap.Days.Count > 0 ? bestBitmap.Days[0] : DateOnly.FromDateTime(DateTime.UtcNow);
         var periodUntil = bestBitmap.Days.Count > 0 ? bestBitmap.Days[^1] : periodFrom;
+
+        _logger.LogInformation(
+            "HarmonizerApply jobId={JobId} bitmap rows={Rows} days={Days} periodFrom={From} periodUntil={Until} workIds={WorkIds} originalWorks={OriginalWorks}",
+            jobId, bestBitmap.RowCount, bestBitmap.DayCount, periodFrom, periodUntil, workIds.Count, originalWorks.Count);
 
         var name = await GenerateUniqueNameAsync(periodFrom, periodUntil, groupId, ct);
         var token = Guid.NewGuid();
@@ -92,6 +100,13 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
         await _unitOfWork.CompleteAsync();
 
         var bulkItems = BuildBulkItems(bestBitmap, originalWorks, shiftIdMap, token);
+
+        var distinctDates = bulkItems.Select(b => b.CurrentDate).Distinct().Count();
+        var distinctClients = bulkItems.Select(b => b.ClientId).Distinct().Count();
+        var sample = bulkItems.Take(3).Select(b => $"({b.CurrentDate:yyyy-MM-dd},c={b.ClientId.ToString()[..8]},s={b.ShiftId.ToString()[..8]})");
+        _logger.LogInformation(
+            "HarmonizerApply jobId={JobId} bulkItems={Total} distinctDates={Dates} distinctClients={Clients} firstSamples={Samples}",
+            jobId, bulkItems.Count, distinctDates, distinctClients, string.Join(" ", sample));
 
         IReadOnlyList<Guid> createdIds = [];
         if (bulkItems.Count > 0)
