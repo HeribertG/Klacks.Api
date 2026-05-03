@@ -103,6 +103,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<Work> Work { get; set; }
 
+    public DbSet<WorkSoftening> WorkSoftening { get; set; }
+
     public DbSet<PeriodAuditLog> PeriodAuditLog { get; set; }
 
     public DbSet<ExportLog> ExportLog { get; set; }
@@ -329,6 +331,22 @@ public class DataBaseContext : IdentityDbContext
         Plugins.PluginModelRegistry.Apply(modelBuilder);
     }
 
+    private void CascadeSoftDeleteWorkSoftenings(Domain.Models.Schedules.Work work, DateTime now, string currentUserName)
+    {
+        var matching = WorkSoftening
+            .Where(ws => ws.ClientId == work.ClientId
+                         && ws.CurrentDate == work.CurrentDate
+                         && ws.AnalyseToken == work.AnalyseToken
+                         && !ws.IsDeleted)
+            .ToList();
+        foreach (var ws in matching)
+        {
+            ws.IsDeleted = true;
+            ws.DeletedTime = now;
+            ws.CurrentUserDeleted = currentUserName;
+        }
+    }
+
     private void OnBeforeSaving()
     {
         var entries = ChangeTracker.Entries();
@@ -369,6 +387,11 @@ public class DataBaseContext : IdentityDbContext
                         property.IsModified = property.Metadata.Name == nameof(BaseEntity.IsDeleted) ||
                                              property.Metadata.Name == nameof(BaseEntity.DeletedTime) ||
                                              property.Metadata.Name == nameof(BaseEntity.CurrentUserDeleted);
+                    }
+
+                    if (entry.Entity is Domain.Models.Schedules.Work softDeletedWork)
+                    {
+                        CascadeSoftDeleteWorkSoftenings(softDeletedWork, now, currentUserName);
                     }
 
                     break;

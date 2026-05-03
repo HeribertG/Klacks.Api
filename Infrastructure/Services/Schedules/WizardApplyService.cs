@@ -6,7 +6,9 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Infrastructure.Hubs;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.Models;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
@@ -29,24 +31,27 @@ public sealed class WizardApplyService : IWizardApplyService
     private readonly IAnalyseScenarioRepository _scenarioRepository;
     private readonly IAnalyseScenarioService _scenarioService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IWorkSofteningRepository _softeningRepository;
 
     public WizardApplyService(
         WizardResultCache resultCache,
         IMediator mediator,
         IAnalyseScenarioRepository scenarioRepository,
         IAnalyseScenarioService scenarioService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IWorkSofteningRepository softeningRepository)
     {
         _resultCache = resultCache;
         _mediator = mediator;
         _scenarioRepository = scenarioRepository;
         _scenarioService = scenarioService;
         _unitOfWork = unitOfWork;
+        _softeningRepository = softeningRepository;
     }
 
     public async Task<IReadOnlyList<Guid>> ApplyAsync(Guid jobId, CancellationToken ct)
     {
-        if (!_resultCache.TryGet(jobId, out var scenario, out var analyseToken) || scenario is null)
+        if (!_resultCache.TryGet(jobId, out var scenario, out var analyseToken, out var escalations) || scenario is null)
         {
             throw new InvalidOperationException($"No cached wizard result for job id {jobId}.");
         }
@@ -72,6 +77,8 @@ public sealed class WizardApplyService : IWizardApplyService
             PeriodEnd = periodEnd,
         }));
 
+        await PersistEscalationsAsync(items, escalations, analyseToken, periodStart, periodEnd, ct);
+
         _resultCache.Invalidate(jobId);
         return response.CreatedIds;
     }
@@ -81,7 +88,7 @@ public sealed class WizardApplyService : IWizardApplyService
         Guid? groupId,
         CancellationToken ct)
     {
-        if (!_resultCache.TryGet(jobId, out var cachedScenario, out _) || cachedScenario is null)
+        if (!_resultCache.TryGet(jobId, out var cachedScenario, out _, out var escalations) || cachedScenario is null)
         {
             throw new InvalidOperationException($"No cached wizard result for job id {jobId}.");
         }
@@ -130,6 +137,8 @@ public sealed class WizardApplyService : IWizardApplyService
             createdIds = response.CreatedIds;
         }
 
+        await PersistEscalationsAsync(bulkItems, escalations, token, periodFrom, periodUntil, ct);
+
         _resultCache.Invalidate(jobId);
 
         var resource = new AnalyseScenarioResource
@@ -173,6 +182,65 @@ public sealed class WizardApplyService : IWizardApplyService
             }
             counter++;
         }
+    }
+
+    private async Task PersistEscalationsAsync(
+        IReadOnlyList<BulkWorkItem> appliedWorks,
+        IReadOnlyList<WizardEscalationDto> escalations,
+        Guid? analyseToken,
+        DateOnly periodStart,
+        DateOnly periodEnd,
+        CancellationToken ct)
+    {
+        var agentIds = appliedWorks.Select(w => w.ClientId).Distinct().ToList();
+        var newRows = MapEscalations(escalations, analyseToken, agentIds, periodStart, periodEnd);
+        await _softeningRepository.ReplaceForRangeAsync(agentIds, periodStart, periodEnd, analyseToken, newRows, ct);
+        await _unitOfWork.CompleteAsync();
+    }
+
+    private static List<WorkSoftening> MapEscalations(
+        IReadOnlyList<WizardEscalationDto> escalations,
+        Guid? analyseToken,
+        IReadOnlyList<Guid> appliedAgentIds,
+        DateOnly periodStart,
+        DateOnly periodEnd)
+    {
+        var rows = new List<WorkSoftening>(escalations.Count);
+        var validAgents = new HashSet<Guid>(appliedAgentIds);
+        foreach (var esc in escalations)
+        {
+            if (!Guid.TryParse(esc.AgentId, out var agentId) || !validAgents.Contains(agentId))
+            {
+                continue;
+            }
+            if (!DateOnly.TryParse(esc.Date, out var date) || date < periodStart || date > periodEnd)
+            {
+                continue;
+            }
+            rows.Add(new WorkSoftening
+            {
+                ClientId = agentId,
+                CurrentDate = date,
+                Kind = MapKind(esc.RuleName),
+                RuleName = esc.RuleName,
+                Hint = esc.Hint,
+                AnalyseToken = analyseToken,
+            });
+        }
+        return rows;
+    }
+
+    private static SofteningKind MapKind(string ruleName)
+    {
+        return ruleName switch
+        {
+            "MinRestDays" => SofteningKind.MinRestDays,
+            "MaxWorkDays" or "MaxConsecutiveDays" => SofteningKind.MaxConsecutiveWorkDays,
+            "PreferredShift" or "Preferred" => SofteningKind.PreferredShiftViolation,
+            "Blacklist" or "BlacklistedShift" => SofteningKind.BlacklistedShiftAssigned,
+            "WeeklyHours" or "HeavyWeek" => SofteningKind.HeavyWeeklyLoad,
+            _ => SofteningKind.Unknown,
+        };
     }
 
     private static BulkWorkItem BuildBulkItem(CoreToken token, Guid? analyseToken, IReadOnlyDictionary<Guid, Guid>? shiftIdMap = null)

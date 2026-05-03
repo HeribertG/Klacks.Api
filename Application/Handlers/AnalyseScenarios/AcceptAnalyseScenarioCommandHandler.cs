@@ -21,17 +21,20 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
     private readonly IAnalyseScenarioRepository _repository;
     private readonly IAnalyseScenarioService _scenarioService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IWorkSofteningRepository _softeningRepository;
 
     public AcceptAnalyseScenarioCommandHandler(
         IAnalyseScenarioRepository repository,
         IAnalyseScenarioService scenarioService,
         IUnitOfWork unitOfWork,
+        IWorkSofteningRepository softeningRepository,
         ILogger<AcceptAnalyseScenarioCommandHandler> logger)
         : base(logger)
     {
         _repository = repository;
         _scenarioService = scenarioService;
         _unitOfWork = unitOfWork;
+        _softeningRepository = softeningRepository;
     }
 
     public async Task<bool> Handle(AcceptAnalyseScenarioCommand command, CancellationToken cancellationToken)
@@ -43,6 +46,9 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
             await _scenarioService.SoftDeleteRealScheduleDataAsync(scenario.GroupId, scenario.FromDate, scenario.UntilDate, cancellationToken);
             await _scenarioService.PromoteScenarioDataAsync(scenario.Token, cancellationToken);
+
+            await _softeningRepository.DeleteByAnalyseTokenAsync(scenario.Token, cancellationToken);
+            await _softeningRepository.DeleteByRangeAndTokenAsync(scenario.FromDate, scenario.UntilDate, null, cancellationToken);
 
             scenario.Status = AnalyseScenarioStatus.Accepted;
             await _repository.Put(scenario);

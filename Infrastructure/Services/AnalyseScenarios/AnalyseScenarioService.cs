@@ -95,6 +95,10 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         var notes = await _context.ScheduleNotes.IgnoreQueryFilters()
             .Where(sn => sn.AnalyseToken == token && !sn.IsDeleted).ToListAsync(ct);
         foreach (var sn in notes) { sn.IsDeleted = true; sn.DeletedTime = DateTime.UtcNow; }
+
+        var softenings = await _context.WorkSoftening.IgnoreQueryFilters()
+            .Where(ws => ws.AnalyseToken == token && !ws.IsDeleted).ToListAsync(ct);
+        foreach (var ws in softenings) { ws.IsDeleted = true; ws.DeletedTime = DateTime.UtcNow; }
     }
 
     public async Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, CancellationToken ct)

@@ -241,6 +241,19 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.IWizardBenchmarkService,
                               Klacks.Api.Infrastructure.Services.Schedules.WizardBenchmarkService>();
 
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules.HarmonizerJobRegistry>();
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules.HarmonizerResultCache>();
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules.IHarmonizerJobRunner,
+                              Klacks.Api.Infrastructure.Services.Schedules.HarmonizerJobRunner>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.IHarmonizerContextBuilder,
+                           Klacks.Api.Infrastructure.Services.Schedules.HarmonizerContextBuilder>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.IHarmonizerApplyService,
+                           Klacks.Api.Infrastructure.Services.Schedules.HarmonizerApplyService>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.IHarmonizerTelemetrySink,
+                           Klacks.Api.Infrastructure.Services.Schedules.LoggingHarmonizerTelemetrySink>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.IWorkSofteningRepository,
+                           Klacks.Api.Infrastructure.Repositories.Schedules.WorkSofteningRepository>();
+
         services.AddShiftServices();
         services.AddClientServices();
         services.AddGroupServices();

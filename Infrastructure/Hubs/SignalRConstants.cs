@@ -36,10 +36,16 @@ public static class SignalRConstants
     public const string AssistantHubPath = "/hubs/assistant-notifications";
     public const string EmailHubPath = "/hubs/email-notifications";
     public const string WizardHubPath = "/hubs/wizard";
+    public const string HarmonizerHubPath = "/hubs/harmonizer";
 
     public static class WizardGroups
     {
         public static string WizardJob(Guid jobId) => $"wizard-{jobId:N}";
+    }
+
+    public static class HarmonizerGroups
+    {
+        public static string HarmonizerJob(Guid jobId) => $"harmonizer-{jobId:N}";
     }
 
     public static class AssistantEvents
