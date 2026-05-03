@@ -53,6 +53,9 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Absence
         }
 
         resource.DetailName = await _translationService.TranslateEmptyFieldsAsync(resource.DetailName);
-        resource.Description = await _translationService.TranslateEmptyFieldsAsync(resource.Description);
+        if (resource.Description != null)
+        {
+            resource.Description = await _translationService.TranslateEmptyFieldsAsync(resource.Description);
+        }
     }
 }

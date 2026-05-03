@@ -3,8 +3,6 @@
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.DTOs;
-using Klacks.Api.Domain.DTOs;
-using Klacks.Api.Domain.DTOs.Registrations;
 using Klacks.Api.Domain.DTOs.Registrations;
 
 namespace Klacks.Api.Domain.Services.Accounts;

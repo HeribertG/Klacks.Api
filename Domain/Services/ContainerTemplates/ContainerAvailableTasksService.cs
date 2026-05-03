@@ -81,7 +81,7 @@ public class ContainerAvailableTasksService : IContainerAvailableTasksService
 
         var availableTasks = await query
             .Include(s => s.Client)
-                .ThenInclude(c => c.Addresses)
+                .ThenInclude(c => c!.Addresses)
             .AsNoTracking()
             .OrderBy(s => s.StartShift)
             .ThenBy(s => s.Client!.Name)
@@ -105,7 +105,7 @@ public class ContainerAvailableTasksService : IContainerAvailableTasksService
                 var overrideShifts = await _shiftRepository.GetQuery()
                     .Where(s => overrideIds.Contains(s.Id) && s.ShiftType == ShiftType.IsTask)
                     .Include(s => s.Client)
-                        .ThenInclude(c => c.Addresses)
+                        .ThenInclude(c => c!.Addresses)
                     .AsNoTracking()
                     .ToListAsync(cancellationToken);
 

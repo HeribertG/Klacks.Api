@@ -35,7 +35,7 @@ public class ValidateAddressSkill : BaseSkillImplementation
 
         try
         {
-            var validation = await _geocodingService.ValidateExactAddressAsync(street, postalCode, city, country);
+            var validation = await _geocodingService.ValidateExactAddressAsync(street, postalCode, city, country ?? "Schweiz");
             var state = validation.State;
 
             var zipInfo = state != null

@@ -57,10 +57,9 @@ public class EntityCollectionUpdateService
             }
             else
             {
-                var preservedId = existingEntity.Id;
+                updatedEntity.Id = existingEntity.Id;
                 var entry = _context.Entry(existingEntity);
                 entry.CurrentValues.SetValues(updatedEntity);
-                existingEntity.Id = preservedId;
                 entry.State = EntityState.Modified;
             }
         }
@@ -111,10 +110,9 @@ public class EntityCollectionUpdateService
             }
             else
             {
-                var existingId = existingEntity.Id;
+                updatedEntity.Id = existingEntity.Id;
                 var entry = _context.Entry(existingEntity);
                 entry.CurrentValues.SetValues(updatedEntity);
-                existingEntity.Id = existingId;
                 entry.State = EntityState.Modified;
             }
         }

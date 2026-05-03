@@ -15,7 +15,7 @@ public class SentimentKeywordSetConfiguration : IEntityTypeConfiguration<Sentime
     public void Configure(EntityTypeBuilder<SentimentKeywordSet> builder)
     {
         builder.ToTable("sentiment_keyword_sets");
-        builder.Property(e => e.Keywords)
+        builder.Property(e => (Dictionary<string, List<string>>?)e.Keywords)
             .HasJsonbConversionWithComparer<Dictionary<string, List<string>>>();
         builder.HasIndex(p => p.Language)
             .HasFilter("is_deleted = false")

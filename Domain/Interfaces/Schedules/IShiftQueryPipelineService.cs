@@ -6,7 +6,6 @@
 /// <param name="query">Base query to which filters are applied</param>
 /// <param name="filter">Contains all filter criteria (status, date range, search term, sorting, pagination)</param>
 using Klacks.Api.Domain.DTOs.Filter;
-using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 

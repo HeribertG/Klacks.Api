@@ -63,7 +63,13 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Calenda
             return;
         }
 
-        resource.Name = await _translationService.TranslateEmptyFieldsAsync(resource.Name);
-        resource.Description = await _translationService.TranslateEmptyFieldsAsync(resource.Description);
+        if (resource.Name != null)
+        {
+            resource.Name = await _translationService.TranslateEmptyFieldsAsync(resource.Name);
+        }
+        if (resource.Description != null)
+        {
+            resource.Description = await _translationService.TranslateEmptyFieldsAsync(resource.Description);
+        }
     }
 }

@@ -2,7 +2,6 @@
 
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.DTOs.Schedules;
-using Klacks.Api.Domain.DTOs.Schedules;
 
 namespace Klacks.Api.Domain.Interfaces.Schedules;
 

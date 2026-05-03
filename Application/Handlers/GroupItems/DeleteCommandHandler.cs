@@ -34,6 +34,10 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<G
         {
             var groupItem = await _groupItemRepository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
+            if (groupItem == null)
+            {
+                return null;
+            }
             return _groupMapper.ToGroupItemResource(groupItem);
         },
         "deleting group item",

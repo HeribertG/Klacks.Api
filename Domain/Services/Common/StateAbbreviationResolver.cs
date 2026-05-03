@@ -35,7 +35,5 @@ public class StateAbbreviationResolver
                 || name.Contains(nominatimState, StringComparison.OrdinalIgnoreCase)));
 
         return match?.Abbreviation;
-
-        return null;
     }
 }

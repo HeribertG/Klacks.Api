@@ -15,9 +15,9 @@ public class ReportTemplateConfiguration : IEntityTypeConfiguration<ReportTempla
     public void Configure(EntityTypeBuilder<ReportTemplate> builder)
     {
         builder.HasQueryFilter(p => !p.IsDeleted);
-        builder.Property(e => e.PageSetup).HasJsonbConversion<ReportPageSetup>();
-        builder.Property(e => e.Sections).HasJsonbListConversion<ReportSection>();
-        builder.Property(e => e.DataSetIds).HasJsonbListConversion<string>();
+        builder.Property(e => (ReportPageSetup?)e.PageSetup).HasJsonbConversion<ReportPageSetup>();
+        builder.Property(e => (List<ReportSection>?)e.Sections).HasJsonbListConversion<ReportSection>();
+        builder.Property(e => (List<string>?)e.DataSetIds).HasJsonbListConversion<string>();
         builder.HasIndex(p => new { p.IsDeleted, p.Type, p.Name });
     }
 }

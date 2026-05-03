@@ -2,7 +2,6 @@
 
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.DTOs.Filter;
-using Klacks.Api.Domain.DTOs.Filter;
 
 namespace Klacks.Api.Domain.Interfaces.Staffs;
 

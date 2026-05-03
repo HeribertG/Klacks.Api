@@ -61,7 +61,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     {
         var existingShift = await context.Shift
             .Include(s => s.Client)
-                .ThenInclude(c => c.Addresses)
+                .ThenInclude(c => c!.Addresses)
             .Include(s => s.GroupItems)
                 .ThenInclude(gi => gi.Group)
             .Include(s => s.ShiftExpenses)

@@ -107,7 +107,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
                 }
                 else if (!string.IsNullOrEmpty(accessToken))
                 {
-                    context.Token = Uri.UnescapeDataString(accessToken);
+                    context.Token = Uri.UnescapeDataString(accessToken.ToString());
                     logger.LogDebug("Token set from query string (length: {TokenLength})", context.Token?.Length);
                 }
                 else if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
@@ -123,7 +123,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
             }
             else if (isSttPath && !string.IsNullOrEmpty(accessToken))
             {
-                context.Token = Uri.UnescapeDataString(accessToken);
+                context.Token = Uri.UnescapeDataString(accessToken.ToString());
                 logger.LogDebug("Token set from query string for STT WebSocket (length: {TokenLength})", context.Token?.Length);
             }
             return Task.CompletedTask;

@@ -36,11 +36,12 @@ public class SearchAndNavigateSkill : BaseSkillImplementation
         var searchQuery = GetRequiredString(parameters, "searchQuery");
         var action = GetParameter<string>(parameters, "action", "edit");
 
+        var resolvedAction = action ?? "edit";
         return entityType switch
         {
-            "client" => await SearchClientsAsync(searchQuery, action, cancellationToken),
-            "group" => await SearchGroupsAsync(searchQuery, action, cancellationToken),
-            "shift" => await SearchShiftsAsync(searchQuery, action, cancellationToken),
+            "client" => await SearchClientsAsync(searchQuery, resolvedAction, cancellationToken),
+            "group" => await SearchGroupsAsync(searchQuery, resolvedAction, cancellationToken),
+            "shift" => await SearchShiftsAsync(searchQuery, resolvedAction, cancellationToken),
             _ => SkillResult.Error($"Unknown entity type: {entityType}")
         };
     }

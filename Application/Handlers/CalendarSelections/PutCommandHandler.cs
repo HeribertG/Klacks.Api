@@ -36,8 +36,12 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Calenda
             var calendarSelection = _scheduleMapper.ToCalendarSelectionEntity(request.Resource);
             await _calendarSelectionRepository.Update(calendarSelection);
             await _unitOfWork.CompleteAsync();
-            
+
             var updatedCalendarSelection = await _calendarSelectionRepository.GetWithSelectedCalendars(request.Resource.Id);
+            if (updatedCalendarSelection == null)
+            {
+                return null;
+            }
             return _scheduleMapper.ToCalendarSelectionResource(updatedCalendarSelection);
         }, 
         "operation", 

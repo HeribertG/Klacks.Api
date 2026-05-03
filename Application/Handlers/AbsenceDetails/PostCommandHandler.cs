@@ -48,6 +48,9 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Absen
         }
 
         resource.DetailName = await _translationService.TranslateEmptyFieldsAsync(resource.DetailName);
-        resource.Description = await _translationService.TranslateEmptyFieldsAsync(resource.Description);
+        if (resource.Description != null)
+        {
+            resource.Description = await _translationService.TranslateEmptyFieldsAsync(resource.Description);
+        }
     }
 }

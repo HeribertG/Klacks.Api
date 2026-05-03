@@ -60,7 +60,6 @@ using Klacks.Api.Application.Services.Authentication;
 using Klacks.Api.Application.Services.Clients;
 using Klacks.Api.Application.Services.Identity;
 using Klacks.Api.Application.Services.Schedules;
-using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Application.Services.Translation;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;

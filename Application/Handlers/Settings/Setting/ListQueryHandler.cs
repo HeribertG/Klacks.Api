@@ -37,7 +37,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
                 foreach (var setting in settingsList)
                 {
                     var originalValue = setting.Value;
-                    setting.Value = _encryptionService.ProcessForReading(setting.Type, setting.Value);
+                    setting.Value = _encryptionService.ProcessForReading(setting.Type, setting.Value ?? string.Empty);
 
                     if (_encryptionService.IsServerOnlySettingType(setting.Type))
                     {

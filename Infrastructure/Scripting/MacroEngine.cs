@@ -207,7 +207,9 @@ public class MacroEngine : IDisposable, IMacroEngine
     {
         if (compiledScript == null || Imports == null) return;
 
-        IDictionary<string, object> propertyValues = (IDictionary<string, object>)Imports;
+        var script = compiledScript!;
+        IDictionary<string, object>? propertyValues = (IDictionary<string, object>?)Imports;
+        if (propertyValues == null) return;
 
         foreach (var key in importList)
         {
@@ -215,16 +217,16 @@ public class MacroEngine : IDisposable, IMacroEngine
             {
                 if (propertyValues.TryGetValue(key, out var value))
                 {
-                    compiledScript.SetExternalValue(key, value);
+                    script.SetExternalValue(key, value);
                 }
                 else
                 {
-                    compiledScript.SetExternalValue(key, 0);
+                    script.SetExternalValue(key, 0);
                 }
             }
             catch
             {
-                compiledScript.SetExternalValue(key, 0);
+                script.SetExternalValue(key, 0);
             }
         }
     }

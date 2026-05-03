@@ -122,7 +122,7 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
             .Include(t => t.ContainerTemplateItems)
                 .ThenInclude(i => i.Shift)
                     .ThenInclude(s => s!.Client)
-                        .ThenInclude(c => c.Addresses)
+                        .ThenInclude(c => c!.Addresses)
             .Include(t => t.ContainerTemplateItems)
                 .ThenInclude(i => i.Absence)
             .AsSplitQuery()

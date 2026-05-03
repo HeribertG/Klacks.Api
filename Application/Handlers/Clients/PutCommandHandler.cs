@@ -66,6 +66,10 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientR
 
             var client = _clientMapper.ToEntity(request.Resource);
             var updatedClient = await _clientRepository.Put(client);
+            if (updatedClient == null)
+            {
+                return null;
+            }
             await _unitOfWork.CompleteAsync();
 
             if (request.Resource.Communications.Any(c =>

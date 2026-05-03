@@ -33,6 +33,10 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<GroupRe
         {
             var group = _groupMapper.ToGroupEntity(request.Resource);
             var updatedGroup = await _groupRepository.Put(group);
+            if (updatedGroup == null)
+            {
+                return null;
+            }
             var result = _groupMapper.ToGroupResource(updatedGroup);
 
             await _unitOfWork.CompleteAsync();
