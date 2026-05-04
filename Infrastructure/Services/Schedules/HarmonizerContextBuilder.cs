@@ -48,12 +48,13 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var preferredSymbols = await LoadPreferredSymbolsAsync(agentIds, ct);
         var blacklistByAgent = await LoadBlacklistByAgentAsync(agentIds, ct);
         var freeCommandDates = await LoadFreeCommandDatesAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
+        var keywordRestrictions = await LoadKeywordRestrictionsAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
         var breakDates = await LoadBreakDatesAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
         var contractDays = await LoadContractDaysAsync(agentIds, request.PeriodFrom, request.PeriodUntil, ct);
         var softenings = await _softeningRepository.LoadAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
 
         var agents = BuildAgents(agentIds, firstDayContracts, clients, preferredSymbols, blacklistByAgent);
-        var availability = BuildAvailability(agentIds, request.PeriodFrom, request.PeriodUntil, contractDays, freeCommandDates, breakDates);
+        var availability = BuildAvailability(agentIds, request.PeriodFrom, request.PeriodUntil, contractDays, freeCommandDates, breakDates, keywordRestrictions);
         var assignments = BuildAssignments(works);
         var hints = BuildSofteningHints(softenings);
 
@@ -249,7 +250,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             var contract = contracts.TryGetValue(id, out var ct) ? ct : null;
             var targetHours = contract?.GuaranteedHours ?? 0m;
             var maxWeekly = contract?.MaxWeeklyHours ?? 0m;
-            var maxConsec = contract?.MaxConsecutiveDays ?? 0;
+            var maxConsec = contract?.MaxConsecutiveDays > 0 ? contract.MaxConsecutiveDays : 6;
             var minPause = contract?.MinPauseHours ?? 0m;
             var prefs = preferences.TryGetValue(id, out var p) ? p : [];
             var blacklist = blacklists.TryGetValue(id, out var b) ? (IReadOnlySet<Guid>)b : null;
@@ -272,7 +273,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         DateOnly until,
         IReadOnlyDictionary<(Guid AgentId, DateOnly Date), bool> contractDays,
         IReadOnlySet<(Guid AgentId, DateOnly Date)> freeCommandDates,
-        IReadOnlySet<(Guid AgentId, DateOnly Date)> breakDates)
+        IReadOnlySet<(Guid AgentId, DateOnly Date)> breakDates,
+        IReadOnlyDictionary<(Guid AgentId, DateOnly Date), (CellSymbol? Required, CellSymbol? Forbidden)> keywordRestrictions)
     {
         var result = new Dictionary<(string, DateOnly), DayAvailability>();
         foreach (var agentId in agentIds)
@@ -282,8 +284,55 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                 var worksOnDay = contractDays.TryGetValue((agentId, date), out var w) && w;
                 var hasFree = freeCommandDates.Contains((agentId, date));
                 var hasBreak = breakDates.Contains((agentId, date));
-                result[(agentId.ToString(), date)] = new DayAvailability(worksOnDay, hasFree, hasBreak);
+                CellSymbol? required = null;
+                CellSymbol? forbidden = null;
+                if (keywordRestrictions.TryGetValue((agentId, date), out var restriction))
+                {
+                    required = restriction.Required;
+                    forbidden = restriction.Forbidden;
+                }
+                result[(agentId.ToString(), date)] = new DayAvailability(worksOnDay, hasFree, hasBreak, required, forbidden);
             }
+        }
+        return result;
+    }
+
+    private async Task<Dictionary<(Guid AgentId, DateOnly Date), (CellSymbol? Required, CellSymbol? Forbidden)>> LoadKeywordRestrictionsAsync(
+        List<Guid> agentIds,
+        DateOnly from,
+        DateOnly until,
+        Guid? analyseToken,
+        CancellationToken ct)
+    {
+        var rawCommands = await _context.ScheduleCommands
+            .AsNoTracking()
+            .Where(c => agentIds.Contains(c.ClientId)
+                        && c.CurrentDate >= from
+                        && c.CurrentDate <= until
+                        && (c.AnalyseToken == analyseToken || (c.AnalyseToken == null && analyseToken == null)))
+            .Select(c => new { c.ClientId, c.CurrentDate, c.CommandKeyword })
+            .ToListAsync(ct);
+
+        var result = new Dictionary<(Guid, DateOnly), (CellSymbol? Required, CellSymbol? Forbidden)>();
+        foreach (var cmd in rawCommands)
+        {
+            if (!ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, out var keyword))
+            {
+                continue;
+            }
+            CellSymbol? required = null;
+            CellSymbol? forbidden = null;
+            switch (keyword)
+            {
+                case ScheduleOptimizer.Models.ScheduleCommandKeyword.OnlyEarly: required = CellSymbol.Early; break;
+                case ScheduleOptimizer.Models.ScheduleCommandKeyword.OnlyLate: required = CellSymbol.Late; break;
+                case ScheduleOptimizer.Models.ScheduleCommandKeyword.OnlyNight: required = CellSymbol.Night; break;
+                case ScheduleOptimizer.Models.ScheduleCommandKeyword.NoEarly: forbidden = CellSymbol.Early; break;
+                case ScheduleOptimizer.Models.ScheduleCommandKeyword.NoLate: forbidden = CellSymbol.Late; break;
+                case ScheduleOptimizer.Models.ScheduleCommandKeyword.NoNight: forbidden = CellSymbol.Night; break;
+                default: continue;
+            }
+            result[(cmd.ClientId, cmd.CurrentDate)] = (required, forbidden);
         }
         return result;
     }

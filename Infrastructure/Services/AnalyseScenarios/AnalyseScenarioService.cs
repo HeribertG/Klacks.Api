@@ -101,13 +101,13 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         foreach (var ws in softenings) { ws.IsDeleted = true; ws.DeletedTime = DateTime.UtcNow; }
     }
 
-    public async Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, CancellationToken ct)
+    public async Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, CancellationToken ct)
     {
         var groupIds = groupId.HasValue
             ? await GetGroupHierarchyIdsAsync(groupId.Value, ct)
             : null;
 
-        var shiftIdMap = await CloneShifts(groupIds, token, ct);
+        var shiftIdMap = await CloneShifts(groupIds, additionalShiftIds, token, ct);
         var workIdMap = await CloneWorks(groupIds, fromDate, untilDate, token, shiftIdMap, ct);
         await CloneBreaks(groupIds, fromDate, untilDate, token, workIdMap, ct);
         await CloneScheduleNotes(groupIds, fromDate, untilDate, token, ct);
@@ -161,28 +161,41 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         foreach (var sn in scenarioNotes) sn.AnalyseToken = null;
     }
 
-    private async Task<Dictionary<Guid, Guid>> CloneShifts(List<Guid>? groupIds, Guid token, CancellationToken ct)
+    private async Task<Dictionary<Guid, Guid>> CloneShifts(List<Guid>? groupIds, IReadOnlyCollection<Guid>? additionalShiftIds, Guid token, CancellationToken ct)
     {
-        IQueryable<Shift> shiftQuery = _context.Shift
-            .Where(s => !s.IsDeleted && s.AnalyseToken == null);
-
-        if (groupIds != null)
-        {
-            var shiftIds = await _context.Set<GroupItem>()
-                .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
-                .Select(gi => gi.ShiftId!.Value)
-                .Distinct()
-                .ToListAsync(ct);
-
-            shiftQuery = shiftQuery.Where(s => shiftIds.Contains(s.Id));
-        }
-
-        var shifts = await shiftQuery
-            .Include(s => s.GroupItems.Where(gi => !gi.IsDeleted))
-            .AsNoTracking()
-            .ToListAsync(ct);
-
+        List<Shift> shifts;
         var idMap = new Dictionary<Guid, Guid>();
+
+        if (additionalShiftIds is { Count: > 0 })
+        {
+            var distinctIds = additionalShiftIds.Distinct().ToList();
+            shifts = await _context.Shift.IgnoreQueryFilters()
+                .Where(s => !s.IsDeleted && distinctIds.Contains(s.Id))
+                .Include(s => s.GroupItems.Where(gi => !gi.IsDeleted))
+                .AsNoTracking()
+                .ToListAsync(ct);
+        }
+        else
+        {
+            IQueryable<Shift> baseShiftQuery = _context.Shift
+                .Where(s => !s.IsDeleted && s.AnalyseToken == null);
+
+            if (groupIds != null)
+            {
+                var groupShiftIds = await _context.Set<GroupItem>()
+                    .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
+                    .Select(gi => gi.ShiftId!.Value)
+                    .Distinct()
+                    .ToListAsync(ct);
+
+                baseShiftQuery = baseShiftQuery.Where(s => groupShiftIds.Contains(s.Id));
+            }
+
+            shifts = await baseShiftQuery
+                .Include(s => s.GroupItems.Where(gi => !gi.IsDeleted))
+                .AsNoTracking()
+                .ToListAsync(ct);
+        }
 
         foreach (var shift in shifts)
         {
