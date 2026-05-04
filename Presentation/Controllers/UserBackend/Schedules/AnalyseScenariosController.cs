@@ -69,4 +69,11 @@ public class AnalyseScenariosController : BaseController
         var result = await _mediator.Send(new DeleteAnalyseScenarioCommand(id));
         return Ok(result);
     }
+
+    [HttpPatch("{id}/Rename")]
+    public async Task<ActionResult<AnalyseScenarioResource>> Rename(Guid id, [FromBody] RenameAnalyseScenarioRequest request)
+    {
+        var result = await _mediator.Send(new RenameAnalyseScenarioCommand(id, request.Name));
+        return Ok(result);
+    }
 }
