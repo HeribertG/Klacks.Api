@@ -207,6 +207,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISentimentKeywordRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SentimentKeywordRepository>();
         services.AddScoped<IPeriodAuditLogRepository, PeriodAuditLogRepository>();
         services.AddScoped<IExportLogRepository, ExportLogRepository>();
+        services.AddScoped<IClientSortPreferenceRepository, ClientSortPreferenceRepository>();
     }
 
     private static void AddDomainServices(this IServiceCollection services, IConfiguration configuration)
