@@ -63,6 +63,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<ClientShiftPreference> ClientShiftPreference { get; set; }
 
+    public DbSet<ClientSortPreference> ClientSortPreference { get; set; }
+
     public DbSet<History> History { get; set; }  
 
     public DbSet<Macro> Macro { get; set; }
