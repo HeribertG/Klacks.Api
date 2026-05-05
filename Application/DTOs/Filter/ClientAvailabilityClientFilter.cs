@@ -17,6 +17,7 @@ public class ClientAvailabilityClientFilter
     public Guid? SelectedGroup { get; set; }
     public string OrderBy { get; set; } = "name";
     public string SortOrder { get; set; } = "asc";
+    public bool IndividualSort { get; set; }
     public bool ShowEmployees { get; set; } = true;
     public bool ShowExtern { get; set; } = true;
     public int StartRow { get; set; } = 0;

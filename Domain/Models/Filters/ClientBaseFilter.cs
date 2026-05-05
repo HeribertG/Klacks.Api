@@ -26,7 +26,7 @@ public class ClientBaseFilter
 
     public string SortOrder { get; set; } = "asc";
 
-    public string? HoursSortOrder { get; set; }
+    public bool IndividualSort { get; set; }
 
     public int StartRow { get; set; } = 0;
 
