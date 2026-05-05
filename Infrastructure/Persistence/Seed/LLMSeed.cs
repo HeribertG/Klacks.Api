@@ -64,7 +64,9 @@ public static class LLMSeed
             (gen_random_uuid(), 'qwen3-235b-together', 'Qwen3 235B (Together)', 'Qwen/Qwen3-235B-A22B', 'together', false, false, 0.0012, 0.0012, 8192, 131072, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'deepseek-v3-fireworks', 'DeepSeek V3 (Fireworks)', 'accounts/fireworks/models/deepseek-v3', 'fireworks', false, false, 0.0009, 0.0009, 8192, 131072, 'balanced', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'kimi-for-coding', 'Kimi K2.5 for Coding', 'kimi-for-coding', 'kimi', false, false, 0.00045, 0.0022, 65535, 262144, 'coding', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
-            (gen_random_uuid(), 'gemma2-9b', 'Gemma 2 9B (Groq)', 'gemma2-9b-it', 'groq', false, false, 0.0, 0.0, 8192, 8192, 'fast', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false);
+            (gen_random_uuid(), 'gemma2-9b', 'Gemma 2 9B (Groq)', 'gemma2-9b-it', 'groq', false, false, 0.0, 0.0, 8192, 8192, 'fast', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'gemma-4-27b', 'Gemma 4 27B', 'gemma-4-27b-it', 'google', true, false, 0.0, 0.0, 8192, 128000, 'balanced', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'gemma-4-9b', 'Gemma 4 9B', 'gemma-4-9b-it', 'google', true, false, 0.0, 0.0, 8192, 128000, 'fast', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false);
         ");
     }
 }
