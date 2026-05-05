@@ -79,11 +79,21 @@ public class ClientTimeline
         return total;
     }
 
+    public bool HasWorkAnchoredOn(DateOnly date)
+    {
+        foreach (var block in Blocks)
+        {
+            if (block.BlockType != ScheduleBlockType.Work) continue;
+            if (block.OwnerDate == date) return true;
+        }
+        return false;
+    }
+
     public int GetConsecutiveWorkDays(DateOnly fromDate)
     {
         var count = 0;
         var date = fromDate;
-        while (GetWorkDuration(date) > TimeSpan.Zero)
+        while (HasWorkAnchoredOn(date))
         {
             count++;
             date = date.AddDays(1);
@@ -95,7 +105,7 @@ public class ClientTimeline
     {
         var count = 0;
         var date = fromDate;
-        while (GetWorkDuration(date) > TimeSpan.Zero)
+        while (HasWorkAnchoredOn(date))
         {
             count++;
             date = date.AddDays(-1);
