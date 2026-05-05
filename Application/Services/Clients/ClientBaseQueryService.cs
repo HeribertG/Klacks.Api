@@ -24,6 +24,11 @@ public class ClientBaseQueryService : IClientBaseQueryService
     private readonly IClientGroupFilterService _groupFilterService;
     private readonly IClientSearchFilterService _searchFilterService;
 
+    private const string SortDesc = "desc";
+    private const string SortByFirstName = "firstname";
+    private const string SortByCompany = "company";
+    private const string SortByGuaranteedHours = "guaranteedhours";
+
     public ClientBaseQueryService(
         DataBaseContext context,
         IClientGroupFilterService groupFilterService,
@@ -79,19 +84,19 @@ public class ClientBaseQueryService : IClientBaseQueryService
         if (individualSort)
             return query.OrderBy(c => c.Name).ThenBy(c => c.FirstName);
 
-        var isDescending = sortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
+        var isDescending = sortOrder.Equals(SortDesc, StringComparison.OrdinalIgnoreCase);
 
         return orderBy.ToLowerInvariant() switch
         {
-            "firstname" => isDescending
+            SortByFirstName => isDescending
                 ? query.OrderByDescending(c => c.FirstName).ThenByDescending(c => c.Name)
                 : query.OrderBy(c => c.FirstName).ThenBy(c => c.Name),
 
-            "company" => isDescending
+            SortByCompany => isDescending
                 ? query.OrderByDescending(c => c.Company).ThenByDescending(c => c.Name)
                 : query.OrderBy(c => c.Company).ThenBy(c => c.Name),
 
-            "guaranteedhours" => isDescending
+            SortByGuaranteedHours => isDescending
                 ? query.OrderByDescending(c => c.ClientContracts
                     .Where(cc => cc.FromDate <= refDate &&
                                  (cc.UntilDate == null || cc.UntilDate >= refDate))
