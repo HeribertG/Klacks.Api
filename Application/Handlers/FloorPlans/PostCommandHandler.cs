@@ -5,6 +5,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.DTOs.FloorPlans;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Models.FloorPlans;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.FloorPlans;
@@ -34,6 +35,18 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Floor
             var entity = _floorPlanMapper.ToFloorPlanEntity(request.Resource);
             entity.Id = Guid.NewGuid();
             entity.CreateTime = DateTime.UtcNow;
+
+            if (request.Resource.WorkMarkers != null)
+            {
+                foreach (var markerResource in request.Resource.WorkMarkers)
+                {
+                    var marker = _floorPlanMapper.ToMarkerEntity(markerResource);
+                    marker.Id = Guid.NewGuid();
+                    marker.FloorPlanId = entity.Id;
+                    marker.CreateTime = DateTime.UtcNow;
+                    entity.WorkMarkers.Add(marker);
+                }
+            }
 
             await _floorPlanRepository.Add(entity);
             await _unitOfWork.CompleteAsync();

@@ -89,7 +89,8 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
                 var emergencyState = new EmergencyUnlockState(rowCount);
                 var emergency = new EmergencyUnlockManager(emergencyState, DefaultEmergencyThreshold);
                 var mutation = new ReplaceMutation(scorer, validator);
-                return new HarmonizerConductor(scorer, mutation, emergency, hints: input.SofteningHints);
+                var blockSwap = new BlockSwapMutation(scorer, validator);
+                return new HarmonizerConductor(scorer, mutation, emergency, hints: input.SofteningHints, blockSwapMutation: blockSwap);
             }
 
             var loop = new HarmonizerEvolutionLoop(fitness, stochasticMutation, BuildConductor, config);
@@ -112,7 +113,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
 
             _resultCache.Store(jobId, originalForCache, result.Best.Bitmap, request.AnalyseToken);
 
-            var rowResults = BuildRowResults(result.Best);
+            var rowResults = BuildRowResults(originalForCache, result.Best, scorer);
             await group.OnCompleted(new HarmonizerJobResultDto(
                 JobId: jobId,
                 GlobalFitnessBefore: initialFitness.Fitness,
@@ -153,18 +154,28 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
 
     private static HarmonyBitmap CloneBitmap(HarmonyBitmap source) => BitmapCloner.Clone(source);
 
-    private static IReadOnlyList<HarmonizerRowResultDto> BuildRowResults(Individual best)
+    private static IReadOnlyList<HarmonizerRowResultDto> BuildRowResults(
+        HarmonyBitmap original,
+        Individual best,
+        HarmonyScorer scorer)
     {
+        // Score the original bitmap (untouched seed) and the best harmonised bitmap with the
+        // same scorer. RowSorter ran on both so row indices are aligned. The ConductorTrace
+        // only reflects the last conductor pass on the best individual, where most score
+        // changes already happened during stochastic mutation — using its before/after would
+        // make the per-row diff appear flat even though global fitness improved.
         var trace = best.ConductorTrace;
         var results = new List<HarmonizerRowResultDto>(best.Bitmap.RowCount);
         for (var r = 0; r < best.Bitmap.RowCount; r++)
         {
-            var rowTrace = trace.RowTraces[r];
+            var scoreBefore = scorer.Score(original, r).Score;
+            var scoreAfter = scorer.Score(best.Bitmap, r).Score;
+            var emergencyTriggered = r < trace.RowTraces.Count && trace.RowTraces[r].EmergencyUnlockTriggered;
             results.Add(new HarmonizerRowResultDto(
                 AgentId: best.Bitmap.Rows[r].Id,
-                ScoreBefore: rowTrace.ScoreBefore,
-                ScoreAfter: rowTrace.ScoreAfter,
-                EmergencyUnlockTriggered: rowTrace.EmergencyUnlockTriggered));
+                ScoreBefore: scoreBefore,
+                ScoreAfter: scoreAfter,
+                EmergencyUnlockTriggered: emergencyTriggered));
         }
         return results;
     }

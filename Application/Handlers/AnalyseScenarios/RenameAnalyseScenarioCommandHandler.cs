@@ -9,6 +9,7 @@
 
 using Klacks.Api.Application.Commands.AnalyseScenarios;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 

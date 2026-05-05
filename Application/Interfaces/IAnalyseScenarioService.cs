@@ -31,10 +31,12 @@ public interface IAnalyseScenarioService
     /// in the date range under the new scenario token. When <paramref name="groupId"/>
     /// is <c>null</c> every non-scenario row in the range is cloned; otherwise
     /// the full group hierarchy (group plus descendants) filters what is copied.
+    /// <paramref name="additionalShiftIds"/> guarantees that the listed shift IDs
+    /// are cloned even when they have no GroupItem in the resolved group hierarchy.
     /// Returns the shift ID map (original shift ID → cloned shift ID) so callers
     /// can remap external shift references to the cloned IDs.
     /// </summary>
-    Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, CancellationToken cancellationToken);
+    Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, CancellationToken cancellationToken);
 
     /// <summary>
     /// Soft-deletes the real-side schedule rows (works, work_changes, expenses,

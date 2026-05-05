@@ -55,7 +55,7 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
             };
 
             await _repository.Add(scenario);
-            await _scenarioService.CloneScenarioDataAsync(groupId, fromDate, untilDate, token, cancellationToken);
+            await _scenarioService.CloneScenarioDataAsync(groupId, fromDate, untilDate, token, additionalShiftIds: null, cancellationToken);
             await _unitOfWork.CompleteAsync();
 
             return new AnalyseScenarioResource

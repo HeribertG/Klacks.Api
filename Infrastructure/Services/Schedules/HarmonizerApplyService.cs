@@ -71,9 +71,11 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
         var periodFrom = bestBitmap.Days.Count > 0 ? bestBitmap.Days[0] : DateOnly.FromDateTime(DateTime.UtcNow);
         var periodUntil = bestBitmap.Days.Count > 0 ? bestBitmap.Days[^1] : periodFrom;
 
+        var bitmapShiftIds = CollectBitmapShiftIds(bestBitmap, originalWorks);
+
         _logger.LogInformation(
-            "HarmonizerApply jobId={JobId} bitmap rows={Rows} days={Days} periodFrom={From} periodUntil={Until} workIds={WorkIds} originalWorks={OriginalWorks}",
-            jobId, bestBitmap.RowCount, bestBitmap.DayCount, periodFrom, periodUntil, workIds.Count, originalWorks.Count);
+            "HarmonizerApply jobId={JobId} bitmap rows={Rows} days={Days} periodFrom={From} periodUntil={Until} workIds={WorkIds} originalWorks={OriginalWorks} bitmapShifts={BitmapShifts}",
+            jobId, bestBitmap.RowCount, bestBitmap.DayCount, periodFrom, periodUntil, workIds.Count, originalWorks.Count, bitmapShiftIds.Count);
 
         var name = await GenerateUniqueNameAsync(periodFrom, periodUntil, groupId, ct);
         var token = Guid.NewGuid();
@@ -88,7 +90,7 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
         };
 
         await _scenarioRepository.Add(analyseScenario);
-        var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(groupId, periodFrom, periodUntil, token, ct);
+        var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(groupId, periodFrom, periodUntil, token, bitmapShiftIds, ct);
         await _unitOfWork.CompleteAsync();
 
         // CloneScenarioDataAsync clones existing schedule entries (Works/Breaks/Expenses/WorkChanges)
@@ -153,6 +155,35 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
             }
         }
         return ids.ToList();
+    }
+
+    /// <summary>
+    /// Collects every original Shift ID referenced by the bitmap so the scenario
+    /// clone covers them even when they have no GroupItem in the resolved group
+    /// hierarchy. The harmonizer can carry shifts (e.g. container/sporadic) that
+    /// the GroupItem-based clone filter misses; without these IDs the resulting
+    /// shiftIdMap would be incomplete and BuildBulkItems would skip those works,
+    /// leaving the scenario schedule empty after Apply.
+    /// </summary>
+    private static HashSet<Guid> CollectBitmapShiftIds(HarmonyBitmap bitmap, IReadOnlyDictionary<Guid, Work> originalWorks)
+    {
+        var ids = new HashSet<Guid>();
+        for (var r = 0; r < bitmap.RowCount; r++)
+        {
+            for (var d = 0; d < bitmap.DayCount; d++)
+            {
+                var cell = bitmap.GetCell(r, d);
+                if (cell.ShiftRefId is { } shiftRefId)
+                {
+                    ids.Add(shiftRefId);
+                }
+            }
+        }
+        foreach (var work in originalWorks.Values)
+        {
+            ids.Add(work.ShiftId);
+        }
+        return ids;
     }
 
     private async Task<Dictionary<Guid, Work>> LoadWorksAsync(IReadOnlyList<Guid> ids, CancellationToken ct)

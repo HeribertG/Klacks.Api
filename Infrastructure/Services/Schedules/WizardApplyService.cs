@@ -117,7 +117,7 @@ public sealed class WizardApplyService : IWizardApplyService
         };
 
         await _scenarioRepository.Add(analyseScenario);
-        var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(groupId, periodFrom, periodUntil, token, ct);
+        var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(groupId, periodFrom, periodUntil, token, additionalShiftIds: null, ct);
         await _unitOfWork.CompleteAsync();
 
         var bulkItems = items

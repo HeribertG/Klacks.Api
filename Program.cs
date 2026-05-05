@@ -187,6 +187,7 @@ if (bgOptions.ScheduleTimeline)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());
 builder.Services.AddSingleton<IScheduleTimelineService>(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());
 builder.Services.AddSingleton<IUtteranceNormalizer, UtteranceNormalizer>();
+builder.Services.AddScoped<IFloorPlanMarkerDataLookup, FloorPlanMarkerDataLookup>();
 builder.Services.AddSingleton<INavigationTargetCacheService>(sp =>
 {
     var baseDir = AppContext.BaseDirectory;
