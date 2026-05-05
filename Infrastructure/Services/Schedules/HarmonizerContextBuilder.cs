@@ -49,13 +49,14 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var blacklistByAgent = await LoadBlacklistByAgentAsync(agentIds, ct);
         var freeCommandDates = await LoadFreeCommandDatesAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
         var keywordRestrictions = await LoadKeywordRestrictionsAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
-        var breakDates = await LoadBreakDatesAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
+        var breaks = await LoadBreaksAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
+        var breakDates = breaks.Select(b => (b.ClientId, b.CurrentDate)).ToHashSet();
         var contractDays = await LoadContractDaysAsync(agentIds, request.PeriodFrom, request.PeriodUntil, ct);
         var softenings = await _softeningRepository.LoadAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
 
         var agents = BuildAgents(agentIds, firstDayContracts, clients, preferredSymbols, blacklistByAgent);
         var availability = BuildAvailability(agentIds, request.PeriodFrom, request.PeriodUntil, contractDays, freeCommandDates, breakDates, keywordRestrictions);
-        var assignments = BuildAssignments(works);
+        var assignments = BuildAssignments(works, breaks);
         var hints = BuildSofteningHints(softenings);
 
         return new BitmapInput(agents, request.PeriodFrom, request.PeriodUntil, assignments, hints, availability);
@@ -176,28 +177,20 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         return result;
     }
 
-    private async Task<HashSet<(Guid AgentId, DateOnly Date)>> LoadBreakDatesAsync(
+    private async Task<List<Break>> LoadBreaksAsync(
         List<Guid> agentIds,
         DateOnly from,
         DateOnly until,
         Guid? analyseToken,
         CancellationToken ct)
     {
-        var rawBreaks = await _context.Break
+        return await _context.Break
             .AsNoTracking()
             .Where(b => agentIds.Contains(b.ClientId)
                         && b.CurrentDate >= from
                         && b.CurrentDate <= until
                         && (b.AnalyseToken == analyseToken || (b.AnalyseToken == null && analyseToken == null)))
-            .Select(b => new { b.ClientId, b.CurrentDate })
             .ToListAsync(ct);
-
-        var result = new HashSet<(Guid, DateOnly)>();
-        foreach (var br in rawBreaks)
-        {
-            result.Add((br.ClientId, br.CurrentDate));
-        }
-        return result;
     }
 
     private async Task<Dictionary<(Guid AgentId, DateOnly Date), bool>> LoadContractDaysAsync(
@@ -345,27 +338,38 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         return string.IsNullOrEmpty(combined) ? client.Id.ToString() : combined;
     }
 
-    private static List<BitmapAssignment> BuildAssignments(IReadOnlyList<Work> works)
+    private static List<BitmapAssignment> BuildAssignments(IReadOnlyList<Work> works, IReadOnlyList<Break> breaks)
     {
-        return works
-            .Select(w =>
-            {
-                var startAt = w.CurrentDate.ToDateTime(w.StartTime);
-                var endAt = w.EndTime <= w.StartTime
-                    ? w.CurrentDate.AddDays(1).ToDateTime(w.EndTime)
-                    : w.CurrentDate.ToDateTime(w.EndTime);
-                return new BitmapAssignment(
-                    AgentId: w.ClientId.ToString(),
-                    Date: w.CurrentDate,
-                    Symbol: SymbolFromStartTime(w.StartTime),
-                    ShiftRefId: w.ShiftId,
-                    WorkIds: [w.Id],
-                    IsLocked: w.LockLevel != WorkLockLevel.None,
-                    StartAt: startAt,
-                    EndAt: endAt,
-                    Hours: w.WorkTime);
-            })
-            .ToList();
+        var workAssignments = works.Select(w =>
+        {
+            var startAt = w.CurrentDate.ToDateTime(w.StartTime);
+            var endAt = w.EndTime <= w.StartTime
+                ? w.CurrentDate.AddDays(1).ToDateTime(w.EndTime)
+                : w.CurrentDate.ToDateTime(w.EndTime);
+            return new BitmapAssignment(
+                AgentId: w.ClientId.ToString(),
+                Date: w.CurrentDate,
+                Symbol: SymbolFromStartTime(w.StartTime),
+                ShiftRefId: w.ShiftId,
+                WorkIds: [w.Id],
+                IsLocked: w.LockLevel != WorkLockLevel.None,
+                StartAt: startAt,
+                EndAt: endAt,
+                Hours: w.WorkTime);
+        });
+
+        var breakAssignments = breaks.Select(b => new BitmapAssignment(
+            AgentId: b.ClientId.ToString(),
+            Date: b.CurrentDate,
+            Symbol: CellSymbol.Break,
+            ShiftRefId: Guid.Empty,
+            WorkIds: [b.Id],
+            IsLocked: true,
+            StartAt: default,
+            EndAt: default,
+            Hours: b.WorkTime));
+
+        return workAssignments.Concat(breakAssignments).ToList();
     }
 
     private static CellSymbol SymbolFromStartTime(TimeOnly start)

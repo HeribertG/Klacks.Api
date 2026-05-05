@@ -248,7 +248,7 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
             for (var d = 0; d < bitmap.DayCount; d++)
             {
                 var cell = bitmap.GetCell(r, d);
-                if (cell.Symbol == CellSymbol.Free || cell.WorkIds.Count == 0)
+                if (cell.Symbol == CellSymbol.Free || cell.Symbol == CellSymbol.Break || cell.WorkIds.Count == 0)
                 {
                     continue;
                 }

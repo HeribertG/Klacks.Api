@@ -101,7 +101,8 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                 b.ClientId.ToString(),
                 b.CurrentDate,
                 b.CurrentDate,
-                b.Absence?.Name?.De ?? "Break"))
+                b.Absence?.Name?.De ?? "Break",
+                b.WorkTime))
             .ToList();
     }
 
