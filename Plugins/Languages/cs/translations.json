@@ -732,6 +732,7 @@
   "schedule.filter.employees": "Zaměstnanci",
   "schedule.filter.extern": "Externí",
   "schedule.filter.hours": "Smluvně garantované hodiny",
+  "schedule.filter.individual": "Individuální řazení",
   "schedule.schedule-header.schedule-header.month": "Měsíc: ",
   "schedule.schedule-header.schedule-header.week": "Týden: ",
   "schedule.schedule-header.schedule-header.biweekly": "2 týdny: ",

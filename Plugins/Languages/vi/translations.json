@@ -732,6 +732,7 @@
   "schedule.filter.employees": "Nhân viên",
   "schedule.filter.extern": "Bên ngoài",
   "schedule.filter.hours": "Giờ bảo đảm theo hợp đồng",
+  "schedule.filter.individual": "Sắp xếp cá nhân",
   "schedule.schedule-header.schedule-header.month": "Tháng: ",
   "schedule.schedule-header.schedule-header.week": "Tuần: ",
   "schedule.schedule-header.schedule-header.biweekly": "2 tuần: ",

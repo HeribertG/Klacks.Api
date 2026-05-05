@@ -732,6 +732,7 @@
   "schedule.filter.employees": "従業員",
   "schedule.filter.extern": "外部",
   "schedule.filter.hours": "契約保証時間",
+  "schedule.filter.individual": "個人ソート",
   "schedule.schedule-header.schedule-header.month": "月: ",
   "schedule.schedule-header.schedule-header.week": "週: ",
   "schedule.schedule-header.schedule-header.biweekly": "2週間: ",

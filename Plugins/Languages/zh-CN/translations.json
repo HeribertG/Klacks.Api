@@ -732,6 +732,7 @@
   "schedule.filter.employees": "员工",
   "schedule.filter.extern": "外部",
   "schedule.filter.hours": "合同保证工时",
+  "schedule.filter.individual": "个人排序",
   "schedule.schedule-header.schedule-header.month": "月份：",
   "schedule.schedule-header.schedule-header.week": "周：",
   "schedule.schedule-header.schedule-header.biweekly": "双周：",

@@ -732,6 +732,7 @@
   "schedule.filter.employees": "직원",
   "schedule.filter.extern": "외부",
   "schedule.filter.hours": "계약 보장 시간",
+  "schedule.filter.individual": "개별 정렬",
   "schedule.schedule-header.schedule-header.month": "월: ",
   "schedule.schedule-header.schedule-header.week": "주: ",
   "schedule.schedule-header.schedule-header.biweekly": "2주: ",

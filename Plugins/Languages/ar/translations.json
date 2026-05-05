@@ -732,6 +732,7 @@
   "schedule.filter.employees": "الموظفون",
   "schedule.filter.extern": "خارجيون",
   "schedule.filter.hours": "الساعات المضمونة تعاقدياً",
+  "schedule.filter.individual": "ترتيب فردي",
   "schedule.schedule-header.schedule-header.month": "الشهر: ",
   "schedule.schedule-header.schedule-header.week": "الأسبوع: ",
   "schedule.schedule-header.schedule-header.biweekly": "أسبوعان: ",

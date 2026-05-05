@@ -732,6 +732,7 @@
   "schedule.filter.employees": "Työntekijät",
   "schedule.filter.extern": "Ulkoiset",
   "schedule.filter.hours": "Sopimukselliset tunnit",
+  "schedule.filter.individual": "Yksilöllinen lajittelu",
   "schedule.schedule-header.schedule-header.month": "Kuukausi: ",
   "schedule.schedule-header.schedule-header.week": "Viikko: ",
   "schedule.schedule-header.schedule-header.biweekly": "2 viikkoa: ",

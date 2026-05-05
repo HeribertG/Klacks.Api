@@ -732,6 +732,7 @@
   "schedule.filter.employees": "Εργαζόμενοι",
   "schedule.filter.extern": "Εξωτερικοί",
   "schedule.filter.hours": "Εγγυημένες συμβατικές ώρες",
+  "schedule.filter.individual": "Ατομική ταξινόμηση",
   "schedule.schedule-header.schedule-header.month": "Μήνας: ",
   "schedule.schedule-header.schedule-header.week": "Εβδομάδα: ",
   "schedule.schedule-header.schedule-header.biweekly": "2-Εβδομάδες: ",

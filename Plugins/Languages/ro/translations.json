@@ -732,6 +732,7 @@
   "schedule.filter.employees": "Angajați",
   "schedule.filter.extern": "Extern",
   "schedule.filter.hours": "Ore garantate contractual",
+  "schedule.filter.individual": "Sortare individuală",
   "schedule.schedule-header.schedule-header.month": "Lună: ",
   "schedule.schedule-header.schedule-header.week": "Săptămână: ",
   "schedule.schedule-header.schedule-header.biweekly": "2 săptămâni: ",

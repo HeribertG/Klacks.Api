@@ -3,9 +3,9 @@
   "name": "Dutch",
   "displayName": "Nederlands",
   "speechLocale": "nl-NL",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "Klacks Community",
-  "coverage": 100,
+  "coverage": 90.7,
   "minKlacksVersion": "1.0.0",
   "direction": "ltr"
 }

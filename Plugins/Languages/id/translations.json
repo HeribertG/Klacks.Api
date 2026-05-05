@@ -732,6 +732,7 @@
   "schedule.filter.employees": "Karyawan",
   "schedule.filter.extern": "Eksternal",
   "schedule.filter.hours": "Jam yang dijamin kontrak",
+  "schedule.filter.individual": "Urutan individu",
   "schedule.schedule-header.schedule-header.month": "Bulan: ",
   "schedule.schedule-header.schedule-header.week": "Minggu: ",
   "schedule.schedule-header.schedule-header.biweekly": "2-Minggu: ",

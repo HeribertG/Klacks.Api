@@ -732,6 +732,7 @@
   "schedule.filter.employees": "Medewerkers",
   "schedule.filter.extern": "Extern",
   "schedule.filter.hours": "Contractueel gegarandeerde uren",
+  "schedule.filter.individual": "Individuele sortering",
   "schedule.schedule-header.schedule-header.month": "Maand: ",
   "schedule.schedule-header.schedule-header.week": "Week: ",
   "schedule.schedule-header.schedule-header.biweekly": "2 weken: ",

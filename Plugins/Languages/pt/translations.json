@@ -732,6 +732,7 @@
   "schedule.filter.employees": "Colaboradores",
   "schedule.filter.extern": "Externos",
   "schedule.filter.hours": "Horas contratualmente garantidas",
+  "schedule.filter.individual": "Ordenação individual",
   "schedule.schedule-header.schedule-header.month": "Mês: ",
   "schedule.schedule-header.schedule-header.week": "Semana: ",
   "schedule.schedule-header.schedule-header.biweekly": "2 Semanas: ",
