@@ -20,7 +20,7 @@ public class WorkFilter
 
     public bool ShowExtern { get; set; } = true;
 
-    public string? HoursSortOrder { get; set; }
+    public bool IndividualSort { get; set; }
 
     public int StartRow { get; set; } = 0;
 
