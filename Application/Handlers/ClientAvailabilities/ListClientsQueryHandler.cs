@@ -44,6 +44,7 @@ public class ListClientsQueryHandler : BaseHandler, IRequestHandler<ListClientAv
                 ShowExtern = request.Filter.ShowExtern,
                 OrderBy = request.Filter.OrderBy,
                 SortOrder = request.Filter.SortOrder,
+                IndividualSort = request.Filter.IndividualSort,
             };
 
             var query = await _baseQueryService.BuildBaseQuery(baseFilter);
