@@ -47,7 +47,7 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
             ShowExtern = filter.ShowExtern,
             OrderBy = filter.OrderBy,
             SortOrder = filter.SortOrder,
-            HoursSortOrder = filter.HoursSortOrder,
+            IndividualSort = filter.IndividualSort,
         };
 
         var query = await _baseQueryService.BuildBaseQuery(baseFilter);
@@ -102,7 +102,7 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
             ShowExtern = filter.ShowExtern,
             OrderBy = filter.OrderBy,
             SortOrder = filter.SortOrder,
-            HoursSortOrder = filter.HoursSortOrder,
+            IndividualSort = filter.IndividualSort,
         };
 
         var query = await _baseQueryService.BuildBaseQuery(baseFilter);

@@ -117,7 +117,7 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
         };
     }
 
-    private static WorkFilter CreateWorkFilter(
+    internal static WorkFilter CreateWorkFilter(
         Application.DTOs.Filter.WorkScheduleFilter filter,
         DateOnly startDate,
         DateOnly endDate)
@@ -132,7 +132,7 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
             SortOrder = filter.SortOrder,
             ShowEmployees = filter.ShowEmployees,
             ShowExtern = filter.ShowExtern,
-            HoursSortOrder = filter.HoursSortOrder,
+            IndividualSort = filter.IndividualSort,
             StartRow = filter.StartRow,
             RowCount = filter.RowCount,
             PaymentInterval = filter.PaymentInterval

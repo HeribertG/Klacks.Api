@@ -107,7 +107,7 @@ public partial class FilterMapper
             AbsenceIds = filter.Absences?.Where(a => a.Checked).Select(a => a.Id).ToList() ?? [],
             ShowEmployees = filter.ShowEmployees,
             ShowExtern = filter.ShowExtern,
-            HoursSortOrder = filter.HoursSortOrder,
+            IndividualSort = filter.IndividualSort,
             StartDate = filter.StartDate,
             EndDate = filter.EndDate
         };
