@@ -235,7 +235,28 @@ public class AnthropicProvider : ILLMProvider
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(request.Message))
+        if (request.ImagePng is { Length: > 0 })
+        {
+            messages.Add(new AnthropicMessage
+            {
+                Role = "user",
+                Content = new object[]
+                {
+                    new AnthropicImageBlock
+                    {
+                        Source = new AnthropicImageSource
+                        {
+                            Data = Convert.ToBase64String(request.ImagePng),
+                        },
+                    },
+                    new AnthropicTextBlock
+                    {
+                        Text = string.IsNullOrWhiteSpace(request.Message) ? " " : request.Message,
+                    },
+                },
+            });
+        }
+        else if (!string.IsNullOrWhiteSpace(request.Message))
         {
             messages.Add(new AnthropicMessage { Role = "user", Content = request.Message });
         }
@@ -245,6 +266,11 @@ public class AnthropicProvider : ILLMProvider
 
     private List<object>? MapTools(List<LLMFunction> functions)
     {
+        if (functions.Count == 0)
+        {
+            return null;
+        }
+
         var tools = new List<object>();
 
         tools.Add(new AnthropicAdvisorTool { Model = AdvisorModelId });

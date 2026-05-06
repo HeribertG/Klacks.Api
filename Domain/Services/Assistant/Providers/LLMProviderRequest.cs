@@ -16,4 +16,12 @@ public class LLMProviderRequest
     public decimal CostPerInputToken { get; set; }
     public decimal CostPerOutputToken { get; set; }
     public bool Stream { get; set; }
+
+    /// <summary>
+    /// Optional PNG image bytes that providers with vision support attach as a
+    /// content block alongside the user <see cref="Message"/>. Providers that
+    /// cannot handle images ignore this field. Currently consumed by Wizard 3
+    /// to render the schedule grid for vision-capable Claude models.
+    /// </summary>
+    public byte[]? ImagePng { get; set; }
 }

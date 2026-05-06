@@ -315,6 +315,7 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
             CostPerInputToken = model.CostPerInputToken,
             CostPerOutputToken = model.CostPerOutputToken,
             Stream = false,
+            ImagePng = request.PlanPng,
         };
 
         LLMProviderResponse response;
@@ -384,6 +385,20 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         sb.AppendLine("COORDINATE SYSTEM:");
         sb.AppendLine("- rowA / rowB: zero-based row index from the r## prefix on each schedule row.");
         sb.AppendLine("- dayA / dayB: zero-based day index — first column after the row label = day 0, next = day 1, ...");
+        sb.AppendLine();
+        sb.AppendLine("VISUAL INPUT (when an image is attached):");
+        sb.AppendLine("- The image renders the same schedule as a grid: rows are agents (top-down, agent initials in the left header), columns are days (day number + weekday letter in the top header).");
+        sb.AppendLine("- Each non-Free cell carries a SINGLE LETTER inside it identifying the shift type:");
+        sb.AppendLine("    E = Early (yellow background)");
+        sb.AppendLine("    L = Late (orange background)");
+        sb.AppendLine("    N = Night (dark-blue background, white letter)");
+        sb.AppendLine("    O = Other (grey background, white letter)");
+        sb.AppendLine("    B = Break (red/white diagonal stripes, always locked)");
+        sb.AppendLine("- Free cells are blank/white with no letter — these are the gap candidates for consolidate_block.");
+        sb.AppendLine("- A thick black border around a cell marks it as LOCKED (must NOT be swapped).");
+        sb.AppendLine("- Light beige column tint marks Saturday and Sunday.");
+        sb.AppendLine("- IMPORTANT: two cells carrying the SAME letter contain the same shift type — swapping them has zero effect. Do NOT propose such swaps.");
+        sb.AppendLine("- Read coordinates from the row index (r##) and zero-based day index (first column = day 0).");
         return sb.ToString();
     }
 

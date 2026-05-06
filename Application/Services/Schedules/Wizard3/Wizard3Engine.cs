@@ -7,6 +7,7 @@ using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.Harmonizer.Conductor;
 using Klacks.ScheduleOptimizer.Harmonizer.Evolution;
 using Klacks.ScheduleOptimizer.Harmonizer.Scorer;
+using Klacks.ScheduleOptimizer.Wizard3.Bitmap;
 using Klacks.ScheduleOptimizer.Wizard3.Llm;
 using Klacks.ScheduleOptimizer.Wizard3.Loop;
 using Klacks.ScheduleOptimizer.Wizard3.Mutations;
@@ -93,6 +94,7 @@ public sealed class Wizard3Engine
         var bestFitness = fitnessBefore;
         string? lastParsingError = null;
         string? lastRawResponse = null;
+        var pngRenderer = new HarmonyBitmapPngRenderer();
 
         for (var iter = 0; iter < MaxInnerIterations; iter++)
         {
@@ -117,7 +119,8 @@ public sealed class Wizard3Engine
                 MaxStepsPerBatch: cap.Current,
                 Language: request.Language ?? "en",
                 IterationIndex: iter,
-                PriorRejections: rejectMemory.Entries.ToArray());
+                PriorRejections: rejectMemory.Entries.ToArray(),
+                PlanPng: pngRenderer.Render(working));
 
             var response = await _proposalProvider.ProposeAsync(proposalRequest, cancellationToken);
             lastRawResponse = response.RawResponse;
