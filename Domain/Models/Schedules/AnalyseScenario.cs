@@ -30,6 +30,14 @@ public class AnalyseScenario : BaseEntity
 
     public Guid Token { get; set; }
 
+    /// <summary>
+    /// Correlation id that groups all scenarios produced from the same wizard test run
+    /// (Wizard 1 + 2 + 3 sharing a baseline). Auto-generated for scenarios that originate
+    /// from the main schedule and inherited from the source scenario otherwise. Null on
+    /// pre-existing scenarios written before this column was introduced.
+    /// </summary>
+    public Guid? RunGroupId { get; set; }
+
     public string CreatedByUser { get; set; } = string.Empty;
 
     public AnalyseScenarioStatus Status { get; set; } = AnalyseScenarioStatus.Active;

@@ -88,10 +88,12 @@ public sealed class WizardApplyService : IWizardApplyService
         Guid? groupId,
         CancellationToken ct)
     {
-        if (!_resultCache.TryGet(jobId, out var cachedScenario, out _, out var escalations) || cachedScenario is null)
+        if (!_resultCache.TryGet(jobId, out var cachedScenario, out var sourceAnalyseToken, out var escalations) || cachedScenario is null)
         {
             throw new InvalidOperationException($"No cached wizard result for job id {jobId}.");
         }
+
+        var runGroupId = await ResolveRunGroupIdAsync(sourceAnalyseToken, ct);
 
         var items = cachedScenario.Tokens
             .Where(t => !t.IsLocked)
@@ -114,6 +116,7 @@ public sealed class WizardApplyService : IWizardApplyService
             FromDate = periodFrom,
             UntilDate = periodUntil,
             Token = token,
+            RunGroupId = runGroupId,
         };
 
         await _scenarioRepository.Add(analyseScenario);
@@ -150,11 +153,22 @@ public sealed class WizardApplyService : IWizardApplyService
             FromDate = analyseScenario.FromDate,
             UntilDate = analyseScenario.UntilDate,
             Token = analyseScenario.Token,
+            RunGroupId = analyseScenario.RunGroupId,
             CreatedByUser = analyseScenario.CreatedByUser,
             Status = (int)analyseScenario.Status,
         };
 
         return (resource, createdIds);
+    }
+
+    private async Task<Guid> ResolveRunGroupIdAsync(Guid? sourceAnalyseToken, CancellationToken ct)
+    {
+        if (sourceAnalyseToken is not Guid token)
+        {
+            return Guid.NewGuid();
+        }
+        var sourceScenario = await _scenarioRepository.GetByTokenAsync(token, ct);
+        return sourceScenario?.RunGroupId ?? Guid.NewGuid();
     }
 
     private async Task<string> GenerateUniqueNameAsync(

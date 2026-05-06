@@ -44,6 +44,7 @@ public class GetAnalyseScenarioQueryHandler : BaseHandler, IRequestHandler<GetAn
                 FromDate = scenario.FromDate,
                 UntilDate = scenario.UntilDate,
                 Token = scenario.Token,
+                RunGroupId = scenario.RunGroupId,
                 CreatedByUser = scenario.CreatedByUser,
                 Status = (int)scenario.Status
             };

@@ -58,7 +58,7 @@ public sealed class HarmonizerController : ControllerBase
         try
         {
             var (scenario, createdIds) = await _applyService.ApplyAsScenarioAsync(request.JobId, request.GroupId, ct);
-            return Ok(new ApplyHarmonizerAsScenarioResponse(scenario.Id, scenario.Token, scenario.Name, createdIds));
+            return Ok(new ApplyHarmonizerAsScenarioResponse(scenario.Id, scenario.Token, scenario.Name, scenario.RunGroupId, createdIds));
         }
         catch (InvalidOperationException ex)
         {
@@ -91,4 +91,5 @@ public sealed record ApplyHarmonizerAsScenarioResponse(
     Guid ScenarioId,
     Guid ScenarioToken,
     string ScenarioName,
+    Guid? RunGroupId,
     IReadOnlyList<Guid> CreatedWorkIds);

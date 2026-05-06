@@ -27,15 +27,21 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <param name="scenarioService">Service for cloning schedule data into the new scenario</param>
 /// <param name="unitOfWork">Unit of work for flushing EF changes</param>
 /// <param name="context">EF Core database context for loading original Work metadata</param>
-public sealed class HarmonizerApplyService : IHarmonizerApplyService
+public class HarmonizerApplyService : IHarmonizerApplyService
 {
+    /// <summary>
+    /// Prefix used for scenario names. Subclasses (e.g. <c>Wizard3ApplyService</c>) override
+    /// this to distinguish their output in the scenario list.
+    /// </summary>
+    protected virtual string ScenarioNamePrefix => "Harmonisiert";
+
     private readonly HarmonizerResultCache _resultCache;
     private readonly IMediator _mediator;
     private readonly IAnalyseScenarioRepository _scenarioRepository;
     private readonly IAnalyseScenarioService _scenarioService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly DataBaseContext _context;
-    private readonly ILogger<HarmonizerApplyService> _logger;
+    private readonly ILogger _logger;
 
     public HarmonizerApplyService(
         HarmonizerResultCache resultCache,
@@ -60,10 +66,12 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
         Guid? groupId,
         CancellationToken ct)
     {
-        if (!_resultCache.TryGet(jobId, out var originalBitmap, out var bestBitmap, out _) || bestBitmap is null)
+        if (!_resultCache.TryGet(jobId, out var originalBitmap, out var bestBitmap, out var sourceAnalyseToken) || bestBitmap is null)
         {
             throw new InvalidOperationException($"No cached harmonizer result for job id {jobId}.");
         }
+
+        var runGroupId = await ResolveRunGroupIdAsync(sourceAnalyseToken, ct);
 
         var workIds = CollectWorkIds(bestBitmap);
         var originalWorks = await LoadWorksAsync(workIds, ct);
@@ -87,6 +95,7 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
             FromDate = periodFrom,
             UntilDate = periodUntil,
             Token = token,
+            RunGroupId = runGroupId,
         };
 
         await _scenarioRepository.Add(analyseScenario);
@@ -133,6 +142,7 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
             FromDate = analyseScenario.FromDate,
             UntilDate = analyseScenario.UntilDate,
             Token = analyseScenario.Token,
+            RunGroupId = analyseScenario.RunGroupId,
             CreatedByUser = analyseScenario.CreatedByUser,
             Status = (int)analyseScenario.Status,
         };
@@ -298,13 +308,23 @@ public sealed class HarmonizerApplyService : IHarmonizerApplyService
         return items;
     }
 
+    private async Task<Guid> ResolveRunGroupIdAsync(Guid? sourceAnalyseToken, CancellationToken ct)
+    {
+        if (sourceAnalyseToken is not Guid token)
+        {
+            return Guid.NewGuid();
+        }
+        var sourceScenario = await _scenarioRepository.GetByTokenAsync(token, ct);
+        return sourceScenario?.RunGroupId ?? Guid.NewGuid();
+    }
+
     private async Task<string> GenerateUniqueNameAsync(
         DateOnly from,
         DateOnly until,
         Guid? groupId,
         CancellationToken ct)
     {
-        var baseName = $"Harmonisiert {from:dd.MM.yy} – {until:dd.MM.yy}";
+        var baseName = $"{ScenarioNamePrefix} {from:dd.MM.yy} – {until:dd.MM.yy}";
         var existing = await _scenarioRepository.GetByGroupAsync(groupId, ct);
         var existingNames = existing.Select(s => s.Name).ToHashSet();
 

@@ -22,6 +22,11 @@ public class AnalyseScenarioResource
 
     public Guid Token { get; set; }
 
+    /// <summary>
+    /// Correlation id that groups Wizard 1/2/3 scenarios from the same test run.
+    /// </summary>
+    public Guid? RunGroupId { get; set; }
+
     public string CreatedByUser { get; set; } = string.Empty;
 
     public int Status { get; set; }

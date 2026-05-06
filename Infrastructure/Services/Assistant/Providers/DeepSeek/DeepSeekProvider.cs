@@ -101,7 +101,7 @@ public class DeepSeekProvider : BaseHttpProvider
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing {Provider} request", ProviderName);
-            return CreateErrorResponse("Internal error processing request");
+            return CreateErrorResponse($"{ProviderName}: {ex.Message}");
         }
     }
 

@@ -67,6 +67,7 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
                 FromDate = scenario.FromDate,
                 UntilDate = scenario.UntilDate,
                 Token = scenario.Token,
+                RunGroupId = scenario.RunGroupId,
                 CreatedByUser = scenario.CreatedByUser,
                 Status = (int)scenario.Status
             };

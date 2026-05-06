@@ -39,6 +39,7 @@ public class ListAnalyseScenariosQueryHandler : BaseHandler, IRequestHandler<Lis
                 FromDate = s.FromDate,
                 UntilDate = s.UntilDate,
                 Token = s.Token,
+                RunGroupId = s.RunGroupId,
                 CreatedByUser = s.CreatedByUser,
                 Status = (int)s.Status
             }).ToList();

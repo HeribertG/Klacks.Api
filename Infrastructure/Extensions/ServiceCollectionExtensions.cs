@@ -254,6 +254,14 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.IWorkSofteningRepository,
                            Klacks.Api.Infrastructure.Repositories.Schedules.WorkSofteningRepository>();
 
+        services.AddScoped<Klacks.ScheduleOptimizer.Wizard3.Llm.IPlanProposalProvider,
+                           Klacks.Api.Infrastructure.Services.Schedules.Wizard3.LlmPlanProposalProvider>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.Wizard3.Wizard3Engine>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.Wizard3.Wizard3RunService>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.Wizard3.Wizard3ModelCheckService>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.Wizard3.IWizard3ApplyService,
+                           Klacks.Api.Infrastructure.Services.Schedules.Wizard3.Wizard3ApplyService>();
+
         services.AddShiftServices();
         services.AddClientServices();
         services.AddGroupServices();
@@ -463,14 +471,20 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek.DeepSeekProvider>();
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic.GenericOpenAICompatibleProvider>();
 
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.OpenAI.OpenAIProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Anthropic.AnthropicProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Gemini.GeminiProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Azure.AzureOpenAIProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Mistral.MistralProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Cohere.CohereProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek.DeepSeekProvider>();
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic.GenericOpenAICompatibleProvider>()
+        // Reasoning-capable LLM models (DeepSeek-Reasoner, GPT o1, Claude with extended thinking,
+        // Gemini Flash Thinking) routinely take 2-3 minutes for large prompts. The default 100s
+        // HttpClient timeout aborts these mid-flight; 5 minutes is a safer ceiling for the
+        // request-response style ProcessAsync path. Streaming uses CancellationTokens, so this
+        // ceiling does not affect interactive chat.
+        var llmHttpTimeout = TimeSpan.FromMinutes(5);
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.OpenAI.OpenAIProvider>(c => c.Timeout = llmHttpTimeout);
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Anthropic.AnthropicProvider>(c => c.Timeout = llmHttpTimeout);
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Gemini.GeminiProvider>(c => c.Timeout = llmHttpTimeout);
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Azure.AzureOpenAIProvider>(c => c.Timeout = llmHttpTimeout);
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Mistral.MistralProvider>(c => c.Timeout = llmHttpTimeout);
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Cohere.CohereProvider>(c => c.Timeout = llmHttpTimeout);
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek.DeepSeekProvider>(c => c.Timeout = llmHttpTimeout);
+        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic.GenericOpenAICompatibleProvider>(c => c.Timeout = llmHttpTimeout)
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
             {
                 ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>

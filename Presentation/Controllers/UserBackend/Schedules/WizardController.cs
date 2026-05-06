@@ -98,7 +98,7 @@ public sealed class WizardController : ControllerBase
         try
         {
             var (scenario, createdIds) = await _applyService.ApplyAsScenarioAsync(request.JobId, request.GroupId, ct);
-            return Ok(new ApplyAsScenarioResponse(scenario.Id, scenario.Token, scenario.Name, createdIds));
+            return Ok(new ApplyAsScenarioResponse(scenario.Id, scenario.Token, scenario.Name, scenario.RunGroupId, createdIds));
         }
         catch (InvalidOperationException ex)
         {
@@ -165,5 +165,6 @@ public sealed record ApplyAsScenarioRequest(Guid JobId, Guid? GroupId);
 /// <param name="ScenarioId">Id of the newly created AnalyseScenario</param>
 /// <param name="ScenarioToken">Unique token of the new scenario</param>
 /// <param name="ScenarioName">Auto-generated name of the new scenario</param>
+/// <param name="RunGroupId">Correlation id linking Wizard 1/2/3 scenarios from the same test run</param>
 /// <param name="CreatedWorkIds">Ids of Work entities written into the scenario</param>
-public sealed record ApplyAsScenarioResponse(Guid ScenarioId, Guid ScenarioToken, string ScenarioName, IReadOnlyList<Guid> CreatedWorkIds);
+public sealed record ApplyAsScenarioResponse(Guid ScenarioId, Guid ScenarioToken, string ScenarioName, Guid? RunGroupId, IReadOnlyList<Guid> CreatedWorkIds);
