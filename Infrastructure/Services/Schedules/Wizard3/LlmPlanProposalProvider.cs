@@ -395,6 +395,8 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         sb.AppendLine("SCHEDULE GRID:");
         sb.AppendLine(request.PlanText);
         sb.AppendLine();
+        sb.AppendLine(request.FragmentationSummary);
+        sb.AppendLine();
         sb.AppendLine("AGENT CONSTRAINTS:");
         sb.AppendLine(request.AgentSummary);
         sb.AppendLine();

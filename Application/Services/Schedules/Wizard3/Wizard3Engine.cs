@@ -113,6 +113,7 @@ public sealed class Wizard3Engine
                 ModelId: request.LlmModelId,
                 PlanText: HarmonyBitmapTextRenderer.Render(working),
                 AgentSummary: agentSummary,
+                FragmentationSummary: FragmentationAnalyzer.Render(working),
                 MaxStepsPerBatch: cap.Current,
                 Language: request.Language ?? "en",
                 IterationIndex: iter,
