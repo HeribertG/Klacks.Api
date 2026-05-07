@@ -1,9 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
@@ -16,9 +15,7 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 /// identical to Wizard 2.
 /// </summary>
 [ApiController]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-[Route("api/backend/[controller]")]
-public sealed class HolisticHarmonizerController : ControllerBase
+public sealed class HolisticHarmonizerController : BaseController
 {
     private readonly HolisticHarmonizerRunService _runService;
     private readonly IHolisticHarmonizerApplyService _applyService;
@@ -124,68 +121,3 @@ public sealed class HolisticHarmonizerController : ControllerBase
     }
 }
 
-/// <param name="PeriodFrom">Start date (inclusive).</param>
-/// <param name="PeriodUntil">End date (inclusive).</param>
-/// <param name="AgentIds">Clients whose rows are part of the bitmap.</param>
-/// <param name="AnalyseToken">Source-scenario isolation token; null = main scenario.</param>
-/// <param name="Language">UI language; the LLM writes its swap reasons in this locale.</param>
-public sealed record HolisticHarmonizerRunRequest(
-    DateOnly PeriodFrom,
-    DateOnly PeriodUntil,
-    IReadOnlyList<Guid> AgentIds,
-    Guid? AnalyseToken,
-    string? Language);
-
-public sealed record HolisticHarmonizerSwapDto(int RowA, int DayA, int RowB, int DayB, string Reason);
-
-public sealed record HolisticHarmonizerRejectionDto(HolisticHarmonizerSwapDto Swap, string Reason, string Detail);
-
-public sealed record HolisticHarmonizerRunResponse(
-    Guid JobId,
-    string LlmModelId,
-    double FitnessBefore,
-    double FitnessAfter,
-    IReadOnlyList<HolisticHarmonizerSwapDto> AcceptedSwaps,
-    IReadOnlyList<HolisticHarmonizerRejectionDto> RejectedSwaps,
-    IReadOnlyList<HolisticHarmonizerBatchDto> Batches,
-    string? LlmParsingError,
-    string? LlmRawResponsePreview);
-
-/// <param name="BatchId">Stable id correlating to engine logs.</param>
-/// <param name="Intent">LLM-supplied intent label (e.g. "consolidate_block").</param>
-/// <param name="Result">Acceptance category: Accepted, PartiallyAccepted, Rejected, WouldDegrade.</param>
-/// <param name="AppliedStepCount">How many steps survived hard constraints and Score-Greedy.</param>
-/// <param name="RejectionCount">How many steps failed hard constraints inside this batch.</param>
-/// <param name="StoppedAtStep">Zero-based index of the first failing step, null when all steps passed.</param>
-/// <param name="ScoreBefore">Bitmap fitness when the batch started.</param>
-/// <param name="ScoreAfter">Bitmap fitness after the batch was committed (or reverted).</param>
-public sealed record HolisticHarmonizerBatchDto(
-    Guid BatchId,
-    string Intent,
-    string Result,
-    int AppliedStepCount,
-    int RejectionCount,
-    int? StoppedAtStep,
-    double ScoreBefore,
-    double ScoreAfter);
-
-/// <param name="JobId">The Holistic Harmonizer run whose cached result is materialised.</param>
-/// <param name="GroupId">Optional group scope for scenario cloning and name uniqueness.</param>
-public sealed record ApplyHolisticHarmonizerAsScenarioRequest(Guid JobId, Guid? GroupId);
-
-public sealed record ApplyHolisticHarmonizerAsScenarioResponse(
-    Guid ScenarioId,
-    Guid ScenarioToken,
-    string ScenarioName,
-    Guid? RunGroupId,
-    IReadOnlyList<Guid> CreatedWorkIds);
-
-public sealed record HolisticHarmonizerModelCheckDto(
-    string ModelId,
-    string DisplayName,
-    string ProviderId,
-    bool IsHealthy,
-    long LatencyMs,
-    string? Error);
-
-public sealed record HolisticHarmonizerModelCheckResponse(IReadOnlyList<HolisticHarmonizerModelCheckDto> Models);

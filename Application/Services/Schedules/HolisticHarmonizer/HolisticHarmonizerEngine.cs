@@ -30,6 +30,7 @@ public sealed class HolisticHarmonizerEngine
 {
     private const int MaxInnerIterations = 10;
     private const int PlateauStopThreshold = 3;
+    private const int RawResponsePreviewLength = 600;
     private static readonly TimeSpan InnerLoopTimeBudget = TimeSpan.FromSeconds(90);
 
     private readonly IHarmonizerContextBuilder _contextBuilder;
@@ -191,8 +192,8 @@ public sealed class HolisticHarmonizerEngine
             "Holistic Harmonizer run finished: model={Model} iterations={Iter} acceptedBatches={A} rejectedBatches={R} fitness {Before:F3} -> {After:F3} elapsed={Ms}ms",
             request.LlmModelId, iterations.Count, acceptedCount, rejectedCount, fitnessBefore, fitnessAfter, stopwatch.ElapsedMilliseconds);
 
-        var rawPreview = lastRawResponse is not null && lastRawResponse.Length > 600
-            ? lastRawResponse[..600] + "..."
+        var rawPreview = lastRawResponse is not null && lastRawResponse.Length > RawResponsePreviewLength
+            ? lastRawResponse[..RawResponsePreviewLength] + "..."
             : lastRawResponse;
 
         return new HolisticHarmonizerRunResult(

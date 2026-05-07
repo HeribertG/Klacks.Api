@@ -22,11 +22,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer;
 public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
 {
     private const double ProposalTemperature = 0.2;
-    // Reasoning-capable models (deepseek-v4-pro, GPT o1, Claude with extended thinking)
-    // consume the same max_tokens budget for hidden chain-of-thought *and* the visible reply.
-    // 6000 tokens leaves room for the reasoning trace and the JSON output. The 5-minute
-    // HttpClient timeout absorbs the longer round-trip.
     private const int ProposalMaxTokens = 6000;
+    private const int ResponsePreviewLength = 120;
     private static readonly TimeSpan ProposalTimeout = TimeSpan.FromSeconds(60);
 
     private const int PingMaxTokens = 50;
@@ -122,7 +119,7 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         var content = response.Content ?? string.Empty;
         if (!ContainsPongJson(content))
         {
-            var preview = content.Length > 120 ? content[..120] + "..." : content;
+            var preview = content.Length > ResponsePreviewLength ? content[..ResponsePreviewLength] + "..." : content;
             return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, $"Model returned unexpected ping response: {preview}");
         }
 
@@ -205,7 +202,7 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         var json = ExtractJsonObject(content);
         if (json is null)
         {
-            var preview = content.Length > 100 ? content[..100] + "..." : content;
+            var preview = content.Length > ResponsePreviewLength ? content[..ResponsePreviewLength] + "..." : content;
             return $"No JSON object found. Preview: {preview}";
         }
 

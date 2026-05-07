@@ -35,10 +35,6 @@ public sealed class HolisticHarmonizerModelCheckService
             return [];
         }
 
-        // Capability checks run sequentially to keep the load on shared API keys predictable.
-        // Each check is capped at 90 s, so total wait scales with number of enabled models.
-        // The capability check sends a realistic mini-schedule so reasoning models that pass
-        // the trivial ping but choke on real loads get filtered out here.
         var results = new List<HolisticHarmonizerModelCheckResult>(models.Count);
         foreach (var model in models)
         {
@@ -75,16 +71,3 @@ public sealed class HolisticHarmonizerModelCheckService
     }
 }
 
-/// <param name="ModelId">The Klacks-internal model id (used as picker value).</param>
-/// <param name="DisplayName">Human-readable label for the table.</param>
-/// <param name="ProviderId">Owning provider — useful for grouping/filtering in the UI.</param>
-/// <param name="IsHealthy">True only when the model returned a parseable ping JSON within the timeout.</param>
-/// <param name="LatencyMs">Round-trip time in milliseconds; 0 when the call could not start.</param>
-/// <param name="Error">Failure reason when <see cref="IsHealthy"/> is false; null on success.</param>
-public sealed record HolisticHarmonizerModelCheckResult(
-    string ModelId,
-    string DisplayName,
-    string ProviderId,
-    bool IsHealthy,
-    long LatencyMs,
-    string? Error);

@@ -72,33 +72,3 @@ public sealed class HolisticHarmonizerRunService
         return HolisticHarmonizerRunOutcome.Success(jobId, result);
     }
 }
-
-/// <param name="PeriodFrom">Start of the date range to load (inclusive).</param>
-/// <param name="PeriodUntil">End of the date range to load (inclusive).</param>
-/// <param name="AgentIds">Clients whose rows are part of the bitmap.</param>
-/// <param name="AnalyseToken">Source-scenario isolation token; null reads the main schedule.</param>
-/// <param name="Language">UI language; null falls back to English.</param>
-public sealed record HolisticHarmonizerRunInput(
-    DateOnly PeriodFrom,
-    DateOnly PeriodUntil,
-    IReadOnlyList<Guid> AgentIds,
-    Guid? AnalyseToken,
-    string? Language);
-
-/// <summary>
-/// Outcome of <see cref="HolisticHarmonizerRunService.RunAsync"/>: either a successful run with cached
-/// result and job id (ready to apply as a scenario), or a failure message for the UI.
-/// </summary>
-public sealed record HolisticHarmonizerRunOutcome
-{
-    public bool IsSuccess { get; init; }
-    public Guid? JobId { get; init; }
-    public HolisticHarmonizerRunResult? Result { get; init; }
-    public string? FailureMessage { get; init; }
-
-    public static HolisticHarmonizerRunOutcome Success(Guid jobId, HolisticHarmonizerRunResult result)
-        => new() { IsSuccess = true, JobId = jobId, Result = result };
-
-    public static HolisticHarmonizerRunOutcome Failure(string message)
-        => new() { IsSuccess = false, FailureMessage = message };
-}
