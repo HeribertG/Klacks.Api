@@ -5,18 +5,18 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
-using Klacks.ScheduleOptimizer.Wizard3.Llm;
-using Klacks.ScheduleOptimizer.Wizard3.Loop;
-using Klacks.ScheduleOptimizer.Wizard3.Mutations;
+using Klacks.ScheduleOptimizer.HolisticHarmonizer.Llm;
+using Klacks.ScheduleOptimizer.HolisticHarmonizer.Loop;
+using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
 using Microsoft.Extensions.Logging;
 
-namespace Klacks.Api.Infrastructure.Services.Schedules.Wizard3;
+namespace Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer;
 
 /// <summary>
 /// Default implementation of <see cref="IPlanProposalProvider"/>. Bypasses the conversational
 /// <c>ILLMService</c> (which mixes Klacks system prompts, conversation history and tool
 /// calling into every request) and instead drives the underlying <see cref="ILLMProvider"/>
-/// directly so the LLM receives only Wizard 3's structured prompt and replies with the JSON
+/// directly so the LLM receives only Holistic Harmonizer's structured prompt and replies with the JSON
 /// we expect.
 /// </summary>
 public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
@@ -110,7 +110,7 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         catch (Exception ex)
         {
             stopwatch.Stop();
-            _logger.LogWarning(ex, "Wizard 3 ping threw for model {ModelId}", modelId);
+            _logger.LogWarning(ex, "Holistic Harmonizer ping threw for model {ModelId}", modelId);
             return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, $"Ping failed: {ex.Message}");
         }
 
@@ -176,7 +176,7 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         catch (Exception ex)
         {
             stopwatch.Stop();
-            _logger.LogWarning(ex, "Wizard 3 capability check threw for model {ModelId}", modelId);
+            _logger.LogWarning(ex, "Holistic Harmonizer capability check threw for model {ModelId}", modelId);
             return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, $"Capability check failed: {ex.Message}");
         }
 
@@ -338,7 +338,7 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         catch (OperationCanceledException)
         {
             _logger.LogWarning(
-                "Wizard 3 LLM call timed out after {Timeout}s for model {ModelId}",
+                "Holistic Harmonizer LLM call timed out after {Timeout}s for model {ModelId}",
                 ProposalTimeout.TotalSeconds, request.ModelId);
             return new PlanProposalResponse(
                 [],
@@ -347,13 +347,13 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Wizard 3 LLM call threw for model {ModelId}", request.ModelId);
+            _logger.LogError(ex, "Holistic Harmonizer LLM call threw for model {ModelId}", request.ModelId);
             return new PlanProposalResponse([], string.Empty, $"LLM call failed: {ex.Message}");
         }
 
         if (!response.Success)
         {
-            _logger.LogWarning("Wizard 3 LLM provider returned error for model {ModelId}: {Error}", request.ModelId, response.Error);
+            _logger.LogWarning("Holistic Harmonizer LLM provider returned error for model {ModelId}: {Error}", request.ModelId, response.Error);
             return new PlanProposalResponse([], response.Content ?? string.Empty, response.Error ?? "LLM provider error.");
         }
 
@@ -361,7 +361,7 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         var parsed = TryParseBatches(raw, request.MaxStepsPerBatch, request.IterationIndex, out var parseError);
 
         _logger.LogInformation(
-            "Wizard 3 LLM responded: model={Model} apiModel={ApiModel} contentLen={Len} parsedBatches={BatchCount} parsedSteps={StepCount} parseError={Err}",
+            "Holistic Harmonizer LLM responded: model={Model} apiModel={ApiModel} contentLen={Len} parsedBatches={BatchCount} parsedSteps={StepCount} parseError={Err}",
             request.ModelId, model.ApiModelId, raw.Length, parsed.Count, CountSteps(parsed), parseError ?? "<none>");
 
         return new PlanProposalResponse(parsed, raw, parseError);
@@ -515,7 +515,7 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         catch (JsonException ex)
         {
             error = $"JSON parse failed: {ex.Message}";
-            _logger.LogWarning(ex, "Wizard 3 LLM JSON parse failed; raw response length {Length}", raw.Length);
+            _logger.LogWarning(ex, "Holistic Harmonizer LLM JSON parse failed; raw response length {Length}", raw.Length);
             return [];
         }
     }

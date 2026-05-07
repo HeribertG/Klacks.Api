@@ -254,13 +254,13 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.IWorkSofteningRepository,
                            Klacks.Api.Infrastructure.Repositories.Schedules.WorkSofteningRepository>();
 
-        services.AddScoped<Klacks.ScheduleOptimizer.Wizard3.Llm.IPlanProposalProvider,
-                           Klacks.Api.Infrastructure.Services.Schedules.Wizard3.LlmPlanProposalProvider>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.Wizard3.Wizard3Engine>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.Wizard3.Wizard3RunService>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.Wizard3.Wizard3ModelCheckService>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.Wizard3.IWizard3ApplyService,
-                           Klacks.Api.Infrastructure.Services.Schedules.Wizard3.Wizard3ApplyService>();
+        services.AddScoped<Klacks.ScheduleOptimizer.HolisticHarmonizer.Llm.IPlanProposalProvider,
+                           Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer.LlmPlanProposalProvider>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerEngine>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerRunService>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerModelCheckService>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.IHolisticHarmonizerApplyService,
+                           Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerApplyService>();
 
         services.AddShiftServices();
         services.AddClientServices();

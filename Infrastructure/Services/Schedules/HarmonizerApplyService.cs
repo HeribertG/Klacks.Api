@@ -30,7 +30,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 public class HarmonizerApplyService : IHarmonizerApplyService
 {
     /// <summary>
-    /// Prefix used for scenario names. Subclasses (e.g. <c>Wizard3ApplyService</c>) override
+    /// Prefix used for scenario names. Subclasses (e.g. <c>HolisticHarmonizerApplyService</c>) override
     /// this to distinguish their output in the scenario list.
     /// </summary>
     protected virtual string ScenarioNamePrefix => "Harmonisiert";

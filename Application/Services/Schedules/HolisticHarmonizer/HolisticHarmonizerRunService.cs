@@ -2,29 +2,29 @@
 
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Interfaces.Settings;
-using Klacks.ScheduleOptimizer.Wizard3.Mutations;
+using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
 using Microsoft.Extensions.Logging;
 
-namespace Klacks.Api.Application.Services.Schedules.Wizard3;
+namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 
 /// <summary>
-/// Application-layer entry point for Wizard 3 runs. Reads the configured LLM model id from
-/// app settings, invokes <see cref="Wizard3Engine"/>, stores the resulting bitmap in the shared
+/// Application-layer entry point for Holistic Harmonizer runs. Reads the configured LLM model id from
+/// app settings, invokes <see cref="HolisticHarmonizerEngine"/>, stores the resulting bitmap in the shared
 /// <see cref="HarmonizerResultCache"/> under a fresh job id so the existing
 /// <see cref="IHarmonizerApplyService"/> can materialise it as a scenario without changes.
 /// </summary>
-public sealed class Wizard3RunService
+public sealed class HolisticHarmonizerRunService
 {
-    private readonly Wizard3Engine _engine;
+    private readonly HolisticHarmonizerEngine _engine;
     private readonly HarmonizerResultCache _resultCache;
     private readonly ISettingsReader _settingsReader;
-    private readonly ILogger<Wizard3RunService> _logger;
+    private readonly ILogger<HolisticHarmonizerRunService> _logger;
 
-    public Wizard3RunService(
-        Wizard3Engine engine,
+    public HolisticHarmonizerRunService(
+        HolisticHarmonizerEngine engine,
         HarmonizerResultCache resultCache,
         ISettingsReader settingsReader,
-        ILogger<Wizard3RunService> logger)
+        ILogger<HolisticHarmonizerRunService> logger)
     {
         _engine = engine;
         _resultCache = resultCache;
@@ -32,18 +32,18 @@ public sealed class Wizard3RunService
         _logger = logger;
     }
 
-    public async Task<Wizard3RunOutcome> RunAsync(Wizard3RunInput input, CancellationToken cancellationToken)
+    public async Task<HolisticHarmonizerRunOutcome> RunAsync(HolisticHarmonizerRunInput input, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        var modelSetting = await _settingsReader.GetSetting(Settings.WIZARD3_LLM_MODEL);
+        var modelSetting = await _settingsReader.GetSetting(Settings.HOLISTIC_HARMONIZER_LLM_MODEL);
         var modelId = modelSetting?.Value;
         if (string.IsNullOrWhiteSpace(modelId))
         {
-            return Wizard3RunOutcome.Failure("Wizard 3 LLM model is not configured. Open Settings → Work & Scheduling → Wizard 3 to pick a model.");
+            return HolisticHarmonizerRunOutcome.Failure("Holistic Harmonizer LLM model is not configured. Open Settings → Work & Scheduling → Holistic Harmonizer to pick a model.");
         }
 
-        var engineRequest = new Wizard3EngineRequest(
+        var engineRequest = new HolisticHarmonizerEngineRequest(
             PeriodFrom: input.PeriodFrom,
             PeriodUntil: input.PeriodUntil,
             AgentIds: input.AgentIds,
@@ -51,7 +51,7 @@ public sealed class Wizard3RunService
             LlmModelId: modelId,
             Language: input.Language);
 
-        Wizard3RunResult result;
+        HolisticHarmonizerRunResult result;
         try
         {
             result = await _engine.RunAsync(engineRequest, cancellationToken);
@@ -62,14 +62,14 @@ public sealed class Wizard3RunService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Wizard 3 engine failed for period {From}-{Until}", input.PeriodFrom, input.PeriodUntil);
-            return Wizard3RunOutcome.Failure($"Wizard 3 engine failed: {ex.Message}");
+            _logger.LogError(ex, "Holistic Harmonizer engine failed for period {From}-{Until}", input.PeriodFrom, input.PeriodUntil);
+            return HolisticHarmonizerRunOutcome.Failure($"Holistic Harmonizer engine failed: {ex.Message}");
         }
 
         var jobId = Guid.NewGuid();
         _resultCache.Store(jobId, result.OriginalBitmap, result.FinalBitmap, input.AnalyseToken);
 
-        return Wizard3RunOutcome.Success(jobId, result);
+        return HolisticHarmonizerRunOutcome.Success(jobId, result);
     }
 }
 
@@ -78,7 +78,7 @@ public sealed class Wizard3RunService
 /// <param name="AgentIds">Clients whose rows are part of the bitmap.</param>
 /// <param name="AnalyseToken">Source-scenario isolation token; null reads the main schedule.</param>
 /// <param name="Language">UI language; null falls back to English.</param>
-public sealed record Wizard3RunInput(
+public sealed record HolisticHarmonizerRunInput(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
     IReadOnlyList<Guid> AgentIds,
@@ -86,19 +86,19 @@ public sealed record Wizard3RunInput(
     string? Language);
 
 /// <summary>
-/// Outcome of <see cref="Wizard3RunService.RunAsync"/>: either a successful run with cached
+/// Outcome of <see cref="HolisticHarmonizerRunService.RunAsync"/>: either a successful run with cached
 /// result and job id (ready to apply as a scenario), or a failure message for the UI.
 /// </summary>
-public sealed record Wizard3RunOutcome
+public sealed record HolisticHarmonizerRunOutcome
 {
     public bool IsSuccess { get; init; }
     public Guid? JobId { get; init; }
-    public Wizard3RunResult? Result { get; init; }
+    public HolisticHarmonizerRunResult? Result { get; init; }
     public string? FailureMessage { get; init; }
 
-    public static Wizard3RunOutcome Success(Guid jobId, Wizard3RunResult result)
+    public static HolisticHarmonizerRunOutcome Success(Guid jobId, HolisticHarmonizerRunResult result)
         => new() { IsSuccess = true, JobId = jobId, Result = result };
 
-    public static Wizard3RunOutcome Failure(string message)
+    public static HolisticHarmonizerRunOutcome Failure(string message)
         => new() { IsSuccess = false, FailureMessage = message };
 }

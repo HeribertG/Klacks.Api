@@ -110,7 +110,7 @@ namespace Klacks.Api.Application.Constants
         public const string ASSISTANT_TTS_VOICE = "ASSISTANT_TTS_VOICE";
         public const string ASSISTANT_SILENCE_THRESHOLD_MS = "ASSISTANT_SILENCE_THRESHOLD_MS";
 
-        public const string WIZARD3_LLM_MODEL = "WIZARD3_LLM_MODEL";
+        public const string HOLISTIC_HARMONIZER_LLM_MODEL = "WIZARD3_LLM_MODEL";
     }
 }
 

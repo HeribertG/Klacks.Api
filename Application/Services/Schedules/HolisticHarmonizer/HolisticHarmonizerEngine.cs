@@ -7,17 +7,17 @@ using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.Harmonizer.Conductor;
 using Klacks.ScheduleOptimizer.Harmonizer.Evolution;
 using Klacks.ScheduleOptimizer.Harmonizer.Scorer;
-using Klacks.ScheduleOptimizer.Wizard3.Bitmap;
-using Klacks.ScheduleOptimizer.Wizard3.Llm;
-using Klacks.ScheduleOptimizer.Wizard3.Loop;
-using Klacks.ScheduleOptimizer.Wizard3.Mutations;
-using Klacks.ScheduleOptimizer.Wizard3.Validation;
+using Klacks.ScheduleOptimizer.HolisticHarmonizer.Bitmap;
+using Klacks.ScheduleOptimizer.HolisticHarmonizer.Llm;
+using Klacks.ScheduleOptimizer.HolisticHarmonizer.Loop;
+using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
+using Klacks.ScheduleOptimizer.HolisticHarmonizer.Validation;
 using Microsoft.Extensions.Logging;
 
-namespace Klacks.Api.Application.Services.Schedules.Wizard3;
+namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 
 /// <summary>
-/// Holistic Wizard 3 engine. Runs an inner LLM-ALNS loop: each iteration renders the current
+/// Holistic Holistic Harmonizer engine. Runs an inner LLM-ALNS loop: each iteration renders the current
 /// bitmap, asks the LLM for one or more <see cref="MutationBatch"/> proposals (each tagged with
 /// an intent label), evaluates them as atomic transformations with Score-Greedy and prefix
 /// acceptance, and feeds rejects back to the LLM via a small reject memory. The inner loop
@@ -26,7 +26,7 @@ namespace Klacks.Api.Application.Services.Schedules.Wizard3;
 /// <param name="contextBuilder">Reuses the Wizard 2 context builder to read the schedule.</param>
 /// <param name="proposalProvider">LLM-backed batch proposal source.</param>
 /// <param name="logger">Diagnostic logger for proposal counts, score trajectory, failures.</param>
-public sealed class Wizard3Engine
+public sealed class HolisticHarmonizerEngine
 {
     private const int MaxInnerIterations = 10;
     private const int PlateauStopThreshold = 3;
@@ -34,26 +34,26 @@ public sealed class Wizard3Engine
 
     private readonly IHarmonizerContextBuilder _contextBuilder;
     private readonly IPlanProposalProvider _proposalProvider;
-    private readonly ILogger<Wizard3Engine> _logger;
+    private readonly ILogger<HolisticHarmonizerEngine> _logger;
 
-    public Wizard3Engine(
+    public HolisticHarmonizerEngine(
         IHarmonizerContextBuilder contextBuilder,
         IPlanProposalProvider proposalProvider,
-        ILogger<Wizard3Engine> logger)
+        ILogger<HolisticHarmonizerEngine> logger)
     {
         _contextBuilder = contextBuilder;
         _proposalProvider = proposalProvider;
         _logger = logger;
     }
 
-    public async Task<Wizard3RunResult> RunAsync(Wizard3EngineRequest request, CancellationToken cancellationToken)
+    public async Task<HolisticHarmonizerRunResult> RunAsync(HolisticHarmonizerEngineRequest request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
         cancellationToken.ThrowIfCancellationRequested();
 
         var ping = await _proposalProvider.PingAsync(request.LlmModelId, cancellationToken);
         _logger.LogInformation(
-            "Wizard 3 ping: model={Model} healthy={Healthy} latency={LatencyMs}ms error={Error}",
+            "Holistic Harmonizer ping: model={Model} healthy={Healthy} latency={LatencyMs}ms error={Error}",
             request.LlmModelId, ping.IsHealthy, ping.LatencyMs, ping.Error ?? "<none>");
 
         var contextRequest = new HarmonizerContextRequest(
@@ -78,7 +78,7 @@ public sealed class Wizard3Engine
 
         if (!ping.IsHealthy)
         {
-            return new Wizard3RunResult(
+            return new HolisticHarmonizerRunResult(
                 OriginalBitmap: original,
                 FinalBitmap: original,
                 Iterations: iterations,
@@ -102,12 +102,12 @@ public sealed class Wizard3Engine
 
             if (stopwatch.Elapsed > InnerLoopTimeBudget)
             {
-                _logger.LogInformation("Wizard 3 inner loop hit time budget after iter={Iter}", iter);
+                _logger.LogInformation("Holistic Harmonizer inner loop hit time budget after iter={Iter}", iter);
                 break;
             }
             if (plateauCounter >= PlateauStopThreshold)
             {
-                _logger.LogInformation("Wizard 3 inner loop hit plateau after iter={Iter}", iter);
+                _logger.LogInformation("Holistic Harmonizer inner loop hit plateau after iter={Iter}", iter);
                 break;
             }
 
@@ -128,14 +128,14 @@ public sealed class Wizard3Engine
             if (response.ParsingError is not null)
             {
                 lastParsingError = response.ParsingError;
-                _logger.LogWarning("Wizard 3 iter={Iter} parsing failed: {Error}", iter, response.ParsingError);
+                _logger.LogWarning("Holistic Harmonizer iter={Iter} parsing failed: {Error}", iter, response.ParsingError);
                 plateauCounter++;
                 continue;
             }
 
             if (response.Batches.Count == 0)
             {
-                _logger.LogInformation("Wizard 3 iter={Iter} returned 0 batches — LLM signals satisfied", iter);
+                _logger.LogInformation("Holistic Harmonizer iter={Iter} returned 0 batches — LLM signals satisfied", iter);
                 break;
             }
 
@@ -188,14 +188,14 @@ public sealed class Wizard3Engine
         }
 
         _logger.LogInformation(
-            "Wizard 3 run finished: model={Model} iterations={Iter} acceptedBatches={A} rejectedBatches={R} fitness {Before:F3} -> {After:F3} elapsed={Ms}ms",
+            "Holistic Harmonizer run finished: model={Model} iterations={Iter} acceptedBatches={A} rejectedBatches={R} fitness {Before:F3} -> {After:F3} elapsed={Ms}ms",
             request.LlmModelId, iterations.Count, acceptedCount, rejectedCount, fitnessBefore, fitnessAfter, stopwatch.ElapsedMilliseconds);
 
         var rawPreview = lastRawResponse is not null && lastRawResponse.Length > 600
             ? lastRawResponse[..600] + "..."
             : lastRawResponse;
 
-        return new Wizard3RunResult(
+        return new HolisticHarmonizerRunResult(
             OriginalBitmap: original,
             FinalBitmap: working,
             Iterations: iterations,

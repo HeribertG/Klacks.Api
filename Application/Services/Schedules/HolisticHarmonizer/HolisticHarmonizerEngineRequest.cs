@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-namespace Klacks.Api.Application.Services.Schedules.Wizard3;
+namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 
 /// <summary>
-/// Request payload for a Wizard 3 MVP run. Mirrors the Wizard 2 context request and adds the
+/// Request payload for a Holistic Harmonizer MVP run. Mirrors the Wizard 2 context request and adds the
 /// LLM model id and the UI language so the LLM produces reason texts the operator can read.
 /// </summary>
 /// <param name="PeriodFrom">Start of the date range to load (inclusive).</param>
@@ -12,7 +12,7 @@ namespace Klacks.Api.Application.Services.Schedules.Wizard3;
 /// <param name="AnalyseToken">Source-scenario isolation token; null reads the main schedule.</param>
 /// <param name="LlmModelId">Model id to send the prompt to (resolved from app settings by the caller).</param>
 /// <param name="Language">UI language, used so swap reasons come back in the operator's locale.</param>
-public sealed record Wizard3EngineRequest(
+public sealed record HolisticHarmonizerEngineRequest(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
     IReadOnlyList<Guid> AgentIds,

@@ -20,7 +20,7 @@ public class LLMProviderRequest
     /// <summary>
     /// Optional PNG image bytes that providers with vision support attach as a
     /// content block alongside the user <see cref="Message"/>. Providers that
-    /// cannot handle images ignore this field. Currently consumed by Wizard 3
+    /// cannot handle images ignore this field. Currently consumed by Holistic Harmonizer
     /// to render the schedule grid for vision-capable Claude models.
     /// </summary>
     public byte[]? ImagePng { get; set; }
