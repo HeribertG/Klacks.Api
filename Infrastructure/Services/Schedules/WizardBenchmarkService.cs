@@ -1,17 +1,19 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/**
- * Default implementation of IWizardBenchmarkService.
- * Composes the same context-builder + TokenEvolutionLoop as WizardJobRunner, but runs synchronously
- * and returns a rich metrics snapshot instead of streaming SignalR progress events.
- * Supports optional DB persistence (WizardTrainingRun) and DB-auto-population for the background
- * autotraining service.
- * @param scopeFactory - Creates an isolated DI scope per benchmark (fresh DbContext, repositories)
- */
+/// <summary>
+/// Default implementation of IWizardBenchmarkService.
+/// Composes the same context-builder + TokenEvolutionLoop as WizardJobRunner, but runs synchronously
+/// and returns a rich metrics snapshot instead of streaming SignalR progress events.
+/// Supports optional DB persistence (WizardTrainingRun) and DB-auto-population for the background
+/// autotraining service.
+/// </summary>
+/// <param name="scopeFactory">Creates an isolated DI scope per benchmark (fresh DbContext, repositories).</param>
 
 using System.Diagnostics;
 using System.Text.Json;
+using Klacks.Api.Application.DTOs.Schedules.Wizard;
 using Klacks.Api.Application.Services.Schedules;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
@@ -51,13 +53,13 @@ public sealed class WizardBenchmarkService : IWizardBenchmarkService
         using var scope = _scopeFactory.CreateScope();
         var builder = scope.ServiceProvider.GetRequiredService<IWizardContextBuilder>();
         var repo = scope.ServiceProvider.GetRequiredService<IWizardTrainingRepository>();
-        var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
         var wizardContext = await builder.BuildContextAsync(request, ct);
         var response = await RunCoreAsync(wizardContext, request, ct);
 
         await repo.AddAsync(BuildTrainingRun(response, wizardContext, request, source), ct);
-        await db.SaveChangesAsync(ct);
+        await unitOfWork.CompleteAsync();
 
         return response;
     }

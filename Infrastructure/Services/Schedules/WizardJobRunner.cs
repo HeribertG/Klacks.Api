@@ -142,7 +142,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
                 "Wizard job {JobId} GA loop finished in {LoopMs}ms (tokens={TokenCount}, hardViol={Viol}, stage1={Stage1:F1}%)",
                 jobId, stopwatch.ElapsedMilliseconds - loopStartMs, best.Tokens.Count, best.FitnessStage0, best.FitnessStage1 * 100);
 
-            var (awards, escalations) = BuildAuctionTelemetry(wizardContext, config.RandomSeed);
+            var (awards, escalations) = BuildAuctionTelemetry(wizardContext, config.RandomSeed, _logger);
             _resultCache.Store(jobId, best, request.AnalyseToken, escalations);
 
             await group.OnCompleted(new WizardJobResultDto(
@@ -209,7 +209,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
     /// rule-based seed produced — useful for explainability ("why did Coline get this slot?").
     /// </summary>
     internal static (IReadOnlyList<WizardAuctionAwardDto> Awards, IReadOnlyList<WizardEscalationDto> Escalations)
-        BuildAuctionTelemetry(CoreWizardContext context, int seed)
+        BuildAuctionTelemetry(CoreWizardContext context, int seed, ILogger logger)
     {
         try
         {
@@ -230,8 +230,9 @@ public sealed class WizardJobRunner : IWizardJobRunner
 
             return (awards, escalations);
         }
-        catch
+        catch (Exception ex)
         {
+            logger.LogWarning(ex, "Auction telemetry build failed for seed {Seed}; returning empty awards/escalations", seed);
             return (Array.Empty<WizardAuctionAwardDto>(), Array.Empty<WizardEscalationDto>());
         }
     }

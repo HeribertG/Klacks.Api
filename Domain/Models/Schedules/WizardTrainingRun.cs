@@ -1,23 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/**
- * Persisted record of a single wizard benchmark/training run.
- * Stores the effective TokenEvolutionConfig (as JSON) together with the measured metrics
- * so a training loop or dashboard can query the best historical configuration.
- * @param Source - "manual" when triggered by an API call, "background" when the hosted service produced it
- * @param ConfigJson - Serialized TokenEvolutionConfig actually used for this run
- * @param DurationMs - Wall-clock duration of the evolution loop
- * @param Stage0Violations - Hard-constraint violations (lower = better)
- * @param Stage1Completion - Completion ratio [0..1]
- * @param Stage2Score - Soft-constraint score
- * @param TokenCount - Non-locked tokens produced
- * @param AvailableShiftSlots - Total slots in the scenario
- * @param CoverageRatio - Tokens / slots, capped at 1.0
- * @param ClientDayDuplicates - (Client, Date) pairs with more than one assignment
- * @param AgentsCount - Number of agents in the benchmark scenario
- * @param ShiftsCount - Number of distinct shift definitions
- * @param PeriodDays - Period length in days
- */
+/// <summary>
+/// Persisted record of a single wizard benchmark/training run.
+/// Stores the effective TokenEvolutionConfig (as JSON) together with the measured metrics
+/// so a training loop or dashboard can query the best historical configuration.
+/// </summary>
 
 using Klacks.Api.Domain.Common;
 

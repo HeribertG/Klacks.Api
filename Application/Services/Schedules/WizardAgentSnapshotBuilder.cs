@@ -88,11 +88,11 @@ public sealed class WizardAgentSnapshotBuilder
             Id: agentId.ToString(),
             CurrentHours: currentHours,
             GuaranteedHours: (double)data.GuaranteedHours,
-            MaxConsecutiveDays: data.MaxConsecutiveDays > 0 ? data.MaxConsecutiveDays : 6,
-            MinRestHours: data.MinPauseHours > 0 ? (double)data.MinPauseHours : 11,
-            Motivation: 0.5,
-            MaxDailyHours: data.MaxDailyHours > 0 ? (double)data.MaxDailyHours : 10,
-            MaxWeeklyHours: data.MaxWeeklyHours > 0 ? (double)data.MaxWeeklyHours : 50,
+            MaxConsecutiveDays: data.MaxConsecutiveDays > 0 ? data.MaxConsecutiveDays : WizardSchedulingDefaults.MaxConsecutiveDays,
+            MinRestHours: data.MinPauseHours > 0 ? (double)data.MinPauseHours : WizardSchedulingDefaults.MinRestHours,
+            Motivation: WizardSchedulingDefaults.DefaultMotivation,
+            MaxDailyHours: data.MaxDailyHours > 0 ? (double)data.MaxDailyHours : WizardSchedulingDefaults.MaxDailyHours,
+            MaxWeeklyHours: data.MaxWeeklyHours > 0 ? (double)data.MaxWeeklyHours : WizardSchedulingDefaults.MaxWeeklyHours,
             MaxOptimalGap: data.MaxOptimalGap > 0 ? (double)data.MaxOptimalGap : 2)
         {
             FullTime = (double)data.FullTime,

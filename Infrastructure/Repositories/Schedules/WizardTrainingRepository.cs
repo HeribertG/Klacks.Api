@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/**
- * EF Core implementation of IWizardTrainingRepository.
- * Does not call SaveChanges itself — the caller is expected to commit via IUnitOfWork
- * when part of a larger transaction, or to call the dedicated persist helper on the service.
- * @param context - The shared EF Core database context
- */
+/// <summary>
+/// EF Core implementation of IWizardTrainingRepository.
+/// Does not call SaveChanges itself — the caller is expected to commit via IUnitOfWork
+/// when part of a larger transaction, or to call the dedicated persist helper on the service.
+/// </summary>
+/// <param name="context">The shared EF Core database context.</param>
 
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;

@@ -67,11 +67,11 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
             BreakBlockers = hardConstraints.BreakBlockers,
             LockedWorks = hardConstraints.LockedWorks,
             ExistingWorkBlockers = hardConstraints.ExistingWorkBlockers,
-            SchedulingMaxConsecutiveDays = defaults.MaxConsecutiveDays > 0 ? defaults.MaxConsecutiveDays : 6,
-            SchedulingMinPauseHours = defaults.MinPauseHours > 0 ? (double)defaults.MinPauseHours : 11,
+            SchedulingMaxConsecutiveDays = defaults.MaxConsecutiveDays > 0 ? defaults.MaxConsecutiveDays : WizardSchedulingDefaults.MaxConsecutiveDays,
+            SchedulingMinPauseHours = defaults.MinPauseHours > 0 ? (double)defaults.MinPauseHours : WizardSchedulingDefaults.MinRestHours,
             SchedulingMaxOptimalGap = defaults.MaxOptimalGap > 0 ? (double)defaults.MaxOptimalGap : 2,
-            SchedulingMaxDailyHours = defaults.MaxDailyHours > 0 ? (double)defaults.MaxDailyHours : 10,
-            SchedulingMaxWeeklyHours = defaults.MaxWeeklyHours > 0 ? (double)defaults.MaxWeeklyHours : 50,
+            SchedulingMaxDailyHours = defaults.MaxDailyHours > 0 ? (double)defaults.MaxDailyHours : WizardSchedulingDefaults.MaxDailyHours,
+            SchedulingMaxWeeklyHours = defaults.MaxWeeklyHours > 0 ? (double)defaults.MaxWeeklyHours : WizardSchedulingDefaults.MaxWeeklyHours,
             AnalyseToken = request.AnalyseToken,
         };
     }

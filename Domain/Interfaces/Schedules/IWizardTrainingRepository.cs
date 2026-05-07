@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/**
- * Repository for WizardTrainingRun history.
- * Used by the benchmark service (write) and the admin training endpoints (read).
- */
+/// <summary>
+/// Repository for WizardTrainingRun history.
+/// Used by the benchmark service (write) and the admin training endpoints (read).
+/// </summary>
 
 using Klacks.Api.Domain.Models.Schedules;
 

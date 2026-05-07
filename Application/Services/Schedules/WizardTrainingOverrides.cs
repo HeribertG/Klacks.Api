@@ -1,22 +1,22 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/**
- * Optional per-request overrides for the TokenEvolution tuning parameters.
- * @param PopulationSize - Overrides TokenEvolutionConfig.PopulationSize if set
- * @param MaxGenerations - Overrides TokenEvolutionConfig.MaxGenerations if set
- * @param TournamentK - Overrides TokenEvolutionConfig.TournamentK if set
- * @param MutationRate - Overrides TokenEvolutionConfig.MutationRate if set
- * @param CrossoverRate - Overrides TokenEvolutionConfig.CrossoverRate if set
- * @param ElitismCount - Overrides TokenEvolutionConfig.ElitismCount if set
- * @param MutationWeightSwap - Overrides TokenEvolutionConfig.MutationWeightSwap if set
- * @param MutationWeightSplit - Overrides TokenEvolutionConfig.MutationWeightSplit if set
- * @param MutationWeightMerge - Overrides TokenEvolutionConfig.MutationWeightMerge if set
- * @param MutationWeightReassign - Overrides TokenEvolutionConfig.MutationWeightReassign if set
- * @param MutationWeightRepair - Overrides TokenEvolutionConfig.MutationWeightRepair if set
- * @param EarlyStopNoImprovementGenerations - Overrides TokenEvolutionConfig.EarlyStopNoImprovementGenerations if set
- * @param RandomSeed - Overrides TokenEvolutionConfig.RandomSeed if set (null = random per run)
- * @param InitAuctionRatio - Overrides TokenEvolutionConfig.InitAuctionRatio if set (0..1; clamped)
- */
+/// <summary>
+/// Optional per-request overrides for the TokenEvolution tuning parameters.
+/// </summary>
+/// <param name="PopulationSize">Overrides TokenEvolutionConfig.PopulationSize if set.</param>
+/// <param name="MaxGenerations">Overrides TokenEvolutionConfig.MaxGenerations if set.</param>
+/// <param name="TournamentK">Overrides TokenEvolutionConfig.TournamentK if set.</param>
+/// <param name="MutationRate">Overrides TokenEvolutionConfig.MutationRate if set.</param>
+/// <param name="CrossoverRate">Overrides TokenEvolutionConfig.CrossoverRate if set.</param>
+/// <param name="ElitismCount">Overrides TokenEvolutionConfig.ElitismCount if set.</param>
+/// <param name="MutationWeightSwap">Overrides TokenEvolutionConfig.MutationWeightSwap if set.</param>
+/// <param name="MutationWeightSplit">Overrides TokenEvolutionConfig.MutationWeightSplit if set.</param>
+/// <param name="MutationWeightMerge">Overrides TokenEvolutionConfig.MutationWeightMerge if set.</param>
+/// <param name="MutationWeightReassign">Overrides TokenEvolutionConfig.MutationWeightReassign if set.</param>
+/// <param name="MutationWeightRepair">Overrides TokenEvolutionConfig.MutationWeightRepair if set.</param>
+/// <param name="EarlyStopNoImprovementGenerations">Overrides TokenEvolutionConfig.EarlyStopNoImprovementGenerations if set.</param>
+/// <param name="RandomSeed">Overrides TokenEvolutionConfig.RandomSeed if set (null = random per run).</param>
+/// <param name="InitAuctionRatio">Overrides TokenEvolutionConfig.InitAuctionRatio if set (0..1; clamped).</param>
 
 using Klacks.ScheduleOptimizer.TokenEvolution;
 

@@ -1,8 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.DTOs.Schedules.Wizard;
 using Klacks.Api.Application.Services.Schedules;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
@@ -13,9 +12,7 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 /// Apply materialises the cached scenario into Work entities. Cancel aborts a running job.
 /// </summary>
 [ApiController]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-[Route("api/backend/[controller]")]
-public sealed class WizardController : ControllerBase
+public sealed class WizardController : BaseController
 {
     private readonly IWizardJobRunner _runner;
     private readonly IWizardApplyService _applyService;
@@ -106,65 +103,3 @@ public sealed class WizardController : ControllerBase
         }
     }
 }
-
-/// <summary>
-/// Request to start a wizard run.
-/// </summary>
-/// <param name="PeriodFrom">Start date (inclusive)</param>
-/// <param name="PeriodUntil">End date (inclusive)</param>
-/// <param name="AgentIds">Clients to plan for</param>
-/// <param name="ShiftIds">Optional subset of shift definitions</param>
-/// <param name="AnalyseToken">Scenario isolation token (null = main scenario)</param>
-/// <param name="TrainingOverrides">Optional tuning-parameter overrides for training/benchmark</param>
-public sealed record StartWizardRequest(
-    DateOnly PeriodFrom,
-    DateOnly PeriodUntil,
-    IReadOnlyList<Guid> AgentIds,
-    IReadOnlyList<Guid>? ShiftIds,
-    Guid? AnalyseToken,
-    WizardTrainingOverrides? TrainingOverrides = null);
-
-/// <summary>
-/// Request to run a synchronous benchmark of the wizard (training/measurement use).
-/// The request is scenario-isolated via AnalyseToken; no Work entities are persisted to the main scenario.
-/// </summary>
-/// <param name="PeriodFrom">Start date (inclusive)</param>
-/// <param name="PeriodUntil">End date (inclusive)</param>
-/// <param name="AgentIds">Clients to plan for</param>
-/// <param name="ShiftIds">Optional subset of shift definitions</param>
-/// <param name="AnalyseToken">Scenario isolation token (recommended: random per benchmark)</param>
-/// <param name="TrainingOverrides">Tuning-parameter overrides for this benchmark</param>
-public sealed record WizardBenchmarkRequest(
-    DateOnly PeriodFrom,
-    DateOnly PeriodUntil,
-    IReadOnlyList<Guid> AgentIds,
-    IReadOnlyList<Guid>? ShiftIds,
-    Guid? AnalyseToken,
-    WizardTrainingOverrides? TrainingOverrides = null);
-
-public sealed record StartWizardResponse(Guid JobId);
-
-public sealed record CancelWizardRequest(Guid JobId);
-
-public sealed record CancelWizardResponse(bool Cancelled);
-
-public sealed record ApplyWizardRequest(Guid JobId);
-
-public sealed record ApplyWizardResponse(IReadOnlyList<Guid> CreatedWorkIds);
-
-/// <summary>
-/// Request to apply a cached wizard result as a new scenario.
-/// </summary>
-/// <param name="JobId">The job whose cached result is materialised</param>
-/// <param name="GroupId">Optional group scope for scenario cloning and name uniqueness</param>
-public sealed record ApplyAsScenarioRequest(Guid JobId, Guid? GroupId);
-
-/// <summary>
-/// Response from ApplyAsScenario containing the created scenario and work ids.
-/// </summary>
-/// <param name="ScenarioId">Id of the newly created AnalyseScenario</param>
-/// <param name="ScenarioToken">Unique token of the new scenario</param>
-/// <param name="ScenarioName">Auto-generated name of the new scenario</param>
-/// <param name="RunGroupId">Correlation id linking Wizard 1/2/3 scenarios from the same test run</param>
-/// <param name="CreatedWorkIds">Ids of Work entities written into the scenario</param>
-public sealed record ApplyAsScenarioResponse(Guid ScenarioId, Guid ScenarioToken, string ScenarioName, Guid? RunGroupId, IReadOnlyList<Guid> CreatedWorkIds);
