@@ -38,7 +38,7 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
         }
     }
 
-    public override async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request)
+    public override async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request, CancellationToken cancellationToken = default)
     {
         if (!IsEnabled)
         {
@@ -63,7 +63,7 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
             };
 
             var endpoint = "chat/completions";
-            var response = await PostJsonAsync<OpenAIToolsRequest, OpenAIResponse>(endpoint, openAiRequest);
+            var response = await PostJsonAsync<OpenAIToolsRequest, OpenAIResponse>(endpoint, openAiRequest, cancellationToken);
 
             if (response?.Choices == null || !response.Choices.Any())
             {

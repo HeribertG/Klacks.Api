@@ -94,16 +94,18 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         LLMProviderResponse response;
         try
         {
-            var providerTask = provider.ProcessAsync(pingRequest);
-            var timeoutTask = Task.Delay(PingTimeout, pingCts.Token);
-            var completed = await Task.WhenAny(providerTask, timeoutTask);
+            response = await provider.ProcessAsync(pingRequest, pingCts.Token);
             stopwatch.Stop();
-
-            if (completed == timeoutTask)
-            {
-                return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, $"Ping timed out after {PingTimeout.TotalSeconds:F0}s.");
-            }
-            response = await providerTask;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            stopwatch.Stop();
+            throw;
+        }
+        catch (OperationCanceledException)
+        {
+            stopwatch.Stop();
+            return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, $"Ping timed out after {PingTimeout.TotalSeconds:F0}s.");
         }
         catch (Exception ex)
         {
@@ -158,16 +160,18 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         LLMProviderResponse response;
         try
         {
-            var providerTask = provider.ProcessAsync(capabilityRequest);
-            var timeoutTask = Task.Delay(CapabilityTimeout, capabilityCts.Token);
-            var completed = await Task.WhenAny(providerTask, timeoutTask);
+            response = await provider.ProcessAsync(capabilityRequest, capabilityCts.Token);
             stopwatch.Stop();
-
-            if (completed == timeoutTask)
-            {
-                return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, $"Capability check timed out after {CapabilityTimeout.TotalSeconds:F0}s.");
-            }
-            response = await providerTask;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            stopwatch.Stop();
+            throw;
+        }
+        catch (OperationCanceledException)
+        {
+            stopwatch.Stop();
+            return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, $"Capability check timed out after {CapabilityTimeout.TotalSeconds:F0}s.");
         }
         catch (Exception ex)
         {
@@ -325,26 +329,21 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         LLMProviderResponse response;
         try
         {
-            var providerTask = provider.ProcessAsync(providerRequest);
-            var timeoutTask = Task.Delay(ProposalTimeout, proposalCts.Token);
-            var completed = await Task.WhenAny(providerTask, timeoutTask);
-
-            if (completed == timeoutTask)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                _logger.LogWarning(
-                    "Wizard 3 LLM call timed out after {Timeout}s for model {ModelId}",
-                    ProposalTimeout.TotalSeconds, request.ModelId);
-                return new PlanProposalResponse(
-                    [],
-                    string.Empty,
-                    $"LLM call timed out after {ProposalTimeout.TotalSeconds:F0}s — provider did not respond within the per-call budget.");
-            }
-            response = await providerTask;
+            response = await provider.ProcessAsync(providerRequest, proposalCts.Token);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             throw;
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning(
+                "Wizard 3 LLM call timed out after {Timeout}s for model {ModelId}",
+                ProposalTimeout.TotalSeconds, request.ModelId);
+            return new PlanProposalResponse(
+                [],
+                string.Empty,
+                $"LLM call timed out after {ProposalTimeout.TotalSeconds:F0}s — provider did not respond within the per-call budget.");
         }
         catch (Exception ex)
         {

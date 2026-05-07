@@ -27,7 +27,7 @@ public class GeminiProvider : BaseHttpProvider
     {
     }
 
-    public override async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request)
+    public override async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request, CancellationToken cancellationToken = default)
     {
         if (!IsEnabled)
         {
@@ -64,7 +64,7 @@ public class GeminiProvider : BaseHttpProvider
                 SystemInstruction = BuildSystemInstruction(request.SystemPrompt)
             };
 
-            var geminiResponse = await PostJsonAsync<GeminiRequest, GeminiResponse>(endpoint, geminiRequest);
+            var geminiResponse = await PostJsonAsync<GeminiRequest, GeminiResponse>(endpoint, geminiRequest, cancellationToken);
 
             if (geminiResponse?.Candidates == null || !geminiResponse.Candidates.Any())
             {

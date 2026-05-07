@@ -23,7 +23,7 @@ public class MistralProvider : BaseHttpProvider
     {
     }
 
-    public override async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request)
+    public override async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request, CancellationToken cancellationToken = default)
     {
         if (!IsEnabled)
         {
@@ -48,7 +48,7 @@ public class MistralProvider : BaseHttpProvider
             };
 
             var endpoint = "chat/completions";
-            var mistralResponse = await PostJsonAsync<OpenAIToolsRequest, OpenAIResponse>(endpoint, mistralRequest);
+            var mistralResponse = await PostJsonAsync<OpenAIToolsRequest, OpenAIResponse>(endpoint, mistralRequest, cancellationToken);
 
             if (mistralResponse?.Choices == null || !mistralResponse.Choices.Any())
             {

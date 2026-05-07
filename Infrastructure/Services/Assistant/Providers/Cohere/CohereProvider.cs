@@ -30,7 +30,7 @@ public class CohereProvider : BaseHttpProvider
         }
     }
 
-    public override async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request)
+    public override async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request, CancellationToken cancellationToken = default)
     {
         if (!IsEnabled)
         {
@@ -53,7 +53,7 @@ public class CohereProvider : BaseHttpProvider
                 MaxTokens = request.MaxTokens
             };
 
-            var cohereResponse = await PostJsonAsync<CohereRequest, CohereResponse>("chat", cohereRequest);
+            var cohereResponse = await PostJsonAsync<CohereRequest, CohereResponse>("chat", cohereRequest, cancellationToken);
 
             if (cohereResponse == null || string.IsNullOrEmpty(cohereResponse.Text))
             {

@@ -51,7 +51,7 @@ public abstract class BaseHttpProvider : ILLMProvider
         }
     }
 
-    public abstract Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request);
+    public abstract Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request, CancellationToken cancellationToken = default);
 
     public abstract Task<bool> ValidateApiKeyAsync(string apiKey);
 
@@ -122,7 +122,8 @@ public abstract class BaseHttpProvider : ILLMProvider
                 Temperature = 0.0,
             };
 
-            var responseTask = ProcessAsync(request);
+            using var testCts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+            var responseTask = ProcessAsync(request, testCts.Token);
             var timeoutTask = Task.Delay(TimeSpan.FromSeconds(15));
             var completed = await Task.WhenAny(responseTask, timeoutTask);
             sw.Stop();
@@ -172,15 +173,18 @@ public abstract class BaseHttpProvider : ILLMProvider
         }
     }
 
-    protected async Task<TResponse?> PostJsonAsync<TRequest, TResponse>(string endpoint, TRequest request)
+    protected async Task<TResponse?> PostJsonAsync<TRequest, TResponse>(
+        string endpoint,
+        TRequest request,
+        CancellationToken cancellationToken = default)
     {
         var json = JsonSerializer.Serialize(request, GetJsonSerializerOptions());
         var content = new StringContent(json, Encoding.UTF8, "application/json");
-        
+
         _logger.LogDebug("{Provider} sending request to {Endpoint}: {Request}", ProviderName, endpoint, json);
 
-        var response = await _httpClient.PostAsync(endpoint, content);
-        var responseJson = await response.Content.ReadAsStringAsync();
+        var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
+        var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
 
         _logger.LogDebug("{Provider} received response: {StatusCode} - {Response}",
             ProviderName, response.StatusCode, responseJson);

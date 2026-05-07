@@ -29,7 +29,7 @@ public class DeepSeekProvider : BaseHttpProvider
     {
     }
 
-    public override async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request)
+    public override async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request, CancellationToken cancellationToken = default)
     {
         if (!IsEnabled)
         {
@@ -54,7 +54,7 @@ public class DeepSeekProvider : BaseHttpProvider
             };
 
             var endpoint = "chat/completions";
-            var deepSeekResponse = await PostJsonAsync<OpenAIToolsRequest, OpenAIResponse>(endpoint, deepSeekRequest);
+            var deepSeekResponse = await PostJsonAsync<OpenAIToolsRequest, OpenAIResponse>(endpoint, deepSeekRequest, cancellationToken);
 
             if (deepSeekResponse?.Choices == null || !deepSeekResponse.Choices.Any())
             {

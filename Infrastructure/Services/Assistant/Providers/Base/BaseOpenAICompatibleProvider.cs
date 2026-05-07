@@ -19,7 +19,7 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
     {
     }
 
-    public override async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request)
+    public override async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request, CancellationToken cancellationToken = default)
     {
         if (!IsEnabled)
         {
@@ -44,7 +44,7 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
             };
 
             var endpoint = GetChatCompletionsEndpoint();
-            var openAIResponse = await PostJsonAsync<OpenAIRequest, OpenAIResponse>(endpoint, openAIRequest);
+            var openAIResponse = await PostJsonAsync<OpenAIRequest, OpenAIResponse>(endpoint, openAIRequest, cancellationToken);
 
             if (openAIResponse?.Choices == null || !openAIResponse.Choices.Any())
             {

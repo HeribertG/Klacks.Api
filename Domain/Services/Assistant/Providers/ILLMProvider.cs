@@ -10,7 +10,7 @@ public interface ILLMProvider
     bool SupportsStreaming => false;
 
     void Configure(Models.Assistant.LLMProvider providerConfig);
-    Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request);
+    Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request, CancellationToken cancellationToken = default);
     Task<bool> ValidateApiKeyAsync(string apiKey);
 
     IAsyncEnumerable<string> ProcessStreamAsync(

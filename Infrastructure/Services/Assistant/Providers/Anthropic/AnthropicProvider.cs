@@ -53,7 +53,7 @@ public class AnthropicProvider : ILLMProvider
         _httpClient.BaseAddress = new Uri(providerConfig.BaseUrl!);
     }
 
-    public async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request)
+    public async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request, CancellationToken cancellationToken = default)
     {
         if (!IsEnabled)
         {
@@ -92,21 +92,21 @@ public class AnthropicProvider : ILLMProvider
             });
             
             var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync("messages", requestContent);
-            
+            var response = await _httpClient.PostAsync("messages", requestContent, cancellationToken);
+
             if (!response.IsSuccessStatusCode)
             {
-                var error = await response.Content.ReadAsStringAsync();
+                var error = await response.Content.ReadAsStringAsync(cancellationToken);
                 var errorMessage = ExtractAnthropicErrorMessage(error, response.StatusCode);
                 _logger.LogError("Anthropic API error: {StatusCode} - {Error}", response.StatusCode, error);
-                return new LLMProviderResponse 
-                { 
-                    Success = false, 
+                return new LLMProviderResponse
+                {
+                    Success = false,
                     Error = errorMessage
                 };
             }
 
-            var responseJson = await response.Content.ReadAsStringAsync();
+            var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
             var anthropicResponse = JsonSerializer.Deserialize<AnthropicResponse>(responseJson, new JsonSerializerOptions 
             { 
                 PropertyNameCaseInsensitive = true 
