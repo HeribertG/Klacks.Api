@@ -422,6 +422,13 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         sb.AppendLine("- Light beige column tint marks Saturday and Sunday.");
         sb.AppendLine("- IMPORTANT: two cells carrying the SAME letter contain the same shift type — swapping them has zero effect. Do NOT propose such swaps.");
         sb.AppendLine("- Read coordinates from the row index (r##) and zero-based day index (first column = day 0).");
+        sb.AppendLine();
+        sb.AppendLine("PRE-SUBMISSION SELF-CHECK (MANDATORY for every step):");
+        sb.AppendLine("Before adding a step to the JSON output, explicitly verify in your reasoning that the");
+        sb.AppendLine("letter at (rowA, dayA) is DIFFERENT from the letter at (rowB, dayB). A blank cell counts");
+        sb.AppendLine("as a distinct symbol from any letter, but two letters that match (e.g. both L, both E)");
+        sb.AppendLine("must NOT be swapped — such steps will be rejected as zero-effect by the host validator");
+        sb.AppendLine("and waste the iteration budget. If you cannot confirm a difference, drop the step.");
         return sb.ToString();
     }
 
