@@ -27,6 +27,7 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
     // 6000 tokens leaves room for the reasoning trace and the JSON output. The 5-minute
     // HttpClient timeout absorbs the longer round-trip.
     private const int ProposalMaxTokens = 6000;
+    private static readonly TimeSpan ProposalTimeout = TimeSpan.FromSeconds(60);
 
     private const int PingMaxTokens = 50;
     private static readonly TimeSpan PingTimeout = TimeSpan.FromSeconds(30);
@@ -318,10 +319,32 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
             ImagePng = request.PlanPng,
         };
 
+        using var proposalCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        proposalCts.CancelAfter(ProposalTimeout);
+
         LLMProviderResponse response;
         try
         {
-            response = await provider.ProcessAsync(providerRequest);
+            var providerTask = provider.ProcessAsync(providerRequest);
+            var timeoutTask = Task.Delay(ProposalTimeout, proposalCts.Token);
+            var completed = await Task.WhenAny(providerTask, timeoutTask);
+
+            if (completed == timeoutTask)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                _logger.LogWarning(
+                    "Wizard 3 LLM call timed out after {Timeout}s for model {ModelId}",
+                    ProposalTimeout.TotalSeconds, request.ModelId);
+                return new PlanProposalResponse(
+                    [],
+                    string.Empty,
+                    $"LLM call timed out after {ProposalTimeout.TotalSeconds:F0}s — provider did not respond within the per-call budget.");
+            }
+            response = await providerTask;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
