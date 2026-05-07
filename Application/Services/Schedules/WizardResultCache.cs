@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using System.Collections.Concurrent;
-using Klacks.Api.Infrastructure.Hubs;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.ScheduleOptimizer.Models;
 
 namespace Klacks.Api.Application.Services.Schedules;
