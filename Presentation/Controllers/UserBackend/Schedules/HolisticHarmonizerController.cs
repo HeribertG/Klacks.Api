@@ -105,7 +105,16 @@ public sealed class HolisticHarmonizerController : BaseController
                 i.Rejections.Count,
                 i.StoppedAtStep,
                 Math.Round(i.ScoreBefore, 4, MidpointRounding.AwayFromZero),
-                Math.Round(i.ScoreAfter, 4, MidpointRounding.AwayFromZero)))
+                Math.Round(i.ScoreAfter, 4, MidpointRounding.AwayFromZero),
+                i.AppliedSteps
+                    .Select(s => new HolisticHarmonizerSwapDto(s.RowA, s.DayA, s.RowB, s.DayB, s.Reason))
+                    .ToArray(),
+                i.Rejections
+                    .Select(r => new HolisticHarmonizerRejectionDto(
+                        new HolisticHarmonizerSwapDto(r.Swap.RowA, r.Swap.DayA, r.Swap.RowB, r.Swap.DayB, r.Swap.Reason),
+                        r.Reason.ToString(),
+                        r.Detail))
+                    .ToArray()))
             .ToArray();
 
         return new HolisticHarmonizerRunResponse(

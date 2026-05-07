@@ -425,6 +425,18 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         sb.AppendLine("as a distinct symbol from any letter, but two letters that match (e.g. both L, both E)");
         sb.AppendLine("must NOT be swapped — such steps will be rejected as zero-effect by the host validator");
         sb.AppendLine("and waste the iteration budget. If you cannot confirm a difference, drop the step.");
+        sb.AppendLine();
+        sb.AppendLine("BAD PATTERN — DO NOT EMIT (these are auto-rejected as zero-effect):");
+        sb.AppendLine("  rowA=2 dayA=5 (cell shows 'L')   ↔   rowB=7 dayB=5 (cell shows 'L')   — both Late, useless");
+        sb.AppendLine("  rowA=4 dayA=3 (cell shows 'E')   ↔   rowB=8 dayB=3 (cell shows 'E')   — both Early, useless");
+        sb.AppendLine("  rowA=1 dayA=0 (blank)            ↔   rowB=9 dayB=0 (blank)            — both Free, useless");
+        sb.AppendLine();
+        sb.AppendLine("GOOD PATTERN — emit only swaps where the letters / blank-state truly differ, e.g.:");
+        sb.AppendLine("  rowA=3 dayA=4 (blank Free)       ↔   rowB=6 dayB=4 (cell shows 'E')   — fills a gap, useful");
+        sb.AppendLine("  rowA=0 dayA=2 (cell shows 'L')   ↔   rowB=5 dayB=2 (cell shows 'N')   — redistributes load");
+        sb.AppendLine();
+        sb.AppendLine("If you are uncertain whether two cells display the same letter, prefer dropping the step.");
+        sb.AppendLine("It is always cheaper to skip a doubtful swap than to spend an iteration on a no-op.");
         return sb.ToString();
     }
 
@@ -465,6 +477,38 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
             sb.AppendLine($"- [{entry.Intent}/{entry.Result}] {entry.Summary}");
         }
         sb.AppendLine();
+
+        var forbiddenKeys = CollectForbiddenSwapKeys(rejections);
+        if (forbiddenKeys.Count == 0)
+        {
+            return;
+        }
+        sb.AppendLine("DO NOT REPEAT THESE EXACT SWAPS (auto-rejected if proposed again, host validates strictly):");
+        for (var i = 0; i < forbiddenKeys.Count; i++)
+        {
+            var key = forbiddenKeys[i];
+            sb.AppendLine($"- row {key.RowSmaller} <-> row {key.RowLarger} on day {key.Day}");
+        }
+        sb.AppendLine();
+    }
+
+    private static IReadOnlyList<ForbiddenSwapKey> CollectForbiddenSwapKeys(IReadOnlyList<RejectMemoryEntry> rejections)
+    {
+        var seen = new HashSet<ForbiddenSwapKey>();
+        var ordered = new List<ForbiddenSwapKey>();
+        for (var i = 0; i < rejections.Count; i++)
+        {
+            var swaps = rejections[i].RejectedSwaps;
+            for (var j = 0; j < swaps.Count; j++)
+            {
+                var key = ForbiddenSwapKey.From(swaps[j]);
+                if (seen.Add(key))
+                {
+                    ordered.Add(key);
+                }
+            }
+        }
+        return ordered;
     }
 
     private const int MaxBatchesPerResponse = 3;
