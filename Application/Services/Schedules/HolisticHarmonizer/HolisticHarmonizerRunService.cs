@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.ScheduleOptimizer.HolisticHarmonizer.Loop;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
 using Microsoft.Extensions.Logging;
 
@@ -32,7 +33,14 @@ public sealed class HolisticHarmonizerRunService
         _logger = logger;
     }
 
-    public async Task<HolisticHarmonizerRunOutcome> RunAsync(HolisticHarmonizerRunInput input, CancellationToken cancellationToken)
+    public Task<HolisticHarmonizerRunOutcome> RunAsync(HolisticHarmonizerRunInput input, CancellationToken cancellationToken)
+        => RunAsync(input, jobId: null, progress: null, cancellationToken);
+
+    public async Task<HolisticHarmonizerRunOutcome> RunAsync(
+        HolisticHarmonizerRunInput input,
+        Guid? jobId,
+        IProgress<HolisticHarmonizerProgress>? progress,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(input);
 
@@ -54,7 +62,7 @@ public sealed class HolisticHarmonizerRunService
         HolisticHarmonizerRunResult result;
         try
         {
-            result = await _engine.RunAsync(engineRequest, cancellationToken);
+            result = await _engine.RunAsync(engineRequest, progress, cancellationToken);
         }
         catch (OperationCanceledException)
         {
@@ -66,9 +74,9 @@ public sealed class HolisticHarmonizerRunService
             return HolisticHarmonizerRunOutcome.Failure($"Holistic Harmonizer engine failed: {ex.Message}");
         }
 
-        var jobId = Guid.NewGuid();
-        _resultCache.Store(jobId, result.OriginalBitmap, result.FinalBitmap, input.AnalyseToken);
+        var resolvedJobId = jobId ?? Guid.NewGuid();
+        _resultCache.Store(resolvedJobId, result.OriginalBitmap, result.FinalBitmap, input.AnalyseToken);
 
-        return HolisticHarmonizerRunOutcome.Success(jobId, result);
+        return HolisticHarmonizerRunOutcome.Success(resolvedJobId, result);
     }
 }

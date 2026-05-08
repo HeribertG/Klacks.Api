@@ -261,6 +261,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerModelCheckService>();
         services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.IHolisticHarmonizerApplyService,
                            Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerApplyService>();
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerJobRegistry>();
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.IHolisticHarmonizerJobRunner,
+                              Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerJobRunner>();
 
         services.AddShiftServices();
         services.AddClientServices();

@@ -2,31 +2,32 @@
 
 using Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
-using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 
 /// <summary>
-/// REST entry point for Holistic Harmonizer (LLM-driven schedule harmonizer). The MVP runs a single
-/// synchronous round-trip to the configured LLM, validates each proposed swap against the
-/// hard constraints, and stores the resulting bitmap in the shared harmonizer result cache.
-/// Apply uses the existing <see cref="IHarmonizerApplyService"/> so the scenario flow is
-/// identical to Wizard 2.
+/// REST entry point for Holistic Harmonizer (LLM-driven schedule harmonizer). The Start endpoint
+/// kicks off a background job, returns the JobId immediately, and the actual progress and final
+/// result are streamed over SignalR via <see cref="Klacks.Api.Infrastructure.Hubs.HolisticHarmonizerJobHub"/>.
+/// Apply uses the existing <c>IHarmonizerApplyService</c> so the scenario flow is identical to Wizard 2.
 /// </summary>
+/// <param name="jobRunner">Background job orchestrator that broadcasts progress over SignalR.</param>
+/// <param name="applyService">Persists the cached run result as a new AnalyseScenario.</param>
+/// <param name="modelCheckService">Pings every configured LLM model so the UI can highlight unhealthy ones.</param>
 [ApiController]
 public sealed class HolisticHarmonizerController : BaseController
 {
-    private readonly HolisticHarmonizerRunService _runService;
+    private readonly IHolisticHarmonizerJobRunner _jobRunner;
     private readonly IHolisticHarmonizerApplyService _applyService;
     private readonly HolisticHarmonizerModelCheckService _modelCheckService;
 
     public HolisticHarmonizerController(
-        HolisticHarmonizerRunService runService,
+        IHolisticHarmonizerJobRunner jobRunner,
         IHolisticHarmonizerApplyService applyService,
         HolisticHarmonizerModelCheckService modelCheckService)
     {
-        _runService = runService;
+        _jobRunner = jobRunner;
         _applyService = applyService;
         _modelCheckService = modelCheckService;
     }
@@ -47,10 +48,10 @@ public sealed class HolisticHarmonizerController : BaseController
         return Ok(new HolisticHarmonizerModelCheckResponse(dtos));
     }
 
-    [HttpPost("Run")]
-    public async Task<ActionResult<HolisticHarmonizerRunResponse>> Run([FromBody] HolisticHarmonizerRunRequest request, CancellationToken ct)
+    [HttpPost("Start")]
+    public async Task<ActionResult<StartHolisticHarmonizerResponse>> Start([FromBody] HolisticHarmonizerRunRequest request, CancellationToken ct)
     {
-        var outcome = await _runService.RunAsync(
+        var jobId = await _jobRunner.StartAsync(
             new HolisticHarmonizerRunInput(
                 PeriodFrom: request.PeriodFrom,
                 PeriodUntil: request.PeriodUntil,
@@ -59,12 +60,14 @@ public sealed class HolisticHarmonizerController : BaseController
                 Language: request.Language),
             ct);
 
-        if (!outcome.IsSuccess || outcome.Result is null || outcome.JobId is null)
-        {
-            return UnprocessableEntity(new { message = outcome.FailureMessage ?? "Holistic Harmonizer run failed." });
-        }
+        return Ok(new StartHolisticHarmonizerResponse(jobId));
+    }
 
-        return Ok(BuildResponse(outcome.JobId.Value, outcome.Result));
+    [HttpPost("Cancel")]
+    public ActionResult<CancelHolisticHarmonizerResponse> Cancel([FromBody] CancelHolisticHarmonizerRequest request)
+    {
+        var cancelled = _jobRunner.TryCancel(request.JobId);
+        return Ok(new CancelHolisticHarmonizerResponse(cancelled));
     }
 
     [HttpPost("ApplyAsScenario")]
@@ -82,51 +85,4 @@ public sealed class HolisticHarmonizerController : BaseController
             return NotFound(new { message = ex.Message });
         }
     }
-
-    private static HolisticHarmonizerRunResponse BuildResponse(Guid jobId, HolisticHarmonizerRunResult result)
-    {
-        var accepted = result.Iterations
-            .SelectMany(i => i.AppliedSteps)
-            .Select(s => new HolisticHarmonizerSwapDto(s.RowA, s.DayA, s.RowB, s.DayB, s.Reason))
-            .ToArray();
-        var rejected = result.Iterations
-            .SelectMany(i => i.Rejections)
-            .Select(r => new HolisticHarmonizerRejectionDto(
-                new HolisticHarmonizerSwapDto(r.Swap.RowA, r.Swap.DayA, r.Swap.RowB, r.Swap.DayB, r.Swap.Reason),
-                r.Reason.ToString(),
-                r.Detail))
-            .ToArray();
-        var batches = result.Iterations
-            .Select(i => new HolisticHarmonizerBatchDto(
-                i.BatchId,
-                i.Intent,
-                i.Result.ToString(),
-                i.AppliedSteps.Count,
-                i.Rejections.Count,
-                i.StoppedAtStep,
-                Math.Round(i.ScoreBefore, 4, MidpointRounding.AwayFromZero),
-                Math.Round(i.ScoreAfter, 4, MidpointRounding.AwayFromZero),
-                i.AppliedSteps
-                    .Select(s => new HolisticHarmonizerSwapDto(s.RowA, s.DayA, s.RowB, s.DayB, s.Reason))
-                    .ToArray(),
-                i.Rejections
-                    .Select(r => new HolisticHarmonizerRejectionDto(
-                        new HolisticHarmonizerSwapDto(r.Swap.RowA, r.Swap.DayA, r.Swap.RowB, r.Swap.DayB, r.Swap.Reason),
-                        r.Reason.ToString(),
-                        r.Detail))
-                    .ToArray()))
-            .ToArray();
-
-        return new HolisticHarmonizerRunResponse(
-            JobId: jobId,
-            LlmModelId: result.LlmModelId,
-            FitnessBefore: Math.Round(result.FitnessBefore, 4, MidpointRounding.AwayFromZero),
-            FitnessAfter: Math.Round(result.FitnessAfter, 4, MidpointRounding.AwayFromZero),
-            AcceptedSwaps: accepted,
-            RejectedSwaps: rejected,
-            Batches: batches,
-            LlmParsingError: result.LlmParsingError,
-            LlmRawResponsePreview: result.LlmRawResponsePreview);
-    }
 }
-

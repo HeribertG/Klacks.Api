@@ -47,7 +47,13 @@ public sealed class HolisticHarmonizerEngine
         _logger = logger;
     }
 
-    public async Task<HolisticHarmonizerRunResult> RunAsync(HolisticHarmonizerEngineRequest request, CancellationToken cancellationToken)
+    public Task<HolisticHarmonizerRunResult> RunAsync(HolisticHarmonizerEngineRequest request, CancellationToken cancellationToken)
+        => RunAsync(request, progress: null, cancellationToken);
+
+    public async Task<HolisticHarmonizerRunResult> RunAsync(
+        HolisticHarmonizerEngineRequest request,
+        IProgress<HolisticHarmonizerProgress>? progress,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
         cancellationToken.ThrowIfCancellationRequested();
@@ -93,9 +99,19 @@ public sealed class HolisticHarmonizerEngine
         var stopwatch = Stopwatch.StartNew();
         var plateauCounter = 0;
         var bestFitness = fitnessBefore;
+        var acceptedCountSoFar = 0;
+        var rejectedCountSoFar = 0;
         string? lastParsingError = null;
         string? lastRawResponse = null;
         var pngRenderer = new HarmonyBitmapPngRenderer();
+
+        progress?.Report(new HolisticHarmonizerProgress(
+            IterationIndex: 0,
+            MaxIterations: MaxInnerIterations,
+            BestFitness: bestFitness,
+            AcceptedBatchCount: 0,
+            RejectedBatchCount: 0,
+            ElapsedMs: 0));
 
         for (var iter = 0; iter < MaxInnerIterations; iter++)
         {
@@ -150,6 +166,7 @@ public sealed class HolisticHarmonizerEngine
                 if (evaluation.Result == BatchAcceptance.Accepted || evaluation.Result == BatchAcceptance.PartiallyAccepted)
                 {
                     cap.RecordAccept();
+                    acceptedCountSoFar++;
                     if (evaluation.ScoreAfter > bestFitness)
                     {
                         bestFitness = evaluation.ScoreAfter;
@@ -159,6 +176,7 @@ public sealed class HolisticHarmonizerEngine
                 else
                 {
                     cap.RecordReject();
+                    rejectedCountSoFar++;
                     rejectMemory.Note(evaluation);
                 }
             }
@@ -171,26 +189,21 @@ public sealed class HolisticHarmonizerEngine
             {
                 plateauCounter++;
             }
+
+            progress?.Report(new HolisticHarmonizerProgress(
+                IterationIndex: iter + 1,
+                MaxIterations: MaxInnerIterations,
+                BestFitness: bestFitness,
+                AcceptedBatchCount: acceptedCountSoFar,
+                RejectedBatchCount: rejectedCountSoFar,
+                ElapsedMs: stopwatch.ElapsedMilliseconds));
         }
 
         var fitnessAfter = fitness.Evaluate(working).Fitness;
-        var acceptedCount = 0;
-        var rejectedCount = 0;
-        for (var i = 0; i < iterations.Count; i++)
-        {
-            if (iterations[i].Result == BatchAcceptance.Accepted || iterations[i].Result == BatchAcceptance.PartiallyAccepted)
-            {
-                acceptedCount++;
-            }
-            else
-            {
-                rejectedCount++;
-            }
-        }
 
         _logger.LogInformation(
             "Holistic Harmonizer run finished: model={Model} iterations={Iter} acceptedBatches={A} rejectedBatches={R} fitness {Before:F3} -> {After:F3} elapsed={Ms}ms",
-            request.LlmModelId, iterations.Count, acceptedCount, rejectedCount, fitnessBefore, fitnessAfter, stopwatch.ElapsedMilliseconds);
+            request.LlmModelId, iterations.Count, acceptedCountSoFar, rejectedCountSoFar, fitnessBefore, fitnessAfter, stopwatch.ElapsedMilliseconds);
 
         var rawPreview = lastRawResponse is not null && lastRawResponse.Length > RawResponsePreviewLength
             ? lastRawResponse[..RawResponsePreviewLength] + "..."
