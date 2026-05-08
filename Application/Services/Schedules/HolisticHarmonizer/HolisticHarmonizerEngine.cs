@@ -8,6 +8,8 @@ using Klacks.ScheduleOptimizer.Harmonizer.Conductor;
 using Klacks.ScheduleOptimizer.Harmonizer.Evolution;
 using Klacks.ScheduleOptimizer.Harmonizer.Scorer;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Bitmap;
+using Klacks.ScheduleOptimizer.HolisticHarmonizer.Committee;
+using Klacks.ScheduleOptimizer.HolisticHarmonizer.Committee.Agents;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Llm;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Loop;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
@@ -76,7 +78,15 @@ public sealed class HolisticHarmonizerEngine
         var scorer = new HarmonyScorer();
         var fitness = new HarmonyFitnessEvaluator(scorer);
         var validator = new PlanMutationValidator(new DomainAwareReplaceValidator(input.Availability));
-        var batchEvaluator = new BatchEvaluator(validator, fitness);
+        var committee = new ConstraintAgentCommittee(new IConstraintAgent[]
+        {
+            new HoursConstraintAgent(),
+            new PauseConstraintAgent(),
+            new ConsecutiveConstraintAgent(),
+            new RotationConstraintAgent(),
+            new PreferenceConstraintAgent(),
+        });
+        var batchEvaluator = new BatchEvaluator(validator, fitness, committee);
         var rejectMemory = new RejectMemory();
         var cap = new AdaptiveBatchCap();
         var iterations = new List<BatchEvaluation>();
