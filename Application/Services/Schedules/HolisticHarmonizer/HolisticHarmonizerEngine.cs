@@ -114,6 +114,8 @@ public sealed class HolisticHarmonizerEngine
         string? lastParsingError = null;
         string? lastRawResponse = null;
         var pngRenderer = new HarmonyBitmapPngRenderer();
+        var intentTracker = new IntentSuccessTracker();
+        var intentSelector = new RouletteIntentSelector();
 
         progress?.Report(new HolisticHarmonizerProgress(
             IterationIndex: 0,
@@ -138,6 +140,7 @@ public sealed class HolisticHarmonizerEngine
                 break;
             }
 
+            var focusedIntent = intentSelector.Pick(HolisticIntent.All, intentTracker);
             var proposalRequest = new PlanProposalRequest(
                 ModelId: request.LlmModelId,
                 PlanText: HarmonyBitmapTextRenderer.Render(working),
@@ -147,7 +150,8 @@ public sealed class HolisticHarmonizerEngine
                 Language: request.Language ?? "en",
                 IterationIndex: iter,
                 PriorRejections: rejectMemory.Entries.ToArray(),
-                PlanPng: pngRenderer.Render(working));
+                PlanPng: pngRenderer.Render(working),
+                FocusedIntent: focusedIntent);
 
             var response = await _proposalProvider.ProposeAsync(proposalRequest, cancellationToken);
             lastRawResponse = response.RawResponse;
@@ -172,6 +176,8 @@ public sealed class HolisticHarmonizerEngine
                 cancellationToken.ThrowIfCancellationRequested();
                 var evaluation = batchEvaluator.Evaluate(working, batch);
                 iterations.Add(evaluation);
+
+                intentTracker.Note(batch.Intent, evaluation.Result);
 
                 if (evaluation.Result == BatchAcceptance.Accepted || evaluation.Result == BatchAcceptance.PartiallyAccepted)
                 {

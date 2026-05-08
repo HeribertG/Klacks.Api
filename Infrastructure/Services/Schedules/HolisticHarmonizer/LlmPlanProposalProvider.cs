@@ -376,6 +376,10 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         sb.AppendLine("ALLOWED INTENTS (use the exact label):");
         sb.AppendLine("- consolidate_block — merge fragmented work blocks of one employee into a longer");
         sb.AppendLine("  contiguous run by moving the gap-filling shifts in coordination with neighbours.");
+        sb.AppendLine("- enlarge_pause — widen the rest period between two work blocks of one employee");
+        sb.AppendLine("  by shifting an edge work day onto a colleague who has more slack.");
+        sb.AppendLine("- redistribute_load — move a shift from an over-target employee onto an under-target");
+        sb.AppendLine("  colleague so both move closer to their contractual hours.");
         sb.AppendLine();
         sb.AppendLine("OUTPUT CONTRACT (mandatory):");
         sb.AppendLine("- Reply with ONE JSON object and nothing else.");
@@ -454,14 +458,41 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         sb.AppendLine(request.AgentSummary);
         sb.AppendLine();
         AppendPriorRejections(sb, request.PriorRejections);
-        sb.AppendLine("GOAL — consolidate_block:");
-        sb.AppendLine("Identify employees whose work days are fragmented (e.g. Mon-Tue _ Thu-Fri leaves a Wed gap).");
-        sb.AppendLine("Propose a coordinated batch that fills the gap by swapping shifts with other employees on the");
-        sb.AppendLine("gap days, so the target employee gets a longer contiguous block. The neighbouring employees");
-        sb.AppendLine("must remain within their constraints — DayA == DayB protects daily coverage automatically.");
+        AppendFocusedGoal(sb, request.FocusedIntent);
         sb.AppendLine();
         sb.AppendLine("Now reply with the JSON object as defined in the system prompt. No other text.");
         return sb.ToString();
+    }
+
+    private static void AppendFocusedGoal(StringBuilder sb, string focusedIntent)
+    {
+        switch (focusedIntent)
+        {
+            case HolisticIntent.EnlargePause:
+                sb.AppendLine("FOCUS THIS ITERATION — enlarge_pause:");
+                sb.AppendLine("Identify employees whose two work blocks are separated by only a short rest (1-2 free days).");
+                sb.AppendLine("Propose a coordinated batch that widens that pause by swapping the work day adjacent to the");
+                sb.AppendLine("gap onto a colleague with more slack. The target employee ends up with a longer rest");
+                sb.AppendLine("period; daily coverage stays intact because DayA == DayB. You may still emit other intents");
+                sb.AppendLine("if you spot a better opportunity, but prefer enlarge_pause this round.");
+                break;
+            case HolisticIntent.RedistributeLoad:
+                sb.AppendLine("FOCUS THIS ITERATION — redistribute_load:");
+                sb.AppendLine("Identify two employees whose actual hours are far from target — one over (too many shifts),");
+                sb.AppendLine("one under (too few). Propose a coordinated batch that moves a single work day from the");
+                sb.AppendLine("over-target row onto the under-target row on the same day. Both rows shift toward target.");
+                sb.AppendLine("Use the AGENT CONSTRAINTS section to read each row's target hours. You may still emit");
+                sb.AppendLine("other intents if you spot a better opportunity, but prefer redistribute_load this round.");
+                break;
+            case HolisticIntent.ConsolidateBlock:
+            default:
+                sb.AppendLine("FOCUS THIS ITERATION — consolidate_block:");
+                sb.AppendLine("Identify employees whose work days are fragmented (e.g. Mon-Tue _ Thu-Fri leaves a Wed gap).");
+                sb.AppendLine("Propose a coordinated batch that fills the gap by swapping shifts with other employees on the");
+                sb.AppendLine("gap days, so the target employee gets a longer contiguous block. The neighbouring employees");
+                sb.AppendLine("must remain within their constraints — DayA == DayB protects daily coverage automatically.");
+                break;
+        }
     }
 
     private static void AppendPriorRejections(StringBuilder sb, IReadOnlyList<RejectMemoryEntry> rejections)
