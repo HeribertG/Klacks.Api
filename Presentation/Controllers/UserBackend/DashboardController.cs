@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Controller for dashboard data: employee locations and shift coverage statistics.
+/// Controller for dashboard data: employee locations, shift coverage statistics, and resource monitor.
 /// </summary>
 
 using Klacks.Api.Application.Queries.Dashboard;
@@ -33,5 +33,14 @@ public class DashboardController : BaseController
     {
         var statistics = await _mediator.Send(new GetShiftCoverageStatisticsQuery());
         return Ok(statistics);
+    }
+
+    [HttpGet("ResourceMonitor")]
+    public async Task<ActionResult<ResourceMonitorResource>> GetResourceMonitor(
+        [FromQuery] int year,
+        [FromQuery] Guid? groupId = null)
+    {
+        var resource = await _mediator.Send(new GetResourceMonitorQuery(year, groupId));
+        return Ok(resource);
     }
 }
