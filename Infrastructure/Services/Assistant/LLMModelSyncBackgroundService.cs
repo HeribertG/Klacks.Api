@@ -38,7 +38,15 @@ public class LLMModelSyncBackgroundService : BackgroundService
 
         _logger.LogInformation("LLMModelSyncBackgroundService started, first run in {Delay}s", StartupDelay.TotalSeconds);
 
-        await Task.Delay(StartupDelay, stoppingToken);
+        try
+        {
+            await Task.Delay(StartupDelay, stoppingToken);
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogInformation("LLMModelSyncBackgroundService cancelled during startup delay; exiting cleanly.");
+            return;
+        }
 
         await RunSyncAsync(stoppingToken);
 

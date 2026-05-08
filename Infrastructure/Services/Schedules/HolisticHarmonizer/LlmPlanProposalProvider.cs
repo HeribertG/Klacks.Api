@@ -2,7 +2,6 @@
 
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Llm;
@@ -19,7 +18,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer;
 /// directly so the LLM receives only Holistic Harmonizer's structured prompt and replies with the JSON
 /// we expect.
 /// </summary>
-public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
+public sealed class LlmPlanProposalProvider : IPlanProposalProvider
 {
     private const double ProposalTemperature = 0.2;
     private const int ProposalMaxTokens = 6000;
@@ -85,13 +84,10 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
             Stream = false,
         };
 
-        using var pingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        pingCts.CancelAfter(PingTimeout);
-
         LLMProviderResponse response;
         try
         {
-            response = await provider.ProcessAsync(pingRequest, pingCts.Token);
+            response = await SendPingWithTransientRetryAsync(provider, pingRequest, modelId, cancellationToken);
             stopwatch.Stop();
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -124,6 +120,58 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         }
 
         return new PlanProposalPingResult(true, stopwatch.ElapsedMilliseconds, null);
+    }
+
+    private static readonly TimeSpan TransientRetryDelay = TimeSpan.FromSeconds(2);
+    private static readonly string[] TransientErrorMarkers = { "overloaded", "rate limit", "rate_limit", "429", "503", "529" };
+
+    /// <summary>
+    /// Sends the pre-flight ping and retries once with a short backoff if the provider returns
+    /// a transient capacity error (Anthropic 529 Overloaded, generic 503/429, rate-limit text).
+    /// Non-transient errors propagate on the first attempt. Hard cancellations are honored.
+    /// </summary>
+    private async Task<LLMProviderResponse> SendPingWithTransientRetryAsync(
+        ILLMProvider provider,
+        LLMProviderRequest pingRequest,
+        string modelId,
+        CancellationToken cancellationToken)
+    {
+        for (var attempt = 1; attempt <= 2; attempt++)
+        {
+            using var pingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            pingCts.CancelAfter(PingTimeout);
+
+            var response = await provider.ProcessAsync(pingRequest, pingCts.Token);
+            if (response.Success || attempt == 2 || !LooksTransient(response.Error))
+            {
+                return response;
+            }
+
+            _logger.LogInformation(
+                "Holistic Harmonizer ping transient failure for {ModelId} (attempt {Attempt}): {Error}; retrying after {Delay}s",
+                modelId, attempt, response.Error, TransientRetryDelay.TotalSeconds);
+            await Task.Delay(TransientRetryDelay, cancellationToken);
+        }
+
+        // Unreachable: loop returns on success or attempt==2.
+        return new LLMProviderResponse { Success = false, Error = "Holistic Harmonizer ping retry loop exited unexpectedly." };
+    }
+
+    private static bool LooksTransient(string? error)
+    {
+        if (string.IsNullOrWhiteSpace(error))
+        {
+            return false;
+        }
+        var lowered = error.ToLowerInvariant();
+        for (var i = 0; i < TransientErrorMarkers.Length; i++)
+        {
+            if (lowered.Contains(TransientErrorMarkers[i], StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public async Task<PlanProposalPingResult> CapabilityCheckAsync(string modelId, CancellationToken cancellationToken)
@@ -397,8 +445,12 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         sb.AppendLine("HARD CONSTRAINTS (any step violating these is rejected automatically):");
         sb.AppendLine("- Never swap a cell whose symbol is followed by an asterisk (*) — the asterisk marks LOCKED cells.");
         sb.AppendLine("- Never swap a B cell — B is a break/absence and is always locked.");
-        sb.AppendLine("- DayA must equal DayB (only same-day swaps are accepted in this version).");
-        sb.AppendLine("- RowA must differ from RowB.");
+        sb.AppendLine("- Same-day swaps (DayA == DayB) preserve daily coverage automatically.");
+        sb.AppendLine("- Cross-day swaps (DayA != DayB) are allowed ONLY when both cells share the same work-or-free state:");
+        sb.AppendLine("    • both cells are work shifts (E/L/N/O) — daily head-counts on each affected day stay equal");
+        sb.AppendLine("    • OR both cells are blank/Free — but that swap has zero effect, so do not propose it");
+        sb.AppendLine("  Mixing work with blank across two different days breaks daily coverage and is rejected.");
+        sb.AppendLine("- (RowA, DayA) must differ from (RowB, DayB) — at least one of the two must change.");
         sb.AppendLine();
         sb.AppendLine("BATCH SEMANTICS:");
         sb.AppendLine("- Steps are applied in order. If step k is rejected, the host keeps the longest valid prefix.");
@@ -501,24 +553,33 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         {
             return;
         }
-        sb.AppendLine("PRIOR REJECTIONS (do not repeat these patterns):");
+
+        var forbiddenKeys = CollectForbiddenSwapKeys(rejections);
+        if (forbiddenKeys.Count > 0)
+        {
+            sb.AppendLine("########################################################################");
+            sb.AppendLine("# CRITICAL — FORBIDDEN COORDINATE PAIRS                                #");
+            sb.AppendLine("# The host has REJECTED the swaps below in earlier iterations of THIS  #");
+            sb.AppendLine("# run. Re-emitting any of them wastes the iteration budget and is auto-#");
+            sb.AppendLine("# rejected before evaluation. Reject any thought of reusing them BEFORE #");
+            sb.AppendLine("# you write the JSON output.                                            #");
+            sb.AppendLine("########################################################################");
+            for (var i = 0; i < forbiddenKeys.Count; i++)
+            {
+                var key = forbiddenKeys[i];
+                sb.AppendLine($"  FORBIDDEN: row {key.RowSmaller} <-> row {key.RowLarger} on day {key.Day}");
+            }
+            sb.AppendLine();
+            sb.AppendLine("Self-check before emitting each step: scan the FORBIDDEN list above and");
+            sb.AppendLine("confirm the (rowA, rowB, dayA) triple is not present. If it is, drop the step.");
+            sb.AppendLine();
+        }
+
+        sb.AppendLine("PRIOR REJECTION REASONS (learn from why earlier batches failed):");
         for (var i = 0; i < rejections.Count; i++)
         {
             var entry = rejections[i];
             sb.AppendLine($"- [{entry.Intent}/{entry.Result}] {entry.Summary}");
-        }
-        sb.AppendLine();
-
-        var forbiddenKeys = CollectForbiddenSwapKeys(rejections);
-        if (forbiddenKeys.Count == 0)
-        {
-            return;
-        }
-        sb.AppendLine("DO NOT REPEAT THESE EXACT SWAPS (auto-rejected if proposed again, host validates strictly):");
-        for (var i = 0; i < forbiddenKeys.Count; i++)
-        {
-            var key = forbiddenKeys[i];
-            sb.AppendLine($"- row {key.RowSmaller} <-> row {key.RowLarger} on day {key.Day}");
         }
         sb.AppendLine();
     }
@@ -652,22 +713,10 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         {
             return false;
         }
-        if (!el.TryGetProperty("rowA", out var rowAEl) || !rowAEl.TryGetInt32(out var rowA))
-        {
-            return false;
-        }
-        if (!el.TryGetProperty("dayA", out var dayAEl) || !dayAEl.TryGetInt32(out var dayA))
-        {
-            return false;
-        }
-        if (!el.TryGetProperty("rowB", out var rowBEl) || !rowBEl.TryGetInt32(out var rowB))
-        {
-            return false;
-        }
-        if (!el.TryGetProperty("dayB", out var dayBEl) || !dayBEl.TryGetInt32(out var dayB))
-        {
-            return false;
-        }
+        if (!TryReadIntField(el, "rowA", out var rowA)) return false;
+        if (!TryReadIntField(el, "dayA", out var dayA)) return false;
+        if (!TryReadIntField(el, "rowB", out var rowB)) return false;
+        if (!TryReadIntField(el, "dayB", out var dayB)) return false;
         var reason = el.TryGetProperty("reason", out var reasonEl) && reasonEl.ValueKind == JsonValueKind.String
             ? reasonEl.GetString() ?? string.Empty
             : string.Empty;
@@ -675,16 +724,87 @@ public sealed partial class LlmPlanProposalProvider : IPlanProposalProvider
         return true;
     }
 
+    /// <summary>
+    /// Reads an integer property tolerantly: accepts JSON numbers natively, falls back to
+    /// parsing string values like <c>"3"</c>. Some open-source LLMs (Apertus, smaller llama
+    /// variants) emit coordinates as strings even when the schema asks for ints; rejecting
+    /// them would waste an iteration. Returns false when the property is missing or the
+    /// value cannot be coerced to a non-negative int.
+    /// </summary>
+    private static bool TryReadIntField(JsonElement parent, string name, out int value)
+    {
+        value = 0;
+        if (!parent.TryGetProperty(name, out var el))
+        {
+            return false;
+        }
+        if (el.ValueKind == JsonValueKind.Number)
+        {
+            return el.TryGetInt32(out value);
+        }
+        if (el.ValueKind == JsonValueKind.String)
+        {
+            return int.TryParse(el.GetString(), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out value);
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Returns the first balanced JSON object found in <paramref name="raw"/>. Walks the
+    /// content character by character tracking brace depth so trailing prose, markdown code
+    /// fences, or explanatory backticks after the closing brace are dropped instead of being
+    /// captured by a greedy regex. Strings (including escaped quotes) are skipped to keep
+    /// braces inside them from skewing the depth counter.
+    /// </summary>
     private static string? ExtractJsonObject(string raw)
     {
         if (string.IsNullOrWhiteSpace(raw))
         {
             return null;
         }
-        var match = JsonObjectRegex().Match(raw);
-        return match.Success ? match.Value : null;
-    }
 
-    [GeneratedRegex(@"\{[\s\S]*\}", RegexOptions.Compiled)]
-    private static partial Regex JsonObjectRegex();
+        var start = raw.IndexOf('{');
+        if (start < 0)
+        {
+            return null;
+        }
+
+        var depth = 0;
+        var inString = false;
+        for (var i = start; i < raw.Length; i++)
+        {
+            var c = raw[i];
+            if (inString)
+            {
+                if (c == '\\' && i + 1 < raw.Length)
+                {
+                    i++;
+                    continue;
+                }
+                if (c == '"')
+                {
+                    inString = false;
+                }
+                continue;
+            }
+            if (c == '"')
+            {
+                inString = true;
+                continue;
+            }
+            if (c == '{')
+            {
+                depth++;
+            }
+            else if (c == '}')
+            {
+                depth--;
+                if (depth == 0)
+                {
+                    return raw.Substring(start, i - start + 1);
+                }
+            }
+        }
+        return null;
+    }
 }

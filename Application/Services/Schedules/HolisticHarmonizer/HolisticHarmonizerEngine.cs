@@ -31,7 +31,14 @@ namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 public sealed class HolisticHarmonizerEngine
 {
     private const int MaxInnerIterations = 10;
-    private const int PlateauStopThreshold = 3;
+
+    /// <summary>
+    /// Number of iterations without best-fitness improvement before the inner loop bails out.
+    /// Raised from 3 to 5 because empirical Haiku runs frequently produce 1-2 dud iterations
+    /// (same-symbol swaps, hard-cap violations) followed by a recovery iteration with a real
+    /// improvement; stopping after 3 cuts off too many of those recoveries.
+    /// </summary>
+    private const int PlateauStopThreshold = 5;
     private const int RawResponsePreviewLength = 600;
     private static readonly TimeSpan InnerLoopTimeBudget = TimeSpan.FromSeconds(90);
 
@@ -140,7 +147,12 @@ public sealed class HolisticHarmonizerEngine
                 break;
             }
 
-            var focusedIntent = intentSelector.Pick(HolisticIntent.All, intentTracker);
+            // Iteration 0 always uses the proven baseline intent so the first batch produced by
+            // the LLM has the best chance to land. From iteration 1 onward the roulette explores
+            // alternative intents weighted by their Laplace-smoothed success rate.
+            var focusedIntent = iter == 0
+                ? HolisticIntent.ConsolidateBlock
+                : intentSelector.Pick(HolisticIntent.All, intentTracker);
             var proposalRequest = new PlanProposalRequest(
                 ModelId: request.LlmModelId,
                 PlanText: HarmonyBitmapTextRenderer.Render(working),
