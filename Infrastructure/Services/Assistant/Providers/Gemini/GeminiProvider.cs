@@ -172,10 +172,21 @@ public class GeminiProvider : BaseHttpProvider
             }
         }
 
+        var lastTurnParts = new List<GeminiPart> { new() { Text = request.Message } };
+        if (request.ImagePng is { Length: > 0 })
+        {
+            lastTurnParts.Add(new GeminiPart
+            {
+                InlineData = new GeminiInlineData(
+                    MimeType: "image/png",
+                    Data: Convert.ToBase64String(request.ImagePng)),
+            });
+        }
+
         contents.Add(new GeminiContent
         {
             Role = "user",
-            Parts = new[] { new GeminiPart { Text = request.Message } }
+            Parts = lastTurnParts.ToArray(),
         });
 
         return contents;

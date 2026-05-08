@@ -58,7 +58,7 @@ public class MistralProvider : BaseHttpProvider
             var choice = mistralResponse.Choices.First();
             var result = new LLMProviderResponse
             {
-                Content = choice.Message?.Content ?? string.Empty,
+                Content = choice.Message?.GetContentString() ?? string.Empty,
                 Success = true,
                 Usage = new LLMUsage
                 {

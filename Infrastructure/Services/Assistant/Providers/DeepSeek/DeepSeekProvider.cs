@@ -64,7 +64,7 @@ public class DeepSeekProvider : BaseHttpProvider
             var choice = deepSeekResponse.Choices.First();
             var result = new LLMProviderResponse
             {
-                Content = choice.Message?.Content ?? string.Empty,
+                Content = choice.Message?.GetContentString() ?? string.Empty,
                 Success = true,
                 Usage = new LLMUsage
                 {

@@ -54,7 +54,7 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
             var choice = openAIResponse.Choices.First();
             var result = new LLMProviderResponse
             {
-                Content = choice.Message?.Content ?? string.Empty,
+                Content = choice.Message?.GetContentString() ?? string.Empty,
                 Success = true,
                 Usage = new LLMUsage
                 {
@@ -177,7 +177,23 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
             messages.Add(new OpenAIMessage { Role = msg.Role, Content = msg.Content });
         }
 
-        messages.Add(new OpenAIMessage { Role = "user", Content = request.Message });
+        if (request.ImagePng is { Length: > 0 })
+        {
+            var dataUri = "data:image/png;base64," + Convert.ToBase64String(request.ImagePng);
+            messages.Add(new OpenAIMessage
+            {
+                Role = "user",
+                Content = new object[]
+                {
+                    new OpenAITextContent(request.Message),
+                    new OpenAIImageContent(new OpenAIImageUrl(dataUri)),
+                }
+            });
+        }
+        else
+        {
+            messages.Add(new OpenAIMessage { Role = "user", Content = request.Message });
+        }
 
         return messages;
     }
