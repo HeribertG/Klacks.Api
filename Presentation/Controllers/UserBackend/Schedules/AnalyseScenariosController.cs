@@ -70,6 +70,13 @@ public class AnalyseScenariosController : BaseController
         return Ok(result);
     }
 
+    [HttpDelete]
+    public async Task<ActionResult<bool>> DeleteAll([FromQuery] Guid? groupId)
+    {
+        var result = await _mediator.Send(new DeleteAllAnalyseScenariosCommand(groupId));
+        return Ok(result);
+    }
+
     [HttpPatch("{id}/Rename")]
     public async Task<ActionResult<AnalyseScenarioResource>> Rename(Guid id, [FromBody] RenameAnalyseScenarioRequest request)
     {
