@@ -73,6 +73,9 @@ public class AnalyseScenariosController : BaseController
     [HttpDelete]
     public async Task<ActionResult<bool>> DeleteAll([FromQuery] Guid? groupId)
     {
+        if (groupId is null)
+            return BadRequest("groupId is required");
+
         var result = await _mediator.Send(new DeleteAllAnalyseScenariosCommand(groupId));
         return Ok(result);
     }
