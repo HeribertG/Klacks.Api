@@ -42,7 +42,7 @@ public class DeleteAllAnalyseScenariosCommandHandler : BaseHandler, IRequestHand
             foreach (var scenario in scenarios)
             {
                 await _scenarioService.SoftDeleteScenarioDataAsync(scenario.Token, cancellationToken);
-                _repository.Delete(scenario.Id);
+                await _repository.Delete(scenario.Id);
             }
 
             await _unitOfWork.CompleteAsync();
