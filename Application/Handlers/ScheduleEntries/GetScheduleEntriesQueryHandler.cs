@@ -93,10 +93,13 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
                     a => DateOnly.FromDateTime(a.AvailabilityDate),
                     a => a.AvailabilityRanges));
 
+        var periodHoursStart = request.Filter.PeriodStartDate ?? startDate;
+        var periodHoursEnd = request.Filter.PeriodEndDate ?? endDate;
+
         var periodHours = await _workRepository.GetPeriodHoursForClients(
             clientIds,
-            startDate,
-            endDate,
+            periodHoursStart,
+            periodHoursEnd,
             cancellationToken);
 
         _logger.LogInformation(
