@@ -89,11 +89,27 @@ public class ClientTimeline
         return false;
     }
 
+    /// <summary>
+    /// Returns true if a Work block touches <paramref name="date"/> — direct anchor (OwnerDate)
+    /// OR cross-midnight extension from the previous day's night shift. Use this for streak /
+    /// "consecutive working days" calculations so that a Night shift Apr 28 22:00 → Apr 29 07:00
+    /// counts both Apr 28 AND Apr 29 as occupied.
+    /// </summary>
+    public bool HasWorkOnDay(DateOnly date)
+    {
+        foreach (var block in Blocks)
+        {
+            if (block.BlockType != ScheduleBlockType.Work) continue;
+            if (block.TouchesDate(date)) return true;
+        }
+        return false;
+    }
+
     public int GetConsecutiveWorkDays(DateOnly fromDate)
     {
         var count = 0;
         var date = fromDate;
-        while (HasWorkAnchoredOn(date))
+        while (HasWorkOnDay(date))
         {
             count++;
             date = date.AddDays(1);
@@ -105,7 +121,7 @@ public class ClientTimeline
     {
         var count = 0;
         var date = fromDate;
-        while (HasWorkAnchoredOn(date))
+        while (HasWorkOnDay(date))
         {
             count++;
             date = date.AddDays(-1);

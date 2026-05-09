@@ -112,14 +112,24 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         WizardContextRequest request, CancellationToken ct)
     {
         var (periodStart, _) = await _periodHoursService.GetPeriodBoundariesAsync(request.PeriodFrom);
-        if (periodStart >= request.PeriodFrom)
+
+        // Extend the prior-load range with the boundary days BEFORE PeriodFrom when the request asks
+        // for boundary context. This lets MaxWeeklyHours-style validators see hours an agent already
+        // accumulated in an adjacent payment period that share the same ISO week as PeriodFrom — e.g.
+        // when PeriodFrom is the first day of a month that lands mid-week, the prior days of the same
+        // ISO week belong to the previous month and would otherwise be invisible to the wizard.
+        var contextDaysBefore = Math.Max(0, request.ContextDaysBefore);
+        var boundaryStart = request.PeriodFrom.AddDays(-contextDaysBefore);
+        var effectivePriorStart = periodStart < boundaryStart ? periodStart : boundaryStart;
+
+        if (effectivePriorStart >= request.PeriodFrom)
         {
             return new Dictionary<Guid, double>();
         }
 
         var priorEnd = request.PeriodFrom.AddDays(-1);
         var priorHours = await _periodHoursService.GetPeriodHoursAsync(
-            request.AgentIds.ToList(), periodStart, priorEnd, request.AnalyseToken);
+            request.AgentIds.ToList(), effectivePriorStart, priorEnd, request.AnalyseToken);
 
         return priorHours.ToDictionary(
             kv => kv.Key,
