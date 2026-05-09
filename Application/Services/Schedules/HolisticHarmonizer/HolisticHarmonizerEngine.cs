@@ -8,6 +8,7 @@ using Klacks.ScheduleOptimizer.Harmonizer.Conductor;
 using Klacks.ScheduleOptimizer.Harmonizer.Evolution;
 using Klacks.ScheduleOptimizer.Harmonizer.Scorer;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Bitmap;
+using Klacks.ScheduleOptimizer.HolisticHarmonizer.Candidates;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Committee;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Committee.Agents;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Llm;
@@ -94,6 +95,14 @@ public sealed class HolisticHarmonizerEngine
             new PreferenceConstraintAgent(),
         });
         var batchEvaluator = new BatchEvaluator(validator, fitness, committee);
+        var candidatePool = new MoveCandidatePool(
+            validator,
+            new IMoveCandidateGenerator[]
+            {
+                new ConsolidateBlockCandidateGenerator(),
+                new EnlargePauseCandidateGenerator(),
+                new RedistributeLoadCandidateGenerator(),
+            });
         var rejectMemory = new RejectMemory();
         var cap = new AdaptiveBatchCap();
         var iterations = new List<BatchEvaluation>();
@@ -153,6 +162,11 @@ public sealed class HolisticHarmonizerEngine
             var focusedIntent = iter == 0
                 ? HolisticIntent.ConsolidateBlock
                 : intentSelector.Pick(HolisticIntent.All, intentTracker);
+            var iterCandidates = candidatePool.Generate(working, focusedIntent);
+            _logger.LogInformation(
+                "Holistic Harmonizer iter={Iter} intent={Intent} candidates={Count}",
+                iter, focusedIntent, iterCandidates.Count);
+
             var proposalRequest = new PlanProposalRequest(
                 ModelId: request.LlmModelId,
                 PlanText: HarmonyBitmapTextRenderer.Render(working),
@@ -163,7 +177,8 @@ public sealed class HolisticHarmonizerEngine
                 IterationIndex: iter,
                 PriorRejections: rejectMemory.Entries.ToArray(),
                 PlanPng: pngRenderer.Render(working),
-                FocusedIntent: focusedIntent);
+                FocusedIntent: focusedIntent,
+                CandidateMoves: iterCandidates);
 
             var response = await _proposalProvider.ProposeAsync(proposalRequest, cancellationToken);
             lastRawResponse = response.RawResponse;
@@ -183,9 +198,27 @@ public sealed class HolisticHarmonizerEngine
             }
 
             var iterImproved = false;
-            foreach (var batch in response.Batches)
+            foreach (var rawBatch in response.Batches)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                var fromCandidates = CandidateStepFilter.CountStepsInCandidates(rawBatch, iterCandidates);
+                var batch = CandidateStepFilter.FilterToCandidates(rawBatch, iterCandidates);
+                var droppedSelfProposed = rawBatch.Steps.Count - batch.Steps.Count;
+                _logger.LogInformation(
+                    "Holistic Harmonizer iter={Iter} batch intent={Intent} steps={Steps} fromCandidates={Hits}/{Total} droppedSelfProposed={Dropped}",
+                    iter, rawBatch.Intent, rawBatch.Steps.Count, fromCandidates, rawBatch.Steps.Count, droppedSelfProposed);
+
+                if (batch.Steps.Count == 0)
+                {
+                    if (droppedSelfProposed > 0)
+                    {
+                        _logger.LogInformation(
+                            "Holistic Harmonizer iter={Iter} batch intent={Intent} skipped: all steps were self-proposed and dropped (strict-candidate mode)",
+                            iter, rawBatch.Intent);
+                    }
+                    continue;
+                }
+
                 var evaluation = batchEvaluator.Evaluate(working, batch);
                 iterations.Add(evaluation);
 

@@ -1,9 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
+using Klacks.ScheduleOptimizer.HolisticHarmonizer.Candidates;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Llm;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Loop;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
@@ -475,6 +477,25 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
         sb.AppendLine("- IMPORTANT: two cells carrying the SAME letter contain the same shift type — swapping them has zero effect. Do NOT propose such swaps.");
         sb.AppendLine("- Read coordinates from the row index (r##) and zero-based day index (first column = day 0).");
         sb.AppendLine();
+        if (request.CandidateMoves is not null && request.CandidateMoves.Count > 0)
+        {
+            sb.AppendLine("CANDIDATE MOVES (a list is attached below in the user message):");
+            sb.AppendLine("The host has pre-computed a list of structurally promising swaps for the focused");
+            sb.AppendLine("intent. Every listed candidate has already passed the hard-constraint validator");
+            sb.AppendLine("(locks, bounds, max-consecutive, min-pause, coverage).");
+            sb.AppendLine();
+            sb.AppendLine("STRICT MODE: the host runtime DROPS any step whose (rowA,dayA,rowB,dayB) tuple is");
+            sb.AppendLine("not present in the candidate list — original coordinates are SILENTLY DISCARDED");
+            sb.AppendLine("before evaluation when a candidate list is supplied. To make your steps actually");
+            sb.AppendLine("count this iteration:");
+            sb.AppendLine("- Pick coordinates ONLY from the candidate list. Mirroring (swapping rowA<->rowB");
+            sb.AppendLine("  and dayA<->dayB) is fine, both orientations match.");
+            sb.AppendLine("- Combine multiple candidates into one batch when their effects compose (e.g. two");
+            sb.AppendLine("  consolidate-block swaps that together fill a longer gap).");
+            sb.AppendLine("- If no candidate fits, reply with empty steps[] for this intent — that is more");
+            sb.AppendLine("  useful to the search than a self-proposed step that will be dropped.");
+            sb.AppendLine();
+        }
         sb.AppendLine("PRE-SUBMISSION SELF-CHECK (MANDATORY for every step):");
         sb.AppendLine("Before adding a step to the JSON output, explicitly verify in your reasoning that the");
         sb.AppendLine("letter at (rowA, dayA) is DIFFERENT from the letter at (rowB, dayB). A blank cell counts");
@@ -510,10 +531,42 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
         sb.AppendLine(request.AgentSummary);
         sb.AppendLine();
         AppendPriorRejections(sb, request.PriorRejections);
+        AppendCandidateMoves(sb, request.CandidateMoves, request.FocusedIntent);
         AppendFocusedGoal(sb, request.FocusedIntent);
         sb.AppendLine();
         sb.AppendLine("Now reply with the JSON object as defined in the system prompt. No other text.");
         return sb.ToString();
+    }
+
+    private static void AppendCandidateMoves(
+        StringBuilder sb,
+        IReadOnlyList<MoveCandidate>? candidates,
+        string focusedIntent)
+    {
+        if (candidates is null || candidates.Count == 0)
+        {
+            return;
+        }
+
+        sb.AppendLine("########################################################################");
+        sb.AppendLine("# CANDIDATE MOVES — pre-validated by the host                          #");
+        sb.AppendLine("# Each row below has already passed the hard-constraint validator. Pick #");
+        sb.AppendLine("# from this list whenever possible; the rejection risk is much lower    #");
+        sb.AppendLine("# than for original coordinates. You may combine candidates into one    #");
+        sb.AppendLine("# batch when their effects compose.                                     #");
+        sb.AppendLine("########################################################################");
+        sb.Append("FOCUSED INTENT: ");
+        sb.AppendLine(focusedIntent);
+        for (var i = 0; i < candidates.Count; i++)
+        {
+            var c = candidates[i];
+            sb.AppendFormat(
+                CultureInfo.InvariantCulture,
+                "  C{0:D2}: rowA={1} dayA={2} <-> rowB={3} dayB={4}  ({5})",
+                i + 1, c.RowA, c.DayA, c.RowB, c.DayB, c.Hint);
+            sb.AppendLine();
+        }
+        sb.AppendLine();
     }
 
     private static void AppendFocusedGoal(StringBuilder sb, string focusedIntent)
