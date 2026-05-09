@@ -52,6 +52,10 @@ public static class HolisticHarmonizerResponseMapper
                     .ToArray()))
             .ToArray();
 
+        var agentDisplayNames = result.OriginalBitmap.Rows
+            .Select(r => r.DisplayName)
+            .ToArray();
+
         return new HolisticHarmonizerRunResponse(
             JobId: jobId,
             LlmModelId: result.LlmModelId,
@@ -60,6 +64,7 @@ public static class HolisticHarmonizerResponseMapper
             AcceptedSwaps: accepted,
             RejectedSwaps: rejected,
             Batches: batches,
+            AgentDisplayNames: agentDisplayNames,
             LlmParsingError: result.LlmParsingError,
             LlmRawResponsePreview: result.LlmRawResponsePreview);
     }
