@@ -38,6 +38,7 @@ public static class SignalRConstants
     public const string WizardHubPath = "/hubs/wizard";
     public const string HarmonizerHubPath = "/hubs/harmonizer";
     public const string HolisticHarmonizerHubPath = "/hubs/holistic-harmonizer";
+    public const string AutoWizardHubPath = "/hubs/auto-wizard";
 
     public static class WizardGroups
     {
@@ -52,6 +53,11 @@ public static class SignalRConstants
     public static class HolisticHarmonizerGroups
     {
         public static string HolisticHarmonizerJob(Guid jobId) => $"holisticharmonizer-{jobId:N}";
+    }
+
+    public static class AutoWizardGroups
+    {
+        public static string AutoWizardJob(Guid jobId) => $"autowizard-{jobId:N}";
     }
 
     public static class AssistantEvents

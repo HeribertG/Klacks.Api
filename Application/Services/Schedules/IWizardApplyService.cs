@@ -20,5 +20,6 @@ public interface IWizardApplyService
     /// non-locked tokens into it. Returns the created scenario resource and the new Work ids.
     /// Throws <see cref="InvalidOperationException"/> when no scenario is cached for <paramref name="jobId"/>.
     /// </summary>
-    Task<(AnalyseScenarioResource Scenario, IReadOnlyList<Guid> CreatedWorkIds)> ApplyAsScenarioAsync(Guid jobId, Guid? groupId, CancellationToken ct);
+    /// <param name="namePrefixOverride">Overrides the default "Plan" name prefix; null keeps the default.</param>
+    Task<(AnalyseScenarioResource Scenario, IReadOnlyList<Guid> CreatedWorkIds)> ApplyAsScenarioAsync(Guid jobId, Guid? groupId, CancellationToken ct, string? namePrefixOverride = null);
 }

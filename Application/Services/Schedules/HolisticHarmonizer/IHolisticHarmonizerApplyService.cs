@@ -12,8 +12,10 @@ namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 /// </summary>
 public interface IHolisticHarmonizerApplyService
 {
+    /// <param name="namePrefixOverride">Overrides the default "LLM" name prefix; null keeps the default.</param>
     Task<(AnalyseScenarioResource Scenario, IReadOnlyList<Guid> CreatedWorkIds)> ApplyAsScenarioAsync(
         Guid jobId,
         Guid? groupId,
-        CancellationToken ct);
+        CancellationToken ct,
+        string? namePrefixOverride = null);
 }

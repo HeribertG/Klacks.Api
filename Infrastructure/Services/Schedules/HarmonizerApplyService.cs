@@ -64,7 +64,8 @@ public class HarmonizerApplyService : IHarmonizerApplyService
     public async Task<(AnalyseScenarioResource Scenario, IReadOnlyList<Guid> CreatedWorkIds)> ApplyAsScenarioAsync(
         Guid jobId,
         Guid? groupId,
-        CancellationToken ct)
+        CancellationToken ct,
+        string? namePrefixOverride = null)
     {
         if (!_resultCache.TryGet(jobId, out var originalBitmap, out var bestBitmap, out var sourceAnalyseToken) || bestBitmap is null)
         {
@@ -85,7 +86,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             "HarmonizerApply jobId={JobId} bitmap rows={Rows} days={Days} periodFrom={From} periodUntil={Until} workIds={WorkIds} originalWorks={OriginalWorks} bitmapShifts={BitmapShifts}",
             jobId, bestBitmap.RowCount, bestBitmap.DayCount, periodFrom, periodUntil, workIds.Count, originalWorks.Count, bitmapShiftIds.Count);
 
-        var name = await GenerateUniqueNameAsync(periodFrom, periodUntil, groupId, ct);
+        var name = await GenerateUniqueNameAsync(periodFrom, periodUntil, groupId, ct, namePrefixOverride);
         var token = Guid.NewGuid();
 
         var analyseScenario = new AnalyseScenario
@@ -322,9 +323,11 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         DateOnly from,
         DateOnly until,
         Guid? groupId,
-        CancellationToken ct)
+        CancellationToken ct,
+        string? namePrefixOverride = null)
     {
-        var baseName = $"{ScenarioNamePrefix} {from:dd.MM.yy} – {until:dd.MM.yy}";
+        var prefix = string.IsNullOrWhiteSpace(namePrefixOverride) ? ScenarioNamePrefix : namePrefixOverride;
+        var baseName = $"{prefix} {from:dd.MM.yy} – {until:dd.MM.yy}";
         var existing = await _scenarioRepository.GetByGroupAsync(groupId, ct);
         var existingNames = existing.Select(s => s.Name).ToHashSet();
 

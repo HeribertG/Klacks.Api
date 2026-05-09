@@ -85,7 +85,8 @@ public sealed class WizardApplyService : IWizardApplyService
     public async Task<(AnalyseScenarioResource Scenario, IReadOnlyList<Guid> CreatedWorkIds)> ApplyAsScenarioAsync(
         Guid jobId,
         Guid? groupId,
-        CancellationToken ct)
+        CancellationToken ct,
+        string? namePrefixOverride = null)
     {
         if (!_resultCache.TryGet(jobId, out var cachedScenario, out var sourceAnalyseToken, out var escalations) || cachedScenario is null)
         {
@@ -105,7 +106,7 @@ public sealed class WizardApplyService : IWizardApplyService
             ? items.Max(t => t.Date)
             : periodFrom;
 
-        var name = await GenerateUniqueNameAsync(periodFrom, periodUntil, groupId, ct);
+        var name = await GenerateUniqueNameAsync(periodFrom, periodUntil, groupId, ct, namePrefixOverride);
         var token = Guid.NewGuid();
 
         var analyseScenario = new AnalyseScenario
@@ -174,9 +175,11 @@ public sealed class WizardApplyService : IWizardApplyService
         DateOnly from,
         DateOnly until,
         Guid? groupId,
-        CancellationToken ct)
+        CancellationToken ct,
+        string? namePrefixOverride = null)
     {
-        var baseName = $"Plan {from:dd.MM.yy} – {until:dd.MM.yy}";
+        var prefix = string.IsNullOrWhiteSpace(namePrefixOverride) ? "Plan" : namePrefixOverride;
+        var baseName = $"{prefix} {from:dd.MM.yy} – {until:dd.MM.yy}";
         var existing = await _scenarioRepository.GetByGroupAsync(groupId, ct);
         var existingNames = existing.Select(s => s.Name).ToHashSet();
 

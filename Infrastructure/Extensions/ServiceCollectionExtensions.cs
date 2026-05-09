@@ -265,6 +265,10 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.IHolisticHarmonizerJobRunner,
                               Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerJobRunner>();
 
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules.AutoWizard.AutoWizardJobRegistry>();
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules.AutoWizard.IAutoWizardJobRunner,
+                              Klacks.Api.Infrastructure.Services.Schedules.AutoWizard.AutoWizardJobRunner>();
+
         services.AddShiftServices();
         services.AddClientServices();
         services.AddGroupServices();

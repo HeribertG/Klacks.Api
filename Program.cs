@@ -377,6 +377,7 @@ app.UseEndpoints(endpoints =>
         endpoints.MapHub<WizardJobHub>(SignalRConstants.WizardHubPath);
         endpoints.MapHub<HarmonizerJobHub>(SignalRConstants.HarmonizerHubPath);
         endpoints.MapHub<HolisticHarmonizerJobHub>(SignalRConstants.HolisticHarmonizerHubPath);
+        endpoints.MapHub<AutoWizardJobHub>(SignalRConstants.AutoWizardHubPath);
         endpoints.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
         {
             Predicate = check => !check.Tags.Contains("deep")
