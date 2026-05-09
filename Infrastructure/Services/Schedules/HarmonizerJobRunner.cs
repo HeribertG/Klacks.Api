@@ -79,7 +79,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
             var originalForCache = CloneBitmap(sortedBitmap);
 
             var scorer = new HarmonyScorer();
-            var validator = new DomainAwareReplaceValidator(input.Availability);
+            var validator = new DomainAwareReplaceValidator(input.Availability, input.BoundaryAssignments);
             var fitness = new HarmonyFitnessEvaluator(scorer);
             var stochasticMutation = new StochasticBitmapMutation(validator);
             var config = new HarmonizerEvolutionConfig();
