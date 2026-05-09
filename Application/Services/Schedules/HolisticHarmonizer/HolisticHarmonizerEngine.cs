@@ -77,7 +77,9 @@ public sealed class HolisticHarmonizerEngine
             request.PeriodFrom,
             request.PeriodUntil,
             request.AgentIds,
-            request.AnalyseToken);
+            request.AnalyseToken,
+            request.ContextDaysBefore,
+            request.ContextDaysAfter);
         var input = await _contextBuilder.BuildContextAsync(contextRequest, cancellationToken);
         var sorted = RowSorter.Sort(BitmapBuilder.Build(input));
         var original = BitmapCloner.Clone(sorted);

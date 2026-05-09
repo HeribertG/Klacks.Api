@@ -157,7 +157,9 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 AgentIds: request.AgentIds,
                 ShiftIds: request.ShiftIds,
                 AnalyseToken: request.AnalyseToken,
-                TrainingOverrides: null),
+                TrainingOverrides: null,
+                ContextDaysBefore: request.ContextDaysBefore,
+                ContextDaysAfter: request.ContextDaysAfter),
             ct);
 
         await WaitForStageAsync(_wizardRegistry.IsRunning, stageJobId, "Wizard", ct);
@@ -191,7 +193,9 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 PeriodFrom: request.PeriodFrom,
                 PeriodUntil: request.PeriodUntil,
                 AgentIds: request.AgentIds,
-                AnalyseToken: wizardScenarioToken),
+                AnalyseToken: wizardScenarioToken,
+                ContextDaysBefore: request.ContextDaysBefore,
+                ContextDaysAfter: request.ContextDaysAfter),
             ct);
 
         await WaitForStageAsync(_harmonizerRegistry.IsRunning, stageJobId, "Harmonizer", ct);
@@ -226,7 +230,9 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 PeriodUntil: request.PeriodUntil,
                 AgentIds: request.AgentIds,
                 AnalyseToken: harmonizerScenarioToken,
-                Language: request.Language),
+                Language: request.Language,
+                ContextDaysBefore: request.ContextDaysBefore,
+                ContextDaysAfter: request.ContextDaysAfter),
             ct);
 
         await WaitForStageAsync(_holisticRegistry.IsRunning, stageJobId, "Holistic Harmonizer", ct);

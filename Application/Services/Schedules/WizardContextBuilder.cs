@@ -50,8 +50,37 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         var shifts = await _shiftBuilder.BuildAsync(
             request.ShiftIds, request.PeriodFrom, request.PeriodUntil, ct);
 
-        var hardConstraints = await _hardConstraintBuilder.BuildAsync(
+        // ScheduleCommands and ShiftPreferences are intentionally restricted to the planning period —
+        // user-entered free/preference instructions outside the period are not relevant for this run.
+        var periodConstraints = await _hardConstraintBuilder.BuildAsync(
             request.AgentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
+
+        // Boundary context: load the same constraint set for the wider window, then keep only the entries
+        // strictly outside [PeriodFrom, PeriodUntil]. Engine validators can use these to detect MaxConsecutive /
+        // MinRest runs that cross period edges; the GA never plans, scores or mutates them.
+        var contextDaysBefore = Math.Max(0, request.ContextDaysBefore);
+        var contextDaysAfter = Math.Max(0, request.ContextDaysAfter);
+        var contextFrom = request.PeriodFrom.AddDays(-contextDaysBefore);
+        var contextUntil = request.PeriodUntil.AddDays(contextDaysAfter);
+
+        IReadOnlyList<CoreBreakBlocker> boundaryBreaks = [];
+        IReadOnlyList<CoreLockedWork> boundaryLocked = [];
+        IReadOnlyList<CoreExistingWorkBlocker> boundaryExisting = [];
+        if (contextFrom < request.PeriodFrom || contextUntil > request.PeriodUntil)
+        {
+            var widerConstraints = await _hardConstraintBuilder.BuildAsync(
+                request.AgentIds, contextFrom, contextUntil, request.AnalyseToken, ct);
+
+            boundaryBreaks = widerConstraints.BreakBlockers
+                .Where(b => b.FromInclusive < request.PeriodFrom || b.UntilInclusive > request.PeriodUntil)
+                .ToList();
+            boundaryLocked = widerConstraints.LockedWorks
+                .Where(w => w.Date < request.PeriodFrom || w.Date > request.PeriodUntil)
+                .ToList();
+            boundaryExisting = widerConstraints.ExistingWorkBlockers
+                .Where(w => w.Date < request.PeriodFrom || w.Date > request.PeriodUntil)
+                .ToList();
+        }
 
         var defaults = await _contractProvider.GetEffectiveContractDataAsync(Guid.Empty, request.PeriodFrom);
 
@@ -62,11 +91,14 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
             Agents = agentSnapshot.Agents,
             Shifts = shifts,
             ContractDays = agentSnapshot.ContractDays,
-            ScheduleCommands = hardConstraints.ScheduleCommands,
-            ShiftPreferences = hardConstraints.ShiftPreferences,
-            BreakBlockers = hardConstraints.BreakBlockers,
-            LockedWorks = hardConstraints.LockedWorks,
-            ExistingWorkBlockers = hardConstraints.ExistingWorkBlockers,
+            ScheduleCommands = periodConstraints.ScheduleCommands,
+            ShiftPreferences = periodConstraints.ShiftPreferences,
+            BreakBlockers = periodConstraints.BreakBlockers,
+            LockedWorks = periodConstraints.LockedWorks,
+            ExistingWorkBlockers = periodConstraints.ExistingWorkBlockers,
+            BoundaryBreakBlockers = boundaryBreaks,
+            BoundaryLockedWorks = boundaryLocked,
+            BoundaryExistingWorkBlockers = boundaryExisting,
             SchedulingMaxConsecutiveDays = defaults.MaxConsecutiveDays > 0 ? defaults.MaxConsecutiveDays : WizardSchedulingDefaults.MaxConsecutiveDays,
             SchedulingMinPauseHours = defaults.MinPauseHours > 0 ? (double)defaults.MinPauseHours : WizardSchedulingDefaults.MinRestHours,
             SchedulingMaxOptimalGap = defaults.MaxOptimalGap > 0 ? (double)defaults.MaxOptimalGap : 2,

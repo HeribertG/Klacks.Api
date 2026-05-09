@@ -57,7 +57,9 @@ public sealed class HolisticHarmonizerRunService
             AgentIds: input.AgentIds,
             AnalyseToken: input.AnalyseToken,
             LlmModelId: modelId,
-            Language: input.Language);
+            Language: input.Language,
+            ContextDaysBefore: input.ContextDaysBefore,
+            ContextDaysAfter: input.ContextDaysAfter);
 
         HolisticHarmonizerRunResult result;
         try

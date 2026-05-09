@@ -12,10 +12,14 @@ namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 /// <param name="AnalyseToken">Source-scenario isolation token; null reads the main schedule.</param>
 /// <param name="LlmModelId">Model id to send the prompt to (resolved from app settings by the caller).</param>
 /// <param name="Language">UI language, used so swap reasons come back in the operator's locale.</param>
+/// <param name="ContextDaysBefore">Boundary context days before <paramref name="PeriodFrom"/> for boundary-aware validators. Default 14.</param>
+/// <param name="ContextDaysAfter">Boundary context days after <paramref name="PeriodUntil"/>. Default 14.</param>
 public sealed record HolisticHarmonizerEngineRequest(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
     IReadOnlyList<Guid> AgentIds,
     Guid? AnalyseToken,
     string LlmModelId,
-    string? Language);
+    string? Language,
+    int ContextDaysBefore = 14,
+    int ContextDaysAfter = 14);

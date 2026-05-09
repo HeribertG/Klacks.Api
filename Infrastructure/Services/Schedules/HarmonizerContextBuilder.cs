@@ -59,7 +59,35 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var assignments = BuildAssignments(works, breaks);
         var hints = BuildSofteningHints(softenings);
 
-        return new BitmapInput(agents, request.PeriodFrom, request.PeriodUntil, assignments, hints, availability);
+        // Boundary context: load works + breaks on the days adjacent to the period and place them in
+        // BitmapInput.BoundaryAssignments. The bitmap itself stays sized to [PeriodFrom, PeriodUntil] —
+        // boundary entries are never rendered into cells, never mutated, and never scored. They are
+        // available for boundary-aware validators (MaxConsecutiveDays / MinRestHours crossing period edges).
+        var contextDaysBefore = Math.Max(0, request.ContextDaysBefore);
+        var contextDaysAfter = Math.Max(0, request.ContextDaysAfter);
+        var contextFrom = request.PeriodFrom.AddDays(-contextDaysBefore);
+        var contextUntil = request.PeriodUntil.AddDays(contextDaysAfter);
+
+        IReadOnlyList<BitmapAssignment> boundaryAssignments = [];
+        if (contextFrom < request.PeriodFrom || contextUntil > request.PeriodUntil)
+        {
+            var boundaryWorks = (await LoadWorksAsync(agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
+                .Where(w => w.CurrentDate < request.PeriodFrom || w.CurrentDate > request.PeriodUntil)
+                .ToList();
+            var boundaryBreaks = (await LoadBreaksAsync(agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
+                .Where(b => b.CurrentDate < request.PeriodFrom || b.CurrentDate > request.PeriodUntil)
+                .ToList();
+            boundaryAssignments = BuildAssignments(boundaryWorks, boundaryBreaks);
+        }
+
+        return new BitmapInput(
+            agents,
+            request.PeriodFrom,
+            request.PeriodUntil,
+            assignments,
+            hints,
+            availability,
+            boundaryAssignments);
     }
 
     private static IReadOnlyList<SofteningHint> BuildSofteningHints(IReadOnlyList<WorkSoftening> softenings)

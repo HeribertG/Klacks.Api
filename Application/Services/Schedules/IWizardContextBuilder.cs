@@ -28,10 +28,19 @@ public interface IWizardContextBuilder
 /// <param name="ShiftIds">Optional subset of shifts to consider; null = all shifts of the groups</param>
 /// <param name="AnalyseToken">Scenario isolation token — propagates to all writes after apply</param>
 /// <param name="TrainingOverrides">Optional per-run overrides for the TokenEvolution config (training/benchmark use)</param>
+/// <param name="ContextDaysBefore">
+/// How many days before <paramref name="PeriodFrom"/> the builder loads existing works, breaks and locked works as
+/// boundary context. Boundary entries are placed in CoreWizardContext.Boundary* fields — never planned, never scored —
+/// and let constraint validators detect MaxConsecutiveDays / MinRestHours runs that cross the start of the period.
+/// Default 14 covers the longest realistic streak plus weekly caps.
+/// </param>
+/// <param name="ContextDaysAfter">Same as <paramref name="ContextDaysBefore"/>, applied after <paramref name="PeriodUntil"/>.</param>
 public sealed record WizardContextRequest(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
     IReadOnlyList<Guid> AgentIds,
     IReadOnlyList<Guid>? ShiftIds,
     Guid? AnalyseToken,
-    WizardTrainingOverrides? TrainingOverrides = null);
+    WizardTrainingOverrides? TrainingOverrides = null,
+    int ContextDaysBefore = 14,
+    int ContextDaysAfter = 14);

@@ -9,6 +9,11 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// <param name="GroupId">Optional group scope for scenario cloning and name uniqueness.</param>
 /// <param name="AnalyseToken">Source-scenario isolation token; null = main scenario.</param>
 /// <param name="Language">Optional UI language for the LLM stage (e.g. "en", "de"); null = engine default.</param>
+/// <param name="ContextDaysBefore">
+/// Boundary context days propagated to all three stages so validators can detect MaxConsecutive / MinRest runs
+/// crossing the period start. Default 14. Override with 0 to disable.
+/// </param>
+/// <param name="ContextDaysAfter">Same as <paramref name="ContextDaysBefore"/>, after <paramref name="PeriodUntil"/>.</param>
 public sealed record StartAutoWizardRequest(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
@@ -16,4 +21,6 @@ public sealed record StartAutoWizardRequest(
     IReadOnlyList<Guid>? ShiftIds,
     Guid? GroupId,
     Guid? AnalyseToken,
-    string? Language);
+    string? Language,
+    int ContextDaysBefore = 14,
+    int ContextDaysAfter = 14);
