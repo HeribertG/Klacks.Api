@@ -104,6 +104,36 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         return existingShift;
     }
 
+    public override async Task<Shift?> Delete(Guid id)
+    {
+        var existingShift = await context.Shift.FirstOrDefaultAsync(s => s.Id == id);
+
+        if (existingShift == null)
+        {
+            Logger.LogWarning("Shift not found for delete: {ShiftId}", id);
+            return null;
+        }
+
+        if (existingShift.AnalyseToken != null)
+        {
+            throw new InvalidOperationException(
+                $"Shift {existingShift.Id} cannot be deleted while in scenario mode (AnalyseToken={existingShift.AnalyseToken}).");
+        }
+
+        var hasActiveScenarioClones = await context.Shift.IgnoreQueryFilters()
+            .AnyAsync(s => s.ScenarioSourceShiftId == id && !s.IsDeleted);
+
+        if (hasActiveScenarioClones)
+        {
+            throw new InvalidOperationException(
+                $"Shift {id} cannot be deleted while active scenario clones reference it via ScenarioSourceShiftId; accept or reject the scenario first.");
+        }
+
+        context.Remove(existingShift);
+        Logger.LogInformation("Shift deleted: {ShiftId}", id);
+        return existingShift;
+    }
+
     public new async Task<Shift?> Get(Guid id)
     {
         Logger.LogInformation("Fetching shift with ID: {ShiftId}", id);
