@@ -34,4 +34,6 @@ public class ClientShiftPreference : BaseEntity
 
     [JsonIgnore]
     public virtual Shift? Shift { get; set; }
+
+    public Guid? AnalyseToken { get; set; }
 }

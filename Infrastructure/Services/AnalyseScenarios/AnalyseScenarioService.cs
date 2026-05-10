@@ -8,6 +8,7 @@
 /// soft-delete + orphan sweep.
 /// </summary>
 
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
@@ -99,6 +100,14 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         var softenings = await _context.WorkSoftening.IgnoreQueryFilters()
             .Where(ws => ws.AnalyseToken == token && !ws.IsDeleted).ToListAsync(ct);
         foreach (var ws in softenings) { ws.IsDeleted = true; ws.DeletedTime = DateTime.UtcNow; }
+
+        var preferences = await _context.Set<ClientShiftPreference>().IgnoreQueryFilters()
+            .Where(p => p.AnalyseToken == token && !p.IsDeleted).ToListAsync(ct);
+        foreach (var p in preferences) { p.IsDeleted = true; p.DeletedTime = DateTime.UtcNow; }
+
+        var expenses2 = await _context.Set<ShiftExpenses>().IgnoreQueryFilters()
+            .Where(e => e.AnalyseToken == token && !e.IsDeleted).ToListAsync(ct);
+        foreach (var e in expenses2) { e.IsDeleted = true; e.DeletedTime = DateTime.UtcNow; }
     }
 
     public async Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, CancellationToken ct)
@@ -111,6 +120,8 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         var workIdMap = await CloneWorks(groupIds, fromDate, untilDate, token, shiftIdMap, ct);
         await CloneBreaks(groupIds, fromDate, untilDate, token, workIdMap, ct);
         await CloneScheduleNotes(groupIds, fromDate, untilDate, token, ct);
+        await CloneClientShiftPreferences(shiftIdMap, token, ct);
+        await CloneShiftExpenses(shiftIdMap, token, ct);
 
         return shiftIdMap;
     }
@@ -142,23 +153,98 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         await SoftDeleteRealScheduleNotes(clientIds, fromDate, untilDate, ct);
     }
 
-    public async Task PromoteScenarioDataAsync(Guid token, CancellationToken ct)
+    public async Task ValidateNoAcceptConflictsAsync(Guid token, CancellationToken ct)
     {
+        var clones = await _context.Shift.IgnoreQueryFilters()
+            .Where(s => s.AnalyseToken == token && !s.IsDeleted && s.ScenarioSourceShiftId.HasValue)
+            .Select(s => new { s.Id, SourceId = s.ScenarioSourceShiftId!.Value, s.SourceChildCountSnapshot })
+            .ToListAsync(ct);
+
+        if (clones.Count == 0) return;
+
+        var sourceIds = clones.Select(c => c.SourceId).Distinct().ToList();
+
+        var existingSources = await _context.Shift.IgnoreQueryFilters()
+            .Where(s => sourceIds.Contains(s.Id))
+            .Select(s => new { s.Id, s.IsDeleted })
+            .ToListAsync(ct);
+
+        var sourcesById = existingSources.ToDictionary(s => s.Id, s => s.IsDeleted);
+
+        var missing = sourceIds.Where(id => !sourcesById.ContainsKey(id)).ToList();
+        if (missing.Count > 0)
+        {
+            throw new ConflictException(
+                $"Cannot accept scenario: source shifts no longer exist: {string.Join(", ", missing)}.");
+        }
+
+        var deleted = sourceIds.Where(id => sourcesById[id]).ToList();
+        if (deleted.Count > 0)
+        {
+            throw new ConflictException(
+                $"Cannot accept scenario: source shifts have been deleted: {string.Join(", ", deleted)}.");
+        }
+
+        var currentChildCounts = await _context.Shift.IgnoreQueryFilters()
+            .Where(s => !s.IsDeleted
+                && s.AnalyseToken == null
+                && s.ParentId.HasValue
+                && sourceIds.Contains(s.ParentId.Value))
+            .GroupBy(s => s.ParentId!.Value)
+            .Select(g => new { ParentId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.ParentId, x => x.Count, ct);
+
+        foreach (var clone in clones)
+        {
+            var snapshot = clone.SourceChildCountSnapshot ?? 0;
+            var current = currentChildCounts.GetValueOrDefault(clone.SourceId, 0);
+            if (snapshot != current)
+            {
+                throw new ConflictException(
+                    $"Cannot accept scenario: source shift {clone.SourceId} subtree changed after scenario creation (children snapshot={snapshot}, current={current}). Likely a concurrent cut by another user.");
+            }
+        }
+    }
+
+    public async Task PromoteScenarioWorksAsync(Guid token, CancellationToken ct)
+    {
+        var cloneShifts = await _context.Shift.IgnoreQueryFilters()
+            .Where(s => s.AnalyseToken == token && !s.IsDeleted && s.ScenarioSourceShiftId.HasValue)
+            .Select(s => new { s.Id, SourceId = s.ScenarioSourceShiftId!.Value })
+            .ToListAsync(ct);
+
+        var cloneToSource = cloneShifts.ToDictionary(c => c.Id, c => c.SourceId);
+
         var scenarioWorks = await _context.Work.IgnoreQueryFilters()
             .Where(w => w.AnalyseToken == token && !w.IsDeleted).ToListAsync(ct);
-        foreach (var w in scenarioWorks) w.AnalyseToken = null;
+        foreach (var w in scenarioWorks)
+        {
+            w.AnalyseToken = null;
+            if (cloneToSource.TryGetValue(w.ShiftId, out var sourceShiftId))
+            {
+                w.ShiftId = sourceShiftId;
+            }
+        }
 
         var scenarioBreaks = await _context.Break.IgnoreQueryFilters()
             .Where(b => b.AnalyseToken == token && !b.IsDeleted).ToListAsync(ct);
         foreach (var b in scenarioBreaks) b.AnalyseToken = null;
 
-        var scenarioShifts = await _context.Shift.IgnoreQueryFilters()
-            .Where(s => s.AnalyseToken == token && !s.IsDeleted).ToListAsync(ct);
-        foreach (var s in scenarioShifts) s.AnalyseToken = null;
-
         var scenarioNotes = await _context.ScheduleNotes.IgnoreQueryFilters()
             .Where(sn => sn.AnalyseToken == token && !sn.IsDeleted).ToListAsync(ct);
         foreach (var sn in scenarioNotes) sn.AnalyseToken = null;
+
+        var scenarioShifts = await _context.Shift.IgnoreQueryFilters()
+            .Where(s => s.AnalyseToken == token && !s.IsDeleted).ToListAsync(ct);
+        foreach (var s in scenarioShifts) { s.IsDeleted = true; s.DeletedTime = DateTime.UtcNow; }
+
+        var clonePreferences = await _context.Set<ClientShiftPreference>().IgnoreQueryFilters()
+            .Where(p => p.AnalyseToken == token && !p.IsDeleted).ToListAsync(ct);
+        foreach (var p in clonePreferences) { p.IsDeleted = true; p.DeletedTime = DateTime.UtcNow; }
+
+        var cloneShiftExpenses = await _context.Set<ShiftExpenses>().IgnoreQueryFilters()
+            .Where(e => e.AnalyseToken == token && !e.IsDeleted).ToListAsync(ct);
+        foreach (var e in cloneShiftExpenses) { e.IsDeleted = true; e.DeletedTime = DateTime.UtcNow; }
     }
 
     private async Task<Dictionary<Guid, Guid>> CloneShifts(List<Guid>? groupIds, IReadOnlyCollection<Guid>? additionalShiftIds, Guid token, CancellationToken ct)
@@ -202,12 +288,26 @@ public class AnalyseScenarioService : IAnalyseScenarioService
             idMap[shift.Id] = Guid.NewGuid();
         }
 
+        var sourceIds = shifts.Select(s => s.Id).ToList();
+        var childCountBySource = sourceIds.Count == 0
+            ? new Dictionary<Guid, int>()
+            : await _context.Shift.IgnoreQueryFilters()
+                .Where(s => !s.IsDeleted
+                    && s.AnalyseToken == null
+                    && s.ParentId.HasValue
+                    && sourceIds.Contains(s.ParentId.Value))
+                .GroupBy(s => s.ParentId!.Value)
+                .Select(g => new { ParentId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.ParentId, x => x.Count, ct);
+
         foreach (var shift in shifts)
         {
             var clone = new Shift
             {
                 Id = idMap[shift.Id],
                 AnalyseToken = token,
+                ScenarioSourceShiftId = shift.Id,
+                SourceChildCountSnapshot = childCountBySource.GetValueOrDefault(shift.Id, 0),
                 CuttingAfterMidnight = shift.CuttingAfterMidnight,
                 Abbreviation = shift.Abbreviation,
                 Description = shift.Description,
@@ -474,6 +574,61 @@ public class AnalyseScenarioService : IAnalyseScenarioService
             };
 
             await _context.ScheduleNotes.AddAsync(clone, ct);
+        }
+    }
+
+    private async Task CloneClientShiftPreferences(Dictionary<Guid, Guid> shiftIdMap, Guid token, CancellationToken ct)
+    {
+        if (shiftIdMap.Count == 0) return;
+
+        var sourceShiftIds = shiftIdMap.Keys.ToList();
+        var preferences = await _context.Set<ClientShiftPreference>()
+            .Where(p => !p.IsDeleted
+                && p.AnalyseToken == null
+                && sourceShiftIds.Contains(p.ShiftId))
+            .AsNoTracking()
+            .ToListAsync(ct);
+
+        foreach (var preference in preferences)
+        {
+            var clone = new ClientShiftPreference
+            {
+                Id = Guid.NewGuid(),
+                AnalyseToken = token,
+                ClientId = preference.ClientId,
+                ShiftId = shiftIdMap[preference.ShiftId],
+                PreferenceType = preference.PreferenceType
+            };
+
+            await _context.Set<ClientShiftPreference>().AddAsync(clone, ct);
+        }
+    }
+
+    private async Task CloneShiftExpenses(Dictionary<Guid, Guid> shiftIdMap, Guid token, CancellationToken ct)
+    {
+        if (shiftIdMap.Count == 0) return;
+
+        var sourceShiftIds = shiftIdMap.Keys.ToList();
+        var expenses = await _context.Set<ShiftExpenses>()
+            .Where(e => !e.IsDeleted
+                && e.AnalyseToken == null
+                && sourceShiftIds.Contains(e.ShiftId))
+            .AsNoTracking()
+            .ToListAsync(ct);
+
+        foreach (var expense in expenses)
+        {
+            var clone = new ShiftExpenses
+            {
+                Id = Guid.NewGuid(),
+                AnalyseToken = token,
+                ShiftId = shiftIdMap[expense.ShiftId],
+                Amount = expense.Amount,
+                Description = expense.Description,
+                Taxable = expense.Taxable
+            };
+
+            await _context.Set<ShiftExpenses>().AddAsync(clone, ct);
         }
     }
 

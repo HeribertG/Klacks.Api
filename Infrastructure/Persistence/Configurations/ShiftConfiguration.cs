@@ -17,9 +17,17 @@ public class ShiftConfiguration : IEntityTypeConfiguration<Shift>
         builder.HasIndex(p => new { p.MacroId, p.ClientId, p.Status, p.FromDate, p.UntilDate });
         builder.HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
 
+        builder.HasIndex(p => p.ScenarioSourceShiftId)
+            .HasFilter("scenario_source_shift_id IS NOT NULL AND is_deleted = false");
+
         builder.HasOne(s => s.Client)
             .WithMany()
             .HasForeignKey(s => s.ClientId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasOne<Shift>()
+            .WithMany()
+            .HasForeignKey(s => s.ScenarioSourceShiftId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

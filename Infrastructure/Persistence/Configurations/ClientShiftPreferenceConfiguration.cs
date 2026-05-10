@@ -16,6 +16,7 @@ public class ClientShiftPreferenceConfiguration : IEntityTypeConfiguration<Clien
         builder.HasQueryFilter(p => !p.IsDeleted);
         builder.HasIndex(p => new { p.ClientId, p.IsDeleted });
         builder.HasIndex(p => new { p.ClientId, p.ShiftId, p.PreferenceType });
+        builder.HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
 
         builder.HasOne(csp => csp.Shift)
             .WithMany()

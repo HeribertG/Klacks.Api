@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260510092137_AddScenarioSourceShiftIdToShift")]
+    partial class AddScenarioSourceShiftIdToShift
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2291,10 +2294,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid?>("AnalyseToken")
-                        .HasColumnType("uuid")
-                        .HasColumnName("analyse_token");
-
                     b.Property<Guid>("ClientId")
                         .HasColumnType("uuid")
                         .HasColumnName("client_id");
@@ -2337,10 +2336,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_client_shift_preference");
-
-                    b.HasIndex("AnalyseToken")
-                        .HasDatabaseName("ix_client_shift_preference_analyse_token")
-                        .HasFilter("analyse_token IS NOT NULL");
 
                     b.HasIndex("ShiftId")
                         .HasDatabaseName("ix_client_shift_preference_shift_id");
@@ -5723,10 +5718,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("amount");
 
-                    b.Property<Guid?>("AnalyseToken")
-                        .HasColumnType("uuid")
-                        .HasColumnName("analyse_token");
-
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("create_time");
@@ -5770,10 +5761,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_shift_expenses");
-
-                    b.HasIndex("AnalyseToken")
-                        .HasDatabaseName("ix_shift_expenses_analyse_token")
-                        .HasFilter("analyse_token IS NOT NULL");
 
                     b.HasIndex("ShiftId")
                         .HasDatabaseName("ix_shift_expenses_shift_id");

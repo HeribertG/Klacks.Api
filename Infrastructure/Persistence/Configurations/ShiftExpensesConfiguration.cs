@@ -14,6 +14,7 @@ public class ShiftExpensesConfiguration : IEntityTypeConfiguration<ShiftExpenses
     public void Configure(EntityTypeBuilder<ShiftExpenses> builder)
     {
         builder.HasQueryFilter(p => !p.IsDeleted);
+        builder.HasIndex(e => e.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
 
         builder.HasOne(e => e.Shift)
             .WithMany(s => s.ShiftExpenses)

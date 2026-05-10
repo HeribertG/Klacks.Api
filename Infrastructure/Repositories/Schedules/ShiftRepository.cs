@@ -74,6 +74,12 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             return null;
         }
 
+        if (existingShift.AnalyseToken != null)
+        {
+            throw new InvalidOperationException(
+                $"Shift {existingShift.Id} cannot be edited while in scenario mode (AnalyseToken={existingShift.AnalyseToken}).");
+        }
+
         var entry = context.Entry(existingShift);
         entry.CurrentValues.SetValues(shift);
         entry.State = EntityState.Modified;
@@ -161,7 +167,9 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     public async Task<List<Shift>> CutList(Guid id, DateOnly? filterClosedBefore = null, bool tracked = false)
     {
         var query = context.Shift
-            .Where(x => x.OriginalId == id );
+            .Where(x => x.OriginalId == id
+                && x.AnalyseToken == null
+                && x.ScenarioSourceShiftId == null);
 
         if (filterClosedBefore.HasValue)
         {
@@ -187,7 +195,10 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     public async Task<Shift?> GetSealedOrder(Guid originalId)
     {
         return await context.Shift
-            .Where(x => x.Id == originalId && x.Status == ShiftStatus.SealedOrder)
+            .Where(x => x.Id == originalId
+                && x.Status == ShiftStatus.SealedOrder
+                && x.AnalyseToken == null
+                && x.ScenarioSourceShiftId == null)
             .Include(x => x.GroupItems)
                 .ThenInclude(gi => gi.Group)
             .AsSplitQuery()

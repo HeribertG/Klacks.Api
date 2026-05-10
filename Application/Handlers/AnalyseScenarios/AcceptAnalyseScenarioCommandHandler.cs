@@ -1,10 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler for accepting an AnalyseScenario. Replaces the real schedule
-/// data in the scenario's scope (soft-delete via service) and then
-/// promotes the scenario rows to real by clearing their AnalyseToken.
-/// All data operations go through <see cref="IAnalyseScenarioService"/>.
+/// Handler for accepting an AnalyseScenario. Validates the scenario can be
+/// applied without conflicting concurrent real-side changes, soft-deletes
+/// the real schedule data in the scenario's scope, then promotes scenario
+/// works/breaks/schedule-notes to real with shift-id remapping back to
+/// the original source shifts. Clone shifts/preferences/shift-expenses are
+/// soft-deleted (NOT promoted), so original shift definitions remain
+/// untouched and stable across multi-user use.
 /// </summary>
 /// <param name="ScenarioId">ID of the scenario to accept</param>
 
@@ -44,8 +47,9 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
             var scenario = await _repository.Get(command.ScenarioId)
                 ?? throw new KeyNotFoundException($"AnalyseScenario with ID {command.ScenarioId} not found");
 
+            await _scenarioService.ValidateNoAcceptConflictsAsync(scenario.Token, cancellationToken);
             await _scenarioService.SoftDeleteRealScheduleDataAsync(scenario.GroupId, scenario.FromDate, scenario.UntilDate, cancellationToken);
-            await _scenarioService.PromoteScenarioDataAsync(scenario.Token, cancellationToken);
+            await _scenarioService.PromoteScenarioWorksAsync(scenario.Token, cancellationToken);
 
             await _softeningRepository.DeleteByAnalyseTokenAsync(scenario.Token, cancellationToken);
             await _softeningRepository.DeleteByRangeAndTokenAsync(scenario.FromDate, scenario.UntilDate, null, cancellationToken);

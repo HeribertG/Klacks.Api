@@ -26,11 +26,14 @@ public sealed class WizardShiftBuilder : IWizardShiftBuilder
         IReadOnlyList<Guid>? shiftIds,
         DateOnly from,
         DateOnly until,
+        Guid? analyseToken,
         CancellationToken ct)
     {
         var query = _context.Shift
             .AsNoTracking()
-            .Where(s => s.FromDate <= until && (s.UntilDate == null || s.UntilDate >= from));
+            .Where(s => s.AnalyseToken == analyseToken
+                && s.FromDate <= until
+                && (s.UntilDate == null || s.UntilDate >= from));
 
         if (shiftIds is { Count: > 0 })
         {

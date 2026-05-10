@@ -63,7 +63,10 @@ public class GetShiftCoverageStatisticsQueryHandler : BaseHandler, IRequestHandl
                 .ToListAsync(cancellationToken);
 
             var workEntries = await _context.Work
-                .Where(w => !w.IsDeleted && w.CurrentDate >= startDate && w.CurrentDate <= endDate)
+                .Where(w => !w.IsDeleted
+                    && w.AnalyseToken == null
+                    && w.CurrentDate >= startDate
+                    && w.CurrentDate <= endDate)
                 .Select(w => new { w.ShiftId, w.LockLevel })
                 .ToListAsync(cancellationToken);
 

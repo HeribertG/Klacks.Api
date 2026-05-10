@@ -48,7 +48,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
             request.AgentIds, request.PeriodFrom, request.PeriodUntil, currentHours, ct);
 
         var shifts = await _shiftBuilder.BuildAsync(
-            request.ShiftIds, request.PeriodFrom, request.PeriodUntil, ct);
+            request.ShiftIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
 
         // ScheduleCommands and ShiftPreferences are intentionally restricted to the planning period —
         // user-entered free/preference instructions outside the period are not relevant for this run.

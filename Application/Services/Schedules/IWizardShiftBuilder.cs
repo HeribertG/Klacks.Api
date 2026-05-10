@@ -17,10 +17,12 @@ public interface IWizardShiftBuilder
     /// <param name="shiftIds">Optional subset of shifts; null = all shifts that overlap the period</param>
     /// <param name="from">Period start (inclusive)</param>
     /// <param name="until">Period end (inclusive)</param>
+    /// <param name="analyseToken">null = real-mode shifts; set = clones of an active scenario</param>
     /// <param name="ct">Cancellation token</param>
     Task<IReadOnlyList<CoreShift>> BuildAsync(
         IReadOnlyList<Guid>? shiftIds,
         DateOnly from,
         DateOnly until,
+        Guid? analyseToken,
         CancellationToken ct);
 }

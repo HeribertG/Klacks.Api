@@ -122,6 +122,14 @@ public class Shift : BaseEntity
 
     public Guid? AnalyseToken { get; set; }
 
+    #region Scenario clone tracking
+
+    public Guid? ScenarioSourceShiftId { get; set; }
+
+    public int? SourceChildCountSnapshot { get; set; }
+
+    #endregion Scenario clone tracking
+
     #region Expenses
     public List<ShiftExpenses> ShiftExpenses { get; set; } = [];
     

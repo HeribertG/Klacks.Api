@@ -106,6 +106,8 @@ public class ShiftCutFacade : IShiftCutFacade
             throw new InvalidOperationException($"No SealedOrder found for OriginalId {originalId}");
         }
 
+        EnsureNotInScenario(sealedOrder, "reset cuts on");
+
         _logger.LogInformation("Using SealedOrder as template: ID={Id}", sealedOrder.Id);
 
         var allShifts = await _shiftRepository.CutList(originalId, newStartDate, tracked: true);
@@ -170,6 +172,8 @@ public class ShiftCutFacade : IShiftCutFacade
             throw new KeyNotFoundException($"Shift with ID {op.Data.Id} not found");
         }
 
+        EnsureNotInScenario(existingShift, "cut/update");
+
         _logger.LogInformation("Existing shift loaded: ID={Id}, Status={Status}",
             existingShift.Id, existingShift.Status);
 
@@ -220,6 +224,8 @@ public class ShiftCutFacade : IShiftCutFacade
             throw new KeyNotFoundException($"Parent shift with ID {parentId} not found");
         }
 
+        EnsureNotInScenario(parentShift, "cut (create child of)");
+
         _logger.LogInformation("Parent shift loaded: ID={Id}, Status={Status}",
             parentShift.Id, parentShift.Status);
 
@@ -261,6 +267,15 @@ public class ShiftCutFacade : IShiftCutFacade
         }
 
         throw new InvalidOperationException($"Invalid parent ID format: {parentId}. Frontend must send GUID!");
+    }
+
+    private static void EnsureNotInScenario(Shift shift, string operation)
+    {
+        if (shift.AnalyseToken != null)
+        {
+            throw new InvalidOperationException(
+                $"Cannot {operation} shift {shift.Id} while in scenario mode (AnalyseToken={shift.AnalyseToken}).");
+        }
     }
 
     private List<CutOperation> TopologicalSort(List<CutOperation> operations)

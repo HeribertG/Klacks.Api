@@ -104,7 +104,7 @@ public sealed class WizardBenchmarkService : IWizardBenchmarkService
             PeriodUntil: periodUntil,
             AgentIds: agentIds,
             ShiftIds: shiftIds,
-            AnalyseToken: Guid.NewGuid(),
+            AnalyseToken: null,
             TrainingOverrides: overrides);
 
         return await RunAndPersistAsync(request, source, ct);

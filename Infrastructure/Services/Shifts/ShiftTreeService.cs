@@ -45,7 +45,9 @@ public class ShiftTreeService : IShiftTreeService
         _logger.LogInformation("=== Recalculating Nested Set values for Root {RootId} ===", rootId);
 
         var allShiftsInTree = await _context.Shift
-            .Where(s => s.RootId == rootId)
+            .Where(s => s.RootId == rootId
+                && s.AnalyseToken == null
+                && s.ScenarioSourceShiftId == null)
             .ToListAsync();
 
         if (!allShiftsInTree.Any())

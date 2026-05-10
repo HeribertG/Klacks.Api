@@ -48,8 +48,19 @@ public interface IAnalyseScenarioService
     Task SoftDeleteRealScheduleDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Clears the scenario token on every row tagged with <paramref name="token"/>,
-    /// turning the clones into the new real schedule.
+    /// Validates that no real-side conflict prevents accepting the scenario.
+    /// Throws ConflictException when a source shift was deleted or its
+    /// child-count subtree changed since the scenario was created (e.g. a
+    /// concurrent cut by another user).
     /// </summary>
-    Task PromoteScenarioDataAsync(Guid token, CancellationToken cancellationToken);
+    Task ValidateNoAcceptConflictsAsync(Guid token, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Promotes scenario works/breaks/schedule-notes to real by clearing
+    /// their AnalyseToken and remapping each Work.ShiftId from the clone
+    /// shift back to its real source shift via ScenarioSourceShiftId.
+    /// Clone shifts, clone preferences and clone shift-expenses are
+    /// soft-deleted (NOT promoted) — originals remain unchanged.
+    /// </summary>
+    Task PromoteScenarioWorksAsync(Guid token, CancellationToken cancellationToken);
 }
