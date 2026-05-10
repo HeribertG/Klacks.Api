@@ -25,11 +25,15 @@ public class GetQueryHandler : BaseHandler, IRequestHandler<GetQuery<ShiftResour
         {
             var shift = await _shiftRepository.Get(request.Id);
 
-            if (shift == null
-                || shift.AnalyseToken != null
-                || shift.ScenarioSourceShiftId != null)
+            if (shift == null)
             {
                 throw new KeyNotFoundException($"Shift with ID {request.Id} not found");
+            }
+
+            if (shift.AnalyseToken != null || shift.ScenarioSourceShiftId != null)
+            {
+                throw new InvalidOperationException(
+                    $"Shift {request.Id} is a scenario clone and cannot be fetched in real mode.");
             }
 
             return _scheduleMapper.ToShiftResource(shift);
