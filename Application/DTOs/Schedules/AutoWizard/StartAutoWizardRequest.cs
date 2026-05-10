@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Constants;
+
 namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 
 /// <param name="PeriodFrom">Start date (inclusive) of the schedule window to optimise.</param>
@@ -22,5 +24,5 @@ public sealed record StartAutoWizardRequest(
     Guid? GroupId,
     Guid? AnalyseToken,
     string? Language,
-    int ContextDaysBefore = 14,
-    int ContextDaysAfter = 14);
+    int ContextDaysBefore = ScenarioConstants.BoundaryDays,
+    int ContextDaysAfter = ScenarioConstants.BoundaryDays);

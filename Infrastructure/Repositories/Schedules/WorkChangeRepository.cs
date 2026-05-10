@@ -40,6 +40,6 @@ public class WorkChangeRepository : BaseRepository<WorkChange>, IWorkChangeRepos
         return await _context.WorkChange
             .AsNoTracking()
             .Include(wc => wc.Work)
-            .FirstOrDefaultAsync(wc => wc.Id == id);
+            .FirstOrDefaultAsync(wc => wc.Id == id && wc.AnalyseToken == null);
     }
 }

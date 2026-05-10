@@ -49,7 +49,7 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
             await _scenarioService.ValidateNoAcceptConflictsAsync(scenario.Token, cancellationToken);
             await _scenarioService.SoftDeleteRealScheduleDataAsync(scenario.GroupId, scenario.FromDate, scenario.UntilDate, cancellationToken);
-            await _scenarioService.PromoteScenarioWorksAsync(scenario.Token, cancellationToken);
+            await _scenarioService.PromoteScenarioWorksAsync(scenario.Token, scenario.FromDate, scenario.UntilDate, cancellationToken);
 
             await _softeningRepository.DeleteByAnalyseTokenAsync(scenario.Token, cancellationToken);
             await _softeningRepository.DeleteByRangeAndTokenAsync(scenario.FromDate, scenario.UntilDate, null, cancellationToken);

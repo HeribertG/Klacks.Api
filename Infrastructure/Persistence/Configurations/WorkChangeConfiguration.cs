@@ -15,6 +15,7 @@ public class WorkChangeConfiguration : IEntityTypeConfiguration<WorkChange>
     {
         builder.HasQueryFilter(p => !p.IsDeleted);
         builder.HasIndex(p => new { p.WorkId, p.IsDeleted });
+        builder.HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
 
         builder.HasOne(sc => sc.Work)
             .WithMany()

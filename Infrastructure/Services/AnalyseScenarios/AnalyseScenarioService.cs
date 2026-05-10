@@ -8,6 +8,7 @@
 /// soft-delete + orphan sweep.
 /// </summary>
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
@@ -116,10 +117,13 @@ public class AnalyseScenarioService : IAnalyseScenarioService
             ? await GetGroupHierarchyIdsAsync(groupId.Value, ct)
             : null;
 
+        var boundaryFrom = fromDate.AddDays(-ScenarioConstants.BoundaryDays);
+        var boundaryUntil = untilDate.AddDays(ScenarioConstants.BoundaryDays);
+
         var shiftIdMap = await CloneShifts(groupIds, additionalShiftIds, token, ct);
-        var workIdMap = await CloneWorks(groupIds, fromDate, untilDate, token, shiftIdMap, ct);
-        await CloneBreaks(groupIds, fromDate, untilDate, token, workIdMap, ct);
-        await CloneScheduleNotes(groupIds, fromDate, untilDate, token, ct);
+        var workIdMap = await CloneWorks(groupIds, boundaryFrom, boundaryUntil, token, shiftIdMap, ct);
+        await CloneBreaks(groupIds, boundaryFrom, boundaryUntil, token, workIdMap, ct);
+        await CloneScheduleNotes(groupIds, boundaryFrom, boundaryUntil, token, ct);
         await CloneClientShiftPreferences(shiftIdMap, token, ct);
         await CloneShiftExpenses(shiftIdMap, token, ct);
 
@@ -206,7 +210,7 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         }
     }
 
-    public async Task PromoteScenarioWorksAsync(Guid token, CancellationToken ct)
+    public async Task PromoteScenarioWorksAsync(Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
     {
         var cloneShifts = await _context.Shift.IgnoreQueryFilters()
             .Where(s => s.AnalyseToken == token && !s.IsDeleted && s.ScenarioSourceShiftId.HasValue)
@@ -214,37 +218,98 @@ public class AnalyseScenarioService : IAnalyseScenarioService
             .ToListAsync(ct);
 
         var cloneToSource = cloneShifts.ToDictionary(c => c.Id, c => c.SourceId);
+        var now = DateTime.UtcNow;
 
         var scenarioWorks = await _context.Work.IgnoreQueryFilters()
             .Where(w => w.AnalyseToken == token && !w.IsDeleted).ToListAsync(ct);
+        var promotedWorkIds = new List<Guid>();
+        var boundaryWorkIds = new List<Guid>();
         foreach (var w in scenarioWorks)
         {
-            w.AnalyseToken = null;
-            if (cloneToSource.TryGetValue(w.ShiftId, out var sourceShiftId))
+            if (w.CurrentDate < fromDate || w.CurrentDate > untilDate)
             {
-                w.ShiftId = sourceShiftId;
+                w.IsDeleted = true;
+                w.DeletedTime = now;
+                boundaryWorkIds.Add(w.Id);
             }
+            else
+            {
+                w.AnalyseToken = null;
+                if (cloneToSource.TryGetValue(w.ShiftId, out var sourceShiftId))
+                {
+                    w.ShiftId = sourceShiftId;
+                }
+                promotedWorkIds.Add(w.Id);
+            }
+        }
+
+        if (promotedWorkIds.Count > 0)
+        {
+            var promotedWorkChanges = await _context.WorkChange.IgnoreQueryFilters()
+                .Where(wc => wc.AnalyseToken == token && !wc.IsDeleted && promotedWorkIds.Contains(wc.WorkId))
+                .ToListAsync(ct);
+            foreach (var wc in promotedWorkChanges) wc.AnalyseToken = null;
+
+            var promotedExpenses = await _context.Expenses.IgnoreQueryFilters()
+                .Where(e => e.AnalyseToken == token && !e.IsDeleted && promotedWorkIds.Contains(e.WorkId))
+                .ToListAsync(ct);
+            foreach (var e in promotedExpenses) e.AnalyseToken = null;
+        }
+
+        if (boundaryWorkIds.Count > 0)
+        {
+            var boundaryWorkChanges = await _context.WorkChange.IgnoreQueryFilters()
+                .Where(wc => wc.AnalyseToken == token && !wc.IsDeleted && boundaryWorkIds.Contains(wc.WorkId))
+                .ToListAsync(ct);
+            foreach (var wc in boundaryWorkChanges) { wc.IsDeleted = true; wc.DeletedTime = now; }
+
+            var boundaryExpenses = await _context.Expenses.IgnoreQueryFilters()
+                .Where(e => e.AnalyseToken == token && !e.IsDeleted && boundaryWorkIds.Contains(e.WorkId))
+                .ToListAsync(ct);
+            foreach (var e in boundaryExpenses) { e.IsDeleted = true; e.DeletedTime = now; }
         }
 
         var scenarioBreaks = await _context.Break.IgnoreQueryFilters()
             .Where(b => b.AnalyseToken == token && !b.IsDeleted).ToListAsync(ct);
-        foreach (var b in scenarioBreaks) b.AnalyseToken = null;
+        foreach (var b in scenarioBreaks)
+        {
+            if (b.CurrentDate < fromDate || b.CurrentDate > untilDate)
+            {
+                b.IsDeleted = true;
+                b.DeletedTime = now;
+            }
+            else
+            {
+                b.AnalyseToken = null;
+            }
+        }
 
         var scenarioNotes = await _context.ScheduleNotes.IgnoreQueryFilters()
             .Where(sn => sn.AnalyseToken == token && !sn.IsDeleted).ToListAsync(ct);
-        foreach (var sn in scenarioNotes) sn.AnalyseToken = null;
+        foreach (var sn in scenarioNotes)
+        {
+            if (sn.CurrentDate < fromDate || sn.CurrentDate > untilDate)
+            {
+                sn.IsDeleted = true;
+                sn.DeletedTime = now;
+            }
+            else
+            {
+                sn.AnalyseToken = null;
+            }
+        }
 
         var scenarioShifts = await _context.Shift.IgnoreQueryFilters()
             .Where(s => s.AnalyseToken == token && !s.IsDeleted).ToListAsync(ct);
-        foreach (var s in scenarioShifts) { s.IsDeleted = true; s.DeletedTime = DateTime.UtcNow; }
+        foreach (var s in scenarioShifts) { s.IsDeleted = true; s.DeletedTime = now; }
 
         var clonePreferences = await _context.Set<ClientShiftPreference>().IgnoreQueryFilters()
             .Where(p => p.AnalyseToken == token && !p.IsDeleted).ToListAsync(ct);
-        foreach (var p in clonePreferences) { p.IsDeleted = true; p.DeletedTime = DateTime.UtcNow; }
+        foreach (var p in clonePreferences) { p.IsDeleted = true; p.DeletedTime = now; }
 
         var cloneShiftExpenses = await _context.Set<ShiftExpenses>().IgnoreQueryFilters()
             .Where(e => e.AnalyseToken == token && !e.IsDeleted).ToListAsync(ct);
-        foreach (var e in cloneShiftExpenses) { e.IsDeleted = true; e.DeletedTime = DateTime.UtcNow; }
+        foreach (var e in cloneShiftExpenses) { e.IsDeleted = true; e.DeletedTime = now; }
     }
 
     private async Task<Dictionary<Guid, Guid>> CloneShifts(List<Guid>? groupIds, IReadOnlyCollection<Guid>? additionalShiftIds, Guid token, CancellationToken ct)
@@ -429,19 +494,19 @@ public class AnalyseScenarioService : IAnalyseScenarioService
             await _context.Work.AddAsync(clone, ct);
         }
 
-        await CloneWorkChanges(workIdMap, ct);
-        await CloneExpenses(workIdMap, ct);
+        await CloneWorkChanges(workIdMap, token, ct);
+        await CloneExpenses(workIdMap, token, ct);
 
         return workIdMap;
     }
 
-    private async Task CloneWorkChanges(Dictionary<Guid, Guid> workIdMap, CancellationToken ct)
+    private async Task CloneWorkChanges(Dictionary<Guid, Guid> workIdMap, Guid token, CancellationToken ct)
     {
         if (workIdMap.Count == 0) return;
 
         var originalWorkIds = workIdMap.Keys.ToList();
         var workChanges = await _context.WorkChange
-            .Where(wc => !wc.IsDeleted && originalWorkIds.Contains(wc.WorkId))
+            .Where(wc => !wc.IsDeleted && wc.AnalyseToken == null && originalWorkIds.Contains(wc.WorkId))
             .AsNoTracking()
             .ToListAsync(ct);
 
@@ -450,6 +515,7 @@ public class AnalyseScenarioService : IAnalyseScenarioService
             var clone = new WorkChange
             {
                 Id = Guid.NewGuid(),
+                AnalyseToken = token,
                 WorkId = workIdMap[wc.WorkId],
                 StartTime = wc.StartTime,
                 EndTime = wc.EndTime,
@@ -465,13 +531,13 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         }
     }
 
-    private async Task CloneExpenses(Dictionary<Guid, Guid> workIdMap, CancellationToken ct)
+    private async Task CloneExpenses(Dictionary<Guid, Guid> workIdMap, Guid token, CancellationToken ct)
     {
         if (workIdMap.Count == 0) return;
 
         var originalWorkIds = workIdMap.Keys.ToList();
         var expenses = await _context.Expenses
-            .Where(e => !e.IsDeleted && originalWorkIds.Contains(e.WorkId))
+            .Where(e => !e.IsDeleted && e.AnalyseToken == null && originalWorkIds.Contains(e.WorkId))
             .AsNoTracking()
             .ToListAsync(ct);
 
@@ -480,6 +546,7 @@ public class AnalyseScenarioService : IAnalyseScenarioService
             var clone = new Expenses
             {
                 Id = Guid.NewGuid(),
+                AnalyseToken = token,
                 WorkId = workIdMap[exp.WorkId],
                 Description = exp.Description,
                 Amount = exp.Amount,

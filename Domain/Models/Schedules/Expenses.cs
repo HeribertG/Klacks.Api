@@ -15,4 +15,6 @@ public class Expenses : BaseEntity
     public string Description { get; set; } = string.Empty;
 
     public bool Taxable { get; set; }
+
+    public Guid? AnalyseToken { get; set; }
 }

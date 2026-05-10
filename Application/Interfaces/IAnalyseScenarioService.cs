@@ -56,11 +56,18 @@ public interface IAnalyseScenarioService
     Task ValidateNoAcceptConflictsAsync(Guid token, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Promotes scenario works/breaks/schedule-notes to real by clearing
-    /// their AnalyseToken and remapping each Work.ShiftId from the clone
-    /// shift back to its real source shift via ScenarioSourceShiftId.
-    /// Clone shifts, clone preferences and clone shift-expenses are
-    /// soft-deleted (NOT promoted) — originals remain unchanged.
+    /// Promotes scenario works/breaks/schedule-notes within the period to real
+    /// by clearing their AnalyseToken and remapping each Work.ShiftId from the
+    /// clone shift back to its real source shift via ScenarioSourceShiftId.
+    /// Boundary clones (outside <paramref name="fromDate"/>..<paramref name="untilDate"/>)
+    /// were context-only and are soft-deleted instead of promoted, so they do
+    /// not duplicate the unchanged real entries that already exist in the
+    /// boundary. Clone shifts, clone preferences and clone shift-expenses
+    /// are soft-deleted (NOT promoted) — originals remain unchanged.
     /// </summary>
-    Task PromoteScenarioWorksAsync(Guid token, CancellationToken cancellationToken);
+    /// <param name="token">Scenario isolation token.</param>
+    /// <param name="fromDate">Period start (inclusive); entries with CurrentDate &lt; this are boundary.</param>
+    /// <param name="untilDate">Period end (inclusive); entries with CurrentDate &gt; this are boundary.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task PromoteScenarioWorksAsync(Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken);
 }

@@ -29,4 +29,6 @@ public class WorkChange : BaseEntity
     public string Description { get; set; } = string.Empty;
 
     public bool ToInvoice { get; set; }
+
+    public Guid? AnalyseToken { get; set; }
 }

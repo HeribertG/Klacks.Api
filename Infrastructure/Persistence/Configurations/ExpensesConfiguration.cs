@@ -14,6 +14,7 @@ public class ExpensesConfiguration : IEntityTypeConfiguration<Expenses>
     public void Configure(EntityTypeBuilder<Expenses> builder)
     {
         builder.HasQueryFilter(p => !p.IsDeleted);
+        builder.HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
 
         builder.HasOne(e => e.Work)
             .WithMany()

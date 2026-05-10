@@ -18,6 +18,6 @@ public class ExpensesRepository : BaseRepository<Expenses>, IExpensesRepository
     {
         return await context.Set<Expenses>()
             .Include(e => e.Work)
-            .FirstOrDefaultAsync(e => e.Id == id);
+            .FirstOrDefaultAsync(e => e.Id == id && e.AnalyseToken == null);
     }
 }
