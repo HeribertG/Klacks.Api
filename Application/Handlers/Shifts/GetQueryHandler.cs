@@ -25,7 +25,9 @@ public class GetQueryHandler : BaseHandler, IRequestHandler<GetQuery<ShiftResour
         {
             var shift = await _shiftRepository.Get(request.Id);
 
-            if (shift == null)
+            if (shift == null
+                || shift.AnalyseToken != null
+                || shift.ScenarioSourceShiftId != null)
             {
                 throw new KeyNotFoundException($"Shift with ID {request.Id} not found");
             }

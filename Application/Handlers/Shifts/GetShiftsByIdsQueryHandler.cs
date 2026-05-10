@@ -39,7 +39,9 @@ public class GetShiftsByIdsQueryHandler : IRequestHandler<GetShiftsByIdsQuery, L
 
         var shifts = await _shiftRepository
             .GetQueryWithClient()
-            .Where(s => distinctIds.Contains(s.Id))
+            .Where(s => distinctIds.Contains(s.Id)
+                && s.AnalyseToken == null
+                && s.ScenarioSourceShiftId == null)
             .ToListAsync(cancellationToken);
 
         _logger.LogInformation("Bulk-loaded {Count} shifts for {Requested} requested IDs", shifts.Count, distinctIds.Count);

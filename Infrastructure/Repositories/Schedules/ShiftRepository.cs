@@ -244,6 +244,8 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             ? GetQueryWithClient()
             : GetQuery();
 
+        baseQuery = baseQuery.Where(s => s.AnalyseToken == null && s.ScenarioSourceShiftId == null);
+
         bool shouldApplyGroupFilter = !(filter.FilterType == ShiftFilterType.Original && filter.IsSealedOrder == false);
         if (shouldApplyGroupFilter && filter.SelectedGroup.HasValue)
         {
