@@ -165,7 +165,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
     public async Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
     {
         return await context.Work
-            .Where(w => !w.IsDeleted && w.CurrentDate == date && w.LockLevel < level)
+            .Where(w => !w.IsDeleted && w.AnalyseToken == null && w.CurrentDate == date && w.LockLevel < level)
             .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
             .ExecuteUpdateAsync(s => s
                 .SetProperty(w => w.LockLevel, level)
@@ -176,7 +176,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
     public async Task<int> UnsealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default)
     {
         return await context.Work
-            .Where(w => !w.IsDeleted && w.CurrentDate == date && w.LockLevel == level)
+            .Where(w => !w.IsDeleted && w.AnalyseToken == null && w.CurrentDate == date && w.LockLevel == level)
             .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
             .ExecuteUpdateAsync(s => s
                 .SetProperty(w => w.LockLevel, WorkLockLevel.None)
@@ -187,7 +187,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
     public async Task<int> SealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
     {
         return await context.Work
-            .Where(w => !w.IsDeleted && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.LockLevel < level)
+            .Where(w => !w.IsDeleted && w.AnalyseToken == null && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.LockLevel < level)
             .ExecuteUpdateAsync(s => s
                 .SetProperty(w => w.LockLevel, level)
                 .SetProperty(w => w.SealedAt, DateTime.UtcNow)
@@ -197,7 +197,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
     public async Task<int> UnsealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, CancellationToken cancellationToken = default)
     {
         return await context.Work
-            .Where(w => !w.IsDeleted && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.LockLevel == level)
+            .Where(w => !w.IsDeleted && w.AnalyseToken == null && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.LockLevel == level)
             .ExecuteUpdateAsync(s => s
                 .SetProperty(w => w.LockLevel, WorkLockLevel.None)
                 .SetProperty(w => w.SealedAt, (DateTime?)null)
@@ -207,7 +207,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
     public async Task<int> SealByPeriodAndGroup(DateOnly startDate, DateOnly endDate, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
     {
         return await context.Work
-            .Where(w => !w.IsDeleted && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.LockLevel < level)
+            .Where(w => !w.IsDeleted && w.AnalyseToken == null && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.LockLevel < level)
             .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
             .ExecuteUpdateAsync(s => s
                 .SetProperty(w => w.LockLevel, level)
@@ -218,7 +218,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
     public async Task<int> UnsealByPeriodAndGroup(DateOnly startDate, DateOnly endDate, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default)
     {
         return await context.Work
-            .Where(w => !w.IsDeleted && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.LockLevel == level)
+            .Where(w => !w.IsDeleted && w.AnalyseToken == null && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.LockLevel == level)
             .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
             .ExecuteUpdateAsync(s => s
                 .SetProperty(w => w.LockLevel, WorkLockLevel.None)
@@ -291,7 +291,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
     public async Task<List<(DateOnly Date, int Total, int Sealed)>> GetSealingSummaryAsync(DateOnly from, DateOnly to, Guid? groupId, CancellationToken cancellationToken = default)
     {
-        var query = context.Work.AsNoTracking().Where(w => !w.IsDeleted && w.CurrentDate >= from && w.CurrentDate <= to);
+        var query = context.Work.AsNoTracking().Where(w => !w.IsDeleted && w.AnalyseToken == null && w.CurrentDate >= from && w.CurrentDate <= to);
 
         if (groupId.HasValue)
         {
