@@ -79,10 +79,11 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
         var totalCount = await query.CountAsync(cancellationToken);
 
-        var clients = await query
-            .Skip(filter.StartRow)
-            .Take(filter.RowCount)
-            .ToListAsync(cancellationToken);
+        var paginated = filter.RowCount > 0
+            ? query.Skip(filter.StartRow).Take(filter.RowCount)
+            : query;
+
+        var clients = await paginated.ToListAsync(cancellationToken);
 
         return (clients, totalCount);
     }
