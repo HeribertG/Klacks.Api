@@ -84,6 +84,9 @@
 	  <Content Update="Application\Skills\Definitions\skill-seeds.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
+	  <Content Update="Application\Skills\Goldsets\*.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	  <None Update="Application\Skills\Definitions\navigation-targets.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>

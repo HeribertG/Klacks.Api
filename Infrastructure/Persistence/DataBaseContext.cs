@@ -194,6 +194,11 @@ public class DataBaseContext : IdentityDbContext
     // Skill Gap Detection DbSet
     public DbSet<SkillGapRecord> SkillGapRecords { get; set; }
 
+    // Skill Selection Telemetry & Evaluation
+    public DbSet<SkillSelectionTrajectory> SkillSelectionTrajectories { get; set; }
+    public DbSet<EvalRun> EvalRuns { get; set; }
+    public DbSet<ProposedSkillChange> ProposedSkillChanges { get; set; }
+
     // Scheduling DbSets
     public DbSet<SchedulingRule> SchedulingRules { get; set; }
 

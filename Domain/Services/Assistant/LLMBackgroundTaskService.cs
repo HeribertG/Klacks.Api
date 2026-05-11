@@ -74,6 +74,20 @@ public class LLMBackgroundTaskService : ILLMBackgroundTaskService
                     _logger.LogWarning(ex, "Fire-and-forget skill gap detection failed for agent {AgentId}", agent.Id);
                 }
             });
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var trajectoryCapture = scope.ServiceProvider.GetRequiredService<ITrajectoryCaptureService>();
+                    await trajectoryCapture.CaptureAsync(agent.Id, context, responseContent, allFunctionCalls);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Fire-and-forget trajectory capture failed for agent {AgentId}", agent.Id);
+                }
+            });
         }
     }
 }

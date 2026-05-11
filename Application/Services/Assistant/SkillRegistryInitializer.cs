@@ -41,7 +41,7 @@ public class SkillRegistryInitializer
         _logger = logger;
     }
 
-    public async Task InitializeAsync(CancellationToken cancellationToken = default)
+    public virtual async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
         var implementations = ScanAssemblyForImplementations();
         var agentSkills = await _skillRepository.GetAllEnabledAsync(cancellationToken);

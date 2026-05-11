@@ -198,6 +198,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGlobalAgentRuleRepository, Klacks.Api.Infrastructure.Repositories.Assistant.GlobalAgentRuleRepository>();
         services.AddScoped<IUiControlRepository, Klacks.Api.Infrastructure.Repositories.Assistant.UiControlRepository>();
         services.AddScoped<ISkillGapRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillGapRepository>();
+        services.AddScoped<ISkillSelectionTrajectoryRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillSelectionTrajectoryRepository>();
+        services.AddScoped<IEvalRunRepository, Klacks.Api.Infrastructure.Repositories.Assistant.EvalRunRepository>();
+        services.AddScoped<IProposedSkillChangeRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ProposedSkillChangeRepository>();
+        services.AddScoped<ISkillDescriptionOptimizer, Klacks.Api.Application.Services.Assistant.Evaluation.SkillDescriptionOptimizer>();
         services.AddScoped<IReceivedEmailRepository, ReceivedEmailRepository>();
         services.AddScoped<IEmailQueryRepository, EmailQueryRepository>();
         services.AddScoped<IEmailFolderRepository, EmailFolderRepository>();
@@ -431,6 +435,9 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ILLMService, LLMService>();
         services.AddScoped<ILLMBackgroundTaskService, LLMBackgroundTaskService>();
+        services.AddScoped<ITrajectoryCaptureService, Klacks.Api.Application.Services.Assistant.Evaluation.TrajectoryCaptureService>();
+        services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.IGoldsetLoader, Klacks.Api.Application.Services.Assistant.Evaluation.FileGoldsetLoader>();
+        services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.IEvalRunnerService, Klacks.Api.Application.Services.Assistant.Evaluation.EvalRunnerService>();
         services.AddScoped<IAutoMemoryExtractionService, AutoMemoryExtractionService>();
         services.AddScoped<IConversationCompactionService, ConversationCompactionService>();
         services.AddScoped<IHeartbeatLLMService, Klacks.Api.Domain.Services.Assistant.HeartbeatLLMService>();
