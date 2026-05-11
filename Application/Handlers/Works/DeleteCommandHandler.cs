@@ -15,6 +15,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
 {
     private readonly IWorkRepository _workRepository;
     private readonly ScheduleMapper _scheduleMapper;
+    private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IScheduleCompletionService _completionService;
     private readonly IWorkNotificationFacade _notificationFacade;
@@ -23,6 +24,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
     public DeleteCommandHandler(
         IWorkRepository workRepository,
         ScheduleMapper scheduleMapper,
+        IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
         IScheduleCompletionService completionService,
         IWorkNotificationFacade notificationFacade,
@@ -32,6 +34,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
     {
         _workRepository = workRepository;
         _scheduleMapper = scheduleMapper;
+        _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
         _completionService = completionService;
         _notificationFacade = notificationFacade;
@@ -51,14 +54,16 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
             var shiftId = work.ShiftId;
             var workDate = work.CurrentDate;
 
+            var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
+
             await _cascadeService.DeleteChildrenAsync(request.Id);
             await _workRepository.Delete(request.Id);
             var periodHours = await _completionService.SaveAndTrackAsync(
-                work.ClientId, work.CurrentDate, request.PeriodStart, request.PeriodEnd, work.AnalyseToken);
+                work.ClientId, work.CurrentDate, periodStart, periodEnd, work.AnalyseToken);
 
             var connectionId = _notificationFacade.GetConnectionId();
-            await _notificationFacade.NotifyWorkDeletedAsync(work, connectionId, request.PeriodStart, request.PeriodEnd);
-            await _notificationFacade.NotifyPeriodHoursUpdatedAsync(work.ClientId, request.PeriodStart, request.PeriodEnd, periodHours, connectionId, work.AnalyseToken);
+            await _notificationFacade.NotifyWorkDeletedAsync(work, connectionId, periodStart, periodEnd);
+            await _notificationFacade.NotifyPeriodHoursUpdatedAsync(work.ClientId, periodStart, periodEnd, periodHours, connectionId, work.AnalyseToken);
             await _notificationFacade.NotifyShiftStatsAsync(shiftId, workDate, connectionId, work.AnalyseToken, cancellationToken);
 
             var currentDate = work.CurrentDate;

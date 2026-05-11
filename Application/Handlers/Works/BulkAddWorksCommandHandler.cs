@@ -90,11 +90,28 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                 }
 
                 var affected = works.Select(w => (w.ClientId, w.CurrentDate, w.AnalyseToken)).ToList();
-                var periodStart = command.Request.PeriodStart;
-                var periodEnd = command.Request.PeriodEnd;
                 var bulkToken = works.Select(w => w.AnalyseToken).Distinct().Count() == 1 ? works[0].AnalyseToken : null;
 
-                await _completionService.SaveBulkAndTrackRangeAsync(affected, periodStart, periodEnd, bulkToken);
+                var clientPeriods = new Dictionary<Guid, (DateOnly Start, DateOnly End)>();
+                foreach (var work in works)
+                {
+                    var (start, end) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
+                    if (!clientPeriods.TryGetValue(work.ClientId, out var existing))
+                    {
+                        clientPeriods[work.ClientId] = (start, end);
+                    }
+                    else
+                    {
+                        clientPeriods[work.ClientId] = (
+                            start < existing.Start ? start : existing.Start,
+                            end > existing.End ? end : existing.End);
+                    }
+                }
+
+                var rangeStart = clientPeriods.Values.Min(p => p.Start);
+                var rangeEnd = clientPeriods.Values.Max(p => p.End);
+
+                await _completionService.SaveBulkAndTrackRangeAsync(affected, rangeStart, rangeEnd, bulkToken);
 
                 var connectionId = _notificationFacade.GetConnectionId();
 
@@ -102,7 +119,8 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
 
                 foreach (var work in works)
                 {
-                    await _notificationFacade.NotifyWorkCreatedAsync(work, connectionId, periodStart, periodEnd);
+                    var (workStart, workEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
+                    await _notificationFacade.NotifyWorkCreatedAsync(work, connectionId, workStart, workEnd);
                 }
 
                 if (affectedClients.Count > 0)
@@ -113,11 +131,12 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                     {
                         var clientTokens = works.Where(w => w.ClientId == clientId).Select(w => w.AnalyseToken).Distinct().ToList();
                         var clientToken = clientTokens.Count == 1 ? clientTokens[0] : null;
+                        var (clientStart, clientEnd) = clientPeriods[clientId];
 
                         var periodHours = await _periodHoursService.RecalculateAndNotifyAsync(
                             clientId,
-                            periodStart,
-                            periodEnd,
+                            clientStart,
+                            clientEnd,
                             clientToken,
                             connectionId);
                         response.PeriodHours[clientId] = periodHours;

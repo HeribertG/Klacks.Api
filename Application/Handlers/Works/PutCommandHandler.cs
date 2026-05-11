@@ -52,18 +52,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
 
             var work = _scheduleMapper.ToWorkEntity(request.Resource);
 
-            DateOnly periodStart;
-            DateOnly periodEnd;
-
-            if (request.Resource.PeriodStart.HasValue && request.Resource.PeriodEnd.HasValue)
-            {
-                periodStart = request.Resource.PeriodStart.Value;
-                periodEnd = request.Resource.PeriodEnd.Value;
-            }
-            else
-            {
-                (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
-            }
+            var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
 
             var updatedWork = await _workRepository.Put(work);
             if (updatedWork == null) return null;

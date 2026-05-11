@@ -306,24 +306,6 @@ public class PeriodHoursService : IPeriodHoursService
             .Select(w => new { w.ClientId, w.WorkTime, w.Surcharges, w.CurrentDate })
             .ToListAsync();
 
-        _logger.LogInformation(
-            "CalculatePeriodHours for clients {ClientIds} from {Start} to {End} (scenario={Token}): Found {Count} works",
-            string.Join(", ", clientIds),
-            startDate,
-            endDate,
-            analyseToken,
-            allWorks.Count);
-
-        foreach (var work in allWorks)
-        {
-            _logger.LogInformation(
-                "  Work: Client={ClientId}, Date={Date}, Hours={Hours}, Surcharges={Surcharges}",
-                work.ClientId,
-                work.CurrentDate,
-                work.WorkTime,
-                work.Surcharges);
-        }
-
         var worksHours = allWorks
             .GroupBy(w => w.ClientId)
             .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime), TotalSurcharges = g.Sum(w => w.Surcharges) })

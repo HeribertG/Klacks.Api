@@ -59,8 +59,21 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
 
             if (deletedBreaks.Count > 0)
             {
-                var periodStart = command.Request.PeriodStart;
-                var periodEnd = command.Request.PeriodEnd;
+                var clientPeriods = new Dictionary<Guid, (DateOnly Start, DateOnly End)>();
+                foreach (var b in deletedBreaks)
+                {
+                    var (start, end) = await _periodHoursService.GetPeriodBoundariesAsync(b.CurrentDate);
+                    if (!clientPeriods.TryGetValue(b.ClientId, out var existing))
+                    {
+                        clientPeriods[b.ClientId] = (start, end);
+                    }
+                    else
+                    {
+                        clientPeriods[b.ClientId] = (
+                            start < existing.Start ? start : existing.Start,
+                            end > existing.End ? end : existing.End);
+                    }
+                }
 
                 response.PeriodHours = new Dictionary<Guid, PeriodHoursResource>();
 
@@ -71,10 +84,11 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
                 foreach (var clientId in affectedClients)
                 {
                     var analyseToken = tokenByClient.TryGetValue(clientId, out var t) ? t : null;
+                    var (clientStart, clientEnd) = clientPeriods[clientId];
                     var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(
                         clientId,
-                        periodStart,
-                        periodEnd,
+                        clientStart,
+                        clientEnd,
                         analyseToken);
                     response.PeriodHours[clientId] = periodHours;
                 }

@@ -15,6 +15,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
 {
     private readonly IBreakRepository _breakRepository;
     private readonly ScheduleMapper _scheduleMapper;
+    private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IScheduleCompletionService _completionService;
@@ -23,6 +24,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
     public DeleteCommandHandler(
         IBreakRepository breakRepository,
         ScheduleMapper scheduleMapper,
+        IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
         IWorkNotificationService notificationService,
         IScheduleCompletionService completionService,
@@ -32,6 +34,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
     {
         _breakRepository = breakRepository;
         _scheduleMapper = scheduleMapper;
+        _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
         _notificationService = notificationService;
         _completionService = completionService;
@@ -48,9 +51,11 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
                 throw new KeyNotFoundException($"Break with ID {request.Id} not found.");
             }
 
+            var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(breakEntry.CurrentDate);
+
             await _breakRepository.Delete(request.Id);
             var periodHours = await _completionService.SaveAndTrackAsync(
-                breakEntry.ClientId, breakEntry.CurrentDate, request.PeriodStart, request.PeriodEnd, breakEntry.AnalyseToken);
+                breakEntry.ClientId, breakEntry.CurrentDate, periodStart, periodEnd, breakEntry.AnalyseToken);
 
             var currentDate = breakEntry.CurrentDate;
             var threeDayStart = currentDate.AddDays(-1);
@@ -68,7 +73,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
             var connectionId = _httpContextAccessor.HttpContext?.Request
                 .Headers[HttpHeaderNames.SignalRConnectionId].FirstOrDefault() ?? string.Empty;
             var notification = _scheduleMapper.ToScheduleNotificationDto(
-                breakEntry.ClientId, breakEntry.CurrentDate, ScheduleEventTypes.Updated, connectionId, request.PeriodStart, request.PeriodEnd, breakEntry.AnalyseToken);
+                breakEntry.ClientId, breakEntry.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd, breakEntry.AnalyseToken);
             await _notificationService.NotifyScheduleUpdated(notification);
 
             return breakResource;

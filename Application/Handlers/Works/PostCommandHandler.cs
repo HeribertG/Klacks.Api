@@ -53,18 +53,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         {
             var work = _scheduleMapper.ToWorkEntity(request.Resource);
 
-            DateOnly periodStart;
-            DateOnly periodEnd;
-
-            if (request.Resource.PeriodStart.HasValue && request.Resource.PeriodEnd.HasValue)
-            {
-                periodStart = request.Resource.PeriodStart.Value;
-                periodEnd = request.Resource.PeriodEnd.Value;
-            }
-            else
-            {
-                (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
-            }
+            var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
 
             await _workRepository.Add(work);
             await _expansionService.ExpandAsync(work, work.CurrentDate);
