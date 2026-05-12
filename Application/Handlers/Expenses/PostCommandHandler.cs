@@ -1,12 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Common;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Expenses;
 
@@ -16,18 +18,22 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
+    private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IScheduleChangeTracker _scheduleChangeTracker;
+    private readonly ISelectedGroupContextResolver _groupContextResolver;
 
     public PostCommandHandler(
         IExpensesRepository expensesRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
+        IScheduleEntriesService scheduleEntriesService,
         IWorkNotificationService notificationService,
         IHttpContextAccessor httpContextAccessor,
         IScheduleChangeTracker scheduleChangeTracker,
+        ISelectedGroupContextResolver groupContextResolver,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -35,9 +41,11 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
+        _scheduleEntriesService = scheduleEntriesService;
         _notificationService = notificationService;
         _httpContextAccessor = httpContextAccessor;
         _scheduleChangeTracker = scheduleChangeTracker;
+        _groupContextResolver = groupContextResolver;
     }
 
     public async Task<ExpensesResource?> Handle(PostCommand<ExpensesResource> request, CancellationToken cancellationToken)
@@ -47,6 +55,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
             var expenses = _scheduleMapper.ToExpensesEntity(request.Resource);
             await _expensesRepository.Add(expenses);
             await _unitOfWork.CompleteAsync();
+
+            var expensesResource = _scheduleMapper.ToExpensesResource(expenses);
 
             var expensesWithWork = await _expensesRepository.Get(expenses.Id);
             if (expensesWithWork?.Work != null)
@@ -62,9 +72,21 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
                 await _notificationService.NotifyScheduleUpdated(notification);
 
                 await _periodHoursService.RecalculateAndNotifyAsync(work.ClientId, periodStart, periodEnd, work.AnalyseToken, connectionId);
+
+                var threeDayStart = work.CurrentDate.AddDays(-1);
+                var threeDayEnd = work.CurrentDate.AddDays(1);
+                var visibleGroupIds = await _groupContextResolver.ResolveVisibleGroupIdsAsync();
+                var scheduleEntries = await _scheduleEntriesService
+                    .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, visibleGroupIds, work.AnalyseToken)
+                    .Where(e => e.ClientId == work.ClientId)
+                    .ToListAsync(cancellationToken);
+
+                expensesResource.ScheduleEntries = scheduleEntries
+                    .Select(_scheduleMapper.ToWorkScheduleResource)
+                    .ToList();
             }
 
-            return _scheduleMapper.ToExpensesResource(expenses);
+            return expensesResource;
         }, "CreateExpenses", new { request.Resource.Id });
     }
 }

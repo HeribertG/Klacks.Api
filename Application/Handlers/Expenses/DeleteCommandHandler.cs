@@ -1,12 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Common;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Expenses;
 
@@ -16,18 +18,22 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
+    private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IScheduleChangeTracker _scheduleChangeTracker;
+    private readonly ISelectedGroupContextResolver _groupContextResolver;
 
     public DeleteCommandHandler(
         IExpensesRepository expensesRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
+        IScheduleEntriesService scheduleEntriesService,
         IWorkNotificationService notificationService,
         IHttpContextAccessor httpContextAccessor,
         IScheduleChangeTracker scheduleChangeTracker,
+        ISelectedGroupContextResolver groupContextResolver,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
@@ -35,9 +41,11 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
+        _scheduleEntriesService = scheduleEntriesService;
         _notificationService = notificationService;
         _httpContextAccessor = httpContextAccessor;
         _scheduleChangeTracker = scheduleChangeTracker;
+        _groupContextResolver = groupContextResolver;
     }
 
     public async Task<ExpensesResource?> Handle(DeleteCommand<ExpensesResource> request, CancellationToken cancellationToken)
@@ -67,6 +75,18 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
                 work.ClientId, work.CurrentDate, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd, work.AnalyseToken);
             await _notificationService.NotifyScheduleUpdated(notification);
             await _periodHoursService.RecalculateAndNotifyAsync(work.ClientId, periodStart, periodEnd, work.AnalyseToken, connectionId);
+
+            var threeDayStart = work.CurrentDate.AddDays(-1);
+            var threeDayEnd = work.CurrentDate.AddDays(1);
+            var visibleGroupIds = await _groupContextResolver.ResolveVisibleGroupIdsAsync();
+            var scheduleEntries = await _scheduleEntriesService
+                .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, visibleGroupIds, work.AnalyseToken)
+                .Where(e => e.ClientId == work.ClientId)
+                .ToListAsync(cancellationToken);
+
+            expensesResource.ScheduleEntries = scheduleEntries
+                .Select(_scheduleMapper.ToWorkScheduleResource)
+                .ToList();
         }
 
         _logger.LogInformation("Expenses deleted successfully: {Id}", request.Id);
