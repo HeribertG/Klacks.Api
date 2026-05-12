@@ -58,28 +58,15 @@ BEGIN
     visible_hierarchy_ids AS MATERIALIZED (
         SELECT ghid.id FROM group_hierarchy ghid
     ),
-    filtered_shift_ids AS MATERIALIZED (
-        SELECT DISTINCT s.id
-        FROM shift s
-        LEFT JOIN group_item gi ON gi.shift_id = s.id AND gi.is_deleted = false
-        WHERE
-            s.is_deleted = false
-            AND ((visible_group_ids IS NULL OR array_length(visible_group_ids, 1) IS NULL)
-            OR gi.shift_id IS NULL
-            OR gi.group_id IN (SELECT vhi.id FROM visible_hierarchy_ids vhi))
-            AND s.analyse_token IS NOT DISTINCT FROM p_analyse_token
-    ),
-    all_client_shift_ids AS MATERIALIZED (
-        SELECT DISTINCT s.id
-        FROM shift s
-        WHERE s.is_deleted = false
-    ),
     valid_works AS MATERIALIZED (
+        -- Modular Planning: include works whose shift lives in a foreign group
+        -- so the calling group sees cross-group bookings as sealed
+        -- (work_group_restricted flags them, frontend renders them read-only).
+        -- Filtering by group here would hide them and allow double-booking.
         SELECT w.*
         FROM work w
         WHERE w.is_deleted = false
         AND w.parent_work_id IS NULL
-        AND w.shift_id IN (SELECT fsi.id FROM filtered_shift_ids fsi)
         AND w.workday::DATE >= start_date
         AND w.workday::DATE <= end_date
         AND w.analyse_token IS NOT DISTINCT FROM p_analyse_token
