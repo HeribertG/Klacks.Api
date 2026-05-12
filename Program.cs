@@ -287,7 +287,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options => options.SignIn.Re
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 if (!connectionString.Contains("Command Timeout", StringComparison.OrdinalIgnoreCase))
 {
-    connectionString += ";Command Timeout=60;Timeout=30;Maximum Pool Size=200;";
+    connectionString += ";Command Timeout=60;Timeout=30;Minimum Pool Size=5;Maximum Pool Size=150;";
 }
 var dataSourceBuilder = new Npgsql.NpgsqlDataSourceBuilder(connectionString);
 dataSourceBuilder.EnableDynamicJson();
@@ -303,6 +303,7 @@ builder.Services.AddDbContextPool<DataBaseContext>(options =>
             maxRetryDelay: TimeSpan.FromSeconds(5),
             errorCodesToAdd: null);
     });
+    options.UseSnakeCaseNamingConvention();
     options.ConfigureWarnings(warnings =>
         warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
 });
