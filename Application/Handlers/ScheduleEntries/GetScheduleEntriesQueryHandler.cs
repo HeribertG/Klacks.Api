@@ -138,7 +138,8 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
             IndividualSort = filter.IndividualSort,
             StartRow = filter.StartRow,
             RowCount = filter.RowCount,
-            PaymentInterval = filter.PaymentInterval
+            PaymentInterval = filter.PaymentInterval,
+            ClientId = filter.ClientId
         };
     }
 

@@ -77,6 +77,16 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         query = query.Include(c => c.ClientContracts.Where(cc => !cc.IsDeleted && cc.IsActive))
             .ThenInclude(cc => cc.Contract);
 
+        // Single-client refresh scope: skip pagination so a client outside the
+        // first page window (default RowCount=200, sorted by name) still surfaces
+        // its own schedule entries after a Break/Work/Expenses CRUD round-trip.
+        if (filter.ClientId.HasValue)
+        {
+            var singleClientQuery = query.Where(c => c.Id == filter.ClientId.Value);
+            var singleClientList = await singleClientQuery.ToListAsync(cancellationToken);
+            return (singleClientList, singleClientList.Count);
+        }
+
         var totalCount = await query.CountAsync(cancellationToken);
 
         var paginated = filter.RowCount > 0

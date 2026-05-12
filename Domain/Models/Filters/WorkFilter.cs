@@ -27,4 +27,11 @@ public class WorkFilter
     public int RowCount { get; set; } = 200;
 
     public int PaymentInterval { get; set; } = 2;
+
+    /// <summary>
+    /// Optional single-client scope. When set, WorkList returns only that client
+    /// and skips pagination so refresh round-trips can target rows outside the
+    /// default page window.
+    /// </summary>
+    public Guid? ClientId { get; set; }
 }
