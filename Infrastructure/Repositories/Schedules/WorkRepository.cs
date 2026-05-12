@@ -77,6 +77,18 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         query = query.Include(c => c.ClientContracts.Where(cc => !cc.IsDeleted && cc.IsActive))
             .ThenInclude(cc => cc.Contract);
 
+        // Multi-client bulk refresh scope: skip pagination and load only the
+        // listed clients in one round-trip. Precedence over the single-client
+        // path so callers can switch from N round-trips to one without
+        // touching their ClientId field.
+        if (filter.ClientIds is { Count: > 0 })
+        {
+            var bulkClientList = await query
+                .Where(c => filter.ClientIds.Contains(c.Id))
+                .ToListAsync(cancellationToken);
+            return (bulkClientList, bulkClientList.Count);
+        }
+
         // Single-client refresh scope: skip pagination so a client outside the
         // first page window (default RowCount=200, sorted by name) still surfaces
         // its own schedule entries after a Break/Work/Expenses CRUD round-trip.

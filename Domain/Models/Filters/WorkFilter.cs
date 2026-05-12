@@ -34,4 +34,10 @@ public class WorkFilter
     /// default page window.
     /// </summary>
     public Guid? ClientId { get; set; }
+
+    /// <summary>
+    /// Optional multi-client scope for bulk refresh round-trips. Takes
+    /// precedence over <see cref="ClientId"/> when both are present.
+    /// </summary>
+    public List<Guid>? ClientIds { get; set; }
 }

@@ -28,6 +28,15 @@ public class WorkScheduleFilter
     /// page does not silently drop out of the refresh.
     /// </summary>
     public Guid? ClientId { get; set; }
+
+    /// <summary>
+    /// Optional multi-client scope for bulk refresh round-trips
+    /// (BulkAddBreaks / BulkDelete / drag-drop affecting multiple employees).
+    /// When set, the handler skips pagination and returns only the listed
+    /// clients in a single round-trip. Takes precedence over <see cref="ClientId"/>
+    /// when both are present.
+    /// </summary>
+    public List<Guid>? ClientIds { get; set; }
     public string OrderBy { get; set; } = "name";
     public string SortOrder { get; set; } = "asc";
     public bool ShowEmployees { get; set; } = true;
