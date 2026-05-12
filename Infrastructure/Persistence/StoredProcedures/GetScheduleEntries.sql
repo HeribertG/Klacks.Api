@@ -72,11 +72,16 @@ BEGIN
         AND w.analyse_token IS NOT DISTINCT FROM p_analyse_token
     ),
     work_group_restricted AS MATERIALIZED (
+        -- A work is sealed in the calling group's view whenever its shift
+        -- is not explicitly assigned to that group's hierarchy. This
+        -- includes shifts with foreign group_items AND shifts with no
+        -- group_item at all (ungrouped shifts are treated as "not part of
+        -- my plan" so the user cannot edit them and cannot accidentally
+        -- double-book the client across business areas).
         SELECT
             w.id AS work_id,
             CASE
                 WHEN (visible_group_ids IS NOT NULL AND array_length(visible_group_ids, 1) IS NOT NULL)
-                    AND EXISTS (SELECT 1 FROM group_item gi2 WHERE gi2.shift_id = w.shift_id AND gi2.is_deleted = false)
                     AND NOT EXISTS (SELECT 1 FROM group_item gi3
                                     WHERE gi3.shift_id = w.shift_id AND gi3.is_deleted = false
                                     AND gi3.group_id IN (SELECT vhi2.id FROM visible_hierarchy_ids vhi2))
