@@ -26,30 +26,37 @@ http {
 
     upstream klacks-ui {
         server klacks-ui:80;
+        keepalive 32;
     }
 
     upstream klacks-api {
         server klacks-api:5000;
+        keepalive 32;
     }
 
     upstream klacks-blazor {
         server klacks-blazor:80;
+        keepalive 32;
     }
 
     upstream klacks-marketplace {
         server klacks-marketplace:80;
+        keepalive 32;
     }
 
     upstream klacks-marketing {
         server klacks-marketing:80;
+        keepalive 32;
     }
 
     upstream devknowledge-ui {
         server devknowledge-ui:80;
+        keepalive 32;
     }
 
     upstream devknowledge-api {
         server devknowledge-api:8080;
+        keepalive 32;
     }
 
     # Security Headers

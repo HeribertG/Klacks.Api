@@ -92,10 +92,17 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                 var affected = works.Select(w => (w.ClientId, w.CurrentDate, w.AnalyseToken)).ToList();
                 var bulkToken = works.Select(w => w.AnalyseToken).Distinct().Count() == 1 ? works[0].AnalyseToken : null;
 
+                var distinctDates = works.Select(w => w.CurrentDate).Distinct().ToList();
+                var periodBoundariesByDate = new Dictionary<DateOnly, (DateOnly Start, DateOnly End)>();
+                foreach (var date in distinctDates)
+                {
+                    periodBoundariesByDate[date] = await _periodHoursService.GetPeriodBoundariesAsync(date);
+                }
+
                 var clientPeriods = new Dictionary<Guid, (DateOnly Start, DateOnly End)>();
                 foreach (var work in works)
                 {
-                    var (start, end) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
+                    var (start, end) = periodBoundariesByDate[work.CurrentDate];
                     if (!clientPeriods.TryGetValue(work.ClientId, out var existing))
                     {
                         clientPeriods[work.ClientId] = (start, end);
@@ -119,7 +126,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
 
                 foreach (var work in works)
                 {
-                    var (workStart, workEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
+                    var (workStart, workEnd) = periodBoundariesByDate[work.CurrentDate];
                     await _notificationFacade.NotifyWorkCreatedAsync(work, connectionId, workStart, workEnd);
                 }
 
