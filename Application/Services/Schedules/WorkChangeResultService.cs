@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Common;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
@@ -13,15 +14,18 @@ public class WorkChangeResultService : IWorkChangeResultService
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly ScheduleMapper _scheduleMapper;
+    private readonly ISelectedGroupContextResolver _groupContextResolver;
 
     public WorkChangeResultService(
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
-        ScheduleMapper scheduleMapper)
+        ScheduleMapper scheduleMapper,
+        ISelectedGroupContextResolver groupContextResolver)
     {
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
         _scheduleMapper = scheduleMapper;
+        _groupContextResolver = groupContextResolver;
     }
 
     public async Task<WorkChangeClientResult> GetClientResultAsync(
@@ -35,7 +39,8 @@ public class WorkChangeResultService : IWorkChangeResultService
     {
         var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(clientId, periodStart, periodEnd, analyseToken);
 
-        var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd, null, analyseToken)
+        var visibleGroupIds = await _groupContextResolver.ResolveVisibleGroupIdsAsync();
+        var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd, visibleGroupIds, analyseToken)
             .Where(e => e.ClientId == clientId)
             .ToListAsync(cancellationToken);
 

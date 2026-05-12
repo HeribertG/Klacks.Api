@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Commands.Breaks;
+using Klacks.Api.Application.Common;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
@@ -20,6 +21,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
     private readonly IWorkNotificationService _notificationService;
     private readonly IScheduleCompletionService _completionService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ISelectedGroupContextResolver _groupContextResolver;
 
     public DeleteCommandHandler(
         IBreakRepository breakRepository,
@@ -29,6 +31,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
         IWorkNotificationService notificationService,
         IScheduleCompletionService completionService,
         IHttpContextAccessor httpContextAccessor,
+        ISelectedGroupContextResolver groupContextResolver,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
@@ -39,6 +42,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
         _notificationService = notificationService;
         _completionService = completionService;
         _httpContextAccessor = httpContextAccessor;
+        _groupContextResolver = groupContextResolver;
     }
 
     public async Task<BreakResource?> Handle(DeleteBreakCommand request, CancellationToken cancellationToken)
@@ -61,8 +65,9 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
 
+            var visibleGroupIds = await _groupContextResolver.ResolveVisibleGroupIdsAsync();
             var scheduleEntries = await _scheduleEntriesService
-                .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, null, breakEntry.AnalyseToken)
+                .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, visibleGroupIds, breakEntry.AnalyseToken)
                 .Where(e => e.ClientId == breakEntry.ClientId)
                 .ToListAsync(cancellationToken);
 

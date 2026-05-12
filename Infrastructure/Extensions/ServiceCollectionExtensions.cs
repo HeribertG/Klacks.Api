@@ -21,6 +21,7 @@ using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Domain.Services.Holidays;
 using Klacks.Api.Domain.Services.Settings;
 using Klacks.Api.Domain.Services.Shifts;
+using Klacks.Api.Application.Common;
 using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Infrastructure.Services.ShiftSchedule;
 using Klacks.Api.Infrastructure.Services.ScheduleEntries;
@@ -299,6 +300,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IShiftCutFacade, ShiftCutFacade>();
         services.AddScoped<IShiftScheduleService, ShiftScheduleService>();
         services.AddScoped<IShiftGroupFilterService, ShiftGroupFilterService>();
+        services.AddScoped<ISelectedGroupContextResolver, SelectedGroupContextResolver>();
         services.AddScoped<IShiftScheduleFilterService, ShiftScheduleFilterService>();
         services.AddScoped<IShiftScheduleSearchService, ShiftScheduleSearchService>();
         services.AddScoped<IShiftScheduleSortingService, ShiftScheduleSortingService>();

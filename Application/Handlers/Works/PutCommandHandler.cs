@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Common;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -20,6 +21,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
     private readonly IScheduleCompletionService _completionService;
     private readonly IWorkNotificationFacade _notificationFacade;
     private readonly IContainerWorkCascadeService _cascadeService;
+    private readonly ISelectedGroupContextResolver _groupContextResolver;
 
     public PutCommandHandler(
         IWorkRepository workRepository,
@@ -29,6 +31,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         IScheduleCompletionService completionService,
         IWorkNotificationFacade notificationFacade,
         IContainerWorkCascadeService cascadeService,
+        ISelectedGroupContextResolver groupContextResolver,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -39,6 +42,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         _completionService = completionService;
         _notificationFacade = notificationFacade;
         _cascadeService = cascadeService;
+        _groupContextResolver = groupContextResolver;
     }
 
     public async Task<WorkResource?> Handle(PutCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -92,8 +96,9 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
 
+            var visibleGroupIds = await _groupContextResolver.ResolveVisibleGroupIdsAsync();
             var scheduleEntries = await _scheduleEntriesService
-                .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, null, updatedWork.AnalyseToken)
+                .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, visibleGroupIds, updatedWork.AnalyseToken)
                 .Where(e => e.ClientId == updatedWork.ClientId)
                 .ToListAsync(cancellationToken);
 

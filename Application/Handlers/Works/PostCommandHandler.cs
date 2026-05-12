@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Common;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -22,6 +23,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
     private readonly IShiftExpensesRepository _shiftExpensesRepository;
     private readonly IExpensesRepository _expensesRepository;
     private readonly IContainerWorkExpansionService _expansionService;
+    private readonly ISelectedGroupContextResolver _groupContextResolver;
 
     public PostCommandHandler(
         IWorkRepository workRepository,
@@ -33,6 +35,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         IShiftExpensesRepository shiftExpensesRepository,
         IExpensesRepository expensesRepository,
         IContainerWorkExpansionService expansionService,
+        ISelectedGroupContextResolver groupContextResolver,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -45,6 +48,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         _shiftExpensesRepository = shiftExpensesRepository;
         _expensesRepository = expensesRepository;
         _expansionService = expansionService;
+        _groupContextResolver = groupContextResolver;
     }
 
     public async Task<WorkResource?> Handle(PostCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -83,8 +87,9 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
             var threeDayStart = currentDate.AddDays(-1);
             var threeDayEnd = currentDate.AddDays(1);
 
+            var visibleGroupIds = await _groupContextResolver.ResolveVisibleGroupIdsAsync();
             var scheduleEntries = await _scheduleEntriesService
-                .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, null, work.AnalyseToken)
+                .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, visibleGroupIds, work.AnalyseToken)
                 .Where(e => e.ClientId == work.ClientId)
                 .ToListAsync(cancellationToken);
 
