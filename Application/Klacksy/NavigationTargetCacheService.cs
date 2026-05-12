@@ -11,14 +11,19 @@ using Klacks.Api.Application.Klacksy.Models;
 /// </summary>
 public sealed class NavigationTargetCacheService : INavigationTargetCacheService
 {
+    private sealed record CacheSnapshot(
+        List<NavigationTarget> Targets,
+        Dictionary<string, NavigationTarget> ById,
+        Dictionary<string, Dictionary<string, List<NavigationTarget>>> SynonymIndex,
+        DateTime LoadedAt);
+
+    private static readonly CacheSnapshot EmptySnapshot = new([], [], [], DateTime.MinValue);
+    private static readonly TimeSpan Ttl = TimeSpan.FromMinutes(5);
+
     private readonly string _coreManifestPath;
     private readonly string? _pluginFolder;
     private readonly object _lock = new();
-    private List<NavigationTarget> _targets = new();
-    private Dictionary<string, NavigationTarget> _byId = new();
-    private Dictionary<string, Dictionary<string, List<NavigationTarget>>> _synonymIndex = new();
-    private DateTime _loadedAt = DateTime.MinValue;
-    private static readonly TimeSpan Ttl = TimeSpan.FromMinutes(5);
+    private volatile CacheSnapshot _snapshot = EmptySnapshot;
 
     public NavigationTargetCacheService(string coreManifestPath, string? pluginFolder)
     {
@@ -29,22 +34,23 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
 
     public IReadOnlyList<NavigationTarget> All
     {
-        get { EnsureFresh(); return _targets; }
+        get { EnsureFresh(); return _snapshot.Targets; }
     }
 
     public NavigationTarget? GetById(string targetId)
     {
         EnsureFresh();
-        return _byId.TryGetValue(targetId, out var t) ? t : null;
+        return _snapshot.ById.TryGetValue(targetId, out var t) ? t : null;
     }
 
     public IReadOnlyList<NavigationTarget> FindBySynonym(string token, string locale)
     {
         EnsureFresh();
+        var snap = _snapshot;
         var normalized = token.Trim().ToLowerInvariant();
-        if (!_synonymIndex.TryGetValue(locale, out var byLocale))
+        if (!snap.SynonymIndex.TryGetValue(locale, out var byLocale))
         {
-            if (locale != "en" && _synonymIndex.TryGetValue("en", out var enFallback))
+            if (locale != "en" && snap.SynonymIndex.TryGetValue("en", out var enFallback))
                 byLocale = enFallback;
             else
                 return Array.Empty<NavigationTarget>();
@@ -55,15 +61,15 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
 
     public void Invalidate()
     {
-        lock (_lock) _loadedAt = DateTime.MinValue;
+        lock (_lock) _snapshot = _snapshot with { LoadedAt = DateTime.MinValue };
     }
 
     private void EnsureFresh()
     {
-        if (DateTime.UtcNow - _loadedAt < Ttl) return;
+        if (DateTime.UtcNow - _snapshot.LoadedAt < Ttl) return;
         lock (_lock)
         {
-            if (DateTime.UtcNow - _loadedAt < Ttl) return;
+            if (DateTime.UtcNow - _snapshot.LoadedAt < Ttl) return;
             Reload();
         }
     }
@@ -72,23 +78,18 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
     {
         if (!File.Exists(_coreManifestPath))
         {
-            _targets = new();
-            _byId = new();
-            _synonymIndex = new();
-            _loadedAt = DateTime.UtcNow;
+            _snapshot = EmptySnapshot with { LoadedAt = DateTime.UtcNow };
             return;
         }
 
         var json = File.ReadAllText(_coreManifestPath);
-        var targets = JsonSerializer.Deserialize<List<NavigationTarget>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
+        var targets = JsonSerializer.Deserialize<List<NavigationTarget>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
 
         if (_pluginFolder != null && Directory.Exists(_pluginFolder))
             LoadPluginOverlays(targets);
 
-        _targets = targets.Where(t => !t.Obsolete).ToList();
-        _byId = _targets.ToDictionary(t => t.TargetId);
-        _synonymIndex = BuildSynonymIndex(_targets);
-        _loadedAt = DateTime.UtcNow;
+        var filtered = targets.Where(t => !t.Obsolete).ToList();
+        _snapshot = new(filtered, filtered.ToDictionary(t => t.TargetId), BuildSynonymIndex(filtered), DateTime.UtcNow);
     }
 
     private void LoadPluginOverlays(List<NavigationTarget> targets)

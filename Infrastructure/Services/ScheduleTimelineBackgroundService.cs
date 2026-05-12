@@ -53,8 +53,9 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         _logger = logger;
         _timelineStore = timelineStore;
 
-        _channel = Channel.CreateUnbounded<TimelineCheckRequest>(new UnboundedChannelOptions
+        _channel = Channel.CreateBounded<TimelineCheckRequest>(new BoundedChannelOptions(500)
         {
+            FullMode = BoundedChannelFullMode.DropOldest,
             SingleReader = true
         });
     }

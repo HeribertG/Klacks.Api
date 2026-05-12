@@ -18,8 +18,9 @@ public class PeriodHoursBackgroundService : BackgroundService
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
-        _channel = Channel.CreateUnbounded<PeriodHoursFullRecalculationRequest>(new UnboundedChannelOptions
+        _channel = Channel.CreateBounded<PeriodHoursFullRecalculationRequest>(new BoundedChannelOptions(50)
         {
+            FullMode = BoundedChannelFullMode.DropOldest,
             SingleReader = true
         });
     }

@@ -270,6 +270,8 @@ public static class ServiceCollectionExtensions
                               Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerJobRunner>();
 
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.AutoWizard.AutoWizardJobRegistry>();
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules.AutoWizard.IAutoWizardHubNotifier,
+                              Klacks.Api.Infrastructure.Services.Schedules.AutoWizard.AutoWizardHubNotifier>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.AutoWizard.IAutoWizardJobRunner,
                               Klacks.Api.Infrastructure.Services.Schedules.AutoWizard.AutoWizardJobRunner>();
 
@@ -356,6 +358,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ContainerTemplateService>();
         services.AddScoped<IWorkChangeResultService, WorkChangeResultService>();
         services.AddScoped<IWorkNotificationFacade, WorkNotificationFacade>();
+        services.AddScoped<IBreakUserContextProvider, Klacks.Api.Application.Services.Breaks.BreakUserContextProvider>();
         services.AddSingleton<ITimelineCalculationService, TimelineCalculationService>();
         services.AddScoped<ITravelTimeCalculationService, TravelTimeCalculationService>();
         services.AddScoped<IContainerWorkExpansionService, ContainerWorkExpansionService>();
@@ -453,6 +456,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<LLMSystemPromptBuilder>();
         services.AddSingleton<IPromptTranslationProvider, PromptTranslationProvider>();
         services.AddScoped<IEmbeddingService, Klacks.Api.Infrastructure.Services.Assistant.EmbeddingService>();
+        services.AddSingleton<ILanguageMetadataProvider, LanguageMetadataProvider>();
         services.AddScoped<IIdentityContextProvider, IdentityContextProvider>();
         services.AddScoped<IMemoryRetrievalService, MemoryRetrievalService>();
         services.AddScoped<ContextAssemblyPipeline>();

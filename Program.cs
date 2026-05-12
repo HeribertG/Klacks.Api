@@ -293,7 +293,7 @@ var dataSourceBuilder = new Npgsql.NpgsqlDataSourceBuilder(connectionString);
 dataSourceBuilder.EnableDynamicJson();
 var dataSource = dataSourceBuilder.Build();
 
-builder.Services.AddDbContext<DataBaseContext>(options =>
+builder.Services.AddDbContextPool<DataBaseContext>(options =>
 {
     options.UseNpgsql(dataSource, npgsqlOptions =>
     {

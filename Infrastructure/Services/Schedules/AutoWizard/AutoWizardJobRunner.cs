@@ -5,8 +5,6 @@ using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Schedules.AutoWizard;
 using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
-using Klacks.Api.Infrastructure.Hubs;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +19,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.AutoWizard;
 /// stage progress is intentionally not forwarded.
 /// </summary>
 /// <param name="scopeFactory">DI scope factory for resolving scoped apply services per stage.</param>
-/// <param name="hubContext">Strongly-typed hub context used to push the final event to the client.</param>
+/// <param name="hubNotifier">Sends SignalR OnCompleted/OnFailed events to the job's client group.</param>
 /// <param name="registry">Singleton registry that tracks the orchestrator's own cancellation token.</param>
 /// <param name="wizardRunner">Background runner for the Wizard 1 (Planner) stage.</param>
 /// <param name="wizardRegistry">Wizard 1 registry, polled to detect stage completion.</param>
@@ -40,7 +38,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
     private static readonly TimeSpan TotalTimeBudget = TimeSpan.FromMinutes(15);
 
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly IHubContext<AutoWizardJobHub, IAutoWizardJobClient> _hubContext;
+    private readonly IAutoWizardHubNotifier _hubNotifier;
     private readonly AutoWizardJobRegistry _registry;
     private readonly IWizardJobRunner _wizardRunner;
     private readonly WizardJobRegistry _wizardRegistry;
@@ -54,7 +52,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 
     public AutoWizardJobRunner(
         IServiceScopeFactory scopeFactory,
-        IHubContext<AutoWizardJobHub, IAutoWizardJobClient> hubContext,
+        IAutoWizardHubNotifier hubNotifier,
         AutoWizardJobRegistry registry,
         IWizardJobRunner wizardRunner,
         WizardJobRegistry wizardRegistry,
@@ -67,7 +65,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         ILogger<AutoWizardJobRunner> logger)
     {
         _scopeFactory = scopeFactory;
-        _hubContext = hubContext;
+        _hubNotifier = hubNotifier;
         _registry = registry;
         _wizardRunner = wizardRunner;
         _wizardRegistry = wizardRegistry;
@@ -97,7 +95,6 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 
     private async Task RunOrchestrationAsync(Guid jobId, StartAutoWizardRequest request, CancellationToken ct)
     {
-        var group = _hubContext.Clients.Group(SignalRConstants.AutoWizardGroups.AutoWizardJob(jobId));
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
         try
@@ -126,19 +123,19 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 "AutoWizard job {JobId} completed in {ElapsedMs}ms (final scenario {ScenarioId}/{ScenarioName})",
                 jobId, stopwatch.ElapsedMilliseconds, finalScenarioId, finalScenarioName);
 
-            await group.OnCompleted(dto);
+            await _hubNotifier.NotifyCompletedAsync(jobId, dto);
         }
         catch (OperationCanceledException)
         {
             stopwatch.Stop();
             _logger.LogWarning("AutoWizard job {JobId} cancelled after {ElapsedMs}ms", jobId, stopwatch.ElapsedMilliseconds);
-            await SafeNotifyFailureAsync(group, "AutoWizard run was cancelled or timed out.");
+            await _hubNotifier.NotifyFailedAsync(jobId, "AutoWizard run was cancelled or timed out.");
         }
         catch (Exception ex)
         {
             stopwatch.Stop();
             _logger.LogError(ex, "AutoWizard job {JobId} failed after {ElapsedMs}ms", jobId, stopwatch.ElapsedMilliseconds);
-            await SafeNotifyFailureAsync(group, ex.Message);
+            await _hubNotifier.NotifyFailedAsync(jobId, ex.Message);
         }
         finally
         {
@@ -279,15 +276,4 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         }
     }
 
-    private async Task SafeNotifyFailureAsync(IAutoWizardJobClient group, string reason)
-    {
-        try
-        {
-            await group.OnFailed(reason);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "AutoWizard - failed to send OnFailed event to client group");
-        }
-    }
 }

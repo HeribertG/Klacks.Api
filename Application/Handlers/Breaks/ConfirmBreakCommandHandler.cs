@@ -3,12 +3,10 @@
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
-using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
-using System.Security.Claims;
 
 namespace Klacks.Api.Application.Handlers.Breaks;
 
@@ -18,14 +16,14 @@ public class ConfirmBreakCommandHandler : BaseHandler, IRequestHandler<ConfirmBr
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkLockLevelService _lockLevelService;
     private readonly ScheduleMapper _scheduleMapper;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IBreakUserContextProvider _userContextProvider;
 
     public ConfirmBreakCommandHandler(
         IBreakRepository breakRepository,
         IUnitOfWork unitOfWork,
         IWorkLockLevelService lockLevelService,
         ScheduleMapper scheduleMapper,
-        IHttpContextAccessor httpContextAccessor,
+        IBreakUserContextProvider userContextProvider,
         ILogger<ConfirmBreakCommandHandler> logger)
         : base(logger)
     {
@@ -33,7 +31,7 @@ public class ConfirmBreakCommandHandler : BaseHandler, IRequestHandler<ConfirmBr
         _unitOfWork = unitOfWork;
         _lockLevelService = lockLevelService;
         _scheduleMapper = scheduleMapper;
-        _httpContextAccessor = httpContextAccessor;
+        _userContextProvider = userContextProvider;
     }
 
     public async Task<BreakResource?> Handle(ConfirmBreakCommand request, CancellationToken cancellationToken)
@@ -44,11 +42,8 @@ public class ConfirmBreakCommandHandler : BaseHandler, IRequestHandler<ConfirmBr
             if (breakEntry == null)
                 throw new KeyNotFoundException($"Break with ID {request.BreakId} not found.");
 
-            var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
-            var isAuthorised = _httpContextAccessor.HttpContext?.User?.HasClaim(ClaimNames.IsAuthorised, "true") == true;
-            var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
-
-            _lockLevelService.Seal(breakEntry, WorkLockLevel.Confirmed, userName, isAdmin, isAuthorised);
+            var ctx = _userContextProvider.GetUserContext();
+            _lockLevelService.Seal(breakEntry, WorkLockLevel.Confirmed, ctx.UserName, ctx.IsAdmin, ctx.IsAuthorised);
 
             await _breakRepository.Put(breakEntry);
             await _unitOfWork.CompleteAsync();

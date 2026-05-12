@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Infrastructure.MCP;
 
-public class MCPService : IMCPService, IDisposable
+public class MCPService : IMCPService, IAsyncDisposable, IDisposable
 {
     private readonly ILogger<MCPService> _logger;
     private readonly ILoggerFactory _loggerFactory;
@@ -107,9 +107,14 @@ public class MCPService : IMCPService, IDisposable
         }
     }
 
+    public async ValueTask DisposeAsync()
+    {
+        await DisconnectAsync();
+        GC.SuppressFinalize(this);
+    }
+
     public void Dispose()
     {
-        DisconnectAsync().GetAwaiter().GetResult();
-        GC.SuppressFinalize(this);
+        DisposeAsync().AsTask().GetAwaiter().GetResult();
     }
 }

@@ -6,7 +6,7 @@
 /// </summary>
 /// <param name="soulRepository">Repository for agent soul sections</param>
 /// <param name="globalRuleRepository">Repository for globally active agent rules</param>
-/// <param name="configuration">App configuration for language metadata</param>
+/// <param name="languageMetadata">Provides language name and display name for template resolution</param>
 /// <param name="cache">In-memory cache for identity prompt caching</param>
 
 using System.Text;
@@ -20,7 +20,7 @@ public class IdentityContextProvider : IIdentityContextProvider
 {
     private readonly IAgentSoulRepository _soulRepository;
     private readonly IGlobalAgentRuleRepository _globalRuleRepository;
-    private readonly IConfiguration _configuration;
+    private readonly ILanguageMetadataProvider _languageMetadata;
     private readonly IMemoryCache _cache;
 
     private const int IdentityCacheMinutes = 3;
@@ -31,12 +31,12 @@ public class IdentityContextProvider : IIdentityContextProvider
     public IdentityContextProvider(
         IAgentSoulRepository soulRepository,
         IGlobalAgentRuleRepository globalRuleRepository,
-        IConfiguration configuration,
+        ILanguageMetadataProvider languageMetadata,
         IMemoryCache cache)
     {
         _soulRepository = soulRepository;
         _globalRuleRepository = globalRuleRepository;
-        _configuration = configuration;
+        _languageMetadata = languageMetadata;
         _cache = cache;
     }
 
@@ -92,8 +92,8 @@ public class IdentityContextProvider : IIdentityContextProvider
     private Dictionary<string, string> BuildTemplateVariables(string? language)
     {
         var langCode = language ?? "en";
-        var langName = _configuration[$"Languages:Metadata:{langCode}:Name"];
-        var langDisplayName = _configuration[$"Languages:Metadata:{langCode}:DisplayName"];
+        var langName = _languageMetadata.GetName(langCode);
+        var langDisplayName = _languageMetadata.GetDisplayName(langCode);
         var langLabel = !string.IsNullOrEmpty(langName) && !string.IsNullOrEmpty(langDisplayName)
             ? $"{langName} ({langDisplayName})"
             : langCode;
