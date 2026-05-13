@@ -18,4 +18,15 @@ public static class MemoryCategories
     public const string LearnedFact = "learned_fact";
     public const string Workflow = "workflow";
     public const string Context = "context";
+
+    /// <summary>
+    /// Phase 2 autonomy: persistent user/session intent (e.g. "finish the May 2026 plan for Bern").
+    /// Used by PlanningAgent to recall "where we were" across sessions.
+    /// </summary>
+    public const string Intent = "intent";
+
+    /// <summary>
+    /// Phase 2 autonomy: a pending task derived from an Intent, ready for the planning loop to pick up.
+    /// </summary>
+    public const string PendingTask = "pending_task";
 }

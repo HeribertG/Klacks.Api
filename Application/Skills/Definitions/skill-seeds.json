@@ -9158,6 +9158,205 @@
         ]
       },
       "version": 4
+    },
+    {
+      "name": "start_autowizard",
+      "description": "Runs the AutoWizard chain (Wizard 1 Planner + Wizard 2 Harmonizer + Wizard 3 Holistic Harmonizer) sequentially to auto-fill a schedule for a group and period. Mirrors what the 'Autofill-Assistent' button in the schedule header triggers: takes group and period, resolves visible agents and shifts automatically, kicks off the orchestrator job, returns the jobId. Final completion arrives via the AutoWizard SignalR hub (event OnCompleted). Use this when the user says: 'plane mir den Plan', 'autofill', 'autowizard', 'erzeuge Vorschlag für Mai', 'plan the schedule', 'run wizards'. The chain produces three analyse_scenarios (Plan, Harmonizer, final 'Auto-Erstellung'); the user can later accept_scenario or reject_scenario.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "groupId",
+          "description": "UUID of the group to plan for (e.g. the schedule view's selectedGroup like Bern).",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "periodFrom",
+          "description": "Period start date in ISO format YYYY-MM-DD (e.g. 2026-05-01).",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "periodUntil",
+          "description": "Period end date in ISO format YYYY-MM-DD, inclusive (e.g. 2026-05-31).",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "agentIds",
+          "description": "Optional comma-separated list of client UUIDs. If omitted, all clients with active membership in the group are used.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "shiftIds",
+          "description": "Optional comma-separated list of shift UUIDs. If omitted, shifts visible for the group hierarchy in the period are used.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "analyseToken",
+          "description": "Optional source-scenario token to chain from. Null = run on the main schedule.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "language",
+          "description": "Optional UI language for the Wizard 3 LLM stage (e.g. 'de', 'en'). Falls back to engine default.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "autowizard",
+        "autofill",
+        "auto-fill",
+        "plan schedule",
+        "planassistent",
+        "autopilot"
+      ],
+      "synonyms": {
+        "de": [
+          "autowizard",
+          "autofill",
+          "plan erzeugen",
+          "plane mir",
+          "schichtplan erstellen",
+          "vorschlag erzeugen",
+          "automatisch planen",
+          "autopilot",
+          "dienstplan automatisch"
+        ],
+        "en": [
+          "autowizard",
+          "auto fill",
+          "auto-plan",
+          "generate plan",
+          "plan the schedule",
+          "run wizards",
+          "autopilot",
+          "auto schedule"
+        ],
+        "fr": [
+          "auto-planification",
+          "generer planning",
+          "remplissage automatique",
+          "autopilote"
+        ],
+        "it": [
+          "pianificazione automatica",
+          "genera piano",
+          "riempimento automatico",
+          "autopilota"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "place_work",
+      "description": "Assigns a client (agent) to a shift on a specific date — creates a single Work entry in the main schedule or in a named analyse scenario. Uses the existing BulkAddWorks pipeline so period-hour recalculation and validation logic stays consistent. Use when the user says: 'plane Yasmine am 15.05. auf Frühschicht', 'add Coline to N10 on May 18', 'assign agent to shift'.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        { "name": "clientId", "description": "UUID of the client/agent to schedule.", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "shiftId",  "description": "UUID of the shift to assign.", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "date",     "description": "Workday in ISO yyyy-MM-dd.", "type": "Date", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "startTime","description": "Optional HH:mm; defaults to the shift's start.", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "endTime",  "description": "Optional HH:mm; defaults to the shift's end.", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "workTime", "description": "Optional hours value; defaults to end-start (wrapping past midnight).", "type": "Decimal", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "information","description": "Free-text note for this work entry.", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "analyseToken","description": "Optional scenario UUID; null = main schedule.", "type": "String", "required": false, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["place_work","assign","zuweisen","plane","schedule","add work","schicht zuweisen"],
+      "synonyms": {
+        "de": ["zuweisen","plane","plane ein","einsetzen","setze","schicht zuweisen","arbeit zuweisen"],
+        "en": ["assign","place","schedule","add work","put on shift","book on shift"],
+        "fr": ["assigner","planifier","attribuer","placer sur le quart"],
+        "it": ["assegnare","pianificare","collocare","mettere sul turno"]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_work",
+      "description": "Soft-deletes a single Work entry (one assignment of a client to a shift on a date). Period-hour recalc runs automatically. Use when the user says: 'lösche diese Schicht', 'remove work', 'cancel assignment'. Cannot delete works that are sealed/locked.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        { "name": "workId", "description": "UUID of the Work entry.", "type": "String", "required": true, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["delete_work","remove work","lösche schicht","schicht löschen","cancel assignment"],
+      "synonyms": {
+        "de": ["löschen","entferne","schicht löschen","arbeit löschen","streichen"],
+        "en": ["delete","remove","cancel","unschedule","drop"],
+        "fr": ["supprimer","retirer","annuler","effacer"],
+        "it": ["eliminare","rimuovere","annullare","cancellare"]
+      },
+      "version": 1
+    },
+    {
+      "name": "accept_scenario",
+      "description": "Accepts an AnalyseScenario — promotes its works/breaks to the main schedule. Use after start_autowizard finishes and the user wants to commit the wizard output, or after any other scenario producer (Wizard 1/2/3 individually, manual scenarios). The scenario's analyse_token becomes null on its works (they merge into the main schedule).",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        { "name": "scenarioId", "description": "UUID of the analyse_scenarios row.", "type": "String", "required": true, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["accept_scenario","akzeptieren","übernehmen","commit scenario","accept proposal"],
+      "synonyms": {
+        "de": ["akzeptieren","übernehmen","annehmen","bestätigen","scenario übernehmen"],
+        "en": ["accept","commit","approve scenario","apply proposal"],
+        "fr": ["accepter","appliquer","valider scenario"],
+        "it": ["accettare","applicare","confermare scenario"]
+      },
+      "version": 1
+    },
+    {
+      "name": "reject_scenario",
+      "description": "Rejects an AnalyseScenario — discards its proposed works. Use when AutoWizard output is unacceptable or when a newer scenario supersedes it. Soft-deletes the scenario and its scenario-bound work entries.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        { "name": "scenarioId", "description": "UUID of the analyse_scenarios row.", "type": "String", "required": true, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["reject_scenario","ablehnen","verwerfen","discard scenario","reject proposal"],
+      "synonyms": {
+        "de": ["ablehnen","verwerfen","streichen","scenario ablehnen"],
+        "en": ["reject","discard","cancel proposal","throw away"],
+        "fr": ["rejeter","supprimer scenario","abandonner"],
+        "it": ["respingere","rifiutare","scartare scenario"]
+      },
+      "version": 1
     }
   ]
 }
