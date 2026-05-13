@@ -6,6 +6,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.CalendarSelections;
 using Klacks.Api.Domain.Interfaces.Macros;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Holidays;
@@ -19,15 +20,18 @@ public class MacroDataProvider : IMacroDataProvider
     private readonly DataBaseContext _context;
     private readonly IHolidayCalculatorCache _holidayCache;
     private readonly IClientContractDataProvider _contractDataProvider;
+    private readonly IWorkChangeEffectiveTimeService _effectiveTimeService;
 
     public MacroDataProvider(
         DataBaseContext context,
         IHolidayCalculatorCache holidayCache,
-        IClientContractDataProvider contractDataProvider)
+        IClientContractDataProvider contractDataProvider,
+        IWorkChangeEffectiveTimeService effectiveTimeService)
     {
         _context = context;
         _holidayCache = holidayCache;
         _contractDataProvider = contractDataProvider;
+        _effectiveTimeService = effectiveTimeService;
     }
 
     public async Task<MacroData> GetMacroDataAsync(Work work)
@@ -85,8 +89,9 @@ public class MacroDataProvider : IMacroDataProvider
     public async Task<MacroData> GetMacroDataForWorkChangeAsync(WorkChange workChange, Work work)
     {
         var shift = await _context.Shift.FirstOrDefaultAsync(s => s.Id == work.ShiftId);
+        var (effectiveStart, effectiveEnd) = await _effectiveTimeService.GetEffectiveTimesAsync(workChange, work, shift);
 
-        var workChangeDate = GetWorkChangeDateWithMidnightRule(workChange, work, shift);
+        var workChangeDate = GetWorkChangeDateWithMidnightRule(effectiveStart, work, shift);
         var workChangeDateNextDay = workChangeDate.AddDays(1);
 
         var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(work.ClientId, workChangeDate);
@@ -94,8 +99,8 @@ public class MacroDataProvider : IMacroDataProvider
         var macroData = new MacroData
         {
             Hour = workChange.ChangeTime,
-            FromHour = workChange.StartTime.ToString("HH:mm"),
-            UntilHour = workChange.EndTime.ToString("HH:mm"),
+            FromHour = effectiveStart.ToString("HH:mm"),
+            UntilHour = effectiveEnd.ToString("HH:mm"),
             Weekday = ConvertToIsoWeekday(workChangeDate.DayOfWeek),
             NightRate = effectiveData.NightRate,
             HolidayRate = effectiveData.HolidayRate,
@@ -225,7 +230,7 @@ public class MacroDataProvider : IMacroDataProvider
         return dayOfWeek == DayOfWeek.Sunday ? 7 : (int)dayOfWeek;
     }
 
-    private static DateOnly GetWorkChangeDateWithMidnightRule(WorkChange workChange, Work work, Shift? shift)
+    private static DateOnly GetWorkChangeDateWithMidnightRule(TimeOnly effectiveStart, Work work, Shift? shift)
     {
         if (shift == null)
         {
@@ -238,7 +243,7 @@ public class MacroDataProvider : IMacroDataProvider
             return work.CurrentDate;
         }
 
-        var isAfterMidnight = workChange.StartTime < shift.StartShift;
+        var isAfterMidnight = effectiveStart < shift.StartShift;
         return isAfterMidnight ? work.CurrentDate.AddDays(1) : work.CurrentDate;
     }
 }
