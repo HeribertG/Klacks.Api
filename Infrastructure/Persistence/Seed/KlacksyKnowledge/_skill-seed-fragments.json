@@ -1,0 +1,195 @@
+{
+  "$comment": "Ready-to-merge skill-seed entries extracted from this folder's Markdown frontmatter. Concatenate the `skills` array into Klacks.Api/Application/Skills/Definitions/skill-seeds.json and bump the file's top-level version. The KnowledgeIndexSynchronizer will automatically embed name + description on next startup.",
+  "version": 1,
+  "skills": [
+    {
+      "name": "explain_planning_divide_et_impera",
+      "description": "Explains Klacks' modular planning philosophy 'Divide et impera'. Use when the user asks about modular planning, splitting plans into smaller sheets, or how shared employee references avoid double-booking across business units.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": null,
+      "handlerConfig": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["planning", "planung", "modular", "divide", "herrsche", "teilen", "zerlegen", "planungsblatt"],
+      "synonyms": {
+        "de": ["planung", "modulplanung", "teilplanung", "zerlegen", "aufteilen", "geschäftsfeld", "ausleihe"],
+        "en": ["planning", "modular", "divide", "conquer", "split", "sub-plan", "lend", "borrow"],
+        "fr": ["planification", "modulaire", "diviser", "sous-plan", "prêter"],
+        "it": ["pianificazione", "modulare", "dividere", "sotto-piano", "prestare"]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_planning_sheets_modular",
+      "description": "Explains the Planungsblatt (planning sheet) — a container holding references to individual employee rows. Use when the user wonders why a change on employee Y in sheet 1 also appears in sheet 2, or how Klacks structures planning across groups.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": null,
+      "handlerConfig": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["planungsblatt", "planning sheet", "mitarbeiterzeile", "employee row", "container", "referenz", "shared employee"],
+      "synonyms": {
+        "de": ["planungsblatt", "planungsbogen", "einsatzblatt", "mitarbeiterzeile", "referenz", "geteilte sicht"],
+        "en": ["planning sheet", "plan sheet", "employee row", "shared reference", "container"],
+        "fr": ["feuille de planification", "ligne d'employé", "conteneur", "référence"],
+        "it": ["foglio di pianificazione", "riga del dipendente", "contenitore", "riferimento"]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_planning_assistant",
+      "description": "Explains the Planungs-Assistent — computes proposed assignments based on the shifts in the planning sheet and per-employee settings, then shows the result as a scenario the planner must accept. The assistant only suggests; the planner decides.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": null,
+      "handlerConfig": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["assistant", "planungsassistent", "autofill", "vorschlag", "scenario", "szenario", "wizard"],
+      "synonyms": {
+        "de": ["assistent", "autofill", "vorschlag", "planungshilfe", "szenario", "planungsvorschlag", "wizard"],
+        "en": ["planning assistant", "autofill", "suggestion", "scenario", "wizard", "proposal"],
+        "fr": ["assistant de planification", "suggestion", "scénario", "proposition"],
+        "it": ["assistente di pianificazione", "suggerimento", "scenario", "proposta"]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_macro_editor",
+      "description": "Explains the Macro Editor — scripting tool that backs shifts, employments and wage components with formulas. Default macros for vacation/illness/accident/general shifts; custom macros compute exact hours proportional to employment percentage and surcharges for night/weekend/holiday work.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": null,
+      "handlerConfig": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["macro", "makro", "script", "skript", "berechnung", "zuschlag", "ferien", "formel"],
+      "synonyms": {
+        "de": ["makro", "formel", "skript", "berechnung", "zuschlag", "lohn", "rechengrundlage", "lohnformel"],
+        "en": ["macro", "script", "formula", "calculation", "surcharge", "payroll", "allowance"],
+        "fr": ["macro", "script", "formule", "calcul", "supplément", "salaire"],
+        "it": ["macro", "script", "formula", "calcolo", "supplemento", "stipendio"]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_shift_type_preferences",
+      "description": "Explains Diensttypwünsche — alias keywords FREE / EARLY / LATE / NIGHT and their negations (-FREE / -EARLY / -LATE / -NIGHT). The planning assistant honours them when possible; unfulfillable preferences fall back to FREE.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": null,
+      "handlerConfig": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["diensttypwunsch", "shift type", "preference", "alias", "free", "early", "late", "night", "wunsch"],
+      "synonyms": {
+        "de": ["diensttypwunsch", "schichtwunsch", "alias", "frei", "früh", "spät", "nacht", "möglichst arbeit"],
+        "en": ["shift type preference", "preference", "alias", "free", "early", "late", "night", "wish"],
+        "fr": ["préférence de service", "alias", "libre", "matin", "après-midi", "nuit", "souhait"],
+        "it": ["preferenza turno", "alias", "libero", "mattino", "sera", "notte", "desiderio"]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_shift_sporadic",
+      "description": "Explains the Sporadic Shift. Only occurs limited times per Week/Month/Quarter/Semester/Year/ContractualTerm. SumEmployees caps parallel bookings per day, Quantity caps distinct booked days per period. Once either cap is reached, remaining days are blocked (opacity 0.3, not draggable).",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": null,
+      "handlerConfig": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["sporadic", "sporadisch", "scope", "quantity", "sumemployees", "bezugsperiode", "blocked", "gesperrt"],
+      "synonyms": {
+        "de": ["sporadisch", "gelegentlich", "bezugsperiode", "periode", "periodisch", "kapazität", "sperrung"],
+        "en": ["sporadic", "occasional", "scope", "period", "capacity", "blocked", "locked"],
+        "fr": ["sporadique", "occasionnel", "période", "capacité", "bloqué"],
+        "it": ["sporadico", "occasionale", "periodo", "capacità", "bloccato"]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_shift_time_range",
+      "description": "Explains the TimeRange Shift — StartShift / EndShift define a permitted window, WorkTime is the actual engagement duration. The dispatcher picks concrete StartTime/EndTime within the window when booking. Combinable with Sporadic.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": null,
+      "handlerConfig": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["timerange", "zeitfenster", "elastisch", "flexibel", "fenster", "working window", "flexible start"],
+      "synonyms": {
+        "de": ["zeitfenster", "elastische arbeitszeit", "flexible schicht", "einsatzdauer", "fenster"],
+        "en": ["time range", "working window", "flexible shift", "elastic", "engagement duration"],
+        "fr": ["plage horaire", "fenêtre de travail", "horaire flexible", "durée d'engagement"],
+        "it": ["fascia oraria", "finestra di lavoro", "turno flessibile", "durata"]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_shift_container",
+      "description": "Explains the Container Shift (ShiftType=IsContainer). Bundles task-shifts and absences via ContainerTemplate (per weekday). On booking, ContainerWorkExpansionService creates one visible parent Work plus invisible sub-Works / sub-Breaks linked via ParentWorkId. Optional ContainerShiftOverride replaces the template snapshot-style for one date.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": null,
+      "handlerConfig": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["container", "containerwork", "template", "override", "sub-work", "parentwork", "expansion", "dienst editieren"],
+      "synonyms": {
+        "de": ["container", "containerschicht", "vorlage", "bauplan", "tagesüberschreibung", "sub-buchung", "eltern-buchung"],
+        "en": ["container", "container shift", "template", "override", "sub-work", "parent work", "expansion"],
+        "fr": ["conteneur", "modèle", "surcharge", "sous-travail", "travail parent", "expansion"],
+        "it": ["contenitore", "modello", "sovrascrittura", "sotto-lavoro", "lavoro padre", "espansione"]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_shift_lifecycle_order_to_shift",
+      "description": "Explains the four-stage Shift lifecycle: OriginalOrder (draft) -> SealedOrder (immutable contract) -> OriginalShift (active) -> SplitShift (cuts). The Sealing transition is the only trigger that clones the OriginalShift from the SealedOrder. Works attach only to OriginalShift or SplitShift (Status >= 2).",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": null,
+      "handlerConfig": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["lifecycle", "lebenszyklus", "originalorder", "sealedorder", "originalshift", "splitshift", "bestellung", "sealing", "sealen", "workflow"],
+      "synonyms": {
+        "de": ["bestellung", "auftrag", "skizze", "vertrag", "sealen", "versiegeln", "schicht-schnitt", "lebenszyklus"],
+        "en": ["order", "draft", "contract", "sealed", "lifecycle", "shift cut", "status"],
+        "fr": ["commande", "ébauche", "contrat", "verrouillé", "cycle de vie", "coupe"],
+        "it": ["ordine", "bozza", "contratto", "sigillato", "ciclo di vita", "taglio"]
+      },
+      "version": 1
+    }
+  ]
+}
