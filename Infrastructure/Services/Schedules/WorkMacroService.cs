@@ -5,7 +5,7 @@
 /// </summary>
 /// <param name="shiftRepository">Loads shift data including MacroId</param>
 /// <param name="macroDataProvider">Calculates macro input data from Work/WorkChange</param>
-/// <param name="macroCompilationService">Kompiliert und führt Macros aus</param>
+/// <param name="macroCompilationService">Compiles and executes macros</param>
 /// <param name="context">Database access for WorkChange-to-Work resolution</param>
 /// <param name="logger">Logger for warnings and error messages</param>
 
@@ -87,6 +87,12 @@ public class WorkMacroService : IWorkMacroService
                 return;
             }
 
+            if (IsDurationOnly(workChange))
+            {
+                CalculateProportionalSurcharges(workChange, work);
+                return;
+            }
+
             var shift = await _shiftRepository.Get(work.ShiftId);
             if (shift == null)
             {
@@ -152,5 +158,18 @@ public class WorkMacroService : IWorkMacroService
         }
 
         workChange.ChangeTime = (decimal)duration.TotalHours;
+    }
+
+    private static bool IsDurationOnly(WorkChange workChange) =>
+        workChange.StartTime == TimeOnly.MinValue && workChange.EndTime == TimeOnly.MinValue;
+
+    private static void CalculateProportionalSurcharges(WorkChange workChange, Work work)
+    {
+        if (work.WorkTime <= 0)
+        {
+            workChange.Surcharges = 0;
+            return;
+        }
+        workChange.Surcharges = Math.Round(workChange.ChangeTime * (work.Surcharges / work.WorkTime), 2);
     }
 }
