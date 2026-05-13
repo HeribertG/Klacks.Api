@@ -9420,6 +9420,86 @@
       "version": 1
     },
     {
+      "name": "approve_day",
+      "description": "Approves all Work entries on a given day for a given group — sets LockLevel=Approved (2). Stronger than confirm: even Wizards on individual cells stop. Returns the number of affected works. Use when the user says: 'tag freigeben', 'approve Monday', 'freigeben am 15.05.'. Wraps ApproveDayCommand.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        { "name": "date",    "description": "Workday ISO yyyy-MM-dd.", "type": "Date",   "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "groupId", "description": "Group UUID whose clients' works on that date are approved.", "type": "String", "required": true, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["approve_day","freigeben","tag freigeben","approve schedule day"],
+      "synonyms": {
+        "de": ["freigeben","approval","tag freigeben","schicht freigeben","approve","abnehmen"],
+        "en": ["approve","release","approve day","sign off","approve schedule"],
+        "fr": ["approuver","valider","libérer le jour"],
+        "it": ["approvare","convalidare","liberare il giorno"]
+      },
+      "version": 1
+    },
+    {
+      "name": "revoke_day_approval",
+      "description": "Drops day approval back to Confirmed — undoes approve_day. Returns the number of affected works. Wraps RevokeDayApprovalCommand.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        { "name": "date",    "description": "Workday ISO yyyy-MM-dd.", "type": "Date",   "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "groupId", "description": "Group UUID.", "type": "String", "required": true, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["revoke_day_approval","freigabe zurücknehmen","unapprove day"],
+      "synonyms": {
+        "de": ["freigabe zurücknehmen","approval zurücknehmen","abnehmen rückgängig"],
+        "en": ["revoke approval","unapprove","undo sign-off","cancel approval"],
+        "fr": ["révoquer l'approbation","annuler la validation"],
+        "it": ["revocare l'approvazione","annullare la convalida"]
+      },
+      "version": 1
+    },
+    {
+      "name": "close_period",
+      "description": "Closes a payment period — sets LockLevel=Closed (3) across all Work entries in the range. Nothing can be edited afterwards (not even confirmed/approved). Returns the number of sealed works. Use when the user says: 'Periode abschliessen', 'schliesse Mai ab', 'close May 2026'. Wraps ClosePeriodCommand.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        { "name": "startDate", "description": "Period start ISO yyyy-MM-dd (inclusive).", "type": "Date", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "endDate",   "description": "Period end ISO yyyy-MM-dd (inclusive).", "type": "Date", "required": true, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["close_period","periode abschliessen","period close","seal period"],
+      "synonyms": {
+        "de": ["abschliessen","periode schliessen","monat abschliessen","versiegeln","sperren periode"],
+        "en": ["close period","seal period","finalize period","lock month","close payroll"],
+        "fr": ["clôturer la période","fermer le mois","sceller la période"],
+        "it": ["chiudere periodo","sigillare periodo","finalizzare mese"]
+      },
+      "version": 1
+    },
+    {
+      "name": "reopen_period",
+      "description": "Re-opens a closed payment period — drops Closed back to the prior level so works become editable. Returns the number of affected works. Wraps ReopenPeriodCommand.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        { "name": "startDate", "description": "Period start ISO yyyy-MM-dd.", "type": "Date", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "endDate",   "description": "Period end ISO yyyy-MM-dd.",   "type": "Date", "required": true, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["reopen_period","periode öffnen","reopen month","unseal period"],
+      "synonyms": {
+        "de": ["periode öffnen","öffnen","wieder eröffnen","entsiegeln","entsperren periode"],
+        "en": ["reopen period","unseal","unlock month","reopen payroll"],
+        "fr": ["rouvrir la période","déverrouiller le mois"],
+        "it": ["riaprire periodo","sbloccare mese"]
+      },
+      "version": 1
+    },
+    {
       "name": "reject_scenario",
       "description": "Rejects an AnalyseScenario — discards its proposed works. Use when AutoWizard output is unacceptable or when a newer scenario supersedes it. Soft-deletes the scenario and its scenario-bound work entries.",
       "category": "Crud",
