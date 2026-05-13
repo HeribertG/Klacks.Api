@@ -9500,6 +9500,60 @@
       "version": 1
     },
     {
+      "name": "add_break",
+      "description": "Places a single absence (Break) on a client/date - vacation, sick day, training, parental leave. Wraps BulkAddBreaksCommand so the Break macro service computes work-time and period-hour recalc runs. Break hours count toward TargetHours but NOT toward MaxWeeklyHours; the cell becomes immutable for Wizards 1+2+3. Use list_absence_types first to find the right absenceId.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        { "name": "clientId",  "description": "UUID of the client.", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "absenceId", "description": "UUID of the absence type (vacation/sick/training/...).", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "date",      "description": "Workday ISO yyyy-MM-dd.", "type": "Date", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "startTime", "description": "Optional HH:mm; defaults 00:00.", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "endTime",   "description": "Optional HH:mm; defaults 23:59.", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "workTime",  "description": "Optional hours; defaults 8.", "type": "Decimal", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "information","description": "Free-text note.", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "analyseToken","description": "Optional scenario UUID; null = main schedule.", "type": "String", "required": false, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["add_break","ferien","urlaub","krank","krankheit","absence","vacation","sick"],
+      "synonyms": {
+        "de": ["ferien eintragen","urlaub eintragen","krankheit","abwesenheit","frei wegen","schulung","weiterbildung"],
+        "en": ["add absence","vacation","sick leave","training day","time off","absent"],
+        "fr": ["congés","absence","arrêt maladie","formation"],
+        "it": ["ferie","assenza","malattia","formazione"]
+      },
+      "version": 1
+    },
+    {
+      "name": "add_workchange",
+      "description": "Adds a WorkChange (correction / replacement / travel / briefing) to an existing Work entry. Wraps PostCommand<WorkChangeResource> so SignalR + period-hour recalc fire. WorkChangeType enum: CorrectionStart / CorrectionEnd / ReplacementStart / ReplacementEnd / ReplacementWithin (need replaceClientId) / TravelStart / TravelEnd / TravelWithin / Briefing / Debriefing.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        { "name": "workId",     "description": "UUID of the parent Work.", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "type",       "description": "WorkChangeType keyword.", "type": "Enum",   "required": true, "defaultValue": null,
+          "enumValues": ["CorrectionStart","CorrectionEnd","ReplacementStart","ReplacementEnd","ReplacementWithin","TravelStart","TravelEnd","TravelWithin","Briefing","Debriefing"] },
+        { "name": "startTime",  "description": "HH:mm.", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "endTime",    "description": "HH:mm.", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "changeTime", "description": "Hours delta (positive=additional, negative=saved).", "type": "Decimal", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "surcharges", "description": "Surcharge value.", "type": "Decimal", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "replaceClientId","description": "Required for Replacement* types - the client taking over.", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "description","description": "Free-text description.", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "toInvoice",  "description": "Whether this change is billable.", "type": "Boolean", "required": false, "defaultValue": false, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["add_workchange","korrektur","ablösung","reise","anreise","abreise","briefing","work change","substitution"],
+      "synonyms": {
+        "de": ["korrektur","ablösung","ablöse","substituieren","anreise","abreise","reisezeit","briefing","debriefing","übergabe"],
+        "en": ["correction","replacement","substitute","travel","commute","briefing","debriefing","handover"],
+        "fr": ["correction","remplacement","trajet","briefing","debriefing"],
+        "it": ["correzione","sostituzione","viaggio","briefing","debriefing"]
+      },
+      "version": 1
+    },
+    {
       "name": "start_wizard1",
       "description": "Starts only Wizard 1 (TokenEvolution Planner / coverage-first GA). Use when an initial plan is needed without the smoothing of Wizard 2 and without the LLM Holistic Harmonizer. Returns jobId; completion arrives via the wizard SignalR hub. Auto-resolves agents and shifts from the group when not supplied.",
       "category": "Crud",
