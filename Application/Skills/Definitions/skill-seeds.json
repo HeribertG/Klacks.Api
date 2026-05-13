@@ -9500,6 +9500,40 @@
       "version": 1
     },
     {
+      "name": "verify_my_last_action",
+      "description": "Meta-skill: reports the most recent skill execution for the current user in the last 30 minutes. Returns the skill name, success/failure, duration, error message and parameters. Use after a mutating skill call to confirm the action took effect, or before rollback_my_last_change. Does not mutate any data.",
+      "category": "Read",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["verify_my_last_action","did it work","check my last","last action"],
+      "synonyms": {
+        "de": ["hat es geklappt","letzte aktion","überprüfen","verify","status meiner letzten"],
+        "en": ["did it work","verify my action","last action status","check last"],
+        "fr": ["a-t-il fonctionné","vérifier ma dernière"],
+        "it": ["ha funzionato","verifica ultima azione"]
+      },
+      "version": 1
+    },
+    {
+      "name": "rollback_my_last_change",
+      "description": "Meta-skill: proposes an inverse-skill call to undo the most recent SUCCESSFUL mutating execution for the current user. Returns the inverse skill name + parameter hint. Does NOT execute the rollback - the LLM/user must explicitly call the inverse skill after confirmation (HITL contract). Skills without an automatic inverse (e.g. create_employee, accept_scenario) return __manual__ and require human intervention.",
+      "category": "Meta",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["rollback_my_last_change","undo","rückgängig","oops","mistake"],
+      "synonyms": {
+        "de": ["rückgängig","zurücknehmen","ups","fehler","letzte aktion rückgängig"],
+        "en": ["undo","rollback","reverse","oops","mistake"],
+        "fr": ["annuler","revenir en arrière","retour"],
+        "it": ["annullare","tornare indietro","ripristinare"]
+      },
+      "version": 1
+    },
+    {
       "name": "list_open_wizard_jobs",
       "description": "Polls each wizard registry (AutoWizard / Wizard 1 / Wizard 2 / Wizard 3) for a given jobId and returns whether it is still running. Used after start_autowizard or start_wizardN to check status without waiting for the SignalR hub event. Registries are in-memory ConcurrentDictionaries without an enumeration API; pass a concrete jobId.",
       "category": "Read",
