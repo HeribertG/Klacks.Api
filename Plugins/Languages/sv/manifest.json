@@ -3,7 +3,7 @@
   "name": "Swedish",
   "displayName": "Svenska",
   "speechLocale": "sv-SE",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "Klacks Community",
   "coverage": 90.7,
   "minKlacksVersion": "1.0.0",
