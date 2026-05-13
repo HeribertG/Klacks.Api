@@ -9500,6 +9500,25 @@
       "version": 1
     },
     {
+      "name": "delete_break",
+      "description": "Soft-deletes a single Break entry (absence: vacation/sick/training). Period-hour recalc runs automatically. Inverse of add_break for rollback purposes.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        { "name": "breakId", "description": "UUID of the Break entry to delete.", "type": "String", "required": true, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["delete_break","ferien streichen","urlaub löschen","cancel absence"],
+      "synonyms": {
+        "de": ["ferien streichen","urlaub löschen","krankheit entfernen","abwesenheit löschen"],
+        "en": ["delete absence","cancel vacation","remove sick leave","remove time off"],
+        "fr": ["supprimer congé","annuler absence"],
+        "it": ["eliminare ferie","annullare assenza"]
+      },
+      "version": 1
+    },
+    {
       "name": "verify_my_last_action",
       "description": "Meta-skill: reports the most recent skill execution for the current user in the last 30 minutes. Returns the skill name, success/failure, duration, error message and parameters. Use after a mutating skill call to confirm the action took effect, or before rollback_my_last_change. Does not mutate any data.",
       "category": "Read",

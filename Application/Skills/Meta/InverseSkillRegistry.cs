@@ -17,7 +17,7 @@ public static class InverseSkillRegistry
         new Dictionary<string, InverseSkill>(StringComparer.OrdinalIgnoreCase)
         {
             ["place_work"] = new("delete_work", "Take workId from the original execution's result."),
-            ["add_break"] = new("delete_break", "Take breakId from the original execution's result (skill TODO)."),
+            ["add_break"] = new("delete_break", "Take breakId from the original execution's result."),
             ["confirm_work"] = new("unconfirm_work", "Same workId."),
             ["unconfirm_work"] = new("confirm_work", "Same workId."),
             ["approve_day"] = new("revoke_day_approval", "Same date + groupId."),
