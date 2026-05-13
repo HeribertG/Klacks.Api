@@ -352,6 +352,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAbsenceSortingService, AbsenceSortingService>();
         services.AddScoped<IAbsencePaginationService, AbsencePaginationService>();
         services.AddScoped<IAbsenceExportService, AbsenceExportService>();
+        services.AddScoped<IWorkChangeEffectiveTimeService, WorkChangeEffectiveTimeService>();
         services.AddScoped<IWorkMacroService, WorkMacroService>();
         services.AddScoped<IBreakMacroService, BreakMacroService>();
         services.AddScoped<IContainerWorkChildrenManager, ContainerWorkChildrenManager>();
