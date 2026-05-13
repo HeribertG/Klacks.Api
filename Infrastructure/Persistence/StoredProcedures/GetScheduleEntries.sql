@@ -140,7 +140,7 @@ BEGIN
             w.start_time,
             w.end_time,
             w.work_time AS change_time,
-            NULL::NUMERIC AS surcharges,
+            w.surcharges,
             NULL::INTEGER AS work_change_type,
             NULL::TEXT AS description,
             w.information,
