@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Domain.Exceptions;
 
 namespace Klacks.Api.Application.Handlers;
@@ -25,6 +26,12 @@ public abstract class BaseHandler
         catch (InvalidRequestException ex)
         {
             _logger.LogWarning(ex, "Invalid request during {OperationName}. Context: {@ContextData}",
+                operationName, contextData);
+            throw;
+        }
+        catch (ConflictException ex)
+        {
+            _logger.LogWarning(ex, "Conflict during {OperationName}. Context: {@ContextData}",
                 operationName, contextData);
             throw;
         }

@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Domain.DTOs.Filter;
@@ -132,6 +133,22 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         context.Remove(existingShift);
         Logger.LogInformation("Shift deleted: {ShiftId}", id);
         return existingShift;
+    }
+
+    public async Task<SporadicShiftInfo?> GetSporadicInfoAsync(Guid shiftId, CancellationToken cancellationToken = default)
+    {
+        return await context.Shift
+            .AsNoTracking()
+            .Where(s => s.Id == shiftId)
+            .Select(s => new SporadicShiftInfo(
+                s.Name,
+                s.IsSporadic,
+                s.SporadicScope,
+                s.FromDate,
+                s.UntilDate,
+                s.SumEmployees,
+                s.Quantity))
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public new async Task<Shift?> Get(Guid id)

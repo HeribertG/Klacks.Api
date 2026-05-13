@@ -15,6 +15,7 @@ using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.DTOs.Schedules;
+using Klacks.Api.Domain.Services.Shifts;
 using Microsoft.EntityFrameworkCore;
 
 using Klacks.Api.Domain.DTOs.Filter;
@@ -43,6 +44,38 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
     {
         await _workMacroService.ProcessWorkMacroAsync(work);
         await base.Add(work);
+    }
+
+    public async Task<SporadicCapacityUsage> GetSporadicCapacityUsageAsync(
+        Guid shiftId,
+        DateOnly bookingDate,
+        DateOnly rangeFrom,
+        DateOnly rangeUntil,
+        Guid? excludeWorkId,
+        Guid? analyseToken,
+        CancellationToken cancellationToken = default)
+    {
+        var rangeWorks = context.Set<Work>()
+            .AsNoTracking()
+            .Where(w => w.ShiftId == shiftId)
+            .Where(w => w.ParentWorkId == null)
+            .Where(w => w.AnalyseToken == analyseToken)
+            .Where(w => w.CurrentDate >= rangeFrom && w.CurrentDate <= rangeUntil);
+
+        if (excludeWorkId.HasValue)
+        {
+            rangeWorks = rangeWorks.Where(w => w.Id != excludeWorkId.Value);
+        }
+
+        var engagedAtDay = await rangeWorks
+            .CountAsync(w => w.CurrentDate == bookingDate, cancellationToken);
+
+        var distinctBookedDays = await rangeWorks
+            .Select(w => w.CurrentDate)
+            .Distinct()
+            .CountAsync(cancellationToken);
+
+        return new SporadicCapacityUsage(engagedAtDay, distinctBookedDays);
     }
 
     public override async Task<Work?> Put(Work work)

@@ -37,4 +37,6 @@ public class ShiftDayAssignment
     public int SporadicScope { get; set; }
 
     public int Engaged { get; set; }
+
+    public short SporadicStatus { get; set; }
 }

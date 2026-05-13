@@ -5,7 +5,8 @@
 --   holiday_dates: Array of holidays (DATE[])
 --   visible_group_ids: Optional array of visible group IDs (includes subgroups)
 --   show_ungrouped_shifts: If TRUE, include shifts not assigned to any group (default FALSE)
--- Returns: shift_id, date, day_of_week (ISO: 1=Mon, 7=Sun), shift_name, abbreviation, start_shift, end_shift, work_time, is_sporadic, is_time_range, shift_type, status
+-- Returns: shift_id, date, day_of_week (ISO: 1=Mon, 7=Sun), shift_name, abbreviation, start_shift, end_shift, work_time, is_sporadic, is_time_range, shift_type, status, sporadic_status
+-- sporadic_status: 0 = none, 1 = booked (per-day capacity reached: engaged_at_day >= sum_employees), 2 = blocked (no booking on this day AND distinct booked days in range >= quantity)
 -- Note: Only returns shifts with status >= 2 (OriginalShift or SplitShift)
 
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[]);
@@ -40,7 +41,8 @@ RETURNS TABLE (
     sum_employees INTEGER,
     quantity INTEGER,
     sporadic_scope INTEGER,
-    engaged INTEGER
+    engaged INTEGER,
+    sporadic_status SMALLINT
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -154,6 +156,74 @@ BEGIN
         AND w.parent_work_id IS NULL
         AND w.analyse_token IS NOT DISTINCT FROM p_analyse_token
         GROUP BY w.shift_id, d.schedule_date
+    ),
+    sporadic_ranges AS MATERIALIZED (
+        SELECT
+            sd.shift_id,
+            sd.schedule_date,
+            GREATEST(sd.sum_employees, 1) AS effective_sum_employees,
+            GREATEST(sd.quantity, 1) AS effective_quantity,
+            CASE sd.sporadic_scope
+                WHEN 0 THEN date_trunc('week', sd.schedule_date)::DATE
+                WHEN 1 THEN date_trunc('month', sd.schedule_date)::DATE
+                WHEN 2 THEN date_trunc('quarter', sd.schedule_date)::DATE
+                WHEN 3 THEN CASE WHEN EXTRACT(month FROM sd.schedule_date) <= 6
+                                 THEN date_trunc('year', sd.schedule_date)::DATE
+                                 ELSE (date_trunc('year', sd.schedule_date) + INTERVAL '6 months')::DATE
+                            END
+                WHEN 4 THEN date_trunc('year', sd.schedule_date)::DATE
+                WHEN 5 THEN s.from_date
+                ELSE sd.schedule_date
+            END AS range_from,
+            CASE sd.sporadic_scope
+                WHEN 0 THEN (date_trunc('week', sd.schedule_date) + INTERVAL '6 days')::DATE
+                WHEN 1 THEN (date_trunc('month', sd.schedule_date) + INTERVAL '1 month - 1 day')::DATE
+                WHEN 2 THEN (date_trunc('quarter', sd.schedule_date) + INTERVAL '3 months - 1 day')::DATE
+                WHEN 3 THEN CASE WHEN EXTRACT(month FROM sd.schedule_date) <= 6
+                                 THEN (date_trunc('year', sd.schedule_date) + INTERVAL '6 months - 1 day')::DATE
+                                 ELSE (date_trunc('year', sd.schedule_date) + INTERVAL '1 year - 1 day')::DATE
+                            END
+                WHEN 4 THEN (date_trunc('year', sd.schedule_date) + INTERVAL '1 year - 1 day')::DATE
+                WHEN 5 THEN COALESCE(s.until_date, DATE '9999-12-31')
+                ELSE sd.schedule_date
+            END AS range_until
+        FROM shift_dates sd
+        JOIN valid_shifts s ON s.id = sd.shift_id
+        WHERE sd.is_sporadic = true
+    ),
+    sporadic_range_counts AS MATERIALIZED (
+        SELECT
+            ranges.shift_id,
+            ranges.range_from,
+            ranges.range_until,
+            COUNT(DISTINCT w.workday::DATE) AS distinct_booked_days
+        FROM (SELECT DISTINCT sr.shift_id, sr.range_from, sr.range_until FROM sporadic_ranges sr) ranges
+        LEFT JOIN work w
+            ON w.shift_id = ranges.shift_id
+           AND w.workday::DATE BETWEEN ranges.range_from AND ranges.range_until
+           AND w.is_deleted = false
+           AND w.parent_work_id IS NULL
+           AND w.analyse_token IS NOT DISTINCT FROM p_analyse_token
+        GROUP BY ranges.shift_id, ranges.range_from, ranges.range_until
+    ),
+    sporadic_status_per_cell AS MATERIALIZED (
+        SELECT
+            sr.shift_id,
+            sr.schedule_date,
+            CASE
+                WHEN COALESCE(wc.engaged_count, 0) >= sr.effective_sum_employees THEN 1
+                WHEN COALESCE(wc.engaged_count, 0) = 0
+                     AND COALESCE(src.distinct_booked_days, 0) >= sr.effective_quantity THEN 2
+                ELSE 0
+            END::SMALLINT AS status
+        FROM sporadic_ranges sr
+        LEFT JOIN work_counts wc
+            ON wc.shift_id = sr.shift_id
+           AND wc.schedule_date = sr.schedule_date
+        LEFT JOIN sporadic_range_counts src
+            ON src.shift_id = sr.shift_id
+           AND src.range_from = sr.range_from
+           AND src.range_until = sr.range_until
     )
     SELECT
         sd.shift_id,
@@ -172,10 +242,12 @@ BEGIN
         sd.sum_employees,
         sd.quantity,
         sd.sporadic_scope,
-        COALESCE(wc.engaged_count, 0) AS engaged
+        COALESCE(wc.engaged_count, 0) AS engaged,
+        COALESCE(ss.status, 0::SMALLINT) AS sporadic_status
     FROM shift_dates sd
     LEFT JOIN container_lookup cl ON cl.shift_id = sd.shift_id AND cl.schedule_date = sd.schedule_date
     LEFT JOIN work_counts wc ON wc.shift_id = sd.shift_id AND wc.schedule_date = sd.schedule_date
+    LEFT JOIN sporadic_status_per_cell ss ON ss.shift_id = sd.shift_id AND ss.schedule_date = sd.schedule_date
     ORDER BY sd.schedule_date, sd.shift_name;
 END;
 $$ LANGUAGE plpgsql;
@@ -217,7 +289,8 @@ RETURNS TABLE (
     sum_employees INTEGER,
     quantity INTEGER,
     sporadic_scope INTEGER,
-    engaged INTEGER
+    engaged INTEGER,
+    sporadic_status SMALLINT
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -270,6 +343,74 @@ BEGIN
         AND w.parent_work_id IS NULL
         AND w.analyse_token IS NOT DISTINCT FROM p_analyse_token
         GROUP BY w.shift_id, w.workday::DATE
+    ),
+    sporadic_ranges AS (
+        SELECT
+            sd.shift_id,
+            sd.schedule_date,
+            GREATEST(sd.sum_employees, 1) AS effective_sum_employees,
+            GREATEST(sd.quantity, 1) AS effective_quantity,
+            CASE sd.sporadic_scope
+                WHEN 0 THEN date_trunc('week', sd.schedule_date)::DATE
+                WHEN 1 THEN date_trunc('month', sd.schedule_date)::DATE
+                WHEN 2 THEN date_trunc('quarter', sd.schedule_date)::DATE
+                WHEN 3 THEN CASE WHEN EXTRACT(month FROM sd.schedule_date) <= 6
+                                 THEN date_trunc('year', sd.schedule_date)::DATE
+                                 ELSE (date_trunc('year', sd.schedule_date) + INTERVAL '6 months')::DATE
+                            END
+                WHEN 4 THEN date_trunc('year', sd.schedule_date)::DATE
+                WHEN 5 THEN sh.from_date
+                ELSE sd.schedule_date
+            END AS range_from,
+            CASE sd.sporadic_scope
+                WHEN 0 THEN (date_trunc('week', sd.schedule_date) + INTERVAL '6 days')::DATE
+                WHEN 1 THEN (date_trunc('month', sd.schedule_date) + INTERVAL '1 month - 1 day')::DATE
+                WHEN 2 THEN (date_trunc('quarter', sd.schedule_date) + INTERVAL '3 months - 1 day')::DATE
+                WHEN 3 THEN CASE WHEN EXTRACT(month FROM sd.schedule_date) <= 6
+                                 THEN (date_trunc('year', sd.schedule_date) + INTERVAL '6 months - 1 day')::DATE
+                                 ELSE (date_trunc('year', sd.schedule_date) + INTERVAL '1 year - 1 day')::DATE
+                            END
+                WHEN 4 THEN (date_trunc('year', sd.schedule_date) + INTERVAL '1 year - 1 day')::DATE
+                WHEN 5 THEN COALESCE(sh.until_date, DATE '9999-12-31')
+                ELSE sd.schedule_date
+            END AS range_until
+        FROM shift_data sd
+        JOIN shift sh ON sh.id = sd.shift_id AND sh.is_deleted = false
+        WHERE sd.is_sporadic = true
+    ),
+    sporadic_range_counts AS (
+        SELECT
+            ranges.shift_id,
+            ranges.range_from,
+            ranges.range_until,
+            COUNT(DISTINCT w.workday::DATE) AS distinct_booked_days
+        FROM (SELECT DISTINCT sr.shift_id, sr.range_from, sr.range_until FROM sporadic_ranges sr) ranges
+        LEFT JOIN work w
+            ON w.shift_id = ranges.shift_id
+           AND w.workday::DATE BETWEEN ranges.range_from AND ranges.range_until
+           AND w.is_deleted = false
+           AND w.parent_work_id IS NULL
+           AND w.analyse_token IS NOT DISTINCT FROM p_analyse_token
+        GROUP BY ranges.shift_id, ranges.range_from, ranges.range_until
+    ),
+    sporadic_status_per_cell AS (
+        SELECT
+            sr.shift_id,
+            sr.schedule_date,
+            CASE
+                WHEN COALESCE(wc.engaged_count, 0) >= sr.effective_sum_employees THEN 1
+                WHEN COALESCE(wc.engaged_count, 0) = 0
+                     AND COALESCE(src.distinct_booked_days, 0) >= sr.effective_quantity THEN 2
+                ELSE 0
+            END::SMALLINT AS status
+        FROM sporadic_ranges sr
+        LEFT JOIN work_counts wc
+            ON wc.shift_id = sr.shift_id
+           AND wc.schedule_date = sr.schedule_date
+        LEFT JOIN sporadic_range_counts src
+            ON src.shift_id = sr.shift_id
+           AND src.range_from = sr.range_from
+           AND src.range_until = sr.range_until
     )
     SELECT
         sd.shift_id,
@@ -288,10 +429,12 @@ BEGIN
         sd.sum_employees,
         sd.quantity,
         sd.sporadic_scope,
-        COALESCE(wc.engaged_count, 0) AS engaged
+        COALESCE(wc.engaged_count, 0) AS engaged,
+        COALESCE(ss.status, 0::SMALLINT) AS sporadic_status
     FROM shift_data sd
     LEFT JOIN container_lookup cl ON cl.shift_id = sd.shift_id AND cl.schedule_date = sd.schedule_date
     LEFT JOIN work_counts wc ON wc.shift_id = sd.shift_id AND wc.schedule_date = sd.schedule_date
+    LEFT JOIN sporadic_status_per_cell ss ON ss.shift_id = sd.shift_id AND ss.schedule_date = sd.schedule_date
     ORDER BY sd.schedule_date, sd.shift_name;
 END;
 $$ LANGUAGE plpgsql;

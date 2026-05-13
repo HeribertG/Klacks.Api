@@ -8,6 +8,7 @@ using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.DTOs.Schedules;
+using Klacks.Api.Domain.Services.Shifts;
 
 namespace Klacks.Api.Application.Interfaces;
 
@@ -27,4 +28,13 @@ public interface IWorkRepository : IBaseRepository<Work>
     Task<List<(DateOnly Date, int Total, int Sealed)>> GetSealingSummaryAsync(DateOnly from, DateOnly to, Guid? groupId, CancellationToken cancellationToken = default);
 
     Task<List<UsedPeriodDto>> GetUsedPeriodsAsync(CancellationToken cancellationToken = default);
+
+    Task<SporadicCapacityUsage> GetSporadicCapacityUsageAsync(
+        Guid shiftId,
+        DateOnly bookingDate,
+        DateOnly rangeFrom,
+        DateOnly rangeUntil,
+        Guid? excludeWorkId,
+        Guid? analyseToken,
+        CancellationToken cancellationToken = default);
 }

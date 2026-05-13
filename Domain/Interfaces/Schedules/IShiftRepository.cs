@@ -4,6 +4,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.DTOs.Filter;
+using Klacks.Api.Domain.Services.Shifts;
 
 namespace Klacks.Api.Domain.Interfaces.Schedules;
 
@@ -34,4 +35,6 @@ public interface IShiftRepository : IBaseRepository<Shift>
     Task<Shift> AddWithSealedOrderHandling(Shift shift);
 
     Task<Shift?> PutWithSealedOrderHandling(Shift shift);
+
+    Task<SporadicShiftInfo?> GetSporadicInfoAsync(Guid shiftId, CancellationToken cancellationToken = default);
 }

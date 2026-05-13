@@ -3,9 +3,11 @@
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Common;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +26,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
     private readonly IExpensesRepository _expensesRepository;
     private readonly IContainerWorkExpansionService _expansionService;
     private readonly ISelectedGroupContextResolver _groupContextResolver;
+    private readonly IShiftRepository _shiftRepository;
 
     public PostCommandHandler(
         IWorkRepository workRepository,
@@ -36,6 +39,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         IExpensesRepository expensesRepository,
         IContainerWorkExpansionService expansionService,
         ISelectedGroupContextResolver groupContextResolver,
+        IShiftRepository shiftRepository,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -49,6 +53,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         _expensesRepository = expensesRepository;
         _expansionService = expansionService;
         _groupContextResolver = groupContextResolver;
+        _shiftRepository = shiftRepository;
     }
 
     public async Task<WorkResource?> Handle(PostCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -56,6 +61,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         return await ExecuteAsync(async () =>
         {
             var work = _scheduleMapper.ToWorkEntity(request.Resource);
+
+            await EnsureNoSporadicConflictAsync(work, cancellationToken);
 
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
 
@@ -101,4 +108,38 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         }, "CreateWork", new { request.Resource.ClientId });
     }
 
+    private async Task EnsureNoSporadicConflictAsync(Domain.Models.Schedules.Work work, CancellationToken cancellationToken)
+    {
+        var shift = await _shiftRepository.GetSporadicInfoAsync(work.ShiftId, cancellationToken);
+        if (shift is null || !shift.IsSporadic)
+        {
+            return;
+        }
+
+        var (rangeFrom, rangeUntil) = SporadicRangeCalculator.Compute(shift, work.CurrentDate);
+
+        var usage = await _workRepository.GetSporadicCapacityUsageAsync(
+            work.ShiftId,
+            work.CurrentDate,
+            rangeFrom,
+            rangeUntil,
+            excludeWorkId: work.Id == Guid.Empty ? null : work.Id,
+            work.AnalyseToken,
+            cancellationToken);
+
+        if (usage.EngagedAtDay >= shift.EffectiveSumEmployees)
+        {
+            throw new ConflictException(
+                $"Sporadic shift '{shift.Name}' is fully booked on {work.CurrentDate:yyyy-MM-dd} " +
+                $"({usage.EngagedAtDay}/{shift.EffectiveSumEmployees} employees).");
+        }
+
+        if (usage.EngagedAtDay == 0 && usage.DistinctBookedDays >= shift.EffectiveQuantity)
+        {
+            throw new ConflictException(
+                $"Sporadic shift '{shift.Name}' has reached its range capacity " +
+                $"({usage.DistinctBookedDays}/{shift.EffectiveQuantity} days) for scope {shift.SporadicScope} " +
+                $"({rangeFrom:yyyy-MM-dd}..{rangeUntil:yyyy-MM-dd}).");
+        }
+    }
 }
