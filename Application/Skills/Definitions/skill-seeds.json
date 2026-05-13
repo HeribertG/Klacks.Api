@@ -9500,6 +9500,92 @@
       "version": 1
     },
     {
+      "name": "start_wizard1",
+      "description": "Starts only Wizard 1 (TokenEvolution Planner / coverage-first GA). Use when an initial plan is needed without the smoothing of Wizard 2 and without the LLM Holistic Harmonizer. Returns jobId; completion arrives via the wizard SignalR hub. Auto-resolves agents and shifts from the group when not supplied.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["Admin"],
+      "parameters": [
+        { "name": "groupId",     "description": "UUID of the group.", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "periodFrom",  "description": "Period start ISO yyyy-MM-dd.", "type": "Date", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "periodUntil", "description": "Period end ISO yyyy-MM-dd.",   "type": "Date", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "analyseToken","description": "Optional source scenario token; null = main schedule.", "type": "String", "required": false, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["start_wizard1","wizard 1","planner","coverage-first","initial plan"],
+      "synonyms": {
+        "de": ["wizard 1","planner","initialplan","grundbelegung","plan erzeugen"],
+        "en": ["wizard 1","planner","coverage-first plan","initial plan"],
+        "fr": ["wizard 1","planificateur","plan initial"],
+        "it": ["wizard 1","pianificatore","piano iniziale"]
+      },
+      "version": 1
+    },
+    {
+      "name": "start_wizard2",
+      "description": "Starts only Wizard 2 (Harmonizer - Fuzzy/Conductor). Smooths an existing plan without touching coverage decisions and without invoking the LLM. Typically called with the analyseToken of a freshly applied Wizard 1 scenario.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["Admin"],
+      "parameters": [
+        { "name": "groupId",     "description": "UUID of the group.", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "periodFrom",  "description": "Period start ISO yyyy-MM-dd.", "type": "Date", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "periodUntil", "description": "Period end ISO yyyy-MM-dd.",   "type": "Date", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "analyseToken","description": "Optional source scenario token to harmonize.", "type": "String", "required": false, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["start_wizard2","wizard 2","harmonizer","smooth","glaetten"],
+      "synonyms": {
+        "de": ["wizard 2","harmonisierer","glaetten","ausgleichen","verteilen"],
+        "en": ["wizard 2","harmonizer","smooth","balance","redistribute"],
+        "fr": ["wizard 2","harmoniseur","lisser","equilibrer"],
+        "it": ["wizard 2","armonizzatore","levigare","equilibrare"]
+      },
+      "version": 1
+    },
+    {
+      "name": "start_wizard3",
+      "description": "Starts only Wizard 3 (Holistic Harmonizer - LLM Vision-Bitmap). Polishes a harmonized plan with multi-agent LLM voting. Consumes LLM credits; use sparingly. Pass the analyseToken of the Wizard 2 scenario.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["Admin"],
+      "parameters": [
+        { "name": "groupId",     "description": "UUID of the group.", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "periodFrom",  "description": "Period start ISO yyyy-MM-dd.", "type": "Date", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "periodUntil", "description": "Period end ISO yyyy-MM-dd.",   "type": "Date", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "analyseToken","description": "Optional source scenario token.", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "language",    "description": "Optional UI language for the LLM stage (e.g. 'de', 'en').", "type": "String", "required": false, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["start_wizard3","wizard 3","holistic","llm polish","vision"],
+      "synonyms": {
+        "de": ["wizard 3","holistisch","llm-feinschliff","feinschliff","politur"],
+        "en": ["wizard 3","holistic","llm polish","vision pass","final polish"],
+        "fr": ["wizard 3","holistique","peaufinage llm"],
+        "it": ["wizard 3","olistico","rifinitura llm"]
+      },
+      "version": 1
+    },
+    {
+      "name": "cancel_wizard_job",
+      "description": "Cancels a running wizard job by id. Tries Wizard 1, Wizard 2, Wizard 3 and the AutoWizard orchestrator until one acknowledges. Use when a user says: 'stoppe den Plan', 'cancel wizard', 'abbrechen'.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["Admin"],
+      "parameters": [
+        { "name": "jobId", "description": "UUID of the job to cancel.", "type": "String", "required": true, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["cancel_wizard_job","cancel wizard","stoppe","abbrechen","stop planning"],
+      "synonyms": {
+        "de": ["stoppen","abbrechen","wizard stoppen","plan abbrechen"],
+        "en": ["cancel","stop","abort wizard","kill job"],
+        "fr": ["annuler","arreter","stopper le wizard"],
+        "it": ["annullare","fermare","interrompere wizard"]
+      },
+      "version": 1
+    },
+    {
       "name": "reject_scenario",
       "description": "Rejects an AnalyseScenario — discards its proposed works. Use when AutoWizard output is unacceptable or when a newer scenario supersedes it. Soft-deletes the scenario and its scenario-bound work entries.",
       "category": "Crud",
