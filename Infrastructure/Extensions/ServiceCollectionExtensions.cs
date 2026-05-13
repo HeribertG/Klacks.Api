@@ -579,6 +579,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Persistence.Seed.EmailFolderSeedService>();
         services.AddScoped<Persistence.Seed.SkillSeedLoader>();
         services.AddScoped<Persistence.Seed.SentimentKeywordSeedService>();
+        services.AddScoped<Persistence.Seed.KlacksyKnowledgeMemorySeed>();
         services.AddScoped<Application.Services.Assistant.SkillRegistryInitializer>();
 
         services.AddScoped<GenericListExecutor>();

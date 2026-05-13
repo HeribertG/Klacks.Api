@@ -411,7 +411,8 @@ await Task.WhenAll(
     app.SeedAgentSoulSectionsAsync(),
     app.SeedUiControlsAsync(),
     app.SeedEmailFoldersAsync(),
-    app.SeedSentimentKeywordsAsync());
+    app.SeedSentimentKeywordsAsync(),
+    app.SeedKlacksyKnowledgeMemoriesAsync());
 
 // Skill Registry depends on LoadSkillSeeds being complete
 await app.InitializeSkillRegistryAsync();

@@ -61,4 +61,12 @@ public static class AssistantExtensions
         await seedService.SeedAsync();
         return app;
     }
+
+    public static async Task<IApplicationBuilder> SeedKlacksyKnowledgeMemoriesAsync(this IApplicationBuilder app)
+    {
+        using var scope = app.ApplicationServices.CreateScope();
+        var seedService = scope.ServiceProvider.GetRequiredService<KlacksyKnowledgeMemorySeed>();
+        await seedService.SeedAsync();
+        return app;
+    }
 }
