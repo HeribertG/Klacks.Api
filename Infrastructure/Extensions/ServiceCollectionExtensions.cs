@@ -444,6 +444,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITrajectoryCaptureService, Klacks.Api.Application.Services.Assistant.Evaluation.TrajectoryCaptureService>();
         services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.IGoldsetLoader, Klacks.Api.Application.Services.Assistant.Evaluation.FileGoldsetLoader>();
         services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.IEvalRunnerService, Klacks.Api.Application.Services.Assistant.Evaluation.EvalRunnerService>();
+        // Phase 2-4 autonomy skeletons (klacksy-autonomy-roadmap.md). Skeletons today, real logic follows.
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPlanningAgent, Klacks.Api.Application.Services.Assistant.Planning.PlanningAgent>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IKlacksOntologyService, Klacks.Api.Application.Services.Assistant.Ontology.KlacksOntologyService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerService, Klacks.Api.Application.Services.Assistant.Triggers.AgentTriggerService>();
         services.AddScoped<IAutoMemoryExtractionService, AutoMemoryExtractionService>();
         services.AddScoped<IConversationCompactionService, ConversationCompactionService>();
         services.AddScoped<IHeartbeatLLMService, Klacks.Api.Domain.Services.Assistant.HeartbeatLLMService>();

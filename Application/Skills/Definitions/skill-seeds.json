@@ -9340,6 +9340,86 @@
       "version": 1
     },
     {
+      "name": "confirm_work",
+      "description": "Locks a Work entry at LockLevel=Confirmed (1) so Wizards 1+2+3 will no longer modify the cell. Use when the user says: 'fix this shift', 'lock the assignment', 'confirm Yasmines Frühschicht', 'bestätige diese Schicht'. Wraps ConfirmWorkCommand; period-hour recalc runs automatically.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        { "name": "workId", "description": "UUID of the Work entry to confirm.", "type": "String", "required": true, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["confirm_work","bestätigen","lock work","fix shift","schicht fixieren"],
+      "synonyms": {
+        "de": ["bestätigen","fixieren","sperren","schicht fixieren","arbeit bestätigen","lock"],
+        "en": ["confirm","lock","fix","approve assignment","secure shift"],
+        "fr": ["confirmer","verrouiller","fixer","valider l'affectation"],
+        "it": ["confermare","bloccare","fissare","convalidare l'assegnazione"]
+      },
+      "version": 1
+    },
+    {
+      "name": "unconfirm_work",
+      "description": "Drops a Work entry from LockLevel=Confirmed back to None so Wizards 1+2+3 can modify the cell again. Cannot drop higher levels (Approved/Closed). Wraps UnconfirmWorkCommand.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        { "name": "workId", "description": "UUID of the Work entry to unconfirm.", "type": "String", "required": true, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["unconfirm_work","entsperren","unlock work","unfix shift"],
+      "synonyms": {
+        "de": ["entsperren","entfixieren","freigeben","bestätigung zurücknehmen","entriegeln"],
+        "en": ["unconfirm","unlock","release","un-fix","revoke confirmation"],
+        "fr": ["déverrouiller","libérer","révoquer la confirmation"],
+        "it": ["sbloccare","liberare","revocare la conferma"]
+      },
+      "version": 1
+    },
+    {
+      "name": "add_schedule_command",
+      "description": "Places a key command (FREE/-FREE/EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT) on a client/date. These are seeds the wizards must respect — e.g. EARLY = only an early shift may be assigned that day, FREE = the agent must stay free. Use when the user says: 'Yasmine am 15.05. frei', 'Coline muss am 11.05. Früh arbeiten', 'set free day', 'lock early'.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        { "name": "clientId", "description": "UUID of the client.", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "date",     "description": "Workday in ISO yyyy-MM-dd.", "type": "Date", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "commandKeyword","description": "Constraint keyword.","type": "Enum","required": true,"defaultValue": null,
+          "enumValues": ["FREE","-FREE","EARLY","-EARLY","LATE","-LATE","NIGHT","-NIGHT"] },
+        { "name": "analyseToken","description": "Optional scenario UUID; null = main schedule.","type": "String","required": false,"defaultValue": null,"enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["add_schedule_command","key command","frei setzen","früh setzen","wunsch eintragen","constraint"],
+      "synonyms": {
+        "de": ["wunsch","frei","früh","spät","nacht","sperre","wunschtag","key command","constraint"],
+        "en": ["key command","wish","force free","force early","force late","force night","day-off","constraint"],
+        "fr": ["souhait","contrainte","forcer libre","forcer matin","forcer nuit"],
+        "it": ["desiderio","vincolo","forzare libero","forzare mattina","forzare notte"]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_scenarios",
+      "description": "Lists AnalyseScenarios, optionally filtered by group. Use after start_autowizard finishes to show the user what's available to accept or reject. Returns each scenario's id, name, token, group, and create time.",
+      "category": "Read",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanViewClients"],
+      "parameters": [
+        { "name": "groupId", "description": "Optional group UUID filter. If omitted, returns scenarios across all groups.", "type": "String", "required": false, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["list_scenarios","szenarien","scenarios","vorschläge anzeigen","list proposals"],
+      "synonyms": {
+        "de": ["szenarien","vorschläge","wizard-läufe","analyse-szenarien","alternativen"],
+        "en": ["scenarios","proposals","wizard runs","analyse scenarios","alternatives"],
+        "fr": ["scénarios","propositions","alternatives"],
+        "it": ["scenari","proposte","alternative"]
+      },
+      "version": 1
+    },
+    {
       "name": "reject_scenario",
       "description": "Rejects an AnalyseScenario — discards its proposed works. Use when AutoWizard output is unacceptable or when a newer scenario supersedes it. Soft-deletes the scenario and its scenario-bound work entries.",
       "category": "Crud",
