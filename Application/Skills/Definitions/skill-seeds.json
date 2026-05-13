@@ -9500,6 +9500,25 @@
       "version": 1
     },
     {
+      "name": "list_open_wizard_jobs",
+      "description": "Polls each wizard registry (AutoWizard / Wizard 1 / Wizard 2 / Wizard 3) for a given jobId and returns whether it is still running. Used after start_autowizard or start_wizardN to check status without waiting for the SignalR hub event. Registries are in-memory ConcurrentDictionaries without an enumeration API; pass a concrete jobId.",
+      "category": "Read",
+      "executionType": "Skill",
+      "requiredPermissions": ["Admin"],
+      "parameters": [
+        { "name": "jobId", "description": "Optional UUID. If omitted returns a hint that enumeration is unsupported.", "type": "String", "required": false, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null, "handlerType": null, "isEnabled": true, "alwaysOn": false, "maxCallsPerSession": null,
+      "triggerKeywords": ["list_open_wizard_jobs","wizard status","plan status","job status"],
+      "synonyms": {
+        "de": ["wizard status","plan status","läuft noch","job status","fertig"],
+        "en": ["wizard status","plan status","still running","job status","done yet"],
+        "fr": ["statut du wizard","encore en cours"],
+        "it": ["stato wizard","ancora in esecuzione"]
+      },
+      "version": 1
+    },
+    {
       "name": "add_break",
       "description": "Places a single absence (Break) on a client/date - vacation, sick day, training, parental leave. Wraps BulkAddBreaksCommand so the Break macro service computes work-time and period-hour recalc runs. Break hours count toward TargetHours but NOT toward MaxWeeklyHours; the cell becomes immutable for Wizards 1+2+3. Use list_absence_types first to find the right absenceId.",
       "category": "Crud",
