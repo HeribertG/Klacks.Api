@@ -5,6 +5,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 
@@ -20,6 +21,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     private readonly IScheduleCompletionService _completionService;
     private readonly IWorkChangeResultService _resultService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IDayLockService _dayLockService;
 
     public PostCommandHandler(
         IWorkChangeRepository workChangeRepository,
@@ -30,6 +32,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         IScheduleCompletionService completionService,
         IWorkChangeResultService resultService,
         IHttpContextAccessor httpContextAccessor,
+        IDayLockService dayLockService,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -41,6 +44,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         _completionService = completionService;
         _resultService = resultService;
         _httpContextAccessor = httpContextAccessor;
+        _dayLockService = dayLockService;
     }
 
     public async Task<WorkChangeResource?> Handle(PostCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -48,6 +52,17 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         return await ExecuteAsync(async () =>
         {
             var workChange = _scheduleMapper.ToWorkChangeEntity(request.Resource);
+
+            var parentWork = await _workRepository.GetNoTracking(workChange.WorkId);
+            if (parentWork != null)
+            {
+                await _dayLockService.EnsureNotLockedAsync(
+                    parentWork.CurrentDate,
+                    parentWork.ClientId,
+                    workChange.AnalyseToken,
+                    cancellationToken);
+            }
+
             await _workChangeRepository.Add(workChange);
 
             var work = await _workRepository.Get(workChange.WorkId);

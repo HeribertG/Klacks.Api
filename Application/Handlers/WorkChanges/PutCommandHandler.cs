@@ -4,6 +4,7 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 
@@ -18,6 +19,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
     private readonly IScheduleCompletionService _completionService;
     private readonly IWorkChangeResultService _resultService;
     private readonly IWorkNotificationFacade _notificationFacade;
+    private readonly IDayLockService _dayLockService;
 
     public PutCommandHandler(
         IWorkChangeRepository workChangeRepository,
@@ -27,6 +29,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         IScheduleCompletionService completionService,
         IWorkChangeResultService resultService,
         IWorkNotificationFacade notificationFacade,
+        IDayLockService dayLockService,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -37,6 +40,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         _completionService = completionService;
         _resultService = resultService;
         _notificationFacade = notificationFacade;
+        _dayLockService = dayLockService;
     }
 
     public async Task<WorkChangeResource?> Handle(PutCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -53,6 +57,30 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
             var previousReplaceClientId = existingWorkChange.ReplaceClientId;
 
             var workChange = _scheduleMapper.ToWorkChangeEntity(request.Resource);
+
+            var parentWork = await _workRepository.GetNoTracking(workChange.WorkId);
+            if (parentWork != null)
+            {
+                await _dayLockService.EnsureNotLockedAsync(
+                    parentWork.CurrentDate,
+                    parentWork.ClientId,
+                    workChange.AnalyseToken,
+                    cancellationToken);
+            }
+
+            if (existingWorkChange.WorkId != workChange.WorkId)
+            {
+                var oldParentWork = await _workRepository.GetNoTracking(existingWorkChange.WorkId);
+                if (oldParentWork != null)
+                {
+                    await _dayLockService.EnsureNotLockedAsync(
+                        oldParentWork.CurrentDate,
+                        oldParentWork.ClientId,
+                        existingWorkChange.AnalyseToken,
+                        cancellationToken);
+                }
+            }
+
             var updatedWorkChange = await _workChangeRepository.Put(workChange);
 
             if (updatedWorkChange == null)
