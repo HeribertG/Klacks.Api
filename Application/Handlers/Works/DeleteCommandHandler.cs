@@ -22,6 +22,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
     private readonly IWorkNotificationFacade _notificationFacade;
     private readonly IContainerWorkCascadeService _cascadeService;
     private readonly ISelectedGroupContextResolver _groupContextResolver;
+    private readonly IDayLockService _dayLockService;
 
     public DeleteCommandHandler(
         IWorkRepository workRepository,
@@ -32,6 +33,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         IWorkNotificationFacade notificationFacade,
         IContainerWorkCascadeService cascadeService,
         ISelectedGroupContextResolver groupContextResolver,
+        IDayLockService dayLockService,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
@@ -43,6 +45,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         _notificationFacade = notificationFacade;
         _cascadeService = cascadeService;
         _groupContextResolver = groupContextResolver;
+        _dayLockService = dayLockService;
     }
 
     public async Task<WorkResource?> Handle(DeleteWorkCommand request, CancellationToken cancellationToken)
@@ -54,6 +57,12 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
             {
                 throw new KeyNotFoundException($"Work with ID {request.Id} not found.");
             }
+
+            await _dayLockService.EnsureNotLockedAsync(
+                work.CurrentDate,
+                work.ClientId,
+                work.AnalyseToken,
+                cancellationToken);
 
             var shiftId = work.ShiftId;
             var workDate = work.CurrentDate;

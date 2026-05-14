@@ -22,6 +22,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
     private readonly IWorkNotificationFacade _notificationFacade;
     private readonly IContainerWorkCascadeService _cascadeService;
     private readonly ISelectedGroupContextResolver _groupContextResolver;
+    private readonly IDayLockService _dayLockService;
 
     public PutCommandHandler(
         IWorkRepository workRepository,
@@ -32,6 +33,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         IWorkNotificationFacade notificationFacade,
         IContainerWorkCascadeService cascadeService,
         ISelectedGroupContextResolver groupContextResolver,
+        IDayLockService dayLockService,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -43,6 +45,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         _notificationFacade = notificationFacade;
         _cascadeService = cascadeService;
         _groupContextResolver = groupContextResolver;
+        _dayLockService = dayLockService;
     }
 
     public async Task<WorkResource?> Handle(PutCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -55,6 +58,21 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
             var oldLockLevel = existingWork?.LockLevel;
 
             var work = _scheduleMapper.ToWorkEntity(request.Resource);
+
+            if (oldDate.HasValue)
+            {
+                await _dayLockService.EnsureNotLockedAsync(
+                    oldDate.Value,
+                    existingWork!.ClientId,
+                    work.AnalyseToken,
+                    cancellationToken);
+            }
+
+            await _dayLockService.EnsureNotLockedAsync(
+                work.CurrentDate,
+                work.ClientId,
+                work.AnalyseToken,
+                cancellationToken);
 
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
 

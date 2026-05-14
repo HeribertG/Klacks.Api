@@ -27,6 +27,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
     private readonly IContainerWorkExpansionService _expansionService;
     private readonly ISelectedGroupContextResolver _groupContextResolver;
     private readonly IShiftRepository _shiftRepository;
+    private readonly IDayLockService _dayLockService;
 
     public PostCommandHandler(
         IWorkRepository workRepository,
@@ -40,6 +41,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         IContainerWorkExpansionService expansionService,
         ISelectedGroupContextResolver groupContextResolver,
         IShiftRepository shiftRepository,
+        IDayLockService dayLockService,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -54,6 +56,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         _expansionService = expansionService;
         _groupContextResolver = groupContextResolver;
         _shiftRepository = shiftRepository;
+        _dayLockService = dayLockService;
     }
 
     public async Task<WorkResource?> Handle(PostCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -61,6 +64,12 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         return await ExecuteAsync(async () =>
         {
             var work = _scheduleMapper.ToWorkEntity(request.Resource);
+
+            await _dayLockService.EnsureNotLockedAsync(
+                work.CurrentDate,
+                work.ClientId,
+                work.AnalyseToken,
+                cancellationToken);
 
             await EnsureNoSporadicConflictAsync(work, cancellationToken);
 
