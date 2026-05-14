@@ -111,6 +111,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<ExportLog> ExportLog { get; set; }
 
+    public DbSet<SealedDay> SealedDay { get; set; }
+
     public DbSet<Break> Break { get; set; }
 
     public DbSet<WorkChange> WorkChange { get; set; }

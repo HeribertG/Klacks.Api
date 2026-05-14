@@ -212,6 +212,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISentimentKeywordRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SentimentKeywordRepository>();
         services.AddScoped<IPeriodAuditLogRepository, PeriodAuditLogRepository>();
         services.AddScoped<IExportLogRepository, ExportLogRepository>();
+        services.AddScoped<ISealedDayRepository, SealedDayRepository>();
         services.AddScoped<IClientSortPreferenceRepository, ClientSortPreferenceRepository>();
     }
 
@@ -343,6 +344,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IScheduleEntriesService, ScheduleEntriesService>();
         services.AddScoped<IClientAvailabilityScheduleService, ClientAvailabilityScheduleService>();
         services.AddScoped<IWorkLockLevelService, WorkLockLevelService>();
+        services.AddScoped<IDayLockService, DayLockService>();
         services.AddScoped<IPeriodHoursService, PeriodHoursService>();
         services.AddScoped<IScheduleChangeTracker, ScheduleChangeTracker>();
         services.AddScoped<IContainerAvailableTasksService, ContainerAvailableTasksService>();
