@@ -54,6 +54,16 @@ public class PeriodClosingController : BaseController
         return Ok(result);
     }
 
+    [HttpGet("Issues")]
+    public async Task<ActionResult<List<PeriodIssueDto>>> GetIssues(
+        [FromQuery] DateOnly from,
+        [FromQuery] DateOnly to,
+        [FromQuery] Guid? groupId)
+    {
+        var result = await _mediator.Send(new GetPeriodIssuesQuery(from, to, groupId));
+        return Ok(result);
+    }
+
     [HttpGet("AuditLog")]
     public async Task<ActionResult<List<PeriodAuditLogDto>>> GetAuditLog(
         [FromQuery] DateOnly from,
