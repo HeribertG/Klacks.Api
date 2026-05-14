@@ -2,7 +2,9 @@
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Assistant;
+using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Application.Queries.Assistant;
+using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
@@ -21,11 +23,16 @@ public class ModelsController : ControllerBase
 {
     private readonly ILogger<ModelsController> _logger;
     private readonly IMediator _mediator;
+    private readonly SpeechModelCheckService _speechModelCheckService;
 
-    public ModelsController(ILogger<ModelsController> logger, IMediator mediator)
+    public ModelsController(
+        ILogger<ModelsController> logger,
+        IMediator mediator,
+        SpeechModelCheckService speechModelCheckService)
     {
         this._logger = logger;
         _mediator = mediator;
+        _speechModelCheckService = speechModelCheckService;
     }
 
     [HttpGet]
@@ -53,6 +60,25 @@ public class ModelsController : ControllerBase
         }).ToList();
 
         return Ok(response);
+    }
+
+    [HttpPost("check-speech")]
+    public async Task<ActionResult<SpeechModelCheckResponse>> CheckSpeechModels(CancellationToken ct)
+    {
+        var results = await _speechModelCheckService.CheckAllAsync(ct);
+        var dtos = results
+            .Select(r => new SpeechModelCheckDto(
+                r.ModelId,
+                r.DisplayName,
+                r.ProviderId,
+                r.IsHealthy,
+                r.LatencyMs,
+                r.ContextWindow,
+                r.CostPerInputToken,
+                r.CostPerOutputToken,
+                r.Error))
+            .ToArray();
+        return Ok(new SpeechModelCheckResponse(dtos));
     }
 
     [HttpPost("{modelId}/enable")]
