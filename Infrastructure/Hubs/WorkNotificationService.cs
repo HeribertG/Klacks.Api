@@ -142,6 +142,39 @@ public class WorkNotificationService : IWorkNotificationService
         }
     }
 
+    public async Task NotifyThoroughRecalculationCompleted(ThoroughRecalculationCompletedDto notification)
+    {
+        try
+        {
+            var targetConnections = _dateRangeTracker
+                .GetConnectionsForDateRange(notification.StartDate, notification.EndDate, notification.AnalyseToken)
+                .ToList();
+
+            if (targetConnections.Count == 0)
+            {
+                _logger.LogDebug(
+                    "SignalR SKIP: ThoroughRecalculationCompleted - no connections have DateRange overlapping {Start} - {End}",
+                    notification.StartDate, notification.EndDate);
+                return;
+            }
+
+            await _hubContext.Clients.Clients(targetConnections).ThoroughRecalculationCompleted(notification);
+
+            _logger.LogInformation(
+                "Sent ThoroughRecalculationCompleted to {Count} connections for range {Start} - {End} (works={Works}, workChanges={WorkChanges}, breaks={Breaks})",
+                targetConnections.Count,
+                notification.StartDate,
+                notification.EndDate,
+                notification.ProcessedWorks,
+                notification.ProcessedWorkChanges,
+                notification.ProcessedBreaks);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending ThoroughRecalculationCompleted notification");
+        }
+    }
+
     public async Task NotifyScheduleChangeTracked(ScheduleChangeNotificationDto notification)
     {
         try

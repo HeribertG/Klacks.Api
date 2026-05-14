@@ -181,6 +181,9 @@ builder.Services.AddScoped<IShiftStatsNotificationService, ShiftStatsNotificatio
 builder.Services.AddSingleton<PeriodHoursBackgroundService>();
 if (bgOptions.PeriodHours)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<PeriodHoursBackgroundService>());
+builder.Services.AddSingleton<ThoroughRecalculationBackgroundService>();
+if (bgOptions.ThoroughRecalculation)
+    builder.Services.AddHostedService(sp => sp.GetRequiredService<ThoroughRecalculationBackgroundService>());
 builder.Services.AddSingleton<IScheduleTimelineStore, ScheduleTimelineStore>();
 builder.Services.AddSingleton<ScheduleTimelineBackgroundService>();
 if (bgOptions.ScheduleTimeline)

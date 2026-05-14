@@ -155,6 +155,13 @@ public class WorksController : BaseController
         return Ok(result);
     }
 
+    [HttpPost("RecalculatePeriodHoursThorough")]
+    public async Task<ActionResult<bool>> RecalculatePeriodHoursThorough([FromBody] RecalculatePeriodHoursThoroughCommand command)
+    {
+        var queued = await _mediator.Send(command);
+        return Accepted(new { queued });
+    }
+
     [HttpGet("{workId}/Children")]
     public async Task<ActionResult<ContainerWorkChildrenResource>> GetChildren(Guid workId, [FromQuery] bool isHoliday = false)
     {

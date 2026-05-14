@@ -22,6 +22,7 @@ public class BackgroundServiceOptions
 
     public bool ScheduleTimeline { get; set; } = true;
     public bool PeriodHours { get; set; } = true;
+    public bool ThoroughRecalculation { get; set; } = true;
     public bool MemoryCleanup { get; set; } = true;
     public bool Heartbeat { get; set; } = true;
     public bool Embedding { get; set; } = true;
