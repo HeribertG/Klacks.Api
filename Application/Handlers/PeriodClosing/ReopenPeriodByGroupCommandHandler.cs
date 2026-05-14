@@ -23,6 +23,7 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
     private readonly IWorkLockLevelService _lockLevelService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IPeriodAuditLogRepository _auditLogRepository;
+    private readonly ISealedDayRepository _sealedDayRepository;
 
     public ReopenPeriodByGroupCommandHandler(
         IWorkRepository workRepository,
@@ -30,6 +31,7 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
         IWorkLockLevelService lockLevelService,
         IHttpContextAccessor httpContextAccessor,
         IPeriodAuditLogRepository auditLogRepository,
+        ISealedDayRepository sealedDayRepository,
         IUnitOfWork unitOfWork,
         ILogger<ReopenPeriodByGroupCommandHandler> logger)
         : base(unitOfWork, logger)
@@ -39,6 +41,7 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
         _lockLevelService = lockLevelService;
         _httpContextAccessor = httpContextAccessor;
         _auditLogRepository = auditLogRepository;
+        _sealedDayRepository = sealedDayRepository;
     }
 
     /// <summary>
@@ -77,7 +80,10 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
                 breakCount = await _breakRepository.UnsealByPeriod(request.StartDate, request.EndDate, WorkLockLevel.Closed, cancellationToken);
             }
 
-            var total = workCount + breakCount;
+            var sealedDayCount = await _sealedDayRepository.SoftDeleteRangeAsync(
+                request.StartDate, request.EndDate, request.GroupId, userName, cancellationToken);
+
+            var total = workCount + breakCount + sealedDayCount;
 
             await _auditLogRepository.AddAsync(new PeriodAuditLog
             {

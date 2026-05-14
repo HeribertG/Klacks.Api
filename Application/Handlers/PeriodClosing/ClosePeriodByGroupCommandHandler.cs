@@ -22,6 +22,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
     private readonly IWorkLockLevelService _lockLevelService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IPeriodAuditLogRepository _auditLogRepository;
+    private readonly ISealedDayRepository _sealedDayRepository;
 
     public ClosePeriodByGroupCommandHandler(
         IWorkRepository workRepository,
@@ -29,6 +30,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
         IWorkLockLevelService lockLevelService,
         IHttpContextAccessor httpContextAccessor,
         IPeriodAuditLogRepository auditLogRepository,
+        ISealedDayRepository sealedDayRepository,
         IUnitOfWork unitOfWork,
         ILogger<ClosePeriodByGroupCommandHandler> logger)
         : base(unitOfWork, logger)
@@ -38,6 +40,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
         _lockLevelService = lockLevelService;
         _httpContextAccessor = httpContextAccessor;
         _auditLogRepository = auditLogRepository;
+        _sealedDayRepository = sealedDayRepository;
     }
 
     /// <summary>
@@ -73,7 +76,30 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
                 breakCount = await _breakRepository.SealByPeriod(request.StartDate, request.EndDate, WorkLockLevel.Closed, userName, cancellationToken);
             }
 
-            var total = workCount + breakCount;
+            var existingSealedDays = await _sealedDayRepository.GetRangeAsync(
+                request.StartDate, request.EndDate, request.GroupId, cancellationToken);
+            var existingDates = new HashSet<DateOnly>(existingSealedDays.Select(s => s.Date));
+
+            var sealedDayCount = 0;
+            for (var d = request.StartDate; d <= request.EndDate; d = d.AddDays(1))
+            {
+                if (existingDates.Contains(d))
+                {
+                    continue;
+                }
+                await _sealedDayRepository.AddAsync(new SealedDay
+                {
+                    Date = d,
+                    GroupId = request.GroupId,
+                    Level = WorkLockLevel.Closed,
+                    Reason = request.Reason,
+                    SealedAt = DateTime.UtcNow,
+                    SealedBy = userName
+                }, cancellationToken);
+                sealedDayCount++;
+            }
+
+            var total = workCount + breakCount + sealedDayCount;
 
             await _auditLogRepository.AddAsync(new PeriodAuditLog
             {
