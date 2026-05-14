@@ -14,15 +14,18 @@ public class GetSealedPeriodsQueryHandler : BaseHandler, IRequestHandler<GetSeal
 {
     private readonly IWorkRepository _workRepository;
     private readonly IBreakRepository _breakRepository;
+    private readonly ISealedDayRepository _sealedDayRepository;
 
     public GetSealedPeriodsQueryHandler(
         IWorkRepository workRepository,
         IBreakRepository breakRepository,
+        ISealedDayRepository sealedDayRepository,
         ILogger<GetSealedPeriodsQueryHandler> logger)
         : base(logger)
     {
         _workRepository = workRepository;
         _breakRepository = breakRepository;
+        _sealedDayRepository = sealedDayRepository;
     }
 
     public async Task<List<SealedPeriodSummaryDto>> Handle(GetSealedPeriodsQuery request, CancellationToken cancellationToken)
@@ -31,6 +34,8 @@ public class GetSealedPeriodsQueryHandler : BaseHandler, IRequestHandler<GetSeal
         {
             var workSummary = await _workRepository.GetSealingSummaryAsync(request.From, request.To, request.GroupId, cancellationToken);
             var breakSummary = await _breakRepository.GetSealingSummaryAsync(request.From, request.To, request.GroupId, cancellationToken);
+            var sealedDays = await _sealedDayRepository.GetRangeAsync(request.From, request.To, request.GroupId, cancellationToken);
+            var sealedDayDates = new HashSet<DateOnly>(sealedDays.Select(s => s.Date));
 
             var result = new Dictionary<DateOnly, SealedPeriodSummaryDto>();
 
@@ -56,6 +61,16 @@ public class GetSealedPeriodsQueryHandler : BaseHandler, IRequestHandler<GetSeal
 
                 dto.TotalBreakCount = total;
                 dto.SealedBreakCount = sealed_;
+            }
+
+            foreach (var date in sealedDayDates)
+            {
+                if (!result.TryGetValue(date, out var dto))
+                {
+                    dto = new SealedPeriodSummaryDto { Date = date };
+                    result[date] = dto;
+                }
+                dto.IsDaySealed = true;
             }
 
             return result.Values.OrderBy(d => d.Date).ToList();

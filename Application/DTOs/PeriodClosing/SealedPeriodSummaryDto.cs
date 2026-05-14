@@ -17,5 +17,11 @@ public class SealedPeriodSummaryDto
 
     public int SealedBreakCount { get; set; }
 
+    /// <summary>
+    /// True when a non-deleted SealedDay row covers this date (group-scoped or global).
+    /// This is the authoritative day-level seal flag; item-level counts are informational.
+    /// </summary>
+    public bool IsDaySealed { get; set; }
+
     public bool IsFullySealed => TotalWorkCount > 0 && TotalWorkCount == SealedWorkCount;
 }
