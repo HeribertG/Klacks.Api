@@ -11,6 +11,7 @@
 using System.Text.Json;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
+using Klacks.ScheduleOptimizer.HolisticHarmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Llm;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
 using Microsoft.Extensions.Logging;
@@ -31,23 +32,21 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
         "No prose, no markdown, no commentary, no extra fields.";
     private const string PingUserMessage = "Reply with the JSON object as instructed.";
 
-    private const int CapabilityMaxTokens = 2000;
+    private const int CapabilityMaxTokens = 200;
     private static readonly TimeSpan CapabilityTimeout = TimeSpan.FromSeconds(90);
     private const string CapabilitySystemPrompt =
-        "You are a deterministic schedule-harmonizer assistant for a capability self-test.\n" +
-        "Reply with ONE JSON object and nothing else: {\"swaps\":[{\"rowA\":int,\"dayA\":int,\"rowB\":int,\"dayB\":int,\"reason\":string}, ...]}\n" +
-        "No prose, no markdown, no code fences. Cells marked with * are LOCKED — never swap them.\n" +
-        "Constraint: dayA must equal dayB (only same-day swaps).";
+        "You are a deterministic vision-capability verifier for the Klacks Holistic Harmonizer (Wizard 3).\n" +
+        "Wizard 3 mutates a bitmap-rendered schedule, so the host accepts only models that genuinely process attached images.\n" +
+        "You receive a small PNG containing exactly one short alphabetic token painted in large bold black letters on a yellow box.\n" +
+        "Reply with ONE JSON object and nothing else: {\"token\":\"...\"}.\n" +
+        "No prose, no markdown, no code fences, no commentary.\n" +
+        "If you cannot see or process the image, reply with {\"token\":\"\"}.";
     private const string CapabilityUserMessage =
-        "Mini schedule (3 employees × 5 days). Symbols: E=Early, L=Late, _=Free, * after symbol = locked.\n" +
-        "       d0    d1    d2    d3    d4\n" +
-        "r00    L     L     L     L     L\n" +
-        "r01    _     _     _     _     _\n" +
-        "r02    E     E     E     E     E\n" +
-        "\n" +
-        "Constraints: r00 max 3 consecutive Late; r01 target 30h; r02 max 3 consecutive Early.\n" +
-        "r00 has 5 Late shifts in a row — propose at least one same-day swap that redistributes the load.\n" +
-        "Reply with the JSON object only. dayA must equal dayB.";
+        "Read the token printed in the attached image and reply with the JSON object only.";
+
+    private static readonly char[] CapabilityTokenAlphabet =
+        { 'E', 'F', 'H', 'K', 'L', 'N', 'P', 'T', 'X', 'Z' };
+    private const int CapabilityTokenLength = 3;
 
     private readonly LLMProviderOrchestrator _orchestrator;
     private readonly ILogger<LlmPlanProposalProvider> _logger;
@@ -184,6 +183,19 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
             return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, error ?? "LLM provider unavailable.");
         }
 
+        var expectedToken = GenerateCapabilityToken();
+        byte[] capabilityPng;
+        try
+        {
+            capabilityPng = VisionCapabilityPngRenderer.Render(expectedToken);
+        }
+        catch (Exception ex)
+        {
+            stopwatch.Stop();
+            _logger.LogError(ex, "Holistic Harmonizer vision capability PNG generation failed for model {ModelId}", modelId);
+            return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, $"Capability PNG generation failed: {ex.Message}");
+        }
+
         var capabilityRequest = new LLMProviderRequest
         {
             Message = CapabilityUserMessage,
@@ -191,11 +203,12 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
             ModelId = model.ApiModelId,
             ConversationHistory = [],
             AvailableFunctions = [],
-            Temperature = 0.2,
+            Temperature = 0.0,
             MaxTokens = CapabilityMaxTokens,
             CostPerInputToken = model.CostPerInputToken,
             CostPerOutputToken = model.CostPerOutputToken,
             Stream = false,
+            ImagePng = capabilityPng,
         };
 
         using var capabilityCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -235,7 +248,7 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
             return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, "Model returned empty content (likely consumed token budget on internal reasoning).");
         }
 
-        var capabilityError = ValidateCapabilityResponse(content);
+        var capabilityError = ValidateVisionResponse(content, expectedToken);
         if (capabilityError is not null)
         {
             return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, capabilityError);
@@ -244,33 +257,61 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
         return new PlanProposalPingResult(true, stopwatch.ElapsedMilliseconds, null);
     }
 
-    private static string? ValidateCapabilityResponse(string content)
+    private static string GenerateCapabilityToken()
+    {
+        Span<char> buffer = stackalloc char[CapabilityTokenLength];
+        Span<int> chosen = stackalloc int[CapabilityTokenLength];
+        for (var i = 0; i < CapabilityTokenLength; i++)
+        {
+            int index;
+            var unique = false;
+            while (!unique)
+            {
+                index = Random.Shared.Next(CapabilityTokenAlphabet.Length);
+                unique = true;
+                for (var j = 0; j < i; j++)
+                {
+                    if (chosen[j] == index)
+                    {
+                        unique = false;
+                        break;
+                    }
+                }
+                if (unique)
+                {
+                    chosen[i] = index;
+                    buffer[i] = CapabilityTokenAlphabet[index];
+                }
+            }
+        }
+        return new string(buffer);
+    }
+
+    private static string? ValidateVisionResponse(string content, string expectedToken)
     {
         var json = HarmonyJsonParser.ExtractJsonObject(content);
         if (json is null)
         {
             var preview = content.Length > ResponsePreviewLength ? content[..ResponsePreviewLength] + "..." : content;
-            return $"No JSON object found. Preview: {preview}";
+            return $"No JSON object found in response. Preview: {preview}";
         }
 
         try
         {
             using var doc = JsonDocument.Parse(json);
-            if (!doc.RootElement.TryGetProperty("swaps", out var swapsEl) || swapsEl.ValueKind != JsonValueKind.Array)
+            if (!doc.RootElement.TryGetProperty("token", out var tokenEl) || tokenEl.ValueKind != JsonValueKind.String)
             {
-                return "JSON missing 'swaps' array.";
+                return "JSON missing string 'token' field — model likely cannot process attached bitmaps.";
             }
-            if (swapsEl.GetArrayLength() == 0)
+            var actualToken = tokenEl.GetString();
+            if (string.IsNullOrWhiteSpace(actualToken))
             {
-                return "Model returned empty 'swaps' array — could not propose any improvement to a clearly-imbalanced mini schedule.";
+                return "Model returned empty 'token' — bitmap processing not supported.";
             }
-
-            foreach (var el in swapsEl.EnumerateArray())
+            var normalised = NormaliseToken(actualToken);
+            if (!string.Equals(normalised, expectedToken, StringComparison.Ordinal))
             {
-                if (!IsValidCapabilitySwap(el, out var reason))
-                {
-                    return $"Invalid swap entry: {reason}";
-                }
+                return $"Model read token '{actualToken}' but the image showed '{expectedToken}'. Model does not reliably process bitmaps required by Wizard 3.";
             }
             return null;
         }
@@ -280,45 +321,19 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
         }
     }
 
-    private static bool IsValidCapabilitySwap(JsonElement el, out string reason)
+    private static string NormaliseToken(string raw)
     {
-        reason = string.Empty;
-        if (el.ValueKind != JsonValueKind.Object)
+        Span<char> buffer = stackalloc char[raw.Length];
+        var length = 0;
+        for (var i = 0; i < raw.Length; i++)
         {
-            reason = "swap is not a JSON object";
-            return false;
+            var c = raw[i];
+            if (char.IsLetterOrDigit(c))
+            {
+                buffer[length++] = char.ToUpperInvariant(c);
+            }
         }
-        if (!el.TryGetProperty("rowA", out var rowAEl) || !rowAEl.TryGetInt32(out var rowA) || rowA < 0 || rowA > 2)
-        {
-            reason = "rowA missing or out of [0..2]";
-            return false;
-        }
-        if (!el.TryGetProperty("rowB", out var rowBEl) || !rowBEl.TryGetInt32(out var rowB) || rowB < 0 || rowB > 2)
-        {
-            reason = "rowB missing or out of [0..2]";
-            return false;
-        }
-        if (rowA == rowB)
-        {
-            reason = "rowA equals rowB";
-            return false;
-        }
-        if (!el.TryGetProperty("dayA", out var dayAEl) || !dayAEl.TryGetInt32(out var dayA) || dayA < 0 || dayA > 4)
-        {
-            reason = "dayA missing or out of [0..4]";
-            return false;
-        }
-        if (!el.TryGetProperty("dayB", out var dayBEl) || !dayBEl.TryGetInt32(out var dayB) || dayB < 0 || dayB > 4)
-        {
-            reason = "dayB missing or out of [0..4]";
-            return false;
-        }
-        if (dayA != dayB)
-        {
-            reason = $"dayA ({dayA}) != dayB ({dayB}) — only same-day swaps allowed";
-            return false;
-        }
-        return true;
+        return new string(buffer[..length]);
     }
 
     private static bool ContainsPongJson(string content)
