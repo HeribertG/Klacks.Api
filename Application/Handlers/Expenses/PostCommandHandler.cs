@@ -6,6 +6,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IScheduleChangeTracker _scheduleChangeTracker;
     private readonly ISelectedGroupContextResolver _groupContextResolver;
+    private readonly IWorkRepository _workRepository;
+    private readonly IDayLockService _dayLockService;
 
     public PostCommandHandler(
         IExpensesRepository expensesRepository,
@@ -34,6 +37,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
         IHttpContextAccessor httpContextAccessor,
         IScheduleChangeTracker scheduleChangeTracker,
         ISelectedGroupContextResolver groupContextResolver,
+        IWorkRepository workRepository,
+        IDayLockService dayLockService,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -46,6 +51,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
         _httpContextAccessor = httpContextAccessor;
         _scheduleChangeTracker = scheduleChangeTracker;
         _groupContextResolver = groupContextResolver;
+        _workRepository = workRepository;
+        _dayLockService = dayLockService;
     }
 
     public async Task<ExpensesResource?> Handle(PostCommand<ExpensesResource> request, CancellationToken cancellationToken)
@@ -53,6 +60,17 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
         return await ExecuteAsync(async () =>
         {
             var expenses = _scheduleMapper.ToExpensesEntity(request.Resource);
+
+            var parentWork = await _workRepository.GetNoTracking(expenses.WorkId);
+            if (parentWork != null)
+            {
+                await _dayLockService.EnsureNotLockedAsync(
+                    parentWork.CurrentDate,
+                    parentWork.ClientId,
+                    expenses.AnalyseToken,
+                    cancellationToken);
+            }
+
             await _expensesRepository.Add(expenses);
             await _unitOfWork.CompleteAsync();
 

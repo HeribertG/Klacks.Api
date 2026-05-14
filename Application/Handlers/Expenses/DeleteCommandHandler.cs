@@ -6,6 +6,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IScheduleChangeTracker _scheduleChangeTracker;
     private readonly ISelectedGroupContextResolver _groupContextResolver;
+    private readonly IDayLockService _dayLockService;
 
     public DeleteCommandHandler(
         IExpensesRepository expensesRepository,
@@ -34,6 +36,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
         IHttpContextAccessor httpContextAccessor,
         IScheduleChangeTracker scheduleChangeTracker,
         ISelectedGroupContextResolver groupContextResolver,
+        IDayLockService dayLockService,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
@@ -46,6 +49,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
         _httpContextAccessor = httpContextAccessor;
         _scheduleChangeTracker = scheduleChangeTracker;
         _groupContextResolver = groupContextResolver;
+        _dayLockService = dayLockService;
     }
 
     public async Task<ExpensesResource?> Handle(DeleteCommand<ExpensesResource> request, CancellationToken cancellationToken)
@@ -61,6 +65,15 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
 
         var work = existingExpenses.Work;
         var expensesResource = _scheduleMapper.ToExpensesResource(existingExpenses);
+
+        if (work != null)
+        {
+            await _dayLockService.EnsureNotLockedAsync(
+                work.CurrentDate,
+                work.ClientId,
+                existingExpenses.AnalyseToken,
+                cancellationToken);
+        }
 
         await _expensesRepository.Delete(request.Id);
         await _unitOfWork.CompleteAsync();

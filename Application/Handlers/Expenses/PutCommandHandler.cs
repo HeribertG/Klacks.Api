@@ -6,6 +6,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IScheduleChangeTracker _scheduleChangeTracker;
     private readonly ISelectedGroupContextResolver _groupContextResolver;
+    private readonly IWorkRepository _workRepository;
+    private readonly IDayLockService _dayLockService;
 
     public PutCommandHandler(
         IExpensesRepository expensesRepository,
@@ -34,6 +37,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
         IHttpContextAccessor httpContextAccessor,
         IScheduleChangeTracker scheduleChangeTracker,
         ISelectedGroupContextResolver groupContextResolver,
+        IWorkRepository workRepository,
+        IDayLockService dayLockService,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -46,6 +51,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
         _httpContextAccessor = httpContextAccessor;
         _scheduleChangeTracker = scheduleChangeTracker;
         _groupContextResolver = groupContextResolver;
+        _workRepository = workRepository;
+        _dayLockService = dayLockService;
     }
 
     public async Task<ExpensesResource?> Handle(PutCommand<ExpensesResource> request, CancellationToken cancellationToken)
@@ -62,6 +69,30 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
             }
 
             var expenses = _scheduleMapper.ToExpensesEntity(request.Resource);
+
+            var parentWork = await _workRepository.GetNoTracking(expenses.WorkId);
+            if (parentWork != null)
+            {
+                await _dayLockService.EnsureNotLockedAsync(
+                    parentWork.CurrentDate,
+                    parentWork.ClientId,
+                    expenses.AnalyseToken,
+                    cancellationToken);
+            }
+
+            if (existingExpenses.WorkId != expenses.WorkId)
+            {
+                var oldParentWork = await _workRepository.GetNoTracking(existingExpenses.WorkId);
+                if (oldParentWork != null)
+                {
+                    await _dayLockService.EnsureNotLockedAsync(
+                        oldParentWork.CurrentDate,
+                        oldParentWork.ClientId,
+                        existingExpenses.AnalyseToken,
+                        cancellationToken);
+                }
+            }
+
             var updatedExpenses = await _expensesRepository.Put(expenses);
             await _unitOfWork.CompleteAsync();
 
