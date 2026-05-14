@@ -7,6 +7,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Macros;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
     private readonly IScheduleCompletionService _completionService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ISelectedGroupContextResolver _groupContextResolver;
+    private readonly IDayLockService _dayLockService;
 
     public PutCommandHandler(
         IBreakRepository breakRepository,
@@ -35,6 +37,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
         IScheduleCompletionService completionService,
         IHttpContextAccessor httpContextAccessor,
         ISelectedGroupContextResolver groupContextResolver,
+        IDayLockService dayLockService,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -47,13 +50,30 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
         _completionService = completionService;
         _httpContextAccessor = httpContextAccessor;
         _groupContextResolver = groupContextResolver;
+        _dayLockService = dayLockService;
     }
 
     public async Task<BreakResource?> Handle(PutCommand<BreakResource> request, CancellationToken cancellationToken)
     {
         return await ExecuteAsync(async () =>
         {
+            var existing = await _breakRepository.GetNoTracking(request.Resource.Id);
             var entity = _scheduleMapper.ToBreakEntity(request.Resource);
+
+            if (existing != null)
+            {
+                await _dayLockService.EnsureNotLockedAsync(
+                    existing.CurrentDate,
+                    existing.ClientId,
+                    entity.AnalyseToken,
+                    cancellationToken);
+            }
+
+            await _dayLockService.EnsureNotLockedAsync(
+                entity.CurrentDate,
+                entity.ClientId,
+                entity.AnalyseToken,
+                cancellationToken);
 
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(entity.CurrentDate);
 

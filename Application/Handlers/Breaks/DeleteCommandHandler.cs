@@ -6,6 +6,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
     private readonly IScheduleCompletionService _completionService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ISelectedGroupContextResolver _groupContextResolver;
+    private readonly IDayLockService _dayLockService;
 
     public DeleteCommandHandler(
         IBreakRepository breakRepository,
@@ -32,6 +34,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
         IScheduleCompletionService completionService,
         IHttpContextAccessor httpContextAccessor,
         ISelectedGroupContextResolver groupContextResolver,
+        IDayLockService dayLockService,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
@@ -43,6 +46,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
         _completionService = completionService;
         _httpContextAccessor = httpContextAccessor;
         _groupContextResolver = groupContextResolver;
+        _dayLockService = dayLockService;
     }
 
     public async Task<BreakResource?> Handle(DeleteBreakCommand request, CancellationToken cancellationToken)
@@ -54,6 +58,12 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
             {
                 throw new KeyNotFoundException($"Break with ID {request.Id} not found.");
             }
+
+            await _dayLockService.EnsureNotLockedAsync(
+                breakEntry.CurrentDate,
+                breakEntry.ClientId,
+                breakEntry.AnalyseToken,
+                cancellationToken);
 
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(breakEntry.CurrentDate);
 
