@@ -26,4 +26,16 @@ public class OrderExportController : BaseController
         var result = await _mediator.Send(new CreateOrderExportQuery(filter), cancellationToken);
         return File(result.FileContent, result.ContentType, result.FileName);
     }
+
+    [HttpGet("orders")]
+    public async Task<ActionResult<List<SealedOrderListItem>>> Orders(
+        [FromQuery] DateOnly? from,
+        [FromQuery] DateOnly? until,
+        [FromQuery] Guid? customerId,
+        CancellationToken cancellationToken)
+    {
+        var orders = await _mediator.Send(
+            new ListSealedOrdersQuery(from, until, customerId), cancellationToken);
+        return Ok(orders);
+    }
 }

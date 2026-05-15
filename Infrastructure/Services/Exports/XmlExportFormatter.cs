@@ -68,6 +68,18 @@ public class XmlExportFormatter : IExportFormatter
         if (order.OrderEndShift.HasValue)
             writer.WriteElementString("EndShift", order.OrderEndShift.Value.ToString("HH:mm"));
 
+        if (order.CustomerId.HasValue || !string.IsNullOrEmpty(order.CustomerName))
+        {
+            writer.WriteStartElement("Customer");
+            if (order.CustomerId.HasValue)
+                writer.WriteAttributeString("id", order.CustomerId.Value.ToString());
+            if (order.CustomerNumber.HasValue)
+                writer.WriteElementString("Number", order.CustomerNumber.Value.ToString(CultureInfo.InvariantCulture));
+            if (!string.IsNullOrEmpty(order.CustomerName))
+                writer.WriteElementString("Name", order.CustomerName);
+            writer.WriteEndElement();
+        }
+
         writer.WriteStartElement("WorkEntries");
 
         foreach (var work in order.WorkEntries)

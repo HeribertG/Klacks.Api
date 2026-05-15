@@ -31,12 +31,15 @@ public class BmdExportFormatter : IExportFormatter
         sb.AppendLine(string.Join(separator,
             "satzart", "konto", "gkonto", "belession", "buchdat",
             "bession", "buchsymbol", "betrag", "steession",
-            "text", "kost", "mession"));
+            "text", "kost", "mession", "kundennr", "kundenname"));
 
         var bookingNumber = 1;
 
         foreach (var order in data.Orders)
         {
+            var customerNumber = order.CustomerNumber?.ToString(CultureInfo.InvariantCulture) ?? "";
+            var customerName = EscapeBmd(order.CustomerName ?? "");
+
             foreach (var work in order.WorkEntries)
             {
                 var totalAmount = work.WorkTime + work.Surcharges
@@ -54,7 +57,8 @@ public class BmdExportFormatter : IExportFormatter
                     "",
                     EscapeBmd($"{work.EmployeeName} - {order.OrderName}"),
                     EscapeBmd(order.OrderName),
-                    work.WorkTime.ToString("F2", CultureInfo.InvariantCulture)));
+                    work.WorkTime.ToString("F2", CultureInfo.InvariantCulture),
+                    customerNumber, customerName));
 
                 bookingNumber++;
 
@@ -72,7 +76,8 @@ public class BmdExportFormatter : IExportFormatter
                         "",
                         EscapeBmd($"{expense.Description} - {work.EmployeeName}"),
                         EscapeBmd(order.OrderName),
-                        ""));
+                        "",
+                        customerNumber, customerName));
 
                     bookingNumber++;
                 }

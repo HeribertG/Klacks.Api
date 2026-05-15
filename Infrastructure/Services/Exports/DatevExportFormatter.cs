@@ -162,7 +162,11 @@ public class DatevExportFormatter : IExportFormatter
         fields[7] = $"\"1600\"";
         fields[9] = work.WorkDate.ToString(DatevDateFormat);
         fields[10] = $"\"{order.OrderAbbreviation}\"";
-        fields[13] = $"\"{EscapeDatev($"{work.EmployeeName} - {order.OrderName}")}\"";
+        fields[13] = $"\"{EscapeDatev(BuildBookingText(work.EmployeeName, order))}\"";
+        if (order.CustomerNumber.HasValue)
+        {
+            fields[15] = $"\"{order.CustomerNumber.Value}\"";
+        }
         fields[36] = $"\"{EscapeDatev(order.OrderName)}\"";
         fields[38] = FormatDecimal(totalHours);
         fields[91] = $"\"{work.EmployeeIdNumber}\"";
@@ -184,9 +188,22 @@ public class DatevExportFormatter : IExportFormatter
         fields[9] = work.WorkDate.ToString(DatevDateFormat);
         fields[10] = $"\"{order.OrderAbbreviation}\"";
         fields[13] = $"\"{EscapeDatev($"{expense.Description} - {work.EmployeeName}")}\"";
+        if (order.CustomerNumber.HasValue)
+        {
+            fields[15] = $"\"{order.CustomerNumber.Value}\"";
+        }
         fields[36] = $"\"{EscapeDatev(order.OrderName)}\"";
 
         sb.AppendLine(string.Join(separator, fields));
+    }
+
+    private static string BuildBookingText(string employeeName, OrderGroup order)
+    {
+        if (!string.IsNullOrEmpty(order.CustomerName))
+        {
+            return $"{employeeName} - {order.OrderName} ({order.CustomerName})";
+        }
+        return $"{employeeName} - {order.OrderName}";
     }
 
     private static string FormatDecimal(decimal value)

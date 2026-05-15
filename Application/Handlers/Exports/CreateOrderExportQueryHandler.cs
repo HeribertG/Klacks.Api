@@ -55,15 +55,15 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
                 throw new InvalidRequestException("Export format must be specified.");
             }
 
-            if (filter.StartDate > filter.EndDate)
+            if (filter.OrderIds == null || filter.OrderIds.Count == 0)
             {
-                throw new InvalidRequestException("Start date must be before or equal to end date.");
+                throw new InvalidRequestException("At least one order must be selected for export.");
             }
 
             var formatter = _formatters.FirstOrDefault(f => f.FormatKey == filter.Format)
                 ?? throw new InvalidRequestException($"Unknown export format: {filter.Format}");
 
-            var exportData = await _dataLoader.LoadAsync(filter.StartDate, filter.EndDate, cancellationToken);
+            var exportData = await _dataLoader.LoadAsync(filter.OrderIds, filter.FromDate, filter.UntilDate, cancellationToken);
             var companyInfo = await LoadCompanyInfoAsync();
 
             var options = new ExportOptions
@@ -74,15 +74,15 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
             };
 
             var fileContent = formatter.Format(exportData, options);
-            var fileName = $"order-export_{filter.StartDate:yyyy-MM-dd}_{filter.EndDate:yyyy-MM-dd}{formatter.FileExtension}";
+            var fileName = BuildFileName(exportData, formatter.FileExtension);
 
             var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
 
             await _exportLogRepository.AddAsync(new ExportLog
             {
                 Format = filter.Format,
-                StartDate = filter.StartDate,
-                EndDate = filter.EndDate,
+                StartDate = exportData.StartDate,
+                EndDate = exportData.EndDate,
                 GroupId = filter.GroupId,
                 Language = filter.Language,
                 CurrencyCode = filter.CurrencyCode,
@@ -99,7 +99,27 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
                 FileName = fileName,
                 ContentType = formatter.ContentType
             };
-        }, "CreateOrderExport", new { request.Filter.StartDate, request.Filter.EndDate, request.Filter.Format });
+        }, "CreateOrderExport", new { OrderCount = request.Filter.OrderIds?.Count ?? 0, request.Filter.Format });
+    }
+
+    private static string BuildFileName(OrderExportData data, string extension)
+    {
+        if (data.Orders?.Count == 1)
+        {
+            var only = data.Orders[0];
+            var label = !string.IsNullOrWhiteSpace(only.OrderAbbreviation) ? only.OrderAbbreviation : only.OrderShiftId.ToString();
+            var safe = Sanitize(label);
+            return $"order-export_{safe}{extension}";
+        }
+
+        return $"order-export_{data.StartDate:yyyy-MM-dd}_{data.EndDate:yyyy-MM-dd}{extension}";
+    }
+
+    private static string Sanitize(string value)
+    {
+        var invalid = Path.GetInvalidFileNameChars();
+        var chars = value.Select(c => invalid.Contains(c) || c == ' ' ? '_' : c).ToArray();
+        return new string(chars);
     }
 
     private async Task<CompanyInfo> LoadCompanyInfoAsync()

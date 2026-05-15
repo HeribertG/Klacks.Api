@@ -11,7 +11,6 @@ public static class ExportConstants
     public const string FormatJson = "json";
     public const string FormatXml = "xml";
     public const string FormatDatev = "datev";
-    public const string FormatZugferd = "zugferd";
     public const string FormatBmd = "bmd";
 
     public const string ContentTypeCsv = "text/csv";
