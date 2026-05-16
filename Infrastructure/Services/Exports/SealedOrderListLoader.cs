@@ -17,6 +17,8 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 
 public class SealedOrderListLoader : ISealedOrderListLoader
 {
+    private const int MaxResults = 100;
+
     private readonly DataBaseContext _context;
     private readonly IShiftDescendantResolver _descendantResolver;
 
@@ -30,6 +32,7 @@ public class SealedOrderListLoader : ISealedOrderListLoader
         DateOnly? fromDate,
         DateOnly? untilDate,
         Guid? customerId,
+        string? searchTerm,
         CancellationToken cancellationToken = default)
     {
         var query = _context.Shift
@@ -54,9 +57,24 @@ public class SealedOrderListLoader : ISealedOrderListLoader
             query = query.Where(s => s.ClientId == cust);
         }
 
+        var search = (searchTerm ?? string.Empty).Trim();
+        if (search.Length > 0)
+        {
+            var like = $"%{search}%";
+            var idNumberMatch = int.TryParse(search, out var idNumber) ? idNumber : (int?)null;
+
+            query = query.Where(s =>
+                EF.Functions.ILike(s.Abbreviation, like)
+                || EF.Functions.ILike(s.Name, like)
+                || (s.Client != null && EF.Functions.ILike(s.Client.Name, like))
+                || (s.Client != null && s.Client.FirstName != null && EF.Functions.ILike(s.Client.FirstName, like))
+                || (idNumberMatch != null && s.Client != null && s.Client.IdNumber == idNumberMatch));
+        }
+
         var rawOrders = await query
             .OrderByDescending(s => s.FromDate)
             .ThenBy(s => s.Name)
+            .Take(MaxResults)
             .Select(s => new SealedOrderRow(
                 s.Id,
                 s.Abbreviation,

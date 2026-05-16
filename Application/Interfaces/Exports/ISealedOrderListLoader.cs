@@ -14,5 +14,6 @@ public interface ISealedOrderListLoader
         DateOnly? fromDate,
         DateOnly? untilDate,
         Guid? customerId,
+        string? searchTerm,
         CancellationToken cancellationToken = default);
 }

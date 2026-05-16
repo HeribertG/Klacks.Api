@@ -32,10 +32,11 @@ public class OrderExportController : BaseController
         [FromQuery] DateOnly? from,
         [FromQuery] DateOnly? until,
         [FromQuery] Guid? customerId,
+        [FromQuery] string? search,
         CancellationToken cancellationToken)
     {
         var orders = await _mediator.Send(
-            new ListSealedOrdersQuery(from, until, customerId), cancellationToken);
+            new ListSealedOrdersQuery(from, until, customerId, search), cancellationToken);
         return Ok(orders);
     }
 }

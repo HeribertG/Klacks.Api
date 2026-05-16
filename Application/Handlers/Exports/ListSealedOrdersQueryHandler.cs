@@ -27,10 +27,10 @@ public class ListSealedOrdersQueryHandler : IRequestHandler<ListSealedOrdersQuer
     public async Task<List<SealedOrderListItem>> Handle(ListSealedOrdersQuery request, CancellationToken cancellationToken)
     {
         _logger.LogInformation(
-            "Loading sealed orders list (from={From}, until={Until}, customer={Customer})",
-            request.FromDate, request.UntilDate, request.CustomerId);
+            "Loading sealed orders list (from={From}, until={Until}, customer={Customer}, search={Search})",
+            request.FromDate, request.UntilDate, request.CustomerId, request.SearchTerm);
 
         return await _loader.LoadAsync(
-            request.FromDate, request.UntilDate, request.CustomerId, cancellationToken);
+            request.FromDate, request.UntilDate, request.CustomerId, request.SearchTerm, cancellationToken);
     }
 }
