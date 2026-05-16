@@ -9883,6 +9883,172 @@
         "it": ["albero gruppi","gerarchia gruppi","organigramma","struttura ad albero"]
       },
       "version": 1
+    },
+    {
+      "name": "create_absence",
+      "description": "Creates a new absence TYPE (stammdaten — e.g. Sick Leave, Vacation, Education). Concrete employee absences are placed via add_break which references the type by id.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditSettings"],
+      "parameters": [
+        { "name": "nameDe", "description": "German display name", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "nameEn", "description": "English display name", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "abbreviationDe", "description": "Short code (1-6 chars) shown in the schedule grid", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "abbreviationEn", "description": "English abbreviation", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "color", "description": "Hex colour like #FF8800", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "defaultLength", "description": "Default duration in days", "type": "Integer", "required": false, "defaultValue": 1, "enumValues": null },
+        { "name": "defaultValue", "description": "Default weight per day", "type": "Decimal", "required": false, "defaultValue": 0, "enumValues": null },
+        { "name": "withSaturday", "description": "Counts saturdays", "type": "Boolean", "required": false, "defaultValue": false, "enumValues": null },
+        { "name": "withSunday", "description": "Counts sundays", "type": "Boolean", "required": false, "defaultValue": false, "enumValues": null },
+        { "name": "withHoliday", "description": "Counts holidays", "type": "Boolean", "required": false, "defaultValue": false, "enumValues": null },
+        { "name": "isUnpaid", "description": "Unpaid leave", "type": "Boolean", "required": false, "defaultValue": false, "enumValues": null }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["create","absence","absenz","abwesenheit","leave","ferien","krank"],
+      "synonyms": {
+        "de": ["absenz anlegen","abwesenheitstyp anlegen","neue ferienart","neuen krankheitstyp"],
+        "en": ["create absence type","add leave kind","new vacation type","define sick leave"],
+        "fr": ["créer type absence","nouveau congé","ajouter type maladie","définir congé"],
+        "it": ["creare tipo assenza","nuovo congedo","aggiungere tipo malattia"]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_absence",
+      "description": "Updates an existing absence type (stammdaten). Only supplied fields change. Use to rename, recolor, toggle weekend/holiday inclusion, or switch the paid flag.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditSettings"],
+      "parameters": [
+        { "name": "absenceId", "description": "UUID of the absence type to update", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "nameDe", "description": "New German name", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "nameEn", "description": "New English name", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "abbreviationDe", "description": "New German abbreviation", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "abbreviationEn", "description": "New English abbreviation", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "color", "description": "New hex colour", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "defaultLength", "description": "New default duration in days", "type": "Integer", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "withSaturday", "description": "Counts saturdays", "type": "Boolean", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "withSunday", "description": "Counts sundays", "type": "Boolean", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "withHoliday", "description": "Counts holidays", "type": "Boolean", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "isUnpaid", "description": "Unpaid leave", "type": "Boolean", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "hideInGantt", "description": "Hide from the schedule grid", "type": "Boolean", "required": false, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["update","change","absence","abwesenheitstyp","ferienart"],
+      "synonyms": {
+        "de": ["absenztyp ändern","abwesenheit umbenennen","absenz farbe ändern","absenz konfigurieren"],
+        "en": ["update absence type","rename leave kind","recolor absence","configure vacation type"],
+        "fr": ["modifier type absence","renommer congé","reconfigurer absence"],
+        "it": ["modificare tipo assenza","rinominare congedo","riconfigurare assenza"]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_absence",
+      "description": "Soft-deletes an absence type. Refuses if the type is in use by active breaks or break-placeholders, or if marked as Undeletable. Use list_absence_types to inspect usage before calling.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditSettings"],
+      "parameters": [
+        { "name": "absenceId", "description": "UUID of the absence type to delete", "type": "String", "required": true, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["delete","remove","absence","abwesenheitstyp","ferienart"],
+      "synonyms": {
+        "de": ["absenztyp löschen","abwesenheitstyp entfernen","ferienart löschen","krankheitstyp entfernen"],
+        "en": ["delete absence type","remove leave kind","drop vacation type","retire sick-leave type"],
+        "fr": ["supprimer type absence","retirer congé","éliminer type maladie"],
+        "it": ["eliminare tipo assenza","rimuovere congedo","cancellare tipo malattia"]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_holidays_for_period",
+      "description": "Returns all holidays falling between fromDate and untilDate for a given country (and optionally a state/canton). Computes holiday dates from CalendarRules via HolidaysListCalculator across all covered years.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanViewSettings"],
+      "parameters": [
+        { "name": "country", "description": "ISO country code (CH, DE, AT, ...)", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "state", "description": "State / canton abbreviation (BE, ZH, BY, ...). Empty = nationwide only.", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "fromDate", "description": "ISO date yyyy-MM-dd", "type": "Date", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "untilDate", "description": "ISO date yyyy-MM-dd (inclusive)", "type": "Date", "required": true, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["holiday","feiertag","holidays","feiertage","jours fériés","festività"],
+      "synonyms": {
+        "de": ["feiertage anzeigen","feiertage zeitraum","feiertage kanton","feiertage liste","welche feiertage"],
+        "en": ["holidays in period","list holidays","public holidays","bank holidays","national holidays"],
+        "fr": ["jours fériés période","liste jours fériés","jours chômés","fêtes officielles"],
+        "it": ["festività periodo","elenco festività","giorni festivi","feste nazionali"]
+      },
+      "version": 1
+    },
+    {
+      "name": "validate_holiday_overlap",
+      "description": "Checks whether a specific date is a holiday in the given country + state. Returns IsHoliday=true with the holiday name when it matches, otherwise false. Used before placing a Work/Break to warn about overlap.",
+      "category": "Validation",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanViewSettings"],
+      "parameters": [
+        { "name": "date", "description": "ISO date yyyy-MM-dd", "type": "Date", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "country", "description": "ISO country code", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "state", "description": "State / canton abbreviation", "type": "String", "required": false, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["holiday","feiertag","overlap","check","prüfen"],
+      "synonyms": {
+        "de": ["ist feiertag","feiertag prüfen","feiertag check","überlappung feiertag","kollision feiertag"],
+        "en": ["is holiday","check holiday","holiday overlap","date is bank holiday","public holiday check"],
+        "fr": ["jour férié vérifier","est-ce un jour férié","contrôler jour férié","chevauchement férié"],
+        "it": ["è festivo","controllare festività","verifica giorno festivo","sovrapposizione festività"]
+      },
+      "version": 1
+    },
+    {
+      "name": "import_calendar_rules",
+      "description": "Bulk-imports CalendarRules (holidays definitions) for a country + state. Each entry in rulesJson becomes one rule. Validates every rule via HolidaysListCalculator before persisting; rejects the whole batch on a single bad rule.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditSettings"],
+      "parameters": [
+        { "name": "country", "description": "ISO country code attached to every imported rule", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "state", "description": "State / canton (empty = nationwide)", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "rulesJson", "description": "JSON array of { rule, subRule?, nameDe, nameEn?, isMandatory?, isPaid? }", "type": "String", "required": true, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["import","calendar","rule","holiday","feiertag"],
+      "synonyms": {
+        "de": ["feiertagsregeln importieren","kalenderregeln laden","feiertage einlesen","kanton feiertage importieren"],
+        "en": ["import holiday rules","load calendar rules","bulk import holidays","seed cantonal holidays"],
+        "fr": ["importer règles jours fériés","charger calendrier","importer fêtes officielles"],
+        "it": ["importare regole festività","caricare calendario","importare feste cantonali"]
+      },
+      "version": 1
     }
   ]
 }
