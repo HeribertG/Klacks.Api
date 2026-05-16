@@ -100,7 +100,8 @@ public class ChatController : ControllerBase
             ConversationId = request.ConversationId,
             ModelId = request.ModelId,
             Language = request.Language,
-            UserRights = userRights
+            UserRights = userRights,
+            PageContext = request.PageContext
         });
 
         response.ConversationId = request.ConversationId ?? Guid.NewGuid().ToString();
@@ -177,7 +178,8 @@ public class ChatController : ControllerBase
             ConversationId = request.ConversationId,
             ModelId = request.ModelId,
             Language = request.Language,
-            UserRights = userRights
+            UserRights = userRights,
+            PageContext = request.PageContext
         };
 
         try

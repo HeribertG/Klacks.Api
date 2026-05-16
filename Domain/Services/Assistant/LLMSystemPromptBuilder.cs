@@ -11,6 +11,9 @@ public class LLMSystemPromptBuilder
 {
     private readonly IPromptTranslationProvider _translationProvider;
 
+    private const string CurrentViewHeader = "=== CURRENT VIEW ===";
+    private const string CurrentViewFooter = "=== END CURRENT VIEW ===";
+
     private const string NavigationResponseGuide = """
 
 NAVIGATION RESPONSE GUIDE:
@@ -53,11 +56,52 @@ NAVIGATION RESPONSE GUIDE:
 - {t["LabelUserId"]}: {context.UserId}
 - {t["LabelPermissions"]}: {string.Join(", ", context.UserRights)}{settingsNote}");
 
+        var currentView = RenderCurrentViewBlock(context.PageContext);
+        if (currentView != null)
+        {
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.Append(currentView);
+        }
+
         if (HasNavigateToSkill(context))
         {
             sb.Append(NavigationResponseGuide);
         }
 
+        return sb.ToString();
+    }
+
+    private static string? RenderCurrentViewBlock(AssistantPageContext? pageContext)
+    {
+        if (pageContext == null || !pageContext.HasAny())
+        {
+            return null;
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine(CurrentViewHeader);
+        if (!string.IsNullOrWhiteSpace(pageContext.CurrentRoute))
+        {
+            sb.AppendLine($"- route: {pageContext.CurrentRoute}");
+        }
+        if (!string.IsNullOrWhiteSpace(pageContext.SelectedGroupId))
+        {
+            sb.AppendLine($"- selectedGroupId: {pageContext.SelectedGroupId}");
+        }
+        if (!string.IsNullOrWhiteSpace(pageContext.SelectedPeriodFrom))
+        {
+            sb.AppendLine($"- selectedPeriodFrom: {pageContext.SelectedPeriodFrom}");
+        }
+        if (!string.IsNullOrWhiteSpace(pageContext.SelectedPeriodUntil))
+        {
+            sb.AppendLine($"- selectedPeriodUntil: {pageContext.SelectedPeriodUntil}");
+        }
+        if (!string.IsNullOrWhiteSpace(pageContext.SelectedClientId))
+        {
+            sb.AppendLine($"- selectedClientId: {pageContext.SelectedClientId}");
+        }
+        sb.Append(CurrentViewFooter);
         return sb.ToString();
     }
 

@@ -30,6 +30,7 @@ public class ProcessLLMMessageCommand : IRequest<LLMResponse>
     public string? Language { get; set; }
     public List<string> UserRights { get; set; } = new();
     public Guid? AgentId { get; set; }
+    public AssistantPageContext? PageContext { get; set; }
 }
 
 public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessageCommand, LLMResponse>
@@ -67,6 +68,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             ModelId = request.ModelId,
             Language = request.Language,
             UserRights = request.UserRights,
+            PageContext = request.PageContext,
             AvailableFunctions = await GetFilteredFunctionsAsync(
                 agent, request.UserRights, request.Message, request.Language, cancellationToken)
         };

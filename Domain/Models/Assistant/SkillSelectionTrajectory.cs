@@ -34,4 +34,6 @@ public class SkillSelectionTrajectory : BaseEntity
     public int LatencyMsKnowledge { get; set; }
 
     public int LatencyMsLlm { get; set; }
+
+    public Guid? PlanId { get; set; }
 }

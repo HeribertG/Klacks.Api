@@ -2,9 +2,10 @@
 
 /// <summary>
 /// Assembles the full LLM context per turn: cached identity (soul + rules),
-/// sentiment mood hint, and relevant memories via hybrid search.
+/// world-model ontology block, sentiment mood hint, and relevant memories via hybrid search.
 /// </summary>
 /// <param name="identityContextProvider">Provides cached identity prompt for the agent</param>
+/// <param name="ontologyService">Provides the Klacks domain ontology (entities, relations, constraints)</param>
 /// <param name="memoryRetrievalService">Retrieves relevant memories for the user message</param>
 /// <param name="sentimentAnalyzer">Analyzes user message sentiment for mood hints</param>
 /// <param name="logger">Logger instance</param>
@@ -24,20 +25,24 @@ public record AssembledContext(
 public class ContextAssemblyPipeline
 {
     private readonly IIdentityContextProvider _identityContextProvider;
+    private readonly IKlacksOntologyService _ontologyService;
     private readonly IMemoryRetrievalService _memoryRetrievalService;
     private readonly ISentimentAnalyzer _sentimentAnalyzer;
     private readonly ILogger<ContextAssemblyPipeline> _logger;
 
     private const int CharsPerToken = 4;
     private const float SentimentThreshold = 0.5f;
+    private const int OntologyBlockMaxTokens = 1500;
 
     public ContextAssemblyPipeline(
         IIdentityContextProvider identityContextProvider,
+        IKlacksOntologyService ontologyService,
         IMemoryRetrievalService memoryRetrievalService,
         ISentimentAnalyzer sentimentAnalyzer,
         ILogger<ContextAssemblyPipeline> logger)
     {
         _identityContextProvider = identityContextProvider;
+        _ontologyService = ontologyService;
         _memoryRetrievalService = memoryRetrievalService;
         _sentimentAnalyzer = sentimentAnalyzer;
         _logger = logger;
@@ -53,6 +58,14 @@ public class ContextAssemblyPipeline
 
         var identityPrompt = await _identityContextProvider.GetIdentityPromptAsync(agentId, language, cancellationToken);
         sb.Append(identityPrompt);
+
+        var ontologyBlock = _ontologyService.RenderWorldModelBlock(OntologyBlockMaxTokens);
+        if (!string.IsNullOrWhiteSpace(ontologyBlock))
+        {
+            sb.AppendLine();
+            sb.AppendLine(ontologyBlock);
+            sb.AppendLine();
+        }
 
         var sentimentResult = await _sentimentAnalyzer.AnalyzeSentimentAsync(userMessage);
         if (sentimentResult.Mood != SentimentMood.Neutral && sentimentResult.Confidence > SentimentThreshold)

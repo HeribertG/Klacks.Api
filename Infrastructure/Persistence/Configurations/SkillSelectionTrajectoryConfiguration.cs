@@ -17,11 +17,17 @@ public class SkillSelectionTrajectoryConfiguration : IEntityTypeConfiguration<Sk
         builder.HasQueryFilter(p => !p.IsDeleted);
         builder.HasIndex(p => new { p.AgentId, p.CreateTime });
         builder.HasIndex(p => p.WasCorrected);
+        builder.HasIndex(p => p.PlanId);
         builder.Property(p => p.Locale).HasMaxLength(8);
         builder.Property(p => p.UserMessageHash).HasMaxLength(16);
         builder.Property(p => p.IntentExcerpt).HasMaxLength(120);
         builder.Property(p => p.LlmChosenSkill).HasMaxLength(128);
         builder.Property(p => p.CorrectionType).HasMaxLength(32);
         builder.Property(p => p.KnowledgeIndexCandidatesJson).HasColumnType("jsonb");
+
+        builder.HasOne<AgentPlan>()
+            .WithMany()
+            .HasForeignKey(p => p.PlanId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

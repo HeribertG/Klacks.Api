@@ -29,6 +29,7 @@ public class LLMStreamRequest
     public string? ModelId { get; set; }
     public string? Language { get; set; }
     public List<string> UserRights { get; set; } = new();
+    public AssistantPageContext? PageContext { get; set; }
 }
 
 public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
@@ -94,6 +95,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             ModelId = request.ModelId,
             Language = request.Language,
             UserRights = request.UserRights,
+            PageContext = request.PageContext,
             AvailableFunctions = functions
         };
 

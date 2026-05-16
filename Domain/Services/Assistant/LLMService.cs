@@ -134,7 +134,7 @@ public class LLMService : ILLMService
         var runningHistory = new List<Providers.LLMMessage>(history!);
         var currentMessage = context.Message;
         var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        const int maxIterations = 3;
+        const int maxIterations = Klacks.Api.Domain.Constants.LLMLoopConstants.MaxChatToolIterations;
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
@@ -329,7 +329,7 @@ public class LLMService : ILLMService
     private async Task<(string responseContent, LLMProviderResponse? lastResponse, int iterationsUsed, List<LLMFunctionCall> allFunctionCalls)> ExecuteMultiTurnLoopAsync(
         MultiTurnContext ctx)
     {
-        const int maxIterations = 3;
+        const int maxIterations = Klacks.Api.Domain.Constants.LLMLoopConstants.MaxChatToolIterations;
         var allFunctionCalls = new List<LLMFunctionCall>();
         var runningHistory = new List<Providers.LLMMessage>(ctx.TruncatedHistory);
         var currentMessage = ctx.Context.Message;

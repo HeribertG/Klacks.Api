@@ -17,4 +17,6 @@ public class LLMContext
     public string? ModelId { get; set; }
 
     public string? Language { get; set; }
+
+    public AssistantPageContext? PageContext { get; set; }
 }
