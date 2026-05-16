@@ -213,6 +213,7 @@ if (bgOptions.LLMModelSync)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<LLMModelSyncBackgroundService>());
 if (bgOptions.DataRetention)
     builder.Services.AddHostedService<DataRetentionBackgroundService>();
+builder.Services.AddHostedService<AgentTriggerBackgroundService>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddMemoryCache();

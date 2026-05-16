@@ -453,6 +453,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPlanStepExecutor, Klacks.Api.Application.Services.Assistant.Planning.PlanStepExecutor>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IKlacksOntologyService, Klacks.Api.Application.Services.Assistant.Ontology.KlacksOntologyService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerService, Klacks.Api.Application.Services.Assistant.Triggers.AgentTriggerService>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerRateLimiter, Klacks.Api.Application.Services.Assistant.Triggers.AgentTriggerRateLimiter>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.UnstaffedShift7dDetector>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.LockConflictDetector>();
         services.AddScoped<IAutoMemoryExtractionService, AutoMemoryExtractionService>();
         services.AddScoped<IConversationCompactionService, ConversationCompactionService>();
         services.AddScoped<IHeartbeatLLMService, Klacks.Api.Domain.Services.Assistant.HeartbeatLLMService>();
