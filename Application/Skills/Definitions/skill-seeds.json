@@ -9729,6 +9729,160 @@
         "it": ["respingere","rifiutare","scartare scenario"]
       },
       "version": 1
+    },
+    {
+      "name": "update_client",
+      "description": "Updates an existing client (employee, customer or extern employee) by id. Only the fields supplied as parameters are changed; everything else stays untouched. Use for renaming, correcting birthdate, changing gender, adjusting company name. Address and contact data are managed via separate UI workflows.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditClients"],
+      "parameters": [
+        { "name": "clientId", "description": "UUID of the client/employee/customer to update", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "firstName", "description": "New first name", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "lastName", "description": "New last name", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "title", "description": "Title prefix (e.g. Dr.)", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "company", "description": "Company name (for legal entities)", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "birthdate", "description": "Birthdate YYYY-MM-DD", "type": "Date", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "gender", "description": "Gender", "type": "Enum", "required": false, "defaultValue": null, "enumValues": ["Male","Female","Intersexuality","LegalEntity"] }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["update","change","edit","modify","client","employee","mitarbeiter","kunde"],
+      "synonyms": {
+        "de": ["aktualisieren","ändern","bearbeiten","umbenennen","mitarbeiter ändern","kunde ändern","klient bearbeiten","personalstammdaten ändern"],
+        "en": ["update","edit","modify","rename","change employee","change client","update customer"],
+        "fr": ["modifier","mettre à jour","renommer","éditer employé","modifier client"],
+        "it": ["aggiornare","modificare","cambiare","rinominare","modificare dipendente","aggiornare cliente"]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_client",
+      "description": "Soft-deletes a client (employee, customer or extern employee) by id. Soft-delete sets IsDeleted=true; historical works and contracts remain intact and audit-visible. Use for offboarding employees or removing customers from the active list.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanDeleteClients"],
+      "parameters": [
+        { "name": "clientId", "description": "UUID of the client/employee/customer to soft-delete", "type": "String", "required": true, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["delete","remove","offboard","client","employee","mitarbeiter","kunde"],
+      "synonyms": {
+        "de": ["löschen","entfernen","mitarbeiter löschen","kunde entfernen","klient löschen","offboarding","ausscheiden lassen"],
+        "en": ["delete","remove","offboard","terminate","retire client","drop employee"],
+        "fr": ["supprimer","retirer","supprimer employé","supprimer client","retirer collaborateur"],
+        "it": ["eliminare","rimuovere","cancellare dipendente","cancellare cliente"]
+      },
+      "version": 1
+    },
+    {
+      "name": "create_group",
+      "description": "Creates a new group (location, branch, organisational unit) with optional parent for the nested-set hierarchy. ValidFrom defaults to today if not given. Use for opening a new branch or splitting a team.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditSettings"],
+      "parameters": [
+        { "name": "name", "description": "Display name of the group", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "description", "description": "Free-text description", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "parentId", "description": "UUID of the parent group (omit for root level)", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "validFrom", "description": "ISO date the group becomes active", "type": "Date", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "validUntil", "description": "ISO date the group becomes inactive", "type": "Date", "required": false, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["create","new","add","group","gruppe","filiale","team","standort"],
+      "synonyms": {
+        "de": ["gruppe anlegen","neue gruppe","filiale eröffnen","team gründen","standort hinzufügen","abteilung anlegen"],
+        "en": ["create group","add team","new branch","open location","add department","create unit"],
+        "fr": ["créer groupe","nouvelle équipe","ouvrir filiale","créer département","ajouter unité"],
+        "it": ["creare gruppo","nuovo team","aprire filiale","aggiungere reparto"]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_group",
+      "description": "Updates an existing group's name, description and validity dates. Reparenting (moving the group under a different parent) is NOT handled here — use a dedicated move skill so the nested-set invariants stay intact.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditSettings"],
+      "parameters": [
+        { "name": "groupId", "description": "UUID of the group to update", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "name", "description": "New display name", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "description", "description": "New description", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "validFrom", "description": "ISO date", "type": "Date", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "validUntil", "description": "ISO date", "type": "Date", "required": false, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["update","rename","change","group","gruppe","filiale"],
+      "synonyms": {
+        "de": ["gruppe ändern","gruppe umbenennen","filiale anpassen","standort ändern","team bearbeiten"],
+        "en": ["update group","rename group","change branch","modify team","edit department"],
+        "fr": ["modifier groupe","renommer équipe","modifier filiale","éditer département"],
+        "it": ["modificare gruppo","rinominare team","aggiornare filiale"]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_group",
+      "description": "Soft-deletes a group by id. Refuses if the group still has children, unless forceCascade=true is passed; then the whole subtree is soft-deleted.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditSettings"],
+      "parameters": [
+        { "name": "groupId", "description": "UUID of the group to delete", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "forceCascade", "description": "If true, soft-deletes the whole subtree", "type": "Boolean", "required": false, "defaultValue": false, "enumValues": null }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["delete","remove","close","group","gruppe","filiale"],
+      "synonyms": {
+        "de": ["gruppe löschen","filiale schließen","team auflösen","standort entfernen","abteilung schließen"],
+        "en": ["delete group","close branch","disband team","remove location","retire department"],
+        "fr": ["supprimer groupe","fermer filiale","dissoudre équipe","retirer site"],
+        "it": ["eliminare gruppo","chiudere filiale","sciogliere team","rimuovere sede"]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_groups_hierarchical",
+      "description": "Returns the group tree starting from rootId (or all roots if omitted) with parent name and depth-level per row. Lets the LLM reason about hierarchy (parent / children / depth) instead of a flat list.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanViewSettings"],
+      "parameters": [
+        { "name": "rootId", "description": "UUID of the subtree root (omit for all roots)", "type": "String", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "maxDepth", "description": "Max depth from root (1-based); unlimited if omitted", "type": "Integer", "required": false, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["list","tree","hierarchy","groups","gruppen","hierarchie"],
+      "synonyms": {
+        "de": ["gruppenhierarchie","gruppenbaum","gruppen anzeigen baum","filialhierarchie","organigramm"],
+        "en": ["list groups tree","group hierarchy","show org chart","branch tree","display hierarchy"],
+        "fr": ["arbre groupes","hiérarchie groupes","organigramme","arborescence"],
+        "it": ["albero gruppi","gerarchia gruppi","organigramma","struttura ad albero"]
+      },
+      "version": 1
     }
   ]
 }
