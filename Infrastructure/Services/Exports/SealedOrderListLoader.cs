@@ -63,8 +63,19 @@ public class SealedOrderListLoader : ISealedOrderListLoader
             var like = $"%{search}%";
             var idNumberMatch = int.TryParse(search, out var idNumber) ? idNumber : (int?)null;
 
+            var descendantRootIds = await _context.Shift
+                .AsNoTracking()
+                .Where(s => !s.IsDeleted
+                    && s.Status != ShiftStatus.SealedOrder
+                    && s.RootId.HasValue
+                    && (EF.Functions.ILike(s.Abbreviation, like) || EF.Functions.ILike(s.Name, like)))
+                .Select(s => s.RootId!.Value)
+                .Distinct()
+                .ToListAsync(cancellationToken);
+
             query = query.Where(s =>
-                EF.Functions.ILike(s.Abbreviation, like)
+                descendantRootIds.Contains(s.Id)
+                || EF.Functions.ILike(s.Abbreviation, like)
                 || EF.Functions.ILike(s.Name, like)
                 || (s.Client != null && EF.Functions.ILike(s.Client.Name, like))
                 || (s.Client != null && s.Client.FirstName != null && EF.Functions.ILike(s.Client.FirstName, like))
