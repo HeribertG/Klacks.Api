@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Text.Json.Serialization;
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Application.DTOs.PeriodClosing;
@@ -22,6 +23,7 @@ public class PeriodIssueDto
 
     public string ClientName { get; set; } = string.Empty;
 
+    [JsonConverter(typeof(JsonStringEnumConverter<ScheduleValidationType>))]
     public ScheduleValidationType Severity { get; set; }
 
     public string Code { get; set; } = string.Empty;
