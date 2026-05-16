@@ -10026,6 +10026,79 @@
       "version": 1
     },
     {
+      "name": "list_report_templates",
+      "description": "Lists configured report templates. Optional filter by type: Schedule, Client, Invoice, Absence. Use before generate_period_summary or email_schedule_to_client to pick the right template.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanViewSettings"],
+      "parameters": [
+        { "name": "type", "description": "Schedule / Client / Invoice / Absence", "type": "Enum", "required": false, "defaultValue": null, "enumValues": ["Schedule","Client","Invoice","Absence"] }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["report","template","bericht","vorlage","rapport"],
+      "synonyms": {
+        "de": ["report vorlagen","berichtsvorlagen","report templates","vorlagen anzeigen"],
+        "en": ["list report templates","show templates","report types","available reports"],
+        "fr": ["modèles de rapport","types de rapport","liste modèles"],
+        "it": ["modelli di report","tipi di report","elenca modelli"]
+      },
+      "version": 1
+    },
+    {
+      "name": "generate_period_summary",
+      "description": "Generates a compact textual summary for a group + period (employee count, day count, employee ids). Klacksy uses this for quick answers like 'how many people in Bern in May' and as a precursor to email_schedule_to_client.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanViewShifts"],
+      "parameters": [
+        { "name": "groupId", "description": "UUID of the group", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "fromDate", "description": "ISO date yyyy-MM-dd (period start)", "type": "Date", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "untilDate", "description": "ISO date yyyy-MM-dd (period end, inclusive)", "type": "Date", "required": true, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["summary","period","zusammenfassung","periode","résumé"],
+      "synonyms": {
+        "de": ["periodenzusammenfassung","monatszusammenfassung","überblick periode","report periode"],
+        "en": ["period summary","month overview","schedule summary","period stats"],
+        "fr": ["résumé période","statistiques période","aperçu mois"],
+        "it": ["riepilogo periodo","statistiche periodo","panoramica mese"]
+      },
+      "version": 1
+    },
+    {
+      "name": "email_schedule_to_client",
+      "description": "Opens the schedule 'Send to client' dialog for the chosen client and period. The actual PDF generation happens client-side, so this skill returns a navigate UiAction; the user confirms the send in the UI dialog.",
+      "category": "UI",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanViewShifts"],
+      "parameters": [
+        { "name": "clientId", "description": "UUID of the client whose schedule should be emailed", "type": "String", "required": true, "defaultValue": null, "enumValues": null },
+        { "name": "fromDate", "description": "ISO date yyyy-MM-dd", "type": "Date", "required": false, "defaultValue": null, "enumValues": null },
+        { "name": "untilDate", "description": "ISO date yyyy-MM-dd", "type": "Date", "required": false, "defaultValue": null, "enumValues": null }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["email","schedule","client","mitarbeiter","versenden","mail"],
+      "synonyms": {
+        "de": ["schichtplan versenden","einsatzplan mailen","plan an mitarbeiter","schichtplan mailen"],
+        "en": ["email schedule","send schedule","mail schedule to employee","schedule by email"],
+        "fr": ["envoyer planning par email","planning par mail","mailer planning"],
+        "it": ["inviare programma per email","programma via email"]
+      },
+      "version": 1
+    },
+    {
       "name": "import_calendar_rules",
       "description": "Bulk-imports CalendarRules (holidays definitions) for a country + state. Each entry in rulesJson becomes one rule. Validates every rule via HolidaysListCalculator before persisting; rejects the whole batch on a single bad rule.",
       "category": "Crud",
