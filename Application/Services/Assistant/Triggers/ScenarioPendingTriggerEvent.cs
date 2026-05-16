@@ -1,0 +1,31 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+/// <summary>
+/// Fired when an AnalyseScenario has been waiting for accept / reject longer than 48 hours.
+/// </summary>
+
+using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Interfaces.Assistant;
+
+namespace Klacks.Api.Application.Services.Assistant.Triggers;
+
+public sealed record ScenarioPendingTriggerEvent(
+    Guid ScenarioId,
+    int HoursPending,
+    Guid? GroupId,
+    string GroupName) : IAgentTriggerEvent
+{
+    public string Kind => AgentTriggerKinds.ScenarioPending;
+    public string Severity => HoursPending >= 168 ? AgentTriggerSeverity.High
+        : HoursPending >= 72 ? AgentTriggerSeverity.Medium
+        : AgentTriggerSeverity.Low;
+    public string Summary => $"Scenario for {GroupName} has been pending {HoursPending} hours without decision.";
+
+    public IReadOnlyDictionary<string, object?> Payload => new Dictionary<string, object?>
+    {
+        ["scenarioId"] = ScenarioId,
+        ["hoursPending"] = HoursPending,
+        ["groupId"] = GroupId,
+        ["groupName"] = GroupName
+    };
+}
