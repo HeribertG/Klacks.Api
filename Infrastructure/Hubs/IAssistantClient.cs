@@ -9,4 +9,5 @@ public interface IAssistantClient
     Task ProactiveMessage(ProactiveMessageDto message);
     Task OnboardingPrompt(ProactiveMessageDto message);
     Task PluginEvent(string eventType, object payload);
+    Task PlanUpdated(AgentPlanUpdateDto update);
 }

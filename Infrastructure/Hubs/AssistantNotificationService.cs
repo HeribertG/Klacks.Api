@@ -65,6 +65,30 @@ public class AssistantNotificationService : IAssistantNotificationService
         _logger.LogInformation("Sent onboarding prompt to user {UserId}", userId);
     }
 
+    public async Task SendPlanUpdateAsync(string userId, Guid planId, string status, int currentStepIndex, int totalSteps, string? lastErrorMessage = null)
+    {
+        var connectionIds = _tracker.GetConnectionIds(userId).ToList();
+        if (connectionIds.Count == 0)
+        {
+            _logger.LogDebug("No connections found for user {UserId}, skipping plan update {PlanId}", userId, planId);
+            return;
+        }
+
+        var dto = new AgentPlanUpdateDto
+        {
+            PlanId = planId,
+            Status = status,
+            CurrentStepIndex = currentStepIndex,
+            TotalSteps = totalSteps,
+            LastErrorMessage = lastErrorMessage,
+            Timestamp = DateTime.UtcNow
+        };
+
+        await _hubContext.Clients.Clients(connectionIds).PlanUpdated(dto);
+        _logger.LogInformation("Sent plan update {PlanId} (status={Status}, step={Step}/{Total}) to user {UserId}",
+            planId, status, currentStepIndex, totalSteps, userId);
+    }
+
     public async Task BroadcastPluginEventAsync(string eventType, object payload)
     {
         var connectedUserIds = _tracker.GetConnectedUserIds().ToList();

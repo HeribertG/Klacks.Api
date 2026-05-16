@@ -23,15 +23,18 @@ public class PlanStepExecutor : IPlanStepExecutor
 
     private readonly IAgentPlanRepository _planRepository;
     private readonly ISkillExecutor _skillExecutor;
+    private readonly IAssistantNotificationService _notificationService;
     private readonly ILogger<PlanStepExecutor> _logger;
 
     public PlanStepExecutor(
         IAgentPlanRepository planRepository,
         ISkillExecutor skillExecutor,
+        IAssistantNotificationService notificationService,
         ILogger<PlanStepExecutor> logger)
     {
         _planRepository = planRepository;
         _skillExecutor = skillExecutor;
+        _notificationService = notificationService;
         _logger = logger;
     }
 
@@ -73,21 +76,24 @@ public class PlanStepExecutor : IPlanStepExecutor
         {
             steps = steps.Take(MaxStepBudget).ToList();
         }
-        if (steps.Count == 0)
+
+        var totalSteps = steps.Count;
+
+        if (totalSteps == 0)
         {
             plan.Status = PlanStatus.Completed;
             plan.LastErrorMessage = null;
-            await _planRepository.UpdateAsync(plan, cancellationToken);
+            await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
             return plan;
         }
 
         plan.Status = PlanStatus.Executing;
-        await _planRepository.UpdateAsync(plan, cancellationToken);
+        await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
 
         var stepResults = new Dictionary<int, object?>();
         var allowedToBypassReversibleGate = autoApproveCurrentStep;
 
-        for (var index = plan.CurrentStepIndex; index < steps.Count; index++)
+        for (var index = plan.CurrentStepIndex; index < totalSteps; index++)
         {
             cancellationToken.ThrowIfCancellationRequested();
             var step = steps[index];
@@ -97,7 +103,7 @@ public class PlanStepExecutor : IPlanStepExecutor
                 plan.CurrentStepIndex = index;
                 plan.Status = PlanStatus.PausedForApproval;
                 plan.LastErrorMessage = null;
-                await _planRepository.UpdateAsync(plan, cancellationToken);
+                await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
                 _logger.LogInformation("Plan {PlanId} paused for approval at step {Index} ({Skill})",
                     plan.Id, index, step.Skill);
                 return plan;
@@ -113,7 +119,7 @@ public class PlanStepExecutor : IPlanStepExecutor
                 plan.CurrentStepIndex = index;
                 plan.Status = PlanStatus.Failed;
                 plan.LastErrorMessage = skillResult.Message ?? "Skill returned no error message";
-                await _planRepository.UpdateAsync(plan, cancellationToken);
+                await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
                 _logger.LogWarning("Plan {PlanId} failed at step {Index} ({Skill}): {Message}",
                     plan.Id, index, step.Skill, skillResult.Message);
                 return plan;
@@ -127,7 +133,7 @@ public class PlanStepExecutor : IPlanStepExecutor
                     plan.CurrentStepIndex = index;
                     plan.Status = PlanStatus.Failed;
                     plan.LastErrorMessage = $"Verify '{step.VerifySkill}' failed: {verifyResult.Message}";
-                    await _planRepository.UpdateAsync(plan, cancellationToken);
+                    await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
                     _logger.LogWarning("Plan {PlanId} verify failed at step {Index} ({Skill}/{Verify}): {Message}",
                         plan.Id, index, step.Skill, step.VerifySkill, verifyResult.Message);
                     return plan;
@@ -135,14 +141,36 @@ public class PlanStepExecutor : IPlanStepExecutor
             }
 
             plan.CurrentStepIndex = index + 1;
-            await _planRepository.UpdateAsync(plan, cancellationToken);
+            await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
         }
 
         plan.Status = PlanStatus.Completed;
         plan.LastErrorMessage = null;
-        await _planRepository.UpdateAsync(plan, cancellationToken);
-        _logger.LogInformation("Plan {PlanId} completed all {Count} step(s)", plan.Id, steps.Count);
+        await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
+        _logger.LogInformation("Plan {PlanId} completed all {Count} step(s)", plan.Id, totalSteps);
         return plan;
+    }
+
+    private async Task PersistAndPublishAsync(AgentPlan plan, int totalSteps, CancellationToken cancellationToken)
+    {
+        await _planRepository.UpdateAsync(plan, cancellationToken);
+        if (!string.IsNullOrEmpty(plan.UserId))
+        {
+            try
+            {
+                await _notificationService.SendPlanUpdateAsync(
+                    plan.UserId,
+                    plan.Id,
+                    plan.Status,
+                    plan.CurrentStepIndex,
+                    totalSteps,
+                    plan.LastErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Plan {PlanId} update broadcast failed (status={Status})", plan.Id, plan.Status);
+            }
+        }
     }
 
     private async Task<SkillResult> ExecuteSingleStepAsync(

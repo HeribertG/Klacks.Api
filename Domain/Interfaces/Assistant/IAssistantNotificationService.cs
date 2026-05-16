@@ -10,6 +10,8 @@ public interface IAssistantNotificationService
 
     Task BroadcastPluginEventAsync(string eventType, object payload);
 
+    Task SendPlanUpdateAsync(string userId, Guid planId, string status, int currentStepIndex, int totalSteps, string? lastErrorMessage = null);
+
     bool IsUserConnected(string userId);
 
     IEnumerable<string> GetConnectedUserIds();
