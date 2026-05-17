@@ -59,12 +59,17 @@ public class LockConflictDetector : IAgentTriggerDetector
         var events = new List<IAgentTriggerEvent>();
         foreach (var execution in failed)
         {
-            var combined = ((execution.ErrorMessage ?? string.Empty) + " " + (execution.ResultMessage ?? string.Empty)).ToLowerInvariant();
-            if (!LockIndicators.Any(indicator => combined.Contains(indicator, StringComparison.Ordinal)))
+            if (string.IsNullOrEmpty(execution.ErrorMessage) && string.IsNullOrEmpty(execution.ResultMessage))
             {
                 continue;
             }
 
+            if (!ContainsLockIndicator(execution.ErrorMessage) && !ContainsLockIndicator(execution.ResultMessage))
+            {
+                continue;
+            }
+
+            var combined = (execution.ErrorMessage ?? string.Empty) + " " + (execution.ResultMessage ?? string.Empty);
             var lockLevel = TryParseLockLevel(combined) ?? DefaultLockLevel;
             var workId = TryParseWorkId(combined) ?? Guid.Empty;
 
@@ -80,6 +85,19 @@ public class LockConflictDetector : IAgentTriggerDetector
             failed.Count, events.Count);
 
         return events;
+    }
+
+    private static bool ContainsLockIndicator(string? text)
+    {
+        if (string.IsNullOrEmpty(text)) return false;
+        foreach (var indicator in LockIndicators)
+        {
+            if (text.Contains(indicator, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static int? TryParseLockLevel(string combined)

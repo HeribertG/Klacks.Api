@@ -80,7 +80,8 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
             PaymentInterval.Weekly => EndOfIsoWeek(today),
             PaymentInterval.Biweekly => EndOfBiweekly(today, group.ValidFrom),
             PaymentInterval.Monthly => EndOfMonth(today),
-            _ => EndOfMonth(today)
+            _ => throw new ArgumentOutOfRangeException(nameof(group),
+                $"Unsupported PaymentInterval '{group.PaymentInterval}' — caller must filter Individual.")
         };
     }
 

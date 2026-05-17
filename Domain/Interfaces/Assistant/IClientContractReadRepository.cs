@@ -15,4 +15,6 @@ public interface IClientContractReadRepository
     Task<List<ClientContract>> GetExpiringBetweenAsync(DateOnly fromInclusive, DateOnly untilInclusive, CancellationToken cancellationToken = default);
 
     Task<List<ClientContract>> GetContractsForClientAsync(Guid clientId, CancellationToken cancellationToken = default);
+
+    Task<ILookup<Guid, ClientContract>> GetContractsForClientsAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken = default);
 }

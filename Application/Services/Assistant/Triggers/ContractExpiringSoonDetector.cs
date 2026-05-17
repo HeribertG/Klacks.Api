@@ -40,13 +40,19 @@ public class ContractExpiringSoonDetector : IAgentTriggerDetector
             return Array.Empty<IAgentTriggerEvent>();
         }
 
+        var clientIds = expiring
+            .Where(c => c.UntilDate.HasValue)
+            .Select(c => c.ClientId)
+            .Distinct()
+            .ToList();
+        var contractsByClient = await _contractRepository.GetContractsForClientsAsync(clientIds, cancellationToken);
+
         var events = new List<IAgentTriggerEvent>();
         foreach (var contract in expiring)
         {
             if (!contract.UntilDate.HasValue) continue;
 
-            var hasFollowUp = await HasFollowUpAsync(contract, cancellationToken);
-            if (hasFollowUp) continue;
+            if (HasFollowUp(contract, contractsByClient[contract.ClientId])) continue;
 
             var clientName = contract.Client != null
                 ? $"{contract.Client.FirstName} {contract.Client.Name}".Trim()
@@ -69,10 +75,17 @@ public class ContractExpiringSoonDetector : IAgentTriggerDetector
         return events;
     }
 
-    private async Task<bool> HasFollowUpAsync(Klacks.Api.Domain.Models.Staffs.ClientContract contract, CancellationToken cancellationToken)
+    private static bool HasFollowUp(Domain.Models.Staffs.ClientContract contract, IEnumerable<Domain.Models.Staffs.ClientContract> allForClient)
     {
         if (!contract.UntilDate.HasValue) return false;
-        var allForClient = await _contractRepository.GetContractsForClientAsync(contract.ClientId, cancellationToken);
-        return allForClient.Any(c => c.Id != contract.Id && c.FromDate >= contract.UntilDate.Value);
+        var expiry = contract.UntilDate.Value;
+        foreach (var candidate in allForClient)
+        {
+            if (candidate.Id != contract.Id && candidate.FromDate >= expiry)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

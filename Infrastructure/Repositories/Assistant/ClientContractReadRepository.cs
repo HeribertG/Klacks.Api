@@ -38,4 +38,18 @@ public class ClientContractReadRepository : IClientContractReadRepository
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<ILookup<Guid, ClientContract>> GetContractsForClientsAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken = default)
+    {
+        if (clientIds.Count == 0)
+        {
+            return Array.Empty<ClientContract>().ToLookup(c => c.ClientId);
+        }
+
+        var rows = await _context.ClientContract
+            .Where(c => clientIds.Contains(c.ClientId))
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+        return rows.ToLookup(c => c.ClientId);
+    }
 }
