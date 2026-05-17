@@ -100,6 +100,7 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
             clientIds,
             periodHoursStart,
             periodHoursEnd,
+            request.Filter.AnalyseToken,
             cancellationToken);
 
         _logger.LogInformation(

@@ -51,7 +51,7 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector
         }
 
         var clientIds = clients.Select(c => c.Id).ToList();
-        var hoursMap = await _workRepository.GetPeriodHoursForClients(clientIds, periodStart, periodEnd, cancellationToken);
+        var hoursMap = await _workRepository.GetPeriodHoursForClients(clientIds, periodStart, periodEnd, analyseToken: null, cancellationToken);
 
         var events = new List<IAgentTriggerEvent>();
         foreach (var client in clients)

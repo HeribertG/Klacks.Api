@@ -143,7 +143,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         return (clients, totalCount);
     }
 
-    public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursForClients(List<Guid> clientIds, DateOnly startDate, DateOnly endDate, CancellationToken cancellationToken = default)
+    public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursForClients(List<Guid> clientIds, DateOnly startDate, DateOnly endDate, Guid? analyseToken = null, CancellationToken cancellationToken = default)
     {
         if (clientIds.Count == 0)
         {
@@ -155,26 +155,27 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         var periodHours = await context.ClientPeriodHours
             .Where(m => clientIds.Contains(m.ClientId)
                 && m.StartDate == startDate
-                && m.EndDate == endDate)
+                && m.EndDate == endDate
+                && m.AnalyseToken == analyseToken)
             .ToListAsync(cancellationToken);
 
         var clientIdsWithPeriodHours = periodHours.Select(m => m.ClientId).ToHashSet();
         var clientIdsWithoutPeriodHours = clientIds.Where(id => !clientIdsWithPeriodHours.Contains(id)).ToList();
 
         var worksHours = await context.Work
-            .Where(w => clientIdsWithoutPeriodHours.Contains(w.ClientId) && w.CurrentDate >= startDate && w.CurrentDate <= endDate)
+            .Where(w => clientIdsWithoutPeriodHours.Contains(w.ClientId) && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.AnalyseToken == analyseToken)
             .GroupBy(w => w.ClientId)
             .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime), TotalSurcharges = g.Sum(w => w.Surcharges) })
             .ToListAsync(cancellationToken);
 
         var breaksHours = await context.Break
-            .Where(b => clientIdsWithoutPeriodHours.Contains(b.ClientId) && b.CurrentDate >= startDate && b.CurrentDate <= endDate)
+            .Where(b => clientIdsWithoutPeriodHours.Contains(b.ClientId) && b.CurrentDate >= startDate && b.CurrentDate <= endDate && b.AnalyseToken == analyseToken)
             .GroupBy(b => b.ClientId)
             .Select(g => new { ClientId = g.Key, TotalBreaks = g.Sum(b => b.WorkTime) })
             .ToListAsync(cancellationToken);
 
         var workChanges = await context.WorkChange
-            .Where(wc => clientIdsWithoutPeriodHours.Contains(wc.Work!.ClientId) && wc.Work.CurrentDate >= startDate && wc.Work.CurrentDate <= endDate)
+            .Where(wc => clientIdsWithoutPeriodHours.Contains(wc.Work!.ClientId) && wc.Work.CurrentDate >= startDate && wc.Work.CurrentDate <= endDate && wc.Work.AnalyseToken == analyseToken)
             .Select(wc => new WorkChangeEntry(wc.Work!.ClientId, wc.ChangeTime, wc.Type, wc.ToInvoice, wc.ReplaceClientId, wc.Work.ClientId))
             .ToListAsync(cancellationToken);
 
