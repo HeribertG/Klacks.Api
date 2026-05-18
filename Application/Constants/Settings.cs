@@ -30,6 +30,8 @@ namespace Klacks.Api.Application.Constants
         public const string APP_OUTGOING_SERVER_USERNAME = "outgoingserverUsername";
         public const string APP_OUTGOING_SERVER_PASSWORD = "outgoingserverPassword";
 
+        public const string DEFAULT_WORKING_HOURS = "defaultWorkingHours";
+
         public const string SCHEDULING_MAX_WORK_DAYS = "SCHEDULING_MAX_WORK_DAYS";
         public const string SCHEDULING_MIN_REST_DAYS = "SCHEDULING_MIN_REST_DAYS";
         public const string SCHEDULING_MIN_PAUSE_HOURS = "SCHEDULING_MIN_PAUSE_HOURS";
