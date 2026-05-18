@@ -2,15 +2,17 @@
 
 /// <summary>
 /// Handler for computing per-day capacity, service, and absence hours for the resource monitor dashboard card.
-/// DienstHours are derived directly from Shift schedules (FromDate/UntilDate + weekday flags),
-/// not from Work entries, to reflect planned capacity rather than recorded actuals.
+/// Symmetric calculation: MaxKapazitaet sums per-employee daily contract hours; AbsenzHours subtracts the
+/// same daily hours weighted by Absence.DefaultValue (1.0 = full day, 0.5 = half day) when a BreakPlaceholder
+/// is active for that employee. Dienste are derived from Shift schedules independently.
 /// </summary>
-/// <param name="context">Database context for ClientContract, Shift, Break, and GroupItem queries</param>
+/// <param name="context">Database context for ClientContract, Shift, BreakPlaceholder, and GroupItem queries</param>
 /// <param name="logger">Logger for error handling via BaseHandler</param>
 using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Application.Handlers;
 using Klacks.Api.Application.Queries.Dashboard;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -70,6 +72,10 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
 
             var contracts = await contractQuery.ToListAsync(cancellationToken);
 
+            var contractsByClient = contracts
+                .GroupBy(cc => cc.ClientId)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
             var shiftQuery = _context.Shift
                 .Where(s => !s.IsDeleted
                     && !s.IsTimeRange
@@ -102,6 +108,7 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
             var periodEnd   = endDate.ToDateTime(TimeOnly.MaxValue);
 
             var absenzQuery = _context.BreakPlaceholder
+                .Include(bp => bp.Absence)
                 .Where(bp => !bp.IsDeleted
                     && bp.From < periodEnd
                     && bp.Until > periodStart);
@@ -109,27 +116,26 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
             if (groupClientIds != null)
                 absenzQuery = absenzQuery.Where(bp => groupClientIds.Contains(bp.ClientId));
 
-            var absenzRanges = await absenzQuery
-                .Select(bp => new { bp.From, bp.Until })
+            var absences = await absenzQuery
+                .Select(bp => new { bp.From, bp.Until, bp.ClientId, DefaultValue = bp.Absence.DefaultValue })
                 .ToListAsync(cancellationToken);
 
             var absenzByDate = new Dictionary<DateOnly, double>();
-            foreach (var bp in absenzRanges)
+            foreach (var bp in absences)
             {
-                var bpFrom  = bp.From  < periodStart ? periodStart : bp.From;
-                var bpUntil = bp.Until > periodEnd   ? periodEnd   : bp.Until;
-                var day = DateOnly.FromDateTime(bpFrom);
-                var lastDay = DateOnly.FromDateTime(bpUntil);
+                if (bp.DefaultValue <= 0) continue;
+                if (!contractsByClient.TryGetValue(bp.ClientId, out var clientContracts)) continue;
 
-                for (var d = day; d <= lastDay; d = d.AddDays(1))
+                var fromDay = DateOnly.FromDateTime(bp.From);
+                var untilDay = DateOnly.FromDateTime(bp.Until);
+                if (fromDay < startDate) fromDay = startDate;
+                if (untilDay > endDate) untilDay = endDate;
+
+                for (var d = fromDay; d <= untilDay; d = d.AddDays(1))
                 {
-                    var dayStart   = d.ToDateTime(TimeOnly.MinValue);
-                    var dayEnd     = d.ToDateTime(TimeOnly.MaxValue);
-                    var overlapStart = bpFrom  > dayStart ? bpFrom  : dayStart;
-                    var overlapEnd   = bpUntil < dayEnd   ? bpUntil : dayEnd;
-                    var hours = (overlapEnd - overlapStart).TotalHours;
-                    if (hours > 0)
-                        absenzByDate[d] = absenzByDate.GetValueOrDefault(d) + hours;
+                    var dailyHours = ComputeDailyHoursForClient(clientContracts, d);
+                    if (dailyHours > 0)
+                        absenzByDate[d] = absenzByDate.GetValueOrDefault(d) + dailyHours * bp.DefaultValue;
                 }
             }
 
@@ -143,43 +149,7 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
 
                 foreach (var cc in contracts)
                 {
-                    if (cc.Contract is null) continue;
-                    if (cc.FromDate > date || (cc.UntilDate.HasValue && cc.UntilDate.Value < date)) continue;
-                    if (!cc.Contract.GuaranteedHours.HasValue) continue;
-
-                    var weeklyH = cc.Contract.PaymentInterval switch
-                    {
-                        PaymentInterval.Weekly   => (double)cc.Contract.GuaranteedHours.Value,
-                        PaymentInterval.Biweekly => (double)cc.Contract.GuaranteedHours.Value / 2.0,
-                        PaymentInterval.Monthly  => (double)cc.Contract.GuaranteedHours.Value * 12.0 / 52.0,
-                        _                        => (double)cc.Contract.GuaranteedHours.Value * 12.0 / 52.0,
-                    };
-
-                    var workingDays =
-                        (cc.Contract.WorkOnMonday    ? 1 : 0) +
-                        (cc.Contract.WorkOnTuesday   ? 1 : 0) +
-                        (cc.Contract.WorkOnWednesday ? 1 : 0) +
-                        (cc.Contract.WorkOnThursday  ? 1 : 0) +
-                        (cc.Contract.WorkOnFriday    ? 1 : 0) +
-                        (cc.Contract.WorkOnSaturday  ? 1 : 0) +
-                        (cc.Contract.WorkOnSunday    ? 1 : 0);
-
-                    if (workingDays == 0) continue;
-
-                    var isContractDay = date.DayOfWeek switch
-                    {
-                        DayOfWeek.Monday    => cc.Contract.WorkOnMonday,
-                        DayOfWeek.Tuesday   => cc.Contract.WorkOnTuesday,
-                        DayOfWeek.Wednesday => cc.Contract.WorkOnWednesday,
-                        DayOfWeek.Thursday  => cc.Contract.WorkOnThursday,
-                        DayOfWeek.Friday    => cc.Contract.WorkOnFriday,
-                        DayOfWeek.Saturday  => cc.Contract.WorkOnSaturday,
-                        DayOfWeek.Sunday    => cc.Contract.WorkOnSunday,
-                        _                   => false,
-                    };
-
-                    if (workingDays == 7 || isContractDay)
-                        maxKapazitaetHours += workingDays == 7 ? weeklyH / 7.0 : weeklyH / workingDays;
+                    maxKapazitaetHours += ComputeDailyHoursForContract(cc, date);
                 }
 
                 foreach (var s in shifts)
@@ -215,5 +185,56 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
 
             return new ResourceMonitorResource { DailyData = dailyData };
         }, nameof(Handle));
+    }
+
+    private static double ComputeDailyHoursForClient(List<ClientContract> clientContracts, DateOnly date)
+    {
+        double hours = 0;
+        foreach (var cc in clientContracts)
+        {
+            hours += ComputeDailyHoursForContract(cc, date);
+        }
+        return hours;
+    }
+
+    private static double ComputeDailyHoursForContract(ClientContract cc, DateOnly date)
+    {
+        if (cc.Contract is null) return 0;
+        if (cc.FromDate > date || (cc.UntilDate.HasValue && cc.UntilDate.Value < date)) return 0;
+        if (!cc.Contract.GuaranteedHours.HasValue) return 0;
+
+        var weeklyH = cc.Contract.PaymentInterval switch
+        {
+            PaymentInterval.Weekly   => (double)cc.Contract.GuaranteedHours.Value,
+            PaymentInterval.Biweekly => (double)cc.Contract.GuaranteedHours.Value / 2.0,
+            PaymentInterval.Monthly  => (double)cc.Contract.GuaranteedHours.Value * 12.0 / 52.0,
+            _                        => (double)cc.Contract.GuaranteedHours.Value * 12.0 / 52.0,
+        };
+
+        var workingDays =
+            (cc.Contract.WorkOnMonday    ? 1 : 0) +
+            (cc.Contract.WorkOnTuesday   ? 1 : 0) +
+            (cc.Contract.WorkOnWednesday ? 1 : 0) +
+            (cc.Contract.WorkOnThursday  ? 1 : 0) +
+            (cc.Contract.WorkOnFriday    ? 1 : 0) +
+            (cc.Contract.WorkOnSaturday  ? 1 : 0) +
+            (cc.Contract.WorkOnSunday    ? 1 : 0);
+
+        if (workingDays == 0) return 0;
+        if (workingDays == 7) return weeklyH / 7.0;
+
+        var isWorkDay = date.DayOfWeek switch
+        {
+            DayOfWeek.Monday    => cc.Contract.WorkOnMonday,
+            DayOfWeek.Tuesday   => cc.Contract.WorkOnTuesday,
+            DayOfWeek.Wednesday => cc.Contract.WorkOnWednesday,
+            DayOfWeek.Thursday  => cc.Contract.WorkOnThursday,
+            DayOfWeek.Friday    => cc.Contract.WorkOnFriday,
+            DayOfWeek.Saturday  => cc.Contract.WorkOnSaturday,
+            DayOfWeek.Sunday    => cc.Contract.WorkOnSunday,
+            _                   => false,
+        };
+
+        return isWorkDay ? weeklyH / workingDays : 0;
     }
 }
