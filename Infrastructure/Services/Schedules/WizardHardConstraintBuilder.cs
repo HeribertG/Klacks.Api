@@ -156,7 +156,10 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                 StartAt: w.CurrentDate.ToDateTime(w.StartTime),
                 EndAt: w.CurrentDate.ToDateTime(w.EndTime),
                 ShiftRefId: w.ShiftId,
-                LocationContext: null))
+                LocationContext: null)
+            {
+                Surcharges = w.Surcharges,
+            })
             .ToList();
     }
 }

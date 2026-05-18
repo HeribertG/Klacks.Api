@@ -59,7 +59,7 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector
             if (!hoursMap.TryGetValue(client.Id, out var hours)) continue;
             if (hours.GuaranteedHours <= 0) continue;
 
-            var drift = hours.Hours - hours.GuaranteedHours;
+            var drift = (hours.Hours + hours.Surcharges) - hours.GuaranteedHours;
             if (Math.Abs(drift) < DriftThresholdHours) continue;
 
             var clientName = $"{client.FirstName} {client.Name}".Trim();

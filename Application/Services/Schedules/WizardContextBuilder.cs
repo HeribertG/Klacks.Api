@@ -133,6 +133,6 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
 
         return priorHours.ToDictionary(
             kv => kv.Key,
-            kv => (double)kv.Value.Hours);
+            kv => (double)(kv.Value.Hours + kv.Value.Surcharges));
     }
 }
