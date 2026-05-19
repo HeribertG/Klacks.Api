@@ -2,13 +2,19 @@
 
 /// <summary>
 /// Handler for computing per-day employee headcount for the resource monitor dashboard card.
-/// MaxKapazitaet  = number of active contracts whose employee works this weekday.
-/// Dienste        = number of shifts scheduled on this date.
-/// Absenzen       = sum of Absence.DefaultValue for employees absent on this date (1.0 = full, 0.5 = half),
-///                  counted only on weekdays the employee actually works.
+/// Mixed units on a single Mitarbeiter (MA) scale:
+///   MaxKapazitaet = sum of per-employee FTE share. 24/7 contracts (all WorkOn flags) are smoothed
+///                   uniformly across 7 days; restricted patterns (e.g. Mo-Fr) follow the realistic
+///                   weekday distribution.
+///   Dienste       = number of shifts scheduled on date (each shift = 1 employee position).
+///                   Container shifts count as 1; the task shifts inside them (referenced via
+///                   ContainerTemplateItem) are excluded to avoid double-counting.
+///   Absenzen      = sum of Absence.DefaultValue per active BreakPlaceholder, taken literally as
+///                   entered (vacation and sickness include weekends — no FTE weighting, no weekday filter).
 /// </summary>
-/// <param name="context">Database context for ClientContract, Shift, BreakPlaceholder, and GroupItem queries</param>
+/// <param name="context">Database context for ClientContract, Shift, BreakPlaceholder, GroupItem, and Settings queries</param>
 /// <param name="logger">Logger for error handling via BaseHandler</param>
+using System.Globalization;
 using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Application.Handlers;
 using Klacks.Api.Application.Queries.Dashboard;
@@ -24,6 +30,8 @@ namespace Klacks.Api.Application.Handlers.Dashboard;
 
 public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetResourceMonitorQuery, ResourceMonitorResource>
 {
+    private const double FALLBACK_FULL_DAY_HOURS = 8.0;
+
     private readonly DataBaseContext _context;
 
     public GetResourceMonitorQueryHandler(DataBaseContext context, ILogger<GetResourceMonitorQueryHandler> logger)
@@ -38,6 +46,8 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
         {
             var startDate = new DateOnly(request.Year, 1, 1);
             var endDate = new DateOnly(request.Year, 12, 31);
+
+            var fullDayHours = await ReadDefaultWorkingHoursAsync(cancellationToken);
 
             HashSet<Guid>? groupShiftIds = null;
             if (request.GroupId.HasValue)
@@ -78,12 +88,21 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
                 .GroupBy(cc => cc.ClientId)
                 .ToDictionary(g => g.Key, g => g.ToList());
 
+            var containedShiftIds = await _context.ContainerTemplateItem
+                .Where(cti => !cti.IsDeleted
+                    && cti.ShiftId != null
+                    && !cti.ContainerTemplate.IsDeleted)
+                .Select(cti => cti.ShiftId!.Value)
+                .Distinct()
+                .ToHashSetAsync(cancellationToken);
+
             var shiftQuery = _context.Shift
                 .Where(s => !s.IsDeleted
                     && !s.IsTimeRange
                     && !s.IsSporadic
                     && s.AnalyseToken == null
                     && s.Status != ShiftStatus.SealedOrder
+                    && !containedShiftIds.Contains(s.Id)
                     && s.FromDate <= endDate
                     && (s.UntilDate == null || s.UntilDate >= startDate));
 
@@ -125,7 +144,6 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
             foreach (var bp in absences)
             {
                 if (bp.DefaultValue <= 0) continue;
-                if (!contractsByClient.TryGetValue(bp.ClientId, out var clientContracts)) continue;
 
                 var fromDay = DateOnly.FromDateTime(bp.From);
                 var untilDay = DateOnly.FromDateTime(bp.Until);
@@ -134,7 +152,6 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
 
                 for (var d = fromDay; d <= untilDay; d = d.AddDays(1))
                 {
-                    if (!ClientWorksOnDay(clientContracts, d)) continue;
                     absenzByDate[d] = absenzByDate.GetValueOrDefault(d) + bp.DefaultValue;
                 }
             }
@@ -147,8 +164,7 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
                 double maxKapaCount = 0;
                 foreach (var (_, clientContracts) in contractsByClient)
                 {
-                    if (ClientWorksOnDay(clientContracts, date))
-                        maxKapaCount += 1;
+                    maxKapaCount += ComputeFteShareForClient(clientContracts, date, fullDayHours);
                 }
 
                 double dienstCount = 0;
@@ -164,7 +180,7 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
                 dailyData.Add(new ResourceMonitorDayResource
                 {
                     Date = date,
-                    MaxKapazitaetCount = maxKapaCount,
+                    MaxKapazitaetCount = Math.Round(maxKapaCount, 2),
                     DienstCount = dienstCount,
                     AbsenzCount = Math.Round(absenzCount, 2),
                 });
@@ -174,21 +190,70 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
         }, nameof(Handle));
     }
 
-    private static bool ClientWorksOnDay(List<ClientContract> clientContracts, DateOnly date)
+    private async Task<double> ReadDefaultWorkingHoursAsync(CancellationToken cancellationToken)
     {
+        var raw = await _context.Settings
+            .Where(s => s.Type == Klacks.Api.Application.Constants.Settings.DEFAULT_WORKING_HOURS)
+            .Select(s => s.Value)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(raw)
+            && double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsed)
+            && parsed > 0)
+        {
+            return parsed;
+        }
+
+        return FALLBACK_FULL_DAY_HOURS;
+    }
+
+    private static double ComputeFteShareForClient(List<ClientContract> clientContracts, DateOnly date, double fullDayHours)
+    {
+        const int FULL_WEEK_DAYS = 7;
+
+        double dailyHours = 0;
         foreach (var cc in clientContracts)
         {
             if (cc.Contract is null) continue;
             if (cc.FromDate > date || (cc.UntilDate.HasValue && cc.UntilDate.Value < date)) continue;
-            if (IsWeekdayActive(date,
+            if (!cc.Contract.GuaranteedHours.HasValue || cc.Contract.GuaranteedHours.Value <= 0) continue;
+
+            var flaggedDays =
+                (cc.Contract.WorkOnMonday    ? 1 : 0) +
+                (cc.Contract.WorkOnTuesday   ? 1 : 0) +
+                (cc.Contract.WorkOnWednesday ? 1 : 0) +
+                (cc.Contract.WorkOnThursday  ? 1 : 0) +
+                (cc.Contract.WorkOnFriday    ? 1 : 0) +
+                (cc.Contract.WorkOnSaturday  ? 1 : 0) +
+                (cc.Contract.WorkOnSunday    ? 1 : 0);
+
+            if (flaggedDays == 0) continue;
+
+            var weeklyH = cc.Contract.PaymentInterval switch
+            {
+                PaymentInterval.Weekly   => (double)cc.Contract.GuaranteedHours.Value,
+                PaymentInterval.Biweekly => (double)cc.Contract.GuaranteedHours.Value / 2.0,
+                PaymentInterval.Monthly  => (double)cc.Contract.GuaranteedHours.Value * 12.0 / 52.0,
+                _                        => (double)cc.Contract.GuaranteedHours.Value * 12.0 / 52.0,
+            };
+
+            if (flaggedDays == FULL_WEEK_DAYS)
+            {
+                // 24/7 contract: smoothed average across all calendar days (we don't know which days
+                // the employee actually rests, so distribute uniformly).
+                dailyHours += weeklyH / FULL_WEEK_DAYS;
+            }
+            else if (IsWeekdayActive(date,
                 cc.Contract.WorkOnMonday, cc.Contract.WorkOnTuesday, cc.Contract.WorkOnWednesday,
                 cc.Contract.WorkOnThursday, cc.Contract.WorkOnFriday,
                 cc.Contract.WorkOnSaturday, cc.Contract.WorkOnSunday))
             {
-                return true;
+                // Restricted weekday pattern (e.g., Mo-Fr): realistic — full daily hours on flagged days, 0 on rest days.
+                dailyHours += weeklyH / flaggedDays;
             }
         }
-        return false;
+
+        return fullDayHours > 0 ? dailyHours / fullDayHours : 0;
     }
 
     private static bool IsWeekdayActive(
