@@ -25,22 +25,25 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
     private readonly IGroupRepository _groupRepository;
     private readonly ISealedDayRepository _sealedDayRepository;
     private readonly ILogger<PeriodCloseDueDetector> _logger;
+    private readonly TimeProvider _timeProvider;
 
     public PeriodCloseDueDetector(
         IGroupRepository groupRepository,
         ISealedDayRepository sealedDayRepository,
-        ILogger<PeriodCloseDueDetector> logger)
+        ILogger<PeriodCloseDueDetector> logger,
+        TimeProvider timeProvider)
     {
         _groupRepository = groupRepository;
         _sealedDayRepository = sealedDayRepository;
         _logger = logger;
+        _timeProvider = timeProvider;
     }
 
     public string Kind => AgentTriggerKinds.PeriodCloseDue;
 
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
         var groups = await _groupRepository.List();
         if (groups.Count == 0)
         {
