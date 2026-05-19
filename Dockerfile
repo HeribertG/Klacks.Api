@@ -45,8 +45,13 @@ WORKDIR /app
 EXPOSE 5000
 EXPOSE 443
 
-# Install Kerberos library required by Npgsql, LDAP library for authentication,
-# and curl so the docker-compose healthcheck can probe http://localhost:5000/health.
+# Native deps:
+# - libgssapi-krb5-2: Kerberos for Npgsql
+# - libldap2: LDAP authentication
+# - curl: healthcheck probe
+# - libfontconfig1 / libfreetype6: required by SkiaSharp on Linux so the LLM
+#   capability check can rasterize a test bitmap (without these, SkiaSharp's
+#   static initializer crashes with "type initializer for SKImageInfo").
 # Canonical's primary ports.ubuntu.com IPs are unreachable from Hetzner; use the
 # regional de.ports.ubuntu.com mirror (same Canonical infrastructure, different IPs).
 RUN if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then \
@@ -55,7 +60,9 @@ RUN if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then \
     if [ -f /etc/apt/sources.list ]; then \
         sed -i 's|http://ports.ubuntu.com/ubuntu-ports|http://de.ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list; \
     fi && \
-    apt-get update && apt-get install -y --no-install-recommends libgssapi-krb5-2 libldap2 curl && rm -rf /var/lib/apt/lists/*
+    apt-get update && apt-get install -y --no-install-recommends \
+        libgssapi-krb5-2 libldap2 curl libfontconfig1 libfreetype6 \
+        && rm -rf /var/lib/apt/lists/*
 
 # Run as non-root user
 RUN useradd --no-create-home --shell /bin/false appuser && chown -R appuser /app
