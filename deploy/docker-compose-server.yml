@@ -80,11 +80,11 @@ services:
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=Klacks;Username=admin;Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
       - ServerIp=${SERVER_IP:-157.180.42.127}
       - JwtSettings__Secret=${JWT_SECRET:?JWT_SECRET must be set}
-      - JwtSettings__ValidAudience=https://${SERVER_IP:-157.180.42.127}
-      - JwtSettings__ValidIssuer=https://${SERVER_IP:-157.180.42.127}:5443
-      - PasswordReset__BaseUrl=https://${SERVER_IP:-157.180.42.127}:7443
-      - Cors__Host=https://${SERVER_IP:-157.180.42.127}
-      - Cors__Home=https://${SERVER_IP:-157.180.42.127}
+      - JwtSettings__ValidAudience=https://${DOMAIN:-klacks.site}
+      - JwtSettings__ValidIssuer=https://${DOMAIN:-klacks.site}:5443
+      - PasswordReset__BaseUrl=https://${DOMAIN:-klacks.site}:7443
+      - Cors__Host=https://${DOMAIN:-klacks.site}
+      - Cors__Home=https://${DOMAIN:-klacks.site}
     volumes:
       - api-uploads:/app/Images
       - api-documents:/app/Documents
@@ -283,6 +283,35 @@ services:
           memory: 256M
           cpus: '0.25'
 
+  # Renews the Let's Encrypt certificate every 12h. Renewal only runs when
+  # the cert is within 30 days of expiry; otherwise certbot exits as a no-op.
+  # After a successful renewal, sends SIGHUP to klacks-proxy via the Docker
+  # Engine API (mounted socket) so nginx picks up the new cert without restart.
+  certbot-renew:
+    image: certbot/certbot
+    container_name: klacks-certbot-renew
+    restart: unless-stopped
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - certbot-webroot:/var/www/certbot
+      - /var/run/docker.sock:/var/run/docker.sock
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        apk add --no-cache curl >/dev/null 2>&1 || true
+        trap exit TERM
+        while :; do
+          certbot renew --webroot --webroot-path=/var/www/certbot --quiet \
+            --deploy-hook 'curl -sS --unix-socket /var/run/docker.sock -X POST http://localhost/containers/klacks-proxy/kill?signal=HUP'
+          sleep 12h & wait $${!}
+        done
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.1'
+
   nginx-proxy:
     image: nginx:alpine
     container_name: klacks-proxy
@@ -304,6 +333,8 @@ services:
     volumes:
       - ./Klacks.Api/deploy/nginx-proxy/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
       - ./Klacks.Api/deploy/nginx-proxy/certs:/etc/nginx/certs:ro
+      - letsencrypt:/etc/letsencrypt:ro
+      - certbot-webroot:/var/www/certbot:ro
     depends_on:
       - klacks-api
       - klacks-ui
@@ -343,4 +374,8 @@ volumes:
   api-uploads:
     driver: local
   api-documents:
+    driver: local
+  letsencrypt:
+    driver: local
+  certbot-webroot:
     driver: local
