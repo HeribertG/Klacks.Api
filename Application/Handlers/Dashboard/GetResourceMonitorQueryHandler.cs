@@ -2,11 +2,13 @@
 
 /// <summary>
 /// Handler for computing per-day employee headcount for the resource monitor dashboard card.
-/// Y-axis unit: Mitarbeiter (MA). Four series per day:
+/// Y-axis unit: Mitarbeiter (MA). Five series per day:
 ///   Wunsch        = desired daily readiness (rosa gepunktet). Per employee:
 ///                   24/7 contracts smoothed to min(maxWorkDays, 7)/7 every day;
 ///                   restricted patterns realistic — 1.0 on flagged days, 0 on rest days.
 ///   Max           = maximum daily readiness (rot gestrichelt). Same logic with maxConsecutiveDays cap.
+///   Total         = total headcount (blau). Count of distinct employees with at least one
+///                   active contract on date, regardless of weekday flags or caps.
 ///   Dienste       = number of shifts scheduled on date (each shift = 1 employee position).
 ///                   Container shifts count as 1; sub-shifts referenced via ContainerTemplateItem excluded.
 ///   Absenzen      = sum of Absence.DefaultValue per active BreakPlaceholder, taken literally as entered
@@ -87,6 +89,10 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
                 contractQuery = contractQuery.Where(cc => groupClientIds.Contains(cc.ClientId));
 
             var contracts = await contractQuery.ToListAsync(cancellationToken);
+
+            var contractsByClient = contracts
+                .GroupBy(cc => cc.ClientId)
+                .ToDictionary(g => g.Key, g => g.ToList());
 
             var containedShiftIds = await _context.ContainerTemplateItem
                 .Where(cti => !cti.IsDeleted
@@ -169,6 +175,13 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
                     maxCount    += ContributionForContract(cc, date, EffectiveCap(cc, settingMaxConsecutiveDays, useConsecutive: true));
                 }
 
+                double totalCount = 0;
+                foreach (var (_, clientContracts) in contractsByClient)
+                {
+                    if (HasActiveContractOnDate(clientContracts, date))
+                        totalCount += 1;
+                }
+
                 double dienstCount = 0;
                 foreach (var s in shifts)
                 {
@@ -184,6 +197,7 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
                     Date = date,
                     WunschCount = Math.Round(wunschCount, 2),
                     MaxCount    = Math.Round(maxCount, 2),
+                    TotalCount  = totalCount,
                     DienstCount = dienstCount,
                     AbsenzCount = Math.Round(absenzCount, 2),
                 });
@@ -219,6 +233,16 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
                 return ruleValue.Value;
         }
         return settingFallback;
+    }
+
+    private static bool HasActiveContractOnDate(List<ClientContract> ccs, DateOnly date)
+    {
+        foreach (var cc in ccs)
+        {
+            if (cc.FromDate <= date && (!cc.UntilDate.HasValue || cc.UntilDate.Value >= date))
+                return true;
+        }
+        return false;
     }
 
     private static double ContributionForContract(ClientContract cc, DateOnly date, int cap)
