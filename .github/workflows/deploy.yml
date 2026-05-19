@@ -214,6 +214,14 @@ jobs:
           $COMPOSE_CMD up -d klacks-api
           $COMPOSE_CMD restart nginx-proxy 2>/dev/null || $COMPOSE_CMD up -d nginx-proxy
 
+          # Free disk space: remove dangling images (previous build's <none>-tagged
+          # layers) and unused BuildKit cache. Each --no-cache build above leaves
+          # ~500MB-1GB behind; without pruning, the Hetzner disk fills within ~30 deploys.
+          echo "🧹 Pruning old Docker layers..."
+          docker image prune -f 2>&1 | tail -1
+          docker builder prune -f 2>&1 | tail -1
+          df -h / | tail -1
+
           echo "✅ Deployment completed!"
 
           # Status check
