@@ -109,7 +109,7 @@ public class ClientTimeline
     {
         var count = 0;
         var date = fromDate;
-        while (HasWorkOnDay(date))
+        while (HasWorkAnchoredOn(date))
         {
             count++;
             date = date.AddDays(1);
@@ -121,7 +121,7 @@ public class ClientTimeline
     {
         var count = 0;
         var date = fromDate;
-        while (HasWorkOnDay(date))
+        while (HasWorkAnchoredOn(date))
         {
             count++;
             date = date.AddDays(-1);
