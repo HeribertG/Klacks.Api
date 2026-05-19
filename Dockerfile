@@ -47,9 +47,14 @@ EXPOSE 443
 
 # Install Kerberos library required by Npgsql, LDAP library for authentication,
 # and curl so the docker-compose healthcheck can probe http://localhost:5000/health.
-# Use mirror.kumi.systems because Canonical's ports.ubuntu.com IPs are unreachable from Hetzner.
-RUN sed -i 's|http://ports.ubuntu.com/ubuntu-ports|http://mirror.kumi.systems/ubuntu-ports|g' /etc/apt/sources.list.d/ubuntu.sources 2>/dev/null || \
-    sed -i 's|http://ports.ubuntu.com/ubuntu-ports|http://mirror.kumi.systems/ubuntu-ports|g' /etc/apt/sources.list && \
+# Canonical's primary ports.ubuntu.com IPs are unreachable from Hetzner; use the
+# regional de.ports.ubuntu.com mirror (same Canonical infrastructure, different IPs).
+RUN if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then \
+        sed -i 's|http://ports.ubuntu.com/ubuntu-ports|http://de.ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list.d/ubuntu.sources; \
+    fi && \
+    if [ -f /etc/apt/sources.list ]; then \
+        sed -i 's|http://ports.ubuntu.com/ubuntu-ports|http://de.ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list; \
+    fi && \
     apt-get update && apt-get install -y --no-install-recommends libgssapi-krb5-2 libldap2 curl && rm -rf /var/lib/apt/lists/*
 
 # Run as non-root user
