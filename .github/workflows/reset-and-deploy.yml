@@ -86,8 +86,11 @@ jobs:
             echo "🗑️  STEP 2: Deleting database volumes..."
             echo "=============================================="
 
-            # Find and remove ONLY Klacks postgres volume (not devknowledge, marketplace etc.)
-            POSTGRES_VOLUMES=$(docker volume ls -q | grep -E "^[^_]*postgres_data$" || true)
+            # Find and remove ONLY the Klacks postgres volume. docker-compose
+            # prefixes volume names with the project name (e.g. "apps_"), so we
+            # match `apps_postgres_data` exactly and explicitly exclude any
+            # *_devknowledge_* volume that ships its own postgres.
+            POSTGRES_VOLUMES=$(docker volume ls -q | grep -E "^(apps_)?postgres_data$" | grep -v devknowledge || true)
             if [ -n "$POSTGRES_VOLUMES" ]; then
               echo "Found volumes to delete:"
               echo "$POSTGRES_VOLUMES"
