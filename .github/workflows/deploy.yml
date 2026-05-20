@@ -116,11 +116,21 @@ jobs:
           echo "✅ Got deploy lock"
 
           # Belt-and-braces: kill any orphan build processes from runs that
-          # were cancelled mid-build. -f matches the full command line so we
-          # only target this project's dotnet builds.
+          # were cancelled mid-build. We can't use pkill -f because
+          # drone-ssh invokes this whole script as `bash -c "<script>"` and
+          # the script text itself contains the pattern — pkill -f would
+          # SIGKILL the parent shell. Instead, match by process basename
+          # via pgrep -x and check /proc/PID/cmdline.
           echo "🧹 Cleaning up orphan build processes from cancelled runs..."
-          pkill -9 -f "dotnet publish .*Klacks.Api/Klacks.Api.csproj" 2>/dev/null || true
-          pkill -9 -f "MSBuild.*Klacks.Api" 2>/dev/null || true
+          for pid in $(pgrep -x dotnet 2>/dev/null); do
+            cmdline=$(tr '\0' ' ' < /proc/$pid/cmdline 2>/dev/null)
+            case "$cmdline" in
+              *"publish Klacks.Api/Klacks.Api.csproj"*)
+                echo "  Killing orphan dotnet PID $pid"
+                kill -9 "$pid" 2>/dev/null || true
+                ;;
+            esac
+          done
           sleep 2
 
           # Navigate to correct directory
