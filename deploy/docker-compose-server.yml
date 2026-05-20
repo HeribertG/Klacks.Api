@@ -88,6 +88,7 @@ services:
     volumes:
       - api-uploads:/app/Images
       - api-documents:/app/Documents
+      - api-dataprotection:/app/DataProtection-Keys
     depends_on:
       postgres:
         condition: service_healthy
@@ -374,6 +375,8 @@ volumes:
   api-uploads:
     driver: local
   api-documents:
+    driver: local
+  api-dataprotection:
     driver: local
   letsencrypt:
     driver: local
