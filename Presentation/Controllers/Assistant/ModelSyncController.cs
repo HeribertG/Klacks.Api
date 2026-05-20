@@ -16,11 +16,13 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 public class ModelSyncController : ControllerBase
 {
     private readonly ILLMRepository _repository;
+    private readonly ILLMModelSyncService _syncService;
     private readonly ILogger<ModelSyncController> _logger;
 
-    public ModelSyncController(ILLMRepository repository, ILogger<ModelSyncController> logger)
+    public ModelSyncController(ILLMRepository repository, ILLMModelSyncService syncService, ILogger<ModelSyncController> logger)
     {
         _repository = repository;
+        _syncService = syncService;
         _logger = logger;
     }
 
@@ -43,6 +45,13 @@ public class ModelSyncController : ControllerBase
         });
 
         return Ok(response);
+    }
+
+    [HttpPost("trigger")]
+    public async Task<ActionResult> TriggerSync(CancellationToken cancellationToken)
+    {
+        await _syncService.SyncAllProvidersAsync(cancellationToken);
+        return NoContent();
     }
 
     [HttpPost("mark-read")]
