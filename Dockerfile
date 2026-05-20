@@ -61,23 +61,24 @@ RUN if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then \
         sed -i 's|http://ports.ubuntu.com/ubuntu-ports|http://de.ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list; \
     fi && \
     apt-get update && apt-get install -y --no-install-recommends \
-        libgssapi-krb5-2 libldap2 curl libfontconfig1 libfreetype6 \
+        libgssapi-krb5-2 libldap2 curl libfontconfig1 libfreetype6 gosu \
         && rm -rf /var/lib/apt/lists/*
 
-# Run as non-root user. The chown on /app at this point is a no-op (/app is
-# empty), so we must use --chown on COPY below to give appuser ownership of
-# the published files — otherwise writable directories like /app/Images and
-# /app/Documents stay root:root and uploads fail with UnauthorizedAccessException.
+# Create the non-root user. The container itself starts as root so the
+# entrypoint can chown volume mounts (Docker named volumes are root:root by
+# default and override the Dockerfile's --chown for those paths), then drops
+# to appuser via gosu before exec'ing the app.
 RUN useradd --no-create-home --shell /bin/false appuser
 
 # Copy published app and assign ownership to appuser in the same step
 COPY --chown=appuser:appuser --from=build /app/publish .
 
-USER appuser
+# Entrypoint script runs as root, fixes volume permissions, then drops to appuser
+COPY --chmod=755 Klacks.Api/deploy/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Set environment variables
 ENV ASPNETCORE_URLS=http://+:5000
 ENV ASPNETCORE_ENVIRONMENT=Production
 
-# Run the app
-ENTRYPOINT ["dotnet", "Klacks.Api.dll"]
+# Run the app via entrypoint (which exec's the app as appuser)
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
