@@ -475,6 +475,22 @@ namespace Klacks.Api.Data.Seed
                 ("1234567a-1234-1234-1234-123456789031", "dayVisibleBeforeMonth", "10"),
                 ("1234567a-1234-1234-1234-123456789032", "dayVisibleAfterMonth", "10"),
 
+                // Surcharge Rates (10% each, applied by AllShift macro)
+                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c67", "nightRate", "0.1"),
+                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c6a", "holidayRate", "0.1"),
+                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c68", "saRate", "0.1"),
+                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c69", "soRate", "0.1"),
+
+                // Scheduling Default Work Days (true for all 7 days + shift work)
+                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d01", "SCHEDULING_DEFAULT_WORK_ON_MONDAY", "true"),
+                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d02", "SCHEDULING_DEFAULT_WORK_ON_TUESDAY", "true"),
+                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d03", "SCHEDULING_DEFAULT_WORK_ON_WEDNESDAY", "true"),
+                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d04", "SCHEDULING_DEFAULT_WORK_ON_THURSDAY", "true"),
+                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d05", "SCHEDULING_DEFAULT_WORK_ON_FRIDAY", "true"),
+                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d06", "SCHEDULING_DEFAULT_WORK_ON_SATURDAY", "true"),
+                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d07", "SCHEDULING_DEFAULT_WORK_ON_SUNDAY", "true"),
+                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d08", "SCHEDULING_DEFAULT_PERFORMS_SHIFT_WORK", "true"),
+
                 // Scheduling Default Settings
                 ("1234567a-1234-1234-1234-123456789035", "guaranteedHours", "170"),
                 ("1234567a-1234-1234-1234-123456789036", "maximumHours", "200"),

@@ -55,11 +55,14 @@ namespace Klacks.Api.Data.Seed
                     id, name, guaranteed_hours, maximum_hours, minimum_hours, full_time,
                     night_rate, holiday_rate, sa_rate, so_rate, payment_interval,
                     valid_from, valid_until, calendar_selection_id, scheduling_rule_id,
+                    work_on_monday, work_on_tuesday, work_on_wednesday, work_on_thursday,
+                    work_on_friday, work_on_saturday, work_on_sunday, performs_shift_work,
                     create_time, update_time, is_deleted, current_user_created, current_user_updated
                 ) VALUES (
                     '{contractId}', '{contract.Name}', {contract.Guaranteed}, {contract.Max}, {contract.Min}, {contract.FullTime},
                     {contract.NightRate}, {contract.HolidayRate}, {contract.SaRate}, {contract.SoRate}, {contract.PaymentInterval},
                     '{validFrom:yyyy-MM-dd HH:mm:ss}', NULL, '{calendarSelectionId}', NULL,
+                    true, true, true, true, true, true, true, true,
                     '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', false, '{userId}', '{userId}'
                 );");
             }
