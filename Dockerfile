@@ -64,12 +64,16 @@ RUN if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then \
         libgssapi-krb5-2 libldap2 curl libfontconfig1 libfreetype6 \
         && rm -rf /var/lib/apt/lists/*
 
-# Run as non-root user
-RUN useradd --no-create-home --shell /bin/false appuser && chown -R appuser /app
-USER appuser
+# Run as non-root user. The chown on /app at this point is a no-op (/app is
+# empty), so we must use --chown on COPY below to give appuser ownership of
+# the published files — otherwise writable directories like /app/Images and
+# /app/Documents stay root:root and uploads fail with UnauthorizedAccessException.
+RUN useradd --no-create-home --shell /bin/false appuser
 
-# Copy published app
-COPY --from=build /app/publish .
+# Copy published app and assign ownership to appuser in the same step
+COPY --chown=appuser:appuser --from=build /app/publish .
+
+USER appuser
 
 # Set environment variables
 ENV ASPNETCORE_URLS=http://+:5000
