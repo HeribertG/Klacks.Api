@@ -21,7 +21,7 @@ namespace Klacks.Api.Data.Seed
                     '019d2a80-8448-71b6-86a2-6c7337ae72f3',
                     'Absence Report',
                     '',
-                    0,
+                    3,
                     'absence-gantt',
                     '[""absences""]',
                     '{""Size"": 0, ""Margins"": {""Top"": 20, ""Left"": 20, ""Right"": 20, ""Bottom"": 20}, ""Orientation"": 1}',
