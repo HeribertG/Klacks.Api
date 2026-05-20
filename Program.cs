@@ -256,10 +256,12 @@ builder.Services.AddServerSideBlazor();
 // Add MVC Views
 builder.Services.AddControllersWithViews();
 
-// Add Data Protection for encrypting sensitive settings
-var dataProtectionKeysPath = Path.Combine(
-    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-    "Klacks", "DataProtection-Keys");
+// Add Data Protection for encrypting sensitive settings. Inside the Docker
+// container the appuser has no home directory, so LocalApplicationData would
+// resolve to an ephemeral path and keys would be lost on every restart. Anchor
+// the key ring to the content root and mount it as a Docker volume in
+// docker-compose so keys survive container rebuilds.
+var dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, "DataProtection-Keys");
 Directory.CreateDirectory(dataProtectionKeysPath);
 
 builder.Services.AddDataProtection()

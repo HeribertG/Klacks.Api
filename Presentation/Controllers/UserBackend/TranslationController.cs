@@ -6,6 +6,7 @@
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.DTOs.Translation;
+using Klacks.Api.Infrastructure.Services.Translation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend;
@@ -48,9 +49,17 @@ public class TranslationController : BaseController
             return BadRequest("Translation service is not configured. Please set the DeepL API key in settings.");
         }
 
-        var translations = await _translationService.TranslateToAllLanguagesAsync(
-            request.Text,
-            request.SourceLanguage);
+        Dictionary<string, string> translations;
+        try
+        {
+            translations = await _translationService.TranslateToAllLanguagesAsync(
+                request.Text,
+                request.SourceLanguage);
+        }
+        catch (TranslationAuthenticationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
 
         var response = new TranslationResponse
         {

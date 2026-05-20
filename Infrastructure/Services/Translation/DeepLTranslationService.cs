@@ -70,6 +70,14 @@ public class DeepLTranslationService : ITranslationService
         try
         {
             var response = await _httpClient.SendAsync(request);
+
+            if (response.StatusCode is System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden)
+            {
+                _logger.LogWarning("DeepL rejected the API key with status {StatusCode}", response.StatusCode);
+                throw new TranslationAuthenticationException(
+                    "DeepL rejected the API key. Verify the key in Settings -> DeepL.");
+            }
+
             response.EnsureSuccessStatusCode();
 
             var responseContent = await response.Content.ReadAsStringAsync();
