@@ -102,6 +102,27 @@ jobs:
           set -e
           echo "🚀 Deploying Klacks.Api..."
 
+          # Serialize deploys via flock so a fresh push cannot start a second
+          # build on top of one that's still running from a previously-cancelled
+          # run (buildkit subprocesses keep going after the SSH session dies).
+          # The lock auto-releases when this shell exits.
+          LOCKFILE=/var/lock/klacks-api-deploy.lock
+          exec 200>"$LOCKFILE"
+          echo "⏳ Acquiring deploy lock..."
+          if ! flock -w 1200 200; then
+            echo "❌ Could not acquire deploy lock within 20 minutes — another deploy is stuck"
+            exit 1
+          fi
+          echo "✅ Got deploy lock"
+
+          # Belt-and-braces: kill any orphan build processes from runs that
+          # were cancelled mid-build. -f matches the full command line so we
+          # only target this project's dotnet builds.
+          echo "🧹 Cleaning up orphan build processes from cancelled runs..."
+          pkill -9 -f "dotnet publish .*Klacks.Api/Klacks.Api.csproj" 2>/dev/null || true
+          pkill -9 -f "MSBuild.*Klacks.Api" 2>/dev/null || true
+          sleep 2
+
           # Navigate to correct directory
           cd /root/apps
 
