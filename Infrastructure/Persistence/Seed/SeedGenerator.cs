@@ -524,7 +524,7 @@ namespace Klacks.Api.Data.Seed
 
             foreach (var (id, type, value) in settings)
             {
-                script.AppendLine($"INSERT INTO public.settings (id, type, value) VALUES ('{id}', '{type}', '{value}');");
+                script.AppendLine($"INSERT INTO public.settings (id, type, value) VALUES ('{id}', '{type}', '{value}') ON CONFLICT (id) DO NOTHING;");
             }
 
             return script.ToString();
