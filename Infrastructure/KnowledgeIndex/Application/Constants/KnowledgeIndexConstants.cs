@@ -34,7 +34,9 @@ public static class KnowledgeIndexConstants
     public const string RerankerTokenizerUrl =
         "https://huggingface.co/cross-encoder/mmarco-mMiniLMv2-L12-H384-v1/resolve/main/tokenizer.json";
 
-    public const string ModelsCacheSubdirectory = "Klacks/models";
+    public const string ModelsCacheSubdirectory = "Cache/Models";
+
+    public const string ModelsRootConfigKey = "KnowledgeIndex:ModelsRoot";
 
     public const string HttpClientName = "knowledge-index-models";
 }

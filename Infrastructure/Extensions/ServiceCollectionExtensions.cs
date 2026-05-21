@@ -436,7 +436,7 @@ public static class ServiceCollectionExtensions
         services.AddLLMCoreServices();
         services.AddLLMProviders();
         services.AddSkillServices();
-        services.AddKnowledgeIndexServices();
+        services.AddKnowledgeIndexServices(configuration);
         services.AddAssistantBackgroundServices(configuration);
     }
 
@@ -610,13 +610,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGenericSkillDispatcher, GenericSkillDispatcher>();
     }
 
-    private static void AddKnowledgeIndexServices(this IServiceCollection services)
+    private static void AddKnowledgeIndexServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddHttpClient(KnowledgeIndexConstants.HttpClientName);
 
-        var modelsRoot = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            KnowledgeIndexConstants.ModelsCacheSubdirectory);
+        var modelsRoot = ResolveModelsRoot(configuration);
 
         services.AddSingleton<ModelLoader>(sp =>
             new ModelLoader(sp.GetRequiredService<IHttpClientFactory>().CreateClient(KnowledgeIndexConstants.HttpClientName)));
@@ -641,6 +639,17 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IKnowledgeIndexSynchronizer, KnowledgeIndexSynchronizer>();
         services.AddScoped<IKnowledgeRetrievalService, KnowledgeRetrievalService>();
         services.AddHostedService<KnowledgeIndexStartupService>();
+    }
+
+    private static string ResolveModelsRoot(IConfiguration configuration)
+    {
+        var configured = configuration[KnowledgeIndexConstants.ModelsRootConfigKey];
+        if (!string.IsNullOrWhiteSpace(configured))
+        {
+            return configured;
+        }
+
+        return Path.Combine(AppContext.BaseDirectory, KnowledgeIndexConstants.ModelsCacheSubdirectory);
     }
 
     private static void AddAssistantBackgroundServices(this IServiceCollection services, IConfiguration configuration)
