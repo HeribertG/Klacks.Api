@@ -377,3 +377,6 @@ appsettings.*.json
 # Claude Code agent memory (auto-generated)
 .claude/
 /Application/Handlers/ShiftExpenses
+
+# ASP.NET Data Protection dev keys (local-only)
+DataProtection-Keys/
