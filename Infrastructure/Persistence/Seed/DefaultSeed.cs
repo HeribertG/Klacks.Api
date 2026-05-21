@@ -37,39 +37,48 @@ namespace Klacks.Api.Data.Seed
                 ON CONFLICT (id) DO NOTHING;"
             );
 
-            migrationBuilder.InsertData(
-                table: "settings",
-                columns: new[] { "id", "type", "value" },
-                values: new object[,]
-                {
-                    { new Guid("0f807cbb-e54a-4f5b-9383-5b03ccffc55d"), "authenticationType", "LOGIN" },
-                    { new Guid("3be9b255-4b0b-49fd-8585-556375187dac"), "outgoingserver", "mail.gmx.net" },
-                    { new Guid("789530bc-18a3-48b1-946f-a5da6d66d357"), "enabledSSL", "true" },
-                    { new Guid("8d8b2ae3-7d7b-4f31-9778-0e348deb1fca"), "dispositionNotification" , "false"},
-                    { new Guid("91f43fe3-0db7-4554-aa4d-8dac0151f118"), "replyTo" , "hgasparoli@gmx.ch"},
-                    { new Guid("d5bbf185-b799-4aa4-86ca-c3fe879654f2"), "klacks-net", "mark" },
-                    { new Guid("db3ee771-cbd6-420c-bdf7-8b1036bb82b9"), "outgoingserverPort" , "587"},
-                    { new Guid("e16842eb-24ff-47c2-ad1b-5a3d6a2d20cd"), "outgoingserverTimeout", "100" },
-                    { new Guid("e3e61605-c1e9-48b9-b5c7-9e66c41889fe"), "readReceipt" , "false"},
-                    { new Guid("d3f33e97-c4c4-4c05-93d9-68ff87b02c5e"), "outgoingserverUsername", "hgasparoli@gmx.ch"},
-                    { new Guid("e3e61605-c1e9-48b9-b5c7-9e66c41889fe"), "outgoingserverPassword", ""},
-                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d"), "defaultWorkingHours", "8.5" },
-                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5e"), "overtimeThreshold", "42" },
-                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5f"), "vacationDaysPerYear", "25" },
-                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c60"), "probationPeriod", "3" },
-                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c61"), "noticePeriod", "30" },
-                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c62"), "paymentInterval", "2" },
-                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c63"), "guaranteedHours", "170" },
-                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c64"), "maximumHours", "200" },
-                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c65"), "minimumHours", "160" },
-                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c66"), "fullTime", "180" },
-                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c67"), "nightRate", "0.1" },
-                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c6a"), "holidayRate", "0.1" },
-                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c68"), "saRate", "0.1" },
-                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c69"), "soRate", "0.1" },
-                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c70"), "dayVisibleBeforeMonth", "10" },
-                    { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c71"), "dayVisibleAfterMonth", "10" }
-                });
+            // Use raw SQL (not InsertData) because DatabaseInitializer.SeedDataAsync
+            // only iterates SqlOperation entries — InsertDataOperation entries are
+            // silently skipped. ON CONFLICT keeps re-seeds idempotent.
+            migrationBuilder.Sql(
+                @"INSERT INTO public.settings (id, type, value) VALUES
+                ('0f807cbb-e54a-4f5b-9383-5b03ccffc55d', 'authenticationType', 'LOGIN'),
+                ('3be9b255-4b0b-49fd-8585-556375187dac', 'outgoingserver', 'mail.gmx.net'),
+                ('789530bc-18a3-48b1-946f-a5da6d66d357', 'enabledSSL', 'true'),
+                ('8d8b2ae3-7d7b-4f31-9778-0e348deb1fca', 'dispositionNotification', 'false'),
+                ('91f43fe3-0db7-4554-aa4d-8dac0151f118', 'replyTo', 'hgasparoli@gmx.ch'),
+                ('d5bbf185-b799-4aa4-86ca-c3fe879654f2', 'klacks-net', 'mark'),
+                ('db3ee771-cbd6-420c-bdf7-8b1036bb82b9', 'outgoingserverPort', '587'),
+                ('e16842eb-24ff-47c2-ad1b-5a3d6a2d20cd', 'outgoingserverTimeout', '100'),
+                ('e3e61605-c1e9-48b9-b5c7-9e66c41889fe', 'readReceipt', 'false'),
+                ('d3f33e97-c4c4-4c05-93d9-68ff87b02c5e', 'outgoingserverUsername', 'hgasparoli@gmx.ch'),
+                ('a1b2c3d4-e5f6-7890-abcd-ef1234567891', 'outgoingserverPassword', ''),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d', 'defaultWorkingHours', '8.5'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5e', 'overtimeThreshold', '42'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5f', 'vacationDaysPerYear', '25'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c60', 'probationPeriod', '3'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c61', 'noticePeriod', '30'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c62', 'paymentInterval', '2'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c63', 'guaranteedHours', '170'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c64', 'maximumHours', '200'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c65', 'minimumHours', '160'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c66', 'fullTime', '180'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c67', 'nightRate', '0.1'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c6a', 'holidayRate', '0.1'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c68', 'saRate', '0.1'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c69', 'soRate', '0.1'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c70', 'dayVisibleBeforeMonth', '10'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c71', 'dayVisibleAfterMonth', '10'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d01', 'SCHEDULING_DEFAULT_WORK_ON_MONDAY', 'true'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d02', 'SCHEDULING_DEFAULT_WORK_ON_TUESDAY', 'true'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d03', 'SCHEDULING_DEFAULT_WORK_ON_WEDNESDAY', 'true'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d04', 'SCHEDULING_DEFAULT_WORK_ON_THURSDAY', 'true'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d05', 'SCHEDULING_DEFAULT_WORK_ON_FRIDAY', 'true'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d06', 'SCHEDULING_DEFAULT_WORK_ON_SATURDAY', 'true'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d07', 'SCHEDULING_DEFAULT_WORK_ON_SUNDAY', 'true'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d08', 'SCHEDULING_DEFAULT_PERFORMS_SHIFT_WORK', 'true')
+                ON CONFLICT (id) DO NOTHING;"
+            );
 
             migrationBuilder.Sql(
                 @"INSERT INTO ""AspNetUserRoles"" (role_id, user_id) VALUES 
