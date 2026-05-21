@@ -434,7 +434,7 @@ namespace Klacks.Api.Data.Seed
                 ("db3ee771-cbd6-420c-bdf7-8b1036bb82b9", "outgoingserverPort", "587"),
                 ("e16842eb-24ff-47c2-ad1b-5a3d6a2d20cd", "outgoingserverTimeout", "100"),
                 ("e3e61605-c1e9-48b9-b5c7-9e66c41889fe", "readReceipt", "false"),
-                ("a1b2c3d4-e5f6-7890-abcd-ef1234567890", "outgoingserverUsername", "hgasparoli@gmx.ch"),
+                // Note: outgoingserverUsername seeded by DefaultSeed (avoid duplicate type with different GUID)
                 ("a1b2c3d4-e5f6-7890-abcd-ef1234567891", "outgoingserverPassword", ""),
                 ("a1b2c3d4-e5f6-7890-abcd-ef1234567892", "mark", ""),
                 
@@ -466,14 +466,10 @@ namespace Klacks.Api.Data.Seed
                 ("1234567a-1234-1234-1234-123456789018", "enableDarkMode", "false"),
                 ("1234567a-1234-1234-1234-123456789019", "enableBulkOperations", "true"),
                 
-                // Business Settings
-                ("1234567a-1234-1234-1234-123456789020", "defaultWorkingHours", "8.5"),
-                ("1234567a-1234-1234-1234-123456789021", "overtimeThreshold", "42"),
-                ("1234567a-1234-1234-1234-123456789022", "vacationDaysPerYear", "25"),
-                ("1234567a-1234-1234-1234-123456789023", "probationPeriod", "3"),
-                ("1234567a-1234-1234-1234-123456789024", "noticePeriod", "30"),
-                ("1234567a-1234-1234-1234-123456789031", "dayVisibleBeforeMonth", "10"),
-                ("1234567a-1234-1234-1234-123456789032", "dayVisibleAfterMonth", "10"),
+                // Business Settings — seeded by DefaultSeed.cs (defaultWorkingHours, overtimeThreshold,
+                // vacationDaysPerYear, probationPeriod, noticePeriod, dayVisibleBeforeMonth, dayVisibleAfterMonth).
+                // Re-adding here with different GUIDs would create duplicate `type` rows and crash
+                // ToDictionaryAsync(x => x.Type, ...) in the settings service.
 
                 // Surcharge Rates (10% each, applied by AllShift macro)
                 ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c67", "nightRate", "0.1"),
@@ -491,11 +487,8 @@ namespace Klacks.Api.Data.Seed
                 ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d07", "SCHEDULING_DEFAULT_WORK_ON_SUNDAY", "true"),
                 ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d08", "SCHEDULING_DEFAULT_PERFORMS_SHIFT_WORK", "true"),
 
-                // Scheduling Default Settings
-                ("1234567a-1234-1234-1234-123456789035", "guaranteedHours", "170"),
-                ("1234567a-1234-1234-1234-123456789036", "maximumHours", "200"),
-                ("1234567a-1234-1234-1234-123456789037", "minimumHours", "160"),
-                ("1234567a-1234-1234-1234-123456789038", "fullTime", "180"),
+                // Scheduling Default Settings — guaranteedHours, maximumHours, minimumHours, fullTime
+                // are seeded by DefaultSeed.cs (same constraint as above).
                 ("1234567a-1234-1234-1234-123456789039", "SCHEDULING_MAX_WORK_DAYS", "5"),
                 ("1234567a-1234-1234-1234-123456789040", "SCHEDULING_MIN_REST_DAYS", "2"),
                 ("1234567a-1234-1234-1234-123456789041", "SCHEDULING_MIN_PAUSE_HOURS", "12"),
