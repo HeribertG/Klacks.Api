@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Runtime.CompilerServices;
+using System.Text.Json;
+using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
-using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
-using Klacks.Api.Domain.Services.Assistant.Providers;
 using Microsoft.Extensions.Configuration;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Cohere;
@@ -12,8 +13,16 @@ public class CohereProvider : BaseHttpProvider
 {
     private readonly IConfiguration _configuration;
 
+    private const string ChatEndpoint = "chat";
+    private const string EventTypeTextGeneration = "text-generation";
+    private const string EventTypeToolCallsGeneration = "tool-calls-generation";
+    private const string EventTypeToolCallsChunk = "tool-calls-chunk";
+    private const string ToolToken = " TOOL:";
+    private const string ToolEndToken = " TOOL_END";
+
     public override string ProviderId => _providerConfig!.ProviderId;
     public override string ProviderName => _providerConfig!.ProviderName;
+    public override bool SupportsStreaming => true;
 
     public CohereProvider(HttpClient httpClient, ILogger<CohereProvider> logger, IConfiguration configuration)
         : base(httpClient, logger)
@@ -53,7 +62,7 @@ public class CohereProvider : BaseHttpProvider
                 MaxTokens = request.MaxTokens
             };
 
-            var cohereResponse = await PostJsonAsync<CohereRequest, CohereResponse>("chat", cohereRequest, cancellationToken);
+            var cohereResponse = await PostJsonAsync<CohereRequest, CohereResponse>(ChatEndpoint, cohereRequest, cancellationToken);
 
             if (cohereResponse == null || string.IsNullOrEmpty(cohereResponse.Text))
             {
@@ -79,6 +88,85 @@ public class CohereProvider : BaseHttpProvider
             _logger.LogError(ex, "Error processing {Provider} request", ProviderName);
             return CreateErrorResponse("Internal error processing request");
         }
+    }
+
+    public override async IAsyncEnumerable<string> ProcessStreamAsync(
+        LLMProviderRequest request,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        if (!IsEnabled)
+            throw new InvalidOperationException($"{ProviderName} provider is not enabled");
+
+        if (string.IsNullOrEmpty(_apiKey))
+            throw new InvalidOperationException("The provider for the selected model is not available.");
+
+        var cohereRequest = new CohereRequest
+        {
+            Model = request.ModelId,
+            Message = request.Message,
+            ChatHistory = BuildChatHistory(request),
+            Temperature = request.Temperature,
+            MaxTokens = request.MaxTokens,
+            Stream = true
+        };
+
+        var hasToolCalls = false;
+
+        await foreach (var rawJson in PostStreamAsync(ChatEndpoint, cohereRequest, cancellationToken))
+        {
+            CohereStreamEvent? evt;
+            try
+            {
+                evt = JsonSerializer.Deserialize<CohereStreamEvent>(rawJson, GetJsonSerializerOptions());
+            }
+            catch
+            {
+                continue;
+            }
+
+            if (evt == null) continue;
+
+            switch (evt.EventType)
+            {
+                case EventTypeTextGeneration when evt.Text != null:
+                    yield return evt.Text;
+                    break;
+
+                case EventTypeToolCallsGeneration when evt.ToolCalls != null:
+                    for (var i = 0; i < evt.ToolCalls.Count; i++)
+                    {
+                        var tc = evt.ToolCalls[i];
+                        var tcJson = JsonSerializer.Serialize(new
+                        {
+                            toolCall = true,
+                            index = i,
+                            name = tc.Name,
+                            arguments = JsonSerializer.Serialize(tc.Parameters ?? new Dictionary<string, object>(), GetJsonSerializerOptions())
+                        }, GetJsonSerializerOptions());
+                        yield return $"{ToolToken}{tcJson}";
+                    }
+                    hasToolCalls = true;
+                    break;
+
+                case EventTypeToolCallsChunk when evt.ToolCallDelta != null:
+                    if (evt.ToolCallDelta.Name != null)
+                    {
+                        var deltaJson = JsonSerializer.Serialize(new
+                        {
+                            toolCall = true,
+                            index = evt.ToolCallDelta.Index,
+                            name = evt.ToolCallDelta.Name,
+                            arguments = evt.ToolCallDelta.Parameters ?? string.Empty
+                        }, GetJsonSerializerOptions());
+                        yield return $"{ToolToken}{deltaJson}";
+                        hasToolCalls = true;
+                    }
+                    break;
+            }
+        }
+
+        if (hasToolCalls)
+            yield return ToolEndToken;
     }
 
     private List<CohereChatMessage> BuildChatHistory(LLMProviderRequest request)

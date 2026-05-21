@@ -21,9 +21,9 @@ public class LLMService : ILLMService
     private readonly ContextAssemblyPipeline _contextAssemblyPipeline;
     private readonly ILLMBackgroundTaskService _backgroundTaskService;
 
-    private const int MaxHistoryMessages = 40;
-    private const int ReducedHistoryMessages = 20;
+    private const int MaxHistoryMessages = 20;
     private const int EstimatedOverheadTokens = 15_000;
+    private const int StageLogThresholdMs = 50;
 
     public LLMService(
         ILogger<LLMService> logger,
@@ -134,6 +134,7 @@ public class LLMService : ILLMService
         var runningHistory = new List<Providers.LLMMessage>(history!);
         var currentMessage = context.Message;
         var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var firstTokenLogged = false;
         const int maxIterations = Klacks.Api.Domain.Constants.LLMLoopConstants.MaxChatToolIterations;
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
@@ -198,6 +199,11 @@ public class LLMService : ILLMService
                     }
                     else
                     {
+                        if (!firstTokenLogged)
+                        {
+                            _logger.LogInformation("LLM TTFT: {Ms}ms", stopwatch.ElapsedMilliseconds);
+                            firstTokenLogged = true;
+                        }
                         accumulator.AppendContent(token);
                         yield return SseChunk.Content(token);
                     }
@@ -305,22 +311,34 @@ public class LLMService : ILLMService
         LLMConversation? conversation, string? systemPrompt, List<Providers.LLMMessage>? history)>
         PrepareContextAsync(LLMContext context, CancellationToken cancellationToken = default)
     {
+        var stageWatch = Stopwatch.StartNew();
+
         var (model, provider, error) = await _providerOrchestrator.GetModelAndProviderAsync(context.ModelId);
         if (error != null) return (null, null, error, null, null, null);
 
         var conversation = await _conversationManager.GetOrCreateConversationAsync(context.ConversationId, context.UserId);
         var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
 
+        stageWatch.Restart();
         var llmHistory = await _conversationManager.GetConversationHistoryAsync(conversation.ConversationId);
+        if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)
+            _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "GetConversationHistory", stageWatch.ElapsedMilliseconds);
 
         string? soulAndMemoryPrompt = null;
         if (agent != null)
         {
+            stageWatch.Restart();
             soulAndMemoryPrompt = await _contextAssemblyPipeline.AssembleSoulAndMemoryPromptAsync(
                 agent.Id, context.Message, context.Language);
+            if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)
+                _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "AssembleSoulAndMemory", stageWatch.ElapsedMilliseconds);
         }
 
+        stageWatch.Restart();
         var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt);
+        if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)
+            _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "BuildSystemPrompt", stageWatch.ElapsedMilliseconds);
+
         var truncatedHistory = TruncateHistory(llmHistory, model!.ContextWindow, model.MaxTokens, conversation.Summary);
 
         return (model, provider, null, conversation, systemPrompt, truncatedHistory);

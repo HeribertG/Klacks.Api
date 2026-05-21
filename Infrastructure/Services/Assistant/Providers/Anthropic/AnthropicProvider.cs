@@ -1,6 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// LLM provider for the Anthropic Messages API with SSE streaming and prompt-caching support.
+/// Streaming yields text deltas immediately; tool-call JSON is accumulated per block index and
+/// emitted as a NUL-prefixed TOOL token so the shared function-execution layer can reconstruct
+/// function calls. Prompt-caching is enabled via the anthropic-beta header; the system prompt
+/// is sent as a one-element content-block array with ephemeral cache_control so Anthropic can
+/// reuse the KV cache across turns.
+/// </summary>
+
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -16,8 +26,19 @@ public class AnthropicProvider : ILLMProvider
     private readonly HttpClient _httpClient;
     private readonly ILogger<AnthropicProvider> _logger;
     private readonly IConfiguration _configuration;
-    private const string AdvisorBetaHeader = "advisor-tool-2026-03-01";
-    private const string AdvisorModelId = "claude-opus-4-6";
+
+    private const string AnthropicVersionHeader = "anthropic-version";
+    private const string AnthropicBetaHeader = "anthropic-beta";
+    private const string PromptCachingBeta = "prompt-caching-2024-07-31";
+
+    private const string SseEventPrefix = "event: ";
+    private const string SseDataPrefix = "data: ";
+    private const string SseEventContentBlockDelta = "content_block_delta";
+    private const string SseEventContentBlockStart = "content_block_start";
+    private const string SseEventMessageStop = "message_stop";
+    private const string DeltaTypeTextDelta = "text_delta";
+    private const string DeltaTypeInputJsonDelta = "input_json_delta";
+    private const string ContentBlockTypeToolUse = "tool_use";
 
     private string _apiKey = string.Empty;
     private Domain.Models.Assistant.LLMProvider? _providerConfig;
@@ -28,10 +49,12 @@ public class AnthropicProvider : ILLMProvider
 
     public bool IsEnabled => _providerConfig!.IsEnabled;
 
+    public bool SupportsStreaming => true;
+
     public AnthropicProvider(HttpClient httpClient, ILogger<AnthropicProvider> logger, IConfiguration configuration)
     {
         _httpClient = httpClient;
-        this._logger = logger;
+        _logger = logger;
         _configuration = configuration;
     }
 
@@ -44,10 +67,10 @@ public class AnthropicProvider : ILLMProvider
         {
             _httpClient.DefaultRequestHeaders.Remove("x-api-key");
             _httpClient.DefaultRequestHeaders.Add("x-api-key", _apiKey);
-            _httpClient.DefaultRequestHeaders.Remove("anthropic-version");
-            _httpClient.DefaultRequestHeaders.Add("anthropic-version", providerConfig.ApiVersion!);
-            _httpClient.DefaultRequestHeaders.Remove("anthropic-beta");
-            _httpClient.DefaultRequestHeaders.Add("anthropic-beta", AdvisorBetaHeader);
+            _httpClient.DefaultRequestHeaders.Remove(AnthropicVersionHeader);
+            _httpClient.DefaultRequestHeaders.Add(AnthropicVersionHeader, providerConfig.ApiVersion!);
+            _httpClient.DefaultRequestHeaders.Remove(AnthropicBetaHeader);
+            _httpClient.DefaultRequestHeaders.Add(AnthropicBetaHeader, PromptCachingBeta);
         }
 
         _httpClient.BaseAddress = new Uri(providerConfig.BaseUrl!);
@@ -57,18 +80,18 @@ public class AnthropicProvider : ILLMProvider
     {
         if (!IsEnabled)
         {
-            return new LLMProviderResponse 
-            { 
-                Success = false, 
-                Error = "Anthropic provider is not enabled" 
+            return new LLMProviderResponse
+            {
+                Success = false,
+                Error = "Anthropic provider is not enabled"
             };
         }
 
         if (string.IsNullOrEmpty(_apiKey))
         {
-            return new LLMProviderResponse 
-            { 
-                Success = false, 
+            return new LLMProviderResponse
+            {
+                Success = false,
                 Error = "The provider for the selected model is not available."
             };
         }
@@ -79,18 +102,14 @@ public class AnthropicProvider : ILLMProvider
             {
                 Model = request.ModelId,
                 Messages = BuildMessages(request),
-                System = request.SystemPrompt,
+                System = BuildSystemContent(request.SystemPrompt),
                 Temperature = request.Temperature,
                 MaxTokens = request.MaxTokens,
                 Tools = MapTools(request.AvailableFunctions)
             };
 
-            var json = JsonSerializer.Serialize(anthropicRequest, new JsonSerializerOptions 
-            { 
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-            });
-            
+            var options = BuildSerializerOptions();
+            var json = JsonSerializer.Serialize(anthropicRequest, options);
             var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("messages", requestContent, cancellationToken);
 
@@ -107,17 +126,17 @@ public class AnthropicProvider : ILLMProvider
             }
 
             var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
-            var anthropicResponse = JsonSerializer.Deserialize<AnthropicResponse>(responseJson, new JsonSerializerOptions 
-            { 
-                PropertyNameCaseInsensitive = true 
+            var anthropicResponse = JsonSerializer.Deserialize<AnthropicResponse>(responseJson, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
             });
 
             if (anthropicResponse == null)
             {
-                return new LLMProviderResponse 
-                { 
-                    Success = false, 
-                    Error = "Invalid response from Anthropic" 
+                return new LLMProviderResponse
+                {
+                    Success = false,
+                    Error = "Invalid response from Anthropic"
                 };
             }
 
@@ -137,7 +156,7 @@ public class AnthropicProvider : ILLMProvider
             {
                 foreach (var content in anthropicResponse.Content)
                 {
-                    if (content.Type == "tool_use" && content.Name != null)
+                    if (content.Type == ContentBlockTypeToolUse && content.Name != null)
                     {
                         result.FunctionCalls.Add(new LLMFunctionCall
                         {
@@ -153,12 +172,134 @@ public class AnthropicProvider : ILLMProvider
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing Anthropic request");
-            return new LLMProviderResponse 
-            { 
-                Success = false, 
-                Error = "Internal error processing request" 
+            return new LLMProviderResponse
+            {
+                Success = false,
+                Error = "Internal error processing request"
             };
         }
+    }
+
+    public async IAsyncEnumerable<string> ProcessStreamAsync(
+        LLMProviderRequest request,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        if (!IsEnabled)
+            throw new InvalidOperationException("Anthropic provider is not enabled");
+
+        if (string.IsNullOrEmpty(_apiKey))
+            throw new InvalidOperationException("The provider for the selected model is not available.");
+
+        var anthropicRequest = new AnthropicRequest
+        {
+            Model = request.ModelId,
+            Messages = BuildMessages(request),
+            System = BuildSystemContent(request.SystemPrompt),
+            Temperature = request.Temperature,
+            MaxTokens = request.MaxTokens,
+            Tools = MapTools(request.AvailableFunctions),
+            Stream = true
+        };
+
+        var options = BuildSerializerOptions();
+        var json = JsonSerializer.Serialize(anthropicRequest, options);
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, "messages")
+        {
+            Content = new StringContent(json, Encoding.UTF8, "application/json")
+        };
+
+        var response = await _httpClient.SendAsync(
+            httpRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
+            var errorMessage = ExtractAnthropicErrorMessage(errorBody, response.StatusCode);
+            _logger.LogError("Anthropic streaming API error: {StatusCode} - {Error}", response.StatusCode, errorBody);
+            throw new InvalidOperationException(errorMessage);
+        }
+
+        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        using var reader = new StreamReader(stream);
+
+        var toolJsonAccumulators = new Dictionary<int, (string Name, StringBuilder Json)>();
+        string? currentEventType = null;
+        bool hasToolCalls = false;
+
+        while (!reader.EndOfStream && !cancellationToken.IsCancellationRequested)
+        {
+            var line = await reader.ReadLineAsync(cancellationToken);
+            if (line == null) break;
+
+            if (line.StartsWith(SseEventPrefix, StringComparison.Ordinal))
+            {
+                currentEventType = line[SseEventPrefix.Length..];
+                continue;
+            }
+
+            if (!line.StartsWith(SseDataPrefix, StringComparison.Ordinal))
+                continue;
+
+            var data = line[SseDataPrefix.Length..];
+            if (string.IsNullOrWhiteSpace(data)) continue;
+
+            if (currentEventType == SseEventMessageStop)
+            {
+                if (hasToolCalls)
+                    yield return " TOOL_END";
+                yield break;
+            }
+
+            AnthropicStreamEvent? evt;
+            try
+            {
+                evt = JsonSerializer.Deserialize<AnthropicStreamEvent>(data, options);
+            }
+            catch
+            {
+                continue;
+            }
+
+            if (evt == null) continue;
+
+            if (currentEventType == SseEventContentBlockStart
+                && evt.ContentBlock?.Type == ContentBlockTypeToolUse
+                && evt.ContentBlock.Name != null)
+            {
+                toolJsonAccumulators[evt.Index] = (evt.ContentBlock.Name, new StringBuilder());
+                hasToolCalls = true;
+            }
+            else if (currentEventType == SseEventContentBlockDelta && evt.Delta != null)
+            {
+                if (evt.Delta.Type == DeltaTypeTextDelta && evt.Delta.Text != null)
+                {
+                    yield return evt.Delta.Text;
+                }
+                else if (evt.Delta.Type == DeltaTypeInputJsonDelta && evt.Delta.PartialJson != null)
+                {
+                    if (toolJsonAccumulators.TryGetValue(evt.Index, out var acc))
+                    {
+                        acc.Json.Append(evt.Delta.PartialJson);
+                        toolJsonAccumulators[evt.Index] = acc;
+                    }
+                }
+            }
+        }
+
+        foreach (var (index, (name, jsonBuilder)) in toolJsonAccumulators)
+        {
+            var tcJson = JsonSerializer.Serialize(new
+            {
+                toolCall = true,
+                index,
+                name,
+                arguments = jsonBuilder.ToString()
+            }, options);
+            yield return $" TOOL:{tcJson}";
+        }
+
+        if (hasToolCalls)
+            yield return " TOOL_END";
     }
 
     public async Task<bool> ValidateApiKeyAsync(string apiKey)
@@ -177,7 +318,7 @@ public class AnthropicProvider : ILLMProvider
                 Content = new StringContent(JsonSerializer.Serialize(testRequest), Encoding.UTF8, "application/json")
             };
             request.Headers.Add("x-api-key", apiKey);
-            request.Headers.Add("anthropic-version", "2024-01-01");
+            request.Headers.Add(AnthropicVersionHeader, "2024-01-01");
 
             var response = await _httpClient.SendAsync(request);
             return response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.PaymentRequired;
@@ -222,7 +363,6 @@ public class AnthropicProvider : ILLMProvider
         }
     }
 
-
     private List<AnthropicMessage> BuildMessages(LLMProviderRequest request)
     {
         var messages = new List<AnthropicMessage>();
@@ -264,36 +404,41 @@ public class AnthropicProvider : ILLMProvider
         return messages;
     }
 
-    private List<object>? MapTools(List<LLMFunction> functions)
+    private static object? BuildSystemContent(string? systemPrompt)
     {
-        if (functions.Count == 0)
-        {
+        if (string.IsNullOrEmpty(systemPrompt))
             return null;
-        }
 
-        var tools = new List<object>();
-
-        tools.Add(new AnthropicAdvisorTool { Model = AdvisorModelId });
-
-        foreach (var f in functions)
+        return new[]
         {
-            tools.Add(new AnthropicTool
+            new AnthropicSystemBlock
             {
-                Name = f.Name,
-                Description = f.Description,
-                InputSchema = new AnthropicInputSchema
-                {
-                    Type = "object",
-                    Properties = f.Parameters,
-                    Required = f.RequiredParameters
-                }
-            });
-        }
-
-        return tools;
+                Type = "text",
+                Text = systemPrompt,
+                CacheControl = new AnthropicCacheControl { Type = "ephemeral" }
+            }
+        };
     }
 
-    private string ExtractContent(AnthropicResponse response)
+    private static List<object>? MapTools(List<LLMFunction> functions)
+    {
+        if (functions.Count == 0)
+            return null;
+
+        return functions.Select(f => (object)new AnthropicTool
+        {
+            Name = f.Name,
+            Description = f.Description,
+            InputSchema = new AnthropicInputSchema
+            {
+                Type = "object",
+                Properties = f.Parameters,
+                Required = f.RequiredParameters
+            }
+        }).ToList();
+    }
+
+    private static string ExtractContent(AnthropicResponse response)
     {
         if (response.Content == null || !response.Content.Any())
             return string.Empty;
@@ -305,35 +450,42 @@ public class AnthropicProvider : ILLMProvider
         return string.Join("\n", textContents);
     }
 
-    private decimal CalculateCost(LLMProviderRequest request, AnthropicUsage? usage)
+    private static decimal CalculateCost(LLMProviderRequest request, AnthropicUsage? usage)
     {
         if (usage == null) return 0;
 
-        return (usage.InputTokens / 1000m * request.CostPerInputToken) + 
+        return (usage.InputTokens / 1000m * request.CostPerInputToken) +
                (usage.OutputTokens / 1000m * request.CostPerOutputToken);
     }
+
+    private static JsonSerializerOptions BuildSerializerOptions() => new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
 
     private string ExtractAnthropicErrorMessage(string responseJson, System.Net.HttpStatusCode statusCode)
     {
         try
         {
             var errorObj = JsonSerializer.Deserialize<JsonElement>(responseJson);
-            
+
             if (errorObj.TryGetProperty("error", out var error))
             {
                 if (error.TryGetProperty("message", out var message))
                 {
                     var msg = message.GetString() ?? "";
-                    
+
                     if (msg.Contains("api key"))
                         return "Invalid Anthropic API key";
-                    
+
                     if (msg.Contains("max_tokens"))
                         return "max_tokens field required";
-                        
+
                     if (msg.Contains("anthropic-version"))
                         return "Invalid Anthropic API version";
-                        
+
                     return msg;
                 }
             }
@@ -341,15 +493,14 @@ public class AnthropicProvider : ILLMProvider
         catch
         {
         }
-        
+
         return statusCode switch
         {
             System.Net.HttpStatusCode.Unauthorized => "Invalid Anthropic API key",
-            System.Net.HttpStatusCode.PaymentRequired => "Anthropic payment required", 
+            System.Net.HttpStatusCode.PaymentRequired => "Anthropic payment required",
             System.Net.HttpStatusCode.TooManyRequests => "Anthropic rate limit exceeded",
             System.Net.HttpStatusCode.NotFound => "Anthropic model not found",
             _ => $"Anthropic API error: {(int)statusCode}"
         };
     }
-
 }

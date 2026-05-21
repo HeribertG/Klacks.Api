@@ -67,15 +67,19 @@ public class ContextAssemblyPipeline
             sb.AppendLine();
         }
 
-        var sentimentResult = await _sentimentAnalyzer.AnalyzeSentimentAsync(userMessage);
+        var sentimentTask = _sentimentAnalyzer.AnalyzeSentimentAsync(userMessage);
+        var memoryTask = _memoryRetrievalService.RetrieveRelevantMemoriesAsync(agentId, userMessage, cancellationToken);
+
+        await Task.WhenAll(sentimentTask, memoryTask);
+
+        var sentimentResult = sentimentTask.Result;
         if (sentimentResult.Mood != SentimentMood.Neutral && sentimentResult.Confidence > SentimentThreshold)
         {
             sb.AppendLine($"[USER_MOOD: {sentimentResult.Mood.ToString().ToUpperInvariant()}] Adjust your tone accordingly.");
             sb.AppendLine();
         }
 
-        var memoryBlock = await _memoryRetrievalService.RetrieveRelevantMemoriesAsync(agentId, userMessage, cancellationToken);
-        sb.Append(memoryBlock);
+        sb.Append(memoryTask.Result);
 
         return sb.ToString();
     }

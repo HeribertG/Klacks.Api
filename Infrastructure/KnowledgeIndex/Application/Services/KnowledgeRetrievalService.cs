@@ -3,6 +3,8 @@
 using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Constants;
 using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Interfaces;
 using Klacks.Api.Infrastructure.KnowledgeIndex.Domain;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Klacks.Api.Infrastructure.KnowledgeIndex.Application.Services;
 
@@ -13,20 +15,26 @@ namespace Klacks.Api.Infrastructure.KnowledgeIndex.Application.Services;
 /// <param name="embeddingProvider">Converts the user query into a vector embedding.</param>
 /// <param name="rerankerProvider">Cross-encoder that scores query-candidate pairs.</param>
 /// <param name="repository">Repository for pgvector KNN search with permission filtering.</param>
+/// <param name="logger">Logger for retrieval diagnostics on the hot chat path.</param>
 public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
 {
+    private const int MaxRerankerCandidates = 10;
+
     private readonly IEmbeddingProvider _embeddingProvider;
     private readonly IRerankerProvider _rerankerProvider;
     private readonly IKnowledgeIndexRepository _repository;
+    private readonly ILogger<KnowledgeRetrievalService> _logger;
 
     public KnowledgeRetrievalService(
         IEmbeddingProvider embeddingProvider,
         IRerankerProvider rerankerProvider,
-        IKnowledgeIndexRepository repository)
+        IKnowledgeIndexRepository repository,
+        ILogger<KnowledgeRetrievalService>? logger = null)
     {
         _embeddingProvider = embeddingProvider;
         _rerankerProvider = rerankerProvider;
         _repository = repository;
+        _logger = logger ?? NullLogger<KnowledgeRetrievalService>.Instance;
     }
 
     public async Task<RetrievalResult> RetrieveAsync(
@@ -42,7 +50,7 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         var queryVec = await _embeddingProvider.EmbedQueryAsync(userQuery, cancellationToken);
 
         var candidates = await _repository.FindNearestAsync(
-            queryVec, userPermissions, isAdmin, KnowledgeIndexConstants.KnnTopN, cancellationToken);
+            queryVec, userPermissions, isAdmin, MaxRerankerCandidates, cancellationToken);
 
         if (candidates.Count == 0)
             return new RetrievalResult([]);
@@ -62,7 +70,13 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         var texts = filtered.Select(f => f.Text).ToList();
         var scores = await _rerankerProvider.ScoreAsync(userQuery, texts, cancellationToken);
 
-        Console.WriteLine($"Q={userQuery} scores: {string.Join(", ", filtered.Zip(scores).Select(p => $"{p.First.SourceId}:{p.Second:F3}"))}");
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug(
+                "Knowledge retrieval scores for query {Query}: {Scores}",
+                userQuery,
+                string.Join(", ", filtered.Zip(scores).Select(p => $"{p.First.SourceId}:{p.Second:F3}")));
+        }
 
         var ranked = filtered
             .Zip(scores, (e, s) => new RetrievalCandidate(e, s))

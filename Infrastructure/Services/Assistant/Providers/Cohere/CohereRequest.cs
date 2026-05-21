@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Text.Json.Serialization;
+
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Cohere;
 
 public class CohereRequest
@@ -9,4 +11,8 @@ public class CohereRequest
     public List<CohereChatMessage> ChatHistory { get; set; } = new();
     public double Temperature { get; set; }
     public int MaxTokens { get; set; }
+
+    [JsonPropertyName("stream")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Stream { get; set; }
 }
