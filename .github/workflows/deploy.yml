@@ -98,6 +98,7 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT || 22 }}
+        command_timeout: 30m
         script: |
           set -e
           echo "🚀 Deploying Klacks.Api..."
