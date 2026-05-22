@@ -2,16 +2,20 @@
 
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Infrastructure.Services.Translation;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Services.Translation;
 
 public class MultiLanguageTranslationService : IMultiLanguageTranslationService
 {
     private readonly ITranslationService _translationService;
+    private readonly ILogger<MultiLanguageTranslationService>? _logger;
 
-    public MultiLanguageTranslationService(ITranslationService translationService)
+    public MultiLanguageTranslationService(ITranslationService translationService, ILogger<MultiLanguageTranslationService>? logger = null)
     {
         _translationService = translationService;
+        _logger = logger;
     }
 
     public async Task<bool> IsConfiguredAsync() => await _translationService.IsConfiguredAsync();
@@ -35,9 +39,16 @@ public class MultiLanguageTranslationService : IMultiLanguageTranslationService
             return multiLanguage;
         }
 
-        var translations = await _translationService.TranslateToAllLanguagesAsync(sourceText, sourceLanguage);
-
-        return ApplyTranslations(multiLanguage, translations, emptyLanguages);
+        try
+        {
+            var translations = await _translationService.TranslateToAllLanguagesAsync(sourceText, sourceLanguage);
+            return ApplyTranslations(multiLanguage, translations, emptyLanguages);
+        }
+        catch (TranslationAuthenticationException ex)
+        {
+            _logger?.LogWarning(ex, "Translation skipped due to provider authentication failure; returning untranslated fields");
+            return multiLanguage;
+        }
     }
 
     private static (string? language, string? text) FindSourceLanguageAndText(MultiLanguage multiLanguage)
