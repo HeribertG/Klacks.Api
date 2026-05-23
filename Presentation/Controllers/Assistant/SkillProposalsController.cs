@@ -8,8 +8,8 @@
 
 using System.Security.Claims;
 using Klacks.Api.Application.Commands.Assistant;
+using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -29,18 +29,15 @@ public class SkillProposalsController : ControllerBase
     private const int MaxTrajectoriesToAnalyze = 200;
 
     private readonly ISkillDescriptionOptimizer _optimizer;
-    private readonly IProposedSkillChangeRepository _proposalRepository;
     private readonly IMediator _mediator;
     private readonly ILogger<SkillProposalsController> _logger;
 
     public SkillProposalsController(
         ISkillDescriptionOptimizer optimizer,
-        IProposedSkillChangeRepository proposalRepository,
         IMediator mediator,
         ILogger<SkillProposalsController> logger)
     {
         _optimizer = optimizer;
-        _proposalRepository = proposalRepository;
         _mediator = mediator;
         _logger = logger;
     }
@@ -69,16 +66,9 @@ public class SkillProposalsController : ControllerBase
         [FromQuery] int? limit,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var effectiveLimit = Math.Clamp(limit ?? DefaultPendingLimit, 1, MaxPendingLimit);
-            var pending = await _proposalRepository.GetPendingAsync(effectiveLimit, cancellationToken);
-            return Ok(pending);
-        }
-        catch (OperationCanceledException)
-        {
-            return StatusCode(499);
-        }
+        var effectiveLimit = Math.Clamp(limit ?? DefaultPendingLimit, 1, MaxPendingLimit);
+        var pending = await _mediator.Send(new GetPendingSkillChangesQuery(effectiveLimit), cancellationToken);
+        return Ok(pending);
     }
 
     [HttpPost("{id:guid}/approve")]
