@@ -11,7 +11,9 @@ public sealed class NavigationMatchResult
     public required string? Route { get; init; }
     public required double Score { get; init; }
     public required IReadOnlyList<NavigationCandidate> Candidates { get; init; }
-    public bool IsFastPath => Score > 0.85;
+    public bool IsFastPath => Score >= FastPathThreshold;
+
+    private const double FastPathThreshold = 0.85;
 }
 
 public sealed record NavigationCandidate(string TargetId, string Route, double Score);

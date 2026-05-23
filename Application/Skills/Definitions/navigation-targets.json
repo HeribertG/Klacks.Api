@@ -201,8 +201,30 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/absence-detail/absence-detail.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "abwesenheitsformular",
+        "absenzformular",
+        "abwesenheit bearbeiten",
+        "abwesenheits-details",
+        "öffne abwesenheitsformular"
+      ],
+      "en": [
+        "absence form",
+        "absence detail form",
+        "edit absence",
+        "absence details"
+      ],
+      "fr": [
+        "formulaire d'absence",
+        "détails d'absence"
+      ],
+      "it": [
+        "modulo assenza",
+        "dettagli assenza"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -528,8 +550,41 @@
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "klacksy persönlichkeit",
+        "klacksy persoenlichkeit",
+        "klacksy charakter",
+        "assistant-charakter",
+        "ki-persönlichkeit",
+        "ki-persoenlichkeit",
+        "klacksy soul",
+        "klacksy verhalten",
+        "klacksy tonfall",
+        "öffne klacksy persönlichkeit",
+        "oeffne klacksy persoenlichkeit"
+      ],
+      "en": [
+        "klacksy personality",
+        "assistant personality",
+        "ai personality",
+        "klacksy character",
+        "klacksy soul",
+        "klacksy behavior",
+        "open klacksy personality"
+      ],
+      "fr": [
+        "personnalité de klacksy",
+        "personnalité de l'assistant",
+        "caractère klacksy"
+      ],
+      "it": [
+        "personalità di klacksy",
+        "personalità assistente",
+        "carattere klacksy"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -539,8 +594,41 @@
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "skill-vorschläge",
+        "skill-vorschlaege",
+        "skill vorschläge",
+        "klacksy skill-vorschläge",
+        "skill-prüfung",
+        "skill-pruefung",
+        "skill-review",
+        "neue skills",
+        "skill-anfragen",
+        "öffne die skill-vorschläge",
+        "oeffne die skill-vorschlaege"
+      ],
+      "en": [
+        "skill proposals",
+        "skill suggestions",
+        "klacksy skill proposals",
+        "skill review",
+        "new skills",
+        "skill requests",
+        "open skill proposals"
+      ],
+      "fr": [
+        "propositions de compétences",
+        "suggestions klacksy",
+        "examen des compétences"
+      ],
+      "it": [
+        "proposte di skill",
+        "suggerimenti skill",
+        "revisione skill"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -649,8 +737,31 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/branches/branches.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "filialformular",
+        "niederlassungsformular",
+        "branch-formular",
+        "filiale bearbeiten",
+        "niederlassung bearbeiten",
+        "öffne filialformular"
+      ],
+      "en": [
+        "branch form",
+        "edit branch",
+        "branch details",
+        "open branch form"
+      ],
+      "fr": [
+        "formulaire de filiale",
+        "modifier filiale"
+      ],
+      "it": [
+        "modulo filiale",
+        "modifica filiale"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -759,8 +870,29 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/calendar-rules/calendar-rules.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "kalenderregel-formular",
+        "kalenderregel bearbeiten",
+        "regel bearbeiten",
+        "kalender-regel",
+        "öffne kalenderregel-formular"
+      ],
+      "en": [
+        "calendar rule form",
+        "edit calendar rule",
+        "calendar rule details"
+      ],
+      "fr": [
+        "formulaire règle calendrier",
+        "modifier règle calendrier"
+      ],
+      "it": [
+        "modulo regola calendario",
+        "modifica regola calendario"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -1039,8 +1171,40 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/edit-address-home/edit-address-home.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "mitarbeiterdetails",
+        "personaldatensatz",
+        "mitarbeiterprofil",
+        "mitarbeiter bearbeiten",
+        "personalakte",
+        "personalstammdaten",
+        "kundenprofil",
+        "kunde bearbeiten",
+        "öffne mitarbeiterprofil",
+        "oeffne mitarbeiterprofil"
+      ],
+      "en": [
+        "employee details",
+        "employee profile",
+        "edit employee",
+        "client details",
+        "edit client",
+        "personnel record",
+        "open employee profile"
+      ],
+      "fr": [
+        "détails du collaborateur",
+        "profil employé",
+        "modifier employé"
+      ],
+      "it": [
+        "dettagli dipendente",
+        "profilo dipendente",
+        "modifica dipendente"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -1049,8 +1213,29 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "geburtstag",
+        "geburtsdatum",
+        "geburtstagfeld",
+        "mitarbeiter-geburtstag"
+      ],
+      "en": [
+        "birthday",
+        "date of birth",
+        "birth date",
+        "employee birthday"
+      ],
+      "fr": [
+        "date de naissance",
+        "anniversaire"
+      ],
+      "it": [
+        "data di nascita",
+        "compleanno"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -1059,8 +1244,27 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "vorname",
+        "vornamefeld",
+        "mitarbeiter-vorname"
+      ],
+      "en": [
+        "first name",
+        "given name",
+        "employee first name"
+      ],
+      "fr": [
+        "prénom",
+        "prénom collaborateur"
+      ],
+      "it": [
+        "nome",
+        "nome dipendente"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -1069,8 +1273,27 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "geschlecht",
+        "anrede",
+        "mitarbeiter-geschlecht"
+      ],
+      "en": [
+        "gender",
+        "sex",
+        "employee gender"
+      ],
+      "fr": [
+        "genre",
+        "sexe"
+      ],
+      "it": [
+        "genere",
+        "sesso"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -1079,8 +1302,27 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "nachname",
+        "familienname",
+        "mitarbeiter-nachname"
+      ],
+      "en": [
+        "last name",
+        "surname",
+        "family name",
+        "employee last name"
+      ],
+      "fr": [
+        "nom de famille",
+        "nom"
+      ],
+      "it": [
+        "cognome"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -1091,8 +1333,67 @@
     "requiredPermission": "CanViewClients",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "mitarbeiter",
+        "mitarbeiterliste",
+        "mitarbeiterübersicht",
+        "mitarbeiteruebersicht",
+        "personal",
+        "personalliste",
+        "personalübersicht",
+        "personaluebersicht",
+        "angestellte",
+        "angestelltenliste",
+        "belegschaft",
+        "mitarbeitende",
+        "mitarbeiterstamm",
+        "personalstamm",
+        "team",
+        "teamliste",
+        "navigiere zu den mitarbeitern",
+        "öffne die mitarbeiterliste",
+        "oeffne die mitarbeiterliste",
+        "zeige mitarbeiter",
+        "alle mitarbeiter"
+      ],
+      "en": [
+        "employees",
+        "employee list",
+        "staff",
+        "staff list",
+        "personnel",
+        "team",
+        "team list",
+        "workforce",
+        "people",
+        "employee overview",
+        "navigate to employees",
+        "open employees",
+        "show employees",
+        "go to staff",
+        "all employees"
+      ],
+      "fr": [
+        "employés",
+        "liste des employés",
+        "personnel",
+        "équipe",
+        "collaborateurs",
+        "liste du personnel",
+        "navigation employés"
+      ],
+      "it": [
+        "dipendenti",
+        "elenco dipendenti",
+        "personale",
+        "team",
+        "collaboratori",
+        "elenco personale",
+        "vista dipendenti"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -1103,8 +1404,38 @@
     "requiredPermission": "CanEditShifts",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "container-vorlage",
+        "containervorlage",
+        "schichtcontainer",
+        "schichtvorlage",
+        "container template",
+        "schichtcontainer-vorlage",
+        "vorlagencontainer",
+        "öffne die container-vorlage",
+        "oeffne die container-vorlage",
+        "zeige die schichtvorlage"
+      ],
+      "en": [
+        "container template",
+        "shift container template",
+        "shift template container",
+        "open container template",
+        "show shift template"
+      ],
+      "fr": [
+        "modèle de conteneur",
+        "modèle conteneur de service",
+        "ouvrir le modèle de conteneur"
+      ],
+      "it": [
+        "modello contenitore",
+        "modello contenitore turno",
+        "apri modello contenitore"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -1113,8 +1444,31 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/contracts/contracts.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "vertragsformular",
+        "vertrag bearbeiten",
+        "anstellungsformular",
+        "vertragsdetails",
+        "öffne vertragsformular"
+      ],
+      "en": [
+        "contract form",
+        "edit contract",
+        "employment form",
+        "contract details",
+        "open contract form"
+      ],
+      "fr": [
+        "formulaire de contrat",
+        "modifier le contrat"
+      ],
+      "it": [
+        "modulo contratto",
+        "modifica contratto"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -1123,8 +1477,24 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/contracts/contracts.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "vertragsname",
+        "name des vertrags",
+        "vertragsbezeichnung"
+      ],
+      "en": [
+        "contract name",
+        "name of contract"
+      ],
+      "fr": [
+        "nom du contrat"
+      ],
+      "it": [
+        "nome contratto"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -1335,8 +1705,42 @@
     "requiredPermission": "CanEditShifts",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "schicht teilen",
+        "schicht schneiden",
+        "schicht zerlegen",
+        "schicht splitten",
+        "schicht trennen",
+        "schichtschnitt",
+        "schicht aufteilen",
+        "navigiere zum schicht-schneiden",
+        "öffne schicht schneiden",
+        "oeffne schicht schneiden"
+      ],
+      "en": [
+        "cut shift",
+        "split shift",
+        "trim shift",
+        "divide shift",
+        "navigate to cut shift",
+        "open cut shift",
+        "split a shift"
+      ],
+      "fr": [
+        "couper le service",
+        "diviser le service",
+        "scinder le service",
+        "ouvrir couper service"
+      ],
+      "it": [
+        "taglia turno",
+        "dividi turno",
+        "spezza turno",
+        "apri taglia turno"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -1811,8 +2215,44 @@
     "requiredPermission": "CanEditGroups",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "gruppe bearbeiten",
+        "gruppe editieren",
+        "gruppendetails",
+        "gruppeneditor",
+        "gruppe ändern",
+        "gruppe aendern",
+        "gruppe öffnen",
+        "gruppe oeffnen",
+        "navigiere zur gruppenbearbeitung",
+        "bearbeite gruppe",
+        "gruppe pflegen",
+        "edit group"
+      ],
+      "en": [
+        "edit group",
+        "modify group",
+        "group details",
+        "group editor",
+        "open group",
+        "navigate to edit group",
+        "change group"
+      ],
+      "fr": [
+        "modifier le groupe",
+        "éditer le groupe",
+        "détails du groupe",
+        "ouvrir le groupe"
+      ],
+      "it": [
+        "modifica gruppo",
+        "modifica del gruppo",
+        "dettagli gruppo",
+        "apri gruppo"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -1823,8 +2263,48 @@
     "requiredPermission": "CanEditShifts",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "schicht bearbeiten",
+        "schicht editieren",
+        "schichtdetails",
+        "schichteditor",
+        "schicht ändern",
+        "schicht aendern",
+        "schicht öffnen",
+        "schicht oeffnen",
+        "navigiere zur schichtbearbeitung",
+        "bearbeite schicht",
+        "schicht pflegen",
+        "schichtvorlage bearbeiten",
+        "edit shift"
+      ],
+      "en": [
+        "edit shift",
+        "modify shift",
+        "shift details",
+        "shift editor",
+        "open shift",
+        "navigate to edit shift",
+        "change shift",
+        "edit shift template"
+      ],
+      "fr": [
+        "modifier le service",
+        "éditer le service",
+        "détails du service",
+        "ouvrir le service",
+        "modifier le modèle de service"
+      ],
+      "it": [
+        "modifica turno",
+        "modifica del turno",
+        "dettagli turno",
+        "apri turno",
+        "modifica modello turno"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -1949,8 +2429,33 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/membership/membership.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "mitgliedschaft",
+        "mitarbeiter-mitgliedschaft",
+        "gruppenmitgliedschaft",
+        "team-mitgliedschaft",
+        "öffne mitgliedschaft"
+      ],
+      "en": [
+        "membership",
+        "employee membership",
+        "group membership",
+        "team membership",
+        "open membership"
+      ],
+      "fr": [
+        "adhésion",
+        "adhésion employé",
+        "appartenance au groupe"
+      ],
+      "it": [
+        "appartenenza",
+        "appartenenza dipendente",
+        "iscrizione gruppo"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -1959,8 +2464,24 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/membership/membership.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "mitgliedschaftstyp",
+        "art der mitgliedschaft",
+        "mitgliedschaftsart"
+      ],
+      "en": [
+        "membership type",
+        "type of membership"
+      ],
+      "fr": [
+        "type d'adhésion"
+      ],
+      "it": [
+        "tipo di appartenenza"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -2368,8 +2889,30 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/group/edit-group/edit-group-home/edit-group-home.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "gruppendetails",
+        "gruppen-detail",
+        "gruppe ansehen",
+        "gruppendaten",
+        "öffne gruppendetail"
+      ],
+      "en": [
+        "group detail",
+        "group details",
+        "view group",
+        "group data"
+      ],
+      "fr": [
+        "détails du groupe",
+        "voir le groupe"
+      ],
+      "it": [
+        "dettagli gruppo",
+        "vedi gruppo"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -2378,8 +2921,24 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/group/edit-group/edit-group-item/edit-group-item.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "gruppenname",
+        "name der gruppe",
+        "gruppenbezeichnung"
+      ],
+      "en": [
+        "group name",
+        "name of group"
+      ],
+      "fr": [
+        "nom du groupe"
+      ],
+      "it": [
+        "nome gruppo"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -2390,8 +2949,54 @@
     "requiredPermission": "CanViewGroups",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "gruppen",
+        "gruppenliste",
+        "gruppenübersicht",
+        "gruppenuebersicht",
+        "teams",
+        "teamliste",
+        "abteilungen",
+        "abteilungsliste",
+        "bereiche",
+        "kostenstellen",
+        "navigiere zu den gruppen",
+        "öffne die gruppen",
+        "oeffne die gruppen",
+        "zeige gruppen",
+        "alle gruppen"
+      ],
+      "en": [
+        "groups",
+        "group list",
+        "group overview",
+        "teams",
+        "team list",
+        "departments",
+        "cost centers",
+        "navigate to groups",
+        "open groups",
+        "show groups",
+        "all groups"
+      ],
+      "fr": [
+        "groupes",
+        "liste des groupes",
+        "équipes",
+        "départements",
+        "navigation groupes"
+      ],
+      "it": [
+        "gruppi",
+        "elenco gruppi",
+        "team",
+        "reparti",
+        "centri di costo",
+        "vista gruppi"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -2502,8 +3107,46 @@
     "requiredPermission": "CanViewSettings",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "gruppenstruktur",
+        "gruppenhierarchie",
+        "gruppenbaum",
+        "organisationsstruktur",
+        "orgstruktur",
+        "hierarchie",
+        "gruppen-scope",
+        "gruppenzuordnung",
+        "öffne die gruppenstruktur",
+        "oeffne die gruppenstruktur",
+        "navigiere zur gruppenstruktur",
+        "zeige die hierarchie"
+      ],
+      "en": [
+        "group structure",
+        "group hierarchy",
+        "group tree",
+        "organization structure",
+        "org structure",
+        "hierarchy",
+        "group scope",
+        "navigate to group structure",
+        "open group structure"
+      ],
+      "fr": [
+        "structure de groupe",
+        "hiérarchie de groupe",
+        "arborescence des groupes",
+        "structure organisationnelle"
+      ],
+      "it": [
+        "struttura gruppi",
+        "gerarchia gruppi",
+        "albero gruppi",
+        "struttura organizzativa"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -3328,8 +3971,34 @@
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "llm sync log",
+        "llm-synchronisationslog",
+        "modell-sync-log",
+        "synchronisationsprotokoll",
+        "ki-sync",
+        "llm-sync-historie",
+        "öffne llm-sync-log",
+        "oeffne llm-sync-log"
+      ],
+      "en": [
+        "llm sync log",
+        "model sync log",
+        "ai sync log",
+        "synchronization log",
+        "open llm sync log"
+      ],
+      "fr": [
+        "journal de synchronisation llm",
+        "journal sync modèle"
+      ],
+      "it": [
+        "log di sincronizzazione llm",
+        "log sync modello"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -3683,8 +4352,42 @@
     "requiredPermission": "CanCreateGroups",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "neue gruppe",
+        "gruppe anlegen",
+        "gruppe erstellen",
+        "gruppe hinzufügen",
+        "gruppe hinzufuegen",
+        "neues team",
+        "team anlegen",
+        "navigiere zur neuen gruppe",
+        "öffne neue gruppe",
+        "oeffne neue gruppe"
+      ],
+      "en": [
+        "new group",
+        "create group",
+        "add group",
+        "new team",
+        "add team",
+        "navigate to new group",
+        "open new group"
+      ],
+      "fr": [
+        "nouveau groupe",
+        "créer un groupe",
+        "ajouter un groupe",
+        "nouvelle équipe"
+      ],
+      "it": [
+        "nuovo gruppo",
+        "crea gruppo",
+        "aggiungi gruppo",
+        "nuovo team"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -4157,8 +4860,31 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/aside/assistant-chat/plan-execution-panel/plan-execution-panel.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "planausführung",
+        "planausfuehrung",
+        "ausführungspanel",
+        "ausfuehrungspanel",
+        "klacksy-aktionsplan",
+        "öffne ausführungspanel"
+      ],
+      "en": [
+        "plan execution",
+        "execution panel",
+        "klacksy action plan",
+        "open execution panel"
+      ],
+      "fr": [
+        "exécution du plan",
+        "panneau d'exécution"
+      ],
+      "it": [
+        "esecuzione piano",
+        "pannello esecuzione"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -4167,8 +4893,29 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/aside/assistant-chat/plan-execution-panel/plan-execution-panel.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "plan genehmigen",
+        "ausführung freigeben",
+        "ausfuehrung freigeben",
+        "aktionsplan bestätigen",
+        "aktionsplan bestaetigen"
+      ],
+      "en": [
+        "approve plan",
+        "confirm execution",
+        "approve action plan"
+      ],
+      "fr": [
+        "approuver le plan",
+        "valider l'exécution"
+      ],
+      "it": [
+        "approva piano",
+        "conferma esecuzione"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -4761,8 +5508,56 @@
     "requiredPermission": "CanViewSettings",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "einstellungen",
+        "konfiguration",
+        "optionen",
+        "präferenzen",
+        "praeferenzen",
+        "system-einstellungen",
+        "systemkonfiguration",
+        "admin",
+        "verwaltung",
+        "konfigurationen",
+        "einrichten",
+        "settings",
+        "navigiere zu den einstellungen",
+        "öffne die einstellungen",
+        "oeffne die einstellungen",
+        "zeige einstellungen"
+      ],
+      "en": [
+        "settings",
+        "configuration",
+        "options",
+        "preferences",
+        "system settings",
+        "admin",
+        "administration",
+        "setup",
+        "navigate to settings",
+        "open settings",
+        "go to settings"
+      ],
+      "fr": [
+        "paramètres",
+        "configuration",
+        "options",
+        "préférences",
+        "administration",
+        "navigation paramètres"
+      ],
+      "it": [
+        "impostazioni",
+        "configurazione",
+        "opzioni",
+        "preferenze",
+        "amministrazione",
+        "vai alle impostazioni"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -4890,8 +5685,30 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "schichtformular",
+        "schichtvorlage bearbeiten",
+        "schicht-formular",
+        "schichtdetails-formular",
+        "öffne schichtformular"
+      ],
+      "en": [
+        "shift form",
+        "edit shift template",
+        "shift template form",
+        "open shift form"
+      ],
+      "fr": [
+        "formulaire de service",
+        "modifier modèle de service"
+      ],
+      "it": [
+        "modulo turno",
+        "modifica modello turno"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -4900,8 +5717,28 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-item/edit-shift-item.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "schichtkürzel",
+        "schichtkuerzel",
+        "abkürzung der schicht",
+        "abkuerzung der schicht"
+      ],
+      "en": [
+        "shift abbreviation",
+        "shift code",
+        "short name"
+      ],
+      "fr": [
+        "abréviation du service",
+        "code du service"
+      ],
+      "it": [
+        "abbreviazione turno",
+        "codice turno"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -4910,8 +5747,24 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-item/edit-shift-item.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "schichtname",
+        "name der schicht",
+        "schichtbezeichnung"
+      ],
+      "en": [
+        "shift name",
+        "name of shift"
+      ],
+      "fr": [
+        "nom du service"
+      ],
+      "it": [
+        "nome turno"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -4922,8 +5775,51 @@
     "requiredPermission": "CanViewShifts",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "schichten",
+        "schichtliste",
+        "schichtübersicht",
+        "schichtuebersicht",
+        "schichtvorlagen",
+        "schichtkatalog",
+        "schichttypen",
+        "schichtarten",
+        "alle schichten",
+        "schichtdefinitionen",
+        "navigiere zu den schichten",
+        "öffne die schichten",
+        "oeffne die schichten",
+        "zeige schichten"
+      ],
+      "en": [
+        "shifts",
+        "shift list",
+        "shift overview",
+        "shift templates",
+        "shift types",
+        "shift catalog",
+        "navigate to shifts",
+        "open shifts",
+        "show shifts",
+        "all shifts"
+      ],
+      "fr": [
+        "services",
+        "liste des services",
+        "modèles de service",
+        "types de service",
+        "vue des services"
+      ],
+      "it": [
+        "turni",
+        "elenco turni",
+        "modelli turno",
+        "tipi di turno",
+        "vista turni"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -5367,8 +6263,44 @@
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "holistic harmonizer",
+        "harmonizer",
+        "schicht-wizard",
+        "wizard",
+        "planungsassistent",
+        "schichtassistent",
+        "ganzheitlicher harmonizer",
+        "schicht-harmonizer",
+        "öffne den harmonizer",
+        "oeffne den harmonizer",
+        "navigiere zum wizard"
+      ],
+      "en": [
+        "holistic harmonizer",
+        "harmonizer",
+        "shift wizard",
+        "wizard",
+        "scheduling assistant",
+        "shift assistant",
+        "open harmonizer",
+        "navigate to wizard"
+      ],
+      "fr": [
+        "harmoniseur holistique",
+        "harmoniseur",
+        "assistant de planification",
+        "assistant de service"
+      ],
+      "it": [
+        "armonizzatore olistico",
+        "armonizzatore",
+        "assistente pianificazione",
+        "assistente turni"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -5378,8 +6310,38 @@
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
     "lastScannedAt": "2026-05-06T05:30:48.047Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "wizard 3",
+        "ki-wizard",
+        "ai-wizard",
+        "intelligenter planungsassistent",
+        "ki-planungsassistent",
+        "schicht-ki",
+        "ki-schichtplaner",
+        "öffne wizard 3",
+        "oeffne wizard 3"
+      ],
+      "en": [
+        "wizard 3",
+        "ai wizard",
+        "intelligent scheduling assistant",
+        "ai scheduling assistant",
+        "ai shift planner",
+        "open wizard 3"
+      ],
+      "fr": [
+        "assistant 3",
+        "assistant ia",
+        "planificateur ia"
+      ],
+      "it": [
+        "wizard 3",
+        "assistente ia",
+        "pianificatore ia"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": true
   },
   {
@@ -5488,8 +6450,28 @@
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/work-setting/work-setting.component.html",
     "lastScannedAt": "2026-05-23T14:51:59.876Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "arbeitseinstellungs-formular",
+        "arbeitseinstellungen bearbeiten",
+        "work-setting bearbeiten",
+        "öffne arbeitseinstellungs-formular"
+      ],
+      "en": [
+        "work setting form",
+        "edit work setting",
+        "open work setting form"
+      ],
+      "fr": [
+        "formulaire de paramètres de travail",
+        "modifier paramètre travail"
+      ],
+      "it": [
+        "modulo impostazione lavoro",
+        "modifica impostazione lavoro"
+      ]
+    },
+    "synonymStatus": "reviewed",
     "obsolete": false
   }
 ]

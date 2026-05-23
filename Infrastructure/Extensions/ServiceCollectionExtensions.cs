@@ -143,6 +143,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IClientFilterRepository, ClientFilterRepository>();
         services.AddScoped<IClientBreakPlaceholderRepository, ClientBreakPlaceholderRepository>();
         services.AddScoped<IClientSearchRepository, ClientSearchRepository>();
+        services.AddScoped<IGroupSearchRepository, GroupSearchRepository>();
+        services.AddScoped<IShiftSearchRepository, ShiftSearchRepository>();
         services.AddScoped<IClientSearchFilterService, ClientSearchFilterService>();
         services.AddScoped<IClientBaseQueryService, ClientBaseQueryService>();
         services.AddScoped<IAddressRepository, AddressRepository>();

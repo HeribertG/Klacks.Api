@@ -1,10 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -14,17 +12,17 @@ namespace Klacks.Api.Application.Skills;
 public class SearchAndNavigateSkill : BaseSkillImplementation
 {
     private readonly IClientSearchRepository _clientSearchRepository;
-    private readonly IGroupRepository _groupRepository;
-    private readonly IShiftRepository _shiftRepository;
+    private readonly IGroupSearchRepository _groupSearchRepository;
+    private readonly IShiftSearchRepository _shiftSearchRepository;
 
     public SearchAndNavigateSkill(
         IClientSearchRepository clientSearchRepository,
-        IGroupRepository groupRepository,
-        IShiftRepository shiftRepository)
+        IGroupSearchRepository groupSearchRepository,
+        IShiftSearchRepository shiftSearchRepository)
     {
         _clientSearchRepository = clientSearchRepository;
-        _groupRepository = groupRepository;
-        _shiftRepository = shiftRepository;
+        _groupSearchRepository = groupSearchRepository;
+        _shiftSearchRepository = shiftSearchRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -103,20 +101,17 @@ public class SearchAndNavigateSkill : BaseSkillImplementation
         string action,
         CancellationToken cancellationToken)
     {
-        var allGroups = await _groupRepository.List();
-        var term = searchQuery.ToLower();
+        var result = await _groupSearchRepository.SearchAsync(
+            searchTerm: searchQuery,
+            limit: 10,
+            cancellationToken: cancellationToken);
 
-        var groups = allGroups
-            .Where(g => !g.IsDeleted && g.Name != null && g.Name.ToLower().Contains(term))
-            .OrderBy(g => g.Name)
-            .Take(10)
-            .Select(g => new { g.Id, g.Name })
-            .ToList();
-
-        if (groups.Count == 0)
+        if (result.TotalCount == 0)
         {
             return SkillResult.Error($"No groups found matching '{searchQuery}'.");
         }
+
+        var groups = result.Items.Select(g => new { g.Id, g.Name }).ToList();
 
         if (groups.Count == 1)
         {
@@ -138,27 +133,22 @@ public class SearchAndNavigateSkill : BaseSkillImplementation
         string action,
         CancellationToken cancellationToken)
     {
-        var allShifts = await _shiftRepository.List();
-        var term = searchQuery.ToLower();
+        var result = await _shiftSearchRepository.SearchAsync(
+            searchTerm: searchQuery,
+            limit: 10,
+            cancellationToken: cancellationToken);
 
-        var shifts = allShifts
-            .Where(s => !s.IsDeleted && s.Client != null &&
-                       ((s.Client.FirstName != null && s.Client.FirstName.ToLower().Contains(term)) ||
-                        (s.Client.Name != null && s.Client.Name.ToLower().Contains(term))))
-            .OrderByDescending(s => s.FromDate)
-            .Take(10)
-            .Select(s => new
-            {
-                s.Id,
-                s.FromDate,
-                ClientName = s.Client != null ? $"{s.Client.FirstName} {s.Client.Name}" : "Unknown"
-            })
-            .ToList();
-
-        if (shifts.Count == 0)
+        if (result.TotalCount == 0)
         {
             return SkillResult.Error($"No shifts found matching '{searchQuery}'.");
         }
+
+        var shifts = result.Items.Select(s => new
+        {
+            s.Id,
+            s.FromDate,
+            ClientName = $"{s.ClientFirstName} {s.ClientLastName}".Trim()
+        }).ToList();
 
         if (shifts.Count == 1)
         {
