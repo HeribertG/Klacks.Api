@@ -198,6 +198,12 @@ builder.Services.AddSingleton<INavigationTargetCacheService>(sp =>
     var plugins = Path.Combine(baseDir, "Plugins", "Languages");
     return new NavigationTargetCacheService(manifest, Directory.Exists(plugins) ? plugins : null);
 });
+builder.Services.AddSingleton<IKlacksyPageKeyCatalog>(sp =>
+{
+    var baseDir = AppContext.BaseDirectory;
+    var manifest = Path.Combine(baseDir, "Application", "Skills", "Definitions", "klacksy-page-keys.generated.json");
+    return new KlacksyPageKeyCatalog(manifest);
+});
 builder.Services.AddScoped<INavigationTargetMatcher, NavigationTargetMatcher>();
 builder.Services.AddScoped<IKlacksyNavigationFeedbackRepository, KlacksyNavigationFeedbackRepository>();
 builder.Services.AddScoped<INavigationFeedbackLogger, NavigationFeedbackLogger>();

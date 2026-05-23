@@ -159,10 +159,18 @@ public class ChatController : ControllerBase
             {
                 Type = SseChunkType.Metadata,
                 NavigateTo = navMatch.Route,
+                Target = navMatch.TargetId,
                 ActionPerformed = true
             };
             var navData = System.Text.Json.JsonSerializer.Serialize(navMetadata, jsonOptions);
             await Response.WriteAsync($"event: metadata\ndata: {navData}\n\n", cancellationToken);
+            await Response.Body.FlushAsync(cancellationToken);
+
+            var ackText = NavigationResponseKeys.FastPathAck(locale);
+            var ackChunk = SseChunk.Content(ackText);
+            var ackData = System.Text.Json.JsonSerializer.Serialize(ackChunk, jsonOptions);
+            await Response.WriteAsync($"event: content\ndata: {ackData}\n\n", cancellationToken);
+
             var fastDone = System.Text.Json.JsonSerializer.Serialize(SseChunk.Done(), jsonOptions);
             await Response.WriteAsync($"event: done\ndata: {fastDone}\n\n", cancellationToken);
             await Response.Body.FlushAsync(cancellationToken);

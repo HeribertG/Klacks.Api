@@ -1,11 +1,107 @@
 [
   {
+    "targetId": "absence",
+    "route": "/workplace/absence",
+    "labelKey": "nav.absence",
+    "category": "scheduling.absence",
+    "requiredPermission": null,
+    "sourceFile": "src/app/presentation/workplace/absence-gantt/absence-gantt-home/absence-gantt-home.component.ts",
+    "lastScannedAt": "2026-05-23T00:00:00.000Z",
+    "synonyms": {
+      "de": [
+        "abwesenheiten",
+        "abwesenheit",
+        "fehlzeiten",
+        "fehlzeit",
+        "absenz",
+        "absenzen",
+        "absenzkalender",
+        "abwesenheitsplan",
+        "abwesenheitsuebersicht",
+        "abwesenheitsübersicht",
+        "abwesenheitskalender",
+        "ferien",
+        "urlaub",
+        "krankheit",
+        "fehlzeitenkalender",
+        "fehlzeitenuebersicht",
+        "fehlzeitenübersicht",
+        "absences",
+        "abwesenheitsgantt",
+        "absence-gantt",
+        "navigiere zu den abwesenheiten",
+        "navigiere zur abwesenheit",
+        "oeffne die abwesenheiten",
+        "öffne die abwesenheiten",
+        "zeige die abwesenheiten",
+        "alle abwesenheiten",
+        "abwesenheiten anzeigen",
+        "navigiere zu den fehlzeiten",
+        "oeffne die fehlzeiten",
+        "öffne die fehlzeiten"
+      ],
+      "en": [
+        "absence",
+        "absences",
+        "leave",
+        "leaves",
+        "time off",
+        "absence calendar",
+        "leave calendar",
+        "absence overview",
+        "leave overview",
+        "vacation",
+        "vacations",
+        "holiday",
+        "holidays",
+        "sick leave",
+        "absence gantt",
+        "absence board",
+        "navigate to absences",
+        "open absences",
+        "show absences",
+        "go to absences",
+        "all absences"
+      ],
+      "fr": [
+        "absence",
+        "absences",
+        "congé",
+        "congés",
+        "vacances",
+        "calendrier des absences",
+        "calendrier des congés",
+        "liste des absences",
+        "indisponibilités",
+        "arrêts maladie",
+        "vue des absences",
+        "diagramme absences"
+      ],
+      "it": [
+        "assenza",
+        "assenze",
+        "congedo",
+        "congedi",
+        "ferie",
+        "vacanze",
+        "calendario assenze",
+        "calendario congedi",
+        "elenco assenze",
+        "panoramica assenze",
+        "gantt assenze",
+        "malattia"
+      ]
+    },
+    "synonymStatus": "generated",
+    "obsolete": true
+  },
+  {
     "targetId": "absence-detail",
     "route": "/workplace/settings",
     "labelKey": "settings.absenceDetail",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "abwesenheitsdetails",
@@ -101,10 +197,10 @@
   },
   {
     "targetId": "absence-detail-form",
-    "route": "/",
+    "route": "/workplace/settings",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/absence-detail/absence-detail.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.203Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -115,7 +211,7 @@
     "labelKey": "settings.absence",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "abwesenheit einstellen",
@@ -210,12 +306,108 @@
     "obsolete": false
   },
   {
+    "targetId": "absences",
+    "route": "/workplace/absence",
+    "labelKey": "nav.absences",
+    "category": "page",
+    "requiredPermission": "CanViewSchedule",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {
+      "de": [
+        "abwesenheiten",
+        "abwesenheit",
+        "fehlzeiten",
+        "fehlzeit",
+        "absenz",
+        "absenzen",
+        "absenzkalender",
+        "abwesenheitsplan",
+        "abwesenheitsuebersicht",
+        "abwesenheitsübersicht",
+        "abwesenheitskalender",
+        "ferien",
+        "urlaub",
+        "krankheit",
+        "fehlzeitenkalender",
+        "fehlzeitenuebersicht",
+        "fehlzeitenübersicht",
+        "absences",
+        "abwesenheitsgantt",
+        "absence-gantt",
+        "navigiere zu den abwesenheiten",
+        "navigiere zur abwesenheit",
+        "oeffne die abwesenheiten",
+        "öffne die abwesenheiten",
+        "zeige die abwesenheiten",
+        "alle abwesenheiten",
+        "abwesenheiten anzeigen",
+        "navigiere zu den fehlzeiten",
+        "oeffne die fehlzeiten",
+        "öffne die fehlzeiten"
+      ],
+      "en": [
+        "absence",
+        "absences",
+        "leave",
+        "leaves",
+        "time off",
+        "absence calendar",
+        "leave calendar",
+        "absence overview",
+        "leave overview",
+        "vacation",
+        "vacations",
+        "holiday",
+        "holidays",
+        "sick leave",
+        "absence gantt",
+        "absence board",
+        "navigate to absences",
+        "open absences",
+        "show absences",
+        "go to absences",
+        "all absences"
+      ],
+      "fr": [
+        "absence",
+        "absences",
+        "congé",
+        "congés",
+        "vacances",
+        "calendrier des absences",
+        "calendrier des congés",
+        "liste des absences",
+        "indisponibilités",
+        "arrêts maladie",
+        "vue des absences",
+        "diagramme absences"
+      ],
+      "it": [
+        "assenza",
+        "assenze",
+        "congedo",
+        "congedi",
+        "ferie",
+        "vacanze",
+        "calendario assenze",
+        "calendario congedi",
+        "elenco assenze",
+        "panoramica assenze",
+        "gantt assenze",
+        "malattia"
+      ]
+    },
+    "synonymStatus": "generated",
+    "obsolete": false
+  },
+  {
     "targetId": "addresses",
     "route": "/workplace/client",
     "labelKey": "nav.addresses",
     "category": "data.people",
     "sourceFile": "src/app/presentation/workplace/address/all-address/all-address-home/all-address-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:50.119Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "adressen",
@@ -237,7 +429,22 @@
         "personenanschriften",
         "personenkontakte",
         "standorte",
-        "wohnsitze"
+        "wohnsitze",
+        "mitarbeiter",
+        "mitarbeiterliste",
+        "mitarbeiterinnen und mitarbeiter",
+        "alle mitarbeiter",
+        "navigiere zur mitarbeiterliste",
+        "oeffne die mitarbeiterliste",
+        "öffne die mitarbeiterliste",
+        "zeige die mitarbeiterliste",
+        "zeige mitarbeiterliste",
+        "mitarbeiter anzeigen",
+        "mitarbeiteruebersicht",
+        "mitarbeiterübersicht",
+        "personalliste",
+        "personaluebersicht",
+        "personalübersicht"
       ],
       "en": [
         "where are my contacts stored",
@@ -259,7 +466,13 @@
         "show personnel addresses",
         "browse employee listings",
         "check contact directory",
-        "find staff location info"
+        "find staff location info",
+        "employees",
+        "employee list",
+        "show employees",
+        "open employee list",
+        "navigate to employees",
+        "navigate to employee list"
       ],
       "fr": [
         "mes adresses",
@@ -314,7 +527,7 @@
     "labelKey": "settings.assistantPersonality",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -325,7 +538,7 @@
     "labelKey": "settings.assistantSkillProposals",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -336,7 +549,7 @@
     "labelKey": "settings.assistantSpeech",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "assistenten sprache ändern",
@@ -432,10 +645,10 @@
   },
   {
     "targetId": "branch-form",
-    "route": "/",
+    "route": "/workplace/settings",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/branches/branches.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.183Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -446,7 +659,7 @@
     "labelKey": "settings.branches",
     "category": "settings.organization",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "filialen",
@@ -542,10 +755,10 @@
   },
   {
     "targetId": "calendar-rule-form",
-    "route": "/",
+    "route": "/workplace/settings",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/calendar-rules/calendar-rules.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.176Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -556,7 +769,7 @@
     "labelKey": "settings.calendarRules",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "arbeitsplanregeln",
@@ -656,7 +869,7 @@
     "labelKey": "settings.calendarSelection",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "kalender auswahl",
@@ -751,71 +964,165 @@
     "obsolete": false
   },
   {
+    "targetId": "client-availability",
+    "route": "/workplace/client-availability",
+    "labelKey": "nav.client-availability",
+    "category": "page",
+    "requiredPermission": "CanViewClients",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {
+      "de": [
+        "verfuegbarkeit",
+        "verfügbarkeit",
+        "verfuegbarkeiten",
+        "verfügbarkeiten",
+        "mitarbeiterverfuegbarkeit",
+        "mitarbeiterverfügbarkeit",
+        "personalverfuegbarkeit",
+        "personalverfügbarkeit",
+        "verfuegbarkeitsuebersicht",
+        "verfügbarkeitsübersicht",
+        "verfuegbarkeitsplan",
+        "verfügbarkeitsplan",
+        "kapazitaeten",
+        "kapazitäten",
+        "einsatzbereitschaft",
+        "availability",
+        "navigiere zur verfuegbarkeit",
+        "navigiere zur verfügbarkeit",
+        "oeffne die verfuegbarkeit",
+        "öffne die verfügbarkeit",
+        "zeige die verfuegbarkeit",
+        "zeige die verfügbarkeit"
+      ],
+      "en": [
+        "availability",
+        "availabilities",
+        "client availability",
+        "employee availability",
+        "staff availability",
+        "personnel availability",
+        "availability overview",
+        "availability plan",
+        "capacity",
+        "capacities",
+        "ready to work",
+        "navigate to availability",
+        "open availability",
+        "show availability"
+      ],
+      "fr": [
+        "disponibilité",
+        "disponibilités",
+        "disponibilité du personnel",
+        "disponibilité des employés",
+        "plan de disponibilité",
+        "vue des disponibilités",
+        "capacités"
+      ],
+      "it": [
+        "disponibilità",
+        "disponibilità del personale",
+        "disponibilità dipendenti",
+        "panoramica disponibilità",
+        "piano disponibilità",
+        "capacità"
+      ]
+    },
+    "synonymStatus": "generated",
+    "obsolete": false
+  },
+  {
     "targetId": "client-detail",
-    "route": "/",
+    "route": "/workplace/edit-address",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/edit-address-home/edit-address-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:50.054Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
   },
   {
     "targetId": "client-detail.birthday",
-    "route": "/",
+    "route": "/workplace/edit-address",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona.component.html",
-    "lastScannedAt": "2026-05-21T20:05:50.085Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
   },
   {
     "targetId": "client-detail.firstname",
-    "route": "/",
+    "route": "/workplace/edit-address",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona.component.html",
-    "lastScannedAt": "2026-05-21T20:05:50.085Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
   },
   {
     "targetId": "client-detail.gender",
-    "route": "/",
+    "route": "/workplace/edit-address",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona.component.html",
-    "lastScannedAt": "2026-05-21T20:05:50.084Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
   },
   {
     "targetId": "client-detail.lastname",
-    "route": "/",
+    "route": "/workplace/edit-address",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona.component.html",
-    "lastScannedAt": "2026-05-21T20:05:50.085Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
+    "targetId": "client-list",
+    "route": "/workplace/client",
+    "labelKey": "nav.client-list",
+    "category": "page",
+    "requiredPermission": "CanViewClients",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
+    "targetId": "container-template",
+    "route": "/workplace/container-template",
+    "labelKey": "nav.container-template",
+    "category": "page",
+    "requiredPermission": "CanEditShifts",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
   },
   {
     "targetId": "contract-form",
-    "route": "/",
+    "route": "/workplace/settings",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/contracts/contracts.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.164Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
   },
   {
     "targetId": "contract-form.name",
-    "route": "/",
+    "route": "/workplace/settings",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/contracts/contracts.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.164Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -826,7 +1133,7 @@
     "labelKey": "settings.contracts",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "arbeitsverträge verwalten",
@@ -926,7 +1233,7 @@
     "labelKey": "settings.countries",
     "category": "settings.geography",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "länder",
@@ -1021,12 +1328,24 @@
     "obsolete": false
   },
   {
+    "targetId": "cut-shift",
+    "route": "/workplace/cut-shift",
+    "labelKey": "nav.cut-shift",
+    "category": "page",
+    "requiredPermission": "CanEditShifts",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
     "targetId": "dashboard",
     "route": "/workplace/dashboard",
     "labelKey": "nav.dashboard",
-    "category": "overview",
+    "category": "page",
     "sourceFile": "src/app/presentation/workplace/dashboard/dashboard-home/dashboard-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.398Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "übersicht",
@@ -1048,7 +1367,18 @@
         "arbeitszeitübersicht",
         "wochenübersicht",
         "monatsübersicht",
-        "arbeitskalender"
+        "arbeitskalender",
+        "dashboard",
+        "navigiere zum dashboard",
+        "oeffne dashboard",
+        "öffne dashboard",
+        "oeffne das dashboard",
+        "öffne das dashboard",
+        "zeige dashboard",
+        "zeige mir das dashboard",
+        "gehe zum dashboard",
+        "zurueck zum dashboard",
+        "zurück zum dashboard"
       ],
       "en": [
         "my schedule overview",
@@ -1070,7 +1400,13 @@
         "my schedule dashboard",
         "schedule home",
         "work overview page",
-        "main work dashboard"
+        "main work dashboard",
+        "dashboard",
+        "navigate to dashboard",
+        "go to dashboard",
+        "open dashboard",
+        "show dashboard",
+        "back to dashboard"
       ],
       "fr": [
         "tableau de bord",
@@ -1126,7 +1462,7 @@
     "labelKey": "settings.dataRetention",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "datenaufbewahrung",
@@ -1226,7 +1562,7 @@
     "labelKey": "settings.deepl",
     "category": "settings.integrations",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "deepl einrichten",
@@ -1314,12 +1650,190 @@
     "obsolete": false
   },
   {
+    "targetId": "edit-address",
+    "route": "/workplace/edit-address",
+    "labelKey": "nav.edit-address",
+    "category": "data.people",
+    "requiredPermission": null,
+    "sourceFile": "src/app/presentation/workplace/address/edit-address/edit-address-home/edit-address-home.component.ts",
+    "lastScannedAt": "2026-05-23T00:00:00.000Z",
+    "synonyms": {
+      "de": [
+        "mitarbeiter bearbeiten",
+        "mitarbeiter anlegen",
+        "neuer mitarbeiter",
+        "neue mitarbeiterin",
+        "adresse bearbeiten",
+        "adresse anlegen",
+        "neue adresse",
+        "person bearbeiten",
+        "person anlegen",
+        "kontakt bearbeiten",
+        "kontakt anlegen",
+        "mitarbeiterdetail",
+        "mitarbeiterdetails",
+        "adressdetail",
+        "adressdetails",
+        "edit-address",
+        "new-employee",
+        "edit-employee",
+        "navigiere zur mitarbeiterbearbeitung",
+        "navigiere zum mitarbeiter",
+        "navigiere zur adressbearbeitung",
+        "oeffne mitarbeiterbearbeitung",
+        "öffne mitarbeiterbearbeitung",
+        "neuen mitarbeiter anlegen",
+        "neuer mitarbeiter erstellen"
+      ],
+      "en": [
+        "edit address",
+        "edit employee",
+        "new employee",
+        "create employee",
+        "add employee",
+        "edit contact",
+        "new contact",
+        "employee detail",
+        "employee details",
+        "address detail",
+        "address details",
+        "person detail",
+        "edit person",
+        "navigate to employee detail",
+        "open new employee form",
+        "create new employee"
+      ],
+      "fr": [
+        "modifier l'adresse",
+        "modifier l'employé",
+        "nouvel employé",
+        "ajouter un employé",
+        "modifier une adresse",
+        "ajouter une adresse",
+        "fiche employé",
+        "détails de l'employé"
+      ],
+      "it": [
+        "modifica indirizzo",
+        "modifica dipendente",
+        "nuovo dipendente",
+        "aggiungi dipendente",
+        "scheda dipendente",
+        "dettagli dipendente",
+        "modifica contatto"
+      ]
+    },
+    "synonymStatus": "generated",
+    "obsolete": true
+  },
+  {
+    "targetId": "edit-employee",
+    "route": "/workplace/edit-address",
+    "labelKey": "nav.edit-employee",
+    "category": "page",
+    "requiredPermission": "CanEditClients",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {
+      "de": [
+        "mitarbeiter bearbeiten",
+        "mitarbeiter anlegen",
+        "neuer mitarbeiter",
+        "neue mitarbeiterin",
+        "adresse bearbeiten",
+        "adresse anlegen",
+        "neue adresse",
+        "person bearbeiten",
+        "person anlegen",
+        "kontakt bearbeiten",
+        "kontakt anlegen",
+        "mitarbeiterdetail",
+        "mitarbeiterdetails",
+        "adressdetail",
+        "adressdetails",
+        "edit-address",
+        "new-employee",
+        "edit-employee",
+        "navigiere zur mitarbeiterbearbeitung",
+        "navigiere zum mitarbeiter",
+        "navigiere zur adressbearbeitung",
+        "oeffne mitarbeiterbearbeitung",
+        "öffne mitarbeiterbearbeitung",
+        "neuen mitarbeiter anlegen",
+        "neuer mitarbeiter erstellen"
+      ],
+      "en": [
+        "edit address",
+        "edit employee",
+        "new employee",
+        "create employee",
+        "add employee",
+        "edit contact",
+        "new contact",
+        "employee detail",
+        "employee details",
+        "address detail",
+        "address details",
+        "person detail",
+        "edit person",
+        "navigate to employee detail",
+        "open new employee form",
+        "create new employee"
+      ],
+      "fr": [
+        "modifier l'adresse",
+        "modifier l'employé",
+        "nouvel employé",
+        "ajouter un employé",
+        "modifier une adresse",
+        "ajouter une adresse",
+        "fiche employé",
+        "détails de l'employé"
+      ],
+      "it": [
+        "modifica indirizzo",
+        "modifica dipendente",
+        "nuovo dipendente",
+        "aggiungi dipendente",
+        "scheda dipendente",
+        "dettagli dipendente",
+        "modifica contatto"
+      ]
+    },
+    "synonymStatus": "generated",
+    "obsolete": false
+  },
+  {
+    "targetId": "edit-group",
+    "route": "/workplace/edit-group",
+    "labelKey": "nav.edit-group",
+    "category": "page",
+    "requiredPermission": "CanEditGroups",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
+    "targetId": "edit-shift",
+    "route": "/workplace/edit-shift",
+    "labelKey": "nav.edit-shift",
+    "category": "page",
+    "requiredPermission": "CanEditShifts",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
     "targetId": "email-config",
     "route": "/workplace/settings",
     "labelKey": "settings.email",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "e-mail einstellungen",
@@ -1341,7 +1855,19 @@
         "e-mail versand optionen",
         "mail einstellungen ändern",
         "e-mail versand verwalten und einstellen",
-        "mail versand einrichten und anpassen"
+        "mail versand einrichten und anpassen",
+        "e-mail konfiguration",
+        "email konfiguration",
+        "e-mail-konfiguration",
+        "email-konfiguration",
+        "zeig mir e-mail konfiguration",
+        "zeig mir die e-mail konfiguration",
+        "zeig mir email konfiguration",
+        "zeig mir die email konfiguration",
+        "oeffne e-mail konfiguration",
+        "öffne e-mail konfiguration",
+        "oeffne email konfiguration",
+        "öffne email konfiguration"
       ],
       "en": [
         "email settings",
@@ -1363,7 +1889,11 @@
         "notification delivery settings",
         "admin email preferences",
         "email notification management",
-        "admin notification configuration"
+        "admin notification configuration",
+        "email config",
+        "email configuration",
+        "show me email config",
+        "open email config"
       ],
       "fr": [
         "messagerie",
@@ -1415,20 +1945,20 @@
   },
   {
     "targetId": "employee-membership",
-    "route": "/",
+    "route": "/workplace/edit-address",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/membership/membership.component.html",
-    "lastScannedAt": "2026-05-21T20:05:50.041Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
   },
   {
     "targetId": "employee-membership.type",
-    "route": "/",
+    "route": "/workplace/edit-address",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/membership/membership.component.html",
-    "lastScannedAt": "2026-05-21T20:05:50.041Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -1439,7 +1969,7 @@
     "labelKey": "settings.featurePlugins",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "feature-plugins",
@@ -1536,10 +2066,10 @@
   {
     "targetId": "floor-plan",
     "route": "/workplace/floor-plan",
-    "labelKey": "nav.floorPlan",
-    "category": "data.organization",
+    "labelKey": "nav.floor-plan",
+    "category": "page",
     "sourceFile": "src/app/presentation/workplace/floor-plan/floor-plan-home/floor-plan-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.357Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "arbeitsplan",
@@ -1639,7 +2169,7 @@
     "labelKey": "settings.floorPlan",
     "category": "settings.ui",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "arbeitsplan einstellen",
@@ -1738,7 +2268,7 @@
     "labelKey": "settings.gridColor",
     "category": "settings.ui",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "gitterfarbe anpassen",
@@ -1834,20 +2364,32 @@
   },
   {
     "targetId": "group-detail",
-    "route": "/",
+    "route": "/workplace/edit-group",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/group/edit-group/edit-group-home/edit-group-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:50.017Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
   },
   {
     "targetId": "group-detail.name",
-    "route": "/",
+    "route": "/workplace/edit-group",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/group/edit-group/edit-group-item/edit-group-item.component.html",
-    "lastScannedAt": "2026-05-21T20:05:50.012Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
+    "targetId": "group-list",
+    "route": "/workplace/group",
+    "labelKey": "nav.group-list",
+    "category": "page",
+    "requiredPermission": "CanViewGroups",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -1858,7 +2400,7 @@
     "labelKey": "settings.groupScope",
     "category": "settings.organization",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "gruppenbereich",
@@ -1953,12 +2495,24 @@
     "obsolete": false
   },
   {
+    "targetId": "group-structure",
+    "route": "/workplace/group-structure",
+    "labelKey": "nav.group-structure",
+    "category": "page",
+    "requiredPermission": "CanViewSettings",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
     "targetId": "groups",
     "route": "/workplace/group",
     "labelKey": "nav.groups",
     "category": "data.organization",
     "sourceFile": "src/app/presentation/workplace/group/all-group/all-group-home/all-group-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:50.028Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "arbeitsgruppen",
@@ -2058,7 +2612,7 @@
     "labelKey": "settings.identityProviders",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "identitätsanbieter verwalten",
@@ -2158,7 +2712,7 @@
     "labelKey": "settings.imap",
     "category": "settings.integrations",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "imap einrichten",
@@ -2256,9 +2810,9 @@
     "targetId": "inbox",
     "route": "/workplace/inbox",
     "labelKey": "nav.inbox",
-    "category": "communication",
+    "category": "page",
     "sourceFile": "src/app/presentation/workplace/inbox/inbox-home/inbox-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.324Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "meine nachrichten",
@@ -2355,10 +2909,11 @@
   {
     "targetId": "klacksy-training",
     "route": "/workplace/klacksy-training",
-    "labelKey": "klacksyTraining.title",
-    "category": "settings.assistant",
+    "labelKey": "nav.klacksy-training",
+    "category": "page",
+    "requiredPermission": "CanEditSettings",
     "sourceFile": "src/app/presentation/workplace/klacksy-training/klacksy-training-review-home/klacksy-training-review-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.298Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "einstellungen für assistenten",
@@ -2458,7 +3013,7 @@
     "labelKey": "settings.languagePlugins",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "sprache einstellungen",
@@ -2557,7 +3112,7 @@
     "labelKey": "settings.llmModels",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "ki-modelle",
@@ -2657,7 +3212,7 @@
     "labelKey": "settings.llmProvider",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "ki-anbieter",
@@ -2679,7 +3234,18 @@
         "generative ki-modelle",
         "sprach-ai",
         "ai-ki",
-        "generative ai-modelle"
+        "generative ai-modelle",
+        "llm provider",
+        "llm-provider",
+        "llm anbieter",
+        "ki provider",
+        "zeig mir llm provider",
+        "zeig mir den llm provider",
+        "zeig mir die llm provider",
+        "oeffne llm provider",
+        "öffne llm provider",
+        "navigiere zu llm provider",
+        "navigiere zum llm provider"
       ],
       "en": [
         "ai provider settings",
@@ -2701,7 +3267,11 @@
         "language model provider settings",
         "set ai provider",
         "ai model provider configuration",
-        "llm integration settings"
+        "llm integration settings",
+        "llm provider",
+        "show me llm provider",
+        "open llm provider",
+        "navigate to llm provider"
       ],
       "fr": [
         "fournisseur d'ia",
@@ -2757,7 +3327,7 @@
     "labelKey": "settings.llmSyncLog",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -2768,7 +3338,7 @@
     "labelKey": "settings.macros",
     "category": "settings.ui",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "einstellungen für automatisierte abläufe",
@@ -2863,12 +3433,78 @@
     "obsolete": false
   },
   {
+    "targetId": "messaging",
+    "route": "/workplace/messaging",
+    "labelKey": "nav.messaging",
+    "category": "page",
+    "requiredPermission": null,
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {
+      "de": [
+        "nachrichten",
+        "messaging",
+        "mitteilungen",
+        "kommunikation",
+        "chat",
+        "chats",
+        "telegram",
+        "messenger",
+        "nachrichtenzentrum",
+        "mitteilungszentrum",
+        "messagingseite",
+        "messaging-seite",
+        "mitarbeiterkommunikation",
+        "navigiere zu nachrichten",
+        "navigiere zu den nachrichten",
+        "oeffne nachrichten",
+        "öffne nachrichten",
+        "zeige nachrichten"
+      ],
+      "en": [
+        "messaging",
+        "messages",
+        "communication",
+        "chat",
+        "chats",
+        "messenger",
+        "telegram",
+        "message center",
+        "messaging center",
+        "team messaging",
+        "team chat",
+        "navigate to messaging",
+        "open messaging",
+        "show messages"
+      ],
+      "fr": [
+        "messagerie",
+        "messages",
+        "communication",
+        "chat",
+        "centre de messages",
+        "centre de messagerie",
+        "messagerie d'équipe"
+      ],
+      "it": [
+        "messaggi",
+        "messaggistica",
+        "comunicazione",
+        "chat",
+        "centro messaggi",
+        "messaggistica di squadra"
+      ]
+    },
+    "synonymStatus": "generated",
+    "obsolete": false
+  },
+  {
     "targetId": "messaging-providers",
     "route": "/workplace/settings",
     "labelKey": "settings.messagingProviders",
     "category": "settings.integrations",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "nachrichten-dienste",
@@ -2963,12 +3599,164 @@
     "obsolete": false
   },
   {
+    "targetId": "new-employee",
+    "route": "/workplace/edit-address",
+    "labelKey": "nav.new-employee",
+    "category": "page",
+    "requiredPermission": "CanCreateClients",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {
+      "de": [
+        "mitarbeiter bearbeiten",
+        "mitarbeiter anlegen",
+        "neuer mitarbeiter",
+        "neue mitarbeiterin",
+        "adresse bearbeiten",
+        "adresse anlegen",
+        "neue adresse",
+        "person bearbeiten",
+        "person anlegen",
+        "kontakt bearbeiten",
+        "kontakt anlegen",
+        "mitarbeiterdetail",
+        "mitarbeiterdetails",
+        "adressdetail",
+        "adressdetails",
+        "edit-address",
+        "new-employee",
+        "edit-employee",
+        "navigiere zur mitarbeiterbearbeitung",
+        "navigiere zum mitarbeiter",
+        "navigiere zur adressbearbeitung",
+        "oeffne mitarbeiterbearbeitung",
+        "öffne mitarbeiterbearbeitung",
+        "neuen mitarbeiter anlegen",
+        "neuer mitarbeiter erstellen"
+      ],
+      "en": [
+        "edit address",
+        "edit employee",
+        "new employee",
+        "create employee",
+        "add employee",
+        "edit contact",
+        "new contact",
+        "employee detail",
+        "employee details",
+        "address detail",
+        "address details",
+        "person detail",
+        "edit person",
+        "navigate to employee detail",
+        "open new employee form",
+        "create new employee"
+      ],
+      "fr": [
+        "modifier l'adresse",
+        "modifier l'employé",
+        "nouvel employé",
+        "ajouter un employé",
+        "modifier une adresse",
+        "ajouter une adresse",
+        "fiche employé",
+        "détails de l'employé"
+      ],
+      "it": [
+        "modifica indirizzo",
+        "modifica dipendente",
+        "nuovo dipendente",
+        "aggiungi dipendente",
+        "scheda dipendente",
+        "dettagli dipendente",
+        "modifica contatto"
+      ]
+    },
+    "synonymStatus": "generated",
+    "obsolete": false
+  },
+  {
+    "targetId": "new-group",
+    "route": "/workplace/edit-group",
+    "labelKey": "nav.new-group",
+    "category": "page",
+    "requiredPermission": "CanCreateGroups",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
+    "targetId": "new-shift",
+    "route": "/workplace/new-shift",
+    "labelKey": "nav.new-shift",
+    "category": "page",
+    "requiredPermission": "CanCreateShifts",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {
+      "de": [
+        "neuer dienst",
+        "neue schicht",
+        "schicht anlegen",
+        "schicht erstellen",
+        "dienst anlegen",
+        "dienst erstellen",
+        "neuen dienst anlegen",
+        "neue schicht anlegen",
+        "schicht hinzufuegen",
+        "schicht hinzufügen",
+        "dienst hinzufuegen",
+        "dienst hinzufügen",
+        "neuen einsatz erstellen",
+        "neuer einsatz",
+        "new-shift",
+        "navigiere zu neuer schicht",
+        "navigiere zu neuem dienst",
+        "oeffne neuer dienst",
+        "öffne neuer dienst",
+        "neuer dienst anlegen"
+      ],
+      "en": [
+        "new shift",
+        "create shift",
+        "add shift",
+        "create new shift",
+        "add a shift",
+        "new duty",
+        "create duty",
+        "new shift entry",
+        "navigate to new shift",
+        "open new shift form",
+        "create a new shift"
+      ],
+      "fr": [
+        "nouveau service",
+        "nouvelle équipe",
+        "nouveau shift",
+        "créer un service",
+        "ajouter un service",
+        "ajouter une équipe"
+      ],
+      "it": [
+        "nuovo turno",
+        "crea turno",
+        "aggiungi turno",
+        "nuovo servizio",
+        "crea servizio"
+      ]
+    },
+    "synonymStatus": "generated",
+    "obsolete": false
+  },
+  {
     "targetId": "openroute",
     "route": "/workplace/settings",
     "labelKey": "settings.openroute",
     "category": "settings.integrations",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "integrationen öffnen",
@@ -3068,7 +3856,7 @@
     "labelKey": "settings.ownerAddress",
     "category": "settings.general",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "adresse des kontoinhabers",
@@ -3168,7 +3956,7 @@
     "labelKey": "settings.ownerMessengers",
     "category": "settings.integrations",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "eigene messenger einstellungen",
@@ -3265,10 +4053,11 @@
   {
     "targetId": "period-closing",
     "route": "/workplace/period-closing",
-    "labelKey": "nav.periodClosing",
-    "category": "scheduling.closing",
+    "labelKey": "nav.period-closing",
+    "category": "page",
+    "requiredPermission": "CanEditSchedule",
     "sourceFile": "src/app/presentation/workplace/period-closing/period-closing-home/period-closing-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.265Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "abschluss der abrechnungsperiode",
@@ -3367,7 +4156,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/aside/assistant-chat/plan-execution-panel/plan-execution-panel.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.495Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -3377,9 +4166,86 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/aside/assistant-chat/plan-execution-panel/plan-execution-panel.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.495Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
+    "targetId": "profile",
+    "route": "/workplace/profile",
+    "labelKey": "nav.profile",
+    "category": "page",
+    "requiredPermission": null,
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {
+      "de": [
+        "profil",
+        "mein profil",
+        "benutzerprofil",
+        "nutzerprofil",
+        "kontoprofil",
+        "profilseite",
+        "profileinstellungen",
+        "kontoseite",
+        "konto",
+        "benutzerkonto",
+        "nutzerkonto",
+        "account",
+        "meine daten",
+        "persoenliche daten",
+        "persönliche daten",
+        "profile",
+        "navigiere zum profil",
+        "navigiere zu meinem profil",
+        "oeffne profil",
+        "öffne profil",
+        "oeffne mein profil",
+        "öffne mein profil",
+        "zeige mein profil"
+      ],
+      "en": [
+        "profile",
+        "my profile",
+        "user profile",
+        "account profile",
+        "personal profile",
+        "profile page",
+        "profile settings",
+        "account page",
+        "account",
+        "user account",
+        "my account",
+        "personal data",
+        "my details",
+        "navigate to profile",
+        "open profile",
+        "show profile",
+        "go to my profile"
+      ],
+      "fr": [
+        "profil",
+        "mon profil",
+        "profil utilisateur",
+        "page de profil",
+        "paramètres du profil",
+        "compte",
+        "mon compte",
+        "données personnelles"
+      ],
+      "it": [
+        "profilo",
+        "mio profilo",
+        "profilo utente",
+        "pagina del profilo",
+        "impostazioni profilo",
+        "account",
+        "mio account",
+        "dati personali"
+      ]
+    },
+    "synonymStatus": "generated",
     "obsolete": false
   },
   {
@@ -3388,7 +4254,7 @@
     "labelKey": "settings.reportDefaults",
     "category": "settings.reports",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "berichtsvoreinstellungen",
@@ -3488,7 +4354,7 @@
     "labelKey": "settings.reports",
     "category": "settings.reports",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "berichte anzeigen",
@@ -3583,12 +4449,117 @@
     "obsolete": false
   },
   {
+    "targetId": "schedule",
+    "route": "/workplace/schedule",
+    "labelKey": "nav.schedule",
+    "category": "page",
+    "requiredPermission": "CanViewSchedule",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {
+      "de": [
+        "einsatzplan",
+        "dienstplan",
+        "schichtplan",
+        "wochenplan",
+        "monatsplan",
+        "schedule",
+        "planung",
+        "einsatzplanung",
+        "wochenplanung",
+        "schichtplanung",
+        "dienstplanung",
+        "schedules",
+        "einsatzplaene",
+        "einsatzpläne",
+        "schedule-board",
+        "planungstabelle",
+        "schichtuebersicht",
+        "schichtübersicht",
+        "dienstuebersicht",
+        "dienstübersicht",
+        "navigiere zum einsatzplan",
+        "navigiere zu den einsaetzen",
+        "navigiere zu den einsätzen",
+        "oeffne den einsatzplan",
+        "öffne den einsatzplan",
+        "zeige den einsatzplan",
+        "zeige mir den einsatzplan",
+        "oeffne den dienstplan",
+        "öffne den dienstplan",
+        "gehe zum einsatzplan",
+        "zurueck zum einsatzplan",
+        "zurück zum einsatzplan",
+        "alle planungen",
+        "navigiere zu allen planungen"
+      ],
+      "en": [
+        "schedule",
+        "schedules",
+        "planning",
+        "shift schedule",
+        "duty schedule",
+        "weekly schedule",
+        "monthly schedule",
+        "work schedule",
+        "scheduling",
+        "shift plan",
+        "duty plan",
+        "shift planner",
+        "schedule board",
+        "shift overview",
+        "scheduling board",
+        "schedule view",
+        "navigate to schedule",
+        "open schedule",
+        "go to schedule",
+        "show schedule",
+        "all schedules",
+        "open the schedule"
+      ],
+      "fr": [
+        "planning",
+        "horaire",
+        "horaires",
+        "calendrier",
+        "calendrier de service",
+        "planning hebdomadaire",
+        "planning mensuel",
+        "tableau de service",
+        "planification",
+        "planning des équipes",
+        "horaire de travail",
+        "horaire d'équipe",
+        "planning du personnel",
+        "planning des shifts"
+      ],
+      "it": [
+        "pianificazione",
+        "turni",
+        "calendario turni",
+        "piano turni",
+        "orario",
+        "orari",
+        "tabella turni",
+        "pianificazione settimanale",
+        "pianificazione mensile",
+        "piano di lavoro",
+        "calendario di servizio",
+        "piano del personale",
+        "schedula",
+        "tabellone turni"
+      ]
+    },
+    "synonymStatus": "generated",
+    "obsolete": false
+  },
+  {
     "targetId": "scheduling-defaults",
     "route": "/workplace/settings",
     "labelKey": "settings.schedulingDefaults",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "arbeitsplan standardeinstellungen",
@@ -3688,7 +4659,7 @@
     "labelKey": "settings.schedulingRules",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "arbeitsplanregeln",
@@ -3783,12 +4754,24 @@
     "obsolete": false
   },
   {
+    "targetId": "settings",
+    "route": "/workplace/settings",
+    "labelKey": "nav.settings",
+    "category": "page",
+    "requiredPermission": "CanViewSettings",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
     "targetId": "settings-general",
     "route": "/workplace/settings",
     "labelKey": "settings.general",
     "category": "settings.general",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "allgemeine einstellungen",
@@ -3809,7 +4792,21 @@
         "allgemeine einstellungsbereich",
         "allgemeine einstellungsansicht",
         "allgemeine einstellungsverwaltung",
-        "allgemeine einstellungssteuerung"
+        "allgemeine einstellungssteuerung",
+        "einstellungen",
+        "navigiere zu den einstellungen",
+        "navigiere zur einstellungsseite",
+        "oeffne die einstellungen",
+        "öffne die einstellungen",
+        "zeige die einstellungen",
+        "gehe zu den einstellungen",
+        "gehe zurueck zu den einstellungen",
+        "gehe zurück zu den einstellungen",
+        "zurueck zu den einstellungen",
+        "zurück zu den einstellungen",
+        "settings",
+        "einstellungsbereich",
+        "konfiguration"
       ],
       "en": [
         "general settings",
@@ -3831,7 +4828,13 @@
         "principal settings",
         "default settings",
         "routine settings",
-        "general configuration"
+        "general configuration",
+        "settings",
+        "navigate to settings",
+        "open settings",
+        "show settings",
+        "back to settings",
+        "go to settings"
       ],
       "fr": [
         "paramètres généraux",
@@ -3883,30 +4886,42 @@
   },
   {
     "targetId": "shift-form",
-    "route": "/",
+    "route": "/workplace/edit-shift",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.668Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
   },
   {
     "targetId": "shift-form.abbreviation",
-    "route": "/",
+    "route": "/workplace/edit-shift",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-item/edit-shift-item.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.672Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
   },
   {
     "targetId": "shift-form.name",
-    "route": "/",
+    "route": "/workplace/edit-shift",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-item/edit-shift-item.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.672Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
+    "targetId": "shift-list",
+    "route": "/workplace/shift",
+    "labelKey": "nav.shift-list",
+    "category": "page",
+    "requiredPermission": "CanViewShifts",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -3917,7 +4932,7 @@
     "labelKey": "nav.shifts",
     "category": "scheduling.shifts",
     "sourceFile": "src/app/presentation/workplace/shift/all-shift/all-shift-home/all-shift-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.714Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "arbeitszeiten",
@@ -3939,7 +4954,23 @@
         "arbeitsrotation",
         "dienstverteilung",
         "schichtdienst",
-        "arbeitsverteilung"
+        "arbeitsverteilung",
+        "shifts",
+        "schichten",
+        "dienste",
+        "oeffne shifts",
+        "öffne shifts",
+        "oeffne die schichten",
+        "öffne die schichten",
+        "zeige shifts",
+        "zeige die schichten",
+        "navigiere zu shifts",
+        "navigiere zu den shifts",
+        "navigiere zu den schichten",
+        "alle schichten",
+        "alle dienste",
+        "schichtliste",
+        "dienstliste"
       ],
       "en": [
         "my schedule",
@@ -3961,7 +4992,13 @@
         "shift timetable",
         "work plan",
         "my work schedule",
-        "shift roster"
+        "shift roster",
+        "shifts",
+        "open shifts",
+        "show shifts",
+        "navigate to shifts",
+        "go to shifts",
+        "shift list"
       ],
       "fr": [
         "mes horaires de travail",
@@ -4017,7 +5054,7 @@
     "labelKey": "settings.spamRules",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "spam-regeln verwalten",
@@ -4117,7 +5154,7 @@
     "labelKey": "settings.states",
     "category": "settings.geography",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "arbeitsorte verwalten",
@@ -4217,7 +5254,7 @@
     "labelKey": "settings.userManagement",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "benutzer verwalten",
@@ -4239,7 +5276,15 @@
         "benutzerrechte anpassen",
         "personaldaten verwalten",
         "benutzeradministration öffnen",
-        "teamverwaltungsbereich aufrufen"
+        "teamverwaltungsbereich aufrufen",
+        "benutzerverwaltung",
+        "benutzer verwaltung",
+        "user management",
+        "zeig mir benutzerverwaltung",
+        "zeig mir die benutzerverwaltung",
+        "oeffne benutzerverwaltung",
+        "öffne benutzerverwaltung",
+        "navigiere zur benutzerverwaltung"
       ],
       "en": [
         "manage users",
@@ -4261,7 +5306,11 @@
         "admin users",
         "manage employees",
         "user profiles",
-        "team administration"
+        "team administration",
+        "user management",
+        "show me user management",
+        "open user management",
+        "navigate to user management"
       ],
       "fr": [
         "gestion des utilisateurs",
@@ -4317,7 +5366,7 @@
     "labelKey": "setting.holisticHarmonizer.menu",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -4339,7 +5388,7 @@
     "labelKey": "settings.workSetting",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.035Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {
       "de": [
         "arbeitszeiten einstellen",
@@ -4435,10 +5484,10 @@
   },
   {
     "targetId": "work-setting-form",
-    "route": "/",
+    "route": "/workplace/settings",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/work-setting/work-setting.component.html",
-    "lastScannedAt": "2026-05-21T20:05:49.003Z",
+    "lastScannedAt": "2026-05-23T11:40:27.419Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false

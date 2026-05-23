@@ -23,9 +23,8 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
         if (string.IsNullOrWhiteSpace(normalizedUtterance))
             return Empty();
 
-        var exact = _cache.FindBySynonym(normalizedUtterance, locale)
-            .Where(t => IsAllowed(t, userPermissions))
-            .FirstOrDefault();
+        var exact = FindFirstAllowed(_cache.FindBySynonym(normalizedUtterance, locale), userPermissions)
+                    ?? FindFirstAllowed(_cache.FindBySynonymAnyLocale(normalizedUtterance), userPermissions);
 
         if (exact != null)
             return new NavigationMatchResult
@@ -40,7 +39,11 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
         var scored = new Dictionary<string, (NavigationTarget Target, double Score)>();
         foreach (var token in tokens)
         {
-            foreach (var hit in _cache.FindBySynonym(token, locale).Where(t => IsAllowed(t, userPermissions)))
+            var hits = _cache.FindBySynonym(token, locale);
+            if (hits.Count == 0)
+                hits = _cache.FindBySynonymAnyLocale(token);
+
+            foreach (var hit in hits.Where(t => IsAllowed(t, userPermissions)))
             {
                 if (scored.TryGetValue(hit.TargetId, out var current))
                     scored[hit.TargetId] = (current.Target, current.Score + 1.0 / tokens.Length);
@@ -63,6 +66,17 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
             Score = top?.Score ?? 0,
             Candidates = candidates
         };
+    }
+
+    private static NavigationTarget? FindFirstAllowed(IReadOnlyList<NavigationTarget> targets, IReadOnlyCollection<string> userPermissions)
+    {
+        foreach (var target in targets)
+        {
+            if (IsAllowed(target, userPermissions))
+                return target;
+        }
+
+        return null;
     }
 
     private static bool IsAllowed(NavigationTarget t, IReadOnlyCollection<string> perms)

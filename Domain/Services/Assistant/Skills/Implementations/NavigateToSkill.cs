@@ -1,12 +1,18 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Skill that navigates to a known page in the Klacks application by page key (e.g. dashboard, settings, schedule).
-/// Use this for known, fixed pages. For searching a person or entity by name and opening their detail page,
-/// use search_and_navigate instead.
+/// Skill that navigates to a known page in the Klacks application by page key
+/// (e.g. dashboard, settings, schedule). Routes and per-page permission
+/// requirements come from the auto-generated klacksy-page-keys.generated.json
+/// which the Klacks.Ui scanner produces from a single TypeScript source file —
+/// so Angular routes, UI fallback map, and this skill cannot drift apart.
+/// Permission filtering uses the executing user's claim list to refuse pages
+/// they may not enter; the UI router guards remain a second line of defence.
+/// For searching a person or entity by name, use search_and_navigate instead.
 /// </summary>
-using System.Text.Json;
+/// <param name="pageKeyCatalog">Singleton catalog loaded once from the generated JSON</param>
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -15,18 +21,14 @@ namespace Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 [SkillImplementation("navigate_to")]
 public class NavigateToSkill : BaseSkillImplementation
 {
-    private readonly IAgentSkillRepository _agentSkillRepository;
-    private readonly IAgentRepository _agentRepository;
+    private readonly IKlacksyPageKeyCatalog _pageKeyCatalog;
 
-    public NavigateToSkill(
-        IAgentSkillRepository agentSkillRepository,
-        IAgentRepository agentRepository)
+    public NavigateToSkill(IKlacksyPageKeyCatalog pageKeyCatalog)
     {
-        _agentSkillRepository = agentSkillRepository;
-        _agentRepository = agentRepository;
+        _pageKeyCatalog = pageKeyCatalog;
     }
 
-    public override async Task<SkillResult> ExecuteAsync(
+    public override Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
@@ -35,15 +37,22 @@ public class NavigateToSkill : BaseSkillImplementation
         var entityId = GetParameter<string>(parameters, "entityId");
         var tab = GetParameter<string>(parameters, "tab");
 
-        var routes = await LoadRoutesFromDbAsync(cancellationToken);
-
-        if (!routes.TryGetValue(page, out var baseRoute))
+        var entry = _pageKeyCatalog.GetByPageKey(page);
+        if (entry == null)
         {
-            return SkillResult.Error($"Unknown page: {page}. Available pages: {string.Join(", ", routes.Keys)}");
+            return Task.FromResult(SkillResult.Error(
+                $"Unknown page: {page}. Available pages: {string.Join(", ", _pageKeyCatalog.AllPageKeys)}"));
         }
 
-        var route = baseRoute;
-        if (!string.IsNullOrEmpty(entityId))
+        if (!string.IsNullOrEmpty(entry.RequiredPermission)
+            && !Permissions.HasPermission(context.UserPermissions, entry.RequiredPermission))
+        {
+            return Task.FromResult(SkillResult.Error(
+                $"User '{context.UserName}' is not allowed to open page '{page}' (requires permission '{entry.RequiredPermission}')."));
+        }
+
+        var route = entry.Route;
+        if (!string.IsNullOrEmpty(entityId) && entry.HasEntityParam)
         {
             route += $"/{entityId}";
         }
@@ -63,37 +72,6 @@ public class NavigateToSkill : BaseSkillImplementation
             QueryParams = queryParams
         };
 
-        return SkillResult.Navigation(navigationData, $"Navigate to {page}");
-    }
-
-    private async Task<Dictionary<string, string>> LoadRoutesFromDbAsync(CancellationToken cancellationToken)
-    {
-        var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
-        if (agent == null)
-            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
-        var skill = await _agentSkillRepository.GetByNameAsync(agent.Id, "navigate_to", cancellationToken);
-        if (skill == null || string.IsNullOrEmpty(skill.HandlerConfig) || skill.HandlerConfig == "{}")
-            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
-        try
-        {
-            using var doc = JsonDocument.Parse(skill.HandlerConfig);
-            if (doc.RootElement.TryGetProperty("routes", out var routesElement))
-            {
-                var routes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-                foreach (var prop in routesElement.EnumerateObject())
-                {
-                    routes[prop.Name] = prop.Value.GetString() ?? string.Empty;
-                }
-                return routes;
-            }
-        }
-        catch (JsonException)
-        {
-            // Fallback on malformed config
-        }
-
-        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        return Task.FromResult(SkillResult.Navigation(navigationData, $"Navigate to {page}"));
     }
 }

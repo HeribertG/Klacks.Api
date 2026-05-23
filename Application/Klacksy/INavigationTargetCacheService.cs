@@ -9,5 +9,6 @@ public interface INavigationTargetCacheService
     IReadOnlyList<NavigationTarget> All { get; }
     NavigationTarget? GetById(string targetId);
     IReadOnlyList<NavigationTarget> FindBySynonym(string token, string locale);
+    IReadOnlyList<NavigationTarget> FindBySynonymAnyLocale(string token);
     void Invalidate();
 }

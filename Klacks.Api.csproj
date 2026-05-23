@@ -90,6 +90,9 @@
 	  <None Update="Application\Skills\Definitions\navigation-targets.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
+	  <None Update="Application\Skills\Definitions\klacksy-page-keys.generated.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	  <None Update="Application\Klacksy\wake-word-variants.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>

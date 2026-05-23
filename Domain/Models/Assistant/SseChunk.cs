@@ -22,6 +22,7 @@ public class SseChunk
     public List<string>? Suggestions { get; set; }
     public SuggestedRepliesConfig? SuggestedReplies { get; set; }
     public string? NavigateTo { get; set; }
+    public string? Target { get; set; }
     public bool ActionPerformed { get; set; }
     public List<object>? FunctionCalls { get; set; }
     public string? ErrorMessage { get; set; }

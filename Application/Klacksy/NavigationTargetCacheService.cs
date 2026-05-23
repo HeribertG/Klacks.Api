@@ -59,6 +59,27 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
         return byLocale.TryGetValue(normalized, out var list) ? list : Array.Empty<NavigationTarget>();
     }
 
+    public IReadOnlyList<NavigationTarget> FindBySynonymAnyLocale(string token)
+    {
+        EnsureFresh();
+        var snap = _snapshot;
+        var normalized = token.Trim().ToLowerInvariant();
+        var combined = new List<NavigationTarget>();
+        var seen = new HashSet<string>();
+        foreach (var byLocale in snap.SynonymIndex.Values)
+        {
+            if (!byLocale.TryGetValue(normalized, out var list))
+                continue;
+            foreach (var target in list)
+            {
+                if (seen.Add(target.TargetId))
+                    combined.Add(target);
+            }
+        }
+
+        return combined;
+    }
+
     public void Invalidate()
     {
         lock (_lock) _snapshot = _snapshot with { LoadedAt = DateTime.MinValue };
