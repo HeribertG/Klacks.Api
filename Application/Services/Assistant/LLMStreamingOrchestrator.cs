@@ -39,7 +39,11 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     private readonly IKnowledgeRetrievalService _knowledgeRetrieval;
     private readonly ILogger<LLMStreamingOrchestrator> _logger;
 
-    private const int MaxToolsForProvider = 30;
+    // Safety cap on the tool list sent to the provider. Reality today: 9 alwaysOn
+    // skills + up to KnowledgeIndexConstants.DefaultTopK (5) retrieved = ~14, so 15
+    // matches the actual budget. AlwaysOn skills are ordered first and survive any
+    // truncation; retrieved skills drop first if the cap is hit.
+    private const int MaxToolsForProvider = 15;
 
     public LLMStreamingOrchestrator(
         ILLMService llmService,
@@ -140,11 +144,16 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         }
 
         if (retrievedSkills.Count == 0)
+        {
+            LogToolBudget(alwaysOnSkills.Count, 0, alwaysOnSkills.Count, false);
             return alwaysOnSkills.Select(ConvertToLLMFunction).ToList();
+        }
 
         var selectedSkills = alwaysOnSkills.Concat(retrievedSkills).DistinctBy(s => s.Name).ToList();
+        var preCapCount = selectedSkills.Count;
+        var truncated = preCapCount > MaxToolsForProvider;
 
-        if (selectedSkills.Count > MaxToolsForProvider)
+        if (truncated)
         {
             selectedSkills = selectedSkills
                 .OrderByDescending(s => s.AlwaysOn)
@@ -153,7 +162,25 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
                 .ToList();
         }
 
+        LogToolBudget(alwaysOnSkills.Count, retrievedSkills.Count, selectedSkills.Count, truncated);
+
         return selectedSkills.Select(ConvertToLLMFunction).ToList();
+    }
+
+    private void LogToolBudget(int alwaysOnCount, int retrievedCount, int sentCount, bool truncated)
+    {
+        if (truncated)
+        {
+            _logger.LogWarning(
+                "LLM tool budget hit cap: alwaysOn={AlwaysOn} retrieved={Retrieved} sent={Sent} cap={Cap}",
+                alwaysOnCount, retrievedCount, sentCount, MaxToolsForProvider);
+        }
+        else if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug(
+                "LLM tool budget: alwaysOn={AlwaysOn} retrieved={Retrieved} sent={Sent}",
+                alwaysOnCount, retrievedCount, sentCount);
+        }
     }
 
     private static LLMFunction ConvertToLLMFunction(AgentSkill skill)

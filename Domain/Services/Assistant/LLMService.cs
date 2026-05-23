@@ -22,7 +22,14 @@ public class LLMService : ILLMService
     private readonly ILLMBackgroundTaskService _backgroundTaskService;
 
     private const int MaxHistoryMessages = 20;
-    private const int EstimatedOverheadTokens = 15_000;
+
+    // Conservative estimate of the per-turn prompt overhead the system spends
+    // outside of conversation history: identity + ontology (~1500 tk) +
+    // permissions + intro + ~15 tool definitions (~1500 tk) + memory block +
+    // optional CurrentView block. Real-world: ~5–7k tokens. 8000 leaves ~1k
+    // safety margin while giving substantially more headroom for history than
+    // the prior 15k did.
+    private const int EstimatedOverheadTokens = 8_000;
     private const int StageLogThresholdMs = 50;
 
     public LLMService(

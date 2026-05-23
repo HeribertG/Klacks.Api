@@ -34,6 +34,11 @@ public class ContextAssemblyPipeline
     private const float SentimentThreshold = 0.5f;
     private const int OntologyBlockMaxTokens = 1500;
 
+    // Below this length, an utterance is too short for sentiment/memory retrieval
+    // to add value — typical examples are "ja", "ok", "weiter", "?". Skipping
+    // saves one sentiment call + one embedding round-trip per such turn.
+    private const int MinLengthForSemanticEnrichment = 8;
+
     public ContextAssemblyPipeline(
         IIdentityContextProvider identityContextProvider,
         IKlacksOntologyService ontologyService,
@@ -67,8 +72,14 @@ public class ContextAssemblyPipeline
             sb.AppendLine();
         }
 
-        var sentimentTask = _sentimentAnalyzer.AnalyzeSentimentAsync(userMessage);
-        var memoryTask = _memoryRetrievalService.RetrieveRelevantMemoriesAsync(agentId, userMessage, cancellationToken);
+        if ((userMessage?.Trim().Length ?? 0) < MinLengthForSemanticEnrichment)
+        {
+            _logger.LogDebug("Skipping sentiment + memory retrieval for short utterance (len < {Min})", MinLengthForSemanticEnrichment);
+            return sb.ToString();
+        }
+
+        var sentimentTask = _sentimentAnalyzer.AnalyzeSentimentAsync(userMessage!);
+        var memoryTask = _memoryRetrievalService.RetrieveRelevantMemoriesAsync(agentId, userMessage!, cancellationToken);
 
         await Task.WhenAll(sentimentTask, memoryTask);
 
