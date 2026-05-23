@@ -13,6 +13,7 @@ using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
 using LLMModelDiscovery = Klacks.Api.Domain.Models.Assistant.LLMModelDiscovery;
 using Klacks.Api.Domain.Services.Assistant.Providers;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek;
 
@@ -168,13 +169,13 @@ public class DeepSeekProvider : BaseHttpProvider
                         name = tc.Function?.Name,
                         arguments = tc.Function?.Arguments
                     }, GetJsonSerializerOptions());
-                    yield return $"\u0000TOOL:{tcJson}";
+                    yield return $"{LLMStreamingTokens.ToolCallPrefix}{tcJson}";
                 }
             }
 
             if (choice.FinishReason == "tool_calls")
             {
-                yield return "\u0000TOOL_END";
+                yield return LLMStreamingTokens.ToolCallEnd;
             }
         }
     }

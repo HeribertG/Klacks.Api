@@ -45,6 +45,11 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     // truncation; retrieved skills drop first if the cap is hit.
     private const int MaxToolsForProvider = 15;
 
+    private static readonly JsonSerializerOptions CaseInsensitiveJsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     public LLMStreamingOrchestrator(
         ILLMService llmService,
         ISkillCacheService skillCacheService,
@@ -188,7 +193,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         var parameters = new Dictionary<string, object>();
         var requiredParameters = new List<string>();
         var paramDefs = JsonSerializer.Deserialize<List<ParameterDefinition>>(
-            skill.ParametersJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
+            skill.ParametersJson, CaseInsensitiveJsonOptions) ?? [];
 
         foreach (var param in paramDefs)
         {

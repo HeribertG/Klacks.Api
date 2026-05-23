@@ -3,6 +3,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Domain.Models.Assistant;
@@ -187,9 +188,9 @@ public class LLMService : ILLMService
                         break;
                     }
 
-                    if (token.StartsWith("\0TOOL:"))
+                    if (token.StartsWith(LLMStreamingTokens.ToolCallPrefix))
                     {
-                        var toolJson = token[6..];
+                        var toolJson = token[LLMStreamingTokens.ToolCallPrefix.Length..];
                         try
                         {
                             var toolData = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(toolJson);
@@ -198,9 +199,12 @@ public class LLMService : ILLMService
                             var args = toolData.TryGetProperty("arguments", out var a) ? a.GetString() : null;
                             accumulator.AppendToolCallDelta(index, name, args);
                         }
-                        catch { }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Failed to parse tool-call delta from streaming token; token skipped");
+                        }
                     }
-                    else if (token == "\0TOOL_END")
+                    else if (token == LLMStreamingTokens.ToolCallEnd)
                     {
                         hasToolEnd = true;
                     }
@@ -461,10 +465,10 @@ public class LLMService : ILLMService
         HashSet<string> calledFunctionNames)
     {
         return allFunctions
-            .Where(f => f.Name.StartsWith("get_") ||
-                        f.Name.StartsWith("list_") ||
-                        f.Name.StartsWith("search_") ||
-                        f.Name == "navigate_to")
+            .Where(f => f.Name.StartsWith(ReadOnlySkillPrefixes.Get) ||
+                        f.Name.StartsWith(ReadOnlySkillPrefixes.List) ||
+                        f.Name.StartsWith(ReadOnlySkillPrefixes.Search) ||
+                        f.Name == SkillNames.NavigateTo)
             .ToList();
     }
 

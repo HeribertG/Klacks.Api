@@ -19,6 +19,8 @@ namespace Klacks.Api.Domain.Services.Schedules;
 
 public class TimelineCalculationService : ITimelineCalculationService
 {
+    private const string LogPrefix = "[SCHEDULE-DST] ";
+
     private readonly ScheduleTimeOptions _options;
     private readonly ILogger<TimelineCalculationService> _logger;
     private readonly TimeZoneInfo? _timeZone;
@@ -197,7 +199,7 @@ public class TimelineCalculationService : ITimelineCalculationService
             var delta = adjustment?.DaylightDelta ?? TimeSpan.FromHours(1);
             var snapped = DateTime.SpecifyKind(unspecified.Add(delta), DateTimeKind.Unspecified);
             _logger.LogWarning(
-                "[SCHEDULE-DST] Invalid local time {Original} in zone {Zone} - snapped to {Snapped}",
+                LogPrefix + "Invalid local time {Original} in zone {Zone} - snapped to {Snapped}",
                 unspecified, timeZone.Id, snapped);
             return TimeZoneInfo.ConvertTimeToUtc(snapped, timeZone);
         }
@@ -207,7 +209,7 @@ public class TimelineCalculationService : ITimelineCalculationService
             var offsets = timeZone.GetAmbiguousTimeOffsets(unspecified);
             var standardOffset = offsets.OrderBy(o => o).First();
             _logger.LogDebug(
-                "[SCHEDULE-DST] Ambiguous local time {Original} in zone {Zone} - using standard offset {Offset}",
+                LogPrefix + "Ambiguous local time {Original} in zone {Zone} - using standard offset {Offset}",
                 unspecified, timeZone.Id, standardOffset);
             return new DateTimeOffset(unspecified, standardOffset).UtcDateTime;
         }
@@ -224,14 +226,14 @@ public class TimelineCalculationService : ITimelineCalculationService
         catch (TimeZoneNotFoundException)
         {
             _logger.LogError(
-                "[SCHEDULE-DST] Configured TimeZoneId '{TimeZoneId}' was not found - falling back to UTC",
+                LogPrefix + "Configured TimeZoneId '{TimeZoneId}' was not found - falling back to UTC",
                 timeZoneId);
             return TimeZoneInfo.Utc;
         }
         catch (InvalidTimeZoneException ex)
         {
             _logger.LogError(ex,
-                "[SCHEDULE-DST] Configured TimeZoneId '{TimeZoneId}' is invalid - falling back to UTC",
+                LogPrefix + "Configured TimeZoneId '{TimeZoneId}' is invalid - falling back to UTC",
                 timeZoneId);
             return TimeZoneInfo.Utc;
         }

@@ -3,6 +3,7 @@
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Klacks.Api.Domain.Services.Assistant.Providers;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 using Microsoft.Extensions.Configuration;
@@ -17,8 +18,6 @@ public class CohereProvider : BaseHttpProvider
     private const string EventTypeTextGeneration = "text-generation";
     private const string EventTypeToolCallsGeneration = "tool-calls-generation";
     private const string EventTypeToolCallsChunk = "tool-calls-chunk";
-    private const string ToolToken = " TOOL:";
-    private const string ToolEndToken = " TOOL_END";
 
     public override string ProviderId => _providerConfig!.ProviderId;
     public override string ProviderName => _providerConfig!.ProviderName;
@@ -143,7 +142,7 @@ public class CohereProvider : BaseHttpProvider
                             name = tc.Name,
                             arguments = JsonSerializer.Serialize(tc.Parameters ?? new Dictionary<string, object>(), GetJsonSerializerOptions())
                         }, GetJsonSerializerOptions());
-                        yield return $"{ToolToken}{tcJson}";
+                        yield return $"{LLMStreamingTokens.ToolCallPrefix}{tcJson}";
                     }
                     hasToolCalls = true;
                     break;
@@ -158,7 +157,7 @@ public class CohereProvider : BaseHttpProvider
                             name = evt.ToolCallDelta.Name,
                             arguments = evt.ToolCallDelta.Parameters ?? string.Empty
                         }, GetJsonSerializerOptions());
-                        yield return $"{ToolToken}{deltaJson}";
+                        yield return $"{LLMStreamingTokens.ToolCallPrefix}{deltaJson}";
                         hasToolCalls = true;
                     }
                     break;
@@ -166,7 +165,7 @@ public class CohereProvider : BaseHttpProvider
         }
 
         if (hasToolCalls)
-            yield return ToolEndToken;
+            yield return LLMStreamingTokens.ToolCallEnd;
     }
 
     private List<CohereChatMessage> BuildChatHistory(LLMProviderRequest request)

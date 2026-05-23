@@ -16,12 +16,6 @@ using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
-public record AssembledContext(
-    string SystemPrompt,
-    List<AgentSessionMessage> MessageHistory,
-    List<AgentSkill> ActiveSkills,
-    int TotalTokenEstimate);
-
 public class ContextAssemblyPipeline
 {
     private readonly IIdentityContextProvider _identityContextProvider;

@@ -9,6 +9,7 @@ using System.Text.Json;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
 using Klacks.Api.Domain.Services.Assistant.Providers;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 
@@ -151,12 +152,12 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
                     arguments = choice.Delta.FunctionCall.Arguments ?? string.Empty
                 }, jsonOptions);
 
-                yield return $"\u0000TOOL:{toolPayload}";
+                yield return $"{LLMStreamingTokens.ToolCallPrefix}{toolPayload}";
             }
 
             if (choice.FinishReason == "function_call")
             {
-                yield return "\u0000TOOL_END";
+                yield return LLMStreamingTokens.ToolCallEnd;
             }
         }
     }

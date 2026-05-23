@@ -86,7 +86,7 @@ public class SkillProposalsController : ControllerBase
         {
             ProposalId = id,
             ReviewedBy = reviewedBy
-        });
+        }, cancellationToken);
 
         if (!result.Applied)
         {
@@ -111,7 +111,7 @@ public class SkillProposalsController : ControllerBase
         {
             ProposalId = id,
             ReviewedBy = reviewedBy
-        });
+        }, cancellationToken);
 
         if (!result.Rejected)
         {
