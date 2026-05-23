@@ -69,9 +69,16 @@ public class SkillProposalsController : ControllerBase
         [FromQuery] int? limit,
         CancellationToken cancellationToken)
     {
-        var effectiveLimit = Math.Clamp(limit ?? DefaultPendingLimit, 1, MaxPendingLimit);
-        var pending = await _proposalRepository.GetPendingAsync(effectiveLimit, cancellationToken);
-        return Ok(pending);
+        try
+        {
+            var effectiveLimit = Math.Clamp(limit ?? DefaultPendingLimit, 1, MaxPendingLimit);
+            var pending = await _proposalRepository.GetPendingAsync(effectiveLimit, cancellationToken);
+            return Ok(pending);
+        }
+        catch (OperationCanceledException)
+        {
+            return StatusCode(499);
+        }
     }
 
     [HttpPost("{id:guid}/approve")]
