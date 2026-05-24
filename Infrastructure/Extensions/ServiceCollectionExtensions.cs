@@ -565,6 +565,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.AddClientNoteSkill>();
         services.AddScoped<Application.Skills.AddClientToGroupByNameSkill>();
         services.AddScoped<Application.Skills.RemoveClientFromGroupSkill>();
+        services.AddScoped<Application.Skills.UpdateClientBirthdateSkill>();
+        services.AddScoped<Application.Skills.UpdateClientGenderSkill>();
+        services.AddScoped<Application.Skills.AssignContractByNameSkill>();
         services.AddScoped<Application.Skills.SearchEmployeesSkill>();
         services.AddScoped<Application.Skills.CreateContractSkill>();
         services.AddScoped<Application.Skills.SearchAndNavigateSkill>();

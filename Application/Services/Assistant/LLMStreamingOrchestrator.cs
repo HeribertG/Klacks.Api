@@ -47,10 +47,10 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     private const int RecentMessagesForRetrieval = 4;
 
     // Safety cap on the tool list sent to the provider. Reality today: 9 alwaysOn
-    // skills + up to KnowledgeIndexConstants.DefaultTopK (5) retrieved = ~14, so 15
-    // matches the actual budget. AlwaysOn skills are ordered first and survive any
-    // truncation; retrieved skills drop first if the cap is hit.
-    private const int MaxToolsForProvider = 18;
+    // 18 alwaysOn client/edit skills + up to 4 retrieved = 22.
+    // AlwaysOn skills are ordered first and survive any truncation; retrieved skills
+    // drop first if the cap is hit.
+    private const int MaxToolsForProvider = 22;
 
     private static readonly JsonSerializerOptions CaseInsensitiveJsonOptions = new()
     {

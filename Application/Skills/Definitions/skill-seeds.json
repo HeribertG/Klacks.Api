@@ -12579,6 +12579,175 @@
         "it": []
       },
       "version": 3
+    },
+    {
+      "name": "update_client_birthdate",
+      "description": "Updates the birthdate of an existing employee/customer identified by name. Use this directly for requests like 'change birthdate of <person> to <date>' — do not navigate or ask the user to fill a form.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "First name of the client",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the client",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "birthdate",
+          "description": "New birthdate in ISO format (YYYY-MM-DD)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": true,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "birthdate",
+        "geburtstag",
+        "geburtsdatum",
+        "born",
+        "geboren",
+        "birthday"
+      ],
+      "version": 1
+    },
+    {
+      "name": "update_client_gender",
+      "description": "Updates the gender of an existing employee/customer identified by name. Valid values: female, male, legalEntity, intersexuality. Use this directly for requests like 'set gender of <person> to <value>' — do not navigate or ask the user to fill a form.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "First name of the client",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the client",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "gender",
+          "description": "Gender value: female, male, legalEntity, or intersexuality",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "female",
+            "male",
+            "legalEntity",
+            "intersexuality"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": true,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "gender",
+        "geschlecht",
+        "sex",
+        "male",
+        "female",
+        "männlich",
+        "weiblich"
+      ],
+      "version": 1
+    },
+    {
+      "name": "assign_contract_by_name",
+      "description": "Assigns a contract to a client/employee — both identified by name. Use this for chat-driven contract assignments where only names are known. Sets the new contract as active and deactivates any previous active contract.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "First name of the client",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the client",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "contractName",
+          "description": "Name (or partial name) of the contract to assign",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "Contract start date (YYYY-MM-DD)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Optional contract end date (YYYY-MM-DD); leave empty for indefinite",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": true,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "contract",
+        "vertrag",
+        "assign contract",
+        "vertrag zuweisen",
+        "assign",
+        "zuweisen"
+      ],
+      "version": 1
     }
   ]
 }
