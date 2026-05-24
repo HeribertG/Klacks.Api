@@ -10,7 +10,11 @@ namespace Klacks.Api.Domain.Constants;
 
 public static class LLMLoopConstants
 {
-    public const int MaxChatToolIterations = 3;
+    // Guided workflows chain several tool round-trips before answering (e.g. assigning a
+    // contract does lookup_location + list_contracts + list_groups, then needs one more
+    // iteration to present the choices). A cap of 3 exhausted the budget on the lookups and
+    // the loop ended before the assistant could present results — the user saw a "hang".
+    public const int MaxChatToolIterations = 6;
 
     public const int MaxPlanSteps = 15;
 }

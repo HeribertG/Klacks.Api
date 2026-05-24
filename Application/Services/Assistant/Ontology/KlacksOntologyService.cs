@@ -15,7 +15,7 @@ public class KlacksOntologyService : IKlacksOntologyService
 {
     private static readonly string[] Entities =
     [
-        "Client", "Shift", "Work", "Break", "Contract", "Group", "GroupItem",
+        "Client", "Address", "Communication", "Shift", "Work", "Break", "Contract", "Group", "GroupItem",
         "AnalyseScenario", "ScheduleCommand", "WorkChange", "Expenses",
         "ClientPeriodHours", "Membership"
     ];
@@ -24,11 +24,22 @@ public class KlacksOntologyService : IKlacksOntologyService
     {
         ["Client"] =
         [
+            new("Client", "Address", "hasMany"),
+            new("Client", "Communication", "hasMany"),
+            new("Client", "Membership", "hasOne"),
             new("Client", "Contract", "hasMany"),
             new("Client", "Work", "hasMany"),
             new("Client", "Break", "hasMany"),
             new("Client", "GroupItem", "hasMany"),
             new("Client", "ClientPeriodHours", "hasMany")
+        ],
+        ["Address"] =
+        [
+            new("Address", "Client", "belongsTo")
+        ],
+        ["Communication"] =
+        [
+            new("Communication", "Client", "belongsTo")
         ],
         ["Shift"] =
         [
@@ -51,6 +62,33 @@ public class KlacksOntologyService : IKlacksOntologyService
 
     private static readonly Dictionary<string, string[]> Constraints = new()
     {
+        ["Client"] =
+        [
+            "Client.EntityType: 0=Employee, 1=ExternEmp (external employee), 2=Customer.",
+            "Plans are created for Employee/ExternEmp on behalf of a Customer.",
+            "A Client is never created alone: minimum is Client + Address + Communication + Membership.",
+            "No Client without an Address and a Membership — both are mandatory.",
+            "Communication (phone + email) is strongly recommended: no email => no planning via email, and email lets the client write to Klacks directly."
+        ],
+        ["Address"] =
+        [
+            "Address always belongs to exactly one Client (clientId).",
+            "Address requires street, zip, city, state and country; state+country must be filled (ADDRESS_COMPLETENESS).",
+            "Address.Type (AddressTypeEnum): 0=Employee (employee's address), 1=Workplace (Customer address), 2=InvoicingAddress (Customer address).",
+            "Employees never have an InvoicingAddress; Workplace and InvoicingAddress are Customer addresses.",
+            "Addresses are time-versioned by ValidFrom: the in-scope address is the newest with ValidFrom <= reference date.",
+            "Before saving, an address should be geo-validated (validate_address, openrouteservice); on failure offer suggestions or force-save."
+        ],
+        ["Contract"] =
+        [
+            "Contract carries working conditions and the holiday calendar (Feiertagsregelung).",
+            "Contracts apply ONLY to employees (Employee/ExternEmp), assigned via client_contract.",
+            "Without a client_contract the settings default contract is used — acceptable only for simple plans, otherwise discouraged."
+        ],
+        ["Group"] =
+        [
+            "Groups give structure: both employees (Employee/ExternEmp) and Customers can be grouped via GroupItem."
+        ],
         ["Work"] =
         [
             "Work with LockLevel != None is immutable for Wizards 1+2+3.",

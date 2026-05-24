@@ -40,7 +40,8 @@ public class GlobalAgentRuleSeedService
         ),
         (
             GlobalAgentRuleNames.UiElementMap,
-            "UI MAP — use element IDs with navigate_to/UiAction.\n" +
+            "UI MAP — element IDs for NAVIGATION and highlighting only.\n" +
+            "CRITICAL: To create or change CLIENT/employee/customer data (name, address, phone, email, contract, group membership) you MUST use the data skills (create_employee, update_client, assign_contract_to_client, add_client_to_group). NEVER navigate to a client form and ask the user to fill it, and never fill client data fields via the UI. The Edit-Client IDs below are only for navigating to or highlighting a field, never for entering client data.\n" +
             "ROUTES: /workplace/dashboard|client|edit-address/:id|schedule|absence|shift|edit-shift/:id|cut-shift/:id|container-template/:id|group|edit-group/:id|settings|profile|floor-plan|inbox\n" +
             "IDs: Client List: new-address-button,myAddressTable,filter-reset-button | " +
             "Edit Client: firstname,profile-name,company,gender,street,zip,city,state,country,client-type,add-contract-button,add-group-button | " +
@@ -61,16 +62,17 @@ public class GlobalAgentRuleSeedService
         ),
         (
             GlobalAgentRuleNames.GuidedWorkflow,
-            "For complex tasks (creating employees, assigning contracts/groups, configuring settings), use a GUIDED step-by-step workflow:\n" +
-            "1. NAVIGATE FIRST: Go to the relevant page before asking questions.\n" +
-            "2. ONE QUESTION AT A TIME: Ask only one question per response. Wait for the answer before proceeding.\n" +
-            "3. SMART LOOKUPS: When user provides a city or zip, use lookup_location to find the canton/state. " +
-            "Then use list_contracts(canton) and list_groups(canton) to find matching options.\n" +
-            "4. OFFER CHOICES via [REPLIES:single]: Present found contracts, groups, or types as selection options.\n" +
-            "5. CONFIRM before executing create/update actions. Summarize collected data first.\n" +
-            "Example — \"Neuen MA anlegen\":\n" +
-            "Step 1: Ask name → Step 2: Ask location → Step 3: Lookup canton, show matching contracts as [REPLIES:single] → " +
-            "Step 4: Show matching groups as [REPLIES:single] → Step 5: Confirm all → Step 6: Execute create_employee + assign_contract + add_client_to_group.",
+            "For complex tasks (creating/updating clients, assigning contracts/groups, configuring settings) use a GUIDED step-by-step workflow:\n" +
+            "1. NAVIGATE FIRST: open the relevant page before asking questions.\n" +
+            "2. ONE QUESTION AT A TIME: ask exactly one question per response and wait for the answer.\n" +
+            "3. CREATE A CLIENT — collect: first and last name; gender; entity type (Employee, ExternEmp or Customer — these are the ONLY client types); birthdate; address (street, zip, city; derive the canton with lookup_location); email; phone. Email and phone are strongly recommended.\n" +
+            "4. REAL DATA ONLY — never invent options. There is NO \"Minijob\" or any made-up employment/contract type. Offer contracts only from list_contracts(canton) and groups only from list_groups(canton); if a list is empty, say so plainly. The only client types are Employee/ExternEmp/Customer.\n" +
+            "5. OFFER CHOICES via [REPLIES:single] using the REAL items found (e.g. exact contract names from list_contracts).\n" +
+            "6. CONFIRM: summarize the collected data, then ask for confirmation.\n" +
+            "7. COLLECT BEFORE CREATING: do NOT call create_employee until you have first+last name, gender, entity type, address, email AND phone. If email or phone is still missing, ask for it; only proceed without them if the user explicitly declines. Then EXECUTE IMMEDIATELY after confirmation: call create_employee with all collected fields including email, phone and entityType (it also creates the mandatory membership). Do NOT navigate to the form or ask the user to fill it in manually — YOU create the record by calling the function.\n" +
+            "8. OPTIONAL LINKS: after creation offer to assign a contract (assign_contract_to_client, employees only) and add to a group (add_client_to_group), using only real contracts/groups.\n" +
+            "9. REVIEW: after create_employee (and after update_client) call navigate_to with page 'edit-employee' and entityId set to the returned client id, then ask the user to review and verify the data.\n" +
+            "10. UPDATE A CLIENT: for ANY request to change or add a phone, email, address or master field of an existing employee/customer, your FIRST and ONLY action is to CALL update_client — pass firstName+lastName to identify the client (do NOT search first, do NOT navigate first, do NOT use search_and_navigate or navigate_to, do NOT ask the user to fill the form). Supplying street/zip/city adds a new address; email or phone adds a new communication. ONLY AFTER update_client returns success, navigate to the client (step 9) for review. If you navigated or asked the user to edit instead of calling update_client, you did it WRONG.",
             6
         )
     ];

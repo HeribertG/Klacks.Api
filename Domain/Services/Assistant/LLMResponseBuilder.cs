@@ -59,8 +59,6 @@ public class LLMResponseBuilder
             SuggestedReplies = suggestedReplies
         };
 
-        response.NavigateTo = ExtractNavigation(cleanedContent);
-
         return response;
     }
 
@@ -153,27 +151,4 @@ public class LLMResponseBuilder
         return (cleanedContent, config);
     }
 
-    private static string? ExtractNavigation(string content)
-    {
-        var navigationMap = new Dictionary<string, string>
-        {
-            ["dashboard"] = "/dashboard",
-            ["clients"] = "/clients",
-            ["employees"] = "/clients",
-            ["contracts"] = "/contracts",
-            ["settings"] = "/settings"
-        };
-
-        var lowerContent = content.ToLower();
-        foreach (var nav in navigationMap)
-        {
-            if (lowerContent.Contains($"navigate to {nav.Key}") ||
-                lowerContent.Contains($"open {nav.Key}"))
-            {
-                return nav.Value;
-            }
-        }
-
-        return null;
-    }
 }

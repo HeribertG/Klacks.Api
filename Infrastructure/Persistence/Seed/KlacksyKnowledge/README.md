@@ -31,6 +31,7 @@ kann per Copy-Paste oder Skript in die Definitions-Datei eingespielt werden.
 | 07 | `shift-time-range.md` | TimeRange Shift mit elastischer Lage |
 | 08 | `shift-container.md` | Container-Shift mit Template + Override |
 | 09 | `shift-lifecycle-order-to-shift.md` | OriginalOrder → SealedOrder → OriginalShift → SplitShift |
+| 10 | `address-management.md` | Client + zeitversionierte Adressen, Typen, Scope, Validierung |
 
 ## Ingest-Pfade
 

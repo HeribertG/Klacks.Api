@@ -1,10 +1,19 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Skill that creates a new client (employee, external employee or customer) with the mandatory
+/// onboarding data: client master record + membership, plus optional address and communication
+/// (email/phone). The id_number is left at its CLR default so the database sequence assigns it.
+/// </summary>
+/// <param name="clientRepository">Persists the client and its cascaded child entities</param>
+/// <param name="unitOfWork">Commits the unit of work</param>
+
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -14,16 +23,13 @@ namespace Klacks.Api.Application.Skills;
 public class CreateEmployeeSkill : BaseSkillImplementation
 {
     private readonly IClientRepository _clientRepository;
-    private readonly IAddressRepository _addressRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateEmployeeSkill(
         IClientRepository clientRepository,
-        IAddressRepository addressRepository,
         IUnitOfWork unitOfWork)
     {
         _clientRepository = clientRepository;
-        _addressRepository = addressRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -41,6 +47,7 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             return SkillResult.Error($"Invalid gender value: {genderStr}");
         }
 
+        var entityType = ParseEntityType(GetParameter<string>(parameters, "entityType"));
         var birthdate = GetParameter<string>(parameters, "birthdate");
         var street = GetParameter<string>(parameters, "street");
         var zip = GetParameter<string>(parameters, "zip");
@@ -48,7 +55,10 @@ public class CreateEmployeeSkill : BaseSkillImplementation
         var state = GetParameter<string>(parameters, "state");
         var country = GetParameter<string>(parameters, "country", "Schweiz");
         var company = GetParameter<string>(parameters, "company");
+        var email = GetParameter<string>(parameters, "email");
+        var phone = GetParameter<string>(parameters, "phone");
 
+        var now = DateTime.UtcNow;
 
         var client = new Client
         {
@@ -57,8 +67,9 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             Name = lastName,
             Gender = gender,
             Company = company,
+            Type = entityType,
             LegalEntity = gender == GenderEnum.LegalEntity,
-            CreateTime = DateTime.UtcNow,
+            CreateTime = now,
             CurrentUserCreated = context.UserName
         };
 
@@ -67,28 +78,61 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             client.Birthdate = birthdateValue;
         }
 
-        await _clientRepository.Add(client);
-
-        if (!string.IsNullOrEmpty(street) || !string.IsNullOrEmpty(city))
+        client.Membership = new Membership
         {
-            var address = new Address
+            Id = Guid.NewGuid(),
+            ClientId = client.Id,
+            Type = 0,
+            ValidFrom = now.Date,
+            CreateTime = now,
+            CurrentUserCreated = context.UserName
+        };
+
+        if (!string.IsNullOrEmpty(street) || !string.IsNullOrEmpty(city) || !string.IsNullOrEmpty(zip))
+        {
+            client.Addresses.Add(new Address
             {
                 Id = Guid.NewGuid(),
                 ClientId = client.Id,
-                Street = street ?? "",
-                Zip = zip ?? "",
-                City = city ?? "",
-                State = state ?? "",
+                Street = street ?? string.Empty,
+                Zip = zip ?? string.Empty,
+                City = city ?? string.Empty,
+                State = state ?? string.Empty,
                 Country = country ?? "Schweiz",
                 Type = AddressTypeEnum.Employee,
-                ValidFrom = DateTime.UtcNow,
-                CreateTime = DateTime.UtcNow,
+                ValidFrom = now,
+                CreateTime = now,
                 CurrentUserCreated = context.UserName
-            };
-
-            await _addressRepository.Add(address);
+            });
         }
 
+        if (!string.IsNullOrEmpty(email))
+        {
+            client.Communications.Add(new Communication
+            {
+                Id = Guid.NewGuid(),
+                ClientId = client.Id,
+                Type = CommunicationTypeEnum.PrivateMail,
+                Value = email,
+                CreateTime = now,
+                CurrentUserCreated = context.UserName
+            });
+        }
+
+        if (!string.IsNullOrEmpty(phone))
+        {
+            client.Communications.Add(new Communication
+            {
+                Id = Guid.NewGuid(),
+                ClientId = client.Id,
+                Type = CommunicationTypeEnum.PrivateCellPhone,
+                Value = phone,
+                CreateTime = now,
+                CurrentUserCreated = context.UserName
+            });
+        }
+
+        await _clientRepository.Add(client);
         await _unitOfWork.CompleteAsync();
 
         var resultData = new
@@ -97,16 +141,37 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             FirstName = firstName,
             LastName = lastName,
             Gender = gender.ToString(),
+            EntityType = entityType.ToString(),
+            HasMembership = true,
+            HasEmail = !string.IsNullOrEmpty(email),
+            HasPhone = !string.IsNullOrEmpty(phone),
             State = state,
             City = city,
             Country = country
         };
 
-        var message = $"Employee {firstName} {lastName}" +
-                      (!string.IsNullOrEmpty(state) ? $" from {state}" : "") +
-                      " was successfully created.";
+        var message = $"{entityType} {firstName} {lastName}" +
+                      (!string.IsNullOrEmpty(state) ? $" from {state}" : string.Empty) +
+                      " was successfully created (with membership" +
+                      (!string.IsNullOrEmpty(email) ? ", email" : string.Empty) +
+                      (!string.IsNullOrEmpty(phone) ? ", phone" : string.Empty) +
+                      ").";
 
         return SkillResult.SuccessResult(resultData, message);
     }
 
+    private static EntityTypeEnum ParseEntityType(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return EntityTypeEnum.Employee;
+        }
+
+        return value.Trim().ToLowerInvariant() switch
+        {
+            "customer" or "kunde" or "kunden" or "client" or "2" => EntityTypeEnum.Customer,
+            "externemp" or "extern" or "external" or "externer mitarbeiter" or "externer" or "1" => EntityTypeEnum.ExternEmp,
+            _ => EntityTypeEnum.Employee
+        };
+    }
 }

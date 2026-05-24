@@ -560,6 +560,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.ValidateCalendarRuleSkill>();
 
         services.AddScoped<Application.Skills.CreateEmployeeSkill>();
+        services.AddScoped<Application.Skills.AddClientPhoneSkill>();
+        services.AddScoped<Application.Skills.AddClientEmailSkill>();
+        services.AddScoped<Application.Skills.AddClientNoteSkill>();
+        services.AddScoped<Application.Skills.AddClientToGroupByNameSkill>();
+        services.AddScoped<Application.Skills.RemoveClientFromGroupSkill>();
         services.AddScoped<Application.Skills.SearchEmployeesSkill>();
         services.AddScoped<Application.Skills.CreateContractSkill>();
         services.AddScoped<Application.Skills.SearchAndNavigateSkill>();

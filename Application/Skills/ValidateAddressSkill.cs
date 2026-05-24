@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Enums;
@@ -12,11 +13,69 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("validate_address")]
 public class ValidateAddressSkill : BaseSkillImplementation
 {
+    private static readonly string[] PostalCodeParameterNames =
+        ["postalCode", "zip", "plz", "postalcode", "postal_code", "postleitzahl"];
+
+    private static readonly Regex PostalCodePattern = new(@"\b(\d{4,5})\b", RegexOptions.Compiled);
+
     private readonly IGeocodingService _geocodingService;
 
     public ValidateAddressSkill(IGeocodingService geocodingService)
     {
         _geocodingService = geocodingService;
+    }
+
+    private static string? ResolvePostalCode(Dictionary<string, object> parameters)
+    {
+        foreach (var name in PostalCodeParameterNames)
+        {
+            var value = GetParameter<string>(parameters, name);
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return value.Trim();
+            }
+        }
+
+        return null;
+    }
+
+    private static (string? PostalCode, string? City) RecoverPostalCodeAndCity(string? postalCode, string? city, string? street)
+    {
+        if (!string.IsNullOrWhiteSpace(postalCode))
+        {
+            return (postalCode, city);
+        }
+
+        if (!string.IsNullOrWhiteSpace(city))
+        {
+            var cityMatch = PostalCodePattern.Match(city);
+            if (cityMatch.Success)
+            {
+                var remainder = city.Remove(cityMatch.Index, cityMatch.Length).Trim().Trim(',').Trim();
+                return (cityMatch.Groups[1].Value, string.IsNullOrWhiteSpace(remainder) ? city : remainder);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(street))
+        {
+            var streetMatch = PostalCodePattern.Match(street);
+            if (streetMatch.Success)
+            {
+                var recoveredZip = streetMatch.Groups[1].Value;
+                if (string.IsNullOrWhiteSpace(city))
+                {
+                    var tail = street[(streetMatch.Index + streetMatch.Length)..].Trim().Trim(',').Trim();
+                    if (!string.IsNullOrWhiteSpace(tail))
+                    {
+                        city = tail;
+                    }
+                }
+
+                return (recoveredZip, city);
+            }
+        }
+
+        return (postalCode, city);
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -25,9 +84,27 @@ public class ValidateAddressSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var street = GetParameter<string>(parameters, "street");
-        var postalCode = GetRequiredString(parameters, "postalCode");
-        var city = GetRequiredString(parameters, "city");
+        var city = GetParameter<string>(parameters, "city");
         var country = GetParameter<string>(parameters, "country", "Schweiz");
+        var postalCode = ResolvePostalCode(parameters);
+
+        (postalCode, city) = RecoverPostalCodeAndCity(postalCode, city, street);
+
+        if (string.IsNullOrWhiteSpace(postalCode) || string.IsNullOrWhiteSpace(city))
+        {
+            return new SkillResult
+            {
+                Success = true,
+                Data = new
+                {
+                    IsValid = false,
+                    ExactMatch = false,
+                    Message = "Postal code and city are required to validate an address."
+                },
+                Message = "I still need the postal code and city. Please provide the address as 'street, postal code city' (e.g. 'Kirchstrasse 52, 3097 Liebefeld').",
+                Type = SkillResultType.Data
+            };
+        }
 
         var fullAddress = string.IsNullOrEmpty(street)
             ? $"{postalCode} {city}"

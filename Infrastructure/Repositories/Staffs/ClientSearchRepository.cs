@@ -111,11 +111,15 @@ public class ClientSearchRepository : IClientSearchRepository
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            var term = searchTerm.ToLower();
-            query = query.Where(c =>
-                (c.FirstName != null && c.FirstName.ToLower().Contains(term)) ||
-                (c.Name != null && c.Name.ToLower().Contains(term)) ||
-                (c.Company != null && c.Company.ToLower().Contains(term)));
+            var tokens = searchTerm.ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var rawToken in tokens)
+            {
+                var token = rawToken;
+                query = query.Where(c =>
+                    (c.FirstName != null && c.FirstName.ToLower().Contains(token)) ||
+                    (c.Name != null && c.Name.ToLower().Contains(token)) ||
+                    (c.Company != null && c.Company.ToLower().Contains(token)));
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(canton))

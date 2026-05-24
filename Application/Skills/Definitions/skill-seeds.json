@@ -912,7 +912,7 @@
     },
     {
       "name": "create_employee",
-      "description": "Creates a new employee or customer in the system with personal data (name, address, birthdate). Note: To assign a contract, use assign_contract_to_client separately. To add to a group, use add_client_to_group separately. Contact information (email, phone) can be added later via the UI.",
+      "description": "Creates a new client (employee, external employee or customer) with personal data, address, email and phone. Always also creates a mandatory membership. Set entityType to choose Employee/ExternEmp/Customer. To assign a contract use assign_contract_to_client; to add to a group use add_client_to_group (only with REAL contracts/groups from list_contracts/list_groups).",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -1003,12 +1003,40 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "email",
+          "description": "Email address of the client. Strongly recommended; without an email there is no email-based planning.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "phone",
+          "description": "Phone number of the client. Strongly recommended.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "entityType",
+          "description": "Type of client: Employee (own employee), ExternEmp (external employee) or Customer. Defaults to Employee.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "Employee",
+          "enumValues": [
+            "Employee",
+            "ExternEmp",
+            "Customer"
+          ]
         }
       ],
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": false,
+      "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "employee",
@@ -1064,7 +1092,7 @@
           "forza lavoro"
         ]
       },
-      "version": 4
+      "version": 6
     },
     {
       "name": "create_user",
@@ -10888,7 +10916,7 @@
     },
     {
       "name": "update_client",
-      "description": "Updates an existing client (employee, customer or extern employee) by id. Only the fields supplied as parameters are changed; everything else stays untouched. Use for renaming, correcting birthdate, changing gender, adjusting company name. Address and contact data are managed via separate UI workflows.",
+      "description": "ALWAYS use this skill to ADD or CHANGE a client's phone, email or address, or to edit master data (name, birthdate, gender, company, title) of an existing employee/customer. Identify the client by firstName+lastName (no search and no id needed — pass the name directly). Supplying street/zip/city ADDS a new address; supplying email or phone ADDS a new communication. Do NOT navigate and do NOT ask the user to edit the form manually — perform the change yourself by calling this skill. Only the supplied fields change.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -10897,9 +10925,9 @@
       "parameters": [
         {
           "name": "clientId",
-          "description": "UUID of the client/employee/customer to update",
+          "description": "UUID of the client to update. Optional if firstName+lastName are given.",
           "type": "String",
-          "required": true,
+          "required": false,
           "defaultValue": null,
           "enumValues": null
         },
@@ -10955,6 +10983,62 @@
             "Intersexuality",
             "LegalEntity"
           ]
+        },
+        {
+          "name": "street",
+          "description": "Adds a new address: street and house number",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "zip",
+          "description": "New address ZIP / postal code",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "city",
+          "description": "New address city",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "state",
+          "description": "New address canton/state abbreviation (e.g. BE)",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "country",
+          "description": "New address country (default Schweiz)",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "email",
+          "description": "Adds a new email communication",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "phone",
+          "description": "Adds a new phone communication",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -11008,7 +11092,7 @@
           "aggiornare cliente"
         ]
       },
-      "version": 1
+      "version": 6
     },
     {
       "name": "delete_client",
@@ -12180,6 +12264,321 @@
         ]
       },
       "version": 1
+    },
+    {
+      "name": "add_client_phone",
+      "description": "Adds a phone number to an existing employee/customer, found by name. Use this directly for 'add/change phone number for <person>' — do not navigate or ask the user to fill a form.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "First name of the client",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the client",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "phone",
+          "description": "Phone number to add",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": true,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "phone",
+        "telefon",
+        "telefonnummer",
+        "nummer",
+        "handynummer"
+      ],
+      "synonyms": {
+        "de": [
+          "telefon",
+          "telefonnummer",
+          "nummer hinzufügen",
+          "handynummer"
+        ],
+        "en": [
+          "phone",
+          "phone number",
+          "add phone",
+          "mobile"
+        ],
+        "fr": [
+          "téléphone",
+          "numéro"
+        ],
+        "it": [
+          "telefono",
+          "numero"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "add_client_email",
+      "description": "Adds an email address to an existing employee/customer, found by name. Use directly for 'add/change email for <person>' — do not navigate or ask the user to fill a form.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "First name of the client",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the client",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "email",
+          "description": "Email address to add",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": true,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "email",
+        "e-mail",
+        "mail",
+        "emailadresse"
+      ],
+      "synonyms": {
+        "de": [
+          "email",
+          "mail",
+          "add email"
+        ],
+        "en": [
+          "email",
+          "e-mail",
+          "mail"
+        ],
+        "fr": [],
+        "it": []
+      },
+      "version": 3
+    },
+    {
+      "name": "add_client_note",
+      "description": "Adds a note/annotation to an existing employee/customer, found by name. Use directly for 'add a note to <person>'.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "First name of the client",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the client",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "note",
+          "description": "The note text to add",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": true,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "note",
+        "notiz",
+        "anmerkung",
+        "bemerkung",
+        "vermerk"
+      ],
+      "synonyms": {
+        "de": [
+          "note",
+          "annotation",
+          "remark",
+          "comment"
+        ],
+        "en": [
+          "notiz",
+          "anmerkung",
+          "bemerkung"
+        ],
+        "fr": [],
+        "it": []
+      },
+      "version": 3
+    },
+    {
+      "name": "add_client_to_group_by_name",
+      "description": "Adds an existing employee/customer (by name) to a group (by name). Use directly for 'add <person> to group <X>'.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "First name of the client",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the client",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Name of the group",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": true,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "group",
+        "gruppe",
+        "zuordnen",
+        "hinzufügen"
+      ],
+      "synonyms": {
+        "de": [
+          "group",
+          "add to group",
+          "assign group"
+        ],
+        "en": [
+          "gruppe",
+          "zuordnen"
+        ],
+        "fr": [],
+        "it": []
+      },
+      "version": 3
+    },
+    {
+      "name": "remove_client_from_group",
+      "description": "Removes an existing employee/customer (by name) from a group (by name). Use directly for 'remove <person> from group <X>'.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "First name of the client",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the client",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Name of the group",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": true,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "group",
+        "gruppe",
+        "entfernen",
+        "löschen",
+        "remove"
+      ],
+      "synonyms": {
+        "de": [
+          "group",
+          "remove from group",
+          "leave group"
+        ],
+        "en": [
+          "gruppe",
+          "entfernen"
+        ],
+        "fr": [],
+        "it": []
+      },
+      "version": 3
     }
   ]
 }

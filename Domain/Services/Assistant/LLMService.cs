@@ -464,11 +464,17 @@ public class LLMService : ILLMService
         List<LLMFunction> allFunctions,
         HashSet<string> calledFunctionNames)
     {
+        // Read-only skills and navigation stay available across iterations. Write/CRUD skills
+        // stay available too UNLESS they were already called — this keeps multi-step write
+        // workflows working (e.g. search_employees then update_client, or create then
+        // assign_contract) while still preventing the same side-effecting skill from being
+        // invoked twice in one turn.
         return allFunctions
             .Where(f => f.Name.StartsWith(ReadOnlySkillPrefixes.Get) ||
                         f.Name.StartsWith(ReadOnlySkillPrefixes.List) ||
                         f.Name.StartsWith(ReadOnlySkillPrefixes.Search) ||
-                        f.Name == SkillNames.NavigateTo)
+                        f.Name == SkillNames.NavigateTo ||
+                        !calledFunctionNames.Contains(f.Name))
             .ToList();
     }
 

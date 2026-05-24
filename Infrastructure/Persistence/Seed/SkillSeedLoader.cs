@@ -200,8 +200,8 @@ public class SkillSeedLoader
         agent = new Agent
         {
             Name = DefaultAgentName,
-            DisplayName = "Klacks Assistant",
-            Description = "Default AI assistant",
+            DisplayName = "Klacksy",
+            Description = "Klacksy — the built-in assistant of the Klacks workforce-planning platform",
             IsActive = true,
             IsDefault = true
         };

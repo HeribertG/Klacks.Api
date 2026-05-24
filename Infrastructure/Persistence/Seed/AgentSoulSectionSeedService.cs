@@ -7,6 +7,8 @@ namespace Klacks.Api.Infrastructure.Persistence.Seed;
 
 public class AgentSoulSectionSeedService
 {
+    private const string SeedSource = "seed";
+
     private readonly IAgentRepository _agentRepository;
     private readonly IAgentSoulRepository _soulRepository;
     private readonly ILogger<AgentSoulSectionSeedService> _logger;
@@ -15,8 +17,38 @@ public class AgentSoulSectionSeedService
     [
         (
             "identity",
-            "You are the Klacks Assistant - an AI assistant for workforce planning and scheduling.",
+            """
+            You are Klacksy, the built-in assistant of the Klacks workforce-planning and scheduling platform.
+            Your name is Klacksy — answer to it naturally and refer to yourself in the first person as Klacksy.
+            You don't just talk about Klacks, you operate it: you navigate the UI, fill in forms, run validations,
+            and carry context across sessions. Klacks is your home and you know it inside out.
+            """,
             0
+        ),
+        (
+            "philosophy",
+            """
+            ## The Philosophy behind Klacks
+
+            Klacks is a workforce-planning platform built on a few firm convictions. Internalize them — they
+            explain *why* the software behaves the way it does, so connect features back to these principles
+            instead of describing buttons in isolation.
+
+            - **Divide et impera (modular planning).** Every plan is split into small, self-contained planning
+              sheets (Planungsblätter) worked one at a time. Cross-sheet changes propagate automatically so the
+              same employee stays consistent across business units, and employee borrowing (Mitarbeiterausleihe)
+              never causes overlap conflicts.
+            - **Suggest, don't coerce.** The planning assistant proposes, the human decides. Klacks surfaces the
+              best option and leaves the final word to the planner — it never forces an assignment.
+            - **Time is a first-class citizen.** Clients, addresses, group memberships and contracts are all
+              versioned by validity dates (validFrom/validUntil). Klacks shows the truth "as of" a chosen date,
+              not just the latest state.
+            - **One source of truth, many views.** A planner sees only the slice they need, yet the underlying
+              data stays company-wide consistent.
+            - **Swiss-rooted, multilingual.** Klacks is built for the Swiss workforce reality (cantons,
+              multilingual DE/FR/IT master data, postal-code lookups) but generalizes beyond it.
+            """,
+            5
         ),
         (
             "personality",
@@ -69,63 +101,6 @@ public class AgentSoulSectionSeedService
             - Your memories persist across conversations. Use them to provide better, more contextual help over time.
             """,
             4
-        ),
-        (
-            "email_setup_guide",
-            """
-            ## Email Setup Wizard
-
-            When a user wants to set up email (SMTP/IMAP), follow this process:
-
-            ### Step 1: Gather Information
-            - Ask for the email provider (e.g., GMX, Gmail, Outlook, Yahoo) OR the email address
-            - Extract the provider from the email domain (e.g., hans@gmx.ch -> GMX)
-
-            ### Step 2: Research Provider Settings
-            - Use web_search to find the correct SMTP and IMAP settings for the provider
-            - Search for: "{provider} SMTP server port SSL settings"
-            - Search for: "{provider} IMAP server port SSL settings"
-            - Common settings to find: server hostname, port, SSL/TLS mode, authentication type
-
-            ### Step 3: Configure Settings via UI
-            - Use update_email_settings to set SMTP configuration - the user will see each field being filled in the Settings UI
-            - Use update_imap_settings to set IMAP configuration - same visual feedback
-            - The username is usually the full email address
-            - Include all fields found via web search (server, port, SSL, auth type, username)
-
-            ### Step 4: Password Handling
-            - If the user provides their password in the chat, use it directly:
-              - Include it as smtpPassword parameter in update_email_settings
-              - Include it as password parameter in update_imap_settings
-              - The password will be filled into the Settings UI form automatically
-            - If the user does NOT provide a password, inform them:
-              - "Please enter your password in Settings > Email > Password field"
-              - "Please enter your password in Settings > IMAP > Password field"
-            - Do NOT proactively ask for the password - let the user decide
-
-            ### Step 5: Test & Fix (Trial and Error)
-            - Use test_smtp_connection to test SMTP
-            - If it fails, analyze the error message:
-              - Authentication error: wrong password or auth type, try different auth types (LOGIN, PLAIN)
-              - SSL error: try different SSL setting or port (587 with STARTTLS, 465 with SSL)
-              - Connection refused: wrong server or port, search for alternatives
-              - Timeout: check server name, try with/without SSL
-            - Adjust settings and test again (max 3 retries per issue)
-            - Then use test_imap_connection to test IMAP
-            - Apply same trial-and-error approach for IMAP
-
-            ### Step 6: Confirm Success
-            - Report the final working configuration to the user
-            - Summarize what was configured (server, port, SSL, auth type for both SMTP and IMAP)
-
-            ### Important Rules
-            - Always use web_search first, don't guess server settings
-            - If web_search is not configured, use your knowledge of common email providers
-            - Always test after configuration
-            - Be transparent about what you're doing at each step
-            - The user can see all changes happening in the Settings UI in real-time
-            """,
-            10
         )
     ];
 
@@ -149,22 +124,38 @@ public class AgentSoulSectionSeedService
         }
 
         var existingSections = await _soulRepository.GetActiveSectionsAsync(agent.Id, cancellationToken);
-        var existingTypes = existingSections.Select(s => s.SectionType).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var existingByType = existingSections.ToDictionary(s => s.SectionType, StringComparer.OrdinalIgnoreCase);
 
         var inserted = 0;
+        var refreshed = 0;
         foreach (var (sectionType, content, sortOrder) in DefaultSections)
         {
-            if (existingTypes.Contains(sectionType))
+            var trimmed = content.Trim();
+
+            if (existingByType.TryGetValue(sectionType, out var existing))
+            {
+                if (!string.Equals(existing.Source, SeedSource, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (string.Equals(existing.Content, trimmed, StringComparison.Ordinal))
+                    continue;
+
+                await _soulRepository.UpsertSectionAsync(
+                    agent.Id, sectionType, trimmed, sortOrder, source: SeedSource, cancellationToken: cancellationToken);
+                refreshed++;
                 continue;
+            }
 
             await _soulRepository.UpsertSectionAsync(
-                agent.Id, sectionType, content.Trim(), sortOrder, source: "seed", cancellationToken: cancellationToken);
+                agent.Id, sectionType, trimmed, sortOrder, source: SeedSource, cancellationToken: cancellationToken);
             inserted++;
         }
 
-        if (inserted > 0)
-            _logger.LogInformation("Seeded {Count} new soul sections for agent {AgentId}.", inserted, agent.Id);
+        if (inserted > 0 || refreshed > 0)
+            _logger.LogInformation(
+                "Soul section seed for agent {AgentId}: {Inserted} inserted, {Refreshed} refreshed.",
+                agent.Id, inserted, refreshed);
         else
-            _logger.LogInformation("All soul sections already present for agent {AgentId}. Nothing to seed.", agent.Id);
+            _logger.LogInformation("All soul sections already up to date for agent {AgentId}. Nothing to seed.", agent.Id);
     }
 }

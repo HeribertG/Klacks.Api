@@ -19,7 +19,7 @@ public class MemoryRetrievalService : IMemoryRetrievalService
     private readonly IEmbeddingService _embeddingService;
     private readonly ILogger<MemoryRetrievalService> _logger;
 
-    private const int MaxMemoriesPerTurn = 15;
+    private const int MaxMemoriesPerTurn = 5;
     private const int MaxPinnedMemories = 10;
 
     public MemoryRetrievalService(
