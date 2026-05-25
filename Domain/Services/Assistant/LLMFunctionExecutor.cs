@@ -56,11 +56,13 @@ public class LLMFunctionExecutor
     }
 
     public bool HasOnlyUiPassthroughCalls { get; private set; }
+    public string? NavigationRoute { get; private set; }
 
     public async Task<string> ProcessFunctionCallsAsync(LLMContext context, List<LLMFunctionCall> functionCalls)
     {
         var results = new List<string>();
         var allUiPassthrough = true;
+        NavigationRoute = null;
 
         foreach (var call in functionCalls)
         {
@@ -170,6 +172,18 @@ public class LLMFunctionExecutor
             if (result.Data != null)
             {
                 var dataJson = JsonSerializer.Serialize(result.Data, new JsonSerializerOptions { WriteIndented = false });
+
+                if (result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Navigation))
+                {
+                    try
+                    {
+                        using var doc = System.Text.Json.JsonDocument.Parse(dataJson);
+                        if (doc.RootElement.TryGetProperty("Route", out var routeProp))
+                            NavigationRoute = routeProp.GetString();
+                    }
+                    catch { }
+                }
+
                 return $"{result.Message}\nData: {dataJson}";
             }
 

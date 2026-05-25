@@ -1031,6 +1031,14 @@
             "ExternEmp",
             "Customer"
           ]
+        },
+        {
+          "name": "proceedWithoutContact",
+          "description": "Set to true ONLY after the user has explicitly declined to provide address, email or phone. By default address, email and phone must be collected before the client is created; if any is missing the call is rejected so you can ask for it.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": "false",
+          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -1092,7 +1100,7 @@
           "forza lavoro"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "create_user",

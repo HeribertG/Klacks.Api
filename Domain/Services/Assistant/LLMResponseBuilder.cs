@@ -34,7 +34,8 @@ public class LLMResponseBuilder
         LLMProviderResponse providerResponse,
         string conversationId,
         string responseContent,
-        List<LLMFunctionCall>? allFunctionCalls = null)
+        List<LLMFunctionCall>? allFunctionCalls = null,
+        string? navigationRoute = null)
     {
         var functionCalls = allFunctionCalls ?? providerResponse.FunctionCalls;
 
@@ -46,8 +47,9 @@ public class LLMResponseBuilder
             Message = cleanedContent,
             ConversationId = conversationId,
             ActionPerformed = functionCalls.Any(),
+            NavigateTo = navigationRoute,
             FunctionCalls = functionCalls
-                .Select(f => (object)new { f.FunctionName, f.Parameters, f.UiActionSteps })
+                .Select(f => (object)new { f.FunctionName, f.Parameters, f.UiActionSteps, f.Result })
                 .ToList(),
             Usage = new LLMUsageInfo
             {

@@ -91,7 +91,7 @@ public class LLMService : ILLMService
             _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
 
             return _responseBuilder.BuildSuccessResponse(
-                lastResponse!, conversation!.ConversationId, responseContent, allFunctionCalls);
+                lastResponse!, conversation!.ConversationId, responseContent, allFunctionCalls, _functionExecutor.NavigationRoute);
         }
         catch (Exception ex)
         {
@@ -143,6 +143,7 @@ public class LLMService : ILLMService
         var currentMessage = context.Message;
         var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var firstTokenLogged = false;
+        string? navigationRoute = null;
         const int maxIterations = Klacks.Api.Domain.Constants.LLMLoopConstants.MaxChatToolIterations;
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
@@ -273,6 +274,8 @@ public class LLMService : ILLMService
             }
 
             await _functionExecutor.ProcessFunctionCallsAsync(context, functionCalls);
+            if (_functionExecutor.NavigationRoute != null)
+                navigationRoute = _functionExecutor.NavigationRoute;
 
             foreach (var call in functionCalls)
             {
@@ -312,7 +315,7 @@ public class LLMService : ILLMService
 
         var metadataResponse = _responseBuilder.BuildSuccessResponse(
             new LLMProviderResponse { Content = responseContent, Usage = totalUsage, Success = true },
-            conversation!.ConversationId, responseContent, allFunctionCalls);
+            conversation!.ConversationId, responseContent, allFunctionCalls, navigationRoute);
 
         yield return SseChunk.Metadata(metadataResponse);
         yield return SseChunk.Done();

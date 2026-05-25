@@ -57,6 +57,33 @@ public class CreateEmployeeSkill : BaseSkillImplementation
         var company = GetParameter<string>(parameters, "company");
         var email = GetParameter<string>(parameters, "email");
         var phone = GetParameter<string>(parameters, "phone");
+        var proceedWithoutContact = GetParameter<bool>(parameters, "proceedWithoutContact", false);
+
+        if (!proceedWithoutContact)
+        {
+            var missing = new List<string>();
+            if (string.IsNullOrWhiteSpace(street) || string.IsNullOrWhiteSpace(zip) || string.IsNullOrWhiteSpace(city))
+            {
+                missing.Add("address (street, zip, city)");
+            }
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                missing.Add("email");
+            }
+            if (string.IsNullOrWhiteSpace(phone))
+            {
+                missing.Add("phone");
+            }
+
+            if (missing.Count > 0)
+            {
+                return SkillResult.Error(
+                    "Cannot create the client yet. The following onboarding data is still missing: " +
+                    string.Join(", ", missing) +
+                    ". Ask the user for each missing item, then call create_employee again with all collected fields. " +
+                    "Only if the user explicitly declines to provide them, call create_employee again with proceedWithoutContact set to true.");
+            }
+        }
 
         var now = DateTime.UtcNow;
 

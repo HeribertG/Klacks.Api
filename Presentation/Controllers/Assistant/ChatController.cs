@@ -7,6 +7,7 @@ using Klacks.Api.Application.Klacksy;
 using Klacks.Api.Application.Klacksy.Models;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -32,6 +33,7 @@ public class ChatController : ControllerBase
     private readonly INavigationTargetMatcher _navMatcher;
     private readonly INavigationTargetCacheService _navCache;
     private readonly INavigationFeedbackLogger _navLogger;
+    private readonly ILLMRepository _llmRepository;
 
     public ChatController(
         ILogger<ChatController> logger,
@@ -43,7 +45,8 @@ public class ChatController : ControllerBase
         IUtteranceNormalizer normalizer,
         INavigationTargetMatcher navMatcher,
         INavigationTargetCacheService navCache,
-        INavigationFeedbackLogger navLogger)
+        INavigationFeedbackLogger navLogger,
+        ILLMRepository llmRepository)
     {
         this._logger = logger;
         _mediator = mediator;
@@ -55,6 +58,18 @@ public class ChatController : ControllerBase
         _navMatcher = navMatcher;
         _navCache = navCache;
         _navLogger = navLogger;
+        _llmRepository = llmRepository;
+    }
+
+    private async Task<bool> IsOngoingConversationAsync(string? conversationId)
+    {
+        if (string.IsNullOrWhiteSpace(conversationId))
+        {
+            return false;
+        }
+
+        var conversation = await _llmRepository.GetConversationByConversationIdAsync(conversationId);
+        return conversation is { MessageCount: > 0 };
     }
 
     [HttpPost]
@@ -81,7 +96,7 @@ public class ChatController : ControllerBase
         var navMatch = _navMatcher.Match(normalized.Normalized, locale, userRights);
         await _navLogger.LogAsync(request.Message, locale, navMatch.TargetId, navMatch.Score, navMatch.Route, currentUserGuid, HttpContext.RequestAborted);
 
-        if (navMatch.IsFastPath)
+        if (navMatch.IsFastPath && !await IsOngoingConversationAsync(request.ConversationId))
         {
             return Ok(new LLMResponse
             {
@@ -153,7 +168,7 @@ public class ChatController : ControllerBase
         var navMatch = _navMatcher.Match(normalized.Normalized, locale, userRights);
         await _navLogger.LogAsync(request.Message, locale, navMatch.TargetId, navMatch.Score, navMatch.Route, currentUserGuid, cancellationToken);
 
-        if (navMatch.IsFastPath)
+        if (navMatch.IsFastPath && !await IsOngoingConversationAsync(request.ConversationId))
         {
             var navMetadata = new SseChunk
             {
