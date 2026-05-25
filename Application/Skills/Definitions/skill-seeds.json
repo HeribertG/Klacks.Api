@@ -990,10 +990,10 @@
         },
         {
           "name": "country",
-          "description": "Country name (e.g. Schweiz, Deutschland)",
+          "description": "ISO 3166-1 alpha-2 country code in upper case (e.g. CH for Switzerland/Schweiz, DE for Germany/Deutschland, FR, IT, AT). Convert any country name the user gives into its ISO code. Defaults to CH when omitted.",
           "type": "String",
           "required": false,
-          "defaultValue": "Schweiz",
+          "defaultValue": "CH",
           "enumValues": null
         },
         {
@@ -1100,7 +1100,7 @@
           "forza lavoro"
         ]
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "create_user",
@@ -1896,7 +1896,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": false,
+      "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "contract",
@@ -1940,7 +1940,7 @@
           "convenzione"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "list_groups",
@@ -1979,7 +1979,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": false,
+      "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "group",
@@ -2022,7 +2022,7 @@
           "organizzazione"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "lookup_location",

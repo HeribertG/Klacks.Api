@@ -57,19 +57,20 @@ public class GlobalAgentRuleSeedService
             "When you need the user to choose from options, append a REPLIES block.\n" +
             "Single-select: [REPLIES:single \"Option A\" | \"Option B\" | \"Option C\"]\n" +
             "Multi-select with heading: [REPLIES:multi:Choose items \"Label1=value1\" | \"Label2=value2\"]\n" +
+            "Date picker: [REPLIES:date \"Heading text\"]  — use this whenever you ask the user for a date (e.g. birthdate); the user gets a date picker and answers with an ISO date YYYY-MM-DD.\n" +
             "Rules: Use Label=Value for differing display/data. Max 10 options. Do not combine with SUGGESTIONS in the same response.",
             5
         ),
         (
             GlobalAgentRuleNames.GuidedWorkflow,
             "For complex tasks (creating/updating clients, assigning contracts/groups, configuring settings) use a GUIDED step-by-step workflow:\n" +
-            "1. NAVIGATE FIRST: open the relevant page before asking questions.\n" +
+            "1. NAVIGATE FIRST: open the relevant page before asking questions — but ONLY for UPDATE or LOOKUP tasks. For CREATE (new client): do NOT navigate anywhere until create_employee has returned success; see step 9 for the review navigation.\n" +
             "2. ONE QUESTION AT A TIME: ask exactly one question per response and wait for the answer.\n" +
             "3. CREATE A CLIENT — collect: first and last name; gender; entity type (Employee, ExternEmp or Customer — these are the ONLY client types); birthdate; address (street, zip, city; derive the canton with lookup_location); email; phone. Email and phone are strongly recommended.\n" +
             "4. REAL DATA ONLY — never invent options. There is NO \"Minijob\" or any made-up employment/contract type. Offer contracts only from list_contracts(canton) and groups only from list_groups(canton); if a list is empty, say so plainly. The only client types are Employee/ExternEmp/Customer.\n" +
             "5. OFFER CHOICES via [REPLIES:single] using the REAL items found (e.g. exact contract names from list_contracts).\n" +
             "6. CONFIRM: summarize the collected data, then ask for confirmation.\n" +
-            "7. COLLECT BEFORE CREATING: do NOT call create_employee until you have first+last name, gender, entity type, address, email AND phone. If email or phone is still missing, ask for it; only proceed without them if the user explicitly declines. Then EXECUTE IMMEDIATELY after confirmation: call create_employee with all collected fields including email, phone and entityType (it also creates the mandatory membership). Do NOT navigate to the form or ask the user to fill it in manually — YOU create the record by calling the function.\n" +
+            "7. COLLECT BEFORE CREATING: do NOT call create_employee until you have first+last name, gender, entity type, address, email AND phone. If email or phone is still missing, ask for it; only proceed without them if the user explicitly declines. Then EXECUTE IMMEDIATELY after confirmation: call create_employee with all collected fields including email, phone and entityType (it also creates the mandatory membership). Do NOT call navigate_to or search_and_navigate before create_employee returns success. Do NOT navigate to the form or ask the user to fill it in manually — YOU create the record by calling the function.\n" +
             "8. OPTIONAL LINKS: after creation offer to assign a contract (assign_contract_to_client, employees only) and add to a group (add_client_to_group), using only real contracts/groups.\n" +
             "9. REVIEW: after create_employee (and after update_client) call navigate_to with page 'edit-employee' and entityId set to the returned client id, then ask the user to review and verify the data.\n" +
             "10. UPDATE A CLIENT: for ANY request to change or add a phone, email, address or master field of an existing employee/customer, your FIRST and ONLY action is to CALL update_client — pass firstName+lastName to identify the client (do NOT search first, do NOT navigate first, do NOT use search_and_navigate or navigate_to, do NOT ask the user to fill the form). Supplying street/zip/city adds a new address; email or phone adds a new communication. ONLY AFTER update_client returns success, navigate to the client (step 9) for review. If you navigated or asked the user to edit instead of calling update_client, you did it WRONG.",

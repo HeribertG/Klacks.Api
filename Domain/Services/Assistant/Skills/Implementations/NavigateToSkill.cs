@@ -37,6 +37,15 @@ public class NavigateToSkill : BaseSkillImplementation
         var entityId = GetParameter<string>(parameters, "entityId");
         var tab = GetParameter<string>(parameters, "tab");
 
+        if (string.IsNullOrEmpty(entityId)
+            && (page.Equals(UiPageKeys.EditEmployee, StringComparison.OrdinalIgnoreCase)
+                || page.Equals(UiPageKeys.EditAddress, StringComparison.OrdinalIgnoreCase)))
+        {
+            return Task.FromResult(SkillResult.Error(
+                "Refusing to open the client editor without a client id — there is nothing to show yet. " +
+                "To create a new client, call create_employee; only navigate here afterwards with the entityId of the created client."));
+        }
+
         var entry = _pageKeyCatalog.GetByPageKey(page);
         if (entry == null)
         {

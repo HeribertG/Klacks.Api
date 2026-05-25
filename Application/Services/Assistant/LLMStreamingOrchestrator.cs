@@ -138,23 +138,32 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         var alwaysOnSkills = permittedSkills.Where(s => s.AlwaysOn).ToList();
 
         var isAdmin = userRights.Contains(Roles.Admin);
-        var retrievalQuery = await BuildRetrievalQueryAsync(userMessage, conversationId, ct);
-        var retrieval = await _knowledgeRetrieval.RetrieveAsync(
-            retrievalQuery, userRights, isAdmin, KnowledgeIndexConstants.DefaultTopK, ct);
 
         List<AgentSkill> retrievedSkills;
-        if (!retrieval.IsEmpty)
+        try
         {
-            var retrievedNames = retrieval.Candidates
-                .Select(c => c.Entry.SourceId)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var retrievalQuery = await BuildRetrievalQueryAsync(userMessage, conversationId, ct);
+            var retrieval = await _knowledgeRetrieval.RetrieveAsync(
+                retrievalQuery, userRights, isAdmin, KnowledgeIndexConstants.DefaultTopK, ct);
 
-            retrievedSkills = permittedSkills
-                .Where(s => !s.AlwaysOn && retrievedNames.Contains(s.Name))
-                .ToList();
+            if (!retrieval.IsEmpty)
+            {
+                var retrievedNames = retrieval.Candidates
+                    .Select(c => c.Entry.SourceId)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                retrievedSkills = permittedSkills
+                    .Where(s => !s.AlwaysOn && retrievedNames.Contains(s.Name))
+                    .ToList();
+            }
+            else
+            {
+                retrievedSkills = [];
+            }
         }
-        else
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            _logger.LogError(ex, "Skill retrieval failed; falling back to always-on skills only");
             retrievedSkills = [];
         }
 

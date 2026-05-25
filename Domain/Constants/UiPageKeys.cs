@@ -15,5 +15,8 @@ public static class UiPageKeys
     public const string SettingsEmail = "settings-email";
     public const string SettingsImap = "settings-imap";
 
+    public const string EditEmployee = "edit-employee";
+    public const string EditAddress = "edit-address";
+
     public const string ListCommand = "list";
 }

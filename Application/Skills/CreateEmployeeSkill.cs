@@ -23,13 +23,19 @@ namespace Klacks.Api.Application.Skills;
 public class CreateEmployeeSkill : BaseSkillImplementation
 {
     private readonly IClientRepository _clientRepository;
+    private readonly IClientSearchRepository _searchRepository;
     private readonly IUnitOfWork _unitOfWork;
+
+    private const string DefaultCountry = "CH";
+    private const string SwissPhonePrefix = "+41";
 
     public CreateEmployeeSkill(
         IClientRepository clientRepository,
+        IClientSearchRepository searchRepository,
         IUnitOfWork unitOfWork)
     {
         _clientRepository = clientRepository;
+        _searchRepository = searchRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -53,7 +59,7 @@ public class CreateEmployeeSkill : BaseSkillImplementation
         var zip = GetParameter<string>(parameters, "zip");
         var city = GetParameter<string>(parameters, "city");
         var state = GetParameter<string>(parameters, "state");
-        var country = GetParameter<string>(parameters, "country", "Schweiz");
+        var country = GetParameter<string>(parameters, "country");
         var company = GetParameter<string>(parameters, "company");
         var email = GetParameter<string>(parameters, "email");
         var phone = GetParameter<string>(parameters, "phone");
@@ -84,6 +90,18 @@ public class CreateEmployeeSkill : BaseSkillImplementation
                     "Only if the user explicitly declines to provide them, call create_employee again with proceedWithoutContact set to true.");
             }
         }
+
+        if (string.IsNullOrWhiteSpace(country))
+        {
+            country = DefaultCountry;
+        }
+
+        if (string.IsNullOrWhiteSpace(state) && !string.IsNullOrWhiteSpace(zip))
+        {
+            state = await _searchRepository.FindStatePostCode(zip!);
+        }
+
+        var (phonePrefix, phoneNumber) = SplitPhone(phone, country);
 
         var now = DateTime.UtcNow;
 
@@ -125,7 +143,7 @@ public class CreateEmployeeSkill : BaseSkillImplementation
                 Zip = zip ?? string.Empty,
                 City = city ?? string.Empty,
                 State = state ?? string.Empty,
-                Country = country ?? "Schweiz",
+                Country = country ?? DefaultCountry,
                 Type = AddressTypeEnum.Employee,
                 ValidFrom = now,
                 CreateTime = now,
@@ -146,14 +164,15 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             });
         }
 
-        if (!string.IsNullOrEmpty(phone))
+        if (!string.IsNullOrEmpty(phoneNumber))
         {
             client.Communications.Add(new Communication
             {
                 Id = Guid.NewGuid(),
                 ClientId = client.Id,
                 Type = CommunicationTypeEnum.PrivateCellPhone,
-                Value = phone,
+                Prefix = phonePrefix,
+                Value = phoneNumber,
                 CreateTime = now,
                 CurrentUserCreated = context.UserName
             });
@@ -185,6 +204,40 @@ public class CreateEmployeeSkill : BaseSkillImplementation
                       ").";
 
         return SkillResult.SuccessResult(resultData, message);
+    }
+
+    private static (string Prefix, string Number) SplitPhone(string? phone, string? country)
+    {
+        if (string.IsNullOrWhiteSpace(phone))
+        {
+            return (string.Empty, string.Empty);
+        }
+
+        var cleaned = new string(phone.Where(ch => char.IsDigit(ch) || ch == '+').ToArray());
+        if (cleaned.StartsWith("00", StringComparison.Ordinal))
+        {
+            cleaned = "+" + cleaned[2..];
+        }
+
+        if (cleaned.StartsWith(SwissPhonePrefix, StringComparison.Ordinal))
+        {
+            return (SwissPhonePrefix, cleaned[SwissPhonePrefix.Length..].TrimStart('0'));
+        }
+
+        if (cleaned.StartsWith('+'))
+        {
+            return (string.Empty, cleaned);
+        }
+
+        var isSwiss = string.IsNullOrWhiteSpace(country)
+            || country.Equals(DefaultCountry, StringComparison.OrdinalIgnoreCase);
+
+        if (isSwiss)
+        {
+            return (SwissPhonePrefix, cleaned.TrimStart('0'));
+        }
+
+        return (string.Empty, cleaned);
     }
 
     private static EntityTypeEnum ParseEntityType(string? value)

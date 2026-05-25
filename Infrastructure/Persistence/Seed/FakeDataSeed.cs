@@ -23,6 +23,10 @@ namespace Klacks.Api.Data.Seed
                 {
                     SeedDynamically(migrationBuilder);
                 }
+
+                migrationBuilder.Sql(
+                    "SELECT setval('public.client_idnumber_seq', " +
+                    "GREATEST((SELECT COALESCE(MAX(id_number), 1) FROM client), 1), true);");
             }
         }
 

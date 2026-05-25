@@ -79,7 +79,13 @@ public class AssignContractByNameSkill : BaseSkillImplementation
 
         if (matches.Count == 0)
         {
-            return SkillResult.Error($"No contract found matching '{contractName}'.");
+            var availableContracts = allContracts.Where(c => !c.IsDeleted).Select(c => c.Name).ToList();
+            var available = availableContracts.Count > 0
+                ? "Available contracts: " + string.Join(", ", availableContracts) + "."
+                : "There are no contracts yet.";
+            return SkillResult.Error(
+                $"No contract found matching '{contractName}'. {available} " +
+                "Offer the user only these real contract names — do not invent contracts.");
         }
 
         if (matches.Count > 1)

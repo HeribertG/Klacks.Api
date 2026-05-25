@@ -25,6 +25,10 @@ public sealed class OnnxEmbeddingProvider : IEmbeddingProvider, IAsyncDisposable
 
     private const int PadTokenId = 1;
 
+    // multilingual-e5-small (XLM-RoBERTa based) supports at most 512 tokens; cap each sequence
+    // to avoid an out-of-bounds position-embedding Gather on long inputs.
+    private const int MaxSequenceLength = 512;
+
     public int Dimension => KnowledgeIndexConstants.EmbeddingDimension;
 
     public OnnxEmbeddingProvider(ModelLoader loader, string modelDirectory)

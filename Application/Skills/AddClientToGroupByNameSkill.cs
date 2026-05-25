@@ -57,7 +57,13 @@ public class AddClientToGroupByNameSkill : BaseSkillImplementation
             g.Name.Contains(groupName, StringComparison.OrdinalIgnoreCase));
         if (group == null)
         {
-            return SkillResult.Error($"Group '{groupName}' not found.");
+            var availableGroups = groups.Where(g => !g.IsDeleted).Select(g => g.Name).ToList();
+            var available = availableGroups.Count > 0
+                ? "Available groups: " + string.Join(", ", availableGroups) + "."
+                : "There are no groups yet.";
+            return SkillResult.Error(
+                $"Group '{groupName}' not found. {available} " +
+                "Offer the user only these real group names — do not invent groups.");
         }
 
         if (client!.GroupItems.Any(gi => gi.GroupId == group.Id && !gi.IsDeleted))

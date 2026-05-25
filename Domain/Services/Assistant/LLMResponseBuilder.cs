@@ -23,7 +23,7 @@ public class LLMResponseBuilder
         RegexOptions.Compiled);
 
     private static readonly Regex RepliesBlockRegex = new(
-        @"\[REPLIES:(single|multi)(?::([^""]*?))?\s+(.*?)\]",
+        @"\[REPLIES:(single|multi|date)(?::([^""]*?))?\s*(.*?)\]",
         RegexOptions.Compiled | RegexOptions.Singleline);
 
     private static readonly Regex RepliesOptionRegex = new(
@@ -116,38 +116,55 @@ public class LLMResponseBuilder
             : null;
         var optionsRaw = match.Groups[3].Value;
 
-        var options = new List<SuggestedReply>();
-        var optionMatches = RepliesOptionRegex.Matches(optionsRaw);
-        foreach (Match om in optionMatches)
-        {
-            var raw = om.Groups[1].Value.Trim();
-            var eqIndex = raw.IndexOf('=');
-            if (eqIndex > 0)
-            {
-                options.Add(new SuggestedReply
-                {
-                    Label = raw[..eqIndex].Trim(),
-                    Value = raw[(eqIndex + 1)..].Trim()
-                });
-            }
-            else
-            {
-                options.Add(new SuggestedReply { Label = raw, Value = raw });
-            }
+        SuggestedRepliesConfig config;
 
-            if (options.Count >= LlmRepliesFormat.MaxOptions)
-                break;
+        if (mode.Equals(LlmRepliesFormat.ModeDate, StringComparison.OrdinalIgnoreCase))
+        {
+            var labelMatch = RepliesOptionRegex.Match(optionsRaw);
+            var datePrompt = labelMatch.Success ? labelMatch.Groups[1].Value.Trim() : null;
+
+            config = new SuggestedRepliesConfig
+            {
+                SelectionMode = SuggestedReplySelectionModes.Date,
+                Prompt = datePrompt,
+                Options = new List<SuggestedReply>()
+            };
         }
-
-        if (options.Count == 0)
-            return (content, null);
-
-        var config = new SuggestedRepliesConfig
+        else
         {
-            SelectionMode = mode,
-            Prompt = prompt,
-            Options = options
-        };
+            var options = new List<SuggestedReply>();
+            var optionMatches = RepliesOptionRegex.Matches(optionsRaw);
+            foreach (Match om in optionMatches)
+            {
+                var raw = om.Groups[1].Value.Trim();
+                var eqIndex = raw.IndexOf('=');
+                if (eqIndex > 0)
+                {
+                    options.Add(new SuggestedReply
+                    {
+                        Label = raw[..eqIndex].Trim(),
+                        Value = raw[(eqIndex + 1)..].Trim()
+                    });
+                }
+                else
+                {
+                    options.Add(new SuggestedReply { Label = raw, Value = raw });
+                }
+
+                if (options.Count >= LlmRepliesFormat.MaxOptions)
+                    break;
+            }
+
+            if (options.Count == 0)
+                return (content, null);
+
+            config = new SuggestedRepliesConfig
+            {
+                SelectionMode = mode,
+                Prompt = prompt,
+                Options = options
+            };
+        }
 
         var cleanedContent = RepliesBlockRegex.Replace(content, string.Empty).TrimEnd();
         return (cleanedContent, config);

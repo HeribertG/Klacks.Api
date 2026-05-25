@@ -7,5 +7,6 @@ public static class LlmRepliesFormat
     public const string BlockPrefix = "[REPLIES:";
     public const string ModeSingle = "single";
     public const string ModeMulti = "multi";
+    public const string ModeDate = "date";
     public const int MaxOptions = 10;
 }

@@ -25,6 +25,10 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IAsyncDisposable
 
     private const long PadTokenId = 1;
 
+    // XLM-RoBERTa position embeddings allow indices [0, 513] with a padding offset of 2,
+    // so each tokenized sequence must be capped at 512 tokens to avoid an out-of-bounds Gather.
+    private const int MaxSequenceLength = 512;
+
     public OnnxRerankerProvider(ModelLoader loader, string modelDirectory)
     {
         _loader = loader;
@@ -38,7 +42,9 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IAsyncDisposable
         await EnsureInitializedAsync(ct);
 
         var pairs = candidates.Select(c => query + " </s></s> " + c).ToArray();
-        var encoded = pairs.Select(p => _tokenizer!.Encode(p).Select(id => (long)id).ToArray()).ToArray();
+        var encoded = pairs
+            .Select(p => _tokenizer!.Encode(p).Select(id => (long)id).Take(MaxSequenceLength).ToArray())
+            .ToArray();
 
         var maxLen = encoded.Max(e => e.Length);
         var batchSize = candidates.Count;
