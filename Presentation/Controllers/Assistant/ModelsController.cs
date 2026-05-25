@@ -81,6 +81,18 @@ public class ModelsController : ControllerBase
         return Ok(new SpeechModelCheckResponse(dtos));
     }
 
+    [HttpPost("optimize-for-klacksy")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+    public async Task<ActionResult<KlacksyModelCheckResponse>> OptimizeForKlacksy(CancellationToken ct)
+    {
+        var response = await _mediator.Send(new OptimizeModelsForKlacksyCommand(), ct);
+        _logger.LogInformation(
+            "Admin {UserId} optimized models for Klacksy; default is {DefaultModelId}",
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+            response.DefaultModelId ?? "(none)");
+        return Ok(response);
+    }
+
     [HttpPost("{modelId}/enable")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<ActionResult> EnableModel(string modelId)
