@@ -5,6 +5,7 @@
 /// </summary>
 using Klacks.Api.Domain.Models.Staffs;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Klacks.Api.Infrastructure.Persistence.Configurations;
@@ -14,8 +15,14 @@ public class ClientConfiguration : IEntityTypeConfiguration<Client>
     public void Configure(EntityTypeBuilder<Client> builder)
     {
         builder.HasQueryFilter(p => !p.IsDeleted);
+
+        // id_number is owned exclusively by the database sequence. EF never writes it on insert
+        // or update (BeforeSaveBehavior.Ignore), so any value carried by the model/POST payload is
+        // discarded and nextval('client_idnumber_seq') always assigns the value, which EF reads back.
         builder.Property(e => e.IdNumber)
-              .HasDefaultValueSql("nextval('public.client_idnumber_seq')");
+              .HasDefaultValueSql("nextval('public.client_idnumber_seq')")
+              .ValueGeneratedOnAdd();
+        builder.Property(e => e.IdNumber).Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
 
         builder.HasIndex(p => new { p.IsDeleted, p.Name, p.FirstName });
         builder.HasIndex(p => new { p.IsDeleted, p.FirstName, p.Name });

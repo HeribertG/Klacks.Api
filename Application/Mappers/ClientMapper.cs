@@ -36,6 +36,7 @@ public partial class ClientMapper
         };
     }
 
+    [MapperIgnoreTarget(nameof(Client.IdNumber))]
     [MapperIgnoreTarget(nameof(Client.CreateTime))]
     [MapperIgnoreTarget(nameof(Client.CurrentUserCreated))]
     [MapperIgnoreTarget(nameof(Client.UpdateTime))]
