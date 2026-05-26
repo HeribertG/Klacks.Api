@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// i18n keys and short pre-translated acknowledgments for deterministic chat
-/// responses emitted by the Klacksy navigate_to fast-path.
+/// i18n keys for deterministic chat responses emitted by the Klacksy navigate_to
+/// fast-path. The frontend resolves them via its translation store.
 /// </summary>
 namespace Klacks.Api.Application.Klacksy.Models;
 
@@ -15,16 +15,9 @@ public static class NavigationResponseKeys
     public const string EmptyUtteranceGreeting = "nav.greeting.empty";
 
     /// <summary>
-    /// Short localized acknowledgment emitted as a content chunk during a Tier-1
-    /// fast-path navigation. Gives the user a visible bot message while the
-    /// router performs the redirect. Falls back to English for unknown locales.
+    /// i18n key for the short acknowledgment emitted as a content chunk during a
+    /// Tier-1 fast-path navigation. The frontend resolves it via its translation
+    /// store, so it is localized for every installed language (no hardcoded text).
     /// </summary>
-    /// <param name="locale">User locale (de/en/fr/it).</param>
-    public static string FastPathAck(string locale) => locale switch
-    {
-        "de" => "Ich öffne die Seite für dich.",
-        "fr" => "J'ouvre la page pour toi.",
-        "it" => "Apro la pagina per te.",
-        _ => "Opening the page for you."
-    };
+    public const string FastPathAck = "nav.ack.fastPath";
 }

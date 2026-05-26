@@ -181,8 +181,7 @@ public class ChatController : ControllerBase
             await Response.WriteAsync($"event: metadata\ndata: {navData}\n\n", cancellationToken);
             await Response.Body.FlushAsync(cancellationToken);
 
-            var ackText = NavigationResponseKeys.FastPathAck(locale);
-            var ackChunk = SseChunk.Content(ackText);
+            var ackChunk = SseChunk.Content(NavigationResponseKeys.FastPathAck);
             var ackData = System.Text.Json.JsonSerializer.Serialize(ackChunk, jsonOptions);
             await Response.WriteAsync($"event: content\ndata: {ackData}\n\n", cancellationToken);
 
