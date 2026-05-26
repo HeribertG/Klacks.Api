@@ -55,7 +55,14 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             return SkillResult.Error($"Invalid gender value: {genderStr}");
         }
 
-        var entityType = ParseEntityType(GetParameter<string>(parameters, "entityType"));
+        var entityTypeStr = GetParameter<string>(parameters, "entityType");
+        var entityType = EntityTypeEnum.Employee;
+        if (!string.IsNullOrWhiteSpace(entityTypeStr)
+            && !Enum.TryParse(entityTypeStr, true, out entityType))
+        {
+            return SkillResult.Error(
+                $"Invalid entityType value: {entityTypeStr}. Valid values: Employee, ExternEmp, Customer.");
+        }
         var birthdate = GetParameter<string>(parameters, "birthdate");
         var street = GetParameter<string>(parameters, "street");
         var zip = GetParameter<string>(parameters, "zip");
@@ -241,18 +248,4 @@ public class CreateEmployeeSkill : BaseSkillImplementation
         return (string.Empty, cleaned);
     }
 
-    private static EntityTypeEnum ParseEntityType(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return EntityTypeEnum.Employee;
-        }
-
-        return value.Trim().ToLowerInvariant() switch
-        {
-            "customer" or "kunde" or "kunden" or "client" or "2" => EntityTypeEnum.Customer,
-            "externemp" or "extern" or "external" or "externer mitarbeiter" or "externer" or "1" => EntityTypeEnum.ExternEmp,
-            _ => EntityTypeEnum.Employee
-        };
-    }
 }

@@ -42,16 +42,7 @@ public class UpdateClientGenderSkill : BaseSkillImplementation
         var lastName = GetRequiredString(parameters, "lastName");
         var genderStr = GetRequiredString(parameters, "gender");
 
-        var gender = genderStr.ToLowerInvariant() switch
-        {
-            "female" or "frau" or "weiblich" or "w" or "f" => GenderEnum.Female,
-            "male" or "mann" or "männlich" or "m" => GenderEnum.Male,
-            "legalentity" or "legal_entity" or "firma" or "unternehmen" or "l" => GenderEnum.LegalEntity,
-            "intersexuality" or "intersex" or "divers" or "d" => GenderEnum.Intersexuality,
-            _ => (GenderEnum?)null
-        };
-
-        if (gender == null)
+        if (!Enum.TryParse<GenderEnum>(genderStr, true, out var gender))
         {
             return SkillResult.Error($"Unknown gender value '{genderStr}'. Valid values: female, male, legalEntity, intersexuality.");
         }
@@ -64,7 +55,7 @@ public class UpdateClientGenderSkill : BaseSkillImplementation
         }
 
         var now = DateTime.UtcNow;
-        client!.Gender = gender.Value;
+        client!.Gender = gender;
         client.UpdateTime = now;
         client.CurrentUserUpdated = context.UserName;
 
