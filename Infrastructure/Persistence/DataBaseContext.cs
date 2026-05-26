@@ -195,6 +195,9 @@ public class DataBaseContext : IdentityDbContext
     // Skill Synonym DbSet
     public DbSet<SkillSynonym> SkillSynonyms { get; set; }
 
+    // Navigation Target Synonym DbSet
+    public DbSet<NavigationTargetSynonym> NavigationTargetSynonyms { get; set; }
+
     // Skill Gap Detection DbSet
     public DbSet<SkillGapRecord> SkillGapRecords { get; set; }
 

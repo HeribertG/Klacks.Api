@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Installs and uninstalls content-related data (docs, skill synonyms, sentiment keywords, translations)
+/// Installs and uninstalls content-related data (docs, skill synonyms, navigation synonyms, sentiment keywords, translations)
 /// for language plugins.
 /// </summary>
 /// <param name="pluginDirectory">Base directory of the language plugins</param>
@@ -12,6 +12,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -224,15 +225,77 @@ public class LanguagePluginContentInstaller
         return Task.CompletedTask;
     }
 
-    public Task InstallNavigationTargetsAsync(string code)
+    public async Task InstallNavigationSynonymsAsync(IServiceScope scope, string code)
     {
         var navTargetsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.NavigationTargetsFileName);
-        if (File.Exists(navTargetsPath))
-            _logger.LogInformation("Navigation-targets file registered for language plugin '{Code}'", code);
-        else
-            _logger.LogDebug("No navigation-targets file for language plugin '{Code}'", code);
+        if (!File.Exists(navTargetsPath))
+            return;
 
-        return Task.CompletedTask;
+        try
+        {
+            var json = File.ReadAllText(navTargetsPath);
+            var overlay = JsonSerializer.Deserialize<Dictionary<string, PluginNavigationEntry>>(json, JsonOptions);
+            if (overlay == null || overlay.Count == 0)
+                return;
+
+            var synonymRepo = scope.ServiceProvider.GetRequiredService<INavigationTargetSynonymRepository>();
+            var count = 0;
+
+            foreach (var (targetId, entry) in overlay)
+            {
+                if (entry.Synonyms == null || entry.Synonyms.Length == 0)
+                    continue;
+
+                await synonymRepo.ReplaceForTargetLanguageAsync(targetId, code, entry.Synonyms);
+                count++;
+            }
+
+            _logger.LogInformation(
+                "Installed navigation synonyms for language plugin '{Code}': {Count} target(s) updated",
+                code, count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to install navigation synonyms for language plugin '{Code}'", code);
+        }
+    }
+
+    public async Task UninstallNavigationSynonymsAsync(IServiceScope scope, string code)
+    {
+        var navTargetsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.NavigationTargetsFileName);
+        if (!File.Exists(navTargetsPath))
+            return;
+
+        try
+        {
+            var json = File.ReadAllText(navTargetsPath);
+            var overlay = JsonSerializer.Deserialize<Dictionary<string, PluginNavigationEntry>>(json, JsonOptions);
+            if (overlay == null || overlay.Count == 0)
+                return;
+
+            var synonymRepo = scope.ServiceProvider.GetRequiredService<INavigationTargetSynonymRepository>();
+            var count = 0;
+
+            foreach (var targetId in overlay.Keys)
+            {
+                await synonymRepo.ReplaceForTargetLanguageAsync(targetId, code, []);
+                count++;
+            }
+
+            _logger.LogInformation(
+                "Uninstalled navigation synonyms for language plugin '{Code}': {Count} target(s) cleared",
+                code, count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to uninstall navigation synonyms for language plugin '{Code}'", code);
+        }
+    }
+
+    private sealed class PluginNavigationEntry
+    {
+        public string[] Synonyms { get; set; } = [];
+        public string Status { get; set; } = "generated";
     }
 
     public async Task MergeNonCoreTranslationsAsync(IServiceScope scope, string code)

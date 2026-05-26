@@ -4,11 +4,15 @@ namespace Klacks.Api.Application.Klacksy;
 
 using System.Text.Json;
 using Klacks.Api.Application.Klacksy.Models;
+using Klacks.Api.Domain.Interfaces.Assistant;
 
 /// <summary>
-/// Singleton cache for navigation targets. Loads core manifest + plugin locale overlays at startup.
+/// Singleton cache for navigation targets. Loads target metadata from the core manifest (JSON SSOT)
+/// and synonyms from the database via INavigationTargetSynonymRepository.
 /// TTL 5 min analogous to SkillCacheService. Lookup by targetId or synonym+locale.
 /// </summary>
+/// <param name="coreManifestPath">Absolute path to the navigation-targets.json file</param>
+/// <param name="scopeFactory">Factory for creating DI scopes when querying the scoped synonym repository</param>
 public sealed class NavigationTargetCacheService : INavigationTargetCacheService
 {
     private sealed record CacheSnapshot(
@@ -21,15 +25,14 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
     private static readonly TimeSpan Ttl = TimeSpan.FromMinutes(5);
 
     private readonly string _coreManifestPath;
-    private readonly string? _pluginFolder;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly object _lock = new();
     private volatile CacheSnapshot _snapshot = EmptySnapshot;
 
-    public NavigationTargetCacheService(string coreManifestPath, string? pluginFolder)
+    public NavigationTargetCacheService(string coreManifestPath, IServiceScopeFactory scopeFactory)
     {
         _coreManifestPath = coreManifestPath;
-        _pluginFolder = pluginFolder;
-        Reload();
+        _scopeFactory = scopeFactory;
     }
 
     public IReadOnlyList<NavigationTarget> All
@@ -91,11 +94,11 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
         lock (_lock)
         {
             if (DateTime.UtcNow - _snapshot.LoadedAt < Ttl) return;
-            Reload();
+            ReloadAsync().GetAwaiter().GetResult();
         }
     }
 
-    private void Reload()
+    private async Task ReloadAsync()
     {
         if (!File.Exists(_coreManifestPath))
         {
@@ -106,28 +109,27 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
         var json = File.ReadAllText(_coreManifestPath);
         var targets = JsonSerializer.Deserialize<List<NavigationTarget>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
 
-        if (_pluginFolder != null && Directory.Exists(_pluginFolder))
-            LoadPluginOverlays(targets);
+        using var scope = _scopeFactory.CreateScope();
+        var synonymRepo = scope.ServiceProvider.GetRequiredService<INavigationTargetSynonymRepository>();
+        var allSynonyms = await synonymRepo.GetAllAsync();
+
+        foreach (var target in targets)
+        {
+            target.Synonyms = new Dictionary<string, string[]>();
+        }
+
+        var byTargetId = targets.ToDictionary(t => t.TargetId);
+
+        foreach (var group in allSynonyms.GroupBy(s => new { s.TargetId, s.Language }))
+        {
+            if (!byTargetId.TryGetValue(group.Key.TargetId, out var target))
+                continue;
+
+            target.Synonyms[group.Key.Language] = group.Select(s => s.Keyword).ToArray();
+        }
 
         var filtered = targets.Where(t => !t.Obsolete).ToList();
         _snapshot = new(filtered, filtered.ToDictionary(t => t.TargetId), BuildSynonymIndex(filtered), DateTime.UtcNow);
-    }
-
-    private void LoadPluginOverlays(List<NavigationTarget> targets)
-    {
-        foreach (var dir in Directory.EnumerateDirectories(_pluginFolder!))
-        {
-            var locale = Path.GetFileName(dir);
-            var file = Path.Combine(dir, "navigation-targets.json");
-            if (!File.Exists(file)) continue;
-            var overlay = JsonSerializer.Deserialize<Dictionary<string, PluginOverlayEntry>>(File.ReadAllText(file)) ?? new();
-            foreach (var (targetId, entry) in overlay)
-            {
-                var t = targets.FirstOrDefault(x => x.TargetId == targetId);
-                if (t == null) continue;
-                t.Synonyms[locale] = entry.Synonyms;
-            }
-        }
     }
 
     private static Dictionary<string, Dictionary<string, List<NavigationTarget>>> BuildSynonymIndex(List<NavigationTarget> targets)
@@ -148,11 +150,5 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
         }
 
         return index;
-    }
-
-    private sealed class PluginOverlayEntry
-    {
-        public string[] Synonyms { get; set; } = Array.Empty<string>();
-        public string Status { get; set; } = "generated";
     }
 }

@@ -188,9 +188,9 @@ public class LanguagePluginService : ILanguagePluginService
         await _geoDataInstaller.InstallGeoDataAsync(scope, code);
         await _contentInstaller.InstallDocsAsync(scope, code);
         await _contentInstaller.InstallSkillSynonymsAsync(scope, code);
+        await _contentInstaller.InstallNavigationSynonymsAsync(scope, code);
         await _contentInstaller.InstallSentimentKeywordsAsync(scope, code);
         await _contentInstaller.InstallWakeWordsAsync(code);
-        await _contentInstaller.InstallNavigationTargetsAsync(code);
         await unitOfWork.CompleteAsync();
         await _contentInstaller.MergeNonCoreTranslationsAsync(scope, code);
 
@@ -215,6 +215,7 @@ public class LanguagePluginService : ILanguagePluginService
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
         await _contentInstaller.UninstallSkillSynonymsAsync(scope, code);
+        await _contentInstaller.UninstallNavigationSynonymsAsync(scope, code);
         await _contentInstaller.UninstallSentimentKeywordsAsync(scope, code);
         await _geoDataInstaller.UninstallGeoDataAsync(scope, code);
         await _contentInstaller.UninstallDocsAsync(scope, code);

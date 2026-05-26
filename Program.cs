@@ -195,8 +195,8 @@ builder.Services.AddSingleton<INavigationTargetCacheService>(sp =>
 {
     var baseDir = AppContext.BaseDirectory;
     var manifest = Path.Combine(baseDir, "Application", "Skills", "Definitions", "navigation-targets.json");
-    var plugins = Path.Combine(baseDir, "Plugins", "Languages");
-    return new NavigationTargetCacheService(manifest, Directory.Exists(plugins) ? plugins : null);
+    var scopeFactory = sp.GetRequiredService<IServiceScopeFactory>();
+    return new NavigationTargetCacheService(manifest, scopeFactory);
 });
 builder.Services.AddSingleton<IKlacksyPageKeyCatalog>(sp =>
 {
@@ -425,7 +425,8 @@ await Task.WhenAll(
     app.SeedUiControlsAsync(),
     app.SeedEmailFoldersAsync(),
     app.SeedSentimentKeywordsAsync(),
-    app.SeedKlacksyKnowledgeMemoriesAsync());
+    app.SeedKlacksyKnowledgeMemoriesAsync(),
+    app.SeedNavigationTargetSynonymsAsync());
 
 // Skill Registry depends on LoadSkillSeeds being complete
 await app.InitializeSkillRegistryAsync();
