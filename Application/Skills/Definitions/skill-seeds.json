@@ -8988,7 +8988,7 @@
         },
         {
           "name": "weekdays",
-          "description": "Which days the shift is active. Use 'all' or '24/7' for every day, 'weekdays' for Mon-Fri, 'weekend' for Sat-Sun, or specific days like 'Mo,Di,Mi,Do,Fr,Sa,So'",
+          "description": "Which days the shift is active. Use the keyword 'all' (every day), 'weekdays' (Mon-Fri) or 'weekend' (Sat-Sun); or a comma-separated list of canonical English day tokens: Mon,Tue,Wed,Thu,Fri,Sat,Sun. Map any language the user uses to these canonical tokens.",
           "type": "String",
           "required": false,
           "defaultValue": "all",
@@ -9071,7 +9071,7 @@
           "orario"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "create_test_environment",
