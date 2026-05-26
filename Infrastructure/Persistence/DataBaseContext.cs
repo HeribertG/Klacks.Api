@@ -192,9 +192,6 @@ public class DataBaseContext : IdentityDbContext
     // UI Control Registry DbSet
     public DbSet<UiControl> UiControls { get; set; }
 
-    // Skill Synonym DbSet
-    public DbSet<SkillSynonym> SkillSynonyms { get; set; }
-
     // Navigation Target Synonym DbSet
     public DbSet<NavigationTargetSynonym> NavigationTargetSynonyms { get; set; }
 
