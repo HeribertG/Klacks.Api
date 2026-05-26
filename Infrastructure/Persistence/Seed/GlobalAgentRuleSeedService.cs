@@ -75,6 +75,11 @@ public class GlobalAgentRuleSeedService
             "9. REVIEW: after create_employee (and after update_client) call navigate_to with page 'edit-employee' and entityId set to the returned client id, then ask the user to review and verify the data.\n" +
             "10. UPDATE A CLIENT: for ANY request to change or add a phone, email, address or master field of an existing employee/customer, your FIRST and ONLY action is to CALL update_client — pass firstName+lastName to identify the client (do NOT search first, do NOT navigate first, do NOT use search_and_navigate or navigate_to, do NOT ask the user to fill the form). Supplying street/zip/city adds a new address; email or phone adds a new communication. ONLY AFTER update_client returns success, navigate to the client (step 9) for review. If you navigated or asked the user to edit instead of calling update_client, you did it WRONG.",
             6
+        ),
+        (
+            "ADDRESS_VERSIONING",
+            "Addresses are historized, never overwritten: when a client's address actually changes (e.g. a move), create a NEW address record instead of editing the existing one — the previous address stays as history. Always set valid_from (the date the new address becomes effective) and the correct type (Employee, Workplace or InvoicingAddress). Validate every new or changed address with the validate_address function before saving. Only edit an existing address in place to correct a mistake in that same address (e.g. a typo), not for a real change of residence.",
+            7
         )
     ];
 
