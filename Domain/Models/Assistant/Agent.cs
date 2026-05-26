@@ -16,10 +16,6 @@ public class Agent : BaseEntity
 
     public bool IsDefault { get; set; }
 
-    public Guid? TemplateId { get; set; }
-
-    public virtual AgentTemplate? Template { get; set; }
-
     public virtual ICollection<AgentSoulSection> SoulSections { get; set; } = new List<AgentSoulSection>();
 
     public virtual ICollection<AgentMemory> Memories { get; set; } = new List<AgentMemory>();

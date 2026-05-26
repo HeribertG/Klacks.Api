@@ -172,8 +172,6 @@ public class DataBaseContext : IdentityDbContext
 
     // Agent Architecture DbSets
     public DbSet<Agent> Agents { get; set; }
-    public DbSet<AgentTemplate> AgentTemplates { get; set; }
-    public DbSet<AgentLink> AgentLinks { get; set; }
     public DbSet<AgentSoulSection> AgentSoulSections { get; set; }
     public DbSet<AgentSoulHistory> AgentSoulHistories { get; set; }
     public DbSet<AgentMemory> AgentMemories { get; set; }
