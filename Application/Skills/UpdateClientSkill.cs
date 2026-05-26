@@ -21,6 +21,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -35,17 +36,20 @@ public class UpdateClientSkill : BaseSkillImplementation
     private readonly IClientSearchRepository _searchRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<UpdateClientSkill> _logger;
+    private readonly ICountryResolver _countryResolver;
 
     public UpdateClientSkill(
         IClientRepository clientRepository,
         IClientSearchRepository searchRepository,
         IUnitOfWork unitOfWork,
-        ILogger<UpdateClientSkill> logger)
+        ILogger<UpdateClientSkill> logger,
+        ICountryResolver countryResolver)
     {
         _clientRepository = clientRepository;
         _searchRepository = searchRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
+        _countryResolver = countryResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -122,9 +126,13 @@ public class UpdateClientSkill : BaseSkillImplementation
         var zip = GetParameter<string>(parameters, "zip");
         var city = GetParameter<string>(parameters, "city");
         var stateParam = GetParameter<string>(parameters, "state");
-        var country = GetParameter<string>(parameters, "country");
+        var countryInput = GetParameter<string>(parameters, "country");
         if (!string.IsNullOrWhiteSpace(street) || !string.IsNullOrWhiteSpace(zip) || !string.IsNullOrWhiteSpace(city))
         {
+            var resolvedCountry = await _countryResolver.ResolveAsync(countryInput, cancellationToken)
+                ?? await _countryResolver.GetDefaultAsync(cancellationToken);
+            var countryCode = resolvedCountry?.Abbreviation ?? string.Empty;
+
             client.Addresses.Add(new Address
             {
                 Id = Guid.NewGuid(),
@@ -133,7 +141,7 @@ public class UpdateClientSkill : BaseSkillImplementation
                 Zip = zip ?? string.Empty,
                 City = city ?? string.Empty,
                 State = stateParam ?? string.Empty,
-                Country = string.IsNullOrWhiteSpace(country) ? "Schweiz" : country,
+                Country = countryCode,
                 Type = client.Type == EntityTypeEnum.Customer ? AddressTypeEnum.Workplace : AddressTypeEnum.Employee,
                 ValidFrom = now,
                 CreateTime = now,

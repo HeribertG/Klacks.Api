@@ -9,6 +9,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -17,17 +18,18 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("list_contracts")]
 public class ListContractsSkill : BaseSkillImplementation
 {
-    private const string DefaultCountry = "CH";
-
     private readonly IContractRepository _contractRepository;
     private readonly ICalendarSelectionRepository _calendarSelectionRepository;
+    private readonly ICountryResolver _countryResolver;
 
     public ListContractsSkill(
         IContractRepository contractRepository,
-        ICalendarSelectionRepository calendarSelectionRepository)
+        ICalendarSelectionRepository calendarSelectionRepository,
+        ICountryResolver countryResolver)
     {
         _contractRepository = contractRepository;
         _calendarSelectionRepository = calendarSelectionRepository;
+        _countryResolver = countryResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -47,8 +49,11 @@ public class ListContractsSkill : BaseSkillImplementation
 
         if (!string.IsNullOrWhiteSpace(canton))
         {
+            var defaultCountry = await _countryResolver.GetDefaultAsync(cancellationToken);
+            var countryCode = defaultCountry?.Abbreviation ?? string.Empty;
+
             var calendarSelectionIds = await _calendarSelectionRepository
-                .GetIdsByStateAsync(DefaultCountry, canton.Trim().ToUpperInvariant(), cancellationToken);
+                .GetIdsByStateAsync(countryCode, canton.Trim().ToUpperInvariant(), cancellationToken);
 
             if (calendarSelectionIds.Count > 0)
             {

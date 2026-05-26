@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -19,10 +20,12 @@ public class ValidateAddressSkill : BaseSkillImplementation
     private static readonly Regex PostalCodePattern = new(@"\b(\d{4,5})\b", RegexOptions.Compiled);
 
     private readonly IGeocodingService _geocodingService;
+    private readonly ICountryResolver _countryResolver;
 
-    public ValidateAddressSkill(IGeocodingService geocodingService)
+    public ValidateAddressSkill(IGeocodingService geocodingService, ICountryResolver countryResolver)
     {
         _geocodingService = geocodingService;
+        _countryResolver = countryResolver;
     }
 
     private static string? ResolvePostalCode(Dictionary<string, object> parameters)
@@ -85,7 +88,7 @@ public class ValidateAddressSkill : BaseSkillImplementation
     {
         var street = GetParameter<string>(parameters, "street");
         var city = GetParameter<string>(parameters, "city");
-        var country = GetParameter<string>(parameters, "country", "Schweiz");
+        var countryInput = GetParameter<string>(parameters, "country");
         var postalCode = ResolvePostalCode(parameters);
 
         (postalCode, city) = RecoverPostalCodeAndCity(postalCode, city, street);
@@ -106,13 +109,26 @@ public class ValidateAddressSkill : BaseSkillImplementation
             };
         }
 
+        var resolvedCountry = await _countryResolver.ResolveAsync(countryInput, cancellationToken)
+            ?? await _countryResolver.GetDefaultAsync(cancellationToken);
+
+        // Nominatim uses country= as a free-text name; passing the German name (e.g. "Schweiz")
+        // is more reliable than the ISO code ("CH") for that parameter. Fall back to abbreviation
+        // if no name is stored.
+        var geocodingCountry = resolvedCountry?.Name.De
+            ?? resolvedCountry?.Name.En
+            ?? resolvedCountry?.Abbreviation
+            ?? string.Empty;
+
+        var countryDisplayCode = resolvedCountry?.Abbreviation ?? countryInput ?? string.Empty;
+
         var fullAddress = string.IsNullOrEmpty(street)
             ? $"{postalCode} {city}"
             : $"{street}, {postalCode} {city}";
 
         try
         {
-            var validation = await _geocodingService.ValidateExactAddressAsync(street, postalCode, city, country ?? "Schweiz");
+            var validation = await _geocodingService.ValidateExactAddressAsync(street, postalCode, city, geocodingCountry);
             var state = validation.State;
 
             var zipInfo = state != null
@@ -174,7 +190,7 @@ public class ValidateAddressSkill : BaseSkillImplementation
                     State = state,
                     Zip = postalCode,
                     City = city,
-                    Country = country,
+                    Country = countryDisplayCode,
                     MatchType = validation.MatchType
                 },
                 $"Address validated successfully. Exact match found: '{validation.ReturnedAddress}'. State: {state}");

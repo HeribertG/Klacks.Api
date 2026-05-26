@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Authentification;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Staffs;
 
 namespace Klacks.Api.Application.Services.Identity;
@@ -12,20 +13,24 @@ namespace Klacks.Api.Application.Services.Identity;
 /// </summary>
 /// <param name="_addressRepository">Repository for address CRUD operations</param>
 /// <param name="_settingsRepository">Repository for loading the owner address defaults</param>
+/// <param name="_countryResolver">Resolver for looking up the configured default country</param>
 /// <param name="_logger">Logger for diagnostic information</param>
 public class ClientAddressService : IClientAddressService
 {
     private readonly IAddressRepository _addressRepository;
     private readonly ISettingsRepository _settingsRepository;
+    private readonly ICountryResolver _countryResolver;
     private readonly ILogger<ClientAddressService> _logger;
 
     public ClientAddressService(
         IAddressRepository addressRepository,
         ISettingsRepository settingsRepository,
+        ICountryResolver countryResolver,
         ILogger<ClientAddressService> logger)
     {
         _addressRepository = addressRepository;
         _settingsRepository = settingsRepository;
+        _countryResolver = countryResolver;
         _logger = logger;
     }
 
@@ -74,7 +79,9 @@ public class ClientAddressService : IClientAddressService
         var zipSetting = await _settingsRepository.GetSetting("APP_ADDRESS_ZIP");
         var placeSetting = await _settingsRepository.GetSetting("APP_ADDRESS_PLACE");
         var stateSetting = await _settingsRepository.GetSetting("APP_ADDRESS_STATE");
-        var countrySetting = await _settingsRepository.GetSetting("APP_ADDRESS_COUNTRY");
+
+        var defaultCountry = await _countryResolver.GetDefaultAsync();
+        var countryCode = defaultCountry?.Abbreviation ?? string.Empty;
 
         return new Address
         {
@@ -85,7 +92,7 @@ public class ClientAddressService : IClientAddressService
             Zip = zipSetting?.Value ?? string.Empty,
             City = placeSetting?.Value ?? string.Empty,
             State = stateSetting?.Value ?? string.Empty,
-            Country = countrySetting?.Value ?? "CH",
+            Country = countryCode,
             ValidFrom = DateTime.UtcNow,
             AddressLine1 = string.Empty,
             AddressLine2 = string.Empty,
@@ -116,13 +123,15 @@ public class ClientAddressService : IClientAddressService
         var zipSetting = await _settingsRepository.GetSetting("APP_ADDRESS_ZIP");
         var placeSetting = await _settingsRepository.GetSetting("APP_ADDRESS_PLACE");
         var stateSetting = await _settingsRepository.GetSetting("APP_ADDRESS_STATE");
-        var countrySetting = await _settingsRepository.GetSetting("APP_ADDRESS_COUNTRY");
+
+        var defaultCountry = await _countryResolver.GetDefaultAsync();
+        var defaultCountryCode = defaultCountry?.Abbreviation ?? string.Empty;
 
         var street = ldapUser.StreetAddress ?? streetSetting?.Value ?? "Unbekannt";
         var zip = ldapUser.PostalCode ?? zipSetting?.Value ?? "0000";
         var city = ldapUser.City ?? placeSetting?.Value ?? "Unbekannt";
         var state = ldapUser.State ?? stateSetting?.Value ?? "ZH";
-        var country = ldapUser.Country ?? countrySetting?.Value ?? "CH";
+        var country = ldapUser.Country ?? defaultCountryCode;
 
         return (street, zip, city, state, country);
     }

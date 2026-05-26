@@ -12,8 +12,10 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -25,18 +27,18 @@ public class CreateEmployeeSkill : BaseSkillImplementation
     private readonly IClientRepository _clientRepository;
     private readonly IClientSearchRepository _searchRepository;
     private readonly IUnitOfWork _unitOfWork;
-
-    private const string DefaultCountry = "CH";
-    private const string SwissPhonePrefix = "+41";
+    private readonly ICountryResolver _countryResolver;
 
     public CreateEmployeeSkill(
         IClientRepository clientRepository,
         IClientSearchRepository searchRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICountryResolver countryResolver)
     {
         _clientRepository = clientRepository;
         _searchRepository = searchRepository;
         _unitOfWork = unitOfWork;
+        _countryResolver = countryResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -59,7 +61,7 @@ public class CreateEmployeeSkill : BaseSkillImplementation
         var zip = GetParameter<string>(parameters, "zip");
         var city = GetParameter<string>(parameters, "city");
         var state = GetParameter<string>(parameters, "state");
-        var country = GetParameter<string>(parameters, "country");
+        var countryInput = GetParameter<string>(parameters, "country");
         var company = GetParameter<string>(parameters, "company");
         var email = GetParameter<string>(parameters, "email");
         var phone = GetParameter<string>(parameters, "phone");
@@ -91,17 +93,17 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             }
         }
 
-        if (string.IsNullOrWhiteSpace(country))
-        {
-            country = DefaultCountry;
-        }
+        var resolvedCountry = await _countryResolver.ResolveAsync(countryInput, cancellationToken)
+            ?? await _countryResolver.GetDefaultAsync(cancellationToken);
+
+        var countryCode = resolvedCountry?.Abbreviation ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(state) && !string.IsNullOrWhiteSpace(zip))
         {
             state = await _searchRepository.FindStatePostCode(zip!);
         }
 
-        var (phonePrefix, phoneNumber) = SplitPhone(phone, country);
+        var (phonePrefix, phoneNumber) = SplitPhone(phone, resolvedCountry);
 
         var now = DateTime.UtcNow;
 
@@ -143,7 +145,7 @@ public class CreateEmployeeSkill : BaseSkillImplementation
                 Zip = zip ?? string.Empty,
                 City = city ?? string.Empty,
                 State = state ?? string.Empty,
-                Country = country ?? DefaultCountry,
+                Country = countryCode,
                 Type = AddressTypeEnum.Employee,
                 ValidFrom = now,
                 CreateTime = now,
@@ -193,7 +195,7 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             HasPhone = !string.IsNullOrEmpty(phone),
             State = state,
             City = city,
-            Country = country
+            Country = countryCode
         };
 
         var message = $"{entityType} {firstName} {lastName}" +
@@ -206,7 +208,7 @@ public class CreateEmployeeSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(resultData, message);
     }
 
-    private static (string Prefix, string Number) SplitPhone(string? phone, string? country)
+    private static (string Prefix, string Number) SplitPhone(string? phone, Countries? country)
     {
         if (string.IsNullOrWhiteSpace(phone))
         {
@@ -219,9 +221,11 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             cleaned = "+" + cleaned[2..];
         }
 
-        if (cleaned.StartsWith(SwissPhonePrefix, StringComparison.Ordinal))
+        var prefix = country?.Prefix ?? string.Empty;
+
+        if (!string.IsNullOrEmpty(prefix) && cleaned.StartsWith(prefix, StringComparison.Ordinal))
         {
-            return (SwissPhonePrefix, cleaned[SwissPhonePrefix.Length..].TrimStart('0'));
+            return (prefix, cleaned[prefix.Length..].TrimStart('0'));
         }
 
         if (cleaned.StartsWith('+'))
@@ -229,12 +233,9 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             return (string.Empty, cleaned);
         }
 
-        var isSwiss = string.IsNullOrWhiteSpace(country)
-            || country.Equals(DefaultCountry, StringComparison.OrdinalIgnoreCase);
-
-        if (isSwiss)
+        if (!string.IsNullOrEmpty(prefix))
         {
-            return (SwissPhonePrefix, cleaned.TrimStart('0'));
+            return (prefix, cleaned.TrimStart('0'));
         }
 
         return (string.Empty, cleaned);

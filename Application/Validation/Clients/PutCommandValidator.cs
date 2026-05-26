@@ -5,18 +5,19 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Services.Common;
 
 namespace Klacks.Api.Application.Validation.Clients;
 
 public class PutCommandValidator : AbstractValidator<PutCommand<ClientResource>>
 {
-    public PutCommandValidator(IGeocodingService geocodingService, StateAbbreviationResolver stateResolver)
+    public PutCommandValidator(IGeocodingService geocodingService, StateAbbreviationResolver stateResolver, ICountryResolver countryResolver)
     {
         When(x => !x.Resource.SkipAddressValidation, () =>
         {
             RuleFor(x => x.Resource.Addresses)
-                .SetValidator(new AddressGeocodingValidator(geocodingService, stateResolver));
+                .SetValidator(new AddressGeocodingValidator(geocodingService, stateResolver, countryResolver));
         });
 
         When(x => x.Resource.LegalEntity, () =>

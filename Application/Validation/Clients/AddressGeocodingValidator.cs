@@ -9,6 +9,7 @@
 using FluentValidation;
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Services.Common;
 
 namespace Klacks.Api.Application.Validation.Clients;
@@ -17,11 +18,13 @@ public class AddressGeocodingValidator : AbstractValidator<ICollection<AddressRe
 {
     private readonly IGeocodingService _geocodingService;
     private readonly StateAbbreviationResolver _stateResolver;
+    private readonly ICountryResolver _countryResolver;
 
-    public AddressGeocodingValidator(IGeocodingService geocodingService, StateAbbreviationResolver stateResolver)
+    public AddressGeocodingValidator(IGeocodingService geocodingService, StateAbbreviationResolver stateResolver, ICountryResolver countryResolver)
     {
         _geocodingService = geocodingService;
         _stateResolver = stateResolver;
+        _countryResolver = countryResolver;
 
         Console.WriteLine("[AddressGeocodingValidator] CONSTRUCTOR called");
 
@@ -42,12 +45,21 @@ public class AddressGeocodingValidator : AbstractValidator<ICollection<AddressRe
             return true;
         }
 
-        var country = string.IsNullOrWhiteSpace(address.Country) ? "CH" : address.Country;
+        // Resolve country: prefer the address's stored country code; fall back to the
+        // configured default. Pass the German name to Nominatim's country= parameter —
+        // Nominatim treats country= as free-text, not as an ISO code (ISO goes to countrycodes=).
+        var resolvedCountry = await _countryResolver.ResolveAsync(address.Country, cancellationToken)
+            ?? await _countryResolver.GetDefaultAsync(cancellationToken);
+
+        var geocodingCountry = resolvedCountry?.Name.De
+            ?? resolvedCountry?.Name.En
+            ?? resolvedCountry?.Abbreviation
+            ?? string.Empty;
 
         try
         {
             var result = await _geocodingService.ValidateExactAddressAsync(
-                address.Street, address.Zip, address.City, country);
+                address.Street, address.Zip, address.City, geocodingCountry);
 
             Console.WriteLine($"[AddressGeocodingValidator] Geocoding result: Found={result.Found}, ExactMatch={result.ExactMatch}, MatchType={result.MatchType}");
 

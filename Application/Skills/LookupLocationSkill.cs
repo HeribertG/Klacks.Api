@@ -9,6 +9,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -17,14 +18,15 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("lookup_location")]
 public class LookupLocationSkill : BaseSkillImplementation
 {
-    private const string DefaultCountry = "Schweiz";
     private const int MaxResults = 10;
 
     private readonly IPostcodeChRepository _postcodeRepository;
+    private readonly ICountryResolver _countryResolver;
 
-    public LookupLocationSkill(IPostcodeChRepository postcodeRepository)
+    public LookupLocationSkill(IPostcodeChRepository postcodeRepository, ICountryResolver countryResolver)
     {
         _postcodeRepository = postcodeRepository;
+        _countryResolver = countryResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -50,13 +52,16 @@ public class LookupLocationSkill : BaseSkillImplementation
             return SkillResult.Error($"No location found for {searchTerm}. Try a different search term or use web_search for international locations.");
         }
 
+        var defaultCountry = await _countryResolver.GetDefaultAsync(cancellationToken);
+        var countryDisplayName = defaultCountry?.Name.De ?? defaultCountry?.Name.En ?? defaultCountry?.Abbreviation ?? string.Empty;
+
         var distinctLocations = results
             .GroupBy(r => new { r.City, r.State })
             .Select(g => new
             {
                 City = g.Key.City,
                 Canton = g.Key.State,
-                Country = DefaultCountry,
+                Country = countryDisplayName,
                 ZipCodes = g.Select(r => r.Zip).Distinct().OrderBy(z => z).ToList()
             })
             .OrderBy(l => l.City)
