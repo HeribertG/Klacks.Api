@@ -30,7 +30,7 @@ public class PlanningAgent : IPlanningAgent
 
     private static readonly HashSet<string> ReversibleSkills = new(StringComparer.OrdinalIgnoreCase)
     {
-        "add_ai_memory", "add_client_to_group", "create_branch", "create_contract", "create_employee",
+        "add_ai_memory", "add_client_to_group", "create_branch", "create_employee",
         "create_shift", "create_user", "place_work", "delete_work", "confirm_work", "unconfirm_work",
         "add_break", "add_workchange", "add_schedule_command", "approve_day", "revoke_day_approval",
         "list_scenarios", "reject_scenario", "cancel_wizard_job"

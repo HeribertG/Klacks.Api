@@ -14,10 +14,6 @@
   { "query": "créer un nouveau quart", "expectedSourceId": "create_shift" },
   { "query": "crea un nuovo turno", "expectedSourceId": "create_shift" },
 
-  { "query": "Vertrag erstellen", "expectedSourceId": "create_contract" },
-  { "query": "create a contract", "expectedSourceId": "create_contract" },
-  { "query": "créer un contrat", "expectedSourceId": "create_contract" },
-
   { "query": "Vertrag einem Kunden zuweisen", "expectedSourceId": "assign_contract_to_client" },
   { "query": "assign contract to client", "expectedSourceId": "assign_contract_to_client" },
 

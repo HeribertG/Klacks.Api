@@ -28,7 +28,6 @@ public static class InverseSkillRegistry
             ["reject_scenario"] = new("__manual__", "Rejected scenarios cannot be revived — the data is soft-deleted."),
             ["add_client_to_group"] = new("__manual__", "remove_client_from_group skill TODO."),
             ["create_branch"] = new("delete_branch", "Take branchId from the original execution's result."),
-            ["create_contract"] = new("__manual__", "delete_contract skill TODO."),
             ["create_employee"] = new("__manual__", "delete_employee / mark inactive skill TODO."),
             ["create_user"] = new("delete_system_user", "Take userId."),
             ["create_shift"] = new("__manual__", "delete_shift skill TODO."),

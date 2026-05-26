@@ -778,7 +778,7 @@
     },
     {
       "name": "create_contract",
-      "description": "Creates a new employment contract. IMPORTANT: After creation, use assign_contract_to_client to link the contract to an employee. The contract is not automatically assigned.",
+      "description": "DEPRECATED — do not use. To assign a contract to an employee use assign_contract_by_name (by name) or assign_contract_to_client (by GUID). Contracts are read from the contract table; they are not created from a hardcoded type mapping.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -863,7 +863,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
-      "isEnabled": true,
+      "isEnabled": false,
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
@@ -908,11 +908,11 @@
           "convenzione"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "create_employee",
-      "description": "Creates a new client (employee, external employee or customer) with personal data, address, email and phone. Always also creates a mandatory membership. Set entityType to choose Employee/ExternEmp/Customer. To assign a contract use assign_contract_to_client; to add to a group use add_client_to_group (only with REAL contracts/groups from list_contracts/list_groups).",
+      "description": "Creates a new client (employee, external employee or customer) with personal data, address, email and phone. Always also creates a mandatory membership. Set entityType to choose Employee/ExternEmp/Customer. To assign a contract use assign_contract_by_name; to add to a group use add_client_to_group (only with REAL contracts/groups from list_contracts/list_groups).",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -1100,7 +1100,7 @@
           "forza lavoro"
         ]
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "create_user",

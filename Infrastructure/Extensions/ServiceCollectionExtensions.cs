@@ -572,7 +572,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.UpdateClientGenderSkill>();
         services.AddScoped<Application.Skills.AssignContractByNameSkill>();
         services.AddScoped<Application.Skills.SearchEmployeesSkill>();
-        services.AddScoped<Application.Skills.CreateContractSkill>();
         services.AddScoped<Application.Skills.SearchAndNavigateSkill>();
         services.AddScoped<Application.Skills.GetClientDetailsSkill>();
         services.AddScoped<Application.Skills.AddClientToGroupSkill>();
