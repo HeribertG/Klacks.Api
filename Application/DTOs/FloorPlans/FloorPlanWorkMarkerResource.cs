@@ -12,6 +12,8 @@ public class FloorPlanWorkMarkerResource
 
     public Guid? WorkId { get; set; }
 
+    public Guid? ShiftId { get; set; }
+
     public Guid? ClientId { get; set; }
 
     public string? Label { get; set; }
@@ -30,9 +32,13 @@ public class FloorPlanWorkMarkerResource
 
     public string? ClientName { get; set; }
 
-    public string? ShiftName { get; set; }
+    public string? Abbreviation { get; set; }
 
     public string? StartTime { get; set; }
 
     public string? EndTime { get; set; }
+
+    public DateOnly? FromDate { get; set; }
+
+    public DateOnly? UntilDate { get; set; }
 }

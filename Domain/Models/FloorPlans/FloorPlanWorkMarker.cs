@@ -28,4 +28,16 @@ public class FloorPlanWorkMarker : BaseEntity
     public string? Color { get; set; }
 
     public FloorPlanMarkerType MarkerType { get; set; }
+
+    public Guid? ShiftId { get; set; }
+
+    public string? Abbreviation { get; set; }
+
+    public string? StartTime { get; set; }
+
+    public string? EndTime { get; set; }
+
+    public DateOnly? FromDate { get; set; }
+
+    public DateOnly? UntilDate { get; set; }
 }

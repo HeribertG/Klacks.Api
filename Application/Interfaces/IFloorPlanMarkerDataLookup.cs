@@ -6,7 +6,7 @@ public interface IFloorPlanMarkerDataLookup
 {
     Task<Dictionary<Guid, string>> GetClientNamesAsync(List<Guid> clientIds);
 
-    Task<Dictionary<Guid, FloorPlanWorkShiftDetail>> GetWorkShiftDetailsAsync(List<Guid> workIds);
+    Task<Dictionary<Guid, FloorPlanShiftDetail>> GetShiftDetailsAsync(List<Guid> shiftIds);
 }
 
-public record FloorPlanWorkShiftDetail(string? ShiftName, TimeOnly StartTime, TimeOnly EndTime);
+public record FloorPlanShiftDetail(string? Abbreviation, TimeOnly StartShift, TimeOnly EndShift);

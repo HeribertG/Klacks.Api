@@ -29,21 +29,20 @@ public class FloorPlanMarkerDataLookup : IFloorPlanMarkerDataLookup
                 c => $"{c.FirstName} {c.Name}".Trim());
     }
 
-    public async Task<Dictionary<Guid, FloorPlanWorkShiftDetail>> GetWorkShiftDetailsAsync(List<Guid> workIds)
+    public async Task<Dictionary<Guid, FloorPlanShiftDetail>> GetShiftDetailsAsync(List<Guid> shiftIds)
     {
-        if (!workIds.Any())
+        if (!shiftIds.Any())
         {
-            return new Dictionary<Guid, FloorPlanWorkShiftDetail>();
+            return new Dictionary<Guid, FloorPlanShiftDetail>();
         }
 
-        return await _context.Work
-            .Where(w => workIds.Contains(w.Id) && !w.IsDeleted)
-            .Include(w => w.Shift)
+        return await _context.Shift
+            .Where(s => shiftIds.Contains(s.Id) && !s.IsDeleted)
             .ToDictionaryAsync(
-                w => w.Id,
-                w => new FloorPlanWorkShiftDetail(
-                    w.Shift?.Name,
-                    w.StartTime,
-                    w.EndTime));
+                s => s.Id,
+                s => new FloorPlanShiftDetail(
+                    s.Abbreviation,
+                    s.StartShift,
+                    s.EndShift));
     }
 }

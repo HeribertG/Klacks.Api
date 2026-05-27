@@ -1,5 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Handles retrieval of a single floor plan with its work markers, including name enrichment from related entities.
+/// </summary>
+
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries.FloorPlans;
@@ -56,14 +60,14 @@ public class GetQueryHandler : BaseHandler, IRequestHandler<GetFloorPlanWithMark
             .Distinct()
             .ToList();
 
-        var workIds = resource.WorkMarkers
-            .Where(m => m.WorkId.HasValue)
-            .Select(m => m.WorkId!.Value)
+        var shiftIds = resource.WorkMarkers
+            .Where(m => m.ShiftId.HasValue)
+            .Select(m => m.ShiftId!.Value)
             .Distinct()
             .ToList();
 
         var clients = await _markerDataLookup.GetClientNamesAsync(clientIds);
-        var works = await _markerDataLookup.GetWorkShiftDetailsAsync(workIds);
+        var shifts = await _markerDataLookup.GetShiftDetailsAsync(shiftIds);
 
         foreach (var marker in resource.WorkMarkers)
         {
@@ -72,11 +76,11 @@ public class GetQueryHandler : BaseHandler, IRequestHandler<GetFloorPlanWithMark
                 marker.ClientName = clientName;
             }
 
-            if (marker.WorkId.HasValue && works.TryGetValue(marker.WorkId.Value, out var work))
+            if (marker.ShiftId.HasValue && shifts.TryGetValue(marker.ShiftId.Value, out var shift))
             {
-                marker.ShiftName = work.ShiftName;
-                marker.StartTime = work.StartTime.ToString("HH:mm");
-                marker.EndTime = work.EndTime.ToString("HH:mm");
+                marker.Abbreviation ??= shift.Abbreviation;
+                marker.StartTime ??= shift.StartShift.ToString("HH:mm");
+                marker.EndTime ??= shift.EndShift.ToString("HH:mm");
             }
         }
     }

@@ -1,5 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Maps between FloorPlan domain entities and their API resource DTOs.
+/// </summary>
+
 using Klacks.Api.Application.DTOs.FloorPlans;
 using Klacks.Api.Domain.Models.FloorPlans;
 
@@ -39,6 +43,7 @@ public class FloorPlanMapper
             Id = resource.Id,
             FloorPlanId = resource.FloorPlanId,
             WorkId = resource.WorkId,
+            ShiftId = resource.ShiftId,
             ClientId = resource.ClientId,
             Label = resource.Label,
             X = resource.X,
@@ -47,6 +52,11 @@ public class FloorPlanMapper
             Height = resource.Height,
             Color = resource.Color,
             MarkerType = resource.MarkerType,
+            Abbreviation = resource.Abbreviation,
+            StartTime = resource.StartTime,
+            EndTime = resource.EndTime,
+            FromDate = resource.FromDate,
+            UntilDate = resource.UntilDate,
         };
     }
 
@@ -57,6 +67,7 @@ public class FloorPlanMapper
             Id = entity.Id,
             FloorPlanId = entity.FloorPlanId,
             WorkId = entity.WorkId,
+            ShiftId = entity.ShiftId,
             ClientId = entity.ClientId,
             Label = entity.Label,
             X = entity.X,
@@ -65,6 +76,11 @@ public class FloorPlanMapper
             Height = entity.Height,
             Color = entity.Color,
             MarkerType = entity.MarkerType,
+            Abbreviation = entity.Abbreviation,
+            StartTime = entity.StartTime,
+            EndTime = entity.EndTime,
+            FromDate = entity.FromDate,
+            UntilDate = entity.UntilDate,
         };
     }
 }
