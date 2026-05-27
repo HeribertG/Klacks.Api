@@ -109,6 +109,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         query = query.Include(c => c.Works.Where(w => w.CurrentDate >= filter.StartDate && w.CurrentDate <= filter.EndDate));
         query = query.Include(c => c.ClientContracts.Where(cc => !cc.IsDeleted && cc.IsActive))
             .ThenInclude(cc => cc.Contract);
+        query = query.Include(c => c.Membership);
 
         // Multi-client bulk refresh scope: skip pagination and load only the
         // listed clients in one round-trip. Precedence over the single-client

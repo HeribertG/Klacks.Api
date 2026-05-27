@@ -169,6 +169,9 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
                 .FirstOrDefault();
 
             resource.HasContract = activeContract != null;
+
+            if (client.Membership?.ValidFrom is { } validFrom)
+                resource.MemberSince = DateOnly.FromDateTime(validFrom);
         }
     }
 }
