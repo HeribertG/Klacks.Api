@@ -7,6 +7,7 @@ using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;
 
@@ -29,6 +30,14 @@ public class ProvidersController : ControllerBase
     {
         var providers = await _mediator.Send(new GetProvidersQuery());
         return Ok(_mapper.ToProviderResources(providers));
+    }
+
+    [HttpPost("discover")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+    public async Task<IActionResult> DiscoverProviders()
+    {
+        var candidates = await _mediator.Send(new DiscoverProvidersQuery());
+        return Ok(candidates);
     }
 
     [HttpGet("{id}")]

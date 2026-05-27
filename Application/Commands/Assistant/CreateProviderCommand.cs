@@ -15,6 +15,8 @@ public class CreateProviderCommand : IRequest<LLMProvider>
 
     public string? BaseUrl { get; set; }
 
+    public string? ApiVersion { get; set; }
+
     public bool IsEnabled { get; set; } = true;
 
     public int Priority { get; set; } = 10;

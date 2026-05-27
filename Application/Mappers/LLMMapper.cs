@@ -20,7 +20,6 @@ public partial class LLMMapper
     [MapperIgnoreTarget(nameof(LLMProvider.IsDeleted))]
     [MapperIgnoreTarget(nameof(LLMProvider.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(LLMProvider.Models))]
-    [MapperIgnoreTarget(nameof(LLMProvider.ApiVersion))]
     [MapperIgnoreTarget(nameof(LLMProvider.Settings))]
     public partial LLMProvider ToProviderFromCreate(CreateProviderCommand command);
 
