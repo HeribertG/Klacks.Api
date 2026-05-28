@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "skills": [
     {
       "name": "get_current_time",
@@ -2444,6 +2444,72 @@
         ]
       },
       "version": 4
+    },
+    {
+      "name": "search_in_list",
+      "description": "Open the entity list page (clients, groups, shifts) with the visible search filter pre-filled, so the user sees the matching rows directly in the list. Use this when the user wants to BROWSE or REVIEW matches in the workplace list (e.g. 'such mir Gasparoli', 'zeig mir die Maiers in der Liste'). For directly opening a single record use search_and_navigate. For criteria-based DB queries returning a chat list use search_employees.",
+      "category": "Query",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "entityType",
+          "description": "Which workplace list to open and filter",
+          "type": "Enum",
+          "required": true,
+          "defaultValue": "client",
+          "enumValues": [
+            "client",
+            "group",
+            "shift"
+          ]
+        },
+        {
+          "name": "searchQuery",
+          "description": "Search term to pre-fill into the list's search filter",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "steps": [
+          {
+            "action": "search",
+            "routeKeyFrom": "params.entityType",
+            "routeMap": {
+              "client": "/workplace/client",
+              "group": "/workplace/group",
+              "shift": "/workplace/shift"
+            },
+            "valueFrom": "params.searchQuery"
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": true,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "such",
+        "suche",
+        "search",
+        "filter",
+        "zeig",
+        "show",
+        "list",
+        "liste"
+      ],
+      "synonyms": {
+        "de": ["such", "suche", "filter", "zeig", "liste", "in der liste", "auflisten"],
+        "en": ["search", "filter", "show", "list", "find list"],
+        "fr": ["chercher", "recherche", "filtrer", "afficher", "liste"],
+        "it": ["cerca", "ricerca", "filtra", "mostra", "elenco"]
+      },
+      "version": 1
     },
     {
       "name": "search_and_navigate",
