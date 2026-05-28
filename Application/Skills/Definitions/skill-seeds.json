@@ -2512,6 +2512,47 @@
       "version": 1
     },
     {
+      "name": "open_schedule",
+      "description": "Open the schedule (Dienstplan / Einsatzplan / shift planner) page, optionally pre-filtered to a specific group. Pass groupName whenever the user just edited a person/employee that was added to a group — the schedule should open with that group's filter active so the user sees the planning for the right team. If the group cannot be resolved, the skill opens the schedule without a group filter rather than failing.",
+      "category": "Action",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSchedule"
+      ],
+      "parameters": [
+        {
+          "name": "groupName",
+          "description": "Optional name of the planning group to pre-select (e.g. 'Bern', 'Köniz', 'Thun'). If omitted, the schedule opens with the user's currently selected group (or none). When the conversation just touched a client/employee that is assigned to a group, default to that group's name.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": true,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "dienstplan",
+        "einsatzplan",
+        "schedule",
+        "planung",
+        "schicht",
+        "shift planner",
+        "planning",
+        "rota"
+      ],
+      "synonyms": {
+        "de": ["dienstplan", "einsatzplan", "schichtplan", "planung", "planungsansicht"],
+        "en": ["schedule", "shift planner", "planning", "rota", "roster"],
+        "fr": ["planning", "horaires", "planification", "planning des équipes"],
+        "it": ["piano dei turni", "pianificazione", "calendario turni", "orari"]
+      },
+      "version": 1
+    },
+    {
       "name": "search_and_navigate",
       "description": "Search for an entity (employee, customer, group, shift) by name and navigate directly to it. Use this when the user wants to open or edit a specific person or entity (e.g., 'Open customer Max MÃ¼ller', 'Show me Heribert Gasparoli'). If multiple matches are found, all will be shown.",
       "category": "Query",
