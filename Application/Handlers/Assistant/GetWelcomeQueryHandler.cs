@@ -33,12 +33,24 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
 
     public async Task<WelcomeResource> Handle(GetWelcomeQuery request, CancellationToken cancellationToken)
     {
-        var daypart = ResolveDaypart(request.LocalHour);
-        var variantIndex = PickVariantIndex(request.ExcludeVariantIndex);
-        var greetingKey = WelcomeI18nKeys.Greeting.Build(daypart, variantIndex);
-        var weekdayKey = WelcomeI18nKeys.Weekday.Get(request.Weekday);
+        var greetingKey = string.Empty;
+        var weekdayKey = string.Empty;
+        var weatherKey = string.Empty;
+        int variantIndex;
 
-        var weatherKey = await ResolveWeatherKeyAsync(request, cancellationToken);
+        if (request.IsReopen)
+        {
+            variantIndex = PickVariantIndex(request.ExcludeVariantIndex, WelcomeI18nKeys.Reopen.VariantsCount);
+            greetingKey = WelcomeI18nKeys.Reopen.Build(variantIndex);
+        }
+        else
+        {
+            var daypart = ResolveDaypart(request.LocalHour);
+            variantIndex = PickVariantIndex(request.ExcludeVariantIndex, WelcomeI18nKeys.Greeting.VariantsPerDaypart);
+            greetingKey = WelcomeI18nKeys.Greeting.Build(daypart, variantIndex);
+            weekdayKey = WelcomeI18nKeys.Weekday.Get(request.Weekday);
+            weatherKey = await ResolveWeatherKeyAsync(request, cancellationToken);
+        }
 
         var userGuid = Guid.TryParse(request.UserId, out var parsed) ? parsed : Guid.Empty;
         var suggestionKeys = await _suggestionsRanker.RankAsync(
@@ -61,9 +73,10 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
         };
     }
 
-    private static int PickVariantIndex(int? excludeIndex)
+    private static int PickVariantIndex(int? excludeIndex, int total)
     {
-        var total = WelcomeI18nKeys.Greeting.VariantsPerDaypart;
+        if (total <= 0) return 0;
+        if (total == 1) return 0;
         if (excludeIndex is null || excludeIndex < 0 || excludeIndex >= total)
         {
             return Random.Shared.Next(total);

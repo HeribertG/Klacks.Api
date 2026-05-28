@@ -15,7 +15,8 @@ namespace Klacks.Api.Application.Queries.Assistant;
 /// <param name="Latitude">Optional latitude for weather lookup</param>
 /// <param name="Longitude">Optional longitude for weather lookup</param>
 /// <param name="DisplayName">User's display name (taken from JWT username claim by the FE)</param>
-/// <param name="ExcludeVariantIndex">Greeting variant the FE just rendered — handler avoids repeating it</param>
+/// <param name="ExcludeVariantIndex">Variant index from the active pool the FE just rendered — handler avoids repeating it</param>
+/// <param name="IsReopen">True when Klacksy was already opened in this browser session — handler returns a reopen-pool greeting instead of the daypart greeting</param>
 /// <param name="UserId">Resolved from JWT claims by controller</param>
 /// <param name="UserRights">Resolved from JWT role/permission claims by controller</param>
 public class GetWelcomeQuery : IRequest<WelcomeResource>
@@ -28,6 +29,7 @@ public class GetWelcomeQuery : IRequest<WelcomeResource>
     public double? Longitude { get; set; }
     public string? DisplayName { get; set; }
     public int? ExcludeVariantIndex { get; set; }
+    public bool IsReopen { get; set; }
     public string UserId { get; set; } = string.Empty;
     public List<string> UserRights { get; set; } = new();
 }

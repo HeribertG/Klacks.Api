@@ -26,6 +26,14 @@ public static class WelcomeI18nKeys
             => $"{KeyPrefix}.greeting.{daypart}.{variantIndex}";
     }
 
+    public static class Reopen
+    {
+        public const int VariantsCount = 9;
+
+        public static string Build(int variantIndex)
+            => $"{KeyPrefix}.reopen.{variantIndex}";
+    }
+
     public static class Weather
     {
         public const string Sunny = $"{KeyPrefix}.weather.sunny";
