@@ -15,6 +15,12 @@ public class WelcomeResource
     public string GreetingKey { get; set; } = string.Empty;
 
     /// <summary>
+    /// Variant index of the chosen greeting (0..VariantsPerDaypart-1). The FE persists this and
+    /// sends it back as ExcludeVariantIndex on the next call to suppress direct repetition.
+    /// </summary>
+    public int GreetingVariantIndex { get; set; }
+
+    /// <summary>
     /// i18n key for the localized weekday name, e.g. "monday" (reuses existing keys).
     /// </summary>
     public string WeekdayKey { get; set; } = string.Empty;

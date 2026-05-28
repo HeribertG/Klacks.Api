@@ -34,7 +34,7 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
     public async Task<WelcomeResource> Handle(GetWelcomeQuery request, CancellationToken cancellationToken)
     {
         var daypart = ResolveDaypart(request.LocalHour);
-        var variantIndex = Random.Shared.Next(WelcomeI18nKeys.Greeting.VariantsPerDaypart);
+        var variantIndex = PickVariantIndex(request.ExcludeVariantIndex);
         var greetingKey = WelcomeI18nKeys.Greeting.Build(daypart, variantIndex);
         var weekdayKey = WelcomeI18nKeys.Weekday.Get(request.Weekday);
 
@@ -53,11 +53,24 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
         return new WelcomeResource
         {
             GreetingKey = greetingKey,
+            GreetingVariantIndex = variantIndex,
             WeekdayKey = weekdayKey,
             WeatherKey = weatherKey,
             DisplayName = request.DisplayName ?? string.Empty,
             SuggestionKeys = suggestionKeys.ToList(),
         };
+    }
+
+    private static int PickVariantIndex(int? excludeIndex)
+    {
+        var total = WelcomeI18nKeys.Greeting.VariantsPerDaypart;
+        if (excludeIndex is null || excludeIndex < 0 || excludeIndex >= total)
+        {
+            return Random.Shared.Next(total);
+        }
+
+        var picked = Random.Shared.Next(total - 1);
+        return picked >= excludeIndex.Value ? picked + 1 : picked;
     }
 
     private static string ResolveDaypart(int localHour)

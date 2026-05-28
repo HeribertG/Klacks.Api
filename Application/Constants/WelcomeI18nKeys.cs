@@ -20,7 +20,7 @@ public static class WelcomeI18nKeys
 
     public static class Greeting
     {
-        public const int VariantsPerDaypart = 3;
+        public const int VariantsPerDaypart = 9;
 
         public static string Build(string daypart, int variantIndex)
             => $"{KeyPrefix}.greeting.{daypart}.{variantIndex}";
