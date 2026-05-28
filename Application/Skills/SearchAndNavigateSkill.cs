@@ -11,6 +11,13 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("search_and_navigate")]
 public class SearchAndNavigateSkill : BaseSkillImplementation
 {
+    private const string ClientEditRoute = "/workplace/edit-address";
+    private const string ClientListRoute = "/workplace/client";
+    private const string GroupEditRoute = "/workplace/edit-group";
+    private const string GroupListRoute = "/workplace/group";
+    private const string ShiftEditRoute = "/workplace/edit-shift";
+    private const string ShiftListRoute = "/workplace/shift";
+
     private readonly IClientSearchRepository _clientSearchRepository;
     private readonly IGroupSearchRepository _groupSearchRepository;
     private readonly IShiftSearchRepository _shiftSearchRepository;
@@ -173,9 +180,9 @@ public class SearchAndNavigateSkill : BaseSkillImplementation
     {
         var route = entityType switch
         {
-            "client" => entityId.HasValue ? $"/employees/{entityId}" : "/employees",
-            "group" => entityId.HasValue ? $"/groups/{entityId}" : "/groups",
-            "shift" => entityId.HasValue ? $"/schedule?shiftId={entityId}" : "/schedule",
+            "client" => entityId.HasValue ? $"{ClientEditRoute}/{entityId}" : ClientListRoute,
+            "group" => entityId.HasValue ? $"{GroupEditRoute}/{entityId}" : GroupListRoute,
+            "shift" => entityId.HasValue ? $"{ShiftEditRoute}/{entityId}" : ShiftListRoute,
             _ => "/"
         };
 
