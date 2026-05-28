@@ -912,7 +912,7 @@
     },
     {
       "name": "create_employee",
-      "description": "Creates a new client (employee, external employee or customer) with personal data, address, email and phone. Always also creates a mandatory membership. Set entityType to choose Employee/ExternEmp/Customer. To assign a contract use assign_contract_by_name; to add to a group use add_client_to_group (only with REAL contracts/groups from list_contracts/list_groups).",
+      "description": "Creates a new client (employee, external employee or customer) with personal data, address, email and phone. Always also creates a mandatory membership starting on memberSince — ALWAYS ask the user when the employee starts working (Eintrittsdatum / start date / ab wann), and resolve answers like \"heute\"/\"sofort\"/\"today\" to today's date in YYYY-MM-DD before calling. Set entityType to choose Employee/ExternEmp/Customer. To assign a contract use assign_contract_by_name; to add to a group use add_client_to_group (only with REAL contracts/groups from list_contracts/list_groups).",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -953,6 +953,14 @@
           "description": "Birthdate in format YYYY-MM-DD",
           "type": "Date",
           "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "memberSince",
+          "description": "Date when the employee starts working (Eintrittsdatum / Anstellungsbeginn / start date). Format YYYY-MM-DD. REQUIRED — always ask the user explicitly. Resolve casual answers like \"heute\"/\"sofort\"/\"today\" to today's date before sending. Drives Membership.ValidFrom and therefore the schedule's plannability boundary for this employee.",
+          "type": "Date",
+          "required": true,
           "defaultValue": null,
           "enumValues": null
         },
@@ -1100,7 +1108,7 @@
           "forza lavoro"
         ]
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "create_user",

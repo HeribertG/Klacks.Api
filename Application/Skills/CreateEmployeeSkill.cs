@@ -72,7 +72,23 @@ public class CreateEmployeeSkill : BaseSkillImplementation
         var company = GetParameter<string>(parameters, "company");
         var email = GetParameter<string>(parameters, "email");
         var phone = GetParameter<string>(parameters, "phone");
+        var memberSince = GetParameter<string>(parameters, "memberSince");
         var proceedWithoutContact = GetParameter<bool>(parameters, "proceedWithoutContact", false);
+
+        if (string.IsNullOrWhiteSpace(memberSince))
+        {
+            return SkillResult.Error(
+                "Cannot create the client yet. Please ask the user when the employee starts working " +
+                "(memberSince / Eintrittsdatum / start date), then call create_employee again with that value in YYYY-MM-DD format. " +
+                "Resolve casual phrases the user already gave you: \"heute\"/\"sofort\"/\"jetzt\"/\"direkt\"/\"today\"/\"now\" → today's date; " +
+                "\"morgen\"/\"tomorrow\" → tomorrow's date; \"1. Juli\"/\"July 1st\" → the matching YYYY-MM-DD.");
+        }
+
+        if (!DateTime.TryParse(memberSince, out var memberSinceDate))
+        {
+            return SkillResult.Error(
+                $"Invalid memberSince value: {memberSince}. Expected format YYYY-MM-DD (e.g. 2026-06-01).");
+        }
 
         if (!proceedWithoutContact)
         {
@@ -137,7 +153,7 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             Id = Guid.NewGuid(),
             ClientId = client.Id,
             Type = 0,
-            ValidFrom = now.Date,
+            ValidFrom = memberSinceDate.Date,
             CreateTime = now,
             CurrentUserCreated = context.UserName
         };
