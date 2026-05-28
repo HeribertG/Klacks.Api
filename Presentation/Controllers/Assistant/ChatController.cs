@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Application.Klacksy;
 using Klacks.Api.Application.Klacksy.Models;
 using Klacks.Api.Application.Services.Assistant;
@@ -355,6 +356,17 @@ public class ChatController : ControllerBase
     {
         await _skillCacheService.WarmupAsync(cancellationToken);
         return Ok();
+    }
+
+    [HttpGet("welcome")]
+    public async Task<ActionResult<WelcomeResource>> GetWelcome(
+        [FromQuery] GetWelcomeQuery query,
+        CancellationToken cancellationToken)
+    {
+        query.UserId = GetCurrentUserId();
+        query.UserRights = GetCurrentUserRights();
+        var result = await _mediator.Send(query, cancellationToken);
+        return Ok(result);
     }
 
     [HttpGet("help")]

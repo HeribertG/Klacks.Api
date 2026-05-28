@@ -497,6 +497,18 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ITtsProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.EdgeTtsService>());
         services.AddScoped<ITranscriptionEnhancerService, TranscriptionEnhancerService>();
 
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISuggestionsRanker,
+            Klacks.Api.Application.Services.Assistant.SuggestionsRanker>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IOpenMeteoClient,
+            Klacks.Api.Infrastructure.Services.OpenMeteoClient>();
+        services.AddHttpClient(
+            Klacks.Api.Infrastructure.Services.OpenMeteoClient.HttpClientName,
+            client =>
+            {
+                client.BaseAddress = new Uri("https://api.open-meteo.com/");
+                client.Timeout = TimeSpan.FromSeconds(3);
+            });
+
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.DeepgramSttProvider>();
         services.AddScoped<ISttProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.DeepgramSttProvider>());
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.AssemblyAiSttProvider>();
