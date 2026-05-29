@@ -135,4 +135,16 @@ public class ClientSearchService : IClientSearchService
     {
         return searchString.Trim().All(char.IsNumber) && int.TryParse(searchString.Trim(), out _);
     }
+
+    public bool IsMultipleNumericSearch(string searchString)
+    {
+        if (!searchString.Contains(';')) return false;
+        var parts = searchString.Split(';', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length > 1 && parts.All(p => int.TryParse(p.Trim(), out _));
+    }
+
+    public IQueryable<Client> ApplyMultipleIdNumberSearch(IQueryable<Client> query, int[] idNumbers)
+    {
+        return query.Where(x => idNumbers.Contains(x.IdNumber));
+    }
 }

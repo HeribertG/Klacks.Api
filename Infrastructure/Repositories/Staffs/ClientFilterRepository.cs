@@ -105,7 +105,16 @@ public class ClientFilterRepository : IClientFilterRepository
 
        query = await _groupFilterService.FilterClientsByGroupId(filter.SelectedGroup, query);
 
-        if (_searchService.IsNumericSearch(filter.SearchString))
+        if (_searchService.IsMultipleNumericSearch(filter.SearchString))
+        {
+            var idNumbers = filter.SearchString
+                .Split(';', StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => int.Parse(s.Trim()))
+                .ToArray();
+            query = _searchService.ApplyMultipleIdNumberSearch(query, idNumbers);
+            query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder);
+        }
+        else if (_searchService.IsNumericSearch(filter.SearchString))
         {
             var query1 = _searchService.ApplyIdNumberSearch(query, int.Parse(filter.SearchString.Trim()));
 

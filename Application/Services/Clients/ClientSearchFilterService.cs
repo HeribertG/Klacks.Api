@@ -20,14 +20,21 @@ public class ClientSearchFilterService : IClientSearchFilterService
         if (string.IsNullOrEmpty(searchString))
             return query;
 
+        if (_searchService.IsMultipleNumericSearch(searchString))
+        {
+            var idNumbers = searchString
+                .Split(';', StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => int.Parse(s.Trim()))
+                .ToArray();
+            return _searchService.ApplyMultipleIdNumberSearch(query, idNumbers);
+        }
+
         if (_searchService.IsNumericSearch(searchString))
         {
             var numericValue = int.Parse(searchString.Trim());
             return _searchService.ApplyIdNumberSearch(query, numericValue);
         }
-        else
-        {
-            return _searchService.ApplySearchFilter(query, searchString, includeAddress);
-        }
+
+        return _searchService.ApplySearchFilter(query, searchString, includeAddress);
     }
 }

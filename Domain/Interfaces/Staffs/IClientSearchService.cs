@@ -14,4 +14,6 @@ public interface IClientSearchService
     IQueryable<Client> ApplyIdNumberSearch(IQueryable<Client> query, int idNumber);
     string[] ParseSearchString(string searchString);
     bool IsNumericSearch(string searchString);
+    bool IsMultipleNumericSearch(string searchString);
+    IQueryable<Client> ApplyMultipleIdNumberSearch(IQueryable<Client> query, int[] idNumbers);
 }
