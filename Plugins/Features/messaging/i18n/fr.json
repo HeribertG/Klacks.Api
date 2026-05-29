@@ -76,6 +76,7 @@
   "messaging.nav.reset": "Réinitialiser le filtre",
   "messaging.nav.show-all": "Tout afficher",
   "messaging.chat.broadcast-mode": "Diffusion",
+  "messaging.chat.multi-client-mode": "Multi-destinataires",
   "messaging.chat.broadcast-summary": "{{contact}} avec contact + {{phone}} via téléphone = {{total}} (ignorés: {{skipped}})",
   "messaging.chat.broadcast-placeholder": "Message au groupe entier...",
   "messaging.chat.broadcast-no-recipients": "Aucun destinataire joignable dans ce groupe",

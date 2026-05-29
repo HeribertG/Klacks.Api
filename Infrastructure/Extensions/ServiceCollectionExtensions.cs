@@ -106,6 +106,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Plugin.Contracts.IPluginSettingsWriter, Klacks.Api.Infrastructure.Plugins.PluginSettingsWriterBridge>();
         services.AddScoped<Klacks.Plugin.Contracts.IClientGroupReader, Klacks.Api.Infrastructure.Plugins.ClientGroupReaderBridge>();
         services.AddScoped<Klacks.Plugin.Contracts.IClientPhoneReader, Klacks.Api.Infrastructure.Plugins.ClientPhoneReaderBridge>();
+        services.AddScoped<Klacks.Plugin.Contracts.IClientIdNumberReader, Klacks.Api.Infrastructure.Plugins.ClientIdNumberReaderBridge>();
         services.AddScoped<Klacks.Plugin.Contracts.IEmployeeClientReader, Klacks.Api.Infrastructure.Plugins.EmployeeClientReaderBridge>();
         services.AddScoped<Klacks.Plugin.Contracts.IPluginEmailSender, Klacks.Api.Infrastructure.Plugins.PluginEmailSenderBridge>();
         services.AddScoped<Klacks.Plugin.Contracts.IPluginStateChecker, Klacks.Api.Infrastructure.Plugins.PluginStateCheckerBridge>();
@@ -201,6 +202,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<INavigationTargetSynonymRepository, Klacks.Api.Infrastructure.Repositories.Assistant.NavigationTargetSynonymRepository>();
         services.AddScoped<IGlobalAgentRuleRepository, Klacks.Api.Infrastructure.Repositories.Assistant.GlobalAgentRuleRepository>();
         services.AddScoped<IUiControlRepository, Klacks.Api.Infrastructure.Repositories.Assistant.UiControlRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Update.IUpdateHistoryRepository, Klacks.Api.Infrastructure.Repositories.Update.UpdateHistoryRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Update.IUpdateAvailabilityEvaluator, Klacks.Api.Application.Services.Update.UpdateAvailabilityEvaluator>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Update.IUpdateManifestReader, Klacks.Api.Infrastructure.Services.Update.UpdateManifestReader>();
+        services.AddHttpClient(Klacks.Api.Infrastructure.Services.Update.UpdateManifestReader.HttpClientName);
         services.AddScoped<ISkillGapRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillGapRepository>();
         services.AddScoped<ISkillSelectionTrajectoryRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillSelectionTrajectoryRepository>();
         services.AddScoped<IEvalRunRepository, Klacks.Api.Infrastructure.Repositories.Assistant.EvalRunRepository>();

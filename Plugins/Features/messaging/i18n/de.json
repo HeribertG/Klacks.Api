@@ -76,6 +76,7 @@
   "messaging.nav.reset": "Filter zurücksetzen",
   "messaging.nav.show-all": "Alle anzeigen",
   "messaging.chat.broadcast-mode": "Broadcast",
+  "messaging.chat.multi-client-mode": "Multi-Empfänger",
   "messaging.chat.broadcast-summary": "{{contact}} mit Kontakt + {{phone}} via Telefon = {{total}} (übersprungen: {{skipped}})",
   "messaging.chat.broadcast-placeholder": "Nachricht an die ganze Gruppe...",
   "messaging.chat.broadcast-no-recipients": "Keine erreichbaren Empfänger in dieser Gruppe",
