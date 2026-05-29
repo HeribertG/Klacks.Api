@@ -269,8 +269,8 @@ jobs:
             UI_CHANGED=true
           fi
 
-          # Update Plugin projects (required by Klacks.Api)
-          for PLUGIN_REPO in Klacks.Plugin.Contracts Klacks.Plugin.Messaging Klacks.Docs Klacks.Api.SourceGenerators Klacks.ScheduleOptimizer; do
+          # Update Plugin projects (required by Klacks.Api) + the auto-update sidecar repo (public)
+          for PLUGIN_REPO in Klacks.Plugin.Contracts Klacks.Plugin.Messaging Klacks.Docs Klacks.Api.SourceGenerators Klacks.ScheduleOptimizer Klacks.Updater; do
             EXPECTED_URL="https://github.com/HeribertG/$PLUGIN_REPO.git"
             NEEDS_CLONE=false
 
@@ -338,6 +338,14 @@ jobs:
           docker rm klacks-api 2>/dev/null || true
           $COMPOSE_CMD up -d klacks-api
           $COMPOSE_CMD restart nginx-proxy 2>/dev/null || $COMPOSE_CMD up -d nginx-proxy
+
+          # Auto-update sidecar (out-of-process executor). Non-fatal: a build/start hiccup must never
+          # fail the main deploy — api/ui keep running. Idles safely when there are no pending rows.
+          echo "🔄 (Re)building + starting klacks-updater sidecar (profile: updater)..."
+          $COMPOSE_CMD --profile updater build klacks-updater 2>&1 | tail -3 || echo "⚠️  updater build failed (non-fatal)"
+          docker stop klacks-updater 2>/dev/null || true
+          docker rm klacks-updater 2>/dev/null || true
+          $COMPOSE_CMD --profile updater up -d klacks-updater 2>&1 | tail -3 || echo "⚠️  updater start failed (non-fatal)"
 
           # Free disk space: remove dangling images (previous build's <none>-tagged
           # layers) and unused BuildKit cache. Each --no-cache build above leaves

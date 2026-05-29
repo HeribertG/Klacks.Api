@@ -110,13 +110,13 @@ services:
   # runs separately with the Docker socket + compose project dir mounted. Reads/writes the shared
   # update_history table. Phase 0.3 switches build: -> image: ghcr.io/heribertg/klacks-updater.
   klacks-updater:
-    # Inert until the deployment wiring is complete (Klacks.Updater repo cloned to /root/apps + ghcr
-    # pull auth). The profile keeps it out of the default `docker compose up` so the unfinished
-    # sidecar never breaks the production stack. Enable later with: docker compose --profile updater up -d
+    # Started explicitly via the "updater" profile (docker compose --profile updater up -d) so a plain
+    # `docker compose up` never touches it. Built from the cloned HeribertG/Klacks.Updater repo at
+    # /root/apps/Klacks.Updater (repo root holds the Klacks.Updater/ project subdir).
     profiles: ["updater"]
     build:
-      context: .
-      dockerfile: ./Klacks.Updater/Dockerfile
+      context: ./Klacks.Updater
+      dockerfile: Klacks.Updater/Dockerfile
     container_name: klacks-updater
     restart: unless-stopped
     environment:
