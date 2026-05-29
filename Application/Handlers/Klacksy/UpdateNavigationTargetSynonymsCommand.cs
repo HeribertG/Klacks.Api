@@ -10,6 +10,7 @@
 namespace Klacks.Api.Application.Handlers.Klacksy;
 
 using Klacks.Api.Application.Klacksy;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -38,6 +39,7 @@ public sealed class UpdateNavigationTargetSynonymsCommandHandler : IRequestHandl
             command.TargetId,
             command.Locale,
             command.Synonyms,
+            SynonymSources.User,
             cancellationToken);
 
         _cache.Invalidate();

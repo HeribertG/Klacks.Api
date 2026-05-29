@@ -246,7 +246,7 @@ public class LanguagePluginContentInstaller
                 if (entry.Synonyms == null || entry.Synonyms.Length == 0)
                     continue;
 
-                await synonymRepo.ReplaceForTargetLanguageAsync(targetId, code, entry.Synonyms);
+                await synonymRepo.ReplaceForTargetLanguageAsync(targetId, code, entry.Synonyms, SynonymSources.Plugin);
                 count++;
             }
 
@@ -278,7 +278,7 @@ public class LanguagePluginContentInstaller
 
             foreach (var targetId in overlay.Keys)
             {
-                await synonymRepo.ReplaceForTargetLanguageAsync(targetId, code, []);
+                await synonymRepo.ReplaceForTargetLanguageAsync(targetId, code, [], SynonymSources.Plugin);
                 count++;
             }
 

@@ -236,6 +236,9 @@ public class DataBaseContext : IdentityDbContext
     // Klacksy DbSets
     public DbSet<KlacksyNavigationFeedback> KlacksyNavigationFeedback => Set<KlacksyNavigationFeedback>();
 
+    // Auto-Update DbSets
+    public DbSet<Klacks.Api.Domain.Models.Update.UpdateHistory> UpdateHistory => Set<Klacks.Api.Domain.Models.Update.UpdateHistory>();
+
     public override int SaveChanges()
     {
         OnBeforeSaving();

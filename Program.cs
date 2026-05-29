@@ -63,6 +63,9 @@ builder.Services.AddSingleton(openRouteServiceSettings);
 builder.Services.Configure<Klacks.Api.Domain.Models.Settings.PasswordResetSettings>(
     builder.Configuration.GetSection("PasswordReset"));
 
+builder.Services.Configure<Klacks.Api.Application.Configuration.UpdateTrustOptions>(
+    builder.Configuration.GetSection(Klacks.Api.Application.Configuration.UpdateTrustOptions.SectionName));
+
 builder.Services.AddOpenApi("v1", options =>
 {
     options.AddDocumentTransformer((document, context, cancellationToken) =>
@@ -219,6 +222,8 @@ if (bgOptions.LLMModelSync)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<LLMModelSyncBackgroundService>());
 if (bgOptions.DataRetention)
     builder.Services.AddHostedService<DataRetentionBackgroundService>();
+if (bgOptions.UpdateDetection)
+    builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Update.UpdateDetectionBackgroundService>();
 builder.Services.AddHostedService<AgentTriggerBackgroundService>();
 builder.Services.AddHostedService<SkillCoverageBackgroundService>();
 builder.Services.AddHttpContextAccessor();
@@ -401,6 +406,14 @@ app.UseEndpoints(endpoints =>
             Predicate = check => check.Tags.Contains("deep"),
             ResponseWriter = WriteDeepHealthResponse
         }).RequireAuthorization();
+        // Unauthenticated deep health check for the out-of-process updater. Reachable only
+        // container-to-container: port 5000 is expose-only (not published) and the reverse proxy
+        // routes only /api/* to the API, never /internal/*.
+        endpoints.MapHealthChecks("/internal/health/deep", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+        {
+            Predicate = check => check.Tags.Contains("deep"),
+            ResponseWriter = WriteDeepHealthResponse
+        });
     }
 );
 

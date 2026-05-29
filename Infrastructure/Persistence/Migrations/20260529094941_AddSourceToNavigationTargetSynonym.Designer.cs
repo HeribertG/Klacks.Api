@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260529094941_AddSourceToNavigationTargetSynonym")]
+    partial class AddSourceToNavigationTargetSynonym
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -7853,125 +7856,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_communication_value_is_deleted");
 
                     b.ToTable("communication", (string)null);
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Update.UpdateHistory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("ArtifactRef")
-                        .HasColumnType("text")
-                        .HasColumnName("artifact_ref");
-
-                    b.Property<string>("ArtifactSha256")
-                        .HasColumnType("text")
-                        .HasColumnName("artifact_sha256");
-
-                    b.Property<string>("ArtifactSignature")
-                        .HasColumnType("text")
-                        .HasColumnName("artifact_signature");
-
-                    b.Property<string>("BackupRef")
-                        .HasColumnType("text")
-                        .HasColumnName("backup_ref");
-
-                    b.Property<int>("Channel")
-                        .HasColumnType("integer")
-                        .HasColumnName("channel");
-
-                    b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("completed_at");
-
-                    b.Property<bool>("ContainsMigrations")
-                        .HasColumnType("boolean")
-                        .HasColumnName("contains_migrations");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_time");
-
-                    b.Property<string>("CurrentUserCreated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_created");
-
-                    b.Property<string>("CurrentUserDeleted")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_deleted");
-
-                    b.Property<string>("CurrentUserUpdated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_updated");
-
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_time");
-
-                    b.Property<string>("FromVersion")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("from_version");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<DateTime?>("LastHeartbeatAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_heartbeat_at");
-
-                    b.Property<string>("Message")
-                        .HasColumnType("text")
-                        .HasColumnName("message");
-
-                    b.Property<int>("OperationType")
-                        .HasColumnType("integer")
-                        .HasColumnName("operation_type");
-
-                    b.Property<Guid?>("RelatedOperationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("related_operation_id");
-
-                    b.Property<DateTime>("RequestedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("requested_at");
-
-                    b.Property<string>("RequestedBy")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("requested_by");
-
-                    b.Property<DateTime?>("StartedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("started_at");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("status");
-
-                    b.Property<string>("TargetVersion")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("target_version");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_time");
-
-                    b.HasKey("Id")
-                        .HasName("pk_update_history");
-
-                    b.HasIndex("RequestedAt")
-                        .HasDatabaseName("ix_update_history_requested_at");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("ix_update_history_status")
-                        .HasFilter("is_deleted = false");
-
-                    b.ToTable("update_history", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Infrastructure.KnowledgeIndex.Domain.KnowledgeEntry", b =>

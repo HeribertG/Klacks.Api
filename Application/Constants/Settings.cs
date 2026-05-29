@@ -113,6 +113,15 @@ namespace Klacks.Api.Application.Constants
         public const string ASSISTANT_SILENCE_THRESHOLD_MS = "ASSISTANT_SILENCE_THRESHOLD_MS";
 
         public const string HOLISTIC_HARMONIZER_LLM_MODEL = "WIZARD3_LLM_MODEL";
+
+        public const string UPDATE_AUTO_ENABLED = "UPDATE_AUTO_ENABLED";
+        public const string UPDATE_CHANNEL = "UPDATE_CHANNEL";
+        public const string UPDATE_CHECK_INTERVAL_HOURS = "UPDATE_CHECK_INTERVAL_HOURS";
+        public const string UPDATE_MAINTENANCE_WINDOW_START = "UPDATE_MAINTENANCE_WINDOW_START";
+        public const string UPDATE_MAINTENANCE_WINDOW_END = "UPDATE_MAINTENANCE_WINDOW_END";
+        public const string UPDATE_NOTIFY_ONLY = "UPDATE_NOTIFY_ONLY";
+        public const string UPDATE_BACKUP_RETENTION_COUNT = "UPDATE_BACKUP_RETENTION_COUNT";
+        public const string UPDATE_PINNED_VERSION = "UPDATE_PINNED_VERSION";
     }
 }
 

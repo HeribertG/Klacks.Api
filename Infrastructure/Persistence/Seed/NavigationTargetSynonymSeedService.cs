@@ -2,15 +2,16 @@
 
 /// <summary>
 /// Seeds navigation target synonyms from the core navigation-targets.json manifest into the database.
-/// Only inserts when no active entries exist for a given (targetId, language) pair (idempotent).
+/// Source-guarded upsert: inserts when no entries exist, refreshes only vendor-owned (Source == "seed")
+/// pairs when the keyword set changed, and never overwrites customer-trained or plugin-installed pairs.
 /// </summary>
 /// <param name="repository">Repository for navigation target synonym persistence</param>
 /// <param name="environment">Provides the content root path for locating the manifest file</param>
 /// <param name="logger">Logger for diagnostic output</param>
 using System.Text.Json;
 using Klacks.Api.Application.Klacksy.Models;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
-using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -62,7 +63,9 @@ public class NavigationTargetSynonymSeedService
         }
 
         var inserted = 0;
+        var refreshed = 0;
         var skipped = 0;
+        var protectedCount = 0;
 
         foreach (var target in targets)
         {
@@ -71,30 +74,35 @@ public class NavigationTargetSynonymSeedService
                 if (keywords.Length == 0)
                     continue;
 
-                var hasEntries = await _repository.HasActiveEntriesForTargetLanguageAsync(target.TargetId, language, ct);
-                if (hasEntries)
+                var existing = await _repository.GetActiveForTargetLanguageAsync(target.TargetId, language, ct);
+
+                if (existing.Count == 0)
+                {
+                    await _repository.ReplaceForTargetLanguageAsync(target.TargetId, language, keywords, SynonymSources.Seed, ct);
+                    inserted++;
+                    continue;
+                }
+
+                if (!existing.All(e => string.Equals(e.Source, SynonymSources.Seed, StringComparison.OrdinalIgnoreCase)))
+                {
+                    protectedCount++;
+                    continue;
+                }
+
+                var existingKeywords = existing.Select(e => e.Keyword).ToHashSet(StringComparer.Ordinal);
+                if (existingKeywords.SetEquals(keywords))
                 {
                     skipped++;
                     continue;
                 }
 
-                var now = DateTime.UtcNow;
-                var entities = keywords.Select(kw => new NavigationTargetSynonym
-                {
-                    Id = Guid.NewGuid(),
-                    TargetId = target.TargetId,
-                    Language = language,
-                    Keyword = kw,
-                    CreateTime = now
-                }).ToList();
-
-                await _repository.AddRangeAsync(entities, ct);
-                inserted++;
+                await _repository.ReplaceForTargetLanguageAsync(target.TargetId, language, keywords, SynonymSources.Seed, ct);
+                refreshed++;
             }
         }
 
         _logger.LogInformation(
-            "Navigation target synonym seed completed: {Inserted} (targetId, language) pair(s) inserted, {Skipped} skipped.",
-            inserted, skipped);
+            "Navigation target synonym seed completed: {Inserted} inserted, {Refreshed} refreshed, {Skipped} unchanged, {Protected} protected (customer/plugin-owned).",
+            inserted, refreshed, skipped, protectedCount);
     }
 }

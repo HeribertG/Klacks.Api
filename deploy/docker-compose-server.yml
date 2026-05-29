@@ -106,6 +106,40 @@ services:
           memory: 2G
           cpus: '1.5'
 
+  # Out-of-process auto-update executor. Must outlive klacks-api (it recreates that container), so it
+  # runs separately with the Docker socket + compose project dir mounted. Reads/writes the shared
+  # update_history table. Phase 0.3 switches build: -> image: ghcr.io/heribertg/klacks-updater.
+  klacks-updater:
+    build:
+      context: .
+      dockerfile: ./Klacks.Updater/Dockerfile
+    container_name: klacks-updater
+    restart: unless-stopped
+    environment:
+      - DOTNET_ENVIRONMENT=Production
+      - Updater__ConnectionString=Host=postgres;Database=Klacks;Username=admin;Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      - Updater__HealthUrl=http://klacks-api:5000/internal/health/deep
+      - Updater__ComposeProjectDir=/apps
+      - Updater__ApiImageRepository=ghcr.io/heribertg/klacks-api
+      - Updater__ApiServiceName=klacks-api
+      - Updater__ApiTagEnvVar=KLACKS_API_TAG
+      - Updater__PostgresContainer=klacks-postgres
+      - Updater__SignaturePublicKey=${UPDATE_SIGNATURE_PUBLIC_KEY:-}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/apps:/apps
+      - api-update-backups:/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - klacks_network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
   klacks-ui:
     build: ./Klacks.Ui
     container_name: klacks-ui
@@ -377,6 +411,8 @@ volumes:
   api-documents:
     driver: local
   api-dataprotection:
+    driver: local
+  api-update-backups:
     driver: local
   letsencrypt:
     driver: local

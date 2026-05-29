@@ -32,4 +32,5 @@ public class BackgroundServiceOptions
     public bool DataRetention { get; set; } = true;
     public bool LLMModelSync { get; set; } = true;
     public int LLMModelSyncIntervalHours { get; set; } = 24;
+    public bool UpdateDetection { get; set; } = true;
 }

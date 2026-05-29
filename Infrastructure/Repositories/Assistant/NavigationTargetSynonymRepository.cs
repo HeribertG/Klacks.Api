@@ -42,7 +42,7 @@ public class NavigationTargetSynonymRepository : INavigationTargetSynonymReposit
         await _context.SaveChangesAsync(ct);
     }
 
-    public async Task ReplaceForTargetLanguageAsync(string targetId, string language, IEnumerable<string> keywords, CancellationToken ct = default)
+    public async Task ReplaceForTargetLanguageAsync(string targetId, string language, IEnumerable<string> keywords, string source, CancellationToken ct = default)
     {
         var existing = await _context.NavigationTargetSynonyms
             .IgnoreQueryFilters()
@@ -60,11 +60,20 @@ public class NavigationTargetSynonymRepository : INavigationTargetSynonymReposit
                 TargetId = targetId,
                 Language = language,
                 Keyword = keyword,
+                Source = source,
                 CreateTime = now
             });
         }
 
         await _context.SaveChangesAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<NavigationTargetSynonym>> GetActiveForTargetLanguageAsync(string targetId, string language, CancellationToken ct = default)
+    {
+        return await _context.NavigationTargetSynonyms
+            .Where(s => s.TargetId == targetId && s.Language == language)
+            .AsNoTracking()
+            .ToListAsync(ct);
     }
 
     public async Task<bool> HasActiveEntriesForTargetLanguageAsync(string targetId, string language, CancellationToken ct = default)
