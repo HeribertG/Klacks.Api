@@ -17,12 +17,16 @@ public class ClientConfiguration : IEntityTypeConfiguration<Client>
         builder.HasQueryFilter(p => !p.IsDeleted);
 
         // id_number is owned exclusively by the database sequence. EF never writes it on insert
-        // or update (BeforeSaveBehavior.Ignore), so any value carried by the model/POST payload is
-        // discarded and nextval('client_idnumber_seq') always assigns the value, which EF reads back.
+        // (BeforeSaveBehavior.Ignore) nor update (AfterSaveBehavior.Ignore), so any value carried
+        // by the model/POST payload is discarded and nextval('client_idnumber_seq') assigns the
+        // value once, which EF reads back. Without AfterSaveBehavior.Ignore an update path that
+        // uses CurrentValues.SetValues with a mapped entity whose IdNumber defaulted to 0 would
+        // overwrite the original sequence number with 0.
         builder.Property(e => e.IdNumber)
               .HasDefaultValueSql("nextval('public.client_idnumber_seq')")
               .ValueGeneratedOnAdd();
         builder.Property(e => e.IdNumber).Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+        builder.Property(e => e.IdNumber).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
         builder.HasIndex(p => new { p.IsDeleted, p.Name, p.FirstName });
         builder.HasIndex(p => new { p.IsDeleted, p.FirstName, p.Name });

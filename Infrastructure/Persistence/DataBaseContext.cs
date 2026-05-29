@@ -18,6 +18,7 @@ using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.KnowledgeIndex.Domain;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using System.Reflection;
 using System.Security.Claims;
 
@@ -333,6 +334,25 @@ public class DataBaseContext : IdentityDbContext
         });
 
         Plugins.PluginModelRegistry.Apply(modelBuilder);
+
+        ProtectCreationAuditFieldsFromUpdates(modelBuilder);
+    }
+
+    private static void ProtectCreationAuditFieldsFromUpdates(ModelBuilder modelBuilder)
+    {
+        // Creation audit fields (CreateTime, CurrentUserCreated) belong to the original INSERT and
+        // must never be touched by subsequent UPDATEs. Repositories that rebuild an entity from a
+        // mapped DTO and then call entry.CurrentValues.SetValues(...) would otherwise reset both
+        // columns to null, because the mapper ignores those fields and leaves them at their CLR
+        // default. AfterSaveBehavior.Ignore tells EF to omit the columns from UPDATE statements.
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes()
+                     .Where(t => typeof(BaseEntity).IsAssignableFrom(t.ClrType)))
+        {
+            entityType.FindProperty(nameof(BaseEntity.CreateTime))
+                ?.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            entityType.FindProperty(nameof(BaseEntity.CurrentUserCreated))
+                ?.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+        }
     }
 
     private void CascadeSoftDeleteWorkSoftenings(Domain.Models.Schedules.Work work, DateTime now, string currentUserName)
