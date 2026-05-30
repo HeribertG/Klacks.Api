@@ -67,9 +67,7 @@ services:
           cpus: '0.5'
 
   klacks-api:
-    build:
-      context: .
-      dockerfile: ./Klacks.Api/Dockerfile
+    image: ghcr.io/heribertg/klacks-api:${KLACKS_API_TAG:-latest}
     container_name: klacks-api
     restart: unless-stopped
     expose:

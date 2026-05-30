@@ -190,22 +190,31 @@ jobs:
           KLACKS_VARIANT=RELEASE
 
   deploy:
-    needs: [unit-tests]
-    if: github.ref == 'refs/heads/main'
+    needs: [unit-tests, build-and-push]
+    # Stable release tags only. Prerelease tags (v1.0.3-rc1) still build the image via
+    # build-and-push for throwaway validation, but must never deploy to production.
+    if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-')
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Resolve release version
+      id: rel
+      run: echo "tag=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+
     - name: Deploy to server
       uses: appleboy/ssh-action@master
+      env:
+        KLACKS_API_TAG: ${{ steps.rel.outputs.tag }}
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT || 22 }}
         command_timeout: 30m
+        envs: KLACKS_API_TAG
         script: |
           set -e
           echo "🚀 Deploying Klacks.Api..."
@@ -324,15 +333,14 @@ jobs:
           fi
           echo "Using: $COMPOSE_CMD"
 
-          # Rebuild and restart only API service with version injection
-          echo "🔨 Building Klacks.Api..."
-          $COMPOSE_CMD build klacks-api --no-cache \
-            --build-arg KLACKS_VERSION_MAJOR=${VERSION_MAJOR:-1} \
-            --build-arg KLACKS_VERSION_MINOR=${VERSION_MINOR:-0} \
-            --build-arg KLACKS_VERSION_PATCH=${VERSION_PATCH:-0} \
-            --build-arg KLACKS_BUILD_KEY=$(git rev-parse --short HEAD) \
-            --build-arg KLACKS_BUILD_TIMESTAMP=$(date -u +%Y-%m-%d) \
-            --build-arg KLACKS_VARIANT=RELEASE
+          # Klacks.Api runs image-mode: pull the release image that build-and-push pushed to ghcr
+          # for this tag. Persist the tag in .env so a plain `compose up` (server reboot, or the
+          # out-of-process updater's rollback) resolves the same version without this workflow.
+          export KLACKS_API_TAG="${KLACKS_API_TAG}"
+          sed -i '/^KLACKS_API_TAG=/d' .env 2>/dev/null || true
+          echo "KLACKS_API_TAG=${KLACKS_API_TAG}" >> .env
+          echo "📥 Pulling klacks-api image ${KLACKS_API_TAG}..."
+          $COMPOSE_CMD pull klacks-api
 
           # Build and restart Klacks.Ui if changed
           if [ "$UI_CHANGED" = true ]; then

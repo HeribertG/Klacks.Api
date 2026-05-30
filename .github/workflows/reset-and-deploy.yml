@@ -225,11 +225,10 @@ jobs:
           echo "🔨 STEP 4: Building all Docker images..."
           echo "=============================================="
 
-          echo "Building klacks-api..."
-          $COMPOSE_CMD build klacks-api --no-cache \
-            --build-arg KLACKS_BUILD_KEY=$(cd Klacks.Api && git rev-parse --short HEAD) \
-            --build-arg KLACKS_BUILD_TIMESTAMP=$(date -u +%Y-%m-%d) \
-            --build-arg KLACKS_VARIANT=RELEASE
+          # Klacks.Api is image-mode: pull the release image instead of building from source.
+          # The tag resolves from .env (KLACKS_API_TAG), set by the tag-driven deploy; default latest.
+          echo "Pulling klacks-api image..."
+          $COMPOSE_CMD pull klacks-api
 
           echo "Building klacks-ui..."
           $COMPOSE_CMD build klacks-ui --memory=2g
