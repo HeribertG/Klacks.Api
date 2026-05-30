@@ -140,7 +140,9 @@ jobs:
         VERSION="${GITHUB_REF#refs/tags/v}"
         MAJOR=$(echo "$VERSION" | cut -d. -f1)
         MINOR=$(echo "$VERSION" | cut -d. -f2)
-        PATCH=$(echo "$VERSION" | cut -d. -f3)
+        # The embedded VersionConstant.CPatch is a const int, so strip any prerelease
+        # suffix (1.0.2-rc1 -> patch 2). The prerelease identity lives only in the image tag.
+        PATCH=$(echo "$VERSION" | cut -d. -f3 | cut -d- -f1)
         echo "version=$VERSION" >> "$GITHUB_OUTPUT"
         echo "major=$MAJOR" >> "$GITHUB_OUTPUT"
         echo "minor=$MINOR" >> "$GITHUB_OUTPUT"
