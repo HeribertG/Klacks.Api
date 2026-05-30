@@ -12245,6 +12245,91 @@
       "version": 1
     },
     {
+      "name": "read_schedule_state",
+      "description": "Reads the actual schedule grid of a group + period: which employee is assigned to which shift on which day, including lock level and group-restriction flags. Use this to SEE the current plan before answering questions about assignments, gaps or before proposing changes. Optional analyseToken reads an isolated scenario instead of the real plan. Returns the assigned entries (not the empty slots).",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "groupId",
+          "description": "UUID of the group / planning blade",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "ISO date yyyy-MM-dd (period start)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "ISO date yyyy-MM-dd (period end, inclusive)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "analyseToken",
+          "description": "Optional UUID of a scenario; when set the isolated scenario grid is read instead of the real plan",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "schedule",
+        "plan",
+        "assignments",
+        "einsatzplan",
+        "belegung",
+        "planung"
+      ],
+      "synonyms": {
+        "de": [
+          "einsatzplan lesen",
+          "plan anzeigen",
+          "wer ist eingeteilt",
+          "belegung gruppe",
+          "schichtplan ansehen"
+        ],
+        "en": [
+          "read schedule",
+          "show schedule",
+          "who is assigned",
+          "current plan",
+          "schedule grid"
+        ],
+        "fr": [
+          "lire le planning",
+          "afficher le planning",
+          "qui est affecté",
+          "plan actuel"
+        ],
+        "it": [
+          "leggi pianificazione",
+          "mostra pianificazione",
+          "chi è assegnato",
+          "piano attuale"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "email_schedule_to_client",
       "description": "Opens the schedule 'Send to client' dialog for the chosen client and period. The actual PDF generation happens client-side, so this skill returns a navigate UiAction; the user confirms the send in the UI dialog.",
       "category": "UI",
