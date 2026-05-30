@@ -11,7 +11,11 @@ namespace Klacks.Api.Domain.Models.Scheduling;
 /// <param name="MinRestHours">Minimum rest hours between two work blocks</param>
 /// <param name="MaxDailyHours">Maximum hours per calendar day</param>
 /// <param name="MaxConsecutiveDays">Maximum consecutive work days without a rest day</param>
+/// <param name="MaxWeeklyHours">Maximum work hours per ISO week (Monday-anchored)</param>
+/// <param name="MinRestDays">Minimum rest (non-work) days per ISO week</param>
 public sealed record SchedulingPolicy(
     TimeSpan MinRestHours,
     TimeSpan MaxDailyHours,
-    int MaxConsecutiveDays);
+    int MaxConsecutiveDays,
+    TimeSpan MaxWeeklyHours,
+    int MinRestDays);

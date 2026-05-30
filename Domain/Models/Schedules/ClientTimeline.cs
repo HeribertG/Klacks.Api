@@ -9,6 +9,8 @@ namespace Klacks.Api.Domain.Models.Schedules;
 
 public class ClientTimeline
 {
+    private const int DaysPerWeek = 7;
+
     public Guid ClientId { get; }
     public List<ScheduleBlock> Blocks { get; } = [];
 
@@ -77,6 +79,42 @@ public class ClientTimeline
             total += block.GetDurationOnDate(date);
         }
         return total;
+    }
+
+    /// <summary>
+    /// Total Work duration within the 7-day window starting at <paramref name="weekStart"/>.
+    /// Break blocks are excluded — an absence does not count toward the weekly hour cap
+    /// (canon: wizard-fixed-cells.md). Cross-midnight shifts are clamped per day, so a night
+    /// shift spanning a week boundary contributes its real portion to each week it touches.
+    /// </summary>
+    /// <param name="weekStart">First day (Monday) of the seven-day window</param>
+    public TimeSpan GetWeeklyWorkDuration(DateOnly weekStart)
+    {
+        var total = TimeSpan.Zero;
+        for (var offset = 0; offset < DaysPerWeek; offset++)
+        {
+            total += GetWorkDuration(weekStart.AddDays(offset));
+        }
+        return total;
+    }
+
+    /// <summary>
+    /// Number of rest (non-work) days within the 7-day window starting at <paramref name="weekStart"/>.
+    /// A day is rest when no Work block touches it (cross-midnight aware via <see cref="HasWorkOnDay"/>);
+    /// a Break-only day counts as rest, since an absence is not a working day.
+    /// </summary>
+    /// <param name="weekStart">First day (Monday) of the seven-day window</param>
+    public int GetRestDayCount(DateOnly weekStart)
+    {
+        var restDays = 0;
+        for (var offset = 0; offset < DaysPerWeek; offset++)
+        {
+            if (!HasWorkOnDay(weekStart.AddDays(offset)))
+            {
+                restDays++;
+            }
+        }
+        return restDays;
     }
 
     public bool HasWorkAnchoredOn(DateOnly date)

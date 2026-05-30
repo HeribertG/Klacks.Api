@@ -58,10 +58,18 @@ public sealed class SchedulingPolicyResolver : ISchedulingPolicyResolver
         var maxConsecutiveDays = data.MaxConsecutiveDays > 0
             ? data.MaxConsecutiveDays
             : SchedulingPolicyDefaults.MaxConsecutiveDays;
+        var maxWeeklyHours = data.MaxWeeklyHours > 0
+            ? (double)data.MaxWeeklyHours
+            : SchedulingPolicyDefaults.MaxWeeklyHours;
+        var minRestDays = data.MinRestDays > 0
+            ? data.MinRestDays
+            : SchedulingPolicyDefaults.MinRestDays;
 
         return new SchedulingPolicy(
             MinRestHours: TimeSpan.FromHours(minRestHours),
             MaxDailyHours: TimeSpan.FromHours(maxDailyHours),
-            MaxConsecutiveDays: maxConsecutiveDays);
+            MaxConsecutiveDays: maxConsecutiveDays,
+            MaxWeeklyHours: TimeSpan.FromHours(maxWeeklyHours),
+            MinRestDays: minRestDays);
     }
 }

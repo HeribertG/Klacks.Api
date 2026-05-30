@@ -90,6 +90,8 @@ public class PeriodValidationLoader : IPeriodValidationLoader
             ScheduleValidationBuilder.AddRestViolations(entries, timeline, clientName, policy);
             ScheduleValidationBuilder.AddOvertime(entries, timeline, clientName, from, to, policy);
             ScheduleValidationBuilder.AddConsecutiveDays(entries, timeline, clientName, from, to, policy);
+            ScheduleValidationBuilder.AddWeeklyOvertime(entries, timeline, clientName, from, to, policy);
+            ScheduleValidationBuilder.AddMinRestDays(entries, timeline, clientName, from, to, policy);
         }
 
         return entries
@@ -212,6 +214,8 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         "schedule.error-list.rest-violation" => "RestViolation",
         "schedule.error-list.overtime" => "Overtime",
         "schedule.error-list.consecutive-days" => "ConsecutiveDays",
+        "schedule.error-list.weekly-overtime" => "WeeklyOvertime",
+        "schedule.error-list.min-rest-days" => "MinRestDays",
         _ => "ScheduleValidation"
     };
 }
