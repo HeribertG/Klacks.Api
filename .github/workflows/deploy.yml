@@ -138,10 +138,26 @@ jobs:
       id: version
       run: |
         VERSION="${GITHUB_REF#refs/tags/v}"
+        MAJOR=$(echo "$VERSION" | cut -d. -f1)
+        MINOR=$(echo "$VERSION" | cut -d. -f2)
+        PATCH=$(echo "$VERSION" | cut -d. -f3)
         echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-        echo "major=$(echo "$VERSION" | cut -d. -f1)" >> "$GITHUB_OUTPUT"
-        echo "minor=$(echo "$VERSION" | cut -d. -f2)" >> "$GITHUB_OUTPUT"
-        echo "patch=$(echo "$VERSION" | cut -d. -f3)" >> "$GITHUB_OUTPUT"
+        echo "major=$MAJOR" >> "$GITHUB_OUTPUT"
+        echo "minor=$MINOR" >> "$GITHUB_OUTPUT"
+        echo "patch=$PATCH" >> "$GITHUB_OUTPUT"
+        # Prerelease tags (a hyphen in the version, e.g. 1.0.2-rc1) publish only the
+        # exact immutable tag. They must never move the floating :latest / :MAJOR /
+        # :MAJOR.MINOR tags that production and the auto-update manifest resolve.
+        {
+          echo "tags<<EOF"
+          echo "ghcr.io/heribertg/klacks-api:$VERSION"
+          if [ "${VERSION#*-}" = "$VERSION" ]; then
+            echo "ghcr.io/heribertg/klacks-api:$MAJOR.$MINOR"
+            echo "ghcr.io/heribertg/klacks-api:$MAJOR"
+            echo "ghcr.io/heribertg/klacks-api:latest"
+          fi
+          echo "EOF"
+        } >> "$GITHUB_OUTPUT"
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
@@ -163,11 +179,7 @@ jobs:
         file: ./Klacks.Api/Dockerfile
         platforms: linux/arm64
         push: true
-        tags: |
-          ghcr.io/heribertg/klacks-api:${{ steps.version.outputs.version }}
-          ghcr.io/heribertg/klacks-api:${{ steps.version.outputs.major }}.${{ steps.version.outputs.minor }}
-          ghcr.io/heribertg/klacks-api:${{ steps.version.outputs.major }}
-          ghcr.io/heribertg/klacks-api:latest
+        tags: ${{ steps.version.outputs.tags }}
         build-args: |
           KLACKS_VERSION_MAJOR=${{ steps.version.outputs.major }}
           KLACKS_VERSION_MINOR=${{ steps.version.outputs.minor }}
