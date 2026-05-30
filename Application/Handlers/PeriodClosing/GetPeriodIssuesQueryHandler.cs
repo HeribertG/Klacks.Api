@@ -43,7 +43,7 @@ public class GetPeriodIssuesQueryHandler : BaseHandler, IRequestHandler<GetPerio
         {
             var noteIssues = await LoadScheduleNoteIssuesAsync(request, cancellationToken);
             var validationIssues = await _validationLoader.LoadAsync(
-                request.From, request.To, request.GroupId, cancellationToken);
+                request.From, request.To, request.GroupId, cancellationToken: cancellationToken);
 
             return noteIssues
                 .Concat(validationIssues)

@@ -12330,6 +12330,92 @@
       "version": 1
     },
     {
+      "name": "detect_conflicts",
+      "description": "Detects schedule rule violations for a group + period: rest-time, daily and weekly overtime, consecutive days, minimum rest days per week, and collisions. Use this to JUDGE whether a plan is rule-compliant before confirming or proposing changes. Each conflict carries a severity (error/warning), a stable code and the affected employee + date. Optional analyseToken checks an isolated scenario instead of the real plan.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "groupId",
+          "description": "UUID of the group / planning blade",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "ISO date yyyy-MM-dd (period start)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "ISO date yyyy-MM-dd (period end, inclusive)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "analyseToken",
+          "description": "Optional UUID of a scenario; when set the isolated scenario is validated instead of the real plan",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "conflict",
+        "violation",
+        "konflikt",
+        "verstoss",
+        "ruhezeit",
+        "überstunden"
+      ],
+      "synonyms": {
+        "de": [
+          "konflikte finden",
+          "verstösse prüfen",
+          "regelverstösse",
+          "ruhezeit prüfen",
+          "überstunden prüfen",
+          "plan prüfen"
+        ],
+        "en": [
+          "detect conflicts",
+          "find violations",
+          "check rules",
+          "rule violations",
+          "validate schedule"
+        ],
+        "fr": [
+          "détecter les conflits",
+          "trouver les violations",
+          "vérifier les règles",
+          "valider le planning"
+        ],
+        "it": [
+          "rileva conflitti",
+          "trova violazioni",
+          "controlla regole",
+          "valida pianificazione"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "email_schedule_to_client",
       "description": "Opens the schedule 'Send to client' dialog for the chosen client and period. The actual PDF generation happens client-side, so this skill returns a navigate UiAction; the user confirms the send in the UI dialog.",
       "category": "UI",

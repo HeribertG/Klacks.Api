@@ -44,13 +44,14 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         DateOnly from,
         DateOnly to,
         Guid? groupId,
+        Guid? analyseToken = null,
         CancellationToken cancellationToken = default)
     {
         var clientIdsInGroup = groupId.HasValue
             ? await LoadClientIdsForGroupAsync(groupId.Value, cancellationToken)
             : null;
 
-        var works = await LoadWorksAsync(from, to, clientIdsInGroup, cancellationToken);
+        var works = await LoadWorksAsync(from, to, clientIdsInGroup, analyseToken, cancellationToken);
         if (works.Count == 0)
         {
             return [];
@@ -58,7 +59,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
 
         var workIds = works.Select(w => w.Id).ToList();
         var workChanges = await LoadWorkChangesAsync(workIds, cancellationToken);
-        var breaks = await LoadBreaksAsync(from, to, clientIdsInGroup, cancellationToken);
+        var breaks = await LoadBreaksAsync(from, to, clientIdsInGroup, analyseToken, cancellationToken);
 
         var clientNameLookup = BuildClientNameLookup(works, workChanges);
         var scheduleBlocks = _timelineCalculator.CalculateScheduleBlocks(works, workChanges, breaks);
@@ -117,6 +118,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         DateOnly from,
         DateOnly to,
         HashSet<Guid>? clientFilter,
+        Guid? analyseToken,
         CancellationToken cancellationToken)
     {
         var query = _context.Work
@@ -126,7 +128,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
                 && w.CurrentDate <= to
                 && !w.IsDeleted
                 && w.ParentWorkId == null
-                && w.AnalyseToken == null);
+                && w.AnalyseToken == analyseToken);
 
         if (clientFilter != null)
         {
@@ -156,6 +158,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         DateOnly from,
         DateOnly to,
         HashSet<Guid>? clientFilter,
+        Guid? analyseToken,
         CancellationToken cancellationToken)
     {
         var query = _context.Break
@@ -164,7 +167,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
                 && b.CurrentDate <= to
                 && !b.IsDeleted
                 && b.ParentWorkId == null
-                && b.AnalyseToken == null);
+                && b.AnalyseToken == analyseToken);
 
         if (clientFilter != null)
         {
