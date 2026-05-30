@@ -12583,6 +12583,92 @@
       "version": 1
     },
     {
+      "name": "find_replacement",
+      "description": "Proposes rule-compliant replacement employees for a shift on a day, ranked best-first. Candidates are the group members; one is excluded only when assigning them would cause a collision or a rest-time violation, or when the shift is blacklisted for them. Overtime / consecutive-day / min-rest findings lower a candidate's rank (less headroom) instead of excluding. Preferred employees rank first. Use this to find who can cover an open or to-be-replaced slot. Does not yet check qualifications (v2). Optional analyseToken checks against a scenario.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "shiftId",
+          "description": "UUID of the shift to fill",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "date",
+          "description": "Workday in ISO yyyy-MM-dd",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupId",
+          "description": "UUID of the group whose members are the candidate pool",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "analyseToken",
+          "description": "Optional UUID of a scenario; when set candidates are checked against the isolated scenario",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "replacement",
+        "cover",
+        "who can",
+        "ersatz",
+        "vertretung",
+        "wer kann",
+        "einspringen"
+      ],
+      "synonyms": {
+        "de": [
+          "ersatz finden",
+          "vertretung suchen",
+          "wer kann einspringen",
+          "wer ist frei",
+          "ersatz vorschlagen"
+        ],
+        "en": [
+          "find replacement",
+          "who can cover",
+          "find cover",
+          "available employees",
+          "suggest replacement"
+        ],
+        "fr": [
+          "trouver un remplaçant",
+          "qui peut remplacer",
+          "trouver une couverture",
+          "employés disponibles"
+        ],
+        "it": [
+          "trova sostituto",
+          "chi può sostituire",
+          "trova copertura",
+          "dipendenti disponibili"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "email_schedule_to_client",
       "description": "Opens the schedule 'Send to client' dialog for the chosen client and period. The actual PDF generation happens client-side, so this skill returns a navigate UiAction; the user confirms the send in the UI dialog.",
       "category": "UI",

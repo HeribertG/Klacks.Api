@@ -8,5 +8,7 @@ public interface IClientShiftPreferenceRepository : IBaseRepository<ClientShiftP
 {
     Task<List<ClientShiftPreference>> GetByClientIdAsync(Guid clientId, CancellationToken ct = default);
 
+    Task<List<ClientShiftPreference>> GetByShiftIdAsync(Guid shiftId, CancellationToken ct = default);
+
     Task DeleteAllByClientIdAsync(Guid clientId, CancellationToken ct = default);
 }

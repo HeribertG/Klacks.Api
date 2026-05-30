@@ -27,6 +27,13 @@ public class ClientShiftPreferenceRepository : BaseRepository<ClientShiftPrefere
             .ToListAsync(ct);
     }
 
+    public async Task<List<ClientShiftPreference>> GetByShiftIdAsync(Guid shiftId, CancellationToken ct = default)
+    {
+        return await context.ClientShiftPreference
+            .Where(csp => csp.ShiftId == shiftId && csp.AnalyseToken == null)
+            .ToListAsync(ct);
+    }
+
     public async Task DeleteAllByClientIdAsync(Guid clientId, CancellationToken ct = default)
     {
         var existing = await context.ClientShiftPreference
