@@ -1,9 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.ML.OnnxRuntime;
+using Tokenizers.DotNet;
 
 namespace Klacks.Api.Infrastructure.StartupChecks;
 
@@ -17,6 +20,8 @@ public sealed class PlatformDependencyHealthCheck(IServiceScopeFactory scopeFact
     private const string StatusHealthy = "Healthy";
     private const string StatusUnhealthy = "Unhealthy";
     private const string LdapLibraryPattern = "lib{0}.so.2";
+    private const string OnnxNativeLibrary = "onnxruntime";
+    private const string TokenizersNativeLibrary = "hf_tokenizers";
     private const string PgvectorCheckSql = "SELECT name FROM pg_available_extensions WHERE name = 'vector'";
 
     private static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
@@ -46,13 +51,27 @@ public sealed class PlatformDependencyHealthCheck(IServiceScopeFactory scopeFact
     {
         var results = new Dictionary<string, bool>();
 
-        results["onnx_runtime"] = TryLoadAndFree("onnxruntime");
-        results["tokenizers"] = TryLoadAndFree("tokenizers");
+        // onnxruntime and hf_tokenizers ship as NuGet RID-native assets under runtimes/<rid>/native and
+        // are resolved via each wrapper assembly's deps.json, not the OS loader search path. A bare
+        // NativeLibrary.TryLoad("onnxruntime") therefore always fails (the file is libonnxruntime.so off
+        // the default path, and the tokenizer file is libhf_tokenizers.so, never libtokenizers.so). The
+        // assembly-context overload mirrors exactly how the application itself P/Invokes these libraries.
+        results["onnx_runtime"] = TryLoadFromAssembly(OnnxNativeLibrary, typeof(InferenceSession).Assembly);
+        results["tokenizers"] = TryLoadFromAssembly(TokenizersNativeLibrary, typeof(Tokenizer).Assembly);
         results["ldap"] = IsLinux
             ? TryLoadAndFree(string.Format(LdapLibraryPattern, "ldap"))
             : true;
 
         return results;
+    }
+
+    private static bool TryLoadFromAssembly(string libraryName, Assembly assembly)
+    {
+        if (!NativeLibrary.TryLoad(libraryName, assembly, DllImportSearchPath.AssemblyDirectory, out var handle))
+            return false;
+
+        NativeLibrary.Free(handle);
+        return true;
     }
 
     private static bool TryLoadAndFree(string libraryName)
