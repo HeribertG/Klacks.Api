@@ -83,6 +83,7 @@ services:
       - PasswordReset__BaseUrl=https://${DOMAIN:-klacks.site}:7443
       - Cors__Host=https://${DOMAIN:-klacks.site}
       - Cors__Home=https://${DOMAIN:-klacks.site}
+      - Update__ManifestBaseUrl=${UPDATE_MANIFEST_BASE_URL:-}
     volumes:
       - api-uploads:/app/Images
       - api-documents:/app/Documents

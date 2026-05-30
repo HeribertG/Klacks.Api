@@ -75,7 +75,9 @@ public class TriggerUpdateCommandHandler : IRequestHandler<TriggerUpdateCommand,
             FromVersion = current.ToString(),
             TargetVersion = manifest.LatestVersion,
             ArtifactRef = manifest.Artifacts.Docker?.ApiImage ?? manifest.Artifacts.OnPremWindows.FirstOrDefault()?.BundleUrl,
-            ArtifactSha256 = manifest.Artifacts.OnPremWindows.FirstOrDefault()?.Sha256,
+            ArtifactSha256 = manifest.Artifacts.Docker is not null
+                ? manifest.Artifacts.Docker.Sha256
+                : manifest.Artifacts.OnPremWindows.FirstOrDefault()?.Sha256,
             ArtifactSignature = manifest.Signature,
             ContainsMigrations = manifest.ContainsMigrations,
             RequestedBy = request.RequestedBy,

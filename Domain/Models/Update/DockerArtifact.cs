@@ -7,4 +7,6 @@ public class DockerArtifact
     public string ApiImage { get; set; } = string.Empty;
 
     public string UiImage { get; set; } = string.Empty;
+
+    public string Sha256 { get; set; } = string.Empty;
 }
