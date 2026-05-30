@@ -12669,6 +12669,89 @@
       "version": 1
     },
     {
+      "name": "propose_plan",
+      "description": "Materializes a set of chosen placements into an isolated AnalyseScenario for supervised approval, then leave it for accept_scenario / reject_scenario. Does NOT find gaps — choose placements first (e.g. with read_schedule_state + find_replacement); for bulk auto-fill use start_autowizard. Real data is never touched: the schedule is cloned under the scenario token, the pre-commit guardrail keeps the proposal collision-free, and any placement that would collide is skipped and returned in the rejected list. The 'placements' parameter is a JSON array of {clientId, shiftId, date}.",
+      "category": "Action",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "groupId",
+          "description": "UUID of the group / planning blade the scenario belongs to",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "ISO date yyyy-MM-dd (scenario period start)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "ISO date yyyy-MM-dd (scenario period end, inclusive)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "placements",
+          "description": "JSON array of placements to propose, each {clientId, shiftId, date}; date in yyyy-MM-dd within the period",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "propose",
+        "proposal",
+        "draft plan",
+        "vorschlag",
+        "planvorschlag",
+        "szenario erstellen"
+      ],
+      "synonyms": {
+        "de": [
+          "plan vorschlagen",
+          "planvorschlag erstellen",
+          "vorschlag als szenario",
+          "belegung vorschlagen",
+          "entwurf erstellen"
+        ],
+        "en": [
+          "propose plan",
+          "draft a plan",
+          "proposal scenario",
+          "suggest assignments",
+          "create proposal"
+        ],
+        "fr": [
+          "proposer un plan",
+          "créer une proposition",
+          "scénario de proposition"
+        ],
+        "it": [
+          "proponi piano",
+          "crea proposta",
+          "scenario di proposta"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "email_schedule_to_client",
       "description": "Opens the schedule 'Send to client' dialog for the chosen client and period. The actual PDF generation happens client-side, so this skill returns a navigate UiAction; the user confirms the send in the UI dialog.",
       "category": "UI",
