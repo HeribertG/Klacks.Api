@@ -12416,6 +12416,173 @@
       "version": 1
     },
     {
+      "name": "interpret_resource_monitor",
+      "description": "Reads and interprets the resource monitor (capacity vs. demand over a year) plus current-month shift coverage: where a group is over- or understaffed, which months are critical, and whether covering an absence is worth it. Aggregate capacity-over-time view, complementary to read_schedule_state's grid detail. Returns per-month understaffed/tight day counts, critical months and coverage ratios. Note: the coverage figures are always for the current month regardless of the requested year.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "year",
+          "description": "Calendar year to interpret (e.g. 2026)",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupId",
+          "description": "Optional UUID of a group to focus on; omit for all employees",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "resource monitor",
+        "coverage",
+        "capacity",
+        "kapazität",
+        "deckung",
+        "unterdeckung",
+        "auslastung"
+      ],
+      "synonyms": {
+        "de": [
+          "ressourcen monitor",
+          "kapazität prüfen",
+          "über unterdeckung",
+          "auslastung jahr",
+          "engpass monate",
+          "deckung analysieren"
+        ],
+        "en": [
+          "resource monitor",
+          "capacity vs demand",
+          "over understaffing",
+          "coverage analysis",
+          "bottleneck months"
+        ],
+        "fr": [
+          "moniteur de ressources",
+          "capacité demande",
+          "sous-effectif",
+          "analyse de couverture"
+        ],
+        "it": [
+          "monitor risorse",
+          "capacità domanda",
+          "sotto organico",
+          "analisi copertura"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_scheduling_rules",
+      "description": "Lists the configured scheduling rule sets and their caps (max work days, min rest days, min pause hours, max daily/weekly hours, max consecutive days, hours targets). Use this to know which rule sets exist and what limits a plan must respect before reasoning about or explaining them. Read-only, no parameters.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "scheduling rules",
+        "rule sets",
+        "planungsregeln",
+        "regelwerk",
+        "regeln liste"
+      ],
+      "synonyms": {
+        "de": [
+          "planungsregeln auflisten",
+          "regelsätze anzeigen",
+          "welche regeln",
+          "scheduling regeln"
+        ],
+        "en": [
+          "list scheduling rules",
+          "show rule sets",
+          "which rules",
+          "scheduling rule sets"
+        ],
+        "fr": [
+          "lister les règles de planification",
+          "afficher les jeux de règles",
+          "quelles règles"
+        ],
+        "it": [
+          "elenca regole di pianificazione",
+          "mostra set di regole",
+          "quali regole"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "get_scheduling_defaults",
+      "description": "Returns the built-in scheduling default fallback limits: min rest hours, max daily hours, max weekly hours, max consecutive days, min rest days per week. These are the hard limits a rule-compliant plan must respect when no contract/rule overrides them. Use this to state or explain the planning limits. Read-only, no parameters.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "scheduling defaults",
+        "default limits",
+        "standardregeln",
+        "ruhezeit limit",
+        "max stunden"
+      ],
+      "synonyms": {
+        "de": [
+          "scheduling standardwerte",
+          "standard limits",
+          "ruhezeit maximum",
+          "max arbeitszeit regeln",
+          "planungs grenzwerte"
+        ],
+        "en": [
+          "scheduling defaults",
+          "default limits",
+          "rest time limit",
+          "max hours rules",
+          "planning limits"
+        ],
+        "fr": [
+          "valeurs par défaut de planification",
+          "limites par défaut",
+          "limites de planification"
+        ],
+        "it": [
+          "valori predefiniti di pianificazione",
+          "limiti predefiniti",
+          "limiti di pianificazione"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "email_schedule_to_client",
       "description": "Opens the schedule 'Send to client' dialog for the chosen client and period. The actual PDF generation happens client-side, so this skill returns a navigate UiAction; the user confirms the send in the UI dialog.",
       "category": "UI",
