@@ -56,6 +56,11 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
             var parentWork = await _workRepository.GetNoTracking(workChange.WorkId);
             if (parentWork != null)
             {
+                // A WorkChange belongs to the same scenario as its parent Work. The resource carries
+                // no AnalyseToken, so inherit it from the parent — otherwise a WorkChange created on a
+                // scenario work would be persisted as real (token null) and break scenario isolation.
+                workChange.AnalyseToken = parentWork.AnalyseToken;
+
                 await _dayLockService.EnsureNotLockedAsync(
                     parentWork.CurrentDate,
                     parentWork.ClientId,
