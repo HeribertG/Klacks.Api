@@ -92,7 +92,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
     steps:
     - name: Checkout Klacks.Api
@@ -175,6 +175,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and push Klacks.Api image (linux/arm64)
+      id: build
       uses: docker/build-push-action@v6
       with:
         context: .
@@ -188,6 +189,47 @@ jobs:
           KLACKS_VERSION_PATCH=${{ steps.version.outputs.patch }}
           KLACKS_BUILD_KEY=${{ github.sha }}
           KLACKS_VARIANT=RELEASE
+
+    # Stable releases only: build the signed update manifest and publish it as a GitHub Release
+    # asset. The out-of-process updater verifies the RSA-SHA256 signature over the canonical
+    # "{version}\n{apiImage}\n{digest}" payload; the API detection service reads the manifest from
+    # the release's latest/download URL. Prereleases build the image but publish no manifest.
+    - name: Sign and publish update manifest
+      if: ${{ !contains(github.ref, '-') }}
+      env:
+        PRIV_B64: ${{ secrets.UPDATE_SIGNATURE_PRIVATE_KEY_B64 }}
+        VERSION: ${{ steps.version.outputs.version }}
+        DIGEST: ${{ steps.build.outputs.digest }}
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -euo pipefail
+        if [ -z "${PRIV_B64:-}" ]; then
+          echo "::error::UPDATE_SIGNATURE_PRIVATE_KEY_B64 secret is not set"; exit 1
+        fi
+        API_IMAGE="ghcr.io/heribertg/klacks-api:${VERSION}"
+        UI_IMAGE="ghcr.io/heribertg/klacks-ui:${VERSION}"
+        echo "$PRIV_B64" | base64 -d > /tmp/update_priv.pem
+        # Canonical signed payload — must byte-match Klacks.Updater ArtifactSignaturePayload.Build.
+        SIG=$(printf '%s\n%s\n%s' "$VERSION" "$API_IMAGE" "$DIGEST" \
+          | openssl dgst -sha256 -sign /tmp/update_priv.pem | base64 -w0)
+        rm -f /tmp/update_priv.pem
+        cat > stable.json <<EOF
+        {
+          "channel": "Stable",
+          "latestVersion": "${VERSION}",
+          "minUpgradableFrom": "1.0.0",
+          "releasedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "containsMigrations": true,
+          "artifacts": {
+            "docker": { "apiImage": "${API_IMAGE}", "uiImage": "${UI_IMAGE}", "sha256": "${DIGEST}" }
+          },
+          "signature": "${SIG}"
+        }
+        EOF
+        echo "Manifest stable.json:"; cat stable.json
+        gh release create "v${VERSION}" --repo "$GITHUB_REPOSITORY" --title "v${VERSION}" \
+          --notes "Automated release ${VERSION}" --latest 2>/dev/null || true
+        gh release upload "v${VERSION}" stable.json --repo "$GITHUB_REPOSITORY" --clobber
 
   deploy:
     needs: [unit-tests, build-and-push]
