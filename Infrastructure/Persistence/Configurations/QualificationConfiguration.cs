@@ -1,0 +1,20 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+/// <summary>
+/// EF Core configuration for the Qualification master entity with soft-delete query filter.
+/// </summary>
+
+using Klacks.Api.Domain.Models.Staffs;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Klacks.Api.Infrastructure.Persistence.Configurations;
+
+public class QualificationConfiguration : IEntityTypeConfiguration<Qualification>
+{
+    public void Configure(EntityTypeBuilder<Qualification> builder)
+    {
+        builder.HasQueryFilter(q => !q.IsDeleted);
+        builder.HasIndex(q => new { q.Name, q.IsDeleted });
+    }
+}

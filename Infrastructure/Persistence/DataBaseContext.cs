@@ -64,9 +64,15 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<ClientShiftPreference> ClientShiftPreference { get; set; }
 
+    public DbSet<ClientQualification> ClientQualification { get; set; }
+
     public DbSet<ClientSortPreference> ClientSortPreference { get; set; }
 
-    public DbSet<History> History { get; set; }  
+    public DbSet<Qualification> Qualification { get; set; }
+
+    public DbSet<ShiftRequiredQualification> ShiftRequiredQualification { get; set; }
+
+    public DbSet<History> History { get; set; }
 
     public DbSet<Macro> Macro { get; set; }
 

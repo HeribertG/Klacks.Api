@@ -25,6 +25,7 @@ public class Client : BaseEntity
         GroupItems = new Collection<GroupItem>();
         ClientContracts = new Collection<ClientContract>();
         ShiftPreferences = new Collection<ClientShiftPreference>();
+        Qualifications = new Collection<ClientQualification>();
     }
 
     public ClientImage? ClientImage { get; set; }
@@ -46,6 +47,9 @@ public class Client : BaseEntity
 
     [JsonIgnore]
     public ICollection<ClientShiftPreference> ShiftPreferences { get; set; }
+
+    [JsonIgnore]
+    public ICollection<ClientQualification> Qualifications { get; set; }
 
     public ICollection<Communication> Communications { get; set; }
 
