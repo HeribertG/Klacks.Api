@@ -8,6 +8,7 @@
 /// <param name="ontologyService">Provides the Klacks domain ontology (entities, relations, constraints)</param>
 /// <param name="memoryRetrievalService">Retrieves relevant memories for the user message</param>
 /// <param name="sentimentAnalyzer">Analyzes user message sentiment for mood hints</param>
+/// <param name="ruleContextProvider">Builds the situational scheduling rule-pack when a scheduling skill is in scope</param>
 /// <param name="logger">Logger instance</param>
 
 using System.Text;
@@ -22,6 +23,7 @@ public class ContextAssemblyPipeline
     private readonly IKlacksOntologyService _ontologyService;
     private readonly IMemoryRetrievalService _memoryRetrievalService;
     private readonly ISentimentAnalyzer _sentimentAnalyzer;
+    private readonly IRuleContextProvider _ruleContextProvider;
     private readonly ILogger<ContextAssemblyPipeline> _logger;
 
     private const int CharsPerToken = 4;
@@ -38,12 +40,14 @@ public class ContextAssemblyPipeline
         IKlacksOntologyService ontologyService,
         IMemoryRetrievalService memoryRetrievalService,
         ISentimentAnalyzer sentimentAnalyzer,
+        IRuleContextProvider ruleContextProvider,
         ILogger<ContextAssemblyPipeline> logger)
     {
         _identityContextProvider = identityContextProvider;
         _ontologyService = ontologyService;
         _memoryRetrievalService = memoryRetrievalService;
         _sentimentAnalyzer = sentimentAnalyzer;
+        _ruleContextProvider = ruleContextProvider;
         _logger = logger;
     }
 
@@ -51,6 +55,7 @@ public class ContextAssemblyPipeline
         Guid agentId,
         string userMessage,
         string? language = null,
+        IReadOnlyList<string>? availableSkillNames = null,
         CancellationToken cancellationToken = default)
     {
         var sb = new StringBuilder();
@@ -63,6 +68,13 @@ public class ContextAssemblyPipeline
         {
             sb.AppendLine();
             sb.AppendLine(ontologyBlock);
+            sb.AppendLine();
+        }
+
+        var rulePack = _ruleContextProvider.BuildSchedulingRulePack(availableSkillNames);
+        if (!string.IsNullOrWhiteSpace(rulePack))
+        {
+            sb.AppendLine(rulePack);
             sb.AppendLine();
         }
 

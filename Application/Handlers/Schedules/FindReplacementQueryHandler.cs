@@ -7,13 +7,15 @@
 /// a new collision or rest-time violation (the precise pair-based L1 checks), when they lack a
 /// mandatory qualification the shift requires (missing / expired / below the required level), or when
 /// the shift is blacklisted for them. Aggregate findings (overtime/consecutive/min-rest) are a soft
-/// ranking signal (less headroom -> lower rank). Preferred employees rank first.
+/// ranking signal (less headroom -> lower rank). Preferred employees rank first; among equally clean
+/// candidates the one furthest below their period target hours ranks higher (fairness, Playbook 3b/3c).
 /// </summary>
 /// <param name="clientRepository">Resolves the group's active members (the candidate pool)</param>
 /// <param name="conflictChecker">Pre-commit guardrail used to test each candidate placement</param>
 /// <param name="preferenceRepository">Preferred/blacklisted shift preferences</param>
 /// <param name="scheduleEntriesService">Reads the day's grid to find absent (Break) members</param>
 /// <param name="availabilityRepository">Reads the day's hour-granular client availability windows</param>
+/// <param name="periodHoursService">Resolves each candidate's period target vs. already-assigned hours (fairness signal)</param>
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
@@ -43,19 +45,22 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
     private readonly IClientShiftPreferenceRepository _preferenceRepository;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IClientAvailabilityRepository _availabilityRepository;
+    private readonly IPeriodHoursService _periodHoursService;
 
     public FindReplacementQueryHandler(
         IClientRepository clientRepository,
         IPreCommitConflictChecker conflictChecker,
         IClientShiftPreferenceRepository preferenceRepository,
         IScheduleEntriesService scheduleEntriesService,
-        IClientAvailabilityRepository availabilityRepository)
+        IClientAvailabilityRepository availabilityRepository,
+        IPeriodHoursService periodHoursService)
     {
         _clientRepository = clientRepository;
         _conflictChecker = conflictChecker;
         _preferenceRepository = preferenceRepository;
         _scheduleEntriesService = scheduleEntriesService;
         _availabilityRepository = availabilityRepository;
+        _periodHoursService = periodHoursService;
     }
 
     public async Task<ReplacementSearchResult> Handle(FindReplacementQuery request, CancellationToken cancellationToken)
@@ -82,6 +87,10 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         var preferenceByClient = preferences
             .GroupBy(p => p.ClientId)
             .ToDictionary(g => g.Key, g => g.First().PreferenceType);
+
+        var (periodFrom, periodUntil) = await _periodHoursService.GetPeriodBoundariesAsync(request.Date);
+        var periodHoursByClient = await _periodHoursService.GetPeriodHoursAsync(
+            members.Select(m => m.Id).ToList(), periodFrom, periodUntil, request.AnalyseToken);
 
         var plannedRows = members
             .Select(m => new PlannedWorkRow(m.Id, request.Date, request.StartTime, request.EndTime, request.ShiftId))
@@ -135,16 +144,24 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
                 continue;
             }
 
+            // Missing entry or a zero target means "no fairness signal" (deficit 0), mirroring the
+            // opt-in availability discipline; the candidate is never excluded on this basis.
+            var deficit = periodHoursByClient.TryGetValue(member.Id, out var hours)
+                ? hours.GuaranteedHours - hours.Hours
+                : 0m;
+
             eligible.Add(new ReplacementCandidate(
                 member.Id,
                 name,
                 IsPreferred: hasPreference && preferenceType == ShiftPreferenceType.Preferred,
-                SoftConflicts: conflicts));
+                SoftConflicts: conflicts,
+                TargetHoursDeficit: deficit));
         }
 
         var ranked = eligible
             .OrderByDescending(c => c.IsPreferred)
             .ThenBy(c => c.SoftConflicts.Count)
+            .ThenByDescending(c => c.TargetHoursDeficit)
             .ThenBy(c => c.Name)
             .ToList();
 

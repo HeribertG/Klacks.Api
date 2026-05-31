@@ -8,7 +8,8 @@
 /// opt-in availability window), when assigning them would introduce a collision or rest-time
 /// violation, when they lack a mandatory qualification the shift requires (missing / expired / below
 /// the required level), or when the shift is blacklisted for them; aggregate findings lower the rank
-/// instead.
+/// instead. Among equally clean candidates the one furthest below their period target hours ranks
+/// higher (fairness; TargetHoursDeficit is surfaced per candidate).
 /// </summary>
 /// <param name="shiftId">Required. UUID of the shift to fill.</param>
 /// <param name="date">Required. Workday in ISO yyyy-MM-dd.</param>
@@ -74,6 +75,7 @@ public class FindReplacementSkill : BaseSkillImplementation
             c.ClientId,
             c.Name,
             c.IsPreferred,
+            c.TargetHoursDeficit,
             SoftConflictCount = c.SoftConflicts.Count,
             SoftConflicts = c.SoftConflicts.Select(Project)
         });

@@ -500,6 +500,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IIdentityContextProvider, IdentityContextProvider>();
         services.AddScoped<IMemoryRetrievalService, MemoryRetrievalService>();
         services.AddScoped<ContextAssemblyPipeline>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IRuleContextProvider, Domain.Services.Assistant.RuleContextProvider>();
         services.AddSingleton<ISentimentAnalyzer, Domain.Services.Assistant.SentimentAnalyzer>();
         services.AddSingleton<Klacks.Api.Infrastructure.Services.Assistant.EdgeTtsService>();
         services.AddSingleton<ITtsProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.EdgeTtsService>());

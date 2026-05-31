@@ -342,8 +342,9 @@ public class LLMService : ILLMService
         if (agent != null)
         {
             stageWatch.Restart();
+            var availableSkillNames = context.AvailableFunctions?.Select(f => f.Name).ToList();
             soulAndMemoryPrompt = await _contextAssemblyPipeline.AssembleSoulAndMemoryPromptAsync(
-                agent.Id, context.Message, context.Language);
+                agent.Id, context.Message, context.Language, availableSkillNames);
             if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)
                 _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "AssembleSoulAndMemory", stageWatch.ElapsedMilliseconds);
         }
