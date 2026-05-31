@@ -2,21 +2,24 @@
 
 /// <summary>
 /// Handler for <see cref="FindReplacementQuery"/>. Candidates are the active members of the group; a
-/// candidate is hard-excluded when absent that day (a Break on the date), when assigning them would
-/// introduce a new collision or rest-time violation (the precise pair-based L1 checks), when they
-/// lack a mandatory qualification the shift requires (missing / expired / below the required level),
-/// or when the shift is blacklisted for them. Aggregate findings (overtime/consecutive/min-rest) are
-/// a soft ranking signal (less headroom -> lower rank). Preferred employees rank first.
+/// candidate is hard-excluded when absent that day (a Break on the date), when explicitly unavailable
+/// for an hour the shift occupies (an opt-in availability window), when assigning them would introduce
+/// a new collision or rest-time violation (the precise pair-based L1 checks), when they lack a
+/// mandatory qualification the shift requires (missing / expired / below the required level), or when
+/// the shift is blacklisted for them. Aggregate findings (overtime/consecutive/min-rest) are a soft
+/// ranking signal (less headroom -> lower rank). Preferred employees rank first.
 /// </summary>
 /// <param name="clientRepository">Resolves the group's active members (the candidate pool)</param>
 /// <param name="conflictChecker">Pre-commit guardrail used to test each candidate placement</param>
 /// <param name="preferenceRepository">Preferred/blacklisted shift preferences</param>
 /// <param name="scheduleEntriesService">Reads the day's grid to find absent (Break) members</param>
+/// <param name="availabilityRepository">Reads the day's hour-granular client availability windows</param>
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Queries.Schedules;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -33,22 +36,26 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
     private const string RestViolationKey = "schedule.error-list.rest-violation";
     private const string BlacklistedReason = "blacklisted";
     private const string AbsentReason = "absent";
+    private const string UnavailableReason = "unavailable";
 
     private readonly IClientRepository _clientRepository;
     private readonly IPreCommitConflictChecker _conflictChecker;
     private readonly IClientShiftPreferenceRepository _preferenceRepository;
     private readonly IScheduleEntriesService _scheduleEntriesService;
+    private readonly IClientAvailabilityRepository _availabilityRepository;
 
     public FindReplacementQueryHandler(
         IClientRepository clientRepository,
         IPreCommitConflictChecker conflictChecker,
         IClientShiftPreferenceRepository preferenceRepository,
-        IScheduleEntriesService scheduleEntriesService)
+        IScheduleEntriesService scheduleEntriesService,
+        IClientAvailabilityRepository availabilityRepository)
     {
         _clientRepository = clientRepository;
         _conflictChecker = conflictChecker;
         _preferenceRepository = preferenceRepository;
         _scheduleEntriesService = scheduleEntriesService;
+        _availabilityRepository = availabilityRepository;
     }
 
     public async Task<ReplacementSearchResult> Handle(FindReplacementQuery request, CancellationToken cancellationToken)
@@ -65,6 +72,11 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             .Where(c => c.EntryType == (int)ScheduleEntryType.Break)
             .ToListAsync(cancellationToken);
         var onLeaveClientIds = onLeaveCells.Select(c => c.ClientId).ToHashSet();
+
+        var availabilityEntries = await _availabilityRepository.GetByDateRange(request.Date, request.Date);
+        var availabilityByClient = availabilityEntries
+            .GroupBy(a => a.ClientId)
+            .ToDictionary(g => g.Key, g => (IReadOnlyList<ClientAvailability>)g.ToList());
 
         var preferences = await _preferenceRepository.GetByShiftIdAsync(request.ShiftId, cancellationToken);
         var preferenceByClient = preferences
@@ -89,6 +101,13 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             if (onLeaveClientIds.Contains(member.Id))
             {
                 excluded.Add(new ExcludedCandidate(member.Id, name, AbsentReason));
+                continue;
+            }
+
+            if (availabilityByClient.TryGetValue(member.Id, out var availability) &&
+                AvailabilityMatcher.IsExplicitlyUnavailable(availability, request.StartTime, request.EndTime))
+            {
+                excluded.Add(new ExcludedCandidate(member.Id, name, UnavailableReason));
                 continue;
             }
 
