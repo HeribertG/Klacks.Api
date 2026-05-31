@@ -6,6 +6,7 @@
 /// </summary>
 
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
@@ -63,9 +64,11 @@ public class DeepSeekProvider : BaseHttpProvider
             }
 
             var choice = deepSeekResponse.Choices.First();
+            var hasToolCalls = choice.Message?.ToolCalls != null && choice.Message.ToolCalls.Any();
             var result = new LLMProviderResponse
             {
-                Content = choice.Message?.GetContentString() ?? string.Empty,
+                Content = ReasoningContentResolver.EffectiveContent(
+                    choice.Message?.GetContentString(), choice.Message?.ReasoningContent, hasToolCalls),
                 Success = true,
                 Usage = new LLMUsage
                 {
@@ -77,9 +80,9 @@ public class DeepSeekProvider : BaseHttpProvider
                 }
             };
 
-            if (choice.Message?.ToolCalls != null && choice.Message.ToolCalls.Any())
+            if (hasToolCalls)
             {
-                foreach (var toolCall in choice.Message.ToolCalls)
+                foreach (var toolCall in choice.Message!.ToolCalls!)
                 {
                     if (toolCall.Function != null)
                     {
@@ -133,6 +136,13 @@ public class DeepSeekProvider : BaseHttpProvider
 
         var endpoint = "chat/completions";
 
+        // Reasoning models (deepseek-reasoner) stream thinking into reasoning_content. It is the ANSWER
+        // only when no regular content and no tool call ever arrive; otherwise it is chain-of-thought to
+        // discard. Buffer it and flush once after the loop so it never leaks live into the chat.
+        var reasoningBuffer = new StringBuilder();
+        var sawContent = false;
+        var sawToolCall = false;
+
         await foreach (var rawJson in PostStreamAsync(endpoint, deepSeekRequest, cancellationToken))
         {
             OpenAIStreamChunk? chunk;
@@ -153,13 +163,20 @@ public class DeepSeekProvider : BaseHttpProvider
             var choice = chunk.Choices[0];
             var delta = choice.Delta;
 
-            if (delta?.Content != null)
+            if (!string.IsNullOrEmpty(delta?.Content))
             {
-                yield return delta.Content;
+                sawContent = true;
+                yield return delta!.Content!;
+            }
+
+            if (!string.IsNullOrEmpty(delta?.ReasoningContent))
+            {
+                reasoningBuffer.Append(delta!.ReasoningContent);
             }
 
             if (delta?.ToolCalls != null)
             {
+                sawToolCall = true;
                 foreach (var tc in delta.ToolCalls)
                 {
                     var tcJson = JsonSerializer.Serialize(new
@@ -177,6 +194,11 @@ public class DeepSeekProvider : BaseHttpProvider
             {
                 yield return LLMStreamingTokens.ToolCallEnd;
             }
+        }
+
+        if (!sawContent && !sawToolCall && reasoningBuffer.Length > 0)
+        {
+            yield return reasoningBuffer.ToString();
         }
     }
 

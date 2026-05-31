@@ -36,6 +36,9 @@ public class OpenAIStreamDelta
     [JsonPropertyName("content")]
     public string? Content { get; set; }
 
+    [JsonPropertyName("reasoning_content")]
+    public string? ReasoningContent { get; set; }
+
     [JsonPropertyName("role")]
     public string? Role { get; set; }
 

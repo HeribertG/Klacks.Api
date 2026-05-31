@@ -19,6 +19,16 @@ public class OpenAIMessage
     [JsonPropertyName("content")]
     public object Content { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Reasoning / chain-of-thought channel of reasoning models (e.g. Kimi, DeepSeek-R1). Some
+    /// reasoning models stream their entire answer here with an empty <see cref="Content"/>; others
+    /// emit thinking here and the answer in <see cref="Content"/>. Read deliberately by the provider
+    /// (never blindly) — see ReasoningContentResolver.
+    /// </summary>
+    [JsonPropertyName("reasoning_content")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? ReasoningContent { get; set; }
+
     [JsonPropertyName("function_call")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public OpenAIFunctionCall? FunctionCall { get; set; }
