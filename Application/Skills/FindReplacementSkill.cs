@@ -5,8 +5,9 @@
 /// Thin wrapper that dispatches <see cref="Klacks.Api.Application.Queries.Schedules.FindReplacementQuery"/>: it resolves the shift (for its start/end
 /// times) and projects the ranked candidates + exclusions. A candidate is hard-excluded when absent
 /// that day (a Break on the date), when assigning them would introduce a collision or rest-time
-/// violation, or when the shift is blacklisted for them; aggregate findings lower the rank instead.
-/// Richer availability windows (P5) and qualification matching (L3, P4) are not yet considered.
+/// violation, when they lack a mandatory qualification the shift requires (missing / expired / below
+/// the required level), or when the shift is blacklisted for them; aggregate findings lower the rank
+/// instead. Richer availability windows (P5) are not yet considered.
 /// </summary>
 /// <param name="shiftId">Required. UUID of the shift to fill.</param>
 /// <param name="date">Required. Workday in ISO yyyy-MM-dd.</param>
@@ -92,8 +93,7 @@ public class FindReplacementSkill : BaseSkillImplementation
         var scenarioNote = analyseToken.HasValue ? " (scenario)" : string.Empty;
         var message =
             $"{result.Eligible.Count} eligible replacement(s) for shift '{shift.Name}' on {date:yyyy-MM-dd}{scenarioNote}; " +
-            $"{result.Excluded.Count} excluded (absence / collision / rest time / blacklist). " +
-            "Ranking does not yet consider qualifications (v2).";
+            $"{result.Excluded.Count} excluded (absence / collision / rest time / missing qualification / blacklist).";
 
         return SkillResult.SuccessResult(data, message);
     }

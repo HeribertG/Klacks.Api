@@ -12911,6 +12911,130 @@
       "version": 1
     },
     {
+      "name": "set_client_qualification",
+      "description": "Records (or updates) a qualification an employee holds, with a proficiency level (1=Low..5=Expert) and an optional validity window. This is what makes eligibility work: find_replacement and the pre-commit guardrail use it to know who is qualified for a shift that requires a qualification. Calling it again for the same employee + qualification updates the existing entry.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditClients"],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the employee",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "qualificationId",
+          "description": "UUID of an existing qualification",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "level",
+          "description": "Proficiency level 1=Low, 2=Basic, 3=Proficient, 4=Advanced, 5=Expert",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "validFrom",
+          "description": "Optional ISO date yyyy-MM-dd the qualification becomes valid",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "validUntil",
+          "description": "Optional ISO date yyyy-MM-dd the qualification expires",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "note",
+          "description": "Optional free-text note",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["set_client_qualification", "qualifikation setzen", "mitarbeiter qualifikation", "set qualification", "skill level"],
+      "synonyms": {
+        "de": ["qualifikation setzen", "mitarbeiter qualifizieren", "kompetenz hinterlegen", "zertifikat eintragen"],
+        "en": ["set qualification", "qualify employee", "record certificate", "assign skill level"],
+        "fr": ["définir la qualification", "qualifier l'employé", "enregistrer un certificat"],
+        "it": ["impostare la qualifica", "qualificare il dipendente", "registrare un certificato"]
+      },
+      "version": 1
+    },
+    {
+      "name": "set_shift_required_qualification",
+      "description": "Records (or updates) a qualification a shift requires, with a minimum level (1=Low..5=Expert) and whether it is mandatory. A mandatory requirement makes employees who lack it (missing, expired, or below the level) ineligible — enforced by find_replacement and the pre-commit guardrail (place_work / propose_plan / cover_absence). A non-mandatory requirement is a soft signal only. Calling it again for the same shift + qualification updates the existing entry.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        {
+          "name": "shiftId",
+          "description": "UUID of the shift",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "qualificationId",
+          "description": "UUID of an existing qualification",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "minLevel",
+          "description": "Minimum required level 1=Low, 2=Basic, 3=Proficient, 4=Advanced, 5=Expert",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "isMandatory",
+          "description": "Optional, default true. True = blocks ineligible employees; false = soft signal only",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["set_shift_required_qualification", "schicht qualifikation", "voraussetzung schicht", "required qualification", "shift requirement"],
+      "synonyms": {
+        "de": ["schicht voraussetzung", "benötigte qualifikation", "schicht erfordert qualifikation", "pflicht-qualifikation"],
+        "en": ["shift requirement", "required qualification", "shift needs qualification", "mandatory qualification"],
+        "fr": ["qualification requise", "exigence du poste", "le poste requiert une qualification"],
+        "it": ["qualifica richiesta", "requisito del turno", "il turno richiede una qualifica"]
+      },
+      "version": 1
+    },
+    {
       "name": "email_schedule_to_client",
       "description": "Opens the schedule 'Send to client' dialog for the chosen client and period. The actual PDF generation happens client-side, so this skill returns a navigate UiAction; the user confirms the send in the UI dialog.",
       "category": "UI",

@@ -3,9 +3,10 @@
 /// <summary>
 /// Handler for <see cref="FindReplacementQuery"/>. Candidates are the active members of the group; a
 /// candidate is hard-excluded when absent that day (a Break on the date), when assigning them would
-/// introduce a new collision or rest-time violation (the precise pair-based L1 checks), or when the
-/// shift is blacklisted for them. Aggregate findings (overtime/consecutive/min-rest) are a soft
-/// ranking signal (less headroom -> lower rank). Preferred employees rank first.
+/// introduce a new collision or rest-time violation (the precise pair-based L1 checks), when they
+/// lack a mandatory qualification the shift requires (missing / expired / below the required level),
+/// or when the shift is blacklisted for them. Aggregate findings (overtime/consecutive/min-rest) are
+/// a soft ranking signal (less headroom -> lower rank). Preferred employees rank first.
 /// </summary>
 /// <param name="clientRepository">Resolves the group's active members (the candidate pool)</param>
 /// <param name="conflictChecker">Pre-commit guardrail used to test each candidate placement</param>
@@ -16,6 +17,7 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Queries.Schedules;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -94,7 +96,10 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
                 ? found
                 : new List<ScheduleValidationNotificationDto>();
 
-            var hardConflict = conflicts.FirstOrDefault(c => c.Comment is CollisionKey or RestViolationKey);
+            var hardConflict = conflicts.FirstOrDefault(c => c.Comment is CollisionKey or RestViolationKey
+                or QualificationValidationKeys.Missing
+                or QualificationValidationKeys.Expired
+                or QualificationValidationKeys.InsufficientLevel);
             if (hardConflict != null)
             {
                 excluded.Add(new ExcludedCandidate(member.Id, name, hardConflict.Comment));

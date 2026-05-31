@@ -15,7 +15,10 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Services.Schedules;
+using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Infrastructure.Persistence;
@@ -77,7 +80,83 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
             newConflicts.AddRange(augmentedEntries.Where(e => !baselineKeys.Contains(BuildKey(e))));
         }
 
+        // Eligibility (mandatory-qualification) is an ABSOLUTE per-(client, shift, date) check, not a
+        // baseline-vs-augmented diff: it only exists for the planned rows, so it is built separately
+        // and never run through the timeline / BuildKey machinery. Qualification tables carry no
+        // AnalyseToken (master data, identical in real and scenario worlds) -> queried token-independent.
+        newConflicts.AddRange(await BuildEligibilityConflictsAsync(plannedRows, cancellationToken));
+
         return new PreCommitCheckResult(newConflicts);
+    }
+
+    private async Task<List<ScheduleValidationNotificationDto>> BuildEligibilityConflictsAsync(
+        IReadOnlyList<PlannedWorkRow> plannedRows,
+        CancellationToken cancellationToken)
+    {
+        var shiftIds = plannedRows
+            .Where(r => r.ShiftId.HasValue)
+            .Select(r => r.ShiftId!.Value)
+            .Distinct()
+            .ToList();
+        if (shiftIds.Count == 0)
+        {
+            return [];
+        }
+
+        var requirements = await _context.ShiftRequiredQualification
+            .AsNoTracking()
+            .Where(srq => shiftIds.Contains(srq.ShiftId) && srq.IsMandatory && !srq.IsDeleted)
+            .ToListAsync(cancellationToken);
+        if (requirements.Count == 0)
+        {
+            return [];
+        }
+
+        var requirementsByShift = requirements
+            .GroupBy(r => r.ShiftId)
+            .ToDictionary(g => g.Key, g => (IReadOnlyList<ShiftRequiredQualification>)g.ToList());
+
+        var clientIds = plannedRows.Select(r => r.ClientId).Distinct().ToList();
+        var qualifications = await _context.ClientQualification
+            .AsNoTracking()
+            .Where(cq => clientIds.Contains(cq.ClientId) && !cq.IsDeleted)
+            .ToListAsync(cancellationToken);
+        var qualificationsByClient = qualifications
+            .GroupBy(cq => cq.ClientId)
+            .ToDictionary(g => g.Key, g => (IReadOnlyList<ClientQualification>)g.ToList());
+
+        var conflicts = new List<ScheduleValidationNotificationDto>();
+        foreach (var row in plannedRows)
+        {
+            if (!row.ShiftId.HasValue
+                || !requirementsByShift.TryGetValue(row.ShiftId.Value, out var reqs))
+            {
+                continue;
+            }
+
+            var held = qualificationsByClient.TryGetValue(row.ClientId, out var q)
+                ? q
+                : [];
+
+            foreach (var gap in EligibilityMatcher.FindMandatoryGaps(reqs, held, row.Date))
+            {
+                conflicts.Add(new ScheduleValidationNotificationDto
+                {
+                    Type = ScheduleValidationType.Error,
+                    ClientId = row.ClientId,
+                    ClientName = string.Empty,
+                    Date = row.Date,
+                    Comment = QualificationValidationKeys.ForReason(gap.Reason),
+                    CommentParams = new Dictionary<string, string>
+                    {
+                        ["qualificationId"] = gap.QualificationId.ToString(),
+                        ["minLevel"] = gap.RequiredMinLevel.ToString(),
+                    },
+                });
+            }
+        }
+
+        return conflicts;
     }
 
     private static List<ScheduleValidationNotificationDto> Validate(
