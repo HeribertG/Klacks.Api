@@ -1803,6 +1803,310 @@
       "version": 4
     },
     {
+      "name": "assign_user_permissions",
+      "description": "Assigns a permission level (role) to a system user and persists it. Sets the role exclusively: 'Admin' grants full access, 'Authorised' grants create/edit access without settings, 'User' is view-only. Requires admin permissions. Identify the user with userId (preferred) or userName; the resulting permission set is derived from the role. To check a user's current rights use get_user_permissions, to list users use list_system_users.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "role",
+          "description": "The permission level to assign.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "Admin",
+            "Authorised",
+            "User"
+          ]
+        },
+        {
+          "name": "userId",
+          "description": "The target user's id. Preferred over userName when known.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "userName",
+          "description": "Name, e-mail or login used to resolve the target user when userId is omitted.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "permission",
+        "berechtigung",
+        "role",
+        "rolle",
+        "rights",
+        "rechte",
+        "admin",
+        "authorise"
+      ],
+      "synonyms": {
+        "de": [
+          "berechtigung",
+          "rolle",
+          "rechte",
+          "zugriffsrechte",
+          "administrator",
+          "freigeben",
+          "befugnis"
+        ],
+        "en": [
+          "permission",
+          "role",
+          "rights",
+          "access",
+          "administrator",
+          "grant",
+          "authorise"
+        ],
+        "fr": [
+          "permission",
+          "role",
+          "droits",
+          "acces",
+          "administrateur",
+          "accorder"
+        ],
+        "it": [
+          "permesso",
+          "ruolo",
+          "diritti",
+          "accesso",
+          "amministratore",
+          "concedere"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "create_macro",
+      "description": "Creates a calculation macro (script) in the settings. Provide a name and the macro script body. Requires admin permissions. Use list_macros to verify the macro afterwards or to find existing macros.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "The macro name.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "script",
+          "description": "The macro script body.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description",
+          "description": "Optional short description of the macro.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "macro",
+        "makro",
+        "script",
+        "skript",
+        "calculation",
+        "berechnung"
+      ],
+      "synonyms": {
+        "de": [
+          "makro",
+          "skript",
+          "berechnung",
+          "formel",
+          "rechenregel"
+        ],
+        "en": [
+          "macro",
+          "script",
+          "calculation",
+          "formula",
+          "rule"
+        ],
+        "fr": [
+          "macro",
+          "script",
+          "calcul",
+          "formule",
+          "regle"
+        ],
+        "it": [
+          "macro",
+          "script",
+          "calcolo",
+          "formula",
+          "regola"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_macros",
+      "description": "Lists the calculation macros (scripts) defined in the settings. Optionally filter by name. Returns macro ids, names and types. Use this to find a macro id before deleting it.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "searchTerm",
+          "description": "Optional search term to filter macros by name.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "macro",
+        "makro",
+        "script",
+        "skript",
+        "calculation",
+        "berechnung"
+      ],
+      "synonyms": {
+        "de": [
+          "makro",
+          "skript",
+          "berechnung",
+          "formel",
+          "rechenregel"
+        ],
+        "en": [
+          "macro",
+          "script",
+          "calculation",
+          "formula",
+          "rule"
+        ],
+        "fr": [
+          "macro",
+          "script",
+          "calcul",
+          "formule",
+          "regle"
+        ],
+        "it": [
+          "macro",
+          "script",
+          "calcolo",
+          "formula",
+          "regola"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_macro",
+      "description": "Deletes a calculation macro (script) from the settings. Identify the macro by macroId (preferred) or by its exact name. Requires admin permissions. Use list_macros first to find the macro id.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "macroId",
+          "description": "The id of the macro to delete. Preferred over macroName.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "macroName",
+          "description": "The exact macro name used to resolve the macro when macroId is omitted.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "macro",
+        "makro",
+        "script",
+        "skript",
+        "delete",
+        "löschen"
+      ],
+      "synonyms": {
+        "de": [
+          "makro",
+          "skript",
+          "löschen",
+          "entfernen",
+          "berechnung"
+        ],
+        "en": [
+          "macro",
+          "script",
+          "delete",
+          "remove",
+          "calculation"
+        ],
+        "fr": [
+          "macro",
+          "script",
+          "supprimer",
+          "effacer",
+          "calcul"
+        ],
+        "it": [
+          "macro",
+          "script",
+          "eliminare",
+          "rimuovere",
+          "calcolo"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "list_branches",
       "description": "Lists all branches (Filialen) in the system. Returns branch IDs, names, addresses, phone numbers, and emails.",
       "category": "Query",
