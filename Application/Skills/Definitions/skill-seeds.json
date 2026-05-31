@@ -13035,6 +13035,65 @@
       "version": 1
     },
     {
+      "name": "create_qualification",
+      "description": "Creates a qualification master entry (e.g. 'Forklift licence', 'First aid') that shifts can require and employees can hold. Calling it with an existing name returns that qualification instead of creating a duplicate. Use this first, then set_shift_required_qualification / set_client_qualification reference its id.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "The qualification name",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description",
+          "description": "Optional short description",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["create_qualification", "qualifikation anlegen", "neue qualifikation", "create qualification", "add skill"],
+      "synonyms": {
+        "de": ["qualifikation anlegen", "neue qualifikation", "kompetenz definieren", "zertifikatstyp anlegen"],
+        "en": ["create qualification", "new qualification", "define skill", "add qualification type"],
+        "fr": ["créer une qualification", "nouvelle qualification", "définir une compétence"],
+        "it": ["creare una qualifica", "nuova qualifica", "definire una competenza"]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_qualifications",
+      "description": "Lists the available qualification master entries (id, name, description) so you can pick a qualificationId for set_client_qualification / set_shift_required_qualification.",
+      "category": "Read",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanViewShifts"],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["list_qualifications", "qualifikationen anzeigen", "list qualifications", "available skills"],
+      "synonyms": {
+        "de": ["qualifikationen", "qualifikationen anzeigen", "kompetenzen liste", "verfügbare qualifikationen"],
+        "en": ["qualifications", "list qualifications", "available skills", "skill catalogue"],
+        "fr": ["qualifications", "liste des qualifications", "compétences disponibles"],
+        "it": ["qualifiche", "elenco qualifiche", "competenze disponibili"]
+      },
+      "version": 1
+    },
+    {
       "name": "email_schedule_to_client",
       "description": "Opens the schedule 'Send to client' dialog for the chosen client and period. The actual PDF generation happens client-side, so this skill returns a navigate UiAction; the user confirms the send in the UI dialog.",
       "category": "UI",

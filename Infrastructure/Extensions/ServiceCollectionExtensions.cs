@@ -181,6 +181,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IClientShiftPreferenceRepository, ClientShiftPreferenceRepository>();
         services.AddScoped<IClientQualificationRepository, ClientQualificationRepository>();
         services.AddScoped<IShiftRequiredQualificationRepository, ShiftRequiredQualificationRepository>();
+        services.AddScoped<IQualificationRepository, QualificationRepository>();
         services.AddScoped<IGroupVisibilityRepository, GroupVisibilityRepository>();
         services.AddScoped<IContractRepository, ContractRepository>();
         services.AddScoped<ISchedulingRuleRepository, SchedulingRuleRepository>();
