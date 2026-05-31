@@ -1,11 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Default <see cref="IProposePlanService"/>. Mirrors WizardApplyService.ApplyAsScenarioAsync: create
-/// an AnalyseScenario, clone the real schedule under its token, flush, THEN run the pre-commit guardrail
-/// (so the checker sees the cloned world, not an empty one), then write the non-blocking placements via
-/// the BulkAddWorks pipeline so period-hour/collision/notification side-effects fire. Blocking placements
-/// (collisions) are skipped and reported, keeping the written scenario collision-free.
+/// Handler for <see cref="ProposePlanCommand"/>. Mirrors WizardApplyService.ApplyAsScenarioAsync:
+/// create an AnalyseScenario, clone the real schedule under its token, flush, THEN run the pre-commit
+/// guardrail (so the checker sees the cloned world, not an empty one), then write the non-blocking
+/// placements via the BulkAddWorks pipeline. Blocking placements (collisions) are skipped and reported.
 /// </summary>
 /// <param name="shiftRepository">Resolves shift start/end times for each placement</param>
 /// <param name="scenarioRepository">Persists the new AnalyseScenario</param>
@@ -13,6 +12,7 @@
 /// <param name="conflictChecker">Pre-commit guardrail used against the cloned scenario world</param>
 /// <param name="mediator">Dispatches BulkAddWorksCommand for the written placements</param>
 /// <param name="unitOfWork">Flushes the scenario + clone before the guardrail check</param>
+using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -24,9 +24,9 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 
-namespace Klacks.Api.Infrastructure.Services.Schedules;
+namespace Klacks.Api.Application.Handlers.Schedules;
 
-public sealed class ProposePlanService : IProposePlanService
+public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanCommand, ProposePlanOutcome>
 {
     private const string ScenarioNamePrefix = "Proposal";
     private const string ShiftNotFoundReason = "shift not found";
@@ -39,7 +39,7 @@ public sealed class ProposePlanService : IProposePlanService
     private readonly IMediator _mediator;
     private readonly IUnitOfWork _unitOfWork;
 
-    public ProposePlanService(
+    public ProposePlanCommandHandler(
         IShiftRepository shiftRepository,
         IAnalyseScenarioRepository scenarioRepository,
         IAnalyseScenarioService scenarioService,
@@ -55,13 +55,13 @@ public sealed class ProposePlanService : IProposePlanService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<ProposePlanOutcome> ProposeAsync(
-        Guid? groupId,
-        DateOnly fromDate,
-        DateOnly untilDate,
-        IReadOnlyList<PlacementInput> placements,
-        CancellationToken cancellationToken = default)
+    public async Task<ProposePlanOutcome> Handle(ProposePlanCommand request, CancellationToken cancellationToken)
     {
+        var groupId = request.GroupId;
+        var fromDate = request.FromDate;
+        var untilDate = request.UntilDate;
+        var placements = request.Placements;
+
         var rejected = new List<RejectedPlacement>();
 
         var shiftIds = placements.Select(p => p.ShiftId).Distinct().ToList();
@@ -112,10 +112,9 @@ public sealed class ProposePlanService : IProposePlanService
                 p.ClientId, p.Date, shifts[p.ShiftId].StartShift, shifts[p.ShiftId].EndShift, p.ShiftId)))
             .ToList();
 
-        var (accepted, blocked, acceptedWarnings) = await PartitionAsync(plannedRows, token, cancellationToken);
+        var (accepted, blocked, warnings) = await PartitionAsync(plannedRows, token, cancellationToken);
         rejected.AddRange(blocked);
 
-        var warnings = acceptedWarnings;
         if (accepted.Count > 0)
         {
             await WriteAsync(accepted, shifts, shiftIdMap, token, fromDate, untilDate, cancellationToken);

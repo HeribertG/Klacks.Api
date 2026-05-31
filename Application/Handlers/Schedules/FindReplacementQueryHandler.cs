@@ -1,12 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Default <see cref="IFindReplacementService"/>. Candidates are the active members of the group; a
-/// candidate is hard-excluded when they are absent that day (a Break on the date), when assigning them
-/// would introduce a new collision or rest-time violation (the precise pair-based L1 checks), or when
-/// the shift is blacklisted for them. Aggregate findings (daily/weekly overtime, consecutive days, min
-/// rest days) are a SOFT signal — fewer of them means more rule headroom, so they lower the rank rather
-/// than exclude. Preferred employees rank first.
+/// Handler for <see cref="FindReplacementQuery"/>. Candidates are the active members of the group; a
+/// candidate is hard-excluded when absent that day (a Break on the date), when assigning them would
+/// introduce a new collision or rest-time violation (the precise pair-based L1 checks), or when the
+/// shift is blacklisted for them. Aggregate findings (overtime/consecutive/min-rest) are a soft
+/// ranking signal (less headroom -> lower rank). Preferred employees rank first.
 /// </summary>
 /// <param name="clientRepository">Resolves the group's active members (the candidate pool)</param>
 /// <param name="conflictChecker">Pre-commit guardrail used to test each candidate placement</param>
@@ -16,15 +15,17 @@ using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Application.Services.Schedules;
+namespace Klacks.Api.Application.Handlers.Schedules;
 
-public sealed class FindReplacementService : IFindReplacementService
+public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacementQuery, ReplacementSearchResult>
 {
     private const string CollisionKey = "schedule.error-list.collision";
     private const string RestViolationKey = "schedule.error-list.rest-violation";
@@ -36,7 +37,7 @@ public sealed class FindReplacementService : IFindReplacementService
     private readonly IClientShiftPreferenceRepository _preferenceRepository;
     private readonly IScheduleEntriesService _scheduleEntriesService;
 
-    public FindReplacementService(
+    public FindReplacementQueryHandler(
         IClientRepository clientRepository,
         IPreCommitConflictChecker conflictChecker,
         IClientShiftPreferenceRepository preferenceRepository,
@@ -48,37 +49,30 @@ public sealed class FindReplacementService : IFindReplacementService
         _scheduleEntriesService = scheduleEntriesService;
     }
 
-    public async Task<ReplacementSearchResult> FindAsync(
-        Guid shiftId,
-        DateOnly date,
-        TimeOnly startTime,
-        TimeOnly endTime,
-        Guid groupId,
-        Guid? analyseToken,
-        CancellationToken cancellationToken = default)
+    public async Task<ReplacementSearchResult> Handle(FindReplacementQuery request, CancellationToken cancellationToken)
     {
         var members = await _clientRepository.GetActiveClientsWithAddressesForGroupsAsync(
-            new List<Guid> { groupId }, cancellationToken);
+            new List<Guid> { request.GroupId }, cancellationToken);
         if (members.Count == 0)
         {
             return new ReplacementSearchResult([], []);
         }
 
         var onLeaveCells = await _scheduleEntriesService
-            .GetScheduleEntriesQuery(date, date, new List<Guid> { groupId }, analyseToken)
+            .GetScheduleEntriesQuery(request.Date, request.Date, new List<Guid> { request.GroupId }, request.AnalyseToken)
             .Where(c => c.EntryType == (int)ScheduleEntryType.Break)
             .ToListAsync(cancellationToken);
         var onLeaveClientIds = onLeaveCells.Select(c => c.ClientId).ToHashSet();
 
-        var preferences = await _preferenceRepository.GetByShiftIdAsync(shiftId, cancellationToken);
+        var preferences = await _preferenceRepository.GetByShiftIdAsync(request.ShiftId, cancellationToken);
         var preferenceByClient = preferences
             .GroupBy(p => p.ClientId)
             .ToDictionary(g => g.Key, g => g.First().PreferenceType);
 
         var plannedRows = members
-            .Select(m => new PlannedWorkRow(m.Id, date, startTime, endTime, shiftId))
+            .Select(m => new PlannedWorkRow(m.Id, request.Date, request.StartTime, request.EndTime, request.ShiftId))
             .ToList();
-        var check = await _conflictChecker.CheckAsync(plannedRows, analyseToken, cancellationToken);
+        var check = await _conflictChecker.CheckAsync(plannedRows, request.AnalyseToken, cancellationToken);
         var conflictsByClient = check.NewConflicts
             .GroupBy(c => c.ClientId)
             .ToDictionary(g => g.Key, g => g.ToList());

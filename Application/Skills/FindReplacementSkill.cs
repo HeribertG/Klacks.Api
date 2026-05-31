@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Proposes rule-compliant replacement employees for a shift on a given day, ranked best-first.
-/// Thin wrapper over <see cref="IFindReplacementService"/>: it resolves the shift (for its start/end
+/// Thin wrapper that dispatches <see cref="Klacks.Api.Application.Queries.Schedules.FindReplacementQuery"/>: it resolves the shift (for its start/end
 /// times) and projects the ranked candidates + exclusions. A candidate is hard-excluded when absent
 /// that day (a Break on the date), when assigning them would introduce a collision or rest-time
 /// violation, or when the shift is blacklisted for them; aggregate findings lower the rank instead.
@@ -13,11 +13,12 @@
 /// <param name="groupId">Required. UUID of the group whose members are the candidate pool.</param>
 /// <param name="analyseToken">Optional. UUID of a scenario; when set, candidates are checked against the isolated scenario.</param>
 
-using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
+using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -25,14 +26,14 @@ namespace Klacks.Api.Application.Skills;
 public class FindReplacementSkill : BaseSkillImplementation
 {
     private readonly IShiftRepository _shiftRepository;
-    private readonly IFindReplacementService _findReplacementService;
+    private readonly IMediator _mediator;
 
     public FindReplacementSkill(
         IShiftRepository shiftRepository,
-        IFindReplacementService findReplacementService)
+        IMediator mediator)
     {
         _shiftRepository = shiftRepository;
-        _findReplacementService = findReplacementService;
+        _mediator = mediator;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -62,8 +63,9 @@ public class FindReplacementSkill : BaseSkillImplementation
             return SkillResult.Error($"Shift {shiftId} not found.");
         }
 
-        var result = await _findReplacementService.FindAsync(
-            shiftId, date, shift.StartShift, shift.EndShift, groupId, analyseToken, cancellationToken);
+        var result = await _mediator.Send(
+            new FindReplacementQuery(shiftId, date, shift.StartShift, shift.EndShift, groupId, analyseToken),
+            cancellationToken);
 
         var ranked = result.Eligible.Select(c => new
         {

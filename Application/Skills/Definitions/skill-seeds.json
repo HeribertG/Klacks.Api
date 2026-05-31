@@ -12752,6 +12752,91 @@
       "version": 1
     },
     {
+      "name": "cover_absence",
+      "description": "Reactive disruption flow: an employee falls out on a day — record the absence and propose rule-compliant cover, all as ONE isolated scenario for approval. The absence (Break) and a Replacement WorkChange per affected slot land in the scenario; nothing touches the real schedule until accept_scenario. Locked slots of the absent employee are reported for manual review; slots with no eligible candidate are reported as under-coverage. Use when someone calls in sick or drops out and their shifts need covering. Needs the Absence type id (absenceId).",
+      "category": "Action",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the employee who is absent",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "date",
+          "description": "Day of the absence in ISO yyyy-MM-dd",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupId",
+          "description": "UUID of the group / planning blade",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "absenceId",
+          "description": "UUID of the Absence type (sick/vacation/...)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "cover absence",
+        "sick",
+        "drops out",
+        "ausfall",
+        "krank",
+        "vertretung organisieren",
+        "ersatz organisieren"
+      ],
+      "synonyms": {
+        "de": [
+          "ausfall abdecken",
+          "krankheitsausfall",
+          "spontaner ausfall",
+          "vertretung organisieren",
+          "wer übernimmt",
+          "ausfall ersetzen"
+        ],
+        "en": [
+          "cover absence",
+          "cover for sick employee",
+          "handle drop out",
+          "organise replacement",
+          "cover the shift"
+        ],
+        "fr": [
+          "couvrir une absence",
+          "remplacer un absent",
+          "gérer une absence soudaine"
+        ],
+        "it": [
+          "coprire un'assenza",
+          "sostituire un assente",
+          "gestire un'assenza improvvisa"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "email_schedule_to_client",
       "description": "Opens the schedule 'Send to client' dialog for the chosen client and period. The actual PDF generation happens client-side, so this skill returns a navigate UiAction; the user confirms the send in the UI dialog.",
       "category": "UI",

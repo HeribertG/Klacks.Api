@@ -14,11 +14,12 @@
 /// <param name="placements">Required. JSON array of {clientId, shiftId, date} placements to propose.</param>
 
 using System.Text.Json;
+using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
-using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
+using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -27,11 +28,11 @@ public class ProposePlanSkill : BaseSkillImplementation
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-    private readonly IProposePlanService _proposePlanService;
+    private readonly IMediator _mediator;
 
-    public ProposePlanSkill(IProposePlanService proposePlanService)
+    public ProposePlanSkill(IMediator mediator)
     {
-        _proposePlanService = proposePlanService;
+        _mediator = mediator;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -94,8 +95,8 @@ public class ProposePlanSkill : BaseSkillImplementation
             placements.Add(new PlacementInput(clientId, shiftId, date));
         }
 
-        var outcome = await _proposePlanService.ProposeAsync(
-            groupId, fromDate, untilDate, placements, cancellationToken);
+        var outcome = await _mediator.Send(
+            new ProposePlanCommand(groupId, fromDate, untilDate, placements), cancellationToken);
 
         var data = new
         {
