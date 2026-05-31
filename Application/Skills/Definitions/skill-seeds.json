@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "skills": [
     {
       "name": "get_current_time",
@@ -9893,7 +9893,7 @@
     },
     {
       "name": "list_scenarios",
-      "description": "Lists AnalyseScenarios, optionally filtered by group. Use after start_autowizard finishes to show the user what's available to accept or reject. Returns each scenario's id, name, token, group, and create time.",
+      "description": "Lists AnalyseScenarios, optionally filtered by group. Use after start_autowizard finishes to show the user what's available to accept or reject. By default only open (Active) scenarios are returned so already accepted/rejected ones are hidden; pass onlyOpen=false to include the full history. Returns each scenario's id, name, token, status, group, and create time.",
       "category": "Read",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -9904,6 +9904,14 @@
           "name": "groupId",
           "description": "Optional group UUID filter. If omitted, returns scenarios across all groups.",
           "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "onlyOpen",
+          "description": "Optional; defaults to true. When true only Active (open) scenarios are returned; set false to include accepted/rejected ones.",
+          "type": "Boolean",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -9947,7 +9955,7 @@
           "alternative"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "approve_day",
@@ -12832,6 +12840,72 @@
           "coprire un'assenza",
           "sostituire un assente",
           "gestire un'assenza improvvisa"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "evaluate_scenario",
+      "description": "Evaluates a proposed AnalyseScenario so you can recommend whether it is safe to accept: it reports the scenario's rule violations (rest time, daily/weekly overtime, consecutive days, min rest days, collisions — same engine as detect_conflicts) and the change-set it introduces over the real plan (added works, replacements and absences). The recommendation is advisory only; accepting stays a manual step (accept_scenario). Pass either scenarioId or analyseToken from list_scenarios. Use after start_autowizard, propose_plan or cover_absence to judge a proposal.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "scenarioId",
+          "description": "UUID of the scenario to evaluate (from list_scenarios). Required if analyseToken is omitted.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "analyseToken",
+          "description": "UUID isolation token of the scenario to evaluate (from list_scenarios). Required if scenarioId is omitted.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "evaluate_scenario",
+        "szenario bewerten",
+        "vorschlag prüfen",
+        "evaluate proposal",
+        "is the scenario good"
+      ],
+      "synonyms": {
+        "de": [
+          "szenario bewerten",
+          "vorschlag prüfen",
+          "vorschlag bewerten",
+          "ist der plan gut",
+          "score des szenarios"
+        ],
+        "en": [
+          "evaluate scenario",
+          "assess proposal",
+          "review the scenario",
+          "is the plan good",
+          "scenario score"
+        ],
+        "fr": [
+          "évaluer le scénario",
+          "examiner la proposition",
+          "le plan est-il bon"
+        ],
+        "it": [
+          "valutare lo scenario",
+          "esaminare la proposta",
+          "il piano è valido"
         ]
       },
       "version": 1
