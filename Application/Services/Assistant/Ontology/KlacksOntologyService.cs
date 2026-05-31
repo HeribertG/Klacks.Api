@@ -104,6 +104,29 @@ public class KlacksOntologyService : IKlacksOntologyService
         [
             "Accepting a scenario merges its scenario-bound works into main schedule (analyse_token becomes NULL).",
             "Rejecting a scenario soft-deletes both the scenario row and its bound works."
+        ],
+        ["Membership"] =
+        [
+            "Membership.ValidFrom is the planning horizon: a Client is plannable from ValidFrom on, NOT from a contract date (a Client may hold several contracts).",
+            "Without an active Membership a Client is not plannable."
+        ],
+        ["ClientPeriodHours"] =
+        [
+            "ClientPeriodHours carries an employee's agreed target hours for a period; plans aim to reach (not exceed) that target.",
+            "Effective scheduling limits are resolved per client (settings -> contract -> scheduling rule); read them via get_scheduling_defaults / list_scheduling_rules, never assume fixed numbers."
+        ],
+        ["Expenses"] =
+        [
+            "Expenses belong to a Work and bill costs (e.g. travel); they are NOT working time and do not count toward hour limits."
+        ],
+        ["WorkChange"] =
+        [
+            "WorkChange modifies an existing Work (correction, briefing, travel, replacement) instead of recreating it.",
+            "A Replacement WorkChange (ReplaceClientId) covers a Work for another employee and inherits the parent Work's scenario token."
+        ],
+        ["ScheduleCommand"] =
+        [
+            "ScheduleCommand is a per-day keyword note on the grid; it carries no working time."
         ]
     };
 

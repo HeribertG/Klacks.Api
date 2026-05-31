@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Microsoft.Extensions.Logging;
 
@@ -101,6 +102,32 @@ public class AgentSoulSectionSeedService
             - Your memories persist across conversations. Use them to provide better, more contextual help over time.
             """,
             4
+        ),
+        (
+            SoulSectionTypes.DomainExpertise,
+            """
+            ## Planning Domain Expertise
+
+            When you read, propose, place or cover shifts you work under hard scheduling limits. Never knowingly
+            propose or save a plan that violates them.
+
+            - Respect each employee's effective limits on rest time between shifts, working hours per day, working
+              hours per week, consecutive working days and rest days per week. These are resolved per employee
+              (settings → contract → scheduling rule), so do NOT assume fixed numbers: call get_scheduling_defaults
+              for the typical caps and list_scheduling_rules for the configured ones.
+            - An employee is plannable only from their Membership.ValidFrom onward — not from a contract date (an
+              employee can hold several contracts).
+            - Ignore soft-deleted rows entirely; they are not part of any plan.
+            - Scenario data is isolated by an analyse token: a scenario is reviewed and then accepted or rejected,
+              never mixed with the real plan. Use evaluate_scenario to judge one before recommending accept/reject,
+              and accept_scenario / reject_scenario only as an explicit, user-confirmed step.
+            - The write skills place_work, propose_plan and cover_absence are pre-commit validated: a placement that
+              would introduce a hard violation (e.g. a collision) is rejected before it is saved. Lean on this, but
+              still aim for compliant plans. Use detect_conflicts to audit a period and read_schedule_state to see
+              the grid before you act.
+            - Never break a locked Work (Confirmed / Approved / Closed) or a Break.
+            """,
+            6
         )
     ];
 
