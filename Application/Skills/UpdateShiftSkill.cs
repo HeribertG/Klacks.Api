@@ -2,10 +2,12 @@
 
 /// <summary>
 /// Updates an existing shift by PATCHING only the supplied fields onto the current shift (loaded
-/// first, so unspecified fields — times, weekdays, groups, expenses — are preserved). Refuses when
-/// the shift has cuts (a nested-set subtree) because re-defining a cut parent is not yet supported.
-/// Warns when the shift already has works, since changing its times/weekdays re-defines those works.
-/// Dispatches PutCommand&lt;ShiftResource&gt;.
+/// first, so unspecified fields — times, weekdays, groups, expenses — are preserved). For a cut
+/// parent (a nested-set subtree) structural edits (times / weekdays / dates / headcount) are refused
+/// and routed to the cut editor — each cut child defines its own times, so propagating structure
+/// would destroy the cuts; only metadata (name / abbreviation / description) is propagated across all
+/// members of the cut group. Warns when the shift already has works, since changing its times/weekdays
+/// re-defines those works. Dispatches PutCommand&lt;ShiftResource&gt;.
 /// </summary>
 /// <param name="shiftId">Required. UUID of the shift to update.</param>
 /// <param name="name">Optional. New name.</param>
@@ -58,50 +60,60 @@ public class UpdateShiftSkill : BaseSkillImplementation
             return SkillResult.Error($"Shift {shiftId} not found.");
         }
 
-        if (existing.Lft.HasValue && existing.Rgt.HasValue && existing.Rgt - existing.Lft > 1)
+        var name = GetParameter<string>(parameters, "name");
+        var abbreviation = GetParameter<string>(parameters, "abbreviation");
+        var description = GetParameter<string>(parameters, "description");
+
+        var startRaw = GetParameter<string>(parameters, "startTime");
+        if (!string.IsNullOrWhiteSpace(startRaw) && !TimeOnly.TryParse(startRaw, out _))
         {
-            return SkillResult.Error("This shift has cuts (a sub-shift tree); updating a cut parent is not yet supported.");
+            return SkillResult.Error($"Invalid startTime: {startRaw}.");
+        }
+        var endRaw = GetParameter<string>(parameters, "endTime");
+        if (!string.IsNullOrWhiteSpace(endRaw) && !TimeOnly.TryParse(endRaw, out _))
+        {
+            return SkillResult.Error($"Invalid endTime: {endRaw}.");
+        }
+        var sumEmployees = GetParameter<int?>(parameters, "sumEmployees");
+        var fromDate = GetParameter<DateOnly?>(parameters, "fromDate");
+        var untilDate = GetParameter<DateOnly?>(parameters, "untilDate");
+        var weekdays = GetParameter<string>(parameters, "weekdays");
+
+        var metadataChanged = !string.IsNullOrWhiteSpace(name)
+            || !string.IsNullOrWhiteSpace(abbreviation)
+            || description != null;
+        var structuralChanged = !string.IsNullOrWhiteSpace(startRaw)
+            || !string.IsNullOrWhiteSpace(endRaw)
+            || (sumEmployees.HasValue && sumEmployees.Value > 0)
+            || fromDate.HasValue
+            || untilDate.HasValue
+            || !string.IsNullOrWhiteSpace(weekdays);
+
+        var isCutParent = existing.Lft.HasValue && existing.Rgt.HasValue && existing.Rgt - existing.Lft > 1;
+
+        if (isCutParent)
+        {
+            if (structuralChanged)
+            {
+                return SkillResult.Error("This shift has cuts (a sub-shift tree). Structural edits (times / weekdays / dates / headcount) of a cut parent must be made in the cut editor, because each cut defines its own times — only name, abbreviation and description can be changed here.");
+            }
+            if (!metadataChanged)
+            {
+                return SkillResult.Error("Provide a name, abbreviation or description to update.");
+            }
+
+            return await PropagateMetadataAsync(existing, name, abbreviation, description, cancellationToken);
         }
 
         var resource = _scheduleMapper.ToShiftResource(existing);
+        ApplyMetadata(resource, name, abbreviation, description);
 
-        var name = GetParameter<string>(parameters, "name");
-        if (!string.IsNullOrWhiteSpace(name)) resource.Name = name.Trim();
-
-        var abbreviation = GetParameter<string>(parameters, "abbreviation");
-        if (!string.IsNullOrWhiteSpace(abbreviation)) resource.Abbreviation = abbreviation.Trim();
-
-        var description = GetParameter<string>(parameters, "description");
-        if (description != null) resource.Description = description;
-
-        var startRaw = GetParameter<string>(parameters, "startTime");
-        if (!string.IsNullOrWhiteSpace(startRaw))
-        {
-            if (!TimeOnly.TryParse(startRaw, out var start)) return SkillResult.Error($"Invalid startTime: {startRaw}.");
-            resource.StartShift = start;
-        }
-
-        var endRaw = GetParameter<string>(parameters, "endTime");
-        if (!string.IsNullOrWhiteSpace(endRaw))
-        {
-            if (!TimeOnly.TryParse(endRaw, out var end)) return SkillResult.Error($"Invalid endTime: {endRaw}.");
-            resource.EndShift = end;
-        }
-
-        var sumEmployees = GetParameter<int?>(parameters, "sumEmployees");
+        if (!string.IsNullOrWhiteSpace(startRaw)) resource.StartShift = TimeOnly.Parse(startRaw);
+        if (!string.IsNullOrWhiteSpace(endRaw)) resource.EndShift = TimeOnly.Parse(endRaw);
         if (sumEmployees.HasValue && sumEmployees.Value > 0) resource.SumEmployees = sumEmployees.Value;
-
-        var fromDate = GetParameter<DateOnly?>(parameters, "fromDate");
         if (fromDate.HasValue) resource.FromDate = fromDate.Value;
-
-        var untilDate = GetParameter<DateOnly?>(parameters, "untilDate");
         if (untilDate.HasValue) resource.UntilDate = untilDate.Value;
-
-        var weekdays = GetParameter<string>(parameters, "weekdays");
-        var weekdaysChanged = !string.IsNullOrWhiteSpace(weekdays);
-        if (weekdaysChanged) ApplyWeekdays(resource, weekdays!);
-
-        var timesChanged = !string.IsNullOrWhiteSpace(startRaw) || !string.IsNullOrWhiteSpace(endRaw);
+        if (!string.IsNullOrWhiteSpace(weekdays)) ApplyWeekdays(resource, weekdays!);
 
         var result = await _mediator.Send(new PutCommand<ShiftResource>(resource), cancellationToken);
         if (result == null)
@@ -110,7 +122,7 @@ public class UpdateShiftSkill : BaseSkillImplementation
         }
 
         var worksNote = string.Empty;
-        if ((timesChanged || weekdaysChanged) && await _shiftRepository.HasActiveWorksAsync(shiftId, cancellationToken))
+        if (structuralChanged && await _shiftRepository.HasActiveWorksAsync(shiftId, cancellationToken))
         {
             worksNote = " Note: this shift already has works; their effective times follow the shift definition.";
         }
@@ -118,6 +130,40 @@ public class UpdateShiftSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(
             new { result.Id, result.Name, StartShift = result.StartShift.ToString(@"hh\:mm"), EndShift = result.EndShift.ToString(@"hh\:mm") },
             $"Shift '{result.Name}' updated.{worksNote}");
+    }
+
+    private async Task<SkillResult> PropagateMetadataAsync(
+        Domain.Models.Schedules.Shift existing,
+        string? name,
+        string? abbreviation,
+        string? description,
+        CancellationToken cancellationToken)
+    {
+        var groupKey = existing.OriginalId ?? existing.Id;
+        var members = await _shiftRepository.CutList(groupKey, tracked: false);
+        if (members.All(m => m.Id != existing.Id))
+        {
+            members.Add(existing);
+        }
+
+        foreach (var member in members)
+        {
+            var memberResource = _scheduleMapper.ToShiftResource(member);
+            ApplyMetadata(memberResource, name, abbreviation, description);
+            await _mediator.Send(new PutCommand<ShiftResource>(memberResource), cancellationToken);
+        }
+
+        var displayName = string.IsNullOrWhiteSpace(name) ? existing.Name : name.Trim();
+        return SkillResult.SuccessResult(
+            new { existing.Id, Name = displayName, UpdatedMembers = members.Count },
+            $"Metadata of '{displayName}' propagated across {members.Count} cut-group member(s).");
+    }
+
+    private static void ApplyMetadata(ShiftResource resource, string? name, string? abbreviation, string? description)
+    {
+        if (!string.IsNullOrWhiteSpace(name)) resource.Name = name.Trim();
+        if (!string.IsNullOrWhiteSpace(abbreviation)) resource.Abbreviation = abbreviation.Trim();
+        if (description != null) resource.Description = description;
     }
 
     private static void ApplyWeekdays(ShiftResource resource, string weekdays)
