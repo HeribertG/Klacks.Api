@@ -379,4 +379,11 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
         return originalShift;
     }
+
+    public async Task<bool> HasActiveWorksAsync(Guid shiftId, CancellationToken cancellationToken = default)
+    {
+        return await context.Work
+            .AsNoTracking()
+            .AnyAsync(w => w.ShiftId == shiftId && !w.IsDeleted && w.AnalyseToken == null, cancellationToken);
+    }
 }

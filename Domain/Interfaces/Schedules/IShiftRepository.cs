@@ -37,4 +37,6 @@ public interface IShiftRepository : IBaseRepository<Shift>
     Task<Shift?> PutWithSealedOrderHandling(Shift shift);
 
     Task<SporadicShiftInfo?> GetSporadicInfoAsync(Guid shiftId, CancellationToken cancellationToken = default);
+
+    Task<bool> HasActiveWorksAsync(Guid shiftId, CancellationToken cancellationToken = default);
 }

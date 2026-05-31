@@ -13094,6 +13094,184 @@
       "version": 1
     },
     {
+      "name": "set_shift_preferences",
+      "description": "Sets a single employee's preference for a shift: 'preferred' (the planner favours this employee for the shift) or 'blacklist' (the employee is excluded from it). Only this one preference changes — the employee's other preferences are kept. Consumed by the planner (preferred soft rule) and find_replacement (preferred ranking / blacklist exclusion). Calling it again for the same employee + shift updates it.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the employee",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "shiftId",
+          "description": "UUID of the shift",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "preference",
+          "description": "preferred or blacklist",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": ["preferred", "blacklist"]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["set_shift_preferences", "schicht präferenz", "bevorzugt", "blacklist", "shift preference"],
+      "synonyms": {
+        "de": ["schicht präferenz setzen", "mitarbeiter bevorzugen", "von schicht ausschließen", "blacklist setzen"],
+        "en": ["set shift preference", "prefer employee for shift", "blacklist from shift", "favourite shift"],
+        "fr": ["définir la préférence de poste", "préférer un employé", "exclure du poste"],
+        "it": ["impostare la preferenza del turno", "preferire un dipendente", "escludere dal turno"]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_shift",
+      "description": "Updates an existing shift, patching only the fields you pass (name, abbreviation, description, start/end time, headcount, validity dates, weekdays) — everything else is kept. Refuses if the shift has cuts (a sub-shift tree). Warns if the shift already has works, since changing times/weekdays re-defines them. Use list_shifts / read_schedule_state to find the shiftId.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanEditShifts"],
+      "parameters": [
+        {
+          "name": "shiftId",
+          "description": "UUID of the shift to update",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name",
+          "description": "New name",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "abbreviation",
+          "description": "New abbreviation",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description",
+          "description": "New description",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "startTime",
+          "description": "New start time HH:mm",
+          "type": "Time",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endTime",
+          "description": "New end time HH:mm",
+          "type": "Time",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "sumEmployees",
+          "description": "New required headcount",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "New validity start ISO yyyy-MM-dd",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "New validity end ISO yyyy-MM-dd",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "weekdays",
+          "description": "'all' or a comma list (mon,tue,wed,thu,fri,sat,sun) replacing the weekday flags",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["update_shift", "schicht ändern", "schicht bearbeiten", "edit shift", "change shift"],
+      "synonyms": {
+        "de": ["schicht ändern", "schicht bearbeiten", "dienst anpassen", "schicht aktualisieren"],
+        "en": ["update shift", "edit shift", "change shift", "modify shift"],
+        "fr": ["modifier le poste", "mettre à jour le poste", "changer le poste"],
+        "it": ["aggiornare il turno", "modificare il turno", "cambiare il turno"]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_shift",
+      "description": "Soft-deletes a shift. Refuses if the shift has cuts (a sub-shift tree) or still has works assigned (those must be reassigned/removed first), reporting the manual action needed. Use list_shifts / read_schedule_state to find the shiftId.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": ["CanDeleteShifts"],
+      "parameters": [
+        {
+          "name": "shiftId",
+          "description": "UUID of the shift to delete",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": ["delete_shift", "schicht löschen", "dienst entfernen", "delete shift", "remove shift"],
+      "synonyms": {
+        "de": ["schicht löschen", "dienst entfernen", "schicht entfernen"],
+        "en": ["delete shift", "remove shift", "drop shift"],
+        "fr": ["supprimer le poste", "effacer le poste"],
+        "it": ["eliminare il turno", "rimuovere il turno"]
+      },
+      "version": 1
+    },
+    {
       "name": "email_schedule_to_client",
       "description": "Opens the schedule 'Send to client' dialog for the chosen client and period. The actual PDF generation happens client-side, so this skill returns a navigate UiAction; the user confirms the send in the UI dialog.",
       "category": "UI",
