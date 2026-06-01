@@ -40,7 +40,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     private readonly ISkillCacheService _skillCacheService;
     private readonly IKnowledgeRetrievalService _knowledgeRetrieval;
 
-    private const int MaxToolsForProvider = 30;
+    private const int MaxToolsForProvider = KnowledgeIndexConstants.MaxToolsForProvider;
 
     public ProcessLLMMessageCommandHandler(
         ILLMService llmService,

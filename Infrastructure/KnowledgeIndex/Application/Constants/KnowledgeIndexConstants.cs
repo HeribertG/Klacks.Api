@@ -14,6 +14,12 @@ public static class KnowledgeIndexConstants
     public const int DefaultTopK = 5;
     public const double DefaultScoreCutoff = 0.05;
 
+    // Cap on the tool list sent to the LLM provider per turn. Must stay >= (enabled alwaysOn skills +
+    // DefaultTopK) so retrieved (non-alwaysOn) skills are never fully squeezed out by alwaysOn ones
+    // during truncation. Enforced by SkillToolBudgetGuardTests. Shared by both the streaming and
+    // non-streaming chat paths (previously two diverging private consts: 22 vs 30).
+    public const int MaxToolsForProvider = 30;
+
     public const string EmbeddingModelName = "multilingual-e5-small";
     public const string EmbeddingModelFileName = "model.onnx";
     public const string EmbeddingTokenizerFileName = "tokenizer.json";

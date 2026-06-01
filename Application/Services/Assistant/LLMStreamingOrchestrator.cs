@@ -46,11 +46,12 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     // earlier turns were about (e.g. create_employee).
     private const int RecentMessagesForRetrieval = 4;
 
-    // Safety cap on the tool list sent to the provider. Reality today: 9 alwaysOn
-    // 18 alwaysOn client/edit skills + up to 4 retrieved = 22.
-    // AlwaysOn skills are ordered first and survive any truncation; retrieved skills
-    // drop first if the cap is hit.
-    private const int MaxToolsForProvider = 22;
+    // Safety cap on the tool list sent to the provider. AlwaysOn skills are ordered first and survive
+    // truncation; retrieved skills drop first. The cap MUST exceed (enabled alwaysOn count + DefaultTopK)
+    // or retrieved skills are squeezed out entirely — which is exactly what happened when alwaysOn grew
+    // to 22 against the old cap of 22 (no non-alwaysOn skill could reach the LLM). Now a single shared
+    // constant, guarded by SkillToolBudgetGuardTests.
+    private const int MaxToolsForProvider = KnowledgeIndexConstants.MaxToolsForProvider;
 
     private static readonly JsonSerializerOptions CaseInsensitiveJsonOptions = new()
     {
