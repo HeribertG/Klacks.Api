@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Constants;
@@ -39,6 +40,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     private readonly ISkillCacheService _skillCacheService;
     private readonly IKnowledgeRetrievalService _knowledgeRetrieval;
     private readonly LLMConversationManager _conversationManager;
+    private readonly IPlanningScopeEnricher _planningScopeEnricher;
     private readonly ILogger<LLMStreamingOrchestrator> _logger;
 
     // Number of most recent conversation messages prepended to the skill-retrieval query so
@@ -63,12 +65,14 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         ISkillCacheService skillCacheService,
         IKnowledgeRetrievalService knowledgeRetrieval,
         LLMConversationManager conversationManager,
+        IPlanningScopeEnricher planningScopeEnricher,
         ILogger<LLMStreamingOrchestrator> logger)
     {
         _llmService = llmService;
         _skillCacheService = skillCacheService;
         _knowledgeRetrieval = knowledgeRetrieval;
         _conversationManager = conversationManager;
+        _planningScopeEnricher = planningScopeEnricher;
         _logger = logger;
     }
 
@@ -117,6 +121,8 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             PageContext = request.PageContext,
             AvailableFunctions = functions
         };
+
+        await _planningScopeEnricher.EnrichAsync(context, cancellationToken);
 
         await foreach (var chunk in _llmService.ProcessStreamAsync(context, cancellationToken))
         {

@@ -56,6 +56,7 @@ public class ContextAssemblyPipeline
         string userMessage,
         string? language = null,
         IReadOnlyList<string>? availableSkillNames = null,
+        Klacks.Api.Domain.Models.Scheduling.SchedulingPolicy? scopedClientPolicy = null,
         CancellationToken cancellationToken = default)
     {
         var sb = new StringBuilder();
@@ -71,7 +72,7 @@ public class ContextAssemblyPipeline
             sb.AppendLine();
         }
 
-        var rulePack = _ruleContextProvider.BuildSchedulingRulePack(availableSkillNames);
+        var rulePack = _ruleContextProvider.BuildSchedulingRulePack(availableSkillNames, scopedClientPolicy);
         if (!string.IsNullOrWhiteSpace(rulePack))
         {
             sb.AppendLine(rulePack);

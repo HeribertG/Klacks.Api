@@ -12,6 +12,7 @@
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
@@ -39,6 +40,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     private readonly IAgentRepository _agentRepository;
     private readonly ISkillCacheService _skillCacheService;
     private readonly IKnowledgeRetrievalService _knowledgeRetrieval;
+    private readonly IPlanningScopeEnricher _planningScopeEnricher;
 
     private const int MaxToolsForProvider = KnowledgeIndexConstants.MaxToolsForProvider;
 
@@ -46,12 +48,14 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         ILLMService llmService,
         IAgentRepository agentRepository,
         ISkillCacheService skillCacheService,
-        IKnowledgeRetrievalService knowledgeRetrieval)
+        IKnowledgeRetrievalService knowledgeRetrieval,
+        IPlanningScopeEnricher planningScopeEnricher)
     {
         _llmService = llmService;
         _agentRepository = agentRepository;
         _skillCacheService = skillCacheService;
         _knowledgeRetrieval = knowledgeRetrieval;
+        _planningScopeEnricher = planningScopeEnricher;
     }
 
     public async Task<LLMResponse> Handle(ProcessLLMMessageCommand request, CancellationToken cancellationToken)
@@ -72,6 +76,8 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             AvailableFunctions = await GetFilteredFunctionsAsync(
                 agent, request.UserRights, request.Message, request.Language, cancellationToken)
         };
+
+        await _planningScopeEnricher.EnrichAsync(context, cancellationToken);
 
         return await _llmService.ProcessAsync(context);
     }
