@@ -131,6 +131,45 @@ public static class ServiceCollectionExtensions
         }
     }
 
+    /// <summary>
+    /// Registers every core [SkillImplementation] class in this assembly that is not already registered,
+    /// as Scoped. Mirrors the registry scan (SkillRegistryInitializer) so the skill-name -> type map and
+    /// the DI container cannot drift apart; skip-existing preserves explicit (e.g. Singleton) lifetimes.
+    /// </summary>
+    private static void AddScannedSkillImplementations(this IServiceCollection services)
+    {
+        var assembly = typeof(ServiceCollectionExtensions).Assembly;
+        foreach (var type in assembly.GetTypes())
+        {
+            if (type.IsAbstract || type.IsInterface)
+            {
+                continue;
+            }
+
+            var attr = System.Attribute.GetCustomAttribute(
+                type, typeof(Klacks.Api.Domain.Attributes.SkillImplementationAttribute));
+            if (attr == null)
+            {
+                continue;
+            }
+
+            var alreadyRegistered = false;
+            foreach (var descriptor in services)
+            {
+                if (descriptor.ServiceType == type)
+                {
+                    alreadyRegistered = true;
+                    break;
+                }
+            }
+
+            if (!alreadyRegistered)
+            {
+                services.AddScoped(type);
+            }
+        }
+    }
+
     public static void RegisterPlugin(Klacks.Plugin.Contracts.IPluginRegistrar registrar)
     {
         PluginRegistrars.Add(registrar);
@@ -631,6 +670,15 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.Meta.UpdateAgentSkillSkill>();
         services.AddScoped<Application.Skills.Meta.DeleteAgentSkillSkill>();
         services.AddScoped<Application.Skills.Meta.ReviewSkillSuggestionsSkill>();
+
+        // Auto-register every [SkillImplementation] class that is not already registered above. The
+        // skill registry (SkillRegistryInitializer) reflects over the SAME attribute to map skill-name
+        // -> ImplementationType, and the executor resolves that type from DI; if the two drift apart a
+        // skill throws "No service for type X" at first invocation (which is how the macro/planner
+        // skills were silently broken — never live-run). Skip-existing preserves the explicit
+        // (e.g. Singleton) lifetimes above; new skills no longer need a manual line here.
+        services.AddScannedSkillImplementations();
+
         services.AddScoped<Infrastructure.WebSearch.WebSearchProviderFactory>();
 
         services.AddScoped<Persistence.Seed.AgentSoulSectionSeedService>();
