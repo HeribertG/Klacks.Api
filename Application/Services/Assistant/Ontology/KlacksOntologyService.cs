@@ -1,12 +1,20 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Phase 3 skeleton implementation of IKlacksOntologyService.
-/// Today: hard-coded seed of the most important entities + relations + constraints.
-/// TODO (next iteration): build the graph from EF DbContext reflection + .claude/rules/*.md
-/// + DK ontology entries; refresh on migration completion.
+/// Curated world-model for the assistant: a hand-picked seed of the planning-relevant entities +
+/// relations + constraints.
+/// Generation from the EF DbContext was rejected by design: the schema has 100+ entity types
+/// (AppUser, RefreshToken, PostcodeCH, History, ...), and dumping them would bloat the prompt and
+/// blow the token budget — the curated ~15-entity subset is the value. The load-bearing part, the
+/// constraints, is hand-authored domain semantics that reflection cannot produce.
+/// Instead of generating, the curated set is kept honest against the schema by a drift-guard:
+/// KlacksOntologyServiceTests asserts internal consistency (every relation/constraint key is a known
+/// entity), and an integration test asserts every curated entity name maps to a real EF CLR type.
+/// Known limit: the guard catches rename/removal of curated entities, not "a newly relevant entity
+/// was not added" — that addition remains a human judgement.
 /// </summary>
 
+using System.Text;
 using Klacks.Api.Domain.Interfaces.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Ontology;
@@ -140,20 +148,46 @@ public class KlacksOntologyService : IKlacksOntologyService
 
     public string RenderWorldModelBlock(int maxTokens = 1500)
     {
-        var lines = new List<string> { "=== KLACKS WORLD MODEL ===" };
+        // [R7/K4] Enforce the token budget (was previously ignored). Truncation happens at whole-entity
+        // boundaries — never mid-constraint — and a visible note is appended (not a silent cap), so the
+        // block always stays a valid, self-describing document even if it grows past the budget.
+        var maxChars = maxTokens * CharsPerToken;
+
+        var body = new StringBuilder(Header);
+        var truncated = false;
         foreach (var entity in Entities)
         {
-            lines.Add($"- {entity}");
+            var entityBlock = new StringBuilder();
+            entityBlock.Append('\n').Append("- ").Append(entity);
             foreach (var rel in GetRelations(entity))
             {
-                lines.Add($"  * {rel.From} --{rel.Kind}--> {rel.To}");
+                entityBlock.Append('\n').Append("  * ").Append($"{rel.From} --{rel.Kind}--> {rel.To}");
             }
             foreach (var c in GetConstraints(entity))
             {
-                lines.Add($"  ! {c}");
+                entityBlock.Append('\n').Append("  ! ").Append(c);
             }
+
+            // Reserve room so the note + footer can always close the block cleanly.
+            var reserve = TruncationNote.Length + Footer.Length + 2;
+            if (body.Length + entityBlock.Length + reserve > maxChars)
+            {
+                truncated = true;
+                break;
+            }
+            body.Append(entityBlock);
         }
-        lines.Add("=== END WORLD MODEL ===");
-        return string.Join('\n', lines);
+
+        if (truncated)
+        {
+            body.Append('\n').Append(TruncationNote);
+        }
+        body.Append('\n').Append(Footer);
+        return body.ToString();
     }
+
+    private const int CharsPerToken = 4;
+    private const string Header = "=== KLACKS WORLD MODEL ===";
+    private const string Footer = "=== END WORLD MODEL ===";
+    private const string TruncationNote = "! (world model truncated to fit the token budget)";
 }
