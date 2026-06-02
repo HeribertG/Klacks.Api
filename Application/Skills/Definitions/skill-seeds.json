@@ -14202,6 +14202,83 @@
         "zuweisen"
       ],
       "version": 1
+    },
+    {
+      "name": "set_group_location",
+      "description": "Sets the geographic coordinates (latitude/longitude) of a single group, identified by name. Coordinates are optional on a group: only location groups (e.g. a city) carry them, while qualification or hierarchy groups do not. Provide explicit latitude and longitude, or omit both to geocode the group from its name. The resolved coordinates are returned so the user can confirm them. Use this to give a city group a location before grouping customers geographically.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "groupName",
+          "description": "Name of the group whose location is set",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "latitude",
+          "description": "Optional explicit latitude in degrees. Omit (together with longitude) to geocode the group by its name.",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "longitude",
+          "description": "Optional explicit longitude in degrees. Omit (together with latitude) to geocode the group by its name.",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null
+    },
+    {
+      "name": "propose_customer_grouping",
+      "description": "Proposes a geographic re-grouping of customers: each customer is assigned to the nearest group that carries coordinates, moving it from a coarse node (e.g. a canton) down to the nearest finer node (e.g. a city). With apply=false (default) it returns a read-only proposal: how many customers would move, a per-target-group breakdown, a sample, and customers that cannot be placed. With apply=true it persists the moves. ALWAYS run the proposal first and let the user confirm before calling again with apply=true. If no group carries coordinates, geocode the city groups first via set_group_location.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "apply",
+          "description": "When true the proposal is persisted (customers are moved); when false (default) only a dry-run proposal is returned.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null
+    },
+    {
+      "name": "geocode_location_groups",
+      "description": "Automatically assigns geographic coordinates to groups that represent a real place (city/town/village). It classifies each group from its name and parent hierarchy via the LLM (and a web search when uncertain); only confident places are geocoded, everything else (regions, qualifications, teams) is left untouched. With a groupName it resolves that one group immediately and returns the outcome; without one it queues every group that has no coordinates yet for background processing. Use this to bulk-fill city/village groups before grouping customers geographically.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "groupName",
+          "description": "Optional. Resolve just this group now; omit to queue all groups without coordinates for background geocoding.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null
     }
   ]
 }

@@ -71,6 +71,11 @@ public abstract class BaseSkillImplementation : ISkillImplementation
                 return (T)(object)Convert.ToDecimal(value);
             }
 
+            if (typeof(T) == typeof(double) || typeof(T) == typeof(double?))
+            {
+                return (T)(object)Convert.ToDouble(value);
+            }
+
             return (T)Convert.ChangeType(value, typeof(T));
         }
         catch

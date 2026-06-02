@@ -317,6 +317,14 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerModelCheckService>();
         services.AddScoped<Klacks.Api.Application.Services.Assistant.SpeechModelCheckService>();
         services.AddScoped<Klacks.Api.Application.Services.Assistant.KlacksyModelCheckService>();
+        services.AddScoped<Klacks.Api.Application.Services.Grouping.ICustomerGroupingPlanner,
+            Klacks.Api.Application.Services.Grouping.CustomerGroupingPlanner>();
+        services.AddScoped<Klacks.Api.Application.Services.Grouping.IGroupGeocoder,
+            Klacks.Api.Application.Services.Grouping.GroupGeocoder>();
+        services.AddScoped<Klacks.Api.Application.Services.Grouping.IGroupPlaceClassifier,
+            Klacks.Api.Application.Services.Grouping.GroupPlaceClassifier>();
+        services.AddScoped<Klacks.Api.Application.Services.Grouping.IGroupLocationResolver,
+            Klacks.Api.Application.Services.Grouping.GroupLocationResolver>();
         services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.IHolisticHarmonizerApplyService,
                            Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerApplyService>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerJobRegistry>();

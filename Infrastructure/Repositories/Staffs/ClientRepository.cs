@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Staffs;
@@ -265,6 +266,16 @@ public class ClientRepository : IClientRepository
         return await context.Client
             .Include(c => c.Addresses)
             .Where(c => !c.IsDeleted)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<Client>> GetByTypeWithAddressesAndGroupItemsAsync(EntityTypeEnum type, CancellationToken cancellationToken = default)
+    {
+        return await context.Client
+            .Include(c => c.Addresses)
+            .Include(c => c.GroupItems)
+            .Where(c => !c.IsDeleted && c.Type == type)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }

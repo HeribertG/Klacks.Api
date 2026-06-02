@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Models.Results;
@@ -12,6 +13,7 @@ public interface IClientRepository : IBaseRepository<Client>
     Task<int> CountAsync();
     Task<LastChangeMetaData> LastChangeMetaData();
     Task<List<Client>> GetActiveClientsWithAddressesAsync(CancellationToken cancellationToken = default);
+    Task<List<Client>> GetByTypeWithAddressesAndGroupItemsAsync(EntityTypeEnum type, CancellationToken cancellationToken = default);
     Task<List<Client>> GetActiveClientsWithAddressesForGroupsAsync(List<Guid> visibleRootIds, CancellationToken cancellationToken = default);
     Task<List<Client>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default);
     Task<Client?> GetByLdapExternalIdAsync(string ldapExternalId);

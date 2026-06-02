@@ -31,6 +31,10 @@ public class Group : BaseEntity
 
     public PaymentInterval PaymentInterval { get; set; } = PaymentInterval.Monthly;
 
+    public double? Latitude { get; set; }
+
+    public double? Longitude { get; set; }
+
     [ForeignKey("CalendarSelection")]
     public Guid? CalendarSelectionId { get; set; }
 
