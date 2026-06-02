@@ -15,6 +15,7 @@ public class QualificationConfiguration : IEntityTypeConfiguration<Qualification
     public void Configure(EntityTypeBuilder<Qualification> builder)
     {
         builder.HasQueryFilter(q => !q.IsDeleted);
-        builder.HasIndex(q => new { q.Name, q.IsDeleted });
+        builder.ConfigureMultiLanguage(q => q.Name, "name");
+        builder.ConfigureMultiLanguage(q => q.Description, "description");
     }
 }

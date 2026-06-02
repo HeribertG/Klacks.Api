@@ -3,23 +3,19 @@
 /// <summary>
 /// A named qualification / skill an employee can hold and a shift can require
 /// (e.g. "Forklift licence", "First aid"). Soft-deletable master entity.
+/// Name and Description are stored as JSONB MultiLanguage values.
 /// </summary>
 
 using Klacks.Api.Domain.Common;
-using System.ComponentModel.DataAnnotations;
 
 namespace Klacks.Api.Domain.Models.Staffs;
 
 public class Qualification : BaseEntity
 {
-    [Required]
-    [StringLength(150)]
-    public string Name { get; set; } = string.Empty;
+    public MultiLanguage Name { get; set; } = new();
 
-    [StringLength(500)]
-    public string? Description { get; set; }
+    public MultiLanguage? Description { get; set; }
 
-    [StringLength(100)]
     public string? Emoji { get; set; }
 
     public bool IsTimeLimited { get; set; }

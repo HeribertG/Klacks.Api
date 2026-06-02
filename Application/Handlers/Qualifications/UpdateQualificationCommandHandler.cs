@@ -33,7 +33,7 @@ public sealed class UpdateQualificationCommandHandler : IRequestHandler<UpdateQu
         var entity = await _repository.Get(request.Id)
             ?? throw new KeyNotFoundException($"Qualification {request.Id} not found.");
 
-        entity.Name = request.Name.Trim();
+        entity.Name = request.Name;
         entity.Description = request.Description;
         entity.Emoji = request.Emoji;
         entity.IsTimeLimited = request.IsTimeLimited;

@@ -30,7 +30,7 @@ public sealed class CreateQualificationCommandHandler : IRequestHandler<CreateQu
 
     public async Task<Guid> Handle(CreateQualificationCommand request, CancellationToken cancellationToken)
     {
-        var existing = await _repository.GetByNameAsync(request.Name, cancellationToken);
+        var existing = await _repository.GetByNameAsync(request.Name?.De ?? string.Empty, cancellationToken);
         if (existing != null)
         {
             return existing.Id;
@@ -39,7 +39,7 @@ public sealed class CreateQualificationCommandHandler : IRequestHandler<CreateQu
         var entity = new Qualification
         {
             Id = Guid.NewGuid(),
-            Name = request.Name.Trim(),
+            Name = request.Name,
             Description = request.Description,
         };
         await _repository.Add(entity);

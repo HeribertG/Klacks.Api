@@ -11,6 +11,7 @@
 
 using Klacks.Api.Application.Commands.Qualifications;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -39,7 +40,10 @@ public class CreateQualificationSkill : BaseSkillImplementation
         }
         var description = GetParameter<string>(parameters, "description");
 
-        var id = await _mediator.Send(new CreateQualificationCommand(name, description), cancellationToken);
+        var mlName = new MultiLanguage { De = name };
+        var mlDescription = description != null ? new MultiLanguage { De = description } : null;
+
+        var id = await _mediator.Send(new CreateQualificationCommand(mlName, mlDescription), cancellationToken);
 
         return SkillResult.SuccessResult(
             new { Id = id, Name = name.Trim() },

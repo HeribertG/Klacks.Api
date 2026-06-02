@@ -22,15 +22,13 @@ public class QualificationRepository : BaseRepository<Qualification>, IQualifica
     public async Task<Qualification?> GetByNameAsync(string name, CancellationToken ct = default)
     {
         var normalized = name.Trim().ToLower();
-        return await context.Qualification
-            .FirstOrDefaultAsync(q => q.Name.ToLower() == normalized, ct);
+        var all = await context.Qualification.ToListAsync(ct);
+        return all.FirstOrDefault(q => q.Name?.De?.Trim().ToLower() == normalized);
     }
 
     public async Task<List<Qualification>> GetAllAsync(CancellationToken ct = default)
     {
-        return await context.Qualification
-            .AsNoTracking()
-            .OrderBy(q => q.Name)
-            .ToListAsync(ct);
+        var list = await context.Qualification.AsNoTracking().ToListAsync(ct);
+        return list.OrderBy(q => q.Name?.De ?? q.Name?.En ?? string.Empty).ToList();
     }
 }
