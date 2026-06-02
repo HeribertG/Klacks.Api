@@ -18,4 +18,9 @@ public class Qualification : BaseEntity
 
     [StringLength(500)]
     public string? Description { get; set; }
+
+    [StringLength(100)]
+    public string? Emoji { get; set; }
+
+    public bool IsTimeLimited { get; set; }
 }
