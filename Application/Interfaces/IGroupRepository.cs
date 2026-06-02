@@ -11,6 +11,8 @@ public interface IGroupRepository : IBaseRepository<Group>
 {
     new Task<Group?> Get(Guid id);
 
+    Task<bool> SetCoordinatesAsync(Guid groupId, double latitude, double longitude, CancellationToken cancellationToken = default);
+
     Task<TruncatedGroup> Truncated(GroupFilter filter);
 
     Task MoveNode(Guid nodeId, Guid newParentId);

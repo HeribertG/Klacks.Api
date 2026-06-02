@@ -12,7 +12,6 @@
 /// <param name="providerFactory">Resolves the provider that runs the chosen model.</param>
 /// <param name="webSearchProviderFactory">Resolves the configured web search provider (may be none).</param>
 
-using System.Text.Json;
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
@@ -24,7 +23,8 @@ public class GroupPlaceClassifier : IGroupPlaceClassifier
 {
     private const double AugmentLowerBound = 0.35;
     private const double AugmentUpperBound = 0.75;
-    private const int MaxTokens = 300;
+    private const int MaxTokens = 1024;
+    private const int MaxAttempts = 2;
     private const int WebSearchResults = 3;
 
     private const string SystemPrompt =
@@ -41,8 +41,6 @@ public class GroupPlaceClassifier : IGroupPlaceClassifier
     private readonly ILLMProviderFactory _providerFactory;
     private readonly WebSearchProviderFactory _webSearchProviderFactory;
     private readonly ILogger<GroupPlaceClassifier> _logger;
-
-    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     public GroupPlaceClassifier(
         ILLMRepository llmRepository,
@@ -112,58 +110,38 @@ public class GroupPlaceClassifier : IGroupPlaceClassifier
             MaxTokens = MaxTokens
         };
 
-        try
+        var last = GroupPlaceClassification.NotAPlace;
+        for (var attempt = 1; attempt <= MaxAttempts; attempt++)
         {
-            var response = await provider.ProcessAsync(request, cancellationToken);
-            if (!response.Success || string.IsNullOrWhiteSpace(response.Content))
+            try
             {
-                return GroupPlaceClassification.NotAPlace;
+                var response = await provider.ProcessAsync(request, cancellationToken);
+                var content = response.Content ?? string.Empty;
+                if (!response.Success || string.IsNullOrWhiteSpace(content))
+                {
+                    _logger.LogWarning(
+                        "[GroupPlaceClassifier] '{GroupName}' attempt={Attempt} empty (success={Success}, len={Len}).",
+                        groupName, attempt, response.Success, content.Length);
+                    continue;
+                }
+
+                last = GroupPlaceClassificationParser.Parse(content);
+                _logger.LogInformation(
+                    "[GroupPlaceClassifier] '{GroupName}' attempt={Attempt} len={Len} -> isPlace={IsPlace} confidence={Confidence} canonical={Canonical}",
+                    groupName, attempt, content.Length, last.IsPlace, last.Confidence, last.CanonicalName);
+
+                if (last.IsPlace && last.Confidence > 0)
+                {
+                    return last;
+                }
             }
-
-            return Parse(response.Content);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Group place classification failed for '{GroupName}'.", groupName);
-            return GroupPlaceClassification.NotAPlace;
-        }
-    }
-
-    private static GroupPlaceClassification Parse(string content)
-    {
-        var cleaned = content.Trim();
-        if (cleaned.StartsWith("```", StringComparison.Ordinal))
-        {
-            var firstNewline = cleaned.IndexOf('\n');
-            if (firstNewline >= 0)
+            catch (Exception ex)
             {
-                cleaned = cleaned[(firstNewline + 1)..];
+                _logger.LogWarning(ex, "[GroupPlaceClassifier] '{GroupName}' attempt={Attempt} threw.", groupName, attempt);
             }
-            cleaned = cleaned.TrimEnd('`', '\n', '\r', ' ');
         }
 
-        var start = cleaned.IndexOf('{');
-        var end = cleaned.LastIndexOf('}');
-        if (start < 0 || end <= start)
-        {
-            return GroupPlaceClassification.NotAPlace;
-        }
-
-        try
-        {
-            var dto = JsonSerializer.Deserialize<ClassificationDto>(cleaned[start..(end + 1)], JsonOptions);
-            if (dto == null)
-            {
-                return GroupPlaceClassification.NotAPlace;
-            }
-
-            var confidence = Math.Clamp(dto.Confidence, 0.0, 1.0);
-            return new GroupPlaceClassification(dto.IsPlace, dto.CanonicalName, dto.Region, confidence);
-        }
-        catch (JsonException)
-        {
-            return GroupPlaceClassification.NotAPlace;
-        }
+        return last;
     }
 
     private async Task<string?> TryWebSearchAsync(string groupName, string? region, CancellationToken cancellationToken)
@@ -192,13 +170,5 @@ public class GroupPlaceClassifier : IGroupPlaceClassifier
             _logger.LogWarning(ex, "Web search augmentation failed for '{GroupName}'.", groupName);
             return null;
         }
-    }
-
-    private sealed class ClassificationDto
-    {
-        public bool IsPlace { get; set; }
-        public string? CanonicalName { get; set; }
-        public string? Region { get; set; }
-        public double Confidence { get; set; }
     }
 }

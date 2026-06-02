@@ -14,7 +14,7 @@
 
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Models.Associations;
 
 namespace Klacks.Api.Application.Services.Grouping;
 
@@ -25,23 +25,29 @@ public class GroupLocationResolver : IGroupLocationResolver
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupPlaceClassifier _classifier;
     private readonly IGroupGeocoder _geocoder;
-    private readonly IUnitOfWork _unitOfWork;
 
     public GroupLocationResolver(
         IGroupRepository groupRepository,
         IGroupPlaceClassifier classifier,
-        IGroupGeocoder geocoder,
-        IUnitOfWork unitOfWork)
+        IGroupGeocoder geocoder)
     {
         _groupRepository = groupRepository;
         _classifier = classifier;
         _geocoder = geocoder;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<GroupLocationResolveResult> ResolveAsync(Guid groupId, CancellationToken cancellationToken = default)
     {
-        var group = await _groupRepository.Get(groupId);
+        Group? group;
+        try
+        {
+            group = await _groupRepository.Get(groupId);
+        }
+        catch (KeyNotFoundException)
+        {
+            group = null;
+        }
+
         if (group == null)
         {
             return new GroupLocationResolveResult(groupId, string.Empty, GroupLocationResolveOutcome.NotFound, null, null);
@@ -72,10 +78,11 @@ public class GroupLocationResolver : IGroupLocationResolver
             return new GroupLocationResolveResult(group.Id, group.Name, GroupLocationResolveOutcome.GeocodeFailed, null, null);
         }
 
-        group.Latitude = latitude;
-        group.Longitude = longitude;
-        await _groupRepository.Put(group);
-        await _unitOfWork.CompleteAsync();
+        var saved = await _groupRepository.SetCoordinatesAsync(group.Id, latitude.Value, longitude.Value, cancellationToken);
+        if (!saved)
+        {
+            return new GroupLocationResolveResult(group.Id, group.Name, GroupLocationResolveOutcome.NotFound, null, null);
+        }
 
         return new GroupLocationResolveResult(group.Id, group.Name, GroupLocationResolveOutcome.Resolved, latitude, longitude);
     }

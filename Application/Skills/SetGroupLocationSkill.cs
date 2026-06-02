@@ -13,7 +13,6 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Grouping;
 using Klacks.Api.Domain.Attributes;
-using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -25,16 +24,13 @@ public class SetGroupLocationSkill : BaseSkillImplementation
 {
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupGeocoder _groupGeocoder;
-    private readonly IUnitOfWork _unitOfWork;
 
     public SetGroupLocationSkill(
         IGroupRepository groupRepository,
-        IGroupGeocoder groupGeocoder,
-        IUnitOfWork unitOfWork)
+        IGroupGeocoder groupGeocoder)
     {
         _groupRepository = groupRepository;
         _groupGeocoder = groupGeocoder;
-        _unitOfWork = unitOfWork;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -87,10 +83,7 @@ public class SetGroupLocationSkill : BaseSkillImplementation
             longitude = geoLon;
         }
 
-        group.Latitude = latitude;
-        group.Longitude = longitude;
-        await _groupRepository.Put(group);
-        await _unitOfWork.CompleteAsync();
+        await _groupRepository.SetCoordinatesAsync(group.Id, latitude!.Value, longitude!.Value, cancellationToken);
 
         return SkillResult.SuccessResult(
             new { GroupId = group.Id, group.Name, Latitude = latitude, Longitude = longitude },

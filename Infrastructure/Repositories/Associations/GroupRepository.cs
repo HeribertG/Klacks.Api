@@ -128,7 +128,23 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         Logger.LogInformation("Group with ID: {GroupId} found successfully.", id);
         return group;
     }
-     
+
+    public async Task<bool> SetCoordinatesAsync(Guid groupId, double latitude, double longitude, CancellationToken cancellationToken = default)
+    {
+        var group = await context.Group.FirstOrDefaultAsync(x => x.Id == groupId, cancellationToken);
+        if (group == null)
+        {
+            Logger.LogWarning("SetCoordinatesAsync: Group with ID {GroupId} not found.", groupId);
+            return false;
+        }
+
+        group.Latitude = latitude;
+        group.Longitude = longitude;
+        await context.SaveChangesAsync(cancellationToken);
+        Logger.LogInformation("Group {GroupId} coordinates set to {Latitude}, {Longitude}.", groupId, latitude, longitude);
+        return true;
+    }
+
     public async Task<IEnumerable<Group>> GetChildren(Guid parentId)
     {
         Logger.LogInformation("Getting children for parent {ParentId} using hierarchy service", parentId);
