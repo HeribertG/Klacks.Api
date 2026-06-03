@@ -28,7 +28,7 @@ public class RefreshTokenService : IRefreshTokenService
         {
             AspNetUsersId = userId,
             Token = new RefreshTokenGenerator().GenerateRefreshToken(),
-            ExpiryDate = DateTime.UtcNow.AddHours(1),
+            ExpiryDate = DateTime.UtcNow.AddDays(30),
         };
 
         _context.RefreshToken.Add(refreshToken);
@@ -85,6 +85,6 @@ public class RefreshTokenService : IRefreshTokenService
 
     public DateTime CalculateRefreshTokenExpiryTime()
     {
-        return DateTime.UtcNow.AddHours(1);
+        return DateTime.UtcNow.AddDays(30);
     }
 }
