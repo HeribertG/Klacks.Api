@@ -10,7 +10,6 @@
 /// </summary>
 /// <param name="apply">When true the proposal is persisted; when false (default) only a dry-run proposal is returned.</param>
 
-using Klacks.Api.Application.Commands.Grouping;
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Application.Queries.Grouping;
 using Klacks.Api.Domain.Attributes;
@@ -37,17 +36,6 @@ public class ProposeCustomerGroupingSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var apply = GetParameter<bool?>(parameters, "apply") ?? false;
-
-        if (apply)
-        {
-            var applyResult = await _mediator.Send(new ApplyCustomerGroupingCommand(), cancellationToken);
-            return SkillResult.SuccessResult(
-                applyResult,
-                $"Applied: {applyResult.MovedCount} customer(s) moved to their nearest location group; " +
-                $"{applyResult.UnassignedCount} could not be assigned.");
-        }
-
         var proposal = await _mediator.Send(new ProposeCustomerGroupingQuery(), cancellationToken);
 
         if (proposal.AnchorGroupCount == 0)
@@ -94,7 +82,7 @@ public class ProposeCustomerGroupingSkill : BaseSkillImplementation
         var message =
             $"Proposal: {proposal.Assignments.Count} customer(s) would move to their nearest location group " +
             $"({proposal.AnchorGroupCount} groups carry coordinates); {proposal.Unassigned.Count} cannot be assigned. " +
-            "Review, then call again with apply=true to persist.";
+            "Review, then call apply_customer_grouping to persist these moves.";
 
         return SkillResult.SuccessResult(data, message);
     }

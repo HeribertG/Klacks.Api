@@ -45,6 +45,18 @@ public class CustomerGroupingPlanner : ICustomerGroupingPlanner
             .ToList();
         var anchorGroupIds = anchors.Select(a => a.GroupId).ToHashSet();
 
+        // Location-hierarchy groups: every anchor (a geocoded city) plus every group that lives in the same
+        // tree (region root) as an anchor — i.e. the whole region/canton/city hierarchy that contains
+        // geocoded cities. A membership in one of these is the location membership a move replaces, even
+        // when the customer's own canton has no geocoded city yet, or the nearest city sits in another
+        // canton. Groups in unrelated trees (e.g. qualification or hierarchy systems with their own root)
+        // are left untouched.
+        var anchorRoots = anchorGroupIds.Select(id => groupById[id]).Select(RootKey).ToHashSet();
+        var locationGroupIds = groups
+            .Where(g => anchorGroupIds.Contains(g.Id) || anchorRoots.Contains(RootKey(g)))
+            .Select(g => g.Id)
+            .ToHashSet();
+
         var customers = await _clientRepository.GetByTypeWithAddressesAndGroupItemsAsync(
             EntityTypeEnum.Customer, cancellationToken);
 
@@ -77,7 +89,7 @@ public class CustomerGroupingPlanner : ICustomerGroupingPlanner
 
             var alreadyInTarget = activeMemberships.Any(gi => gi.GroupId == targetGroup.Id);
             var retireGroupIds = activeMemberships
-                .Where(gi => gi.GroupId != targetGroup.Id && IsLocationMembership(gi, targetGroup, groupById, anchorGroupIds))
+                .Where(gi => gi.GroupId != targetGroup.Id && locationGroupIds.Contains(gi.GroupId))
                 .Select(gi => gi.GroupId)
                 .Distinct()
                 .ToList();
@@ -105,29 +117,7 @@ public class CustomerGroupingPlanner : ICustomerGroupingPlanner
         return new CustomerGroupingProposal(anchors.Count, assignments, unassigned);
     }
 
-    private static bool IsLocationMembership(
-        GroupItem membership,
-        Group targetGroup,
-        IReadOnlyDictionary<Guid, Group> groupById,
-        IReadOnlySet<Guid> anchorGroupIds)
-    {
-        if (anchorGroupIds.Contains(membership.GroupId))
-        {
-            return true;
-        }
-
-        return groupById.TryGetValue(membership.GroupId, out var group)
-               && IsAncestorOf(group, targetGroup);
-    }
-
-    private static bool IsAncestorOf(Group ancestor, Group node)
-    {
-        return ancestor.Root.HasValue
-               && node.Root.HasValue
-               && ancestor.Root == node.Root
-               && ancestor.Lft < node.Lft
-               && ancestor.Rgt > node.Rgt;
-    }
+    private static Guid RootKey(Group group) => group.Root ?? group.Id;
 
     private static string DisplayName(Client client)
     {

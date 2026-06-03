@@ -2808,10 +2808,36 @@
         "liste"
       ],
       "synonyms": {
-        "de": ["such", "suche", "filter", "zeig", "liste", "in der liste", "auflisten"],
-        "en": ["search", "filter", "show", "list", "find list"],
-        "fr": ["chercher", "recherche", "filtrer", "afficher", "liste"],
-        "it": ["cerca", "ricerca", "filtra", "mostra", "elenco"]
+        "de": [
+          "such",
+          "suche",
+          "filter",
+          "zeig",
+          "liste",
+          "in der liste",
+          "auflisten"
+        ],
+        "en": [
+          "search",
+          "filter",
+          "show",
+          "list",
+          "find list"
+        ],
+        "fr": [
+          "chercher",
+          "recherche",
+          "filtrer",
+          "afficher",
+          "liste"
+        ],
+        "it": [
+          "cerca",
+          "ricerca",
+          "filtra",
+          "mostra",
+          "elenco"
+        ]
       },
       "version": 1
     },
@@ -2849,10 +2875,32 @@
         "rota"
       ],
       "synonyms": {
-        "de": ["dienstplan", "einsatzplan", "schichtplan", "planung", "planungsansicht"],
-        "en": ["schedule", "shift planner", "planning", "rota", "roster"],
-        "fr": ["planning", "horaires", "planification", "planning des équipes"],
-        "it": ["piano dei turni", "pianificazione", "calendario turni", "orari"]
+        "de": [
+          "dienstplan",
+          "einsatzplan",
+          "schichtplan",
+          "planung",
+          "planungsansicht"
+        ],
+        "en": [
+          "schedule",
+          "shift planner",
+          "planning",
+          "rota",
+          "roster"
+        ],
+        "fr": [
+          "planning",
+          "horaires",
+          "planification",
+          "planning des équipes"
+        ],
+        "it": [
+          "piano dei turni",
+          "pianificazione",
+          "calendario turni",
+          "orari"
+        ]
       },
       "version": 1
     },
@@ -13219,7 +13267,9 @@
       "description": "Records (or updates) a qualification an employee holds, with a proficiency level (1=Low..5=Expert) and an optional validity window. This is what makes eligibility work: find_replacement and the pre-commit guardrail use it to know who is qualified for a shift that requires a qualification. Calling it again for the same employee + qualification updates the existing entry.",
       "category": "Crud",
       "executionType": "Skill",
-      "requiredPermissions": ["CanEditClients"],
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
       "parameters": [
         {
           "name": "clientId",
@@ -13275,12 +13325,36 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": ["set_client_qualification", "qualifikation setzen", "mitarbeiter qualifikation", "set qualification", "skill level"],
+      "triggerKeywords": [
+        "set_client_qualification",
+        "qualifikation setzen",
+        "mitarbeiter qualifikation",
+        "set qualification",
+        "skill level"
+      ],
       "synonyms": {
-        "de": ["qualifikation setzen", "mitarbeiter qualifizieren", "kompetenz hinterlegen", "zertifikat eintragen"],
-        "en": ["set qualification", "qualify employee", "record certificate", "assign skill level"],
-        "fr": ["définir la qualification", "qualifier l'employé", "enregistrer un certificat"],
-        "it": ["impostare la qualifica", "qualificare il dipendente", "registrare un certificato"]
+        "de": [
+          "qualifikation setzen",
+          "mitarbeiter qualifizieren",
+          "kompetenz hinterlegen",
+          "zertifikat eintragen"
+        ],
+        "en": [
+          "set qualification",
+          "qualify employee",
+          "record certificate",
+          "assign skill level"
+        ],
+        "fr": [
+          "définir la qualification",
+          "qualifier l'employé",
+          "enregistrer un certificat"
+        ],
+        "it": [
+          "impostare la qualifica",
+          "qualificare il dipendente",
+          "registrare un certificato"
+        ]
       },
       "version": 1
     },
@@ -13289,7 +13363,9 @@
       "description": "Records (or updates) a qualification a shift requires, with a minimum level (1=Low..5=Expert) and whether it is mandatory. A mandatory requirement makes employees who lack it (missing, expired, or below the level) ineligible — enforced by find_replacement and the pre-commit guardrail (place_work / propose_plan / cover_absence). A non-mandatory requirement is a soft signal only. Calling it again for the same shift + qualification updates the existing entry.",
       "category": "Crud",
       "executionType": "Skill",
-      "requiredPermissions": ["CanEditShifts"],
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
       "parameters": [
         {
           "name": "shiftId",
@@ -13329,12 +13405,36 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": ["set_shift_required_qualification", "schicht qualifikation", "voraussetzung schicht", "required qualification", "shift requirement"],
+      "triggerKeywords": [
+        "set_shift_required_qualification",
+        "schicht qualifikation",
+        "voraussetzung schicht",
+        "required qualification",
+        "shift requirement"
+      ],
       "synonyms": {
-        "de": ["schicht voraussetzung", "benötigte qualifikation", "schicht erfordert qualifikation", "pflicht-qualifikation"],
-        "en": ["shift requirement", "required qualification", "shift needs qualification", "mandatory qualification"],
-        "fr": ["qualification requise", "exigence du poste", "le poste requiert une qualification"],
-        "it": ["qualifica richiesta", "requisito del turno", "il turno richiede una qualifica"]
+        "de": [
+          "schicht voraussetzung",
+          "benötigte qualifikation",
+          "schicht erfordert qualifikation",
+          "pflicht-qualifikation"
+        ],
+        "en": [
+          "shift requirement",
+          "required qualification",
+          "shift needs qualification",
+          "mandatory qualification"
+        ],
+        "fr": [
+          "qualification requise",
+          "exigence du poste",
+          "le poste requiert une qualification"
+        ],
+        "it": [
+          "qualifica richiesta",
+          "requisito del turno",
+          "il turno richiede una qualifica"
+        ]
       },
       "version": 1
     },
@@ -13343,7 +13443,9 @@
       "description": "Creates a qualification master entry (e.g. 'Forklift licence', 'First aid') that shifts can require and employees can hold. Calling it with an existing name returns that qualification instead of creating a duplicate. Use this first, then set_shift_required_qualification / set_client_qualification reference its id.",
       "category": "Crud",
       "executionType": "Skill",
-      "requiredPermissions": ["CanEditShifts"],
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
       "parameters": [
         {
           "name": "name",
@@ -13367,12 +13469,36 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": ["create_qualification", "qualifikation anlegen", "neue qualifikation", "create qualification", "add skill"],
+      "triggerKeywords": [
+        "create_qualification",
+        "qualifikation anlegen",
+        "neue qualifikation",
+        "create qualification",
+        "add skill"
+      ],
       "synonyms": {
-        "de": ["qualifikation anlegen", "neue qualifikation", "kompetenz definieren", "zertifikatstyp anlegen"],
-        "en": ["create qualification", "new qualification", "define skill", "add qualification type"],
-        "fr": ["créer une qualification", "nouvelle qualification", "définir une compétence"],
-        "it": ["creare una qualifica", "nuova qualifica", "definire una competenza"]
+        "de": [
+          "qualifikation anlegen",
+          "neue qualifikation",
+          "kompetenz definieren",
+          "zertifikatstyp anlegen"
+        ],
+        "en": [
+          "create qualification",
+          "new qualification",
+          "define skill",
+          "add qualification type"
+        ],
+        "fr": [
+          "créer une qualification",
+          "nouvelle qualification",
+          "définir une compétence"
+        ],
+        "it": [
+          "creare una qualifica",
+          "nuova qualifica",
+          "definire una competenza"
+        ]
       },
       "version": 1
     },
@@ -13381,19 +13507,44 @@
       "description": "Lists the available qualification master entries (id, name, description) so you can pick a qualificationId for set_client_qualification / set_shift_required_qualification.",
       "category": "Read",
       "executionType": "Skill",
-      "requiredPermissions": ["CanViewShifts"],
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": ["list_qualifications", "qualifikationen anzeigen", "list qualifications", "available skills"],
+      "triggerKeywords": [
+        "list_qualifications",
+        "qualifikationen anzeigen",
+        "list qualifications",
+        "available skills"
+      ],
       "synonyms": {
-        "de": ["qualifikationen", "qualifikationen anzeigen", "kompetenzen liste", "verfügbare qualifikationen"],
-        "en": ["qualifications", "list qualifications", "available skills", "skill catalogue"],
-        "fr": ["qualifications", "liste des qualifications", "compétences disponibles"],
-        "it": ["qualifiche", "elenco qualifiche", "competenze disponibili"]
+        "de": [
+          "qualifikationen",
+          "qualifikationen anzeigen",
+          "kompetenzen liste",
+          "verfügbare qualifikationen"
+        ],
+        "en": [
+          "qualifications",
+          "list qualifications",
+          "available skills",
+          "skill catalogue"
+        ],
+        "fr": [
+          "qualifications",
+          "liste des qualifications",
+          "compétences disponibles"
+        ],
+        "it": [
+          "qualifiche",
+          "elenco qualifiche",
+          "competenze disponibili"
+        ]
       },
       "version": 1
     },
@@ -13402,7 +13553,9 @@
       "description": "Sets a single employee's preference for a shift: 'preferred' (the planner favours this employee for the shift) or 'blacklist' (the employee is excluded from it). Only this one preference changes — the employee's other preferences are kept. Consumed by the planner (preferred soft rule) and find_replacement (preferred ranking / blacklist exclusion). Calling it again for the same employee + shift updates it.",
       "category": "Crud",
       "executionType": "Skill",
-      "requiredPermissions": ["CanEditShifts"],
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
       "parameters": [
         {
           "name": "clientId",
@@ -13426,7 +13579,10 @@
           "type": "String",
           "required": true,
           "defaultValue": null,
-          "enumValues": ["preferred", "blacklist"]
+          "enumValues": [
+            "preferred",
+            "blacklist"
+          ]
         }
       ],
       "handlerConfig": null,
@@ -13434,12 +13590,36 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": ["set_shift_preferences", "schicht präferenz", "bevorzugt", "blacklist", "shift preference"],
+      "triggerKeywords": [
+        "set_shift_preferences",
+        "schicht präferenz",
+        "bevorzugt",
+        "blacklist",
+        "shift preference"
+      ],
       "synonyms": {
-        "de": ["schicht präferenz setzen", "mitarbeiter bevorzugen", "von schicht ausschließen", "blacklist setzen"],
-        "en": ["set shift preference", "prefer employee for shift", "blacklist from shift", "favourite shift"],
-        "fr": ["définir la préférence de poste", "préférer un employé", "exclure du poste"],
-        "it": ["impostare la preferenza del turno", "preferire un dipendente", "escludere dal turno"]
+        "de": [
+          "schicht präferenz setzen",
+          "mitarbeiter bevorzugen",
+          "von schicht ausschließen",
+          "blacklist setzen"
+        ],
+        "en": [
+          "set shift preference",
+          "prefer employee for shift",
+          "blacklist from shift",
+          "favourite shift"
+        ],
+        "fr": [
+          "définir la préférence de poste",
+          "préférer un employé",
+          "exclure du poste"
+        ],
+        "it": [
+          "impostare la preferenza del turno",
+          "preferire un dipendente",
+          "escludere dal turno"
+        ]
       },
       "version": 1
     },
@@ -13448,7 +13628,9 @@
       "description": "Updates an existing shift, patching only the fields you pass (name, abbreviation, description, start/end time, headcount, validity dates, weekdays) — everything else is kept. Refuses if the shift has cuts (a sub-shift tree). Warns if the shift already has works, since changing times/weekdays re-defines them. Use list_shifts / read_schedule_state to find the shiftId.",
       "category": "Crud",
       "executionType": "Skill",
-      "requiredPermissions": ["CanEditShifts"],
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
       "parameters": [
         {
           "name": "shiftId",
@@ -13536,12 +13718,36 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": ["update_shift", "schicht ändern", "schicht bearbeiten", "edit shift", "change shift"],
+      "triggerKeywords": [
+        "update_shift",
+        "schicht ändern",
+        "schicht bearbeiten",
+        "edit shift",
+        "change shift"
+      ],
       "synonyms": {
-        "de": ["schicht ändern", "schicht bearbeiten", "dienst anpassen", "schicht aktualisieren"],
-        "en": ["update shift", "edit shift", "change shift", "modify shift"],
-        "fr": ["modifier le poste", "mettre à jour le poste", "changer le poste"],
-        "it": ["aggiornare il turno", "modificare il turno", "cambiare il turno"]
+        "de": [
+          "schicht ändern",
+          "schicht bearbeiten",
+          "dienst anpassen",
+          "schicht aktualisieren"
+        ],
+        "en": [
+          "update shift",
+          "edit shift",
+          "change shift",
+          "modify shift"
+        ],
+        "fr": [
+          "modifier le poste",
+          "mettre à jour le poste",
+          "changer le poste"
+        ],
+        "it": [
+          "aggiornare il turno",
+          "modificare il turno",
+          "cambiare il turno"
+        ]
       },
       "version": 1
     },
@@ -13550,7 +13756,9 @@
       "description": "Soft-deletes a shift. Refuses if the shift has cuts (a sub-shift tree) or still has works assigned (those must be reassigned/removed first), reporting the manual action needed. Use list_shifts / read_schedule_state to find the shiftId.",
       "category": "Crud",
       "executionType": "Skill",
-      "requiredPermissions": ["CanDeleteShifts"],
+      "requiredPermissions": [
+        "CanDeleteShifts"
+      ],
       "parameters": [
         {
           "name": "shiftId",
@@ -13566,12 +13774,32 @@
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
-      "triggerKeywords": ["delete_shift", "schicht löschen", "dienst entfernen", "delete shift", "remove shift"],
+      "triggerKeywords": [
+        "delete_shift",
+        "schicht löschen",
+        "dienst entfernen",
+        "delete shift",
+        "remove shift"
+      ],
       "synonyms": {
-        "de": ["schicht löschen", "dienst entfernen", "schicht entfernen"],
-        "en": ["delete shift", "remove shift", "drop shift"],
-        "fr": ["supprimer le poste", "effacer le poste"],
-        "it": ["eliminare il turno", "rimuovere il turno"]
+        "de": [
+          "schicht löschen",
+          "dienst entfernen",
+          "schicht entfernen"
+        ],
+        "en": [
+          "delete shift",
+          "remove shift",
+          "drop shift"
+        ],
+        "fr": [
+          "supprimer le poste",
+          "effacer le poste"
+        ],
+        "it": [
+          "eliminare il turno",
+          "rimuovere il turno"
+        ]
       },
       "version": 1
     },
@@ -14241,23 +14469,14 @@
     },
     {
       "name": "propose_customer_grouping",
-      "description": "Proposes a geographic re-grouping of customers: each customer is assigned to the nearest group that carries coordinates, moving it from a coarse node (e.g. a canton) down to the nearest finer node (e.g. a city). With apply=false (default) it returns a read-only proposal: how many customers would move, a per-target-group breakdown, a sample, and customers that cannot be placed. With apply=true it persists the moves. ALWAYS run the proposal first and let the user confirm before calling again with apply=true. If no group carries coordinates, geocode the city groups first via set_group_location.",
-      "category": "Crud",
+      "description": "Proposes (read-only dry run) a geographic re-grouping of customers: each customer WOULD be assigned to the nearest group that carries coordinates, moving it from a coarse node (e.g. a canton) down to the nearest finer node (e.g. a city). Returns how many customers would move, a per-target-group breakdown, a sample, and customers that cannot be placed. It NEVER changes data. After the user confirms, call apply_customer_grouping to actually move the customers. If no group carries coordinates, geocode the city groups first via geocode_location_groups.",
+      "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
         "CanEditClients",
         "CanViewGroups"
       ],
-      "parameters": [
-        {
-          "name": "apply",
-          "description": "When true the proposal is persisted (customers are moved); when false (default) only a dry-run proposal is returned.",
-          "type": "Boolean",
-          "required": false,
-          "defaultValue": false,
-          "enumValues": null
-        }
-      ],
+      "parameters": [],
       "handlerConfig": null
     },
     {
@@ -14278,6 +14497,18 @@
           "enumValues": null
         }
       ],
+      "handlerConfig": null
+    },
+    {
+      "name": "apply_customer_grouping",
+      "description": "Applies and PERSISTS the geographic customer grouping that propose_customer_grouping previewed: moves every customer into its nearest location group and retires the coarser memberships it replaces. Call this when the user confirms the proposal or asks to apply / persist / move them now / uebernehmen / anwenden / 'ja, wende an' / 'mach es'. Recomputes the proposal internally so it always matches a fresh dry run. Run propose_customer_grouping first to preview; this is the step that actually changes the data.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients",
+        "CanViewGroups"
+      ],
+      "parameters": [],
       "handlerConfig": null
     }
   ]
