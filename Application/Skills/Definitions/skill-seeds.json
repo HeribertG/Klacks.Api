@@ -13440,7 +13440,7 @@
     },
     {
       "name": "create_qualification",
-      "description": "Creates a qualification master entry (e.g. 'Forklift licence', 'First aid') that shifts can require and employees can hold. Calling it with an existing name returns that qualification instead of creating a duplicate. Use this first, then set_shift_required_qualification / set_client_qualification reference its id.",
+      "description": "Creates a multilingual qualification master entry (e.g. 'Forklift licence', 'First aid') that shifts can require and employees can hold. Provide the name in all available languages (name_de, name_en, name_fr, name_it). At least one language name is required. Calling it with an existing German name returns that qualification instead of creating a duplicate. Use this first, then set_shift_required_qualification / set_client_qualification reference its id.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -13448,16 +13448,64 @@
       ],
       "parameters": [
         {
-          "name": "name",
-          "description": "The qualification name",
+          "name": "name_de",
+          "description": "German qualification name (e.g. 'Führerschein'). Required if no other language name is provided.",
           "type": "String",
-          "required": true,
+          "required": false,
           "defaultValue": null,
           "enumValues": null
         },
         {
-          "name": "description",
-          "description": "Optional short description",
+          "name": "name_en",
+          "description": "English qualification name (e.g. 'Driving licence')",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name_fr",
+          "description": "French qualification name (e.g. 'Permis de conduire')",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name_it",
+          "description": "Italian qualification name (e.g. 'Patente di guida')",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description_de",
+          "description": "Optional German description",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description_en",
+          "description": "Optional English description",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description_fr",
+          "description": "Optional French description",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description_it",
+          "description": "Optional Italian description",
           "type": "String",
           "required": false,
           "defaultValue": null,
