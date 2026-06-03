@@ -102,7 +102,7 @@ namespace Klacks.Api.Application.Constants
         public const string DATA_RETENTION_DAYS = "DATA_RETENTION_DAYS";
         public const int DATA_RETENTION_DAYS_DEFAULT = 3650;
 
-        public const string ASSISTANT_STT_PROVIDER = "ASSISTANT_STT_PROVIDER";
+        public const string ASSISTANT_STT_ENGINE = "ASSISTANT_STT_ENGINE";
         public const string ASSISTANT_STT_API_KEY = "ASSISTANT_STT_API_KEY";
         public const string ASSISTANT_TRANSCRIPTION_MODEL = "ASSISTANT_TRANSCRIPTION_MODEL";
         public const string ASSISTANT_TRANSCRIPTION_PROMPT = "ASSISTANT_TRANSCRIPTION_PROMPT";

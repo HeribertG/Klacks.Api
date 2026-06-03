@@ -44,16 +44,36 @@ public sealed class GroqWhisperSttSession : ISttSession
         audioContent.Headers.ContentType = new MediaTypeHeaderValue("audio/wav");
         content.Add(audioContent, "file", "audio.wav");
         content.Add(new StringContent("whisper-large-v3"), "model");
-        content.Add(new StringContent(_config.Language), "language");
+        content.Add(new StringContent(NormalizeLanguage(_config.Language)), "language");
 
         var response = await client.PostAsync(SttProviderConstants.GroqWhisperRestUrl, content, ct);
         var json = await response.Content.ReadAsStringAsync(ct);
         _audioBuffer.Clear();
 
-        using var doc = JsonDocument.Parse(json);
-        var text = doc.RootElement.GetProperty("text").GetString() ?? "";
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new InvalidOperationException($"Groq STT request failed ({(int)response.StatusCode}): {json}");
+        }
 
+        using var doc = JsonDocument.Parse(json);
+        if (!doc.RootElement.TryGetProperty("text", out var textElement))
+        {
+            return null;
+        }
+
+        var text = textElement.GetString() ?? string.Empty;
         return string.IsNullOrWhiteSpace(text) ? null : new SttResult(text, true, 1.0f);
+    }
+
+    private static string NormalizeLanguage(string language)
+    {
+        if (string.IsNullOrWhiteSpace(language))
+        {
+            return language;
+        }
+
+        var separatorIndex = language.IndexOf('-');
+        return separatorIndex > 0 ? language[..separatorIndex] : language;
     }
 
     public ValueTask DisposeAsync()

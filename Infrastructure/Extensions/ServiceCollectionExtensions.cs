@@ -570,7 +570,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISttProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.DeepgramSttProvider>());
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.AssemblyAiSttProvider>();
         services.AddScoped<ISttProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.AssemblyAiSttProvider>());
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.GroqWhisperSttProvider>();
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.GroqWhisperSttProvider>();
         services.AddScoped<ISttProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.GroqWhisperSttProvider>());
 
         services.AddScoped<IDictionaryService, Klacks.Api.Infrastructure.Services.Assistant.DictionaryService>();

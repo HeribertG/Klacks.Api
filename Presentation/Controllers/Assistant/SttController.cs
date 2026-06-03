@@ -16,6 +16,7 @@ using System.Text.Json;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Presentation.DTOs.Assistant;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -30,17 +31,20 @@ public class SttController : ControllerBase
     private readonly IEnumerable<ISttProvider> _sttProviders;
     private readonly ISettingsRepository _settingsRepository;
     private readonly ICustomSttProviderRepository _customSttProviderRepository;
+    private readonly ISettingsEncryptionService _encryptionService;
     private readonly ILogger<SttController> _logger;
 
     public SttController(
         IEnumerable<ISttProvider> sttProviders,
         ISettingsRepository settingsRepository,
         ICustomSttProviderRepository customSttProviderRepository,
+        ISettingsEncryptionService encryptionService,
         ILogger<SttController> logger)
     {
         _sttProviders = sttProviders;
         _settingsRepository = settingsRepository;
         _customSttProviderRepository = customSttProviderRepository;
+        _encryptionService = encryptionService;
         _logger = logger;
     }
 
@@ -72,7 +76,7 @@ public class SttController : ControllerBase
 
         try
         {
-            var config = new SttConfig(apiKeySetting.Value, "en");
+            var config = new SttConfig(_encryptionService.Decrypt(apiKeySetting.Value), "en");
             await using var session = await provider.CreateSessionAsync(config);
             return Ok(new SttTestResult(true, null));
         }
@@ -82,10 +86,13 @@ public class SttController : ControllerBase
         }
     }
 
-    [HttpGet]
+    [AcceptVerbs("GET", "CONNECT")]
     [Route("stream")]
     public async Task Stream([FromQuery] string? locale = null)
     {
+        _logger.LogInformation("STT stream request: Protocol={Protocol}, Method={Method}, IsWebSocket={IsWs}",
+            HttpContext.Request.Protocol, HttpContext.Request.Method, HttpContext.WebSockets.IsWebSocketRequest);
+
         if (!HttpContext.WebSockets.IsWebSocketRequest)
         {
             HttpContext.Response.StatusCode = 400;
@@ -96,7 +103,7 @@ public class SttController : ControllerBase
 
         try
         {
-            var providerSetting = await _settingsRepository.GetSetting(Settings.ASSISTANT_STT_PROVIDER);
+            var providerSetting = await _settingsRepository.GetSetting(Settings.ASSISTANT_STT_ENGINE);
             var providerId = providerSetting?.Value ?? SttProviderConstants.Browser;
 
             if (providerId == SttProviderConstants.Browser)
@@ -120,7 +127,7 @@ public class SttController : ControllerBase
             }
 
             var effectiveLocale = string.IsNullOrWhiteSpace(locale) ? "de" : locale;
-            var config = new SttConfig(apiKeySetting.Value, effectiveLocale);
+            var config = new SttConfig(_encryptionService.Decrypt(apiKeySetting.Value), effectiveLocale);
 
             await using var session = await provider.CreateSessionAsync(config);
 
@@ -140,6 +147,38 @@ public class SttController : ControllerBase
         {
             _logger.LogError(ex, "STT streaming error");
         }
+    }
+
+    [HttpPost("transcribe")]
+    public async Task<IActionResult> Transcribe([FromQuery] string? locale, CancellationToken ct)
+    {
+        var providerSetting = await _settingsRepository.GetSetting(Settings.ASSISTANT_STT_ENGINE);
+        var providerId = providerSetting?.Value ?? SttProviderConstants.Browser;
+        if (providerId == SttProviderConstants.Browser)
+            return BadRequest(new { error = "Browser STT does not use server transcription" });
+
+        var provider = _sttProviders.FirstOrDefault(p => p.ProviderId == providerId);
+        if (provider == null)
+            return BadRequest(new { error = $"Unknown STT provider: {providerId}" });
+
+        var apiKeySetting = await _settingsRepository.GetSetting(Settings.ASSISTANT_STT_API_KEY);
+        if (string.IsNullOrWhiteSpace(apiKeySetting?.Value))
+            return BadRequest(new { error = "No API key configured for STT provider" });
+
+        using var ms = new MemoryStream();
+        await Request.Body.CopyToAsync(ms, ct);
+        var audio = ms.ToArray();
+        if (audio.Length == 0)
+            return Ok(new { text = string.Empty });
+
+        var effectiveLocale = string.IsNullOrWhiteSpace(locale) ? "de" : locale;
+        var config = new SttConfig(_encryptionService.Decrypt(apiKeySetting.Value), effectiveLocale);
+
+        await using var session = await provider.CreateSessionAsync(config, ct);
+        await session.SendAudioAsync(audio, ct);
+        var result = await session.ReceiveAsync(ct);
+
+        return Ok(new { text = result?.Text ?? string.Empty });
     }
 
     private static async Task ForwardAudioToProvider(WebSocket browserWs, ISttSession session, CancellationToken ct)
