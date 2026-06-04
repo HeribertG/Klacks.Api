@@ -42,7 +42,7 @@ public class ScheduleEmailService : IScheduleEmailService
             var email = InitEmailWrapper(settings);
             if (email == null)
             {
-                _logger.LogWarning("Email configuration is incomplete, cannot send schedule email to {Email}", recipientEmail);
+                _logger.LogWarning("Email configuration is incomplete, cannot send schedule email");
                 return false;
             }
 
@@ -51,7 +51,7 @@ public class ScheduleEmailService : IScheduleEmailService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send schedule email to {Email}", recipientEmail);
+            _logger.LogError(ex, "Failed to send schedule email");
             return false;
         }
         finally

@@ -13,6 +13,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Domain.Services.RouteOptimization;
@@ -85,7 +86,7 @@ public class ContainerAutofillService : IContainerAutofillService
 
         if (startBaseLocation == null || endBaseLocation == null)
         {
-            _logger.LogWarning("Could not geocode base addresses. StartBase={StartBase}, EndBase={EndBase}", request.StartBase, request.EndBase);
+            _logger.LogWarning("Could not geocode base addresses. StartBase={StartBase}, EndBase={EndBase}", request.StartBase.ForLog(), request.EndBase.ForLog());
             return CreateEmptyResult(request.TransportMode, timeRangeTasks.Count);
         }
 
@@ -251,7 +252,7 @@ public class ContainerAutofillService : IContainerAutofillService
         var coords = await _geocodingService.GeocodeAddressAsync(address, "Switzerland", cancellationToken);
         if (!coords.Latitude.HasValue || !coords.Longitude.HasValue)
         {
-            _logger.LogWarning("Could not geocode {Label} address: {Address}", label, address);
+            _logger.LogWarning("Could not geocode {Label} address: {Address}", label, address.ForLog());
             return null;
         }
 

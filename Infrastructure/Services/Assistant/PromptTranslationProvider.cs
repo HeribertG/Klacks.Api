@@ -5,6 +5,7 @@ using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Translation;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Domain.Interfaces;
@@ -98,7 +99,7 @@ public class PromptTranslationProvider : IPromptTranslationProvider
             return translated;
         }
 
-        _logger.LogWarning("Translation failed for language {Language}, falling back to German", lang);
+        _logger.LogWarning("Translation failed for language {Language}, falling back to German", lang.ForLog());
         return GermanSegments;
     }
 
@@ -117,7 +118,7 @@ public class PromptTranslationProvider : IPromptTranslationProvider
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to load prompt translations from DB for {Language}", lang);
+            _logger.LogWarning(ex, "Failed to load prompt translations from DB for {Language}", lang.ForLog());
             return null;
         }
     }
@@ -153,7 +154,7 @@ public class PromptTranslationProvider : IPromptTranslationProvider
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to save prompt translations to DB for {Language}", lang);
+            _logger.LogWarning(ex, "Failed to save prompt translations to DB for {Language}", lang.ForLog());
         }
     }
 
@@ -175,12 +176,12 @@ public class PromptTranslationProvider : IPromptTranslationProvider
                 result[key] = translation.TranslatedText;
             }
 
-            _logger.LogInformation("Translated prompt segments to {Language} via DeepL", targetLang);
+            _logger.LogInformation("Translated prompt segments to {Language} via DeepL", targetLang.ForLog());
             return result;
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "DeepL translation failed for {Language}", targetLang);
+            _logger.LogWarning(ex, "DeepL translation failed for {Language}", targetLang.ForLog());
             return null;
         }
     }
@@ -237,17 +238,17 @@ public class PromptTranslationProvider : IPromptTranslationProvider
             {
                 if (!translated.ContainsKey(key))
                 {
-                    _logger.LogWarning("LLM translation missing key {Key} for {Language}, using German fallback", key, targetLang);
+                    _logger.LogWarning("LLM translation missing key {Key} for {Language}, using German fallback", key.ForLog(), targetLang.ForLog());
                     translated[key] = GermanSegments[key];
                 }
             }
 
-            _logger.LogInformation("Translated prompt segments to {Language} via LLM ({Model})", targetLang, model.ModelId);
+            _logger.LogInformation("Translated prompt segments to {Language} via LLM ({Model})", targetLang.ForLog(), model.ModelId);
             return translated;
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "LLM translation failed for {Language}", targetLang);
+            _logger.LogWarning(ex, "LLM translation failed for {Language}", targetLang.ForLog());
             return null;
         }
     }

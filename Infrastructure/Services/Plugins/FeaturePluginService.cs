@@ -9,12 +9,14 @@
 
 using System.Collections.Concurrent;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Plugins;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Plugins;
 using Klacks.Plugin.Contracts;
 
@@ -31,6 +33,10 @@ public class FeaturePluginService : IFeaturePluginService
     private readonly object _installedLock = new();
     private readonly object _enabledLock = new();
     private bool _initialized;
+
+    private const string LanguageCodePattern = "^[A-Za-z0-9_-]+$";
+
+    private static readonly Regex LanguageCodeRegex = new(LanguageCodePattern, RegexOptions.Compiled);
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -140,7 +146,7 @@ public class FeaturePluginService : IFeaturePluginService
         {
             _logger.LogWarning(
                 "Feature plugin '{Name}' requires Klacks version {MinVersion}, but current version is {CurrentVersion}",
-                name, manifest.MinKlacksVersion, $"{MyVersion.Major}.{MyVersion.Minor}.{MyVersion.Patch}");
+                name.ForLog(), manifest.MinKlacksVersion, $"{MyVersion.Major}.{MyVersion.Minor}.{MyVersion.Patch}");
             return false;
         }
 
@@ -195,7 +201,7 @@ public class FeaturePluginService : IFeaturePluginService
 
         await RegisterPluginNavigationAsync(scope, manifest);
 
-        _logger.LogInformation("Feature plugin '{Name}' installed", name);
+        _logger.LogInformation("Feature plugin '{Name}' installed", name.ForLog());
         return true;
     }
 
@@ -240,7 +246,7 @@ public class FeaturePluginService : IFeaturePluginService
             await UnregisterPluginNavigationAsync(scope, uninstallManifest);
         }
 
-        _logger.LogInformation("Feature plugin '{Name}' uninstalled", name);
+        _logger.LogInformation("Feature plugin '{Name}' uninstalled", name.ForLog());
         return true;
     }
 
@@ -277,7 +283,7 @@ public class FeaturePluginService : IFeaturePluginService
             _enabledNames.Add(name);
         }
 
-        _logger.LogInformation("Feature plugin '{Name}' enabled", name);
+        _logger.LogInformation("Feature plugin '{Name}' enabled", name.ForLog());
         return true;
     }
 
@@ -305,7 +311,7 @@ public class FeaturePluginService : IFeaturePluginService
             _enabledNames.Remove(name);
         }
 
-        _logger.LogInformation("Feature plugin '{Name}' disabled", name);
+        _logger.LogInformation("Feature plugin '{Name}' disabled", name.ForLog());
         return true;
     }
 
@@ -326,6 +332,13 @@ public class FeaturePluginService : IFeaturePluginService
 
     public Dictionary<string, string>? GetTranslations(string lang)
     {
+        if (string.IsNullOrWhiteSpace(lang) || !LanguageCodeRegex.IsMatch(lang))
+            return null;
+
+        var safeLang = Path.GetFileName(lang);
+        if (string.IsNullOrEmpty(safeLang) || !LanguageCodeRegex.IsMatch(safeLang))
+            return null;
+
         var merged = new Dictionary<string, string>();
 
         foreach (var kvp in _manifests)
@@ -334,7 +347,7 @@ public class FeaturePluginService : IFeaturePluginService
                 continue;
 
             var pluginDir = Path.Combine(_pluginDirectory, kvp.Key, FeaturePluginConstants.I18nDirectory);
-            var filePath = Path.Combine(pluginDir, $"{lang}.json");
+            var filePath = Path.Combine(pluginDir, $"{safeLang}.json");
 
             if (!File.Exists(filePath))
                 continue;
@@ -354,7 +367,7 @@ public class FeaturePluginService : IFeaturePluginService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to load translations for plugin '{Plugin}' lang '{Lang}'", kvp.Key, lang);
+                _logger.LogError(ex, "Failed to load translations for plugin '{Plugin}' lang '{Lang}'", kvp.Key, safeLang.ForLog());
             }
         }
 

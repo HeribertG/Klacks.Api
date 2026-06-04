@@ -4,6 +4,7 @@ using Klacks.Api.Application.DTOs.RouteOptimization;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Services.RouteOptimization;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
@@ -89,7 +90,7 @@ public class RouteOptimizationController : BaseController
 
         _logger.LogInformation(
             "Optimizing route for {Count} shifts, StartBase: {StartBase}, EndBase: {EndBase}, TransportMode: {TransportMode}, TimeBlocks: {BlockCount}",
-            request.ShiftIds.Count, startBase, endBase, transportMode, request.TimeBlocks.Count);
+            request.ShiftIds.Count, startBase.ForLog(), endBase.ForLog(), transportMode, request.TimeBlocks.Count);
 
         if (request.ShiftIds.Count < 2)
         {
@@ -208,7 +209,7 @@ public class RouteOptimizationController : BaseController
 
         _logger.LogInformation(
             "Autofill for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}, StartBase: {StartBase}, EndBase: {EndBase}, FromTime: {FromTime}, UntilTime: {UntilTime}, TimeBlocks: {BlockCount}",
-            request.ContainerId, request.Weekday, request.IsHoliday, request.StartBase, request.EndBase, parsedFromTime, parsedUntilTime, request.TimeBlocks.Count);
+            request.ContainerId, request.Weekday, request.IsHoliday, request.StartBase.ForLog(), request.EndBase.ForLog(), parsedFromTime, parsedUntilTime, request.TimeBlocks.Count);
 
         try
         {

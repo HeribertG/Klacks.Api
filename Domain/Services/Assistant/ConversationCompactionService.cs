@@ -8,6 +8,7 @@
 
 using System.Text;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 
 using Klacks.Api.Domain.Models.Assistant;
@@ -73,13 +74,13 @@ public class ConversationCompactionService : IConversationCompactionService
 
             _logger.LogInformation(
                 "Compacted conversation {ConversationId}: summarized {MessageCount} old messages",
-                conversationId, oldMessages.Count);
+                conversationId.ForLog(), oldMessages.Count);
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex,
                 "Conversation compaction failed for {ConversationId} — chat is unaffected",
-                conversationId);
+                conversationId.ForLog());
         }
     }
 

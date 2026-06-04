@@ -5,6 +5,7 @@
 /// </summary>
 using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Logging;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
@@ -27,7 +28,7 @@ public class EmailTestService : IEmailTestService
         try
         {
             _logger.LogInformation("Testing email configuration for server: {Server}:{Port} with username: {Username}",
-                request.Server, request.Port, request.Username);
+                request.Server.ForLog(), request.Port.ForLog(), request.Username.ForLog());
 
             var pwd = request.Password ?? "";
             _logger.LogInformation("Password analysis: Length={Length}, StartsWithENC={StartsWithEnc}",
@@ -62,7 +63,7 @@ public class EmailTestService : IEmailTestService
                     request.Server.Contains("gmail.com") || request.Server.Contains("yahoo.com") ||
                     request.Server.Contains("gmx."))
                 {
-                    _logger.LogWarning("Authentication set to '<None>' but server {Server} typically requires authentication", request.Server);
+                    _logger.LogWarning("Authentication set to '<None>' but server {Server} typically requires authentication", request.Server.ForLog());
                     return new EmailTestResult
                     {
                         Success = false,
@@ -92,11 +93,11 @@ public class EmailTestService : IEmailTestService
             client.Timeout = timeout;
 
             _logger.LogInformation("Connecting to SMTP server {Server}:{Port} with {Options}...",
-                request.Server, port, secureSocketOptions);
+                request.Server.ForLog(), port, secureSocketOptions);
 
             await client.ConnectAsync(request.Server, port, secureSocketOptions);
 
-            _logger.LogInformation("Connected successfully. Authenticating as {Username}...", request.Username);
+            _logger.LogInformation("Connected successfully. Authenticating as {Username}...", request.Username.ForLog());
 
             await client.AuthenticateAsync(request.Username, request.Password);
 
@@ -131,7 +132,7 @@ public class EmailTestService : IEmailTestService
 
             await client.SendAsync(message);
 
-            _logger.LogInformation("Test email sent successfully to {Username}", request.Username);
+            _logger.LogInformation("Test email sent successfully to {Username}", request.Username.ForLog());
 
             await client.DisconnectAsync(true);
 

@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Commands.IdentityProviders;
 using Klacks.Api.Application.Queries.IdentityProviders;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.IdentityProviders;
 using Klacks.Api.Domain.DTOs.IdentityProviders;
@@ -47,7 +48,7 @@ public class IdentityProvidersController : BaseController
     [HttpPost]
     public async Task<ActionResult<IdentityProviderResource>> PostIdentityProvider([FromBody] IdentityProviderResource resource)
     {
-        _logger.LogInformation("[IDENTITY-PROVIDER-API] POST IdentityProviders - Name: {Name}", resource.Name);
+        _logger.LogInformation("[IDENTITY-PROVIDER-API] POST IdentityProviders - Name: {Name}", resource.Name.ForLog());
         var result = await _mediator.Send(new PostCommand(resource));
         return result!;
     }
@@ -55,7 +56,7 @@ public class IdentityProvidersController : BaseController
     [HttpPut("{id}")]
     public async Task<ActionResult<IdentityProviderResource>> PutIdentityProvider(Guid id, [FromBody] IdentityProviderResource resource)
     {
-        _logger.LogInformation("[IDENTITY-PROVIDER-API] PUT IdentityProviders - Id: {Id}, Name: {Name}", id, resource.Name);
+        _logger.LogInformation("[IDENTITY-PROVIDER-API] PUT IdentityProviders - Id: {Id}, Name: {Name}", id, resource.Name.ForLog());
         resource.Id = id;
         var result = await _mediator.Send(new PutCommand(resource));
 

@@ -8,6 +8,7 @@
 /// </summary>
 
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
+using Klacks.Api.Domain.Logging;
 using Microsoft.Extensions.Caching.Memory;
 using System.Globalization;
 using System.Text.Json;
@@ -138,14 +139,14 @@ public class GeocodingService : IGeocodingService
             {
                 var query = $"{fullAddress}, {country}";
                 url = $"{NOMINATIM_URL}?q={Uri.EscapeDataString(query)}&format=json&limit=1&addressdetails=1";
-                _logger.LogInformation("Geocoding free-text: {Query}", fullAddress);
+                _logger.LogInformation("Geocoding free-text: {Query}", fullAddress.ForLog());
             }
 
             var response = await _httpClient.GetAsync(url, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Geocoding failed for address {Address}: {StatusCode}", fullAddress, response.StatusCode);
+                _logger.LogWarning("Geocoding failed for address {Address}: {StatusCode}", fullAddress.ForLog(), response.StatusCode);
                 return (null, null);
             }
 
@@ -157,11 +158,11 @@ public class GeocodingService : IGeocodingService
                 var coords = ExtractCoordinates(results[0]);
                 _cache.Set(cacheKey, coords, TimeSpan.FromDays(30));
                 _logger.LogInformation("Geocoded address {Address}: {Lat}, {Lon} ({DisplayName})",
-                    fullAddress, coords.Latitude, coords.Longitude, results[0].display_name);
+                    fullAddress.ForLog(), coords.Latitude, coords.Longitude, results[0].display_name.ForLog());
                 return coords;
             }
 
-            _logger.LogWarning("No geocoding results for address {Address}, trying fallback", fullAddress);
+            _logger.LogWarning("No geocoding results for address {Address}, trying fallback", fullAddress.ForLog());
             return await TryFallbackGeocoding(fullAddress, country, cacheKey, cancellationToken);
         }
         catch (OperationCanceledException)
@@ -170,7 +171,7 @@ public class GeocodingService : IGeocodingService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error geocoding address {Address}", fullAddress);
+            _logger.LogError(ex, "Error geocoding address {Address}", fullAddress.ForLog());
             return (null, null);
         }
         finally
@@ -210,7 +211,7 @@ public class GeocodingService : IGeocodingService
 
         if (string.IsNullOrEmpty(zip) || string.IsNullOrEmpty(city))
         {
-            _logger.LogWarning("Could not extract ZIP and city from address {Address}", fullAddress);
+            _logger.LogWarning("Could not extract ZIP and city from address {Address}", fullAddress.ForLog());
             CacheNegativeResult(cacheKey);
             return (null, null);
         }
@@ -263,7 +264,7 @@ public class GeocodingService : IGeocodingService
             }
         }
 
-        _logger.LogWarning("All fallback geocoding attempts failed for address {Address}", fullAddress);
+        _logger.LogWarning("All fallback geocoding attempts failed for address {Address}", fullAddress.ForLog());
         CacheNegativeResult(cacheKey);
         return (null, null);
     }
@@ -303,7 +304,7 @@ public class GeocodingService : IGeocodingService
             }
 
             var url = $"{NOMINATIM_URL}?{string.Join("&", queryParams)}";
-            _logger.LogInformation("Validating exact address: street={Street}, postalCode={PostalCode}, city={City}, country={Country}", street, postalCode, city, country);
+            _logger.LogInformation("Validating exact address: street={Street}, postalCode={PostalCode}, city={City}, country={Country}", street.ForLog(), postalCode.ForLog(), city.ForLog(), country.ForLog());
 
             var response = await _httpClient.GetAsync(url);
             if (!response.IsSuccessStatusCode)
@@ -316,7 +317,7 @@ public class GeocodingService : IGeocodingService
 
             if (results == null || results.Count == 0)
             {
-                _logger.LogWarning("Address not found: {Street}, {PostalCode} {City}, {Country}", street, postalCode, city, country);
+                _logger.LogWarning("Address not found: {Street}, {PostalCode} {City}, {Country}", street.ForLog(), postalCode.ForLog(), city.ForLog(), country.ForLog());
 
                 if (!string.IsNullOrEmpty(street))
                 {
@@ -425,7 +426,7 @@ public class GeocodingService : IGeocodingService
             var query = BuildSuggestionQuery(street, postalCode, city, country);
             var url = $"{NOMINATIM_URL}?q={Uri.EscapeDataString(query)}&format=json&limit={limit}&addressdetails=1";
 
-            _logger.LogInformation("Fetching address suggestions: {Query}", query);
+            _logger.LogInformation("Fetching address suggestions: {Query}", query.ForLog());
 
             var response = await _httpClient.GetAsync(url);
             if (!response.IsSuccessStatusCode)

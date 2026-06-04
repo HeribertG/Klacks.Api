@@ -55,7 +55,7 @@ public class AccountAuthenticationService : IAccountAuthenticationService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during login authentication for user {Email}", email);
+            _logger.LogError(ex, "Error during login authentication for user {UserId}", user.Id);
             _authenticationService.SetModelError(authenticatedResult, "Login failed", ex.Message);
             return authenticatedResult;
         }

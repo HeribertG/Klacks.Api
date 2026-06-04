@@ -12,6 +12,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Infrastructure.Persistence;
@@ -73,7 +74,7 @@ public class LanguagePluginContentInstaller
             count++;
         }
 
-        _logger.LogInformation("Installed {Count} doc(s) for language plugin '{Code}'", count, code);
+        _logger.LogInformation("Installed {Count} doc(s) for language plugin '{Code}'", count, code.ForLog());
     }
 
     public async Task UninstallDocsAsync(IServiceScope scope, string code)
@@ -84,7 +85,7 @@ public class LanguagePluginContentInstaller
             .ToListAsync();
 
         db.PluginDocs.RemoveRange(docs);
-        _logger.LogInformation("Uninstalled {Count} doc(s) for language plugin '{Code}'", docs.Count, code);
+        _logger.LogInformation("Uninstalled {Count} doc(s) for language plugin '{Code}'", docs.Count, code.ForLog());
     }
 
     public async Task InstallSkillSynonymsAsync(IServiceScope scope, string code)
@@ -117,11 +118,11 @@ public class LanguagePluginContentInstaller
 
             _logger.LogInformation(
                 "Installed skill synonyms for language plugin '{Code}': {Count} skill(s) updated",
-                code, count);
+                code.ForLog(), count);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to install skill synonyms for language plugin '{Code}'", code);
+            _logger.LogError(ex, "Failed to install skill synonyms for language plugin '{Code}'", code.ForLog());
         }
     }
 
@@ -157,11 +158,11 @@ public class LanguagePluginContentInstaller
 
             _logger.LogInformation(
                 "Uninstalled skill synonyms for language plugin '{Code}': {Count} skill(s) updated",
-                code, count);
+                code.ForLog(), count);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to uninstall skill synonyms for language plugin '{Code}'", code);
+            _logger.LogError(ex, "Failed to uninstall skill synonyms for language plugin '{Code}'", code.ForLog());
         }
     }
 
@@ -184,11 +185,11 @@ public class LanguagePluginContentInstaller
             scope.ServiceProvider.GetRequiredService<ISentimentAnalyzer>().ReloadKeywords();
 
             _logger.LogInformation(
-                "Installed sentiment keywords for language plugin '{Code}'", code);
+                "Installed sentiment keywords for language plugin '{Code}'", code.ForLog());
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to install sentiment keywords for language plugin '{Code}'", code);
+            _logger.LogError(ex, "Failed to install sentiment keywords for language plugin '{Code}'", code.ForLog());
         }
     }
 
@@ -206,11 +207,11 @@ public class LanguagePluginContentInstaller
             scope.ServiceProvider.GetRequiredService<ISentimentAnalyzer>().ReloadKeywords();
 
             _logger.LogInformation(
-                "Uninstalled sentiment keywords for language plugin '{Code}'", code);
+                "Uninstalled sentiment keywords for language plugin '{Code}'", code.ForLog());
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to uninstall sentiment keywords for language plugin '{Code}'", code);
+            _logger.LogError(ex, "Failed to uninstall sentiment keywords for language plugin '{Code}'", code.ForLog());
         }
     }
 
@@ -218,9 +219,9 @@ public class LanguagePluginContentInstaller
     {
         var wakeWordsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.WakeWordsFileName);
         if (File.Exists(wakeWordsPath))
-            _logger.LogInformation("Wake-words file registered for language plugin '{Code}'", code);
+            _logger.LogInformation("Wake-words file registered for language plugin '{Code}'", code.ForLog());
         else
-            _logger.LogWarning("Wake-words file not found for language plugin '{Code}' at '{Path}'", code, wakeWordsPath);
+            _logger.LogWarning("Wake-words file not found for language plugin '{Code}' at '{Path}'", code.ForLog(), wakeWordsPath.ForLog());
 
         return Task.CompletedTask;
     }
@@ -252,11 +253,11 @@ public class LanguagePluginContentInstaller
 
             _logger.LogInformation(
                 "Installed navigation synonyms for language plugin '{Code}': {Count} target(s) updated",
-                code, count);
+                code.ForLog(), count);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to install navigation synonyms for language plugin '{Code}'", code);
+            _logger.LogError(ex, "Failed to install navigation synonyms for language plugin '{Code}'", code.ForLog());
         }
     }
 
@@ -284,11 +285,11 @@ public class LanguagePluginContentInstaller
 
             _logger.LogInformation(
                 "Uninstalled navigation synonyms for language plugin '{Code}': {Count} target(s) cleared",
-                code, count);
+                code.ForLog(), count);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to uninstall navigation synonyms for language plugin '{Code}'", code);
+            _logger.LogError(ex, "Failed to uninstall navigation synonyms for language plugin '{Code}'", code.ForLog());
         }
     }
 
@@ -341,14 +342,14 @@ public class LanguagePluginContentInstaller
             {
                 _logger.LogInformation(
                     "Merged non-core translations for {Count} {Table} record(s) in language plugin '{Code}'",
-                    count, tableName, code);
+                    count, tableName.ForLog(), code.ForLog());
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex,
                 "Failed to merge non-core translations for {Table} in language plugin '{Code}'",
-                tableName, code);
+                tableName.ForLog(), code.ForLog());
         }
     }
 

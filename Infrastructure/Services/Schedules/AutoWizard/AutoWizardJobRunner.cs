@@ -5,6 +5,7 @@ using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Schedules.AutoWizard;
 using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
+using Klacks.Api.Domain.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 

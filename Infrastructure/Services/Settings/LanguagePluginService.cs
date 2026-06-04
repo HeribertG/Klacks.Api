@@ -13,6 +13,7 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Config;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.Interfaces.Settings;
@@ -160,7 +161,7 @@ public class LanguagePluginService : ILanguagePluginService
         {
             _logger.LogWarning(
                 "Language plugin '{Code}' requires Klacks version {MinVersion}, but current version is {CurrentVersion}",
-                code, manifest.MinKlacksVersion, $"{MyVersion.Major}.{MyVersion.Minor}.{MyVersion.Patch}");
+                code.ForLog(), manifest.MinKlacksVersion.ForLog(), $"{MyVersion.Major}.{MyVersion.Minor}.{MyVersion.Patch}");
             return false;
         }
 
@@ -199,7 +200,7 @@ public class LanguagePluginService : ILanguagePluginService
             _installedCodes.Add(code);
         }
 
-        _logger.LogInformation("Language plugin '{Code}' installed", code);
+        _logger.LogInformation("Language plugin '{Code}' installed", code.ForLog());
         return true;
     }
 
@@ -233,7 +234,7 @@ public class LanguagePluginService : ILanguagePluginService
             _installedCodes.Remove(code);
         }
 
-        _logger.LogInformation("Language plugin '{Code}' uninstalled", code);
+        _logger.LogInformation("Language plugin '{Code}' uninstalled", code.ForLog());
         return true;
     }
 
@@ -263,7 +264,7 @@ public class LanguagePluginService : ILanguagePluginService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to load translations for language plugin '{Code}'", code);
+            _logger.LogError(ex, "Failed to load translations for language plugin '{Code}'", code.ForLog());
             return null;
         }
     }

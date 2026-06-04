@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Queries.Assistant;
 using System.Security.Claims;
@@ -63,7 +64,7 @@ public class UsageController : ControllerBase
             return BadRequest(new { Message = $"Unsupported format. Valid formats: {string.Join(", ", validFormats)}" });
         }
         
-        _logger.LogInformation("User {UserId} requested export in {Format} format for {Days} days", userId, format, days);
+        _logger.LogInformation("User {UserId} requested export in {Format} format for {Days} days", userId, format.ForLog(), days);
         
         return StatusCode(501, new { Message = "Export functionality not yet implemented" });
     }

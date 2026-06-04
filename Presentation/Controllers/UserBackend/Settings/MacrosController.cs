@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -52,7 +53,7 @@ public class MacrosController : BaseController
     [HttpPost("Macros")]
     public async Task<ActionResult<MacroResource>> PostMacro([FromBody] MacroResource macroResource)
     {
-        logger.LogInformation("[MACRO-API] POST Macros - Name: {Name}", macroResource.Name);
+        logger.LogInformation("[MACRO-API] POST Macros - Name: {Name}", macroResource.Name.ForLog());
         var result = await mediator.Send(new Application.Commands.Settings.Macros.PostCommand(macroResource));
         return result;
     }
@@ -60,7 +61,7 @@ public class MacrosController : BaseController
     [HttpPut("Macros")]
     public async Task<ActionResult<MacroResource>> PutMacro([FromBody] MacroResource macroResource)
     {
-        logger.LogInformation("[MACRO-API] PUT Macros - Id: {Id}, Name: {Name}", macroResource.Id, macroResource.Name);
+        logger.LogInformation("[MACRO-API] PUT Macros - Id: {Id}, Name: {Name}", macroResource.Id, macroResource.Name.ForLog());
         var result = await mediator.Send(new Application.Commands.Settings.Macros.PutCommand(macroResource));
         return result;
     }

@@ -6,6 +6,7 @@
 using Klacks.Api.Application.DTOs.Email;
 using Klacks.Api.Domain.DTOs.Email;
 using Klacks.Api.Domain.Interfaces.Email;
+using Klacks.Api.Domain.Logging;
 using MailKit.Net.Imap;
 using MailKit.Security;
 using MailKit;
@@ -26,7 +27,7 @@ public class ImapTestService : IImapTestService
         try
         {
             _logger.LogInformation("Testing IMAP configuration for server: {Server}:{Port} with username: {Username}",
-                request.Server, request.Port, request.Username);
+                request.Server.ForLog(), request.Port, request.Username.ForLog());
 
             if (string.IsNullOrWhiteSpace(request.Server) ||
                 string.IsNullOrWhiteSpace(request.Username) ||
@@ -47,15 +48,15 @@ public class ImapTestService : IImapTestService
             client.Timeout = 30000;
 
             _logger.LogInformation("Connecting to IMAP server {Server}:{Port} with {Options}...",
-                request.Server, port, secureSocketOptions);
+                request.Server.ForLog(), port, secureSocketOptions);
 
             await client.ConnectAsync(request.Server, port, secureSocketOptions);
 
-            _logger.LogInformation("Connected successfully. Authenticating as {Username}...", request.Username);
+            _logger.LogInformation("Connected successfully. Authenticating as {Username}...", request.Username.ForLog());
 
             await client.AuthenticateAsync(request.Username, request.Password);
 
-            _logger.LogInformation("Authentication successful. Opening folder {Folder}...", request.Folder);
+            _logger.LogInformation("Authentication successful. Opening folder {Folder}...", request.Folder.ForLog());
 
             var folder = await client.GetFolderAsync(request.Folder);
             await folder.OpenAsync(FolderAccess.ReadOnly);
@@ -63,7 +64,7 @@ public class ImapTestService : IImapTestService
             var messageCount = folder.Count;
 
             _logger.LogInformation("IMAP test successful. Folder {Folder} contains {Count} messages",
-                request.Folder, messageCount);
+                request.Folder.ForLog(), messageCount);
 
             await client.DisconnectAsync(true);
 

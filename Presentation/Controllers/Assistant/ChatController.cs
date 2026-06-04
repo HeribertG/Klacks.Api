@@ -9,6 +9,7 @@ using Klacks.Api.Application.Klacksy.Models;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -107,7 +108,7 @@ public class ChatController : ControllerBase
             });
         }
 
-        _logger.LogInformation("Processing assistant request for user {UserId}: {Message}", userId, request.Message);
+        _logger.LogInformation("Processing assistant request for user {UserId}: {Message}", userId, request.Message.ForLog());
 
         var response = await _mediator.Send(new ProcessLLMMessageCommand
         {
@@ -304,7 +305,7 @@ public class ChatController : ControllerBase
 
         var userId = GetCurrentUserId();
         var userRights = GetCurrentUserRights();
-        _logger.LogInformation("Executing function {FunctionName} for user {UserId}", request.FunctionName, userId);
+        _logger.LogInformation("Executing function {FunctionName} for user {UserId}", request.FunctionName.ForLog(), userId);
 
         var response = await _mediator.Send(new ExecuteLLMFunctionCommand
         {
@@ -335,7 +336,7 @@ public class ChatController : ControllerBase
                 continue;
             }
 
-            _logger.LogInformation("Batch executing function {FunctionName} for user {UserId}", request.FunctionName, userId);
+            _logger.LogInformation("Batch executing function {FunctionName} for user {UserId}", request.FunctionName.ForLog(), userId);
 
             var response = await _mediator.Send(new ExecuteLLMFunctionCommand
             {

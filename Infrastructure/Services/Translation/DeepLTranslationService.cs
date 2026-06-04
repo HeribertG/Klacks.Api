@@ -5,6 +5,7 @@ using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Logging;
 
 namespace Klacks.Api.Infrastructure.Services.Translation;
 
@@ -89,7 +90,7 @@ public class DeepLTranslationService : ITranslationService
             var translatedText = result?.Translations?.FirstOrDefault()?.Text ?? text;
 
             _logger.LogDebug("Translated '{Source}' from {SourceLang} to {TargetLang}: '{Target}'",
-                text, sourceLanguage, targetLanguage, translatedText);
+                text.ForLog(), sourceLanguage.ForLog(), targetLanguage.ForLog(), translatedText.ForLog());
 
             return new TranslationResult(translatedText, sourceLanguage, targetLanguage);
         }

@@ -9,6 +9,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Klacks.Api.Application.DTOs.Config;
 using Klacks.Api.Application.Interfaces.Settings;
+using Klacks.Api.Domain.Logging;
 
 namespace Klacks.Api.Infrastructure.Services.Settings;
 
@@ -68,7 +69,7 @@ public class MarketplaceClientService : IMarketplaceClientService
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Marketplace get package '{Code}' failed with status {StatusCode}", code, response.StatusCode);
+                _logger.LogWarning("Marketplace get package '{Code}' failed with status {StatusCode}", code.ForLog(), response.StatusCode);
                 return null;
             }
 
@@ -77,7 +78,7 @@ public class MarketplaceClientService : IMarketplaceClientService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to get marketplace package '{Code}'", code);
+            _logger.LogWarning(ex, "Failed to get marketplace package '{Code}'", code.ForLog());
             return null;
         }
     }
@@ -91,7 +92,7 @@ public class MarketplaceClientService : IMarketplaceClientService
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Marketplace download package '{Code}' failed with status {StatusCode}", code, response.StatusCode);
+                _logger.LogWarning("Marketplace download package '{Code}' failed with status {StatusCode}", code.ForLog(), response.StatusCode);
                 return null;
             }
 
@@ -99,7 +100,7 @@ public class MarketplaceClientService : IMarketplaceClientService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to download marketplace package '{Code}'", code);
+            _logger.LogWarning(ex, "Failed to download marketplace package '{Code}'", code.ForLog());
             return null;
         }
     }

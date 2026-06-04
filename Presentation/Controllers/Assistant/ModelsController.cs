@@ -6,6 +6,7 @@ using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
@@ -98,7 +99,7 @@ public class ModelsController : ControllerBase
     public async Task<ActionResult> EnableModel(string modelId)
     {
         await _mediator.Send(new EnableLLMModelCommand(modelId));
-        _logger.LogInformation("Admin {UserId} enabled model {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, modelId);
+        _logger.LogInformation("Admin {UserId} enabled model {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, modelId.ForLog());
         return Ok(new { Message = $"Model {modelId} enabled successfully" });
     }
 
@@ -107,7 +108,7 @@ public class ModelsController : ControllerBase
     public async Task<ActionResult> DisableModel(string modelId)
     {
         await _mediator.Send(new DisableLLMModelCommand(modelId));
-        _logger.LogInformation("Admin {UserId} disabled model {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, modelId);
+        _logger.LogInformation("Admin {UserId} disabled model {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, modelId.ForLog());
         return Ok(new { Message = $"Model {modelId} disabled successfully" });
     }
 
@@ -116,7 +117,7 @@ public class ModelsController : ControllerBase
     public async Task<ActionResult> SetDefaultModel(string modelId)
     {
         await _mediator.Send(new SetDefaultLLMModelCommand(modelId));
-        _logger.LogInformation("Admin {UserId} set default model to {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, modelId);
+        _logger.LogInformation("Admin {UserId} set default model to {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, modelId.ForLog());
         return Ok(new { Message = $"Model {modelId} set as default" });
     }
 
@@ -125,7 +126,7 @@ public class ModelsController : ControllerBase
     public async Task<ActionResult<LLMModel>> CreateModel([FromBody] LLMModel model)
     {
         var result = await _mediator.Send(new PostCommand<LLMModel>(model));
-        _logger.LogInformation("Admin {UserId} created model {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, model.ModelId);
+        _logger.LogInformation("Admin {UserId} created model {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, model.ModelId.ForLog());
         return CreatedAtAction(nameof(GetAvailableModels), new { id = result?.Id }, result);
     }
 
@@ -135,7 +136,7 @@ public class ModelsController : ControllerBase
     {
         model.Id = id;
         var result = await _mediator.Send(new PutCommand<LLMModel>(model));
-        _logger.LogInformation("Admin {UserId} updated model {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, model.ModelId);
+        _logger.LogInformation("Admin {UserId} updated model {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, model.ModelId.ForLog());
         return Ok(result);
     }
 
@@ -159,7 +160,7 @@ public class ModelsController : ControllerBase
             }
             
             await _mediator.Send(new DeleteCommand<LLMModel>(model.Id));
-            _logger.LogInformation("Admin {UserId} deleted model with modelId {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, id);
+            _logger.LogInformation("Admin {UserId} deleted model with modelId {ModelId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, id.ForLog());
         }
         
         return NoContent();

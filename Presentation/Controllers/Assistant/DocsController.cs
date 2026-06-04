@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Logging;
+using Klacks.Docs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Klacks.Docs;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;
 
@@ -47,7 +48,7 @@ public class DocsController : ControllerBase
             return NotFound(new { Error = $"Document '{docName}' could not be loaded" });
         }
 
-        _logger.LogInformation("Serving documentation: {DocName}", docName);
+        _logger.LogInformation("Serving documentation: {DocName}", docName.ForLog());
 
         return Ok(new
         {

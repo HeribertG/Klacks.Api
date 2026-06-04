@@ -10,6 +10,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using SettingsConstants = Klacks.Api.Application.Constants.Settings;
 using TranscriptionConstants = Klacks.Api.Application.Constants.TranscriptionConstants;
@@ -49,7 +50,7 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
 
             if (provider == null || !provider.IsEnabled)
             {
-                _logger.LogWarning("No enabled LLM provider found for model {ModelId}", effectiveModelId);
+                _logger.LogWarning("No enabled LLM provider found for model {ModelId}", effectiveModelId.ForLog());
                 return preprocessed;
             }
 
@@ -73,7 +74,7 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
                 MaxTokens = TranscriptionConstants.MaxTokens
             };
 
-            _logger.LogInformation("Sending transcription enhancement request using model {ModelId}", effectiveModelId);
+            _logger.LogInformation("Sending transcription enhancement request using model {ModelId}", effectiveModelId.ForLog());
 
             var response = await provider.ProcessAsync(request);
 

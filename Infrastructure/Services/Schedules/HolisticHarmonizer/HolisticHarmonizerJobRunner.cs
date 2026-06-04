@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Hubs;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Loop;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
@@ -70,7 +71,7 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
         {
             _logger.LogInformation(
                 "Holistic Harmonizer job {JobId} starting (period {From} - {Until}, {AgentCount} agents, budget {BudgetSec}s)",
-                jobId, input.PeriodFrom, input.PeriodUntil, input.AgentIds.Count, TimeBudget.TotalSeconds);
+                jobId, Convert.ToString(input.PeriodFrom).ForLog(), Convert.ToString(input.PeriodUntil).ForLog(), input.AgentIds.Count, TimeBudget.TotalSeconds);
 
             await Task.Delay(ClientJoinDelayMs, ct);
 

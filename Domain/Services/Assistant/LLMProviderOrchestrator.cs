@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using AppSettings = Klacks.Api.Application.Constants.Settings;
@@ -32,14 +33,14 @@ public class LLMProviderOrchestrator
 
             if (model == null || !model.IsEnabled)
             {
-                _logger.LogWarning("Model {ModelId} not found or not enabled", effectiveModelId);
+                _logger.LogWarning("Model {ModelId} not found or not enabled", effectiveModelId.ForLog());
                 return (null, null, "The selected model is not available.");
             }
 
             var provider = await _providerFactory.GetProviderForModelAsync(effectiveModelId);
             if (provider == null)
             {
-                _logger.LogWarning("Provider for model {ModelId} not found", effectiveModelId);
+                _logger.LogWarning("Provider for model {ModelId} not found", effectiveModelId.ForLog());
                 return (null, null, "The provider for the selected model is not available.");
             }
 

@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,7 +40,7 @@ public class LLMBackgroundTaskService : ILLMBackgroundTaskService
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Fire-and-forget conversation compaction failed for {ConversationId}",
-                    conversation.ConversationId);
+                    conversation.ConversationId.ForLog());
             }
         });
 

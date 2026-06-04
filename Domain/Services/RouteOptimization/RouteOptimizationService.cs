@@ -15,6 +15,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Staffs;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;
 
@@ -413,13 +414,13 @@ public class RouteOptimizationService : IRouteOptimizationService
             l.Address.Equals(baseAddress, StringComparison.OrdinalIgnoreCase) ||
             l.Address.Contains(baseAddress, StringComparison.OrdinalIgnoreCase) ||
             baseAddress.Contains(l.Address, StringComparison.OrdinalIgnoreCase));
-        _logger.LogInformation("Looking for {Label} '{BaseAddress}' in locations, found index: {Index}", label, baseAddress, index);
+        _logger.LogInformation("Looking for {Label} '{BaseAddress}' in locations, found index: {Index}", label, baseAddress.ForLog(), index);
 
         if (index == -1)
         {
             _logger.LogWarning("{Label} {BaseAddress} not found in locations. Available addresses: [{Addresses}]",
                 label,
-                baseAddress,
+                baseAddress.ForLog(),
                 string.Join(", ", distanceMatrix.Locations.Select(l => l.Address)));
             return null;
         }
@@ -638,7 +639,7 @@ public class RouteOptimizationService : IRouteOptimizationService
 
         foreach (var address in addressesToAdd)
         {
-            _logger.LogInformation("Geocoding base address: {Address}", address);
+            _logger.LogInformation("Geocoding base address: {Address}", address.ForLog());
 
             var coords = await _geocodingService.GeocodeAddressAsync(address, "Switzerland");
 
@@ -653,12 +654,12 @@ public class RouteOptimizationService : IRouteOptimizationService
                     ShiftId = Guid.Empty
                 });
                 _logger.LogInformation("Added base at {Address} to distance matrix with coords ({Lat}, {Lon})",
-                    address, coords.Latitude.Value, coords.Longitude.Value);
+                    address.ForLog(), coords.Latitude.Value, coords.Longitude.Value);
             }
             else
             {
                 _logger.LogWarning("Could not geocode base address {Address}",
-                    address);
+                    address.ForLog());
             }
         }
 

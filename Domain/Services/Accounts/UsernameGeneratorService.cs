@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Authentification;
 using Microsoft.AspNetCore.Identity;
 
@@ -37,8 +38,7 @@ public class UsernameGeneratorService : IUsernameGeneratorService
             }
         }
 
-        _logger.LogInformation("Generated unique username: {Username} from {FirstName} {LastName}",
-            username, firstName, lastName);
+        _logger.LogInformation("Generated unique username: {Username}", username.ForLog());
 
         return username;
     }

@@ -141,7 +141,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         group.Latitude = latitude;
         group.Longitude = longitude;
         await context.SaveChangesAsync(cancellationToken);
-        Logger.LogInformation("Group {GroupId} coordinates set to {Latitude}, {Longitude}.", groupId, latitude, longitude);
+        Logger.LogInformation("Group {GroupId} coordinates updated.", groupId);
         return true;
     }
 

@@ -33,7 +33,7 @@ public class AddressCoordinateWriter : IAddressCoordinateWriter
 
         if (updated > 0)
         {
-            _logger.LogInformation("Saved coordinates for address {AddressId}: {Lat}, {Lon}", addressId, latitude, longitude);
+            _logger.LogInformation("Saved coordinates for address {AddressId}", addressId);
         }
     }
 }

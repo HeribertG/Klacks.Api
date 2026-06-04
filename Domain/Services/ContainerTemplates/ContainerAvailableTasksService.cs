@@ -4,6 +4,7 @@ using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;
 
@@ -94,7 +95,7 @@ public class ContainerAvailableTasksService : IContainerAvailableTasksService
             _logger.LogInformation(
                 "Override request: {Count} additional work ids provided: [{Ids}]",
                 additionalAvailableWorkIds.Count,
-                string.Join(", ", additionalAvailableWorkIds));
+                string.Join(", ", additionalAvailableWorkIds).ForLog());
 
             var overrideIds = additionalAvailableWorkIds
                 .Where(id => availableTasks.All(t => t.Id != id))

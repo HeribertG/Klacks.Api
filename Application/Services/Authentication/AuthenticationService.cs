@@ -39,7 +39,7 @@ public class AuthenticationService : IAuthenticationService
 
     public async Task<(bool IsValid, AppUser? User)> ValidateCredentialsAsync(string email, string password)
     {
-        _logger.LogInformation("ValidateCredentialsAsync called for: {Email}", email);
+        _logger.LogInformation("ValidateCredentialsAsync called");
 
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
@@ -50,19 +50,19 @@ public class AuthenticationService : IAuthenticationService
         var user = await _userManager.FindByEmailAsync(email);
         if (user != null && await _userManager.CheckPasswordAsync(user, password))
         {
-            _logger.LogInformation("Local authentication successful for: {Email}", email);
+            _logger.LogInformation("Local authentication successful for user {UserId}", user.Id);
             return (true, user);
         }
 
-        _logger.LogInformation("Local authentication failed, trying LDAP for: {Email}", email);
+        _logger.LogInformation("Local authentication failed, trying LDAP");
         var ldapResult = await ValidateLdapCredentialsAsync(email, password);
         if (ldapResult.IsValid)
         {
-            _logger.LogInformation("LDAP authentication successful for: {Email}", email);
+            _logger.LogInformation("LDAP authentication successful for user {UserId}", ldapResult.User!.Id);
             return ldapResult;
         }
 
-        _logger.LogWarning("All authentication methods failed for: {Email}", email);
+        _logger.LogWarning("All authentication methods failed");
         return (false, null);
     }
 
@@ -84,7 +84,7 @@ public class AuthenticationService : IAuthenticationService
 
                 if (isValid)
                 {
-                    _logger.LogInformation("LDAP authentication successful for user {Username} via provider {Provider}", username, provider.Name);
+                    _logger.LogInformation("LDAP authentication successful via provider {Provider}", provider.Name);
 
                     var user = await GetOrCreateLdapUserAsync(username, provider);
                     if (user != null)
@@ -128,12 +128,11 @@ public class AuthenticationService : IAuthenticationService
         var result = await _userManager.CreateAsync(newUser);
         if (result.Succeeded)
         {
-            _logger.LogInformation("Created new LDAP user {Username} (FirstName: {FirstName}, LastName: {LastName}) for provider {Provider}",
-                generatedUsername, firstName, lastName, provider.Name);
+            _logger.LogInformation("Created new LDAP user {UserId} for provider {Provider}", newUser.Id, provider.Name);
             return newUser;
         }
 
-        _logger.LogError("Failed to create LDAP user {Username}: {Errors}", generatedUsername, string.Join(", ", result.Errors.Select(e => e.Description)));
+        _logger.LogError("Failed to create LDAP user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
         return null;
     }
 

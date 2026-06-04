@@ -8,6 +8,7 @@
 /// <param name="logger">Logger for diagnostic output</param>
 
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Presentation.DTOs.Assistant;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -41,7 +42,7 @@ public class TranscriptionController : ControllerBase
             return BadRequest("Raw text cannot be empty");
         }
 
-        _logger.LogInformation("Transcription enhancement requested for locale {Locale}", request.Locale);
+        _logger.LogInformation("Transcription enhancement requested for locale {Locale}", request.Locale.ForLog());
 
         var enhancedText = await _transcriptionEnhancerService.EnhanceTranscriptionAsync(
             request.RawText, request.Locale, request.ModelId, ct);

@@ -24,7 +24,7 @@ public class AccountNotificationService : IAccountNotificationService
             throw new ArgumentNullException(nameof(email), "Email address cannot be null");
         }
 
-        _logger.LogInformation("Attempting to send email to {Email} with title: {Title}", email, title);
+        _logger.LogInformation("Attempting to send email with title: {Title}", title);
 
         try
         {
@@ -36,12 +36,12 @@ public class AccountNotificationService : IAccountNotificationService
 
             var result = _emailService.SendMail(email, title, message);
 
-            _logger.LogInformation("Email sent successfully to {Email}", email);
+            _logger.LogInformation("Email sent successfully with title: {Title}", title);
             return result;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send email to {Email}. Returning failure message.", email);
+            _logger.LogError(ex, "Failed to send email with title: {Title}. Returning failure message.", title);
             return $"Email sending failed: {ex.Message}";
         }
     }

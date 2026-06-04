@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
@@ -181,7 +182,7 @@ public abstract class BaseHttpProvider : ILLMProvider
         var json = JsonSerializer.Serialize(request, GetJsonSerializerOptions());
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        _logger.LogDebug("{Provider} sending request to {Endpoint}: {Request}", ProviderName, endpoint, json);
+        _logger.LogDebug("{Provider} sending request to {Endpoint}: {Request}", ProviderName, endpoint.ForLog(), json.ForLog());
 
         var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
         var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);

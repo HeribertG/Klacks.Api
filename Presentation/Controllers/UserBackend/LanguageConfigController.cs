@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Application.DTOs.Config;
@@ -16,6 +17,12 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend;
 [Route("api/config")]
 public class LanguageConfigController : ControllerBase
 {
+    private const string PluginCodePattern = "^[A-Za-z0-9_-]+$";
+    private const string LanguagePluginsDirectoryKey = "LanguagePlugins:Directory";
+    private const string DefaultLanguagePluginsDirectory = "Plugins/Languages";
+
+    private static readonly Regex PluginCodeRegex = new(PluginCodePattern, RegexOptions.Compiled);
+
     private readonly IConfiguration _configuration;
     private readonly ILanguagePluginService _languagePluginService;
     private readonly IFeaturePluginService _featurePluginService;
@@ -178,9 +185,9 @@ public class LanguageConfigController : ControllerBase
         if (bundle == null)
             return StatusCode(503, "Marketplace service unavailable");
 
-        var pluginDir = Path.Combine(AppContext.BaseDirectory,
-            _configuration.GetValue<string>("LanguagePlugins:Directory") ?? "Plugins/Languages");
-        var packageDir = Path.Combine(pluginDir, code);
+        if (!TryResolvePackageDir(code, out var packageDir))
+            return BadRequest("Invalid language code");
+
         Directory.CreateDirectory(packageDir);
 
         using var jsonDoc = JsonDocument.Parse(bundle);
@@ -210,7 +217,11 @@ public class LanguageConfigController : ControllerBase
 
             foreach (var docProperty in docs.EnumerateObject())
             {
-                var filePath = Path.Combine(docsDir, $"{docProperty.Name}.html");
+                var docName = Path.GetFileName(docProperty.Name);
+                if (!PluginCodeRegex.IsMatch(docName))
+                    continue;
+
+                var filePath = Path.Combine(docsDir, $"{docName}.html");
                 await System.IO.File.WriteAllTextAsync(filePath, docProperty.Value.GetString() ?? string.Empty);
             }
         }
@@ -225,9 +236,8 @@ public class LanguageConfigController : ControllerBase
     [HttpPost("marketplace/packages/{code}/upload")]
     public async Task<ActionResult> UploadPackageToMarketplace(string code)
     {
-        var pluginDir = Path.Combine(AppContext.BaseDirectory,
-            _configuration.GetValue<string>("LanguagePlugins:Directory") ?? "Plugins/Languages");
-        var packageDir = Path.Combine(pluginDir, code);
+        if (!TryResolvePackageDir(code, out var packageDir))
+            return BadRequest("Invalid language code");
 
         if (!Directory.Exists(packageDir))
             return NotFound($"Plugin directory for '{code}' not found");
@@ -283,6 +293,32 @@ public class LanguageConfigController : ControllerBase
             return StatusCode(503, "Failed to upload package to marketplace");
 
         return Ok();
+    }
+
+    private bool TryResolvePackageDir(string code, out string packageDir)
+    {
+        packageDir = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(code) || !PluginCodeRegex.IsMatch(code))
+            return false;
+
+        var safeCode = Path.GetFileName(code);
+        if (string.IsNullOrEmpty(safeCode) || !PluginCodeRegex.IsMatch(safeCode))
+            return false;
+
+        var pluginDir = Path.Combine(AppContext.BaseDirectory,
+            _configuration.GetValue<string>(LanguagePluginsDirectoryKey) ?? DefaultLanguagePluginsDirectory);
+        var basePath = Path.GetFullPath(pluginDir);
+        var baseWithSeparator = basePath.EndsWith(Path.DirectorySeparatorChar)
+            ? basePath
+            : basePath + Path.DirectorySeparatorChar;
+
+        var candidate = Path.GetFullPath(Path.Combine(basePath, safeCode));
+        if (!candidate.StartsWith(baseWithSeparator, StringComparison.Ordinal))
+            return false;
+
+        packageDir = candidate;
+        return true;
     }
 
     private static async Task WriteJsonFileAsync(string path, JsonElement element, JsonWriterOptions options)

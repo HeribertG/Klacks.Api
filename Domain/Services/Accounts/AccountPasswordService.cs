@@ -47,17 +47,17 @@ public class AccountPasswordService : IAccountPasswordService
         var (success, result) = await _authenticationService.ChangePasswordAsync(existingUser, model.OldPassword, model.Password);
         if (success)
         {
-            _logger.LogInformation("Password changed successfully for user {Email}", model.Email);
+            _logger.LogInformation("Password changed successfully for user {UserId}", existingUser.Id);
             authenticatedResult.Success = true;
         }
         else if (result != null)
         {
-            _logger.LogWarning("Password change failed for user {Email}: {Errors}", model.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
+            _logger.LogWarning("Password change failed for user {UserId}: {Errors}", existingUser.Id, string.Join(", ", result.Errors.Select(e => e.Description)));
             authenticatedResult.ModelState = _authenticationService.AddErrorsToModelState(result, authenticatedResult.ModelState);
         }
         else
         {
-            _logger.LogError("Unexpected error during password change for user {Email}", model.Email);
+            _logger.LogError("Unexpected error during password change for user {UserId}", existingUser.Id);
             _authenticationService.SetModelError(authenticatedResult, "An unexpected error has occurred.", string.Empty);
         }
 
@@ -90,17 +90,17 @@ public class AccountPasswordService : IAccountPasswordService
             existingUser.PasswordResetTokenExpires = null;
             await _userManagementService.UpdateUserAsync(existingUser);
 
-            _logger.LogInformation("Password reset successfully for user {Email}", existingUser.Email);
+            _logger.LogInformation("Password reset successfully for user {UserId}", existingUser.Id);
             authenticatedResult.Success = true;
         }
         else if (result != null)
         {
-            _logger.LogWarning("Password reset failed for user {Email}: {Errors}", existingUser.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
+            _logger.LogWarning("Password reset failed for user {UserId}: {Errors}", existingUser.Id, string.Join(", ", result.Errors.Select(e => e.Description)));
             authenticatedResult.ModelState = _authenticationService.AddErrorsToModelState(result, authenticatedResult.ModelState);
         }
         else
         {
-            _logger.LogError("Unexpected error during password reset for user {Email}", existingUser.Email);
+            _logger.LogError("Unexpected error during password reset for user {UserId}", existingUser.Id);
             _authenticationService.SetModelError(authenticatedResult, "An unexpected error has occurred.", string.Empty);
         }
 
@@ -114,7 +114,7 @@ public class AccountPasswordService : IAccountPasswordService
             var user = await _userManagementService.FindUserByEmailAsync(email);
             if (user == null)
             {
-                _logger.LogWarning("Password reset requested for non-existing email: {Email}", email);
+                _logger.LogWarning("Password reset requested for non-existing email");
                 return false;
             }
 
@@ -137,18 +137,18 @@ public class AccountPasswordService : IAccountPasswordService
                     <p>If you did not make this request, please ignore this email.</p>";
 
                 await _notificationService.SendEmailAsync("Reset Password", email, message);
-                _logger.LogInformation("Password reset email sent to {Email}", email);
+                _logger.LogInformation("Password reset email sent for user {UserId}", user.Id);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Password reset token generated but failed to send email to {Email}", email);
+                _logger.LogWarning(ex, "Password reset token generated but failed to send email for user {UserId}", user.Id);
             }
-            
+
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error generating password reset token for email: {Email}", email);
+            _logger.LogError(ex, "Error generating password reset token");
             return false;
         }
     }

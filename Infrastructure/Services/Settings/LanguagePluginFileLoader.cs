@@ -6,6 +6,7 @@
 /// <param name="filePath">Full path to the JSON file</param>
 
 using System.Text.Json;
+using Klacks.Api.Domain.Logging;
 
 namespace Klacks.Api.Infrastructure.Services.Settings;
 
@@ -29,7 +30,7 @@ public static class LanguagePluginFileLoader
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to load plugin data file '{FileName}' for language '{Code}'", fileName, code);
+            logger.LogError(ex, "Failed to load plugin data file '{FileName}' for language '{Code}'", fileName.ForLog(), code.ForLog());
             return null;
         }
     }

@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Logging;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Loop;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
 using Microsoft.Extensions.Logging;
@@ -72,7 +73,7 @@ public sealed class HolisticHarmonizerRunService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Holistic Harmonizer engine failed for period {From}-{Until}", input.PeriodFrom, input.PeriodUntil);
+            _logger.LogError(ex, "Holistic Harmonizer engine failed for period {From}-{Until}", Convert.ToString(input.PeriodFrom).ForLog(), Convert.ToString(input.PeriodUntil).ForLog());
             return HolisticHarmonizerRunOutcome.Failure($"Holistic Harmonizer engine failed: {ex.Message}");
         }
 

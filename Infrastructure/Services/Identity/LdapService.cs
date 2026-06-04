@@ -80,7 +80,7 @@ public class LdapService : ILdapService
                 var baseDn = provider.BaseDn ?? string.Empty;
 
                 var bindDn = BuildUserDn(username, baseDn, provider.Type);
-                _logger.LogDebug("LDAP auth attempt for {Username} via {Provider} ({Host}:{Port})", username, provider.Name, host, port);
+                _logger.LogDebug("LDAP auth attempt via {Provider} ({Host}:{Port})", provider.Name, host, port);
 
                 var identifier = new LdapDirectoryIdentifier(host, port);
                 var credential = new NetworkCredential(bindDn, password);
@@ -94,17 +94,17 @@ public class LdapService : ILdapService
                 }
 
                 connection.Bind();
-                _logger.LogInformation("LDAP authentication successful for user {Username} via {Provider}", username, provider.Name);
+                _logger.LogInformation("LDAP authentication successful via {Provider}", provider.Name);
                 return true;
             }
             catch (LdapException ex)
             {
-                _logger.LogDebug("LDAP authentication failed for user {Username}: {Message}", username, ex.Message);
+                _logger.LogDebug("LDAP authentication failed: {Message}", ex.Message);
                 return false;
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "LDAP authentication error for user {Username}", username);
+                _logger.LogWarning(ex, "LDAP authentication error via {Provider}", provider.Name);
                 return false;
             }
         });

@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Constants;
 using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Interfaces;
 using Klacks.Api.Infrastructure.KnowledgeIndex.Domain;
@@ -74,7 +75,7 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         {
             _logger.LogDebug(
                 "Knowledge retrieval scores for query {Query}: {Scores}",
-                userQuery,
+                userQuery.ForLog(),
                 string.Join(", ", filtered.Zip(scores).Select(p => $"{p.First.SourceId}:{p.Second:F3}")));
         }
 

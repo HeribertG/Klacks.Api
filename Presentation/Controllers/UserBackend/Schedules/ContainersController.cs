@@ -5,6 +5,7 @@ using Klacks.Api.Application.Queries.ContainerTemplates;
 using Klacks.Api.Application.Commands.ContainerShiftOverrides;
 using Klacks.Api.Application.Queries.ContainerShiftOverrides;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,7 +34,7 @@ public class ContainersController : InputBaseController<ContainerTemplateResourc
     {
         _logger.LogInformation(
             "GetAvailableTasks called: containerId={ContainerId}, weekday={Weekday}, fromTime={FromTime}, untilTime={UntilTime}, isHoliday={IsHoliday}, isWeekdayAndHoliday={IsWeekdayAndHoliday}",
-            containerId, weekday, fromTime, untilTime, isHoliday, isWeekdayAndHoliday);
+            containerId, weekday, fromTime.ForLog(), untilTime.ForLog(), isHoliday, isWeekdayAndHoliday);
 
         if (!TimeOnly.TryParse(fromTime, out var parsedFromTime))
         {

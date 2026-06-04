@@ -13,6 +13,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Constants;
 using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Interfaces;
@@ -111,7 +112,7 @@ public class EvalRunnerService : IEvalRunnerService
 
         _logger.LogInformation(
             "EvalRun {Goldset} completed: composite={Composite:F4}, top1={Top1:F2}, top3={Top3:F2}, items={Items}, regression={Regression}",
-            goldset, composite, dimensions.Top1Hit, dimensions.Top3Hit, total, regression);
+            goldset.ForLog(), composite, dimensions.Top1Hit, dimensions.Top3Hit, total, regression);
 
         return evalRun;
     }

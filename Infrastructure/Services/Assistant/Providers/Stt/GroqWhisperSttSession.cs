@@ -44,7 +44,7 @@ public sealed class GroqWhisperSttSession : ISttSession
         audioContent.Headers.ContentType = new MediaTypeHeaderValue("audio/wav");
         content.Add(audioContent, "file", "audio.wav");
         content.Add(new StringContent("whisper-large-v3"), "model");
-        content.Add(new StringContent(NormalizeLanguage(_config.Language)), "language");
+        content.Add(new StringContent(System.Net.WebUtility.HtmlEncode(NormalizeLanguage(_config.Language))), "language");
 
         var response = await client.PostAsync(SttProviderConstants.GroqWhisperRestUrl, content, ct);
         var json = await response.Content.ReadAsStringAsync(ct);

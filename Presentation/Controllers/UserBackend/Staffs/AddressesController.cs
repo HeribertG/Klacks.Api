@@ -10,6 +10,7 @@
 using Klacks.Api.Application.Queries.Addresses;
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
@@ -163,7 +164,7 @@ public class AddressesController : InputBaseController<AddressResource>
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Address validation failed for {Street}, {Zip} {City}", resource.Street, resource.Zip, resource.City);
+            _logger.LogWarning(ex, "Address validation failed for {Street}, {Zip} {City}", resource.Street.ForLog(), resource.Zip.ForLog(), resource.City.ForLog());
 
             return new AddressValidationResponse
             {

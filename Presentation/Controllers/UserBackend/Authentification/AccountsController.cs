@@ -8,6 +8,7 @@ using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Domain.DTOs.Registrations;
 using Klacks.Api.Application.DTOs.Registrations;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -36,7 +37,7 @@ public class AccountsController : BaseController
     [HttpPut("ChangePassword")]
     public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordResource model)
     {
-        _logger.LogInformation("ChangePassword requested for user: {Email}", model.Email);
+        _logger.LogInformation("ChangePassword requested for user: {Email}", model.Email.ForLog());
 
         var result = await _mediator.Send(new ChangePasswordCommand(model));
 
@@ -47,7 +48,7 @@ public class AccountsController : BaseController
     [HttpPost("ChangePasswordUser")]
     public async Task<ActionResult> ChangePasswordUser([FromBody] ChangePasswordResource model)
     {
-        _logger.LogInformation("ChangePasswordUser requested for user: {Email}", model.Email);
+        _logger.LogInformation("ChangePasswordUser requested for user: {Email}", model.Email.ForLog());
 
         var result = await _mediator.Send(new ChangePasswordUserCommand(model));
 
@@ -58,7 +59,7 @@ public class AccountsController : BaseController
     [HttpPut("ChangeRoleUser")]
     public async Task<ActionResult> ChangeRoleUser([FromBody] ChangeRole changeRole)
     {
-        _logger.LogInformation("ChangeRoleUser request received for user: {UserId}", changeRole.UserId);
+        _logger.LogInformation("ChangeRoleUser request received for user: {UserId}", changeRole.UserId.ForLog());
         var result = await _mediator.Send(new ChangeRoleCommand(changeRole));
         return Ok(result);
     }
@@ -85,7 +86,7 @@ public class AccountsController : BaseController
     [HttpGet("GenerateUsername")]
     public async Task<ActionResult<string>> GenerateUsername([FromQuery] string firstName, [FromQuery] string lastName)
     {
-        _logger.LogInformation("GenerateUsername request for {FirstName} {LastName}", firstName, lastName);
+        _logger.LogInformation("GenerateUsername request for {FirstName} {LastName}", firstName.ForLog(), lastName.ForLog());
         var username = await _usernameGeneratorService.GenerateUniqueUsernameAsync(firstName, lastName);
         return Ok(username);
     }
@@ -117,7 +118,7 @@ public class AccountsController : BaseController
             return BadRequest("Invalid login data.");
         }
 
-        _logger.LogInformation("Login attempt for user: {Email}", model.Email);
+        _logger.LogInformation("Login attempt for user: {Email}", model.Email.ForLog());
 
         var result = await _mediator.Send(new LoginUserQuery(model.Email, model.Password));
         return Ok(result);
@@ -151,7 +152,7 @@ public class AccountsController : BaseController
     [HttpPost("RegisterUser")]
     public async Task<ActionResult> RegisterUser([FromBody] RegistrationResource model)
     {
-        _logger.LogInformation("RegisterUser request received for: {Email}", model.Email);
+        _logger.LogInformation("RegisterUser request received for: {Email}", model.Email.ForLog());
         var result = await _mediator.Send(new RegisterUserCommand(model));
         return Ok(result);
     }
@@ -166,11 +167,11 @@ public class AccountsController : BaseController
             return BadRequest("Email address is required.");
         }
 
-        _logger.LogInformation("Password reset requested for email: {Email}", model.Email);
-        
+        _logger.LogInformation("Password reset requested for email: {Email}", model.Email.ForLog());
+
         var result = await _mediator.Send(new RequestPasswordResetCommand(model.Email));
-        
-        _logger.LogInformation("Password reset request processed for email: {Email}", model.Email);
+
+        _logger.LogInformation("Password reset request processed for email: {Email}", model.Email.ForLog());
         return Ok(result);
     }
 

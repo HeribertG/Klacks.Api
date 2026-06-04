@@ -2,6 +2,7 @@
 
 ﻿using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.Logging;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -166,12 +167,12 @@ public class ErrorHandlingMiddleware
         }
         catch (OperationCanceledException)
         {
-            _logger.LogDebug("Request cancelled: {Method} {Path}", context.Request.Method, context.Request.Path);
+            _logger.LogDebug("Request cancelled: {Method} {Path}", context.Request.Method.ForLog(), context.Request.Path.ToString().ForLog());
             context.Response.StatusCode = 499;
         }
         catch (Npgsql.PostgresException ex) when (ex.SqlState == "57014")
         {
-            _logger.LogDebug("PostgreSQL query cancelled: {Method} {Path}", context.Request.Method, context.Request.Path);
+            _logger.LogDebug("PostgreSQL query cancelled: {Method} {Path}", context.Request.Method.ForLog(), context.Request.Path.ToString().ForLog());
             context.Response.StatusCode = 499;
         }
         catch (Exception ex)

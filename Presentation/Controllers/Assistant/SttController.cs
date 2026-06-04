@@ -17,6 +17,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Presentation.DTOs.Assistant;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -91,7 +92,7 @@ public class SttController : ControllerBase
     public async Task Stream([FromQuery] string? locale = null)
     {
         _logger.LogInformation("STT stream request: Protocol={Protocol}, Method={Method}, IsWebSocket={IsWs}",
-            HttpContext.Request.Protocol, HttpContext.Request.Method, HttpContext.WebSockets.IsWebSocketRequest);
+            HttpContext.Request.Protocol.ForLog(), HttpContext.Request.Method.ForLog(), HttpContext.WebSockets.IsWebSocketRequest);
 
         if (!HttpContext.WebSockets.IsWebSocketRequest)
         {

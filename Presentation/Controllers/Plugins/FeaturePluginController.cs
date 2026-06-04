@@ -6,6 +6,7 @@
 /// <param name="featurePluginService">Service handling feature plugin lifecycle operations</param>
 
 using System.IO.Compression;
+using System.Text.RegularExpressions;
 using Klacks.Api.Application.DTOs.Plugins;
 using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Domain.Constants;
@@ -19,6 +20,12 @@ namespace Klacks.Api.Presentation.Controllers.Plugins;
 [Route("api/plugins/features")]
 public class FeaturePluginController : ControllerBase
 {
+    private const string PluginNamePattern = "^[A-Za-z0-9_-]+$";
+    private const string FeaturePluginsRootDirectory = "Plugins";
+    private const string FeaturePluginsFeaturesDirectory = "Features";
+
+    private static readonly Regex PluginNameRegex = new(PluginNamePattern, RegexOptions.Compiled);
+
     private readonly IFeaturePluginService _featurePluginService;
     private readonly IMarketplaceClient? _marketplaceClient;
 
@@ -110,6 +117,9 @@ public class FeaturePluginController : ControllerBase
         if (_marketplaceClient is null)
             return BadRequest("Marketplace integration not configured");
 
+        if (!TryResolvePluginDir(name, out var pluginDir))
+            return BadRequest("Invalid plugin name");
+
         byte[] zipData;
         try
         {
@@ -120,7 +130,6 @@ public class FeaturePluginController : ControllerBase
             return BadRequest($"Failed to download plugin from marketplace: {ex.Message}");
         }
 
-        var pluginDir = Path.Combine(AppContext.BaseDirectory, "Plugins", "Features", name);
         Directory.CreateDirectory(pluginDir);
 
         using var stream = new MemoryStream(zipData);
@@ -133,5 +142,30 @@ public class FeaturePluginController : ControllerBase
             return BadRequest("Plugin downloaded but installation failed — version may be incompatible");
 
         return Ok(new { message = $"Plugin '{name}' installed from marketplace" });
+    }
+
+    private static bool TryResolvePluginDir(string name, out string pluginDir)
+    {
+        pluginDir = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(name) || !PluginNameRegex.IsMatch(name))
+            return false;
+
+        var safeName = Path.GetFileName(name);
+        if (string.IsNullOrEmpty(safeName) || !PluginNameRegex.IsMatch(safeName))
+            return false;
+
+        var basePath = Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory, FeaturePluginsRootDirectory, FeaturePluginsFeaturesDirectory));
+        var baseWithSeparator = basePath.EndsWith(Path.DirectorySeparatorChar)
+            ? basePath
+            : basePath + Path.DirectorySeparatorChar;
+
+        var candidate = Path.GetFullPath(Path.Combine(basePath, safeName));
+        if (!candidate.StartsWith(baseWithSeparator, StringComparison.Ordinal))
+            return false;
+
+        pluginDir = candidate;
+        return true;
     }
 }

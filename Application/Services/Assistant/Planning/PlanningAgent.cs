@@ -16,6 +16,7 @@
 using System.Text;
 using System.Text.Json;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 
@@ -125,7 +126,7 @@ public class PlanningAgent : IPlanningAgent
             var response = await provider.ProcessAsync(request);
             if (!response.Success || string.IsNullOrWhiteSpace(response.Content))
             {
-                _logger.LogWarning("Planning LLM call returned no content for goal '{Goal}'", goal);
+                _logger.LogWarning("Planning LLM call returned no content for goal '{Goal}'", goal.ForLog());
                 plan.StepsJson = "[]";
                 return plan;
             }
@@ -133,11 +134,11 @@ public class PlanningAgent : IPlanningAgent
             var steps = ParseSteps(response.Content);
             plan.StepsJson = JsonSerializer.Serialize(steps);
             _logger.LogInformation("Planned {Count} step(s) for goal '{Goal}' using model {Model}",
-                steps.Count, goal, model.ApiModelId);
+                steps.Count, goal.ForLog(), model.ApiModelId);
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "PlanningAgent failed for goal '{Goal}' — returning empty plan", goal);
+            _logger.LogWarning(ex, "PlanningAgent failed for goal '{Goal}' — returning empty plan", goal.ForLog());
             plan.Status = "failed";
             plan.LastErrorMessage = ex.Message;
             plan.StepsJson = "[]";

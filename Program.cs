@@ -4,6 +4,7 @@ using FluentValidation;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Validation;
 using Klacks.Api.Data.Seed;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Infrastructure.Converters;
 using Klacks.Api.Infrastructure.Exceptions;
@@ -99,7 +100,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("JwtBearer");
 
             var isSttPath = path.StartsWithSegments("/api/backend/assistant/stt/stream");
-            logger.LogDebug("OnMessageReceived: Path={Path}, IsHubPath={IsHubPath}, IsSttPath={IsSttPath}", path, path.StartsWithSegments("/hubs"), isSttPath);
+            logger.LogDebug("OnMessageReceived: Path={Path}, IsHubPath={IsHubPath}, IsSttPath={IsSttPath}", path.ToString().ForLog(), path.StartsWithSegments("/hubs"), isSttPath);
 
             if (path.StartsWithSegments("/hubs"))
             {
@@ -134,14 +135,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         OnAuthenticationFailed = context =>
         {
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("JwtBearer");
-            logger.LogWarning("Authentication failed: Path={Path}, Error={Error}", context.HttpContext.Request.Path, context.Exception.Message);
+            logger.LogWarning("Authentication failed: Path={Path}, Error={Error}", context.HttpContext.Request.Path.ToString().ForLog(), context.Exception.Message.ForLog());
             return Task.CompletedTask;
         },
         OnChallenge = context =>
         {
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("JwtBearer");
             logger.LogDebug("OnChallenge: Path={Path}, Error={Error}, ErrorDescription={ErrorDescription}",
-                context.HttpContext.Request.Path, context.Error, context.ErrorDescription);
+                context.HttpContext.Request.Path.ToString().ForLog(), context.Error.ForLog(), context.ErrorDescription.ForLog());
             return Task.CompletedTask;
         }
     };

@@ -11,6 +11,7 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Infrastructure.Persistence;
@@ -92,7 +93,7 @@ public class LanguagePluginGeoDataInstaller
 
         _logger.LogInformation(
             "Installed geo data for language plugin '{Code}': {Countries} countries, {States} states, {Rules} calendar rules",
-            code, countries?.Count ?? 0, states?.Count ?? 0, rules?.Count ?? 0);
+            code.ForLog(), countries?.Count ?? 0, states?.Count ?? 0, rules?.Count ?? 0);
 
         if (rules is { Count: > 0 } && states is { Count: > 0 } && countries is { Count: > 0 })
         {
@@ -114,7 +115,7 @@ public class LanguagePluginGeoDataInstaller
             db.CalendarSelection.RemoveRange(calendarSelections);
             _logger.LogInformation(
                 "Uninstalled {Count} calendar selection(s) for language plugin '{Code}'",
-                calendarSelections.Count, code);
+                calendarSelections.Count, code.ForLog());
         }
 
         var countries = LanguagePluginFileLoader.LoadPluginDataFile<Countries>(_pluginDirectory, code, LanguagePluginConstants.CountriesFileName, _logger);
@@ -140,7 +141,7 @@ public class LanguagePluginGeoDataInstaller
 
         _logger.LogInformation(
             "Uninstalled geo data for language plugin '{Code}': {Countries} countries, {States} states, {Rules} calendar rules",
-            code, countriesToRemove.Count, statesToRemove.Count, calendarRules.Count);
+            code.ForLog(), countriesToRemove.Count, statesToRemove.Count, calendarRules.Count);
     }
 
     private async Task InstallCalendarSelectionsAsync(
@@ -226,7 +227,7 @@ public class LanguagePluginGeoDataInstaller
 
         _logger.LogInformation(
             "Installed {Count} calendar selection(s) for language plugin '{Code}'",
-            count, code);
+            count, code.ForLog());
     }
 
     private Dictionary<string, string> LoadStateNamesForLanguage(string code, string languageCode)
@@ -262,7 +263,7 @@ public class LanguagePluginGeoDataInstaller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to load state names for language '{Code}' in plugin '{PluginCode}'",
-                languageCode, code);
+                languageCode.ForLog(), code.ForLog());
         }
 
         return result;
