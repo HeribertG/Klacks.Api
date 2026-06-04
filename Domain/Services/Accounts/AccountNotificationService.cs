@@ -24,7 +24,7 @@ public class AccountNotificationService : IAccountNotificationService
             throw new ArgumentNullException(nameof(email), "Email address cannot be null");
         }
 
-        _logger.LogInformation("Attempting to send email with title: {Title}", title);
+        _logger.LogInformation("Attempting to send email to recipient with title: {Title}", title);
 
         try
         {
