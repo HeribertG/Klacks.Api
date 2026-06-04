@@ -28,13 +28,16 @@ COPY Klacks.Plugin.Contracts/ Klacks.Plugin.Contracts/
 COPY Klacks.Plugin.Messaging/ Klacks.Plugin.Messaging/
 COPY Klacks.ScheduleOptimizer/ Klacks.ScheduleOptimizer/
 
-# Inject version into constants before build
-RUN sed -i "s/public const int CMajor = 1;/public const int CMajor = ${KLACKS_VERSION_MAJOR};/" Klacks.Api/Application/Constants/VersionConstant.cs && \
-    sed -i "s/public const int CMinor = 0;/public const int CMinor = ${KLACKS_VERSION_MINOR};/" Klacks.Api/Application/Constants/VersionConstant.cs && \
-    sed -i "s/public const int CPatch = 0;/public const int CPatch = ${KLACKS_VERSION_PATCH};/" Klacks.Api/Application/Constants/VersionConstant.cs && \
-    sed -i "s/public const string CBuildKey = \"local\";/public const string CBuildKey = \"${KLACKS_BUILD_KEY}\";/" Klacks.Api/Application/Constants/VersionConstant.cs && \
-    sed -i "s/public const string CBuildTimestamp = \"2026-03-03\";/public const string CBuildTimestamp = \"${KLACKS_BUILD_TIMESTAMP}\";/" Klacks.Api/Application/Constants/VersionConstant.cs && \
-    sed -i "s/public static readonly string CVar = \"DEV\";/public static readonly string CVar = \"${KLACKS_VARIANT}\";/" Klacks.Api/Application/Constants/BuildVariantConstant.cs
+# Inject version into constants before build.
+# Value-agnostic anchors ([0-9]+ / "[^"]*") so the source default may drift without breaking
+# injection. Brittle exact-literal anchors (e.g. "= 0;") would silently no-op once the default
+# changes, shipping an image whose baked-in version disagrees with the manifest (update loop).
+RUN sed -i -E "s/public const int CMajor = [0-9]+;/public const int CMajor = ${KLACKS_VERSION_MAJOR};/" Klacks.Api/Application/Constants/VersionConstant.cs && \
+    sed -i -E "s/public const int CMinor = [0-9]+;/public const int CMinor = ${KLACKS_VERSION_MINOR};/" Klacks.Api/Application/Constants/VersionConstant.cs && \
+    sed -i -E "s/public const int CPatch = [0-9]+;/public const int CPatch = ${KLACKS_VERSION_PATCH};/" Klacks.Api/Application/Constants/VersionConstant.cs && \
+    sed -i -E "s/public const string CBuildKey = \"[^\"]*\";/public const string CBuildKey = \"${KLACKS_BUILD_KEY}\";/" Klacks.Api/Application/Constants/VersionConstant.cs && \
+    sed -i -E "s/public const string CBuildTimestamp = \"[^\"]*\";/public const string CBuildTimestamp = \"${KLACKS_BUILD_TIMESTAMP}\";/" Klacks.Api/Application/Constants/VersionConstant.cs && \
+    sed -i -E "s/public static readonly string CVar = \"[^\"]*\";/public static readonly string CVar = \"${KLACKS_VARIANT}\";/" Klacks.Api/Application/Constants/BuildVariantConstant.cs
 
 # Build and publish
 RUN dotnet publish Klacks.Api/Klacks.Api.csproj -c Release -o /app/publish
