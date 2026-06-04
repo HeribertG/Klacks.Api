@@ -2751,7 +2751,7 @@
     },
     {
       "name": "search_in_list",
-      "description": "Open the entity list page (clients, groups, shifts) with the visible search filter pre-filled, so the user sees the matching rows directly in the list. Use this when the user wants to BROWSE or REVIEW matches in the workplace list (e.g. 'such mir Gasparoli', 'zeig mir die Maiers in der Liste'). For directly opening a single record use search_and_navigate. For criteria-based DB queries returning a chat list use search_employees.",
+      "description": "Open a workplace list page (clients, groups, shifts) and optionally narrow it by search term and/or address type. Use this for ANY 'show me / list / zeig mir / liste' request — including 'zeig mir alle Kunden' (entityType=client, entityTypeFilter=customer), 'zeig mir alle Mitarbeiter' (entityType=client, entityTypeFilter=employee), 'zeig mir alle Externen' (entityType=client, entityTypeFilter=extern). entityTypeFilter limits the Typ-dropdown: customer=Kunden only, employee=Mitarbeiter only, extern=Externe only. Omit entityTypeFilter to show all types. searchQuery is optional — omit it to show all items of that type without a name filter. For directly opening a single record use search_and_navigate. For criteria-based DB queries returning a chat list use search_employees. Do NOT use propose_customer_grouping or apply_customer_grouping for listing/showing clients — those skills MOVE data and must never be called for browse/view intents.",
       "category": "Query",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -2760,7 +2760,7 @@
       "parameters": [
         {
           "name": "entityType",
-          "description": "Which workplace list to open and filter",
+          "description": "Which workplace list to open. Use 'client' for addresses/people (Kunden, Mitarbeiter, Externe), 'group' for groups, 'shift' for shifts.",
           "type": "Enum",
           "required": true,
           "defaultValue": "client",
@@ -2772,11 +2772,23 @@
         },
         {
           "name": "searchQuery",
-          "description": "Search term to pre-fill into the list's search filter",
+          "description": "Optional search term to pre-fill into the list's name filter. Omit or leave empty to show all items (filtered only by entityTypeFilter if provided).",
           "type": "String",
-          "required": true,
+          "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "entityTypeFilter",
+          "description": "Optional. For entityType=client: narrows the Typ filter to a single address type. 'customer' = Kunden only, 'employee' = Mitarbeiter only, 'extern' = Externe only. Omit to keep all types visible.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "customer",
+            "employee",
+            "extern"
+          ]
         }
       ],
       "handlerConfig": {
@@ -2789,7 +2801,8 @@
               "group": "/workplace/group",
               "shift": "/workplace/shift"
             },
-            "valueFrom": "params.searchQuery"
+            "valueFrom": "params.searchQuery",
+            "entityTypeFilterFrom": "params.entityTypeFilter"
           }
         ]
       },
@@ -2805,7 +2818,10 @@
         "zeig",
         "show",
         "list",
-        "liste"
+        "liste",
+        "kunden",
+        "mitarbeiter",
+        "externen"
       ],
       "synonyms": {
         "de": [
@@ -2815,31 +2831,41 @@
           "zeig",
           "liste",
           "in der liste",
-          "auflisten"
+          "auflisten",
+          "alle kunden",
+          "alle mitarbeiter",
+          "alle externen",
+          "zeig kunden",
+          "zeig mitarbeiter"
         ],
         "en": [
           "search",
           "filter",
           "show",
           "list",
-          "find list"
+          "find list",
+          "show all customers",
+          "show all employees",
+          "list customers"
         ],
         "fr": [
           "chercher",
           "recherche",
           "filtrer",
           "afficher",
-          "liste"
+          "liste",
+          "tous les clients"
         ],
         "it": [
           "cerca",
           "ricerca",
           "filtra",
           "mostra",
-          "elenco"
+          "elenco",
+          "tutti i clienti"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "open_schedule",
@@ -14517,7 +14543,7 @@
     },
     {
       "name": "propose_customer_grouping",
-      "description": "Proposes (read-only dry run) a geographic re-grouping of customers: each customer WOULD be assigned to the nearest group that carries coordinates, moving it from a coarse node (e.g. a canton) down to the nearest finer node (e.g. a city). Returns how many customers would move, a per-target-group breakdown, a sample, and customers that cannot be placed. It NEVER changes data. After the user confirms, call apply_customer_grouping to actually move the customers. If no group carries coordinates, geocode the city groups first via geocode_location_groups.",
+      "description": "GEOGRAPHIC RE-ASSIGNMENT: Proposes (read-only dry run) physically MOVING each customer to their nearest location group based on GPS coordinates. Use ONLY when the user explicitly asks to re-distribute / re-assign / geografisch verteilen / nach Standort gruppieren customers. Do NOT use for 'zeig mir die Kunden', 'liste alle Kunden', 'show customers', or any browse/view/list intent — use search_in_list for those. Returns how many customers would move, a per-target-group breakdown, a sample, and customers that cannot be placed. It NEVER changes data itself. After the user confirms, call apply_customer_grouping to persist the moves. If no group carries coordinates, geocode the city groups first via geocode_location_groups.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -14525,7 +14551,8 @@
         "CanViewGroups"
       ],
       "parameters": [],
-      "handlerConfig": null
+      "handlerConfig": null,
+      "version": 2
     },
     {
       "name": "geocode_location_groups",
@@ -14549,7 +14576,7 @@
     },
     {
       "name": "apply_customer_grouping",
-      "description": "Applies and PERSISTS the geographic customer grouping that propose_customer_grouping previewed: moves every customer into its nearest location group and retires the coarser memberships it replaces. Call this when the user confirms the proposal or asks to apply / persist / move them now / uebernehmen / anwenden / 'ja, wende an' / 'mach es'. Recomputes the proposal internally so it always matches a fresh dry run. Run propose_customer_grouping first to preview; this is the step that actually changes the data.",
+      "description": "DESTRUCTIVE WRITE: Applies and PERSISTS the geographic customer grouping — physically MOVES every customer into their nearest location group and retires the coarser memberships. Call this ONLY after propose_customer_grouping has been shown to the user AND the user explicitly confirms with 'apply / persist / move them / uebernehmen / anwenden / ja wende an / mach es'. NEVER call for 'zeig', 'liste', 'show', 'list', or any view/browse intent — use search_in_list for those. This is the step that actually changes the data and cannot be undone easily.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -14557,7 +14584,8 @@
         "CanViewGroups"
       ],
       "parameters": [],
-      "handlerConfig": null
+      "handlerConfig": null,
+      "version": 2
     }
   ]
 }
