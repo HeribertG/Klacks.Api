@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Helpers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
+using Klacks.Api.Domain.Security;
 using Klacks.Api.Application.DTOs;
 using Klacks.Api.Domain.DTOs.Registrations;
 using Klacks.Api.Application.DTOs.Registrations;
@@ -144,7 +145,8 @@ public class UserManagementService : IUserManagementService
 
     public async Task<AppUser?> FindUserByTokenAsync(string token)
     {
+        var tokenHash = PasswordResetTokenHasher.Hash(token);
         return await _userManager.Users
-            .FirstOrDefaultAsync(u => u.PasswordResetToken == token);
+            .FirstOrDefaultAsync(u => u.PasswordResetToken == tokenHash);
     }
 }

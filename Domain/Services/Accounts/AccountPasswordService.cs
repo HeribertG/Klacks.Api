@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Interfaces.Accounts;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.DTOs.Registrations;
+using Klacks.Api.Domain.Security;
 using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 
@@ -69,7 +70,7 @@ public class AccountPasswordService : IAccountPasswordService
         var authenticatedResult = new AuthenticatedResult { Success = false };
 
         var existingUser = await _userManagementService.FindUserByTokenAsync(data.Token);
-        if (existingUser == null || existingUser.PasswordResetToken != data.Token)
+        if (existingUser == null || existingUser.PasswordResetToken != PasswordResetTokenHasher.Hash(data.Token))
         {
             _logger.LogWarning("Invalid password reset token attempted");
             _authenticationService.SetModelError(authenticatedResult, "Invalid token", "The password reset token is invalid.");
@@ -118,16 +119,16 @@ public class AccountPasswordService : IAccountPasswordService
                 return false;
             }
 
-            var token = GenerateSecureToken();
-            
-            user.PasswordResetToken = token;
+            var rawToken = GenerateSecureToken();
+
+            user.PasswordResetToken = PasswordResetTokenHasher.Hash(rawToken);
             user.PasswordResetTokenExpires = DateTime.UtcNow.AddHours(24);
             
             await _userManagementService.UpdateUserAsync(user);
 
             try
             {
-                var resetLink = $"{_settings.BaseUrl}/reset-password?token={token}";
+                var resetLink = $"{_settings.BaseUrl}/reset-password?token={rawToken}";
                 var message = $@"
                     <h2>Reset Password</h2>
                     <p>You have requested to reset your password.</p>
@@ -158,9 +159,9 @@ public class AccountPasswordService : IAccountPasswordService
         try
         {
             var user = await _userManagementService.FindUserByTokenAsync(token);
-            return user != null && 
-                   user.PasswordResetToken == token && 
-                   user.PasswordResetTokenExpires != null && 
+            return user != null &&
+                   user.PasswordResetToken == PasswordResetTokenHasher.Hash(token) &&
+                   user.PasswordResetTokenExpires != null &&
                    user.PasswordResetTokenExpires > DateTime.UtcNow;
         }
         catch (Exception ex)
