@@ -73,6 +73,7 @@ public partial class ClientMapper
             Works = client.Works?.Select(ToWorkResource).ToList() ?? [],
             ClientContracts = client.ClientContracts?.Select(ToContractResource).ToList() ?? [],
             GroupItems = client.GroupItems?.Select(ToGroupItemResource).ToList() ?? [],
+            Qualifications = client.Qualifications?.Select(ToClientQualificationResource).ToList() ?? [],
             Membership = client.Membership != null ? ToMembershipResource(client.Membership) : null,
             ClientImage = client.ClientImage != null ? ToImageResource(client.ClientImage) : null
         };
@@ -140,6 +141,21 @@ public partial class ClientMapper
     [MapperIgnoreTarget(nameof(ClientContract.Client))]
     [MapperIgnoreTarget(nameof(ClientContract.Contract))]
     public partial ClientContract ToContractEntity(ClientContractResource resource);
+
+    [MapperIgnoreSource(nameof(ClientQualification.Client))]
+    [MapperIgnoreSource(nameof(ClientQualification.Qualification))]
+    public partial ClientQualificationResource ToClientQualificationResource(ClientQualification qualification);
+
+    [MapperIgnoreTarget(nameof(ClientQualification.CreateTime))]
+    [MapperIgnoreTarget(nameof(ClientQualification.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(ClientQualification.UpdateTime))]
+    [MapperIgnoreTarget(nameof(ClientQualification.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(ClientQualification.DeletedTime))]
+    [MapperIgnoreTarget(nameof(ClientQualification.IsDeleted))]
+    [MapperIgnoreTarget(nameof(ClientQualification.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(ClientQualification.Client))]
+    [MapperIgnoreTarget(nameof(ClientQualification.Qualification))]
+    public partial ClientQualification ToClientQualificationEntity(ClientQualificationResource resource);
 
     public partial ClientBreakPlaceholderResource ToBreakPlaceholderResource(Client client);
 

@@ -36,6 +36,15 @@ public class ClientValidator : IClientValidator
                 client.GroupItems.Remove(itm);
             }
         }
+
+        for (int i = client.Qualifications.Count - 1; i > -1; i--)
+        {
+            var itm = client.Qualifications.ToList()[i];
+            if (itm.QualificationId == Guid.Empty)
+            {
+                client.Qualifications.Remove(itm);
+            }
+        }
     }
 
     public void EnsureSingleActiveContract(ICollection<ClientContract> clientContracts)
@@ -88,6 +97,24 @@ public class ClientValidator : IClientValidator
             foreach (var item in itemsToRemove)
             {
                 clientContracts.Remove(item);
+            }
+        }
+    }
+
+    public void EnsureUniqueQualifications(ICollection<ClientQualification> qualifications)
+    {
+        var duplicateQualifications = qualifications
+            .GroupBy(cq => cq.QualificationId)
+            .Where(g => g.Count() > 1)
+            .ToList();
+
+        foreach (var duplicateQualification in duplicateQualifications)
+        {
+            var itemsToRemove = duplicateQualification.Take(duplicateQualification.Count() - 1).ToList();
+
+            foreach (var item in itemsToRemove)
+            {
+                qualifications.Remove(item);
             }
         }
     }

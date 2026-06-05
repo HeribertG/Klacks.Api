@@ -20,6 +20,7 @@ public class ClientResource
         Works = new Collection<WorkResource>();
         ClientContracts = new Collection<ClientContractResource>();
         GroupItems = new Collection<ClientGroupItemResource>();
+        Qualifications = new Collection<ClientQualificationResource>();
     }
 
     public ICollection<AddressResource> Addresses { get; set; }
@@ -66,6 +67,8 @@ public class ClientResource
     public ICollection<WorkResource> Works { get; set; }
 
     public ICollection<ClientGroupItemResource> GroupItems { get; set; }
+
+    public ICollection<ClientQualificationResource> Qualifications { get; set; }
 
     public ClientImageResource? ClientImage { get; set; }
 

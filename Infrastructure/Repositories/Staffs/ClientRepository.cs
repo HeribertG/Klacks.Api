@@ -47,6 +47,7 @@ public class ClientRepository : IClientRepository
         _clientValidator.EnsureUniqueGroupItems(client.GroupItems);
         _clientValidator.EnsureUniqueClientContracts(client.ClientContracts);
         _clientValidator.EnsureSingleActiveContract(client.ClientContracts);
+        _clientValidator.EnsureUniqueQualifications(client.Qualifications);
 
         if (client.ClientImage != null)
         {
@@ -103,6 +104,7 @@ public class ClientRepository : IClientRepository
                                           .ThenInclude(cc => cc.Contract)
                                       .Include(cu => cu.GroupItems)
                                           .ThenInclude(gi => gi.Group)
+                                      .Include(cu => cu.Qualifications)
                                       .Include(cu => cu.ClientImage)
                                       .AsSplitQuery()
                                       .AsNoTracking()
@@ -157,6 +159,7 @@ public class ClientRepository : IClientRepository
                 .ThenInclude(cc => cc.Contract)
             .Include(c => c.GroupItems)
                 .ThenInclude(gi => gi.Group)
+            .Include(c => c.Qualifications)
             .Include(c => c.ClientImage)
             .AsSplitQuery()
             .FirstOrDefaultAsync(c => c.Id == client.Id);
@@ -220,9 +223,16 @@ public class ClientRepository : IClientRepository
             existingClient.Id,
             (groupItem, clientId) => groupItem.ClientId = clientId);
 
+        _collectionUpdateService.UpdateCollection(
+            existingClient.Qualifications,
+            updatedClient.Qualifications,
+            existingClient.Id,
+            (qualification, clientId) => qualification.ClientId = clientId);
+
         _clientValidator.EnsureUniqueGroupItems(existingClient.GroupItems);
         _clientValidator.EnsureUniqueClientContracts(existingClient.ClientContracts);
         _clientValidator.EnsureSingleActiveContract(existingClient.ClientContracts);
+        _clientValidator.EnsureUniqueQualifications(existingClient.Qualifications);
 
         _collectionUpdateService.UpdateSingleEntity(
             existingClient.Membership,

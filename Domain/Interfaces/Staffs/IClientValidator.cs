@@ -11,4 +11,5 @@ public interface IClientValidator
     void EnsureSingleActiveContract(ICollection<ClientContract> clientContracts);
     void EnsureUniqueGroupItems(ICollection<GroupItem> groupItems);
     void EnsureUniqueClientContracts(ICollection<ClientContract> clientContracts);
+    void EnsureUniqueQualifications(ICollection<ClientQualification> qualifications);
 }

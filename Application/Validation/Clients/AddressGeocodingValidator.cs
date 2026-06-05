@@ -2,12 +2,18 @@
 
 /// <summary>
 /// FluentValidation validator for address geocoding in client commands.
-/// Validates all addresses with zip+city via Nominatim and sets coordinates on success.
+/// Validates addresses with zip+city via the geocoding service and sets coordinates on success.
+/// Addresses that are unchanged compared to their stored version are skipped so that editing
+/// other client data (e.g. qualifications) never re-validates an already-persisted address.
 /// </summary>
 /// <param name="geocodingService">Service for address geocoding</param>
+/// <param name="stateResolver">Resolves state abbreviations from geocoding results</param>
+/// <param name="countryResolver">Resolves the country name used for geocoding</param>
+/// <param name="addressRepository">Loads the stored address to detect whether it changed</param>
 
 using FluentValidation;
 using Klacks.Api.Application.DTOs.Staffs;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Services.Common;
@@ -19,14 +25,18 @@ public class AddressGeocodingValidator : AbstractValidator<ICollection<AddressRe
     private readonly IGeocodingService _geocodingService;
     private readonly StateAbbreviationResolver _stateResolver;
     private readonly ICountryResolver _countryResolver;
+    private readonly IAddressRepository _addressRepository;
 
-    public AddressGeocodingValidator(IGeocodingService geocodingService, StateAbbreviationResolver stateResolver, ICountryResolver countryResolver)
+    public AddressGeocodingValidator(
+        IGeocodingService geocodingService,
+        StateAbbreviationResolver stateResolver,
+        ICountryResolver countryResolver,
+        IAddressRepository addressRepository)
     {
         _geocodingService = geocodingService;
         _stateResolver = stateResolver;
         _countryResolver = countryResolver;
-
-        Console.WriteLine("[AddressGeocodingValidator] CONSTRUCTOR called");
+        _addressRepository = addressRepository;
 
         RuleForEach(addresses => addresses)
             .MustAsync(ValidateAndGeocodeAsync)
@@ -37,11 +47,13 @@ public class AddressGeocodingValidator : AbstractValidator<ICollection<AddressRe
 
     private async Task<bool> ValidateAndGeocodeAsync(AddressResource address, CancellationToken cancellationToken)
     {
-        Console.WriteLine($"[AddressGeocodingValidator] ValidateAndGeocodeAsync called: Street={address.Street}, Zip={address.Zip}, City={address.City}");
+        if (await IsUnchangedFromStoredAsync(address))
+        {
+            return true;
+        }
 
         if (string.IsNullOrWhiteSpace(address.City) || string.IsNullOrWhiteSpace(address.Zip))
         {
-            Console.WriteLine("[AddressGeocodingValidator] Skipping - missing City or Zip");
             return true;
         }
 
@@ -60,8 +72,6 @@ public class AddressGeocodingValidator : AbstractValidator<ICollection<AddressRe
         {
             var result = await _geocodingService.ValidateExactAddressAsync(
                 address.Street, address.Zip, address.City, geocodingCountry);
-
-            Console.WriteLine($"[AddressGeocodingValidator] Geocoding result: Found={result.Found}, ExactMatch={result.ExactMatch}, MatchType={result.MatchType}");
 
             var hasStreet = !string.IsNullOrWhiteSpace(address.Street);
 
@@ -86,19 +96,30 @@ public class AddressGeocodingValidator : AbstractValidator<ICollection<AddressRe
                 return true;
             }
 
-            if (result.Found && hasStreet && !result.ExactMatch)
-            {
-                Console.WriteLine($"[AddressGeocodingValidator] RETURNING FALSE - street not matched: {address.Street}");
-                return false;
-            }
-
-            Console.WriteLine("[AddressGeocodingValidator] RETURNING FALSE - address not found");
             return false;
         }
-        catch (Exception ex)
+        catch
         {
-            Console.WriteLine($"[AddressGeocodingValidator] EXCEPTION: {ex.Message}");
             return true;
         }
+    }
+
+    private async Task<bool> IsUnchangedFromStoredAsync(AddressResource address)
+    {
+        if (address.Id == Guid.Empty)
+        {
+            return false;
+        }
+
+        var stored = await _addressRepository.GetNoTracking(address.Id);
+        if (stored == null)
+        {
+            return false;
+        }
+
+        return string.Equals(stored.Street, address.Street, StringComparison.Ordinal)
+            && string.Equals(stored.Zip, address.Zip, StringComparison.Ordinal)
+            && string.Equals(stored.City, address.City, StringComparison.Ordinal)
+            && string.Equals(stored.Country, address.Country, StringComparison.Ordinal);
     }
 }

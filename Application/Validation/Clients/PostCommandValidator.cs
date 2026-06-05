@@ -2,6 +2,7 @@
 
 using FluentValidation;
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
@@ -12,12 +13,12 @@ namespace Klacks.Api.Application.Validation.Clients;
 
 public class PostCommandValidator : AbstractValidator<PostCommand<ClientResource>>
 {
-    public PostCommandValidator(IGeocodingService geocodingService, StateAbbreviationResolver stateResolver, ICountryResolver countryResolver)
+    public PostCommandValidator(IGeocodingService geocodingService, StateAbbreviationResolver stateResolver, ICountryResolver countryResolver, IAddressRepository addressRepository)
     {
         When(x => !x.Resource.SkipAddressValidation, () =>
         {
             RuleFor(x => x.Resource.Addresses)
-                .SetValidator(new AddressGeocodingValidator(geocodingService, stateResolver, countryResolver));
+                .SetValidator(new AddressGeocodingValidator(geocodingService, stateResolver, countryResolver, addressRepository));
         });
 
         When(x => x.Resource.LegalEntity, () =>
