@@ -225,13 +225,14 @@ jobs:
           echo "🔨 STEP 4: Building all Docker images..."
           echo "=============================================="
 
-          # Klacks.Api is image-mode: pull the release image instead of building from source.
-          # The tag resolves from .env (KLACKS_API_TAG), set by the tag-driven deploy; default latest.
+          # Klacks.Api + Klacks.Ui are image-mode: pull the release images instead of building from
+          # source. The tags resolve from .env (KLACKS_API_TAG / KLACKS_UI_TAG), set by the tag-driven
+          # deploy; default latest.
           echo "Pulling klacks-api image..."
           $COMPOSE_CMD pull klacks-api
 
-          echo "Building klacks-ui..."
-          $COMPOSE_CMD build klacks-ui --memory=2g
+          echo "Pulling klacks-ui image..."
+          $COMPOSE_CMD pull klacks-ui
 
           echo "Building klacks-blazor..."
           $COMPOSE_CMD build klacks-blazor

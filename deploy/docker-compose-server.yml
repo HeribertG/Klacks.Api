@@ -126,6 +126,9 @@ services:
       - Updater__ApiImageRepository=ghcr.io/heribertg/klacks-api
       - Updater__ApiServiceName=klacks-api
       - Updater__ApiTagEnvVar=KLACKS_API_TAG
+      - Updater__UiImageRepository=ghcr.io/heribertg/klacks-ui
+      - Updater__UiServiceName=klacks-ui
+      - Updater__UiTagEnvVar=KLACKS_UI_TAG
       - Updater__PostgresContainer=klacks-postgres
       - Updater__SignaturePublicKey=${UPDATE_SIGNATURE_PUBLIC_KEY:-}
     volumes:
@@ -144,7 +147,7 @@ services:
           cpus: '0.25'
 
   klacks-ui:
-    build: ./Klacks.Ui
+    image: ghcr.io/heribertg/klacks-ui:${KLACKS_UI_TAG:-latest}
     container_name: klacks-ui
     restart: unless-stopped
     expose:

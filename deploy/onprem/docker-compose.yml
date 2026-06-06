@@ -1,0 +1,184 @@
+# Klacks On-Prem (Docker) — customer stack.
+# Self-contained: every path is relative to THIS directory (unlike the vendor
+# docker-compose-server.yml which resolves paths from /root/apps on Hetzner).
+# All Klacks services run image-mode (pulled from ghcr); the customer has no .NET SDK.
+# The klacks-updater sidecar applies signed auto-updates (api + ui in lockstep).
+#
+# COMPOSE_PROJECT_NAME is pinned in .env so the host and the updater (which runs
+# `docker compose` from the mounted /apps) operate on the SAME project regardless
+# of the install directory name.
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: klacks-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: Klacks
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set (run install.ps1/install.sh)}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    expose:
+      - "5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d Klacks"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+
+  klacks-api:
+    image: ghcr.io/heribertg/klacks-api:${KLACKS_API_TAG:-latest}
+    container_name: klacks-api
+    restart: unless-stopped
+    expose:
+      - "5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=Klacks;Username=admin;Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      - ServerIp=${SERVER_NAME:-localhost}
+      - JwtSettings__Secret=${JWT_SECRET:?JWT_SECRET must be set (run install.ps1/install.sh)}
+      - JwtSettings__ValidAudience=https://${SERVER_NAME:-localhost}
+      - JwtSettings__ValidIssuer=https://${SERVER_NAME:-localhost}
+      - PasswordReset__BaseUrl=https://${SERVER_NAME:-localhost}
+      - Cors__Host=https://${SERVER_NAME:-localhost}
+      - Cors__Home=https://${SERVER_NAME:-localhost}
+      # On-prem: the API creates + migrates + seeds the database on first boot, and migrates on
+      # every subsequent auto-update (the updater only swaps the image tag). Must stay true.
+      - Database__InitializeOnStartup=true
+      - Update__ManifestBaseUrl=${UPDATE_MANIFEST_BASE_URL:-https://github.com/HeribertG/Klacks.Api/releases/latest/download}
+    volumes:
+      - api-uploads:/app/Images
+      - api-documents:/app/Documents
+      - api-dataprotection:/app/DataProtection-Keys
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+      start_period: 180s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.5'
+
+  klacks-ui:
+    image: ghcr.io/heribertg/klacks-ui:${KLACKS_UI_TAG:-latest}
+    container_name: klacks-ui
+    restart: unless-stopped
+    expose:
+      - "80"
+    depends_on:
+      - klacks-api
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
+  # Out-of-process auto-update executor. Runs by default (no profile gate) — at a customer site there
+  # is no operator to start it manually, and auto-update is the product. Idles safely when no update
+  # is pending. Drives the host's containers via the mounted Docker socket; ComposeProjectDir=/apps is
+  # this directory bind-mounted, so it sees the same compose + .env (and COMPOSE_PROJECT_NAME) as the host.
+  klacks-updater:
+    image: ghcr.io/heribertg/klacks-updater:${KLACKS_UPDATER_TAG:-latest}
+    container_name: klacks-updater
+    restart: unless-stopped
+    environment:
+      - DOTNET_ENVIRONMENT=Production
+      - Updater__ConnectionString=Host=postgres;Database=Klacks;Username=admin;Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      - Updater__HealthUrl=http://klacks-api:5000/internal/health/deep
+      - Updater__ComposeProjectDir=/apps
+      - Updater__ApiImageRepository=ghcr.io/heribertg/klacks-api
+      - Updater__ApiServiceName=klacks-api
+      - Updater__ApiTagEnvVar=KLACKS_API_TAG
+      - Updater__UiImageRepository=ghcr.io/heribertg/klacks-ui
+      - Updater__UiServiceName=klacks-ui
+      - Updater__UiTagEnvVar=KLACKS_UI_TAG
+      - Updater__PostgresContainer=klacks-postgres
+      - Updater__SignaturePublicKey=${UPDATE_SIGNATURE_PUBLIC_KEY:?UPDATE_SIGNATURE_PUBLIC_KEY must be set (vendor trust root)}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/apps
+      - api-update-backups:/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - klacks_network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: klacks-proxy
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    environment:
+      - SERVER_NAME=${SERVER_NAME:-localhost}
+    command: /bin/sh -c "envsubst '$$SERVER_NAME' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+    volumes:
+      - ./nginx/nginx.onprem.conf.template:/etc/nginx/nginx.conf.template:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - klacks-api
+      - klacks-ui
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
+networks:
+  klacks_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  api-uploads:
+    driver: local
+  api-documents:
+    driver: local
+  api-dataprotection:
+    driver: local
+  api-update-backups:
+    driver: local

@@ -180,7 +180,10 @@ jobs:
       with:
         context: .
         file: ./Klacks.Api/Dockerfile
-        platforms: linux/arm64
+        # Multi-arch: arm64 for Hetzner (Ampere), amd64 for on-prem customers (Docker Desktop).
+        # steps.build.outputs.digest becomes the multi-arch index digest — fine for the trust model
+        # (the updater pulls by tag and verifies the RSA signature against the payload, not by digest).
+        platforms: linux/amd64,linux/arm64
         push: true
         tags: ${{ steps.version.outputs.tags }}
         build-args: |
@@ -231,6 +234,24 @@ jobs:
           --notes "Automated release ${VERSION}" --latest 2>/dev/null || true
         gh release upload "v${VERSION}" stable.json --repo "$GITHUB_REPOSITORY" --clobber
 
+    # Stable releases only: bundle the on-prem Docker installer (deploy/onprem) as a release asset so
+    # customers fetch it from releases/latest/download/klacks-onprem.zip. The vendor signature public
+    # key (derived from the signing private key) is injected so the installer can verify auto-updates.
+    - name: Bundle on-prem installer
+      if: ${{ !contains(github.ref, '-') }}
+      env:
+        PRIV_B64: ${{ secrets.UPDATE_SIGNATURE_PRIVATE_KEY_B64 }}
+        VERSION: ${{ steps.version.outputs.version }}
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -euo pipefail
+        ONPREM=Klacks.Api/deploy/onprem
+        echo "$PRIV_B64" | base64 -d > /tmp/update_priv.pem
+        openssl rsa -in /tmp/update_priv.pem -pubout > "$ONPREM/update-public-key.pem"
+        rm -f /tmp/update_priv.pem
+        ( cd Klacks.Api/deploy && zip -r /tmp/klacks-onprem.zip onprem )
+        gh release upload "v${VERSION}" /tmp/klacks-onprem.zip --repo "$GITHUB_REPOSITORY" --clobber
+
   deploy:
     needs: [unit-tests, build-and-push]
     # Stable release tags only. Prerelease tags (v1.0.3-rc1) still build the image via
@@ -250,13 +271,14 @@ jobs:
       uses: appleboy/ssh-action@master
       env:
         KLACKS_API_TAG: ${{ steps.rel.outputs.tag }}
+        KLACKS_UI_TAG: ${{ steps.rel.outputs.tag }}
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT || 22 }}
         command_timeout: 30m
-        envs: KLACKS_API_TAG
+        envs: KLACKS_API_TAG,KLACKS_UI_TAG
         script: |
           set -e
           echo "🚀 Deploying Klacks.Api..."
@@ -311,28 +333,7 @@ jobs:
             git clone https://github.com/HeribertG/Klacks.Api.git
           fi
 
-          # Update Klacks.Ui
-          UI_CHANGED=false
-          if [ -d "Klacks.Ui" ]; then
-            echo "📦 Updating Klacks.Ui..."
-            cd Klacks.Ui
-            OLD_HEAD=$(git rev-parse HEAD)
-            git fetch origin
-            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-            git reset --hard origin/$CURRENT_BRANCH
-            NEW_HEAD=$(git rev-parse HEAD)
-            if [ "$OLD_HEAD" != "$NEW_HEAD" ]; then
-              UI_CHANGED=true
-              echo "📝 Klacks.Ui has changes ($OLD_HEAD → $NEW_HEAD)"
-            else
-              echo "✅ Klacks.Ui is already up to date"
-            fi
-            cd ..
-          else
-            echo "📦 Cloning Klacks.Ui..."
-            git clone https://github.com/HeribertG/Klacks.Ui.git
-            UI_CHANGED=true
-          fi
+          # Klacks.Ui runs image-mode (pulled below); no source checkout/build needed here.
 
           # Update Plugin projects (required by Klacks.Api) + the auto-update sidecar repo (public)
           for PLUGIN_REPO in Klacks.Plugin.Contracts Klacks.Plugin.Messaging Klacks.Docs Klacks.Api.SourceGenerators Klacks.ScheduleOptimizer Klacks.Updater; do
@@ -384,18 +385,31 @@ jobs:
           echo "📥 Pulling klacks-api image ${KLACKS_API_TAG}..."
           $COMPOSE_CMD pull klacks-api
 
-          # Build and restart Klacks.Ui if changed
-          if [ "$UI_CHANGED" = true ]; then
-            echo "🔨 Building Klacks.Ui..."
-            $COMPOSE_CMD build klacks-ui --no-cache --memory=2g
-
-            echo "🔄 Restarting Klacks.Ui..."
-            docker stop klacks-ui 2>/dev/null || true
-            docker rm klacks-ui 2>/dev/null || true
-            $COMPOSE_CMD up -d klacks-ui
-          else
-            echo "⏭️  Klacks.Ui unchanged, skipping rebuild"
+          # Klacks.Ui runs image-mode: pull the release image (built in parallel by the Klacks.Ui
+          # workflow for this same tag). The UI image may still be building when this deploy starts,
+          # so retry the pull with backoff. Persist the tag in .env like the API tag so a plain
+          # `compose up` (reboot / updater rollback) resolves the same version.
+          export KLACKS_UI_TAG="${KLACKS_UI_TAG}"
+          sed -i '/^KLACKS_UI_TAG=/d' .env 2>/dev/null || true
+          echo "KLACKS_UI_TAG=${KLACKS_UI_TAG}" >> .env
+          echo "📥 Pulling klacks-ui image ${KLACKS_UI_TAG} (waiting for parallel UI build)..."
+          UI_PULLED=false
+          for attempt in $(seq 1 15); do
+            if $COMPOSE_CMD pull klacks-ui; then
+              UI_PULLED=true
+              break
+            fi
+            echo "⏳ klacks-ui:${KLACKS_UI_TAG} not available yet (attempt $attempt/15), retrying in 60s..."
+            sleep 60
+          done
+          if [ "$UI_PULLED" != true ]; then
+            echo "❌ klacks-ui image ${KLACKS_UI_TAG} did not become available — aborting (UI would be stale)"
+            exit 1
           fi
+          echo "🔄 Restarting Klacks.Ui..."
+          docker stop klacks-ui 2>/dev/null || true
+          docker rm klacks-ui 2>/dev/null || true
+          $COMPOSE_CMD up -d klacks-ui
 
           echo "🔄 Restarting Klacks.Api + Nginx Proxy..."
           docker stop klacks-api 2>/dev/null || true
@@ -469,14 +483,12 @@ jobs:
             echo "⚠️  Native library check not found in logs (still initializing?)"
           fi
 
-          # Check Klacks.Ui if it was rebuilt
-          if [ "$UI_CHANGED" = true ]; then
-            if $COMPOSE_CMD ps klacks-ui | grep -q "Up"; then
-              echo "✅ Klacks.Ui container is running"
-            else
-              echo "❌ Klacks.Ui container is not running"
-              $COMPOSE_CMD logs klacks-ui --tail=20
-            fi
+          # Check Klacks.Ui (always recreated in image-mode)
+          if $COMPOSE_CMD ps klacks-ui | grep -q "Up"; then
+            echo "✅ Klacks.Ui container is running"
+          else
+            echo "❌ Klacks.Ui container is not running"
+            $COMPOSE_CMD logs klacks-ui --tail=20
           fi
 
           # Auth smoke test — verify login actually works
