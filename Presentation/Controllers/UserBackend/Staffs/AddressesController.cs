@@ -63,7 +63,7 @@ public class AddressesController : InputBaseController<AddressResource>
             State = request.State ?? string.Empty,
             Country = request.Country ?? string.Empty
         };
-        var response = await ValidateAddressAsync(resource);
+        var response = await ValidateAddressAsync(resource, requireExactMatch: true);
         return Ok(response);
     }
 
@@ -95,7 +95,11 @@ public class AddressesController : InputBaseController<AddressResource>
         return await base.Put(resource);
     }
 
-    private async Task<AddressValidationResponse> ValidateAddressAsync(AddressResource resource)
+    // requireExactMatch is set only by the interactive /Validate pre-check used during client save,
+    // where a city-only match (street present, but only zip/city geocoded) must be surfaced as
+    // invalid with suggestions so the user can correct or explicitly accept. Direct address
+    // Post/Put keep the lenient behaviour (any geocoding hit counts as valid).
+    private async Task<AddressValidationResponse> ValidateAddressAsync(AddressResource resource, bool requireExactMatch = false)
     {
         if (string.IsNullOrWhiteSpace(resource.City) || string.IsNullOrWhiteSpace(resource.Zip))
         {
@@ -113,7 +117,18 @@ public class AddressesController : InputBaseController<AddressResource>
             var validationResult = await _geocodingService.ValidateExactAddressAsync(
                 resource.Street, resource.Zip, resource.City, country);
 
-            if (validationResult.Found)
+            var hasStreet = !string.IsNullOrWhiteSpace(resource.Street);
+
+            // When requireExactMatch is set, mirror the strictness of AddressGeocodingValidator
+            // (used on client save): with a street present, only an exact street-level match counts
+            // as valid; a city-level fallback (MatchType "city_only") surfaces as invalid with
+            // suggestions. Without it, any geocoding hit is accepted (legacy Post/Put behaviour).
+            var isExactEnough = !requireExactMatch
+                || !hasStreet
+                || validationResult.ExactMatch
+                || validationResult.MatchType == "exact";
+
+            if (validationResult.Found && isExactEnough)
             {
                 var stateAbbreviation = await _stateResolver.ResolveAsync(validationResult.State);
 
@@ -154,6 +169,9 @@ public class AddressesController : InputBaseController<AddressResource>
             {
                 IsValid = false,
                 MatchType = validationResult.MatchType ?? "not_found",
+                Latitude = validationResult.Latitude,
+                Longitude = validationResult.Longitude,
+                ReturnedAddress = validationResult.ReturnedAddress,
                 Suggestions = suggestions.Select(s => new AddressSuggestionDto
                 {
                     Latitude = s.Latitude,
