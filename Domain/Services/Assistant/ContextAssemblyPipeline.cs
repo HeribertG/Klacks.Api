@@ -57,6 +57,7 @@ public class ContextAssemblyPipeline
         string? language = null,
         IReadOnlyList<string>? availableSkillNames = null,
         Klacks.Api.Domain.Models.Scheduling.SchedulingPolicy? scopedClientPolicy = null,
+        bool hasDomainSkillContext = true,
         CancellationToken cancellationToken = default)
     {
         var sb = new StringBuilder();
@@ -64,12 +65,18 @@ public class ContextAssemblyPipeline
         var identityPrompt = await _identityContextProvider.GetIdentityPromptAsync(agentId, language, cancellationToken);
         sb.Append(identityPrompt);
 
-        var ontologyBlock = _ontologyService.RenderWorldModelBlock(OntologyBlockMaxTokens);
-        if (!string.IsNullOrWhiteSpace(ontologyBlock))
+        // The world-model ontology grounds domain reasoning. On purely conversational turns (no domain skill
+        // retrieved and not a scheduling task) it is dead weight — omit it to save up to ~1500 tokens/turn.
+        var includeWorldModel = hasDomainSkillContext || _ruleContextProvider.IsSchedulingContext(availableSkillNames);
+        if (includeWorldModel)
         {
-            sb.AppendLine();
-            sb.AppendLine(ontologyBlock);
-            sb.AppendLine();
+            var ontologyBlock = _ontologyService.RenderWorldModelBlock(OntologyBlockMaxTokens);
+            if (!string.IsNullOrWhiteSpace(ontologyBlock))
+            {
+                sb.AppendLine();
+                sb.AppendLine(ontologyBlock);
+                sb.AppendLine();
+            }
         }
 
         var rulePack = _ruleContextProvider.BuildSchedulingRulePack(availableSkillNames, scopedClientPolicy);

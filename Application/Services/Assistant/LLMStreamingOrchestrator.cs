@@ -99,15 +99,17 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         }
 
         List<LLMFunction> functions;
+        bool hasDomainSkillContext;
         try
         {
-            functions = await GetFilteredFunctionsAsync(
+            (functions, hasDomainSkillContext) = await GetFilteredFunctionsAsync(
                 agent, request.UserRights, request.Message, request.ConversationId, cancellationToken);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error filtering functions for streaming");
             functions = new List<LLMFunction>();
+            hasDomainSkillContext = false;
         }
 
         var context = new LLMContext
@@ -119,7 +121,8 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             Language = request.Language,
             UserRights = request.UserRights,
             PageContext = request.PageContext,
-            AvailableFunctions = functions
+            AvailableFunctions = functions,
+            HasDomainSkillContext = hasDomainSkillContext
         };
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);
@@ -130,10 +133,10 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         }
     }
 
-    private async Task<List<LLMFunction>> GetFilteredFunctionsAsync(
+    private async Task<(List<LLMFunction> Functions, bool HasRetrievedDomainSkill)> GetFilteredFunctionsAsync(
         Agent? agent, List<string> userRights, string userMessage, string? conversationId, CancellationToken ct)
     {
-        if (agent == null) return [];
+        if (agent == null) return ([], false);
 
         var skills = await _skillCacheService.GetEnabledSkillsAsync(agent.Id, ct);
         var permittedSkills = skills
@@ -147,11 +150,20 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         var isAdmin = userRights.Contains(Roles.Admin);
 
         List<AgentSkill> retrievedSkills;
+
+        // Domain-context signal for the world-model ontology gate: true when retrieval surfaced ANY relevant
+        // skill above the score cutoff — including always-on domain skills (create_employee, list_contracts, …)
+        // which are dropped from retrievedSkills below by the !AlwaysOn filter. Keying off retrievedSkills here
+        // would wrongly classify a CRUD turn as conversational and strip the ontology. On retrieval failure we
+        // keep it true so the world model is never lost on an error path.
+        bool hasDomainSkillContext;
         try
         {
             var retrievalQuery = await BuildRetrievalQueryAsync(userMessage, conversationId, ct);
             var retrieval = await _knowledgeRetrieval.RetrieveAsync(
                 retrievalQuery, userRights, isAdmin, KnowledgeIndexConstants.DefaultTopK, ct);
+
+            hasDomainSkillContext = !retrieval.IsEmpty;
 
             if (!retrieval.IsEmpty)
             {
@@ -172,12 +184,13 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         {
             _logger.LogError(ex, "Skill retrieval failed; falling back to always-on skills only");
             retrievedSkills = [];
+            hasDomainSkillContext = true;
         }
 
         if (retrievedSkills.Count == 0)
         {
             LogToolBudget(alwaysOnSkills.Count, 0, alwaysOnSkills.Count, false);
-            return alwaysOnSkills.Select(ConvertToLLMFunction).ToList();
+            return (alwaysOnSkills.Select(ConvertToLLMFunction).ToList(), hasDomainSkillContext);
         }
 
         var selectedSkills = alwaysOnSkills.Concat(retrievedSkills).DistinctBy(s => s.Name).ToList();
@@ -195,7 +208,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
 
         LogToolBudget(alwaysOnSkills.Count, retrievedSkills.Count, selectedSkills.Count, truncated);
 
-        return selectedSkills.Select(ConvertToLLMFunction).ToList();
+        return (selectedSkills.Select(ConvertToLLMFunction).ToList(), true);
     }
 
     private async Task<string> BuildRetrievalQueryAsync(string userMessage, string? conversationId, CancellationToken ct)
