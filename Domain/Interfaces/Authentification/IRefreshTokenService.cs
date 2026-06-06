@@ -10,11 +10,22 @@ namespace Klacks.Api.Domain.Interfaces.Authentification;
 public interface IRefreshTokenService
 {
     /// <summary>
-    /// Creates a new refresh token for the user
+    /// Issues a new refresh token for the user without removing the user's other
+    /// tokens, so concurrent sessions (multiple tabs/devices) are preserved.
+    /// Expired tokens are pruned and the count is capped.
     /// </summary>
     /// <param name="userId">User's ID</param>
     /// <returns>New refresh token</returns>
     Task<string> CreateRefreshTokenAsync(string userId);
+
+    /// <summary>
+    /// Rotates a refresh token: removes only the presented token and issues a new
+    /// one, leaving the user's other sessions untouched.
+    /// </summary>
+    /// <param name="userId">User's ID</param>
+    /// <param name="oldToken">The refresh token being consumed</param>
+    /// <returns>New refresh token</returns>
+    Task<string> RotateRefreshTokenAsync(string userId, string oldToken);
 
     /// <summary>
     /// Validates a refresh token for a user

@@ -11,7 +11,7 @@ public interface IAccountAuthenticationService
 
     Task<AuthenticatedResult> RefreshTokenAsync(RefreshRequestResource model);
 
-    Task<AuthenticatedResult> GenerateAuthenticationAsync(AppUser user, bool withRefreshToken = true);
+    Task<AuthenticatedResult> GenerateAuthenticationAsync(AppUser user, bool withRefreshToken = true, string? oldRefreshToken = null);
 
     Task<AuthenticatedResult> SetAuthenticatedResultAsync(AuthenticatedResult authenticatedResult, AppUser user, DateTime expires);
 

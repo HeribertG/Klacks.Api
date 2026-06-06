@@ -88,7 +88,7 @@ public class AccountAuthenticationService : IAccountAuthenticationService
         {
             if (await _refreshTokenService.ValidateRefreshTokenAsync(user.Id, model.RefreshToken))
             {
-                return await GenerateAuthenticationAsync(user, true);
+                return await GenerateAuthenticationAsync(user, true, model.RefreshToken);
             }
         }
         catch (Exception ex)
@@ -102,14 +102,16 @@ public class AccountAuthenticationService : IAccountAuthenticationService
         return authenticatedResult;
     }
 
-    public async Task<AuthenticatedResult> GenerateAuthenticationAsync(AppUser user, bool withRefreshToken = true)
+    public async Task<AuthenticatedResult> GenerateAuthenticationAsync(AppUser user, bool withRefreshToken = true, string? oldRefreshToken = null)
     {
         var authenticatedResult = new AuthenticatedResult { Success = false };
         var expires = _refreshTokenService.CalculateTokenExpiryTime();
 
         if (withRefreshToken)
         {
-            var refreshToken = await _refreshTokenService.CreateRefreshTokenAsync(user.Id);
+            var refreshToken = string.IsNullOrEmpty(oldRefreshToken)
+                ? await _refreshTokenService.CreateRefreshTokenAsync(user.Id)
+                : await _refreshTokenService.RotateRefreshTokenAsync(user.Id, oldRefreshToken);
             authenticatedResult.RefreshToken = refreshToken;
         }
 
