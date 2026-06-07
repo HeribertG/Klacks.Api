@@ -135,6 +135,7 @@ BEGIN
         JOIN shift container ON container.id = ct.container_id
         CROSS JOIN date_series d
         WHERE container.is_deleted = false
+        AND cti.shift_id IN (SELECT id FROM filtered_shift_ids)
         AND container.from_date <= d.schedule_date
         AND (container.until_date IS NULL OR container.until_date >= d.schedule_date)
         AND (
@@ -155,6 +156,7 @@ BEGIN
         WHERE w.is_deleted = false
         AND w.parent_work_id IS NULL
         AND w.analyse_token IS NOT DISTINCT FROM p_analyse_token
+        AND w.shift_id IN (SELECT id FROM filtered_shift_ids)
         GROUP BY w.shift_id, d.schedule_date
     ),
     sporadic_ranges AS MATERIALIZED (
