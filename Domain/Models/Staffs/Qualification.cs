@@ -5,8 +5,13 @@
 /// (e.g. "Forklift licence", "First aid"). Soft-deletable master entity.
 /// Name and Description are stored as JSONB MultiLanguage values.
 /// </summary>
+/// <remarks>
+/// Type distinguishes between language qualifications and work qualifications.
+/// Country optionally restricts the qualification to a specific country (e.g. "CH", "DE").
+/// </remarks>
 
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Models.Staffs;
 
@@ -19,4 +24,8 @@ public class Qualification : BaseEntity
     public string? Emoji { get; set; }
 
     public bool IsTimeLimited { get; set; }
+
+    public QualificationType Type { get; set; } = QualificationType.Work;
+
+    public string? Country { get; set; }
 }

@@ -4,6 +4,7 @@
 /// EF Core configuration for the Qualification master entity with soft-delete query filter.
 /// </summary>
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -17,5 +18,6 @@ public class QualificationConfiguration : IEntityTypeConfiguration<Qualification
         builder.HasQueryFilter(q => !q.IsDeleted);
         builder.ConfigureMultiLanguage(q => q.Name, "name");
         builder.ConfigureMultiLanguage(q => q.Description, "description");
+        builder.Property(q => q.Type).HasDefaultValue(QualificationType.Work);
     }
 }

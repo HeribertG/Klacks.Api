@@ -37,6 +37,8 @@ public sealed class UpdateQualificationCommandHandler : IRequestHandler<UpdateQu
         entity.Description = request.Description;
         entity.Emoji = request.Emoji;
         entity.IsTimeLimited = request.IsTimeLimited;
+        entity.Type = request.Type;
+        entity.Country = request.Country;
 
         await _unitOfWork.CompleteAsync();
         return entity;

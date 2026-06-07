@@ -41,7 +41,9 @@ public class QualificationController : BaseController
             qualification.Name,
             qualification.Description,
             qualification.Emoji,
-            qualification.IsTimeLimited));
+            qualification.IsTimeLimited,
+            qualification.Type,
+            qualification.Country));
     }
 
     [HttpPut("PutQualification")]
@@ -52,7 +54,9 @@ public class QualificationController : BaseController
             qualification.Name,
             qualification.Description,
             qualification.Emoji,
-            qualification.IsTimeLimited));
+            qualification.IsTimeLimited,
+            qualification.Type,
+            qualification.Country));
     }
 
     [HttpDelete("DeleteQualification/{id}")]
