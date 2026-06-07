@@ -1,11 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Commands.Qualifications;
 using Klacks.Api.Application.Commands.Shifts;
+using Klacks.Api.Application.DTOs.Associations;
+using Klacks.Api.Application.DTOs.Filter;
+using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Queries.Qualifications;
 using Klacks.Api.Application.Queries.Shifts;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Filter;
-using Klacks.Api.Application.DTOs.Filter;
-using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -76,5 +79,30 @@ public class ShiftsController : InputBaseController<ShiftResource>
     {
         var result = await Mediator.Send(new GetShiftSchedulePartialQuery(filter), cancellationToken);
         return Ok(result);
+    }
+
+    [HttpGet("RequiredQualifications/{shiftId}")]
+    public async Task<ActionResult<List<ShiftRequiredQualificationResource>>> GetRequiredQualifications(Guid shiftId)
+    {
+        var result = await Mediator.Send(new GetShiftRequiredQualificationsQuery(shiftId));
+        return Ok(result);
+    }
+
+    [HttpPost("RequiredQualifications")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
+    public async Task<ActionResult<Guid>> SetRequiredQualification(
+        [FromBody] SetShiftRequiredQualificationRequest request)
+    {
+        var id = await Mediator.Send(new SetShiftRequiredQualificationCommand(
+            request.ShiftId, request.QualificationId, request.IsMandatory, request.MinLevel));
+        return Ok(id);
+    }
+
+    [HttpDelete("RequiredQualifications/{id}")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
+    public async Task<ActionResult> DeleteRequiredQualification(Guid id)
+    {
+        await Mediator.Send(new DeleteShiftRequiredQualificationCommand(id));
+        return NoContent();
     }
 }

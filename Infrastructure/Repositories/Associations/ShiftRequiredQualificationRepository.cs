@@ -25,4 +25,12 @@ public class ShiftRequiredQualificationRepository : BaseRepository<ShiftRequired
         return await context.ShiftRequiredQualification
             .FirstOrDefaultAsync(srq => srq.ShiftId == shiftId && srq.QualificationId == qualificationId, ct);
     }
+
+    public async Task<List<ShiftRequiredQualification>> GetByShiftIdAsync(
+        Guid shiftId, CancellationToken ct = default)
+    {
+        return await context.ShiftRequiredQualification
+            .Where(srq => srq.ShiftId == shiftId)
+            .ToListAsync(ct);
+    }
 }
