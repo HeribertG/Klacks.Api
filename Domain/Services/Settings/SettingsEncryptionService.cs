@@ -82,8 +82,9 @@ public class SettingsEncryptionService : ISettingsEncryptionService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to decrypt value - returning as-is (might be unencrypted legacy data)");
-            return encryptedValue;
+            _logger.LogWarning(ex,
+                "Failed to decrypt an ENC:-prefixed setting value. The DataProtection key used to encrypt it is no longer in the key ring. Re-save the affected setting to re-encrypt it with the current key. Treating the value as not configured.");
+            return string.Empty;
         }
     }
 

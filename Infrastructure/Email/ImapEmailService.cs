@@ -383,6 +383,12 @@ public class ImapEmailService : IImapEmailService
         var enableSsl = string.Equals(sslStr, "true", StringComparison.OrdinalIgnoreCase);
         password = _encryptionService.ProcessForReading(Settings.APP_INCOMING_SERVER_PASSWORD, password);
 
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            _logger.LogWarning("IMAP password could not be decrypted (DataProtection key missing); skipping IMAP polling until the password is re-saved");
+            return null;
+        }
+
         var socketOptions = GetSecureSocketOptions(port, enableSsl);
 
         return new ImapSettings(server, port, username, password, socketOptions);
