@@ -47,15 +47,17 @@ public sealed class AssemblyAiSttSession : ISttSession
         try
         {
             using var doc = JsonDocument.Parse(payload);
-            var frameType = doc.RootElement.TryGetProperty("type", out var t) ? t.GetString() : null;
+            var root = doc.RootElement;
+            var frameType = root.TryGetProperty("type", out var t) ? t.GetString() : null;
             if (frameType == "Turn")
                 return;
-            if (frameType == "Begin")
-                _logger.LogDebug("AssemblyAI streaming session opened: {Payload}", payload.ForLog());
+
+            if (root.TryGetProperty("error", out _))
+                _logger.LogWarning("AssemblyAI streaming error frame: {Payload}", payload.ForLog());
             else if (frameType == "Termination")
                 _logger.LogInformation("AssemblyAI streaming session terminated: {Payload}", payload.ForLog());
             else
-                _logger.LogWarning("AssemblyAI streaming non-transcript frame (type={Type}): {Payload}", frameType.ForLog(), payload.ForLog());
+                _logger.LogDebug("AssemblyAI streaming control frame (type={Type}): {Payload}", (frameType ?? "unknown").ForLog(), payload.ForLog());
         }
         catch (JsonException)
         {
