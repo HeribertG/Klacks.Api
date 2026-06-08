@@ -552,6 +552,12 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ISentimentAnalyzer, Domain.Services.Assistant.SentimentAnalyzer>();
         services.AddSingleton<Klacks.Api.Infrastructure.Services.Assistant.EdgeTtsService>();
         services.AddSingleton<ITtsProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.EdgeTtsService>());
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.OpenAiTtsService>();
+        services.AddScoped<ITtsProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.OpenAiTtsService>());
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.ElevenLabsTtsService>();
+        services.AddScoped<ITtsProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.ElevenLabsTtsService>());
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.GoogleTtsService>();
+        services.AddScoped<ITtsProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.GoogleTtsService>());
         services.AddScoped<ITranscriptionEnhancerService, TranscriptionEnhancerService>();
 
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISuggestionsRanker,
