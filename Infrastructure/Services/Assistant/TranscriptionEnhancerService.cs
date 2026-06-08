@@ -6,6 +6,7 @@
 /// <param name="providerFactory">Factory for resolving the LLM provider by model ID</param>
 /// <param name="dictionaryService">Service for building the domain-specific terminology context</param>
 /// <param name="settingsRepository">Repository for reading the transcription model setting</param>
+/// <param name="llmRepository">Repository for translating the internal model ID into the provider-side API model ID</param>
 /// <param name="logger">Logger for diagnostic output</param>
 
 using Klacks.Api.Application.Interfaces;
@@ -22,17 +23,20 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
     private readonly ILLMProviderFactory _providerFactory;
     private readonly IDictionaryService _dictionaryService;
     private readonly ISettingsRepository _settingsRepository;
+    private readonly ILLMRepository _llmRepository;
     private readonly ILogger<TranscriptionEnhancerService> _logger;
 
     public TranscriptionEnhancerService(
         ILLMProviderFactory providerFactory,
         IDictionaryService dictionaryService,
         ISettingsRepository settingsRepository,
+        ILLMRepository llmRepository,
         ILogger<TranscriptionEnhancerService> logger)
     {
         _providerFactory = providerFactory;
         _dictionaryService = dictionaryService;
         _settingsRepository = settingsRepository;
+        _llmRepository = llmRepository;
         _logger = logger;
     }
 
@@ -54,6 +58,9 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
                 return preprocessed;
             }
 
+            var model = await _llmRepository.GetModelByIdAsync(effectiveModelId);
+            var apiModelId = string.IsNullOrWhiteSpace(model?.ApiModelId) ? effectiveModelId : model.ApiModelId;
+
             var dictionaryContext = await _dictionaryService.BuildContextAsync(ct);
 
             var dictionarySection = string.IsNullOrWhiteSpace(dictionaryContext)
@@ -67,14 +74,14 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
 
             var request = new LLMProviderRequest
             {
-                ModelId = effectiveModelId,
+                ModelId = apiModelId,
                 SystemPrompt = systemPrompt + localeHint,
                 Message = preprocessed,
                 Temperature = TranscriptionConstants.Temperature,
                 MaxTokens = TranscriptionConstants.MaxTokens
             };
 
-            _logger.LogInformation("Sending transcription enhancement request using model {ModelId}", effectiveModelId.ForLog());
+            _logger.LogInformation("Sending transcription enhancement request using model {ModelId}", apiModelId.ForLog());
 
             var response = await provider.ProcessAsync(request);
 
