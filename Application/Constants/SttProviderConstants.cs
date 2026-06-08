@@ -15,4 +15,5 @@ public static class SttProviderConstants
     public const string DeepgramWssUrl = "wss://api.deepgram.com/v1/listen";
     public const string AssemblyAiWssUrl = "wss://api.assemblyai.com/v2/realtime/ws";
     public const string GroqWhisperRestUrl = "https://api.groq.com/openai/v1/audio/transcriptions";
+    public const string GroqModelsUrl = "https://api.groq.com/openai/v1/models";
 }

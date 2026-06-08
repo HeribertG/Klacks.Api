@@ -29,6 +29,9 @@ using Microsoft.AspNetCore.Mvc;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class SttController : ControllerBase
 {
+    private const string DefaultLocale = "de";
+    private const string TestLocale = "en";
+
     private readonly IEnumerable<ISttProvider> _sttProviders;
     private readonly ISettingsRepository _settingsRepository;
     private readonly ICustomSttProviderRepository _customSttProviderRepository;
@@ -71,14 +74,14 @@ public class SttController : ControllerBase
         if (provider == null)
             return BadRequest(new SttTestResult(false, $"Unknown provider: {request.ProviderId}"));
 
-        var apiKeySetting = await _settingsRepository.GetSetting(Settings.ASSISTANT_STT_API_KEY);
-        if (string.IsNullOrWhiteSpace(apiKeySetting?.Value))
+        var apiKey = await ReadApiKeyAsync(request.ProviderId);
+        if (string.IsNullOrWhiteSpace(apiKey))
             return Ok(new SttTestResult(false, "No API key configured"));
 
         try
         {
-            var config = new SttConfig(_encryptionService.Decrypt(apiKeySetting.Value), "en");
-            await using var session = await provider.CreateSessionAsync(config);
+            var config = new SttConfig(apiKey, TestLocale);
+            await provider.ValidateAsync(config);
             return Ok(new SttTestResult(true, null));
         }
         catch (Exception ex)
@@ -120,15 +123,15 @@ public class SttController : ControllerBase
                 return;
             }
 
-            var apiKeySetting = await _settingsRepository.GetSetting(Settings.ASSISTANT_STT_API_KEY);
-            if (string.IsNullOrWhiteSpace(apiKeySetting?.Value))
+            var apiKey = await ReadApiKeyAsync(providerId);
+            if (string.IsNullOrWhiteSpace(apiKey))
             {
                 await SendError(browserWs, "No API key configured for STT provider");
                 return;
             }
 
-            var effectiveLocale = string.IsNullOrWhiteSpace(locale) ? "de" : locale;
-            var config = new SttConfig(_encryptionService.Decrypt(apiKeySetting.Value), effectiveLocale);
+            var effectiveLocale = string.IsNullOrWhiteSpace(locale) ? DefaultLocale : locale;
+            var config = new SttConfig(apiKey, effectiveLocale);
 
             await using var session = await provider.CreateSessionAsync(config);
 
@@ -162,8 +165,8 @@ public class SttController : ControllerBase
         if (provider == null)
             return BadRequest(new { error = $"Unknown STT provider: {providerId}" });
 
-        var apiKeySetting = await _settingsRepository.GetSetting(Settings.ASSISTANT_STT_API_KEY);
-        if (string.IsNullOrWhiteSpace(apiKeySetting?.Value))
+        var apiKey = await ReadApiKeyAsync(providerId);
+        if (string.IsNullOrWhiteSpace(apiKey))
             return BadRequest(new { error = "No API key configured for STT provider" });
 
         using var ms = new MemoryStream();
@@ -172,14 +175,35 @@ public class SttController : ControllerBase
         if (audio.Length == 0)
             return Ok(new { text = string.Empty });
 
-        var effectiveLocale = string.IsNullOrWhiteSpace(locale) ? "de" : locale;
-        var config = new SttConfig(_encryptionService.Decrypt(apiKeySetting.Value), effectiveLocale);
+        var effectiveLocale = string.IsNullOrWhiteSpace(locale) ? DefaultLocale : locale;
+        var config = new SttConfig(apiKey, effectiveLocale);
 
         await using var session = await provider.CreateSessionAsync(config, ct);
         await session.SendAudioAsync(audio, ct);
         var result = await session.ReceiveAsync(ct);
 
         return Ok(new { text = result?.Text ?? string.Empty });
+    }
+
+    private static string? ResolveApiKeySettingType(string providerId) => providerId switch
+    {
+        SttProviderConstants.Deepgram => Settings.ASSISTANT_STT_API_KEY_DEEPGRAM,
+        SttProviderConstants.GroqWhisper => Settings.ASSISTANT_STT_API_KEY_GROQ,
+        SttProviderConstants.AssemblyAi => Settings.ASSISTANT_STT_API_KEY_ASSEMBLYAI,
+        _ => null,
+    };
+
+    private async Task<string?> ReadApiKeyAsync(string providerId)
+    {
+        var settingType = ResolveApiKeySettingType(providerId);
+        if (settingType == null)
+            return null;
+
+        var setting = await _settingsRepository.GetSetting(settingType);
+        if (string.IsNullOrWhiteSpace(setting?.Value))
+            return null;
+
+        return _encryptionService.Decrypt(setting.Value);
     }
 
     private static async Task ForwardAudioToProvider(WebSocket browserWs, ISttSession session, CancellationToken ct)

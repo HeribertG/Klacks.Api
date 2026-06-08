@@ -24,6 +24,11 @@ public class AssemblyAiSttProvider : ISttProvider
         return new AssemblyAiSttSession(ws);
     }
 
+    public async Task ValidateAsync(SttConfig config, CancellationToken ct = default)
+    {
+        await using var session = await CreateSessionAsync(config, ct);
+    }
+
     internal static SttResult? ParseResult(string json)
     {
         using var doc = JsonDocument.Parse(json);

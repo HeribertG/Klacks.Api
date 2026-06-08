@@ -25,6 +25,11 @@ public class DeepgramSttProvider : ISttProvider
         return new DeepgramSttSession(ws);
     }
 
+    public async Task ValidateAsync(SttConfig config, CancellationToken ct = default)
+    {
+        await using var session = await CreateSessionAsync(config, ct);
+    }
+
     public static SttResult? ParseResult(string json)
     {
         using var doc = JsonDocument.Parse(json);

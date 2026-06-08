@@ -7,6 +7,7 @@
 /// <param name="httpClientFactory">Factory for creating HTTP clients used in sessions</param>
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt;
 
+using System.Net.Http.Headers;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -26,5 +27,18 @@ public class GroqWhisperSttProvider : ISttProvider
     {
         ISttSession session = new GroqWhisperSttSession(_httpClientFactory, config);
         return Task.FromResult(session);
+    }
+
+    public async Task ValidateAsync(SttConfig config, CancellationToken ct = default)
+    {
+        var client = _httpClientFactory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", config.ApiKey);
+
+        var response = await client.GetAsync(SttProviderConstants.GroqModelsUrl, ct);
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(ct);
+            throw new InvalidOperationException($"Groq STT validation failed ({(int)response.StatusCode}): {body}");
+        }
     }
 }

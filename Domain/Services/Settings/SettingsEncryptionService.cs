@@ -16,12 +16,18 @@ public class SettingsEncryptionService : ISettingsEncryptionService
         "incomingServerPassword",
         "OPENROUTESERVICE_API_KEY",
         "DEEPL_API_KEY",
-        "ASSISTANT_STT_API_KEY"
+        "ASSISTANT_STT_API_KEY",
+        "ASSISTANT_STT_API_KEY_DEEPGRAM",
+        "ASSISTANT_STT_API_KEY_GROQ",
+        "ASSISTANT_STT_API_KEY_ASSEMBLYAI"
     };
 
     private static readonly HashSet<string> ServerOnlySettingTypes = new(StringComparer.OrdinalIgnoreCase)
     {
-        "ASSISTANT_STT_API_KEY"
+        "ASSISTANT_STT_API_KEY",
+        "ASSISTANT_STT_API_KEY_DEEPGRAM",
+        "ASSISTANT_STT_API_KEY_GROQ",
+        "ASSISTANT_STT_API_KEY_ASSEMBLYAI"
     };
 
     public bool IsServerOnlySettingType(string type)
