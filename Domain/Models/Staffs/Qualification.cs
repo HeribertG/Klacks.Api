@@ -29,6 +29,8 @@ public class Qualification : BaseEntity
 
     public QualificationType Type { get; set; } = QualificationType.Work;
 
+    public QualificationCategory Category { get; set; } = QualificationCategory.None;
+
     [JsonIgnore]
     public ICollection<QualificationCountry> QualificationCountries { get; set; } = [];
 

@@ -38,6 +38,7 @@ public sealed class UpdateQualificationCommandHandler : IRequestHandler<UpdateQu
         entity.Emoji = request.Emoji;
         entity.IsTimeLimited = request.IsTimeLimited;
         entity.Type = request.Type;
+        entity.Category = request.Category;
 
         entity.QualificationCountries.Clear();
         foreach (var code in request.Countries.Where(c => !string.IsNullOrWhiteSpace(c)).Distinct())

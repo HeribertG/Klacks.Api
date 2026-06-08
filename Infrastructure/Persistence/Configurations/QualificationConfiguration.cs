@@ -19,5 +19,6 @@ public class QualificationConfiguration : IEntityTypeConfiguration<Qualification
         builder.ConfigureMultiLanguage(q => q.Name, "name");
         builder.ConfigureMultiLanguage(q => q.Description, "description");
         builder.Property(q => q.Type).HasDefaultValue(QualificationType.Work);
+        builder.Property(q => q.Category).HasDefaultValue(QualificationCategory.None);
     }
 }
