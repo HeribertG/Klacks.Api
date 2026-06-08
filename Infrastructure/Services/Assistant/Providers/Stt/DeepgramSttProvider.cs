@@ -19,7 +19,7 @@ public class DeepgramSttProvider : ISttProvider
     public async Task<ISttSession> CreateSessionAsync(SttConfig config, CancellationToken ct = default)
     {
         var ws = new ClientWebSocket();
-        var url = $"{SttProviderConstants.DeepgramWssUrl}?model=nova-2&language={config.Language}&encoding=linear16&sample_rate={config.SampleRate}&interim_results=true&punctuate=true";
+        var url = $"{SttProviderConstants.DeepgramWssUrl}?model={SttProviderConstants.DeepgramStreamingModel}&language={SttProviderConstants.DeepgramMultiLanguage}&encoding=linear16&sample_rate={config.SampleRate}&interim_results=true&punctuate=true";
         ws.Options.SetRequestHeader("Authorization", $"Token {config.ApiKey}");
         await ws.ConnectAsync(new Uri(url), ct);
         return new DeepgramSttSession(ws);
