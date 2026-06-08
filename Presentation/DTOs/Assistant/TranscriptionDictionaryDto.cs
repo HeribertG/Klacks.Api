@@ -8,6 +8,7 @@
 /// <param name="Category">Optional category grouping</param>
 /// <param name="PhoneticVariants">Common misrecognitions by STT engines</param>
 /// <param name="Description">Optional description of the term</param>
+/// <param name="Language">Optional language code (e.g. "de") selecting the phonetic encoder for fuzzy matching</param>
 namespace Klacks.Api.Presentation.DTOs.Assistant;
 
 public record TranscriptionDictionaryDto(
@@ -15,4 +16,5 @@ public record TranscriptionDictionaryDto(
     string CorrectTerm,
     string? Category,
     List<string> PhoneticVariants,
-    string? Description);
+    string? Description,
+    string? Language);

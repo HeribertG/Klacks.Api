@@ -2,17 +2,20 @@
 
 /// <summary>
 /// Builds transcription dictionary context from DB-stored entries and applies deterministic
-/// phonetic-variant replacements. Uses IMemoryCache with 5 minute TTL to avoid hitting the DB
-/// on every request.
+/// phonetic-variant replacements plus an optional phonetic fuzzy pass. Uses IMemoryCache with
+/// 5 minute TTL to avoid hitting the DB on every request.
 /// </summary>
 /// <param name="repository">Repository for transcription dictionary entries</param>
 /// <param name="cache">In-memory cache for dictionary entries</param>
+/// <param name="encoderFactory">Resolves the phonetic encoder for a language config</param>
+/// <param name="configProvider">Per-language phonetic configuration (pack-driven)</param>
 /// <param name="logger">Logger instance</param>
 namespace Klacks.Api.Infrastructure.Services.Assistant;
 
 using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Phonetics;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
@@ -20,6 +23,8 @@ public class DictionaryService : IDictionaryService
 {
     private readonly ITranscriptionDictionaryRepository _repository;
     private readonly IMemoryCache _cache;
+    private readonly IPhoneticEncoderFactory _encoderFactory;
+    private readonly IPhoneticConfigProvider _configProvider;
     private readonly ILogger<DictionaryService> _logger;
     private const string EntriesCacheKey = "TranscriptionDictionary.Entries";
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
@@ -27,10 +32,14 @@ public class DictionaryService : IDictionaryService
     public DictionaryService(
         ITranscriptionDictionaryRepository repository,
         IMemoryCache cache,
+        IPhoneticEncoderFactory encoderFactory,
+        IPhoneticConfigProvider configProvider,
         ILogger<DictionaryService> logger)
     {
         _repository = repository;
         _cache = cache;
+        _encoderFactory = encoderFactory;
+        _configProvider = configProvider;
         _logger = logger;
     }
 
@@ -40,7 +49,7 @@ public class DictionaryService : IDictionaryService
         return BuildContextString(entries);
     }
 
-    public async Task<string> ApplyReplacementsAsync(string text, CancellationToken ct = default)
+    public async Task<string> ApplyReplacementsAsync(string text, string? locale = null, CancellationToken ct = default)
     {
         if (string.IsNullOrEmpty(text))
         {
@@ -48,7 +57,8 @@ public class DictionaryService : IDictionaryService
         }
 
         var entries = await GetCachedEntriesAsync(ct);
-        return ApplyDeterministicReplacements(text, entries);
+        var afterExact = ApplyDeterministicReplacements(text, entries);
+        return ApplyFuzzyReplacements(afterExact, entries, locale);
     }
 
     public void InvalidateCache()
@@ -105,4 +115,52 @@ public class DictionaryService : IDictionaryService
         }
         return result;
     }
+
+    private string ApplyFuzzyReplacements(string text, List<TranscriptionDictionaryEntry> entries, string? locale)
+    {
+        var fuzzyTerms = new List<FuzzyTerm>();
+        foreach (var entry in entries)
+        {
+            if (string.IsNullOrWhiteSpace(entry.CorrectTerm))
+                continue;
+
+            var config = _configProvider.GetForLocale(entry.Language ?? locale);
+            if (!config.Enabled)
+                continue;
+
+            var encoder = _encoderFactory.Create(config);
+            var code = encoder.Encode(entry.CorrectTerm);
+            if (string.IsNullOrEmpty(code))
+                continue;
+
+            fuzzyTerms.Add(new FuzzyTerm(entry.CorrectTerm, code, encoder, config));
+        }
+
+        if (fuzzyTerms.Count == 0)
+        {
+            return text;
+        }
+
+        return Regex.Replace(text, @"\p{L}+", match =>
+        {
+            var word = match.Value;
+            foreach (var term in fuzzyTerms)
+            {
+                if (word.Length < term.Config.MinWordLength)
+                    continue;
+                if (string.Equals(word, term.Term, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (term.Encoder.Encode(word) != term.Code)
+                    continue;
+                if (Levenshtein.Distance(word.ToLowerInvariant(), term.Term.ToLowerInvariant()) > term.Config.MaxEditDistance)
+                    continue;
+
+                return term.Term;
+            }
+
+            return word;
+        });
+    }
+
+    private sealed record FuzzyTerm(string Term, string Code, IPhoneticEncoder Encoder, PhoneticConfig Config);
 }

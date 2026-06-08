@@ -31,7 +31,7 @@ public class TranscriptionDictionaryController : ControllerBase
     {
         var entries = await _repository.GetAllAsync(ct);
         var dtos = entries.Select(e => new TranscriptionDictionaryDto(
-            e.Id, e.CorrectTerm, e.Category, e.PhoneticVariants, e.Description)).ToList();
+            e.Id, e.CorrectTerm, e.Category, e.PhoneticVariants, e.Description, e.Language)).ToList();
         return Ok(dtos);
     }
 
@@ -44,14 +44,15 @@ public class TranscriptionDictionaryController : ControllerBase
             CorrectTerm = dto.CorrectTerm,
             Category = dto.Category,
             PhoneticVariants = dto.PhoneticVariants,
-            Description = dto.Description
+            Description = dto.Description,
+            Language = dto.Language
         };
 
         await _repository.AddAsync(entry, ct);
         _dictionaryService.InvalidateCache();
 
         var result = new TranscriptionDictionaryDto(
-            entry.Id, entry.CorrectTerm, entry.Category, entry.PhoneticVariants, entry.Description);
+            entry.Id, entry.CorrectTerm, entry.Category, entry.PhoneticVariants, entry.Description, entry.Language);
         return CreatedAtAction(nameof(GetAll), result);
     }
 
@@ -65,12 +66,13 @@ public class TranscriptionDictionaryController : ControllerBase
         existing.Category = dto.Category;
         existing.PhoneticVariants = dto.PhoneticVariants;
         existing.Description = dto.Description;
+        existing.Language = dto.Language;
 
         await _repository.UpdateAsync(existing, ct);
         _dictionaryService.InvalidateCache();
 
         var result = new TranscriptionDictionaryDto(
-            existing.Id, existing.CorrectTerm, existing.Category, existing.PhoneticVariants, existing.Description);
+            existing.Id, existing.CorrectTerm, existing.Category, existing.PhoneticVariants, existing.Description, existing.Language);
         return Ok(result);
     }
 

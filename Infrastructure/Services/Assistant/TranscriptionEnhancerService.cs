@@ -38,7 +38,7 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
 
     public async Task<string> EnhanceTranscriptionAsync(string rawText, string locale, string? modelId = null, CancellationToken ct = default)
     {
-        var preprocessed = await _dictionaryService.ApplyReplacementsAsync(rawText, ct);
+        var preprocessed = await _dictionaryService.ApplyReplacementsAsync(rawText, locale, ct);
 
         try
         {

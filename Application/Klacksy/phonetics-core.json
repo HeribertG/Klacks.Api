@@ -1,0 +1,51 @@
+{
+  "de": {
+    "enabled": true,
+    "encoder": "koelner",
+    "minWordLength": 4,
+    "maxEditDistance": 4,
+    "rules": []
+  },
+  "en": {
+    "enabled": true,
+    "encoder": "rule_based",
+    "minWordLength": 4,
+    "maxEditDistance": 4,
+    "rules": [
+      { "from": "ph", "to": "f" },
+      { "from": "gh", "to": "" },
+      { "from": "ck", "to": "k" },
+      { "from": "x", "to": "ks" },
+      { "from": "qu", "to": "kw" },
+      { "from": "kn", "to": "n" },
+      { "from": "wr", "to": "r" },
+      { "from": "y", "to": "i" }
+    ]
+  },
+  "fr": {
+    "enabled": true,
+    "encoder": "rule_based",
+    "minWordLength": 4,
+    "maxEditDistance": 4,
+    "rules": [
+      { "from": "ph", "to": "f" },
+      { "from": "qu", "to": "k" },
+      { "from": "ck", "to": "k" },
+      { "from": "x", "to": "ks" },
+      { "from": "y", "to": "i" }
+    ]
+  },
+  "it": {
+    "enabled": true,
+    "encoder": "rule_based",
+    "minWordLength": 4,
+    "maxEditDistance": 4,
+    "rules": [
+      { "from": "ch", "to": "k" },
+      { "from": "gh", "to": "g" },
+      { "from": "ph", "to": "f" },
+      { "from": "x", "to": "ks" },
+      { "from": "y", "to": "i" }
+    ]
+  }
+}

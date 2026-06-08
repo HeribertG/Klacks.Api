@@ -15,6 +15,8 @@ public static class LanguagePluginConstants
     public const string SentimentKeywordsFileName = "sentiment-keywords.json";
     public const string WakeWordsFileName = "wake-words.json";
     public const string NavigationTargetsFileName = "navigation-targets.json";
+    public const string PhoneticsFileName = "phonetics.json";
+    public const string PhoneticsCoreFileName = "phonetics-core.json";
     public const string SettingPrefix = "INSTALLED_LANGUAGE_";
 
     public static readonly string[] CoreLanguages = ["de", "en", "fr", "it"];

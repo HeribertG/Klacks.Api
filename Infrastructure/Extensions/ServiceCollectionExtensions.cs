@@ -573,6 +573,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.GroqWhisperSttProvider>();
         services.AddScoped<ISttProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.GroqWhisperSttProvider>());
 
+        services.AddSingleton<IPhoneticEncoderFactory, Klacks.Api.Domain.Services.Assistant.Phonetics.PhoneticEncoderFactory>();
+        services.AddSingleton<IPhoneticConfigProvider, Klacks.Api.Infrastructure.Services.Assistant.PhoneticConfigProvider>();
         services.AddScoped<IDictionaryService, Klacks.Api.Infrastructure.Services.Assistant.DictionaryService>();
         services.AddScoped<ITranscriptionDictionaryRepository, Klacks.Api.Infrastructure.Repositories.Assistant.TranscriptionDictionaryRepository>();
         services.AddScoped<ICustomSttProviderRepository, Klacks.Api.Infrastructure.Repositories.Assistant.CustomSttProviderRepository>();

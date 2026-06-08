@@ -308,6 +308,7 @@ public class DataBaseContext : IdentityDbContext
             entity.Property(e => e.CorrectTerm).HasMaxLength(200).IsRequired();
             entity.Property(e => e.Category).HasMaxLength(50);
             entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.Language).HasMaxLength(10);
             entity.Property(e => e.PhoneticVariants).HasColumnType("jsonb").HasDefaultValueSql("'[]'::jsonb");
             entity.HasQueryFilter(e => !e.IsDeleted);
         });

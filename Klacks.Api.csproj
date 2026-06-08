@@ -96,6 +96,9 @@
 	  <None Update="Application\Klacksy\wake-word-variants.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
+	  <None Update="Application\Klacksy\phonetics-core.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	  <Content Include="Infrastructure\Persistence\Seed\KlacksyKnowledge\*.md">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>

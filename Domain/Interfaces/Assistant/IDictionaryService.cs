@@ -18,10 +18,13 @@ public interface IDictionaryService
     /// Matching is case-insensitive and word-boundary aware so partial matches inside
     /// other words are not affected. Longer variants take precedence over shorter ones.
     /// </summary>
+    /// After the exact pass, an optional phonetic fuzzy pass replaces sound-alike words
+    /// that are not listed as exact variants, using the per-entry (or locale) phonetic config.
     /// <param name="text">Raw transcription text</param>
+    /// <param name="locale">Utterance locale used for entries without an explicit language</param>
     /// <param name="ct">Cancellation token</param>
     /// <returns>Text with all known variants substituted by the correct term</returns>
-    Task<string> ApplyReplacementsAsync(string text, CancellationToken ct = default);
+    Task<string> ApplyReplacementsAsync(string text, string? locale = null, CancellationToken ct = default);
 
     /// <summary>
     /// Drops the cached dictionary so the next call rebuilds it from the repository.
