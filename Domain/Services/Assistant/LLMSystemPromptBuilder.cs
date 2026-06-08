@@ -24,6 +24,15 @@ NAVIGATION RESPONSE GUIDE:
 - Respond in the user's locale.
 """;
 
+    private static readonly IReadOnlyDictionary<string, string> LanguageDirectives =
+        new Dictionary<string, string>
+        {
+            ["de"] = "Antworte ausschließlich auf Deutsch, unabhängig davon, in welcher Sprache der Benutzer schreibt oder spricht.",
+            ["en"] = "Respond exclusively in English, regardless of the language the user writes or speaks in.",
+            ["fr"] = "Réponds exclusivement en français, quelle que soit la langue dans laquelle l'utilisateur écrit ou parle.",
+            ["it"] = "Rispondi esclusivamente in italiano, indipendentemente dalla lingua in cui l'utente scrive o parla.",
+        };
+
     public LLMSystemPromptBuilder(IPromptTranslationProvider translationProvider)
     {
         _translationProvider = translationProvider;
@@ -31,8 +40,9 @@ NAVIGATION RESPONSE GUIDE:
 
     public async Task<string> BuildSystemPromptAsync(LLMContext context, string? soulAndMemoryPrompt = null)
     {
-        var language = context.Language ?? "en";
+        var language = NormalizeLanguage(context.Language);
         var t = await _translationProvider.GetTranslationsAsync(language);
+        var languageDirective = LanguageDirectives.GetValueOrDefault(language, LanguageDirectives["en"]);
 
         var canViewSettings = HasPermission(context, "CanViewSettings");
         var canEditSettings = HasPermission(context, "CanEditSettings");
@@ -48,7 +58,9 @@ NAVIGATION RESPONSE GUIDE:
             : "";
 
         var sb = new StringBuilder();
-        sb.Append($@"{identitySection}{t["Intro"]}
+        sb.Append($@"{languageDirective}
+
+{identitySection}{t["Intro"]}
 
 {t["ToolUsageRules"]}
 
@@ -70,6 +82,18 @@ NAVIGATION RESPONSE GUIDE:
         }
 
         return sb.ToString();
+    }
+
+    private static string NormalizeLanguage(string? language)
+    {
+        if (string.IsNullOrWhiteSpace(language))
+        {
+            return "en";
+        }
+
+        var normalized = language.Trim().ToLowerInvariant();
+        var separator = normalized.IndexOf('-');
+        return separator > 0 ? normalized[..separator] : normalized;
     }
 
     private static string? RenderCurrentViewBlock(AssistantPageContext? pageContext)
