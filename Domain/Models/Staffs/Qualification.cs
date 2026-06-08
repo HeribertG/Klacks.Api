@@ -7,9 +7,11 @@
 /// </summary>
 /// <remarks>
 /// Type distinguishes between language qualifications and work qualifications.
-/// Country optionally restricts the qualification to a specific country (e.g. "CH", "DE").
+/// Countries is a many-to-many list of ISO codes stored in the qualification_country junction table.
 /// </remarks>
 
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
 
@@ -27,5 +29,17 @@ public class Qualification : BaseEntity
 
     public QualificationType Type { get; set; } = QualificationType.Work;
 
-    public string? Country { get; set; }
+    [JsonIgnore]
+    public ICollection<QualificationCountry> QualificationCountries { get; set; } = [];
+
+    private List<string> _inputCountries = [];
+
+    [NotMapped]
+    public List<string> Countries
+    {
+        get => QualificationCountries.Count > 0
+            ? [.. QualificationCountries.Select(c => c.CountryCode)]
+            : _inputCountries;
+        set => _inputCountries = value ?? [];
+    }
 }

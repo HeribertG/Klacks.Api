@@ -2,9 +2,9 @@
 
 /// <summary>
 /// Handler for <see cref="UpdateQualificationCommand"/>. Loads the existing qualification by id,
-/// applies updated fields, and persists the change.
+/// applies updated fields, syncs the qualification_country junction rows, and persists the change.
 /// </summary>
-/// <param name="repository">Provides access to the qualification store</param>
+/// <param name="repository">Provides access to the qualification store (includes QualificationCountries)</param>
 /// <param name="unitOfWork">Commits the change</param>
 
 using Klacks.Api.Application.Commands.Qualifications;
@@ -38,7 +38,16 @@ public sealed class UpdateQualificationCommandHandler : IRequestHandler<UpdateQu
         entity.Emoji = request.Emoji;
         entity.IsTimeLimited = request.IsTimeLimited;
         entity.Type = request.Type;
-        entity.Country = request.Country;
+
+        entity.QualificationCountries.Clear();
+        foreach (var code in request.Countries.Where(c => !string.IsNullOrWhiteSpace(c)).Distinct())
+        {
+            entity.QualificationCountries.Add(new QualificationCountry
+            {
+                QualificationId = entity.Id,
+                CountryCode = code.Trim().ToUpperInvariant()
+            });
+        }
 
         await _unitOfWork.CompleteAsync();
         return entity;

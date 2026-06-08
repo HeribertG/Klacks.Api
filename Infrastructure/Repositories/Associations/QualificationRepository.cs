@@ -3,6 +3,7 @@
 /// <summary>
 /// Repository for the Qualification master entity. GetByNameAsync supports create-or-return-existing
 /// (case-insensitive) so the create skill does not produce duplicate qualifications.
+/// All list and single-item queries include the qualification_country junction rows.
 /// </summary>
 
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -19,6 +20,13 @@ public class QualificationRepository : BaseRepository<Qualification>, IQualifica
     {
     }
 
+    public override async Task<Qualification?> Get(Guid id)
+    {
+        return await context.Qualification
+            .Include(q => q.QualificationCountries)
+            .FirstOrDefaultAsync(q => q.Id == id);
+    }
+
     public async Task<Qualification?> GetByNameAsync(string name, CancellationToken ct = default)
     {
         var normalized = name.Trim().ToLower();
@@ -28,7 +36,10 @@ public class QualificationRepository : BaseRepository<Qualification>, IQualifica
 
     public async Task<List<Qualification>> GetAllAsync(CancellationToken ct = default)
     {
-        var list = await context.Qualification.AsNoTracking().ToListAsync(ct);
+        var list = await context.Qualification
+            .AsNoTracking()
+            .Include(q => q.QualificationCountries)
+            .ToListAsync(ct);
         return list.OrderBy(q => q.Name?.De ?? q.Name?.En ?? string.Empty).ToList();
     }
 }

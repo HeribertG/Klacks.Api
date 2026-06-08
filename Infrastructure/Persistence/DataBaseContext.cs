@@ -70,6 +70,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<Qualification> Qualification { get; set; }
 
+    public DbSet<QualificationCountry> QualificationCountry { get; set; }
+
     public DbSet<ShiftRequiredQualification> ShiftRequiredQualification { get; set; }
 
     public DbSet<History> History { get; set; }
