@@ -41,4 +41,10 @@ public class WelcomeResource
     /// Already ranked and capped to the desired count.
     /// </summary>
     public List<string> SuggestionKeys { get; set; } = new();
+
+    /// <summary>
+    /// First-run setup-tour state, or null when onboarding is not relevant for this user
+    /// (not a fresh install, or the user is not an admin).
+    /// </summary>
+    public OnboardingResource? Onboarding { get; set; }
 }

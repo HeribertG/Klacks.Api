@@ -8,6 +8,7 @@
 
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -24,15 +25,18 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
     private readonly ISuggestionsRanker _suggestionsRanker;
     private readonly IOpenMeteoClient _weatherClient;
     private readonly ICompanyLocationProvider _companyLocationProvider;
+    private readonly IOnboardingService _onboardingService;
 
     public GetWelcomeQueryHandler(
         ISuggestionsRanker suggestionsRanker,
         IOpenMeteoClient weatherClient,
-        ICompanyLocationProvider companyLocationProvider)
+        ICompanyLocationProvider companyLocationProvider,
+        IOnboardingService onboardingService)
     {
         _suggestionsRanker = suggestionsRanker;
         _weatherClient = weatherClient;
         _companyLocationProvider = companyLocationProvider;
+        _onboardingService = onboardingService;
     }
 
     public async Task<WelcomeResource> Handle(GetWelcomeQuery request, CancellationToken cancellationToken)
@@ -66,6 +70,8 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
             SuggestionCount,
             cancellationToken);
 
+        var onboarding = await _onboardingService.GetStateAsync(request.UserRights, cancellationToken);
+
         return new WelcomeResource
         {
             GreetingKey = greetingKey,
@@ -74,6 +80,7 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
             WeatherKey = weatherKey,
             DisplayName = request.DisplayName ?? string.Empty,
             SuggestionKeys = suggestionKeys.ToList(),
+            Onboarding = onboarding,
         };
     }
 

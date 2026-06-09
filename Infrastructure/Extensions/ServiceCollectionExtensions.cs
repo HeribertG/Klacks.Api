@@ -562,6 +562,8 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISuggestionsRanker,
             Klacks.Api.Application.Services.Assistant.SuggestionsRanker>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IOnboardingService,
+            Klacks.Api.Application.Services.Assistant.OnboardingService>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IOpenMeteoClient,
             Klacks.Api.Infrastructure.Services.OpenMeteoClient>();
         services.AddHttpClient(

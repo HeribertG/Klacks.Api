@@ -370,6 +370,21 @@ public class ChatController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPost("onboarding/state")]
+    public async Task<ActionResult<OnboardingResource>> SaveOnboardingState(
+        [FromBody] SaveOnboardingStateCommand command,
+        CancellationToken cancellationToken)
+    {
+        command.UserRights = GetCurrentUserRights();
+        var result = await _mediator.Send(command, cancellationToken);
+        if (result == null)
+        {
+            return Forbid();
+        }
+
+        return Ok(result);
+    }
+
     [HttpGet("help")]
     public ActionResult<object> GetHelp()
     {
