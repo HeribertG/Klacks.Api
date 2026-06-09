@@ -571,6 +571,8 @@ public static class ServiceCollectionExtensions
                 client.BaseAddress = new Uri("https://api.open-meteo.com/");
                 client.Timeout = TimeSpan.FromSeconds(3);
             });
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Settings.ICompanyLocationProvider,
+            Klacks.Api.Infrastructure.Services.CompanyLocationProvider>();
 
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.DeepgramSttProvider>();
         services.AddScoped<ISttProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.DeepgramSttProvider>());

@@ -10,6 +10,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Assistant;
@@ -22,13 +23,16 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
 
     private readonly ISuggestionsRanker _suggestionsRanker;
     private readonly IOpenMeteoClient _weatherClient;
+    private readonly ICompanyLocationProvider _companyLocationProvider;
 
     public GetWelcomeQueryHandler(
         ISuggestionsRanker suggestionsRanker,
-        IOpenMeteoClient weatherClient)
+        IOpenMeteoClient weatherClient,
+        ICompanyLocationProvider companyLocationProvider)
     {
         _suggestionsRanker = suggestionsRanker;
         _weatherClient = weatherClient;
+        _companyLocationProvider = companyLocationProvider;
     }
 
     public async Task<WelcomeResource> Handle(GetWelcomeQuery request, CancellationToken cancellationToken)
@@ -95,14 +99,24 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
 
     private async Task<string> ResolveWeatherKeyAsync(GetWelcomeQuery request, CancellationToken cancellationToken)
     {
-        if (request.Latitude is null || request.Longitude is null)
+        var latitude = request.Latitude;
+        var longitude = request.Longitude;
+
+        if (latitude is null || longitude is null)
         {
-            return string.Empty;
+            var companyLocation = await _companyLocationProvider.GetCompanyLocationAsync(cancellationToken);
+            if (companyLocation is null)
+            {
+                return string.Empty;
+            }
+
+            latitude = companyLocation.Value.Latitude;
+            longitude = companyLocation.Value.Longitude;
         }
 
         return await _weatherClient.GetWeatherKeyAsync(
-            request.Latitude.Value,
-            request.Longitude.Value,
+            latitude.Value,
+            longitude.Value,
             cancellationToken);
     }
 }
