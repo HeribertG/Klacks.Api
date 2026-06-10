@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 9,
   "skills": [
     {
       "name": "get_current_time",
@@ -778,7 +778,7 @@
     },
     {
       "name": "create_contract",
-      "description": "DEPRECATED — do not use. To assign a contract to an employee use assign_contract_by_name (by name) or assign_contract_to_client (by GUID). Contracts are read from the contract table; they are not created from a hardcoded type mapping.",
+      "description": "Creates a contract template (master data) from explicit values the user provided. NEVER derive hours from contract-type words like 'Vollzeit' — always ask the user for the real guaranteed hours and validity start. Minimum/maximum hours default to the guaranteed hours (fixed-hours contract); fullTime stays unconfigured (0) unless given. This does NOT assign the contract to an employee — use assign_contract_by_name or assign_contract_to_client afterwards, and update_contract / delete_contract to change or remove templates.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -786,76 +786,102 @@
       ],
       "parameters": [
         {
-          "name": "employeeId",
-          "description": "ID of the employee to create the contract for",
+          "name": "name",
+          "description": "Contract template name (e.g. 'Standard 80%')",
           "type": "String",
           "required": true,
           "defaultValue": null,
           "enumValues": null
         },
         {
-          "name": "contractType",
-          "description": "Type of employment contract",
-          "type": "Enum",
-          "required": true,
-          "defaultValue": null,
-          "enumValues": [
-            "Vollzeit 160",
-            "Vollzeit 180",
-            "Teilzeit 0 Std",
-            "Teilzeit 80 Std",
-            "Minijob"
-          ]
-        },
-        {
-          "name": "canton",
-          "description": "Swiss canton code for the contract",
-          "type": "Enum",
-          "required": true,
-          "defaultValue": null,
-          "enumValues": [
-            "BE",
-            "ZH",
-            "SG",
-            "VD",
-            "AG",
-            "LU",
-            "BS",
-            "BL",
-            "GR",
-            "TG",
-            "GE",
-            "NE"
-          ]
-        },
-        {
-          "name": "startDate",
-          "description": "Contract start date in format YYYY-MM-DD",
-          "type": "Date",
-          "required": false,
-          "defaultValue": null,
-          "enumValues": null
-        },
-        {
-          "name": "endDate",
-          "description": "Contract end date in format YYYY-MM-DD (optional for unlimited contracts)",
-          "type": "Date",
-          "required": false,
-          "defaultValue": null,
-          "enumValues": null
-        },
-        {
-          "name": "weeklyHours",
-          "description": "Weekly working hours",
-          "type": "Decimal",
-          "required": false,
-          "defaultValue": null,
-          "enumValues": null
-        },
-        {
           "name": "guaranteedHours",
-          "description": "Guaranteed hours per month",
+          "description": "Guaranteed hours per payment interval (explicit user value)",
           "type": "Decimal",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "validFrom",
+          "description": "Validity start date (YYYY-MM-DD)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "minimumHours",
+          "description": "Optional minimum hours; defaults to guaranteedHours",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maximumHours",
+          "description": "Optional maximum hours; defaults to guaranteedHours",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fullTime",
+          "description": "Optional full-time reference hours; 0 = not configured",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "nightRate",
+          "description": "Optional night surcharge rate",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "holidayRate",
+          "description": "Optional holiday surcharge rate",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "saRate",
+          "description": "Optional Saturday surcharge rate",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "soRate",
+          "description": "Optional Sunday surcharge rate",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "paymentInterval",
+          "description": "Payment interval; defaults to Monthly",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Weekly",
+            "Biweekly",
+            "Monthly",
+            "Individual"
+          ]
+        },
+        {
+          "name": "validUntil",
+          "description": "Optional validity end date (YYYY-MM-DD); omit for open-ended",
+          "type": "Date",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -863,52 +889,42 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
-      "isEnabled": false,
+      "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "contract",
-        "vertrag",
-        "employment",
-        "anstellung",
-        "arbeitsvertrag"
+        "create_contract",
+        "vertrag erstellen",
+        "neuer vertrag",
+        "vertragsvorlage anlegen",
+        "create contract",
+        "new contract"
       ],
       "synonyms": {
         "de": [
-          "vertrag",
-          "arbeitsvertrag",
-          "anstellung",
-          "beschäftigung",
-          "kontrakt",
-          "vereinbarung",
-          "dienstvertrag"
+          "vertrag erstellen",
+          "neuen vertrag anlegen",
+          "vertragsvorlage erstellen",
+          "arbeitsvertrag anlegen"
         ],
         "en": [
-          "contract",
-          "agreement",
-          "employment",
-          "engagement",
-          "terms",
-          "hiring"
+          "create contract",
+          "new contract template",
+          "add contract",
+          "set up contract"
         ],
         "fr": [
-          "contrat",
-          "contrat de travail",
-          "engagement",
-          "emploi",
-          "accord",
-          "convention"
+          "créer un contrat",
+          "nouveau modèle de contrat",
+          "ajouter un contrat"
         ],
         "it": [
-          "contratto",
-          "contratto di lavoro",
-          "assunzione",
-          "impiego",
-          "accordo",
-          "convenzione"
+          "creare un contratto",
+          "nuovo modello di contratto",
+          "aggiungere un contratto"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "create_employee",
@@ -14586,6 +14602,3545 @@
       "parameters": [],
       "handlerConfig": null,
       "version": 2
+    },
+    {
+      "name": "update_macro",
+      "description": "Updates an existing calculation macro (script) in the settings. Loads the macro by macroId and changes only the provided fields: name, script body, and/or description; fields that are not provided keep their current value. The description is applied to all core languages. Requires admin permissions. Use list_macros first to find the macro id; use create_macro to create new macros and delete_macro to remove them.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "macroId",
+          "description": "The id of the macro to update.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name",
+          "description": "Optional new macro name. Omit to keep the current name.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "script",
+          "description": "Optional new macro script body (stored as content). Omit to keep the current script.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description",
+          "description": "Optional new short description applied to all core languages.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "macro",
+        "makro",
+        "script",
+        "skript",
+        "update",
+        "ändern"
+      ],
+      "synonyms": {
+        "de": [
+          "makro ändern",
+          "makro aktualisieren",
+          "skript anpassen",
+          "berechnung ändern",
+          "formel bearbeiten"
+        ],
+        "en": [
+          "update macro",
+          "edit macro",
+          "change script",
+          "modify calculation",
+          "edit formula"
+        ],
+        "fr": [
+          "modifier la macro",
+          "mettre à jour la macro",
+          "changer le script",
+          "modifier le calcul"
+        ],
+        "it": [
+          "modificare la macro",
+          "aggiornare la macro",
+          "cambiare lo script",
+          "modificare il calcolo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_qualification",
+      "description": "Updates an existing qualification master entry (e.g. rename 'Forklift licence', change its category or expiry behaviour). Resolve the qualification by qualificationId (preferred, use list_qualifications to find it) or by an exact, unambiguous name. Only the provided fields are changed; all other values are kept. Multilingual names and descriptions are merged per language (name_de, name_en, name_fr, name_it). Type accepts Language or Work; category accepts the industry categories; countries is a comma-separated ISO code list that replaces the current list when provided.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "qualificationId",
+          "description": "Id of the qualification to update. Preferred over qualificationName.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "qualificationName",
+          "description": "Exact qualification name used to resolve the qualification when qualificationId is omitted.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name_de",
+          "description": "New German qualification name (e.g. 'Führerschein')",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name_en",
+          "description": "New English qualification name (e.g. 'Driving licence')",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name_fr",
+          "description": "New French qualification name (e.g. 'Permis de conduire')",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name_it",
+          "description": "New Italian qualification name (e.g. 'Patente di guida')",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description_de",
+          "description": "New German description",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description_en",
+          "description": "New English description",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description_fr",
+          "description": "New French description",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description_it",
+          "description": "New Italian description",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "emoji",
+          "description": "New emoji character(s) representing this qualification",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "isTimeLimited",
+          "description": "Whether client assignments of this qualification carry an expiry date",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "type",
+          "description": "Qualification type",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Language",
+            "Work"
+          ]
+        },
+        {
+          "name": "category",
+          "description": "Industry category of the qualification",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "None",
+            "Spitex",
+            "Security",
+            "Logistics",
+            "Healthcare",
+            "Gastronomy",
+            "Construction",
+            "Cleaning",
+            "Transport"
+          ]
+        },
+        {
+          "name": "countries",
+          "description": "Comma-separated ISO country codes this qualification applies to (e.g. 'CH,DE'). Replaces the current list.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "update_qualification",
+        "qualifikation ändern",
+        "qualifikation umbenennen",
+        "update qualification",
+        "rename qualification"
+      ],
+      "synonyms": {
+        "de": [
+          "qualifikation ändern",
+          "qualifikation aktualisieren",
+          "qualifikation umbenennen",
+          "kompetenz bearbeiten"
+        ],
+        "en": [
+          "update qualification",
+          "edit qualification",
+          "rename qualification",
+          "modify skill entry"
+        ],
+        "fr": [
+          "modifier une qualification",
+          "mettre à jour la qualification",
+          "renommer la qualification"
+        ],
+        "it": [
+          "modificare una qualifica",
+          "aggiornare la qualifica",
+          "rinominare la qualifica"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_qualification",
+      "description": "Soft-deletes a qualification master entry. Verifies first that the qualification exists: resolve it by qualificationId (preferred, use list_qualifications to find it) or by an exact, unambiguous name; if it does not exist or the name is ambiguous, an error is returned and nothing is deleted. Use with care: shifts and clients may reference the qualification via set_shift_required_qualification / set_client_qualification.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "qualificationId",
+          "description": "Id of the qualification to delete. Preferred over qualificationName.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "qualificationName",
+          "description": "Exact qualification name used to resolve the qualification when qualificationId is omitted.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "delete_qualification",
+        "qualifikation löschen",
+        "delete qualification",
+        "remove qualification"
+      ],
+      "synonyms": {
+        "de": [
+          "qualifikation löschen",
+          "qualifikation entfernen",
+          "kompetenz löschen",
+          "zertifikatstyp entfernen"
+        ],
+        "en": [
+          "delete qualification",
+          "remove qualification",
+          "drop skill entry",
+          "remove qualification type"
+        ],
+        "fr": [
+          "supprimer une qualification",
+          "effacer la qualification",
+          "retirer une compétence"
+        ],
+        "it": [
+          "eliminare una qualifica",
+          "rimuovere la qualifica",
+          "cancellare una competenza"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "search_shifts",
+      "description": "Searches shift definitions by an optional text (matches shift name, abbreviation and client name) and returns a compact list: id, name, abbreviation, validity dates (fromDate/untilDate), start/end times and the client name if the shift belongs to a client. Covers active, former and future shifts. Use this to find a shiftId before calling get_shift_details, update_shift, delete_shift or set_shift_required_qualification.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "searchString",
+          "description": "Optional text filter on shift name, abbreviation or client name.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maxResults",
+          "description": "Maximum number of shifts to return (default 20, capped at 100).",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 20,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "search_shifts",
+        "schicht suchen",
+        "schichten finden",
+        "search shift",
+        "find shift",
+        "list shifts",
+        "schichtliste"
+      ],
+      "synonyms": {
+        "de": [
+          "schicht suchen",
+          "schichten finden",
+          "dienst suchen",
+          "schichtliste",
+          "welche schichten gibt es",
+          "dienste auflisten"
+        ],
+        "en": [
+          "search shifts",
+          "find shift",
+          "list shifts",
+          "shift list",
+          "which shifts exist",
+          "lookup shift"
+        ],
+        "fr": [
+          "chercher des postes",
+          "trouver un poste",
+          "liste des postes",
+          "rechercher un service"
+        ],
+        "it": [
+          "cercare turni",
+          "trovare un turno",
+          "elenco turni",
+          "lista dei turni"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "get_shift_details",
+      "description": "Fetches the full definition of a single shift by its UUID: name, abbreviation, description, status, shift type, validity dates, start/end times, work time, required quantity, weekday flags, client and assigned groups. Use search_shifts first to resolve the shiftId; fails with a clear message if the shift does not exist.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "shiftId",
+          "description": "UUID of the shift to fetch.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "get_shift_details",
+        "schichtdetails",
+        "shift details",
+        "schicht anzeigen",
+        "show shift"
+      ],
+      "synonyms": {
+        "de": [
+          "schichtdetails",
+          "schicht anzeigen",
+          "details der schicht",
+          "schichtzeiten",
+          "wie lange geht die schicht"
+        ],
+        "en": [
+          "shift details",
+          "show shift",
+          "shift definition",
+          "shift times",
+          "inspect shift"
+        ],
+        "fr": [
+          "détails du poste",
+          "afficher le poste",
+          "horaires du poste"
+        ],
+        "it": [
+          "dettagli del turno",
+          "mostrare il turno",
+          "orari del turno"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_schedule_notes",
+      "description": "Lists schedule notes — free-text per-client/per-day annotations shown in the schedule (e.g. handover remarks or planning hints). Returns id, clientId, date, content and analyseToken (scenario notes carry a token, main-schedule notes have null), ordered by date. Optionally filter by clientId. Use this to find the noteId before delete_schedule_note.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "Optional UUID of a client to filter the notes by.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "list_schedule_notes",
+        "plannotizen",
+        "schedule notes",
+        "notizen im plan",
+        "show notes"
+      ],
+      "synonyms": {
+        "de": [
+          "plannotizen",
+          "notizen anzeigen",
+          "notizen im einsatzplan",
+          "anmerkungen im plan",
+          "vermerke"
+        ],
+        "en": [
+          "schedule notes",
+          "show notes",
+          "list notes",
+          "plan annotations",
+          "remarks in schedule"
+        ],
+        "fr": [
+          "notes du planning",
+          "afficher les notes",
+          "annotations du planning"
+        ],
+        "it": [
+          "note del piano",
+          "mostrare le note",
+          "annotazioni del piano"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "add_schedule_note",
+      "description": "Adds a schedule note — a free-text annotation for a client on a specific day, e.g. 'prefers early shifts this week' or a handover remark. The note is informational only and shown in the schedule; wizards do NOT enforce it (use add_schedule_command for hard constraints like FREE/EARLY). Requires clientId, date and content; optional analyseToken targets a scenario instead of the main schedule.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the client the note belongs to.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "date",
+          "description": "Day of the note in ISO yyyy-MM-dd.",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "content",
+          "description": "The note text.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "analyseToken",
+          "description": "Optional scenario UUID; null = main schedule.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "add_schedule_note",
+        "notiz hinzufügen",
+        "plannotiz",
+        "add note",
+        "vermerk eintragen"
+      ],
+      "synonyms": {
+        "de": [
+          "notiz hinzufügen",
+          "plannotiz erstellen",
+          "vermerk eintragen",
+          "anmerkung zum plan",
+          "notiz im einsatzplan"
+        ],
+        "en": [
+          "add note",
+          "create schedule note",
+          "add remark",
+          "annotate schedule",
+          "note for client"
+        ],
+        "fr": [
+          "ajouter une note",
+          "créer une note de planning",
+          "ajouter une remarque"
+        ],
+        "it": [
+          "aggiungere una nota",
+          "creare una nota del piano",
+          "aggiungere un'annotazione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_schedule_note",
+      "description": "Soft-deletes a schedule note by its UUID. Use list_schedule_notes first to resolve the noteId; the response echoes the deleted note's client and date. Fails with a clear message if the note does not exist.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "noteId",
+          "description": "UUID of the schedule note to delete.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "delete_schedule_note",
+        "notiz löschen",
+        "plannotiz entfernen",
+        "delete note",
+        "remove note"
+      ],
+      "synonyms": {
+        "de": [
+          "notiz löschen",
+          "plannotiz entfernen",
+          "vermerk löschen",
+          "anmerkung entfernen"
+        ],
+        "en": [
+          "delete note",
+          "remove note",
+          "delete schedule note",
+          "drop annotation"
+        ],
+        "fr": [
+          "supprimer la note",
+          "effacer la note du planning"
+        ],
+        "it": [
+          "eliminare la nota",
+          "rimuovere la nota del piano"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_client_memberships",
+      "description": "Lists memberships (client affiliation periods). A membership's ValidFrom is the plannability boundary in the schedule: an employee can only be planned from that date on, regardless of contract dates. Optionally filter by clientId to see one employee's membership history. Use this before update_membership to find the membership ID, or when the user asks since when someone can be planned.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "Optional UUID of a client to restrict the list to that client's memberships",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "membership",
+        "mitgliedschaft",
+        "zugehörigkeit",
+        "eintritt",
+        "valid from"
+      ],
+      "synonyms": {
+        "de": [
+          "mitgliedschaft",
+          "zugehörigkeit",
+          "eintrittsdatum",
+          "betriebszugehörigkeit",
+          "planbar ab",
+          "mitgliedschaften anzeigen"
+        ],
+        "en": [
+          "membership",
+          "affiliation",
+          "join date",
+          "tenure",
+          "plannable from",
+          "list memberships"
+        ],
+        "fr": [
+          "affiliation",
+          "appartenance",
+          "date d'entrée",
+          "ancienneté",
+          "planifiable depuis"
+        ],
+        "it": [
+          "appartenenza",
+          "affiliazione",
+          "data di entrata",
+          "anzianità",
+          "pianificabile da"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_membership",
+      "description": "Updates an existing membership (client affiliation period). Only supplied fields change: validFrom, validUntil (or clearValidUntil to make it open-ended) and the numeric type. IMPORTANT: Membership.ValidFrom is the plannability boundary in the schedule — moving it changes from which date the employee can be planned (it is independent of contract dates). Use list_client_memberships first to find the membership ID. Refuses validUntil before validFrom.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "membershipId",
+          "description": "UUID of the membership to update",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "validFrom",
+          "description": "New start date (YYYY-MM-DD); this is the plannability boundary in the schedule",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "validUntil",
+          "description": "New end date (YYYY-MM-DD)",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clearValidUntil",
+          "description": "If true, removes the end date so the membership becomes open-ended",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        },
+        {
+          "name": "type",
+          "description": "New numeric membership type code (0 = default employee membership)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "membership",
+        "mitgliedschaft",
+        "eintritt",
+        "austritt",
+        "valid from"
+      ],
+      "synonyms": {
+        "de": [
+          "mitgliedschaft ändern",
+          "eintrittsdatum ändern",
+          "austrittsdatum setzen",
+          "planbarkeit ab ändern",
+          "zugehörigkeit anpassen"
+        ],
+        "en": [
+          "update membership",
+          "change join date",
+          "set leave date",
+          "move plannability start",
+          "adjust affiliation"
+        ],
+        "fr": [
+          "modifier affiliation",
+          "changer date d'entrée",
+          "fixer date de sortie",
+          "ajuster appartenance"
+        ],
+        "it": [
+          "modificare appartenenza",
+          "cambiare data di entrata",
+          "impostare data di uscita",
+          "adeguare affiliazione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "get_contract_details",
+      "description": "Returns the full details of a single contract template: name, guaranteed/minimum/maximum/full-time hours, night/holiday/Saturday/Sunday rates, payment interval, validity dates, working days, shift-work flag, calendar selection and scheduling rule. Use list_contracts first to find the contract ID, then this skill when the user asks for specifics of one contract or before update_contract / delete_contract.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "contractId",
+          "description": "UUID of the contract to load",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "contract",
+        "vertrag",
+        "details",
+        "arbeitsvertrag",
+        "stunden"
+      ],
+      "synonyms": {
+        "de": [
+          "vertragsdetails",
+          "vertrag anzeigen",
+          "vertragsstunden",
+          "vertragskonditionen",
+          "zuschläge anzeigen"
+        ],
+        "en": [
+          "contract details",
+          "show contract",
+          "contract hours",
+          "contract terms",
+          "show rates"
+        ],
+        "fr": [
+          "détails du contrat",
+          "afficher contrat",
+          "heures contractuelles",
+          "conditions du contrat"
+        ],
+        "it": [
+          "dettagli contratto",
+          "mostrare contratto",
+          "ore contrattuali",
+          "condizioni contrattuali"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_contract",
+      "description": "Updates a contract template (master data): name, guaranteed/minimum/maximum/full-time hours, night/holiday/Saturday/Sunday rates and validity dates. Only supplied fields change; hour values must not be negative, minimumHours must not exceed maximumHours and validUntil must not be before validFrom. This does NOT assign a contract to an employee — use assign_contract_by_name or assign_contract_to_client for assignments (create_contract is deprecated). Note that the plannability boundary in the schedule comes from Membership.ValidFrom, not from contract dates. Use get_contract_details first to inspect current values.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditContracts"
+      ],
+      "parameters": [
+        {
+          "name": "contractId",
+          "description": "UUID of the contract to update",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name",
+          "description": "New contract name",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "guaranteedHours",
+          "description": "New guaranteed hours (not negative)",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "minimumHours",
+          "description": "New minimum hours (must not exceed maximumHours)",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maximumHours",
+          "description": "New maximum hours",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fullTime",
+          "description": "New full-time reference hours",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "nightRate",
+          "description": "New night surcharge rate",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "holidayRate",
+          "description": "New holiday surcharge rate",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "saRate",
+          "description": "New Saturday surcharge rate",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "soRate",
+          "description": "New Sunday surcharge rate",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "validFrom",
+          "description": "New validity start date (YYYY-MM-DD)",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "validUntil",
+          "description": "New validity end date (YYYY-MM-DD)",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clearValidUntil",
+          "description": "If true, removes the validity end date (open-ended contract)",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "update",
+        "change",
+        "contract",
+        "vertrag",
+        "arbeitsvertrag"
+      ],
+      "synonyms": {
+        "de": [
+          "vertrag ändern",
+          "vertrag anpassen",
+          "vertragsstunden ändern",
+          "zuschlag ändern",
+          "vertrag umbenennen"
+        ],
+        "en": [
+          "update contract",
+          "modify contract",
+          "change contract hours",
+          "adjust rate",
+          "rename contract"
+        ],
+        "fr": [
+          "modifier contrat",
+          "ajuster contrat",
+          "changer heures contractuelles",
+          "renommer contrat"
+        ],
+        "it": [
+          "modificare contratto",
+          "adeguare contratto",
+          "cambiare ore contrattuali",
+          "rinominare contratto"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_contract",
+      "description": "Soft-deletes a contract template after verifying it exists. Existing client-contract assignments are not touched by this skill — check with list_contracts / get_contract_details before removal and prefer setting validUntil via update_contract if the contract is still referenced. Use list_contracts to find the contract ID.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanDeleteContracts"
+      ],
+      "parameters": [
+        {
+          "name": "contractId",
+          "description": "UUID of the contract to delete",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "delete",
+        "remove",
+        "contract",
+        "vertrag",
+        "arbeitsvertrag"
+      ],
+      "synonyms": {
+        "de": [
+          "vertrag löschen",
+          "vertrag entfernen",
+          "vertragsvorlage löschen",
+          "arbeitsvertrag entfernen"
+        ],
+        "en": [
+          "delete contract",
+          "remove contract",
+          "drop contract template",
+          "retire contract"
+        ],
+        "fr": [
+          "supprimer contrat",
+          "retirer contrat",
+          "éliminer modèle de contrat"
+        ],
+        "it": [
+          "eliminare contratto",
+          "rimuovere contratto",
+          "cancellare modello di contratto"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_client_availabilities",
+      "description": "Lists client availability entries (per client, date and hour granularity) for a date range. Each entry says whether a client declared themselves available or unavailable for a specific hour on a specific day. Use this before planning or placing work to respect employee availability; entries are written with set_client_availability. Returns clientId, date, hour and isAvailable per entry.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "startDate",
+          "description": "Range start in ISO yyyy-MM-dd (inclusive).",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endDate",
+          "description": "Range end in ISO yyyy-MM-dd (inclusive).",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "availability",
+        "verfügbarkeit",
+        "verfügbar",
+        "available",
+        "disponibilité",
+        "disponibilità"
+      ],
+      "synonyms": {
+        "de": [
+          "verfügbarkeiten anzeigen",
+          "wer ist verfügbar",
+          "verfügbarkeit prüfen",
+          "wann kann jemand arbeiten",
+          "einsatzbereitschaft"
+        ],
+        "en": [
+          "list availabilities",
+          "who is available",
+          "check availability",
+          "when can someone work",
+          "availability overview"
+        ],
+        "fr": [
+          "lister les disponibilités",
+          "qui est disponible",
+          "vérifier la disponibilité",
+          "aperçu des disponibilités"
+        ],
+        "it": [
+          "elencare le disponibilità",
+          "chi è disponibile",
+          "verificare la disponibilità",
+          "panoramica disponibilità"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "set_client_availability",
+      "description": "Sets a client's availability (available/unavailable) per day and hour. The backend upserts on (clientId, date, hour), so calling again for the same slots overwrites the previous value. Accepts either an explicit comma-separated list of single days ('dates') or a date range (startDate/endDate, max 92 days), plus an optional hour window (startHour/endHour, defaults to the whole day 0-23). Use search_employees or get_client_details first to resolve the clientId, and list_client_availabilities to inspect the current state.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the client.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "dates",
+          "description": "Optional comma-separated single days in ISO yyyy-MM-dd (e.g. '2026-06-15, 2026-06-17'); takes precedence over startDate/endDate.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "startDate",
+          "description": "Range start in ISO yyyy-MM-dd; required when 'dates' is not given.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endDate",
+          "description": "Optional range end in ISO yyyy-MM-dd; defaults to startDate (single day).",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "startHour",
+          "description": "Optional first hour of day (0-23); defaults to 0.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 0,
+          "enumValues": null
+        },
+        {
+          "name": "endHour",
+          "description": "Optional last hour of day (0-23, inclusive); defaults to 23.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 23,
+          "enumValues": null
+        },
+        {
+          "name": "isAvailable",
+          "description": "true = mark as available, false = mark as unavailable.",
+          "type": "Boolean",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "set_client_availability",
+        "verfügbarkeit setzen",
+        "nicht verfügbar",
+        "availability",
+        "available",
+        "unavailable"
+      ],
+      "synonyms": {
+        "de": [
+          "verfügbarkeit eintragen",
+          "als verfügbar markieren",
+          "als nicht verfügbar markieren",
+          "kann nicht arbeiten",
+          "kann arbeiten am",
+          "verfügbarkeit ändern"
+        ],
+        "en": [
+          "set availability",
+          "mark as available",
+          "mark as unavailable",
+          "cannot work on",
+          "can work on",
+          "change availability"
+        ],
+        "fr": [
+          "définir la disponibilité",
+          "marquer comme disponible",
+          "marquer comme indisponible",
+          "ne peut pas travailler",
+          "modifier la disponibilité"
+        ],
+        "it": [
+          "impostare la disponibilità",
+          "segnare come disponibile",
+          "segnare come non disponibile",
+          "non può lavorare",
+          "modificare la disponibilità"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_expenses",
+      "description": "Lists all expense entries in the system. Each expense belongs to a Work entry (shift assignment) and carries amount, free-text description and the taxable flag. Use this to find expense IDs before update_expense / delete_expense, or to give an overview of recorded expenses.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "expenses",
+        "spesen",
+        "expense",
+        "auslagen",
+        "frais",
+        "spese"
+      ],
+      "synonyms": {
+        "de": [
+          "spesen anzeigen",
+          "spesenliste",
+          "auslagen auflisten",
+          "welche spesen",
+          "spesenübersicht"
+        ],
+        "en": [
+          "list expenses",
+          "show expenses",
+          "expense overview",
+          "which expenses",
+          "expense report"
+        ],
+        "fr": [
+          "lister les frais",
+          "afficher les frais",
+          "aperçu des dépenses",
+          "notes de frais"
+        ],
+        "it": [
+          "elencare le spese",
+          "mostrare le spese",
+          "panoramica delle spese",
+          "nota spese"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "add_expense",
+      "description": "Adds an expense entry (amount, description, taxable flag) to an existing Work entry (shift assignment). The handler enforces day-lock rules and triggers period-hour recalculation plus schedule notifications. Use read_schedule_state to find the workId of the assignment the expense belongs to.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "workId",
+          "description": "UUID of the Work entry (shift assignment) the expense belongs to.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "amount",
+          "description": "Expense amount.",
+          "type": "Decimal",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description",
+          "description": "Optional free-text description of the expense (e.g. 'Taxi to client site').",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "taxable",
+          "description": "Whether the expense is taxable; defaults to false.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "add_expense",
+        "spesen erfassen",
+        "expense",
+        "spesen",
+        "auslage",
+        "frais"
+      ],
+      "synonyms": {
+        "de": [
+          "spesen erfassen",
+          "spesen hinzufügen",
+          "auslage eintragen",
+          "spesen buchen",
+          "spesenbeleg erfassen"
+        ],
+        "en": [
+          "add expense",
+          "record expense",
+          "enter expense",
+          "book expense",
+          "log an expense"
+        ],
+        "fr": [
+          "ajouter des frais",
+          "saisir une dépense",
+          "enregistrer des frais",
+          "noter une dépense"
+        ],
+        "it": [
+          "aggiungere una spesa",
+          "registrare una spesa",
+          "inserire spese",
+          "contabilizzare spese"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_expense",
+      "description": "Updates an existing expense entry. Only supplied fields change (amount, description, taxable); fields not supplied keep their current value. Day-lock rules are enforced and period-hour recalculation runs. Use list_expenses first to find the expenseId.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "expenseId",
+          "description": "UUID of the expense entry to update.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "amount",
+          "description": "Optional new amount.",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description",
+          "description": "Optional new description.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "taxable",
+          "description": "Optional new taxable flag.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "update_expense",
+        "spesen ändern",
+        "expense",
+        "spesen korrigieren",
+        "betrag ändern"
+      ],
+      "synonyms": {
+        "de": [
+          "spesen ändern",
+          "spesen korrigieren",
+          "spesenbetrag anpassen",
+          "auslage bearbeiten"
+        ],
+        "en": [
+          "update expense",
+          "change expense",
+          "correct expense amount",
+          "edit expense"
+        ],
+        "fr": [
+          "modifier des frais",
+          "corriger une dépense",
+          "ajuster le montant des frais"
+        ],
+        "it": [
+          "modificare una spesa",
+          "correggere una spesa",
+          "aggiornare l'importo della spesa"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_expense",
+      "description": "Soft-deletes an expense entry. Day-lock rules are enforced and period-hour recalculation plus schedule notifications run automatically. Inverse of add_expense for rollback purposes. Use list_expenses first to find the expenseId.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "expenseId",
+          "description": "UUID of the expense entry to delete.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "delete_expense",
+        "spesen löschen",
+        "expense",
+        "spesen entfernen",
+        "auslage stornieren"
+      ],
+      "synonyms": {
+        "de": [
+          "spesen löschen",
+          "spesen entfernen",
+          "auslage stornieren",
+          "spesenbeleg löschen"
+        ],
+        "en": [
+          "delete expense",
+          "remove expense",
+          "cancel expense",
+          "void expense entry"
+        ],
+        "fr": [
+          "supprimer des frais",
+          "annuler une dépense",
+          "retirer des frais"
+        ],
+        "it": [
+          "eliminare una spesa",
+          "annullare una spesa",
+          "rimuovere spese"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "get_autonomy_level",
+      "description": "Returns the user's current autonomy level for Klacksy: 0 Propose (every write needs confirmation), 1 Assisted (reversible and scenario-gated actions run directly), 2 Autonomous (everything except sensitive actions runs directly, default), 3 FullyAutonomous (plans also run through without per-step approval; sensitive actions still need confirmation). Use this when the user asks what Klacksy may do on its own or why a confirmation was requested.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "autonomy",
+        "autonomie",
+        "autonomy level",
+        "autonomiestufe",
+        "confirmation",
+        "bestätigung"
+      ],
+      "synonyms": {
+        "de": [
+          "autonomiestufe anzeigen",
+          "wie autonom bist du",
+          "was darfst du selbst",
+          "warum fragst du nach",
+          "berechtigungsstufe"
+        ],
+        "en": [
+          "show autonomy level",
+          "how autonomous are you",
+          "what can you do alone",
+          "why do you ask for confirmation"
+        ],
+        "fr": [
+          "afficher le niveau d'autonomie",
+          "que peux-tu faire seul",
+          "pourquoi demandes-tu confirmation"
+        ],
+        "it": [
+          "mostrare il livello di autonomia",
+          "cosa puoi fare da solo",
+          "perché chiedi conferma"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "set_autonomy_level",
+      "description": "Sets the user's autonomy level for Klacksy. Level 0 Propose: Klacksy only suggests, every write needs explicit confirmation. Level 1 Assisted: reversible and scenario-gated actions run directly, irreversible ones need confirmation. Level 2 Autonomous (default): everything except sensitive actions (user administration, permission changes, autonomy changes) runs directly. Level 3 FullyAutonomous: agent plans also execute non-reversible steps without per-step approval; sensitive actions always keep requiring confirmation. Changing the level is itself a sensitive action and always asks the user to confirm. Use this when the user says Klacksy should work more autonomously or should always ask first.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "description": "The new autonomy level: 0-3 or one of Propose, Assisted, Autonomous, FullyAutonomous",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "Propose",
+            "Assisted",
+            "Autonomous",
+            "FullyAutonomous"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "autonomy",
+        "autonomie",
+        "autonomous",
+        "selbständig",
+        "autonom arbeiten",
+        "immer fragen"
+      ],
+      "synonyms": {
+        "de": [
+          "arbeite autonom",
+          "arbeite selbständig",
+          "frag nicht mehr nach",
+          "frag immer zuerst",
+          "autonomiestufe ändern",
+          "nur vorschlagen"
+        ],
+        "en": [
+          "work autonomously",
+          "stop asking for confirmation",
+          "always ask first",
+          "change autonomy level",
+          "suggest only"
+        ],
+        "fr": [
+          "travaille de manière autonome",
+          "ne demande plus confirmation",
+          "demande toujours d'abord",
+          "changer le niveau d'autonomie"
+        ],
+        "it": [
+          "lavora in autonomia",
+          "non chiedere più conferma",
+          "chiedi sempre prima",
+          "cambiare il livello di autonomia"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "get_dashboard_summary",
+      "description": "Returns the dashboard key figures for the current month as a compact summary: per-group shift coverage (total slots, covered slots, open slots, coverage ratio) and sealing progress (work entries with LockLevel >= Confirmed vs. total), plus overall totals across all visible groups. Groups are ordered worst-covered first so attention goes to problem areas. Use this when the user asks 'how does the dashboard look', 'how is coverage this month', 'how many open slots do we have' or 'how far is sealing/confirmation'. No parameters needed; the period is always the current month. For the year-long capacity-vs-demand analysis (understaffed/tight days per month, critical months) use interpret_resource_monitor instead; for the employee location map use get_client_locations_overview.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "dashboard",
+        "summary",
+        "übersicht",
+        "kennzahlen",
+        "coverage",
+        "abdeckung",
+        "offene slots",
+        "versiegelt"
+      ],
+      "synonyms": {
+        "de": [
+          "dashboard übersicht",
+          "kennzahlen aktueller monat",
+          "abdeckung diesen monat",
+          "offene slots",
+          "versiegelungsstand",
+          "monatsübersicht planung"
+        ],
+        "en": [
+          "dashboard summary",
+          "current month coverage",
+          "open slots",
+          "sealing progress",
+          "key figures overview"
+        ],
+        "fr": [
+          "résumé du tableau de bord",
+          "couverture du mois",
+          "créneaux ouverts",
+          "état de validation"
+        ],
+        "it": [
+          "riepilogo dashboard",
+          "copertura del mese",
+          "slot aperti",
+          "stato di conferma"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "get_client_locations_overview",
+      "description": "Summarizes the dashboard location map as compact counts instead of a raw client list: how many active clients have a current address, breakdown by client type (employee / external / customer), counts per country, the most frequent cities (top N) and how many entries are geocoded (have coordinates). Respects the calling user's group visibility (non-admins only see clients of their visible groups). Use this when the user asks 'where do our employees live', 'how are clients distributed geographically', 'which cities do most people come from' or about the dashboard map. Optionally filter by clientType. For per-client geographic group assignment use the customer-grouping skills; for coverage figures use get_dashboard_summary.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "clientType",
+          "description": "Optional filter by client type",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "employee",
+            "external",
+            "customer"
+          ]
+        },
+        {
+          "name": "topCities",
+          "description": "Maximum number of cities to return, default 10 (capped at 50)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 10,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "location",
+        "standort",
+        "karte",
+        "map",
+        "wohnort",
+        "city",
+        "stadt",
+        "verteilung"
+      ],
+      "synonyms": {
+        "de": [
+          "standorte übersicht",
+          "wo wohnen mitarbeiter",
+          "geografische verteilung",
+          "städte verteilung",
+          "karte dashboard",
+          "wohnorte"
+        ],
+        "en": [
+          "location overview",
+          "where do employees live",
+          "geographic distribution",
+          "city breakdown",
+          "dashboard map"
+        ],
+        "fr": [
+          "aperçu des emplacements",
+          "répartition géographique",
+          "où habitent les employés",
+          "carte des clients"
+        ],
+        "it": [
+          "panoramica delle posizioni",
+          "distribuzione geografica",
+          "dove abitano i dipendenti",
+          "mappa dei clienti"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_sealed_orders",
+      "description": "Lists sealed orders (shifts with Status=SealedOrder) that are eligible for the order export, including customer name/number and Work-closing statistics (totalWorks vs closedWorks, readyForExport flag). Use this when the user asks which orders can be exported, whether an order is complete enough to export, or before open_order_export to identify the right order. The export itself is order-based (SealedOrder selection with recursive descendant resolver), so this list is the authoritative source of exportable units. Related skills: open_order_export (start the download in the UI), list_recent_exports (history of completed exports), close_period (close works so an order becomes fully exportable).",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "fromDate",
+          "description": "ISO date yyyy-MM-dd, lower bound of the order active window.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "ISO date yyyy-MM-dd, upper bound of the order active window.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "customerId",
+          "description": "UUID of the customer the orders belong to.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "search",
+          "description": "Case-insensitive search across order abbreviation, order name and customer name/number.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "sealed order",
+        "auftrag",
+        "export",
+        "auftragsexport",
+        "exportierbar",
+        "orders"
+      ],
+      "synonyms": {
+        "de": [
+          "aufträge anzeigen",
+          "exportierbare aufträge",
+          "versiegelte aufträge",
+          "welche aufträge können exportiert werden",
+          "auftragsliste export"
+        ],
+        "en": [
+          "list sealed orders",
+          "exportable orders",
+          "which orders can be exported",
+          "show orders for export"
+        ],
+        "fr": [
+          "commandes scellées",
+          "commandes exportables",
+          "lister les commandes à exporter"
+        ],
+        "it": [
+          "ordini sigillati",
+          "ordini esportabili",
+          "elenca ordini da esportare"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_recent_exports",
+      "description": "Lists completed order export runs from the export log (newest first): format, exported data period, file name and size, record count, who exported and when. The date range filters on the exported DATA period (StartDate/EndDate overlap), not on the execution timestamp; defaults to the last 365 days when omitted. Use this when the user asks whether/when an export was already done, who exported a period, or which file was produced. Note: the log stores metadata only — the file itself was downloaded by the browser at export time and cannot be re-downloaded from the log; to re-run an export use open_order_export. Related skills: list_sealed_orders (what can be exported), open_order_export (trigger a new export in the UI).",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "fromDate",
+          "description": "ISO date yyyy-MM-dd, lower bound of the exported data period. Defaults to 365 days before untilDate.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "ISO date yyyy-MM-dd, upper bound of the exported data period. Defaults to today.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "export log",
+        "exporthistorie",
+        "letzte exporte",
+        "export history",
+        "exportiert",
+        "wer hat exportiert"
+      ],
+      "synonyms": {
+        "de": [
+          "letzte exporte",
+          "exportprotokoll",
+          "exporthistorie",
+          "wann wurde exportiert",
+          "wer hat exportiert"
+        ],
+        "en": [
+          "recent exports",
+          "export history",
+          "export log",
+          "who exported",
+          "when was it exported"
+        ],
+        "fr": [
+          "historique des exports",
+          "derniers exports",
+          "journal des exports"
+        ],
+        "it": [
+          "esportazioni recenti",
+          "cronologia esportazioni",
+          "registro esportazioni"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "open_order_export",
+      "description": "Opens the period-closing page with the order export card so the user can download the export file. The export file (CSV/JSON/XML/DATEV/BMD) is generated server-side but streamed as a direct browser download, so the chat cannot deliver the file itself — this skill returns a navigate UiAction and the user picks the sealed order and format in the UI, which also writes the export-log entry. Pass format when the user named one; unsupported formats (e.g. Excel) fail early in the chat with the list of supported keys. Use after list_sealed_orders confirmed which order to export. Related skills: list_sealed_orders (find/verify the order), list_recent_exports (check it was logged afterwards), close_period (close remaining works first if the order is not fully closed).",
+      "category": "UI",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "format",
+          "description": "Desired export format key.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "csv",
+            "json",
+            "xml",
+            "datev",
+            "bmd"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "export",
+        "auftragsexport",
+        "datev",
+        "bmd",
+        "csv export",
+        "herunterladen",
+        "download export"
+      ],
+      "synonyms": {
+        "de": [
+          "auftrag exportieren",
+          "export starten",
+          "leistungsnachweis exportieren",
+          "datev export",
+          "export herunterladen"
+        ],
+        "en": [
+          "run order export",
+          "export order",
+          "start export",
+          "download export",
+          "datev export"
+        ],
+        "fr": [
+          "exporter la commande",
+          "lancer l'export",
+          "télécharger l'export"
+        ],
+        "it": [
+          "esportare ordine",
+          "avviare esportazione",
+          "scaricare esportazione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_email_folders",
+      "description": "Lists all email inbox folders (system folders like INBOX, Sent, Trash plus user-created folders) with their unread and total email counts. Use this first when the user asks about the mailbox structure or how many unread emails exist per folder, and to obtain the imapFolderName values that the folder parameter of list_emails expects. Read-only: it never creates, renames or deletes folders. Related skills: list_emails (list emails of one folder), read_email (read a single email).",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "email",
+        "e-mail",
+        "folder",
+        "ordner",
+        "posteingang",
+        "inbox",
+        "mailbox"
+      ],
+      "synonyms": {
+        "de": [
+          "email ordner anzeigen",
+          "postfach ordner",
+          "wie viele ungelesene mails",
+          "mail ordner auflisten",
+          "posteingang struktur"
+        ],
+        "en": [
+          "list email folders",
+          "show mail folders",
+          "mailbox folders",
+          "how many unread emails",
+          "inbox folders"
+        ],
+        "fr": [
+          "lister les dossiers email",
+          "afficher les dossiers de messagerie",
+          "dossiers de la boîte mail",
+          "combien d'emails non lus"
+        ],
+        "it": [
+          "elencare le cartelle email",
+          "mostrare le cartelle di posta",
+          "cartelle della casella di posta",
+          "quante email non lette"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_emails",
+      "description": "Lists received emails from the mail inbox, newest first, as a compact overview per email: ID, sender, subject, received date, read flag and attachment flag — body content is never included. Filter by folder (IMAP folder name from list_email_folders), limit the result with maxResults (1-50, default 20) and restrict to unread emails with unreadOnly. Also returns the total and unread counts of the selected scope. Use this when the user asks what is in the inbox, whether new or unread emails arrived, or to find an email ID before read_email. Read-only: it does not mark emails as read and cannot move, send or delete emails.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "folder",
+          "description": "IMAP folder name to filter by (use list_email_folders to find it); omit for all folders.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maxResults",
+          "description": "Maximum number of emails to return (1-50).",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 20,
+          "enumValues": null
+        },
+        {
+          "name": "unreadOnly",
+          "description": "If true, only unread emails are returned.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "email",
+        "e-mail",
+        "mails",
+        "inbox",
+        "posteingang",
+        "ungelesen",
+        "unread"
+      ],
+      "synonyms": {
+        "de": [
+          "emails anzeigen",
+          "posteingang anzeigen",
+          "neue mails",
+          "ungelesene emails",
+          "welche emails habe ich",
+          "mailübersicht"
+        ],
+        "en": [
+          "list emails",
+          "show inbox",
+          "new emails",
+          "unread emails",
+          "check my email",
+          "any new mail"
+        ],
+        "fr": [
+          "lister les emails",
+          "afficher la boîte de réception",
+          "nouveaux emails",
+          "emails non lus",
+          "consulter mes emails"
+        ],
+        "it": [
+          "elencare le email",
+          "mostrare la posta in arrivo",
+          "nuove email",
+          "email non lette",
+          "controllare la posta"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "read_email",
+      "description": "Reads a single received email by its ID and returns subject, sender, recipient, received date, folder, read flag and the plain-text body. HTML-only emails are stripped to readable text and very long bodies are truncated (bodyTruncated flag is set). Use list_emails first to find the email ID. Privacy-aware and strictly read-only: attachment contents are never returned (only a has-attachments flag), the email is NOT marked as read, and there is deliberately no skill for sending, moving or deleting emails. Related skills: list_email_folders, list_emails.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "emailId",
+          "description": "UUID of the email to read (from list_emails).",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "email",
+        "e-mail",
+        "lesen",
+        "read",
+        "vorlesen",
+        "öffnen",
+        "open"
+      ],
+      "synonyms": {
+        "de": [
+          "email lesen",
+          "mail öffnen",
+          "email vorlesen",
+          "was steht in der email",
+          "inhalt der email"
+        ],
+        "en": [
+          "read email",
+          "open email",
+          "read the message",
+          "what does the email say",
+          "email content"
+        ],
+        "fr": [
+          "lire l'email",
+          "ouvrir l'email",
+          "contenu de l'email",
+          "que dit l'email"
+        ],
+        "it": [
+          "leggere l'email",
+          "aprire l'email",
+          "contenuto dell'email",
+          "cosa dice l'email"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_transcription_dictionary_entries",
+      "description": "Lists the entries of the multilingual transcription dictionary that powers the fuzzy phonetic speech-to-text correction. Each entry returns its id, the correct term, an optional category, the known phonetic variants (common STT mishearings), an optional description and an optional language code that selects the phonetic encoder. Use this to review which terms get corrected during voice transcription and to find entry IDs before calling update_transcription_dictionary_entry or delete_transcription_dictionary_entry. Supports optional filtering by language code and by substring of the correct term. For the configured STT/TTS engines themselves use get_speech_settings.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "language",
+          "description": "Optional language code filter (e.g. 'de', 'en').",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "search",
+          "description": "Optional case-insensitive substring filter on the correct term.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "transcription dictionary",
+        "wörterbuch",
+        "phonetic",
+        "phonetik",
+        "aussprache",
+        "dictionnaire",
+        "dizionario",
+        "stt korrektur"
+      ],
+      "synonyms": {
+        "de": [
+          "wörterbuch anzeigen",
+          "transkriptions-wörterbuch auflisten",
+          "phonetik-einträge zeigen",
+          "welche begriffe werden korrigiert",
+          "aussprache-wörterbuch"
+        ],
+        "en": [
+          "list transcription dictionary",
+          "show phonetic dictionary",
+          "which terms are corrected",
+          "speech dictionary entries",
+          "stt dictionary overview"
+        ],
+        "fr": [
+          "lister le dictionnaire de transcription",
+          "afficher le dictionnaire phonétique",
+          "entrées du dictionnaire vocal",
+          "quels termes sont corrigés"
+        ],
+        "it": [
+          "elencare il dizionario di trascrizione",
+          "mostrare il dizionario fonetico",
+          "voci del dizionario vocale",
+          "quali termini vengono corretti"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "add_transcription_dictionary_entry",
+      "description": "Adds a new entry to the multilingual transcription dictionary so the speech-to-text pipeline corrects misheard words to the correct term (e.g. STT hears 'Klaxi' and writes 'Klacksy'). Phonetic variants are optional: the fuzzy phonetic matcher also catches unlisted sound-alike words via the per-language phonetic encoder, but listing known mishearings makes the correction deterministic. phoneticVariants accepts a comma/semicolon separated string or a JSON array. The optional language code (e.g. 'de') selects the phonetic encoder for fuzzy matching; without it the utterance locale is used. The dictionary cache is invalidated automatically, so the change applies to the next transcription. See list_transcription_dictionary_entries for an overview and update/delete_transcription_dictionary_entry for maintenance.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "correctTerm",
+          "description": "The correct spelling of the term.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "phoneticVariants",
+          "description": "Optional known mishearings, comma/semicolon separated or as JSON array.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "category",
+          "description": "Optional category grouping (e.g. product, person, place).",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description",
+          "description": "Optional short description of the term.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "language",
+          "description": "Optional language code (e.g. 'de') selecting the phonetic encoder.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "add_transcription_dictionary_entry",
+        "wörterbuch hinzufügen",
+        "begriff hinzufügen",
+        "phonetic variant",
+        "aussprachekorrektur"
+      ],
+      "synonyms": {
+        "de": [
+          "begriff ins wörterbuch aufnehmen",
+          "wörterbucheintrag anlegen",
+          "aussprachevariante hinzufügen",
+          "transkriptionskorrektur anlegen",
+          "neuen begriff lehren"
+        ],
+        "en": [
+          "add dictionary entry",
+          "add term to transcription dictionary",
+          "teach a new term",
+          "add phonetic variant",
+          "create speech correction"
+        ],
+        "fr": [
+          "ajouter une entrée au dictionnaire",
+          "ajouter un terme au dictionnaire de transcription",
+          "ajouter une variante phonétique",
+          "créer une correction vocale"
+        ],
+        "it": [
+          "aggiungere una voce al dizionario",
+          "aggiungere un termine al dizionario di trascrizione",
+          "aggiungere una variante fonetica",
+          "creare una correzione vocale"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_transcription_dictionary_entry",
+      "description": "Updates an existing transcription dictionary entry. Only supplied fields change: correctTerm must stay non-empty, a supplied phoneticVariants value (comma/semicolon separated or JSON array) replaces the existing variant list, and an empty string clears category, description or language. The dictionary cache is invalidated automatically so the change applies to the next transcription. Use list_transcription_dictionary_entries first to find the entryId. Related: add_transcription_dictionary_entry, delete_transcription_dictionary_entry.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "entryId",
+          "description": "UUID of the dictionary entry to update.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "correctTerm",
+          "description": "Optional new correct spelling; must not be empty when supplied.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "phoneticVariants",
+          "description": "Optional replacement variant list, comma/semicolon separated or as JSON array.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "category",
+          "description": "Optional new category; empty string clears it.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description",
+          "description": "Optional new description; empty string clears it.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "language",
+          "description": "Optional new language code (e.g. 'de'); empty string clears it.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "update_transcription_dictionary_entry",
+        "wörterbuch ändern",
+        "begriff korrigieren",
+        "variante ändern",
+        "phonetik anpassen"
+      ],
+      "synonyms": {
+        "de": [
+          "wörterbucheintrag ändern",
+          "begriff im wörterbuch anpassen",
+          "aussprachevarianten aktualisieren",
+          "transkriptionseintrag bearbeiten"
+        ],
+        "en": [
+          "update dictionary entry",
+          "edit transcription dictionary term",
+          "change phonetic variants",
+          "modify speech correction"
+        ],
+        "fr": [
+          "modifier une entrée du dictionnaire",
+          "mettre à jour un terme du dictionnaire",
+          "changer les variantes phonétiques"
+        ],
+        "it": [
+          "modificare una voce del dizionario",
+          "aggiornare un termine del dizionario",
+          "cambiare le varianti fonetiche"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_transcription_dictionary_entry",
+      "description": "Deletes an entry from the transcription dictionary so its term is no longer corrected during speech-to-text transcription (neither via listed variants nor via fuzzy phonetic matching for that term). The dictionary cache is invalidated automatically. Use list_transcription_dictionary_entries first to find the entryId. Related: add_transcription_dictionary_entry, update_transcription_dictionary_entry.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "entryId",
+          "description": "UUID of the dictionary entry to delete.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "delete_transcription_dictionary_entry",
+        "wörterbuch löschen",
+        "begriff entfernen",
+        "eintrag löschen"
+      ],
+      "synonyms": {
+        "de": [
+          "wörterbucheintrag löschen",
+          "begriff aus dem wörterbuch entfernen",
+          "transkriptionseintrag entfernen",
+          "aussprachekorrektur löschen"
+        ],
+        "en": [
+          "delete dictionary entry",
+          "remove term from transcription dictionary",
+          "remove speech correction",
+          "drop phonetic entry"
+        ],
+        "fr": [
+          "supprimer une entrée du dictionnaire",
+          "retirer un terme du dictionnaire de transcription",
+          "supprimer une correction vocale"
+        ],
+        "it": [
+          "eliminare una voce del dizionario",
+          "rimuovere un termine dal dizionario di trascrizione",
+          "eliminare una correzione vocale"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "get_speech_settings",
+      "description": "Reads the current voice/speech configuration from the settings store: the active speech-to-text engine (browser, deepgram, groq-whisper, assemblyai), the LLM model and enabled-flag used for transcription enhancement, the assistant output mode, the text-to-speech provider and voice, and the silence threshold in milliseconds. For each STT API key it returns only whether a key is configured (HasSttApiKey, HasDeepgramApiKey, HasGroqApiKey, HasAssemblyAiApiKey), never the key itself. Custom STT providers (own table, not settings) and the transcription prompt text are not included. Use this before discussing or diagnosing voice input/output behaviour; for the phonetic correction terms use list_transcription_dictionary_entries.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "stt",
+        "tts",
+        "speech",
+        "sprachausgabe",
+        "spracheingabe",
+        "voice settings",
+        "transcription",
+        "deepgram",
+        "whisper"
+      ],
+      "synonyms": {
+        "de": [
+          "spracheinstellungen anzeigen",
+          "welcher stt provider",
+          "welche stimme ist konfiguriert",
+          "sprachausgabe einstellungen",
+          "spracherkennung einstellungen"
+        ],
+        "en": [
+          "show speech settings",
+          "which stt provider",
+          "which tts voice is configured",
+          "voice configuration",
+          "speech recognition settings"
+        ],
+        "fr": [
+          "afficher les paramètres vocaux",
+          "quel fournisseur stt",
+          "quelle voix est configurée",
+          "paramètres de reconnaissance vocale"
+        ],
+        "it": [
+          "mostrare le impostazioni vocali",
+          "quale provider stt",
+          "quale voce è configurata",
+          "impostazioni di riconoscimento vocale"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_languages",
+      "description": "Lists the active UI languages (with fallback order) and all known language packs: the core languages de/en/fr/it plus optional plugin packs (e.g. Swiss German 'gsw', Romansh 'rm') with installation state, version, translation coverage, translation count and text direction. Use this when the user asks which languages Klacks supports, which language packs are installed, or to find the pack code before install_language_pack / uninstall_language_pack. Read-only. Not related to machine translation of texts — for the DeepL translation service state use get_translation_status.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "list_languages",
+        "sprachen",
+        "languages",
+        "language pack",
+        "sprachpaket",
+        "langues",
+        "lingue"
+      ],
+      "synonyms": {
+        "de": [
+          "sprachen anzeigen",
+          "welche sprachen",
+          "installierte sprachpakete",
+          "verfügbare sprachen",
+          "sprachpakete auflisten"
+        ],
+        "en": [
+          "list languages",
+          "which languages",
+          "installed language packs",
+          "available languages",
+          "show language packs"
+        ],
+        "fr": [
+          "lister les langues",
+          "quelles langues",
+          "packs de langue installés",
+          "langues disponibles"
+        ],
+        "it": [
+          "elencare le lingue",
+          "quali lingue",
+          "pacchetti lingua installati",
+          "lingue disponibili"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "get_translation_status",
+      "description": "Reports whether the DeepL machine-translation service is configured with an API key, together with the core target languages (de, en, fr, it). Use this when the user asks why automatic translation of multilingual text fields does not work, or before recommending translation features. If the service is not configured, point the user to update_deepl_settings to store the API key (do not duplicate that skill). Read-only; it does not validate the key against the DeepL API. Not related to UI language packs — see list_languages for those.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "get_translation_status",
+        "deepl",
+        "translation status",
+        "übersetzungsstatus",
+        "übersetzung konfiguriert"
+      ],
+      "synonyms": {
+        "de": [
+          "übersetzungsstatus",
+          "ist deepl konfiguriert",
+          "funktioniert die übersetzung",
+          "übersetzungsdienst status"
+        ],
+        "en": [
+          "translation status",
+          "is deepl configured",
+          "is translation working",
+          "translation service status"
+        ],
+        "fr": [
+          "statut de traduction",
+          "deepl est-il configuré",
+          "la traduction fonctionne-t-elle"
+        ],
+        "it": [
+          "stato della traduzione",
+          "deepl è configurato",
+          "la traduzione funziona"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "install_language_pack",
+      "description": "Installs (activates) a locally available optional language pack by its code (e.g. 'gsw' for Swiss German). Activation stores the installed-language setting and imports the pack's translations, skill and navigation synonyms, sentiment keywords, wake words, geo data and documentation. Fails for unknown codes, for core languages (de/en/fr/it are always active) and for packs requiring a newer Klacks version. It does NOT download new packs from the marketplace — only packs already present on the server can be activated. Use list_languages first to find available pack codes; reversible at any time via uninstall_language_pack. Admin only.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "code",
+          "description": "Language pack code to install, e.g. 'gsw' or 'rm' (see list_languages)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "install_language_pack",
+        "sprachpaket installieren",
+        "install language pack",
+        "sprache aktivieren",
+        "enable language"
+      ],
+      "synonyms": {
+        "de": [
+          "sprachpaket installieren",
+          "sprache aktivieren",
+          "sprache hinzufügen",
+          "neue sprache einschalten"
+        ],
+        "en": [
+          "install language pack",
+          "enable language",
+          "add language",
+          "activate language pack"
+        ],
+        "fr": [
+          "installer un pack de langue",
+          "activer une langue",
+          "ajouter une langue"
+        ],
+        "it": [
+          "installare un pacchetto lingua",
+          "attivare una lingua",
+          "aggiungere una lingua"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "uninstall_language_pack",
+      "description": "Uninstalls (deactivates) an installed optional language pack by its code. Removes the pack's imported synonyms, sentiment keywords, geo data and documentation and disables the language in the UI; the pack files remain on disk, so install_language_pack can re-activate the pack at any time. Core languages (de/en/fr/it) cannot be removed; the skill also rejects unknown or not-installed codes. Use list_languages to see which packs are currently installed. Admin only.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "code",
+          "description": "Language pack code to uninstall, e.g. 'gsw' or 'rm' (see list_languages)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "uninstall_language_pack",
+        "sprachpaket entfernen",
+        "uninstall language pack",
+        "sprache deaktivieren",
+        "disable language"
+      ],
+      "synonyms": {
+        "de": [
+          "sprachpaket entfernen",
+          "sprache deaktivieren",
+          "sprache deinstallieren",
+          "sprache ausschalten"
+        ],
+        "en": [
+          "uninstall language pack",
+          "disable language",
+          "remove language",
+          "deactivate language pack"
+        ],
+        "fr": [
+          "désinstaller un pack de langue",
+          "désactiver une langue",
+          "supprimer une langue"
+        ],
+        "it": [
+          "disinstallare un pacchetto lingua",
+          "disattivare una lingua",
+          "rimuovere una lingua"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_countries",
+      "description": "Lists all countries configured in the system master data. Returns id, abbreviation (e.g. 'CH', 'DE', 'AT', 'LI'), international phone prefix (e.g. '+41') and the multilingual country name (de/en/fr/it). Use this to discover valid country abbreviations before filtering states with list_states, when validating or completing address data, or when the user asks which countries are available. Read-only reference data; to look up a Swiss city or postal code use lookup_location instead.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "country",
+        "land",
+        "länder",
+        "countries",
+        "vorwahl",
+        "country code"
+      ],
+      "synonyms": {
+        "de": [
+          "land",
+          "länder",
+          "staaten",
+          "länderliste",
+          "landesvorwahl",
+          "welche länder",
+          "nation"
+        ],
+        "en": [
+          "country",
+          "countries",
+          "nations",
+          "country list",
+          "country code",
+          "which countries"
+        ],
+        "fr": [
+          "pays",
+          "liste des pays",
+          "nations",
+          "indicatif du pays",
+          "quels pays"
+        ],
+        "it": [
+          "paese",
+          "paesi",
+          "elenco dei paesi",
+          "nazioni",
+          "prefisso internazionale",
+          "quali paesi"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_states",
+      "description": "Lists all states/cantons (e.g. Swiss cantons, German Bundesländer) from the system master data. Returns id, abbreviation (e.g. 'BE', 'ZH', 'AG'), the owning country prefix (e.g. 'CH') and the multilingual name (de/en/fr/it). Optionally filter by country abbreviation. Use this when the user asks which cantons/states exist, to validate canton abbreviations in address workflows, or before canton-based filtering (e.g. the canton parameter of list_contracts). Use list_countries first to discover valid country abbreviations; to resolve a city or postal code to its canton use lookup_location instead. Read-only reference data.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "country",
+          "description": "Optional country abbreviation (e.g. 'CH', 'DE', 'AT') to return only states of that country. Case-insensitive. Omit to list all states of all countries.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "canton",
+        "kanton",
+        "kantone",
+        "bundesland",
+        "bundesländer",
+        "state",
+        "states"
+      ],
+      "synonyms": {
+        "de": [
+          "kanton",
+          "kantone",
+          "bundesland",
+          "bundesländer",
+          "kantonsliste",
+          "welche kantone",
+          "regionen"
+        ],
+        "en": [
+          "canton",
+          "cantons",
+          "state",
+          "states",
+          "provinces",
+          "regions",
+          "which cantons"
+        ],
+        "fr": [
+          "canton",
+          "cantons",
+          "liste des cantons",
+          "régions",
+          "quels cantons",
+          "états fédérés"
+        ],
+        "it": [
+          "cantone",
+          "cantoni",
+          "elenco dei cantoni",
+          "regioni",
+          "quali cantoni",
+          "stati federati"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_identity_providers",
+      "description": "Lists all configured identity providers (LDAP, Active Directory, OAuth2, OpenID Connect) used for single sign-on and client import. Returns only non-sensitive fields per provider: id, name, type, enabled flag, sort order, whether it is used for authentication and/or client import, plus the last sync time/count/error. Bind passwords, client secrets and other credentials are NEVER included. Use this skill first to find the provider id before calling update_identity_provider or delete_identity_provider, or to answer questions like 'which SSO providers are configured' or 'is LDAP login enabled'. Read-only and safe; requires admin rights because the controller is admin-only.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "identity provider",
+        "sso",
+        "ldap",
+        "oauth",
+        "oauth2",
+        "openid",
+        "active directory",
+        "single sign-on",
+        "login provider",
+        "anmeldeanbieter"
+      ],
+      "synonyms": {
+        "de": [
+          "identity provider anzeigen",
+          "sso anbieter auflisten",
+          "ldap konfiguration anzeigen",
+          "welche login anbieter",
+          "anmeldeanbieter liste",
+          "single sign-on übersicht"
+        ],
+        "en": [
+          "list identity providers",
+          "show sso providers",
+          "show ldap configuration",
+          "which login providers",
+          "single sign-on overview",
+          "list authentication providers"
+        ],
+        "fr": [
+          "lister les fournisseurs d'identité",
+          "afficher les fournisseurs SSO",
+          "configuration LDAP",
+          "fournisseurs de connexion",
+          "aperçu single sign-on"
+        ],
+        "it": [
+          "elencare i provider di identità",
+          "mostrare i provider SSO",
+          "configurazione LDAP",
+          "provider di accesso",
+          "panoramica single sign-on"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "create_identity_provider",
+      "description": "Creates a new identity provider for single sign-on or client import (types: Ldap, ActiveDirectory, OAuth2, OpenIdConnect). Secret parameters (bindPassword, clientSecret) are accepted and stored, but they are NEVER echoed back — responses only carry boolean presence flags (HasBindPassword/HasClientSecret). The provider is created disabled unless isEnabled is explicitly true, so the configuration can be reviewed first. Changing identity providers can lock users out — double-check with the user. This skill is classified as sensitive and always requires user confirmation before execution. Related skills: list_identity_providers to verify the result, update_identity_provider to adjust or enable it later, delete_identity_provider to remove it.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "Display name of the provider.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "type",
+          "description": "Provider type.",
+          "type": "Enum",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "Ldap",
+            "ActiveDirectory",
+            "OAuth2",
+            "OpenIdConnect"
+          ]
+        },
+        {
+          "name": "isEnabled",
+          "description": "Whether the provider is active. Defaults to false so the configuration can be reviewed before going live.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "sortOrder",
+          "description": "Display/evaluation order; defaults to 0.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "useForAuthentication",
+          "description": "Whether users can log in through this provider.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "useForClientImport",
+          "description": "Whether clients are imported/synced from this provider.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "host",
+          "description": "LDAP/AD server host name.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "port",
+          "description": "LDAP/AD server port (1-65535), e.g. 389 or 636 for SSL.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "useSsl",
+          "description": "Whether the LDAP/AD connection uses SSL.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "baseDn",
+          "description": "LDAP base distinguished name.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "bindDn",
+          "description": "LDAP bind distinguished name.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "bindPassword",
+          "description": "Secret. LDAP bind password; stored but masked in all responses.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "userFilter",
+          "description": "LDAP user filter expression.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clientId",
+          "description": "OAuth2/OIDC client id.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clientSecret",
+          "description": "Secret. OAuth2/OIDC client secret; stored but masked in all responses.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "authorizationUrl",
+          "description": "OAuth2/OIDC authorization endpoint URL.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "tokenUrl",
+          "description": "OAuth2/OIDC token endpoint URL.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "userInfoUrl",
+          "description": "OAuth2/OIDC user-info endpoint URL.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "scopes",
+          "description": "OAuth2/OIDC scopes (space-separated).",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "tenantId",
+          "description": "Tenant id for multi-tenant providers (e.g. Entra ID).",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "identity provider",
+        "sso",
+        "ldap",
+        "oauth",
+        "oauth2",
+        "openid",
+        "active directory",
+        "single sign-on",
+        "anmeldeanbieter",
+        "create_identity_provider"
+      ],
+      "synonyms": {
+        "de": [
+          "identity provider anlegen",
+          "sso anbieter erstellen",
+          "ldap einrichten",
+          "oauth anbieter hinzufügen",
+          "single sign-on konfigurieren",
+          "anmeldeanbieter erstellen"
+        ],
+        "en": [
+          "create identity provider",
+          "add sso provider",
+          "set up ldap",
+          "add oauth provider",
+          "configure single sign-on",
+          "new login provider"
+        ],
+        "fr": [
+          "créer un fournisseur d'identité",
+          "ajouter un fournisseur SSO",
+          "configurer LDAP",
+          "ajouter un fournisseur OAuth",
+          "configurer le single sign-on"
+        ],
+        "it": [
+          "creare un provider di identità",
+          "aggiungere un provider SSO",
+          "configurare LDAP",
+          "aggiungere un provider OAuth",
+          "configurare il single sign-on"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_identity_provider",
+      "description": "Updates an existing identity provider (LDAP, Active Directory, OAuth2, OpenID Connect). Only supplied fields change; everything else keeps its current value. Secret parameters (bindPassword, clientSecret) replace the stored secret only when supplied and are NEVER echoed back — responses carry boolean presence flags instead. Also used to enable/disable a provider (isEnabled) or to toggle useForAuthentication/useForClientImport. Use list_identity_providers first to find the provider id. Changing identity providers can lock users out — double-check with the user, especially when disabling a provider, changing its type, host or credentials. This skill is classified as sensitive and always requires user confirmation before execution. Related skills: list_identity_providers, create_identity_provider, delete_identity_provider.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "description": "UUID of the identity provider to update (find it via list_identity_providers).",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name",
+          "description": "New display name.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "type",
+          "description": "New provider type.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Ldap",
+            "ActiveDirectory",
+            "OAuth2",
+            "OpenIdConnect"
+          ]
+        },
+        {
+          "name": "isEnabled",
+          "description": "Enables or disables the provider.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "sortOrder",
+          "description": "New display/evaluation order.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "useForAuthentication",
+          "description": "Whether users can log in through this provider.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "useForClientImport",
+          "description": "Whether clients are imported/synced from this provider.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "host",
+          "description": "LDAP/AD server host name.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "port",
+          "description": "LDAP/AD server port (1-65535).",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "useSsl",
+          "description": "Whether the LDAP/AD connection uses SSL.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "baseDn",
+          "description": "LDAP base distinguished name.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "bindDn",
+          "description": "LDAP bind distinguished name.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "bindPassword",
+          "description": "Secret. New LDAP bind password; replaces the stored one only when supplied, masked in all responses.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "userFilter",
+          "description": "LDAP user filter expression.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clientId",
+          "description": "OAuth2/OIDC client id.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clientSecret",
+          "description": "Secret. New OAuth2/OIDC client secret; replaces the stored one only when supplied, masked in all responses.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "authorizationUrl",
+          "description": "OAuth2/OIDC authorization endpoint URL.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "tokenUrl",
+          "description": "OAuth2/OIDC token endpoint URL.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "userInfoUrl",
+          "description": "OAuth2/OIDC user-info endpoint URL.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "scopes",
+          "description": "OAuth2/OIDC scopes (space-separated).",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "tenantId",
+          "description": "Tenant id for multi-tenant providers.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "identity provider",
+        "sso",
+        "ldap",
+        "oauth",
+        "oauth2",
+        "openid",
+        "active directory",
+        "single sign-on",
+        "anmeldeanbieter",
+        "update_identity_provider"
+      ],
+      "synonyms": {
+        "de": [
+          "identity provider ändern",
+          "sso anbieter bearbeiten",
+          "ldap konfiguration anpassen",
+          "anmeldeanbieter aktivieren",
+          "anmeldeanbieter deaktivieren",
+          "oauth einstellungen ändern"
+        ],
+        "en": [
+          "update identity provider",
+          "edit sso provider",
+          "change ldap configuration",
+          "enable login provider",
+          "disable login provider",
+          "change oauth settings"
+        ],
+        "fr": [
+          "modifier un fournisseur d'identité",
+          "éditer un fournisseur SSO",
+          "ajuster la configuration LDAP",
+          "activer un fournisseur de connexion",
+          "désactiver un fournisseur de connexion"
+        ],
+        "it": [
+          "modificare un provider di identità",
+          "aggiornare un provider SSO",
+          "modificare la configurazione LDAP",
+          "attivare un provider di accesso",
+          "disattivare un provider di accesso"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_identity_provider",
+      "description": "Soft-deletes an identity provider (LDAP, Active Directory, OAuth2, OpenID Connect). Users who authenticate through the deleted provider lose their login path immediately, and client import/sync from that provider stops. Use list_identity_providers first to find the provider id and to check whether the provider is enabled and used for authentication. Changing identity providers can lock users out — double-check with the user. This skill is classified as sensitive and always requires user confirmation before execution. The response contains only non-sensitive fields and warns explicitly when the deleted provider was used for authentication. Related skills: list_identity_providers, create_identity_provider, update_identity_provider (consider disabling via isEnabled=false instead of deleting).",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "description": "UUID of the identity provider to delete (find it via list_identity_providers).",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "identity provider",
+        "sso",
+        "ldap",
+        "oauth",
+        "oauth2",
+        "openid",
+        "active directory",
+        "single sign-on",
+        "anmeldeanbieter",
+        "delete_identity_provider"
+      ],
+      "synonyms": {
+        "de": [
+          "identity provider löschen",
+          "sso anbieter entfernen",
+          "ldap konfiguration löschen",
+          "anmeldeanbieter entfernen",
+          "single sign-on entfernen"
+        ],
+        "en": [
+          "delete identity provider",
+          "remove sso provider",
+          "delete ldap configuration",
+          "remove login provider",
+          "remove single sign-on"
+        ],
+        "fr": [
+          "supprimer un fournisseur d'identité",
+          "retirer un fournisseur SSO",
+          "supprimer la configuration LDAP",
+          "supprimer un fournisseur de connexion"
+        ],
+        "it": [
+          "eliminare un provider di identità",
+          "rimuovere un provider SSO",
+          "eliminare la configurazione LDAP",
+          "rimuovere un provider di accesso"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "confirm_pending_action",
+      "description": "Executes a pending action the user just confirmed. When a skill call is held by the autonomy gate, the action is stored under a one-time confirmation token and NOT executed. After the user explicitly confirmed in their own words, call this skill with that token — the stored action is then executed exactly as originally requested (same skill, same parameters). Never call this without the user's explicit confirmation; never invent or reuse tokens. If the token is expired, trigger the original action again to get a fresh confirmation request.",
+      "category": "System",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "confirmation_token",
+          "description": "The one-time token from the confirmation request of the held action",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": true,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "confirm_pending_action",
+        "confirmation",
+        "bestätigen",
+        "bestätigung",
+        "confirm"
+      ],
+      "synonyms": {
+        "de": [
+          "aktion bestätigen",
+          "ja mach das",
+          "ich bestätige",
+          "ausführen bestätigen"
+        ],
+        "en": [
+          "confirm action",
+          "yes do it",
+          "i confirm",
+          "approve pending action"
+        ],
+        "fr": [
+          "confirmer l'action",
+          "oui fais-le",
+          "je confirme"
+        ],
+        "it": [
+          "confermare l'azione",
+          "sì fallo",
+          "confermo"
+        ]
+      },
+      "version": 1
     }
   ]
 }

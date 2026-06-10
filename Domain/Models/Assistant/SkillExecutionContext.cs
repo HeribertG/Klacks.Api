@@ -15,4 +15,5 @@ public record SkillExecutionContext
     public string? UserTimezone { get; init; }
     public LLMProviderType? ProviderId { get; init; }
     public string? ModelId { get; init; }
+    public bool BypassAutonomyGate { get; init; }
 }

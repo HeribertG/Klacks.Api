@@ -191,6 +191,7 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<AgentSkillExecution> AgentSkillExecutions { get; set; }
     public DbSet<AgentPlan> AgentPlans { get; set; }
     public DbSet<AgentTriggerPreferenceRow> AgentTriggerPreferences { get; set; }
+    public DbSet<AgentAutonomyPreferenceRow> AgentAutonomyPreferences { get; set; }
 
     // Global Agent Rules DbSets
     public DbSet<GlobalAgentRule> GlobalAgentRules { get; set; }

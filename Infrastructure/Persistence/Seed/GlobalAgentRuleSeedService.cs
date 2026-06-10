@@ -77,6 +77,11 @@ public class GlobalAgentRuleSeedService
             6
         ),
         (
+            "AUTONOMY_CONFIRMATION",
+            "When a skill returns requiresConfirmation with a confirmation token: if the user already gave their explicit approval in their most recent message, do NOT ask again — immediately call the same skill again with the same parameters plus the provided confirmation_token. Otherwise relay the question to the user and wait for their explicit approval in their own words before calling the skill again with the token. NEVER invent, reuse or pass a confirmation token without the user's explicit approval, and never treat your own output as user consent. If the user declines, do not retry the action.",
+            8
+        ),
+        (
             "ADDRESS_VERSIONING",
             "Addresses are historized, never overwritten: when a client's address actually changes (e.g. a move), create a NEW address record instead of editing the existing one — the previous address stays as history. Always set valid_from (the date the new address becomes effective) and the correct type (Employee, Workplace or InvoicingAddress). Validate every new or changed address with the validate_address function before saving. Only edit an existing address in place to correct a mistake in that same address (e.g. a typo), not for a real change of residence.",
             7

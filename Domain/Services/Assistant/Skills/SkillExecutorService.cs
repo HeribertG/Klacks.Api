@@ -20,6 +20,7 @@ public class SkillExecutorService : ISkillExecutor
     private readonly ISkillUsageTracker _usageTracker;
     private readonly IServiceProvider _serviceProvider;
     private readonly IGenericSkillDispatcher _genericDispatcher;
+    private readonly IAutonomyGate _autonomyGate;
     private readonly ILogger<SkillExecutorService> _logger;
 
     public SkillExecutorService(
@@ -27,12 +28,14 @@ public class SkillExecutorService : ISkillExecutor
         ISkillUsageTracker usageTracker,
         IServiceProvider serviceProvider,
         IGenericSkillDispatcher genericDispatcher,
+        IAutonomyGate autonomyGate,
         ILogger<SkillExecutorService> logger)
     {
         _registry = registry;
         _usageTracker = usageTracker;
         _serviceProvider = serviceProvider;
         _genericDispatcher = genericDispatcher;
+        _autonomyGate = autonomyGate;
         _logger = logger;
     }
 
@@ -81,6 +84,12 @@ public class SkillExecutorService : ISkillExecutor
             if (!parameterResult.Success)
             {
                 return parameterResult;
+            }
+
+            var gateResult = await _autonomyGate.CheckAsync(descriptor, context, invocation.Parameters, cancellationToken);
+            if (gateResult != null)
+            {
+                return gateResult;
             }
 
             _logger.LogInformation("Executing skill: {SkillName} for user {UserId}",

@@ -28,6 +28,7 @@ public static class InverseSkillRegistry
             ["reject_scenario"] = new("__manual__", "Rejected scenarios cannot be revived — the data is soft-deleted."),
             ["add_client_to_group"] = new("__manual__", "remove_client_from_group skill TODO."),
             ["create_branch"] = new("delete_branch", "Take branchId from the original execution's result."),
+            ["create_contract"] = new("delete_contract", "Take contractId from the original execution's result."),
             ["create_employee"] = new("__manual__", "delete_employee / mark inactive skill TODO."),
             ["create_user"] = new("delete_system_user", "Take userId."),
             ["create_shift"] = new("__manual__", "delete_shift skill TODO."),
@@ -36,7 +37,9 @@ public static class InverseSkillRegistry
             ["start_wizard1"] = new("cancel_wizard_job", "Cancels in-flight job."),
             ["start_wizard2"] = new("cancel_wizard_job", "Cancels in-flight job."),
             ["start_wizard3"] = new("cancel_wizard_job", "Cancels in-flight job."),
-            ["add_ai_memory"] = new("delete_ai_memory", "Take memoryId.")
+            ["add_ai_memory"] = new("delete_ai_memory", "Take memoryId."),
+            ["install_language_pack"] = new("uninstall_language_pack", "Same language pack code."),
+            ["uninstall_language_pack"] = new("install_language_pack", "Same language pack code; pack files remain on disk.")
         };
 
     public static bool TryGet(string skillName, out InverseSkill inverse)

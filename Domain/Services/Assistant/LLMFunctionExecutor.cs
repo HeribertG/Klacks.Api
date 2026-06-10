@@ -190,6 +190,11 @@ public class LLMFunctionExecutor
             return result.Message;
         }
 
+        if (result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Confirmation))
+        {
+            return $"Confirmation required: {result.Message}";
+        }
+
         return $"Error: {result.Message}";
     }
 }

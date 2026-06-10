@@ -4,13 +4,19 @@
 /// Executes an AgentPlan one step at a time: resolves $prev.X placeholders against earlier step results,
 /// invokes each skill via ISkillExecutor, pairs with verify-skill when present, pauses on non-reversible
 /// steps until ApproveAndContinueAsync is called, and persists status + currentStepIndex after each step.
+/// At autonomy level FullyAutonomous the non-reversible pause is skipped; sensitive skills always pause.
+/// Step invocations bypass the chat-level autonomy gate because this executor enforces its own gate.
 /// </summary>
 /// <param name="planRepository">Loads and persists AgentPlan rows.</param>
 /// <param name="skillExecutor">Invokes the actual skill implementations.</param>
+/// <param name="skillRegistry">Resolves skill descriptors for risk classification.</param>
+/// <param name="riskClassifier">Classifies steps for the sensitive-always-pause rule.</param>
+/// <param name="autonomyRepository">Per-user autonomy level used for the pause decision.</param>
 /// <param name="logger">Structured log per step.</param>
 
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -23,17 +29,26 @@ public class PlanStepExecutor : IPlanStepExecutor
 
     private readonly IAgentPlanRepository _planRepository;
     private readonly ISkillExecutor _skillExecutor;
+    private readonly ISkillRegistry _skillRegistry;
+    private readonly ISkillRiskClassifier _riskClassifier;
+    private readonly IAgentAutonomyPreferenceRepository _autonomyRepository;
     private readonly IAssistantNotificationService _notificationService;
     private readonly ILogger<PlanStepExecutor> _logger;
 
     public PlanStepExecutor(
         IAgentPlanRepository planRepository,
         ISkillExecutor skillExecutor,
+        ISkillRegistry skillRegistry,
+        ISkillRiskClassifier riskClassifier,
+        IAgentAutonomyPreferenceRepository autonomyRepository,
         IAssistantNotificationService notificationService,
         ILogger<PlanStepExecutor> logger)
     {
         _planRepository = planRepository;
         _skillExecutor = skillExecutor;
+        _skillRegistry = skillRegistry;
+        _riskClassifier = riskClassifier;
+        _autonomyRepository = autonomyRepository;
         _notificationService = notificationService;
         _logger = logger;
     }
@@ -92,13 +107,15 @@ public class PlanStepExecutor : IPlanStepExecutor
 
         var stepResults = new Dictionary<int, object?>();
         var allowedToBypassReversibleGate = autoApproveCurrentStep;
+        var autonomyLevel = await GetAutonomyLevelAsync(skillContext.UserId, cancellationToken);
+        var stepContext = skillContext with { BypassAutonomyGate = true };
 
         for (var index = plan.CurrentStepIndex; index < totalSteps; index++)
         {
             cancellationToken.ThrowIfCancellationRequested();
             var step = steps[index];
 
-            if (!step.Reversible && !allowedToBypassReversibleGate)
+            if (!allowedToBypassReversibleGate && RequiresApproval(step, autonomyLevel))
             {
                 plan.CurrentStepIndex = index;
                 plan.Status = PlanStatus.PausedForApproval;
@@ -111,7 +128,7 @@ public class PlanStepExecutor : IPlanStepExecutor
 
             allowedToBypassReversibleGate = false;
 
-            var skillResult = await ExecuteSingleStepAsync(step, stepResults, skillContext, cancellationToken);
+            var skillResult = await ExecuteSingleStepAsync(step, stepResults, stepContext, cancellationToken);
             stepResults[step.Order] = skillResult.Data;
 
             if (!skillResult.Success)
@@ -127,7 +144,7 @@ public class PlanStepExecutor : IPlanStepExecutor
 
             if (!string.IsNullOrWhiteSpace(step.VerifySkill))
             {
-                var verifyResult = await ExecuteVerifyStepAsync(step, stepResults, skillContext, cancellationToken);
+                var verifyResult = await ExecuteVerifyStepAsync(step, stepResults, stepContext, cancellationToken);
                 if (!verifyResult.Success)
                 {
                     plan.CurrentStepIndex = index;
@@ -149,6 +166,28 @@ public class PlanStepExecutor : IPlanStepExecutor
         await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
         _logger.LogInformation("Plan {PlanId} completed all {Count} step(s)", plan.Id, totalSteps);
         return plan;
+    }
+
+    private bool RequiresApproval(PlanStep step, AutonomyLevel autonomyLevel)
+    {
+        var descriptor = _skillRegistry.GetSkillByName(step.Skill);
+        if (descriptor != null && _riskClassifier.Classify(descriptor) == SkillRiskClass.Sensitive)
+        {
+            return true;
+        }
+
+        if (step.Reversible)
+        {
+            return false;
+        }
+
+        return autonomyLevel < AutonomyLevel.FullyAutonomous;
+    }
+
+    private async Task<AutonomyLevel> GetAutonomyLevelAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var row = await _autonomyRepository.GetAsync(userId.ToString(), cancellationToken);
+        return row?.Level ?? AutonomyDefaults.DefaultLevel;
     }
 
     private async Task PersistAndPublishAsync(AgentPlan plan, int totalSteps, CancellationToken cancellationToken)
