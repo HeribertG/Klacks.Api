@@ -113,6 +113,9 @@ namespace Klacks.Api.Application.Constants
         public const string ASSISTANT_OUTPUT_MODE = "ASSISTANT_OUTPUT_MODE";
         public const string ASSISTANT_TTS_PROVIDER = "ASSISTANT_TTS_PROVIDER";
         public const string ASSISTANT_TTS_VOICE = "ASSISTANT_TTS_VOICE";
+        public const string ASSISTANT_TTS_API_KEY_OPENAI = "ASSISTANT_TTS_API_KEY_OPENAI";
+        public const string ASSISTANT_TTS_API_KEY_ELEVENLABS = "ASSISTANT_TTS_API_KEY_ELEVENLABS";
+        public const string ASSISTANT_TTS_API_KEY_GOOGLE = "ASSISTANT_TTS_API_KEY_GOOGLE";
         public const string ASSISTANT_SILENCE_THRESHOLD_MS = "ASSISTANT_SILENCE_THRESHOLD_MS";
 
         public const string ONBOARDING_STATE = "ONBOARDING_STATE";

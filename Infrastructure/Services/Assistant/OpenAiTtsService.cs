@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Text-to-speech provider using the OpenAI audio/speech API. Reuses the OpenAI API key
-/// configured for the LLM provider so no separate TTS credential is required.
+/// Text-to-speech provider using the OpenAI audio/speech API. Reads its API key from the
+/// dedicated TTS speech setting, falling back to the OpenAI LLM provider credential.
 /// </summary>
 /// <param name="httpClientFactory">Factory creating the HttpClient used for the synthesis request</param>
-/// <param name="llmRepository">Repository resolving the stored OpenAI API key</param>
+/// <param name="apiKeyResolver">Resolves the OpenAI TTS API key (dedicated setting or legacy fallback)</param>
 /// <param name="logger">Logger for diagnostics and error tracking</param>
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -19,18 +19,18 @@ namespace Klacks.Api.Infrastructure.Services.Assistant;
 public class OpenAiTtsService : ITtsProvider
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILLMRepository _llmRepository;
+    private readonly ITtsApiKeyResolver _apiKeyResolver;
     private readonly ILogger<OpenAiTtsService> _logger;
 
     public string ProviderId => TtsProviderConstants.OpenAi;
 
     public OpenAiTtsService(
         IHttpClientFactory httpClientFactory,
-        ILLMRepository llmRepository,
+        ITtsApiKeyResolver apiKeyResolver,
         ILogger<OpenAiTtsService> logger)
     {
         _httpClientFactory = httpClientFactory;
-        _llmRepository = llmRepository;
+        _apiKeyResolver = apiKeyResolver;
         _logger = logger;
     }
 
@@ -47,11 +47,11 @@ public class OpenAiTtsService : ITtsProvider
 
     public async Task<byte[]> SynthesizeAsync(string text, string voiceId, string locale, CancellationToken ct = default)
     {
-        var provider = await _llmRepository.GetProviderByIdAsync(OpenAiTtsConstants.LlmProviderId);
-        if (provider == null || string.IsNullOrWhiteSpace(provider.ApiKey))
+        var apiKey = await _apiKeyResolver.ResolveAsync(ProviderId, ct);
+        if (string.IsNullOrWhiteSpace(apiKey))
         {
             throw new InvalidOperationException(
-                "OpenAI API key is not configured. Set the OpenAI provider key in the LLM provider settings.");
+                "OpenAI TTS API key is not configured. Set the OpenAI TTS key in the speech settings.");
         }
 
         var input = text.Length > OpenAiTtsConstants.MaxInputLength
@@ -70,7 +70,7 @@ public class OpenAiTtsService : ITtsProvider
                 response_format = OpenAiTtsConstants.ResponseFormat
             })
         };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", provider.ApiKey);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
         using var response = await client.SendAsync(request, ct);
         if (!response.IsSuccessStatusCode)

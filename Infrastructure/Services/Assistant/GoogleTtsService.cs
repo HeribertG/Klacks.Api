@@ -2,10 +2,10 @@
 
 /// <summary>
 /// Text-to-speech provider using the Google Cloud Text-to-Speech API. Reads its API key from the
-/// stored "google-tts" provider row (kept disabled so the LLM model sync skips it).
+/// dedicated TTS speech setting, falling back to the stored "google-tts" LLM provider credential.
 /// </summary>
 /// <param name="httpClientFactory">Factory creating the HttpClient used for the synthesis request</param>
-/// <param name="llmRepository">Repository resolving the stored Google Cloud TTS API key</param>
+/// <param name="apiKeyResolver">Resolves the Google TTS API key (dedicated setting or legacy fallback)</param>
 /// <param name="logger">Logger for diagnostics and error tracking</param>
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -21,18 +21,18 @@ public class GoogleTtsService : ITtsProvider
     private const string AudioContentProperty = "audioContent";
 
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILLMRepository _llmRepository;
+    private readonly ITtsApiKeyResolver _apiKeyResolver;
     private readonly ILogger<GoogleTtsService> _logger;
 
     public string ProviderId => TtsProviderConstants.Google;
 
     public GoogleTtsService(
         IHttpClientFactory httpClientFactory,
-        ILLMRepository llmRepository,
+        ITtsApiKeyResolver apiKeyResolver,
         ILogger<GoogleTtsService> logger)
     {
         _httpClientFactory = httpClientFactory;
-        _llmRepository = llmRepository;
+        _apiKeyResolver = apiKeyResolver;
         _logger = logger;
     }
 
@@ -49,11 +49,11 @@ public class GoogleTtsService : ITtsProvider
 
     public async Task<byte[]> SynthesizeAsync(string text, string voiceId, string locale, CancellationToken ct = default)
     {
-        var provider = await _llmRepository.GetProviderByIdAsync(GoogleTtsConstants.LlmProviderId);
-        if (provider == null || string.IsNullOrWhiteSpace(provider.ApiKey))
+        var apiKey = await _apiKeyResolver.ResolveAsync(ProviderId, ct);
+        if (string.IsNullOrWhiteSpace(apiKey))
         {
             throw new InvalidOperationException(
-                "Google Cloud TTS API key is not configured. Add a 'google-tts' provider with an API key.");
+                "Google Cloud TTS API key is not configured. Set the Google TTS key in the speech settings.");
         }
 
         var input = text.Length > GoogleTtsConstants.MaxInputLength
@@ -61,7 +61,7 @@ public class GoogleTtsService : ITtsProvider
             : text;
         var voice = ResolveVoice(voiceId, locale);
         var languageCode = LanguageCodeFromVoice(voice);
-        var url = $"{GoogleTtsConstants.ApiUrl}?key={provider.ApiKey}";
+        var url = $"{GoogleTtsConstants.ApiUrl}?key={apiKey}";
 
         var client = _httpClientFactory.CreateClient();
         using var request = new HttpRequestMessage(HttpMethod.Post, url)

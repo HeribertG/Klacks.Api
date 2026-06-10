@@ -24,6 +24,7 @@ public class TtsController : ControllerBase
     private readonly IEnumerable<ITtsProvider> _ttsProviders;
 
     private const int MaxTextLength = 5000;
+    private const string TestText = "Test.";
 
     public TtsController(
         ILogger<TtsController> logger,
@@ -43,6 +44,28 @@ public class TtsController : ControllerBase
 
         var voices = await provider.GetVoicesAsync(ct);
         return Ok(voices);
+    }
+
+    [HttpPost("test")]
+    public async Task<IActionResult> TestConnection([FromBody] TtsTestRequest request, CancellationToken ct)
+    {
+        var provider = _ttsProviders.FirstOrDefault(p => p.ProviderId == request.ProviderId);
+        if (provider == null)
+        {
+            return BadRequest(new TtsTestResult(false, $"Unknown provider: {request.ProviderId}"));
+        }
+
+        try
+        {
+            var audio = await provider.SynthesizeAsync(TestText, TtsProviderConstants.AutoVoice, TtsProviderConstants.DefaultLocale, ct);
+            return Ok(audio is { Length: > 0 }
+                ? new TtsTestResult(true, null)
+                : new TtsTestResult(false, "No audio returned"));
+        }
+        catch (Exception ex)
+        {
+            return Ok(new TtsTestResult(false, ex.Message));
+        }
     }
 
     [HttpPost("synthesize")]

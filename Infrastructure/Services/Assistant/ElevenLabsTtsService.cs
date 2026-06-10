@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Text-to-speech provider using the ElevenLabs API. Reads its API key from the stored
-/// "elevenlabs" provider row (kept disabled so the LLM model sync skips it).
+/// Text-to-speech provider using the ElevenLabs API. Reads its API key from the dedicated
+/// TTS speech setting, falling back to the stored "elevenlabs" LLM provider credential.
 /// </summary>
 /// <param name="httpClientFactory">Factory creating the HttpClient used for the synthesis request</param>
-/// <param name="llmRepository">Repository resolving the stored ElevenLabs API key</param>
+/// <param name="apiKeyResolver">Resolves the ElevenLabs TTS API key (dedicated setting or legacy fallback)</param>
 /// <param name="logger">Logger for diagnostics and error tracking</param>
 using System.Net.Http.Json;
 using Klacks.Api.Application.Constants;
@@ -18,18 +18,18 @@ namespace Klacks.Api.Infrastructure.Services.Assistant;
 public class ElevenLabsTtsService : ITtsProvider
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILLMRepository _llmRepository;
+    private readonly ITtsApiKeyResolver _apiKeyResolver;
     private readonly ILogger<ElevenLabsTtsService> _logger;
 
     public string ProviderId => TtsProviderConstants.ElevenLabs;
 
     public ElevenLabsTtsService(
         IHttpClientFactory httpClientFactory,
-        ILLMRepository llmRepository,
+        ITtsApiKeyResolver apiKeyResolver,
         ILogger<ElevenLabsTtsService> logger)
     {
         _httpClientFactory = httpClientFactory;
-        _llmRepository = llmRepository;
+        _apiKeyResolver = apiKeyResolver;
         _logger = logger;
     }
 
@@ -46,11 +46,11 @@ public class ElevenLabsTtsService : ITtsProvider
 
     public async Task<byte[]> SynthesizeAsync(string text, string voiceId, string locale, CancellationToken ct = default)
     {
-        var provider = await _llmRepository.GetProviderByIdAsync(ElevenLabsTtsConstants.LlmProviderId);
-        if (provider == null || string.IsNullOrWhiteSpace(provider.ApiKey))
+        var apiKey = await _apiKeyResolver.ResolveAsync(ProviderId, ct);
+        if (string.IsNullOrWhiteSpace(apiKey))
         {
             throw new InvalidOperationException(
-                "ElevenLabs API key is not configured. Add an 'elevenlabs' provider with an API key.");
+                "ElevenLabs TTS API key is not configured. Set the ElevenLabs TTS key in the speech settings.");
         }
 
         var input = text.Length > ElevenLabsTtsConstants.MaxInputLength
@@ -68,7 +68,7 @@ public class ElevenLabsTtsService : ITtsProvider
                 model_id = ElevenLabsTtsConstants.Model
             })
         };
-        request.Headers.Add(ElevenLabsTtsConstants.ApiKeyHeader, provider.ApiKey);
+        request.Headers.Add(ElevenLabsTtsConstants.ApiKeyHeader, apiKey);
 
         using var response = await client.SendAsync(request, ct);
         if (!response.IsSuccessStatusCode)

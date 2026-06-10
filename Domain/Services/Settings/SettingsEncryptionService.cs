@@ -19,7 +19,10 @@ public class SettingsEncryptionService : ISettingsEncryptionService
         "ASSISTANT_STT_API_KEY",
         "ASSISTANT_STT_API_KEY_DEEPGRAM",
         "ASSISTANT_STT_API_KEY_GROQ",
-        "ASSISTANT_STT_API_KEY_ASSEMBLYAI"
+        "ASSISTANT_STT_API_KEY_ASSEMBLYAI",
+        "ASSISTANT_TTS_API_KEY_OPENAI",
+        "ASSISTANT_TTS_API_KEY_ELEVENLABS",
+        "ASSISTANT_TTS_API_KEY_GOOGLE"
     };
 
     private static readonly HashSet<string> ServerOnlySettingTypes = new(StringComparer.OrdinalIgnoreCase)
@@ -27,7 +30,10 @@ public class SettingsEncryptionService : ISettingsEncryptionService
         "ASSISTANT_STT_API_KEY",
         "ASSISTANT_STT_API_KEY_DEEPGRAM",
         "ASSISTANT_STT_API_KEY_GROQ",
-        "ASSISTANT_STT_API_KEY_ASSEMBLYAI"
+        "ASSISTANT_STT_API_KEY_ASSEMBLYAI",
+        "ASSISTANT_TTS_API_KEY_OPENAI",
+        "ASSISTANT_TTS_API_KEY_ELEVENLABS",
+        "ASSISTANT_TTS_API_KEY_GOOGLE"
     };
 
     public bool IsServerOnlySettingType(string type)

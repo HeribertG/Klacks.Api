@@ -39,6 +39,9 @@ public class GetSpeechSettingsSkill : BaseSkillImplementation
         var deepgramKey = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_STT_API_KEY_DEEPGRAM);
         var groqKey = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_STT_API_KEY_GROQ);
         var assemblyAiKey = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_STT_API_KEY_ASSEMBLYAI);
+        var openAiTtsKey = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_TTS_API_KEY_OPENAI);
+        var elevenLabsTtsKey = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_TTS_API_KEY_ELEVENLABS);
+        var googleTtsKey = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_TTS_API_KEY_GOOGLE);
 
         var resultData = new
         {
@@ -52,7 +55,10 @@ public class GetSpeechSettingsSkill : BaseSkillImplementation
             HasSttApiKey = !string.IsNullOrWhiteSpace(sttApiKey?.Value),
             HasDeepgramApiKey = !string.IsNullOrWhiteSpace(deepgramKey?.Value),
             HasGroqApiKey = !string.IsNullOrWhiteSpace(groqKey?.Value),
-            HasAssemblyAiApiKey = !string.IsNullOrWhiteSpace(assemblyAiKey?.Value)
+            HasAssemblyAiApiKey = !string.IsNullOrWhiteSpace(assemblyAiKey?.Value),
+            HasOpenAiTtsApiKey = !string.IsNullOrWhiteSpace(openAiTtsKey?.Value),
+            HasElevenLabsTtsApiKey = !string.IsNullOrWhiteSpace(elevenLabsTtsKey?.Value),
+            HasGoogleTtsApiKey = !string.IsNullOrWhiteSpace(googleTtsKey?.Value)
         };
 
         return SkillResult.SuccessResult(resultData, "Speech settings retrieved successfully.");

@@ -554,6 +554,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IRuleContextProvider, Domain.Services.Assistant.RuleContextProvider>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IPlanningScopeEnricher, Application.Services.Assistant.PlanningScopeEnricher>();
         services.AddSingleton<ISentimentAnalyzer, Domain.Services.Assistant.SentimentAnalyzer>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ITtsApiKeyResolver, Klacks.Api.Infrastructure.Services.Assistant.TtsApiKeyResolver>();
         services.AddSingleton<Klacks.Api.Infrastructure.Services.Assistant.EdgeTtsService>();
         services.AddSingleton<ITtsProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.EdgeTtsService>());
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.OpenAiTtsService>();
