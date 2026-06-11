@@ -10,4 +10,6 @@ public class LLMFunctionExecuteRequest
     public string FunctionName { get; set; } = string.Empty;
 
     public Dictionary<string, object>? Parameters { get; set; }
+
+    public Klacks.Api.Domain.Models.Assistant.AssistantPageContext? PageContext { get; set; }
 }

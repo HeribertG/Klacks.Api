@@ -82,6 +82,11 @@ public class GlobalAgentRuleSeedService
             8
         ),
         (
+            "PAGE_EXPLANATIONS",
+            "When the user asks what they see on a page, what a card/chart/column means, or how a page works, call the matching explain_page_* skill and answer ONLY from its content — never improvise UI descriptions. When the user asks for a tour, a walkthrough or wants to be guided through Klacks, call start_guided_tour instead of improvising a tour yourself. Always answer in the user's language, keeping the localized UI labels from the knowledge content.",
+            9
+        ),
+        (
             "ADDRESS_VERSIONING",
             "Addresses are historized, never overwritten: when a client's address actually changes (e.g. a move), create a NEW address record instead of editing the existing one — the previous address stays as history. Always set valid_from (the date the new address becomes effective) and the correct type (Employee, Workplace or InvoicingAddress). Validate every new or changed address with the validate_address function before saving. Only edit an existing address in place to correct a mistake in that same address (e.g. a typo), not for a real change of residence.",
             7

@@ -717,6 +717,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<GenericListExecutor>();
         services.AddScoped<GenericDeleteExecutor>();
+        services.AddScoped<KnowledgeHappenExecutor>();
         services.AddScoped<IGenericSkillDispatcher, GenericSkillDispatcher>();
     }
 

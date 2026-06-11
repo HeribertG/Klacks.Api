@@ -6,4 +6,5 @@ public static class HandlerTypes
 {
     public const string GenericList = "generic-list";
     public const string GenericDelete = "generic-delete";
+    public const string KnowledgeHappen = "knowledge-happen";
 }

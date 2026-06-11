@@ -312,7 +312,8 @@ public class ChatController : ControllerBase
             FunctionName = request.FunctionName,
             Parameters = request.Parameters,
             UserId = userId,
-            UserRights = userRights
+            UserRights = userRights,
+            PageContext = request.PageContext
         });
 
         return Ok(response);

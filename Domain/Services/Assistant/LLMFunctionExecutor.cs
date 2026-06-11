@@ -156,7 +156,8 @@ public class LLMFunctionExecutor
             UserId = Guid.TryParse(context.UserId, out var uid) ? uid : Guid.Empty,
             TenantId = Guid.Empty,
             UserName = context.UserId,
-            UserPermissions = context.UserRights
+            UserPermissions = context.UserRights,
+            CurrentPage = context.PageContext?.CurrentRoute
         };
 
         var skillCall = new Providers.LLMFunctionCall

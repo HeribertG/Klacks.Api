@@ -1,5 +1,5 @@
 {
-  "version": 9,
+  "version": 10,
   "skills": [
     {
       "name": "get_current_time",
@@ -18138,6 +18138,1275 @@
           "confermare l'azione",
           "sì fallo",
           "confermo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_planning_divide_et_impera",
+      "description": "Explains Klacks' modular planning philosophy 'Divide et impera'. Use when the user asks about modular planning, splitting plans into smaller sheets, or how shared employee references avoid double-booking across business units.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_planning_divide_et_impera"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "planning",
+        "planung",
+        "modular",
+        "divide",
+        "herrsche",
+        "teilen",
+        "zerlegen",
+        "planungsblatt"
+      ],
+      "synonyms": {
+        "de": [
+          "planung",
+          "modulplanung",
+          "teilplanung",
+          "zerlegen",
+          "aufteilen",
+          "geschäftsfeld",
+          "ausleihe"
+        ],
+        "en": [
+          "planning",
+          "modular",
+          "divide",
+          "conquer",
+          "split",
+          "sub-plan",
+          "lend",
+          "borrow"
+        ],
+        "fr": [
+          "planification",
+          "modulaire",
+          "diviser",
+          "sous-plan",
+          "prêter"
+        ],
+        "it": [
+          "pianificazione",
+          "modulare",
+          "dividere",
+          "sotto-piano",
+          "prestare"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_planning_sheets_modular",
+      "description": "Explains the Planungsblatt (planning sheet) — a container holding references to individual employee rows. Use when the user wonders why a change on employee Y in sheet 1 also appears in sheet 2, or how Klacks structures planning across groups.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_planning_sheets_modular"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "planungsblatt",
+        "planning sheet",
+        "mitarbeiterzeile",
+        "employee row",
+        "container",
+        "referenz",
+        "shared employee"
+      ],
+      "synonyms": {
+        "de": [
+          "planungsblatt",
+          "planungsbogen",
+          "einsatzblatt",
+          "mitarbeiterzeile",
+          "referenz",
+          "geteilte sicht"
+        ],
+        "en": [
+          "planning sheet",
+          "plan sheet",
+          "employee row",
+          "shared reference",
+          "container"
+        ],
+        "fr": [
+          "feuille de planification",
+          "ligne d'employé",
+          "conteneur",
+          "référence"
+        ],
+        "it": [
+          "foglio di pianificazione",
+          "riga del dipendente",
+          "contenitore",
+          "riferimento"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_planning_assistant",
+      "description": "Explains the Planungs-Assistent — computes proposed assignments based on the shifts in the planning sheet and per-employee settings, then shows the result as a scenario the planner must accept. The assistant only suggests; the planner decides.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_planning_assistant"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "assistant",
+        "planungsassistent",
+        "autofill",
+        "vorschlag",
+        "scenario",
+        "szenario",
+        "wizard"
+      ],
+      "synonyms": {
+        "de": [
+          "assistent",
+          "autofill",
+          "vorschlag",
+          "planungshilfe",
+          "szenario",
+          "planungsvorschlag",
+          "wizard"
+        ],
+        "en": [
+          "planning assistant",
+          "autofill",
+          "suggestion",
+          "scenario",
+          "wizard",
+          "proposal"
+        ],
+        "fr": [
+          "assistant de planification",
+          "suggestion",
+          "scénario",
+          "proposition"
+        ],
+        "it": [
+          "assistente di pianificazione",
+          "suggerimento",
+          "scenario",
+          "proposta"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_macro_editor",
+      "description": "Explains the Macro Editor — scripting tool that backs shifts, employments and wage components with formulas. Default macros for vacation/illness/accident/general shifts; custom macros compute exact hours proportional to employment percentage and surcharges for night/weekend/holiday work.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_macro_editor"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "macro",
+        "makro",
+        "script",
+        "skript",
+        "berechnung",
+        "zuschlag",
+        "ferien",
+        "formel"
+      ],
+      "synonyms": {
+        "de": [
+          "makro",
+          "formel",
+          "skript",
+          "berechnung",
+          "zuschlag",
+          "lohn",
+          "rechengrundlage",
+          "lohnformel"
+        ],
+        "en": [
+          "macro",
+          "script",
+          "formula",
+          "calculation",
+          "surcharge",
+          "payroll",
+          "allowance"
+        ],
+        "fr": [
+          "macro",
+          "script",
+          "formule",
+          "calcul",
+          "supplément",
+          "salaire"
+        ],
+        "it": [
+          "macro",
+          "script",
+          "formula",
+          "calcolo",
+          "supplemento",
+          "stipendio"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_shift_type_preferences",
+      "description": "Explains Diensttypwünsche — alias keywords FREE / EARLY / LATE / NIGHT and their negations (-FREE / -EARLY / -LATE / -NIGHT). The planning assistant honours them when possible; unfulfillable preferences fall back to FREE.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_shift_type_preferences"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "diensttypwunsch",
+        "shift type",
+        "preference",
+        "alias",
+        "free",
+        "early",
+        "late",
+        "night",
+        "wunsch"
+      ],
+      "synonyms": {
+        "de": [
+          "diensttypwunsch",
+          "schichtwunsch",
+          "alias",
+          "frei",
+          "früh",
+          "spät",
+          "nacht",
+          "möglichst arbeit"
+        ],
+        "en": [
+          "shift type preference",
+          "preference",
+          "alias",
+          "free",
+          "early",
+          "late",
+          "night",
+          "wish"
+        ],
+        "fr": [
+          "préférence de service",
+          "alias",
+          "libre",
+          "matin",
+          "après-midi",
+          "nuit",
+          "souhait"
+        ],
+        "it": [
+          "preferenza turno",
+          "alias",
+          "libero",
+          "mattino",
+          "sera",
+          "notte",
+          "desiderio"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_shift_sporadic",
+      "description": "Explains the Sporadic Shift. Only occurs limited times per Week/Month/Quarter/Semester/Year/ContractualTerm. SumEmployees caps parallel bookings per day, Quantity caps distinct booked days per period. Once either cap is reached, remaining days are blocked (opacity 0.3, not draggable).",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_shift_sporadic"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "sporadic",
+        "sporadisch",
+        "scope",
+        "quantity",
+        "sumemployees",
+        "bezugsperiode",
+        "blocked",
+        "gesperrt"
+      ],
+      "synonyms": {
+        "de": [
+          "sporadisch",
+          "gelegentlich",
+          "bezugsperiode",
+          "periode",
+          "periodisch",
+          "kapazität",
+          "sperrung"
+        ],
+        "en": [
+          "sporadic",
+          "occasional",
+          "scope",
+          "period",
+          "capacity",
+          "blocked",
+          "locked"
+        ],
+        "fr": [
+          "sporadique",
+          "occasionnel",
+          "période",
+          "capacité",
+          "bloqué"
+        ],
+        "it": [
+          "sporadico",
+          "occasionale",
+          "periodo",
+          "capacità",
+          "bloccato"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_shift_time_range",
+      "description": "Explains the TimeRange Shift — StartShift / EndShift define a permitted window, WorkTime is the actual engagement duration. The dispatcher picks concrete StartTime/EndTime within the window when booking. Combinable with Sporadic.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_shift_time_range"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "timerange",
+        "zeitfenster",
+        "elastisch",
+        "flexibel",
+        "fenster",
+        "working window",
+        "flexible start"
+      ],
+      "synonyms": {
+        "de": [
+          "zeitfenster",
+          "elastische arbeitszeit",
+          "flexible schicht",
+          "einsatzdauer",
+          "fenster"
+        ],
+        "en": [
+          "time range",
+          "working window",
+          "flexible shift",
+          "elastic",
+          "engagement duration"
+        ],
+        "fr": [
+          "plage horaire",
+          "fenêtre de travail",
+          "horaire flexible",
+          "durée d'engagement"
+        ],
+        "it": [
+          "fascia oraria",
+          "finestra di lavoro",
+          "turno flessibile",
+          "durata"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_shift_container",
+      "description": "Explains the Container Shift (ShiftType=IsContainer). Bundles task-shifts and absences via ContainerTemplate (per weekday). On booking, ContainerWorkExpansionService creates one visible parent Work plus invisible sub-Works / sub-Breaks linked via ParentWorkId. Optional ContainerShiftOverride replaces the template snapshot-style for one date.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_shift_container"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "container",
+        "containerwork",
+        "template",
+        "override",
+        "sub-work",
+        "parentwork",
+        "expansion",
+        "dienst editieren"
+      ],
+      "synonyms": {
+        "de": [
+          "container",
+          "containerschicht",
+          "vorlage",
+          "bauplan",
+          "tagesüberschreibung",
+          "sub-buchung",
+          "eltern-buchung"
+        ],
+        "en": [
+          "container",
+          "container shift",
+          "template",
+          "override",
+          "sub-work",
+          "parent work",
+          "expansion"
+        ],
+        "fr": [
+          "conteneur",
+          "modèle",
+          "surcharge",
+          "sous-travail",
+          "travail parent",
+          "expansion"
+        ],
+        "it": [
+          "contenitore",
+          "modello",
+          "sovrascrittura",
+          "sotto-lavoro",
+          "lavoro padre",
+          "espansione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_shift_lifecycle_order_to_shift",
+      "description": "Explains the four-stage Shift lifecycle: OriginalOrder (draft) -> SealedOrder (immutable contract) -> OriginalShift (active) -> SplitShift (cuts). The Sealing transition is the only trigger that clones the OriginalShift from the SealedOrder. Works attach only to OriginalShift or SplitShift (Status >= 2).",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_shift_lifecycle_order_to_shift"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "lifecycle",
+        "lebenszyklus",
+        "originalorder",
+        "sealedorder",
+        "originalshift",
+        "splitshift",
+        "bestellung",
+        "sealing",
+        "sealen",
+        "workflow"
+      ],
+      "synonyms": {
+        "de": [
+          "bestellung",
+          "auftrag",
+          "skizze",
+          "vertrag",
+          "sealen",
+          "versiegeln",
+          "schicht-schnitt",
+          "lebenszyklus"
+        ],
+        "en": [
+          "order",
+          "draft",
+          "contract",
+          "sealed",
+          "lifecycle",
+          "shift cut",
+          "status"
+        ],
+        "fr": [
+          "commande",
+          "ébauche",
+          "contrat",
+          "verrouillé",
+          "cycle de vie",
+          "coupe"
+        ],
+        "it": [
+          "ordine",
+          "bozza",
+          "contratto",
+          "sigillato",
+          "ciclo di vita",
+          "taglio"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_page_dashboard",
+      "description": "Explains the Klacks dashboard page (/workplace/dashboard) reached via the header logo: the four reorderable sections Overview (two donut charts: customers per group and shifts per group), Coverage & Confirmation (two donut charts for the current month: covered shift slots and confirmed/sealed work entries per group), Resources (Resource Monitor 365-day stacked bar chart with services/absences bars and three reference lines for desired readiness, max readiness and total employees, plus year/group/zoom controls) and Locations (Leaflet map with clustered client markers, address search, map styles and per-city or per-group location cards). Use this when the user asks what they see on the dashboard page, what the cards/charts/columns mean, or how to work with it.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_page_dashboard"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "dashboard",
+        "übersicht",
+        "overview",
+        "startseite",
+        "tortendiagramm",
+        "pie chart",
+        "ressourcen-monitor",
+        "resource monitor",
+        "standorte",
+        "locations"
+      ],
+      "synonyms": {
+        "de": [
+          "dashboard",
+          "übersicht",
+          "startseite",
+          "was sehe ich hier",
+          "erkläre diese seite",
+          "was bedeutet dieses diagramm",
+          "was bedeutet diese karte",
+          "ressourcen-monitor"
+        ],
+        "en": [
+          "dashboard",
+          "overview",
+          "home page",
+          "what do i see here",
+          "explain this page",
+          "what does this chart mean",
+          "what does this card mean",
+          "resource monitor"
+        ],
+        "fr": [
+          "tableau de bord",
+          "aperçu",
+          "que vois-je ici",
+          "explique cette page",
+          "que signifie ce graphique",
+          "que signifie cette carte",
+          "moniteur de ressources"
+        ],
+        "it": [
+          "dashboard",
+          "panoramica",
+          "cosa vedo qui",
+          "spiega questa pagina",
+          "cosa significa questo grafico",
+          "cosa significa questa scheda",
+          "monitor risorse"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_page_schedule",
+      "description": "Explains the Schedule page (/workplace/schedule) — the central planning board with an employees-by-days grid, the toolbar (period navigation, AutoWizard/Plan/Fuzzy Harmonizer/Holistic Harmonizer, PDF export, absence bars, commands, availability, hour recalculation, scenario selector, day-timeline switch, zoom), the shift section with Shifts/Error List tabs, drag & drop booking, cell context menus, locks and sealed days. Use this when the user asks what they see on the Schedule page, what the cards/grid/columns/toolbar buttons mean, or how to work with it.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_page_schedule"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "schedule",
+        "einsatzplan",
+        "dienstplan",
+        "schichtplan",
+        "plantafel",
+        "roster",
+        "planung",
+        "szenario",
+        "wizard",
+        "grid"
+      ],
+      "synonyms": {
+        "de": [
+          "einsatzplan",
+          "dienstplan",
+          "schichtplan",
+          "plantafel",
+          "was sehe ich hier",
+          "erkläre diese seite",
+          "was bedeutet dieses raster",
+          "was bedeutet diese ansicht"
+        ],
+        "en": [
+          "schedule",
+          "schedule page",
+          "roster",
+          "duty plan",
+          "what do i see here",
+          "explain this page",
+          "what does this grid mean"
+        ],
+        "fr": [
+          "planning",
+          "plan de service",
+          "horaire",
+          "que vois-je ici",
+          "explique cette page",
+          "que signifie cette vue"
+        ],
+        "it": [
+          "pianificazione",
+          "piano di servizio",
+          "turni",
+          "cosa vedo qui",
+          "spiega questa pagina",
+          "cosa significa questa vista"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_page_absence",
+      "description": "Explains the Absence Calendar page (Absenzen Kalender) at /workplace/absence — a year-wide Gantt chart with one row per employee and one column per calendar day. Covers the header (draggable absence-type chips with colors and filter checkmarks, PDF export, year counter, zoom slider), the row header with sort/filter popup, the Gantt surface (weekend/holiday shading, colored absence bars, drag & drop creation, move/resize via anchors, context menu with copy/cut/paste/delete/convert), and the lower detail mask with the Mask and List tabs. Use this when the user asks what they see on the Absence Calendar page, what the cards/charts/columns mean, or how to work with it.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_page_absence"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "absence calendar",
+        "absenzen kalender",
+        "absence gantt",
+        "abwesenheitskalender",
+        "absenz eintragen",
+        "ferienkalender",
+        "absence page",
+        "gantt",
+        "jahreskalender"
+      ],
+      "synonyms": {
+        "de": [
+          "was sehe ich hier",
+          "erkläre diese seite",
+          "was bedeutet dieses diagramm",
+          "was bedeutet diese karte",
+          "absenzen kalender",
+          "abwesenheitskalender",
+          "absenz eintragen",
+          "ferien eintragen"
+        ],
+        "en": [
+          "what do i see here",
+          "explain this page",
+          "what does this chart mean",
+          "what does this card mean",
+          "absence calendar",
+          "absence gantt",
+          "enter absence",
+          "vacation calendar"
+        ],
+        "fr": [
+          "que vois-je ici",
+          "explique cette page",
+          "que signifie ce diagramme",
+          "calendrier d'absences",
+          "saisir une absence",
+          "congés",
+          "gantt des absences"
+        ],
+        "it": [
+          "cosa vedo qui",
+          "spiega questa pagina",
+          "cosa significa questo diagramma",
+          "calendario assenze",
+          "inserire un'assenza",
+          "ferie",
+          "gantt delle assenze"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_page_availability",
+      "description": "Explains the Availability page (/workplace/client-availability): a per-employee day/hour checkbox grid where planners record when each employee is available. Covers the period navigation (week / 2 weeks / month depending on the group's payment interval), the hour-grouping slider (1h / 2h / 4h / AM-PM / full day), the employee row header with filter and context menu, the colour coding for weekends and holidays, mouse/keyboard editing and the automatic debounced saving. Use this when the user asks what they see on the Availability page, what the cards/charts/columns mean, or how to work with it.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_page_availability"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "availability",
+        "verfügbarkeit",
+        "client availability",
+        "verfügbarkeitsraster",
+        "availability grid",
+        "verfügbar",
+        "nicht verfügbar",
+        "unavailable",
+        "stundenraster"
+      ],
+      "synonyms": {
+        "de": [
+          "verfügbarkeit",
+          "verfügbarkeitsseite",
+          "was sehe ich hier",
+          "erkläre diese seite",
+          "was bedeutet dieses raster",
+          "verfügbarkeitsraster",
+          "häkchen setzen",
+          "wann ist jemand verfügbar"
+        ],
+        "en": [
+          "availability",
+          "availability page",
+          "what do i see here",
+          "explain this page",
+          "what does this grid mean",
+          "availability grid",
+          "mark available",
+          "set availability"
+        ],
+        "fr": [
+          "disponibilité",
+          "page de disponibilité",
+          "que vois-je ici",
+          "explique cette page",
+          "que signifie cette grille",
+          "grille de disponibilité"
+        ],
+        "it": [
+          "disponibilità",
+          "pagina di disponibilità",
+          "cosa vedo qui",
+          "spiega questa pagina",
+          "cosa significa questa griglia",
+          "griglia di disponibilità"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_page_shifts",
+      "description": "Explains the Shifts page (Dienste / All Services) at /workplace/shift: the service list card with its filter views Orders (Bestellungen), Plannable Services (with Time Range and Sporadic sub-filters), Container and Absence, the table columns (abbreviation, name, description, validity dates, times, weekday/holiday checkboxes), the row action icons (edit pencil, delete, scissors for shift cutting, box for container template), the validity filter (active/former/future), the sealed-orders checkbox, and the sub-pages edit-shift, cut-shift (shift cutting) and container-template. Use this when the user asks what they see on the Shifts page, what the cards/columns/icons mean, or how to work with it.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_page_shifts"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "shifts",
+        "dienste",
+        "dienstliste",
+        "shift list",
+        "bestellungen",
+        "planbare dienste",
+        "schichtvorlage",
+        "zuschnitt",
+        "services page",
+        "alle dienste"
+      ],
+      "synonyms": {
+        "de": [
+          "dienste-seite",
+          "alle dienste",
+          "was sehe ich hier",
+          "erkläre diese seite",
+          "was bedeutet diese karte",
+          "was bedeutet diese tabelle",
+          "dienstliste",
+          "schichtliste"
+        ],
+        "en": [
+          "services page",
+          "all services",
+          "what do i see here",
+          "explain this page",
+          "what does this card mean",
+          "what does this table mean",
+          "shift list",
+          "shifts overview"
+        ],
+        "fr": [
+          "page services",
+          "tous les services",
+          "qu'est-ce que je vois ici",
+          "explique cette page",
+          "que signifie cette carte",
+          "liste des services"
+        ],
+        "it": [
+          "pagina servizi",
+          "tutti i servizi",
+          "cosa vedo qui",
+          "spiega questa pagina",
+          "cosa significa questa scheda",
+          "elenco dei servizi"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_page_employees",
+      "description": "Explains the 'All Addresses' page (/workplace/client) — the central, searchable and filterable list of all persons in Klacks: employees, external employees and customers. Covers the address table (columns NO/COMPANY/FIRST NAME/LAST NAME, type abbreviation, sorting, pagination, Excel export, edit/delete actions), the filter panel (salutation, type, validity, countries, cantons/states, visibility date range, deleted addresses) and the global header search. Use this when the user asks what they see on the Employees/Addresses page, what the cards/columns mean, or how to work with it.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_page_employees"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "addresses",
+        "adressen",
+        "adressverwaltung",
+        "alle adressen",
+        "all addresses",
+        "mitarbeiterliste",
+        "employee list",
+        "client list",
+        "kundenliste",
+        "personenliste"
+      ],
+      "synonyms": {
+        "de": [
+          "alle adressen",
+          "adressverwaltung",
+          "mitarbeiterliste",
+          "personenliste",
+          "was sehe ich hier",
+          "erkläre diese seite",
+          "was bedeutet diese tabelle",
+          "wozu dient diese liste"
+        ],
+        "en": [
+          "all addresses",
+          "address management",
+          "employee list",
+          "client list",
+          "what do i see here",
+          "explain this page",
+          "what does this table mean",
+          "how do i use this page"
+        ],
+        "fr": [
+          "toutes les adresses",
+          "gestion des adresses",
+          "liste des employés",
+          "que vois-je ici",
+          "explique cette page",
+          "que signifie ce tableau",
+          "comment utiliser cette page"
+        ],
+        "it": [
+          "tutti gli indirizzi",
+          "gestione indirizzi",
+          "elenco dipendenti",
+          "cosa vedo qui",
+          "spiega questa pagina",
+          "cosa significa questa tabella",
+          "come si usa questa pagina"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_page_groups",
+      "description": "Explains the Groups page (/workplace/group) — the admin page for managing groups (teams, locations, organisational units): a sortable, filterable list view, a hierarchical tree view with drag & drop re-parenting and member counts, and the group editor with master data (name, validity, payment interval, calendar), parent structure and participant list. Use this when the user asks what they see on the Groups page, what the cards/columns/tree badges mean, or how to work with it.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_page_groups"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "groups",
+        "gruppen",
+        "gruppe",
+        "group page",
+        "gruppenseite",
+        "gruppenstruktur",
+        "group structure",
+        "baumansicht",
+        "tree view",
+        "teams"
+      ],
+      "synonyms": {
+        "de": [
+          "was sehe ich hier",
+          "erkläre diese seite",
+          "was bedeutet diese karte",
+          "gruppen",
+          "gruppenliste",
+          "gruppenbaum",
+          "alle gruppen",
+          "teilnehmerliste"
+        ],
+        "en": [
+          "what do I see here",
+          "explain this page",
+          "what does this card mean",
+          "groups",
+          "group list",
+          "group tree",
+          "all groups"
+        ],
+        "fr": [
+          "qu'est-ce que je vois ici",
+          "explique cette page",
+          "que signifie cette carte",
+          "groupes",
+          "tous les groupes",
+          "structure du groupe",
+          "arbre des groupes"
+        ],
+        "it": [
+          "cosa vedo qui",
+          "spiega questa pagina",
+          "cosa significa questa scheda",
+          "gruppi",
+          "tutti i gruppi",
+          "struttura del gruppo",
+          "albero dei gruppi"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_page_period_closing",
+      "description": "Explains the Period Closing page (Periodenabschluss) at /workplace/period-closing: the Periods card with the day-by-day seal table and bulk seal/unseal, the issues card with error/warning/info badges and unstaffed-shift count, the Exports card for downloading order exports (CSV/JSON/XML/DATEV/BMD), and the Audit Log card with seal/unseal actions and export history. Use this when the user asks what they see on the Period Closing page, what the cards/columns/badges mean, how to seal or reopen a period, or how to work with it.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_page_period_closing"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "period closing",
+        "periodenabschluss",
+        "periode",
+        "versiegeln",
+        "seal",
+        "unseal",
+        "export log",
+        "protokoll",
+        "audit",
+        "abschluss"
+      ],
+      "synonyms": {
+        "de": [
+          "periodenabschluss",
+          "was sehe ich hier",
+          "erkläre diese seite",
+          "was bedeutet diese karte",
+          "periode versiegeln",
+          "periode öffnen",
+          "exportprotokoll",
+          "abschluss-seite"
+        ],
+        "en": [
+          "period closing",
+          "what do I see here",
+          "explain this page",
+          "what does this card mean",
+          "seal period",
+          "reopen period",
+          "export log",
+          "audit log"
+        ],
+        "fr": [
+          "clôture de période",
+          "qu'est-ce que je vois ici",
+          "explique cette page",
+          "que signifie cette carte",
+          "sceller la période",
+          "rouvrir la période",
+          "journal d'audit"
+        ],
+        "it": [
+          "chiusura periodo",
+          "cosa vedo qui",
+          "spiega questa pagina",
+          "cosa significa questa scheda",
+          "sigilla periodo",
+          "riapri periodo",
+          "registro di controllo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_page_inbox",
+      "description": "Explains the Inbox page (Posteingang) at /workplace/inbox: the three-column mail layout with the Folders column (system folders Inbox/Spam/Trash/Sent/Clients plus user folders and the Groups tree for filtering mails by group or person), the email list with the Relevant/Other/All tabs, read filter, date sort and right-click context menu (mark read/unread, mark as spam, move to folder, delete/restore), and the reading pane with From/To/Date/Folder metadata and actions. Use this when the user asks what they see on the Inbox page, what the columns/folders/tabs/badges mean, or how to work with it.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_page_inbox"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "inbox",
+        "posteingang",
+        "e-mail",
+        "email",
+        "mail",
+        "ordner",
+        "spam",
+        "ungelesen",
+        "unread",
+        "papierkorb"
+      ],
+      "synonyms": {
+        "de": [
+          "posteingang",
+          "was sehe ich hier",
+          "erkläre diese seite",
+          "was bedeutet dieser ordner",
+          "was bedeutet dieses badge",
+          "e-mails lesen",
+          "mail-liste",
+          "spamverdacht"
+        ],
+        "en": [
+          "inbox",
+          "what do I see here",
+          "explain this page",
+          "what does this folder mean",
+          "what does this badge mean",
+          "read emails",
+          "mail list",
+          "spam folder"
+        ],
+        "fr": [
+          "boîte de réception",
+          "qu'est-ce que je vois ici",
+          "explique cette page",
+          "que signifie ce dossier",
+          "lire les e-mails",
+          "liste des e-mails",
+          "spam"
+        ],
+        "it": [
+          "posta in arrivo",
+          "cosa vedo qui",
+          "spiega questa pagina",
+          "cosa significa questa cartella",
+          "leggere le e-mail",
+          "elenco e-mail",
+          "spam"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_page_settings_overview",
+      "description": "Explains the Klacks settings page (/workplace/settings) — the admin-only configuration hub reached via the gear icon (open-settings, Alt+8). Orientation overview of its twelve collapsible sections: General (app name, owner address, data retention/GDPR), Users & Access (user administration, group visibility per user, identity providers), Organization (branches, contracts, states, countries, qualifications), Work & Scheduling (work settings, scheduling defaults, scheduling rules, Holistic Harmonizer), Absence & Calendar (absence types, absence details, holiday rules, calendar selection), Communication & Reports (SMTP, IMAP, spam rules, report templates and defaults), Appearance & Automation (grid colors, macros, floor plan), AI / LLM (models, providers, sync log, model check), Klacksy (speech, personality, skill proposals, autonomy), External Services (OpenRoute, DeepL, messaging), Plugins (language packs, feature plugins) and System (software updates). Mentions Klacksy's guided first-run setup tour through the most important cards. Use this when the user asks what they see on the settings page, what the sections/cards mean, or how to work with it.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_page_settings_overview"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "settings",
+        "einstellungen",
+        "konfiguration",
+        "configuration",
+        "settings page",
+        "einstellungsseite",
+        "admin settings",
+        "setup",
+        "sektionen",
+        "sections"
+      ],
+      "synonyms": {
+        "de": [
+          "einstellungen",
+          "einstellungsseite",
+          "konfiguration",
+          "was sehe ich hier",
+          "erkläre diese seite",
+          "was bedeutet diese karte",
+          "welche einstellungen gibt es",
+          "wo finde ich die einstellung"
+        ],
+        "en": [
+          "settings",
+          "settings page",
+          "configuration",
+          "what do i see here",
+          "explain this page",
+          "what does this card mean",
+          "where do i find a setting"
+        ],
+        "fr": [
+          "paramètres",
+          "page des paramètres",
+          "configuration",
+          "que vois-je ici",
+          "explique cette page",
+          "que signifie cette carte",
+          "où trouver un paramètre"
+        ],
+        "it": [
+          "impostazioni",
+          "pagina delle impostazioni",
+          "configurazione",
+          "cosa vedo qui",
+          "spiega questa pagina",
+          "cosa significa questa scheda",
+          "dove trovo un'impostazione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "start_guided_tour",
+      "description": "Starts the guided Klacks setup tour: Klacksy actively walks the user through all 16 stations (basic settings, employees, shifts, availability, absences, period closing, email, plugins), navigating to each page, pulsing the matching main-nav icon and explaining everything step by step. Use this whenever the user asks for a tour, a guided walkthrough, an introduction to Klacks, or wants Klacksy to lead them through the app. The tour can be restarted at any time, even when already completed. Do NOT improvise your own tour - call this skill so the structured tour takes over.",
+      "category": "Action",
+      "executionType": "UiAction",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": {
+        "steps": []
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "tour",
+        "guided tour",
+        "führung",
+        "rundgang",
+        "einführung",
+        "walkthrough",
+        "zeig mir klacks",
+        "show me around"
+      ],
+      "synonyms": {
+        "de": [
+          "mach eine tour",
+          "führe mich durch klacks",
+          "zeig mir die app",
+          "rundgang",
+          "einführung starten",
+          "tour starten",
+          "führe mich durch alle seiten"
+        ],
+        "en": [
+          "give me a tour",
+          "guide me through klacks",
+          "show me around",
+          "walkthrough",
+          "start the tour",
+          "introduce me to the app"
+        ],
+        "fr": [
+          "fais-moi une visite",
+          "guide-moi à travers klacks",
+          "montre-moi l'application",
+          "visite guidée",
+          "commencer la visite"
+        ],
+        "it": [
+          "fammi un tour",
+          "guidami attraverso klacks",
+          "mostrami l'applicazione",
+          "visita guidata",
+          "inizia il tour"
         ]
       },
       "version": 1

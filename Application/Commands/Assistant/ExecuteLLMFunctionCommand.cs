@@ -13,6 +13,7 @@ public class ExecuteLLMFunctionCommand : IRequest<LLMFunctionResult>
     public Dictionary<string, object>? Parameters { get; set; }
     public string UserId { get; set; } = string.Empty;
     public List<string> UserRights { get; set; } = new();
+    public AssistantPageContext? PageContext { get; set; }
 }
 
 public class ExecuteLLMFunctionCommandHandler : IRequestHandler<ExecuteLLMFunctionCommand, LLMFunctionResult>
@@ -79,7 +80,8 @@ public class ExecuteLLMFunctionCommandHandler : IRequestHandler<ExecuteLLMFuncti
             UserId = Guid.TryParse(request.UserId, out var uid) ? uid : Guid.Empty,
             TenantId = Guid.Empty,
             UserName = request.UserId,
-            UserPermissions = request.UserRights
+            UserPermissions = request.UserRights,
+            CurrentPage = request.PageContext?.CurrentRoute
         };
 
         var functionCall = new LLMFunctionCall
