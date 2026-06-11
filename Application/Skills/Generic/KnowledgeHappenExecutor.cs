@@ -26,7 +26,8 @@ public class KnowledgeHappenExecutor
         "OriginalOrder, SealedOrder, OriginalShift, SplitShift) are unknown to users: NEVER use them — speak of Diensten, Absenzen, " +
         "Spesen, Korrekturen, vorgeplanten Absenzen, Szenarien, Tagessperren, Bestellungen, versiegelten Bestellungen, planbaren " +
         "Schichten and Teilstücken in the user's language. " +
-        "When the user asks for a detailed explanation, cover EVERY element and control mentioned in the content — do not summarize controls away. " +
+        "When the user asks for a detailed explanation or how to create/edit a record, cover EVERY element, card and control " +
+        "the content describes for that page or mask, in its visible order — never summarize controls away or stop after the first fields. " +
         "If the question goes beyond this content, say so instead of inventing details.";
 
     private const string LevelInstruction =
