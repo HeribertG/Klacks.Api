@@ -18707,7 +18707,13 @@
         "ressourcen-monitor",
         "resource monitor",
         "standorte",
-        "locations"
+        "locations",
+        "abdeckung",
+        "bestätigung",
+        "coverage",
+        "confirmation",
+        "karte",
+        "map"
       ],
       "synonyms": {
         "de": [
@@ -18718,7 +18724,9 @@
           "erkläre diese seite",
           "was bedeutet dieses diagramm",
           "was bedeutet diese karte",
-          "ressourcen-monitor"
+          "ressourcen-monitor",
+          "abdeckung und bestätigung",
+          "standorte karte"
         ],
         "en": [
           "dashboard",
@@ -18749,7 +18757,7 @@
           "monitor risorse"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_page_schedule",

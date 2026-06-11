@@ -11,6 +11,7 @@ using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Application.Interfaces.Assistant;
+using Klacks.Api.Application.Skills.Generic;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Constants;
@@ -43,10 +44,12 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     private readonly IPlanningScopeEnricher _planningScopeEnricher;
     private readonly ILogger<LLMStreamingOrchestrator> _logger;
 
-    // Number of most recent conversation messages prepended to the skill-retrieval query so
+    // Number of most recent user messages prepended to the skill-retrieval query so
     // that mid-workflow turns (e.g. a bare "yes, correct") still retrieve the task skill the
     // earlier turns were about (e.g. create_employee).
     private const int RecentMessagesForRetrieval = 4;
+
+    private const string UserRoleName = "user";
 
     // Safety cap on the tool list sent to the provider. AlwaysOn skills are ordered first and survive
     // truncation; retrieved skills drop first. The cap MUST exceed (enabled alwaysOn count + DefaultTopK)
@@ -103,7 +106,8 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         try
         {
             (functions, hasDomainSkillContext) = await GetFilteredFunctionsAsync(
-                agent, request.UserRights, request.Message, request.ConversationId, cancellationToken);
+                agent, request.UserRights, request.Message, request.ConversationId,
+                request.PageContext?.CurrentRoute, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -134,7 +138,8 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     }
 
     private async Task<(List<LLMFunction> Functions, bool HasRetrievedDomainSkill)> GetFilteredFunctionsAsync(
-        Agent? agent, List<string> userRights, string userMessage, string? conversationId, CancellationToken ct)
+        Agent? agent, List<string> userRights, string userMessage, string? conversationId,
+        string? currentRoute, CancellationToken ct)
     {
         if (agent == null) return ([], false);
 
@@ -187,6 +192,17 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             hasDomainSkillContext = true;
         }
 
+        // Guarantee the explain skill of the page the user is on, independent of retrieval quality:
+        // follow-up questions about page sections otherwise dilute the retrieval query and the LLM
+        // hallucinates UI descriptions because the explain_page_* function is missing from its tools.
+        var pageExplainSkill = ResolvePageExplainSkill(permittedSkills, currentRoute);
+        if (pageExplainSkill != null &&
+            !pageExplainSkill.AlwaysOn &&
+            !retrievedSkills.Any(s => string.Equals(s.Name, pageExplainSkill.Name, StringComparison.OrdinalIgnoreCase)))
+        {
+            retrievedSkills.Insert(0, pageExplainSkill);
+        }
+
         if (retrievedSkills.Count == 0)
         {
             LogToolBudget(alwaysOnSkills.Count, 0, alwaysOnSkills.Count, false);
@@ -201,6 +217,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         {
             selectedSkills = selectedSkills
                 .OrderByDescending(s => s.AlwaysOn)
+                .ThenByDescending(s => ReferenceEquals(s, pageExplainSkill))
                 .ThenBy(s => s.SortOrder)
                 .Take(MaxToolsForProvider)
                 .ToList();
@@ -226,22 +243,28 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
                 return userMessage;
             }
 
+            // Only user messages enter the retrieval query: long assistant answers dilute the
+            // embedding so badly that follow-up questions stop retrieving the relevant skill.
+            var userMessages = history
+                .Where(m => string.Equals(m.Role, UserRoleName, StringComparison.OrdinalIgnoreCase)
+                            && !string.IsNullOrWhiteSpace(m.Content))
+                .ToList();
+
             var parts = new List<string>();
 
             // Anchor with the first user message: it carries the workflow intent
             // (e.g. "create a new employee") which must keep the task skill retrievable
             // through long multi-turn flows, even when recent turns only discuss sub-details.
-            var firstUserMessage = history.FirstOrDefault(m =>
-                string.Equals(m.Role, "user", StringComparison.OrdinalIgnoreCase));
-            if (firstUserMessage != null && !string.IsNullOrWhiteSpace(firstUserMessage.Content))
+            var firstUserMessage = userMessages.FirstOrDefault();
+            if (firstUserMessage != null)
             {
                 parts.Add(firstUserMessage.Content);
             }
 
-            parts.AddRange(history
+            parts.AddRange(userMessages
+                .Skip(1)
                 .TakeLast(RecentMessagesForRetrieval)
-                .Select(m => m.Content)
-                .Where(c => !string.IsNullOrWhiteSpace(c)));
+                .Select(m => m.Content));
 
             parts.Add(userMessage);
 
@@ -252,6 +275,18 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             _logger.LogWarning(ex, "Failed to enrich retrieval query with conversation history; using current message only");
             return userMessage;
         }
+    }
+
+    private static AgentSkill? ResolvePageExplainSkill(IReadOnlyList<AgentSkill> permittedSkills, string? currentRoute)
+    {
+        var skillName = PageExplainSkillRoutes.ResolveSkillName(currentRoute);
+        if (skillName == null)
+        {
+            return null;
+        }
+
+        return permittedSkills.FirstOrDefault(s =>
+            string.Equals(s.Name, skillName, StringComparison.OrdinalIgnoreCase));
     }
 
     private void LogToolBudget(int alwaysOnCount, int retrievedCount, int sentCount, bool truncated)

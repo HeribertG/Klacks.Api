@@ -68,7 +68,7 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
         foreach (var skill in _skillRegistry.GetAllSkills())
         {
             var exposedEndpointKey = GetExposedEndpointKey(skill);
-            var embeddingText = BuildEmbeddingText(skill.Name, skill.Description, skill.Parameters);
+            var embeddingText = BuildEmbeddingText(skill);
             var textHash = SHA256.HashData(Encoding.UTF8.GetBytes(embeddingText));
             var requiredPermission = skill.RequiredPermissions.Count > 0
                 ? skill.RequiredPermissions[0]
@@ -101,15 +101,36 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
             ?.EndpointKey;
     }
 
-    private static string BuildEmbeddingText(string name, string description, IReadOnlyList<SkillParameter> parameters)
+    private static string BuildEmbeddingText(SkillDescriptor skill)
     {
         var sb = new StringBuilder();
-        sb.Append(name);
+        sb.Append(skill.Name);
         sb.Append(". ");
-        sb.Append(description);
+        sb.Append(skill.Description);
         sb.Append('\n');
         sb.Append("Parameters: ");
-        sb.Append(string.Join(", ", parameters.Select(p => $"{p.Name} ({p.Type})")));
+        sb.Append(string.Join(", ", skill.Parameters.Select(p => $"{p.Name} ({p.Type})")));
+
+        if (skill.TriggerKeywords.Count > 0)
+        {
+            sb.Append('\n');
+            sb.Append("Keywords: ");
+            sb.Append(string.Join(", ", skill.TriggerKeywords));
+        }
+
+        var synonyms = skill.Synonyms?.Values
+            .SelectMany(values => values)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (synonyms is { Count: > 0 })
+        {
+            sb.Append('\n');
+            sb.Append("Synonyms: ");
+            sb.Append(string.Join(", ", synonyms));
+        }
+
         return sb.ToString();
     }
 }

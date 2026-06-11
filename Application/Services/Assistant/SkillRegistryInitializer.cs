@@ -69,7 +69,9 @@ public class SkillRegistryInitializer
             {
                 ExecutionType = agentSkill.ExecutionType,
                 HandlerType = agentSkill.HandlerType,
-                HandlerConfig = agentSkill.HandlerConfig
+                HandlerConfig = agentSkill.HandlerConfig,
+                TriggerKeywords = ParseTriggerKeywords(agentSkill.TriggerKeywords, agentSkill.Name),
+                Synonyms = agentSkill.Synonyms
             };
 
             descriptors.Add(descriptor);
@@ -157,6 +159,25 @@ public class SkillRegistryInitializer
         {
             _logger.LogError(ex, "Failed to parse ParametersJson for skill {SkillName}", skillName);
             return Array.Empty<SkillParameter>();
+        }
+    }
+
+    private IReadOnlyList<string> ParseTriggerKeywords(string? triggerKeywordsJson, string skillName)
+    {
+        if (string.IsNullOrWhiteSpace(triggerKeywordsJson) || triggerKeywordsJson == "[]")
+        {
+            return Array.Empty<string>();
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<List<string>>(triggerKeywordsJson, JsonOptions)
+                   ?? (IReadOnlyList<string>)Array.Empty<string>();
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to parse TriggerKeywords for skill {SkillName}", skillName);
+            return Array.Empty<string>();
         }
     }
 

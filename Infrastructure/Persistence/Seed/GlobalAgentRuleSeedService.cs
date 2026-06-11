@@ -83,7 +83,7 @@ public class GlobalAgentRuleSeedService
         ),
         (
             "PAGE_EXPLANATIONS",
-            "When the user asks what they see on a page, what a card/chart/column means, or how a page works, call the matching explain_page_* skill and answer ONLY from its content — never improvise UI descriptions. When the user asks for a tour, a walkthrough or wants to be guided through Klacks, call start_guided_tour instead of improvising a tour yourself. Always answer in the user's language, keeping the localized UI labels from the knowledge content.",
+            "When the user asks what they see on a page, what a card/chart/column means, or how a page works, call the matching explain_page_* skill and answer ONLY from its content — never improvise UI descriptions. This applies to EVERY page question, including follow-up questions about a single section, card or chart of a page you already explained: tool results are NOT kept in the conversation history, so call the explain_page_* skill AGAIN for each follow-up before answering. If no matching explain_page_* function is available in your tools, say that you cannot describe this page reliably right now instead of guessing — never invent sections, cards or features. When the user asks for a tour, a walkthrough or wants to be guided through Klacks, call start_guided_tour instead of improvising a tour yourself. Always answer in the user's language, keeping the localized UI labels from the knowledge content.",
             9
         ),
         (
@@ -101,23 +101,40 @@ public class GlobalAgentRuleSeedService
         _logger = logger;
     }
 
+    private const string SeedSource = "seed";
+
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
         var existingRules = await _ruleRepository.GetActiveRulesAsync(cancellationToken);
-        var existingNames = existingRules.Select(r => r.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var existingByName = existingRules
+            .GroupBy(r => r.Name, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
         var inserted = 0;
+        var updated = 0;
         foreach (var (name, content, sortOrder) in DefaultRules)
         {
-            if (existingNames.Contains(name))
-                continue;
+            if (existingByName.TryGetValue(name, out var existing))
+            {
+                // Refresh unmodified seed rules when the shipped default changed; rules edited
+                // by an admin (source != "seed") are never overwritten.
+                if (!string.Equals(existing.Source, SeedSource, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(existing.Content, content, StringComparison.Ordinal))
+                {
+                    continue;
+                }
 
-            await _ruleRepository.UpsertRuleAsync(name, content, sortOrder, source: "seed", cancellationToken: cancellationToken);
+                await _ruleRepository.UpsertRuleAsync(name, content, sortOrder, source: SeedSource, cancellationToken: cancellationToken);
+                updated++;
+                continue;
+            }
+
+            await _ruleRepository.UpsertRuleAsync(name, content, sortOrder, source: SeedSource, cancellationToken: cancellationToken);
             inserted++;
         }
 
-        if (inserted > 0)
-            _logger.LogInformation("Seeded {Count} new global agent rules.", inserted);
+        if (inserted > 0 || updated > 0)
+            _logger.LogInformation("Seeded global agent rules: {Inserted} inserted, {Updated} updated.", inserted, updated);
         else
             _logger.LogInformation("All global agent rules already present. Nothing to seed.");
     }

@@ -100,9 +100,28 @@ So liest man das Diagramm (Einheit "MA" = Mitarbeiter, pro Tag ein gestapelter B
   en: "Total Employees", fr: "Total des employés", it: "Totale dipendenti"): Gesamtbestand
   aktiver Mitarbeiter an dem Tag.
 
+Was in die Berechnung einfliesst — wichtig, um die Zahlen richtig zu deuten:
+
+- **Nicht in den Dienste-Balken enthalten:** Sporadische Dienste und TimeRange-Dienste werden
+  bewusst NICHT mitgezählt — sporadische Dienste unterliegen dem Zufall und lassen sich nicht
+  prognostizieren, TimeRange-Dienste laufen in der Regel innerhalb von Containern. Ebenfalls
+  ausgenommen sind versiegelte Bestellungen (SealedOrder) und Szenario-Dienste. Container zählen
+  als 1 Dienst; ihre per Container-Vorlage enthaltenen Sub-Dienste werden nicht doppelt gezählt.
+- **Absenzen-Balken:** enthalten die effektiven (bereits im Plan verplanten) Breaks UND die
+  Break-Placeholder (erfasste, aber noch nicht verplante Absenzen). Summiert wird pro Tag der
+  Standardwert der jeweiligen Absenzart, wörtlich wie erfasst — Wochenenden zählen mit, es gibt
+  keine FTE-Gewichtung.
+
 Samstage, Sonntage und Feiertage sind im Hintergrund farblich markiert (Feiertage mit Tooltip),
-Monatsgrenzen sind beschriftet. Liegen die grünen Balken über den Linien, ist mehr geplant als
-verfügbar (Unterdeckung); liegen sie deutlich darunter, gibt es freie Kapazität.
+Monatsgrenzen sind beschriftet. Für die Interpretation zählt die gestapelte GESAMThöhe: Ragen
+grüne und graue Balken ZUSAMMEN (Dienste + Absenzen) über die roten/rosa Linien hinaus, ist an
+dem Tag mehr geplant als verfügbar (Unterdeckung); liegt der Stapel deutlich darunter, gibt es
+freie Kapazität.
+
+Wichtig für die Planung: Mit der Gesamtauslastung immer UNTERHALB der Wunsch-Einsatzbereitschaft
+(rosa Linie) bleiben. Wer bis an die maximale Einsatzbereitschaft (rote Linie) plant, hat keinen
+Spielraum mehr, um auf kurzfristige Ereignisse wie Krankheitsausfälle oder Zusatzaufträge zu
+reagieren — eine maximale Auslastung kann sich verheerend auf die Agilität des Betriebs auswirken.
 
 ## Abschnitt 4: **Standorte** (de: "Standorte", en: "Locations", fr: "Emplacements", it: "Ubicazioni")
 

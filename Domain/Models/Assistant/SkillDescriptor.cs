@@ -16,4 +16,6 @@ public record SkillDescriptor(
     public string ExecutionType { get; init; } = "Skill";
     public string? HandlerType { get; init; }
     public string? HandlerConfig { get; init; }
+    public IReadOnlyList<string> TriggerKeywords { get; init; } = Array.Empty<string>();
+    public IReadOnlyDictionary<string, List<string>>? Synonyms { get; init; }
 }

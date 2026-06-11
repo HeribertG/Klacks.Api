@@ -57,7 +57,9 @@ public sealed class OnnxEmbeddingProvider : IEmbeddingProvider, IAsyncDisposable
 
     private float[][] RunInference(string[] texts)
     {
-        var encoded = texts.Select(t => _tokenizer!.Encode(t).Select(id => (long)id).ToArray()).ToArray();
+        var encoded = texts
+            .Select(t => _tokenizer!.Encode(t).Select(id => (long)id).Take(MaxSequenceLength).ToArray())
+            .ToArray();
         var maxLen = encoded.Max(e => e.Length);
         var batchSize = texts.Length;
 

@@ -17,6 +17,7 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Application.Services.Assistant;
+using Klacks.Api.Application.Skills.Generic;
 using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Constants;
 using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Interfaces;
 
@@ -74,7 +75,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             UserRights = request.UserRights,
             PageContext = request.PageContext,
             AvailableFunctions = await GetFilteredFunctionsAsync(
-                agent, request.UserRights, request.Message, request.Language, cancellationToken)
+                agent, request.UserRights, request.Message, request.PageContext?.CurrentRoute, cancellationToken)
         };
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);
@@ -86,7 +87,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         Agent? agent,
         List<string> userRights,
         string userMessage,
-        string? language,
+        string? currentRoute,
         CancellationToken cancellationToken)
     {
         if (agent == null) return [];
@@ -118,6 +119,16 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             retrievedSkills = [];
         }
 
+        // Guarantee the explain skill of the page the user is on, independent of retrieval quality
+        // (same rationale as in LLMStreamingOrchestrator).
+        var pageExplainSkill = ResolvePageExplainSkill(permittedSkills, currentRoute);
+        if (pageExplainSkill != null &&
+            !pageExplainSkill.AlwaysOn &&
+            !retrievedSkills.Any(s => string.Equals(s.Name, pageExplainSkill.Name, StringComparison.OrdinalIgnoreCase)))
+        {
+            retrievedSkills.Insert(0, pageExplainSkill);
+        }
+
         if (retrievedSkills.Count == 0)
         {
             return alwaysOnSkills.Select(ConvertToLLMFunction).ToList();
@@ -132,12 +143,25 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         {
             selectedSkills = selectedSkills
                 .OrderByDescending(s => s.AlwaysOn)
+                .ThenByDescending(s => ReferenceEquals(s, pageExplainSkill))
                 .ThenBy(s => s.SortOrder)
                 .Take(MaxToolsForProvider)
                 .ToList();
         }
 
         return selectedSkills.Select(ConvertToLLMFunction).ToList();
+    }
+
+    private static AgentSkill? ResolvePageExplainSkill(IReadOnlyList<AgentSkill> permittedSkills, string? currentRoute)
+    {
+        var skillName = PageExplainSkillRoutes.ResolveSkillName(currentRoute);
+        if (skillName == null)
+        {
+            return null;
+        }
+
+        return permittedSkills.FirstOrDefault(s =>
+            string.Equals(s.Name, skillName, StringComparison.OrdinalIgnoreCase));
     }
 
     private static List<AgentSkill> FilterByPermissions(IReadOnlyList<AgentSkill> skills, List<string> userRights)
