@@ -167,7 +167,8 @@ mit wählbarer Zeilenzahl inkl. Automatik (passt die Zeilenzahl an die Fensterh�
 Seiten-Überschrift **neuer Dienst** (de: "neuer Dienst", en: "New shift", fr: "Nouveau
 service", it: "Nuovo turno"). Die Kopfleisten-Suche ist auf dieser Unterseite ausgeblendet;
 Speichern/Verwerfen läuft über die Fusszeile des Arbeitsbereichs (mit Query-Parameter
-`readonly=true` ist sie ausgeblendet). Cards in dieser Reihenfolge:
+`readonly=true` ist sie ausgeblendet und alle Felder sind schreibgeschützt). Jede Card hat
+oben rechts einen Auf-/Zuklapp-Pfeil. Cards in dieser Reihenfolge:
 
 1. **Allgemeines** (de: "Allgemeines", en: "General", fr: "Général", it: "Generale") —
    Schalter **Experten Modus** (de: "Experten Modus", en: "Expert Mode", fr: "Mode expert")
@@ -176,7 +177,7 @@ Speichern/Verwerfen läuft über die Fusszeile des Arbeitsbereichs (mit Query-Pa
    `abbreviation`, `data-klacksy-target="shift-form.abbreviation"`, max. 6 Zeichen — wird
    beim Tippen des Namens automatisch vorgeschlagen, solange das Feld unberührt ist),
    **Name*** (Input `name`, `data-klacksy-target="shift-form.name"`), **Von Datum*** /
-   **Bis Datum** (Datepicker) und eine Notiz (Rich-Text-Editor). Rechts der **Lock-Button**
+   **Bis Datum** (Datepicker) und **Notizen** (Rich-Text-Editor). Rechts der **Lock-Button**
    `shift-lock-btn` (grün, offenes Schloss) — nur im Status Bestellung
    sichtbar; Tooltip: "Nach Sperrung ist der Auftrag unveränderlich und steht zur Planung
    bereit." Er wird erst aktiv, wenn Abkürzung, Name, Von-Datum, mindestens ein Wochentag,
@@ -188,24 +189,41 @@ Speichern/Verwerfen läuft über die Fusszeile des Arbeitsbereichs (mit Query-Pa
    im Experten-Modus und nur im Status Bestellung sichtbar; aktivieren leert Kunde/Adresse
    und schaltet die Zeitrahmen-Option aus.
 2. **Gruppe** (de: "Gruppe", en: "Group", fr: "Groupe", it: "Gruppo") — Zuordnung des
-   Dienstes zu Gruppen; Card erscheint nur, wenn Gruppen existieren.
+   Dienstes zu Gruppen; Card erscheint nur, wenn Gruppen existieren. Eine Info-Box mahnt
+   **Bitte wählen Sie mindestens eine Gruppe aus** (de: "Bitte wählen Sie mindestens eine
+   Gruppe aus", en: "Please select at least one group", fr: "Veuillez sélectionner au
+   moins un groupe", it: "Si prega di selezionare almeno un gruppo"), solange keine Gruppe
+   gewählt ist. Darunter ein Gruppen-Auswahl-Dropdown und die Tabelle der zugeordneten
+   Gruppen mit den Spalten **Gruppe** und **Beschreibung** (de: "Beschreibung", en:
+   "Description", fr: "Description", it: "Descrizione") plus Papierkorb zum Entfernen.
 3. **Erforderliche Qualifikationen** (de: "Erforderliche Qualifikationen", en: "Required
    Qualifications", fr: "Qualifications requises", it: "Qualifiche richieste") — Filter
-   nach Typ/Kategorie/Land, Plus-Button, Tabelle mit **QUALIFIKATION** (en:
-   "QUALIFICATION"), **MINDESTSTUFE** (en: "MIN LEVEL") und **PFLICHT** (en: "MANDATORY").
+   nach Typ (de: "Alle Typen", en: "All types") und Land (de: "Alle Länder", en: "All
+   countries") sowie Button **Qualifikation hinzufügen** (de: "Qualifikation hinzufügen",
+   en: "Add qualification", fr: "Ajouter une qualification", it: "Aggiungi qualifica").
+   Tabelle mit **QUALIFIKATION** (en: "QUALIFICATION"), **MINDESTSTUFE** (en: "MIN LEVEL",
+   Stufen 1–5: Gering / Grundlegend / Kompetent / Fortgeschritten / Experte) und
+   **PFLICHT** (en: "MANDATORY", Checkbox). Sind noch keine Qualifikationen definiert,
+   erscheint der Hinweis, sie zuerst in den Einstellungen anzulegen.
 4. **Stunden und Wochentage** (de: "Stunden und Wochentage", en: "Hours and Weekdays", fr:
    "Heures et jours de la semaine", it: "Ore e Giorni Feriali") — **Von Zeit hh:mm**, **Bis
    Zeit hh:mm**, **Dauer** (en: "Duration"); im Experten-Modus (nicht bei Containern)
    zusätzlich die Zeitrahmen-Checkbox "Dienst innerhalb des Zeitrahmens (Von Zeit hh:mm -
    Bis Zeit hh:mm). Bitte in Feld Dauer die Dauer des Diensten angeben" (= TimeRange:
    der Dienst liegt flexibel in diesem Zeitfenster, die Dauer zählt). Darunter die
-   Wochentags-Checkboxen `isMonday`–`isSunday` (Montag–Sonntag) plus **Feiertag, egal an
-   welchen Wochentag** (`isHoliday`) und **Feiertag an selektiertem Wochentag**
-   (`isWeekdayAndHoliday`).
-5. **Macro** (de: "Macro", en: "Macro") — nur im Experten-Modus sichtbar; Macro-Zuordnung
-   für die Dauer-/Lohnberechnung des Dienstes.
+   Wochentags-Checkboxen Montag–Sonntag plus **Feiertag, egal an welchen Wochentag** und
+   **Feiertag an selektiertem Wochentag**.
+5. **Macro** (de: "Macro", en: "Macro", fr: "Macro", it: "Macro") — nur im Experten-Modus
+   sichtbar: Dropdown **Macro Liste** (de: "Macro Liste", en: "Macro list", fr: "Liste des
+   macros", it: "Elenco macro") zur Zuordnung eines Macros für die Dauer-/Lohnberechnung;
+   darunter ein schreibgeschütztes Textfeld mit der Beschreibung des gewählten Macros.
 6. **Adresse** (de: "Adresse", en: "Address", fr: "Adresse", it: "Indirizzo") — nicht bei
-   Containern; Suche und Auswahl des Kunden bzw. der Einsatzadresse.
+   Containern: Suchfeld **Adresse suchen** (de: "Adresse suchen", en: "Search address",
+   fr: "Rechercher une adresse", it: "Cerca indirizzo") mit Platzhalter **Name oder ID
+   Nummer eingeben** (de: "Name oder ID Nummer eingeben", en: "Enter name or ID number")
+   und Vorschlagsliste, Button **Auswählen** (de: "Auswählen", en: "Select", fr:
+   "Sélectionner", it: "Seleziona") sowie die Anzeige **Ausgewählte Adresse** (de:
+   "Ausgewählte Adresse", en: "Selected address") mit Papierkorb zum Entfernen.
 7. **Spezielle Merkmale** (de: "Spezielle Merkmale", en: "Special Features", fr:
    "Caractéristiques spéciales", it: "Caratteristiche Speciali") — nur im Experten-Modus
    oder bei Containern: Checkbox **sporadischer Einsatz** (de: "sporadischer Einsatz", en:
@@ -217,8 +235,13 @@ Speichern/Verwerfen läuft über die Fusszeile des Arbeitsbereichs (mit Query-Pa
    Schicht** (en: "Number of tasks per shift", Feld `sumQuantity`, 1–100). Bei Containern
    ist nur die Sporadisch-Option sichtbar.
 8. **Standard-Spesen** (de: "Standard-Spesen", en: "Default Expenses", fr: "Frais par
-   défaut", it: "Spese predefinite") — nur Experten-Modus, nicht bei Containern;
-   Spesenpositionen mit Beschreibung, Betrag, steuerbar.
+   défaut", it: "Spese predefinite") — eigene Card, nur im Experten-Modus und nicht bei
+   Containern: Button **+ Neue Spese** (de: "+ Neue Spese", en: "+ New Expense", fr: "+
+   Nouvelle dépense", it: "+ Nuova spesa"), Hinweis **Keine Standard-Spesen definiert**
+   (de: "Keine Standard-Spesen definiert", en: "No Default Expenses defined") wenn leer,
+   und eine Tabelle mit **BEZEICHNUNG** (en: "DESCRIPTION"), **BETRAG** (en: "AMOUNT",
+   Zahl mit Rappen-Schritten) und **STEUERPFLICHTIG** (en: "TAXABLE", Checkbox) plus
+   Papierkorb pro Zeile.
 
 Rechts eine Filter-Spalte (ausgeblendet bei zugeschnittenen Diensten und Containern): sie
 filtert die Kunden-Suche der Adresse-Card — Checkboxen Frau/Mann/juristische Person,
