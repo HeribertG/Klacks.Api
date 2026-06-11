@@ -5,7 +5,7 @@
 /// so the current page's explain skill can be guaranteed in the LLM tool list.
 /// </summary>
 /// <param name="currentRoute">Frontend route from AssistantPageContext; may carry entity ids, query strings or fragments</param>
-namespace Klacks.Api.Application.Skills.Generic;
+namespace Klacks.Api.Domain.Services.Assistant;
 
 public static class PageExplainSkillRoutes
 {

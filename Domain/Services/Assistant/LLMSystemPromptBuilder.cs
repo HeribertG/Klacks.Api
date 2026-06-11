@@ -108,6 +108,15 @@ NAVIGATION RESPONSE GUIDE:
         if (!string.IsNullOrWhiteSpace(pageContext.CurrentRoute))
         {
             sb.AppendLine($"- route: {pageContext.CurrentRoute}");
+
+            var pageExplainSkill = PageExplainSkillRoutes.ResolveSkillName(pageContext.CurrentRoute);
+            if (pageExplainSkill != null)
+            {
+                sb.AppendLine(
+                    $"- MANDATORY: for ANY question about this page, its elements/cards, or how to create/edit something here, " +
+                    $"call {pageExplainSkill} FIRST (level=elements for element/mask/how-to questions) and answer ONLY from its result — " +
+                    "never from memory or earlier turns.");
+            }
         }
         if (!string.IsNullOrWhiteSpace(pageContext.SelectedGroupId))
         {
