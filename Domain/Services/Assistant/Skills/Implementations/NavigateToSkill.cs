@@ -15,6 +15,7 @@ using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -81,6 +82,12 @@ public class NavigateToSkill : BaseSkillImplementation
             QueryParams = queryParams
         };
 
-        return Task.FromResult(SkillResult.Navigation(navigationData, $"Navigate to {page}"));
+        var explainSkill = PageExplainSkillRoutes.ResolveSkillName(route);
+        var message = explainSkill == null
+            ? $"Navigate to {page}"
+            : $"Navigate to {page}. MANDATORY next step: if the user asked what this page is, how it works, " +
+              $"or how to create/edit something here, call {explainSkill} with level=elements NOW and answer ONLY from its result.";
+
+        return Task.FromResult(SkillResult.Navigation(navigationData, message));
     }
 }
