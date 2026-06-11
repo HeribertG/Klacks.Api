@@ -32,7 +32,7 @@ public class DeepLTranslationService : ITranslationService
         _logger = logger;
     }
 
-    public async Task<bool> IsConfiguredAsync() => await GetApiKeyAsync() is not null;
+    public async Task<bool> IsConfiguredAsync() => !string.IsNullOrWhiteSpace(await GetApiKeyAsync());
 
     public async Task<TranslationResult> TranslateAsync(string text, string sourceLanguage, string targetLanguage)
     {
