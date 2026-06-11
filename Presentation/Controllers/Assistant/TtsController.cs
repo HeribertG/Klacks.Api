@@ -8,6 +8,7 @@
 /// <param name="logger">Logger for diagnostics and error tracking</param>
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Presentation.DTOs.Assistant;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -23,7 +24,6 @@ public class TtsController : ControllerBase
     private readonly ILogger<TtsController> _logger;
     private readonly IEnumerable<ITtsProvider> _ttsProviders;
 
-    private const int MaxTextLength = 5000;
     private const string TestText = "Test.";
 
     public TtsController(
@@ -76,9 +76,9 @@ public class TtsController : ControllerBase
             return BadRequest("Text cannot be empty");
         }
 
-        if (request.Text.Length > MaxTextLength)
+        if (request.Text.Length > TtsProviderConstants.MaxSynthesisTextLength)
         {
-            return BadRequest($"Text exceeds maximum length of {MaxTextLength} characters");
+            return BadRequest($"Text exceeds maximum length of {TtsProviderConstants.MaxSynthesisTextLength} characters");
         }
 
         var providerId = request.ProviderId ?? TtsProviderConstants.Edge;
@@ -92,8 +92,21 @@ public class TtsController : ControllerBase
         {
             var voiceId = request.VoiceId ?? TtsProviderConstants.AutoVoice;
             var locale = request.Locale ?? TtsProviderConstants.DefaultLocale;
-            var audioBytes = await provider.SynthesizeAsync(request.Text, voiceId, locale, ct);
-            return File(audioBytes, "audio/mpeg");
+            var chunks = TtsTextChunker.Split(request.Text, TtsProviderConstants.SynthesisChunkLength);
+
+            using var audioStream = new MemoryStream();
+            foreach (var chunk in chunks)
+            {
+                if (string.IsNullOrWhiteSpace(chunk))
+                {
+                    continue;
+                }
+
+                var chunkAudio = await provider.SynthesizeAsync(chunk, voiceId, locale, ct);
+                audioStream.Write(chunkAudio, 0, chunkAudio.Length);
+            }
+
+            return File(audioStream.ToArray(), "audio/mpeg");
         }
         catch (Exception ex)
         {

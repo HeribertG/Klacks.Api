@@ -47,8 +47,11 @@ ist nur eine Sammlung von Verweisen darauf — kein Daten-Duplikat.
 ## Konsequenz für die Bedienung
 
 - Änderung am Mitarbeiter in **einem** Blatt → sichtbar in **allen** Blättern.
-- Konflikte (Doppelbelegung in zwei Geschäftsfeldern) werden technisch verhindert,
-  weil die Mitarbeiterzeile nur einen Plan-Wert pro Tag hat.
+- Konflikte (Doppelbelegung in zwei Geschäftsfeldern) werden NICHT still verhindert,
+  sondern sofort sichtbar gemacht: Die Mitarbeiterzeile ist überall dieselbe, eine
+  Belegung erscheint in allen Blättern (fremde Buchungen als versiegelte Einträge),
+  und die Fehlerliste der Planung weist den Konflikt aus. Die Entscheidung bleibt
+  beim Planer.
 - Geschäftsfelder können sich Mitarbeiter ausleihen, ohne dass ein Planer das
   manuell synchronisieren muss.
 

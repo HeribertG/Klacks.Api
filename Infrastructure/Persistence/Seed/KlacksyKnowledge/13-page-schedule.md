@@ -229,8 +229,10 @@ Ergebnisse als Szenario, das der Planer übernehmen oder verwerfen muss.
   Szenarien angeboten werden. Ein Gruppenwechsel beendet ein aktives Szenario.
 - **Cross-Group-Einträge (modulare Planung)**: Buchungen, deren Schicht in einer fremden
   Gruppe lebt, werden NICHT ausgeblendet, sondern erscheinen als **versiegelt**
-  (gruppengesperrt, schreibgeschützt) — der Planer sieht die Belegung und Doppelbuchungen
-  werden verhindert.
+  (gruppengesperrt, schreibgeschützt) — der Planer sieht die Belegung jederzeit. Wichtig:
+  Klacks verhindert Konflikte nicht still im Hintergrund, sondern macht sie sofort
+  SICHTBAR — direkt in der Planung und in der **Fehlerliste** (Tab neben den Schichten,
+  mit Badges für Fehler/Warnung/Info). Die Entscheidung bleibt beim Planer.
 - **Szenarien (AnalyseToken)**: Jedes Szenario ist eine isolierte Sandbox — seine Einträge
   tragen ein Analyse-Token und erscheinen exakt symmetrisch nur im Szenario-Modus, nie im
   Original (und umgekehrt). Wizard/Harmonizer-Läufe schreiben ihr Ergebnis als Szenario.
