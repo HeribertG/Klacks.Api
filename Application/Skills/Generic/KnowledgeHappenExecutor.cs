@@ -20,6 +20,8 @@ public class KnowledgeHappenExecutor
         "Curated Klacks knowledge. Answer the user's question using ONLY this content, in the user's language. " +
         "Bracketed label anchors like (de: ..., en: ..., fr: ..., it: ...) are internal translation aids: " +
         "use ONLY the label matching the user's language and NEVER print the anchor lists themselves. " +
+        "Backticked DOM element ids (e.g. `schedule-prev-btn`) are internal anchors for navigation and highlighting: " +
+        "NEVER mention them in your answer — refer to every control only by its visible label. " +
         "When the user asks for a detailed explanation, cover EVERY element and control mentioned in the content — do not summarize controls away. " +
         "If the question goes beyond this content, say so instead of inventing details.";
 
