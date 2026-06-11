@@ -282,7 +282,7 @@ Cards plus einer rechten Navigationsspalte:
   die Karten-Buttons (OpenStreetMap/Street View) bei Kunden und für geografische
   Funktionen.
 - **Szenarien & Periodenabschluss**: Stammdaten sind davon nicht betroffen —
-  Szenario-Isolation (AnalyseToken) und Periodenabschluss/DayLock wirken auf Planungsdaten
+  Szenario-Isolation und Periodenabschluss/DayLock wirken auf Planungsdaten
   (Dienste/Absenzen), nicht auf Adressen.
 - **Berechtigungen**: Anlegen, Bearbeiten und Löschen sind Admin-Funktionen; Nicht-Admins
   öffnen die Maske nur lesend (Auge / `readonly=true`).

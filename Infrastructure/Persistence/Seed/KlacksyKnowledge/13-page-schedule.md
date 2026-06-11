@@ -168,13 +168,12 @@ Ergebnisse als Szenario, das der Planer übernehmen oder verwerfen muss.
 
 ### Planungsraster (Mitarbeiter × Tage)
 
-- Zell-Typen: Arbeitseinträge (Work), Korrekturen/Ablösungen/An- u. Abreise/Briefing
-  (WorkChange), **Spesen/Vergütung** (eigene Expenses-Einträge: steuerpflichtig = Spesen,
-  nicht steuerpflichtig = Vergütung), Absenzen (Break) sowie Notizen (ScheduleNote) und
-  Planungs-Befehle (ScheduleCommand).
+- Zell-Typen: Dienst-Einträge, Korrekturen/Ablösungen/An- u. Abreise/Briefing,
+  **Spesen/Vergütung** (steuerpflichtig = Spesen, nicht steuerpflichtig = Vergütung),
+  Absenzen sowie Notizen und Planungs-Befehle.
 - **Drag & Drop**: Schichten aus der unteren Schicht-Sektion in eine Zelle ziehen;
   bestehende Zelleinträge lassen sich verschieben oder per Zieh-Geste löschen.
-  **Doppelklick** öffnet den passenden Editier-Dialog (Work, Korrektur/Spesen, Container).
+  **Doppelklick** öffnet den passenden Editier-Dialog (Dienst, Korrektur/Spesen, Container).
 - **Kontextmenü gefüllte Zelle**: Kopieren / Ausschneiden / Einfügen, Löschen,
   **Korrektur...** (en: "Correction..."), **Anreise/Abreise...** (en: "Travel...", fr:
   "Trajet...", it: "Viaggio..."), **Briefing/Debriefing...**, **Ablösung...** (en:
@@ -197,7 +196,7 @@ Ergebnisse als Szenario, das der Planer übernehmen oder verwerfen muss.
   Closed nur Admins. Auf versiegelten Tagesspalten und vor dem Eintrittsdatum eines
   Mitarbeiters (Beginn der Mitgliedschaft) bleibt das Kontextmenü leer — keine neuen
   Einträge möglich.
-- Tooltips: Kopfzellen zeigen verfügbare/überbuchte Schichten, leere Zellen Feiertage.
+- Tooltips: Kopfzellen zeigen nicht gebuchte oder überbuchte Schichten, leere Zellen Feiertage.
 
 ### Unterer Bereich: Schicht-Sektion
 
@@ -233,7 +232,7 @@ Ergebnisse als Szenario, das der Planer übernehmen oder verwerfen muss.
   Klacks verhindert Konflikte nicht still im Hintergrund, sondern macht sie sofort
   SICHTBAR — direkt in der Planung und in der **Fehlerliste** (Tab neben den Schichten,
   mit Badges für Fehler/Warnung/Info). Die Entscheidung bleibt beim Planer.
-- **Szenarien (AnalyseToken)**: Jedes Szenario ist eine isolierte Sandbox — seine Einträge
+- **Szenarien**: Jedes Szenario ist eine isolierte Sandbox — seine Einträge
   tragen ein Analyse-Token und erscheinen exakt symmetrisch nur im Szenario-Modus, nie im
   Original (und umgekehrt). Wizard/Harmonizer-Läufe schreiben ihr Ergebnis als Szenario.
   **Übernehmen** schreibt die Szenario-Einträge in den echten Plan, **Verwerfen** löscht

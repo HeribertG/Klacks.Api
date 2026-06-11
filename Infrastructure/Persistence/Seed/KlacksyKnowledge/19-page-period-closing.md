@@ -182,14 +182,14 @@ oder direkt unter `/workplace/period-closing`; die Seite zeigt drei Karten unter
 
 ## Stufe 3 — Wirkungen & Zusammenspiel mit anderen Seiten
 
-- **Was Versiegeln tut**: Das Versiegeln setzt alle Arbeits- (Work) und Absenz-Einträge
-  (Break) des Zeitraums auf die höchste der vier Sperrstufen (None → Confirmed → Approved →
+- **Was Versiegeln tut**: Das Versiegeln setzt alle Dienst- und Absenz-Einträge
+  des Zeitraums auf die höchste der vier Sperrstufen (None → Confirmed → Approved →
   **Closed**) und legt zusätzlich pro Kalendertag ein **Tagessiegel** an — mit Gruppenbezug,
   wenn die gewählte Periode eine Gruppe trägt, sonst global für alle. Der gemeldete Zähler
-  "betroffene Einträge" ist die Summe aus versiegelten Works + Breaks + neu angelegten
-  Tagessiegeln. Der Protokoll-Eintrag wird in derselben Transaktion geschrieben.
-- **DayLock-Wirkung**: Für versiegelte Tage lehnt das Backend jede Neuanlage, Änderung und
-  Löschung von Works, Absenzen (Breaks), Spesen (Expenses) und Korrekturen (WorkChanges) ab —
+  "betroffene Einträge" ist die Summe aus versiegelten Dienst- und Absenz-Einträgen plus neu
+  angelegten Tagessiegeln. Der Protokoll-Eintrag wird in derselben Transaktion geschrieben.
+- **Wirkung des Tagessiegels**: Für versiegelte Tage lehnt das Backend jede Neuanlage,
+  Änderung und Löschung von Dienst-Einträgen, Absenzen, Spesen und Korrekturen ab —
   mit der Fehlermeldung **Tag ist gesperrt und kann nicht geändert werden** (de: "Tag ist
   gesperrt und kann nicht geändert werden", en: "Day is sealed and cannot be modified", fr:
   "Le jour est scellé et ne peut être modifié", it: "Il giorno è sigillato e non può essere

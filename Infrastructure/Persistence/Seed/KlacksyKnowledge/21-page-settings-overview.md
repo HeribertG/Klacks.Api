@@ -154,7 +154,7 @@ scrollen kann.
 
 - **Berechtigung**: Die ganze Seite ist Admin-only (AdminGuard auf der Route); wer das
   Zahnrad-Icon nicht sieht, hat keine Admin-Berechtigung. Einstellungen sind globale
-  Stammdaten — der Gruppen-Scope und die Szenario-Isolation (AnalyseToken) der
+  Stammdaten — der Gruppen-Scope und die Szenario-Isolation der
   Planungsseiten spielen hier keine Rolle.
 - **Absenztypen → Absenzen-Kalender** (`/workplace/absence`): Name, Kürzel, Farbe und
   Standardwerte der Absenztypen bestimmen die Chips der Legende, die Balkenfarben und
