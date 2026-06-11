@@ -254,6 +254,9 @@ Admin-Konten ist der Button deaktiviert — Admins sehen immer alles.
 
 ### Typische Aufgaben
 
+- Die Edit-Maske ansehen, während sie erklärt wird — Skill `navigate_to`
+  (Ziel "new-group" öffnet die leere Gruppen-Maske)
+
 - Gruppen ansehen/durchsuchen — Skills `list_groups`, `list_groups_hierarchical`,
   `search_in_list` (entityType "group", searchQuery = Name)
 - Gruppe anlegen / umbenennen / löschen — Skills `create_group`, `update_group`, `delete_group`

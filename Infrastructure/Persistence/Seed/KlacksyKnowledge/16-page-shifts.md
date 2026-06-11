@@ -331,6 +331,9 @@ schreibgeschützt.
 
 ### Typische Aufgaben
 
+- Die Edit-Maske ansehen, während sie erklärt wird — Skill `navigate_to`
+  (Ziel "new-shift" öffnet die leere Dienst-Maske)
+
 - Dienst suchen oder Details nachschlagen — Skills `search_shifts`, `get_shift_details`
 - Neuen Dienst als Bestellung erfassen — Skill `create_shift`
 - Dienst ändern oder löschen — Skills `update_shift`, `delete_shift`

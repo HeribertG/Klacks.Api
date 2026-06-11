@@ -292,6 +292,9 @@ Cards plus einer rechten Navigationsspalte:
 
 ### Typische Aufgaben
 
+- Die Edit-Maske ansehen, während sie erklärt wird — Skill `navigate_to`
+  (Ziel "new-employee" öffnet die leere Adress-Maske)
+
 - Neue Person/Mitarbeiter/Kunde anlegen — Skill `create_employee`
 - Liste öffnen und filtern ("zeig mir alle Kunden") — Skill `search_in_list`
   (entityType "client", optional entityTypeFilter customer/employee/extern,

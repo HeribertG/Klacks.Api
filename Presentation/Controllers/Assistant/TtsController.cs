@@ -92,7 +92,13 @@ public class TtsController : ControllerBase
         {
             var voiceId = request.VoiceId ?? TtsProviderConstants.AutoVoice;
             var locale = request.Locale ?? TtsProviderConstants.DefaultLocale;
-            var chunks = TtsTextChunker.Split(request.Text, TtsProviderConstants.SynthesisChunkLength);
+            var spokenText = TtsTextSanitizer.Sanitize(request.Text);
+            if (string.IsNullOrWhiteSpace(spokenText))
+            {
+                return BadRequest("Text cannot be empty");
+            }
+
+            var chunks = TtsTextChunker.Split(spokenText, TtsProviderConstants.SynthesisChunkLength);
 
             using var audioStream = new MemoryStream();
             foreach (var chunk in chunks)
