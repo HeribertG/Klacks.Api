@@ -146,9 +146,9 @@ verfügbar erfasst sind.
 
 ### Bedienung und Speichern
 
-- **Klick** schaltet eine Zelle um; **Ziehen mit gedrückter Maustaste** malt den Wert
-  der ersten Zelle über weitere Zellen und Zeilen (am Rand scrollt das Raster
-  automatisch mit).
+- **Klick** schaltet eine Zelle um; **Ziehen mit gedrückter Maustaste** selektiert bzw.
+  deselektiert weitere Zellen und Zeilen — je nachdem, ob die erste Zelle gesetzt oder
+  entfernt wurde (am Rand scrollt das Raster automatisch mit).
 - **Ctrl+Klick/Ziehen** entfernt immer das Häkchen.
 - **Tastatur** (Raster zuerst fokussieren, es ist per Tab erreichbar): Pfeiltasten
   bewegen die Auswahl (auch Tab = rechts, Backspace = links), PageUp/PageDown blättern
