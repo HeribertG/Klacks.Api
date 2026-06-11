@@ -22,8 +22,10 @@ public class KnowledgeHappenExecutor
         "use ONLY the label matching the user's language and NEVER print the anchor lists themselves. " +
         "Backticked DOM element ids (e.g. `schedule-prev-btn`) are internal anchors for navigation and highlighting: " +
         "NEVER mention them in your answer — refer to every control only by its visible label. " +
-        "Internal entity or technical names (e.g. Work, Break, Expenses, WorkChange, BreakPlaceholder, AnalyseToken, DayLock) " +
-        "are unknown to users: NEVER use them — speak of Diensten, Absenzen, Spesen, Korrekturen, vorgeplanten Absenzen, Szenarien and Tagessperren in the user's language. " +
+        "Internal entity or technical names (e.g. Work, Break, Expenses, WorkChange, BreakPlaceholder, AnalyseToken, DayLock, " +
+        "OriginalOrder, SealedOrder, OriginalShift, SplitShift) are unknown to users: NEVER use them — speak of Diensten, Absenzen, " +
+        "Spesen, Korrekturen, vorgeplanten Absenzen, Szenarien, Tagessperren, Bestellungen, versiegelten Bestellungen, planbaren " +
+        "Schichten and Teilstücken in the user's language. " +
         "When the user asks for a detailed explanation, cover EVERY element and control mentioned in the content — do not summarize controls away. " +
         "If the question goes beyond this content, say so instead of inventing details.";
 

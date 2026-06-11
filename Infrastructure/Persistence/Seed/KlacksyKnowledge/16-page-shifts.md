@@ -110,14 +110,14 @@ Je nach gewählter Sicht (Filter-Card rechts) zeigt die Card eine andere Tabelle
   "Möchten Sie '...' wirklich löschen?"). Ist die Checkbox "Nur versiegelte Bestellungen
   anzeigen" aktiv, zeigt die Tabelle die versiegelten Bestellungen und statt der Aktionen
   nur ein Info-Icon — versiegelte Bestellungen sind unveränderbar. Inhalt: Aufgaben-Dienste
-  im Status Bestellung (OriginalOrder) bzw. mit Häkchen Status SealedOrder.
+  im Status Bestellung bzw. mit Häkchen die versiegelten Bestellungen.
 - **Planbare Dienste** (filterType 1, Tabelle `shift-detail-table`): mit Icon- und
   ABK.-Spalte. Aktionen pro Zeile: Schere `shift-cut-btn-{id}` (öffnet den Zuschnitt des
   zugehörigen Original-Dienstes) und Bleistift `shift-edit-btn-{id}`. Inhalt:
-  Aufgaben-Dienste im Status OriginalShift oder SplitShift.
+  planbare Schichten und ihre zugeschnittenen Teilstücke.
 - **Container** (filterType 2): gleiche Tabelle, statt der Schere ein Box-Icon
   `shift-container-btn-{id}` — öffnet die Schichtvorlage (Container-Template) des Dienstes.
-  Inhalt: Container-Dienste im Status OriginalShift.
+  Inhalt: planbare Container-Dienste.
 - **Abwesenheit** (filterType 3): derzeit ohne Inhalt — das Backend liefert für diese Sicht
   immer eine leere Liste und es wird keine Tabelle gerendert (Platzhalter-Sicht).
 
@@ -177,11 +177,11 @@ Speichern/Verwerfen läuft über die Fusszeile des Arbeitsbereichs (mit Query-Pa
    beim Tippen des Namens automatisch vorgeschlagen, solange das Feld unberührt ist),
    **Name*** (Input `name`, `data-klacksy-target="shift-form.name"`), **Von Datum*** /
    **Bis Datum** (Datepicker) und eine Notiz (Rich-Text-Editor). Rechts der **Lock-Button**
-   `shift-lock-btn` (grün, offenes Schloss) — nur im Status Bestellung (OriginalOrder)
+   `shift-lock-btn` (grün, offenes Schloss) — nur im Status Bestellung
    sichtbar; Tooltip: "Nach Sperrung ist der Auftrag unveränderlich und steht zur Planung
    bereit." Er wird erst aktiv, wenn Abkürzung, Name, Von-Datum, mindestens ein Wochentag,
    mindestens eine Gruppe, Anzahl Aufgaben > 0 und Anzahl Mitarbeiter > 0 gültig sind.
-   Klick setzt den Status auf versiegelt (SealedOrder) — nach dem Speichern ist das nicht
+   Klick setzt den Status auf versiegelt — nach dem Speichern ist das nicht
    umkehrbar. In jedem anderen Status erscheint statt des Buttons ein geschlossenes Schloss
    und alle Felder sind deaktiviert. Checkbox **Ist ein Container** (de: "Ist ein
    Container", en: "Is a container", fr: "Est un conteneur", it: "È un contenitore") — nur
@@ -298,12 +298,12 @@ schreibgeschützt.
   Planungs-Assistenten (mit AnalyseToken oder Szenario-Quelle) sind in allen Sichten und
   auch im Zuschnitt immer ausgeblendet; gelöschte Dienste (Soft-Delete) erscheinen nicht.
 - **Lebenszyklus Bestellung → versiegelt → planbar**: Eine Bestellung wird im Edit über den
-  Lock-Button versiegelt (SealedOrder, unveränderlich). Beim Speichern erzeugt das Backend
-  automatisch eine planbare Kopie (OriginalShift) mit Verweis auf die versiegelte
-  Bestellung. Der Zuschnitt zerlegt diese planbare Kopie in Teilstücke (SplitShift) — die
+  Lock-Button versiegelt (unveränderlich). Beim Speichern erzeugt das Backend
+  automatisch eine planbare Schicht mit Verweis auf die versiegelte
+  Bestellung. Der Zuschnitt zerlegt diese planbare Schicht in Teilstücke — die
   Schere in der Liste führt deshalb immer zum Original-Dienst. Details: Skill
   `explain_shift_lifecycle_order_to_shift`.
-- **Bearbeitbarkeit**: Felder der Edit-Maske sind nur im Status Bestellung (OriginalOrder)
+- **Bearbeitbarkeit**: Felder der Edit-Maske sind nur im Status Bestellung
   änderbar; versiegelte Bestellungen, planbare Kopien und Teilstücke sind dort
   schreibgeschützt (Namens-/Beschreibungs-Korrekturen an Teilstücken gehen über die
   editierbaren Zellen der Zuschnitt-Tabelle).

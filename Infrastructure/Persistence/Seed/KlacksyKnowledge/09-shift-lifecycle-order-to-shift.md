@@ -1,13 +1,12 @@
 ---
 name: explain_shift_lifecycle_order_to_shift
 description: |
-  Explains the four-stage lifecycle of a Shift in Klacks — from editable
-  OriginalOrder (draft) via immutable SealedOrder (contract) to active
-  OriginalShift and its SplitShift cuts. The Sealing transition is the only
-  trigger that clones the OriginalShift from the SealedOrder. Works can only
-  attach to OriginalShift or SplitShift (Status >= 2). Use this when the user
-  asks why a draft is not bookable, why a sealed order is immutable, or what
-  ShiftStatus values mean.
+  Explains the four-stage lifecycle of a shift in Klacks — from the editable
+  order via the immutable sealed order to the active plannable shift and its
+  cut pieces. Sealing is the only transition and it creates the plannable
+  shift exactly once; bookings can only attach to plannable shifts and their
+  cut pieces. Use this when the user asks why an order is not yet bookable,
+  why a sealed order is immutable, or what the shift stages mean.
 category: Query
 executionType: Skill
 alwaysOn: false
@@ -33,33 +32,39 @@ synonyms:
 
 ## Kern-Idee (1 Satz)
 
-Ein Shift durchläuft vier `ShiftStatus`-Werte — `OriginalOrder` (Skizze),
-`SealedOrder` (immutable Vertrag), `OriginalShift` (aktive Planung) und
-`SplitShift` (Tages-/Zeitschnitt) — und **genau eine** Transition, das Sealen,
-erzeugt **einmalig** den aktiven Planungs-Datensatz.
+Ein Dienst durchläuft vier Stufen — **Bestellung** (frei bearbeitbar),
+**versiegelte Bestellung** (unveränderlicher Auftrags-Snapshot), **planbare
+Schicht** (aktive Planung) und **Teilstücke** (Tages-/Zeitschnitt) — und
+**genau eine** Transition, das Versiegeln, erzeugt **einmalig** die planbare
+Schicht. Eine Bestellung ist ein echter Auftrag, keine Skizze — sie ist nur
+noch nicht versiegelt.
 
-## Die vier Status-Werte
+## Die vier Stufen
 
-| Wert | Status | Bedeutung |
+(Die internen Statuswerte in Backticks sind NUR interne Anker — gegenüber
+Usern immer die fettgedruckten Begriffe verwenden.)
+
+| Wert | Intern | Bedeutung |
 |---|---|---|
-| 0 | `OriginalOrder` | **Skizze / Bestellung**. Frei editierbar. Nicht im Einsatzplan. Nicht buchbar. |
-| 1 | `SealedOrder` | **Vertrag / freigegebener Auftrag**. Permanent immutable. Auftrags-Snapshot. |
-| 2 | `OriginalShift` | **Aktiver Planungs-Datensatz**. Geklont aus SealedOrder. Trägt `OriginalId` → SealedOrder. Editierbar, schneidbar, buchbar. |
-| 3 | `SplitShift` | **Tages-/Zeitschnitt** des OriginalShift. Trägt `ParentId` und `RootId` (Nested-Set Lft/Rgt). |
+| 0 | `OriginalOrder` | **Bestellung** (Auftrag). Frei editierbar. Nicht im Einsatzplan. Nicht buchbar. |
+| 1 | `SealedOrder` | **Versiegelte Bestellung** (freigegebener Auftrag). Permanent unveränderlich. Auftrags-Snapshot. |
+| 2 | `OriginalShift` | **Planbare Schicht**. Beim Versiegeln automatisch erzeugt, mit Verweis auf die versiegelte Bestellung. Editierbar, schneidbar, buchbar. |
+| 3 | `SplitShift` | **Teilstück** (Tages-/Zeitschnitt) der planbaren Schicht. |
 
 ## Die einmalige Sealing-Transition
 
 ```
-┌──────────────────┐  PUT Status=SealedOrder  ┌──────────────────┐
-│  OriginalOrder   │ ───────────────────────► │   SealedOrder    │
-│  (Status = 0)    │   (einmaliger Trigger,   │  (Status = 1)    │
-│  Skizze          │    klont SIMULTAN        │  unveränderlich  │
-└──────────────────┘    OriginalShift)        └──────────────────┘
+┌──────────────────┐      Versiegeln          ┌──────────────────┐
+│   Bestellung     │ ───────────────────────► │   versiegelte    │
+│  (Status = 0)    │   (einmaliger Trigger,   │   Bestellung     │
+│  bearbeitbar     │    erzeugt simultan      │  (Status = 1)    │
+└──────────────────┘    die planbare          │  unveränderlich  │
+                        Schicht)              └──────────────────┘
                                                         │
-                                                        │ Klon nur HIER
+                                                        │ Erzeugung nur HIER
                                                         ▼
-┌──────────────────┐    ShiftCutFacade        ┌──────────────────┐
-│   SplitShift     │ ◄─────────────────────── │  OriginalShift   │
+┌──────────────────┐      Zuschnitt           ┌──────────────────┐
+│   Teilstück      │ ◄─────────────────────── │ planbare Schicht │
 │  (Status = 3)    │    (2-Phasen-Cut)        │  (Status = 2)    │
 └──────────────────┘                          └──────────────────┘
 ```

@@ -72,7 +72,7 @@ Speichern eines `Work` läuft `WorkMacroService.ProcessWorkMacroAsync(work)`:
 ## Verwandte Skills
 
 - `explain_planning_assistant` — der Assistent nutzt Macro-Resultate als Soll.
-- `explain_shift_lifecycle` — Macros greifen erst ab `OriginalShift`.
+- `explain_shift_lifecycle` — Macros greifen erst ab der planbaren Schicht.
 
 ## Trigger-Phrasen
 
