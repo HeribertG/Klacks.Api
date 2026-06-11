@@ -1,8 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Handler for fetching the paged and filtered client list.
+/// Restricts the deleted-entries view to administrators: for non-admin users
+/// the ShowDeleteEntries flag is silently ignored.
+/// @param request - Contains the client list filter including search, pagination and the deleted-entries flag
+/// </summary>
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Clients;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.DTOs.Filter;
@@ -18,6 +26,7 @@ namespace Klacks.Api.Application.Handlers.Clients
         private readonly IClientRepository _clientRepository;
         private readonly ClientMapper _clientMapper;
         private readonly FilterMapper _filterMapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<GetTruncatedListQueryHandler> _logger;
 
         public GetTruncatedListQueryHandler(
@@ -25,12 +34,14 @@ namespace Klacks.Api.Application.Handlers.Clients
             IClientRepository clientRepository,
             ClientMapper clientMapper,
             FilterMapper filterMapper,
+            IHttpContextAccessor httpContextAccessor,
             ILogger<GetTruncatedListQueryHandler> logger)
         {
             _clientFilterRepository = clientFilterRepository;
             _clientRepository = clientRepository;
             _clientMapper = clientMapper;
             _filterMapper = filterMapper;
+            _httpContextAccessor = httpContextAccessor;
             _logger = logger;
         }
 
@@ -47,6 +58,7 @@ namespace Klacks.Api.Application.Handlers.Clients
             try
             {
                 var clientFilter = _filterMapper.ToClientFilter(request.Filter);
+                RestrictDeletedEntriesToAdmins(clientFilter);
                 var pagination = _filterMapper.ToPaginationParams(request.Filter);
 
                 var pagedResult = await _clientFilterRepository.GetFilteredClients(clientFilter, pagination);
@@ -64,6 +76,21 @@ namespace Klacks.Api.Application.Handlers.Clients
             {
                 _logger.LogError(ex, "Unexpected error while fetching truncated client list");
                 throw new InvalidRequestException($"Failed to retrieve truncated client list: {ex.Message}");
+            }
+        }
+
+        private void RestrictDeletedEntriesToAdmins(ClientFilter clientFilter)
+        {
+            if (!clientFilter.ShowDeleteEntries)
+            {
+                return;
+            }
+
+            var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
+            if (!isAdmin)
+            {
+                clientFilter.ShowDeleteEntries = false;
+                _logger.LogInformation("ShowDeleteEntries was requested by a non-admin user and has been ignored");
             }
         }
     }

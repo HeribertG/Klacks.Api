@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Repository for received emails: CRUD, folder moves and filtered list/count queries.
+/// Filtered queries explicitly exclude soft-deleted rows (IsDeleted) in addition to the global EF query filter.
+/// </summary>
+/// <param name="folder">Optional email folder name to filter by</param>
+/// <param name="isRead">Optional read-state filter</param>
+
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Models.Email;
 using Klacks.Api.Infrastructure.Persistence;

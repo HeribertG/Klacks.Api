@@ -1,5 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Applies the shift list view filter. The views are mutually exclusive:
+/// Original shows task orders (OriginalOrder, or SealedOrder when the sealed toggle is set),
+/// Shift shows plannable tasks (Status >= OriginalShift), Container shows every container
+/// shift regardless of status, Absence is a placeholder that returns no rows.
+/// @param query - Shift query the view filter is applied to
+/// @param filterType - Selected list view (Original, Shift, Container, Absence)
+/// @param isSealedOrder - Toggles the Original view between OriginalOrder and SealedOrder rows
+/// @param isTimeRange/isSporadic - Sub-filters of the Shift view
+/// </summary>
+
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
@@ -13,12 +24,12 @@ public class ShiftStatusFilterService : IShiftStatusFilterService
         return filterType switch
         {
             ShiftFilterType.Original => isSealedOrder
-                ? query.Where(shift => shift.Status == ShiftStatus.SealedOrder)
+                ? query.Where(shift => shift.ShiftType == ShiftType.IsTask && shift.Status == ShiftStatus.SealedOrder)
                 : query.Where(shift => shift.ShiftType == ShiftType.IsTask && shift.Status == ShiftStatus.OriginalOrder),
 
             ShiftFilterType.Shift => ApplyShiftTypeFilter(query, isTimeRange, isSporadic),
 
-            ShiftFilterType.Container => query.Where(shift => shift.Status == ShiftStatus.OriginalShift && shift.ShiftType == ShiftType.IsContainer),
+            ShiftFilterType.Container => query.Where(shift => shift.ShiftType == ShiftType.IsContainer),
 
             ShiftFilterType.Absence => query.Where(shift => false),
 

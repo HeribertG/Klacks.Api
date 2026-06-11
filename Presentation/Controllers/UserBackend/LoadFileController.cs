@@ -37,13 +37,23 @@ public class LoadFileController : BaseController
     [Consumes("multipart/form-data")]
     public async Task<ActionResult> SingleFile([FromForm] IFormFile file)
     {
-        if (file != null)
+        if (file == null)
         {
-            await _fileUploadService.StoreFileAsync(file);
-            return Ok();
+            return Ok("No File");
         }
 
-        return Ok("No File");
+        if (!FileUploadConstants.AllowedImageContentTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
+        {
+            return BadRequest(FileUploadConstants.InvalidContentTypeMessage);
+        }
+
+        if (file.Length > FileUploadConstants.MaxImageUploadSizeBytes)
+        {
+            return BadRequest(FileUploadConstants.FileTooLargeMessage);
+        }
+
+        await _fileUploadService.StoreFileAsync(file);
+        return Ok();
     }
 
     [ApiExplorerSettings(IgnoreApi = true)]
