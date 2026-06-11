@@ -57,7 +57,8 @@ public class SkillCacheService : ISkillCacheService
         if (agent != null)
         {
             _cache.Set(AgentCacheKey, agent, new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(TimeSpan.FromMinutes(CacheMinutes)));
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(CacheMinutes))
+                .SetSize(1));
         }
 
         return agent;
@@ -77,7 +78,8 @@ public class SkillCacheService : ISkillCacheService
         var skillList = skills as IReadOnlyList<AgentSkill> ?? skills.ToList();
 
         _cache.Set(cacheKey, skillList, new MemoryCacheEntryOptions()
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(CacheMinutes)));
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(CacheMinutes))
+            .SetSize(1));
 
         _logger.LogDebug("Cached {Count} skills for agent {AgentId}", skillList.Count, agentId);
         return skillList;

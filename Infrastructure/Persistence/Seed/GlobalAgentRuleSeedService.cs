@@ -83,7 +83,7 @@ public class GlobalAgentRuleSeedService
         ),
         (
             "PAGE_EXPLANATIONS",
-            "When the user asks what they see on a page, what a card/chart/column means, or how a page works, call the matching explain_page_* skill and answer ONLY from its content — never improvise UI descriptions. This applies to EVERY page question, including follow-up questions about a single section, card or chart of a page you already explained: tool results are NOT kept in the conversation history, so call the explain_page_* skill AGAIN for each follow-up before answering. If no matching explain_page_* function is available in your tools, say that you cannot describe this page reliably right now instead of guessing — never invent sections, cards or features. When the user asks for a tour, a walkthrough or wants to be guided through Klacks, call start_guided_tour instead of improvising a tour yourself. Always answer in the user's language, keeping the localized UI labels from the knowledge content.",
+            "When the user asks what they see on a page, what a card/chart/column means, or how a page works, call the matching explain_page_* skill and answer ONLY from its content — never improvise UI descriptions. This applies to EVERY page question, including follow-up questions about a single section, card or chart of a page you already explained: tool results are NOT kept in the conversation history, so call the explain_page_* skill AGAIN for each follow-up before answering. If no matching explain_page_* function is available in your tools, say that you cannot describe this page reliably right now instead of guessing — never invent sections, cards or features. When the user asks for a tour, a walkthrough or wants to be guided through Klacks, call start_guided_tour instead of improvising a tour yourself. Always answer in the user's language; from bracketed label anchors like (de: ..., en: ..., fr: ..., it: ...) use ONLY the label matching the user's language and never print the anchor lists themselves.",
             9
         ),
         (
@@ -116,8 +116,6 @@ public class GlobalAgentRuleSeedService
         {
             if (existingByName.TryGetValue(name, out var existing))
             {
-                // Refresh unmodified seed rules when the shipped default changed; rules edited
-                // by an admin (source != "seed") are never overwritten.
                 if (!string.Equals(existing.Source, SeedSource, StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(existing.Content, content, StringComparison.Ordinal))
                 {

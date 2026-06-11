@@ -224,7 +224,9 @@ public class WorkNotificationService : IWorkNotificationService
 
             if (dates.Count == 0)
             {
-                await _hubContext.Clients.All.CollisionsDetected(notification);
+                _logger.LogWarning(
+                    "[COLLISION-TRACE] Dropping {Count} collisions: no dates and no CheckedDate, token={Token}",
+                    notification.Collisions.Count, notification.AnalyseToken?.ToString() ?? "null");
                 return;
             }
 
@@ -272,7 +274,9 @@ public class WorkNotificationService : IWorkNotificationService
 
             if (dates.Count == 0)
             {
-                await _hubContext.Clients.All.ScheduleValidationsDetected(notification);
+                _logger.LogWarning(
+                    "[COLLISION-TRACE] Dropping {Count} validations: no dates and no CheckedDate, token={Token}",
+                    notification.Entries.Count, notification.AnalyseToken?.ToString() ?? "null");
                 return;
             }
 

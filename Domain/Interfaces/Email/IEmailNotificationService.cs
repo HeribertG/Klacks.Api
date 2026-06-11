@@ -5,5 +5,5 @@ namespace Klacks.Api.Domain.Interfaces.Email;
 public interface IEmailNotificationService
 {
     Task NotifyNewEmailsAsync(int count);
-    Task NotifyReadStateChangedAsync(Guid emailId, bool isRead, string folder);
+    Task NotifyReadStateChangedAsync(string userId, Guid emailId, bool isRead, string folder);
 }

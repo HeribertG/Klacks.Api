@@ -5,4 +5,4 @@ using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Queries.Email;
 
-public record GetEmailGroupTreeQuery : IRequest<List<EmailGroupTreeNode>>;
+public record GetEmailGroupTreeQuery(string? Language = null) : IRequest<List<EmailGroupTreeNode>>;

@@ -21,18 +21,20 @@ public class ShiftStatsNotificationService : IShiftStatsNotificationService
 
     public async Task NotifyShiftStatsUpdated(ShiftStatsNotificationDto notification)
     {
+        if (string.IsNullOrEmpty(notification.SourceConnectionId))
+        {
+            _logger.LogDebug(
+                "Skipping ShiftStatsUpdated for Shift {ShiftId} on {Date}: no source connection",
+                notification.ShiftId,
+                notification.Date);
+            return;
+        }
+
         try
         {
-            if (string.IsNullOrEmpty(notification.SourceConnectionId))
-            {
-                await _hubContext.Clients.All.ShiftStatsUpdated(notification);
-            }
-            else
-            {
-                await _hubContext.Clients
-                    .AllExcept(notification.SourceConnectionId)
-                    .ShiftStatsUpdated(notification);
-            }
+            await _hubContext.Clients
+                .AllExcept(notification.SourceConnectionId)
+                .ShiftStatsUpdated(notification);
 
             _logger.LogDebug(
                 "Sent ShiftStatsUpdated notification for Shift {ShiftId} on {Date}",

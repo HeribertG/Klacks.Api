@@ -118,7 +118,7 @@ public class ReceivedEmailRepository : IReceivedEmailRepository
     public async Task<List<ReceivedEmail>> GetFilteredListAsync(
         string? folder, bool? isRead, bool sortAsc, int skip, int take)
     {
-        var query = _context.ReceivedEmails.AsQueryable();
+        var query = _context.ReceivedEmails.Where(e => !e.IsDeleted);
 
         if (!string.IsNullOrWhiteSpace(folder))
             query = query.Where(e => e.Folder == folder);
@@ -135,7 +135,7 @@ public class ReceivedEmailRepository : IReceivedEmailRepository
 
     public async Task<int> GetFilteredCountAsync(string? folder, bool? isRead)
     {
-        var query = _context.ReceivedEmails.AsQueryable();
+        var query = _context.ReceivedEmails.Where(e => !e.IsDeleted);
 
         if (!string.IsNullOrWhiteSpace(folder))
             query = query.Where(e => e.Folder == folder);

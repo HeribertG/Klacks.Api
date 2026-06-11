@@ -63,20 +63,21 @@ public class GenericSkillDispatcher : IGenericSkillDispatcher
         {
             HandlerTypes.GenericList => await ExecuteListAsync(handlerConfig, parameters, cancellationToken),
             HandlerTypes.GenericDelete => await ExecuteDeleteAsync(handlerConfig, parameters, cancellationToken),
-            HandlerTypes.KnowledgeHappen => await ExecuteKnowledgeHappenAsync(handlerConfig, cancellationToken),
+            HandlerTypes.KnowledgeHappen => await ExecuteKnowledgeHappenAsync(handlerConfig, parameters, cancellationToken),
             _ => SkillResult.Error($"Unsupported handler type: '{handlerType}'")
         };
     }
 
     private async Task<SkillResult> ExecuteKnowledgeHappenAsync(
         string handlerConfig,
+        Dictionary<string, object> parameters,
         CancellationToken cancellationToken)
     {
         var config = DeserializeConfig<KnowledgeHappenConfig>(handlerConfig);
         if (config == null)
             return SkillResult.Error("Failed to deserialize knowledge-happen handler config.");
 
-        return await _knowledgeHappenExecutor.ExecuteAsync(config, cancellationToken);
+        return await _knowledgeHappenExecutor.ExecuteAsync(config, parameters, cancellationToken);
     }
 
     private async Task<SkillResult> ExecuteListAsync(

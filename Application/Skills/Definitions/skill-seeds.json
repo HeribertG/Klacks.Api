@@ -2767,7 +2767,7 @@
     },
     {
       "name": "search_in_list",
-      "description": "Open a workplace list page (clients, groups, shifts) and optionally narrow it by search term and/or address type. Use this for ANY 'show me / list / zeig mir / liste' request — including 'zeig mir alle Kunden' (entityType=client, entityTypeFilter=customer), 'zeig mir alle Mitarbeiter' (entityType=client, entityTypeFilter=employee), 'zeig mir alle Externen' (entityType=client, entityTypeFilter=extern). entityTypeFilter limits the Typ-dropdown: customer=Kunden only, employee=Mitarbeiter only, extern=Externe only. Omit entityTypeFilter to show all types. searchQuery is optional — omit it to show all items of that type without a name filter. For directly opening a single record use search_and_navigate. For criteria-based DB queries returning a chat list use search_employees. Do NOT use propose_customer_grouping or apply_customer_grouping for listing/showing clients — those skills MOVE data and must never be called for browse/view intents.",
+      "description": "Open a workplace list page (clients, groups, shifts, absence calendar) and optionally narrow it by search term and/or address type. Use this for ANY 'show me / list / zeig mir / liste' request — including 'zeig mir alle Kunden' (entityType=client, entityTypeFilter=customer), 'zeig mir alle Mitarbeiter' (entityType=client, entityTypeFilter=employee), 'zeig mir alle Externen' (entityType=client, entityTypeFilter=extern). entityType=absence opens the absence calendar and filters its employee rows by searchQuery (e.g. 'zeige die Absenzen von Anna'). entityTypeFilter limits the Typ-dropdown: customer=Kunden only, employee=Mitarbeiter only, extern=Externe only. Omit entityTypeFilter to show all types. searchQuery is optional — omit it to show all items of that type without a name filter. To narrow a page to a GROUP, call select_group afterwards. For directly opening a single record use search_and_navigate. For criteria-based DB queries returning a chat list use search_employees. Do NOT use propose_customer_grouping or apply_customer_grouping for listing/showing clients — those skills MOVE data and must never be called for browse/view intents.",
       "category": "Query",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -2776,14 +2776,15 @@
       "parameters": [
         {
           "name": "entityType",
-          "description": "Which workplace list to open. Use 'client' for addresses/people (Kunden, Mitarbeiter, Externe), 'group' for groups, 'shift' for shifts.",
+          "description": "Which workplace list to open. Use 'client' for addresses/people (Kunden, Mitarbeiter, Externe), 'group' for groups, 'shift' for shifts, 'absence' for the absence calendar (filters its employee rows).",
           "type": "Enum",
           "required": true,
           "defaultValue": "client",
           "enumValues": [
             "client",
             "group",
-            "shift"
+            "shift",
+            "absence"
           ]
         },
         {
@@ -2815,7 +2816,8 @@
             "routeMap": {
               "client": "/workplace/client",
               "group": "/workplace/group",
-              "shift": "/workplace/shift"
+              "shift": "/workplace/shift",
+              "absence": "/workplace/absence"
             },
             "valueFrom": "params.searchQuery",
             "entityTypeFilterFrom": "params.entityTypeFilter"
@@ -2837,7 +2839,9 @@
         "liste",
         "kunden",
         "mitarbeiter",
-        "externen"
+        "externen",
+        "absenzen von",
+        "absences of"
       ],
       "synonyms": {
         "de": [
@@ -2881,7 +2885,83 @@
           "tutti i clienti"
         ]
       },
-      "version": 2
+      "version": 3
+    },
+    {
+      "name": "select_group",
+      "description": "Sets the global group filter (the group dropdown in the app header) to the named group, so the page the user is on — absence calendar, schedule, employee list, shifts, availability — only shows members of that group. Pass groupName='all' to reset to all groups. Use for requests like 'zeige nur Gruppe X', 'filtere die Absenzen nach Team Y', 'nur Bern anzeigen', 'alle Gruppen'. To filter a SPECIFIC page, navigate there first (e.g. search_in_list with entityType=absence), then call select_group in the same turn. The selection is global and stays active across all workplace pages until changed.",
+      "category": "Query",
+      "executionType": "UiAction",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "groupName",
+          "description": "Exact or partial group name as shown in the group dropdown (e.g. 'Bern'). Pass 'all' to reset the filter and show all groups.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "steps": [
+          {
+            "action": "selectGroup",
+            "valueFrom": "params.groupName"
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "gruppe filtern",
+        "gruppenfilter",
+        "group filter",
+        "filter by group",
+        "nur gruppe",
+        "only group",
+        "alle gruppen",
+        "all groups",
+        "nach gruppe",
+        "by group",
+        "team filtern",
+        "gruppe wechseln",
+        "switch group"
+      ],
+      "synonyms": {
+        "de": [
+          "zeige nur gruppe",
+          "filtere nach gruppe",
+          "nur team anzeigen",
+          "gruppenauswahl",
+          "alle gruppen anzeigen",
+          "gruppe auswählen",
+          "absenzen der gruppe"
+        ],
+        "en": [
+          "show only group",
+          "filter by group",
+          "switch to group",
+          "show all groups",
+          "select group",
+          "absences of group"
+        ],
+        "fr": [
+          "filtrer par groupe",
+          "afficher seulement le groupe",
+          "tous les groupes",
+          "sélectionner le groupe"
+        ],
+        "it": [
+          "filtra per gruppo",
+          "mostra solo il gruppo",
+          "tutti i gruppi",
+          "seleziona il gruppo"
+        ]
+      },
+      "version": 1
     },
     {
       "name": "open_schedule",
@@ -18761,11 +18841,24 @@
     },
     {
       "name": "explain_page_schedule",
-      "description": "Explains the Schedule page (/workplace/schedule) — the central planning board with an employees-by-days grid, the toolbar (period navigation, AutoWizard/Plan/Fuzzy Harmonizer/Holistic Harmonizer, PDF export, absence bars, commands, availability, hour recalculation, scenario selector, day-timeline switch, zoom), the shift section with Shifts/Error List tabs, drag & drop booking, cell context menus, locks and sealed days. Use this when the user asks what they see on the Schedule page, what the cards/grid/columns/toolbar buttons mean, or how to work with it.",
+      "description": "Explains the Schedule page (Einsatzplan) at /workplace/schedule — the central planning board with an employees-by-days grid. Covers the toolbar (period navigation by week/bi-week/month, send email, AutoWizard with Plan/Fuzzy Harmonizer/Holistic Harmonizer, schedule PDF export, desired-absence bars, command and availability toggles, hour recalculation, scenario selector, day-timeline switch, zoom), the row header with sort/filter popup and hour slots, the grid with drag & drop booking, cell context menus, lock levels and sealed days, cross-group sealed entries, and the lower shift section with the Shifts and Error List tabs. Use this when the user asks what they see on the Schedule page, what the grid/toolbar buttons/locks mean, or how to work with it. Supports a level parameter: short (purpose only), elements (every element explained), effects (data sources, scenarios, period closing/day locks and how the page interacts with the absence calendar, shifts, groups and the dashboard).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "handlerConfig": {
         "memoryKey": "explain_page_schedule"
@@ -18775,62 +18868,139 @@
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "schedule",
+        "schedule page",
         "einsatzplan",
         "dienstplan",
         "schichtplan",
         "plantafel",
         "roster",
         "planung",
+        "grid",
         "szenario",
+        "scenario",
         "wizard",
-        "grid"
+        "autowizard",
+        "harmonizer",
+        "fuzzy harmonizer",
+        "neuberechnen",
+        "recalculate",
+        "period hours",
+        "stunden",
+        "einsatzplan pdf",
+        "schedule pdf",
+        "pdf export",
+        "versiegelt",
+        "sealed",
+        "locked",
+        "gesperrt",
+        "bestätigen",
+        "confirm",
+        "tagesverlauf",
+        "day timeline",
+        "gewünschte absenzen",
+        "verfügbarkeit",
+        "availability",
+        "befehle anzeigen"
       ],
       "synonyms": {
         "de": [
+          "was sehe ich hier",
+          "erkläre diese seite",
+          "was bedeutet dieses raster",
+          "was bedeutet diese ansicht",
           "einsatzplan",
           "dienstplan",
           "schichtplan",
           "plantafel",
-          "was sehe ich hier",
-          "erkläre diese seite",
-          "was bedeutet dieses raster",
-          "was bedeutet diese ansicht"
+          "was sind die buttons in der toolbar",
+          "kopfleiste",
+          "stunden neuberechnen",
+          "einsatzplan als pdf",
+          "szenario übernehmen",
+          "szenario verwerfen",
+          "versiegelte tage",
+          "gesperrte einträge",
+          "warum kann ich nicht bearbeiten",
+          "gewünschte absenzen",
+          "tagesverlauf",
+          "dienst buchen"
         ],
         "en": [
+          "what do i see here",
+          "explain this page",
+          "what does this grid mean",
           "schedule",
           "schedule page",
           "roster",
           "duty plan",
-          "what do i see here",
-          "explain this page",
-          "what does this grid mean"
+          "what are the toolbar buttons",
+          "recalculate hours",
+          "how do i recalculate period hours",
+          "export schedule as pdf",
+          "accept scenario",
+          "reject scenario",
+          "sealed days",
+          "locked entries",
+          "why can't i edit",
+          "day timeline",
+          "book a shift"
         ],
         "fr": [
+          "que vois-je ici",
+          "explique cette page",
+          "que signifie cette vue",
           "planning",
           "plan de service",
           "horaire",
-          "que vois-je ici",
-          "explique cette page",
-          "que signifie cette vue"
+          "boutons de la barre d'outils",
+          "recalculer les heures",
+          "exporter le planning en pdf",
+          "accepter le scénario",
+          "rejeter le scénario",
+          "jours scellés",
+          "entrées verrouillées",
+          "pourquoi je ne peux pas modifier",
+          "déroulé de la journée"
         ],
         "it": [
+          "cosa vedo qui",
+          "spiega questa pagina",
+          "cosa significa questa vista",
           "pianificazione",
           "piano di servizio",
           "turni",
-          "cosa vedo qui",
-          "spiega questa pagina",
-          "cosa significa questa vista"
+          "pulsanti della barra degli strumenti",
+          "ricalcolare le ore",
+          "esportare la pianificazione in pdf",
+          "accettare lo scenario",
+          "rifiutare lo scenario",
+          "giorni sigillati",
+          "voci bloccate",
+          "perché non posso modificare",
+          "andamento giornaliero"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_page_absence",
-      "description": "Explains the Absence Calendar page (Absenzen Kalender) at /workplace/absence — a year-wide Gantt chart with one row per employee and one column per calendar day. Covers the header (draggable absence-type chips with colors and filter checkmarks, PDF export, year counter, zoom slider), the row header with sort/filter popup, the Gantt surface (weekend/holiday shading, colored absence bars, drag & drop creation, move/resize via anchors, context menu with copy/cut/paste/delete/convert), and the lower detail mask with the Mask and List tabs. Use this when the user asks what they see on the Absence Calendar page, what the cards/charts/columns mean, or how to work with it.",
+      "description": "Explains the Absence Calendar page (Absenzen Kalender) at /workplace/absence — a year-wide Gantt chart with one row per employee and one column per calendar day. Covers the header (draggable absence-type chips with colors and filter checkmarks, PDF export, year counter, zoom slider), the row header with sort/filter popup, the Gantt surface (weekend/holiday shading, colored absence bars, drag & drop creation, move/resize via anchors, context menu with copy/cut/paste/delete/convert submenu), and the lower detail mask with the Mask and List tabs. Use this when the user asks what they see on the Absence Calendar page, what the cards/charts/columns mean, or how to work with it. Pick the level by the user's wish: a quick orientation needs 'short', element questions need 'elements', questions about data sources, side effects or other pages need 'effects'.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with schedule, settings, period closing and the dashboard. Omit for the full document.",
+          "required": false,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "handlerConfig": {
         "memoryKey": "explain_page_absence"
@@ -18847,7 +19017,21 @@
         "ferienkalender",
         "absence page",
         "gantt",
-        "jahreskalender"
+        "jahreskalender",
+        "absenz umwandeln",
+        "convert absence",
+        "gebucht",
+        "booked",
+        "ferien",
+        "vacation",
+        "krankheit",
+        "sickness",
+        "feiertage",
+        "holidays",
+        "wochenende",
+        "weekend",
+        "absenz verschieben",
+        "absenz löschen"
       ],
       "synonyms": {
         "de": [
@@ -18858,7 +19042,13 @@
           "absenzen kalender",
           "abwesenheitskalender",
           "absenz eintragen",
-          "ferien eintragen"
+          "ferien eintragen",
+          "absenz verschieben",
+          "absenz umwandeln",
+          "warum kann ich nicht löschen",
+          "krankheit erfassen",
+          "was bedeutet gebucht",
+          "feiertage im kalender"
         ],
         "en": [
           "what do i see here",
@@ -18868,7 +19058,13 @@
           "absence calendar",
           "absence gantt",
           "enter absence",
-          "vacation calendar"
+          "vacation calendar",
+          "move absence",
+          "convert absence",
+          "why can't i delete",
+          "record sickness",
+          "what does booked mean",
+          "holidays in the calendar"
         ],
         "fr": [
           "que vois-je ici",
@@ -18877,7 +19073,11 @@
           "calendrier d'absences",
           "saisir une absence",
           "congés",
-          "gantt des absences"
+          "gantt des absences",
+          "déplacer une absence",
+          "convertir une absence",
+          "pourquoi je ne peux pas supprimer",
+          "que signifie réservé"
         ],
         "it": [
           "cosa vedo qui",
@@ -18886,18 +19086,35 @@
           "calendario assenze",
           "inserire un'assenza",
           "ferie",
-          "gantt delle assenze"
+          "gantt delle assenze",
+          "spostare un'assenza",
+          "convertire un'assenza",
+          "perché non posso eliminare",
+          "cosa significa prenotato"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_page_availability",
-      "description": "Explains the Availability page (/workplace/client-availability): a per-employee day/hour checkbox grid where planners record when each employee is available. Covers the period navigation (week / 2 weeks / month depending on the group's payment interval), the hour-grouping slider (1h / 2h / 4h / AM-PM / full day), the employee row header with filter and context menu, the colour coding for weekends and holidays, mouse/keyboard editing and the automatic debounced saving. Use this when the user asks what they see on the Availability page, what the cards/charts/columns mean, or how to work with it.",
+      "description": "Explains the Availability page (Verfügbarkeit) at /workplace/client-availability — a per-employee day/hour checkbox grid where planners record when each employee is available. Covers the period navigation (week / 2 weeks / month depending on the selected group's payment interval), the hour-grouping slider (1h / 2h / 4h / AM-PM / full day), the employee row header with sort/filter popup and context menu, the colour coding for weekends and holidays, mouse and keyboard editing and the automatic debounced bulk saving. Use this when the user asks what they see on the Availability page, what the checkboxes/columns/colours mean, or how to work with it. Supports a level parameter: short (purpose only), elements (every element explained), effects (data sources, opt-in semantics and how the page interacts with the schedule, replacement search, groups and settings).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "handlerConfig": {
         "memoryKey": "explain_page_availability"
@@ -18911,10 +19128,24 @@
         "client availability",
         "verfügbarkeitsraster",
         "availability grid",
+        "availability page",
+        "verfügbarkeitsseite",
         "verfügbar",
         "nicht verfügbar",
         "unavailable",
-        "stundenraster"
+        "stundenraster",
+        "häkchen",
+        "checkbox",
+        "häkchen setzen",
+        "stunden-slider",
+        "hour grouping",
+        "stundeneinteilung",
+        "granularität",
+        "vm/nm",
+        "am/pm",
+        "halbtag",
+        "ganztag",
+        "ganztägig"
       ],
       "synonyms": {
         "de": [
@@ -18925,7 +19156,13 @@
           "was bedeutet dieses raster",
           "verfügbarkeitsraster",
           "häkchen setzen",
-          "wann ist jemand verfügbar"
+          "was bedeuten die häkchen",
+          "wann ist jemand verfügbar",
+          "verfügbarkeit erfassen",
+          "halbtags verfügbar",
+          "ganztägig verfügbar",
+          "stunden-slider",
+          "warum ist dieser tag farbig"
         ],
         "en": [
           "availability",
@@ -18935,7 +19172,11 @@
           "what does this grid mean",
           "availability grid",
           "mark available",
-          "set availability"
+          "set availability",
+          "what do the checkboxes mean",
+          "half-day availability",
+          "full-day availability",
+          "hour grouping slider"
         ],
         "fr": [
           "disponibilité",
@@ -18943,7 +19184,10 @@
           "que vois-je ici",
           "explique cette page",
           "que signifie cette grille",
-          "grille de disponibilité"
+          "grille de disponibilité",
+          "saisir la disponibilité",
+          "que signifient les cases à cocher",
+          "disponibilité demi-journée"
         ],
         "it": [
           "disponibilità",
@@ -18951,18 +19195,34 @@
           "cosa vedo qui",
           "spiega questa pagina",
           "cosa significa questa griglia",
-          "griglia di disponibilità"
+          "griglia di disponibilità",
+          "registrare la disponibilità",
+          "cosa significano le caselle",
+          "disponibilità mezza giornata"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_page_shifts",
-      "description": "Explains the Shifts page (Dienste / All Services) at /workplace/shift: the service list card with its filter views Orders (Bestellungen), Plannable Services (with Time Range and Sporadic sub-filters), Container and Absence, the table columns (abbreviation, name, description, validity dates, times, weekday/holiday checkboxes), the row action icons (edit pencil, delete, scissors for shift cutting, box for container template), the validity filter (active/former/future), the sealed-orders checkbox, and the sub-pages edit-shift, cut-shift (shift cutting) and container-template. Use this when the user asks what they see on the Shifts page, what the cards/columns/icons mean, or how to work with it.",
+      "description": "Explains the Services page (Dienste / All Services) at /workplace/shift and its sub-pages edit-shift (/workplace/edit-shift/:id, /workplace/new-shift), shift cutting (/workplace/cut-shift/:id) and the container template (/workplace/container-template/:id). Covers the service list card with its filter views Orders (incl. the sealed-orders checkbox), Plannable Services (with Time Range and Sporadic sub-filters), Container and Absence, the table columns (abbreviation, name, description, validity dates, times, weekday/holiday checkboxes), the type icons, the row action icons (pencil, trash, scissors, box), the edit mask cards (General with expert mode and the lock/seal button, Group, Required Qualifications, Hours and Weekdays incl. isMonday–isSunday, Macro, Address, Special Features with sporadic scope, employees per shift and tasks per shift, Default Expenses), the cut page with its cut-by-date/time/weekdays/staff/task buttons, and the container template with weekday selection, time ruler, drag & drop task assignment and route optimization. Use this when the user asks what they see on the Shifts page, what the cards/columns/icons mean, or how to work with it. Supports a level parameter: short (purpose only), elements (every element explained), effects (data sources, the order→sealed→plannable lifecycle, group scope, scenario isolation and the resource monitor impact).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "handlerConfig": {
         "memoryKey": "explain_page_shifts"
@@ -18976,59 +19236,128 @@
         "dienstliste",
         "shift list",
         "bestellungen",
+        "orders",
         "planbare dienste",
+        "plannable services",
         "schichtvorlage",
+        "shift template",
+        "container template",
+        "containervorlage",
         "zuschnitt",
+        "cut shift",
+        "split shift",
+        "dienst trennen",
+        "sealed order",
+        "sealed orders",
+        "versiegelte bestellungen",
+        "dienst versiegeln",
+        "lock shift",
+        "sporadischer dienst",
+        "sporadic shift",
+        "zeitbereich",
+        "time range",
+        "experten modus",
+        "expert mode",
         "services page",
-        "alle dienste"
+        "alle dienste",
+        "dienst erfassen",
+        "create shift",
+        "anzahl mitarbeiter pro schicht"
       ],
       "synonyms": {
         "de": [
-          "dienste-seite",
-          "alle dienste",
           "was sehe ich hier",
           "erkläre diese seite",
           "was bedeutet diese karte",
           "was bedeutet diese tabelle",
+          "dienste-seite",
+          "alle dienste",
           "dienstliste",
-          "schichtliste"
+          "schichtliste",
+          "was bedeuten die icons",
+          "wie schneide ich einen dienst zu",
+          "wozu ist die schere",
+          "dienst versiegeln",
+          "was ist eine versiegelte bestellung",
+          "was ist ein container",
+          "sporadischer einsatz",
+          "dienst im zeitrahmen",
+          "warum kann ich den dienst nicht bearbeiten"
         ],
         "en": [
-          "services page",
-          "all services",
           "what do i see here",
           "explain this page",
           "what does this card mean",
           "what does this table mean",
+          "services page",
+          "all services",
           "shift list",
-          "shifts overview"
+          "shifts overview",
+          "what do the icons mean",
+          "how do i cut a shift",
+          "what is the scissors for",
+          "seal an order",
+          "what is a sealed order",
+          "what is a container",
+          "sporadic shift",
+          "time range shift",
+          "why can't i edit this shift"
         ],
         "fr": [
-          "page services",
-          "tous les services",
-          "qu'est-ce que je vois ici",
+          "que vois-je ici",
           "explique cette page",
           "que signifie cette carte",
-          "liste des services"
+          "page services",
+          "tous les services",
+          "liste des services",
+          "que signifient les icônes",
+          "comment découper un service",
+          "à quoi sert le ciseau",
+          "commande scellée",
+          "qu'est-ce qu'un conteneur",
+          "service sporadique",
+          "plage horaire",
+          "pourquoi je ne peux pas modifier ce service"
         ],
         "it": [
-          "pagina servizi",
-          "tutti i servizi",
           "cosa vedo qui",
           "spiega questa pagina",
           "cosa significa questa scheda",
-          "elenco dei servizi"
+          "pagina servizi",
+          "tutti i servizi",
+          "elenco dei servizi",
+          "cosa significano le icone",
+          "come suddivido un servizio",
+          "a cosa servono le forbici",
+          "ordine sigillato",
+          "cos'è un contenitore",
+          "servizio sporadico",
+          "fascia oraria",
+          "perché non posso modificare questo servizio"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_page_employees",
-      "description": "Explains the 'All Addresses' page (/workplace/client) — the central, searchable and filterable list of all persons in Klacks: employees, external employees and customers. Covers the address table (columns NO/COMPANY/FIRST NAME/LAST NAME, type abbreviation, sorting, pagination, Excel export, edit/delete actions), the filter panel (salutation, type, validity, countries, cantons/states, visibility date range, deleted addresses) and the global header search. Use this when the user asks what they see on the Employees/Addresses page, what the cards/columns mean, or how to work with it.",
+      "description": "Explains the All Addresses page (Alle Adressen) at /workplace/client — the central, searchable and filterable list of all persons in Klacks (employees, external employees, customers) — and the edit mask at /workplace/edit-address/:id. Covers the address table (columns NR/COMPANY/FIRST NAME/LAST NAME, type abbreviation, sorting, pagination, Excel export, edit/delete/view actions), the filter panel (salutation, type, validity/membership status, countries, cantons, visibility date range, deleted addresses, reset), the global header search (name or ID number, multiple IDs separated by ';', include-address option) and the edit mask cards: persona/master data (company, salutation, first/last name, birthdate), historized addresses (a move adds a NEW address with valid-from instead of overwriting; types main/company/invoicing address), communication (phone/email), membership (entry date = plannability limit in the schedule), contracts, assigned groups, qualifications, notes and image. Use this when the user asks what they see on the Employees/Addresses page or in the address edit mask, what the columns/cards mean, or how to work with them. Supports a level parameter: short (purpose only), elements (every element explained), effects (data sources and how the page interacts with schedule, absence calendar, groups, availability and the planning assistant).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "handlerConfig": {
         "memoryKey": "explain_page_employees"
@@ -19046,7 +19375,27 @@
         "employee list",
         "client list",
         "kundenliste",
-        "personenliste"
+        "personenliste",
+        "adresse bearbeiten",
+        "edit address",
+        "stammdaten",
+        "master data",
+        "adresshistorie",
+        "address history",
+        "historisierung",
+        "neue adresse",
+        "new address",
+        "mitgliedschaft",
+        "membership",
+        "eintrittsdatum",
+        "entry date",
+        "austrittsdatum",
+        "rechnungsadresse",
+        "hauptadresse",
+        "geschäftsadresse",
+        "excel export",
+        "gelöschte adressen",
+        "deleted addresses"
       ],
       "synonyms": {
         "de": [
@@ -19057,7 +19406,19 @@
           "was sehe ich hier",
           "erkläre diese seite",
           "was bedeutet diese tabelle",
-          "wozu dient diese liste"
+          "wozu dient diese liste",
+          "adresse bearbeiten",
+          "stammdaten ändern",
+          "neue adresse erfassen",
+          "adresshistorie",
+          "alte adresse",
+          "umzug erfassen",
+          "eintrittsdatum",
+          "austrittsdatum",
+          "gelöschte adressen anzeigen",
+          "excel export der adressen",
+          "nach id-nummer suchen",
+          "liste sortieren"
         ],
         "en": [
           "all addresses",
@@ -19067,7 +19428,19 @@
           "what do i see here",
           "explain this page",
           "what does this table mean",
-          "how do i use this page"
+          "how do i use this page",
+          "edit address",
+          "change master data",
+          "add a new address",
+          "address history",
+          "old address",
+          "record a move",
+          "entry date",
+          "exit date",
+          "show deleted addresses",
+          "export addresses to excel",
+          "search by id number",
+          "sort the list"
         ],
         "fr": [
           "toutes les adresses",
@@ -19076,7 +19449,16 @@
           "que vois-je ici",
           "explique cette page",
           "que signifie ce tableau",
-          "comment utiliser cette page"
+          "comment utiliser cette page",
+          "modifier l'adresse",
+          "données de base",
+          "nouvelle adresse",
+          "historique des adresses",
+          "date d'entrée",
+          "date de sortie",
+          "adresses supprimées",
+          "export excel",
+          "trier la liste"
         ],
         "it": [
           "tutti gli indirizzi",
@@ -19085,18 +19467,40 @@
           "cosa vedo qui",
           "spiega questa pagina",
           "cosa significa questa tabella",
-          "come si usa questa pagina"
+          "come si usa questa pagina",
+          "modificare indirizzo",
+          "dati anagrafici",
+          "nuovo indirizzo",
+          "storico indirizzi",
+          "data di ingresso",
+          "data di uscita",
+          "indirizzi eliminati",
+          "esportazione excel",
+          "ordinare la lista"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_page_groups",
-      "description": "Explains the Groups page (/workplace/group) — the admin page for managing groups (teams, locations, organisational units): a sortable, filterable list view, a hierarchical tree view with drag & drop re-parenting and member counts, and the group editor with master data (name, validity, payment interval, calendar), parent structure and participant list. Use this when the user asks what they see on the Groups page, what the cards/columns/tree badges mean, or how to work with it.",
+      "description": "Explains the Groups pages — /workplace/group, the admin page for managing groups (teams, locations, organisational units) with two switchable views: a sortable, filterable table (with validity filter column) and a hierarchical tree with X|Y member badges, expand/collapse/refresh, subgroup creation and drag & drop re-parenting. Also covers the group editor at /workplace/edit-group/:id (master data with name, validity, payment interval, calendar selection and notes; parent structure with current path; participant list with person search and filter column), the page /workplace/group-structure (visibility of root groups per user), optional group coordinates (latitude/longitude) for geographic evaluations, and how the global group selection affects all other workspace pages. Use this when the user asks what they see on the Groups page, what the cards/columns/tree badges mean, or how to work with it. Supports a level parameter: short (purpose only), elements (every element explained), effects (data sources, hierarchy model, group scope and visibility effects on other pages).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "handlerConfig": {
         "memoryKey": "explain_page_groups"
@@ -19114,7 +19518,27 @@
         "group structure",
         "baumansicht",
         "tree view",
-        "teams"
+        "teams",
+        "gruppenbaum",
+        "group tree",
+        "untergruppe",
+        "subgroup",
+        "wurzelgruppe",
+        "root group",
+        "mitglieder",
+        "members",
+        "teilnehmerliste",
+        "participant list",
+        "zahlungsintervall",
+        "payment interval",
+        "gruppen-koordinaten",
+        "group coordinates",
+        "standort",
+        "location",
+        "gruppen-sichtbarkeit",
+        "group visibility",
+        "hierarchie",
+        "hierarchy"
       ],
       "synonyms": {
         "de": [
@@ -19125,7 +19549,17 @@
           "gruppenliste",
           "gruppenbaum",
           "alle gruppen",
-          "teilnehmerliste"
+          "teilnehmerliste",
+          "was bedeutet das badge im gruppenbaum",
+          "gruppe anlegen",
+          "untergruppe anlegen",
+          "gruppe umhängen",
+          "mitglied hinzufügen",
+          "mitglied entfernen",
+          "zahlungsintervall der gruppe",
+          "gruppen-koordinaten setzen",
+          "wer sieht welche gruppen",
+          "sichtbarkeit von gruppen"
         ],
         "en": [
           "what do I see here",
@@ -19134,7 +19568,18 @@
           "groups",
           "group list",
           "group tree",
-          "all groups"
+          "all groups",
+          "participant list",
+          "what does the badge in the tree mean",
+          "create a group",
+          "create a subgroup",
+          "move a group",
+          "add a member",
+          "remove a member",
+          "group payment interval",
+          "set group coordinates",
+          "who sees which groups",
+          "group visibility"
         ],
         "fr": [
           "qu'est-ce que je vois ici",
@@ -19143,7 +19588,15 @@
           "groupes",
           "tous les groupes",
           "structure du groupe",
-          "arbre des groupes"
+          "arbre des groupes",
+          "liste des participants",
+          "créer un groupe",
+          "créer un sous-groupe",
+          "déplacer un groupe",
+          "ajouter un membre",
+          "supprimer un membre",
+          "intervalle de paiement du groupe",
+          "visibilité des groupes"
         ],
         "it": [
           "cosa vedo qui",
@@ -19152,18 +19605,39 @@
           "gruppi",
           "tutti i gruppi",
           "struttura del gruppo",
-          "albero dei gruppi"
+          "albero dei gruppi",
+          "elenco dei partecipanti",
+          "creare un gruppo",
+          "creare un sottogruppo",
+          "spostare un gruppo",
+          "aggiungere un membro",
+          "rimuovere un membro",
+          "intervallo di pagamento del gruppo",
+          "visibilità dei gruppi"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_page_period_closing",
-      "description": "Explains the Period Closing page (Periodenabschluss) at /workplace/period-closing: the Periods card with the day-by-day seal table and bulk seal/unseal, the issues card with error/warning/info badges and unstaffed-shift count, the Exports card for downloading order exports (CSV/JSON/XML/DATEV/BMD), and the Audit Log card with seal/unseal actions and export history. Use this when the user asks what they see on the Period Closing page, what the cards/columns/badges mean, how to seal or reopen a period, or how to work with it.",
+      "description": "Explains the Period Closing page (Periodenabschluss) at /workplace/period-closing — the admin-only page for sealing billing periods day by day. Covers the Periods card (period dropdown grouped by payment interval, sealed/partial/empty day badges, the day table with seal checkboxes, the mandatory-reason unseal dialog, the collapsible issues card with error/warning/info badges and the unstaffed-shift counter, bulk seal/unseal), the Exports card (date filter, sealed-order search, CSV/JSON/XML/DATEV/BMD formats, proof-of-service download with partial-close warning), and the Audit Log card (seal/unseal actions and export history with detail modals). Use this when the user asks what they see on the Period Closing page, what the cards/columns/badges mean, how to seal or reopen a period, why a sealed day rejects changes, or who sealed/exported what. Supports a level parameter: short (purpose only), elements (every element explained), effects (day-lock impact on schedule/absences, audit and export logs, permissions and interplay with other pages).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "handlerConfig": {
         "memoryKey": "explain_page_period_closing"
@@ -19176,12 +19650,37 @@
         "periodenabschluss",
         "periode",
         "versiegeln",
+        "entsiegeln",
         "seal",
         "unseal",
+        "seal period",
+        "reopen period",
+        "lock period",
+        "periode versiegeln",
+        "periode öffnen",
+        "tage versiegeln",
+        "schichten blockieren",
+        "seal shifts",
+        "abrechnungsperiode",
+        "billing period",
+        "leistungsnachweis",
+        "proof of service",
         "export log",
+        "exportprotokoll",
         "protokoll",
         "audit",
-        "abschluss"
+        "audit log",
+        "abschluss",
+        "begründung erforderlich",
+        "reason required",
+        "unverplante shifts",
+        "unstaffed shifts",
+        "alle versiegeln",
+        "alle entsiegeln",
+        "betroffene einträge",
+        "affected entries",
+        "datev",
+        "bmd"
       ],
       "synonyms": {
         "de": [
@@ -19191,7 +19690,19 @@
           "was bedeutet diese karte",
           "periode versiegeln",
           "periode öffnen",
+          "periode entsiegeln",
+          "tag versiegeln",
+          "tag wieder öffnen",
+          "alle versiegeln",
+          "alle entsiegeln",
+          "warum brauche ich eine begründung",
+          "warum kann ich diesen tag nicht ändern",
+          "abrechnungsperiode abschliessen",
+          "leistungsnachweis exportieren",
+          "probleme dieser periode",
+          "unverplante shifts",
           "exportprotokoll",
+          "wer hat versiegelt",
           "abschluss-seite"
         ],
         "en": [
@@ -19201,8 +19712,18 @@
           "what does this card mean",
           "seal period",
           "reopen period",
+          "unseal day",
+          "seal all",
+          "unseal all",
+          "why do I need a reason",
+          "why can't I change this day",
+          "close billing period",
+          "export proof of service",
+          "issues in this period",
+          "unstaffed shifts",
           "export log",
-          "audit log"
+          "audit log",
+          "who sealed the period"
         ],
         "fr": [
           "clôture de période",
@@ -19211,7 +19732,15 @@
           "que signifie cette carte",
           "sceller la période",
           "rouvrir la période",
-          "journal d'audit"
+          "sceller un jour",
+          "pourquoi un motif est requis",
+          "pourquoi je ne peux pas modifier ce jour",
+          "problèmes de cette période",
+          "shifts non planifiés",
+          "journal d'audit",
+          "journal des exports",
+          "qui a scellé la période",
+          "exporter le justificatif"
         ],
         "it": [
           "chiusura periodo",
@@ -19220,18 +19749,39 @@
           "cosa significa questa scheda",
           "sigilla periodo",
           "riapri periodo",
-          "registro di controllo"
+          "sigillare un giorno",
+          "perché serve un motivo",
+          "perché non posso modificare questo giorno",
+          "problemi di questo periodo",
+          "turni non pianificati",
+          "registro di controllo",
+          "registro esportazioni",
+          "chi ha sigillato il periodo",
+          "esportare il giustificativo"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_page_inbox",
-      "description": "Explains the Inbox page (Posteingang) at /workplace/inbox: the three-column mail layout with the Folders column (system folders Inbox/Spam/Trash/Sent/Clients plus user folders and the Groups tree for filtering mails by group or person), the email list with the Relevant/Other/All tabs, read filter, date sort and right-click context menu (mark read/unread, mark as spam, move to folder, delete/restore), and the reading pane with From/To/Date/Folder metadata and actions. Use this when the user asks what they see on the Inbox page, what the columns/folders/tabs/badges mean, or how to work with it.",
+      "description": "Explains the Inbox page (Posteingang) at /workplace/inbox — the three-column mail client for the connected IMAP mailbox, visible only when an IMAP account (server, username, password) is configured in settings. Covers the Folders column (localized system folders Inbox/Spam/Trash/Sent/Clients, user folders with create/delete, the Groups tree with unread badges), the email list (Relevant/Other/All tabs, read filter, date sort, refresh button, right-click context menu with mark read/unread, spam/not-spam, move to folder, delete/restore/permanently delete) and the reading pane (From/To/Date/Folder metadata, sanitized HTML body, read toggle and delete actions). Use this when the user asks what they see on the Inbox page, what the folders/tabs/badges/context-menu entries mean, or how to work with it. Supports a level parameter: short (purpose only), elements (every element explained), effects (IMAP mirroring, polling and spam classification, unread badges, visibility rules and how the page interacts with the settings page).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "handlerConfig": {
         "memoryKey": "explain_page_inbox"
@@ -19247,9 +19797,31 @@
         "mail",
         "ordner",
         "spam",
+        "spamverdacht",
+        "junk",
         "ungelesen",
         "unread",
-        "papierkorb"
+        "unread count",
+        "ungelesene mails",
+        "papierkorb",
+        "trash",
+        "wiederherstellen",
+        "restore",
+        "lesefilter",
+        "read filter",
+        "relevante mails",
+        "relevant emails",
+        "sortieren",
+        "sort by date",
+        "anhang",
+        "attachments",
+        "ordnerstruktur",
+        "folder hierarchy",
+        "kontextmenü",
+        "rechtsklick",
+        "imap",
+        "gesendet",
+        "sent"
       ],
       "synonyms": {
         "de": [
@@ -19260,7 +19832,24 @@
           "was bedeutet dieses badge",
           "e-mails lesen",
           "mail-liste",
-          "spamverdacht"
+          "spamverdacht",
+          "ungelesene mails",
+          "wie viele ungelesene",
+          "mails sortieren",
+          "nach datum sortieren",
+          "anhänge anzeigen",
+          "mail wiederherstellen",
+          "endgültig löschen",
+          "als spam markieren",
+          "in ordner verschieben",
+          "ordner anlegen",
+          "gruppenbaum",
+          "kundenmails",
+          "relevante mails",
+          "lesefilter",
+          "rechtsklick auf mail",
+          "posteingang aktualisieren",
+          "warum sehe ich den posteingang nicht"
         ],
         "en": [
           "inbox",
@@ -19270,36 +19859,94 @@
           "what does this badge mean",
           "read emails",
           "mail list",
-          "spam folder"
+          "spam folder",
+          "unread count",
+          "sort by date",
+          "show attachments",
+          "restore email",
+          "permanently delete",
+          "mark as spam",
+          "move to folder",
+          "create folder",
+          "group tree",
+          "client emails",
+          "relevant emails",
+          "read filter",
+          "right click on email",
+          "refresh inbox",
+          "why can't I see the inbox"
         ],
         "fr": [
           "boîte de réception",
           "qu'est-ce que je vois ici",
           "explique cette page",
           "que signifie ce dossier",
+          "que signifie ce badge",
           "lire les e-mails",
           "liste des e-mails",
-          "spam"
+          "spam",
+          "e-mails non lus",
+          "trier par date",
+          "pièces jointes",
+          "restaurer un e-mail",
+          "supprimer définitivement",
+          "marquer comme spam",
+          "déplacer vers un dossier",
+          "créer un dossier",
+          "arbre des groupes",
+          "e-mails clients",
+          "e-mails pertinents",
+          "filtre de lecture",
+          "actualiser la boîte de réception",
+          "pourquoi je ne vois pas la boîte de réception"
         ],
         "it": [
           "posta in arrivo",
           "cosa vedo qui",
           "spiega questa pagina",
           "cosa significa questa cartella",
+          "cosa significa questo badge",
           "leggere le e-mail",
           "elenco e-mail",
-          "spam"
+          "spam",
+          "e-mail non lette",
+          "ordinare per data",
+          "allegati",
+          "ripristinare un'e-mail",
+          "eliminare definitivamente",
+          "segnare come spam",
+          "spostare nella cartella",
+          "creare una cartella",
+          "albero dei gruppi",
+          "e-mail dei clienti",
+          "e-mail rilevanti",
+          "filtro di lettura",
+          "aggiornare la posta in arrivo",
+          "perché non vedo la posta in arrivo"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_page_settings_overview",
-      "description": "Explains the Klacks settings page (/workplace/settings) — the admin-only configuration hub reached via the gear icon (open-settings, Alt+8). Orientation overview of its twelve collapsible sections: General (app name, owner address, data retention/GDPR), Users & Access (user administration, group visibility per user, identity providers), Organization (branches, contracts, states, countries, qualifications), Work & Scheduling (work settings, scheduling defaults, scheduling rules, Holistic Harmonizer), Absence & Calendar (absence types, absence details, holiday rules, calendar selection), Communication & Reports (SMTP, IMAP, spam rules, report templates and defaults), Appearance & Automation (grid colors, macros, floor plan), AI / LLM (models, providers, sync log, model check), Klacksy (speech, personality, skill proposals, autonomy), External Services (OpenRoute, DeepL, messaging), Plugins (language packs, feature plugins) and System (software updates). Mentions Klacksy's guided first-run setup tour through the most important cards. Use this when the user asks what they see on the settings page, what the sections/cards mean, or how to work with it.",
+      "description": "Explains the Klacks settings page (/workplace/settings) — the admin-only configuration hub reached via the gear icon (open-settings, Alt+8) in the main navigation; route and icon are only available with admin permission. Gives an orientation overview of its twelve collapsible sections: General (app name, owner address, data retention/GDPR), Users & Access (user administration, group visibility per user, identity providers), Organization (branches, contracts, states, countries, qualifications), Work & Scheduling (work settings, scheduling defaults, scheduling rules, Holistic Harmonizer), Absence & Calendar (absence types, absence details, holiday rules, calendar selection), Communication & Reports (SMTP email, IMAP, spam rules, report templates and defaults), Appearance & Automation (grid colors, calculation macros, floor plan), AI / LLM (models, providers, sync log, model check), Klacksy (speech, personality, skill proposals, autonomy), External Services (OpenRoute, DeepL, messaging when the plugin is enabled), Plugins (language packs, feature plugins) and System (software updates). Also covers Klacksy's guided first-run setup tour and how the settings feed other pages (absence types → absence calendar, contracts and scheduling rules → resource monitor and planning, LLM providers → Klacksy, macros → booked services, email/IMAP → inbox). Use this when the user asks what they see on the settings page, what the sections/cards mean, or how to work with it. Supports a level parameter: short (purpose only), elements (every section and card explained), effects (how the settings affect the other pages).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "handlerConfig": {
         "memoryKey": "explain_page_settings_overview"
@@ -19317,7 +19964,19 @@
         "admin settings",
         "setup",
         "sektionen",
-        "sections"
+        "sections",
+        "settings overview",
+        "einstellungen übersicht",
+        "harmonizer",
+        "holistic harmonizer",
+        "harmonizer einstellungen",
+        "planungsregeln",
+        "makro einstellungen",
+        "macro settings",
+        "openroute",
+        "deepl",
+        "zahnrad",
+        "gear icon"
       ],
       "synonyms": {
         "de": [
@@ -19328,7 +19987,13 @@
           "erkläre diese seite",
           "was bedeutet diese karte",
           "welche einstellungen gibt es",
-          "wo finde ich die einstellung"
+          "wo finde ich die einstellung",
+          "harmonizer einstellungen",
+          "planungsregeln einstellen",
+          "automatisierungs-makros",
+          "wo stelle ich den llm-anbieter ein",
+          "e-mail einrichten",
+          "zahnrad-symbol"
         ],
         "en": [
           "settings",
@@ -19337,7 +20002,13 @@
           "what do i see here",
           "explain this page",
           "what does this card mean",
-          "where do i find a setting"
+          "where do i find a setting",
+          "holistic harmonizer settings",
+          "scheduling rule configuration",
+          "macro automation",
+          "where do i set the llm provider",
+          "set up email",
+          "gear icon"
         ],
         "fr": [
           "paramètres",
@@ -19346,7 +20017,13 @@
           "que vois-je ici",
           "explique cette page",
           "que signifie cette carte",
-          "où trouver un paramètre"
+          "où trouver un paramètre",
+          "harmoniseur holistique",
+          "paramètres de règles de planification",
+          "macros d'automatisation",
+          "où configurer le fournisseur llm",
+          "configurer l'e-mail",
+          "icône d'engrenage"
         ],
         "it": [
           "impostazioni",
@@ -19355,7 +20032,139 @@
           "cosa vedo qui",
           "spiega questa pagina",
           "cosa significa questa scheda",
-          "dove trovo un'impostazione"
+          "dove trovo un'impostazione",
+          "armonizzatore olistico",
+          "impostazioni delle regole di pianificazione",
+          "automazione macro",
+          "dove imposto il provider llm",
+          "configurare l'e-mail",
+          "icona dell'ingranaggio"
+        ]
+      },
+      "version": 2
+    },
+    {
+      "name": "explain_page_profile",
+      "description": "Explains the My Profile page (Mein Profil) at /workplace/profile — the personal page of the logged-in user with four cards: profile picture (drag & drop upload or click, instant delete; the picture also becomes the sidebar profile icon), change my login data (read-only username, current password with show/hide toggle, new password with live strength indicator, repeat field locked until the password is strong, saved via the footer save bar), custom settings (theme with 7 color schemes and the display language, both applied instantly without saving) and the microphone & voice recognition test (device picker shared with the Klacksy voice input, four-step diagnostics, 5-second record/playback with level meter and automatic transcription). Use this when the user asks what they see on the profile page, how to change their password, picture, theme or language, or how to test the microphone. Supports a level parameter: short (purpose only), elements (every element explained), effects (data sources, what saving the password does, and how the page interacts with the sidebar, language packs and the Klacksy voice input).",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_page_profile"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "my profile",
+        "mein profil",
+        "profile page",
+        "profilseite",
+        "profilbild",
+        "profile picture",
+        "avatar",
+        "passwort ändern",
+        "change password",
+        "logindaten ändern",
+        "login data",
+        "neues passwort",
+        "new password",
+        "farbschema",
+        "theme",
+        "dark mode",
+        "sprache ändern",
+        "change language",
+        "benutzerdefinierte einstellungen",
+        "custom settings",
+        "mikrofon test",
+        "microphone test",
+        "mikrofon auswählen",
+        "spracherkennung",
+        "speech recognition",
+        "benutzername",
+        "username"
+      ],
+      "synonyms": {
+        "de": [
+          "was sehe ich hier",
+          "erkläre diese seite",
+          "mein profil",
+          "profilseite",
+          "profilbild hochladen",
+          "profilbild löschen",
+          "passwort ändern",
+          "logindaten ändern",
+          "neues passwort",
+          "warum ist das wiederholen-feld gesperrt",
+          "farbschema ändern",
+          "dark mode einschalten",
+          "sprache umstellen",
+          "mikrofon testen",
+          "mikrofon auswählen",
+          "spracherkennung testen",
+          "diagnose starten"
+        ],
+        "en": [
+          "what do i see here",
+          "explain this page",
+          "my profile",
+          "profile page",
+          "upload profile picture",
+          "remove profile picture",
+          "change my password",
+          "change login data",
+          "new password",
+          "why is the repeat field disabled",
+          "change theme",
+          "enable dark mode",
+          "switch language",
+          "test my microphone",
+          "select microphone",
+          "test speech recognition",
+          "run diagnostics"
+        ],
+        "fr": [
+          "que vois-je ici",
+          "explique cette page",
+          "mon profil",
+          "photo de profil",
+          "changer le mot de passe",
+          "nouveau mot de passe",
+          "changer le thème",
+          "mode sombre",
+          "changer la langue",
+          "tester le microphone",
+          "sélectionner le microphone",
+          "reconnaissance vocale"
+        ],
+        "it": [
+          "cosa vedo qui",
+          "spiega questa pagina",
+          "il mio profilo",
+          "immagine del profilo",
+          "cambiare la password",
+          "nuova password",
+          "cambiare il tema",
+          "modalità scura",
+          "cambiare la lingua",
+          "testare il microfono",
+          "selezionare il microfono",
+          "riconoscimento vocale"
         ]
       },
       "version": 1

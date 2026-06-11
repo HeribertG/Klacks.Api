@@ -51,7 +51,7 @@ public class AgentTriggerService : IAgentTriggerService
 
         foreach (var userId in connectedUserIds)
         {
-            if (!_preferenceService.IsAllowed(userId, triggerEvent.Kind, triggerEvent.Severity))
+            if (!await _preferenceService.IsAllowedAsync(userId, triggerEvent.Kind, triggerEvent.Severity))
             {
                 muted++;
                 continue;

@@ -9,15 +9,15 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IAgentTriggerPreferenceService
 {
-    bool IsAllowed(string userId, string triggerKind, string severity);
+    Task<bool> IsAllowedAsync(string userId, string triggerKind, string severity);
 
-    AgentTriggerPreference GetPreference(string userId, string triggerKind);
+    Task<AgentTriggerPreference> GetPreferenceAsync(string userId, string triggerKind);
 
-    void Mute(string userId, string triggerKind, bool muted);
+    Task MuteAsync(string userId, string triggerKind, bool muted);
 
-    void Snooze(string userId, string triggerKind, DateTime? snoozedUntilUtc);
+    Task SnoozeAsync(string userId, string triggerKind, DateTime? snoozedUntilUtc);
 
-    void SetMinimumSeverity(string userId, string triggerKind, string severity);
+    Task SetMinimumSeverityAsync(string userId, string triggerKind, string severity);
 }
 
 public sealed record AgentTriggerPreference(

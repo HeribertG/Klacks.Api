@@ -4,6 +4,7 @@
 /// Handler for building a group tree with email counters per client and group.
 /// </summary>
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Email;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Email;
@@ -114,7 +115,7 @@ public class GetEmailGroupTreeQueryHandler : BaseHandler, IRequestHandler<GetEma
                 result.Add(new EmailGroupTreeNode
                 {
                     Id = Guid.Empty,
-                    Name = "Unassigned",
+                    Name = EmailGroupTreeLabels.GetUnassignedLabel(request.Language),
                     Type = EmailGroupNodeType.Group,
                     EmailCount = unassignedChildren.Sum(c => c.EmailCount),
                     UnreadCount = 0,

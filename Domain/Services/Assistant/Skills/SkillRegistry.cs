@@ -35,7 +35,8 @@ public class SkillRegistry : ISkillRegistry
         _cache = cache;
         _cacheOptions = new MemoryCacheEntryOptions()
             .SetSlidingExpiration(TimeSpan.FromMinutes(5))
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(30))
+            .SetSize(1);
     }
 
     public void Register(SkillDescriptor descriptor)

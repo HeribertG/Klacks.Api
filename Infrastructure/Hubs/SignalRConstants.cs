@@ -60,6 +60,12 @@ public static class SignalRConstants
         public static string AutoWizardJob(Guid jobId) => $"autowizard-{jobId:N}";
     }
 
+    public static class EmailGroups
+    {
+        public const string Subscribers = "email_subscribers";
+        public static string User(string userId) => $"email_user_{userId}";
+    }
+
     public static class AssistantEvents
     {
         public const string ProactiveMessage = "ProactiveMessage";

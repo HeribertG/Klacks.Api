@@ -106,7 +106,7 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
 
         var result = await GetAllSubGroupIds(new List<Guid> { groupId });
 
-        _cache.Set(cacheKey, result, CacheDuration);
+        _cache.Set(cacheKey, result, new MemoryCacheEntryOptions().SetAbsoluteExpiration(CacheDuration).SetSize(1));
 
         return result;
     }
@@ -144,7 +144,7 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
 
         var result = await GetAllSubGroupIds(existingGroups);
 
-        _cache.Set(cacheKey, result, CacheDuration);
+        _cache.Set(cacheKey, result, new MemoryCacheEntryOptions().SetAbsoluteExpiration(CacheDuration).SetSize(1));
 
         return result;
     }

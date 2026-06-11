@@ -66,7 +66,7 @@ public sealed class OpenMeteoClient : IOpenMeteoClient
             var response = await client.GetFromJsonAsync<OpenMeteoResponse>(url, JsonOptions, cancellationToken);
             var key = MapWeatherCode(response?.CurrentWeather?.WeatherCode);
 
-            _cache.Set(cacheKey, key, TimeSpan.FromMinutes(CacheMinutes));
+            _cache.Set(cacheKey, key, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(CacheMinutes)).SetSize(1));
             return key;
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)

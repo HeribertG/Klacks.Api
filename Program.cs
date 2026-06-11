@@ -233,7 +233,10 @@ builder.Services.AddHostedService<AgentTriggerBackgroundService>();
 builder.Services.AddHostedService<SkillCoverageBackgroundService>();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddMemoryCache();
+builder.Services.AddMemoryCache(options =>
+{
+    options.SizeLimit = 100_000;
+});
 builder.Services.AddHealthChecks()
     .AddCheck<PlatformDependencyHealthCheck>("platform-dependencies", tags: ["deep"]);
 

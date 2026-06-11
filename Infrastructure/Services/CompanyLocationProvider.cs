@@ -97,7 +97,9 @@ public class CompanyLocationProvider : ICompanyLocationProvider
 
     private (double Latitude, double Longitude)? CacheResult((double Latitude, double Longitude)? coordinates)
     {
-        _cache.Set(CacheKey, coordinates, coordinates.HasValue ? PositiveCacheDuration : NegativeCacheDuration);
+        _cache.Set(CacheKey, coordinates, new MemoryCacheEntryOptions()
+            .SetAbsoluteExpiration(coordinates.HasValue ? PositiveCacheDuration : NegativeCacheDuration)
+            .SetSize(1));
         return coordinates;
     }
 }

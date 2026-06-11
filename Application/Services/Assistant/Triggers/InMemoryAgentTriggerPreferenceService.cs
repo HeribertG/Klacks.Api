@@ -23,38 +23,46 @@ public class InMemoryAgentTriggerPreferenceService : IAgentTriggerPreferenceServ
 
     private readonly ConcurrentDictionary<string, AgentTriggerPreference> _state = new();
 
-    public bool IsAllowed(string userId, string triggerKind, string severity)
+    public Task<bool> IsAllowedAsync(string userId, string triggerKind, string severity)
     {
-        var pref = GetPreference(userId, triggerKind);
-        if (pref.Muted) return false;
-        if (pref.SnoozedUntilUtc.HasValue && pref.SnoozedUntilUtc.Value > DateTime.UtcNow) return false;
-        return RankOf(severity) >= RankOf(pref.MinimumSeverity);
+        var pref = GetPreferenceCore(userId, triggerKind);
+        if (pref.Muted) return Task.FromResult(false);
+        if (pref.SnoozedUntilUtc.HasValue && pref.SnoozedUntilUtc.Value > DateTime.UtcNow) return Task.FromResult(false);
+        return Task.FromResult(RankOf(severity) >= RankOf(pref.MinimumSeverity));
     }
 
-    public AgentTriggerPreference GetPreference(string userId, string triggerKind)
+    public Task<AgentTriggerPreference> GetPreferenceAsync(string userId, string triggerKind)
     {
-        return _state.TryGetValue(Key(userId, triggerKind), out var pref)
-            ? pref
-            : new AgentTriggerPreference(userId, triggerKind, false, null, AgentTriggerSeverity.Low);
+        return Task.FromResult(GetPreferenceCore(userId, triggerKind));
     }
 
-    public void Mute(string userId, string triggerKind, bool muted)
+    public Task MuteAsync(string userId, string triggerKind, bool muted)
     {
         Mutate(userId, triggerKind, p => p with { Muted = muted });
+        return Task.CompletedTask;
     }
 
-    public void Snooze(string userId, string triggerKind, DateTime? snoozedUntilUtc)
+    public Task SnoozeAsync(string userId, string triggerKind, DateTime? snoozedUntilUtc)
     {
         Mutate(userId, triggerKind, p => p with { SnoozedUntilUtc = snoozedUntilUtc });
+        return Task.CompletedTask;
     }
 
-    public void SetMinimumSeverity(string userId, string triggerKind, string severity)
+    public Task SetMinimumSeverityAsync(string userId, string triggerKind, string severity)
     {
         if (!SeverityRank.ContainsKey(severity))
         {
             throw new ArgumentException($"Unknown severity '{severity}'", nameof(severity));
         }
         Mutate(userId, triggerKind, p => p with { MinimumSeverity = severity });
+        return Task.CompletedTask;
+    }
+
+    private AgentTriggerPreference GetPreferenceCore(string userId, string triggerKind)
+    {
+        return _state.TryGetValue(Key(userId, triggerKind), out var pref)
+            ? pref
+            : new AgentTriggerPreference(userId, triggerKind, false, null, AgentTriggerSeverity.Low);
     }
 
     private void Mutate(string userId, string triggerKind, Func<AgentTriggerPreference, AgentTriggerPreference> change)

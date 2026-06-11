@@ -3,6 +3,7 @@
 /// <summary>
 /// Controller for received emails management (list, read, delete, move, IMAP sync).
 /// </summary>
+using System.Security.Claims;
 using Klacks.Api.Application.Commands.Email;
 using Klacks.Api.Application.DTOs.Email;
 using Klacks.Api.Domain.DTOs.Email;
@@ -28,9 +29,9 @@ public class ReceivedEmailController : BaseController
     }
 
     [HttpGet("GroupTree")]
-    public async Task<ActionResult<List<EmailGroupTreeNode>>> GetGroupTree()
+    public async Task<ActionResult<List<EmailGroupTreeNode>>> GetGroupTree([FromQuery] string? language = null)
     {
-        var result = await _mediator.Send(new GetEmailGroupTreeQuery());
+        var result = await _mediator.Send(new GetEmailGroupTreeQuery(language));
         return Ok(result);
     }
 
@@ -83,7 +84,8 @@ public class ReceivedEmailController : BaseController
     [HttpPut("{id:guid}/Read")]
     public async Task<ActionResult<bool>> MarkAsRead(Guid id, [FromQuery] bool isRead = true)
     {
-        var result = await _mediator.Send(new MarkEmailAsReadCommand(id, isRead));
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+        var result = await _mediator.Send(new MarkEmailAsReadCommand(id, isRead, userId));
         return Ok(result);
     }
 

@@ -27,11 +27,11 @@ public class EmailNotificationService : IEmailNotificationService
             Timestamp = DateTime.UtcNow
         };
 
-        await _hubContext.Clients.All.NewEmailsReceived(notification);
-        _logger.LogInformation("Notified all clients about {Count} new emails", count);
+        await _hubContext.Clients.Group(SignalRConstants.EmailGroups.Subscribers).NewEmailsReceived(notification);
+        _logger.LogInformation("Notified email subscribers about {Count} new emails", count);
     }
 
-    public async Task NotifyReadStateChangedAsync(Guid emailId, bool isRead, string folder)
+    public async Task NotifyReadStateChangedAsync(string userId, Guid emailId, bool isRead, string folder)
     {
         var notification = new EmailReadStateNotificationDto
         {
@@ -41,7 +41,7 @@ public class EmailNotificationService : IEmailNotificationService
             Timestamp = DateTime.UtcNow
         };
 
-        await _hubContext.Clients.All.EmailReadStateChanged(notification);
-        _logger.LogDebug("Notified all clients about read state change for email {EmailId}", emailId);
+        await _hubContext.Clients.Group(SignalRConstants.EmailGroups.User(userId)).EmailReadStateChanged(notification);
+        _logger.LogDebug("Notified user {UserId} about read state change for email {EmailId}", userId, emailId);
     }
 }

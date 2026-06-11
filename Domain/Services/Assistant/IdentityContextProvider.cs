@@ -84,7 +84,8 @@ public class IdentityContextProvider : IIdentityContextProvider
         var result = sb.ToString();
 
         _cache.Set(cacheKey, result, new MemoryCacheEntryOptions()
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(IdentityCacheMinutes)));
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(IdentityCacheMinutes))
+            .SetSize(1));
 
         return result;
     }

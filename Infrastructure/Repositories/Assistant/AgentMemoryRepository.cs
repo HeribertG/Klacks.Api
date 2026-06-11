@@ -208,6 +208,7 @@ public class AgentMemoryRepository : IAgentMemoryRepository
     {
         return await _context.AgentMemories
             .OrderByDescending(m => m.CreateTime)
+            .AsNoTracking()
             .FirstOrDefaultAsync(m => m.Key == key, cancellationToken);
     }
 

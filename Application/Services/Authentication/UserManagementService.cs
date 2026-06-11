@@ -108,10 +108,10 @@ public class UserManagementService : IUserManagementService
 
     public async Task<List<UserResource>> GetUserListAsync()
     {
+        var authorisedIds = (await _userManager.GetUsersInRoleAsync(Roles.Authorised)).Select(u => u.Id).ToHashSet();
+        var adminIds = (await _userManager.GetUsersInRoleAsync(Roles.Admin)).Select(u => u.Id).ToHashSet();
         var users = await _userManager.Users.ToListAsync();
         var userResources = new List<UserResource>(users.Count);
-        var usersInAuthorisedRole = await _userManager.GetUsersInRoleAsync(Roles.Authorised);
-        var usersInAdminRole = await _userManager.GetUsersInRoleAsync(Roles.Admin);
 
         foreach (var user in users)
         {
@@ -122,8 +122,8 @@ public class UserManagementService : IUserManagementService
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email ?? NotApplicable,
-                IsAuthorised = usersInAuthorisedRole.Contains(user),
-                IsAdmin = usersInAdminRole.Contains(user),
+                IsAuthorised = authorisedIds.Contains(user.Id),
+                IsAdmin = adminIds.Contains(user.Id),
             };
 
             userResources.Add(userResource);

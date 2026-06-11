@@ -8,16 +8,18 @@ namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Azure;
 public class AzureOpenAIProvider : BaseOpenAICompatibleProvider
 {
     private readonly IConfiguration _configuration;
+    private readonly IHttpClientFactory _httpClientFactory;
     private string _deploymentName = string.Empty;
     private string _apiVersion = string.Empty;
 
     public override string ProviderId => _providerConfig!.ProviderId;
     public override string ProviderName => _providerConfig!.ProviderName;
 
-    public AzureOpenAIProvider(HttpClient httpClient, ILogger<AzureOpenAIProvider> logger, IConfiguration configuration)
+    public AzureOpenAIProvider(HttpClient httpClient, ILogger<AzureOpenAIProvider> logger, IConfiguration configuration, IHttpClientFactory httpClientFactory)
         : base(httpClient, logger)
     {
         _configuration = configuration;
+        _httpClientFactory = httpClientFactory;
     }
 
     public override void Configure(Domain.Models.Assistant.LLMProvider providerConfig)
@@ -56,10 +58,10 @@ public class AzureOpenAIProvider : BaseOpenAICompatibleProvider
     {
         try
         {
-            var testClient = new HttpClient();
+            var testClient = _httpClientFactory.CreateClient();
             testClient.BaseAddress = _httpClient.BaseAddress;
             testClient.DefaultRequestHeaders.Add("api-key", apiKey);
-            
+
             var response = await testClient.GetAsync($"openai/deployments?api-version={_apiVersion}");
             return response.IsSuccessStatusCode;
         }

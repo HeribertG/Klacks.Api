@@ -29,6 +29,7 @@ public static class PageExplainSkillRoutes
             ["/workplace/period-closing"] = "explain_page_period_closing",
             ["/workplace/inbox"] = "explain_page_inbox",
             ["/workplace/settings"] = "explain_page_settings_overview",
+            ["/workplace/profile"] = "explain_page_profile",
         };
 
     public static string? ResolveSkillName(string? currentRoute)

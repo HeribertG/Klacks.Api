@@ -58,7 +58,7 @@ public class TravelTimeCalculationService : ITravelTimeCalculationService
 
         var apiKey = await GetApiKeyAsync();
         configured = !string.IsNullOrWhiteSpace(apiKey);
-        _cache.Set(API_KEY_CACHE_KEY, configured, TimeSpan.FromMinutes(5));
+        _cache.Set(API_KEY_CACHE_KEY, configured, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(5)).SetSize(1));
         return configured;
     }
 
@@ -91,7 +91,7 @@ public class TravelTimeCalculationService : ITravelTimeCalculationService
 
         if (result.HasValue)
         {
-            _cache.Set(cacheKey, result.Value, TimeSpan.FromDays(30));
+            _cache.Set(cacheKey, result.Value, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(30)).SetSize(1));
         }
 
         return result;

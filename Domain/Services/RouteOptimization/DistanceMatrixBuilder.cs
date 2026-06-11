@@ -90,7 +90,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
                 result = await GetOsrmDistanceMatrixAsync(locations, transportMode);
             }
 
-            _cache.Set(cacheKey, result, TimeSpan.FromDays(7));
+            _cache.Set(cacheKey, result, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(7)).SetSize(1));
             _logger.LogInformation("Successfully retrieved distance/duration matrix");
             return (result.distanceMatrix, result.durationMatrix, null);
         }
@@ -141,7 +141,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
                 };
 
                 var result = await GetOsrmDistanceMatrixAsync(locations, transportMode);
-                _cache.Set(cacheKey, result, TimeSpan.FromDays(7));
+                _cache.Set(cacheKey, result, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(7)).SetSize(1));
 
                 durationMatricesByProfile[profile] = result.durationMatrix;
 

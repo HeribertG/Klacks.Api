@@ -31,17 +31,17 @@ public class PersistentAgentTriggerPreferenceService : IAgentTriggerPreferenceSe
         _repository = repository;
     }
 
-    public bool IsAllowed(string userId, string triggerKind, string severity)
+    public async Task<bool> IsAllowedAsync(string userId, string triggerKind, string severity)
     {
-        var pref = GetPreference(userId, triggerKind);
+        var pref = await GetPreferenceAsync(userId, triggerKind);
         if (pref.Muted) return false;
         if (pref.SnoozedUntilUtc.HasValue && pref.SnoozedUntilUtc.Value > DateTime.UtcNow) return false;
         return RankOf(severity) >= RankOf(pref.MinimumSeverity);
     }
 
-    public AgentTriggerPreference GetPreference(string userId, string triggerKind)
+    public async Task<AgentTriggerPreference> GetPreferenceAsync(string userId, string triggerKind)
     {
-        var row = _repository.GetAsync(userId, triggerKind).GetAwaiter().GetResult();
+        var row = await _repository.GetAsync(userId, triggerKind);
         if (row == null)
         {
             return new AgentTriggerPreference(userId, triggerKind, false, null, AgentTriggerSeverity.Low);
@@ -49,28 +49,28 @@ public class PersistentAgentTriggerPreferenceService : IAgentTriggerPreferenceSe
         return new AgentTriggerPreference(row.UserId, row.TriggerKind, row.Muted, row.SnoozedUntilUtc, row.MinimumSeverity);
     }
 
-    public void Mute(string userId, string triggerKind, bool muted)
+    public async Task MuteAsync(string userId, string triggerKind, bool muted)
     {
-        Mutate(userId, triggerKind, row => row.Muted = muted);
+        await MutateAsync(userId, triggerKind, row => row.Muted = muted);
     }
 
-    public void Snooze(string userId, string triggerKind, DateTime? snoozedUntilUtc)
+    public async Task SnoozeAsync(string userId, string triggerKind, DateTime? snoozedUntilUtc)
     {
-        Mutate(userId, triggerKind, row => row.SnoozedUntilUtc = snoozedUntilUtc);
+        await MutateAsync(userId, triggerKind, row => row.SnoozedUntilUtc = snoozedUntilUtc);
     }
 
-    public void SetMinimumSeverity(string userId, string triggerKind, string severity)
+    public async Task SetMinimumSeverityAsync(string userId, string triggerKind, string severity)
     {
         if (!SeverityRank.ContainsKey(severity))
         {
             throw new ArgumentException($"Unknown severity '{severity}'", nameof(severity));
         }
-        Mutate(userId, triggerKind, row => row.MinimumSeverity = severity);
+        await MutateAsync(userId, triggerKind, row => row.MinimumSeverity = severity);
     }
 
-    private void Mutate(string userId, string triggerKind, Action<AgentTriggerPreferenceRow> change)
+    private async Task MutateAsync(string userId, string triggerKind, Action<AgentTriggerPreferenceRow> change)
     {
-        var existing = _repository.GetAsync(userId, triggerKind).GetAwaiter().GetResult();
+        var existing = await _repository.GetAsync(userId, triggerKind);
         var row = existing ?? new AgentTriggerPreferenceRow
         {
             UserId = userId,
@@ -81,7 +81,7 @@ public class PersistentAgentTriggerPreferenceService : IAgentTriggerPreferenceSe
             CreateTime = DateTime.UtcNow
         };
         change(row);
-        _repository.UpsertAsync(row).GetAwaiter().GetResult();
+        await _repository.UpsertAsync(row);
     }
 
     private static int RankOf(string severity) => SeverityRank.GetValueOrDefault(severity, 0);

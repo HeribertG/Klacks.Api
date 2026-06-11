@@ -17,9 +17,15 @@ namespace Klacks.Api.Application.Skills.Generic;
 public class KnowledgeHappenExecutor
 {
     private const string AnswerInstruction =
-        "Curated Klacks knowledge. Answer the user's question using ONLY this content. " +
-        "Translate into the user's language; keep the localized UI labels (de/en/fr/it) for on-screen element names. " +
+        "Curated Klacks knowledge. Answer the user's question using ONLY this content, in the user's language. " +
+        "Bracketed label anchors like (de: ..., en: ..., fr: ..., it: ...) are internal translation aids: " +
+        "use ONLY the label matching the user's language and NEVER print the anchor lists themselves. " +
+        "When the user asks for a detailed explanation, cover EVERY element and control mentioned in the content — do not summarize controls away. " +
         "If the question goes beyond this content, say so instead of inventing details.";
+
+    private const string LevelInstruction =
+        " This is the '{0}' depth of a multi-level explanation. If the user wants a shorter overview " +
+        "or more detail, call this skill again with the level parameter set to one of: short, elements, effects.";
 
     private readonly IAgentMemoryRepository _memoryRepository;
 
@@ -28,7 +34,10 @@ public class KnowledgeHappenExecutor
         _memoryRepository = memoryRepository;
     }
 
-    public async Task<SkillResult> ExecuteAsync(KnowledgeHappenConfig config, CancellationToken cancellationToken = default)
+    public async Task<SkillResult> ExecuteAsync(
+        KnowledgeHappenConfig config,
+        Dictionary<string, object>? parameters = null,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(config.MemoryKey))
         {
@@ -42,8 +51,89 @@ public class KnowledgeHappenExecutor
                 $"Knowledge entry '{config.MemoryKey}' is not available. The seed may not have run yet.");
         }
 
+        var requestedLevel = ExtractRequestedLevel(parameters);
+        var levelContent = requestedLevel == null
+            ? null
+            : ExtractLevelSection(memory.Content, requestedLevel);
+
+        if (levelContent == null)
+        {
+            return SkillResult.SuccessResult(
+                new { Knowledge = memory.Content },
+                AnswerInstruction);
+        }
+
         return SkillResult.SuccessResult(
-            new { Knowledge = memory.Content },
-            AnswerInstruction);
+            new { Knowledge = levelContent, Level = requestedLevel },
+            AnswerInstruction + string.Format(LevelInstruction, requestedLevel));
+    }
+
+    private static string? ExtractRequestedLevel(Dictionary<string, object>? parameters)
+    {
+        if (parameters == null ||
+            !parameters.TryGetValue(KnowledgeHappenLevels.ParameterName, out var raw))
+        {
+            return null;
+        }
+
+        var value = raw?.ToString()?.Trim();
+        if (string.IsNullOrEmpty(value))
+        {
+            return null;
+        }
+
+        return KnowledgeHappenLevels.All.FirstOrDefault(l =>
+            string.Equals(l, value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static string? ExtractLevelSection(string content, string level)
+    {
+        var markers = FindLevelMarkers(content);
+        if (markers.Count == 0)
+        {
+            return null;
+        }
+
+        var index = markers.FindIndex(m =>
+            string.Equals(m.Level, level, StringComparison.OrdinalIgnoreCase));
+        if (index < 0)
+        {
+            return null;
+        }
+
+        var sectionStart = markers[index].Position;
+        var sectionEnd = index + 1 < markers.Count ? markers[index + 1].Position : content.Length;
+
+        var preamble = content[..markers[0].Position].Trim();
+        var section = content[sectionStart..sectionEnd].Trim();
+
+        return preamble.Length > 0 ? preamble + "\n\n" + section : section;
+    }
+
+    private static List<(int Position, string Level)> FindLevelMarkers(string content)
+    {
+        var markers = new List<(int, string)>();
+        var searchFrom = 0;
+
+        while (true)
+        {
+            var start = content.IndexOf(KnowledgeHappenLevels.MarkerPrefix, searchFrom, StringComparison.OrdinalIgnoreCase);
+            if (start < 0)
+            {
+                break;
+            }
+
+            var end = content.IndexOf(KnowledgeHappenLevels.MarkerSuffix, start, StringComparison.Ordinal);
+            if (end < 0)
+            {
+                break;
+            }
+
+            var level = content[(start + KnowledgeHappenLevels.MarkerPrefix.Length)..end].Trim();
+            markers.Add((start, level));
+            searchFrom = end + KnowledgeHappenLevels.MarkerSuffix.Length;
+        }
+
+        return markers;
     }
 }

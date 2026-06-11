@@ -26,7 +26,7 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
 
     private readonly string _coreManifestPath;
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly object _lock = new();
+    private readonly SemaphoreSlim _semaphore = new(1, 1);
     private volatile CacheSnapshot _snapshot = EmptySnapshot;
 
     public NavigationTargetCacheService(string coreManifestPath, IServiceScopeFactory scopeFactory)
@@ -37,18 +37,18 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
 
     public IReadOnlyList<NavigationTarget> All
     {
-        get { EnsureFresh(); return _snapshot.Targets; }
+        get { _ = EnsureFreshAsync(); return _snapshot.Targets; }
     }
 
     public NavigationTarget? GetById(string targetId)
     {
-        EnsureFresh();
+        _ = EnsureFreshAsync();
         return _snapshot.ById.TryGetValue(targetId, out var t) ? t : null;
     }
 
     public IReadOnlyList<NavigationTarget> FindBySynonym(string token, string locale)
     {
-        EnsureFresh();
+        _ = EnsureFreshAsync();
         var snap = _snapshot;
         var normalized = token.Trim().ToLowerInvariant();
         if (!snap.SynonymIndex.TryGetValue(locale, out var byLocale))
@@ -64,7 +64,7 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
 
     public IReadOnlyList<NavigationTarget> FindBySynonymAnyLocale(string token)
     {
-        EnsureFresh();
+        _ = EnsureFreshAsync();
         var snap = _snapshot;
         var normalized = token.Trim().ToLowerInvariant();
         var combined = new List<NavigationTarget>();
@@ -85,16 +85,21 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
 
     public void Invalidate()
     {
-        lock (_lock) _snapshot = _snapshot with { LoadedAt = DateTime.MinValue };
+        _snapshot = _snapshot with { LoadedAt = DateTime.MinValue };
     }
 
-    private void EnsureFresh()
+    private async Task EnsureFreshAsync()
     {
         if (DateTime.UtcNow - _snapshot.LoadedAt < Ttl) return;
-        lock (_lock)
+        await _semaphore.WaitAsync();
+        try
         {
             if (DateTime.UtcNow - _snapshot.LoadedAt < Ttl) return;
-            ReloadAsync().GetAwaiter().GetResult();
+            await ReloadAsync();
+        }
+        finally
+        {
+            _semaphore.Release();
         }
     }
 

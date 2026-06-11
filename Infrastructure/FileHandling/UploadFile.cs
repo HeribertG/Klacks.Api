@@ -14,7 +14,7 @@ namespace Klacks.Api.Infrastructure.FileHandling
             configuration = config;
         }
 
-        public void StoreFile(IFormFile file)
+        public async Task StoreFileAsync(IFormFile file)
         {
             if (file == null) return;
 
@@ -25,29 +25,23 @@ namespace Klacks.Api.Infrastructure.FileHandling
             {
                 GetDocumentDirectoryImage();
 
-                using (var filestream = new FileStream(Path.Combine(folderImage!, safeFileName), FileMode.Create, FileAccess.Write))
-                {
-                    file.CopyTo(filestream);
-                }
+                using var filestream = new FileStream(Path.Combine(folderImage!, safeFileName), FileMode.Create, FileAccess.Write);
+                await file.CopyToAsync(filestream);
             }
 
             if (IsIcon(file))
             {
                 GetDocumentDirectoryImage();
 
-                using (var filestream = new FileStream(Path.Combine(folderImage!, safeFileName), FileMode.Create, FileAccess.Write))
-                {
-                    file.CopyTo(filestream);
-                }
+                using var filestream = new FileStream(Path.Combine(folderImage!, safeFileName), FileMode.Create, FileAccess.Write);
+                await file.CopyToAsync(filestream);
             }
 
             if (IsPDF(file))
             {
                 GetDocumentDirectoryPdf();
-                using (var filestream = new FileStream(Path.Combine(folderPdf!, safeFileName), FileMode.Create, FileAccess.Write))
-                {
-                    file.CopyTo(filestream);
-                }
+                using var filestream = new FileStream(Path.Combine(folderPdf!, safeFileName), FileMode.Create, FileAccess.Write);
+                await file.CopyToAsync(filestream);
             }
         }
 

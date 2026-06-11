@@ -40,25 +40,23 @@ public class AgentTriggerPreferencesController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult ListMyPreferences()
+    public async Task<IActionResult> ListMyPreferences()
     {
         var userId = GetCurrentUserId();
-        var rows = KnownKinds.Select(kind =>
+        var tasks = KnownKinds.Select(kind => _preferenceService.GetPreferenceAsync(userId, kind));
+        var prefs = await Task.WhenAll(tasks);
+        var rows = prefs.Select(pref => new TriggerPreferenceDto
         {
-            var pref = _preferenceService.GetPreference(userId, kind);
-            return new TriggerPreferenceDto
-            {
-                TriggerKind = pref.TriggerKind,
-                Muted = pref.Muted,
-                SnoozedUntilUtc = pref.SnoozedUntilUtc,
-                MinimumSeverity = pref.MinimumSeverity
-            };
+            TriggerKind = pref.TriggerKind,
+            Muted = pref.Muted,
+            SnoozedUntilUtc = pref.SnoozedUntilUtc,
+            MinimumSeverity = pref.MinimumSeverity
         }).ToList();
         return Ok(rows);
     }
 
     [HttpPut("{triggerKind}")]
-    public IActionResult UpdatePreference(string triggerKind, [FromBody] UpdateTriggerPreferenceRequest request)
+    public async Task<IActionResult> UpdatePreference(string triggerKind, [FromBody] UpdateTriggerPreferenceRequest request)
     {
         if (!KnownKinds.Contains(triggerKind, StringComparer.Ordinal))
         {
@@ -69,19 +67,19 @@ public class AgentTriggerPreferencesController : ControllerBase
 
         if (request.Muted.HasValue)
         {
-            _preferenceService.Mute(userId, triggerKind, request.Muted.Value);
+            await _preferenceService.MuteAsync(userId, triggerKind, request.Muted.Value);
         }
 
         if (request.SnoozedUntilUtc.HasValue || request.Muted == false)
         {
-            _preferenceService.Snooze(userId, triggerKind, request.SnoozedUntilUtc);
+            await _preferenceService.SnoozeAsync(userId, triggerKind, request.SnoozedUntilUtc);
         }
 
         if (!string.IsNullOrWhiteSpace(request.MinimumSeverity))
         {
             try
             {
-                _preferenceService.SetMinimumSeverity(userId, triggerKind, request.MinimumSeverity);
+                await _preferenceService.SetMinimumSeverityAsync(userId, triggerKind, request.MinimumSeverity);
             }
             catch (ArgumentException ex)
             {
@@ -89,7 +87,7 @@ public class AgentTriggerPreferencesController : ControllerBase
             }
         }
 
-        var updated = _preferenceService.GetPreference(userId, triggerKind);
+        var updated = await _preferenceService.GetPreferenceAsync(userId, triggerKind);
         return Ok(new TriggerPreferenceDto
         {
             TriggerKind = updated.TriggerKind,

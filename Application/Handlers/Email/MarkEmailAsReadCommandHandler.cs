@@ -45,7 +45,7 @@ public class MarkEmailAsReadCommandHandler : BaseHandler, IRequestHandler<MarkEm
 
             await _imapService.SetReadFlagOnImapAsync(email.ImapUid, email.Folder, request.IsRead, cancellationToken);
 
-            await _notificationService.NotifyReadStateChangedAsync(request.Id, request.IsRead, email.Folder);
+            await _notificationService.NotifyReadStateChangedAsync(request.UserId, request.Id, request.IsRead, email.Folder);
 
             return true;
         }, nameof(MarkEmailAsReadCommand), new { request.Id, request.IsRead });

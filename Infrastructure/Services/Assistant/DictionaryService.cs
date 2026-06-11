@@ -74,7 +74,7 @@ public class DictionaryService : IDictionaryService
         }
 
         var entries = await _repository.GetAllAsync(ct);
-        _cache.Set(EntriesCacheKey, entries, CacheDuration);
+        _cache.Set(EntriesCacheKey, entries, new MemoryCacheEntryOptions().SetAbsoluteExpiration(CacheDuration).SetSize(1));
         _logger.LogDebug("Loaded transcription dictionary into cache with {Count} entries", entries.Count);
         return entries;
     }

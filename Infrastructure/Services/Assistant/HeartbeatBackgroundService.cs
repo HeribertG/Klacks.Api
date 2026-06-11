@@ -185,10 +185,8 @@ public class HeartbeatBackgroundService : BackgroundService
 
     private static async Task<bool> IsGloballyEnabledAsync(IServiceProvider scopedProvider, CancellationToken cancellationToken)
     {
-        var context = scopedProvider.GetRequiredService<Klacks.Api.Infrastructure.Persistence.DataBaseContext>();
-        var setting = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
-            .FirstOrDefaultAsync(context.Settings, s => s.Type == Application.Constants.Settings.HEARTBEAT_ENABLED_GLOBALLY, cancellationToken);
-
+        var settingsReader = scopedProvider.GetRequiredService<Klacks.Api.Domain.Interfaces.Settings.ISettingsReader>();
+        var setting = await settingsReader.GetSetting(Application.Constants.Settings.HEARTBEAT_ENABLED_GLOBALLY);
         return setting?.Value?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? true;
     }
 }

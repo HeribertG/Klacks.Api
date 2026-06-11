@@ -73,7 +73,7 @@ public class GeocodingService : IGeocodingService
             if (results != null && results.Count > 0)
             {
                 var coords = ExtractCoordinates(results[0]);
-                _cache.Set(cacheKey, coords, TimeSpan.FromDays(30));
+                _cache.Set(cacheKey, coords, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(30)).SetSize(1));
                 _logger.LogInformation("Geocoded {City}, {Country}: {Latitude}, {Longitude}", city, country, coords.Latitude, coords.Longitude);
                 return coords;
             }
@@ -156,7 +156,7 @@ public class GeocodingService : IGeocodingService
             if (results != null && results.Count > 0)
             {
                 var coords = ExtractCoordinates(results[0]);
-                _cache.Set(cacheKey, coords, TimeSpan.FromDays(30));
+                _cache.Set(cacheKey, coords, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(30)).SetSize(1));
                 _logger.LogInformation("Geocoded address {Address}: {Lat}, {Lon} ({DisplayName})",
                     fullAddress.ForLog(), coords.Latitude, coords.Longitude, results[0].display_name.ForLog());
                 return coords;
@@ -257,7 +257,7 @@ public class GeocodingService : IGeocodingService
             if (results != null && results.Count > 0)
             {
                 var coords = ExtractCoordinates(results[0]);
-                _cache.Set(cacheKey, coords, TimeSpan.FromDays(30));
+                _cache.Set(cacheKey, coords, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(30)).SetSize(1));
                 _logger.LogInformation("Fallback geocoded ({Type}): {Lat}, {Lon} ({DisplayName})",
                     type, coords.Latitude, coords.Longitude, results[0].display_name);
                 return coords;
@@ -326,13 +326,13 @@ public class GeocodingService : IGeocodingService
                     {
                         fallbackResult.ExactMatch = false;
                         fallbackResult.MatchType = "city_only";
-                        _cache.Set(cacheKey, fallbackResult, TimeSpan.FromDays(1));
+                        _cache.Set(cacheKey, fallbackResult, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(1)).SetSize(1));
                         return fallbackResult;
                     }
                 }
 
                 var notFound = new GeocodingValidationResult { Found = false, MatchType = "not_found" };
-                _cache.Set(cacheKey, notFound, TimeSpan.FromHours(1));
+                _cache.Set(cacheKey, notFound, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromHours(1)).SetSize(1));
                 return notFound;
             }
 
@@ -354,7 +354,7 @@ public class GeocodingService : IGeocodingService
                 State = firstResult.address?.state
             };
 
-            _cache.Set(cacheKey, result2, TimeSpan.FromDays(7));
+            _cache.Set(cacheKey, result2, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(7)).SetSize(1));
             _logger.LogInformation("Address validation result: Found={Found}, ExactMatch={ExactMatch}, ReturnedAddress={ReturnedAddress}",
                 result2.Found, result2.ExactMatch, result2.ReturnedAddress);
 
@@ -441,7 +441,7 @@ public class GeocodingService : IGeocodingService
             if (results == null || results.Count == 0)
             {
                 var fallbackSuggestions = await TryFallbackSuggestions(postalCode, city, country, limit);
-                _cache.Set(cacheKey, fallbackSuggestions, TimeSpan.FromHours(1));
+                _cache.Set(cacheKey, fallbackSuggestions, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromHours(1)).SetSize(1));
                 return fallbackSuggestions;
             }
 
@@ -456,7 +456,7 @@ public class GeocodingService : IGeocodingService
                 })
                 .ToList();
 
-            _cache.Set(cacheKey, suggestions, TimeSpan.FromDays(7));
+            _cache.Set(cacheKey, suggestions, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(7)).SetSize(1));
             return suggestions;
         }
         catch (Exception ex)
@@ -510,7 +510,7 @@ public class GeocodingService : IGeocodingService
 
     private void CacheNegativeResult(string cacheKey)
     {
-        _cache.Set(cacheKey, ((double?)null, (double?)null), TimeSpan.FromHours(1));
+        _cache.Set(cacheKey, ((double?)null, (double?)null), new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromHours(1)).SetSize(1));
     }
 
     private static bool ContainsStreetName(string displayName, string street)

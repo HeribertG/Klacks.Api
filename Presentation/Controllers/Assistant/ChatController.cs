@@ -1,5 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Controller for the AI assistant chat API, handling message processing, streaming SSE responses,
+/// function execution and skill warm-up.
+/// </summary>
+
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Assistant;
@@ -50,7 +55,7 @@ public class ChatController : ControllerBase
         INavigationFeedbackLogger navLogger,
         ILLMRepository llmRepository)
     {
-        this._logger = logger;
+        _logger = logger;
         _mediator = mediator;
         _agentSkillRepository = agentSkillRepository;
         _agentRepository = agentRepository;

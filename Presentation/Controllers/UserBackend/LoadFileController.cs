@@ -35,11 +35,11 @@ public class LoadFileController : BaseController
     [ApiExplorerSettings(IgnoreApi = true)]
     [HttpPost("Upload")]
     [Consumes("multipart/form-data")]
-    public ActionResult SingleFile([FromForm] IFormFile file)
+    public async Task<ActionResult> SingleFile([FromForm] IFormFile file)
     {
         if (file != null)
         {
-            _fileUploadService.StoreFile(file);
+            await _fileUploadService.StoreFileAsync(file);
             return Ok();
         }
 
