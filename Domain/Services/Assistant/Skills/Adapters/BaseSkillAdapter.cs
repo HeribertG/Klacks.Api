@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Base class for LLM provider skill adapters: converts skill descriptors into provider tool
+/// formats and parses provider function calls back into skill invocations.
+/// </summary>
+/// <param name="descriptor">Skill definition converted into the provider-specific tool format</param>
+/// <param name="providerFunctionCall">Raw provider function call parsed into a skill invocation</param>
+
 using System.Text.Json;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
@@ -26,50 +33,7 @@ public abstract class BaseSkillAdapter : ISkillAdapter
 
     protected static Dictionary<string, object> ConvertParameterToJsonSchema(SkillParameter param)
     {
-        var schema = new Dictionary<string, object>
-        {
-            ["description"] = param.Description
-        };
-
-        schema["type"] = param.Type switch
-        {
-            SkillParameterType.String => "string",
-            SkillParameterType.Integer => "integer",
-            SkillParameterType.Decimal => "number",
-            SkillParameterType.Boolean => "boolean",
-            SkillParameterType.Date => "string",
-            SkillParameterType.Time => "string",
-            SkillParameterType.DateTime => "string",
-            SkillParameterType.Array => "array",
-            SkillParameterType.Object => "object",
-            SkillParameterType.Enum => "string",
-            _ => "string"
-        };
-
-        if (param.Type == SkillParameterType.Date)
-        {
-            schema["format"] = "date";
-        }
-        else if (param.Type == SkillParameterType.Time)
-        {
-            schema["pattern"] = "^\\d{2}:\\d{2}$";
-        }
-        else if (param.Type == SkillParameterType.DateTime)
-        {
-            schema["format"] = "date-time";
-        }
-
-        if (param.EnumValues is { Count: > 0 })
-        {
-            schema["enum"] = param.EnumValues;
-        }
-
-        if (param.DefaultValue != null)
-        {
-            schema["default"] = param.DefaultValue;
-        }
-
-        return schema;
+        return SkillParameterSchemaBuilder.BuildParameterSchema(param);
     }
 
     protected static Dictionary<string, object> ParseArgumentsJson(string argumentsJson)

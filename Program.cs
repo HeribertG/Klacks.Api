@@ -23,6 +23,7 @@ using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.Klacksy;
 using Klacks.Api.Infrastructure.Repositories.Klacksy;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Presentation.Mcp;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -177,6 +178,7 @@ var bgOptions = builder.Configuration
 
 Klacks.Api.Infrastructure.Extensions.ServiceCollectionExtensions.RegisterPlugin(new Klacks.Plugin.Messaging.MessagingPluginRegistrar());
 builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddKlacksMcpServer();
 
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IConnectionDateRangeTracker, ConnectionDateRangeTracker>();
@@ -398,6 +400,7 @@ app.UseEndpoints(endpoints =>
         endpoints.MapRazorPages();
         endpoints.MapBlazorHub();
         endpoints.MapControllers();
+        endpoints.MapKlacksMcp();
         endpoints.MapHub<WorkNotificationHub>("/hubs/work-notifications");
         endpoints.MapHub<AssistantNotificationHub>(SignalRConstants.AssistantHubPath);
         endpoints.MapHub<EmailNotificationHub>(SignalRConstants.EmailHubPath);
