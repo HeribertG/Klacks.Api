@@ -232,6 +232,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IIdentityProviderRepository, IdentityProviderRepository>();
         services.AddScoped<IIdentityProviderSyncLogRepository, IdentityProviderSyncLogRepository>();
         services.AddScoped<IPersonalAccessTokenRepository, PersonalAccessTokenRepository>();
+        services.AddScoped<IOAuthClientRepository, OAuthClientRepository>();
+        services.AddSingleton<IOAuthAuthorizationCodeStore, Klacks.Api.Infrastructure.Authentication.OAuthAuthorizationCodeStore>();
         services.AddScoped<IShiftScheduleRepository, ShiftScheduleRepository>();
         services.AddScoped<IReportTemplateRepository, ReportTemplateRepository>();
         services.AddScoped<IHeartbeatConfigRepository, HeartbeatConfigRepository>();

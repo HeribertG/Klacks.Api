@@ -36,7 +36,7 @@ public class ApproveDayCommandHandler : BaseHandler, IRequestHandler<ApproveDayC
         return await ExecuteAsync(async () =>
         {
             var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
-            var isAuthorised = _httpContextAccessor.HttpContext?.User?.HasClaim(ClaimNames.IsAuthorised, "true") == true;
+            var isAuthorised = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Authorised) == true;
 
             if (!_lockLevelService.CanSeal(WorkLockLevel.None, WorkLockLevel.Approved, isAdmin, isAuthorised))
                 throw new Domain.Exceptions.InvalidRequestException("You do not have permission to approve days.");

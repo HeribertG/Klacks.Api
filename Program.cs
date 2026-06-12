@@ -246,11 +246,14 @@ builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-    options.AddFixedWindowLimiter(RateLimitingPolicies.Login, opt =>
-    {
-        opt.PermitLimit = RateLimitingPolicies.LoginPermitLimit;
-        opt.Window = RateLimitingPolicies.DefaultWindow;
-    });
+    options.AddPolicy(RateLimitingPolicies.Login, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = RateLimitingPolicies.LoginPermitLimit,
+                Window = RateLimitingPolicies.DefaultWindow
+            }));
 
     options.AddFixedWindowLimiter(RateLimitingPolicies.Upload, opt =>
     {

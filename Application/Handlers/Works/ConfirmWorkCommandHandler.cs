@@ -49,7 +49,7 @@ public class ConfirmWorkCommandHandler : BaseHandler, IRequestHandler<ConfirmWor
                 throw new KeyNotFoundException($"Work with ID {request.WorkId} not found.");
 
             var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
-            var isAuthorised = _httpContextAccessor.HttpContext?.User?.HasClaim(ClaimNames.IsAuthorised, "true") == true;
+            var isAuthorised = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Authorised) == true;
 
             var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
 

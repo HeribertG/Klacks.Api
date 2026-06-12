@@ -4,14 +4,21 @@
 /// Wires the MCP server (Streamable HTTP, stateless) into the ASP.NET Core pipeline and bridges
 /// tools/list and tools/call to the Klacks skill registry and executor under JWT bearer or
 /// personal access token auth, plus resources/list and resources/read to the shared
-/// Klacks.Docs documentation.
+/// Klacks.Docs documentation and prompts/list and prompts/get to the guided workflow prompt catalog.
 /// </summary>
 
+using System.Threading.RateLimiting;
+using Klacks.Api.Application.Configuration;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 using ModelContextProtocol;
+using ModelContextProtocol.AspNetCore.Authentication;
+using ModelContextProtocol.Authentication;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 
@@ -19,15 +26,34 @@ namespace Klacks.Api.Presentation.Mcp;
 
 public static class McpEndpointExtensions
 {
+    private const string AnonymousPartitionKey = "anonymous";
+
     public static IServiceCollection AddKlacksMcpServer(this IServiceCollection services)
     {
         services.AddSingleton<IMcpSkillExposurePolicy, McpSkillExposurePolicy>();
         services.AddSingleton<IMcpToolCatalog, McpToolCatalog>();
         services.AddSingleton<IMcpResourceCatalog, McpResourceCatalog>();
+        services.AddSingleton<IMcpPromptCatalog, McpPromptCatalog>();
         services.AddScoped<IMcpSkillCallHandler, McpSkillCallHandler>();
 
+        services.AddOptions<McpPublicEndpointOptions>()
+            .BindConfiguration(McpPublicEndpointOptions.SectionName);
+
         services.AddAuthentication()
-            .AddScheme<AuthenticationSchemeOptions, PatAuthenticationHandler>(PatConstants.SchemeName, configureOptions: null);
+            .AddScheme<AuthenticationSchemeOptions, PatAuthenticationHandler>(PatConstants.SchemeName, configureOptions: null)
+            .AddMcp();
+
+        services.AddOptions<McpAuthenticationOptions>(McpAuthenticationDefaults.AuthenticationScheme)
+            .Configure<IOptions<McpPublicEndpointOptions>>((options, publicEndpoint) =>
+            {
+                var baseUrl = publicEndpoint.Value.NormalizedPublicBaseUrl;
+                options.ResourceMetadata = new ProtectedResourceMetadata
+                {
+                    Resource = baseUrl + McpServerConstants.RoutePattern,
+                    AuthorizationServers = { baseUrl },
+                    ScopesSupported = { OAuthConstants.McpToolsScope }
+                };
+            });
 
         services.AddMcpServer(options =>
             {
@@ -43,7 +69,21 @@ public static class McpEndpointExtensions
             .WithListToolsHandler(HandleListToolsAsync)
             .WithCallToolHandler(HandleCallToolAsync)
             .WithListResourcesHandler(HandleListResourcesAsync)
-            .WithReadResourceHandler(HandleReadResourceAsync);
+            .WithReadResourceHandler(HandleReadResourceAsync)
+            .WithListPromptsHandler(HandleListPromptsAsync)
+            .WithGetPromptHandler(HandleGetPromptAsync);
+
+        services.Configure<RateLimiterOptions>(options =>
+            options.AddPolicy(RateLimitingPolicies.Mcp, httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: httpContext.User?.Identity?.Name
+                        ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                        ?? AnonymousPartitionKey,
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = RateLimitingPolicies.McpPermitLimit,
+                        Window = RateLimitingPolicies.DefaultWindow
+                    })));
 
         return services;
     }
@@ -52,8 +92,12 @@ public static class McpEndpointExtensions
     {
         return endpoints.MapMcp(McpServerConstants.RoutePattern)
             .RequireAuthorization(policy => policy
-                .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme, PatConstants.SchemeName)
-                .RequireAuthenticatedUser());
+                .AddAuthenticationSchemes(
+                    JwtBearerDefaults.AuthenticationScheme,
+                    PatConstants.SchemeName,
+                    McpAuthenticationDefaults.AuthenticationScheme)
+                .RequireAuthenticatedUser())
+            .RequireRateLimiting(RateLimitingPolicies.Mcp);
     }
 
     private static ValueTask<ListToolsResult> HandleListToolsAsync(
@@ -105,6 +149,29 @@ public static class McpEndpointExtensions
         return result ?? throw new McpProtocolException(
             $"Unknown resource URI: '{uri}'",
             McpErrorCode.ResourceNotFound);
+    }
+
+    private static ValueTask<ListPromptsResult> HandleListPromptsAsync(
+        RequestContext<ListPromptsRequestParams> request,
+        CancellationToken cancellationToken)
+    {
+        var catalog = RequireServices(request).GetRequiredService<IMcpPromptCatalog>();
+
+        return ValueTask.FromResult(new ListPromptsResult
+        {
+            Prompts = catalog.ListPrompts()
+        });
+    }
+
+    private static ValueTask<GetPromptResult> HandleGetPromptAsync(
+        RequestContext<GetPromptRequestParams> request,
+        CancellationToken cancellationToken)
+    {
+        var catalog = RequireServices(request).GetRequiredService<IMcpPromptCatalog>();
+        var parameters = request.Params
+            ?? throw new InvalidOperationException("Prompt request parameters are missing.");
+
+        return ValueTask.FromResult(catalog.GetPrompt(parameters.Name, parameters.Arguments));
     }
 
     private static IServiceProvider RequireServices<TParams>(RequestContext<TParams> request)

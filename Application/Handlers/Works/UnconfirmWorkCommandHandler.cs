@@ -43,7 +43,7 @@ public class UnconfirmWorkCommandHandler : BaseHandler, IRequestHandler<Unconfir
                 throw new KeyNotFoundException($"Work with ID {request.WorkId} not found.");
 
             var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
-            var isAuthorised = _httpContextAccessor.HttpContext?.User?.HasClaim(ClaimNames.IsAuthorised, "true") == true;
+            var isAuthorised = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Authorised) == true;
 
             _lockLevelService.Unseal(work, isAdmin, isAuthorised);
 

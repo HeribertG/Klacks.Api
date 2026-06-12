@@ -7,7 +7,7 @@ using Klacks.Api.Domain.Constants;
 namespace Klacks.Api.Application.Services.Breaks;
 
 /// <summary>
-/// Resolves user identity (admin flag, authorisation claim, user name) from the current HTTP context.
+/// Resolves user identity (admin flag, authorised role flag, user name) from the current HTTP context.
 /// </summary>
 public class BreakUserContextProvider : IBreakUserContextProvider
 {
@@ -23,7 +23,7 @@ public class BreakUserContextProvider : IBreakUserContextProvider
         var user = _httpContextAccessor.HttpContext?.User;
         return new BreakUserContext(
             IsAdmin: user?.IsInRole(Roles.Admin) == true,
-            IsAuthorised: user?.HasClaim(ClaimNames.IsAuthorised, "true") == true,
+            IsAuthorised: user?.IsInRole(Roles.Authorised) == true,
             UserName: user?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown");
     }
 }

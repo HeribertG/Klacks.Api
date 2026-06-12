@@ -35,7 +35,7 @@ public class RevokeDayApprovalCommandHandler : BaseHandler, IRequestHandler<Revo
         return await ExecuteAsync(async () =>
         {
             var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
-            var isAuthorised = _httpContextAccessor.HttpContext?.User?.HasClaim(ClaimNames.IsAuthorised, "true") == true;
+            var isAuthorised = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Authorised) == true;
 
             if (!_lockLevelService.CanUnseal(WorkLockLevel.Approved, isAdmin, isAuthorised))
                 throw new Domain.Exceptions.InvalidRequestException("You do not have permission to revoke day approvals.");

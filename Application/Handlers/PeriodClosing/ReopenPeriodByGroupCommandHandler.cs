@@ -59,7 +59,7 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
                 throw new Domain.Exceptions.InvalidRequestException("Start date must be before or equal to end date.");
 
             var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
-            var isAuthorised = _httpContextAccessor.HttpContext?.User?.HasClaim(ClaimNames.IsAuthorised, "true") == true;
+            var isAuthorised = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Authorised) == true;
 
             if (!_lockLevelService.CanUnseal(WorkLockLevel.Closed, isAdmin, isAuthorised))
                 throw new Domain.Exceptions.InvalidRequestException("You do not have permission to reopen periods.");

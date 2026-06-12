@@ -86,7 +86,9 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<PersonalAccessToken> PersonalAccessTokens { get; set; }
 
-    public DbSet<SelectedCalendar> SelectedCalendar { get; set; }  
+    public DbSet<OAuthClient> OAuthClients { get; set; }
+
+    public DbSet<SelectedCalendar> SelectedCalendar { get; set; }
 
     public DbSet<Settings> Settings { get; set; }
 
