@@ -12,6 +12,8 @@ public static class McpServerConstants
     public const string ServerTitle = "Klacks MCP Server";
     public const string ServerVersion = "1.0.0";
     public const string RoutePattern = "/mcp";
+    public const string DocsResourceUriPrefix = "klacks://docs/";
+    public const string MarkdownMimeType = "text/markdown";
 
     public const string ServerInstructions =
         "Klacks workforce planning and scheduling. Tools mirror the built-in assistant skills, " +

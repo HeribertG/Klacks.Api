@@ -82,7 +82,9 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<PostcodeCH> PostcodeCH { get; set; }  
 
-    public virtual DbSet<RefreshToken> RefreshToken { get; set; }  
+    public virtual DbSet<RefreshToken> RefreshToken { get; set; }
+
+    public DbSet<PersonalAccessToken> PersonalAccessTokens { get; set; }
 
     public DbSet<SelectedCalendar> SelectedCalendar { get; set; }  
 
@@ -311,6 +313,9 @@ public class DataBaseContext : IdentityDbContext
             entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.Language).HasMaxLength(10);
             entity.Property(e => e.PhoneticVariants).HasColumnType("jsonb").HasDefaultValueSql("'[]'::jsonb");
+            entity.HasIndex(e => e.Language)
+                .HasDatabaseName("ix_transcription_dictionary_entries_language")
+                .HasFilter("\"language\" IS NOT NULL");
             entity.HasQueryFilter(e => !e.IsDeleted);
         });
 

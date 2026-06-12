@@ -2,10 +2,16 @@
 
 /// <summary>
 /// Wires the MCP server (Streamable HTTP, stateless) into the ASP.NET Core pipeline and bridges
-/// tools/list and tools/call to the Klacks skill registry and executor under JWT bearer auth.
+/// tools/list and tools/call to the Klacks skill registry and executor under JWT bearer or
+/// personal access token auth, plus resources/list and resources/read to the shared
+/// Klacks.Docs documentation.
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
+using Klacks.Api.Infrastructure.Authentication;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 
@@ -17,7 +23,11 @@ public static class McpEndpointExtensions
     {
         services.AddSingleton<IMcpSkillExposurePolicy, McpSkillExposurePolicy>();
         services.AddSingleton<IMcpToolCatalog, McpToolCatalog>();
+        services.AddSingleton<IMcpResourceCatalog, McpResourceCatalog>();
         services.AddScoped<IMcpSkillCallHandler, McpSkillCallHandler>();
+
+        services.AddAuthentication()
+            .AddScheme<AuthenticationSchemeOptions, PatAuthenticationHandler>(PatConstants.SchemeName, configureOptions: null);
 
         services.AddMcpServer(options =>
             {
@@ -31,7 +41,9 @@ public static class McpEndpointExtensions
             })
             .WithHttpTransport(transport => transport.Stateless = true)
             .WithListToolsHandler(HandleListToolsAsync)
-            .WithCallToolHandler(HandleCallToolAsync);
+            .WithCallToolHandler(HandleCallToolAsync)
+            .WithListResourcesHandler(HandleListResourcesAsync)
+            .WithReadResourceHandler(HandleReadResourceAsync);
 
         return services;
     }
@@ -40,7 +52,7 @@ public static class McpEndpointExtensions
     {
         return endpoints.MapMcp(McpServerConstants.RoutePattern)
             .RequireAuthorization(policy => policy
-                .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+                .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme, PatConstants.SchemeName)
                 .RequireAuthenticatedUser());
     }
 
@@ -66,6 +78,33 @@ public static class McpEndpointExtensions
             ?? throw new InvalidOperationException("Tool call parameters are missing.");
 
         return await handler.HandleAsync(parameters, request.User, cancellationToken);
+    }
+
+    private static ValueTask<ListResourcesResult> HandleListResourcesAsync(
+        RequestContext<ListResourcesRequestParams> request,
+        CancellationToken cancellationToken)
+    {
+        var catalog = RequireServices(request).GetRequiredService<IMcpResourceCatalog>();
+
+        return ValueTask.FromResult(new ListResourcesResult
+        {
+            Resources = catalog.ListResources()
+        });
+    }
+
+    private static async ValueTask<ReadResourceResult> HandleReadResourceAsync(
+        RequestContext<ReadResourceRequestParams> request,
+        CancellationToken cancellationToken)
+    {
+        var catalog = RequireServices(request).GetRequiredService<IMcpResourceCatalog>();
+        var uri = request.Params?.Uri
+            ?? throw new InvalidOperationException("Resource read parameters are missing.");
+
+        var result = await catalog.ReadResourceAsync(uri);
+
+        return result ?? throw new McpProtocolException(
+            $"Unknown resource URI: '{uri}'",
+            McpErrorCode.ResourceNotFound);
     }
 
     private static IServiceProvider RequireServices<TParams>(RequestContext<TParams> request)
