@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Authentification;
 
 namespace Klacks.Api.Domain.Services.Accounts;
@@ -43,12 +44,12 @@ public class AccountRegistrationService : IAccountRegistrationService
         {
             if (result != null)
             {
-                _logger.LogWarning("User registration failed for {Email}: {Errors}", user.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
+                _logger.LogWarning("User registration failed for {Email}: {Errors}", user.Email.MaskEmail(), string.Join(", ", result.Errors.Select(e => e.Description)));
                 authenticatedResult.ModelState = _authenticationService.AddErrorsToModelState(result, authenticatedResult.ModelState);
             }
             else
             {
-                _logger.LogError("User registration failed for {Email}: Unknown error", user.Email);
+                _logger.LogError("User registration failed for {Email}: Unknown error", user.Email.MaskEmail());
                 _authenticationService.SetModelError(authenticatedResult, "Registration failed", "User registration failed. Please check your input.");
             }
 
@@ -62,24 +63,24 @@ public class AccountRegistrationService : IAccountRegistrationService
 
         try
         {
-            _logger.LogInformation("Generating password reset token for new user: {Email}", user.Email);
+            _logger.LogInformation("Generating password reset token for new user: {Email}", user.Email.MaskEmail());
             var tokenGenerated = await _accountPasswordService.GeneratePasswordResetTokenAsync(user.Email!);
             
             if (tokenGenerated)
             {
-                _logger.LogInformation("Password reset token generated and email sent for new user: {Email}", user.Email);
+                _logger.LogInformation("Password reset token generated and email sent for new user: {Email}", user.Email.MaskEmail());
             }
             else
             {
-                _logger.LogWarning("Failed to generate password reset token for new user: {Email}", user.Email);
+                _logger.LogWarning("Failed to generate password reset token for new user: {Email}", user.Email.MaskEmail());
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error generating password reset token for new user: {Email}", user.Email);
+            _logger.LogError(ex, "Error generating password reset token for new user: {Email}", user.Email.MaskEmail());
         }
 
-        _logger.LogInformation("User registered successfully: {Email}", user.Email);
+        _logger.LogInformation("User registered successfully: {Email}", user.Email.MaskEmail());
         return authenticatedResult;
     }
 }

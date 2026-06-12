@@ -5,6 +5,7 @@ using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Security;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
+using Klacks.Api.Domain.Security;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.Authentication;
@@ -28,17 +29,18 @@ public class RefreshTokenService : IRefreshTokenService
         var tokens = await LoadUserTokensAsync(userId);
         _context.RefreshToken.RemoveRange(ExpiredAndOverflow(tokens));
 
-        var refreshToken = BuildRefreshToken(userId);
-        _context.RefreshToken.Add(refreshToken);
+        var (entity, rawToken) = BuildRefreshToken(userId);
+        _context.RefreshToken.Add(entity);
         await _context.SaveChangesAsync();
 
-        return refreshToken.Token;
+        return rawToken;
     }
 
     public async Task<string> RotateRefreshTokenAsync(string userId, string oldToken)
     {
+        var hashedOldToken = RefreshTokenHasher.Hash(oldToken);
         var tokens = await LoadUserTokensAsync(userId);
-        var consumed = tokens.Where(rt => rt.Token == oldToken).ToList();
+        var consumed = tokens.Where(rt => rt.Token == hashedOldToken).ToList();
         if (consumed.Count == 0)
         {
             // Defense-in-depth: never issue a token for an unknown old token. The
@@ -50,11 +52,11 @@ public class RefreshTokenService : IRefreshTokenService
 
         _context.RefreshToken.RemoveRange(consumed.Concat(ExpiredAndOverflow(survivors)));
 
-        var refreshToken = BuildRefreshToken(userId);
-        _context.RefreshToken.Add(refreshToken);
+        var (entity, rawToken) = BuildRefreshToken(userId);
+        _context.RefreshToken.Add(entity);
         await _context.SaveChangesAsync();
 
-        return refreshToken.Token;
+        return rawToken;
     }
 
     private async Task<List<RefreshToken>> LoadUserTokensAsync(string userId)
@@ -64,14 +66,17 @@ public class RefreshTokenService : IRefreshTokenService
             .ToListAsync();
     }
 
-    private static RefreshToken BuildRefreshToken(string userId)
+    private static (RefreshToken Entity, string RawToken) BuildRefreshToken(string userId)
     {
-        return new RefreshToken
+        var rawToken = new RefreshTokenGenerator().GenerateRefreshToken();
+        var entity = new RefreshToken
         {
             AspNetUsersId = userId,
-            Token = new RefreshTokenGenerator().GenerateRefreshToken(),
+            Token = RefreshTokenHasher.Hash(rawToken),
             ExpiryDate = DateTime.UtcNow.AddDays(RefreshTokenLifetimeDays),
         };
+
+        return (entity, rawToken);
     }
 
     private static IEnumerable<RefreshToken> ExpiredAndOverflow(IEnumerable<RefreshToken> tokens)
@@ -94,8 +99,9 @@ public class RefreshTokenService : IRefreshTokenService
 
     public async Task<bool> ValidateRefreshTokenAsync(string userId, string refreshToken)
     {
+        var hashedToken = RefreshTokenHasher.Hash(refreshToken);
         var storedRefreshToken = await _context.RefreshToken
-            .Where(x => x.Token == refreshToken && x.AspNetUsersId == userId)
+            .Where(x => x.Token == hashedToken && x.AspNetUsersId == userId)
             .OrderByDescending(x => x.ExpiryDate)
             .FirstOrDefaultAsync();
 
@@ -106,8 +112,9 @@ public class RefreshTokenService : IRefreshTokenService
     {
         try
         {
+            var hashedToken = RefreshTokenHasher.Hash(refreshToken);
             var storedRefreshToken = await _context.RefreshToken
-                .Where(x => x.Token == refreshToken && x.ExpiryDate > DateTime.UtcNow)
+                .Where(x => x.Token == hashedToken && x.ExpiryDate > DateTime.UtcNow)
                 .OrderByDescending(x => x.ExpiryDate)
                 .FirstOrDefaultAsync();
 

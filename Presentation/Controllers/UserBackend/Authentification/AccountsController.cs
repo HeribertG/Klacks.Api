@@ -37,7 +37,7 @@ public class AccountsController : BaseController
     [HttpPut("ChangePassword")]
     public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordResource model)
     {
-        _logger.LogInformation("ChangePassword requested for user: {Email}", model.Email.ForLog());
+        _logger.LogInformation("ChangePassword requested for user: {Email}", model.Email.MaskEmail());
 
         var result = await _mediator.Send(new ChangePasswordCommand(model));
 
@@ -48,7 +48,7 @@ public class AccountsController : BaseController
     [HttpPost("ChangePasswordUser")]
     public async Task<ActionResult> ChangePasswordUser([FromBody] ChangePasswordResource model)
     {
-        _logger.LogInformation("ChangePasswordUser requested for user: {Email}", model.Email.ForLog());
+        _logger.LogInformation("ChangePasswordUser requested for user: {Email}", model.Email.MaskEmail());
 
         var result = await _mediator.Send(new ChangePasswordUserCommand(model));
 
@@ -98,6 +98,7 @@ public class AccountsController : BaseController
         return Ok();
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserResource>>> GetUserList()
     {
@@ -118,7 +119,7 @@ public class AccountsController : BaseController
             return BadRequest("Invalid login data.");
         }
 
-        _logger.LogInformation("Login attempt for user: {Email}", model.Email.ForLog());
+        _logger.LogInformation("Login attempt for user: {Email}", model.Email.MaskEmail());
 
         var result = await _mediator.Send(new LoginUserQuery(model.Email, model.Password));
         return Ok(result);
@@ -152,12 +153,13 @@ public class AccountsController : BaseController
     [HttpPost("RegisterUser")]
     public async Task<ActionResult> RegisterUser([FromBody] RegistrationResource model)
     {
-        _logger.LogInformation("RegisterUser request received for: {Email}", model.Email.ForLog());
+        _logger.LogInformation("RegisterUser request received for: {Email}", model.Email.MaskEmail());
         var result = await _mediator.Send(new RegisterUserCommand(model));
         return Ok(result);
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting(RateLimitingPolicies.PasswordReset)]
     [HttpPost("RequestPasswordReset")]
     public async Task<ActionResult> RequestPasswordReset([FromBody] RequestPasswordResetResource model)
     {
@@ -167,15 +169,16 @@ public class AccountsController : BaseController
             return BadRequest("Email address is required.");
         }
 
-        _logger.LogInformation("Password reset requested for email: {Email}", model.Email.ForLog());
+        _logger.LogInformation("Password reset requested for email: {Email}", model.Email.MaskEmail());
 
         var result = await _mediator.Send(new RequestPasswordResetCommand(model.Email));
 
-        _logger.LogInformation("Password reset request processed for email: {Email}", model.Email.ForLog());
+        _logger.LogInformation("Password reset request processed for email: {Email}", model.Email.MaskEmail());
         return Ok(result);
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting(RateLimitingPolicies.PasswordReset)]
     [HttpPost("ResetPassword")]
     public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordResource model)
     {
@@ -193,18 +196,19 @@ public class AccountsController : BaseController
     }
 
     [AllowAnonymous]
-    [HttpGet("ValidatePasswordResetToken")]
-    public async Task<ActionResult<bool>> ValidatePasswordResetToken([FromQuery] string token)
+    [EnableRateLimiting(RateLimitingPolicies.PasswordReset)]
+    [HttpPost("ValidatePasswordResetToken")]
+    public async Task<ActionResult<bool>> ValidatePasswordResetToken([FromBody] ValidatePasswordResetTokenResource model)
     {
-        if (string.IsNullOrWhiteSpace(token))
+        if (model == null || string.IsNullOrWhiteSpace(model.Token))
         {
             _logger.LogWarning("Empty token provided for validation");
             return BadRequest("Token is required.");
         }
 
         _logger.LogInformation("Password reset token validation requested");
-        
-        var isValid = await _mediator.Send(new ValidatePasswordResetTokenQuery(token));
+
+        var isValid = await _mediator.Send(new ValidatePasswordResetTokenQuery(model.Token));
         
         _logger.LogInformation("Token validation result: {IsValid}", isValid);
         return Ok(isValid);

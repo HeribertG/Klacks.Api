@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Check container logs
-      uses: appleboy/ssh-action@master
+      uses: appleboy/ssh-action@v1.2.2
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}

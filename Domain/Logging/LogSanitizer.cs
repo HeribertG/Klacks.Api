@@ -23,4 +23,28 @@ public static class LogSanitizer
             .Replace("\r", string.Empty, StringComparison.Ordinal)
             .Replace("\n", string.Empty, StringComparison.Ordinal);
     }
+
+    /// <summary>
+    /// Returns a partially redacted form of an email address for logging: the local part is
+    /// reduced to its first character so the personally identifiable identity is not written to
+    /// logs, while the domain is kept for operational debugging. CR/LF are stripped as well.
+    /// </summary>
+    /// <param name="value">The untrusted email address to mask before logging.</param>
+    public static string MaskEmail(this string? value)
+    {
+        var sanitized = value.ForLog();
+        if (string.IsNullOrEmpty(sanitized))
+        {
+            return string.Empty;
+        }
+
+        var atIndex = sanitized.IndexOf('@');
+        if (atIndex <= 0)
+        {
+            return $"{sanitized[0]}***";
+        }
+
+        var domain = sanitized[(atIndex + 1)..];
+        return $"{sanitized[0]}***@{domain}";
+    }
 }

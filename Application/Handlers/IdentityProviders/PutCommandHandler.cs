@@ -1,11 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Commands.IdentityProviders;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.IdentityProviders;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Models.Authentification;
 
 namespace Klacks.Api.Application.Handlers.IdentityProviders;
 
@@ -39,11 +41,26 @@ public class PutCommandHandler : IRequestHandler<PutCommand, IdentityProviderRes
             return null;
         }
 
+        PreserveMaskedSecrets(request.Model, existingEntity);
+
         _mapper.UpdateEntity(request.Model, existingEntity);
         await _unitOfWork.CompleteAsync();
 
         _logger.LogInformation("Updated identity provider: {Id}", request.Model.Id);
 
-        return _mapper.ToResource(existingEntity);
+        return _mapper.ToMaskedResource(existingEntity);
+    }
+
+    private static void PreserveMaskedSecrets(IdentityProviderResource model, IdentityProvider existingEntity)
+    {
+        if (model.BindPassword == SecretMask.Placeholder)
+        {
+            model.BindPassword = existingEntity.BindPassword;
+        }
+
+        if (model.ClientSecret == SecretMask.Placeholder)
+        {
+            model.ClientSecret = existingEntity.ClientSecret;
+        }
     }
 }

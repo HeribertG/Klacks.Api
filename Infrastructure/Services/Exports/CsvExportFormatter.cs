@@ -146,6 +146,8 @@ public class CsvExportFormatter : IExportFormatter
 
     private static string Escape(string value)
     {
+        value = CsvFormulaGuard.Neutralize(value);
+
         if (value.Contains('"') || value.Contains(';') || value.Contains('\n'))
         {
             return $"\"{value.Replace("\"", "\"\"")}\"";

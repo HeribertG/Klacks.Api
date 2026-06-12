@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Security;
 using System.Text.Json;
 using System.Web;
 using Klacks.Api.Domain.Interfaces;
@@ -12,7 +14,7 @@ public class OAuth2Service : IOAuth2Service
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<OAuth2Service> _logger;
-    private readonly HttpClient _insecureClient;
+    private readonly HttpClient _oauth2Client;
 
     public OAuth2Service(IHttpClientFactory httpClientFactory, ILogger<OAuth2Service> logger)
     {
@@ -21,9 +23,55 @@ public class OAuth2Service : IOAuth2Service
 
         var handler = new HttpClientHandler
         {
-            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+            ServerCertificateCustomValidationCallback = ValidateServerCertificate
         };
-        _insecureClient = new HttpClient(handler);
+        _oauth2Client = new HttpClient(handler);
+    }
+
+    private static bool ValidateServerCertificate(
+        HttpRequestMessage message, System.Security.Cryptography.X509Certificates.X509Certificate2? certificate,
+        System.Security.Cryptography.X509Certificates.X509Chain? chain, SslPolicyErrors errors)
+    {
+        if (errors == SslPolicyErrors.None)
+        {
+            return true;
+        }
+
+        // Tolerate self-signed/untrusted certificates only for private/loopback hosts, e.g. a
+        // self-signed LDAP/OAuth2 appliance on the LAN. Public identity providers must present a
+        // valid certificate chain so a network attacker cannot MitM the token exchange and steal
+        // OAuth2 tokens.
+        var host = message.RequestUri?.Host ?? string.Empty;
+        return IsPrivateOrLoopbackHost(host);
+    }
+
+    private static bool IsPrivateOrLoopbackHost(string host)
+    {
+        if (!IPAddress.TryParse(host, out var ip))
+        {
+            return false;
+        }
+
+        if (IPAddress.IsLoopback(ip))
+        {
+            return true;
+        }
+
+        if (ip.IsIPv6LinkLocal || ip.IsIPv6UniqueLocal)
+        {
+            return true;
+        }
+
+        var bytes = ip.GetAddressBytes();
+        if (bytes.Length != 4)
+        {
+            return false;
+        }
+
+        return bytes[0] == 10
+            || (bytes[0] == 172 && bytes[1] >= 16 && bytes[1] <= 31)
+            || (bytes[0] == 192 && bytes[1] == 168)
+            || (bytes[0] == 169 && bytes[1] == 254);
     }
 
     public string GetAuthorizationUrl(IdentityProvider provider, string redirectUri, string state)
@@ -68,7 +116,7 @@ public class OAuth2Service : IOAuth2Service
         {
             _logger.LogDebug("Exchanging authorization code for token at: {TokenUrl}", provider.TokenUrl);
 
-            var response = await _insecureClient.PostAsync(provider.TokenUrl, new FormUrlEncodedContent(requestBody));
+            var response = await _oauth2Client.PostAsync(provider.TokenUrl, new FormUrlEncodedContent(requestBody));
             var content = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
@@ -102,13 +150,13 @@ public class OAuth2Service : IOAuth2Service
             throw new InvalidOperationException("User info URL not configured");
         }
 
-        _insecureClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        _oauth2Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         try
         {
             _logger.LogDebug("Fetching user info from: {UserInfoUrl}", provider.UserInfoUrl);
 
-            var response = await _insecureClient.GetAsync(provider.UserInfoUrl);
+            var response = await _oauth2Client.GetAsync(provider.UserInfoUrl);
             var content = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)

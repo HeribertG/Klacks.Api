@@ -35,6 +35,6 @@ public class GetQueryHandler : IRequestHandler<GetQuery, IdentityProviderResourc
             return null;
         }
 
-        return _mapper.ToResource(entity);
+        return _mapper.ToMaskedResource(entity);
     }
 }

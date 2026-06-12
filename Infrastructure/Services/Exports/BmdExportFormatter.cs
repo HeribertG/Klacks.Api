@@ -94,6 +94,8 @@ public class BmdExportFormatter : IExportFormatter
 
     private static string EscapeBmd(string value)
     {
+        value = CsvFormulaGuard.Neutralize(value);
+
         if (value.Contains('"') || value.Contains(';') || value.Contains('\n'))
         {
             return $"\"{value.Replace("\"", "\"\"")}\"";

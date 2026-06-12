@@ -263,6 +263,23 @@ builder.Services.AddRateLimiter(options =>
         opt.PermitLimit = RateLimitingPolicies.RefreshTokenPermitLimit;
         opt.Window = RateLimitingPolicies.DefaultWindow;
     });
+
+    options.AddFixedWindowLimiter(RateLimitingPolicies.PasswordReset, opt =>
+    {
+        opt.PermitLimit = RateLimitingPolicies.PasswordResetPermitLimit;
+        opt.Window = RateLimitingPolicies.DefaultWindow;
+    });
+
+    options.AddPolicy(RateLimitingPolicies.LlmChat, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User?.Identity?.Name
+                ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                ?? "anonymous",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = RateLimitingPolicies.LlmChatPermitLimit,
+                Window = RateLimitingPolicies.DefaultWindow
+            }));
 });
 
 builder.Services.AddPipelineBehavior(typeof(CancellationBehavior<,>));

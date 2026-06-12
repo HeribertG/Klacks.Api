@@ -40,6 +40,6 @@ public class PostCommandHandler : IRequestHandler<PostCommand, IdentityProviderR
 
         _logger.LogInformation("Created identity provider with ID: {Id}", entity.Id);
 
-        return _mapper.ToResource(entity);
+        return _mapper.ToMaskedResource(entity);
     }
 }

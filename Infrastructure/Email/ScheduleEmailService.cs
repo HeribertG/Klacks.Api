@@ -36,7 +36,7 @@ public class ScheduleEmailService : IScheduleEmailService
         string? tempFile = null;
         try
         {
-            tempFile = Path.Combine(Path.GetTempPath(), fileName);
+            tempFile = Path.Combine(Path.GetTempPath(), Path.GetFileName(fileName));
             await File.WriteAllBytesAsync(tempFile, pdfAttachment);
 
             var email = InitEmailWrapper(settings);

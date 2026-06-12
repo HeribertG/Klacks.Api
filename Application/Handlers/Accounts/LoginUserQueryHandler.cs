@@ -5,6 +5,7 @@ using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Queries.Accounts;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.DTOs.Registrations;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Application.DTOs.Registrations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -27,7 +28,7 @@ public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, TokenResour
     {
         try
         {
-            _logger.LogInformation("Processing login request for user: {Email}", request.Email);
+            _logger.LogInformation("Processing login request for user: {Email}", request.Email.MaskEmail());
             
             var result = await _accountAuthenticationService.LogInUserAsync(request.Email, request.Password);
             
@@ -49,16 +50,16 @@ public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, TokenResour
                     Subject = request.Email
                 };
                 
-                _logger.LogInformation("Login successful for user: {Email}", request.Email);
+                _logger.LogInformation("Login successful for user: {Email}", request.Email.MaskEmail());
                 return response;
             }
             
-            _logger.LogWarning("Login failed for user: {Email}", request.Email);
+            _logger.LogWarning("Login failed for user: {Email}", request.Email.MaskEmail());
             throw new UnauthorizedException("Invalid e-mail address or password.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error processing login for user: {Email}", request.Email);
+            _logger.LogError(ex, "Error processing login for user: {Email}", request.Email.MaskEmail());
             throw;
         }
     }

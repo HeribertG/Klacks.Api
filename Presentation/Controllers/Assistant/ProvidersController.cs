@@ -53,6 +53,7 @@ public class ProvidersController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<IActionResult> CreateProvider([FromBody] CreateProviderCommand command)
     {
         var provider = await _mediator.Send(command);
@@ -60,6 +61,7 @@ public class ProvidersController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<IActionResult> UpdateProvider(Guid id, [FromBody] UpdateProviderCommand command)
     {
         command.Id = id;
@@ -73,6 +75,7 @@ public class ProvidersController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<IActionResult> DeleteProvider(Guid id)
     {
         var success = await _mediator.Send(new DeleteProviderCommand(id));

@@ -5,6 +5,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Infrastructure.Mediator;
@@ -85,7 +86,7 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
             throw new UnauthorizedException("Failed to get user info");
         }
 
-        _logger.LogInformation("[OAUTH2] User authenticated: {Email}", userInfo.Email);
+        _logger.LogInformation("[OAUTH2] User authenticated: {Email}", userInfo.Email.MaskEmail());
 
         var user = await GetOrCreateOAuth2UserAsync(userInfo, provider);
         if (user == null)
@@ -178,7 +179,7 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
         var createResult = await _userManager.CreateAsync(newUser);
         if (createResult.Succeeded)
         {
-            _logger.LogInformation("[OAUTH2] Created new user: {Email} via provider {Provider}", userInfo.Email, provider.Name);
+            _logger.LogInformation("[OAUTH2] Created new user: {Email} via provider {Provider}", userInfo.Email.MaskEmail(), provider.Name);
             return newUser;
         }
 

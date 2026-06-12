@@ -6,6 +6,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Accounts;
@@ -32,19 +33,19 @@ public class RegisterUserCommandHandler : BaseHandler, IRequestHandler<RegisterU
     {
         return await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            _logger.LogInformation("Processing user registration for: {Email}", request.Registration.Email);
+            _logger.LogInformation("Processing user registration for: {Email}", request.Registration.Email.MaskEmail());
 
             var userIdentity = _authMapper.ToAppUser(request.Registration);
             var result = await _accountRegistrationService.RegisterUserAsync(userIdentity, request.Registration.Password);
 
             if (result != null && result.Success)
             {
-                _logger.LogInformation("User registration successful: {Email}", request.Registration.Email);
+                _logger.LogInformation("User registration successful: {Email}", request.Registration.Email.MaskEmail());
                 return result;
             }
 
             _logger.LogWarning("User registration failed: {Email}, Reason: {Reason}",
-                request.Registration.Email, result?.Message ?? "Unknown");
+                request.Registration.Email.MaskEmail(), result?.Message ?? "Unknown");
             throw new ConflictException(result?.Message ?? "User registration failed.");
         });
     }

@@ -268,7 +268,7 @@ jobs:
       run: echo "tag=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
 
     - name: Deploy to server
-      uses: appleboy/ssh-action@master
+      uses: appleboy/ssh-action@v1.2.2
       env:
         KLACKS_API_TAG: ${{ steps.rel.outputs.tag }}
         KLACKS_UI_TAG: ${{ steps.rel.outputs.tag }}

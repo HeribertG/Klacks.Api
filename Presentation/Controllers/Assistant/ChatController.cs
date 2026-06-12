@@ -28,6 +28,7 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 [ApiController]
 [Route("api/backend/assistant/chat")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[EnableRateLimiting(RateLimitingPolicies.LlmChat)]
 public class ChatController : ControllerBase
 {
     private readonly ILogger<ChatController> _logger;
@@ -329,6 +330,9 @@ public class ChatController : ControllerBase
     {
         if (requests == null || !requests.Any())
             return BadRequest("At least one function is required");
+
+        if (requests.Count > RateLimitingPolicies.MaxFunctionBatchSize)
+            return BadRequest($"Batch size cannot exceed {RateLimitingPolicies.MaxFunctionBatchSize} functions per request");
 
         var userId = GetCurrentUserId();
         var userRights = GetCurrentUserRights();

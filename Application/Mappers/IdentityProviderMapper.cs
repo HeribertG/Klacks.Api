@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Application.DTOs.IdentityProviders;
 using Riok.Mapperly.Abstractions;
@@ -11,6 +12,23 @@ public partial class IdentityProviderMapper
 {
     public partial IdentityProviderResource ToResource(IdentityProvider entity);
     public partial List<IdentityProviderResource> ToResources(List<IdentityProvider> entities);
+
+    public IdentityProviderResource ToMaskedResource(IdentityProvider entity)
+    {
+        var resource = ToResource(entity);
+
+        if (!string.IsNullOrEmpty(resource.BindPassword))
+        {
+            resource.BindPassword = SecretMask.Placeholder;
+        }
+
+        if (!string.IsNullOrEmpty(resource.ClientSecret))
+        {
+            resource.ClientSecret = SecretMask.Placeholder;
+        }
+
+        return resource;
+    }
 
     public partial IdentityProviderListResource ToListResource(IdentityProvider entity);
     public partial List<IdentityProviderListResource> ToListResources(List<IdentityProvider> entities);

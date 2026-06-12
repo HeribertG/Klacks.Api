@@ -628,8 +628,10 @@ public static class ServiceCollectionExtensions
                     if (errors == System.Net.Security.SslPolicyErrors.None)
                         return true;
 
+                    const string trustedDomain = "apertus.ai";
                     var host = message.RequestUri?.Host ?? string.Empty;
-                    return host.EndsWith("apertus.ai", StringComparison.OrdinalIgnoreCase);
+                    return host.Equals(trustedDomain, StringComparison.OrdinalIgnoreCase)
+                        || host.EndsWith("." + trustedDomain, StringComparison.OrdinalIgnoreCase);
                 }
             });
     }

@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Security.Cryptography;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
@@ -65,12 +66,13 @@ public class CreateUserSkill : BaseSkillImplementation
             FirstName = firstName,
             LastName = lastName,
             Email = email,
-            UserName = username,
-            Password = password
+            UserName = username
         };
 
         return SkillResult.SuccessResult(resultData,
-            $"User '{firstName} {lastName}' ({email}) was successfully created. UserId: '{user.Id}', Username: '{username}', Password: '{password}'.");
+            $"User '{firstName} {lastName}' ({email}) was successfully created with username '{username}'. " +
+            "A strong password was generated automatically and is intentionally not shown for security reasons. " +
+            "The new user must set their own password via the password-reset link on the login page.");
     }
 
     private static string GeneratePassword()
@@ -80,20 +82,25 @@ public class CreateUserSkill : BaseSkillImplementation
         const string digits = "0123456789";
         const string special = "@$!%*?&";
 
-        var random = new Random();
         var password = new char[12];
 
-        password[0] = upper[random.Next(upper.Length)];
-        password[1] = lower[random.Next(lower.Length)];
-        password[2] = digits[random.Next(digits.Length)];
-        password[3] = special[random.Next(special.Length)];
+        password[0] = upper[RandomNumberGenerator.GetInt32(upper.Length)];
+        password[1] = lower[RandomNumberGenerator.GetInt32(lower.Length)];
+        password[2] = digits[RandomNumberGenerator.GetInt32(digits.Length)];
+        password[3] = special[RandomNumberGenerator.GetInt32(special.Length)];
 
         var allChars = upper + lower + digits + special;
         for (var i = 4; i < password.Length; i++)
         {
-            password[i] = allChars[random.Next(allChars.Length)];
+            password[i] = allChars[RandomNumberGenerator.GetInt32(allChars.Length)];
         }
 
-        return new string(password.OrderBy(_ => random.Next()).ToArray());
+        for (var i = password.Length - 1; i > 0; i--)
+        {
+            var j = RandomNumberGenerator.GetInt32(i + 1);
+            (password[i], password[j]) = (password[j], password[i]);
+        }
+
+        return new string(password);
     }
 }

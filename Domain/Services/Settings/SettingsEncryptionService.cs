@@ -27,6 +27,9 @@ public class SettingsEncryptionService : ISettingsEncryptionService
 
     private static readonly HashSet<string> ServerOnlySettingTypes = new(StringComparer.OrdinalIgnoreCase)
     {
+        "outgoingserverPassword",
+        "incomingServerPassword",
+        "DEEPL_API_KEY",
         "ASSISTANT_STT_API_KEY",
         "ASSISTANT_STT_API_KEY_DEEPGRAM",
         "ASSISTANT_STT_API_KEY_GROQ",
