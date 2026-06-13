@@ -217,9 +217,9 @@ Admin-Konten ist der Button deaktiviert — Admins sehen immer alles.
   aktiv/einstig/zukünftig, Suchstring auf den Namen, Sortierung, Pagination). Die
   Baumansicht lädt die ganze Hierarchie; das Backend berechnet dabei pro Gruppe die
   Mitglieder- und Dienste-Zähler aus den Gruppen-Zuordnungen. Gelöschte Gruppen sind
-  Soft-Delete und erscheinen nirgends mehr.
-- **Hierarchie**: Gruppen bilden eine echte Baum-Hierarchie (Nested-Set-Modell mit
-  lft/rgt/depth, parent/root). Umhängen per Drag & Drop oder Parent-Auswahl ordnet ganze
+  im Papierkorb und erscheinen nirgends mehr.
+- **Hierarchie**: Gruppen bilden eine echte Baum-Hierarchie (jede Gruppe kann eine
+  übergeordnete Gruppe und beliebig viele Untergruppen haben). Umhängen per Drag & Drop oder die Auswahl der übergeordneten Gruppe ordnet ganze
   Teilbäume um; "Aktualisieren" in der Baumansicht berechnet die Struktur im Backend neu.
   Löschen eines Knotens entfernt die Gruppe samt allen Untergruppen.
 - **Globaler Gruppen-Scope (wichtigste Wirkung)**: Die hier gepflegten Gruppen speisen die

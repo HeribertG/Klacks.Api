@@ -118,7 +118,7 @@ Verträge, Gruppen, Qualifikationen, Notizen und Bild.
   - **NACHNAME** (de: "NACHNAME", en: "LAST NAME", fr: "NOM", it: "COGNOME").
   - **Aktionen** (rechts): Admins sehen einen **Stift** (`client-edit-button-{i}`, öffnet
     `/workplace/edit-address/:id`) und einen **roten Papierkorb**
-    (`client-delete-button-{i}`, Löschen mit Bestätigungsdialog, Soft-Delete); Nicht-Admins
+    (`client-delete-button-{i}`, Löschen mit Bestätigungsdialog; der Eintrag landet im Papierkorb und kann wiederhergestellt werden); Nicht-Admins
     sehen stattdessen ein **Auge** (`client-view-button-{i}`, öffnet die Maske nur zum
     Ansehen).
 - **Sortierung**: Klick auf die Spaltenköpfe NR / FIRMA / VORNAME / NACHNAME sortiert auf-
@@ -163,7 +163,7 @@ Verträge, Gruppen, Qualifikationen, Notizen und Bild.
   Austrittsdatum).
 - Checkbox **Gelöschte Adressen** (`filter-show-deleted`, de: "Gelöschte Adressen", en:
   "Deleted Addresses", fr: "Adresses supprimées", it: "Indirizzi Eliminati") — zeigt
-  AUSSCHLIESSLICH die soft-gelöschten Einträge (nicht zusätzlich zu den aktiven).
+  AUSSCHLIESSLICH die gelöschten Einträge im Papierkorb (nicht zusätzlich zu den aktiven).
 - Button **Filter zurücksetzten** (`filter-reset-button`, de: "Filter zurücksetzten", en:
   "Reset Filter", fr: "Réinitialiser le filtre", it: "Resetta Filtro") — setzt alle Filter
   auf Standard.
@@ -203,8 +203,7 @@ Cards plus einer rechten Navigationsspalte:
     überschrieben — über **Neue Adresse erstellen** öffnet sich das Modal **Neue Adresse**
     (de: "Neue Adresse", en: "New Address") mit **Adresse gültig ab** (Datums-Picker
     `newAddressValidFrom`) und **Adressart** (`newAddressType`): **Hauptadresse**,
-    **Geschäftsadresse** oder **Rechnungsadresse** (Backend-Enum `AddressTypeEnum`:
-    Employee=0, Workplace=1, InvoicingAddress=2). Die neue Adresse wird zusätzlich
+    **Geschäftsadresse** oder **Rechnungsadresse**. Die neue Adresse wird zusätzlich
     angehängt; die alte bleibt als Historie erhalten.
 - **Registration-Card** (`membership-form`, de: "Registration", en: "Registration", fr:
   "Inscription", it: "Registrazione") — die Mitgliedschaft:
@@ -258,9 +257,9 @@ Cards plus einer rechten Navigationsspalte:
   des Backends; dabei greifen nacheinander Gruppen-Filter, Suche, Anrede-/Typ-Filter,
   Membership-Status-Filter (Aktive/Ehemalige/Zukünftige relativ zu heute),
   Sichtbarkeits-Zeitraum (auf Ein-/Austrittsdatum der Mitgliedschaft) und Sortierung.
-- **Soft-Delete**: Gelöschte Personen sind standardmässig ausgeschlossen. Der Filter
+- **Gelöschte Adressen (Papierkorb)**: Gelöschte Personen sind standardmässig ausgeschlossen. Der Filter
   „Gelöschte Adressen" schaltet die Liste komplett auf NUR gelöschte Einträge um; dort gibt
-  es keinen Lösch-Button mehr. Löschen über den Papierkorb ist immer ein Soft-Delete.
+  es keinen Lösch-Button mehr. Löschen über den Papierkorb entfernt die Person nicht endgültig — sie bleibt wiederherstellbar.
 - **Gruppen-Scope und Sichtbarkeit**: Die globale Gruppen-Auswahl wirkt seitenübergreifend —
   wer hier die Gruppe wechselt, sieht auch im Schichtplan und in der Verfügbarkeit nur noch
   diese Gruppe (und umgekehrt). Zusätzlich beschränkt das Backend Nicht-Admins immer auf
@@ -282,7 +281,7 @@ Cards plus einer rechten Navigationsspalte:
   die Karten-Buttons (OpenStreetMap/Street View) bei Kunden und für geografische
   Funktionen.
 - **Szenarien & Periodenabschluss**: Stammdaten sind davon nicht betroffen —
-  Szenario-Isolation und Periodenabschluss/DayLock wirken auf Planungsdaten
+  Szenario-Isolation und Periodenabschluss/Tagessperre wirken auf Planungsdaten
   (Dienste/Absenzen), nicht auf Adressen.
 - **Berechtigungen**: Anlegen, Bearbeiten und Löschen sind Admin-Funktionen; Nicht-Admins
   öffnen die Maske nur lesend (Auge / `readonly=true`).

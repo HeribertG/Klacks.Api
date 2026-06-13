@@ -183,8 +183,8 @@ oder direkt unter `/workplace/period-closing`; die Seite zeigt drei Karten unter
 ## Stufe 3 — Wirkungen & Zusammenspiel mit anderen Seiten
 
 - **Was Versiegeln tut**: Das Versiegeln setzt alle Dienst- und Absenz-Einträge
-  des Zeitraums auf die höchste der vier Sperrstufen (None → Confirmed → Approved →
-  **Closed**) und legt zusätzlich pro Kalendertag ein **Tagessiegel** an — mit Gruppenbezug,
+  des Zeitraums auf die höchste der vier Sperrstufen (Offen → Bestätigt → Freigegeben →
+  **Abgeschlossen**) und legt zusätzlich pro Kalendertag ein **Tagessiegel** an — mit Gruppenbezug,
   wenn die gewählte Periode eine Gruppe trägt, sonst global für alle. Der gemeldete Zähler
   "betroffene Einträge" ist die Summe aus versiegelten Dienst- und Absenz-Einträgen plus neu
   angelegten Tagessiegeln. Der Protokoll-Eintrag wird in derselben Transaktion geschrieben.
@@ -194,15 +194,15 @@ oder direkt unter `/workplace/period-closing`; die Seite zeigt drei Karten unter
   gesperrt und kann nicht geändert werden", en: "Day is sealed and cannot be modified", fr:
   "Le jour est scellé et ne peut être modifié", it: "Il giorno è sigillato e non può essere
   modificato"). Ein Tagessiegel **ohne** Gruppe sperrt den Tag für alle; ein Tagessiegel
-  **mit** Gruppe sperrt nur Mitarbeitende, deren Work an diesem Tag über den Shift zu dieser
+  **mit** Gruppe sperrt nur Mitarbeitende, deren Buchung an diesem Tag über einen Dienst zu dieser
   Gruppe gehört.
 - **Szenario-Isolation**: Einträge aus Analyse-Szenarien (des
   Planungs-Assistenten) umgehen die Tagessperre — die Prüfung wird für Szenario-Einträge
   übersprungen; verbindlich wird die Sperre erst beim Übernehmen ins echte Schedule. Auch die
   Problemliste berücksichtigt nur reale Planungs-Notizen (keine Szenario-Notizen).
 - **Entsiegeln**: verlangt zwingend eine Begründung (das Backend lehnt ohne Begründung ab),
-  setzt die Sperrstufe der Works/Breaks zurück auf None und löscht die Tagessiegel (Soft
-  Delete); auch dies schreibt einen Protokoll-Eintrag (Wieder geöffnet) mit der Begründung.
+  setzt die Sperrstufe der Dienst- und Pausen-Einträge auf die unterste Stufe zurück und löscht die Tagessiegel (sie wandern in den
+  Papierkorb); auch dies schreibt einen Protokoll-Eintrag (Wieder geöffnet) mit der Begründung.
   Bereits erzeugte Exporte bleiben im Export-Protokoll erhalten — ein erneuter Export nach
   Korrekturen kann anderen Inhalt haben; das System warnt davor nicht automatisch.
 - **Berechtigungen**: Versiegeln auf Stufe Closed und Entsiegeln von Closed kann **nur die
