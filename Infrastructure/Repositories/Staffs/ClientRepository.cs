@@ -217,11 +217,18 @@ public class ClientRepository : IClientRepository
             existingClient.Id,
             (clientContract, clientId) => clientContract.ClientId = clientId);
 
-        _collectionUpdateService.UpdateCollection(
-            existingClient.GroupItems,
-            updatedClient.GroupItems,
-            existingClient.Id,
-            (groupItem, clientId) => groupItem.ClientId = clientId);
+        // GroupItems are matched by GroupId (their resource carries no Id), and an empty
+        // incoming collection is treated as "no change" rather than "remove all" — a partial
+        // client save must never silently wipe the client's group memberships.
+        if (updatedClient.GroupItems.Count > 0)
+        {
+            _collectionUpdateService.UpdateCollection(
+                existingClient.GroupItems,
+                updatedClient.GroupItems,
+                existingClient.Id,
+                (groupItem, clientId) => groupItem.ClientId = clientId,
+                groupItem => groupItem.GroupId);
+        }
 
         _collectionUpdateService.UpdateCollection(
             existingClient.Qualifications,

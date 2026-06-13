@@ -9,7 +9,9 @@ using Klacks.Api.Domain.Services.Common;
 namespace Klacks.Api.Application.Services.Clients;
 
 /// <summary>
-/// Filters client queries by group membership, including subgroups.
+/// Filters client queries by group membership, including subgroups. For a group-restricted
+/// (non-admin) user with no specific group selected, clients without any active group are always
+/// included, so group-less clients stay visible (consistent with the schedule view).
 /// </summary>
 /// <param name="groupClient">Resolves group hierarchies to flat ID lists</param>
 /// <param name="groupVisibility">Determines admin status and visible root groups</param>
@@ -54,7 +56,8 @@ public class ClientGroupFilterService : IClientGroupFilterService
                 {
                     var groupIds = await _groupClient.GetAllGroupIdsIncludingSubgroupsFromList(rootlist);
                     query = from client in query
-                            where client.GroupItems.Any(gi => groupIds.Contains(gi.GroupId))
+                            where !client.GroupItems.Any()
+                                  || client.GroupItems.Any(gi => groupIds.Contains(gi.GroupId))
                             select client;
                 }
             }
