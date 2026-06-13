@@ -372,12 +372,43 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         originalShift.OriginalId = updatedShift.Id;
 
         await Add(originalShift);
+        await CopyRequiredQualificationsAsync(updatedShift.Id, originalShift.Id);
 
         Logger.LogInformation(
             "Created OriginalShift: NewShiftId={NewShiftId}, OriginalId={OriginalId}, Status={Status}",
             originalShift.Id, originalShift.OriginalId, originalShift.Status);
 
         return originalShift;
+    }
+
+    public async Task CopyRequiredQualificationsAsync(Guid sourceShiftId, Guid targetShiftId, CancellationToken cancellationToken = default)
+    {
+        var sourceQualifications = await context.ShiftRequiredQualification
+            .AsNoTracking()
+            .Where(q => q.ShiftId == sourceShiftId)
+            .ToListAsync(cancellationToken);
+
+        if (sourceQualifications.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var source in sourceQualifications)
+        {
+            var copy = new ShiftRequiredQualification
+            {
+                Id = Guid.NewGuid(),
+                ShiftId = targetShiftId,
+                QualificationId = source.QualificationId,
+                IsMandatory = source.IsMandatory,
+                MinLevel = source.MinLevel,
+            };
+            await context.ShiftRequiredQualification.AddAsync(copy, cancellationToken);
+        }
+
+        Logger.LogInformation(
+            "Copied {Count} required qualification(s) from {SourceShiftId} to {TargetShiftId}",
+            sourceQualifications.Count, sourceShiftId, targetShiftId);
     }
 
     public async Task<bool> HasActiveWorksAsync(Guid shiftId, CancellationToken cancellationToken = default)

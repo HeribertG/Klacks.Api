@@ -43,6 +43,7 @@ public class ShiftResetService : IShiftResetService
             newOriginalShift.Id, newOriginalShift.OriginalId, newOriginalShift.FromDate, newOriginalShift.GroupItems.Count);
 
         await _shiftRepository.Add(newOriginalShift);
+        await _shiftRepository.CopyRequiredQualificationsAsync(sealedOrder.Id, newOriginalShift.Id);
 
         return newOriginalShift;
     }
