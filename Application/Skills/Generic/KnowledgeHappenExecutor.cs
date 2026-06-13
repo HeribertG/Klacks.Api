@@ -8,9 +8,13 @@
 /// user's language and keeps the localized UI labels embedded in the text.
 /// </summary>
 /// <param name="memoryRepository">Loads the seeded knowledge memory by key</param>
+/// <param name="logger">Warns when curated content still carried internal entity names that had to be replaced</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Skills.Generic;
 
@@ -35,10 +39,14 @@ public class KnowledgeHappenExecutor
         "or more detail, call this skill again with the level parameter set to one of: short, elements, effects.";
 
     private readonly IAgentMemoryRepository _memoryRepository;
+    private readonly ILogger<KnowledgeHappenExecutor> _logger;
 
-    public KnowledgeHappenExecutor(IAgentMemoryRepository memoryRepository)
+    public KnowledgeHappenExecutor(
+        IAgentMemoryRepository memoryRepository,
+        ILogger<KnowledgeHappenExecutor> logger)
     {
         _memoryRepository = memoryRepository;
+        _logger = logger;
     }
 
     public async Task<SkillResult> ExecuteAsync(
@@ -58,21 +66,42 @@ public class KnowledgeHappenExecutor
                 $"Knowledge entry '{config.MemoryKey}' is not available. The seed may not have run yet.");
         }
 
+        var content = SanitizeContent(config.MemoryKey, memory.Content);
+
         var requestedLevel = ExtractRequestedLevel(parameters);
         var levelContent = requestedLevel == null
             ? null
-            : ExtractLevelSection(memory.Content, requestedLevel);
+            : ExtractLevelSection(content, requestedLevel);
 
         if (levelContent == null)
         {
             return SkillResult.SuccessResult(
-                new { Knowledge = memory.Content },
+                new { Knowledge = content },
                 AnswerInstruction);
         }
 
         return SkillResult.SuccessResult(
             new { Knowledge = levelContent, Level = requestedLevel },
             AnswerInstruction + string.Format(LevelInstruction, requestedLevel));
+    }
+
+    private string SanitizeContent(string memoryKey, string rawContent)
+    {
+        if (string.Equals(memoryKey, SkillNames.ExplainShiftLifecycle, StringComparison.Ordinal))
+        {
+            return rawContent;
+        }
+
+        var sanitized = KnowledgeContentSanitizer.Sanitize(rawContent);
+        if (!ReferenceEquals(sanitized, rawContent))
+        {
+            _logger.LogWarning(
+                "Knowledge happen '{MemoryKey}' contained internal entity names that were replaced " +
+                "before reaching the assistant. Fix the seed content.",
+                memoryKey);
+        }
+
+        return sanitized;
     }
 
     private static string? ExtractRequestedLevel(Dictionary<string, object>? parameters)

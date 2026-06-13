@@ -1,5 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Executes LLM function calls from the chat loop: dispatches by execution type
+/// (FrontendOnly, UiPassthrough, UiAction, Skill) and feeds results back to the model.
+/// When navigate_to lands on a page with an explain_page_* skill, the executor runs that
+/// knowledge happen (level=elements) itself and appends it to the navigation result, so
+/// how-to questions get curated page knowledge without relying on the model calling it.
+/// </summary>
+/// <param name="skillBridge">Executes skills by name; also used for the server-side knowledge injection</param>
+/// <param name="agentSkillRepository">Resolves the execution type of called skills</param>
+
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -172,20 +182,36 @@ public class LLMFunctionExecutor
         {
             if (result.Data != null)
             {
-                var dataJson = JsonSerializer.Serialize(result.Data, new JsonSerializerOptions { WriteIndented = false });
+                var dataJson = JsonSerializer.Serialize(result.Data, SerializerOptions);
+                var response = $"{result.Message}\nData: {dataJson}";
 
                 if (result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Navigation))
                 {
+                    string? route = null;
                     try
                     {
                         using var doc = System.Text.Json.JsonDocument.Parse(dataJson);
                         if (doc.RootElement.TryGetProperty("Route", out var routeProp))
-                            NavigationRoute = routeProp.GetString();
+                            route = routeProp.GetString();
                     }
                     catch { }
+
+                    if (route != null)
+                    {
+                        NavigationRoute = route;
+                    }
+
+                    if (call.FunctionName == SkillNames.NavigateTo)
+                    {
+                        var knowledgeAppendix = await BuildPageKnowledgeAppendixAsync(skillContext, route);
+                        if (knowledgeAppendix != null)
+                        {
+                            response = $"{response}\n{knowledgeAppendix}";
+                        }
+                    }
                 }
 
-                return $"{result.Message}\nData: {dataJson}";
+                return response;
             }
 
             return result.Message;
@@ -197,5 +223,62 @@ public class LLMFunctionExecutor
         }
 
         return $"Error: {result.Message}";
+    }
+
+    private const string PageKnowledgeIntroFormat =
+        "[Server-included page knowledge ({0}, level={1}) for the destination page. " +
+        "Curated {0} knowledge is the only authoritative source about this page: when the user asks what it is, " +
+        "how it works, or how to create/edit something here, ground every detail in {0} knowledge and never " +
+        "invent fields, elements, or steps. All depth levels (short, elements, effects) come from this same " +
+        "curated source — switching level only changes which slice you see, never whether you may invent. " +
+        "The block below is level={1} and you already have it, so do not re-fetch level={1}. For a short overview " +
+        "call {0} with level=short, for data sources and the interplay with other pages call level=effects, then " +
+        "answer from that result. If neither this block nor a fetched level covers the question, say the page " +
+        "knowledge does not cover it rather than guessing. " +
+        "If the user only asked to navigate, briefly confirm the navigation.]";
+
+    private static readonly JsonSerializerOptions SerializerOptions = new() { WriteIndented = false };
+
+    private async Task<string?> BuildPageKnowledgeAppendixAsync(SkillExecutionContext skillContext, string? route)
+    {
+        var explainSkillName = PageExplainSkillRoutes.ResolveSkillName(route);
+        if (explainSkillName == null || _skillBridge == null)
+        {
+            return null;
+        }
+
+        try
+        {
+            var explainCall = new Providers.LLMFunctionCall
+            {
+                FunctionName = explainSkillName,
+                Parameters = new Dictionary<string, object>
+                {
+                    [KnowledgeHappenLevels.ParameterName] = KnowledgeHappenLevels.Elements
+                }
+            };
+
+            var result = await _skillBridge.ExecuteSkillFromLLMCallAsync(explainCall, skillContext);
+            if (!result.Success)
+            {
+                _logger.LogWarning("Page knowledge injection for {SkillName} failed: {Message}",
+                    explainSkillName, result.Message);
+                return null;
+            }
+
+            var intro = string.Format(PageKnowledgeIntroFormat, explainSkillName, KnowledgeHappenLevels.Elements);
+            if (result.Data == null)
+            {
+                return $"{intro}\n{result.Message}";
+            }
+
+            var dataJson = JsonSerializer.Serialize(result.Data, SerializerOptions);
+            return $"{intro}\n{result.Message}\nData: {dataJson}";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Page knowledge injection for route {Route} failed", route);
+            return null;
+        }
     }
 }

@@ -33,6 +33,8 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
         " important facts worth remembering long-term. " +
         "Only extract: user preferences, decisions, company facts, procedural knowledge. " +
         "Ignore greetings, trivial questions, temporary requests. " +
+        "Do NOT extract explanations of the Klacks application itself (its pages, buttons, masks or " +
+        "concepts like orders, sealing or shift planning) — that knowledge is curated elsewhere. " +
         "Respond ONLY with a valid JSON array. Each element: {\"key\":string,\"content\":string,\"category\":string,\"importance\":number}. " +
         "Categories: fact, preference, decision, context, temporal, procedure, relationship, user_info, project_context, workflow. " +
         "Importance 1-10. If nothing worth remembering, return [].";
@@ -136,6 +138,13 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
 
                 if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(content))
                     continue;
+
+                if (InternalEntityNames.ContainsAny(key) || InternalEntityNames.ContainsAny(content))
+                {
+                    _logger.LogDebug(
+                        "Skipping extracted memory '{Key}': contains internal entity names", key);
+                    continue;
+                }
 
                 var category = item.TryGetProperty("category", out var catEl)
                     ? catEl.GetString() ?? MemoryCategories.LearnedFact

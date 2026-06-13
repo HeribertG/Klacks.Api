@@ -15,7 +15,6 @@ using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
-using Klacks.Api.Domain.Services.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -38,6 +37,9 @@ public class NavigateToSkill : BaseSkillImplementation
         var entityId = GetParameter<string>(parameters, "entityId");
         var tab = GetParameter<string>(parameters, "tab");
 
+        // Runs before catalog resolution so it also covers the 'edit-address' route alias
+        // (not a catalog page key) and gives a create_employee-specific hint; the generic
+        // HasEntityParam guard below catches all other entity editors.
         if (string.IsNullOrEmpty(entityId)
             && (page.Equals(UiPageKeys.EditEmployee, StringComparison.OrdinalIgnoreCase)
                 || page.Equals(UiPageKeys.EditAddress, StringComparison.OrdinalIgnoreCase)))
@@ -52,6 +54,14 @@ public class NavigateToSkill : BaseSkillImplementation
         {
             return Task.FromResult(SkillResult.Error(
                 $"Unknown page: {page}. Available pages: {string.Join(", ", _pageKeyCatalog.AllPageKeys)}"));
+        }
+
+        if (string.IsNullOrEmpty(entityId) && entry.HasEntityParam)
+        {
+            return Task.FromResult(SkillResult.Error(
+                $"Refusing to open '{page}' without an entity id — there is nothing to edit yet. " +
+                "Identify the record first (use search_and_navigate to find it by name, or create it), " +
+                "then navigate here with its entityId."));
         }
 
         if (!string.IsNullOrEmpty(entry.RequiredPermission)
@@ -82,12 +92,6 @@ public class NavigateToSkill : BaseSkillImplementation
             QueryParams = queryParams
         };
 
-        var explainSkill = PageExplainSkillRoutes.ResolveSkillName(route);
-        var message = explainSkill == null
-            ? $"Navigate to {page}"
-            : $"Navigate to {page}. MANDATORY next step: if the user asked what this page is, how it works, " +
-              $"or how to create/edit something here, call {explainSkill} with level=elements NOW and answer ONLY from its result.";
-
-        return Task.FromResult(SkillResult.Navigation(navigationData, message));
+        return Task.FromResult(SkillResult.Navigation(navigationData, $"Navigate to {page}"));
     }
 }

@@ -18700,7 +18700,7 @@
     },
     {
       "name": "explain_shift_lifecycle_order_to_shift",
-      "description": "Explains the four-stage Shift lifecycle: OriginalOrder (draft) -> SealedOrder (immutable contract) -> OriginalShift (active) -> SplitShift (cuts). The Sealing transition is the only trigger that clones the OriginalShift from the SealedOrder. Works attach only to OriginalShift or SplitShift (Status >= 2).",
+      "description": "Explains how an order (Bestellung) becomes a plannable shift AND walks through every card of the order entry mask (General with expert mode and the green sealing lock, Group, Required Qualifications, Hours and Weekdays, Macro, Address, Special Features, Default Expenses). An order starts as a freely editable draft that is not plannable yet; sealing it with the green lock makes it final and automatically creates the plannable shift for scheduling; cutting a plannable shift produces split pieces. Call this whenever the user asks what an order is, how to create one, what sealing means, or what the fields of the order mask do.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -18722,7 +18722,13 @@
         "bestellung",
         "sealing",
         "sealen",
-        "workflow"
+        "workflow",
+        "bestellungen",
+        "was ist eine bestellung",
+        "bestellung erklaeren",
+        "auftrag",
+        "order lifecycle",
+        "what is an order"
       ],
       "synonyms": {
         "de": [
@@ -18761,7 +18767,7 @@
           "taglio"
         ]
       },
-      "version": 1
+      "version": 3
     },
     {
       "name": "explain_page_dashboard",
@@ -18849,7 +18855,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -18980,7 +18986,7 @@
           "andamento giornaliero"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_page_absence",
@@ -18992,7 +18998,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with schedule, settings, period closing and the dashboard. Omit for the full document.",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
           "required": false,
           "enumValues": [
             "short",
@@ -19093,7 +19099,7 @@
           "cosa significa prenotato"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_page_availability",
@@ -19105,7 +19111,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -19201,7 +19207,7 @@
           "disponibilità mezza giornata"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_page_shifts",
@@ -19213,7 +19219,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -19336,7 +19342,7 @@
           "perché non posso modificare questo servizio"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_page_employees",
@@ -19348,7 +19354,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -19479,7 +19485,7 @@
           "ordinare la lista"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_page_groups",
@@ -19491,7 +19497,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -19616,7 +19622,7 @@
           "visibilità dei gruppi"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_page_period_closing",
@@ -19628,7 +19634,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -19760,7 +19766,7 @@
           "esportare il giustificativo"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_page_inbox",
@@ -19772,7 +19778,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -19925,7 +19931,7 @@
           "perché non vedo la posta in arrivo"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_page_settings_overview",
@@ -19937,7 +19943,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -20041,7 +20047,7 @@
           "icona dell'ingranaggio"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_page_profile",
@@ -20053,7 +20059,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth: 'short' = what the page is for in a few sentences (first contact, tours); 'elements' = every visible element and interaction explained; 'effects' = data sources and how the page interacts with other pages and settings. Omit for the full document.",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -20167,7 +20173,7 @@
           "riconoscimento vocale"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "start_guided_tour",

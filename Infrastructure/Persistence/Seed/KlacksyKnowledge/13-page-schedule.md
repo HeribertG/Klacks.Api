@@ -217,8 +217,8 @@ Ergebnisse als Szenario, das der Planer übernehmen oder verwerfen muss.
 - **Datenbasis**: Die Zeilen sind Mitarbeitende und Externe (keine Kunden) mit einer im
   Zeitraum gültigen **Mitgliedschaft**; pro Zeile fließen aktive Verträge (für das
   "Kein Vertrag"-Symbol und die garantierten Stunden) und das Eintrittsdatum
-  (Mitgliedschaftsbeginn) ein. Die Zellen liefert eine Stored Procedure, die Work,
-  WorkChange, Spesen/Vergütung, Absenzen, Notizen und Befehle des Zeitraums zusammenführt —
+  (Mitgliedschaftsbeginn) ein. Die Zellen liefert eine Auswertung im Hintergrund, die
+  Arbeitszeiten, Arbeitskorrekturen, Spesen/Vergütung, Absenzen, Notizen und Befehle des Zeitraums zusammenführt —
   soft-gelöschte Datensätze sind überall ausgeschlossen. Dazu kommen separate
   Verfügbarkeitsdaten und die **Stundenbilanz** der Abrechnungsperiode; gebuchte
   Absenz-Einträge zählen mit ihrer hinterlegten Arbeitszeit zum Stunden-Soll.

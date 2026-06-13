@@ -194,12 +194,33 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         // Guarantee the explain skill of the page the user is on, independent of retrieval quality:
         // follow-up questions about page sections otherwise dilute the retrieval query and the LLM
         // hallucinates UI descriptions because the explain_page_* function is missing from its tools.
+        var guaranteedSkills = new HashSet<AgentSkill>();
         var pageExplainSkill = ResolvePageExplainSkill(permittedSkills, currentRoute);
-        if (pageExplainSkill != null &&
-            !pageExplainSkill.AlwaysOn &&
-            !retrievedSkills.Any(s => string.Equals(s.Name, pageExplainSkill.Name, StringComparison.OrdinalIgnoreCase)))
+        if (pageExplainSkill != null)
         {
-            retrievedSkills.Insert(0, pageExplainSkill);
+            guaranteedSkills.Add(pageExplainSkill);
+        }
+
+        // Same guarantee for concept explain skills triggered by keywords in the current message
+        // (e.g. orders/sealing): vector retrieval misses these phrasings, so the LLM answers thin
+        // instead of calling the curated concept skill.
+        foreach (var conceptSkillName in ConceptExplainSkillKeywords.ResolveSkillNames(userMessage))
+        {
+            var conceptSkill = permittedSkills.FirstOrDefault(s =>
+                string.Equals(s.Name, conceptSkillName, StringComparison.OrdinalIgnoreCase));
+            if (conceptSkill != null)
+            {
+                guaranteedSkills.Add(conceptSkill);
+            }
+        }
+
+        foreach (var guaranteed in guaranteedSkills)
+        {
+            if (!guaranteed.AlwaysOn &&
+                !retrievedSkills.Any(s => string.Equals(s.Name, guaranteed.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                retrievedSkills.Insert(0, guaranteed);
+            }
         }
 
         if (retrievedSkills.Count == 0)
@@ -216,7 +237,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         {
             selectedSkills = selectedSkills
                 .OrderByDescending(s => s.AlwaysOn)
-                .ThenByDescending(s => ReferenceEquals(s, pageExplainSkill))
+                .ThenByDescending(s => guaranteedSkills.Contains(s))
                 .ThenBy(s => s.SortOrder)
                 .Take(MaxToolsForProvider)
                 .ToList();

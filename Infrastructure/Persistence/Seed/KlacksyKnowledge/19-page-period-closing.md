@@ -145,7 +145,7 @@ oder direkt unter `/workplace/period-closing`; die Seite zeigt drei Karten unter
 - Suchfeld **Bestellung** (de: "Bestellung", en: "Order", fr: "Commande", it: "Ordine"),
   DOM-ID `exportsSearch`, mit Placeholder "Kürzel, Name, Kunde, Kundennummer…" (en:
   "Abbreviation, name, customer, customer number…"): sucht versiegelte Bestellungen
-  (SealedOrders) im Zeitfenster (300 ms Tipp-Verzögerung); Treffer erscheinen als Dropdown im
+  im Zeitfenster (300 ms Tipp-Verzögerung); Treffer erscheinen als Dropdown im
   Format "Kürzel – Name – Kunde – Zeitraum – geschlossen/gesamt"; ohne Treffer: "Keine
   Bestellungen im gewählten Zeitfenster gefunden."
 - Dropdown **Format** (en: "Format"), DOM-ID `exportFormat`: CSV, JSON, XML, DATEV, BMD NTCS.
@@ -196,10 +196,10 @@ oder direkt unter `/workplace/period-closing`; die Seite zeigt drei Karten unter
   modificato"). Ein Tagessiegel **ohne** Gruppe sperrt den Tag für alle; ein Tagessiegel
   **mit** Gruppe sperrt nur Mitarbeitende, deren Work an diesem Tag über den Shift zu dieser
   Gruppe gehört.
-- **Szenario-Isolation**: Einträge mit AnalyseToken (Analyse-Szenarien des
+- **Szenario-Isolation**: Einträge aus Analyse-Szenarien (des
   Planungs-Assistenten) umgehen die Tagessperre — die Prüfung wird für Szenario-Einträge
   übersprungen; verbindlich wird die Sperre erst beim Übernehmen ins echte Schedule. Auch die
-  Problemliste berücksichtigt nur reale Planungs-Notizen (ohne AnalyseToken).
+  Problemliste berücksichtigt nur reale Planungs-Notizen (keine Szenario-Notizen).
 - **Entsiegeln**: verlangt zwingend eine Begründung (das Backend lehnt ohne Begründung ab),
   setzt die Sperrstufe der Works/Breaks zurück auf None und löscht die Tagessiegel (Soft
   Delete); auch dies schreibt einen Protokoll-Eintrag (Wieder geöffnet) mit der Begründung.
@@ -215,8 +215,8 @@ oder direkt unter `/workplace/period-closing`; die Seite zeigt drei Karten unter
   Konsekutivtage) über den Zeitraum; gelöschte Mitarbeitende und gelöschte Notizen sind
   ausgeschlossen, der Gruppenfilter der Periode greift auch hier. Die unverplanten Shifts
   stammen aus dem Schichtplan-Datenbestand (Bedarf minus besetzt).
-- **Export-Karte und SealedOrder**: Der Export hängt an der **versiegelten Bestellung**
-  (SealedOrder) aus dem Schicht-Lebenszyklus — spätere Umbenennungen oder Schnitte der
+- **Export-Karte und versiegelte Bestellung**: Der Export hängt an der **versiegelten Bestellung**
+  aus dem Schicht-Lebenszyklus — spätere Umbenennungen oder Schnitte der
   operativen Schicht verändern das exportierte Dokument nicht. Jeder erfolgreiche Download
   erzeugt automatisch einen Export-Protokoll-Eintrag (Format, Zeitraum, Gruppe, Dateiname,
   Grösse, Anzahl Einträge, Sprache, Währung, Benutzer).
@@ -255,7 +255,7 @@ oder direkt unter `/workplace/period-closing`; die Seite zeigt drei Karten unter
   Zwischenstufen Bestätigt/Freigegeben; versiegelte Tage sind dort gesperrt.
 - **Absenzen Kalender** (`/workplace/absence`): Absenzen in versiegelten Zeiträumen sind
   ebenfalls gesperrt.
-- `explain_shift_lifecycle_order_to_shift` — was eine SealedOrder ist und warum der Export an
+- `explain_shift_lifecycle_order_to_shift` — was eine versiegelte Bestellung ist und warum der Export an
   ihr hängt.
 
 ### Trigger-Phrasen

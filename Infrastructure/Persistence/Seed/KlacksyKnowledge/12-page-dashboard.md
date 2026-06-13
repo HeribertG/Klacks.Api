@@ -102,13 +102,13 @@ So liest man das Diagramm (Einheit "MA" = Mitarbeiter, pro Tag ein gestapelter B
 
 Was in die Berechnung einfliesst — wichtig, um die Zahlen richtig zu deuten:
 
-- **Nicht in den Dienste-Balken enthalten:** Sporadische Dienste und TimeRange-Dienste werden
+- **Nicht in den Dienste-Balken enthalten:** Sporadische Dienste und Zeitfenster-Dienste werden
   bewusst NICHT mitgezählt — sporadische Dienste unterliegen dem Zufall und lassen sich nicht
-  prognostizieren, TimeRange-Dienste laufen in der Regel innerhalb von Containern. Ebenfalls
-  ausgenommen sind versiegelte Bestellungen (SealedOrder) und Szenario-Dienste. Container zählen
+  prognostizieren, Zeitfenster-Dienste laufen in der Regel innerhalb von Containern. Ebenfalls
+  ausgenommen sind versiegelte Bestellungen und Szenario-Dienste. Container zählen
   als 1 Dienst; ihre per Container-Vorlage enthaltenen Sub-Dienste werden nicht doppelt gezählt.
-- **Absenzen-Balken:** enthalten die effektiven (bereits im Plan verplanten) Breaks UND die
-  Break-Placeholder (erfasste, aber noch nicht verplante Absenzen). Summiert wird pro Tag der
+- **Absenzen-Balken:** enthalten die effektiven (bereits im Plan verplanten) Absenzen UND die
+  vorgeplanten Absenzen (erfasst, aber noch nicht verplant). Summiert wird pro Tag der
   Standardwert der jeweiligen Absenzart, wörtlich wie erfasst — Wochenenden zählen mit, es gibt
   keine FTE-Gewichtung.
 

@@ -193,7 +193,7 @@ verfügbar erfasst sind.
   Kalender-Auswahl.
 - **Szenarien & Periodenabschluss**: Verfügbarkeiten kennen kein Analyse-Szenario —
   dieselben Einträge gelten im Original- wie im Szenario-Modus. Ein Bezug zum
-  Periodenabschluss/DayLock besteht nicht; Verfügbarkeiten bleiben auch in versiegelten
+  Periodenabschluss oder zu Tagessperren besteht nicht; Verfügbarkeiten bleiben auch in versiegelten
   Zeiträumen änderbar.
 - **Berechtigungen**: Verfügbarkeiten lesen erfordert das Recht, Mitarbeiterdaten zu
   sehen (CanViewClients); per Chat setzen erfordert Bearbeitungsrecht (CanEditClients).

@@ -5,7 +5,7 @@
 /// A happen opts into levels by placing marker comments (e.g. "&lt;!-- level:short --&gt;")
 /// before each level section; happens without markers always return their full content.
 /// </summary>
-namespace Klacks.Api.Application.Skills.Generic;
+namespace Klacks.Api.Domain.Constants;
 
 public static class KnowledgeHappenLevels
 {
