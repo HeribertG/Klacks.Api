@@ -57,7 +57,15 @@ public class EntityCollectionUpdateService
             }
             else
             {
+                // A matched child keeps its identity, its parent FK and its creation audit. The
+                // incoming entity carries none of these (the mapper never sets the parent id, and
+                // CreateTime/CurrentUserCreated are default), so they must be restored before
+                // SetValues copies the incoming values over — otherwise the child is silently
+                // detached from its parent (FK -> empty) and its CreateTime is reset.
                 updatedEntity.Id = existingEntity.Id;
+                setParentId(updatedEntity, parentId);
+                updatedEntity.CreateTime = existingEntity.CreateTime;
+                updatedEntity.CurrentUserCreated = existingEntity.CurrentUserCreated;
                 var entry = _context.Entry(existingEntity);
                 entry.CurrentValues.SetValues(updatedEntity);
                 entry.State = EntityState.Modified;

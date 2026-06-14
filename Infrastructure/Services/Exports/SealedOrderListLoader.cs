@@ -63,18 +63,21 @@ public class SealedOrderListLoader : ISealedOrderListLoader
             var like = $"%{search}%";
             var idNumberMatch = int.TryParse(search, out var idNumber) ? idNumber : (int?)null;
 
-            var descendantRootIds = await _context.Shift
+            // Surface the order ("Bestellung") from a matching part via OriginalId, which always
+            // points at the order regardless of the root_id convention (seed = order-root, live cut =
+            // self-root). root_id is unreliable for this; OriginalId is consistent.
+            var parentOrderIds = await _context.Shift
                 .AsNoTracking()
                 .Where(s => !s.IsDeleted
                     && s.Status != ShiftStatus.SealedOrder
-                    && s.RootId.HasValue
+                    && s.OriginalId.HasValue
                     && (EF.Functions.ILike(s.Abbreviation, like) || EF.Functions.ILike(s.Name, like)))
-                .Select(s => s.RootId!.Value)
+                .Select(s => s.OriginalId!.Value)
                 .Distinct()
                 .ToListAsync(cancellationToken);
 
             query = query.Where(s =>
-                descendantRootIds.Contains(s.Id)
+                parentOrderIds.Contains(s.Id)
                 || EF.Functions.ILike(s.Abbreviation, like)
                 || EF.Functions.ILike(s.Name, like)
                 || (s.Client != null && EF.Functions.ILike(s.Client.Name, like))
