@@ -63,14 +63,26 @@ public class ShiftTreeService : IShiftTreeService
             .GroupBy(s => s.ParentId!.Value)
             .ToDictionary(g => g.Key, g => g.ToList());
 
-        var rootShift = allShiftsInTree.FirstOrDefault(s => s.Id == rootId);
-        if (rootShift == null)
+        // The tree's roots are either the self-root node (Id == rootId), or — in the order-root
+        // convention where root_id points at the order (which is itself NOT a tree node) — every
+        // top-level node (ParentId == null). Walking all top-level nodes as a forest covers both
+        // conventions and never throws.
+        var selfRoot = allShiftsInTree.FirstOrDefault(s => s.Id == rootId);
+        var rootNodes = selfRoot != null
+            ? new List<Shift> { selfRoot }
+            : allShiftsInTree.Where(s => s.ParentId == null).ToList();
+
+        if (rootNodes.Count == 0)
         {
-            throw new InvalidOperationException($"Root shift {rootId} not found in tree");
+            _logger.LogWarning("No root nodes (Id == {RootId} or ParentId == null) found for tree", rootId);
+            return;
         }
 
         int counter = 1;
-        TraverseAndSetValues(rootShift, childrenMap, ref counter);
+        foreach (var rootNode in rootNodes.OrderBy(s => s.FromDate).ThenBy(s => s.StartShift))
+        {
+            TraverseAndSetValues(rootNode, childrenMap, ref counter);
+        }
 
         _logger.LogInformation("=== Recalculation complete for Root {RootId} ===", rootId);
     }
