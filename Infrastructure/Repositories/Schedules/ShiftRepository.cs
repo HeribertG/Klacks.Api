@@ -53,9 +53,14 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             expense.ShiftId = shift.Id;
         }
 
+        foreach (var qualification in shift.RequiredQualifications)
+        {
+            qualification.ShiftId = shift.Id;
+        }
+
         await context.Shift.AddAsync(shift);
-        Logger.LogInformation("Shift added: {ShiftId}, GroupItems count: {Count}, ShiftExpenses count: {ExpenseCount}",
-            shift.Id, shift.GroupItems.Count, shift.ShiftExpenses.Count);
+        Logger.LogInformation("Shift added: {ShiftId}, GroupItems count: {Count}, ShiftExpenses count: {ExpenseCount}, RequiredQualifications count: {QualificationCount}",
+            shift.Id, shift.GroupItems.Count, shift.ShiftExpenses.Count, shift.RequiredQualifications.Count);
     }
 
     public new async Task<Shift?> Put(Shift shift)
@@ -66,6 +71,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .Include(s => s.GroupItems)
                 .ThenInclude(gi => gi.Group)
             .Include(s => s.ShiftExpenses)
+            .Include(s => s.RequiredQualifications)
             .AsSplitQuery()
             .FirstOrDefaultAsync(s => s.Id == shift.Id);
 
@@ -100,8 +106,15 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             existingShift.Id,
             (expense, shiftId) => expense.ShiftId = shiftId);
 
-        Logger.LogInformation("Shift updated: {ShiftId}, GroupItems count: {Count}, ShiftExpenses count: {ExpenseCount}",
-            shift.Id, existingShift.GroupItems.Count, existingShift.ShiftExpenses.Count);
+        _collectionUpdateService.UpdateCollection(
+            existingShift.RequiredQualifications,
+            shift.RequiredQualifications,
+            existingShift.Id,
+            (qualification, shiftId) => qualification.ShiftId = shiftId,
+            q => q.QualificationId);
+
+        Logger.LogInformation("Shift updated: {ShiftId}, GroupItems count: {Count}, ShiftExpenses count: {ExpenseCount}, RequiredQualifications count: {QualificationCount}",
+            shift.Id, existingShift.GroupItems.Count, existingShift.ShiftExpenses.Count, existingShift.RequiredQualifications.Count);
         return existingShift;
     }
 
@@ -161,6 +174,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .Include(x => x.GroupItems)
                 .ThenInclude(gi => gi.Group)
             .Include(x => x.ShiftExpenses)
+            .Include(x => x.RequiredQualifications)
             .AsSplitQuery()
             .AsNoTracking()
             .FirstOrDefaultAsync();
@@ -340,11 +354,34 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     public async Task<Shift?> PutWithSealedOrderHandling(Shift shift)
     {
-        var previousStatus = await context.Shift
+        var existing = await context.Shift
             .AsNoTracking()
             .Where(s => s.Id == shift.Id)
-            .Select(s => (ShiftStatus?)s.Status)
+            .Select(s => new
+            {
+                s.Status,
+                s.ParentId,
+                s.RootId,
+                s.OriginalId,
+                s.Lft,
+                s.Rgt
+            })
             .FirstOrDefaultAsync();
+
+        var previousStatus = existing?.Status;
+
+        // The standard edit form must never change the nested-set cut hierarchy. Preserve the
+        // tree fields from the persisted shift so a form save can never orphan a split shift
+        // (root_id -> order). Only ShiftCutFacade may set them, and it calls Put directly,
+        // bypassing this method.
+        if (existing != null)
+        {
+            shift.ParentId = existing.ParentId;
+            shift.RootId = existing.RootId;
+            shift.OriginalId = existing.OriginalId;
+            shift.Lft = existing.Lft;
+            shift.Rgt = existing.Rgt;
+        }
 
         var updatedShift = await Put(shift);
 

@@ -116,4 +116,6 @@ public class ShiftResource
     public Guid? AnalyseToken { get; set; }
 
     public List<ShiftExpensesResource> DefaultExpenses { get; set; } = [];
+
+    public List<ShiftRequiredQualificationResource> RequiredQualifications { get; set; } = [];
 }

@@ -24,7 +24,7 @@ public class ShiftRequiredQualificationConfiguration : IEntityTypeConfiguration<
             .HasFilter("\"is_deleted\" = false");
 
         builder.HasOne(srq => srq.Shift)
-            .WithMany()
+            .WithMany(s => s.RequiredQualifications)
             .HasForeignKey(srq => srq.ShiftId)
             .OnDelete(DeleteBehavior.Cascade);
 

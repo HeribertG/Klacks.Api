@@ -62,6 +62,15 @@ public partial class ScheduleMapper
             Taxable = e.Taxable
         }).ToList() ?? [];
 
+        resource.RequiredQualifications = shift.RequiredQualifications?.Select(q => new ShiftRequiredQualificationResource
+        {
+            Id = q.Id,
+            ShiftId = q.ShiftId,
+            QualificationId = q.QualificationId,
+            IsMandatory = q.IsMandatory,
+            MinLevel = q.MinLevel
+        }).ToList() ?? [];
+
         if (shift.Client != null)
         {
             resource.Client = ToShiftClientResource(shift.Client);
@@ -116,8 +125,10 @@ public partial class ScheduleMapper
 
     [MapperIgnoreTarget(nameof(ShiftResource.Groups))]
     [MapperIgnoreTarget(nameof(ShiftResource.DefaultExpenses))]
+    [MapperIgnoreTarget(nameof(ShiftResource.RequiredQualifications))]
     [MapperIgnoreSource(nameof(Shift.Client))]
     [MapperIgnoreSource(nameof(Shift.ShiftExpenses))]
+    [MapperIgnoreSource(nameof(Shift.RequiredQualifications))]
     private partial ShiftResource ToShiftResourceBase(Shift shift);
 
     [MapperIgnoreTarget(nameof(Shift.CreateTime))]
@@ -130,6 +141,7 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Shift.Client))]
     [MapperIgnoreTarget(nameof(Shift.GroupItems))]
     [MapperIgnoreTarget(nameof(Shift.ShiftExpenses))]
+    [MapperIgnoreTarget(nameof(Shift.RequiredQualifications))]
     [MapperIgnoreTarget(nameof(Shift.AnalyseToken))]
     private partial Shift ToShiftEntityBase(ShiftResource resource);
 
@@ -150,6 +162,16 @@ public partial class ScheduleMapper
             Description = e.Description,
             Taxable = e.Taxable
         }).ToList() ?? [];
+        entity.RequiredQualifications = resource.RequiredQualifications?
+            .Where(q => q.QualificationId != Guid.Empty)
+            .Select(q => new ShiftRequiredQualification
+            {
+                Id = q.Id,
+                ShiftId = q.ShiftId,
+                QualificationId = q.QualificationId,
+                IsMandatory = q.IsMandatory,
+                MinLevel = q.MinLevel
+            }).ToList() ?? [];
         return entity;
     }
 

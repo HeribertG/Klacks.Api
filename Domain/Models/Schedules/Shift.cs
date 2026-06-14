@@ -132,6 +132,11 @@ public class Shift : BaseEntity
 
     #region Expenses
     public List<ShiftExpenses> ShiftExpenses { get; set; } = [];
-    
+
     #endregion Expenses
+
+    #region Qualifications
+    public List<ShiftRequiredQualification> RequiredQualifications { get; set; } = [];
+
+    #endregion Qualifications
 }
