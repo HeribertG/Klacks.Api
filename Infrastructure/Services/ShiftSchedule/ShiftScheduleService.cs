@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,28 @@ public class ShiftScheduleService : IShiftScheduleService
     {
         _context = context;
         _logger = logger;
+    }
+
+    public async Task<Dictionary<Guid, List<ShiftRequiredQualification>>> GetRequiredQualificationsByShiftAsync(
+        IReadOnlyCollection<Guid> shiftIds,
+        CancellationToken cancellationToken = default)
+    {
+        if (shiftIds.Count == 0)
+        {
+            return new Dictionary<Guid, List<ShiftRequiredQualification>>();
+        }
+
+        var shiftIdSet = shiftIds.ToHashSet();
+
+        var requiredQualifications = await _context.ShiftRequiredQualification
+            .Where(q => shiftIdSet.Contains(q.ShiftId) && !q.IsDeleted)
+            .Include(q => q.Qualification)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        return requiredQualifications
+            .GroupBy(q => q.ShiftId)
+            .ToDictionary(g => g.Key, g => g.ToList());
     }
 
     public IQueryable<ShiftDayAssignment> GetShiftScheduleQuery(

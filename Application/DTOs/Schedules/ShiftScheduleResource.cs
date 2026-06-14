@@ -37,4 +37,6 @@ public class ShiftScheduleResource
     public int Engaged { get; set; }
 
     public short SporadicStatus { get; set; }
+
+    public List<ScheduleQualificationResource> Qualifications { get; set; } = new();
 }

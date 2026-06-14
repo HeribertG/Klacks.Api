@@ -18,9 +18,19 @@ namespace Klacks.Api.Application.Mappers;
 
 public partial class ScheduleMapper
 {
+    [MapProperty(nameof(ShiftDayAssignment.RequiredQualifications), nameof(ShiftScheduleResource.Qualifications))]
     public partial ShiftScheduleResource ToShiftScheduleResource(ShiftDayAssignment assignment);
 
     public partial List<ShiftScheduleResource> ToShiftScheduleResourceList(List<ShiftDayAssignment> assignments);
+
+    private ScheduleQualificationResource ToScheduleQualificationResource(ShiftRequiredQualification required) => new()
+    {
+        QualificationId = required.QualificationId,
+        Emoji = required.Qualification?.Emoji,
+        Name = required.Qualification?.Name ?? new MultiLanguage(),
+        Level = required.MinLevel,
+        ValidUntil = null,
+    };
 
     [MapProperty(nameof(ScheduleCell.Description), nameof(WorkScheduleResource.Description), Use = nameof(MapDescriptionJsonToMultiLanguage))]
     public partial WorkScheduleResource ToWorkScheduleResource(ScheduleCell entry);

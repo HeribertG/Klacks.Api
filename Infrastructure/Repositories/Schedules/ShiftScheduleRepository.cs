@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Domain.DTOs.Filter;
@@ -85,6 +86,8 @@ public class ShiftScheduleRepository : IShiftScheduleRepository
             .Where(s => paginatedShiftIds.Contains(s.ShiftId))
             .ToList();
 
+        await AttachRequiredQualificationsAsync(result, cancellationToken);
+
         _logger.LogInformation(
             "Retrieved {Count} shift schedule entries for {ShiftCount} of {TotalCount} shifts",
             result.Count,
@@ -111,9 +114,40 @@ public class ShiftScheduleRepository : IShiftScheduleRepository
             .Select(p => (p.ShiftId, DateOnly.FromDateTime(p.Date)))
             .ToList();
 
-        return await _shiftScheduleService.GetShiftSchedulePartialAsync(
+        var assignments = await _shiftScheduleService.GetShiftSchedulePartialAsync(
             shiftDatePairs,
             filter.AnalyseToken,
             cancellationToken);
+
+        await AttachRequiredQualificationsAsync(assignments, cancellationToken);
+
+        return assignments;
+    }
+
+    private async Task AttachRequiredQualificationsAsync(
+        List<ShiftDayAssignment> assignments,
+        CancellationToken cancellationToken)
+    {
+        if (assignments.Count == 0)
+        {
+            return;
+        }
+
+        var shiftIds = assignments
+            .Select(a => a.ShiftId)
+            .Distinct()
+            .ToList();
+
+        var qualificationsByShift = await _shiftScheduleService.GetRequiredQualificationsByShiftAsync(
+            shiftIds,
+            cancellationToken);
+
+        foreach (var assignment in assignments)
+        {
+            assignment.RequiredQualifications =
+                qualificationsByShift.TryGetValue(assignment.ShiftId, out var qualifications)
+                    ? qualifications
+                    : new List<ShiftRequiredQualification>();
+        }
     }
 }

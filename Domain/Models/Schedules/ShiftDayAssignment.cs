@@ -1,6 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-﻿namespace Klacks.Api.Domain.Models.Schedules;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Klacks.Api.Domain.Models.Associations;
+
+namespace Klacks.Api.Domain.Models.Schedules;
 
 public class ShiftDayAssignment
 {
@@ -39,4 +42,7 @@ public class ShiftDayAssignment
     public int Engaged { get; set; }
 
     public short SporadicStatus { get; set; }
+
+    [NotMapped]
+    public List<ShiftRequiredQualification> RequiredQualifications { get; set; } = new();
 }

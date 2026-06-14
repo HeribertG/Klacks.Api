@@ -14,5 +14,6 @@ public class ShiftDayAssignmentConfiguration : IEntityTypeConfiguration<ShiftDay
     public void Configure(EntityTypeBuilder<ShiftDayAssignment> builder)
     {
         builder.HasNoKey();
+        builder.Ignore(x => x.RequiredQualifications);
     }
 }
