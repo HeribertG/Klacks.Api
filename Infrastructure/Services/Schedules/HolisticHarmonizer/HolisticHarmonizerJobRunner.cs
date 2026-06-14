@@ -26,7 +26,12 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer;
 public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
 {
     private const int ClientJoinDelayMs = 500;
-    private static readonly TimeSpan TimeBudget = TimeSpan.FromSeconds(120);
+
+    // The engine self-limits its inner loop to 90s, but an LLM call started just before
+    // that boundary may legitimately run up to 60s longer. The hard budget must cover
+    // pre-flight + inner loop + one full LLM call so a straddling call does not discard
+    // every batch accepted so far.
+    private static readonly TimeSpan TimeBudget = TimeSpan.FromSeconds(180);
 
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IHubContext<HolisticHarmonizerJobHub, IHolisticHarmonizerJobClient> _hubContext;

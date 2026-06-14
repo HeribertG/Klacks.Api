@@ -22,6 +22,8 @@ public sealed class WizardJobRunner : IWizardJobRunner
 {
     private const int ClientJoinDelayMs = 500;
     private static readonly TimeSpan WizardTimeBudget = TimeSpan.FromSeconds(90);
+    private static readonly TimeSpan HardCancelGrace = TimeSpan.FromSeconds(20);
+    private static readonly TimeSpan MinLoopBudget = TimeSpan.FromSeconds(10);
 
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IHubContext<WizardJobHub, IWizardJobClient> _hubContext;
@@ -47,7 +49,10 @@ public sealed class WizardJobRunner : IWizardJobRunner
     {
         var jobId = Guid.NewGuid();
         var cts = _registry.Register(jobId, externalCt);
-        cts.CancelAfter(WizardTimeBudget);
+
+        // The GA loop honours the soft budget itself (config.MaxRuntime) and returns its
+        // best-so-far solution; the hard cancel only fires when the job hangs outside the loop.
+        cts.CancelAfter(WizardTimeBudget + HardCancelGrace);
 
         _ = Task.Run(() => RunJobAsync(jobId, request, cts.Token));
 
@@ -91,6 +96,14 @@ public sealed class WizardJobRunner : IWizardJobRunner
                 RandomSeed = Guid.NewGuid().GetHashCode(),
             };
             var config = request.TrainingOverrides?.Apply(baseline) ?? baseline;
+
+            var remainingBudget = WizardTimeBudget - stopwatch.Elapsed;
+            if (remainingBudget < MinLoopBudget)
+            {
+                remainingBudget = MinLoopBudget;
+            }
+
+            config = config with { MaxRuntime = remainingBudget };
 
             await group.OnProgress(new WizardJobProgressDto(
                 JobId: jobId,
@@ -138,9 +151,10 @@ public sealed class WizardJobRunner : IWizardJobRunner
             var loopStartMs = stopwatch.ElapsedMilliseconds;
             void Trace(string msg) => _logger.LogInformation("Wizard job {JobId} [GA] {Message}", jobId, msg);
             var best = loop.Run(wizardContext, config, progress, ct, Trace);
+            var timedOut = stopwatch.Elapsed >= WizardTimeBudget;
             _logger.LogInformation(
-                "Wizard job {JobId} GA loop finished in {LoopMs}ms (tokens={TokenCount}, hardViol={Viol}, stage1={Stage1:F1}%)",
-                jobId, stopwatch.ElapsedMilliseconds - loopStartMs, best.Tokens.Count, best.FitnessStage0, best.FitnessStage1 * 100);
+                "Wizard job {JobId} GA loop finished in {LoopMs}ms (tokens={TokenCount}, hardViol={Viol}, stage1={Stage1:F1}%, timedOut={TimedOut})",
+                jobId, stopwatch.ElapsedMilliseconds - loopStartMs, best.Tokens.Count, best.FitnessStage0, best.FitnessStage1 * 100, timedOut);
 
             var (awards, escalations) = BuildAuctionTelemetry(wizardContext, config.RandomSeed, _logger);
             _resultCache.Store(jobId, best, request.AnalyseToken, escalations);
@@ -153,17 +167,17 @@ public sealed class WizardJobRunner : IWizardJobRunner
                 AvailableShiftSlots: wizardContext.Shifts.Count,
                 Tokens: MapTokens(best.Tokens),
                 Awards: awards,
-                Escalations: escalations));
+                Escalations: escalations,
+                TimedOut: timedOut));
         }
         catch (OperationCanceledException)
         {
-            // Distinguish user cancel from time-budget timeout: when the budget
-            // elapses we surface OnFailed so the modal shows that the GA could
-            // not finish in the allotted time instead of silently appearing as
-            // a normal cancellation.
-            if (stopwatch.Elapsed >= WizardTimeBudget)
+            // The GA loop itself ends gracefully at the soft budget, so this path is only
+            // reached when the job hung outside the loop (context build, telemetry, store)
+            // long enough for the hard cancel to fire — or when the user cancelled.
+            if (stopwatch.Elapsed >= WizardTimeBudget + HardCancelGrace)
             {
-                var msg = $"GA loop exceeded the {WizardTimeBudget.TotalSeconds:F0}s time budget; reduce the agent or shift selection or shorten the period.";
+                var msg = $"Wizard job exceeded the {(WizardTimeBudget + HardCancelGrace).TotalSeconds:F0}s hard time limit; reduce the agent or shift selection or shorten the period.";
                 _logger.LogWarning("Wizard job {JobId} timed out after {Elapsed}: {Message}", jobId, stopwatch.Elapsed, msg);
                 try { await group.OnFailed(msg); } catch { /* notification best-effort */ }
             }

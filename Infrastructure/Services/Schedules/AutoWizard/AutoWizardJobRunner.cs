@@ -157,7 +157,8 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 AnalyseToken: request.AnalyseToken,
                 TrainingOverrides: null,
                 ContextDaysBefore: request.ContextDaysBefore,
-                ContextDaysAfter: request.ContextDaysAfter),
+                ContextDaysAfter: request.ContextDaysAfter,
+                AgentOrderIsUserDefined: request.AgentOrderIsUserDefined),
             ct);
 
         await WaitForStageAsync(_wizardRegistry.IsRunning, stageJobId, "Wizard", ct);

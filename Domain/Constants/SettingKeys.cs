@@ -34,4 +34,13 @@ public static class SettingKeys
     public const string SchedulingMaxDailyHours = "SCHEDULING_MAX_DAILY_HOURS";
     public const string SchedulingMaxWeeklyHours = "SCHEDULING_MAX_WEEKLY_HOURS";
     public const string SchedulingMaxConsecutiveDays = "SCHEDULING_MAX_CONSECUTIVE_DAYS";
+
+    public const string SchedulingDefaultWorkOnMonday = "SCHEDULING_DEFAULT_WORK_ON_MONDAY";
+    public const string SchedulingDefaultWorkOnTuesday = "SCHEDULING_DEFAULT_WORK_ON_TUESDAY";
+    public const string SchedulingDefaultWorkOnWednesday = "SCHEDULING_DEFAULT_WORK_ON_WEDNESDAY";
+    public const string SchedulingDefaultWorkOnThursday = "SCHEDULING_DEFAULT_WORK_ON_THURSDAY";
+    public const string SchedulingDefaultWorkOnFriday = "SCHEDULING_DEFAULT_WORK_ON_FRIDAY";
+    public const string SchedulingDefaultWorkOnSaturday = "SCHEDULING_DEFAULT_WORK_ON_SATURDAY";
+    public const string SchedulingDefaultWorkOnSunday = "SCHEDULING_DEFAULT_WORK_ON_SUNDAY";
+    public const string SchedulingDefaultPerformsShiftWork = "SCHEDULING_DEFAULT_PERFORMS_SHIFT_WORK";
 }

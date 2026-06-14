@@ -16,6 +16,7 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// crossing the period start. Default 14. Override with 0 to disable.
 /// </param>
 /// <param name="ContextDaysAfter">Same as <paramref name="ContextDaysBefore"/>, after <paramref name="PeriodUntil"/>.</param>
+/// <param name="AgentOrderIsUserDefined">True when AgentIds reflects an individual roster order arranged by the user; stage 1 then uses it as the top-down priority order verbatim instead of reshaping by guaranteed hours.</param>
 public sealed record StartAutoWizardRequest(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
@@ -25,4 +26,5 @@ public sealed record StartAutoWizardRequest(
     Guid? AnalyseToken,
     string? Language,
     int ContextDaysBefore = ScenarioConstants.BoundaryDays,
-    int ContextDaysAfter = ScenarioConstants.BoundaryDays);
+    int ContextDaysAfter = ScenarioConstants.BoundaryDays,
+    bool AgentOrderIsUserDefined = false);

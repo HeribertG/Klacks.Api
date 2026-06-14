@@ -88,7 +88,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         {
             PeriodFrom = request.PeriodFrom,
             PeriodUntil = request.PeriodUntil,
-            Agents = agentSnapshot.Agents,
+            Agents = BuildRosterPriorityOrder(agentSnapshot.Agents, request.AgentOrderIsUserDefined),
             Shifts = shifts,
             ContractDays = agentSnapshot.ContractDays,
             ScheduleCommands = periodConstraints.ScheduleCommands,
@@ -106,6 +106,25 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
             SchedulingMaxWeeklyHours = defaults.MaxWeeklyHours > 0 ? (double)defaults.MaxWeeklyHours : WizardSchedulingDefaults.MaxWeeklyHours,
             AnalyseToken = request.AnalyseToken,
         };
+    }
+
+    /// <summary>
+    /// Establishes the canonical top-down roster priority order consumed by the optimizer:
+    /// position 0 gets the most accurate plan, the bottom takes what is left. A hand-arranged
+    /// user order is kept verbatim; the regular list order is reshaped by contractually
+    /// guaranteed hours (descending). The sort is stable, so ties keep the incoming order.
+    /// </summary>
+    private static IReadOnlyList<CoreAgent> BuildRosterPriorityOrder(
+        IReadOnlyList<CoreAgent> agentsInBaseOrder, bool agentOrderIsUserDefined)
+    {
+        if (agentOrderIsUserDefined)
+        {
+            return agentsInBaseOrder;
+        }
+
+        return agentsInBaseOrder
+            .OrderByDescending(a => a.GuaranteedHours)
+            .ToList();
     }
 
     private async Task<IReadOnlyDictionary<Guid, double>> LoadCurrentHoursAsync(

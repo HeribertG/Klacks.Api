@@ -80,7 +80,11 @@ public class ClientContractDataProvider : IClientContractDataProvider
             SettingKeys.SchedulingMaxWorkDays, SettingKeys.SchedulingMinRestDays,
             SettingKeys.SchedulingMinPauseHours, SettingKeys.SchedulingMaxOptimalGap,
             SettingKeys.SchedulingMaxDailyHours, SettingKeys.SchedulingMaxWeeklyHours,
-            SettingKeys.SchedulingMaxConsecutiveDays
+            SettingKeys.SchedulingMaxConsecutiveDays,
+            SettingKeys.SchedulingDefaultWorkOnMonday, SettingKeys.SchedulingDefaultWorkOnTuesday,
+            SettingKeys.SchedulingDefaultWorkOnWednesday, SettingKeys.SchedulingDefaultWorkOnThursday,
+            SettingKeys.SchedulingDefaultWorkOnFriday, SettingKeys.SchedulingDefaultWorkOnSaturday,
+            SettingKeys.SchedulingDefaultWorkOnSunday, SettingKeys.SchedulingDefaultPerformsShiftWork
         };
 
         var settings = await _context.Settings
@@ -107,7 +111,15 @@ public class ClientContractDataProvider : IClientContractDataProvider
             MaxOptimalGap = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SchedulingMaxOptimalGap)),
             MaxDailyHours = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SchedulingMaxDailyHours)),
             MaxWeeklyHours = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SchedulingMaxWeeklyHours)),
-            MaxConsecutiveDays = ParseInt(settings.GetValueOrDefault(SettingKeys.SchedulingMaxConsecutiveDays))
+            MaxConsecutiveDays = ParseInt(settings.GetValueOrDefault(SettingKeys.SchedulingMaxConsecutiveDays)),
+            WorkOnMonday = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultWorkOnMonday)),
+            WorkOnTuesday = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultWorkOnTuesday)),
+            WorkOnWednesday = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultWorkOnWednesday)),
+            WorkOnThursday = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultWorkOnThursday)),
+            WorkOnFriday = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultWorkOnFriday)),
+            WorkOnSaturday = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultWorkOnSaturday)),
+            WorkOnSunday = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultWorkOnSunday)),
+            PerformsShiftWork = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultPerformsShiftWork))
         };
     }
 
@@ -182,7 +194,16 @@ public class ClientContractDataProvider : IClientContractDataProvider
 
             HasActiveContract = false,
             ContractId = null,
-            SchedulingRuleId = null
+            SchedulingRuleId = null,
+
+            WorkOnMonday = defaults.WorkOnMonday,
+            WorkOnTuesday = defaults.WorkOnTuesday,
+            WorkOnWednesday = defaults.WorkOnWednesday,
+            WorkOnThursday = defaults.WorkOnThursday,
+            WorkOnFriday = defaults.WorkOnFriday,
+            WorkOnSaturday = defaults.WorkOnSaturday,
+            WorkOnSunday = defaults.WorkOnSunday,
+            PerformsShiftWork = defaults.PerformsShiftWork
         };
     }
 
@@ -200,6 +221,17 @@ public class ClientContractDataProvider : IClientContractDataProvider
             return 0;
 
         return int.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) ? result : 0;
+    }
+
+    // Absent rows default to true: the seed ships every SCHEDULING_DEFAULT_* flag as true and a
+    // contract-less fallback that cannot work on any day would silently exclude the client from
+    // planning (observed live: only early shifts were planned for a whole month).
+    private static bool ParseBool(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return true;
+
+        return !string.Equals(value, "false", StringComparison.OrdinalIgnoreCase);
     }
 
     private sealed record DefaultSettings
@@ -223,5 +255,13 @@ public class ClientContractDataProvider : IClientContractDataProvider
         public decimal MaxDailyHours { get; init; }
         public decimal MaxWeeklyHours { get; init; }
         public int MaxConsecutiveDays { get; init; }
+        public bool WorkOnMonday { get; init; }
+        public bool WorkOnTuesday { get; init; }
+        public bool WorkOnWednesday { get; init; }
+        public bool WorkOnThursday { get; init; }
+        public bool WorkOnFriday { get; init; }
+        public bool WorkOnSaturday { get; init; }
+        public bool WorkOnSunday { get; init; }
+        public bool PerformsShiftWork { get; init; }
     }
 }

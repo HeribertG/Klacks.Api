@@ -22,6 +22,8 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
     private const int ClientJoinDelayMs = 500;
     private const double DefaultEmergencyThreshold = 0.5;
     private static readonly TimeSpan TimeBudget = TimeSpan.FromSeconds(120);
+    private static readonly TimeSpan HardCancelGrace = TimeSpan.FromSeconds(20);
+    private static readonly TimeSpan MinLoopBudget = TimeSpan.FromSeconds(10);
 
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IHubContext<HarmonizerJobHub, IHarmonizerJobClient> _hubContext;
@@ -47,7 +49,10 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
     {
         var jobId = Guid.NewGuid();
         var cts = _registry.Register(jobId, externalCt);
-        cts.CancelAfter(TimeBudget);
+
+        // The evolution loop honours the soft budget itself (config.MaxRuntime) and returns
+        // its best-so-far arrangement; the hard cancel only fires when the job hangs outside it.
+        cts.CancelAfter(TimeBudget + HardCancelGrace);
 
         _ = Task.Run(() => RunJobAsync(jobId, request, cts.Token));
 
@@ -82,7 +87,14 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
             var validator = new DomainAwareReplaceValidator(input.Availability, input.BoundaryAssignments);
             var fitness = new HarmonyFitnessEvaluator(scorer);
             var stochasticMutation = new StochasticBitmapMutation(validator);
-            var config = new HarmonizerEvolutionConfig();
+
+            var remainingBudget = TimeBudget - stopwatch.Elapsed;
+            if (remainingBudget < MinLoopBudget)
+            {
+                remainingBudget = MinLoopBudget;
+            }
+
+            var config = new HarmonizerEvolutionConfig(MaxRuntime: remainingBudget);
 
             HarmonizerConductor BuildConductor(int rowCount)
             {
@@ -110,6 +122,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
             });
 
             var result = await Task.Run(() => loop.Run(sortedBitmap, progress, ct), ct);
+            var timedOut = stopwatch.Elapsed >= TimeBudget;
 
             _resultCache.Store(jobId, originalForCache, result.Best.Bitmap, request.AnalyseToken);
 
@@ -119,19 +132,22 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
                 GlobalFitnessBefore: initialFitness.Fitness,
                 GlobalFitnessAfter: result.Best.Fitness,
                 GenerationsRun: result.GenerationFitness.Count - 1,
-                RowResults: rowResults));
+                RowResults: rowResults,
+                TimedOut: timedOut));
 
             _logger.LogInformation(
-                "Harmonizer job {JobId} finished in {Ms}ms (fitness {Before:F3} -> {After:F3})",
-                jobId, stopwatch.ElapsedMilliseconds, initialFitness.Fitness, result.Best.Fitness);
+                "Harmonizer job {JobId} finished in {Ms}ms (fitness {Before:F3} -> {After:F3}, timedOut={TimedOut})",
+                jobId, stopwatch.ElapsedMilliseconds, initialFitness.Fitness, result.Best.Fitness, timedOut);
 
             await EmitTelemetryAsync(scope, jobId, request, initialFitness.Fitness, result, stopwatch.ElapsedMilliseconds, ct);
         }
         catch (OperationCanceledException)
         {
-            if (stopwatch.Elapsed >= TimeBudget)
+            // The evolution loop ends gracefully at the soft budget; this path is only
+            // reached when the job hung outside the loop or the user cancelled.
+            if (stopwatch.Elapsed >= TimeBudget + HardCancelGrace)
             {
-                var msg = $"Harmonizer exceeded the {TimeBudget.TotalSeconds:F0}s time budget.";
+                var msg = $"Harmonizer exceeded the {(TimeBudget + HardCancelGrace).TotalSeconds:F0}s hard time limit.";
                 _logger.LogWarning("Harmonizer job {JobId} timed out: {Message}", jobId, msg);
                 try { await group.OnFailed(msg); } catch { /* notification best-effort */ }
             }

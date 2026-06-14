@@ -40,7 +40,8 @@ public sealed class WizardController : BaseController
                 AgentIds: request.AgentIds,
                 ShiftIds: request.ShiftIds,
                 AnalyseToken: request.AnalyseToken,
-                TrainingOverrides: request.TrainingOverrides),
+                TrainingOverrides: request.TrainingOverrides,
+                AgentOrderIsUserDefined: request.AgentOrderIsUserDefined),
             ct);
 
         return Ok(new StartWizardResponse(jobId));

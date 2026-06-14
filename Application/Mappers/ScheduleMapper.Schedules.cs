@@ -4,6 +4,7 @@
 /// Partial class for Schedule, WorkChange, Expenses, Notes and SchedulingRule mappings.
 /// </summary>
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Staffs;
@@ -45,6 +46,15 @@ public partial class ScheduleMapper
     public partial WorkScheduleClientResource ToWorkScheduleClientResource(Client client);
 
     public partial List<WorkScheduleClientResource> ToWorkScheduleClientResourceList(List<Client> clients);
+
+    private ScheduleQualificationResource ToScheduleQualificationResource(ClientQualification qualification) => new()
+    {
+        QualificationId = qualification.QualificationId,
+        Emoji = qualification.Qualification?.Emoji,
+        Name = qualification.Qualification?.Name ?? new MultiLanguage(),
+        Level = qualification.Level,
+        ValidUntil = qualification.ValidUntil,
+    };
 
     public partial WorkChangeResource ToWorkChangeResource(WorkChange workChange);
 

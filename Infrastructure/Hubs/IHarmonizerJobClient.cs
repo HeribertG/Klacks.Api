@@ -43,9 +43,11 @@ public sealed record HarmonizerRowResultDto(
 /// <param name="GlobalFitnessAfter">Weighted fitness of the harmonised schedule</param>
 /// <param name="GenerationsRun">Number of GA generations that actually executed</param>
 /// <param name="RowResults">Per-agent before/after summary</param>
+/// <param name="TimedOut">True when the loop stopped because the soft time budget elapsed; the result is the best arrangement found up to that point</param>
 public sealed record HarmonizerJobResultDto(
     Guid JobId,
     double GlobalFitnessBefore,
     double GlobalFitnessAfter,
     int GenerationsRun,
-    IReadOnlyList<HarmonizerRowResultDto> RowResults);
+    IReadOnlyList<HarmonizerRowResultDto> RowResults,
+    bool TimedOut = false);

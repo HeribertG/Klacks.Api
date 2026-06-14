@@ -35,6 +35,11 @@ public interface IWizardContextBuilder
 /// Default 14 covers the longest realistic streak plus weekly caps.
 /// </param>
 /// <param name="ContextDaysAfter">Same as <paramref name="ContextDaysBefore"/>, applied after <paramref name="PeriodUntil"/>.</param>
+/// <param name="AgentOrderIsUserDefined">
+/// True when <paramref name="AgentIds"/> reflects an individual roster order the user arranged by hand —
+/// that order is then used as the top-down priority order unchanged. False (default) means the order is the
+/// regular list sort and the builder reshapes it by contractually guaranteed hours (descending, stable).
+/// </param>
 public sealed record WizardContextRequest(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
@@ -43,4 +48,5 @@ public sealed record WizardContextRequest(
     Guid? AnalyseToken,
     WizardTrainingOverrides? TrainingOverrides = null,
     int ContextDaysBefore = 14,
-    int ContextDaysAfter = 14);
+    int ContextDaysAfter = 14,
+    bool AgentOrderIsUserDefined = false);

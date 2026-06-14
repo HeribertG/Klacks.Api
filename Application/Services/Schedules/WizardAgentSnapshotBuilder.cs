@@ -7,8 +7,12 @@ using Klacks.ScheduleOptimizer.Models;
 namespace Klacks.Api.Application.Services.Schedules;
 
 /// <summary>
-/// Builds CoreAgents (one per agent) and CoreContractDays (one per active agent-date pair) from
+/// Builds CoreAgents (one per agent) and CoreContractDays (one per agent-date pair) from
 /// effective contract data. Handles mid-period contract switches by querying the provider per date.
+/// The agent master data comes from the FIRST day inside the period that has an active contract —
+/// a contract starting mid-period must not leave the agent stuck on the contract-less defaults of
+/// day one. Days without an active contract are marked WorksOnDay=false; agents without any active
+/// contract in the whole period are excluded.
 /// </summary>
 /// <param name="contractProvider">Source of effective contract data per client and date</param>
 public sealed class WizardAgentSnapshotBuilder
@@ -28,21 +32,13 @@ public sealed class WizardAgentSnapshotBuilder
         CancellationToken ct)
     {
         var contractDays = new List<CoreContractDay>();
-        var firstDayContracts = new Dictionary<Guid, EffectiveContractData>();
+        var contractBasis = new Dictionary<Guid, EffectiveContractData>();
 
         for (var date = from; date <= until; date = date.AddDays(1))
         {
             ct.ThrowIfCancellationRequested();
             var perDay = await _contractProvider.GetEffectiveContractDataForClientsAsync(
                 agentIds.ToList(), date);
-
-            if (date == from)
-            {
-                foreach (var kv in perDay)
-                {
-                    firstDayContracts[kv.Key] = kv.Value;
-                }
-            }
 
             foreach (var agentId in agentIds)
             {
@@ -51,7 +47,14 @@ public sealed class WizardAgentSnapshotBuilder
                     continue;
                 }
 
-                var worksOnDay = GetWorkOnDayFlag(data, date.DayOfWeek);
+                if (data.HasActiveContract && !contractBasis.ContainsKey(agentId))
+                {
+                    contractBasis[agentId] = data;
+                }
+
+                // Days before/after the agent's contract are hard non-working days regardless
+                // of the weekday flags — the fallback data must never make them plannable.
+                var worksOnDay = data.HasActiveContract && GetWorkOnDayFlag(data, date.DayOfWeek);
                 contractDays.Add(new CoreContractDay(
                     AgentId: agentId.ToString(),
                     Date: date,
@@ -63,8 +66,12 @@ public sealed class WizardAgentSnapshotBuilder
             }
         }
 
-        var agents = firstDayContracts
-            .Select(kv => BuildAgent(kv.Key, kv.Value, currentHoursPerAgent.GetValueOrDefault(kv.Key, 0)))
+        // Preserve the caller's roster order: it is the user's base ordering and downstream
+        // consumers (auction IndexBonus, fitness Stage2 decay, repair top-bias) treat the
+        // position in this list as the top-down priority rank.
+        var agents = agentIds
+            .Where(contractBasis.ContainsKey)
+            .Select(id => BuildAgent(id, contractBasis[id], currentHoursPerAgent.GetValueOrDefault(id, 0)))
             .ToList();
 
         return new AgentSnapshotResult(agents, contractDays);
@@ -119,8 +126,8 @@ public sealed class WizardAgentSnapshotBuilder
 /// <summary>
 /// Result of <see cref="WizardAgentSnapshotBuilder.BuildAsync"/>.
 /// </summary>
-/// <param name="Agents">One CoreAgent per agent id with non-empty contract data on the first day</param>
-/// <param name="ContractDays">One CoreContractDay per (agent, date) pair within the period</param>
+/// <param name="Agents">One CoreAgent per agent id that has an active contract on at least one day of the period, based on the first active day</param>
+/// <param name="ContractDays">One CoreContractDay per (agent, date) pair within the period; WorksOnDay is false on days without an active contract</param>
 public sealed record AgentSnapshotResult(
     IReadOnlyList<CoreAgent> Agents,
     IReadOnlyList<CoreContractDay> ContractDays);
