@@ -3,6 +3,7 @@
 using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.Extensions.Logging;
 
@@ -11,13 +12,16 @@ namespace Klacks.Api.Application.Services;
 public class SkillUsageTrackerService : ISkillUsageTracker
 {
     private readonly ISkillUsageRepository _repository;
+    private readonly ISkillSequenceProactiveNotifier _proactiveNotifier;
     private readonly ILogger<SkillUsageTrackerService> _logger;
 
     public SkillUsageTrackerService(
         ISkillUsageRepository repository,
+        ISkillSequenceProactiveNotifier proactiveNotifier,
         ILogger<SkillUsageTrackerService> logger)
     {
         _repository = repository;
+        _proactiveNotifier = proactiveNotifier;
         _logger = logger;
     }
 
@@ -57,6 +61,18 @@ public class SkillUsageTrackerService : ISkillUsageTracker
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to track skill usage for {SkillName}", descriptor.Name);
+        }
+
+        if (result.Success)
+        {
+            try
+            {
+                await _proactiveNotifier.NotifyAfterSkillAsync(descriptor.Name, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Proactive skill-sequence suggestion failed for {SkillName}", descriptor.Name);
+            }
         }
     }
 

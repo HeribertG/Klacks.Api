@@ -724,6 +724,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISkillRelationLearner, Application.Services.Assistant.SkillGraph.SkillRelationLearner>();
         services.AddScoped<ISkillRetrievalExpander, Application.Services.Assistant.SkillGraph.SkillRetrievalExpander>();
         services.AddScoped<ISkillSequenceSuggester, Application.Services.Assistant.SkillGraph.SkillSequenceSuggester>();
+        services.AddScoped<ISkillSequenceProactiveNotifier, Application.Services.Assistant.SkillGraph.SkillSequenceProactiveNotifier>();
         services.AddSingleton<Infrastructure.Services.Assistant.SkillRelationLearningBackgroundService>();
 
         services.AddScoped<GenericListExecutor>();
