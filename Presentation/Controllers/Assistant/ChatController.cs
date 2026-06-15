@@ -363,6 +363,7 @@ public class ChatController : ControllerBase
     }
 
     [HttpGet("warmup")]
+    [DisableRateLimiting]
     public async Task<ActionResult> Warmup(CancellationToken cancellationToken)
     {
         await _skillCacheService.WarmupAsync(cancellationToken);
