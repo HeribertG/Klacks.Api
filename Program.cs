@@ -475,6 +475,9 @@ await Task.WhenAll(
 // Skill Registry depends on LoadSkillSeeds being complete
 await app.InitializeSkillRegistryAsync();
 
+// Substrate prior of the skill-relationship graph depends on skills being seeded
+await app.DeriveSubstratePriorAsync();
+
 app.Run();
 
 static async Task WriteDeepHealthResponse(HttpContext httpContext, HealthReport report)

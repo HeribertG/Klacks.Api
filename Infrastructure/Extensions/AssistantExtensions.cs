@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Services.Assistant;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Infrastructure.Persistence.Seed;
 
 namespace Klacks.Api.Infrastructure.Extensions;
@@ -75,6 +76,14 @@ public static class AssistantExtensions
         using var scope = app.ApplicationServices.CreateScope();
         var seedService = scope.ServiceProvider.GetRequiredService<NavigationTargetSynonymSeedService>();
         await seedService.SeedAsync();
+        return app;
+    }
+
+    public static async Task<IApplicationBuilder> DeriveSubstratePriorAsync(this IApplicationBuilder app)
+    {
+        using var scope = app.ApplicationServices.CreateScope();
+        var deriver = scope.ServiceProvider.GetRequiredService<ISubstratePriorDeriver>();
+        await deriver.DeriveAsync();
         return app;
     }
 }

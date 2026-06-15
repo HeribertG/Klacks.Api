@@ -244,6 +244,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAgentMemoryRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentMemoryRepository>();
         services.AddScoped<IAgentSessionRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSessionRepository>();
         services.AddScoped<IAgentSkillRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSkillRepository>();
+        services.AddScoped<ISkillRelationRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillRelationRepository>();
         services.AddScoped<INavigationTargetSynonymRepository, Klacks.Api.Infrastructure.Repositories.Assistant.NavigationTargetSynonymRepository>();
         services.AddScoped<IGlobalAgentRuleRepository, Klacks.Api.Infrastructure.Repositories.Assistant.GlobalAgentRuleRepository>();
         services.AddScoped<IUiControlRepository, Klacks.Api.Infrastructure.Repositories.Assistant.UiControlRepository>();
@@ -719,6 +720,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Persistence.Seed.NavigationTargetSynonymSeedService>();
         services.AddScoped<Persistence.Seed.KlacksyKnowledgeMemorySeed>();
         services.AddScoped<Application.Services.Assistant.SkillRegistryInitializer>();
+        services.AddScoped<ISubstratePriorDeriver, Application.Services.Assistant.SkillGraph.SubstratePriorDeriver>();
 
         services.AddScoped<GenericListExecutor>();
         services.AddScoped<GenericDeleteExecutor>();
