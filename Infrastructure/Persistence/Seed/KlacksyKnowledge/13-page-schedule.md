@@ -51,11 +51,30 @@ triggerKeywords:
   - verfügbarkeit
   - availability
   - befehle anzeigen
+  - drag and drop
+  - drag & drop
+  - ziehen
+  - texteingabe
+  - kürzel
+  - direct input
+  - tabellenansicht
+  - zeitleiste
+  - ansicht wechseln
+  - qualifikation
+  - qualification
+  - bubble
+  - zeilenkopf
+  - row header
+  - kontextmenü
+  - context menu
+  - rechtsklick
+  - pausen balken
+  - absenz balken
 synonyms:
-  de: [was sehe ich hier, erkläre diese seite, was bedeutet dieses raster, was bedeutet diese ansicht, einsatzplan, dienstplan, schichtplan, plantafel, was sind die buttons in der toolbar, kopfleiste, stunden neuberechnen, einsatzplan als pdf, szenario übernehmen, szenario verwerfen, versiegelte tage, gesperrte einträge, warum kann ich nicht bearbeiten, gewünschte absenzen, tagesverlauf, dienst buchen]
-  en: [what do i see here, explain this page, what does this grid mean, schedule, schedule page, roster, duty plan, what are the toolbar buttons, recalculate hours, how do i recalculate period hours, export schedule as pdf, accept scenario, reject scenario, sealed days, locked entries, why can't i edit, day timeline, book a shift]
-  fr: [que vois-je ici, explique cette page, que signifie cette vue, planning, plan de service, horaire, boutons de la barre d'outils, recalculer les heures, exporter le planning en pdf, accepter le scénario, rejeter le scénario, jours scellés, entrées verrouillées, pourquoi je ne peux pas modifier, déroulé de la journée]
-  it: [cosa vedo qui, spiega questa pagina, cosa significa questa vista, pianificazione, piano di servizio, turni, pulsanti della barra degli strumenti, ricalcolare le ore, esportare la pianificazione in pdf, accettare lo scenario, rifiutare lo scenario, giorni sigillati, voci bloccate, perché non posso modificare, andamento giornaliero]
+  de: [was sehe ich hier, erkläre diese seite, was bedeutet dieses raster, was bedeutet diese ansicht, einsatzplan, dienstplan, schichtplan, plantafel, was sind die buttons in der toolbar, kopfleiste, stunden neuberechnen, einsatzplan als pdf, szenario übernehmen, szenario verwerfen, versiegelte tage, gesperrte einträge, warum kann ich nicht bearbeiten, gewünschte absenzen, tagesverlauf, dienst buchen, wie buche ich einen dienst, schicht eintippen, kürzel eingeben, ansicht wechseln, tabelle oder zeitleiste, qualifikationen anzeigen, qualifikationskreise, was bedeuten die kreise, zeilenkopf rechtsklick, kontextmenü einsatzplan, pausen platzhalter, verfügbarkeit einblenden, dienst präferenzen]
+  en: [what do i see here, explain this page, what does this grid mean, schedule, schedule page, roster, duty plan, what are the toolbar buttons, recalculate hours, how do i recalculate period hours, export schedule as pdf, accept scenario, reject scenario, sealed days, locked entries, why can't i edit, day timeline, book a shift, how to book a shift, type abbreviation, direct text input, switch view, table or timeline, qualification bubbles, what are the circles, row header right click, context menu schedule, absence bar, availability overlay, shift preferences]
+  fr: [que vois-je ici, explique cette page, que signifie cette vue, planning, plan de service, horaire, boutons de la barre d'outils, recalculer les heures, exporter le planning en pdf, accepter le scénario, rejeter le scénario, jours scellés, entrées verrouillées, pourquoi je ne peux pas modifier, déroulé de la journée, réserver un service, saisie directe, changer de vue, tableau ou chronologie, bulles de qualification, menu contextuel planning, barres d'absence, disponibilité]
+  it: [cosa vedo qui, spiega questa pagina, cosa significa questa vista, pianificazione, piano di servizio, turni, pulsanti della barra degli strumenti, ricalcolare le ore, esportare la pianificazione in pdf, accettare lo scenario, rifiutare lo scenario, giorni sigillati, voci bloccate, perché non posso modificare, andamento giornaliero, prenotare un turno, inserimento diretto, cambiare vista, tabella o cronologia, bolle qualifica, menu contestuale pianificazione, barre assenza, disponibilità]
 ---
 
 # Einsatzplan — die Plantafel (/workplace/schedule)
@@ -65,14 +84,18 @@ synonyms:
 ## Stufe 1 — Wofür ist diese Seite?
 
 Der **Einsatzplan** ist die zentrale Plantafel von Klacks: ein Raster **Mitarbeiter × Tage**,
-in dem Schichten per Drag & Drop platziert, geprüft, korrigiert und bestätigt werden.
-Erreichbar über die Route `/workplace/schedule` oder das oberste Navi-Icon `open-schedules`
-(Tooltip **Alle Planungen** (de: "Alle Planungen", en: "All Schedules", fr: "Tous les
-plannings", it: "Tutte le pianificazioni"), Shortcut Alt+1). Welche Mitarbeiterzeilen
-sichtbar sind, bestimmen die globale **Gruppen-Auswahl** und die Suche in der Kopfleiste
-der App. Neben dem Tabellenraster gibt es eine umschaltbare **Tagesverlauf**-Ansicht
-(Timeline pro Tag), und automatische Planungsläufe (Wizard/Harmonizer) schreiben ihre
-Ergebnisse als Szenario, das der Planer übernehmen oder verwerfen muss.
+in dem Schichten per Drag & Drop, Texteingabe oder Kontextmenü platziert, geprüft, korrigiert
+und bestätigt werden. Erreichbar über die Route `/workplace/schedule` oder das oberste
+Navi-Icon `open-schedules` (Tooltip **Alle Planungen** (de: "Alle Planungen", en: "All
+Schedules", fr: "Tous les plannings", it: "Tutte le pianificazioni"), Shortcut Alt+1).
+Welche Mitarbeiterzeilen sichtbar sind, bestimmen die globale **Gruppen-Auswahl** und die
+Suche in der Kopfleiste der App. Die Seite bietet zwei Ansichten: die **Tabellenansicht**
+(Raster Mitarbeiter × Tage) und die **Tagesverlauf-Ansicht** (Zeitleiste), umschaltbar per
+Toggle in der Toolbar. Im Zeilenkopf links zeigen kleine farbige Kreise die **Qualifikationen**
+jedes Mitarbeiters. Eingeblendet werden können ausserdem **vorgeplante Absenz-Balken** aus dem
+Absenzen-Kalender und **Verfügbarkeits-Schattierungen**. Automatische Planungsläufe
+(Wizard/Harmonizer) schreiben ihre Ergebnisse als Szenario, das der Planer übernehmen oder
+verwerfen muss.
 
 <!-- level:elements -->
 
@@ -147,6 +170,22 @@ Ergebnisse als Szenario, das der Planer übernehmen oder verwerfen muss.
   Zeilenhöhen-Slider (`schedule-timeline-row-height-slider`).
 - **Zoom-Slider** (`schedule-zoom-slider`, Tabellenmodus): vergrößert/verkleinert das Raster.
 
+### Zwei Ansichten: Tabelle und Tagesverlauf
+
+- **Tabellenansicht** (Standard): das klassische Raster Mitarbeiter × Tage mit farbigen
+  Zellen für Dienste, Absenzen, Notizen und Befehle. Hier sind alle Toolbar-Toggles
+  (Absenz-Balken, Befehle, Verfügbarkeit) und der Zoom-Slider verfügbar.
+- **Tagesverlauf-Ansicht** (de: "Tagesverlauf", en: "Day Timeline", fr: "Déroulé de la
+  journée", it: "Andamento giornaliero"): zeigt alle Mitarbeitenden für einen Tag als
+  Zeitleiste. Der Bereichs-Dropdown (`timeline-range-dropdown`) bietet **24 Std-Ansicht**
+  (de: "24 Std-Ansicht", en: "24h View") und **Tagesansicht** (de: "Tagesansicht", en: "Day
+  View"). Statt des Zoom-Sliders erscheint ein **Zeilenhöhen-Slider**
+  (`schedule-timeline-row-height-slider`). Toggles für Absenz-Balken, Befehle und
+  Verfügbarkeit sind in dieser Ansicht nicht aktiv.
+- **Umschalten**: Schalter `schedule-view-mode-toggle` in der Toolbar (rechts vom
+  Szenario-Button). Die gewählte Ansicht wird im Browser gespeichert und beim nächsten
+  Öffnen der Seite automatisch wiederhergestellt.
+
 ### Zeilenkopf links (Mitarbeiter)
 
 - Spaltentitel **Name** (de/en: "Name", fr: "Nom", it: "Nome"); die Zeilen werden auf einer
@@ -156,39 +195,75 @@ Ergebnisse als Szenario, das der Planer übernehmen oder verwerfen muss.
   (de: "Kein Vertrag", en: "No Contract") markiert Mitarbeitende ohne passenden aktiven
   Vertrag im Zeitraum; ein Punkt mit Tooltip "Änderungen wurden noch nicht versendet"
   (en: "Changes have not been sent yet") markiert Zeilen mit ungesendeten Plan-Änderungen.
+- **Qualifikations-Bubbles**: Im unteren Bereich jeder Mitarbeiter-Zelle erscheinen kleine
+  farbige Kreise mit dem Emoji-Kürzel der jeweiligen Qualifikation (z. B. Pflegestufen,
+  Sprachzertifikate, Führerscheine). Es werden bis zu sechs Kreise angezeigt (bei kleinem
+  Zoom bis drei); wenn mehr Qualifikationen vorhanden sind als Kreise passen, zeigt der
+  letzte Kreis die Anzahl der nicht sichtbaren Qualifikationen. Ein Tooltip beim Hovern
+  nennt den vollständigen Namen der Qualifikation (Emoji + lokalisierter Name). Nur
+  Qualifikationen mit einem Emoji werden als Kreis dargestellt.
 - Das Filter-Popup (`schedule-row-header-filter`) bietet Sortierung nach **Vorname**
   (en: "First Name"), **Nachname** (en: "Last Name"), **Firma** (en: "COMPANY") und
   **Vertraglich garantierte Stunden** (de: "Vertraglich garantierte Stunden", en:
   "Contractually guaranteed hours"), den Modus **Individuell Sortiert** (de: "Individuell
   Sortiert", en: "Individual Sort" — Zeilen per Drag-Handle umordnen) sowie die Checkboxen
   **Mitarbeiter** (en: "Employees") und **Extern** (en: "Ext").
-- Rechtsklick auf eine Zeile: **Adresse anzeigen** (en: "Show address"), **Dienstplan
-  ausdrucken** (en: "Print Staff Schedule"), **Dienstplan versenden** (en: "Send Staff
-  Schedule") und **Dienst-Präferenzen...** (en: "Shift Preferences...").
+- **Kontextmenü Zeilenkopf** (Rechtsklick auf eine Mitarbeiterzeile): **Adresse anzeigen**
+  (en: "Show address") — navigiert zur Personenmaske; **Dienstplan ausdrucken** (en: "Print
+  Staff Schedule") — erzeugt ein PDF des persönlichen Dienstplans für diesen Mitarbeiter
+  (nur sichtbar, wenn eine Vorlage hinterlegt ist); **Dienstplan versenden** (en: "Send Staff
+  Schedule") — verschickt den persönlichen Dienstplan per E-Mail (nur sichtbar, wenn Vorlage
+  und E-Mail-Konfiguration vorhanden sind); **Dienst-Präferenzen...** (en: "Shift
+  Preferences...") — öffnet den Dialog für die persönlichen Schicht-Präferenzen dieses
+  Mitarbeiters.
 
 ### Planungsraster (Mitarbeiter × Tage)
 
 - Zell-Typen: Dienst-Einträge, Korrekturen/Ablösungen/An- u. Abreise/Briefing,
   **Spesen/Vergütung** (steuerpflichtig = Spesen, nicht steuerpflichtig = Vergütung),
   Absenzen sowie Notizen und Planungs-Befehle.
-- **Drag & Drop**: Schichten aus der unteren Schicht-Sektion in eine Zelle ziehen;
-  bestehende Zelleinträge lassen sich verschieben oder per Zieh-Geste löschen.
-  **Doppelklick** öffnet den passenden Editier-Dialog (Dienst, Korrektur/Spesen, Container).
-- **Kontextmenü gefüllte Zelle**: Kopieren / Ausschneiden / Einfügen, Löschen,
-  **Korrektur...** (en: "Correction..."), **Anreise/Abreise...** (en: "Travel...", fr:
-  "Trajet...", it: "Viaggio..."), **Briefing/Debriefing...**, **Ablösung...** (en:
-  "Replacement..."), **Spesen...** (en: "Expenses...", fr: "Frais...", it: "Spese..."),
-  **Bearbeiten...**, **Bestätigen** (de: "Bestätigen", en: "Confirm") / **Bestätigung
-  aufheben** (de: "Bestätigung aufheben", en: "Revoke confirmation"), **Im Schichtplan
-  anzeigen** (en: "Show in shift schedule"). Bei Container-Diensten stattdessen
-  **Öffnen...** (en: "Open...") und **Aufteilen** (en: "Split").
-- **Kontextmenü leere Zelle**: **Einfügen** plus die Untermenüs **Dienste...** (de:
-  "Dienste...", en: "Shifts...", fr: "Services...", it: "Turni...") — nur Schichten des
-  Tages mit freier Kapazität — und **Beschäftigungen...** (de: "Beschäftigungen...", en:
-  "Absences...", fr: "Absences...", it: "Assenze...") mit allen Absenz-Arten.
-- **Balken "Gewünschte Absenzen"**: Rechtsklick auf einen Platzhalter-Balken bietet
-  **Löschen** und **Absenz übernehmen** (de: "Absenz übernehmen", en: "Adopt absence") —
-  das wandelt den vorgeplanten Platzhalter Tag für Tag in gebuchte Absenz-Einträge um.
+- **Drag & Drop — Schicht aus der Schicht-Sektion**: Eine Schicht aus dem unteren
+  Schicht-Bereich mit der Maus in eine Zelle des Rasters ziehen — der Dienst wird sofort
+  gebucht. Dies ist der häufigste Weg, eine neue Buchung zu erstellen.
+- **Drag & Drop — Zelle verschieben**: Eine bereits gebuchte Zelle (Dienst oder Absenz)
+  lässt sich vertikal in eine andere Mitarbeiterzeile des gleichen Tages verschieben, indem
+  man sie mit gedrückter Maustaste bewegt. Zieht man die Zelle aus dem Raster heraus (kein
+  gültiges Ziel), erscheint ein Lösch-Indikator und der Eintrag wird entfernt.
+- **Direkte Texteingabe**: Tippt der Planer in eine Zelle die **Kürzel-Abkürzung** einer
+  Schicht (z. B. "F" für Frühdienst) oder die Abkürzung einer Absenz-Art, sucht das System
+  automatisch die passende Schicht des Tages oder die Absenz und bucht sie direkt. Gibt es
+  keine Übereinstimmung, legt die Eingabe eine **Notiz** in der Zelle an. Bestehende Notizen
+  und Planungs-Befehle werden durch erneute Eingabe aktualisiert.
+- **Doppelklick** öffnet den passenden Editier-Dialog (Dienst, Korrektur/Spesen, Container).
+- **Kontextmenü gefüllte Zelle** (Rechtsklick auf einen Diensteintrag): **Kopieren /
+  Ausschneiden / Einfügen**, **Löschen**, **Korrektur...** (en: "Correction..."),
+  **Anreise/Abreise...** (en: "Travel...", fr: "Trajet...", it: "Viaggio..."),
+  **Briefing/Debriefing...**, **Ablösung...** (en: "Replacement..."), **Spesen...**
+  (en: "Expenses...", fr: "Frais...", it: "Spese..."), **Bearbeiten...**, **Bestätigen**
+  (de: "Bestätigen", en: "Confirm") / **Bestätigung aufheben** (de: "Bestätigung aufheben",
+  en: "Revoke confirmation"), **Im Schichtplan anzeigen** (en: "Show in shift schedule"). Bei
+  Container-Diensten stattdessen **Öffnen...** (en: "Open...") und **Aufteilen** (en:
+  "Split"). Für Korrekturen und Spesen: nur **Bearbeiten** und **Löschen**. Für Notizen und
+  Planungs-Befehle: nur **Bearbeiten** und **Löschen**. Bei gesperrten Einträgen ohne
+  Gruppen-Sperre: nur **Bestätigung aufheben** (wenn berechtigt) und **Im Schichtplan
+  anzeigen**.
+- **Kontextmenü leere Zelle** (Rechtsklick auf eine freie Zelle): **Einfügen** (wenn
+  etwas in der Zwischenablage liegt) plus die Untermenüs **Dienste...** (de: "Dienste...",
+  en: "Shifts...", fr: "Services...", it: "Turni...") — nur Schichten des Tages mit freier
+  Kapazität — und **Beschäftigungen...** (de: "Beschäftigungen...", en: "Absences...",
+  fr: "Absences...", it: "Assenze...") mit allen Absenz-Arten.
+- **Pausen-Platzhalter (vorgeplante Absenz-Balken)**: Wenn der Toggle **Gewünschte Absenzen
+  ein-/ausblenden** (`schedule-break-placeholder-toggle`) aktiv ist, erscheinen über den
+  Zellen eines Mitarbeiters farbige Balken, die vorgeplante Absenzen aus dem Absenzen-Kalender
+  anzeigen. Diese Balken sind rein informativ — sie sperren keine Zelle und können die
+  Planung nicht blockieren. Rechtsklick auf einen Balken: **Löschen** (entfernt den
+  Platzhalter) und **Absenz übernehmen** (de: "Absenz übernehmen", en: "Adopt absence",
+  fr: "Adopter l'absence", it: "Adottare l'assenza") — wandelt den Platzhalter Tag für Tag
+  in gebuchte Absenz-Einträge im Einsatzplan um.
+- **Verfügbarkeits-Überlagerung**: Wenn der Toggle **Verfügbarkeit ein-/ausblenden**
+  (`schedule-availability-check-btn`) aktiv ist (er ist nur sichtbar, wenn Verfügbarkeitsdaten
+  für die Periode vorliegen), werden die Zellen des Rasters mit einer Schattierung überlagert,
+  die zeigt, ob der Mitarbeiter an diesem Tag und zu welcher Zeit verfügbar ist.
 - **Locks/Versiegelung**: Einträge mit LockLevel **Confirmed** (grüner Haken), **Approved**
   (gelbes Prüf-Symbol) oder **Closed** (rotes Schloss) sowie gruppenfremde (versiegelte)
   Einträge sind nicht editierbar. Bestätigen geht nur aus dem ungesperrten Zustand;
@@ -209,6 +284,12 @@ Ergebnisse als Szenario, das der Planer übernehmen oder verwerfen muss.
   service PDF", it: "Piano turni PDF").
 - Die Schichtzeilen laufen horizontal synchron zur Datumsachse des Rasters; von hier
   werden Schichten per Drag & Drop in das Raster gebucht.
+- **Qualifikations-Bubbles im Schicht-Zeilenkopf**: Im Zeilenkopf jeder Schicht im
+  unteren Bereich erscheinen — analog zum Mitarbeiter-Zeilenkopf — kleine farbige Kreise
+  mit dem Emoji-Kürzel der für diese Schicht erforderlichen Qualifikationen. Sie zeigen,
+  welche Qualifikationen ein Mitarbeiter mitbringen muss, um diese Schicht zu übernehmen.
+  Hovern über einen Kreis zeigt den vollständigen Qualifikationsnamen. Bei Überlauf wird
+  die Anzahl der nicht angezeigten Qualifikationen im letzten Kreis ausgewiesen.
 
 <!-- level:effects -->
 
@@ -218,10 +299,44 @@ Ergebnisse als Szenario, das der Planer übernehmen oder verwerfen muss.
   Zeitraum gültigen **Mitgliedschaft**; pro Zeile fließen aktive Verträge (für das
   "Kein Vertrag"-Symbol und die garantierten Stunden) und das Eintrittsdatum
   (Mitgliedschaftsbeginn) ein. Die Zellen liefert eine Auswertung im Hintergrund, die
-  Arbeitszeiten, Arbeitskorrekturen, Spesen/Vergütung, Absenzen, Notizen und Befehle des Zeitraums zusammenführt —
-  soft-gelöschte Datensätze sind überall ausgeschlossen. Dazu kommen separate
-  Verfügbarkeitsdaten und die **Stundenbilanz** der Abrechnungsperiode; gebuchte
-  Absenz-Einträge zählen mit ihrer hinterlegten Arbeitszeit zum Stunden-Soll.
+  Arbeitszeiten, Arbeitskorrekturen, Spesen/Vergütung, Absenzen, Notizen und Befehle des
+  Zeitraums zusammenführt — soft-gelöschte Datensätze sind überall ausgeschlossen. Dazu
+  kommen separate Verfügbarkeitsdaten und die **Stundenbilanz** der Abrechnungsperiode;
+  gebuchte Absenz-Einträge zählen mit ihrer hinterlegten Arbeitszeit zum Stunden-Soll.
+- **Ansichts-Wechsel (Tabelle ↔ Tagesverlauf)**: Die Umschaltung ist rein visuell und
+  verändert keine Daten. Die gewählte Ansicht überlebt einen Browser-Neustart
+  (localStorage). Im Tagesverlauf ist die Navigation per Perioden-Pfeile weiterhin
+  aktiv; Drag & Drop aus der Schicht-Sektion ist auch im Tagesverlauf möglich. Die
+  Toolbar-Toggles für Absenz-Balken, Befehle und Verfügbarkeit sind in der
+  Tagesverlauf-Ansicht ohne Wirkung.
+- **Drag & Drop und direkte Texteingabe**: Jeder erfolgreiche Drop oder jede erfolgreiche
+  Texteingabe löst sofort eine Buchung aus (kein separater Speichern-Schritt) und markiert
+  die Zeile als "ungesendet" (Punkt im Zeilenkopf). Zieht man eine Zelle aus dem Raster
+  heraus und lässt sie los, wird der Eintrag gelöscht. Die direkte Texteingabe prüft die
+  Schichten des Tages und Absenz-Typen; stimmt kein Kürzel überein, entsteht eine Notiz.
+  Alle Buchungen fließen sofort in die Stunden-Summierung und in die Kollisionsprüfung der
+  Fehlerliste ein. In einem aktiven Szenario werden alle Buchungen im Szenario gespeichert,
+  nicht im Original-Plan.
+- **Pausen-Platzhalter (vorgeplante Absenz-Balken) und ihr Verhältnis zum Absenzen-Kalender**:
+  Die Balken stammen aus dem Absenzen-Kalender und sind reine Erinnerungsstützen — sie
+  sperren keine Planungszelle. "Absenz übernehmen" ist die einzige Aktion, die einen
+  Platzhalter in echte, verbindliche Absenz-Einträge im Einsatzplan umwandelt; erst dann
+  erscheint die Absenz im Absenzen-Kalender als "Gebucht" und zählt zur Stunden-Bilanz.
+  Das Einblenden der Balken via Toggle wirkt sich nicht auf die Kollisionsprüfung aus.
+- **Verfügbarkeit**: Die Verfügbarkeitsdaten stammen aus der Verfügbarkeits-Seite
+  (`/workplace/client-availability`). Der Toggle ist nur sichtbar, wenn für die gewählte
+  Gruppe und Periode Verfügbarkeitsdaten existieren. Die Überlagerung ist rein informativ;
+  sie sperrt keine Zelle und beeinflusst keine automatischen Planungsläufe. Die Wizards
+  lesen Verfügbarkeit als Soft-Constraint (bevorzugen verfügbare Zeiten, erzwingen es nicht).
+- **Qualifikationen und Qualifikations-Bubbles**: Die Bubbles im Mitarbeiter-Zeilenkopf
+  zeigen, welche Qualifikationen dieser Mitarbeiter besitzt; die Bubbles im Schicht-Zeilenkopf
+  zeigen, welche Qualifikationen für die jeweilige Schicht erforderlich sind. Das System
+  warnt in der Fehlerliste, wenn ein geplanter Mitarbeiter eine für die Schicht erforderliche
+  Qualifikation nicht hat oder wenn eine Qualifikation inzwischen abgelaufen ist (Ablaufdatum
+  der Qualifikation). Die Bubbles sind rein informativ — das System verhindert die Buchung
+  nicht, sondern macht Qualifikations-Lücken sichtbar. Qualifikationen werden den
+  Mitarbeitenden auf der Personen-Maske (`/workplace/edit-address/:id`) und den Schichten
+  auf der Schicht-Seite (`/workplace/shift`) hinterlegt.
 - **Gruppen-Scope (Planungsblätter)**: Die gewählte Gruppe wirkt als Sichtbarkeits-Filter
   inklusive aller Untergruppen (rekursive Hierarchie); ohne Auswahl ist alles sichtbar.
   Sie bestimmt zudem das Zahlungsintervall (Wochen-/14-Tage-/Monats-Navigation) und welche
