@@ -723,6 +723,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISubstratePriorDeriver, Application.Services.Assistant.SkillGraph.SubstratePriorDeriver>();
         services.AddScoped<ISkillRelationLearner, Application.Services.Assistant.SkillGraph.SkillRelationLearner>();
         services.AddScoped<ISkillRetrievalExpander, Application.Services.Assistant.SkillGraph.SkillRetrievalExpander>();
+        services.AddScoped<ISkillSequenceSuggester, Application.Services.Assistant.SkillGraph.SkillSequenceSuggester>();
         services.AddSingleton<Infrastructure.Services.Assistant.SkillRelationLearningBackgroundService>();
 
         services.AddScoped<GenericListExecutor>();

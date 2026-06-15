@@ -38,4 +38,7 @@ public static class SkillGraphConstants
     // Phase 4 — acting (silent retrieval expansion)
     public const int MaxExpansionSlots = 3;
     public const double ExpansionExplorationEpsilon = 0.1;
+
+    // Phase 4 — acting (proactive suggestion / hero); frequency cap per chat session
+    public const int MaxProactiveSuggestionsPerSession = 2;
 }
