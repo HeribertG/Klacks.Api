@@ -34,4 +34,8 @@ public static class SkillGraphConstants
     // Phase 3 — human feedback (accept / dismiss)
     public const double UserAcceptConfidenceBoost = 0.2;
     public const double UserDismissConfidencePenalty = 0.3;
+
+    // Phase 4 — acting (silent retrieval expansion)
+    public const int MaxExpansionSlots = 3;
+    public const double ExpansionExplorationEpsilon = 0.1;
 }

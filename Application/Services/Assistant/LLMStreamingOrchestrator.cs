@@ -41,6 +41,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     private readonly IKnowledgeRetrievalService _knowledgeRetrieval;
     private readonly LLMConversationManager _conversationManager;
     private readonly IPlanningScopeEnricher _planningScopeEnricher;
+    private readonly ISkillRetrievalExpander _expander;
     private readonly ILogger<LLMStreamingOrchestrator> _logger;
 
     // Number of most recent user messages prepended to the skill-retrieval query so
@@ -68,6 +69,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         IKnowledgeRetrievalService knowledgeRetrieval,
         LLMConversationManager conversationManager,
         IPlanningScopeEnricher planningScopeEnricher,
+        ISkillRetrievalExpander expander,
         ILogger<LLMStreamingOrchestrator> logger)
     {
         _llmService = llmService;
@@ -75,6 +77,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         _knowledgeRetrieval = knowledgeRetrieval;
         _conversationManager = conversationManager;
         _planningScopeEnricher = planningScopeEnricher;
+        _expander = expander;
         _logger = logger;
     }
 
@@ -230,6 +233,26 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         }
 
         var selectedSkills = alwaysOnSkills.Concat(retrievedSkills).DistinctBy(s => s.Name).ToList();
+
+        // Silent expansion: pull in high-confidence co-required neighbours of the selected skills into
+        // FREE budget only (never evict). Best-effort — a failure must never break skill selection.
+        var freeBudget = MaxToolsForProvider - selectedSkills.Count;
+        if (freeBudget > 0)
+        {
+            try
+            {
+                var expansion = await _expander.ExpandAsync(agent.Id, selectedSkills, permittedSkills, freeBudget, ct);
+                if (expansion.Count > 0)
+                {
+                    selectedSkills = selectedSkills.Concat(expansion).DistinctBy(s => s.Name).ToList();
+                }
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogError(ex, "Skill retrieval expansion failed; continuing without expansion.");
+            }
+        }
+
         var preCapCount = selectedSkills.Count;
         var truncated = preCapCount > MaxToolsForProvider;
 
