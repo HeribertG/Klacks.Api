@@ -35,6 +35,12 @@ public class SkillRelationRepository : ISkillRelationRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<SkillRelation?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _context.SkillRelations
+            .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
+    }
+
     public async Task AddRangeAsync(IEnumerable<SkillRelation> relations, CancellationToken cancellationToken = default)
     {
         await _context.SkillRelations.AddRangeAsync(relations, cancellationToken);

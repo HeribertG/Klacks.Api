@@ -30,4 +30,8 @@ public static class SkillGraphConstants
     public const double SequentialActiveThreshold = 0.8;
     public const string LearnedCoOccurrenceProvenance = "learned:cooccurrence";
     public const string LearnedSequentialProvenance = "learned:sequential";
+
+    // Phase 3 — human feedback (accept / dismiss)
+    public const double UserAcceptConfidenceBoost = 0.2;
+    public const double UserDismissConfidencePenalty = 0.3;
 }
