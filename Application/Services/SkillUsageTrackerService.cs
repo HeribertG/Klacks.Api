@@ -38,6 +38,7 @@ public class SkillUsageTrackerService : ISkillUsageTracker
             TenantId = context.TenantId,
             ProviderId = context.ProviderId,
             ModelId = context.ModelId,
+            SessionId = context.SessionId,
             ParametersJson = JsonSerializer.Serialize(parameters),
             Success = result.Success,
             ErrorMessage = result.Success ? null : result.Message,

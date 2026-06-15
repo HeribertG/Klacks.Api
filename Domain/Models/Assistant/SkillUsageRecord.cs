@@ -13,6 +13,7 @@ public class SkillUsageRecord : BaseEntity
     public required Guid TenantId { get; set; }
     public LLMProviderType? ProviderId { get; set; }
     public string? ModelId { get; set; }
+    public string? SessionId { get; set; }
     public string? ParametersJson { get; set; }
     public bool Success { get; set; }
     public string? ErrorMessage { get; set; }

@@ -167,7 +167,8 @@ public class LLMFunctionExecutor
             TenantId = Guid.Empty,
             UserName = context.UserId,
             UserPermissions = context.UserRights,
-            CurrentPage = context.PageContext?.CurrentRoute
+            CurrentPage = context.PageContext?.CurrentRoute,
+            SessionId = context.ConversationId
         };
 
         var skillCall = new Providers.LLMFunctionCall
