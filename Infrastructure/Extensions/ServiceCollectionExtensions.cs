@@ -721,6 +721,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Persistence.Seed.KlacksyKnowledgeMemorySeed>();
         services.AddScoped<Application.Services.Assistant.SkillRegistryInitializer>();
         services.AddScoped<ISubstratePriorDeriver, Application.Services.Assistant.SkillGraph.SubstratePriorDeriver>();
+        services.AddScoped<ISkillRelationLearner, Application.Services.Assistant.SkillGraph.SkillRelationLearner>();
+        services.AddSingleton<Infrastructure.Services.Assistant.SkillRelationLearningBackgroundService>();
 
         services.AddScoped<GenericListExecutor>();
         services.AddScoped<GenericDeleteExecutor>();

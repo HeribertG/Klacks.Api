@@ -227,6 +227,7 @@ if (bgOptions.Heartbeat)
 builder.Services.AddSingleton<LLMModelSyncBackgroundService>();
 if (bgOptions.LLMModelSync)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<LLMModelSyncBackgroundService>());
+builder.Services.AddHostedService(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.SkillRelationLearningBackgroundService>());
 if (bgOptions.DataRetention)
     builder.Services.AddHostedService<DataRetentionBackgroundService>();
 if (bgOptions.UpdateDetection)

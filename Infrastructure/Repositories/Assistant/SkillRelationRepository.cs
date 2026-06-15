@@ -28,6 +28,13 @@ public class SkillRelationRepository : ISkillRelationRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<SkillRelation>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.SkillRelations
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AddRangeAsync(IEnumerable<SkillRelation> relations, CancellationToken cancellationToken = default)
     {
         await _context.SkillRelations.AddRangeAsync(relations, cancellationToken);
@@ -37,6 +44,12 @@ public class SkillRelationRepository : ISkillRelationRepository
     public async Task UpdateAsync(SkillRelation relation, CancellationToken cancellationToken = default)
     {
         _context.SkillRelations.Update(relation);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task UpdateRangeAsync(IEnumerable<SkillRelation> relations, CancellationToken cancellationToken = default)
+    {
+        _context.SkillRelations.UpdateRange(relations);
         await _context.SaveChangesAsync(cancellationToken);
     }
 }
