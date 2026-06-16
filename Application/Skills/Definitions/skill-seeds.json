@@ -20233,6 +20233,1016 @@
         ]
       },
       "version": 1
+    },
+    {
+      "name": "delete_communication",
+      "description": "Soft-deletes a client communication entry (email, phone or note) by its UUID. Use get_client_details first to resolve the communication id; fails with a clear message if it does not exist.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "communicationId",
+          "description": "UUID of the communication entry to delete.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "delete communication",
+        "kommunikation löschen",
+        "email löschen",
+        "telefon löschen"
+      ],
+      "synonyms": {
+        "de": [
+          "kommunikation löschen",
+          "e-mail entfernen",
+          "telefonnummer löschen",
+          "kontaktangabe entfernen"
+        ],
+        "en": [
+          "delete communication",
+          "remove email",
+          "delete phone number",
+          "remove contact entry"
+        ],
+        "fr": [
+          "supprimer la communication",
+          "supprimer l'e-mail",
+          "supprimer le numéro de téléphone"
+        ],
+        "it": [
+          "eliminare la comunicazione",
+          "rimuovere l'e-mail",
+          "eliminare il numero di telefono"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_communication",
+      "description": "Updates an existing client communication entry (email, phone or note) by its UUID. Only supplied fields change: value (the email/phone/note text), the numeric type, description and prefix. Use get_client_details first to resolve the communication id; fails with a clear message if it does not exist.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "communicationId",
+          "description": "UUID of the communication entry to update.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "value",
+          "description": "New value: the email address, phone number or note text.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "type",
+          "description": "New numeric communication type code (e.g. 4 = private mail, 5 = office mail, 1 = private cell phone).",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description",
+          "description": "New free-text description/label for the entry.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "prefix",
+          "description": "New dialling prefix (country/area code) for phone entries.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "update communication",
+        "kommunikation ändern",
+        "e-mail ändern",
+        "telefonnummer ändern"
+      ],
+      "synonyms": {
+        "de": [
+          "kommunikation ändern",
+          "e-mail adresse aktualisieren",
+          "telefonnummer korrigieren",
+          "kontaktangabe bearbeiten"
+        ],
+        "en": [
+          "update communication",
+          "change email address",
+          "correct phone number",
+          "edit contact entry"
+        ],
+        "fr": [
+          "modifier la communication",
+          "changer l'adresse e-mail",
+          "corriger le numéro de téléphone"
+        ],
+        "it": [
+          "modificare la comunicazione",
+          "cambiare l'indirizzo e-mail",
+          "correggere il numero di telefono"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "create_address",
+      "description": "Creates a new address for an existing employee/customer identified by UUID. Provide the client id plus any of street, zip, city, country, state and a numeric type (0 = employee, 1 = workplace, 2 = invoicing). Use search_employees / get_client_details to resolve the client id first.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the client the address belongs to.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "street",
+          "description": "Street and house number.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "zip",
+          "description": "Postal/ZIP code.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "city",
+          "description": "City/town.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "country",
+          "description": "Country.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "state",
+          "description": "State/canton/region.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "type",
+          "description": "Numeric address type code (0 = employee, 1 = workplace, 2 = invoicing). Defaults to 0.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 0,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "create address",
+        "adresse anlegen",
+        "neue adresse",
+        "wohnadresse hinzufügen"
+      ],
+      "synonyms": {
+        "de": [
+          "adresse anlegen",
+          "neue adresse erfassen",
+          "wohnort hinterlegen",
+          "anschrift hinzufügen"
+        ],
+        "en": [
+          "create address",
+          "add new address",
+          "register address",
+          "add postal address"
+        ],
+        "fr": [
+          "créer une adresse",
+          "ajouter une nouvelle adresse",
+          "enregistrer l'adresse"
+        ],
+        "it": [
+          "creare un indirizzo",
+          "aggiungere un nuovo indirizzo",
+          "registrare l'indirizzo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_address",
+      "description": "Updates an existing client address by its UUID. Only supplied fields change: street, zip, city, country, state and the numeric type (0 = employee, 1 = workplace, 2 = invoicing). Fails with a clear message if the address does not exist.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "addressId",
+          "description": "UUID of the address to update.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "street",
+          "description": "New street and house number.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "zip",
+          "description": "New postal/ZIP code.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "city",
+          "description": "New city/town.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "country",
+          "description": "New country.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "state",
+          "description": "New state/canton/region.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "type",
+          "description": "New numeric address type code (0 = employee, 1 = workplace, 2 = invoicing).",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "update address",
+        "adresse ändern",
+        "adresse bearbeiten",
+        "wohnort ändern"
+      ],
+      "synonyms": {
+        "de": [
+          "adresse ändern",
+          "anschrift aktualisieren",
+          "wohnort korrigieren",
+          "adresse bearbeiten"
+        ],
+        "en": [
+          "update address",
+          "change address",
+          "correct address",
+          "edit address"
+        ],
+        "fr": [
+          "modifier l'adresse",
+          "changer l'adresse",
+          "corriger l'adresse"
+        ],
+        "it": [
+          "modificare l'indirizzo",
+          "cambiare l'indirizzo",
+          "correggere l'indirizzo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_address",
+      "description": "Soft-deletes a client address by its UUID. Use get_client_details first to resolve the address id; fails with a clear message if it does not exist.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "addressId",
+          "description": "UUID of the address to delete.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "delete address",
+        "adresse löschen",
+        "anschrift entfernen",
+        "wohnort löschen"
+      ],
+      "synonyms": {
+        "de": [
+          "adresse löschen",
+          "anschrift entfernen",
+          "wohnort löschen",
+          "adresse entfernen"
+        ],
+        "en": [
+          "delete address",
+          "remove address",
+          "delete postal address",
+          "drop address"
+        ],
+        "fr": [
+          "supprimer l'adresse",
+          "retirer l'adresse",
+          "effacer l'adresse"
+        ],
+        "it": [
+          "eliminare l'indirizzo",
+          "rimuovere l'indirizzo",
+          "cancellare l'indirizzo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_annotation",
+      "description": "Updates the note text of an existing client annotation by its UUID. Use get_client_details first to resolve the annotation id; fails with a clear message if it does not exist.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "annotationId",
+          "description": "UUID of the annotation to update.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "note",
+          "description": "New note text.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "update annotation",
+        "notiz ändern",
+        "anmerkung bearbeiten",
+        "bemerkung ändern"
+      ],
+      "synonyms": {
+        "de": [
+          "notiz ändern",
+          "anmerkung bearbeiten",
+          "bemerkung aktualisieren",
+          "notiztext ändern"
+        ],
+        "en": [
+          "update annotation",
+          "edit note",
+          "change remark",
+          "update note text"
+        ],
+        "fr": [
+          "modifier la note",
+          "éditer l'annotation",
+          "changer la remarque"
+        ],
+        "it": [
+          "modificare la nota",
+          "modificare l'annotazione",
+          "cambiare l'osservazione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_annotation",
+      "description": "Soft-deletes a client annotation (note) by its UUID. Use get_client_details first to resolve the annotation id; fails with a clear message if it does not exist.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "annotationId",
+          "description": "UUID of the annotation to delete.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "delete annotation",
+        "notiz löschen",
+        "anmerkung entfernen",
+        "bemerkung löschen"
+      ],
+      "synonyms": {
+        "de": [
+          "notiz löschen",
+          "anmerkung entfernen",
+          "bemerkung löschen",
+          "notiz entfernen"
+        ],
+        "en": [
+          "delete annotation",
+          "remove note",
+          "delete remark",
+          "drop note"
+        ],
+        "fr": [
+          "supprimer la note",
+          "retirer l'annotation",
+          "effacer la remarque"
+        ],
+        "it": [
+          "eliminare la nota",
+          "rimuovere l'annotazione",
+          "cancellare l'osservazione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_membership",
+      "description": "Soft-deletes a membership (client affiliation period) by its UUID. IMPORTANT: Membership.ValidFrom is the plannability boundary in the schedule, so removing the membership removes the client's affiliation period. Use list_client_memberships first to find the membership id; fails with a clear message if it does not exist.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "membershipId",
+          "description": "UUID of the membership to delete.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "delete membership",
+        "mitgliedschaft löschen",
+        "zugehörigkeit entfernen",
+        "austritt"
+      ],
+      "synonyms": {
+        "de": [
+          "mitgliedschaft löschen",
+          "zugehörigkeit entfernen",
+          "affiliationsperiode löschen",
+          "eintritt entfernen"
+        ],
+        "en": [
+          "delete membership",
+          "remove affiliation",
+          "delete membership period",
+          "drop membership"
+        ],
+        "fr": [
+          "supprimer l'affiliation",
+          "retirer l'appartenance",
+          "effacer la période d'affiliation"
+        ],
+        "it": [
+          "eliminare l'appartenenza",
+          "rimuovere l'affiliazione",
+          "cancellare il periodo di appartenenza"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_schedule_note",
+      "description": "Updates an existing schedule note (a per-client/per-day annotation shown in the schedule) by its UUID. Only supplied fields change: the note content and the day. Use list_schedule_notes first to resolve the note id; fails with a clear message if it does not exist.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "noteId",
+          "description": "UUID of the schedule note to update.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "content",
+          "description": "New note text.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "date",
+          "description": "New day of the note in ISO yyyy-MM-dd.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "update schedule note",
+        "notiz ändern",
+        "schedule notiz bearbeiten",
+        "modifier la note"
+      ],
+      "synonyms": {
+        "de": [
+          "schedule notiz ändern",
+          "planungsnotiz bearbeiten",
+          "notiz aktualisieren",
+          "tagesnotiz korrigieren"
+        ],
+        "en": [
+          "update schedule note",
+          "edit schedule note",
+          "change note text",
+          "correct schedule note"
+        ],
+        "fr": [
+          "modifier la note de planning",
+          "changer le texte de la note",
+          "corriger la note"
+        ],
+        "it": [
+          "modificare la nota di pianificazione",
+          "cambiare il testo della nota",
+          "correggere la nota"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_break",
+      "description": "Updates an existing absence entry (Break — vacation, sick day, training day etc.) by its UUID. Only supplied fields change: the absence type, start/end time, counted hours, surcharges and the note. Triggers period-hour recalculation. Use search_client_absences first to resolve the break id; fails with a clear message if it does not exist.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "breakId",
+          "description": "UUID of the break entry to update.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "absenceId",
+          "description": "New UUID of the Absence type (vacation/sick/etc.).",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "startTime",
+          "description": "New start time HH:mm.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endTime",
+          "description": "New end time HH:mm.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "workTime",
+          "description": "New counted hours (counts toward TargetHours, not toward MaxWeeklyHours).",
+          "type": "Number",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "surcharges",
+          "description": "New surcharge value.",
+          "type": "Number",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "information",
+          "description": "New free-text note.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "update break",
+        "abwesenheit ändern",
+        "ferien bearbeiten",
+        "modifier l'absence"
+      ],
+      "synonyms": {
+        "de": [
+          "abwesenheit ändern",
+          "ferien bearbeiten",
+          "krankheit korrigieren",
+          "freitag anpassen"
+        ],
+        "en": [
+          "update break",
+          "edit absence",
+          "change vacation",
+          "correct sick day"
+        ],
+        "fr": [
+          "modifier l'absence",
+          "changer les vacances",
+          "corriger le jour de maladie"
+        ],
+        "it": [
+          "modificare l'assenza",
+          "cambiare le vacanze",
+          "correggere il giorno di malattia"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_workchange",
+      "description": "Updates an existing WorkChange (a correction, replacement, travel or briefing entry on a Work) by its UUID. Only supplied fields change: type, start/end time, hours delta, surcharges, description and the billable flag. Triggers period-hour recalculation. Fails with a clear message if it does not exist.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "workChangeId",
+          "description": "UUID of the WorkChange to update.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "type",
+          "description": "New WorkChangeType (e.g. CorrectionEnd, ReplacementStart, TravelStart, Briefing).",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "startTime",
+          "description": "New start time HH:mm.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endTime",
+          "description": "New end time HH:mm.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "changeTime",
+          "description": "New hours delta.",
+          "type": "Number",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "surcharges",
+          "description": "New surcharge value.",
+          "type": "Number",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description",
+          "description": "New free-text description.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "toInvoice",
+          "description": "Whether this change is billable.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "update workchange",
+        "arbeitsänderung ändern",
+        "korrektur bearbeiten",
+        "modifier le changement de travail"
+      ],
+      "synonyms": {
+        "de": [
+          "arbeitsänderung ändern",
+          "korrektur bearbeiten",
+          "vertretung anpassen",
+          "reisezeit korrigieren"
+        ],
+        "en": [
+          "update workchange",
+          "edit work change",
+          "change correction",
+          "adjust replacement"
+        ],
+        "fr": [
+          "modifier le changement de travail",
+          "changer la correction",
+          "ajuster le remplacement"
+        ],
+        "it": [
+          "modificare la modifica di lavoro",
+          "cambiare la correzione",
+          "regolare la sostituzione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_workchange",
+      "description": "Soft-deletes a WorkChange (a correction, replacement, travel or briefing entry on a Work) by its UUID. Triggers period-hour recalculation. Fails with a clear message if it does not exist.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "workChangeId",
+          "description": "UUID of the WorkChange to delete.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "delete workchange",
+        "arbeitsänderung löschen",
+        "korrektur entfernen",
+        "supprimer le changement de travail"
+      ],
+      "synonyms": {
+        "de": [
+          "arbeitsänderung löschen",
+          "korrektur entfernen",
+          "vertretung löschen",
+          "reisezeit entfernen"
+        ],
+        "en": [
+          "delete workchange",
+          "remove work change",
+          "delete correction",
+          "remove replacement"
+        ],
+        "fr": [
+          "supprimer le changement de travail",
+          "supprimer la correction",
+          "retirer le remplacement"
+        ],
+        "it": [
+          "eliminare la modifica di lavoro",
+          "rimuovere la correzione",
+          "eliminare la sostituzione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "get_weather",
+      "description": "Gets the current weather and a short daily forecast for a location using the free Open-Meteo service. No web search and no API key are needed. Provide a city name, or explicit latitude/longitude; if neither is given, the configured company location is used. Prefer this skill over web_search for any weather question.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "city",
+          "description": "City name to get the weather for (e.g. 'Bern', 'Zürich', 'Berlin'). Optional if coordinates are given.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "country",
+          "description": "Optional country to disambiguate the city during geocoding (e.g. 'Switzerland', 'Germany').",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "latitude",
+          "description": "Explicit latitude in decimal degrees. Use together with longitude instead of a city name.",
+          "type": "Number",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "longitude",
+          "description": "Explicit longitude in decimal degrees. Use together with latitude.",
+          "type": "Number",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "forecastDays",
+          "description": "Number of daily forecast entries to include (1 to 7, default 3).",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "weather",
+        "wetter",
+        "temperature",
+        "temperatur",
+        "forecast",
+        "vorhersage",
+        "météo",
+        "meteo",
+        "tempo"
+      ],
+      "synonyms": {
+        "de": [
+          "wetter",
+          "wettervorhersage",
+          "temperatur",
+          "wie ist das wetter",
+          "regnet es"
+        ],
+        "en": [
+          "weather",
+          "weather forecast",
+          "temperature",
+          "what is the weather",
+          "is it raining"
+        ],
+        "fr": [
+          "météo",
+          "prévisions météo",
+          "température",
+          "quel temps fait-il"
+        ],
+        "it": [
+          "meteo",
+          "previsioni meteo",
+          "temperatura",
+          "che tempo fa"
+        ]
+      },
+      "version": 1
     }
   ]
 }

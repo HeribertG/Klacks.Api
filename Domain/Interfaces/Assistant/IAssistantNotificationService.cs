@@ -12,6 +12,8 @@ public interface IAssistantNotificationService
 
     Task SendPlanUpdateAsync(string userId, Guid planId, string status, int currentStepIndex, int totalSteps, string? lastErrorMessage = null);
 
+    Task SendEntityChangedAsync(string userId, IReadOnlyList<string> entityTypes, string operation, string skillName);
+
     bool IsUserConnected(string userId);
 
     IEnumerable<string> GetConnectedUserIds();

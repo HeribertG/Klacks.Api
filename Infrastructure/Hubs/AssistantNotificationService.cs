@@ -89,6 +89,29 @@ public class AssistantNotificationService : IAssistantNotificationService
             planId, status, currentStepIndex, totalSteps, userId);
     }
 
+    public async Task SendEntityChangedAsync(string userId, IReadOnlyList<string> entityTypes, string operation, string skillName)
+    {
+        var connectionIds = _tracker.GetConnectionIds(userId).ToList();
+        if (connectionIds.Count == 0)
+        {
+            _logger.LogDebug("No connections found for user {UserId}, skipping entity-changed notification", userId);
+            return;
+        }
+
+        var dto = new EntityChangedDto
+        {
+            EntityTypes = entityTypes,
+            Operation = operation,
+            SkillName = skillName,
+            Timestamp = DateTime.UtcNow
+        };
+
+        await _hubContext.Clients.Clients(connectionIds).EntityChanged(dto);
+        _logger.LogInformation(
+            "Sent entity-changed ({Operation} {Entities} via {SkillName}) to user {UserId} ({Count} connections)",
+            operation, string.Join(",", entityTypes), skillName, userId, connectionIds.Count);
+    }
+
     public async Task BroadcastPluginEventAsync(string eventType, object payload)
     {
         var connectedUserIds = _tracker.GetConnectedUserIds().ToList();

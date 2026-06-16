@@ -21,6 +21,7 @@ public class SkillExecutorService : ISkillExecutor
     private readonly IServiceProvider _serviceProvider;
     private readonly IGenericSkillDispatcher _genericDispatcher;
     private readonly IAutonomyGate _autonomyGate;
+    private readonly IEntityChangeNotifier _entityChangeNotifier;
     private readonly ILogger<SkillExecutorService> _logger;
 
     public SkillExecutorService(
@@ -29,6 +30,7 @@ public class SkillExecutorService : ISkillExecutor
         IServiceProvider serviceProvider,
         IGenericSkillDispatcher genericDispatcher,
         IAutonomyGate autonomyGate,
+        IEntityChangeNotifier entityChangeNotifier,
         ILogger<SkillExecutorService> logger)
     {
         _registry = registry;
@@ -36,6 +38,7 @@ public class SkillExecutorService : ISkillExecutor
         _serviceProvider = serviceProvider;
         _genericDispatcher = genericDispatcher;
         _autonomyGate = autonomyGate;
+        _entityChangeNotifier = entityChangeNotifier;
         _logger = logger;
     }
 
@@ -156,6 +159,8 @@ public class SkillExecutorService : ISkillExecutor
 
             _logger.LogInformation("Skill executed: {SkillName}, Success: {Success}, Duration: {Duration}ms",
                 descriptor.Name, result.Success, stopwatch.ElapsedMilliseconds);
+
+            await NotifyEntityChangeAsync(descriptor, context, result, cancellationToken);
 
             return result;
         }
@@ -317,5 +322,21 @@ public class SkillExecutorService : ISkillExecutor
         }
 
         return current;
+    }
+
+    private async Task NotifyEntityChangeAsync(
+        SkillDescriptor descriptor,
+        SkillExecutionContext context,
+        SkillResult result,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _entityChangeNotifier.NotifyExecutedAsync(descriptor, context, result, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Entity-changed notification failed for skill {SkillName}", descriptor.Name);
+        }
     }
 }
