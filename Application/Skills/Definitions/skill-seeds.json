@@ -21201,11 +21201,26 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": false,
+      "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "weather",
         "wetter",
+        "regen",
+        "rain",
+        "kalt",
+        "cold",
+        "schnee",
+        "snow",
+        "heiss",
+        "heiß",
+        "hot",
+        "wind",
+        "sturm",
+        "storm",
+        "sonne",
+        "sonnig",
+        "sun",
         "temperature",
         "temperatur",
         "forecast",
@@ -21218,31 +21233,64 @@
         "de": [
           "wetter",
           "wettervorhersage",
+          "regen",
+          "regnet es",
+          "kommt regen",
+          "kalt",
+          "schnee",
+          "schneit es",
+          "heiss",
+          "wind",
+          "sturm",
+          "sonne",
+          "sonnig",
           "temperatur",
           "wie ist das wetter",
-          "regnet es"
+          "wie warm wird es"
         ],
         "en": [
           "weather",
           "weather forecast",
+          "rain",
+          "is it raining",
+          "cold",
+          "snow",
+          "hot",
+          "wind",
+          "storm",
+          "sun",
+          "sunny",
           "temperature",
-          "what is the weather",
-          "is it raining"
+          "what is the weather"
         ],
         "fr": [
           "météo",
           "prévisions météo",
+          "pluie",
+          "froid",
+          "neige",
+          "chaud",
+          "vent",
+          "tempête",
+          "soleil",
           "température",
           "quel temps fait-il"
         ],
         "it": [
           "meteo",
           "previsioni meteo",
+          "pioggia",
+          "freddo",
+          "neve",
+          "caldo",
+          "vento",
+          "tempesta",
+          "sole",
           "temperatura",
           "che tempo fa"
         ]
       },
-      "version": 1
+      "version": 2
     }
   ]
 }
