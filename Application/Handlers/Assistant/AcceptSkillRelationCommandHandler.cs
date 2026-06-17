@@ -9,6 +9,7 @@
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Application.Services.Assistant.SkillGraph;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -34,6 +35,7 @@ public class AcceptSkillRelationCommandHandler : IRequestHandler<AcceptSkillRela
         SkillRelationScoring.Adjust(edge, SkillGraphConstants.UserAcceptConfidenceBoost);
         edge.SupportCount += 1;
         edge.LastReinforcedAt = DateTime.UtcNow;
+        edge.Source = SkillRelationSource.Learned;
         await _repository.UpdateAsync(edge, cancellationToken);
 
         return SkillRelationDto.From(edge);

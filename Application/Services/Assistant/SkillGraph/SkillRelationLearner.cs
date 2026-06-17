@@ -204,6 +204,7 @@ public class SkillRelationLearner : ISkillRelationLearner
             edge.Confidence + SkillGraphConstants.ReinforcementStep);
         edge.SupportCount += 1;
         edge.LastReinforcedAt = DateTime.UtcNow;
+        edge.Source = SkillRelationSource.Learned;
         SetStatus(edge, activeThreshold);
     }
 
