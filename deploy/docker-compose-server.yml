@@ -88,6 +88,7 @@ services:
       - api-uploads:/app/Images
       - api-documents:/app/Documents
       - api-dataprotection:/app/DataProtection-Keys
+      - api-models:/app/Cache/Models
     depends_on:
       postgres:
         condition: service_healthy
@@ -417,6 +418,8 @@ volumes:
   api-documents:
     driver: local
   api-dataprotection:
+    driver: local
+  api-models:
     driver: local
   api-update-backups:
     driver: local

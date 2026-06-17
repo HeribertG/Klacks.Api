@@ -78,8 +78,11 @@ jobs:
     - name: Build
       run: dotnet build Klacks.UnitTest/Klacks.UnitTest.csproj --no-restore
 
+    # Exclude SlowModelLoad: those tests download the real ONNX models from HuggingFace at run
+    # time, which makes the production deploy gate depend on an external host that rate-limits CI
+    # runners (HTTP 429). They are integration-style and run locally / on demand, not in CI.
     - name: Run unit tests
-      run: dotnet test Klacks.UnitTest/Klacks.UnitTest.csproj --no-build --verbosity normal
+      run: dotnet test Klacks.UnitTest/Klacks.UnitTest.csproj --no-build --verbosity normal --filter "TestCategory!=SlowModelLoad"
 
   # Integration tests require a fully migrated + seeded database.
   # They run locally against the dev DB (port 5434), not in CI.
