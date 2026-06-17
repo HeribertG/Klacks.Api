@@ -41,6 +41,26 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IAsyncDisposable
 
         await EnsureInitializedAsync(ct);
 
+        var scores = new double[candidates.Count];
+        var batchSize = KnowledgeIndexConstants.RerankBatchSize;
+        for (var start = 0; start < candidates.Count; start += batchSize)
+        {
+            ct.ThrowIfCancellationRequested();
+            var end = Math.Min(start + batchSize, candidates.Count);
+            var chunk = new string[end - start];
+            for (var i = start; i < end; i++)
+                chunk[i - start] = candidates[i];
+
+            var chunkScores = RunScoreBatch(query, chunk);
+            for (var i = 0; i < chunkScores.Length; i++)
+                scores[start + i] = chunkScores[i];
+        }
+
+        return scores;
+    }
+
+    private double[] RunScoreBatch(string query, IReadOnlyList<string> candidates)
+    {
         var pairs = candidates.Select(c => query + " </s></s> " + c).ToArray();
         var encoded = pairs
             .Select(p => _tokenizer!.Encode(p).Select(id => (long)id).Take(MaxSequenceLength).ToArray())
@@ -102,7 +122,8 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IAsyncDisposable
             await _loader.EnsureFileAsync(tokenizerPath, KnowledgeIndexConstants.RerankerTokenizerUrl,
                 KnowledgeIndexConstants.RerankerTokenizerSha256, ct);
 
-            _session = new InferenceSession(modelPath);
+            using var sessionOptions = OnnxSessionOptionsFactory.CreateMemoryFrugal();
+            _session = new InferenceSession(modelPath, sessionOptions);
             _tokenizer = new Tokenizer(vocabPath: tokenizerPath);
         }
         finally

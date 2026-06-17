@@ -10,6 +10,15 @@ public static class KnowledgeIndexConstants
     public const string TableName = "knowledge_index";
 
     public const int EmbeddingDimension = 384;
+
+    // Cap on how many texts are run through a single ONNX inference call. Embedding/reranking the
+    // full set in one batch builds an activation tensor proportional to (batch x sequence x hidden)
+    // that spikes resident memory past the container limit (OOM-killed during startup index build,
+    // worst case on an empty index that must embed every skill). Chunking bounds the per-run peak
+    // and lets memory be reclaimed between chunks.
+    public const int EmbeddingBatchSize = 16;
+    public const int RerankBatchSize = 16;
+
     public const int KnnTopN = 30;
     public const int DefaultTopK = 5;
     public const double DefaultScoreCutoff = 0.05;

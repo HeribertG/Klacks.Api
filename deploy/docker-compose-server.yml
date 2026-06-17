@@ -102,7 +102,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 2G
+          memory: 2560M
           cpus: '1.5'
 
   # Out-of-process auto-update executor. Must outlive klacks-api (it recreates that container), so it

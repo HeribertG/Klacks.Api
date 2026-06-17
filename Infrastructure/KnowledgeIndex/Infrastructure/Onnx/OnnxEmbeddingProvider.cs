@@ -46,7 +46,24 @@ public sealed class OnnxEmbeddingProvider : IEmbeddingProvider, IAsyncDisposable
     public async Task<float[][]> EmbedBatchAsync(IReadOnlyList<string> texts, CancellationToken ct)
     {
         await EnsureInitializedAsync(ct);
-        return RunInference(texts.Select(t => "passage: " + t).ToArray());
+        if (texts.Count == 0) return [];
+
+        var results = new float[texts.Count][];
+        var batchSize = KnowledgeIndexConstants.EmbeddingBatchSize;
+        for (var start = 0; start < texts.Count; start += batchSize)
+        {
+            ct.ThrowIfCancellationRequested();
+            var end = Math.Min(start + batchSize, texts.Count);
+            var chunk = new string[end - start];
+            for (var i = start; i < end; i++)
+                chunk[i - start] = "passage: " + texts[i];
+
+            var vectors = RunInference(chunk);
+            for (var i = 0; i < vectors.Length; i++)
+                results[start + i] = vectors[i];
+        }
+
+        return results;
     }
 
     public async Task<float[]> EmbedQueryAsync(string query, CancellationToken ct)
@@ -135,7 +152,8 @@ public sealed class OnnxEmbeddingProvider : IEmbeddingProvider, IAsyncDisposable
             await _loader.EnsureFileAsync(tokenizerPath, KnowledgeIndexConstants.EmbeddingTokenizerUrl,
                 KnowledgeIndexConstants.EmbeddingTokenizerSha256, ct);
 
-            _session = new InferenceSession(modelPath);
+            using var sessionOptions = OnnxSessionOptionsFactory.CreateMemoryFrugal();
+            _session = new InferenceSession(modelPath, sessionOptions);
             _tokenizer = new Tokenizer(vocabPath: tokenizerPath);
         }
         finally
