@@ -1989,6 +1989,85 @@
       "version": 1
     },
     {
+      "name": "create_personal_access_token",
+      "description": "Creates a personal access token (PAT) for the current user so that external LLM clients such as Claude Desktop can authenticate against Klacks via MCP. The token starts with \"klacks_pat_\" and is returned once in plaintext — instruct the user to copy and store it immediately, as it cannot be retrieved again.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "A descriptive label for the token, e.g. \"Claude Desktop\" or \"API Client\".",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "expiresInDays",
+          "description": "Validity period in days (1 to 730). Defaults to 365 when omitted.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "personal access token",
+        "pat",
+        "access token",
+        "api key",
+        "mcp token",
+        "mcp",
+        "claude desktop",
+        "api-schlüssel",
+        "zugriffstoken",
+        "token erstellen",
+        "token",
+        "verbinden"
+      ],
+      "synonyms": {
+        "de": [
+          "zugriffstoken erstellen",
+          "api-schlüssel erstellen",
+          "mcp-token erstellen",
+          "claude desktop verbinden",
+          "externen zugriff erlauben",
+          "token für externe app"
+        ],
+        "en": [
+          "create access token",
+          "create api key",
+          "create mcp token",
+          "connect claude desktop",
+          "allow external access",
+          "token for external app"
+        ],
+        "fr": [
+          "créer jeton accès",
+          "créer clé api",
+          "token mcp",
+          "connecter client externe",
+          "accès externe",
+          "jeton pour application externe"
+        ],
+        "it": [
+          "crea token accesso",
+          "crea chiave api",
+          "token mcp",
+          "connettere client esterno",
+          "accesso esterno",
+          "token per app esterna"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "list_macros",
       "description": "Lists the calculation macros (scripts) defined in the settings. Optionally filter by name. Returns macro ids, names and types. Use this to find a macro id before deleting it.",
       "category": "Query",
